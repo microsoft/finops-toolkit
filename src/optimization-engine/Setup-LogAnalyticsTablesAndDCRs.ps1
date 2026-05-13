@@ -193,12 +193,12 @@ $tableSchemas = @{
         @{ name = "DeploymentModel_s"; type = "string" }
         @{ name = "InstanceId_s"; type = "string" }
         @{ name = "VMSize_s"; type = "string" }
-        @{ name = "CoresCount_d"; type = "real" }
-        @{ name = "MemoryMB_d"; type = "real" }
+        @{ name = "CoresCount_s"; type = "string" }
+        @{ name = "MemoryMB_s"; type = "string" }
         @{ name = "OSType_s"; type = "string" }
         @{ name = "LicenseType_s"; type = "string" }
-        @{ name = "DataDiskCount_d"; type = "real" }
-        @{ name = "NicCount_d"; type = "real" }
+        @{ name = "DataDiskCount_s"; type = "string" }
+        @{ name = "NicCount_s"; type = "string" }
         @{ name = "UsesManagedDisks_s"; type = "string" }
         @{ name = "AvailabilitySetId_s"; type = "string" }
         @{ name = "BootDiagnosticsEnabled_s"; type = "string" }
@@ -229,14 +229,14 @@ $tableSchemas = @{
         @{ name = "DeploymentModel_s"; type = "string" }
         @{ name = "DiskType_s"; type = "string" }
         @{ name = "TimeCreated_s"; type = "string" }
-        @{ name = "DiskIOPS_d"; type = "real" }
-        @{ name = "DiskThroughput_d"; type = "real" }
+        @{ name = "DiskIOPS_s"; type = "string" }
+        @{ name = "DiskThroughput_s"; type = "string" }
         @{ name = "DiskTier_s"; type = "string" }
         @{ name = "DiskState_s"; type = "string" }
         @{ name = "EncryptionType_s"; type = "string" }
         @{ name = "Zones_s"; type = "string" }
         @{ name = "Caching_s"; type = "string" }
-        @{ name = "DiskSizeGB_d"; type = "real" }
+        @{ name = "DiskSizeGB_s"; type = "string" }
         @{ name = "SKU_s"; type = "string" }
         @{ name = "StatusDate_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
@@ -256,7 +256,7 @@ $tableSchemas = @{
         @{ name = "DeploymentModel_s"; type = "string" }
         @{ name = "DiskType_s"; type = "string" }
         @{ name = "Caching_s"; type = "string" }
-        @{ name = "DiskSizeGB_d"; type = "real" }
+        @{ name = "DiskSizeGB_s"; type = "string" }
         @{ name = "StatusDate_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
     )
@@ -272,9 +272,9 @@ $tableSchemas = @{
         @{ name = "InstanceId_s"; type = "string" }
         @{ name = "SkuName_s"; type = "string" }
         @{ name = "Location_s"; type = "string" }
-        @{ name = "FaultDomains_d"; type = "real" }
-        @{ name = "UpdateDomains_d"; type = "real" }
-        @{ name = "VmCount_d"; type = "real" }
+        @{ name = "FaultDomains_s"; type = "string" }
+        @{ name = "UpdateDomains_s"; type = "string" }
+        @{ name = "VmCount_s"; type = "string" }
         @{ name = "StatusDate_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
         @{ name = "Zones_s"; type = "string" }
@@ -397,15 +397,15 @@ $tableSchemas = @{
         @{ name = "SkuTier_s"; type = "string" }
         @{ name = "Location_s"; type = "string" }
         @{ name = "LbType_s"; type = "string" }
-        @{ name = "LbRulesCount_d"; type = "real" }
-        @{ name = "InboundNatRulesCount_d"; type = "real" }
-        @{ name = "OutboundRulesCount_d"; type = "real" }
-        @{ name = "FrontendIPsCount_d"; type = "real" }
-        @{ name = "BackendIPCount_d"; type = "real" }
-        @{ name = "BackendAddressesCount_d"; type = "real" }
-        @{ name = "InboundNatPoolsCount_d"; type = "real" }
-        @{ name = "BackendPoolsCount_d"; type = "real" }
-        @{ name = "ProbesCount_d"; type = "real" }
+        @{ name = "LbRulesCount_s"; type = "string" }
+        @{ name = "InboundNatRulesCount_s"; type = "string" }
+        @{ name = "OutboundRulesCount_s"; type = "string" }
+        @{ name = "FrontendIPsCount_s"; type = "string" }
+        @{ name = "BackendIPCount_s"; type = "string" }
+        @{ name = "BackendAddressesCount_s"; type = "string" }
+        @{ name = "InboundNatPoolsCount_s"; type = "string" }
+        @{ name = "BackendPoolsCount_s"; type = "string" }
+        @{ name = "ProbesCount_s"; type = "string" }
         @{ name = "StatusDate_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
     )
@@ -421,23 +421,23 @@ $tableSchemas = @{
         @{ name = "InstanceId_s"; type = "string" }
         @{ name = "SkuName_s"; type = "string" }
         @{ name = "SkuTier_s"; type = "string" }
-        @{ name = "SkuCapacity_d"; type = "real" }
+        @{ name = "SkuCapacity_s"; type = "string" }
         @{ name = "Location_s"; type = "string" }
         @{ name = "Zones_s"; type = "string" }
         @{ name = "EnableHttp2_s"; type = "string" }
-        @{ name = "GatewayIPsCount_d"; type = "real" }
-        @{ name = "FrontendIPsCount_d"; type = "real" }
-        @{ name = "FrontendPortsCount_d"; type = "real" }
-        @{ name = "BackendIPCount_d"; type = "real" }
-        @{ name = "BackendAddressesCount_d"; type = "real" }
-        @{ name = "HttpSettingsCount_d"; type = "real" }
-        @{ name = "HttpListenersCount_d"; type = "real" }
-        @{ name = "BackendPoolsCount_d"; type = "real" }
-        @{ name = "ProbesCount_d"; type = "real" }
-        @{ name = "UrlPathMapsCount_d"; type = "real" }
-        @{ name = "RequestRoutingRulesCount_d"; type = "real" }
-        @{ name = "RewriteRulesCount_d"; type = "real" }
-        @{ name = "RedirectConfsCount_d"; type = "real" }
+        @{ name = "GatewayIPsCount_s"; type = "string" }
+        @{ name = "FrontendIPsCount_s"; type = "string" }
+        @{ name = "FrontendPortsCount_s"; type = "string" }
+        @{ name = "BackendIPCount_s"; type = "string" }
+        @{ name = "BackendAddressesCount_s"; type = "string" }
+        @{ name = "HttpSettingsCount_s"; type = "string" }
+        @{ name = "HttpListenersCount_s"; type = "string" }
+        @{ name = "BackendPoolsCount_s"; type = "string" }
+        @{ name = "ProbesCount_s"; type = "string" }
+        @{ name = "UrlPathMapsCount_s"; type = "string" }
+        @{ name = "RequestRoutingRulesCount_s"; type = "string" }
+        @{ name = "RewriteRulesCount_s"; type = "string" }
+        @{ name = "RedirectConfsCount_s"; type = "string" }
         @{ name = "StatusDate_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
     )
@@ -452,7 +452,7 @@ $tableSchemas = @{
         @{ name = "ContainerType_s"; type = "string" }
         @{ name = "ContainerName_s"; type = "string" }
         @{ name = "InstanceId_s"; type = "string" }
-        @{ name = "ResourceCount_d"; type = "real" }
+        @{ name = "ResourceCount_s"; type = "string" }
         @{ name = "ManagedBy_s"; type = "string" }
         @{ name = "ContainerProperties_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
@@ -484,13 +484,13 @@ $tableSchemas = @{
         @{ name = "Model_s"; type = "string" }
         @{ name = "VNetPrefixes_s"; type = "string" }
         @{ name = "DNSServers_s"; type = "string" }
-        @{ name = "PeeringsCount_d"; type = "real" }
+        @{ name = "PeeringsCount_s"; type = "string" }
         @{ name = "EnableDdosProtection_s"; type = "string" }
         @{ name = "SubnetName_s"; type = "string" }
         @{ name = "SubnetPrefix_s"; type = "string" }
-        @{ name = "SubnetDelegationsCount_d"; type = "real" }
-        @{ name = "SubnetTotalPrefixIPs_d"; type = "real" }
-        @{ name = "SubnetUsedIPs_d"; type = "real" }
+        @{ name = "SubnetDelegationsCount_s"; type = "string" }
+        @{ name = "SubnetTotalPrefixIPs_s"; type = "string" }
+        @{ name = "SubnetUsedIPs_s"; type = "string" }
         @{ name = "SubnetNSGId_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
         @{ name = "StatusDate_s"; type = "string" }
@@ -509,8 +509,8 @@ $tableSchemas = @{
         @{ name = "IsPrimary_s"; type = "string" }
         @{ name = "EnableAcceleratedNetworking_s"; type = "string" }
         @{ name = "EnableIPForwarding_s"; type = "string" }
-        @{ name = "TapConfigurationsCount_d"; type = "real" }
-        @{ name = "HostedWorkloadsCount_d"; type = "real" }
+        @{ name = "TapConfigurationsCount_s"; type = "string" }
+        @{ name = "HostedWorkloadsCount_s"; type = "string" }
         @{ name = "InternalDomainNameSuffix_s"; type = "string" }
         @{ name = "AppliedDnsServers_s"; type = "string" }
         @{ name = "DnsServers_s"; type = "string" }
@@ -540,12 +540,12 @@ $tableSchemas = @{
         @{ name = "Location_s"; type = "string" }
         @{ name = "NSGName_s"; type = "string" }
         @{ name = "InstanceId_s"; type = "string" }
-        @{ name = "NicCount_d"; type = "real" }
-        @{ name = "SubnetCount_d"; type = "real" }
+        @{ name = "NicCount_s"; type = "string" }
+        @{ name = "SubnetCount_s"; type = "string" }
         @{ name = "RuleName_s"; type = "string" }
         @{ name = "RuleProtocol_s"; type = "string" }
         @{ name = "RuleDirection_s"; type = "string" }
-        @{ name = "RulePriority_d"; type = "real" }
+        @{ name = "RulePriority_s"; type = "string" }
         @{ name = "RuleAccess_s"; type = "string" }
         @{ name = "RuleDestinationAddresses_s"; type = "string" }
         @{ name = "RuleSourceAddresses_s"; type = "string" }
@@ -592,11 +592,11 @@ $tableSchemas = @{
         @{ name = "ComputerNamePrefix_s"; type = "string" }
         @{ name = "InstanceId_s"; type = "string" }
         @{ name = "VMSSSize_s"; type = "string" }
-        @{ name = "CoresCount_d"; type = "real" }
-        @{ name = "MemoryMB_d"; type = "real" }
+        @{ name = "CoresCount_s"; type = "string" }
+        @{ name = "MemoryMB_s"; type = "string" }
         @{ name = "OSType_s"; type = "string" }
-        @{ name = "DataDiskCount_d"; type = "real" }
-        @{ name = "NicCount_d"; type = "real" }
+        @{ name = "DataDiskCount_s"; type = "string" }
+        @{ name = "NicCount_s"; type = "string" }
         @{ name = "StatusDate_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
         @{ name = "Capacity_s"; type = "string" }
@@ -630,12 +630,12 @@ $tableSchemas = @{
         @{ name = "InstanceId_s"; type = "string" }
         @{ name = "SkuName_s"; type = "string" }
         @{ name = "SkuTier_s"; type = "string" }
-        @{ name = "SkuCapacity_d"; type = "real" }
+        @{ name = "SkuCapacity_s"; type = "string" }
         @{ name = "ServiceObjectiveName_s"; type = "string" }
         @{ name = "StorageAccountType_s"; type = "string" }
         @{ name = "LicenseType_s"; type = "string" }
-        @{ name = "MaxSizeBytes_d"; type = "real" }
-        @{ name = "MaxLogSizeBytes_d"; type = "real" }
+        @{ name = "MaxSizeBytes_s"; type = "string" }
+        @{ name = "MaxLogSizeBytes_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
         @{ name = "StatusDate_s"; type = "string" }
     )
@@ -652,7 +652,7 @@ $tableSchemas = @{
         @{ name = "MetricNames_s"; type = "string" }
         @{ name = "AggregationType_s"; type = "string" }
         @{ name = "AggregationOfType_s"; type = "string" }
-        @{ name = "MetricValue_d"; type = "real" }
+        @{ name = "MetricValue_s"; type = "string" }
         @{ name = "TimeGrain_s"; type = "string" }
         @{ name = "TimeSpan_s"; type = "string" }
     )
@@ -677,7 +677,7 @@ $tableSchemas = @{
         @{ name = "DefinitionName_s"; type = "string" }
         @{ name = "DefinitionReferenceId_s"; type = "string" }
         @{ name = "EvaluatedOn_s"; type = "string" }
-        @{ name = "StatesCount_d"; type = "real" }
+        @{ name = "StatesCount_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
         @{ name = "StatusDate_s"; type = "string" }
     )
@@ -701,7 +701,7 @@ $tableSchemas = @{
         @{ name = "SubscriptionGuid_g"; type = "string" }
         @{ name = "SubscriptionName_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
-        @{ name = "FitScore_d"; type = "real" }
+        @{ name = "FitScore_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
         @{ name = "DetailsURL_s"; type = "string" }
         @{ name = "GeneratedDate_s"; type = "string" }
@@ -724,21 +724,21 @@ $tableSchemas = @{
         @{ name = "PurchaseDate_s"; type = "string" }
         @{ name = "ExpiryDate_s"; type = "string" }
         @{ name = "Archived_s"; type = "string" }
-        @{ name = "ReservedHours_d"; type = "real" }
-        @{ name = "UsedHours_d"; type = "real" }
+        @{ name = "ReservedHours_s"; type = "string" }
+        @{ name = "UsedHours_s"; type = "string" }
         @{ name = "UsageDate_s"; type = "string" }
-        @{ name = "MinUtilPercentage_d"; type = "real" }
-        @{ name = "AvgUtilPercentage_d"; type = "real" }
-        @{ name = "MaxUtilPercentage_d"; type = "real" }
-        @{ name = "PurchasedQuantity_d"; type = "real" }
-        @{ name = "RemainingQuantity_d"; type = "real" }
-        @{ name = "TotalReservedQuantity_d"; type = "real" }
-        @{ name = "UsedQuantity_d"; type = "real" }
-        @{ name = "UtilizedPercentage_d"; type = "real" }
+        @{ name = "MinUtilPercentage_s"; type = "string" }
+        @{ name = "AvgUtilPercentage_s"; type = "string" }
+        @{ name = "MaxUtilPercentage_s"; type = "string" }
+        @{ name = "PurchasedQuantity_s"; type = "string" }
+        @{ name = "RemainingQuantity_s"; type = "string" }
+        @{ name = "TotalReservedQuantity_s"; type = "string" }
+        @{ name = "UsedQuantity_s"; type = "string" }
+        @{ name = "UtilizedPercentage_s"; type = "string" }
         @{ name = "UtilTrend_s"; type = "string" }
-        @{ name = "Util1Days_d"; type = "real" }
-        @{ name = "Util7Days_d"; type = "real" }
-        @{ name = "Util30Days_d"; type = "real" }
+        @{ name = "Util1Days_s"; type = "string" }
+        @{ name = "Util7Days_s"; type = "string" }
+        @{ name = "Util30Days_s"; type = "string" }
         @{ name = "Scope_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
@@ -759,14 +759,14 @@ $tableSchemas = @{
         @{ name = "Kind_s"; type = "string" }
         @{ name = "SkuName_s"; type = "string" }
         @{ name = "SkuTier_s"; type = "string" }
-        @{ name = "SkuCapacity_d"; type = "real" }
+        @{ name = "SkuCapacity_s"; type = "string" }
         @{ name = "SkuFamily_s"; type = "string" }
         @{ name = "SkuSize_s"; type = "string" }
         @{ name = "ComputeMode_s"; type = "string" }
-        @{ name = "NumberOfWorkers_d"; type = "real" }
-        @{ name = "CurrentNumberOfWorkers_d"; type = "real" }
-        @{ name = "MaximumNumberOfWorkers_d"; type = "real" }
-        @{ name = "NumberOfSites_d"; type = "real" }
+        @{ name = "NumberOfWorkers_s"; type = "string" }
+        @{ name = "CurrentNumberOfWorkers_s"; type = "string" }
+        @{ name = "MaximumNumberOfWorkers_s"; type = "string" }
+        @{ name = "NumberOfSites_s"; type = "string" }
         @{ name = "PlanName_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
         @{ name = "StatusDate_s"; type = "string" }
@@ -832,11 +832,11 @@ $tableSchemas = @{
         @{ name = "BillingPlan_s"; type = "string" }
         @{ name = "CommitmentGrain_s"; type = "string" }
         @{ name = "CommitmentCurrencyCode_s"; type = "string" }
-        @{ name = "CommitmentAmount_d"; type = "real" }
+        @{ name = "CommitmentAmount_s"; type = "string" }
         @{ name = "UtilTrend_s"; type = "string" }
-        @{ name = "Util1Days_d"; type = "real" }
-        @{ name = "Util7Days_d"; type = "real" }
-        @{ name = "Util30Days_d"; type = "real" }
+        @{ name = "Util1Days_s"; type = "string" }
+        @{ name = "Util7Days_s"; type = "string" }
+        @{ name = "Util30Days_s"; type = "string" }
         @{ name = "Scope_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
