@@ -38,6 +38,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### [Data dictionary](help/data-dictionary.md) updates
 
+- **Added**
+  - Created [community reports repository](power-bi/community.md) for community-contributed Power BI reports, similar to Azure Quickstart Templates. The repository enables the FinOps community to share specialized reports for specific use cases while maintaining clear differentiation from official toolkit reports.
 - **Fixed**
   - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
 -->
