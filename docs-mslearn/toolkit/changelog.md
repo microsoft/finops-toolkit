@@ -35,6 +35,11 @@ The following section lists features and enhancements that are currently in deve
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
+
+### [Data dictionary](help/data-dictionary.md) updates
+
+- **Fixed**
+  - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
 -->
 
 <br><a name="latest"></a>
