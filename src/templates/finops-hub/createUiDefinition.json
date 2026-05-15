@@ -166,11 +166,11 @@
             "name": "remoteHubStorageUri",
             "type": "Microsoft.Common.TextBox",
             "label": "Remote hub storage URI",
-            "toolTip": "Data Lake storage endpoint from the remote hub storage account. Copy from the storage account Settings > Endpoints > Data Lake storage. Example: https://myremotehub.dfs.core.windows.net/",
+            "toolTip": "Data Lake storage endpoint from the remote hub storage account. Copy from the storage account Settings > Endpoints > Data Lake storage. Example: https://myremotehub.dfs.core.windows.net/ (endpoint suffix varies by cloud)",
             "constraints": {
               "required": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]",
-              "regex": "^https://.*\\.dfs\\.core\\.windows\\.net/?$",
-              "validationMessage": "Must be a valid Data Lake storage endpoint URL in the format: https://storageaccount.dfs.core.windows.net/"
+              "regex": "^https://.*\\.dfs\\.core\\.[a-z.]+/?$",
+              "validationMessage": "Must be a valid Data Lake storage endpoint URL (e.g., https://storageaccount.dfs.core.windows.net/ for Azure public cloud)"
             },
             "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]"
           },

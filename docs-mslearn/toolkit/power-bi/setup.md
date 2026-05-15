@@ -3,7 +3,7 @@ title: Set up Power BI reports
 description: Learn how to set up Power BI FinOps reports using the FinOps toolkit, customize visuals, and connect to your cost data for detailed analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/12/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -115,7 +115,7 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
    - **Azure Data Explorer (Kusto)** &ndash; Use an account that has at least viewer access to the Hub database.
    - **Azure Resource Graph** &ndash; Use an account that has direct access to any subscriptions you would like to report on.
    - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access.
-   - **<https://ccmstorageprod>...** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
+   - **<https://ccmstorageprod.blob.core.windows.net/costmanagementconnector-data/AutofitComboMeterData.csv>** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
    - **<https://github.com/>...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../help/troubleshooting.md).

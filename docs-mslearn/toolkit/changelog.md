@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 04/29/2026
+ms.date: 05/14/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -35,6 +35,16 @@ The following section lists features and enhancements that are currently in deve
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
+
+### [Configure scopes](hubs/configure-scopes.md) updates
+
+- **Changed**
+  - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
+
+### [Data dictionary](help/data-dictionary.md) updates
+
+- **Fixed**
+  - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
 -->
 
 <br><a name="latest"></a>
@@ -55,6 +65,7 @@ _Released April 2026_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v14
 
 - **Added**
+  - Added [Microsoft Sovereign Cloud](/azure/azure-sovereign-clouds/microsoft-sovereign-cloud) support with environment-aware DNS suffix handling for Azure Government, Azure China, and other sovereign environments ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
   - Added ability to ingest recommendations from Azure Advisor and custom Azure Resource Graph queries ([#2011](https://github.com/microsoft/finops-toolkit/issues/2011)).
     - Custom recommendations include stopped VMs, unattached disks, underutilized resources, and more.
   - Added [Copilot Studio agent template](hubs/configure-ai-copilot-studio.md) with instructions, schema reference, query catalog, and weekly report guide for creating a FinOps Hub Agent in Microsoft Copilot Studio using the Kusto Query MCP Server.
@@ -65,6 +76,10 @@ _Released April 2026_
     - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
   - Documented the `<ingestionId>__<originalFileName>.parquet` filename convention, full-folder replacement requirement, and manifest content rules for ingesting custom FOCUS datasets to prevent silent data loss ([#2096](https://github.com/microsoft/finops-toolkit/issues/2096)).
 - **Fixed**
+  - Fixed hardcoded Kusto DNS suffix to use an environment-aware lookup map with correct values for all supported clouds ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
+  - Fixed incorrect Azure China ADX DNS suffix (`kusto.chinacloudapi.cn` → `kusto.windows.cn`) ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
+  - Fixed `createUiDefinition.json` storage URL validation to accept sovereign cloud storage suffixes ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
+  - Fixed `gitapp.hub.com` typo in ADF linked service URL ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
   - Fixed `msexports_ExecuteETL` pipeline failing on empty export files by adding a row count check ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
   - Fixed Data Explorer dashboard cost and savings KPIs producing invalid sums in multi-billing-currency tenants by adding a Currency parameter that scopes tile queries to a single currency ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
@@ -1058,7 +1073,7 @@ _**Breaking change**_
     - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
     - Added param to specify subnet range of virtual network - minimum size = /26
   - Support for storage account infrastructure encryption.
-  - Published a [schema file](https://aka.ms/finops/hubs/settings-schema) for the hub settings.json file.
+  - Published a schema file for the hub settings.json file in this release.
 - **Changed**
   - Changed dataset names in the ingestion container to facilitate Azure Data Explorer ingestion.
     > [!IMPORTANT]
