@@ -86,7 +86,9 @@ if ($update -or $Version)
     {
         $newLabel = $Label.ToLower() -replace '[^a-z]', ''
         Write-Verbose "Using label '$newLabel'."
-        $null = npm --no-git-tag-version --preid $newLabel version preminor
+        $bumpedVer = (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version
+        $baseVer = $bumpedVer -replace '-.*$', ''
+        $null = npm --no-git-tag-version version "$baseVer-$newLabel.0"
     }
 }
 

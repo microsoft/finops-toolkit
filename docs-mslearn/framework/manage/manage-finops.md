@@ -36,7 +36,7 @@ FinOps practice operations refer to the process of:
 
 - Building and managing a robust FinOps team
 - Defining clear cross-functional responsibilities
-- Integrating FinOps practices into organizational processes to manage cloud cost and usage effectively. 
+- Integrating FinOps practices into organizational processes to manage cloud cost and usage effectively.
 
 With this capability, you establish and manage your FinOps practice, focusing on supporting the needs of stakeholders across the organization. This capability is pivotal to driving organizational adoption.
 
@@ -106,7 +106,7 @@ Let us know how we're doing with a quick review. We use these reviews to improve
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK14.0/bladeName/Guide.Framework/featureName/Capabilities.Manage)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK15.0/bladeName/Guide.Framework/featureName/Capabilities.Manage)
 <!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
