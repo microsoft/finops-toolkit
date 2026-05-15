@@ -3,7 +3,7 @@ title: Onboarding workloads
 description: This article helps you understand the onboarding workloads capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/12/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -73,7 +73,7 @@ Document your onboarding process. Using existing tools and processes where avail
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Onboarding workloads capability](https://www.finops.org/framework/capabilities/onboarding-workloads/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, refer to the [FinOps Framework documentation](https://www.finops.org/framework/).
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
