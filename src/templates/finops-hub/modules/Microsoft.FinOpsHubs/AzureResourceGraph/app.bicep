@@ -12,7 +12,7 @@ metadata hubApp = {
     'Microsoft.FinOpsHubs.Core'
     'Microsoft.FinOpsHubs.IngestionQueries'
   ]
-  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/$$ftkver$$/Microsoft.FinOpsHubs/AzureResourceGraph/metadata.bicep'
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/finops-hub/$$ftkver$$/Microsoft.FinOpsHubs/AzureResourceGraph/metadata.bicep'
 }
 
 
