@@ -123,7 +123,13 @@ git commit -m "chore: start v{next major} dev cycle"
 git push
 ```
 
-**On "Make changes first":** Tell the user to make their edits, then commit and push manually to `{username}/v{next major}-start`.
+Then create a PR targeting `dev` using the repo's PR template (`.github/PULL_REQUEST_TEMPLATE.md`). Read the template, fill it in for this change, and create the PR:
+
+```bash
+gh pr create --base dev --title "chore: start v{next major} dev cycle" --body "..."
+```
+
+**On "Make changes first":** Tell the user to make their edits, then commit, push, and create the PR manually to `{username}/v{next major}-start`.
 
 **On "Abort":** Stop without committing.
 
