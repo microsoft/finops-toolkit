@@ -47,12 +47,12 @@ Propose an outline.
 The outline is **fixed** — do not invent new sections. Use this structure (matches `announce/2025/2025-08_v12.md` and `announce/2026/2026-02_v13.md`):
 
 1. **Title** — `What's new in FinOps toolkit {N} – {Month} {Year}`
-2. **Preview snippet** — 1–2 sentences shown in blog list previews and search results. Lead with the most newsworthy item. No links, no markdown, under ~300 chars. Place under the title as a markdown blockquote (prefix the line with `>`) so it's clearly separable from the intro.
-3. **Intro paragraph** — One paragraph: who this release is for, what it emphasizes (themes, not full list), and a "read on for details" hook.
-4. **New to the FinOps toolkit?** — Boilerplate intro for new readers. Reuse from the prior release; update links if they changed.
-5. **Featured sections** (3–5) — Themed deep-dives on the biggest changes from the changelog. Each gets its own H2 with a benefit-led title (not just the feature name). This is the only part that varies per release. Inline contributor thanks belong here when relevant (e.g., "Thanks to @username for contributing this feature.").
-6. **Other new and noteworthy updates** — Bulleted list grouped by tool, covering everything else worth mentioning that didn't get a featured section. Extract from the changelog, rephrase to be user-friendly.
-7. **What's next** — Forward-looking paragraph. Reuse and refresh from the prior release.
+2. **Intro paragraph** — One paragraph: who this release is for, what it emphasizes (themes, not full list), and a "read on for details" hook.
+3. **New to the FinOps toolkit?** — Boilerplate intro for new readers. Reuse from the prior release; update links if they changed.
+4. **Featured sections** (3–5) — Themed deep-dives on the biggest changes from the changelog. Each gets its own H2 with a benefit-led title (not just the feature name). This is the only part that varies per release. Inline contributor thanks belong here when relevant (e.g., "Thanks to @username for contributing this feature.").
+5. **Other new and noteworthy updates** — Bulleted list grouped by tool, covering everything else worth mentioning that didn't get a featured section. Extract from the changelog, rephrase to be user-friendly.
+6. **What's next** — Forward-looking paragraph. Reuse and refresh from the prior release.
+7. **Preview snippet** — 1–2 sentences shown in blog list previews and search results. Lead with the most newsworthy item. No links, no markdown, under ~300 chars. Use a `## Preview snippet` heading followed by the text as a markdown blockquote (`>`). Placed at the end (before social media) to match the blog platform's publishing UI.
 8. **Social media appendix** (see Phase 4).
 
 The **only** thing to confirm with the user during scoping is **which featured sections to include and in what order**. Generate 3–4 concrete, terminal options up front so the user picks once and is done. Each option must fully describe the resulting outline — no follow-up question needed.

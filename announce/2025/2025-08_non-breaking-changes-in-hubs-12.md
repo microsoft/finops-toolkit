@@ -8,7 +8,7 @@ FinOps hubs 12 is the first release to fully realize the value of this non-break
 
 ## How schema versioning works in FinOps hubs
 
-FinOps hubs 0.7 added a custom, FOCUS-aligned schema for all supported datasets. When data is ingested into FinOps hubs with Azure Data Explorer or Microsoft Fabric, the native schemas are transformed into a FOCUS-like dataset to provide forward-looking datasets aligned to the future direction of FinOps across the industry. The data is also augmented to with extra columns and missing data to facilitate common FinOps tasks and goals we hear from organizations big and small. We refer to this as the v1_0 schema because all our tables and functions are named *_v1_0 to be clear about what schema version they use.
+FinOps hubs 0.7 added a custom, FOCUS-aligned schema for all supported datasets. When data is ingested into FinOps hubs with Azure Data Explorer or Microsoft Fabric, the native schemas are transformed into a FOCUS-like dataset to provide forward-looking datasets aligned to the future direction of FinOps across the industry. The data is also augmented with extra columns and missing data to facilitate common FinOps tasks and goals we hear from organizations big and small. We refer to this as the v1_0 schema because all our tables and functions are named *_v1_0 to be clear about what schema version they use.
 
 Some of you may be using the non-versioned functions, like Costs and Prices. These are wrappers around the corresponding versioned functions, like Costs_v1_0 and Prices_v1_0. The non-versioned functions are for ad-hoc use when you need a quick answer and don't want to think about what version you need. These always return the latest version. And until FinOps hubs 12, this was always v1_0.
 
