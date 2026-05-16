@@ -173,6 +173,21 @@ param enablePublicAccess bool = true
 @description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
+@description('Optional. Name of an existing VNet to deploy the FinOps hub private endpoints into. Leave empty to create a new VNet. Default: "".')
+param existingVNetName string = ''
+
+@description('Optional. Resource group name of the existing VNet. Leave empty if same resource group as the deployment. Default: "".')
+param existingVNetResourceGroupName string = ''
+
+@description('Optional. Name of the subnet for private endpoints (in either the new or existing VNet). Default: "snet-finops-pe-01".')
+param peSubnetName string = 'snet-finops-pe-01'
+
+@description('Optional. Name of the subnet for deployment scripts (must be delegated to Microsoft.ContainerInstance/containerGroups). Default: "snet-finops-script-01".')
+param scriptSubnetName string = 'snet-finops-script-01'
+
+@description('Optional. Name of the subnet for Azure Data Explorer (only used when ADX is enabled). Default: "snet-finops-adx-01".')
+param dataExplorerSubnetName string = 'snet-finops-adx-01'
+
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
@@ -195,7 +210,12 @@ var hub = newHub(
   enableInfrastructureEncryption,
   enablePublicAccess,
   virtualNetworkAddressPrefix,
-  enableDefaultTelemetry
+  enableDefaultTelemetry,
+  existingVNetName,
+  existingVNetResourceGroupName,
+  peSubnetName,
+  scriptSubnetName,
+  dataExplorerSubnetName
 )
 
 var useFabric = !empty(fabricQueryUri)

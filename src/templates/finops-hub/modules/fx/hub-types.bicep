@@ -42,6 +42,10 @@ type IdNameObject = { id: string, name: string }
 type HubRoutingProperties = {
   networkId: string
   networkName: string
+  existingVNetResourceGroupName: string
+  peSubnetName: string
+  scriptSubnetName: string
+  dataExplorerSubnetName: string
   scriptStorage: string
   dnsZones: {
     blob: IdNameObject
@@ -195,6 +199,10 @@ func newHubInternal(
   networkName string,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
+  existingVNetResourceGroupName string,
+  peSubnetName string,
+  scriptSubnetName string,
+  dataExplorerSubnetName string
 ) HubProperties => {
   id: id
   name: name
@@ -217,9 +225,13 @@ func newHubInternal(
     storageSku: storageSku
   }
   routing: {
-    networkId: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks', networkName)
+    networkId: enablePublicAccess ? '' : (empty(existingVNetResourceGroupName) ? resourceId('Microsoft.Network/virtualNetworks', networkName) : resourceId(existingVNetResourceGroupName, 'Microsoft.Network/virtualNetworks', networkName))
     networkName: enablePublicAccess ? '' : networkName
-    scriptStorage: enablePublicAccess ? '' : '${take(safeStorageName(name), 16 - length(suffix))}script${suffix}'
+    existingVNetResourceGroupName: existingVNetResourceGroupName
+    peSubnetName: peSubnetName
+    scriptSubnetName: scriptSubnetName
+    dataExplorerSubnetName: dataExplorerSubnetName
+    scriptStorage: enablePublicAccess ? '' : take('stgfinops${replace(safeStorageName(name), '-', '')}02', 24)
     dnsZones: {
       blob:  enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('blob')
       dfs:   enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('dfs')
@@ -227,11 +239,11 @@ func newHubInternal(
       table: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('table')
     }
     subnets: {
-      dataExplorer: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'dataExplorer-subnet')!
-      dataFactory:  enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      keyVault:     enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      scripts:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')!
-      storage:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      dataExplorer: enablePublicAccess ? '' : (empty(existingVNetResourceGroupName) ? resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, dataExplorerSubnetName)! : resourceId(existingVNetResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', networkName, dataExplorerSubnetName)!)
+      dataFactory:  enablePublicAccess ? '' : (empty(existingVNetResourceGroupName) ? resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, peSubnetName)! : resourceId(existingVNetResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', networkName, peSubnetName)!)
+      keyVault:     enablePublicAccess ? '' : (empty(existingVNetResourceGroupName) ? resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, peSubnetName)! : resourceId(existingVNetResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', networkName, peSubnetName)!)
+      scripts:      enablePublicAccess ? '' : (empty(existingVNetResourceGroupName) ? resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, scriptSubnetName)! : resourceId(existingVNetResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', networkName, scriptSubnetName)!)
+      storage:      enablePublicAccess ? '' : (empty(existingVNetResourceGroupName) ? resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, peSubnetName)! : resourceId(existingVNetResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', networkName, peSubnetName)!)
     }
   }
   core: {
@@ -253,6 +265,11 @@ func newHub(
   enablePublicAccess bool,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
+  existingVNetName string,
+  existingVNetResourceGroupName string,
+  peSubnetName string,
+  scriptSubnetName string,
+  dataExplorerSubnetName string
 ) HubProperties => newHubInternal(
   '${resourceGroup().id}/providers/Microsoft.Cloud/hubs/${name}',  // id
   name,
@@ -265,9 +282,13 @@ func newHub(
   keyVaultEnablePurgeProtection,
   enableInfrastructureEncryption,
   enablePublicAccess,
-  '${safeStorageName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
+  empty(existingVNetName) ? 'vnet-finops-${name}' : existingVNetName,    // networkName, cSpell:ignore vnet
   networkAddressPrefix,
-  isTelemetryEnabled ?? true
+  isTelemetryEnabled ?? true,
+  existingVNetResourceGroupName,
+  empty(peSubnetName) ? 'snet-finops-pe-01' : peSubnetName,
+  empty(scriptSubnetName) ? 'snet-finops-script-01' : scriptSubnetName,
+  empty(dataExplorerSubnetName) ? 'snet-finops-adx-01' : dataExplorerSubnetName
 )
 
 //------------------------------------------------------------------------------
@@ -298,13 +319,16 @@ func newAppInternal(
   hub: hub
 
   // Globally unique Data Factory name: 3-63 chars; letters, numbers, non-repeating dashes
-  dataFactory: replace('${take('${replace(hub.name, '_', '-')}-engine', 63 - length(suffix) - 1)}-${suffix}', '--', '-')
+  // Custom naming: adf-finops-<hubName>
+  dataFactory: take('adf-finops-${replace(hub.name, '_', '-')}', 63)
 
   // Globally unique KeyVault name: 3-24 chars; letters, numbers, dashes
-  keyVault: replace('${take('${replace(hub.name, '_', '-')}-vault', 24 - length(suffix) - 1)}-${suffix}', '--', '-')
+  // Custom naming: kv-finops-<hubName>
+  keyVault: take('kv-finops-${replace(hub.name, '_', '-')}', 24)
 
   // Globally unique storage account name: 3-24 chars; lowercase letters/numbers only
-  storage: '${take(safeStorageName(hub.name), 24 - length(suffix))}${suffix}'
+  // Custom naming: stgfinops<hubName>01 (no dashes, lowercase)
+  storage: take('stgfinops${replace(safeStorageName(hub.name), '-', '')}01', 24)
 }
 
 @export()
