@@ -284,7 +284,7 @@ $tableSchemas = @{
         @{ name = "TimeGenerated"; type = "datetime" }
         @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
-        @{ name = "Category_s"; type = "string" }
+        @{ name = "Category"; type = "string" }
         @{ name = "Impact_s"; type = "string" }
         @{ name = "ImpactedArea_s"; type = "string" }
         @{ name = "Description_s"; type = "string" }
@@ -295,7 +295,7 @@ $tableSchemas = @{
         @{ name = "InstanceName_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
         @{ name = "AdditionalInfo_s"; type = "string" }
-        @{ name = "ResourceGroup_s"; type = "string" }
+        @{ name = "ResourceGroup"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
     )
@@ -352,8 +352,8 @@ $tableSchemas = @{
         @{ name = "Quantity_s"; type = "string" }
         @{ name = "ReservationId_s"; type = "string" }
         @{ name = "ReservationName_s"; type = "string" }
-        @{ name = "ResourceGroup_s"; type = "string" }
-        @{ name = "ResourceId_s"; type = "string" }
+        @{ name = "ResourceGroup"; type = "string" }
+        @{ name = "ResourceId"; type = "string" }
         @{ name = "ResourceLocation_s"; type = "string" }
         @{ name = "ServiceFamily_s"; type = "string" }
         @{ name = "ServiceInfo1_s"; type = "string" }
@@ -648,7 +648,7 @@ $tableSchemas = @{
         @{ name = "SubscriptionGuid_g"; type = "string" }
         @{ name = "ResourceGroupName_s"; type = "string" }
         @{ name = "ResourceName_s"; type = "string" }
-        @{ name = "ResourceId_s"; type = "string" }
+        @{ name = "ResourceId"; type = "string" }
         @{ name = "MetricNames_s"; type = "string" }
         @{ name = "AggregationType_s"; type = "string" }
         @{ name = "AggregationOfType_s"; type = "string" }
@@ -664,7 +664,7 @@ $tableSchemas = @{
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
         @{ name = "ResourceGroupName_s"; type = "string" }
-        @{ name = "ResourceId_s"; type = "string" }
+        @{ name = "ResourceId"; type = "string" }
         @{ name = "ResourceType_s"; type = "string" }
         @{ name = "ComplianceState_s"; type = "string" }
         @{ name = "ComplianceReason_s"; type = "string" }
@@ -686,7 +686,7 @@ $tableSchemas = @{
         @{ name = "TimeGenerated"; type = "datetime" }
         @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
-        @{ name = "Category_s"; type = "string" }
+        @{ name = "Category"; type = "string" }
         @{ name = "ImpactedArea_s"; type = "string" }
         @{ name = "Impact_s"; type = "string" }
         @{ name = "RecommendationType_s"; type = "string" }
@@ -697,7 +697,7 @@ $tableSchemas = @{
         @{ name = "InstanceId_s"; type = "string" }
         @{ name = "InstanceName_s"; type = "string" }
         @{ name = "AdditionalInfo_s"; type = "string" }
-        @{ name = "ResourceGroup_s"; type = "string" }
+        @{ name = "ResourceGroup"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
         @{ name = "SubscriptionName_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
