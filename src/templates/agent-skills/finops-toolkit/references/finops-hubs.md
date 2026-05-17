@@ -50,7 +50,10 @@ All KQL queries are located in `references/queries/`:
 
 **Database Rules:**
 - Always use "Hub" database, NEVER "Ingestion"
-- Function-based access: `Costs()`, `Prices()`, `Recommendations()`, `Transactions()`
+- Function-based access: `Costs()`, `Prices()`, `CommitmentDiscountUsage()`, `ContractCommitment()`, `Recommendations()`, `Transactions()`
+- The unversioned functions (`Costs()`, etc.) return the latest GA FOCUS schema. Use versioned functions (`Costs_v1_0()`, `Costs_v1_2()`, `Costs_v1_3()`) to pin to a specific schema. `Costs_v1_4()` is **preview** while FOCUS 1.4 is in working draft and may change.
+- FOCUS 1.3 added: `AllocatedMethodId`, `AllocatedMethodDetails`, `AllocatedResourceId`, `AllocatedResourceName`, `AllocatedTags` (data-generator split cost allocation), `ContractApplied` (per-row contract commitment application), `ServiceProviderName` and `HostProviderName` (replacing deprecated `ProviderName` / `PublisherName`). FOCUS 1.4 removes `ProviderName` and `PublisherName` entirely.
+- The `ContractCommitment()` function (FOCUS 1.3+) returns provider-confirmed contract commitment metadata — the dataset feeding `ContractApplied` JSON arrays on each cost row.
 
 ---
 
