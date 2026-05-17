@@ -11,14 +11,12 @@ Describe 'HubsFocusSchemas' {
         $ingestionFiles = @{
             v1_0 = Get-Content -Path (Join-Path $scriptsPath 'IngestionSetup_v1_0.kql') -Raw
             v1_2 = Get-Content -Path (Join-Path $scriptsPath 'IngestionSetup_v1_2.kql') -Raw
-            v1_3 = Get-Content -Path (Join-Path $scriptsPath 'IngestionSetup_v1_3.kql') -Raw
             v1_4 = Get-Content -Path (Join-Path $scriptsPath 'IngestionSetup_v1_4.kql') -Raw
         }
 
         $hubFiles = @{
             v1_0   = Get-Content -Path (Join-Path $scriptsPath 'HubSetup_v1_0.kql') -Raw
             v1_2   = Get-Content -Path (Join-Path $scriptsPath 'HubSetup_v1_2.kql') -Raw
-            v1_3   = Get-Content -Path (Join-Path $scriptsPath 'HubSetup_v1_3.kql') -Raw
             v1_4   = Get-Content -Path (Join-Path $scriptsPath 'HubSetup_v1_4.kql') -Raw
             Latest = Get-Content -Path (Join-Path $scriptsPath 'HubSetup_Latest.kql') -Raw
         }
@@ -27,7 +25,7 @@ Describe 'HubsFocusSchemas' {
         $buildConfig = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/.build.config') -Raw
     }
 
-    Context 'FOCUS 1.3 columns in Costs_raw' {
+    Context 'FOCUS 1.4 columns in Costs_raw' {
 
         BeforeAll {
             # Extract just the Costs_raw alter block (not Costs_final or any other table).
@@ -47,7 +45,7 @@ Describe 'HubsFocusSchemas' {
         }
     }
 
-    Context 'ContractCommitment_raw exists with FOCUS 1.3 + 1.4 columns' {
+    Context 'ContractCommitment_raw exists with all FOCUS 1.4 columns' {
 
         BeforeAll {
             # The Redefine-all-columns alter-table block is the second occurrence; match all and pick it.
@@ -63,7 +61,7 @@ Describe 'HubsFocusSchemas' {
             $contractCommitmentRawBlock | Should -Not -BeNullOrEmpty
         }
 
-        It 'Includes FOCUS 1.3 column <_>' -ForEach @(
+        It 'Includes base column <_>' -ForEach @(
             'BillingCurrency', 'ContractCommitmentCategory', 'ContractCommitmentCost',
             'ContractCommitmentId', 'ContractCommitmentPeriodEnd', 'ContractCommitmentPeriodStart',
             'ContractCommitmentQuantity', 'ContractCommitmentType', 'ContractCommitmentUnit',
@@ -83,47 +81,6 @@ Describe 'HubsFocusSchemas' {
         }
     }
 
-    Context 'IngestionSetup_v1_3.kql' {
-
-        BeforeAll {
-            $script:costsFinalV13Block = if ($ingestionFiles.v1_3 -match '(?ms)\.create-merge table Costs_final_v1_3 \(\r?\n(.*?)\r?\n\)') { $Matches[1] } else { '' }
-        }
-
-        It 'Defines Costs_transform_v1_3' {
-            $ingestionFiles.v1_3 | Should -Match 'Costs_transform_v1_3\(\)'
-        }
-
-        It 'Defines Costs_final_v1_3 table' {
-            $ingestionFiles.v1_3 | Should -Match '\.create-merge table Costs_final_v1_3'
-        }
-
-        It 'Defines ContractCommitment_transform_v1_3' {
-            $ingestionFiles.v1_3 | Should -Match 'ContractCommitment_transform_v1_3\(\)'
-        }
-
-        It 'Defines ContractCommitment_final_v1_3 table' {
-            $ingestionFiles.v1_3 | Should -Match '\.create-merge table ContractCommitment_final_v1_3'
-        }
-
-        It 'Costs_final_v1_3 block was extracted' {
-            $costsFinalV13Block | Should -Not -BeNullOrEmpty
-        }
-
-        It 'Costs_final_v1_3 includes FOCUS 1.3 column <_>' -ForEach @(
-            'AllocatedMethodId', 'AllocatedMethodDetails', 'AllocatedResourceId',
-            'AllocatedResourceName', 'AllocatedTags', 'ContractApplied',
-            'ServiceProviderName', 'HostProviderName'
-        ) {
-            $costsFinalV13Block | Should -Match "(?m)^\s+$_\s*:"
-        }
-
-        It 'Costs_final_v1_3 still includes deprecated <_> for back compat' -ForEach @(
-            'ProviderName', 'PublisherName'
-        ) {
-            $costsFinalV13Block | Should -Match "(?m)^\s+$_\s*:"
-        }
-    }
-
     Context 'IngestionSetup_v1_4.kql' {
 
         BeforeAll {
@@ -139,11 +96,19 @@ Describe 'HubsFocusSchemas' {
             $ingestionFiles.v1_4 | Should -Match '\.create-merge table Costs_final_v1_4'
         }
 
+        It 'Defines ContractCommitment_transform_v1_4' {
+            $ingestionFiles.v1_4 | Should -Match 'ContractCommitment_transform_v1_4\(\)'
+        }
+
+        It 'Defines ContractCommitment_final_v1_4 table' {
+            $ingestionFiles.v1_4 | Should -Match '\.create-merge table ContractCommitment_final_v1_4'
+        }
+
         It 'Costs_final_v1_4 block was extracted' {
             $costsFinalV14Block | Should -Not -BeNullOrEmpty
         }
 
-        It 'Costs_final_v1_4 does NOT include deprecated <_> (removed in 1.4)' -ForEach @(
+        It 'Costs_final_v1_4 does NOT include deprecated <_> (removed in FOCUS 1.4)' -ForEach @(
             'ProviderName', 'PublisherName'
         ) {
             $costsFinalV14Block | Should -Not -Match "(?m)^\s+$_\s*:"
@@ -159,23 +124,7 @@ Describe 'HubsFocusSchemas' {
         }
     }
 
-    Context 'HubSetup_v1_3.kql' {
-
-        It 'Defines <_>' -ForEach @(
-            'CommitmentDiscountUsage_v1_3', 'ContractCommitment_v1_3',
-            'Costs_v1_3', 'Prices_v1_3', 'Recommendations_v1_3', 'Transactions_v1_3'
-        ) {
-            $hubFiles.v1_3 | Should -Match "$_\(\)"
-        }
-
-        It 'Costs_v1_3 unions all prior versions' -ForEach @(
-            'Costs_final_v1_0', 'Costs_final_v1_2', 'Costs_final_v1_3'
-        ) {
-            $hubFiles.v1_3 | Should -Match "database\('Ingestion'\)\.$_"
-        }
-    }
-
-    Context 'HubSetup_v1_4.kql (preview)' {
+    Context 'HubSetup_v1_4.kql' {
 
         It 'Defines <_>' -ForEach @(
             'CommitmentDiscountUsage_v1_4', 'ContractCommitment_v1_4',
@@ -185,42 +134,35 @@ Describe 'HubsFocusSchemas' {
         }
 
         It 'Costs_v1_4 unions all prior versions' -ForEach @(
-            'Costs_final_v1_0', 'Costs_final_v1_2', 'Costs_final_v1_3', 'Costs_final_v1_4'
+            'Costs_final_v1_0', 'Costs_final_v1_2', 'Costs_final_v1_4'
         ) {
             $hubFiles.v1_4 | Should -Match "database\('Ingestion'\)\.$_"
-        }
-
-        It 'Marks itself as preview in docstring' {
-            $hubFiles.v1_4 | Should -Match 'FOCUS 1\.4-preview'
         }
     }
 
     Context 'HubSetup_Latest.kql aliases' {
 
-        It 'Aliases <_> to v1_3 (latest GA, not v1_4 preview)' -ForEach @(
-            'CommitmentDiscountUsage', 'Costs', 'Prices', 'Recommendations', 'Transactions',
-            'ContractCommitment'
+        It 'Aliases <_> to v1_4 (latest GA)' -ForEach @(
+            'CommitmentDiscountUsage', 'ContractCommitment', 'Costs', 'Prices', 'Recommendations', 'Transactions'
         ) {
-            $hubFiles.Latest | Should -Match "(?ms)$_\(\)\s*\{\s*${_}_v1_3\(\)\s*\}"
+            $hubFiles.Latest | Should -Match "(?ms)$_\(\)\s*\{\s*${_}_v1_4\(\)\s*\}"
         }
 
-        It 'Does NOT alias to v1_4 (preview must be opt-in)' {
-            $hubFiles.Latest | Should -Not -Match '_v1_4\(\)'
+        It 'Does NOT alias to v1_2 or older' {
+            $hubFiles.Latest | Should -Not -Match '_v1_2\(\)'
         }
     }
 
     Context 'Bicep wiring' {
 
         It 'app.bicep loads <_>' -ForEach @(
-            'IngestionSetup_v1_3.kql', 'IngestionSetup_v1_4.kql',
-            'HubSetup_v1_3.kql', 'HubSetup_v1_4.kql'
+            'IngestionSetup_v1_4.kql', 'HubSetup_v1_4.kql'
         ) {
             $appBicep | Should -Match ([regex]::Escape($_))
         }
 
         It '.build.config lists <_>' -ForEach @(
-            'IngestionSetup_v1_3.kql', 'IngestionSetup_v1_4.kql',
-            'HubSetup_v1_3.kql', 'HubSetup_v1_4.kql'
+            'IngestionSetup_v1_4.kql', 'HubSetup_v1_4.kql'
         ) {
             $buildConfig | Should -Match ([regex]::Escape($_))
         }
