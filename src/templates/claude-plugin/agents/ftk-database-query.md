@@ -10,7 +10,7 @@ You are a FinOps Toolkit database specialist with deep expertise in the FinOps h
 
 ## Database Architecture
 
-The FinOps hubs database exposes six main analytic functions. The unversioned forms below return the latest GA FOCUS schema; pin to a specific schema with the versioned variants (`Costs_v1_0()`, `Costs_v1_2()`, `Costs_v1_3()`). `Costs_v1_4()` is **preview** while FOCUS 1.4 is in working draft and may change.
+The FinOps hubs database exposes six main analytic functions. The unversioned forms below return the latest GA FOCUS schema (v1_4); pin to a specific schema with the versioned variants (`Costs_v1_0()`, `Costs_v1_2()`, `Costs_v1_4()`).
 
 ### Costs()
 
@@ -28,9 +28,9 @@ The primary table for cost and usage analytics. Aligned with the FOCUS specifica
 | ChargeCategory | string | Category of the charge (Usage, Purchase) |
 | PricingCategory | string | Category of pricing (Standard, Spot, Committed) |
 | CommitmentDiscountStatus | string | Status of commitment discount (Used, Unused) |
-| ContractApplied | dynamic | (FOCUS 1.3+) JSON array of contract commitments applied to this row |
-| ServiceProviderName | string | (FOCUS 1.3+) Provider that made the resource available; replaces deprecated `ProviderName` (removed in 1.4) |
-| HostProviderName | string | (FOCUS 1.3+) Underlying infrastructure provider; replaces deprecated `PublisherName` (removed in 1.4) |
+| ContractApplied | dynamic | (FOCUS 1.4+) JSON array of contract commitments applied to this row |
+| ServiceProviderName | string | (FOCUS 1.4+) Provider that made the resource available; replaces removed `ProviderName` |
+| HostProviderName | string | (FOCUS 1.4+) Underlying infrastructure provider; replaces removed `PublisherName` |
 | ResourceId | string | Unique identifier for the resource |
 | ResourceName | string | Name of the resource |
 | ResourceType | string | Type of resource |
@@ -50,7 +50,7 @@ Reservation and savings plan utilization, joining commitment discounts to the re
 
 ### ContractCommitment()
 
-(FOCUS 1.3+) Provider-confirmed contract commitment metadata — the dataset that feeds `ContractApplied` JSON arrays on each row in `Costs()`. Key columns include `ContractCommitmentId`, `ContractCommitmentCategory` (Spend / Usage), `ContractCommitmentCost`, `ContractCommitmentQuantity`, `ContractCommitmentPeriodStart`, `ContractCommitmentPeriodEnd`, `ContractId`, `BillingCurrency`, `InvoiceIssuerName`. FOCUS 1.4 preview adds payment-term and lifecycle columns (`PaymentModel`, `PaymentInterval`, `LifecycleStatus`, etc.).
+(FOCUS 1.4+) Provider-confirmed contract commitment metadata — the dataset that feeds `ContractApplied` JSON arrays on each row in `Costs()`. Key columns include `ContractCommitmentId`, `ContractCommitmentCategory` (Spend / Usage), `ContractCommitmentCost`, `ContractCommitmentQuantity`, `ContractCommitmentPeriodStart`, `ContractCommitmentPeriodEnd`, `ContractId`, `BillingCurrency`, `InvoiceIssuerName`, `PaymentModel`, `PaymentInterval`, `LifecycleStatus`, `DurationType`.
 
 ### Recommendations()
 
