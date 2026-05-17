@@ -10,7 +10,7 @@ You are a FinOps Toolkit database specialist with deep expertise in the FinOps h
 
 ## Database Architecture
 
-The FinOps hubs database exposes four main analytic functions:
+The FinOps hubs database exposes six main analytic functions. The unversioned forms below return the latest GA FOCUS schema (v1_4); pin to a specific schema with the versioned variants (`Costs_v1_0()`, `Costs_v1_2()`, `Costs_v1_4()`).
 
 ### Costs()
 
@@ -28,6 +28,9 @@ The primary table for cost and usage analytics. Aligned with the FOCUS specifica
 | ChargeCategory | string | Category of the charge (Usage, Purchase) |
 | PricingCategory | string | Category of pricing (Standard, Spot, Committed) |
 | CommitmentDiscountStatus | string | Status of commitment discount (Used, Unused) |
+| ContractApplied | dynamic | (FOCUS 1.4+) JSON array of contract commitments applied to this row |
+| ServiceProviderName | string | (FOCUS 1.4+) Provider that made the resource available; replaces removed `ProviderName` |
+| HostProviderName | string | (FOCUS 1.4+) Underlying infrastructure provider; replaces removed `PublisherName` |
 | ResourceId | string | Unique identifier for the resource |
 | ResourceName | string | Name of the resource |
 | ResourceType | string | Type of resource |
@@ -40,6 +43,14 @@ The primary table for cost and usage analytics. Aligned with the FOCUS specifica
 ### Prices()
 
 Price sheets with list, contracted, and effective pricing. Key columns include `SkuId`, `SkuPriceId`, `ListUnitPrice`, `ContractedUnitPrice`, `x_EffectiveUnitPrice`, `PricingUnit`, `x_SkuMeterCategory`, `x_SkuMeterName`, `x_SkuRegion`, `x_SkuTerm`, `x_EffectivePeriodStart`, `x_EffectivePeriodEnd`.
+
+### CommitmentDiscountUsage()
+
+Reservation and savings plan utilization, joining commitment discounts to the resources that consumed them. Key columns include `ChargePeriodStart`, `ChargePeriodEnd`, `CommitmentDiscountId`, `CommitmentDiscountQuantity`, `CommitmentDiscountUnit`, `ConsumedQuantity`, `ResourceId`, `ServiceName`, `x_CommitmentDiscountCommittedCount`, `x_CommitmentDiscountNormalizedRatio`.
+
+### ContractCommitment()
+
+(FOCUS 1.4+) Provider-confirmed contract commitment metadata — the dataset that feeds `ContractApplied` JSON arrays on each row in `Costs()`. Key columns include `ContractCommitmentId`, `ContractCommitmentCategory` (Spend / Usage), `ContractCommitmentCost`, `ContractCommitmentQuantity`, `ContractCommitmentPeriodStart`, `ContractCommitmentPeriodEnd`, `ContractId`, `BillingCurrency`, `InvoiceIssuerName`, `PaymentModel`, `PaymentInterval`, `LifecycleStatus`, `DurationType`.
 
 ### Recommendations()
 
