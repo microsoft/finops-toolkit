@@ -20,8 +20,8 @@
 To add a new FOCUS version:
 
 0. Confirm dependencies
-   1. Mark the hub schema as **preview** if the FOCUS specification is still working draft (not yet ratified). Preview schemas may change without notice between releases.
-   2. Check whether Microsoft Cost Management has shipped a matching FOCUS export dataset version. The hub depends on a `focuscost_X.Y.json` schema mapping file in [Microsoft.CostManagement/Exports/schemas](../modules/Microsoft.CostManagement/Exports/schemas/) when ingesting from Cost Management. If the export is not yet available, the hub schema can still ship as GA &mdash; the hub will ingest the new format as soon as the export ships. Note the gap in the changelog so adopters know what additional setup will be required.
+   1. Ensure the FOCUS specification has been ratified for the target version. Support for working draft FOCUS versions should not be shipped before official ratification to prevent customer churn sinc FOCUS working drafts may change without notice.
+   2. Check whether Microsoft Cost Management has shipped a matching FOCUS export dataset version. The hub depends on a `focuscost_X.Y.json` schema mapping file in [Microsoft.CostManagement/Exports/schemas](../modules/Microsoft.CostManagement/Exports/schemas/) when ingesting from Cost Management. If the export is not yet available, the hub schema can still ship as GA. Note the gap in the changelog so adopters know what additional setup will be required.
 1. Add schema mapping file
    1. Create new schema mapping file for the Cost Management export dataset version in the schemas folder
    2. Add file to file upload list in [storage.bicep](../modules/storage.bicep)
@@ -45,8 +45,9 @@ To add a new FOCUS version:
    3. Update the ADX dashboard to use the new versioned functions
    4. Update the FOCUS queries in the best practices library to use the new versioned functions
 5. Update open-data metadata
-   1. Drop a new `FocusCost_<version>.json` file into [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/).
-   2. Mirror the schema details (columns, types, descriptions) from the matching Cost Management export schema so downstream consumers see consistent metadata.
+   1. Create a `FocusCost_<version>.json` file into [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/) for each Cost Management cost export version.
+   2. Create a `FinOpsHubs_<dataset>_<schema-version>.json` file into [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/) for each FinOps hub managed dataset schema version.
+   3. Mirror the schema details (columns, types, descriptions) from the matching Cost Management export or FinOps hubs schema so downstream consumers see consistent metadata.
 6. Update plugin skill files
    1. Refresh the FOCUS schema and function references in the following files so plugin guidance does not go stale:
       - [src/templates/agent-skills/finops-toolkit/references/finops-hubs.md](../../agent-skills/finops-toolkit/references/finops-hubs.md)
@@ -56,14 +57,3 @@ To add a new FOCUS version:
       - [src/templates/claude-plugin/output-styles/ftk-output-style.md](../../claude-plugin/output-styles/ftk-output-style.md)
 7. Update changelog
    1. Add an entry under the next version in [docs-mslearn/toolkit/changelog.md](../../../../docs-mslearn/toolkit/changelog.md) describing the new FOCUS version support and any preview status.
-
-### Handling multiple FOCUS versions in one cycle
-
-Occasionally, the toolkit needs to support two FOCUS versions in a single release &ndash; for example, a newly ratified version alongside a working draft of the next version. When that happens:
-
-- The older version follows the standard `_v1_X` naming and ships as generally available (GA).
-- The newer version uses the next `_v1_Y` suffix and is labeled **preview** in user-facing documentation, including [data-model.md](../../../../docs-mslearn/toolkit/hubs/data-model.md) and [changelog.md](../../../../docs-mslearn/toolkit/changelog.md).
-- Preview schemas may change without notice between releases. Treat them as opt-in for early adopters only.
-- The unversioned functions (`Costs()`, `Prices()`, etc.) alias to the latest **GA** schema, not the preview. The aliases promote to the newer version only after it transitions from preview to GA.
-
-This guarantees backwards compatibility for production consumers while still enabling early validation of the next FOCUS version.
