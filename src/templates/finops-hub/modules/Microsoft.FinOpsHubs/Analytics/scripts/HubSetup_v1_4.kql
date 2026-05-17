@@ -2,19 +2,19 @@
 // Licensed under the MIT License.
 
 //======================================================================================================================
-// Hub database / FOCUS 1.3 functions
+// Hub database / FOCUS 1.4 functions
 // Used for reporting with backward compatibility.
 //======================================================================================================================
 
 // For allowed commands, see https://learn.microsoft.com/azure/data-explorer/database-script
 
 
-// CommitmentDiscountUsage_final_v1_3
+// CommitmentDiscountUsage_final_v1_4
 .create-or-alter function
-with (docstring = 'Gets all commitment discount usage records aligned to FOCUS 1.3.', folder = 'CommitmentDiscountUsage')
-CommitmentDiscountUsage_v1_3()
+with (docstring = 'Gets all commitment discount usage records aligned to FOCUS 1.4.', folder = 'CommitmentDiscountUsage')
+CommitmentDiscountUsage_v1_4()
 {
-    database('Ingestion').CommitmentDiscountUsage_final_v1_3
+    database('Ingestion').CommitmentDiscountUsage_final_v1_4
     | union (
         database('Ingestion').CommitmentDiscountUsage_final_v1_0
         // Convert decimal to real
@@ -66,12 +66,39 @@ CommitmentDiscountUsage_v1_3()
 }
 
 
-// Costs_final_v1_3
+// ContractCommitment_final_v1_4
 .create-or-alter function
-with (docstring = 'Gets all cost and usage records aligned to FOCUS 1.3.', folder = 'Costs')
-Costs_v1_3()
+with (docstring = 'Gets all contract commitments aligned to FOCUS 1.4.', folder = 'ContractCommitment')
+ContractCommitment_v1_4()
 {
-    database('Ingestion').Costs_final_v1_3
+    database('Ingestion').ContractCommitment_final_v1_4
+    | union (
+        database('Ingestion').ContractCommitment_final_v1_3
+        // FOCUS 1.4 column defaults (data was ingested under v1_3 schema)
+        | extend BenefitCategory                       = ''
+        | extend ContractCommitmentApplicability       = dynamic(null)
+        | extend Created                               = datetime(null)
+        | extend DiscountPercentage                    = real(null)
+        | extend DurationType                          = ''
+        | extend FulfillmentInterval                   = ''
+        | extend LastUpdated                           = datetime(null)
+        | extend LifecycleStatus                       = ''
+        | extend Model                                 = ''
+        | extend OfferCategory                         = ''
+        | extend PaymentInterval                       = ''
+        | extend PaymentModel                          = ''
+        | extend PaymentUpfrontPercentage              = real(null)
+        | extend PricingCurrencyContractCommitmentCost = real(null)
+    )
+}
+
+
+// Costs_final_v1_4
+.create-or-alter function
+with (docstring = 'Gets all cost and usage records aligned to FOCUS 1.4.', folder = 'Costs')
+Costs_v1_4()
+{
+    database('Ingestion').Costs_final_v1_4
     | union (
         database('Ingestion').Costs_final_v1_0
         // Convert decimal to real
@@ -220,6 +247,12 @@ Costs_v1_3()
         | extend ServiceProviderName    = ProviderName
         | extend HostProviderName       = PublisherName
     )
+    | union (
+        database('Ingestion').Costs_final_v1_3
+        // No column adds needed; v1_3 already has the FOCUS 1.3 columns. The
+        // deprecated ProviderName / PublisherName fall off via the | project
+        // list below since FOCUS 1.4 removes them.
+    )
     | extend SkuPriceDetails = iff(isnotempty(SkuPriceDetails), SkuPriceDetails, parse_json(replace_regex(tostring(x_SkuDetails), @'([\{,])"', @'\1"x_')))
     | project
         AllocatedMethodDetails,
@@ -265,8 +298,7 @@ Costs_v1_3()
         PricingCurrency,
         PricingQuantity,
         PricingUnit,
-        ProviderName,
-        PublisherName,
+        // ProviderName and PublisherName removed in FOCUS 1.4. Use ServiceProviderName / HostProviderName.
         RegionId,
         RegionName,
         ResourceId,
@@ -388,12 +420,12 @@ Costs_v1_3()
 }
 
 
-// Prices_final_v1_3
+// Prices_final_v1_4
 .create-or-alter function
-with (docstring = 'Gets all prices aligned to FOCUS 1.3.', folder = 'Prices')
-Prices_v1_3()
+with (docstring = 'Gets all prices aligned to FOCUS 1.4.', folder = 'Prices')
+Prices_v1_4()
 {
-    database('Ingestion').Prices_final_v1_3
+    database('Ingestion').Prices_final_v1_4
     | union (
         database('Ingestion').Prices_final_v1_0
         // Convert decimal to real
@@ -475,12 +507,12 @@ Prices_v1_3()
 }
 
 
-// Recommendations_final_v1_3
+// Recommendations_final_v1_4
 .create-or-alter function
-with (docstring = 'Gets all recommendations aligned to FOCUS 1.3.', folder = 'Recommendations')
-Recommendations_v1_3()
+with (docstring = 'Gets all recommendations aligned to FOCUS 1.4.', folder = 'Recommendations')
+Recommendations_v1_4()
 {
-    database('Ingestion').Recommendations_final_v1_3
+    database('Ingestion').Recommendations_final_v1_4
     | union (
         database('Ingestion').Recommendations_final_v1_0
         // Convert decimal to real
@@ -513,12 +545,12 @@ Recommendations_v1_3()
 }
 
 
-// Transactions_final_v1_3
+// Transactions_final_v1_4
 .create-or-alter function
-with (docstring = 'Gets all transactions aligned to FOCUS 1.3.', folder = 'Transactions')
-Transactions_v1_3()
+with (docstring = 'Gets all transactions aligned to FOCUS 1.4.', folder = 'Transactions')
+Transactions_v1_4()
 {
-    database('Ingestion').Transactions_final_v1_3
+    database('Ingestion').Transactions_final_v1_4
     | union (
         database('Ingestion').Transactions_final_v1_0
         // Convert decimal to real
@@ -582,7 +614,7 @@ Transactions_v1_3()
 with (docstring = 'Gets all commitment discount usage records with the latest supported version of the FOCUS schema.', folder = 'CommitmentDiscountUsage')
 CommitmentDiscountUsage()
 {
-    CommitmentDiscountUsage_v1_3()
+    CommitmentDiscountUsage_v1_4()
 }
 
 
@@ -590,7 +622,7 @@ CommitmentDiscountUsage()
 with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Costs')
 Costs()
 {
-    Costs_v1_3()
+    Costs_v1_4()
 }
 
 
@@ -598,7 +630,7 @@ Costs()
 with (docstring = 'Gets all prices with the latest supported version of the FOCUS schema.', folder = 'Prices')
 Prices()
 {
-    Prices_v1_3()
+    Prices_v1_4()
 }
 
 
@@ -606,7 +638,7 @@ Prices()
 with (docstring = 'Gets all recommendations with the latest supported version of the FOCUS schema.', folder = 'Recommendations')
 Recommendations()
 {
-    Recommendations_v1_3()
+    Recommendations_v1_4()
 }
 
 
@@ -614,5 +646,5 @@ Recommendations()
 with (docstring = 'Gets all transactions with the latest supported version of the FOCUS schema.', folder = 'Transactions')
 Transactions()
 {
-    Transactions_v1_3()
+    Transactions_v1_4()
 }
