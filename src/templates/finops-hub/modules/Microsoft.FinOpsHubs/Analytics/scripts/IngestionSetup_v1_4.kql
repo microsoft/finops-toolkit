@@ -14,10 +14,10 @@
 // - MS MCA 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
 //======================================================================================================================
 
-// Prices_transform_v1_3 function
+// Prices_transform_v1_4 function
 .create-or-alter function
-with (docstring='Transforms Prices_raw into FOCUS 1.3.', folder='Prices')
-Prices_transform_v1_3()
+with (docstring='Transforms Prices_raw into FOCUS 1.4.', folder='Prices')
+Prices_transform_v1_4()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     let isoMonths = (duration: string) {
@@ -196,8 +196,8 @@ Prices_transform_v1_3()
         x_TotalUnitPriceDiscountPercent = 1.0 * x_TotalUnitPriceDiscount / ListUnitPrice * 100
 }
 
-// Prices_final_v1_3 table
-.create-merge table Prices_final_v1_3 (
+// Prices_final_v1_4 table
+.create-merge table Prices_final_v1_4 (
     BillingAccountId:                     string,
     BillingAccountName:                   string,
     BillingCurrency:                      string,
@@ -255,13 +255,13 @@ Prices_transform_v1_3()
     x_TotalUnitPriceDiscountPercent:      real       // Hubs add-on
 )
 
-// Update policy for Prices_raw -> Prices_final_v1_3
-.alter table Prices_final_v1_3 policy update
+// Update policy for Prices_raw -> Prices_final_v1_4
+.alter table Prices_final_v1_4 policy update
 ```
 [{
     "IsEnabled": true,
     "Source": "Prices_raw",
-    "Query": "Prices_transform_v1_3()",
+    "Query": "Prices_transform_v1_4()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -286,10 +286,10 @@ Prices_transform_v1_3()
 // Support for non-Azure data is limited to ingestion only. Data is not transformed across versions.
 //======================================================================================================================
 
-// Costs_transform_v1_3 function
+// Costs_transform_v1_4 function
 .create-or-alter function
-with (docstring='All costs transformed to FOCUS 1.3.', folder='Costs')
-Costs_transform_v1_3()
+with (docstring='All costs transformed to FOCUS 1.4.', folder='Costs')
+Costs_transform_v1_4()
 {
     let checkString = (column: string, oldValue: string, newValue: string) {
         iff(oldValue == newValue, dynamic({}), bag_pack(column, oldValue))
@@ -419,7 +419,7 @@ Costs_transform_v1_3()
     | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(ChargePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
     | as costsWithMissingPrices
     | join kind=leftouter (
-        Prices_final_v1_3
+        Prices_final_v1_4
         | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(x_EffectivePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
         | where x_SkuPriceType == 'Consumption' and tmp_ReservationPriceLookupKey in ((costsWithMissingPrices | summarize by tmp_ReservationPriceLookupKey))
         | summarize ListUnitPrice = min(ListUnitPrice), ContractedUnitPrice = min(ContractedUnitPrice) by tmp_ReservationPriceLookupKey, x_PricingBlockSize, PricingUnit
@@ -758,8 +758,7 @@ Costs_transform_v1_3()
         PricingCurrency = coalesce(PricingCurrency, x_PricingCurrency),
         PricingQuantity,
         PricingUnit,
-        ProviderName,
-        PublisherName,
+        // ProviderName and PublisherName removed in FOCUS 1.4. Use ServiceProviderName / HostProviderName.
         RegionId,
         RegionName,
         ResourceId,
@@ -921,8 +920,8 @@ Costs_transform_v1_3()
         x_UsageType
 }
 
-// Costs_final_v1_3 table
-.create-merge table Costs_final_v1_3 (
+// Costs_final_v1_4 table
+.create-merge table Costs_final_v1_4 (
     AllocatedMethodDetails:     dynamic,   // FOCUS 1.3+
     AllocatedMethodId:          string,    // FOCUS 1.3+
     AllocatedResourceId:        string,    // FOCUS 1.3+
@@ -966,8 +965,7 @@ Costs_transform_v1_3()
     PricingCurrency:            string,
     PricingQuantity:            real,
     PricingUnit:                string,
-    ProviderName:               string,
-    PublisherName:              string,
+    // ProviderName and PublisherName removed in FOCUS 1.4
     RegionId:                   string,
     RegionName:                 string,
     ResourceId:                 string,
@@ -1088,13 +1086,13 @@ Costs_transform_v1_3()
     x_UsageType:                string     // AWS 1.0
 )
 
-// Update policy for Costs_raw -> Costs_final_v1_3 table
-.alter table Costs_final_v1_3 policy update
+// Update policy for Costs_raw -> Costs_final_v1_4 table
+.alter table Costs_final_v1_4 policy update
 ```
 [{
     "IsEnabled": true,
     "Source": "Costs_raw",
-    "Query": "Costs_transform_v1_3()",
+    "Query": "Costs_transform_v1_4()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -1106,10 +1104,10 @@ Costs_transform_v1_3()
 // - C360-2025-04
 //======================================================================================================================
 
-// ActualCosts_transform_v1_3 function
+// ActualCosts_transform_v1_4 function
 .create-or-alter function
-with (docstring='ActualCost exports transformed to FOCUS 1.3.', folder='Costs')
-ActualCosts_transform_v1_3()
+with (docstring='ActualCost exports transformed to FOCUS 1.4.', folder='Costs')
+ActualCosts_transform_v1_4()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     ActualCosts_raw
@@ -1316,7 +1314,7 @@ ActualCosts_transform_v1_3()
 [{
     "IsEnabled": true,
     "Source": "ActualCosts_raw",
-    "Query": "ActualCosts_transform_v1_3()",
+    "Query": "ActualCosts_transform_v1_4()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -1328,10 +1326,10 @@ ActualCosts_transform_v1_3()
 // - C360-2025-04
 //======================================================================================================================
 
-// AmortizedCosts_transform_v1_3 function
+// AmortizedCosts_transform_v1_4 function
 .create-or-alter function
-with (docstring='ActualCost exports transformed to FOCUS 1.3.', folder='Costs')
-AmortizedCosts_transform_v1_3()
+with (docstring='ActualCost exports transformed to FOCUS 1.4.', folder='Costs')
+AmortizedCosts_transform_v1_4()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     AmortizedCosts_raw
@@ -1537,7 +1535,7 @@ AmortizedCosts_transform_v1_3()
 [{
     "IsEnabled": true,
     "Source": "AmortizedCosts_raw",
-    "Query": "AmortizedCosts_transform_v1_3()",
+    "Query": "AmortizedCosts_transform_v1_4()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -1550,10 +1548,10 @@ AmortizedCosts_transform_v1_3()
 // - MS MCA reservation details: 2023-03-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-mca
 //======================================================================================================================
 
-// CommitmentDiscountUsage_transform_v1_3 function
+// CommitmentDiscountUsage_transform_v1_4 function
 .create-or-alter function
-with (docstring='All commitment discount usage transformed to FOCUS 1.3. This includes reservationdeatils_raw.', folder='Commitment discounts')
-CommitmentDiscountUsage_transform_v1_3()
+with (docstring='All commitment discount usage transformed to FOCUS 1.4. This includes reservationdeatils_raw.', folder='Commitment discounts')
+CommitmentDiscountUsage_transform_v1_4()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     CommitmentDiscountUsage_raw
@@ -1616,8 +1614,8 @@ CommitmentDiscountUsage_transform_v1_3()
         x_SourceVersion                     = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2024-03-01', ''))
 }
 
-// CommitmentDiscountUsage_final_v1_3 table
-.create-merge table CommitmentDiscountUsage_final_v1_3 (
+// CommitmentDiscountUsage_final_v1_4 table
+.create-merge table CommitmentDiscountUsage_final_v1_4 (
     ChargePeriodEnd:                     datetime,  // Hubs add-on
     ChargePeriodStart:                   datetime,  // MS 2023-03-01
     CommitmentDiscountCategory:          string,    // Hubs add-on
@@ -1650,13 +1648,110 @@ CommitmentDiscountUsage_transform_v1_3()
     x_SourceVersion:                     string     // Hubs add-on
 )
 
-// Update policy for CommitmentDiscountUsage_raw -> CommitmentDiscountUsage_final_v1_3 table
-.alter table CommitmentDiscountUsage_final_v1_3 policy update
+// Update policy for CommitmentDiscountUsage_raw -> CommitmentDiscountUsage_final_v1_4 table
+.alter table CommitmentDiscountUsage_final_v1_4 policy update
 ```
 [{
     "IsEnabled": true,
     "Source": "CommitmentDiscountUsage_raw",
-    "Query": "CommitmentDiscountUsage_transform_v1_3()",
+    "Query": "CommitmentDiscountUsage_transform_v1_4()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
+
+
+//===| Contract commitment |============================================================================================
+// Supported versions:
+// - FOCUS 1.3+ (no Cost Management export shipped yet; defines the schema in advance for forward compat)
+//======================================================================================================================
+
+// ContractCommitment_transform_v1_4 function
+.create-or-alter function
+with (docstring='All contract commitments aligned to FOCUS 1.4.', folder='Contract commitments')
+ContractCommitment_transform_v1_4()
+{
+    ContractCommitment_raw
+    | project
+        BenefitCategory                       = column_ifexists('BenefitCategory', ''),                            // FOCUS 1.4+
+        BillingCurrency,
+        ContractCommitmentApplicability       = parse_json(column_ifexists('ContractCommitmentApplicability', '')),// FOCUS 1.4+
+        ContractCommitmentCategory,
+        ContractCommitmentCost,
+        ContractCommitmentId,
+        ContractCommitmentPeriodEnd,
+        ContractCommitmentPeriodStart,
+        ContractCommitmentQuantity,
+        ContractCommitmentType,
+        ContractCommitmentUnit,
+        ContractId,
+        ContractPeriodEnd,
+        ContractPeriodStart,
+        Created                               = column_ifexists('Created', datetime(null)),                       // FOCUS 1.4+
+        DiscountPercentage                    = column_ifexists('DiscountPercentage', real(null)),                // FOCUS 1.4+
+        DurationType                          = column_ifexists('DurationType', ''),                              // FOCUS 1.4+
+        FulfillmentInterval                   = column_ifexists('FulfillmentInterval', ''),                       // FOCUS 1.4+
+        InvoiceIssuerName,
+        LastUpdated                           = column_ifexists('LastUpdated', datetime(null)),                   // FOCUS 1.4+
+        LifecycleStatus                       = column_ifexists('LifecycleStatus', ''),                           // FOCUS 1.4+
+        Model                                 = column_ifexists('Model', ''),                                     // FOCUS 1.4+
+        OfferCategory                         = column_ifexists('OfferCategory', ''),                             // FOCUS 1.4+
+        PaymentInterval                       = column_ifexists('PaymentInterval', ''),                           // FOCUS 1.4+
+        PaymentModel                          = column_ifexists('PaymentModel', ''),                              // FOCUS 1.4+
+        PaymentUpfrontPercentage              = column_ifexists('PaymentUpfrontPercentage', real(null)),          // FOCUS 1.4+
+        PricingCurrency,
+        PricingCurrencyContractCommitmentCost = column_ifexists('PricingCurrencyContractCommitmentCost', real(null)),  // FOCUS 1.4+
+        x_IngestionTime  = ingestion_time(),
+        x_SourceName     = coalesce(x_SourceName, ''),
+        x_SourceProvider = coalesce(x_SourceProvider, ''),
+        x_SourceType     = coalesce(x_SourceType, ''),
+        x_SourceVersion  = coalesce(x_SourceVersion, '')
+}
+
+// ContractCommitment_final_v1_4 table
+.create-merge table ContractCommitment_final_v1_4 (
+    BenefitCategory:                       string,    // FOCUS 1.4+
+    BillingCurrency:                       string,    // FOCUS 1.3+
+    ContractCommitmentApplicability:       dynamic,   // FOCUS 1.4+ (JSON)
+    ContractCommitmentCategory:            string,    // FOCUS 1.3+
+    ContractCommitmentCost:                real,      // FOCUS 1.3+
+    ContractCommitmentId:                  string,    // FOCUS 1.3+
+    ContractCommitmentPeriodEnd:           datetime,  // FOCUS 1.3+
+    ContractCommitmentPeriodStart:         datetime,  // FOCUS 1.3+
+    ContractCommitmentQuantity:            real,      // FOCUS 1.3+
+    ContractCommitmentType:                string,    // FOCUS 1.3+
+    ContractCommitmentUnit:                string,    // FOCUS 1.3+
+    ContractId:                            string,    // FOCUS 1.3+
+    ContractPeriodEnd:                     datetime,  // FOCUS 1.3+
+    ContractPeriodStart:                   datetime,  // FOCUS 1.3+
+    Created:                               datetime,  // FOCUS 1.4+
+    DiscountPercentage:                    real,      // FOCUS 1.4+
+    DurationType:                          string,    // FOCUS 1.4+
+    FulfillmentInterval:                   string,    // FOCUS 1.4+
+    InvoiceIssuerName:                     string,    // FOCUS 1.3+
+    LastUpdated:                           datetime,  // FOCUS 1.4+
+    LifecycleStatus:                       string,    // FOCUS 1.4+
+    Model:                                 string,    // FOCUS 1.4+
+    OfferCategory:                         string,    // FOCUS 1.4+
+    PaymentInterval:                       string,    // FOCUS 1.4+
+    PaymentModel:                          string,    // FOCUS 1.4+
+    PaymentUpfrontPercentage:              real,      // FOCUS 1.4+
+    PricingCurrency:                       string,    // FOCUS 1.3+
+    PricingCurrencyContractCommitmentCost: real,      // FOCUS 1.4+
+    x_IngestionTime:                       datetime,  // Hubs add-on
+    x_SourceName:                          string,    // Hubs add-on
+    x_SourceProvider:                      string,    // Hubs add-on
+    x_SourceType:                          string,    // Hubs add-on
+    x_SourceVersion:                       string     // Hubs add-on
+)
+
+// Update policy for ContractCommitment_raw -> ContractCommitment_final_v1_4 table
+.alter table ContractCommitment_final_v1_4 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "ContractCommitment_raw",
+    "Query": "ContractCommitment_transform_v1_4()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -1669,10 +1764,10 @@ CommitmentDiscountUsage_transform_v1_3()
 // - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
 //======================================================================================================================
 
-// Recommendations_transform_v1_3 function
+// Recommendations_transform_v1_4 function
 .create-or-alter function
-with (docstring='All recommendations transformed to FOCUS 1.3.', folder='Recommendations')
-Recommendations_transform_v1_3()
+with (docstring='All recommendations transformed to FOCUS 1.4.', folder='Recommendations')
+Recommendations_transform_v1_4()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     let isoMonths = (duration: string) {
@@ -1777,8 +1872,8 @@ Recommendations_transform_v1_3()
         x_SourceVersion
 }
 
-// Recommendations_final_v1_3 table
-.create-merge table Recommendations_final_v1_3 (
+// Recommendations_final_v1_4 table
+.create-merge table Recommendations_final_v1_4 (
     ProviderName:                string,
     ResourceId:                  string,
     ResourceName:                string,
@@ -1801,13 +1896,13 @@ Recommendations_transform_v1_3()
     x_SourceVersion:             string
 )
 
-// Update policy for Recommendations_raw -> Recommendations_final_v1_3 table
-.alter table Recommendations_final_v1_3 policy update
+// Update policy for Recommendations_raw -> Recommendations_final_v1_4 table
+.alter table Recommendations_final_v1_4 policy update
 ```
 [{
     "IsEnabled": true,
     "Source": "Recommendations_raw",
-    "Query": "Recommendations_transform_v1_3()",
+    "Query": "Recommendations_transform_v1_4()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -1820,10 +1915,10 @@ Recommendations_transform_v1_3()
 // - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
 //======================================================================================================================
 
-// Transactions_transform_v1_3 function
+// Transactions_transform_v1_4 function
 .create-or-alter function
-with (docstring='All transactions transformed to FOCUS 1.3.', folder='Transactions')
-Transactions_transform_v1_3()
+with (docstring='All transactions transformed to FOCUS 1.4.', folder='Transactions')
+Transactions_transform_v1_4()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     let isoMonths = (duration: string) {
@@ -1910,8 +2005,8 @@ Transactions_transform_v1_3()
         x_TransactionType = EventType
 }
 
-// Transactions_final_v1_3 table
-.create-merge table Transactions_final_v1_3 (
+// Transactions_final_v1_4 table
+.create-merge table Transactions_final_v1_4 (
     BilledCost:                   real,      // MS CM EA+MCA 2023-05-01
     BillingAccountId:             string,    // MS CM EA+MCA 2023-05-01
     BillingAccountName:           string,    // MS CM EA+MCA 2023-05-01
@@ -1953,13 +2048,13 @@ Transactions_transform_v1_3()
     x_TransactionType:            string     // MS CM EA+MCA 2023-05-01
 )
 
-// Update policy for Transactions_raw -> Transactions_final_v1_3 table
-.alter table Transactions_final_v1_3 policy update
+// Update policy for Transactions_raw -> Transactions_final_v1_4 table
+.alter table Transactions_final_v1_4 policy update
 ```
 [{
     "IsEnabled": true,
     "Source": "Transactions_raw",
-    "Query": "Transactions_transform_v1_3()",
+    "Query": "Transactions_transform_v1_4()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
