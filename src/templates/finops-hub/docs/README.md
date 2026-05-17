@@ -17,8 +17,11 @@
 - Each versioned function unions data from versioned tables in the Ingestion database and transforms it to that FOCUS version for back compat.
 - Consumers should use the unversioned function for the latest and the versioned functions for back compat.
 
-To add a new FOCUS versions:
+To add a new FOCUS version:
 
+0. Confirm dependencies
+   1. Ensure the FOCUS specification has been ratified for the target version. Support for working draft FOCUS versions should not be shipped before official ratification to prevent customer churn sinc FOCUS working drafts may change without notice.
+   2. Check whether Microsoft Cost Management has shipped a matching FOCUS export dataset version. The hub depends on a `focuscost_X.Y.json` schema mapping file in [Microsoft.CostManagement/Exports/schemas](../modules/Microsoft.CostManagement/Exports/schemas/) when ingesting from Cost Management. If the export is not yet available, the hub schema can still ship as GA. Note the gap in the changelog so adopters know what additional setup will be required.
 1. Add schema mapping file
    1. Create new schema mapping file for the Cost Management export dataset version in the schemas folder
    2. Add file to file upload list in [storage.bicep](../modules/storage.bicep)
@@ -41,3 +44,16 @@ To add a new FOCUS versions:
    2. Update the KQL reports to use the new versioned functions
    3. Update the ADX dashboard to use the new versioned functions
    4. Update the FOCUS queries in the best practices library to use the new versioned functions
+5. Update open-data metadata
+   1. Create a `FocusCost_<version>.json` file into [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/) for each Cost Management cost export version.
+   2. Create a `FinOpsHubs_<dataset>_<schema-version>.json` file into [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/) for each FinOps hub managed dataset schema version.
+   3. Mirror the schema details (columns, types, descriptions) from the matching Cost Management export or FinOps hubs schema so downstream consumers see consistent metadata.
+6. Update plugin skill files
+   1. Refresh the FOCUS schema and function references in the following files so plugin guidance does not go stale:
+      - [src/templates/agent-skills/finops-toolkit/references/finops-hubs.md](../../agent-skills/finops-toolkit/references/finops-hubs.md)
+      - [src/templates/agent-skills/finops-toolkit/references/finops-hubs-deployment.md](../../agent-skills/finops-toolkit/references/finops-hubs-deployment.md)
+      - [src/templates/agent-skills/azure-cost-management/references/azure-cost-exports.md](../../agent-skills/azure-cost-management/references/azure-cost-exports.md)
+      - [src/templates/claude-plugin/agents/ftk-database-query.md](../../claude-plugin/agents/ftk-database-query.md)
+      - [src/templates/claude-plugin/output-styles/ftk-output-style.md](../../claude-plugin/output-styles/ftk-output-style.md)
+7. Update changelog
+   1. Add an entry under the next version in [docs-mslearn/toolkit/changelog.md](../../../../docs-mslearn/toolkit/changelog.md) describing the new FOCUS version support and any preview status.
