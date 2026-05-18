@@ -984,7 +984,7 @@ var runbooks = [
   }
   {
     name: rbacExportsRunbookName
-    version: '1.1.1.0'
+    version: '1.1.2.0'
     description: 'Exports RBAC assignments to Blob Storage using ARM and Microsoft Entra'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${rbacExportsRunbookName}.ps1')
@@ -1054,14 +1054,14 @@ var runbooks = [
   }
   {
     name: reservationsPriceExportsRunbookName
-    version: '1.0.2.0'
+    version: '1.1.0.0'
     description: 'Exports Reservations Prices to Blob Storage using the Retail Prices API'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${reservationsPriceExportsRunbookName}.ps1')
   }
   {
     name: priceSheetExportsRunbookName
-    version: '1.1.2.0'
+    version: '1.2.0.0'
     description: 'Exports Price Sheet to Blob Storage using the EA or MCA APIs'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${priceSheetExportsRunbookName}.ps1')
