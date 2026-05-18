@@ -14,7 +14,7 @@ The script:
   automation variable (the DCE itself is expected to already be deployed via the Bicep template).
 - Creates or updates each custom Log Analytics table schema.
 - Creates or updates one DCR per table.
-- Assigns the Monitoring Metrics Publisher role on every DCR to the Automation account managed identity.
+- Assigns the Monitoring Metrics Publisher role on the resource group containing the DCRs to the Automation account managed identity.
 - Writes the DCR immutable ID for each table into the SQL LogAnalyticsIngestControl table.
 - Creates/updates the AzureOptimization_DCEIngestionEndpoint automation variable.
 - Removes the AzureOptimization_LogAnalyticsWorkspaceKey automation variable (no longer needed).
@@ -909,6 +909,38 @@ $existingTables = Get-AzOperationalInsightsTable -ResourceGroupName $WorkspaceRe
 
 $dcrSuffixToImmutableId = @{}
 
+#region Assign Monitoring Metrics Publisher role at resource group scope
+Write-Host "Granting Monitoring Metrics Publisher on resource group to Automation MI..." -ForegroundColor Green
+
+# Role assignment must be created in the DCR subscription/resource group context
+if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
+{
+    Set-AzContext -SubscriptionId $currentSubscriptionId | Out-Null
+}
+
+$dcrResourceGroupScope = "/subscriptions/$currentSubscriptionId/resourceGroups/$ResourceGroupName"
+$existingAssignment = Get-AzRoleAssignment -ObjectId $automationPrincipalId `
+    -RoleDefinitionId $monitoringMetricsPublisherRoleId `
+    -Scope $dcrResourceGroupScope -ErrorAction SilentlyContinue
+if ($null -eq $existingAssignment)
+{
+    New-AzRoleAssignment -ObjectId $automationPrincipalId `
+        -RoleDefinitionId $monitoringMetricsPublisherRoleId `
+        -Scope $dcrResourceGroupScope | Out-Null
+    Write-Host "  Role assigned on resource group scope." -ForegroundColor Gray
+}
+else
+{
+    Write-Host "  Role already assigned on resource group scope." -ForegroundColor Gray
+}
+
+# Restore workspace subscription context for table operations
+if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
+{
+    Set-AzContext -SubscriptionId $WorkspaceSubscriptionId | Out-Null
+}
+#endregion
+
 foreach ($suffix in $tableSchemas.Keys)
 {
     $tableName = "$lognamePrefix$suffix" + "_CL"
@@ -1080,7 +1112,6 @@ foreach ($suffix in $tableSchemas.Keys)
     }
     Write-Host "    DCR $dcrName created." -ForegroundColor Gray
     $dcrImmutableId = $dcrResponseContent.properties.immutableId
-    $dcrResourceId = $dcrResponseContent.id
     $dcrSuffixToImmutableId[$suffix] = $dcrImmutableId
     Write-Host "    DCR immutable ID: $dcrImmutableId" -ForegroundColor Gray
 
@@ -1091,36 +1122,6 @@ foreach ($suffix in $tableSchemas.Keys)
     }
     #endregion
 
-    #region Assign Monitoring Metrics Publisher role on DCR to Automation account MI
-    Write-Host "  [$suffix] Granting Monitoring Metrics Publisher on DCR to Automation MI..." -ForegroundColor Cyan
-
-    # Switch to DCR subscription for role assignment
-    if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
-    {
-        Set-AzContext -SubscriptionId $currentSubscriptionId | Out-Null
-    }
-
-    $existingAssignment = Get-AzRoleAssignment -ObjectId $automationPrincipalId `
-        -RoleDefinitionId $monitoringMetricsPublisherRoleId `
-        -Scope $dcrResourceId -ErrorAction SilentlyContinue
-    if ($null -eq $existingAssignment)
-    {
-        New-AzRoleAssignment -ObjectId $automationPrincipalId `
-            -RoleDefinitionId $monitoringMetricsPublisherRoleId `
-            -Scope $dcrResourceId | Out-Null
-        Write-Host "    Role assigned." -ForegroundColor Gray
-    }
-    else
-    {
-        Write-Host "    Role already assigned." -ForegroundColor Gray
-    }
-
-    # Restore workspace subscription context for next iteration
-    if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
-    {
-        Set-AzContext -SubscriptionId $WorkspaceSubscriptionId | Out-Null
-    }
-    #endregion
 }
 #endregion
 
