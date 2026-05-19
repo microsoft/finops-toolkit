@@ -49,7 +49,7 @@ The following section lists features and enhancements that are currently in deve
 ### [Optimization engine](optimization-engine/overview.md) updates
 
 - **Fixed**
-  - Removed call to Azure Classic administrators endpoint (deprecated in May 1, 2026) from Azure RBAC assignments exports ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
+  - Removed call to Azure Classic administrators endpoint (deprecated on May 1, 2026) from Azure RBAC assignments exports ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
 
 -->
 
