@@ -25,10 +25,6 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### Bicep Registry module pending updates
-
-- Cost Management export modules for subscriptions and resource groups.
-
 -->
 
 <br><a name="latest"></a>

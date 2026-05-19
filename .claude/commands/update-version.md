@@ -1,6 +1,6 @@
 ---
 description: Start the next release dev cycle after a release ships
-allowed-tools: Read, Grep, Write, Edit, Bash(git fetch *), Bash(git checkout *), Bash(git switch *), Bash(git pull *), Bash(git push *), Bash(git status*), Bash(git diff*), Bash(git log*), Bash(git branch *), Bash(gh api user*), Bash(gh issue view *), Bash(gh issue list *), Bash(gh issue edit *), Bash(gh release view *), Bash(pwsh -Command ./src/scripts/*), Bash(pwsh -Command "./src/scripts/*"), Bash(pwsh -Command ./src/scripts/Test-PowerShell.ps1 -Toolkit -Integration *)
+allowed-tools: Read, Grep, Write, Edit, Bash(git fetch *), Bash(git checkout *), Bash(git switch *), Bash(git pull *), Bash(git push *), Bash(git status*), Bash(git diff*), Bash(git log*), Bash(git branch *), Bash(gh api user*), Bash(gh issue view *), Bash(gh issue list *), Bash(gh issue edit *), Bash(gh release view *), Bash(pwsh -Command ./src/scripts/*), Bash(pwsh -Command "./src/scripts/*")
 ---
 
 # Update version
@@ -27,12 +27,11 @@ Get the GitHub username:
 gh api user --jq .login
 ```
 
-Create and push a new branch from `origin/dev`:
+Create a new branch from `origin/dev` (push happens in Phase 3 after committing):
 
 ```bash
 git fetch origin
 git checkout -b {username}/v{next major}-start origin/dev
-git push -u origin {username}/v{next major}-start
 ```
 
 ## Phase 2: Automated changes
@@ -120,7 +119,7 @@ After all background tasks complete, show a `git diff` summary of all changed fi
 ```bash
 git add -A
 git commit -m "chore: start v{next major} dev cycle"
-git push
+git push -u origin {username}/v{next major}-start
 ```
 
 Then create a PR targeting `dev` using the repo's PR template (`.github/PULL_REQUEST_TEMPLATE.md`). Read the template, fill it in for this change, and create the PR:

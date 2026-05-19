@@ -86,6 +86,9 @@ if ($update -or $Version)
     {
         $newLabel = $Label.ToLower() -replace '[^a-z]', ''
         Write-Verbose "Using label '$newLabel'."
+        # Read directly from package.json here (rather than calling Get-Version) because $ver isn't set yet.
+        # Get-Version runs after this block (line 95) and reads the same file.
+        # This intentionally replaces any prerelease counter npm just wrote — only -Major/-Minor with a label is supported.
         $bumpedVer = (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version
         $baseVer = $bumpedVer -replace '-.*$', ''
         $null = npm --no-git-tag-version version "$baseVer-$newLabel.0"
