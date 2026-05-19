@@ -172,6 +172,10 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
     }
     ./New-Directory $repo.path
     Get-ChildItem $sourceDir -Exclude .buildignore | Copy-Item -Destination $repo.path -Recurse
+    if ($Template -eq "docs")
+    {
+        Remove-DocsMetadataOnlyChanges $repo.path
+    }
 
     # Commit changes
     if ($Branch)
@@ -203,6 +207,64 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
 
     Write-Host '  Done!'
     Write-Host ''
+}
+
+function Get-DocsArticleBody([string]$content)
+{
+    $lines = $content -split "`r?`n"
+    $start = 0
+
+    if ($lines.Count -gt 0 -and $lines[0] -eq "---")
+    {
+        for ($i = 1; $i -lt $lines.Count; $i++)
+        {
+            if ($lines[$i] -eq "---")
+            {
+                $start = $i + 1
+                break
+            }
+        }
+    }
+
+    $ignoreLines = @(
+        "<!-- markdownlint-disable-next-line MD025 -->",
+        "<!-- prettier-ignore-start -->",
+        "<!-- prettier-ignore-end -->"
+    )
+
+    $body = $lines[$start..($lines.Count - 1)] `
+    | Where-Object { $ignoreLines -notcontains $_.Trim() } `
+    | ForEach-Object { $_.TrimEnd() }
+
+    return (($body -join "`n") -replace "`n{3,}", "`n`n").Trim()
+}
+
+function Remove-DocsMetadataOnlyChanges([string]$docsPath)
+{
+    Push-Location
+    Set-Location $docsPath
+    $repoRoot = git rev-parse --show-toplevel
+    Set-Location $repoRoot
+
+    Get-ChildItem $docsPath -Recurse -Filter "*.md" | ForEach-Object {
+        $repoFile = [System.IO.Path]::GetRelativePath($repoRoot, $_.FullName).Replace("\", "/")
+        git cat-file -e "HEAD:$repoFile" 2>$null
+
+        if ($LASTEXITCODE -ne 0)
+        {
+            return
+        }
+
+        $previousContent = [string]::Join("`n", (git show "HEAD:$repoFile"))
+        $currentContent = Get-Content $_.FullName -Raw
+
+        if ((Get-DocsArticleBody $previousContent) -eq (Get-DocsArticleBody $currentContent))
+        {
+            git restore --source HEAD -- $repoFile
+        }
+    }
+
+    Pop-Location
 }
 
 # Get version for branch name and commit message
