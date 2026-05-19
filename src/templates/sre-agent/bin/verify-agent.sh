@@ -9,18 +9,40 @@
 
 set -uo pipefail
 
-SUB="${1:?subscription-id required}"
-RG="${2:?resource-group required}"
-AGENT="${3:?agent-name required}"
+usage() {
+  cat <<EOF
+Usage: $0 <subscription> <resource-group> <agent-name> [--expected <config-dir>]
+
+Arguments:
+  <subscription>      Subscription
+  <resource-group>    Resource group
+  <agent-name>        Agent name
+
+Options:
+  --expected <dir>    Expected config directory
+  -h, --help          Show this help
+EOF
+  exit "${1:-0}"
+}
+
+[[ "${1:-}" == "-h" || "${1:-}" == "--help" ]] && usage 0
+[[ $# -ge 3 ]] || usage 2
+
+SUB="$1"
+RG="$2"
+AGENT="$3"
 EXPECTED_DIR=""
 EXPECTED_CONFIG=""
 shift 3
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --expected) EXPECTED_DIR="$2"; shift 2 ;;
+    -h|--help) usage 0 ;;
     *) shift ;;
   esac
 done
+
+az() { command az "$@" --subscription "$SUB"; }
 
 # Load expected-config.json if present
 if [[ -n "$EXPECTED_DIR" && -f "${EXPECTED_DIR}/expected-config.json" ]]; then

@@ -34,17 +34,55 @@
 
 set -euo pipefail
 
-SUB="${1:?subscription-id required}"
-RG="${2:?resource-group required}"
-AGENT="${3:?agent-name required}"
-FILE="${4:-extras.parameters.json}"
+usage() {
+  cat <<EOF
+Usage: $0 <subscription-id> <resource-group> <agent-name> [extras-file] [--force]
+
+Arguments:
+  <subscription-id>   Subscription
+  <resource-group>    Resource group
+  <agent-name>        Agent name
+  [extras-file]       Extras JSON file (default: extras.parameters.json)
+
+Options:
+  --force             Continue past non-fatal checks
+  -h, --help          Show this help
+EOF
+  exit "${1:-0}"
+}
+
+[[ "${1:-}" == "-h" || "${1:-}" == "--help" ]] && usage 0
+[[ $# -ge 3 ]] || usage 2
+
+SUB="$1"
+RG="$2"
+AGENT="$3"
+shift 3
+
+FILE="extras.parameters.json"
 FORCE=""
-for arg in "$@"; do [[ "$arg" == "--force" ]] && FORCE="true"; done
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --force) FORCE="true"; shift ;;
+    -h|--help) usage 0 ;;
+    *)
+      if [[ "$FILE" == "extras.parameters.json" ]]; then
+        FILE="$1"
+        shift
+      else
+        echo "Error: unexpected argument '$1'" >&2
+        usage 2
+      fi
+      ;;
+  esac
+done
 
 [[ -f "$FILE" ]] || { echo "extras file not found: $FILE" >&2; exit 1; }
 command -v jq    >/dev/null || { echo "jq is required"    >&2; exit 1; }
 command -v tar   >/dev/null || { echo "tar is required"   >&2; exit 1; }
 command -v curl  >/dev/null || { echo "curl is required"  >&2; exit 1; }
+
+az() { command az "$@" --subscription "$SUB"; }
 
 API_VERSION="2025-05-01-preview"
 ARM_BASE="https://management.azure.com/subscriptions/${SUB}/resourceGroups/${RG}/providers/Microsoft.App/agents/${AGENT}"

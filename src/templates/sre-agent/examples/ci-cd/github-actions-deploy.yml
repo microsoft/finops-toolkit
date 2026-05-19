@@ -20,5 +20,13 @@ jobs:
       - name: Deploy FinOps SRE Agent
         working-directory: src/templates/sre-agent
         env:
-          FINOPS_HUB_CLUSTER_URI: ${{ secrets.FINOPS_HUB_CLUSTER_URI }}
-        run: bash bin/deploy.sh recipes/finops-hub --force
+          CLUSTER_URI: ${{ secrets.SRE_AGENT_CLUSTER_URI }}
+        run: >
+          bash bin/deploy.sh
+          --recipe recipes/finops-hub
+          --resource-group ${{ vars.SRE_AGENT_RESOURCE_GROUP }}
+          --name ${{ vars.SRE_AGENT_NAME }}
+          --location ${{ vars.SRE_AGENT_LOCATION }}
+          --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          --cluster-uri "$CLUSTER_URI"
+          --force

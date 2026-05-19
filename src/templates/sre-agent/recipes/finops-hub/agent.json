@@ -1,12 +1,4 @@
 {
-  "identity": {
-    "agentName": "finops-sre-agent",
-    "resourceGroup": "rg-finops-sre-agent",
-    "location": "eastus2",
-    "targetResourceGroups": [
-      "rg-finops-sre-agent"
-    ]
-  },
   "access": {
     "accessLevel": "High",
     "actionMode": "Autonomous"

@@ -1,77 +1,349 @@
 #!/usr/bin/env bash
 # deploy.sh — deploy an SRE Agent via Bicep.
-#
-# Accepts either:
-#   (a) A config directory (agent.json + connectors.json + config/*.yaml)
-#       → runs assemble-agent.sh internally, then deploys
-#   (b) A legacy .parameters.json file → deploys directly
-#
-# Usage:
-#   ./deploy.sh <config-directory>              # new format
-#   ./deploy.sh <parameters-file.json>          # legacy format
-#   ./deploy.sh <config-directory> [deploy-name]
-#
-# After deploy, run apply-extras.sh for data-plane config (repos, hooks, etc.)
 
 set -euo pipefail
 
-# Source telemetry
-SCRIPT_DIR_EARLY="$(cd "$(dirname "$0")" && pwd)"
-source "${SCRIPT_DIR_EARLY}/telemetry.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "${SCRIPT_DIR}/telemetry.sh"
 
-# Parse args
+usage() {
+  cat <<EOF
+Usage: bash bin/deploy.sh --recipe <dir> [options]
+       bash bin/deploy.sh <legacy.parameters.json> [options]
+
+Required for recipe directories:
+  --recipe <dir>                        Recipe directory to assemble
+  -g, --resource-group <name>          Resource group (portal field: "Resource group")
+  -n, --name <name>                    Agent name (portal field: "Agent name")
+  -l, --location <region>              Region (portal field: "Region"; currently documented: swedencentral, eastus2, australiaeast)
+      --cluster-uri <uri>              Kusto connector URI when the recipe declares one
+
+Optional:
+      --subscription <id>              Subscription (portal field: "Subscription")
+      --target-resource-group <name>   Repeatable target resource group
+      --cluster-resource-id <id>       Kusto cluster ARM resource ID
+      --deploy-name <name>             Deployment name override
+      --dry-run                        Assemble and validate inputs without Azure calls
+      --what-if                        Run live ARM what-if validation
+      --force                          Continue when diff/discovery would otherwise stop
+      --fallback-srectl                Deploy ARM core, then hydrate extensions with srectl
+      --no-telemetry                   Disable anonymous telemetry for this run
+  -h, --help                           Show this help
+
+Legacy input:
+  A pre-assembled .parameters.json file is accepted only as a positional argument.
+  When using a legacy parameters file, identity and cluster flags are ignored.
+EOF
+  exit "${1:-0}"
+}
+
+error_exit() {
+  echo "$1" >&2
+  exit "${2:-1}"
+}
+
+require_value() {
+  local flag="$1"
+  local value="${2:-}"
+  if [[ -z "$value" || "$value" == -* ]]; then
+    error_exit "Error: flag ${flag} requires a value" 2
+  fi
+}
+
+closest_flag() {
+  local unknown="$1"
+  if command -v python3 >/dev/null 2>&1; then
+    UNKNOWN_FLAG="$unknown" python3 - <<'PY'
+import difflib
+import os
+flags = [
+    '--recipe', '--resource-group', '--name', '--location', '--subscription',
+    '--target-resource-group', '--cluster-uri', '--cluster-resource-id',
+    '--deploy-name', '--dry-run', '--what-if', '--force',
+    '--fallback-srectl', '--no-telemetry', '--help'
+]
+unknown = os.environ['UNKNOWN_FLAG']
+match = difflib.get_close_matches(unknown, flags, n=1, cutoff=0.6)
+print(match[0] if match else '')
+PY
+  fi
+}
+
+unknown_flag() {
+  local flag="$1"
+  local suggestion
+  suggestion="$(closest_flag "$flag")"
+  if [[ -n "$suggestion" ]]; then
+    error_exit "Error: unknown flag '$flag'. Did you mean '$suggestion'?" 2
+  fi
+  error_exit "Error: unknown flag '$flag'" 2
+}
+
+warn_ignored_for_legacy() {
+  local flag="$1"
+  echo "WARN: --${flag} ignored when input is a pre-assembled parameters file"
+}
+
+recipe_string_field() {
+  local json="$1"
+  local path="$2"
+  echo "$json" | jq -r "$path // empty | if . == null or . == \"null\" then \"\" else . end"
+}
+
+recipe_target_rgs() {
+  local json="$1"
+  echo "$json" | jq -c '
+    if (.identity.targetResourceGroups // empty) == empty then []
+    elif (.identity.targetResourceGroups | type) == "array" then
+      [.identity.targetResourceGroups[] | select(. != null and . != "")]
+    elif (.identity.targetResourceGroups | type) == "string" and (.identity.targetResourceGroups | length) > 0 then
+      [.identity.targetResourceGroups | split(",")[] | gsub("^\\s+|\\s+$"; "") | select(length > 0)]
+    else
+      []
+    end
+  '
+}
+
+resolve_required_identity() {
+  local cli_value="$1"
+  local recipe_value="$2"
+  local flag_text="$3"
+  local portal_label="$4"
+  if [[ -n "$cli_value" ]]; then
+    printf '%s' "$cli_value"
+  elif [[ -n "$recipe_value" ]]; then
+    printf '%s' "$recipe_value"
+  else
+    error_exit "Error: ${flag_text} is required (portal field: \"${portal_label}\")" 2
+  fi
+}
+
+inject_cluster_resource_id() {
+  local source_file="$1"
+  local cluster_id="$2"
+  local out_file
+  out_file=$(mktemp "${TMPDIR:-/tmp}/sre-kusto-rbac.XXXXXX.parameters.json")
+  CLEANUP_FILES+=("$out_file")
+  jq --arg clusterId "$cluster_id" '
+    .parameters.enableFinopsHubKustoViewerRole = ((.parameters.enableFinopsHubKustoViewerRole // {}) + { value: true }) |
+    .parameters.finopsHubKustoClusterResourceId = ((.parameters.finopsHubKustoClusterResourceId // {}) + { value: $clusterId })
+  ' "$source_file" > "$out_file"
+  FILE="$out_file"
+  DEPLOY_FILE="$FILE"
+}
+
 DRY_RUN=""
 FORCE=""
 WHAT_IF=""
 EXTENSION_FALLBACK=""
-INPUT=""
-NAME=""
-for arg in "$@"; do
-  case "$arg" in
-    --dry-run)  DRY_RUN="true" ;;
-    --what-if)  WHAT_IF="true" ;;
-    --force)    FORCE="true" ;;
-    --fallback-srectl) EXTENSION_FALLBACK="srectl" ;;
-    --extension-fallback=srectl) EXTENSION_FALLBACK="srectl" ;;
-    --extension-fallback=*) EXTENSION_FALLBACK="${arg#*=}" ;;
-    --no-telemetry) _NO_TELEMETRY="true" ;;
+RECIPE_DIR=""
+RESOURCE_GROUP=""
+AGENT_NAME=""
+LOCATION=""
+SUBSCRIPTION_ID=""
+CLUSTER_URI=""
+CLUSTER_RESOURCE_ID=""
+DEPLOY_NAME=""
+RECIPE_FLAG_USED="false"
+LEGACY_POSITIONAL_USED="false"
+POSITIONALS=()
+TARGET_RGS=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --recipe)
+      require_value "--recipe" "${2:-}"
+      RECIPE_DIR="$2"
+      RECIPE_FLAG_USED="true"
+      shift 2
+      ;;
+    -g|--resource-group)
+      require_value "--resource-group / -g" "${2:-}"
+      RESOURCE_GROUP="$2"
+      shift 2
+      ;;
+    -n|--name)
+      require_value "--name / -n" "${2:-}"
+      AGENT_NAME="$2"
+      shift 2
+      ;;
+    -l|--location)
+      require_value "--location / -l" "${2:-}"
+      LOCATION="$2"
+      shift 2
+      ;;
+    --subscription)
+      require_value "--subscription" "${2:-}"
+      SUBSCRIPTION_ID="$2"
+      shift 2
+      ;;
+    --target-resource-group)
+      require_value "--target-resource-group" "${2:-}"
+      TARGET_RGS+=("$2")
+      shift 2
+      ;;
+    --cluster-uri)
+      require_value "--cluster-uri" "${2:-}"
+      CLUSTER_URI="$2"
+      shift 2
+      ;;
+    --cluster-resource-id)
+      require_value "--cluster-resource-id" "${2:-}"
+      CLUSTER_RESOURCE_ID="$2"
+      shift 2
+      ;;
+    --deploy-name)
+      require_value "--deploy-name" "${2:-}"
+      DEPLOY_NAME="$2"
+      shift 2
+      ;;
+    --dry-run)
+      DRY_RUN="true"
+      shift
+      ;;
+    --what-if)
+      WHAT_IF="true"
+      shift
+      ;;
+    --force)
+      FORCE="true"
+      shift
+      ;;
+    --fallback-srectl|--extension-fallback=srectl)
+      EXTENSION_FALLBACK="srectl"
+      shift
+      ;;
+    --extension-fallback=*)
+      EXTENSION_FALLBACK="${1#*=}"
+      shift
+      ;;
+    --no-telemetry)
+      _NO_TELEMETRY="true"
+      shift
+      ;;
+    -h|--help)
+      usage 0
+      ;;
+    -*)
+      unknown_flag "$1"
+      ;;
     *)
-      if [[ -z "$INPUT" ]]; then INPUT="$arg"
-      elif [[ -z "$NAME" ]]; then NAME="$arg"
-      fi ;;
+      POSITIONALS+=("$1")
+      shift
+      ;;
   esac
 done
-[[ -z "$INPUT" ]] && { echo "Usage: deploy.sh <config-dir|params.json> [deploy-name] [--dry-run] [--what-if] [--force] [--fallback-srectl]" >&2; exit 1; }
-[[ -z "$NAME" ]] && NAME="sre-agent-$(date +%Y%m%d-%H%M%S)"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-TEMPLATE="${SCRIPT_DIR}/../bicep/main.bicep"
 
-command -v jq >/dev/null || { echo "jq is required" >&2; exit 1; }
-
-# ── Detect input type and resolve to parameters.json ──
-CLEANUP_FILES=()
-if [[ -d "$INPUT" ]]; then
-  # Directory input → run assemble to produce parameters.json + extras.json
-  [[ -f "${INPUT}/agent.json" ]] || { echo "Error: ${INPUT}/agent.json not found" >&2; exit 1; }
-  echo "── Assembling from directory: ${INPUT}/ ──"
-  ASSEMBLE_OUT=$(mktemp -d)/assembled
-  bash "${SCRIPT_DIR}/../bicep/assemble-agent.sh" "$INPUT" --output "$ASSEMBLE_OUT"
-  FILE="${ASSEMBLE_OUT}.parameters.json"
-  EXTRAS_FILE="${ASSEMBLE_OUT}.extras.json"
-  CLEANUP_FILES+=("$FILE" "$EXTRAS_FILE" "$(dirname "$ASSEMBLE_OUT")")
-  echo
-elif [[ -f "$INPUT" ]]; then
-  FILE="$INPUT"
-  EXTRAS_FILE=""
-else
-  echo "Error: ${INPUT} not found (expected directory or .json file)" >&2
-  exit 1
+if [[ -n "$DRY_RUN" && -n "$WHAT_IF" ]]; then
+  error_exit "Error: --dry-run and --what-if are mutually exclusive" 2
 fi
 
-cleanup() { for f in "${CLEANUP_FILES[@]}"; do rm -rf "$f" 2>/dev/null; done; }
+if [[ -n "$EXTENSION_FALLBACK" && "$EXTENSION_FALLBACK" != "srectl" ]]; then
+  error_exit "Unsupported --extension-fallback value: ${EXTENSION_FALLBACK}" 1
+fi
+
+if [[ "$RECIPE_FLAG_USED" == "true" ]]; then
+  if [[ "${#POSITIONALS[@]}" -gt 0 ]]; then
+    if [[ "${#POSITIONALS[@]}" -eq 1 ]]; then
+      error_exit "Error: unexpected positional argument '${POSITIONALS[0]}'" 2
+    fi
+    error_exit "Error: unexpected positional arguments" 2
+  fi
+  [[ -d "$RECIPE_DIR" ]] || error_exit "Error: recipe directory not found: $RECIPE_DIR" 1
+  INPUT="$RECIPE_DIR"
+else
+  if [[ "${#POSITIONALS[@]}" -eq 0 ]]; then
+    error_exit "Error: --recipe <dir> is required" 2
+  fi
+  if [[ "${#POSITIONALS[@]}" -gt 1 ]]; then
+    error_exit "Error: unexpected positional arguments" 2
+  fi
+  if [[ -d "${POSITIONALS[0]}" ]]; then
+    INPUT="${POSITIONALS[0]}"
+  elif [[ -f "${POSITIONALS[0]}" && "${POSITIONALS[0]}" == *.parameters.json ]]; then
+    INPUT="${POSITIONALS[0]}"
+    LEGACY_POSITIONAL_USED="true"
+  else
+    error_exit "Error: --recipe <dir> is required" 2
+  fi
+fi
+
+[[ -n "$DEPLOY_NAME" ]] || DEPLOY_NAME="sre-agent-$(date -u +%Y%m%d-%H%M%S)"
+NAME="$DEPLOY_NAME"
+TEMPLATE="${SCRIPT_DIR}/../bicep/main.bicep"
+
+command -v jq >/dev/null || error_exit "jq is required" 1
+
+CLEANUP_FILES=()
+cleanup() {
+  if [[ "${#CLEANUP_FILES[@]}" -eq 0 ]]; then
+    return 0
+  fi
+  for f in "${CLEANUP_FILES[@]}"; do
+    rm -rf "$f" 2>/dev/null
+  done
+}
 trap cleanup EXIT
 
-[[ -f "$FILE" ]] || { echo "parameters file not found: $FILE" >&2; exit 1; }
+if [[ -d "$INPUT" ]]; then
+  RECIPE_DIR="$INPUT"
+  AGENT_JSON=$(cat "${INPUT}/agent.json")
+  RECIPE_RESOURCE_GROUP=$(recipe_string_field "$AGENT_JSON" '.identity.resourceGroup')
+  RECIPE_AGENT_NAME=$(recipe_string_field "$AGENT_JSON" '.identity.agentName')
+  RECIPE_LOCATION=$(recipe_string_field "$AGENT_JSON" '.identity.location')
+  RECIPE_SUBSCRIPTION=$(recipe_string_field "$AGENT_JSON" '.identity.subscription')
+  RECIPE_TARGET_RGS=$(recipe_target_rgs "$AGENT_JSON")
+
+  RESOURCE_GROUP=$(resolve_required_identity "$RESOURCE_GROUP" "$RECIPE_RESOURCE_GROUP" '--resource-group / -g' 'Resource group')
+  AGENT_NAME=$(resolve_required_identity "$AGENT_NAME" "$RECIPE_AGENT_NAME" '--name / -n' 'Agent name')
+  LOCATION=$(resolve_required_identity "$LOCATION" "$RECIPE_LOCATION" '--location / -l' 'Region')
+  [[ -n "$SUBSCRIPTION_ID" ]] || SUBSCRIPTION_ID="$RECIPE_SUBSCRIPTION"
+
+  if [[ "${#TARGET_RGS[@]}" -eq 0 ]]; then
+    if [[ "$RECIPE_TARGET_RGS" != "[]" ]]; then
+      while IFS= read -r target_rg; do
+        [[ -n "$target_rg" ]] && TARGET_RGS+=("$target_rg")
+      done < <(echo "$RECIPE_TARGET_RGS" | jq -r '.[]')
+    fi
+  fi
+  if [[ "${#TARGET_RGS[@]}" -eq 0 ]]; then
+    TARGET_RGS=("$RESOURCE_GROUP")
+  fi
+
+  echo "── Assembling from directory: ${INPUT}/ ──"
+  ASSEMBLE_DIR=$(mktemp -d)
+  CLEANUP_FILES+=("$ASSEMBLE_DIR")
+  ASSEMBLE_OUT="${ASSEMBLE_DIR}/assembled"
+  ASSEMBLE_ARGS=(
+    "$INPUT"
+    --output "$ASSEMBLE_OUT"
+    --resource-group "$RESOURCE_GROUP"
+    --name "$AGENT_NAME"
+    --location "$LOCATION"
+  )
+  [[ -n "$SUBSCRIPTION_ID" ]] && ASSEMBLE_ARGS+=(--subscription "$SUBSCRIPTION_ID")
+  [[ -n "$CLUSTER_URI" ]] && ASSEMBLE_ARGS+=(--cluster-uri "$CLUSTER_URI")
+  [[ -n "$CLUSTER_RESOURCE_ID" ]] && ASSEMBLE_ARGS+=(--cluster-resource-id "$CLUSTER_RESOURCE_ID")
+  for target_rg in "${TARGET_RGS[@]}"; do
+    ASSEMBLE_ARGS+=(--target-resource-group "$target_rg")
+  done
+  bash "${SCRIPT_DIR}/../bicep/assemble-agent.sh" "${ASSEMBLE_ARGS[@]}"
+  FILE="${ASSEMBLE_OUT}.parameters.json"
+  EXTRAS_FILE="${ASSEMBLE_OUT}.extras.json"
+  echo
+else
+  FILE="$INPUT"
+  EXTRAS_FILE=""
+  [[ -n "$RESOURCE_GROUP" ]] && warn_ignored_for_legacy "resource-group"
+  [[ -n "$AGENT_NAME" ]] && warn_ignored_for_legacy "name"
+  [[ -n "$LOCATION" ]] && warn_ignored_for_legacy "location"
+  [[ -n "$SUBSCRIPTION_ID" ]] && warn_ignored_for_legacy "subscription"
+  [[ "${#TARGET_RGS[@]}" -gt 0 ]] && warn_ignored_for_legacy "target-resource-group"
+  [[ -n "$CLUSTER_URI" ]] && warn_ignored_for_legacy "cluster-uri"
+  [[ -n "$CLUSTER_RESOURCE_ID" ]] && warn_ignored_for_legacy "cluster-resource-id"
+fi
+
+[[ -f "$FILE" ]] || error_exit "parameters file not found: $FILE" 1
 
 ORIGINAL_FILE="$FILE"
 DEPLOY_FILE="$FILE"
@@ -90,59 +362,55 @@ if [[ "$ACTION_MODE_VALUE" == "Automatic" ]]; then
   DEPLOY_FILE="$FILE"
 fi
 
-# ── Auto-wire FinOps Hub Kusto RBAC inputs for Bicep ──
-# If we detect a system-identity Kusto connector, set:
-#   - enableFinopsHubKustoViewerRole=true
-#   - finopsHubKustoClusterResourceId=<cluster ARM ID>
-# Priority for cluster ID:
-#   1) FINOPS_HUB_CLUSTER_RESOURCE_ID env var
-#   2) existing value in parameters file
-#   3) auto-discover from connector dataSource host + current subscription
 KUSTO_CONNECTOR_DATASOURCE=$(jq -r '.parameters.connectors.value // [] | map(select((.properties.dataConnectorType // "") == "Kusto" and (.properties.identity // "") == "system")) | .[0].properties.dataSource // ""' "$FILE")
-if [[ -n "$KUSTO_CONNECTOR_DATASOURCE" ]]; then
-  KUSTO_CLUSTER_RESOURCE_ID="${FINOPS_HUB_CLUSTER_RESOURCE_ID:-$(jq -r '.parameters.finopsHubKustoClusterResourceId.value // ""' "$FILE")}"
+KUSTO_URI_TOKEN='$''{FINOPS_HUB_''CLUSTER_URI}'
+if [[ "$KUSTO_CONNECTOR_DATASOURCE" == *"$KUSTO_URI_TOKEN"* ]]; then
+  error_exit 'Error: --cluster-uri <uri> is required because the recipe declares a Kusto connector. Example: --cluster-uri https://<cluster>.<region>.kusto.windows.net/hub' 2
+fi
 
+if [[ -z "$DRY_RUN" ]]; then
+  if [[ -z "$SUBSCRIPTION_ID" ]]; then
+    SUBSCRIPTION_ID=$(command az account show --query id -o tsv)
+  fi
+  export AZURE_SUBSCRIPTION_ID="$SUBSCRIPTION_ID"
+  az() { command az "$@" --subscription "$SUBSCRIPTION_ID"; }
+fi
+
+if [[ -n "$KUSTO_CONNECTOR_DATASOURCE" ]]; then
+  KUSTO_CLUSTER_RESOURCE_ID="$CLUSTER_RESOURCE_ID"
   if [[ -z "$KUSTO_CLUSTER_RESOURCE_ID" ]]; then
+    KUSTO_CLUSTER_RESOURCE_ID=$(jq -r '.parameters.finopsHubKustoClusterResourceId.value // ""' "$FILE")
+  fi
+
+  if [[ -z "$KUSTO_CLUSTER_RESOURCE_ID" && -n "$DRY_RUN" ]]; then
+    echo "WARN: cluster ARM ID not resolved in dry-run; live deploy will auto-discover it or require --cluster-resource-id if discovery fails."
+  fi
+
+  if [[ -z "$KUSTO_CLUSTER_RESOURCE_ID" && -z "$DRY_RUN" ]]; then
     KUSTO_HOST="${KUSTO_CONNECTOR_DATASOURCE#https://}"
     KUSTO_HOST="${KUSTO_HOST#http://}"
     KUSTO_HOST="${KUSTO_HOST%%/*}"
-    KUSTO_CLUSTER_NAME="${KUSTO_HOST%%.*}"
-    DISCOVERY_SUB=$(az account show --query id -o tsv)
-
-    if [[ -n "$KUSTO_CLUSTER_NAME" ]]; then
-      KUSTO_CLUSTER_RESOURCE_ID=$(az resource list \
-        --subscription "$DISCOVERY_SUB" \
-        --resource-type "Microsoft.Kusto/clusters" \
-        --name "$KUSTO_CLUSTER_NAME" \
-        --query '[0].id' -o tsv 2>/dev/null || true)
+    KUSTO_CLUSTER_RESOURCE_ID=$(az kusto cluster list \
+      --query "[?contains(uri, '${KUSTO_HOST}')].id | [0]" \
+      -o tsv 2>/dev/null || true)
+    if [[ -n "$KUSTO_CLUSTER_RESOURCE_ID" && "$KUSTO_CLUSTER_RESOURCE_ID" != "null" ]]; then
+      inject_cluster_resource_id "$FILE" "$KUSTO_CLUSTER_RESOURCE_ID"
+    else
+      REMEDIATION="Error: cluster ARM ID discovery failed. Re-run with --cluster-resource-id /subscriptions/.../resourceGroups/.../providers/Microsoft.Kusto/clusters/<name>."
+      if [[ -n "$FORCE" ]]; then
+        echo "WARN: ${REMEDIATION#Error: }"
+      else
+        error_exit "$REMEDIATION" 2
+      fi
     fi
+  elif [[ -n "$KUSTO_CLUSTER_RESOURCE_ID" && "$KUSTO_CLUSTER_RESOURCE_ID" != "null" ]]; then
+    inject_cluster_resource_id "$FILE" "$KUSTO_CLUSTER_RESOURCE_ID"
   fi
-
-  if [[ -n "$KUSTO_CLUSTER_RESOURCE_ID" ]]; then
-    KUSTO_RBAC_FILE=$(mktemp "${TMPDIR:-/tmp}/sre-kusto-rbac.XXXXXX.parameters.json")
-    CLEANUP_FILES+=("$KUSTO_RBAC_FILE")
-    jq --arg clusterId "$KUSTO_CLUSTER_RESOURCE_ID" '
-      .parameters.enableFinopsHubKustoViewerRole = ((.parameters.enableFinopsHubKustoViewerRole // {}) + { value: true }) |
-      .parameters.finopsHubKustoClusterResourceId = ((.parameters.finopsHubKustoClusterResourceId // {}) + { value: $clusterId })
-    ' "$FILE" > "$KUSTO_RBAC_FILE"
-    FILE="$KUSTO_RBAC_FILE"
-    DEPLOY_FILE="$FILE"
-  else
-    echo "  ⚠ Kusto connector detected but cluster resource ID could not be resolved."
-    echo "    Set FINOPS_HUB_CLUSTER_RESOURCE_ID=/subscriptions/.../resourceGroups/.../providers/Microsoft.Kusto/clusters/<name>"
-    echo "    to enable Bicep-managed AllDatabasesViewer assignment."
-  fi
-fi
-
-if [[ -n "$EXTENSION_FALLBACK" && "$EXTENSION_FALLBACK" != "srectl" ]]; then
-  echo "Unsupported --extension-fallback value: ${EXTENSION_FALLBACK}" >&2
-  echo "Supported values: srectl" >&2
-  exit 1
 fi
 
 if [[ "$EXTENSION_FALLBACK" == "srectl" ]]; then
-  [[ -d "$INPUT" ]] || { echo "--fallback-srectl requires a config directory input (not a parameters file)." >&2; exit 1; }
-  command -v srectl >/dev/null || { echo "srectl is required when --fallback-srectl is enabled." >&2; exit 1; }
+  [[ -d "$INPUT" ]] || error_exit "--fallback-srectl requires a config directory input (not a parameters file)." 1
+  command -v srectl >/dev/null || error_exit "srectl is required when --fallback-srectl is enabled." 1
 
   CORE_ONLY_FILE=$(mktemp "${TMPDIR:-/tmp}/sre-core-only.XXXXXX.parameters.json")
   CLEANUP_FILES+=("$CORE_ONLY_FILE")
@@ -170,18 +438,25 @@ if [[ "$EXTENSION_FALLBACK" == "srectl" ]]; then
   DEPLOY_FILE="$CORE_ONLY_FILE"
 fi
 
-# ── Pre-flight: parse params and show summary ──
 echo "──────────────── SRE Agent deployment ────────────────"
-LOC=$(jq -r '.parameters.location.value // "eastus2"' "$FILE")
-AG=$(jq -r '.parameters.agentName.value' "$FILE")
-RG=$(jq -r '.parameters.agentResourceGroupName.value' "$FILE")
-TGT=$(jq -r '.parameters.targetResourceGroups.value | join(", ")' "$FILE")
-SUB=$(az account show --query id -o tsv)
+LOC=$(jq -r '.parameters.location.value // ""' "$FILE")
+AG=$(jq -r '.parameters.agentName.value // ""' "$FILE")
+RG=$(jq -r '.parameters.agentResourceGroupName.value // ""' "$FILE")
+TGT=$(jq -r '.parameters.targetResourceGroups.value // [] | join(", ")' "$FILE")
+SUB="${SUBSCRIPTION_ID:-<active subscription not resolved in dry-run>}"
 
-echo "  Subscription:  $(az account show --query name -o tsv) ($SUB)"
+if [[ -n "$DRY_RUN" ]]; then
+  echo "  Subscription:  ${SUB}"
+else
+  echo "  Subscription:  $(az account show --query name -o tsv) (${SUB})"
+fi
 echo "  Region:        $LOC"
 echo "  Agent name:    $AG"
-echo "  Agent RG:      $RG  $([[ "$(az group exists -n "$RG")" == "true" ]] && echo "(exists)" || echo "(will be created)")"
+if [[ -n "$DRY_RUN" ]]; then
+  echo "  Agent RG:      $RG"
+else
+  echo "  Agent RG:      $RG  $([[ "$(az group exists -n "$RG")" == "true" ]] && echo "(exists)" || echo "(will be created)")"
+fi
 echo "  Target RGs:    ${TGT:-<none>}"
 echo "  Access level:  $(jq -r '.parameters.accessLevel.value // "Low"' "$FILE")"
 echo "  Action mode:   $(jq -r '.parameters.actionMode.value // "Review"' "$FILE")"
@@ -191,12 +466,9 @@ echo "  Monthly limit: $(jq -r '.parameters.monthlyAgentUnitLimit.value // 10000
 [[ "$EXTENSION_FALLBACK" == "srectl" ]] && echo "  Extension mode: ARM core + srectl hydration"
 echo
 
-# Show what will be deployed (unified view)
 echo "  Bicep (ARM) resources:"
-# Webhook bridge / Logic App
 WH=$(jq -r '.parameters.enableWebhookBridge.value // false' "$FILE")
 [[ "$WH" == "true" ]] && echo "    ✓ Webhook bridge (Logic App)"
-# Toggle connectors
 for tog in enableLogAnalyticsConnector enableAppInsightsConnector enableAzureMonitorConnector; do
   v=$(jq -r ".parameters.${tog}.value // false" "$FILE")
   if [[ "$v" == "true" ]]; then
@@ -207,7 +479,6 @@ for tog in enableLogAnalyticsConnector enableAppInsightsConnector enableAzureMon
     esac
   fi
 done
-# Array connectors (MCP, Kusto, etc.)
 n=$(jq -r '.parameters.connectors.value // [] | length' "$FILE")
 if [[ "$n" -gt 0 ]]; then
   for cname in $(jq -r '.parameters.connectors.value[].name' "$FILE" 2>/dev/null); do
@@ -215,14 +486,12 @@ if [[ "$n" -gt 0 ]]; then
     echo "    ✓ Connector: ${cname} (${ctype})"
   done
 fi
-# Kusto RBAC (Bicep-managed)
 KUSTO_RBAC_ENABLED=$(jq -r '.parameters.enableFinopsHubKustoViewerRole.value // false' "$FILE")
 if [[ "$KUSTO_RBAC_ENABLED" == "true" ]]; then
   KUSTO_RBAC_CLUSTER_ID=$(jq -r '.parameters.finopsHubKustoClusterResourceId.value // ""' "$FILE")
   echo "    ✓ Kusto RBAC: AllDatabasesViewer (system MI)"
   [[ -n "$KUSTO_RBAC_CLUSTER_ID" ]] && echo "      Cluster: ${KUSTO_RBAC_CLUSTER_ID}"
 fi
-# Skills + subagents (Bicep arrays)
 for arr in skills subagents; do
   n=$(jq -r ".parameters.${arr}.value // [] | length" "$FILE")
   [[ "$n" -gt 0 ]] && echo "    ✓ ${arr}: ${n}"
@@ -255,9 +524,8 @@ echo "  Deployment name: $NAME"
 echo "─────────────────────────────────────────────────────"
 echo
 
-# ── Pre-deploy: change detection ──
 CHANGES_DETECTED=""
-if [[ -d "$INPUT" ]]; then
+if [[ -z "$DRY_RUN" && -z "$WHAT_IF" && -d "$INPUT" ]]; then
   echo "── Change detection ──"
   DIFF_EXIT=0
   "${SCRIPT_DIR}/diff-agent.sh" "$SUB" "$RG" "$AG" "$INPUT" 2>/dev/null || DIFF_EXIT=$?
@@ -266,7 +534,6 @@ if [[ -d "$INPUT" ]]; then
     if [[ -z "$FORCE" ]]; then
       echo "  Skipping deployment. Use --force to redeploy anyway."
       echo
-      # Still run verify to confirm current state
       echo "── Current state verification ──"
       "${SCRIPT_DIR}/verify-agent.sh" "$SUB" "$RG" "$AG" --expected "$INPUT" 2>&1 || true
       exit 0
@@ -281,19 +548,25 @@ if [[ -d "$INPUT" ]]; then
   echo
 fi
 
-# ── Dry-run: stop here ──
 if [[ -n "$DRY_RUN" ]]; then
+  RECIPE_NAME="unknown"
+  [[ -d "$INPUT" && -f "${INPUT}/agent.json" ]] && RECIPE_NAME=$(jq -r '._scenario // "custom"' "${INPUT}/agent.json" 2>/dev/null)
+  [[ -f "$INPUT" ]] && RECIPE_NAME="legacy-parameters"
   echo "── DRY RUN — no deployment performed ──"
   echo "  Assemble: ✅ (parameters + extras built)"
   echo "  To validate against ARM without deploying: --what-if"
   echo "  To deploy for real: remove --dry-run"
+  send_telemetry "deploy" "$RECIPE_NAME" "$LOC" "$RECIPE_FLAG_USED" "$LEGACY_POSITIONAL_USED" "$([[ -n "$CLUSTER_URI" ]] && echo true || echo false)" "$([[ -n "$CLUSTER_RESOURCE_ID" ]] && echo true || echo false)" "dry-run"
   exit 0
 fi
 
-# ── What-if: validate against ARM without deploying ──
 if [[ -n "$WHAT_IF" ]]; then
+  RECIPE_NAME="unknown"
+  [[ -d "$INPUT" && -f "${INPUT}/agent.json" ]] && RECIPE_NAME=$(jq -r '._scenario // "custom"' "${INPUT}/agent.json" 2>/dev/null)
+  [[ -f "$INPUT" ]] && RECIPE_NAME="legacy-parameters"
   echo "── What-if validation (ARM preflight) ──"
   echo
+  WHAT_IF_EXIT=0
   if az deployment sub what-if \
     --location "$LOC" \
     --name "$NAME" \
@@ -304,17 +577,19 @@ if [[ -n "$WHAT_IF" ]]; then
     echo
     echo "✅ What-if passed — deployment should succeed."
   else
+    WHAT_IF_EXIT=$?
     echo
     echo "❌ What-if found errors — fix before deploying."
   fi
-  exit 0
+  send_telemetry "deploy" "$RECIPE_NAME" "$LOC" "$RECIPE_FLAG_USED" "$LEGACY_POSITIONAL_USED" "$([[ -n "$CLUSTER_URI" ]] && echo true || echo false)" "$([[ -n "$CLUSTER_RESOURCE_ID" ]] && echo true || echo false)" "what-if"
+  exit "$WHAT_IF_EXIT"
 fi
 
 # ── Run the deployment with progress visible ──
 TMP=$(mktemp)
 
 echo "Starting deployment (this typically takes 3-5 min)..."
-echo "Tip: open another terminal and run 'az deployment operation sub list -n $NAME -o table' to watch progress."
+echo "Tip: open another terminal and run 'az deployment operation sub list --subscription $SUB -n $NAME -o table' to watch progress."
 echo
 
 az deployment sub create \
@@ -337,10 +612,10 @@ if [[ "$STATE" != "Succeeded" ]]; then
     echo "$ERR_MSG" | sed 's/^/    /'
   fi
   echo
-  echo "  Debug: az deployment operation sub list -n $NAME -o table"
+  echo "  Debug: az deployment operation sub list --subscription $SUB -n $NAME -o table"
   if [[ -z "$EXTENSION_FALLBACK" ]] && jq -r '.. | .message? // empty' "$TMP" 2>/dev/null | grep -qi "Failed to create or update extension in Kubernetes"; then
     echo "  Hint: extension resource writes are blocked in this tenant."
-    echo "  Retry with: bash bin/deploy.sh ${INPUT} --fallback-srectl"
+    echo "  Retry with: bash bin/deploy.sh --recipe \"$RECIPE_DIR\" --resource-group \"$RESOURCE_GROUP\" --name \"$AGENT_NAME\" --location \"$LOCATION\" --cluster-uri \"$CLUSTER_URI\" --fallback-srectl"
   fi
   echo
   exit 1
@@ -356,7 +631,10 @@ echo
 # ── Telemetry ──
 RECIPE_NAME="unknown"
 [[ -d "$INPUT" && -f "${INPUT}/agent.json" ]] && RECIPE_NAME=$(jq -r '._scenario // "custom"' "${INPUT}/agent.json" 2>/dev/null)
-send_telemetry "deploy" "$RECIPE_NAME" "$LOC"
+[[ -f "$INPUT" ]] && RECIPE_NAME="legacy-parameters"
+TELEMETRY_MODE="deploy"
+[[ "$EXTENSION_FALLBACK" == "srectl" ]] && TELEMETRY_MODE="fallback-srectl"
+send_telemetry "deploy" "$RECIPE_NAME" "$LOC" "$RECIPE_FLAG_USED" "$LEGACY_POSITIONAL_USED" "$([[ -n "$CLUSTER_URI" ]] && echo true || echo false)" "$([[ -n "$CLUSTER_RESOURCE_ID" ]] && echo true || echo false)" "$TELEMETRY_MODE"
 
 # Auto-run apply-extras.sh if we assembled from a directory and have extras
 APPLY_EXTRAS_FILE="${DISCOVERED_EXTRAS_FILE}"
@@ -464,7 +742,7 @@ for role in (data.get('roles') or []):
         scope = role.get('scope', '')
         role_id = role.get('role_definition_id', '')
         print(f'  Granting Azure role: {name}')
-        cmd = f'az role assignment create --assignee-object-id {uami} --assignee-principal-type ServicePrincipal --role \"{role_id}\" --scope \"{scope}\"'
+        cmd = f'az role assignment create --subscription \"{sub}\" --assignee-object-id {uami} --assignee-principal-type ServicePrincipal --role \"{role_id}\" --scope \"{scope}\"'
         print(f'    Command: {cmd}')
         if uami:
             os.system(cmd)
@@ -480,12 +758,12 @@ for role in (data.get('roles') or []):
             cluster_url = parts[0]
             db = parts[1]
             # Try to run automatically
-            cmd = f'az kusto database-principal-assignment create --cluster-name \"{cluster_url.split(\"/\")[-1]}\" --database-name \"{db}\" --principal-id \"{uami}\" --principal-type App --role \"{adx_role}\" --principal-assignment-name \"sre-agent-{ag}\" --subscription \"{sub}\" 2>/dev/null || az kusto database add-principal --cluster-name \"{cluster_url.split(\"/\")[-1]}\" --database-name \"{db}\" --value name=\"sre-agent-{ag}\" type=\"App\" app-id=\"{uami}\" role=\"{adx_role}\" 2>/dev/null'
+            cmd = f'az kusto database-principal-assignment create --cluster-name \"{cluster_url.split(\"/\")[-1]}\" --database-name \"{db}\" --principal-id \"{uami}\" --principal-type App --role \"{adx_role}\" --principal-assignment-name \"sre-agent-{ag}\" --subscription \"{sub}\" 2>/dev/null || az kusto database add-principal --cluster-name \"{cluster_url.split(\"/\")[-1]}\" --database-name \"{db}\" --value name=\"sre-agent-{ag}\" type=\"App\" app-id=\"{uami}\" role=\"{adx_role}\" --subscription \"{sub}\" 2>/dev/null'
             if os.system(cmd) == 0:
                 print(f'    ✅ ADX {adx_role} granted on {db}')
             else:
                 print(f'    ⚠ Could not auto-grant. Run manually:')
-                print(f'    az kusto database add-principal --cluster-name \"{cluster_url.split(\"/\")[-1]}\" --database-name \"{db}\" --value name=\"sre-agent-{ag}\" type=\"App\" app-id=\"{uami}\" role=\"{adx_role}\"')
+                print(f'    az kusto database add-principal --cluster-name \"{cluster_url.split(\"/\")[-1]}\" --database-name \"{db}\" --value name=\"sre-agent-{ag}\" type=\"App\" app-id=\"{uami}\" role=\"{adx_role}\" --subscription \"{sub}\"')
         else:
             print(f'    Run manually after deploy — scope: {scope}')
 
@@ -493,7 +771,7 @@ for role in (data.get('roles') or []):
         env_var = role.get('env_var', '')
         print(f'  Token required: {name}')
         if env_var:
-            print(f'    Set in connectors.secrets.env: {env_var}=<value>')
+            print(f'    Export {env_var}=<value> in your environment before running deploy.sh')
         if instructions:
             for line in instructions.strip().split(chr(10)):
                 print(f'    {line}')
@@ -513,6 +791,7 @@ for role in (data.get('roles') or []):
         # Create the Microsoft.Web/connections resource
         create_cmd = (
             f'az resource create '
+            f'--subscription \"{sub}\" '
             f'--resource-group \"{rg}\" '
             f'--resource-type \"Microsoft.Web/connections\" '
             f'--name \"{conn_name}\" '
@@ -524,7 +803,7 @@ for role in (data.get('roles') or []):
         if os.system(create_cmd) == 0:
             # Get the consent URL
             consent_cmd = (
-                f'az rest --method POST '
+                f'az rest --subscription \"{sub}\" --method POST '
                 f'--url \"/subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.Web/connections/{conn_name}/listConsentLinks?api-version=2016-06-01\" '
                 f'--body \'{{\"parameters\":[{{\"parameterName\":\"token\",\"redirectUrl\":\"https://portal.azure.com\"}}]}}\' '
                 f'--query \"value[0].link\" -o tsv 2>/dev/null'

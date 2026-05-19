@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 # check-prerequisites.sh — verify required tools are installed
-# Source from any script: source "$(dirname "$0")/check-prerequisites.sh"
+
+usage() {
+  cat <<EOF
+Usage: $0 [--subscription <id>]
+
+Options:
+  --subscription <id>  Subscription to scope Azure CLI checks
+  -h, --help           Show this help
+EOF
+  exit "${1:-0}"
+}
 
 check_prerequisites() {
   local missing=0
@@ -34,3 +44,29 @@ check_prerequisites() {
   fi
   return 0
 }
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  SUBSCRIPTION_ID=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --subscription)
+        [[ -n "${2:-}" && "${2:-}" != -* ]] || { echo "Error: flag --subscription requires a value" >&2; exit 2; }
+        SUBSCRIPTION_ID="$2"
+        shift 2
+        ;;
+      -h|--help)
+        usage 0
+        ;;
+      *)
+        echo "Error: unexpected argument '$1'" >&2
+        usage 2
+        ;;
+    esac
+  done
+
+  if [[ -n "$SUBSCRIPTION_ID" ]]; then
+    export AZURE_SUBSCRIPTION_ID="$SUBSCRIPTION_ID"
+  fi
+
+  check_prerequisites
+fi
