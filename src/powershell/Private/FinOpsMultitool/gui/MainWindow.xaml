@@ -1,0 +1,765 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Azure FinOps Multitool"
+        Width="1400" Height="900"
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F0F0"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="AzureBlue" Color="#0078D4"/>
+        <SolidColorBrush x:Key="AzureDark" Color="#004578"/>
+        <SolidColorBrush x:Key="AzureLight" Color="#DEECF9"/>
+        <SolidColorBrush x:Key="CardBg" Color="White"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#333333"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#666666"/>
+
+        <DropShadowEffect x:Key="CardShadow" ShadowDepth="1" BlurRadius="6" Opacity="0.12" Direction="270"/>
+
+        <!-- Button Style -->
+        <Style x:Key="AzureButton" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#0078D4"/>
+            <Setter Property="BorderBrush" Value="#0078D4"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#0078D4"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Section Header Style -->
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="Margin" Value="0,20,0,10"/>
+        </Style>
+
+        <!-- Card Border Style -->
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="18"/>
+            <Setter Property="Margin" Value="6"/>
+            <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
+        </Style>
+
+        <!-- DataGrid Style -->
+        <Style TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="True"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#E0E0E0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#DDD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#FAFAFA"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="CanUserSortColumns" Value="True"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="EnableRowVirtualization" Value="True"/>
+            <Setter Property="EnableColumnVirtualization" Value="True"/>
+            <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+            <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#0078D4"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="BorderBrush" Value="#005A9E"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+
+        <!-- Header Bar ============================================== -->
+        <Border DockPanel.Dock="Top" Padding="16,10,16,10">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#005BA1" Offset="0"/>
+                    <GradientStop Color="#0078D4" Offset="0.4"/>
+                    <GradientStop Color="#2B88D8" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="2" BlurRadius="6" Opacity="0.3" Direction="270"/>
+            </Border.Effect>
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#FFFFFF" CornerRadius="6" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Text="&#9729;" FontSize="20" Foreground="#0078D4" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Azure FinOps Multitool" FontSize="19" Foreground="White" FontWeight="Bold"/>
+                        <TextBlock x:Name="VersionLabel" Text="v2.0.1" FontSize="10.5" Foreground="#A0C4E8" Margin="1,0,0,0"/>
+                    </StackPanel>
+                    <Border Background="#005A9E" CornerRadius="2" Width="1" Margin="18,4,14,4" VerticalAlignment="Stretch"/>
+                    <TextBlock x:Name="TenantLabel" Text="" FontSize="12" Foreground="#B3D7F2" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Right">
+                    <Button x:Name="TenantButton" Content="&#x1F513; Commercial Tenant" Style="{StaticResource AzureButton}"
+                            Background="Transparent" Foreground="White" BorderBrush="White" Margin="0,0,8,0"/>
+                    <Button x:Name="GovTenantButton" Content="&#x1F513; Gov Tenant" Style="{StaticResource AzureButton}"
+                            Background="Transparent" Foreground="White" BorderBrush="#8DC6FF" Margin="0,0,8,0"/>
+                    <Button x:Name="ScanButton" Content="&#x26A1; Scan" Style="{StaticResource AzureButton}"
+                            Background="White" Foreground="#0078D4" Margin="0,0,8,0"/>
+                    <Button x:Name="ExportButton" Content="&#x1F4CA; Export Scan Results" Style="{StaticResource AzureButton}"
+                            Background="Transparent" Foreground="White" BorderBrush="White" IsEnabled="False"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Status Bar ============================================== -->
+        <Border DockPanel.Dock="Bottom" Background="#F8F8F8" BorderBrush="#DDD" BorderThickness="0,1,0,0" Padding="12,6">
+            <DockPanel>
+                <ProgressBar x:Name="ProgressBar" Width="220" Height="14" Minimum="0" Maximum="100" Value="0"
+                             Foreground="#0078D4" Background="#E0E0E0" DockPanel.Dock="Right" Margin="10,0,0,0"/>
+                <TextBlock x:Name="StatusText" Text="Select 'Commercial Tenant' or 'Gov Tenant' to connect" Foreground="#666"
+                           FontSize="12" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
+
+        <!-- Main Content ============================================ -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="290"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Panel: Hierarchy Tree -->
+            <DockPanel Grid.Column="0" Background="White">
+                <Border DockPanel.Dock="Top" Background="#F8F8F8" Padding="12,10" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                    <TextBlock Text="Management Group Hierarchy" FontSize="13" FontWeight="SemiBold" Foreground="#333"/>
+                </Border>
+                <TreeView x:Name="HierarchyTree" BorderThickness="0" Padding="4" FontSize="12.5"/>
+            </DockPanel>
+
+            <!-- Splitter -->
+            <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                          Background="#E0E0E0" ResizeBehavior="PreviousAndNext"/>
+
+            <!-- Right Panel: Detail Tabs -->
+            <TabControl x:Name="DetailTabs" Grid.Column="2" Padding="0" BorderThickness="0" Background="#F0F0F0">
+
+                <!-- Overview Tab ================================== -->
+                <TabItem Header="  Overview  " FontSize="13">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                        <StackPanel x:Name="OverviewPanel">
+
+                            <!-- Summary Cards Row -->
+                            <WrapPanel Margin="0,10,0,10">
+                                <Border Style="{StaticResource Card}" Width="190">
+                                    <StackPanel>
+                                        <TextBlock Text="Contract Type" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="ContractTypeText" Text="&#x2014;" FontSize="16" FontWeight="Bold" Foreground="#0078D4" Margin="0,4,0,0"/>
+                                        <TextBlock x:Name="ContractDetailText" Text="" FontSize="11" Foreground="#999" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="190">
+                                    <StackPanel>
+                                        <TextBlock Text="Month-to-Date Spend" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="TotalCostText" Text="&#x2014;" FontSize="20" FontWeight="Bold" Foreground="#D83B01" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="190">
+                                    <StackPanel>
+                                        <TextBlock Text="Forecasted Spend" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="ForecastText" Text="&#x2014;" FontSize="20" FontWeight="Bold" Foreground="#8764B8" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="190">
+                                    <StackPanel>
+                                        <TextBlock Text="Subscriptions" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="SubCountText" Text="&#x2014;" FontSize="20" FontWeight="Bold" Foreground="#0078D4" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="190">
+                                    <StackPanel>
+                                        <TextBlock Text="Est. Annual Savings" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="TotalSavingsText" Text="&#x2014;" FontSize="20" FontWeight="Bold" Foreground="#107C10" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="190">
+                                    <StackPanel>
+                                        <TextBlock Text="Savings Realized" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="SavingsRealizedText" Text="&#x2014;" FontSize="20" FontWeight="Bold" Foreground="#107C10" Margin="0,4,0,0"/>
+                                        <TextBlock x:Name="SavingsRealizedDetail" Text="" FontSize="11" Foreground="#999" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </WrapPanel>
+
+                            <!-- Subscription Cost Table -->
+                            <TextBlock Text="Subscription Costs" Style="{StaticResource SectionHeader}"/>
+                            <DataGrid x:Name="SubCostGrid" MaxHeight="250"/>
+
+                            <!-- Resource Cost Table -->
+                            <TextBlock Text="Resources by Spend" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock x:Name="ResourceCountNote" FontSize="11" Foreground="#999" Margin="0,0,0,6"/>
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <DataGrid x:Name="ResourceCostGrid" MaxHeight="500" MinWidth="900"/>
+                            </ScrollViewer>
+
+                            <!-- Subscription Scorecard -->
+                            <TextBlock Text="Subscription Scorecard" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="Per-subscription health summary combining cost trend, tag compliance, optimization opportunities, and budget status." FontSize="11" Foreground="#999" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <DataGrid x:Name="ScorecardGrid" MaxHeight="300" MinWidth="900"/>
+                            </ScrollViewer>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Cost Analysis Tab ============================= -->
+                <TabItem Header="  Cost Analysis  " FontSize="13">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                        <StackPanel x:Name="CostPanel">
+
+                            <!-- 6-Month Cost Trend Chart -->
+                            <TextBlock Text="6-Month Cost Trend" Style="{StaticResource SectionHeader}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <TextBlock Text="Subscription:" FontSize="12" Foreground="#666" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <ComboBox x:Name="TrendSubSelector" Width="350" HorizontalAlignment="Left" FontSize="12" Padding="6,4"/>
+                            </StackPanel>
+                            <TextBlock x:Name="TrendNote" Text="" FontSize="11" Foreground="#999" Margin="0,0,0,6"/>
+                            <Border Background="White" CornerRadius="4" Padding="12" Margin="0,0,0,20"
+                                    BorderBrush="#DDD" BorderThickness="1">
+                                <Canvas x:Name="TrendChart" Height="220" ClipToBounds="True"/>
+                            </Border>
+
+                            <!-- Cost Anomalies -->
+                            <TextBlock Text="Cost Anomalies" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock x:Name="AnomalyNote" Text="Subscriptions with 25%+ month-over-month cost changes." FontSize="11" Foreground="#999" Margin="0,0,0,6"/>
+                            <DataGrid x:Name="AnomalyGrid" MaxHeight="200"/>
+
+                            <!-- Cost Management Alerts (API) -->
+                            <TextBlock Text="Cost Management Alerts" Style="{StaticResource SectionHeader}" Margin="0,20,0,0"/>
+                            <TextBlock x:Name="AlertsSummaryNote" Text="Triggered anomaly, budget, and forecast alerts from Cost Management." FontSize="11" Foreground="#999" Margin="0,0,0,6"/>
+                            <TextBlock Text="Triggered Alerts" FontSize="13" FontWeight="SemiBold" Foreground="#333" Margin="0,0,0,4"/>
+                            <DataGrid x:Name="TriggeredAlertsGrid" MaxHeight="250"/>
+                            <TextBlock Text="Configured Anomaly Alert Rules" FontSize="13" FontWeight="SemiBold" Foreground="#333" Margin="0,12,0,4"/>
+                            <DataGrid x:Name="ConfiguredRulesGrid" MaxHeight="200"/>
+
+                            <!-- Cost by Tag -->
+                            <TextBlock x:Name="CostByTagHeader" Text="Cost by Tag" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock x:Name="CostByTagDesc" Text="Select a tag below to see cost distribution." FontSize="12" Foreground="#666" Margin="0,0,0,10"/>
+                            <ComboBox x:Name="TagSelector" Width="250" HorizontalAlignment="Left" Margin="0,0,0,15" FontSize="12" Padding="6,4"/>
+                            <DataGrid x:Name="CostByTagGrid" MaxHeight="400"/>
+
+                            <!-- Cost Allocation Summary -->
+
+
+                            <TextBlock x:Name="NoTagsLabel" Text="" FontSize="13" Foreground="#D83B01" Margin="0,20,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Tags Tab ====================================== -->
+                <TabItem Header="  Tags  " FontSize="13">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                        <StackPanel x:Name="TagsPanel">
+
+                            <!-- Tag Coverage Summary -->
+                            <WrapPanel Margin="0,10,0,10">
+                                <Border Style="{StaticResource Card}" Width="180">
+                                    <StackPanel>
+                                        <TextBlock Text="Unique Tags" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="TagCountText" Text="&#x2014;" FontSize="22" FontWeight="Bold" Foreground="#0078D4"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="180">
+                                    <StackPanel>
+                                        <TextBlock Text="Tag Coverage" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="TagCoverageText" Text="&#x2014;" FontSize="22" FontWeight="Bold" Foreground="#107C10"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="180">
+                                    <StackPanel>
+                                        <TextBlock Text="Untagged Resources" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="UntaggedCountText" Text="&#x2014;" FontSize="22" FontWeight="Bold" Foreground="#D83B01"/>
+                                    </StackPanel>
+                                </Border>
+                            </WrapPanel>
+
+                            <!-- Tag Inventory -->
+                            <TextBlock Text="Tag Inventory" Style="{StaticResource SectionHeader}"/>
+                            <DataGrid x:Name="TagInventoryGrid" MaxHeight="250"/>
+
+                            <!-- Deploy Custom Tag -->
+                            <Button x:Name="CustomTagButton" Content="+ Deploy Custom Tag" FontSize="12" Padding="12,6,12,6" Margin="0,10,0,10"
+                                    HorizontalAlignment="Left" Cursor="Hand"
+                                    Background="#E6F2FF" Foreground="#0078D4" BorderBrush="#0078D4" BorderThickness="1"/>
+
+                            <!-- Tag Deploy Dialog (inline, hidden by default) -->
+                            <Border x:Name="TagDeployPanel" Background="#F8F8F8" CornerRadius="4" Padding="16" Margin="0,0,0,10"
+                                    BorderBrush="#0078D4" BorderThickness="1" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock x:Name="TagDeployTitle" Text="" FontSize="14" FontWeight="SemiBold" Foreground="#0078D4" Margin="0,0,0,10"/>
+                                    <TextBlock x:Name="TagNameLabel" Text="Tag Name:" FontSize="12" Margin="0,0,0,4" Visibility="Collapsed"/>
+                                    <TextBox x:Name="TagNameInput" Width="300" HorizontalAlignment="Left" FontSize="12" Padding="6,4" Margin="0,0,0,10" Visibility="Collapsed"/>
+                                    <TextBlock Text="Scope (subscription or resource group):" FontSize="12" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="TagScopeSelector" Width="500" HorizontalAlignment="Left" FontSize="12" Padding="6,4" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Tag Value:" FontSize="12" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="TagValueInput" Width="300" HorizontalAlignment="Left" FontSize="12" Padding="6,4" Margin="0,0,0,10"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="TagDeployButton" Content="Deploy Tag" Style="{StaticResource AzureButton}"
+                                                Background="#0078D4" Foreground="White" Margin="0,0,10,0"/>
+                                        <Button x:Name="TagDeployCancelButton" Content="Cancel" Style="{StaticResource AzureButton}" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="TagDeployStatus" Text="" FontSize="12" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Untagged Resources -->
+                            <TextBlock Text="Untagged Resources" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock x:Name="UntaggedNote" Text="" FontSize="11" Foreground="#999" Margin="0,0,0,6"/>
+                            <DataGrid x:Name="UntaggedResourcesGrid" MaxHeight="350"/>
+
+                            <!-- Tag Recommendations -->
+                            <TextBlock Text="Tag Recommendations (Cloud Adoption Framework)" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock x:Name="TagComplianceText" Text="" FontSize="13" Margin="0,0,0,8"/>
+                            <TextBlock Text="Click Add to deploy a missing tag or Remove to delete a present tag from a scope." FontSize="12" Foreground="#666" Margin="0,0,0,4"/>
+                            <DataGrid x:Name="TagRecsGrid" MaxHeight="300"/>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Policy Tab ====================================== -->
+                <TabItem Header="  Policy  " FontSize="13">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                        <StackPanel x:Name="PolicyPanel">
+
+                            <!-- Policy Summary Cards -->
+                            <WrapPanel Margin="0,10,0,10">
+                                <Border Style="{StaticResource Card}" Width="180">
+                                    <StackPanel>
+                                        <TextBlock Text="Total Assignments" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="PolicyCountText" Text="&#x2014;" FontSize="22" FontWeight="Bold" Foreground="#0078D4"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="180">
+                                    <StackPanel>
+                                        <TextBlock Text="Compliance" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="PolicyComplianceText" Text="&#x2014;" FontSize="22" FontWeight="Bold" Foreground="#107C10"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="180">
+                                    <StackPanel>
+                                        <TextBlock Text="Non-Compliant Resources" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="PolicyNonCompliantText" Text="&#x2014;" FontSize="22" FontWeight="Bold" Foreground="#D83B01"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="180">
+                                    <StackPanel>
+                                        <TextBlock Text="CAF Policies" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="PolicyRecsCountText" Text="&#x2014;" FontSize="22" FontWeight="Bold" Foreground="#8764B8"/>
+                                    </StackPanel>
+                                </Border>
+                            </WrapPanel>
+
+                            <!-- Policy Inventory -->
+                            <TextBlock Text="Policy Assignment Inventory" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="All policy and initiative assignments across your scanned subscriptions." FontSize="11" Foreground="#999" Margin="0,0,0,6"/>
+                            <DataGrid x:Name="PolicyInventoryGrid" MaxHeight="250"/>
+
+                            <!-- Per-Sub Compliance -->
+                            <TextBlock Text="Per-Subscription Compliance" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="Policy compliance summary per subscription from Azure Policy Insights." FontSize="11" Foreground="#999" Margin="0,0,0,6"/>
+                            <DataGrid x:Name="PolicyComplianceGrid" MaxHeight="200"/>
+
+                            <!-- FinOps Policy Recommendations -->
+                            <TextBlock Text="CAF Recommended Policies &amp; Initiatives" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock x:Name="PolicyRecsComplianceText" Text="" FontSize="13" Margin="0,0,0,8"/>
+                            <TextBlock Text="Click Deploy to assign a missing policy or Unassign to remove an assigned policy." FontSize="12" Foreground="#666" Margin="0,0,0,4"/>
+                            <DataGrid x:Name="PolicyRecsGrid" MaxHeight="350"/>
+
+                            <!-- Policy Deploy Dialog (inline, hidden by default) -->
+                            <Border x:Name="PolicyDeployPanel" Background="#F8F8F8" CornerRadius="4" Padding="16" Margin="0,0,0,10"
+                                    BorderBrush="#0078D4" BorderThickness="1" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock x:Name="PolicyDeployTitle" Text="" FontSize="14" FontWeight="SemiBold" Foreground="#0078D4" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Scope (subscription or resource group):" FontSize="12" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="PolicyScopeSelector" Width="500" HorizontalAlignment="Left" FontSize="12" Padding="6,4" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Effect:" FontSize="12" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="PolicyEffectSelector" Width="200" HorizontalAlignment="Left" FontSize="12" Padding="6,4" Margin="0,0,0,10"/>
+                                    <StackPanel x:Name="PolicyParamsPanel" Margin="0,0,0,10"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="PolicyDeployButton" Content="Deploy Policy" Style="{StaticResource AzureButton}"
+                                                Background="#0078D4" Foreground="White" Margin="0,0,10,0"/>
+                                        <Button x:Name="PolicyRemediateButton" Content="Create Remediation Task" Style="{StaticResource AzureButton}"
+                                                Background="#107C10" Foreground="White" Margin="0,0,10,0" Visibility="Collapsed"/>
+                                        <Button x:Name="PolicyDeployCancelButton" Content="Cancel" Style="{StaticResource AzureButton}" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="PolicyDeployStatus" Text="" FontSize="12" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Optimization Tab ============================== -->
+                <TabItem Header="  Optimization  " FontSize="13">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                        <StackPanel x:Name="OptPanel">
+
+                            <!-- Savings Summary Cards -->
+                            <WrapPanel Margin="0,10,0,10">
+                                <Border Style="{StaticResource Card}" Width="200">
+                                    <StackPanel>
+                                        <TextBlock Text="AHB Opportunities" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="AHBCountText" Text="&#x2014;" FontSize="22" FontWeight="Bold" Foreground="#D83B01"/>
+                                        <TextBlock x:Name="AHBDetailText" Text="" FontSize="11" Foreground="#999"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="200">
+                                    <StackPanel>
+                                        <TextBlock Text="Orphaned Resources" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="OrphanCountText" Text="&#x2014;" FontSize="22" FontWeight="Bold" Foreground="#D83B01"/>
+                                        <TextBlock x:Name="OrphanDetailText" Text="" FontSize="11" Foreground="#999"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="200">
+                                    <StackPanel>
+                                        <TextBlock Text="RI Utilization" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="RIUtilText" Text="&#x2014;" FontSize="22" FontWeight="Bold" Foreground="#8764B8"/>
+                                        <TextBlock x:Name="RIUtilDetail" Text="" FontSize="11" Foreground="#999"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}" Width="200">
+                                    <StackPanel>
+                                        <TextBlock Text="Advisor Optimizations" FontSize="11" Foreground="#999"/>
+                                        <TextBlock x:Name="AdvisorCountText" Text="&#x2014;" FontSize="22" FontWeight="Bold" Foreground="#0078D4"/>
+                                        <TextBlock x:Name="AdvisorSavingsText" Text="" FontSize="11" Foreground="#999"/>
+                                    </StackPanel>
+                                </Border>
+                            </WrapPanel>
+
+                            <!-- Commitment Utilization Section -->
+                            <TextBlock Text="Commitment Utilization &#x2014; Existing RIs &amp; Savings Plans" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="Shows how well your existing reservations and savings plans are being used. Target 80%+ utilization. Underutilized commitments are wasted spend." FontSize="11" Foreground="#999" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <DataGrid x:Name="CommitmentGrid" MaxHeight="200"/>
+
+                            <!-- Orphaned Resources Section -->
+                            <TextBlock Text="Orphaned &amp; Idle Resources" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="Resources costing money but serving no purpose: orphaned disks, unattached IPs/NICs, empty App Service Plans, deallocated VMs, and old snapshots." FontSize="11" Foreground="#999" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="OrphanSummaryText" Text="" FontSize="12" Foreground="#666" Margin="0,0,0,8"/>
+                            <DataGrid x:Name="OrphanGrid" MaxHeight="300"/>
+
+                            <!-- AHB Section -->
+                            <TextBlock Text="Azure Hybrid Benefit &#x2014; Eligible Resources" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="Use existing Windows Server or SQL Server licenses with Software Assurance to save 40-85% on Azure VMs and SQL services. No additional purchase needed if you already own on-prem licenses." FontSize="11" Foreground="#999" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="AHBSummaryText" Text="" FontSize="12" Foreground="#666" Margin="0,0,0,8"/>
+                            <DataGrid x:Name="AHBGrid" MaxHeight="200"/>
+
+                            <!-- RI Section -->
+                            <TextBlock Text="Reserved Instance Recommendations" Style="{StaticResource SectionHeader}" Margin="0,20,0,0"/>
+                            <TextBlock Text="Reserved Instances (RIs) lock in a discounted rate for a specific resource type (VM size, SQL tier, etc.) in a specific region for 1 or 3 years. Best for steady-state workloads with predictable usage. Typical savings: 30-72% vs. pay-as-you-go." FontSize="11" Foreground="#999" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                            <TextBlock x:Name="RIContractNote" Text="" FontSize="11" Foreground="#8764B8" Margin="0,0,0,8"/>
+                            <DataGrid x:Name="RIGrid" MaxHeight="300"/>
+
+                            <!-- Savings Plan Section -->
+                            <TextBlock Text="Savings Plan Recommendations" Style="{StaticResource SectionHeader}" Margin="0,20,0,0"/>
+                            <TextBlock Text="Savings Plans commit to a fixed hourly spend across any VM family, region, or OS for 1 or 3 years. More flexible than RIs since they auto-apply to whatever compute you run. Best for dynamic workloads that change VM sizes or regions over time. Typical savings: 15-65% vs. pay-as-you-go." FontSize="11" Foreground="#999" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                            <TextBlock x:Name="SPContractNote" Text="" FontSize="11" Foreground="#0078D4" Margin="0,0,0,8"/>
+                            <DataGrid x:Name="SPGrid" MaxHeight="300"/>
+
+                            <!-- Idle VMs Section -->
+                            <TextBlock Text="Idle &amp; Underutilized VMs" Style="{StaticResource SectionHeader}" Margin="0,20,0,0"/>
+                            <TextBlock Text="Running VMs with very low CPU (&lt;5%) and minimal network activity over the last 14 days. These go beyond Azure Advisor and flag VMs that may have been missed. Candidates for deallocating, downsizing, or converting to auto-shutdown schedules." FontSize="11" Foreground="#999" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="IdleVMSummaryText" Text="" FontSize="12" Foreground="#666" Margin="0,0,0,8"/>
+                            <DataGrid x:Name="IdleVMGrid" MaxHeight="300"/>
+
+                            <!-- Storage Tier Section -->
+                            <TextBlock Text="Storage Tier Optimization" Style="{StaticResource SectionHeader}" Margin="0,20,0,0"/>
+                            <TextBlock Text="Hot-tier storage accounts with very low transaction counts over the last 30 days. Moving infrequently accessed data to Cool (50% savings) or Archive (90% savings) tier can significantly reduce storage costs." FontSize="11" Foreground="#999" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="StorageTierSummaryText" Text="" FontSize="12" Foreground="#666" Margin="0,0,0,8"/>
+                            <DataGrid x:Name="StorageTierGrid" MaxHeight="300"/>
+
+                            <!-- Advisor Section -->
+                            <TextBlock Text="Advisor Cost Recommendations" Style="{StaticResource SectionHeader}" Margin="0,20,0,0"/>
+                            <TextBlock Text="Azure Advisor analyzes your resource usage patterns and identifies wasteful spend: idle VMs, oversized resources, orphaned disks, and underutilized services. These are quick wins that reduce cost without any commitment." FontSize="11" Foreground="#999" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <DataGrid x:Name="AdvisorGrid" MaxHeight="250"/>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Billing Tab ================================== -->
+                <TabItem Header="  Billing  " FontSize="13">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                        <StackPanel x:Name="BillingPanel">
+
+                            <TextBlock Text="Billing Accounts" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock x:Name="BillingAccessNote" Text="" FontSize="12" Foreground="#D83B01" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                            <DataGrid x:Name="BillingAccountsGrid" MaxHeight="180"/>
+
+                            <TextBlock Text="Billing Profiles" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="MCA/MPA billing profiles control payment methods and invoice generation." FontSize="11" Foreground="#999" Margin="0,0,0,6"/>
+                            <DataGrid x:Name="BillingProfilesGrid" MaxHeight="200"/>
+
+                            <TextBlock Text="Invoice Sections" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="Invoice sections organize charges within a billing profile (MCA)." FontSize="11" Foreground="#999" Margin="0,0,0,6"/>
+                            <DataGrid x:Name="InvoiceSectionsGrid" MaxHeight="200"/>
+
+                            <TextBlock x:Name="EADeptHeader" Text="EA Departments" Style="{StaticResource SectionHeader}" Visibility="Collapsed"/>
+                            <DataGrid x:Name="EADeptGrid" MaxHeight="200" Visibility="Collapsed"/>
+
+                            <TextBlock Text="Cost Allocation Rules" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="Cost allocation rules redistribute shared costs (e.g., networking, management tools) across target subscriptions or resource groups." FontSize="11" Foreground="#999" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                            <DataGrid x:Name="CostAllocationGrid" MaxHeight="200"/>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Budgets Tab ================================== -->
+                <TabItem Header="  Budgets  " FontSize="13">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                        <StackPanel x:Name="BudgetsPanel">
+
+                            <TextBlock Text="Budget Management" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="#666" Margin="0,0,0,4">
+                                Azure Budgets let you set a spending cap for a subscription and receive email alerts when spend crosses defined thresholds.
+                                Budgets do NOT stop spending &#x2014; they provide visibility so you can act before costs exceed expectations.
+                                Best practice: set thresholds at 25%, 50%, 80%, and 100% so stakeholders get early warnings.
+                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="#999" Margin="0,0,0,12">
+                                Required permissions: Cost Management Contributor or Contributor role on the target subscription.
+                            </TextBlock>
+
+                            <!-- Subscription Selector -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <TextBlock Text="Subscription:" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <ComboBox x:Name="BudgetSubSelector" Width="400" FontSize="13"/>
+                            </StackPanel>
+
+                            <!-- Budget Detail for Selected Sub -->
+                            <TextBlock x:Name="BudgetSubSummary" Text="" FontSize="12" Foreground="#666" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                            <DataGrid x:Name="BudgetDetailGrid" MaxHeight="250"/>
+
+                            <!-- Deploy Budget Section -->
+                            <TextBlock Text="Deploy a Budget" Style="{StaticResource SectionHeader}" Margin="0,20,0,0"/>
+                            <StackPanel x:Name="BudgetDeployPanel">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Scope:" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Width="120"/>
+                                    <ComboBox x:Name="BudgetDeployScopeSelector" Width="400" FontSize="12">
+                                        <ComboBoxItem Content="All Subscriptions" IsSelected="True"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Budget Name:" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Width="120"/>
+                                    <TextBox x:Name="BudgetDeployNameInput" Width="250" FontSize="12" Text="default-budget"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Amount:" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Width="120"/>
+                                    <TextBox x:Name="BudgetDeployAmountInput" Width="150" FontSize="12" Text="1000"/>
+                                    <TextBlock Text="  Time Grain:" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                                    <ComboBox x:Name="BudgetDeployGrainSelector" Width="120" FontSize="12">
+                                        <ComboBoxItem Content="Monthly" IsSelected="True"/>
+                                        <ComboBoxItem Content="Quarterly"/>
+                                        <ComboBoxItem Content="Annually"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Alert Emails:" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Width="120"/>
+                                    <TextBox x:Name="BudgetDeployEmailInput" Width="400" FontSize="12" Text=""
+                                             ToolTip="Comma-separated email addresses for budget alerts"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Action Group:" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Width="120"/>
+                                    <ComboBox x:Name="BudgetActionGroupSelector" Width="400" FontSize="12"
+                                              ToolTip="Optional: select an Action Group to trigger when thresholds are crossed">
+                                        <ComboBoxItem Content="(None)" IsSelected="True"/>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <!-- Tag Filter (optional - scopes budget to a tag) -->
+                                <TextBlock Text="Tag Filter (optional):" FontSize="12" FontWeight="SemiBold" Margin="0,4,0,4"/>
+                                <TextBlock Text="Scope this budget to resources matching a specific tag. Leave blank for a subscription-wide budget."
+                                           FontSize="11" Foreground="#999" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Tag Name:" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Width="120"/>
+                                    <ComboBox x:Name="BudgetDeployTagNameSelector" Width="250" FontSize="12"
+                                              ToolTip="Select a tag name from your environment to scope this budget">
+                                        <ComboBoxItem Content="(No tag filter)" IsSelected="True"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Tag Value:" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Width="120"/>
+                                    <TextBox x:Name="BudgetDeployTagValueInput" Width="250" FontSize="12" Text=""
+                                             ToolTip="Enter the tag value to filter by (e.g. Engineering, Production)"/>
+                                </StackPanel>
+
+                                <!-- Threshold Inputs (up to 4) -->
+                                <TextBlock Text="Alert Thresholds (%):" FontSize="12" FontWeight="SemiBold" Margin="0,4,0,4"/>
+                                <TextBlock Text="Define up to 4 percentage thresholds. Leave blank to skip. Each threshold sends a notification when spend crosses that percentage of the budget amount."
+                                           FontSize="11" Foreground="#999" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Threshold 1:" FontSize="12" VerticalAlignment="Center" Width="85"/>
+                                    <TextBox x:Name="BudgetThreshold1" Width="60" FontSize="12" Margin="0,0,8,0"/>
+                                    <ComboBox x:Name="BudgetThreshold1Type" Width="110" FontSize="12" Margin="0,0,20,0">
+                                        <ComboBoxItem Content="Actual" IsSelected="True"/>
+                                        <ComboBoxItem Content="Forecasted"/>
+                                    </ComboBox>
+                                    <TextBlock Text="Threshold 2:" FontSize="12" VerticalAlignment="Center" Width="85"/>
+                                    <TextBox x:Name="BudgetThreshold2" Width="60" FontSize="12" Margin="0,0,8,0"/>
+                                    <ComboBox x:Name="BudgetThreshold2Type" Width="110" FontSize="12">
+                                        <ComboBoxItem Content="Actual" IsSelected="True"/>
+                                        <ComboBoxItem Content="Forecasted"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Threshold 3:" FontSize="12" VerticalAlignment="Center" Width="85"/>
+                                    <TextBox x:Name="BudgetThreshold3" Width="60" FontSize="12" Margin="0,0,8,0"/>
+                                    <ComboBox x:Name="BudgetThreshold3Type" Width="110" FontSize="12" Margin="0,0,20,0">
+                                        <ComboBoxItem Content="Actual" IsSelected="True"/>
+                                        <ComboBoxItem Content="Forecasted"/>
+                                    </ComboBox>
+                                    <TextBlock Text="Threshold 4:" FontSize="12" VerticalAlignment="Center" Width="85"/>
+                                    <TextBox x:Name="BudgetThreshold4" Width="60" FontSize="12" Margin="0,0,8,0"/>
+                                    <ComboBox x:Name="BudgetThreshold4Type" Width="110" FontSize="12">
+                                        <ComboBoxItem Content="Actual" IsSelected="True"/>
+                                        <ComboBoxItem Content="Forecasted"/>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <Button x:Name="BudgetDeployButton" Content="Deploy Budget" Style="{StaticResource AzureButton}"
+                                            Background="#0078D4" Foreground="White" Margin="0,0,8,0"/>
+                                    <Button x:Name="BudgetDeployCancelButton" Content="Cancel" Style="{StaticResource AzureButton}"
+                                            Background="White" Foreground="#333" BorderBrush="#CCC"/>
+                                </StackPanel>
+                                <TextBlock x:Name="BudgetDeployStatus" Text="" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <!-- Deploy Budget Policy Section -->
+                            <TextBlock Text="Deploy a Budget Policy" Style="{StaticResource SectionHeader}" Margin="0,24,0,0"/>
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="#666" Margin="0,0,0,4">
+                                Deploy an Azure Policy that automatically creates budgets on new subscriptions (DeployIfNotExists)
+                                or audits subscriptions that are missing a budget (AuditIfNotExists). Policies enforce governance at scale.
+                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="#999" Margin="0,0,0,10">
+                                DINE policies require a remediation task for existing subscriptions. Use the button below after deploying.
+                            </TextBlock>
+                            <StackPanel x:Name="BudgetPolicyPanel">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Policy Effect:" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Width="120"/>
+                                    <ComboBox x:Name="BudgetPolicyEffectSelector" Width="250" FontSize="12">
+                                        <ComboBoxItem Content="AuditIfNotExists" IsSelected="True"/>
+                                        <ComboBoxItem Content="DeployIfNotExists"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Scope:" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Width="120"/>
+                                    <ComboBox x:Name="BudgetPolicyScopeSelector" Width="400" FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <Button x:Name="BudgetPolicyDeployButton" Content="Deploy Budget Policy" Style="{StaticResource AzureButton}"
+                                            Background="#0078D4" Foreground="White" Margin="0,0,8,0"/>
+                                    <Button x:Name="BudgetPolicyCancelButton" Content="Cancel" Style="{StaticResource AzureButton}"
+                                            Background="White" Foreground="#333" BorderBrush="#CCC"/>
+                                </StackPanel>
+                                <TextBlock x:Name="BudgetPolicyStatus" Text="" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- FinOps Guidance Tab =========================== -->
+                <TabItem Header="  FinOps Guidance  " FontSize="13">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                        <StackPanel x:Name="GuidancePanel">
+                            <!-- Score card area - populated dynamically -->
+                            <StackPanel x:Name="GuidanceScorePanel" Margin="0,0,0,10"/>
+
+                            <!-- Prioritized Action Plan -->
+                            <TextBlock Text="Prioritized Action Plan" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock x:Name="ActionPlanSubtitle" TextWrapping="Wrap" FontSize="12.5" Foreground="#666" Margin="0,0,0,10"/>
+                            <StackPanel x:Name="ActionPlanPanel" Margin="0,0,0,10"/>
+
+                            <!-- Understand Pillar -->
+                            <TextBlock Text="Understand (Cost Visibility &amp; Allocation)" Style="{StaticResource SectionHeader}" Foreground="#0078D4"/>
+                            <StackPanel x:Name="UnderstandPanel" Margin="0,0,0,10"/>
+
+                            <!-- Quantify Pillar -->
+                            <TextBlock Text="Quantify (Budgeting &amp; Forecasting)" Style="{StaticResource SectionHeader}" Foreground="#8764B8"/>
+                            <StackPanel x:Name="QuantifyPanel" Margin="0,0,0,10"/>
+
+                            <!-- Optimize Pillar -->
+                            <TextBlock Text="Optimize (Rate &amp; Usage Optimization)" Style="{StaticResource SectionHeader}" Foreground="#107C10"/>
+                            <StackPanel x:Name="OptimizePanel" Margin="0,0,0,10"/>
+
+                            <!-- Key Personas -->
+                            <TextBlock Text="FinOps Personas to Engage" Style="{StaticResource SectionHeader}"/>
+                            <StackPanel x:Name="PersonasPanel" Margin="0,0,0,10"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Resources Tab ================================ -->
+                <TabItem Header="  Resources  " FontSize="13">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                        <StackPanel x:Name="ResourcesPanel">
+
+                            <TextBlock Text="Azure FinOps Resources" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="Curated links to official Microsoft documentation, tools, and community resources for Azure cost management and FinOps." FontSize="12" Foreground="#666" TextWrapping="Wrap" Margin="0,0,0,16"/>
+
+                            <!-- FinOps Framework -->
+                            <TextBlock Text="FinOps Framework" Style="{StaticResource SectionHeader}" Foreground="#0078D4" FontSize="15"/>
+                            <StackPanel x:Name="ResourcesFinOpsPanel" Margin="0,0,0,16"/>
+
+                            <!-- Cost Management -->
+                            <TextBlock Text="Cost Management &amp; Optimization" Style="{StaticResource SectionHeader}" Foreground="#107C10" FontSize="15"/>
+                            <StackPanel x:Name="ResourcesCostPanel" Margin="0,0,0,16"/>
+
+                            <!-- Rate Optimization -->
+                            <TextBlock Text="Rate Optimization (RIs, Savings Plans, AHB)" Style="{StaticResource SectionHeader}" Foreground="#8764B8" FontSize="15"/>
+                            <StackPanel x:Name="ResourcesRatePanel" Margin="0,0,0,16"/>
+
+                            <!-- Governance -->
+                            <TextBlock Text="Governance &amp; Policy" Style="{StaticResource SectionHeader}" Foreground="#D83B01" FontSize="15"/>
+                            <StackPanel x:Name="ResourcesGovernancePanel" Margin="0,0,0,16"/>
+
+                            <!-- Workbooks &amp; Tools -->
+                            <TextBlock Text="Azure Workbooks &amp; Tools" Style="{StaticResource SectionHeader}" Foreground="#005A9E" FontSize="15"/>
+                            <StackPanel x:Name="ResourcesToolsPanel" Margin="0,0,0,16"/>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>
