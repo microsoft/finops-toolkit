@@ -1,9 +1,9 @@
 ---
 title: Deploy Azure SRE Agent with the FinOps toolkit
-description: Deploy the FinOps toolkit's Azure SRE Agent template, connect it to a FinOps hub Data Explorer cluster, and configure notifications for scheduled cost and capacity reports.
+description: Deploy the FinOps toolkit Azure SRE Agent template with explicit CLI parameters, connect it to a FinOps hub Data Explorer cluster, and validate the deployment.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/12/2026
+ms.date: 05/19/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -15,18 +15,7 @@ ms.reviewer: brettwil
 
 # Deploy Azure SRE Agent with the FinOps toolkit
 
-In this tutorial, you learn how to deploy the [FinOps toolkit's Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent), connect it to a [FinOps hub](../hubs/finops-hubs-overview.md), and configure notifications for scheduled cost and capacity reports. This article helps you:
-
-<!-- prettier-ignore-start -->
-> [!div class="checklist"]
-> - Apply the prerequisites. <!-- markdownlint-disable-line MD032 -->
-> - Deploy the FinOps hub recipe with `bin/deploy.sh`.
-> - Verify the deployment.
-> - Configure Microsoft Teams and Outlook notifications.
-> - Use dry-run, what-if, and constrained-mode validation.
-<!-- prettier-ignore-end -->
-
-<br>
+In this tutorial, you learn how to deploy the [FinOps toolkit Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent), connect it to a [FinOps hub](../hubs/finops-hubs-overview.md), and validate the deployment.
 
 ## What gets deployed
 
@@ -34,146 +23,141 @@ The FinOps hub recipe (`src/templates/sre-agent/recipes/finops-hub/`) deploys:
 
 | Component | Count | Notes |
 |-----------|-------|-------|
-| SRE Agent | 1 | `Microsoft.App/agents`. Default name `finops-sre-agent`, default resource group `rg-finops-sre-agent`, default region `eastus2`, action mode `Autonomous`, access level `High` |
-| User-assigned managed identity | 1 | Plus the agent's system-assigned identity |
+| SRE Agent | 1 | `Microsoft.App/agents` |
+| User-assigned managed identity | 1 | Plus the agent system-assigned identity |
 | Log Analytics workspace | 1 | Linked to the agent for telemetry |
-| Application Insights | 1 | Linked to the Log Analytics workspace |
-| Subagents | 5 | `azure-capacity-manager`, `chief-financial-officer`, `finops-practitioner`, `ftk-database-query`, `ftk-hubs-agent` |
-| Skills | 3 | `azure-capacity-management`, `azure-cost-management`, `finops-toolkit` |
-| Tools | 34 | Kusto and Python tools under `recipes/finops-hub/config/tools/` |
-| Scheduled tasks | 19 | FinOps, capacity, governance, and reporting automations |
-| Kusto connector | 0 or 1 | `finops-hub-kusto` is included only when `FINOPS_HUB_CLUSTER_URI` is set |
-| Knowledge documents | varies | Onboarding, notification patterns, known issue context |
-
-<br>
+| Application Insights | 1 | Linked to Log Analytics |
+| Subagents | 5 | FinOps and Azure capacity specialists |
+| Skills | 3 | Capacity, cost management, and FinOps Toolkit |
+| Tools | 34 | Kusto and Python tools |
+| Scheduled tasks | 19 | FinOps, governance, and reporting automations |
+| Kusto connector | 0 or 1 | Included when you pass `--cluster-uri` |
 
 ## Prerequisites
 
-- [Deployed a FinOps hub instance](../hubs/finops-hubs-overview.md#create-a-new-hub) with Data Explorer.
-- [Configured scopes](../hubs/configure-scopes.md) and ingested data successfully.
-- An Azure subscription where you have the **Owner** or **User Access Administrator** role. [Learn more](/azure/role-based-access-control/built-in-roles).
-- The `Microsoft.App` resource provider [registered](/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) on the subscription.
-- [Azure CLI](/cli/azure/install-azure-cli) signed in with the target subscription selected (`az account set`).
-- `jq`, `python3` with `PyYAML`, `curl`, and Bash 3.2 or newer available locally.
-- [`srectl`](/azure/sre-agent/tools) (only required when using `--fallback-srectl`).
-- For zone mapping: The `AvailabilityZonePeering` feature must be registered on the subscription. Register it at the management group level if the agent manages capacity across multiple subscriptions.
+- A deployed FinOps hub with Data Explorer.
+- A subscription where you have the **Owner** or **User Access Administrator** role.
+- The `Microsoft.App` resource provider registered in the subscription.
+- [Azure CLI](/cli/azure/install-azure-cli).
+- `jq`, `python3` with `PyYAML`, `curl`, and Bash 3.2 or newer.
+- [`srectl`](/azure/sre-agent/tools) only when you use `--fallback-srectl`.
 
-  ```bash
-  az feature register --namespace Microsoft.Resources --name AvailabilityZonePeering
-  az provider register --namespace Microsoft.Resources
-  ```
-
-The deployment uses the subscription currently selected in Azure CLI. Confirm the active subscription before deploying:
+Run:
 
 ```bash
-az account show --query '{name:name,id:id}' -o table
+cd src/templates/sre-agent
+bash bin/check-prerequisites.sh --subscription <subscription-id>
 ```
-
-<br>
 
 ## Deploy the FinOps hub recipe
 
-The deployment script lives at `src/templates/sre-agent/bin/deploy.sh`. It accepts the recipe directory as input, calls `bicep/assemble-agent.sh` to produce ARM parameters and an extras file, runs the Bicep deployment at subscription scope, and then applies the data-plane extras automatically.
+Run one script with explicit parameters:
 
 ```bash
 cd src/templates/sre-agent
 
-# Deploy the packaged FinOps hub recipe:
-bash bin/deploy.sh recipes/finops-hub/
+bash bin/deploy.sh \
+  --recipe recipes/finops-hub \
+  --resource-group <your-rg> \
+  --name <your-agent-name> \
+  --location <your-region> \
+  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/hub \
+  [--subscription <subscription-id>] \
+  [--target-resource-group <target-rg> ...] \
+  [--cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>] \
+  [--dry-run | --what-if] \
+  [--force] \
+  [--fallback-srectl] \
+  [--no-telemetry]
 ```
 
-The Bicep deployment creates the resource group named in `recipes/finops-hub/agent.json` (default `rg-finops-sre-agent`), the agent (default `finops-sre-agent`), the Log Analytics workspace, Application Insights, the user-assigned managed identity, and the subagents, skills, tools, and connectors arrays. After the ARM deployment succeeds, `bicep/apply-extras.sh` applies hooks, common prompts, scheduled tasks, knowledge documents, and any repo or auth wiring declared in the recipe.
+`bin/deploy.sh --help` is the CLI contract:
 
-> [!IMPORTANT]
-> Don't run Azure control-plane or data-plane commands against live SRE Agent resources outside `bin/deploy.sh` and its owned helper scripts in `bicep/`. Out-of-band changes drift from the recipe and break the deployment workflow.
+```text
+Usage: bash bin/deploy.sh --recipe <dir> [options]
+       bash bin/deploy.sh <legacy.parameters.json> [options]
 
-If no changes are detected (the script runs `bin/diff-agent.sh` against the existing agent), the deployment is skipped. Use `--force` to redeploy anyway:
+Required for recipe directories:
+  --recipe <dir>                        Recipe directory to assemble
+  -g, --resource-group <name>          Resource group (portal field: "Resource group")
+  -n, --name <name>                    Agent name (portal field: "Agent name")
+  -l, --location <region>              Region (portal field: "Region"; currently documented: swedencentral, eastus2, australiaeast)
+      --cluster-uri <uri>              Kusto connector URI when the recipe declares one
+
+Optional:
+      --subscription <id>              Subscription (portal field: "Subscription")
+      --target-resource-group <name>   Repeatable target resource group
+      --cluster-resource-id <id>       Kusto cluster ARM resource ID
+      --deploy-name <name>             Deployment name override
+      --dry-run                        Assemble and validate inputs without Azure calls
+      --what-if                        Run live ARM what-if validation
+      --force                          Continue when diff/discovery would otherwise stop
+      --fallback-srectl                Deploy ARM core, then hydrate extensions with srectl
+      --no-telemetry                   Disable anonymous telemetry for this run
+  -h, --help                           Show this help
+
+Legacy input:
+  A pre-assembled .parameters.json file is accepted only as a positional argument.
+  When using a legacy parameters file, identity and cluster flags are ignored.
+```
+
+## Validation modes
+
+Dry-run is hermetic and skips live Azure calls:
 
 ```bash
-bash bin/deploy.sh recipes/finops-hub/ --force
+bash bin/deploy.sh \
+  --recipe recipes/finops-hub \
+  -g <your-rg> \
+  -n <your-agent-name> \
+  -l <your-region> \
+  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/hub \
+  --dry-run
 ```
 
-<br>
-
-## Connect to a FinOps hub
-
-The recipe's `connectors.json` declares one Kusto connector with `dataSource: ${FINOPS_HUB_CLUSTER_URI}`. Set that environment variable before running `bin/deploy.sh` to include the connector. The value must point to your FinOps hub Data Explorer cluster and end in `/hub`:
+What-if is a live ARM validation:
 
 ```bash
-export FINOPS_HUB_CLUSTER_URI="https://<your-cluster>.<region>.kusto.windows.net/hub"
-bash bin/deploy.sh recipes/finops-hub/
+bash bin/deploy.sh \
+  --recipe recipes/finops-hub \
+  -g <your-rg> \
+  -n <your-agent-name> \
+  -l <your-region> \
+  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/hub \
+  --what-if
 ```
 
-You can also place the variable in `recipes/finops-hub/connectors.secrets.env`. The assemble script auto-loads that file if present.
-
-When a system-identity Kusto connector is present in the assembled parameters, `deploy.sh` enables a Bicep-managed `AllDatabasesViewer` role assignment for the agent's system-assigned identity. The script auto-discovers the cluster ARM resource ID from the connector hostname against the currently selected subscription. Override discovery when the cluster lives in a different subscription or the host name doesn't resolve uniquely:
+If your tenant blocks ARM extension child-resource writes, use constrained mode:
 
 ```bash
-export FINOPS_HUB_CLUSTER_RESOURCE_ID="/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster>"
-bash bin/deploy.sh recipes/finops-hub/
+bash bin/deploy.sh \
+  --recipe recipes/finops-hub \
+  -g <your-rg> \
+  -n <your-agent-name> \
+  -l <your-region> \
+  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/hub \
+  --fallback-srectl
 ```
 
-<br>
+## Recipe identity defaults
 
-## Validate before deploying
+- Shipped recipes in this repo omit the `identity` block.
+- Customer-authored recipes can keep identity defaults in `agent.json`.
+- CLI flags always override recipe defaults.
 
-The script supports two non-destructive validation modes plus a constrained-write fallback.
-
-### Dry-run
-
-Assembles the deployment parameters and extras, runs change detection, and exits without calling Azure for the deployment itself. Use it to confirm the recipe assembles cleanly and to preview what would deploy:
-
-```bash
-bash bin/deploy.sh recipes/finops-hub/ --dry-run
-```
-
-### What-if
-
-Runs `az deployment sub what-if` against the assembled template. Use it to preview the exact ARM resources that the deployment creates, modifies, or deletes:
-
-```bash
-bash bin/deploy.sh recipes/finops-hub/ --what-if
-```
-
-### Constrained mode (`--fallback-srectl`)
-
-If your tenant blocks ARM extension child-resource writes (`Microsoft.App/agents/{tools,subagents,skills,scheduledTasks,connectors}`), use constrained mode. The Bicep deployment provisions only the core agent resources, then `bin/hydrate-extensions.sh` applies tools, subagents, skills, and scheduled tasks via `srectl`:
-
-```bash
-bash bin/deploy.sh recipes/finops-hub/ --fallback-srectl
-```
-
-Constrained mode requires `srectl` to be installed and reachable on `PATH`.
-
-<br>
+If you omit `--target-resource-group`, the deploy flow uses the recipe default when present; otherwise it falls back to the agent resource group.
 
 ## Verify the deployment
-
-`bin/deploy.sh` automatically runs `bin/verify-agent.sh` against the recipe after a successful deployment and after a no-change skip. Re-run it manually any time:
 
 ```bash
 bash bin/verify-agent.sh \
   $(az account show --query id -o tsv) \
-  rg-finops-sre-agent \
-  finops-sre-agent \
+  <your-rg> \
+  <your-agent-name> \
   --expected recipes/finops-hub
 ```
 
-The verify script queries the ARM and data-plane APIs, compares observed counts against the expected counts in `recipes/finops-hub/expected-config.json`, and prints a pass/fail table.
-
-Then confirm the agent in the portal:
-
-1. Open [sre.azure.com](https://sre.azure.com), switch to the directory that contains your subscription, and select your agent.
-2. Confirm the FinOps subagents, skills, tools, and `finops-hub-kusto` connector appear in **Builder**.
-3. Go to **Scheduled tasks** and confirm tasks are listed and active.
-4. Ask the agent: `What knowledge documents do you have?`
-5. If you supplied a FinOps hub URI, confirm the `finops-hub-kusto` connector is healthy.
-6. Confirm the target Data Explorer cluster shows an `AllDatabasesViewer` principal assignment for the agent's system-assigned identity.
-
-> [!TIP]
-> If [sre.azure.com](https://sre.azure.com) shows the agent correctly but `srectl` returns `401`, `403`, or `Forbidden: Access denied by PDP`, confirm the active Azure CLI context points to the subscription that owns the SRE Agent resource. Browser success with CLI failure usually means the CLI token was issued for the wrong tenant.
-
-<br>
+Then confirm the agent in [sre.azure.com](https://sre.azure.com). If you passed `--cluster-uri`, verify that the `finops-hub-kusto` connector is healthy.
 
 ## Configure notifications
 
@@ -200,43 +184,40 @@ Use the built-in `PostTeamsMessage` tool from the [Teams notification guidance](
 
 For more information, see [Send notifications in Azure SRE Agent](/azure/sre-agent/send-notifications).
 
-<br>
+## GitHub Actions example
 
-## Give feedback
+The included GitHub Actions example passes the cluster URI as a deploy flag while leaving secret-only inputs such as `GITHUB_PAT` and `ADO_PAT` in the environment.
 
-Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+## Migrating from env-var-driven deploys
 
-<!-- prettier-ignore-start -->
-> [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20SRE%20Agent%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20SRE%20Agent%3F/surveyId/FTK/bladeName/SREAgent/featureName/SREAgent)
-<!-- prettier-ignore-end -->
+The old deploy flow used configuration inputs such as `FINOPS_HUB_CLUSTER_URI`, `FINOPS_HUB_CLUSTER_RESOURCE_ID`, `SRE_AGENT_NO_TELEMETRY`, and `connectors.secrets.env`. Those inputs are no longer supported for identity or config.
 
-If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+Before:
 
-<!-- prettier-ignore-start -->
-> [!div class="nextstepaction"]
-> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20SRE%20Agent%22%20sort%3Areactions-%2B1-desc)
-<!-- prettier-ignore-end -->
+```bash
+export FINOPS_HUB_CLUSTER_URI="https://<your-cluster>.<your-region>.kusto.windows.net/hub"
+export FINOPS_HUB_CLUSTER_RESOURCE_ID="/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster>"
+export SRE_AGENT_NO_TELEMETRY=1
+bash bin/deploy.sh recipes/finops-hub
+```
 
-<br>
+After:
 
-## Related content
+```bash
+bash bin/deploy.sh \
+  --recipe recipes/finops-hub \
+  --resource-group <your-rg> \
+  --name <your-agent-name> \
+  --location <your-region> \
+  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/hub \
+  --cluster-resource-id /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster> \
+  --no-telemetry
+```
 
-Related FinOps capabilities:
+The only supported environment-variable inputs are secrets:
 
-- [Reporting and analytics](../../framework/understand/reporting.md)
-- [Anomaly management](../../framework/understand/anomalies.md)
-- [Rate optimization](../../framework/optimize/rates.md)
-
-Related products:
-
-- [Azure SRE Agent](/azure/sre-agent/overview)
-- [Azure Data Explorer](/azure/data-explorer/)
-
-Related solutions:
-
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [Configure AI agents for FinOps hubs](../hubs/configure-ai.md)
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-
-<br>
+- `GITHUB_PAT`
+- `ADO_PAT`
+- `ADO_USE_AAD`
+- `ADO_USE_MI`
+- `ADO_ORG`

@@ -14,10 +14,31 @@
 
 set -uo pipefail
 
-SUB="${1:?subscription-id required}"
-RG="${2:?resource-group required}"
-AGENT="${3:?agent-name required}"
-CONFIG_DIR="${4:?config-directory required}"
+usage() {
+  cat <<EOF
+Usage: $0 <subscription> <resource-group> <agent-name> <config-dir>
+
+Arguments:
+  <subscription>      Subscription
+  <resource-group>    Resource group
+  <agent-name>        Agent name
+  <config-dir>        Recipe/config directory
+
+Options:
+  -h, --help          Show this help
+EOF
+  exit "${1:-0}"
+}
+
+[[ "${1:-}" == "-h" || "${1:-}" == "--help" ]] && usage 0
+[[ $# -eq 4 ]] || usage 2
+
+SUB="$1"
+RG="$2"
+AGENT="$3"
+CONFIG_DIR="$4"
+
+az() { command az "$@" --subscription "$SUB"; }
 
 API_VERSION="2025-05-01-preview"
 ARM_BASE="https://management.azure.com/subscriptions/${SUB}/resourceGroups/${RG}/providers/Microsoft.App/agents/${AGENT}"

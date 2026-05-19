@@ -10,10 +10,29 @@
 
 set -euo pipefail
 
-SUB="${1:?subscription-id required}"
-RG="${2:?resource-group required}"
-AGENT="${3:?agent-name required}"
-CONFIG_DIR="${4:?config-dir required}"
+usage() {
+  cat <<EOF
+Usage: $0 <subscription-id> <resource-group> <agent-name> <config-dir>
+
+Arguments:
+  <subscription-id>   Subscription
+  <resource-group>    Resource group
+  <agent-name>        Agent name
+  <config-dir>        Recipe/config directory
+
+Options:
+  -h, --help          Show this help
+EOF
+  exit "${1:-0}"
+}
+
+[[ "${1:-}" == "-h" || "${1:-}" == "--help" ]] && usage 0
+[[ $# -eq 4 ]] || usage 2
+
+SUB="$1"
+RG="$2"
+AGENT="$3"
+CONFIG_DIR="$4"
 
 [[ -d "$CONFIG_DIR" ]] || { echo "config directory not found: $CONFIG_DIR" >&2; exit 1; }
 [[ -f "$CONFIG_DIR/agent.json" ]] || { echo "agent.json not found in: $CONFIG_DIR" >&2; exit 1; }
@@ -21,6 +40,8 @@ CONFIG_DIR="$(cd "$CONFIG_DIR" && pwd)"
 
 command -v az >/dev/null || { echo "az is required" >&2; exit 1; }
 command -v srectl >/dev/null || { echo "srectl is required" >&2; exit 1; }
+
+az() { command az "$@" --subscription "$SUB"; }
 
 API_VERSION="2025-05-01-preview"
 ARM_BASE="https://management.azure.com/subscriptions/${SUB}/resourceGroups/${RG}/providers/Microsoft.App/agents/${AGENT}"
