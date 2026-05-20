@@ -109,35 +109,19 @@ foreach ($subscription in $subscriptions)
 
     foreach ($assignment in $assignments)
     {
-        if ($null -eq $assignment.ObjectId -and $assignment.Scope.Contains($subscription.Id))
+        $duplicateRoleAssignment = $roleAssignments | Where-Object { $_.PrincipalId -eq $assignment.ObjectId -and $_.Scope -eq $assignment.Scope -and $_.RoleDefinition -eq $assignment.RoleDefinitionName }
+        if (-not($duplicateRoleAssignment))
         {
             $assignmentEntry = New-Object PSObject -Property @{
                 Timestamp      = $timestamp
                 TenantGuid     = $tenantId
                 Cloud          = $cloudEnvironment
-                Model          = "AzureClassic"
-                PrincipalId    = $assignment.SignInName
+                Model          = "AzureRM"
+                PrincipalId    = $assignment.ObjectId
                 Scope          = $assignment.Scope
                 RoleDefinition = $assignment.RoleDefinitionName
             }
             $roleAssignments += $assignmentEntry
-        }
-        else
-        {
-            $duplicateRoleAssignment = $roleAssignments | Where-Object { $_.PrincipalId -eq $assignment.ObjectId -and $_.Scope -eq $assignment.Scope -and $_.RoleDefinition -eq $assignment.RoleDefinitionName }
-            if (-not($duplicateRoleAssignment))
-            {
-                $assignmentEntry = New-Object PSObject -Property @{
-                    Timestamp      = $timestamp
-                    TenantGuid     = $tenantId
-                    Cloud          = $cloudEnvironment
-                    Model          = "AzureRM"
-                    PrincipalId    = $assignment.ObjectId
-                    Scope          = $assignment.Scope
-                    RoleDefinition = $assignment.RoleDefinitionName
-                }
-                $roleAssignments += $assignmentEntry
-            }
         }
     }
 }
