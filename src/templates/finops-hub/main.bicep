@@ -162,6 +162,21 @@ param enablePublicAccess bool = true
 @description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
+@description('Optional. Name of an existing VNet to deploy private endpoints into (BYO-VNet for hub-and-spoke). Leave empty to create a new VNet. Default: "".')
+param existingVNetName string = ''
+
+@description('Optional. Resource group of the existing VNet. Leave empty if same as deployment RG. Default: "".')
+param existingVNetResourceGroupName string = ''
+
+@description('Optional. Subnet name for private endpoints. Default: "snet-finops-pe-01".')
+param peSubnetName string = 'snet-finops-pe-01'
+
+@description('Optional. Subnet name for deployment scripts (delegated to Microsoft.ContainerInstance/containerGroups). Default: "snet-finops-script-01".')
+param scriptSubnetName string = 'snet-finops-script-01'
+
+@description('Optional. Subnet name for Azure Data Explorer. Default: "snet-finops-adx-01".')
+param dataExplorerSubnetName string = 'snet-finops-adx-01'
+
 
 //==============================================================================
 // Resources
@@ -196,6 +211,11 @@ module hub 'modules/hub.bicep' = {
     remoteHubStorageKey: remoteHubStorageKey
     enablePublicAccess: enablePublicAccess
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+    existingVNetName: existingVNetName
+    existingVNetResourceGroupName: existingVNetResourceGroupName
+    peSubnetName: peSubnetName
+    scriptSubnetName: scriptSubnetName
+    dataExplorerSubnetName: dataExplorerSubnetName
   }
 }
 

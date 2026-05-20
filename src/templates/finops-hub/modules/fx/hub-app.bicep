@@ -317,7 +317,7 @@ resource factorySelfRoleAssignments 'Microsoft.Authorization/roleAssignments@202
 
 // Create managed identity to start/stop triggers
 resource triggerManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (usesDataFactory) {
-  name: '${dataFactory.name}_triggerManager'
+  name: 'id-finops-${app.hub.name}'
   location: app.hub.location
   tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {})
 }
@@ -391,7 +391,7 @@ resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' exist
 }
 
 resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesStorage && app.hub.options.privateRouting) {
-  name: '${storageAccount.name}-blob-ep'
+  name: 'pep-finops-stgblob-${app.hub.name}'
   location: app.hub.location
   tags: getAppPublisherTags(app, 'Microsoft.Network/privateEndpoints')
   properties: {
@@ -430,7 +430,7 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existi
 }
 
 resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesStorage && app.hub.options.privateRouting) {
-  name: '${storageAccount.name}-dfs-ep'
+  name: 'pep-finops-stgdfs-${app.hub.name}'
   location: app.hub.location
   tags: getAppPublisherTags(app, 'Microsoft.Network/privateEndpoints')
   properties: {
@@ -515,7 +515,7 @@ resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' =
 }
 
 resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesKeyVault && app.hub.options.privateRouting) {
-  name: '${keyVault.name}-ep'
+  name: 'pep-finops-kv-${app.hub.name}'
   location: app.hub.location
   tags: getAppPublisherTags(app, 'Microsoft.Network/privateEndpoints')
   properties: {
@@ -549,6 +549,21 @@ resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (
   }
 }
 
+
+//==============================================================================
+// Event Grid System Topic (explicit name so it doesn't get an auto-generated GUID)
+//==============================================================================
+
+resource eventGridSystemTopic 'Microsoft.EventGrid/systemTopics@2024-06-01-preview' = if (usesStorage) {
+  name: 'evg-finops-${app.hub.name}'
+  location: app.hub.location
+  tags: getAppPublisherTags(app, 'Microsoft.EventGrid/systemTopics')
+  properties: {
+    #disable-next-line BCP318
+    source: storageAccount.id
+    topicType: 'Microsoft.Storage.StorageAccounts'
+  }
+}
 
 //==============================================================================
 // Outputs
