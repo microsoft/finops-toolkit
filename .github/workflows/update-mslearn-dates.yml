@@ -34,11 +34,41 @@ jobs:
         run: |
           # Get current date in MM/DD/YYYY format
           CURRENT_DATE=$(date +'%m/%d/%Y')
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
           echo "Updating ms.date to: $CURRENT_DATE"
+          echo "Comparing article body changes against: $BASE_SHA"
+
+          strip_frontmatter() {
+            awk '
+              NR == 1 && $0 == "---" { in_frontmatter = 1; next }
+              in_frontmatter && $0 == "---" { in_frontmatter = 0; next }
+              !in_frontmatter { print }
+            '
+          }
+
+          has_content_changes() {
+            local file="$1"
+
+            if ! git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then
+              return 0
+            fi
+
+            ! cmp -s <(git show "$BASE_SHA:$file" | strip_frontmatter) <(strip_frontmatter < "$file")
+          }
 
           # Process each changed markdown file
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             echo "Processing: $file"
+
+            if [ ! -f "$file" ]; then
+              echo "  File no longer exists, skipping"
+              continue
+            fi
+
+            if ! has_content_changes "$file"; then
+              echo "  No article body changes found, skipping"
+              continue
+            fi
 
             # Check if file has ms.date in frontmatter and update it
             if grep -q "^ms\.date:" "$file"; then

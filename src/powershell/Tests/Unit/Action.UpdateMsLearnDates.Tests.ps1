@@ -78,6 +78,22 @@ Describe 'update-mslearn-dates GitHub Action' {
             $workflowContent | Should -Match "date \+'%m/%d/%Y'"
         }
 
+        It 'Should compare files against the pull request base SHA' {
+            $workflowContent | Should -Match 'github\.event\.pull_request\.base\.sha'
+            $workflowContent | Should -Match 'git cat-file -e "\$BASE_SHA:\$file"'
+        }
+
+        It 'Should ignore frontmatter when checking for article body changes' {
+            $workflowContent | Should -Match 'strip_frontmatter\(\)'
+            $workflowContent | Should -Match 'in_frontmatter'
+            $workflowContent | Should -Match 'No article body changes found, skipping'
+        }
+
+        It 'Should compare article body content before updating ms.date' {
+            $workflowContent | Should -Match 'cmp -s'
+            $workflowContent | Should -Match 'has_content_changes "\$file"'
+        }
+
         It 'Should use sed to replace ms.date line' {
             $workflowContent | Should -Match 'sed -i'
             $workflowContent | Should -Match 's[/|]\^ms\\\.date:'
