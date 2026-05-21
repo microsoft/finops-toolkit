@@ -58,7 +58,7 @@ if ($Branch -eq "*") {
     @($featureBranches) | ForEach-Object {
         $branchName = $_
         Write-Host "  $branchName".PadRight($longestBranchName + 5, ".") -NoNewline
-        ./Merge-DevBranch $branchName -Silent
+        & ($PSCommandPath ?? $MyInvocation.MyCommand.Path) $branchName -Silent
         if ($LASTEXITCODE -eq 0) {
             $success += $branchName
             Write-Host "done"

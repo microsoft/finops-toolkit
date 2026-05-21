@@ -1,6 +1,6 @@
 {
   "name": "finops-toolkit",
-  "version": "13.0.0",
+  "version": "15.0.0",
   "description": "Claude plugin for FinOps Toolkit, providing tools and integrations for FinOps practitioners.",
   "author": {
     "name": "FinOps Toolkit Team",

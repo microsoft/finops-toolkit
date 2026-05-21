@@ -3,7 +3,7 @@ title: FinOps tools and services
 description: This article helps you understand the FinOps tools and services capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/19/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -38,8 +38,8 @@ To clarify terminology, a FinOps "tool" is a software solution that facilitates 
 When you first start managing cost in the cloud, you use the native tools available in the portal, including but not limited to:
 
 - **Microsoft Cost Management**: A suite of tools designed to help organizations monitor, allocate, and optimize their cloud costs within the Microsoft Cloud.
-- **Azure Advisor**: Follow best practices to optimize your Microsoft Cloud deployments.  
-- **Pricing Calculator**: Helps you configure and estimate the costs for Azure products and features based on specific scenarios.  
+- **Azure Advisor**: Follow best practices to optimize your Microsoft Cloud deployments.
+- **Pricing Calculator**: Helps you configure and estimate the costs for Azure products and features based on specific scenarios.
 
 If you're migrating on-premises infrastructure to the cloud, you might also be interested in:
 
@@ -50,17 +50,16 @@ As you dig deeper into optimization and governance, you start to use:
 - **Azure Monitor**: Monitoring solution that collects, analyzes, and responds to monitoring data from cloud and on-premises environments.
 - **Azure Resource Graph**: Powerful management tool to query, explore, and analyze your cloud resources at scale.
 - **Azure Resource Manager**: Deploy and manage resources and applications via API or declarative templates.
-- **Azure Hybrid Benefit**: A benefit that lets you reduce the costs of your licenses with Software Assurance.  
-- **Azure Reservations**: A commitment discount that helps you save money by committing to one-year or three-year plans for multiple products.  
+- **Azure Hybrid Benefit**: A benefit that lets you reduce the costs of your licenses with Software Assurance.
+- **Azure Reservations**: A commitment discount that helps you save money by committing to one-year or three-year plans for multiple products.
 - **Azure Savings Plan for Compute**: A pricing model that offers discounts on compute services when you commit to a fixed hourly amount for one or three years.
-
 
 Once you have a consolidated list of the Microsoft, third-party, and homegrown tools and services available:
 
 - Map tools and services to organizational objectives.
 - Identify which tools are used by different teams and stakeholders.
 - Investigate options to extend current tools and services, like the [FinOps toolkit](../../toolkit/finops-toolkit-overview.md).
-<br>
+  <br>
 
 ## Building on the basics
 
@@ -94,7 +93,7 @@ Let us know how we're doing with a quick review. We use these reviews to improve
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK14.0/bladeName/Guide.Framework/featureName/Capabilities.Manage.ToolsAndServices)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK15.0/bladeName/Guide.Framework/featureName/Capabilities.Manage.ToolsAndServices)
 <!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
