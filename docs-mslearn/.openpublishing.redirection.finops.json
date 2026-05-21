@@ -131,6 +131,11 @@
       "redirect_document_id": false
     },
     {
+      "source_path_from_root": "/finops/finops/toolkit/hubs/configure-sre.md",
+      "redirect_url": "/cloud-computing/finops/toolkit/sre-agent/overview",
+      "redirect_document_id": false
+    },
+    {
       "source_path_from_root": "/finops/finops/framework/manage/culture.md",
       "redirect_url": "/cloud-computing/finops/framework/manage/education",
       "redirect_document_id": false

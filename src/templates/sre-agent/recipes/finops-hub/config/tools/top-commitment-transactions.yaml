@@ -1,0 +1,37 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: top-commitment-transactions
+spec:
+  type: KustoTool
+  connector: finops-hub-kusto
+  toolMode: Auto
+  description: |-
+    Returns top non-usage commitment discount purchase transactions with useful reporting helper columns. Use it to inspect large Reserved Instance or Savings Plan purchases and related commitment transaction details. If the result is empty or ZERO_ROWS_RETURNED, run data-freshness-check before concluding there were no commitment purchases and surface any Transactions() export, ingestion, or stored-function diagnostic. Available parameters: N, startDate, endDate.
+
+    Output contract:
+    If the tool returns the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed but do not treat the analysis as fully healthy. Run data-freshness-check and inspect Transactions() row_count, schema_status, and diagnostic_code before stating there were no matching commitment purchases. If diagnostic_code is TRANSACTIONS_ZERO_ROWS, report an export / ingestion / stored-function action item and continue the report with that limitation.
+  database: hub
+  query: |-
+    Costs()
+    | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate## and tolower(tostring(ChargeCategory)) != 'usage' and isnotempty(CommitmentDiscountType) and toreal(BilledCost) > 0
+    | top ##N## by toreal(BilledCost)
+    | as filteredCosts
+    | extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(tostring(CommitmentDiscountName), ' (', tostring(CommitmentDiscountType), ')'))
+    | extend ResourceNameUnique = iff(isempty(ResourceId), '', strcat(tostring(ResourceName), ' (', tostring(ResourceType), ')'))
+    | extend x_ResourceGroupNameUnique = iff(isempty(x_ResourceGroupName), '', strcat(tostring(x_ResourceGroupName), ' (', tostring(SubAccountName), ')'))
+    | extend SubAccountNameUnique = iff(isempty(SubAccountId), '', strcat(tostring(SubAccountName), ' (', tostring(split(tostring(SubAccountId), '/')[3]), ')'))
+    | project-away ConsumedQuantity, ConsumedUnit, Tags, x_BilledCostInUsd, x_ContractedCostInUsd, x_CostAllocationRuleName, x_CostCategories, x_Credits, x_CostType, x_CurrencyConversionRate, x_CustomerId, x_CustomerName, x_Discount, x_ExportTime, x_InvoiceIssuerId, x_ListCostInUsd, x_Location, x_Operation, x_PartnerCreditApplied, x_PartnerCreditRate, x_Project, x_ResellerId, x_ResellerName, x_ResourceGroupName, x_ResourceType, x_ServiceCode, x_ServiceId, x_ServicePeriodEnd, x_ServicePeriodStart, x_SkuDetails, x_SkuOfferId, x_SkuServiceFamily, x_SkuTier
+  parameters:
+  - name: N
+    type: string
+    description: "Number of top commitment transactions to return. Default: 10"
+    required: true
+  - name: startDate
+    type: string
+    description: "Start date for commitment transaction search (e.g., startofmonth(ago(30d))). Default: startofmonth(ago(30d))"
+    required: true
+  - name: endDate
+    type: string
+    description: "End date for commitment transaction search (e.g., startofmonth(now())). Default: startofmonth(now())"
+    required: true

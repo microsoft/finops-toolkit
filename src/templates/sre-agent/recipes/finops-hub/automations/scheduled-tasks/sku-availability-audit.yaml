@@ -1,0 +1,82 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: SkuAvailabilityAudit
+spec:
+  name: SkuAvailabilityAudit
+  description: Weekly audit of regional SKU availability and restrictions that could block deployments
+  cron_expression: 0 7 * * 3
+  agent_mode: autonomous
+  agent: azure-capacity-manager
+  agent_prompt: '# SKU Availability Audit
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting, read all documents in the knowledge base. Pay special attention to deployment region notes, restricted SKU findings, and planned capacity requests.
+
+    Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
+
+
+
+    Load your relevant capacity management skill. Note the `client_id` for Python tool authentication.
+
+
+    ## Python tools available
+
+
+    Pass `client_id` as a parameter to each Python tool for UAMI authentication.
+
+
+    - `sku-availability`: Run with `subscription_id`, `location`, optional `sku_filter`, optional `resource_provider`, and `client_id`. Use the default `resource_provider: compute` to list Compute SKU availability, zones, and restrictions. Use `resource_provider: kusto` for Azure Data Explorer / Kusto SKU eligibility checks before FinOps Hub analytics backend deployments or upgrades.
+
+
+    ## 1. Establish region and SKU scope
+
+
+    Identify deployment regions, priority VM SKU families, and any planned FinOps Hub Data Explorer SKUs from knowledge base notes and prior reports. If no priority SKU list exists, audit commonly deployed VM families and explicitly state the assumed scope. If no Data Explorer SKU list exists, include the currently planned or default Hub analytics backend SKU where documented; otherwise state that ADX scope is unknown.
+
+
+    ## 2. Collect SKU availability
+
+
+    Run `sku-availability` for each scoped subscription and region using `subscription_id`, `location`, optional `sku_filter`, `resource_provider`, and `client_id`.
+
+
+    - For Compute, use `resource_provider: compute` or omit it to preserve the default behavior. Capture total SKUs, restricted SKUs, restriction reason codes, zone availability, and restriction values.
+
+    - For Azure Data Explorer / Kusto, use `resource_provider: kusto`. Capture `source_endpoint`, returned SKUs, `requested_sku`, `is_available`, and any guidance. ADX Kusto SKU eligibility must use the Microsoft.Kusto regional SKU API and must not be inferred from Microsoft.Compute SKU results.
+
+
+    ## 3. Analyze deployment blockers
+
+
+    Identify restricted Compute SKUs that could block future deployments, scaling, zone alignment, or capacity reservation planning. Identify Kusto SKUs that are absent from the Microsoft.Kusto regional SKU response and could block FinOps Hub analytics deployments. Group findings by provider, reason code when available, region, zone, subscription, and family or SKU name.
+
+
+    ## 4. Recommend actions
+
+
+    Recommend whether to request quota, change SKU family, change region, adjust deployment zone, select a returned ADX SKU, or escalate to Azure capacity planning. Include uncertainty where planned demand is not documented.
+
+
+    ## Report format
+
+
+    Produce a markdown report with an executive summary, a restricted SKU table, a reason-code summary table, deployment blocker notes, and recommended mitigation actions.
+
+
+    ## Persistence
+
+
+    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
+
+
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, cost amounts, or customer financial data to git or the knowledge base. Financial detail goes to Teams only.
+
+
+    ## Visualizations
+
+
+    Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum a restricted SKU count by region chart and a restriction reason-code chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message alongside the text tables.'

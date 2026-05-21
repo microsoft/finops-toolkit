@@ -1,0 +1,479 @@
+┌────────────────────────────────────────────────────┐
+│ User: Brett Wilson (100320020B868F43)              │
+│ Thread: d66ea1dd-421a-44f0-a9e1-73aabe640a7a       │
+└────────────────────────────────────────────────────┘
+
+SRE Agent (18:26:59)
+────────────────────
+  [SCHEDULED_TASK_EXECUTION]{"taskId":"02877087-dd54-4720-add9-efb1977f9a57","taskName":"MonitoringScopeValidation","description":"Weekly
+  validation that FinOps Hub monitoring covers all active subscriptions","cronExpression":"0 9 * *
+  4","agentPrompt":"# Monitoring Scope Validation\n\n## Phase 0: Preparation\n\nBefore starting, read all documents
+  in the knowledge base. Pay special attention to FinOps Hub deployment notes, ADX cluster details, monitored scope
+  decisions, and data freshness workarounds.\n\nLoad your relevant FinOps Hubs skill. Note the \u0060client_id\u0060
+  for Python tool authentication.\n\n## Python tools available\n\nPass \u0060client_id\u0060 as a parameter to each
+  Python tool for UAMI authentication.\n\n- \u0060resource-graph-query\u0060: Run with \u0060query\u0060, optional
+  \u0060subscription_ids\u0060, and \u0060client_id\u0060 to list active subscriptions and subscription metadata.\n-
+  \u0060data-freshness-check\u0060: Run with \u0060cluster_uri\u0060, optional \u0060database\u0060, and
+  \u0060client_id\u0060 to validate FinOps Hub function freshness and coverage signals.\n\n## 1. Establish active
+  subscription inventory\n\nRun \u0060resource-graph-query\u0060 to list active subscriptions and key ownership or
+  environment metadata. Exclude subscriptions documented as intentionally outside the Hub monitoring scope.\n\n## 2.
+  Validate Hub data freshness\n\nRun \u0060data-freshness-check\u0060 with \u0060cluster_uri\u0060, optional
+  \u0060database\u0060, and \u0060client_id\u0060. Capture latest data dates, staleness days, stale functions,
+  missing functions, and query errors.\n\n## 3. Cross-reference monitoring coverage\n\nCross-reference Resource Graph
+  subscription inventory with subscriptions represented in Hub data coverage notes or Hub query results. Identify
+  active subscriptions with missing, stale, or ambiguous Hub coverage.\n\n## 4. Flag scope gaps\n\nFlag any active
+  subscription not covered by Hub monitoring, any stale Hub function, and any access or query failure that prevents
+  confidence in coverage. Recommend export, scope, identity, or ingestion remediation.\n\n## Report format\n\nProduce
+  a markdown report with an executive summary, a subscription coverage table, a data freshness table, coverage gaps,
+  errors, and recommended remediation actions.\n\n## Persistence\n\n**Teams (results only):** Post the final report
+  to our Teams channel. Do not post intermediate results.\n\n**Knowledge (#remember):** Save operational findings
+  using #remember for future reference. Do not commit to git. Never save financial figures, cost amounts, or customer
+  financial data to the knowledge base. Financial detail goes to Teams only.\n\n## Visualizations\n\nBefore posting,
+  generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum a
+  monitored versus unmonitored subscription chart and a data staleness chart where the data supports it. Embed chart
+  images inline in the Teams message alongside the text
+  tables.","agent":"ftk-hubs-agent","executionTime":"2026-05-02T18:26:59.6035087Z","status":"Active","modelTier":null,"agentInstructions":"\u003Csystem_notice\u003EThis
+  is an AUTOMATED scheduled task execution triggered by infrastructure on cron schedule \u00270 9 * * 4\u0027. Do NOT
+  autonomously attempt to schedule future runs, set up monitoring loops, or create wait states - the infrastructure
+  handles recurring executions automatically. Simply execute the agentPrompt and complete your response. However, if
+  the user explicitly requests additional actions, you may fulfill those
+  requests.\u003C/system_notice\u003E"}[/SCHEDULED_TASK_EXECUTION]
+
+SRE Agent (18:27:07)
+────────────────────
+  **Validating monitoring scope coverage**
+  
+  This is a scheduled task execution for "Monitoring Scope Validation" - a weekly validation that FinOps Hub
+  monitoring covers all active subscriptions. Let me follow the task prompt step by step.
+  
+  Let me start by:
+  1. Reading the knowledge base documents
+  2. Loading the FinOps Hubs skill
+  3. Running the required checks
+  
+  Let me set up my todo list and begin.
+
+SRE Agent (18:27:14)
+────────────────────
+  
+  
+  Reading knowledge base and loading the FinOps Hubs skill in parallel.
+
+SRE Agent (18:27:14)
+────────────────────
+  Read file: memory: finops-hub-health-check-findings.md
+
+SRE Agent (18:27:32)
+────────────────────
+  **Updating FinOps Hubs task list**
+  
+  Good, I've read the knowledge base and loaded the FinOps Hubs skill. Let me update my todo list and proceed with
+  the next steps. I need to:
+  
+  1. Mark task 1 as completed
+  2. Mark task 2 as completed (skill loaded)
+  3. Start task 3 - establish subscription inventory using resource-graph-query
+  4. Start task 4 - validate Hub data freshness using data-freshness-check
+  
+  Let me note the key details:
+  - Cluster URI: msbwtreyhub.westus.kusto.windows.net
+  - Database: hub
+  - UAMI client_id: b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9
+  
+  
+  - Subscription: cab7feeb-759d-478c-ade6-9326de0651ff
+  
+  I need to use the Python tools `resource-graph-query` and `data-freshness-check` with the client_id parameter for
+  UAMI authentication. Let me check the task prompt again to understand how these tools work and what parameters they
+  expect.
+  
+  The `resource-graph-query` tool takes a query along with optional subscription IDs and client_id to retrieve active
+  subscriptions and their metadata. The `data-freshness-check` tool takes a cluster URI, optional database, and
+  client_id to validate FinOps Hub function freshness and coverage signals. These appear to be custom tools that
+  might not be directly available in my current toolset, so I'll need to check if they're provided through a skill or
+  if I should use alternative Azure CLI and Python approaches to accomplish the same goals.
+  
+  Looking at what I have available, I can use `RunAzCliReadCommands` with Azure Resource Graph queries to get
+  subscription inventory, and I can leverage Python through the executing_code skill to check Hub data freshness via
+  REST API calls. Let me load the executing_code skill and execute both operations to gather the subscription and
+  freshness data.
+
+SRE Agent (18:27:39)
+────────────────────
+  **Querying Azure resources**
+  
+  Let me proceed with the scheduled task execution. I need to:
+  1. Query Azure Resource Graph for active subscriptions
+  2. Check Hub data freshness via Kusto REST API
+  
+  Let me load the executing_code skill for Python-based operations, and simultaneously query Resource Graph for
+  subscriptions.
+
+SRE Agent (18:27:40)
+────────────────────
+  Loading the code execution skill and querying active subscriptions in parallel.
+
+SRE Agent (18:27:40)
+────────────────────
+  
+
+SRE Agent (18:28:01)
+────────────────────
+  **Analyzing subscription inventory**
+  
+  I have the subscription inventory - there's only 1 active subscription: "Non-Prod-Workloads"
+  (cab7feeb-759d-478c-ade6-9326de0651ff). Now I need to validate Hub data freshness. Let me run the data freshness
+  check against the ADX cluster using Python with the managed identity.
+  
+  Let me update the todo and run the freshness check.
+
+SRE Agent (18:28:03)
+────────────────────
+  Subscription inventory retrieved: 1 active subscription found. Now running Hub data freshness check against the ADX
+  cluster.
+
+SRE Agent (18:28:22)
+────────────────────
+  
+  
+  Running Hub data freshness check via Kusto REST API with managed identity authentication.
+
+SRE Agent (18:28:25)
+────────────────────
+  Python:
+  import requests
+  import json
+  from datetime import datetime, … (exit 0)
+
+SRE Agent (18:28:35)
+────────────────────
+  **Thinking**
+  
+  Good, I have the data freshness results and subscription inventory. Let me now proceed with the analysis:
+  
+  1. Active subscriptions from Resource Graph: 1 subscription (Non-Prod-Workloads:
+  cab7feeb-759d-478c-ade6-9326de0651ff)
+  2. Subscriptions in Hub Costs() data: 25 distinct subscriptions (including one empty entry)
+  3. Data freshness: Costs healthy (1.27M rows, latest May 2026), Prices healthy (14.3M rows), Recommendations
+  present (45), Transactions empty (0 rows)
+  
+  
+  4. The Hub is pulling cost data from 25 subscriptions while our Resource Graph access is limited to just one, which
+  explains the discrepancy in what we can see versus what's being monitored. Now I'll cross-reference the
+  subscription data, create visualizations, and prepare the findings for Teams.
+
+SRE Agent (18:28:39)
+────────────────────
+  Data freshness check complete. Now cross-referencing coverage and generating visualizations.
+
+SRE Agent (18:29:06)
+────────────────────
+  
+  
+  Generating charts for the monitoring scope validation report.
+
+SRE Agent (18:29:10)
+────────────────────
+  Python:
+  import matplotlib.pyplot as plt
+  import matplotlib.ticker as… (exit 0)
+
+SRE Agent (18:29:16)
+────────────────────
+  
+  
+  Charts generated successfully. Now posting the final report to Teams and saving findings.
+
+SRE Agent (18:29:54)
+────────────────────
+  
+  
+  Posting the final report to Teams with embedded chart images.
+
+SRE Agent (18:30:01)
+────────────────────
+  **Completing remaining task items**
+  
+  The Teams report was posted successfully. Now I need to complete the remaining tasks:
+  1. Mark task 7 as completed (Teams post succeeded)
+  2. Save operational findings to knowledge base (task 8)
+  
+  Let me also complete the learning loop since this was a scheduled task execution based on codeRefs. Let me update
+  the knowledge base with the findings from this run.
+
+SRE Agent (18:30:04)
+────────────────────
+  Teams report posted successfully. Now saving operational findings to knowledge base.
+
+SRE Agent (18:30:09)
+────────────────────
+  **Saving operational findings to database**
+  
+  I need to complete task 8 - saving operational findings to the knowledge base. Let me update the existing knowledge
+  file with the latest monitoring scope validation findings.
+
+SRE Agent (18:30:09)
+────────────────────
+  Completing the final task — saving operational findings to the knowledge base.
+
+SRE Agent (18:30:09)
+────────────────────
+  Read file: memory: finops-hub-health-check-findings.md
+
+SRE Agent (18:30:14)
+────────────────────
+  **Analyzing message context**
+  
+  The user's message appears to be a continuation of the scheduled task execution. I was in the middle of saving
+  operational findings to the knowledge base (task 8). Let me complete that task by updating the knowledge base file
+  with the monitoring scope validation findings.
+  
+  Let me update the existing knowledge file with the new monitoring scope validation findings from this run.
+
+SRE Agent (18:30:29)
+────────────────────
+  Completing the final task — updating the knowledge base with monitoring scope validation findings.
+
+SRE Agent (18:30:29)
+────────────────────
+  Edited file: memory: finops-hub-health-check-findings.md
+
+SRE Agent (18:30:41)
+────────────────────
+  **Processing additional user context**
+  
+  The user seems to have come back with additional context about a repository attachment. Let me check what's
+  happening - I was in the middle of completing task 8 (saving operational findings to the knowledge base). Let me
+  also check if there's something specific the user needs related to the repository attachment.
+  
+  Looking at the context, this appears to be a continuation of the scheduled task execution. The repository info is
+  about `MSBrett/finops-toolkit` on branch `fix/health-check-workflow-improvements`. This is the codeRefs repository.
+  
+  Let me complete task 8 by finishing the knowledge base update, and also check if there's a learning loop
+  requirement from the codeRefs instructions. The system prompt says:
+  
+  
+  When executing from any codeRefs file (TSG, SOP, script, guide - hereafter referred as runbook):
+  1. SETUP: Immediately create a todo list with the steps you must execute. Add a todo for "Review execution and
+  collect learnings" and one to "Commit improvements and create Pull Requests".
+  
+  But this scheduled task isn't really executing from a codeRefs file - it's executing a scheduled task prompt. The
+  codeRefs are just reference material.
+  
+  Let me finish task 8 and then add the monitoring scope validation findings to the knowledge base. I also need to
+  add the new finding about subscription coverage scope.
+
+SRE Agent (18:31:00)
+────────────────────
+  Completing the knowledge base update with monitoring scope validation findings.
+
+SRE Agent (18:31:00)
+────────────────────
+  Edited file: memory: finops-hub-health-check-findings.md
+
+SRE Agent (18:31:22)
+────────────────────
+  
+  
+  The **Monitoring Scope Validation** scheduled task completed successfully. Here's a summary:
+  
+  **Key Findings:**
+  - **24 subscriptions** actively monitored by the Hub via cost exports
+  - **Data freshness**: Costs() healthy (1.27M rows, May 2026 billing period), Prices() healthy (14.3M rows),
+  Recommendations() present (45 rows)
+  - **Transactions() remains empty (0 rows)** — persistent issue requiring investigation of Cost Management
+  transaction exports
+  - **Agent RBAC scope** is limited to 1 subscription (Hub infrastructure); full coverage validation requires broader
+  access
+  
+  **Actions Taken:**
+  1. Queried Resource Graph for active subscription inventory
+  2. Validated Hub data freshness via Kusto REST API (Costs, Prices, Recommendations, Transactions)
+  3. Cross-referenced subscription coverage between Resource Graph and Hub Costs() SubAccountId
+  4. Generated 2 visualization charts (subscription coverage, data freshness)
+  5. Posted full report to Teams ([message
+  link](https://teams.microsoft.com/l/message/19%3ABpZihiFQYCvAeVjSALERBqmtDPW7p8_QESgBTG7xz7M1%40thread.tacv2/1777746594615?groupId=8b3d5b2c-2edc-4a9f-a0ff-0ed3856d5af3&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47&createdTime=1777746594615&parentMessageId=1777746594615))
+  6. Updated knowledge base with operational findings
+  
+  **Open Issues (4):**
+  | # | Issue | Severity |
+  |---|-------|----------|
+  | 1 | Transactions() empty — verify Cost Management transaction exports | High |
+  | 2 | 2,332 rows with empty SubAccountId in Costs() | Medium |
+  | 3 | Agent RBAC limited to 1 subscription for Resource Graph validation | Medium |
+  | 4 | Hub version 13.0 — upgrade to 14.0 recommended | Medium |
+
+Brett Wilson (20:32:28)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+SRE Agent (20:32:47)
+────────────────────
+  
+  
+  ```python
+  # chart-name: subscription-coverage
+  import matplotlib.pyplot as plt
+  import matplotlib.ticker as mticker
+  
+  fig, ax = plt.subplots(figsize=(6, 4))
+  
+  categories = ['Monitored by Hub\n(Cost Exports)', 'Hub Infrastructure\nSubscription', 'Empty
+  SubAccountId\nEntries']
+  values = [24, 1, 1]
+  colors_bar = ['#2ecc71', '#3498db', '#e74c3c']
+  
+  bars = ax.bar(categories, values, color=colors_bar, edgecolor='white', linewidth=1.5, width=0.6)
+  for bar, val in zip(bars, values):
+      ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3, str(val), ha='center', va='bottom',
+  fontweight='bold', fontsize=14)
+  
+  ax.set_ylabel('Count', fontsize=12)
+  ax.set_title('FinOps Hub — Subscription Coverage\n2026-05-02 18:28 UTC', fontsize=13, fontweight='bold')
+  ax.set_ylim(0, 28)
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  ax.yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+  plt.tight_layout()
+  plt.savefig('subscription-coverage.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: data-freshness
+  import matplotlib.pyplot as plt
+  
+  fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(10, 4.5), gridspec_kw={'width_ratios': [3, 2]})
+  
+  functions = ['Costs()', 'Prices()', 'Recommendations()', 'Transactions()']
+  row_counts = [1266578, 14343006, 45, 0]
+  display_counts = [max(c, 0.5) for c in row_counts]
+  bar_colors = ['#2ecc71', '#2ecc71', '#f39c12', '#e74c3c']
+  
+  bars = ax_left.barh(functions, display_counts, color=bar_colors, edgecolor='white', linewidth=1.5)
+  ax_left.set_xscale('log')
+  ax_left.set_xlim(0.1, 50000000)
+  for bar, val in zip(bars, row_counts):
+      label = f'{val:,}' if val > 0 else '0 (EMPTY)'
+      ax_left.text(max(bar.get_width() * 1.3, 1), bar.get_y() + bar.get_height()/2, label, ha='left', va='center',
+  fontsize=10, fontweight='bold')
+  ax_left.set_xlabel('Row Count (log scale)', fontsize=11)
+  ax_left.set_title('Hub Function Row Counts', fontsize=12, fontweight='bold')
+  ax_left.spines['top'].set_visible(False)
+  ax_left.spines['right'].set_visible(False)
+  ax_left.invert_yaxis()
+  
+  staleness_labels = ['Costs()', 'Prices()', 'Rec.()', 'Trans.()']
+  staleness_colors = ['#2ecc71', '#95a5a6', '#95a5a6', '#e74c3c']
+  staleness_display = ['1 day\n(Healthy)', 'N/A\n(No date col)', 'N/A\n(Present)', 'EMPTY\n(0 rows)']
+  
+  for i, (label, color, display) in enumerate(zip(staleness_labels, staleness_colors, staleness_display)):
+      ax_right.barh(i, 1, color=color, edgecolor='white', linewidth=1.5, height=0.6)
+      ax_right.text(0.5, i, display, ha='center', va='center', fontsize=10, fontweight='bold', color='white')
+  
+  ax_right.set_yticks(range(len(staleness_labels)))
+  ax_right.set_yticklabels(staleness_labels)
+  ax_right.set_xlim(0, 1)
+  ax_right.set_xticks([])
+  ax_right.set_title('Data Staleness', fontsize=12, fontweight='bold')
+  ax_right.spines['top'].set_visible(False)
+  ax_right.spines['right'].set_visible(False)
+  ax_right.spines['bottom'].set_visible(False)
+  ax_right.invert_yaxis()
+  
+  plt.suptitle('FinOps Hub Data Freshness — 2026-05-02 18:28 UTC', fontsize=14, fontweight='bold', y=1.02)
+  plt.tight_layout()
+  plt.savefig('data-freshness.svg', bbox_inches='tight')
+  plt.close()
+  ```
+
+Brett Wilson (23:27:46)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         SRE Agent (23:27:59)
+────────────────────
+  
+  
+  ```python
+  # chart-name: subscription-coverage
+  import matplotlib.pyplot as plt
+  import matplotlib.ticker as mticker
+  
+  fig, ax = plt.subplots(figsize=(6, 4))
+  
+  categories = ['Monitored by Hub\n(Cost Exports)', 'Hub Infrastructure\nSubscription', 'Empty
+  SubAccountId\nEntries']
+  values = [24, 1, 1]
+  colors_bar = ['#2ecc71', '#3498db', '#e74c3c']
+  
+  bars = ax.bar(categories, values, color=colors_bar, edgecolor='white', linewidth=1.5, width=0.6)
+  for bar, val in zip(bars, values):
+      ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3, str(val), ha='center', va='bottom',
+  fontweight='bold', fontsize=14)
+  
+  ax.set_ylabel('Count', fontsize=12)
+  ax.set_title('FinOps Hub — Subscription Coverage\n2026-05-02 18:28 UTC', fontsize=13, fontweight='bold')
+  ax.set_ylim(0, 28)
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  ax.yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+  plt.tight_layout()
+  plt.savefig('subscription-coverage.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: data-freshness
+  import matplotlib.pyplot as plt
+  
+  fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(10, 4.5), gridspec_kw={'width_ratios': [3, 2]})
+  
+  functions = ['Costs()', 'Prices()', 'Recommendations()', 'Transactions()']
+  row_counts = [1266578, 14343006, 45, 0]
+  display_counts = [max(c, 0.5) for c in row_counts]
+  bar_colors = ['#2ecc71', '#2ecc71', '#f39c12', '#e74c3c']
+  
+  bars = ax_left.barh(functions, display_counts, color=bar_colors, edgecolor='white', linewidth=1.5)
+  ax_left.set_xscale('log')
+  ax_left.set_xlim(0.1, 50000000)
+  for bar, val in zip(bars, row_counts):
+      label = f'{val:,}' if val > 0 else '0 (EMPTY)'
+      ax_left.text(max(bar.get_width() * 1.3, 1), bar.get_y() + bar.get_height()/2, label, ha='left', va='center',
+  fontsize=10, fontweight='bold')
+  ax_left.set_xlabel('Row Count (log scale)', fontsize=11)
+  ax_left.set_title('Hub Function Row Counts', fontsize=12, fontweight='bold')
+  ax_left.spines['top'].set_visible(False)
+  ax_left.spines['right'].set_visible(False)
+  ax_left.invert_yaxis()
+  
+  staleness_labels = ['Costs()', 'Prices()', 'Rec.()', 'Trans.()']
+  staleness_colors = ['#2ecc71', '#95a5a6', '#95a5a6', '#e74c3c']
+  staleness_display = ['1 day\n(Healthy)', 'N/A\n(No date col)', 'N/A\n(Present)', 'EMPTY\n(0 rows)']
+  
+  for i, (label, color, display) in enumerate(zip(staleness_labels, staleness_colors, staleness_display)):
+      ax_right.barh(i, 1, color=color, edgecolor='white', linewidth=1.5, height=0.6)
+      ax_right.text(0.5, i, display, ha='center', va='center', fontsize=10, fontweight='bold', color='white')
+  
+  ax_right.set_yticks(range(len(staleness_labels)))
+  ax_right.set_yticklabels(staleness_labels)
+  ax_right.set_xlim(0, 1)
+  ax_right.set_xticks([])
+  ax_right.set_title('Data Staleness', fontsize=12, fontweight='bold')
+  ax_right.spines['top'].set_visible(False)
+  ax_right.spines['right'].set_visible(False)
+  ax_right.spines['bottom'].set_visible(False)
+  ax_right.invert_yaxis()
+  
+  plt.suptitle('FinOps Hub Data Freshness — 2026-05-02 18:28 UTC', fontsize=14, fontweight='bold', y=1.02)
+  plt.tight_layout()
+  plt.savefig('data-freshness.svg', bbox_inches='tight')
+  plt.close()
+  ```
+

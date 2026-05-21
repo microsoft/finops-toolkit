@@ -1,0 +1,186 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: deploy-budget
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Creates or updates a subscription-level Azure Cost Management budget.
+    Uses ARM REST to PUT Microsoft.Consumption/budgets with notification
+    contact emails for budget coverage remediation.
+  functionCode: |-
+    def main(**kwargs):
+        from datetime import date
+        import re
+        import requests
+
+        subscription_id = kwargs.get("subscription_id")
+        budget_name = kwargs.get("budget_name") or "SubscriptionBudget"
+        amount = kwargs.get("amount")
+        time_grain = kwargs.get("time_grain") or "Monthly"
+        contact_emails = kwargs.get("contact_emails")
+        guid_pattern = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+
+        if not subscription_id:
+            return {"status": "failed", "error": "subscription_id is required"}
+        if not isinstance(subscription_id, str) or not re.match(guid_pattern, subscription_id):
+            return {"status": "failed", "error": "subscription_id must be a valid GUID"}
+        if amount is None or str(amount).strip() == "":
+            return {"status": "failed", "error": "amount is required"}
+        if time_grain not in ["Monthly", "Quarterly", "Annually"]:
+            return {"status": "failed", "error": "time_grain must be one of Monthly, Quarterly, or Annually"}
+        if not contact_emails:
+            return {"status": "failed", "error": "contact_emails is required"}
+
+        if isinstance(contact_emails, str):
+            emails = [item.strip() for item in contact_emails.split(",") if item.strip()]
+        else:
+            emails = [str(item).strip() for item in contact_emails if str(item).strip()]
+        if not emails:
+            return {"status": "failed", "error": "contact_emails must contain at least one email"}
+        invalid_emails = [email for email in emails if not re.match(email_pattern, email)]
+        if invalid_emails:
+            return {"status": "failed", "error": f"invalid email address: {invalid_emails[0]}"}
+
+        try:
+            amount_number = float(amount)
+        except (TypeError, ValueError):
+            return {"status": "failed", "error": "amount must be numeric"}
+        if amount_number <= 0:
+            return {"status": "failed", "error": "amount must be greater than 0"}
+
+        today = date.today()
+        next_month = today.month + 1
+        year = today.year + (1 if next_month == 13 else 0)
+        month = 1 if next_month == 13 else next_month
+        start_date = date(year, month, 1)
+        end_date = date(year + 1, month, 1)
+
+        body = {
+            "properties": {
+                "category": "Cost",
+                "amount": amount_number,
+                "timeGrain": time_grain,
+                "timePeriod": {
+                    "startDate": start_date.isoformat(),
+                    "endDate": end_date.isoformat(),
+                },
+                "notifications": {
+                    "Actual_GreaterThan_50_Percent": {
+                        "enabled": True,
+                        "operator": "GreaterThan",
+                        "threshold": 50,
+                        "thresholdType": "Actual",
+                        "contactEmails": emails,
+                        "contactRoles": ["Owner", "Contributor"],
+                    },
+                    "Actual_GreaterThan_75_Percent": {
+                        "enabled": True,
+                        "operator": "GreaterThan",
+                        "threshold": 75,
+                        "thresholdType": "Actual",
+                        "contactEmails": emails,
+                        "contactRoles": ["Owner", "Contributor"],
+                    },
+                    "Actual_GreaterThan_90_Percent": {
+                        "enabled": True,
+                        "operator": "GreaterThan",
+                        "threshold": 90,
+                        "thresholdType": "Actual",
+                        "contactEmails": emails,
+                        "contactRoles": ["Owner", "Contributor"],
+                    },
+                    "Forecasted_GreaterThan_100_Percent": {
+                        "enabled": True,
+                        "operator": "GreaterThan",
+                        "threshold": 100,
+                        "thresholdType": "Forecasted",
+                        "contactEmails": emails,
+                        "contactRoles": ["Owner", "Contributor"],
+                    },
+                },
+            }
+        }
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            token = credential.get_token("https://management.azure.com/.default").token
+        except Exception as exc:
+            return {"status": "failed", "error": f"failed to acquire Azure credential: {exc}"}
+        url = (
+            f"https://management.azure.com/subscriptions/{subscription_id}"
+            f"/providers/Microsoft.Consumption/budgets/{budget_name}"
+            "?api-version=2023-11-01"
+        )
+        try:
+            response = requests.put(
+                url,
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                json=body,
+                timeout=120,
+            )
+        except Exception as exc:
+            return {"status": "failed", "error": f"budget PUT request failed: {exc}"}
+
+        result = {
+            "subscription_id": subscription_id,
+            "budget_name": budget_name,
+            "amount": amount_number,
+            "time_grain": time_grain,
+            "contact_emails": emails,
+            "status_code": response.status_code,
+        }
+        try:
+            result["budget"] = response.json()
+        except ValueError:
+            result["response_text"] = response.text
+
+        if response.status_code in (200, 201):
+            result["status"] = "created" if response.status_code == 201 else "updated"
+        else:
+            result["status"] = "failed"
+            result["error"] = response.text
+        return result
+  timeoutSeconds: 240
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: subscription_id
+      type: string
+      description: Azure subscription ID where the budget will be created or updated.
+      required: true
+    - name: budget_name
+      type: string
+      description: |-
+        Budget name. Default: SubscriptionBudget.
+      required: false
+    - name: amount
+      type: string
+      description: Budget amount in the subscription billing currency.
+      required: true
+    - name: time_grain
+      type: string
+      description: |-
+        Budget reset period, such as Monthly, Quarterly, or Annually. Default: Monthly.
+      required: false
+    - name: contact_emails
+      type: string
+      description: Comma-separated email addresses that receive budget notifications.
+      required: true

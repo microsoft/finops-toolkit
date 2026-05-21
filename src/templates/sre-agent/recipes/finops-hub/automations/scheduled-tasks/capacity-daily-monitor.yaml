@@ -1,0 +1,130 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: CapacityDailyMonitor
+spec:
+  name: CapacityDailyMonitor
+  description: Daily capacity supply chain health check — quota usage, CRG utilization, zone capacity
+  cron_expression: 30 6 * * *
+  agent_mode: autonomous
+  agent: azure-capacity-manager
+  agent_prompt: '# Daily Capacity Supply Chain Monitor
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting any checks, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
+
+    Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
+
+
+
+    Load your azure-capacity-management skill.
+
+
+    The capacity supply chain has four steps: Forecast → Procure → Allocate → Monitor. This daily check covers the Monitor step — detecting issues before they block deployments.
+
+    ## Python tools available for this task
+
+    The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Pass `client_id` as a parameter to each tool for UAMI authentication.
+
+    - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds
+    - `capacity-reservation-groups`: Run with subscription_id and resource_group when scoped to list CRGs with instanceView utilization
+    - `data-freshness-check`: Run with cluster_uri and database to check Hub data staleness
+    - `non-compute-quotas`: Run with subscription_id and location to get Storage and Network quota usage
+
+
+    ## 1. Quota Health
+
+
+    Use `vm-quota-usage` against each active subscription and region to check:
+
+    - VM family quota usage vs limits
+
+    - Flag any family at >80% utilization — these are deployment risks
+
+    - Flag any family at >95% — these are imminent blockers
+
+    - Check quota groups if configured — report group-level headroom
+
+    Use `non-compute-quotas` for Storage and Network quota usage so non-compute limits are included in the daily capacity status.
+
+
+    Reference: `references/docs/operations/quota/README.md`
+
+
+    ## 2. Capacity Reservation Utilization
+
+
+    Use `capacity-reservation-groups` for each active CRG:
+
+    - Check reserved vs allocated VM count
+
+    - Flag any CRG where utilization < 50% (paying for unused capacity)
+
+    - Flag any CRG where overallocation exceeds 2x reservation
+
+    - Check zone alignment for shared CRGs
+
+
+    Reference: `references/docs/operations/capacity-reservations/README.md`
+
+
+    ## 3. AKS Node Pool Capacity
+
+
+    For AKS clusters with CRG associations:
+
+    - Verify node pool CRG association is still active
+
+    - Check if autoscaler is hitting quota limits
+
+    - Report node pool scale events in last 24 hours
+
+
+    Reference: `references/docs/operations/aks-capacity/README.md`
+
+
+    ## 4. Alert Status
+
+
+    Check for any fired alerts in last 24 hours:
+
+    - Quota threshold alerts
+
+    - Budget alerts
+
+    - Cost anomaly alerts
+
+    Run `data-freshness-check` to verify Hub data health before trusting alert and cost context.
+
+
+    Reference: `references/docs/operations/monitoring-alerting/README.md`
+
+
+    ## Output
+
+
+    Use #remember to note key findings. Escalate:
+
+    - 🔴 CRITICAL: Any quota at >95% or CRG billing waste >$1000/day
+
+    - 🟡 WARNING: Any quota at >80% or CRG utilization <50%
+
+    - 🟢 HEALTHY: All within thresholds
+
+
+    Do not stop until all checks are complete.
+
+
+    ## Deliver
+
+
+
+    **Visualizations:** Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum one trend chart and one comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed the chart images inline in the Teams message alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
+
+    **Teams (status results only):** Post the final daily capacity health check to our Teams channel. Include the overall status (🔴🟡🟢), any critical or warning items, and recommended actions. Do not post intermediate results — only the completed summary. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
+
+
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — Python tool failures, quota API workarounds, CRG query patterns, zone alignment discoveries. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'

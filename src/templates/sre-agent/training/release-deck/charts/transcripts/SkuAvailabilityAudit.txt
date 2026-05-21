@@ -1,0 +1,622 @@
+┌────────────────────────────────────────────────────┐
+│ User: Brett Wilson (100320020B868F43)              │
+│ Thread: 517ec139-9207-4294-8479-b35cd8cb8331       │
+└────────────────────────────────────────────────────┘
+
+SRE Agent (18:26:59)
+────────────────────
+  [SCHEDULED_TASK_EXECUTION]{"taskId":"c3648142-ffce-48dc-b3f9-862cd89fb060","taskName":"SkuAvailabilityAudit","description":"Weekly
+  audit of regional SKU availability and restrictions that could block deployments","cronExpression":"0 7 * *
+  3","agentPrompt":"# SKU Availability Audit\n\n## Phase 0: Preparation\n\nBefore starting, read all documents in the
+  knowledge base. Pay special attention to deployment region notes, restricted SKU findings, and planned capacity
+  requests.\n\nLoad your relevant capacity management skill. Note the \u0060client_id\u0060 for Python tool
+  authentication.\n\n## Python tools available\n\nPass \u0060client_id\u0060 as a parameter to each Python tool for
+  UAMI authentication.\n\n- \u0060sku-availability\u0060: Run with \u0060subscription_id\u0060, \u0060location\u0060,
+  optional \u0060sku_filter\u0060, optional \u0060resource_provider\u0060, and \u0060client_id\u0060. Use the default
+  \u0060resource_provider: compute\u0060 to list Compute SKU availability, zones, and restrictions. Use
+  \u0060resource_provider: kusto\u0060 for Azure Data Explorer / Kusto SKU eligibility checks before FinOps Hub
+  analytics backend deployments or upgrades.\n\n## 1. Establish region and SKU scope\n\nIdentify deployment regions,
+  priority VM SKU families, and any planned FinOps Hub Data Explorer SKUs from knowledge base notes and prior
+  reports. If no priority SKU list exists, audit commonly deployed VM families and explicitly state the assumed
+  scope. If no Data Explorer SKU list exists, include the currently planned or default Hub analytics backend SKU
+  where documented; otherwise state that ADX scope is unknown.\n\n## 2. Collect SKU availability\n\nRun
+  \u0060sku-availability\u0060 for each scoped subscription and region using \u0060subscription_id\u0060,
+  \u0060location\u0060, optional \u0060sku_filter\u0060, \u0060resource_provider\u0060, and
+  \u0060client_id\u0060.\n\n- For Compute, use \u0060resource_provider: compute\u0060 or omit it to preserve the
+  default behavior. Capture total SKUs, restricted SKUs, restriction reason codes, zone availability, and restriction
+  values.\n- For Azure Data Explorer / Kusto, use \u0060resource_provider: kusto\u0060. Capture
+  \u0060source_endpoint\u0060, returned SKUs, \u0060requested_sku\u0060, \u0060is_available\u0060, and any guidance.
+  ADX Kusto SKU eligibility must use the Microsoft.Kusto regional SKU API and must not be inferred from
+  Microsoft.Compute SKU results.\n\n## 3. Analyze deployment blockers\n\nIdentify restricted Compute SKUs that could
+  block future deployments, scaling, zone alignment, or capacity reservation planning. Identify Kusto SKUs that are
+  absent from the Microsoft.Kusto regional SKU response and could block FinOps Hub analytics deployments. Group
+  findings by provider, reason code when available, region, zone, subscription, and family or SKU name.\n\n## 4.
+  Recommend actions\n\nRecommend whether to request quota, change SKU family, change region, adjust deployment zone,
+  select a returned ADX SKU, or escalate to Azure capacity planning. Include uncertainty where planned demand is not
+  documented.\n\n## Report format\n\nProduce a markdown report with an executive summary, a restricted SKU table, a
+  reason-code summary table, deployment blocker notes, and recommended mitigation actions.\n\n##
+  Persistence\n\n**Teams (results only):** Post the final report to our Teams channel. Do not post intermediate
+  results.\n\n**Knowledge (#remember):** Save operational findings using #remember for future reference. Do not
+  commit to git. Never save financial figures, cost amounts, or customer financial data to the knowledge base.
+  Financial detail goes to Teams only.\n\n## Visualizations\n\nBefore posting, generate charts for key findings using
+  matplotlib or seaborn via the code interpreter. Include at minimum a restricted SKU count by region chart and a
+  restriction reason-code chart where the data supports it. Embed chart images inline in the Teams message alongside
+  the text
+  tables.","agent":"azure-capacity-manager","executionTime":"2026-05-02T18:26:59.5767553Z","status":"Active","modelTier":null,"agentInstructions":"\u003Csystem_notice\u003EThis
+  is an AUTOMATED scheduled task execution triggered by infrastructure on cron schedule \u00270 7 * * 3\u0027. Do NOT
+  autonomously attempt to schedule future runs, set up monitoring loops, or create wait states - the infrastructure
+  handles recurring executions automatically. Simply execute the agentPrompt and complete your response. However, if
+  the user explicitly requests additional actions, you may fulfill those
+  requests.\u003C/system_notice\u003E"}[/SCHEDULED_TASK_EXECUTION]
+
+SRE Agent (18:27:05)
+────────────────────
+  **Planning weekly SKU audit**
+  
+  This is a scheduled task execution for a weekly SKU Availability Audit. Let me plan and execute this
+  systematically.
+  
+  Let me start by:
+  1. Reading the knowledge base documents
+  2. Loading the capacity management skill
+  3. Identifying the scope (regions, SKUs, subscriptions)
+  4. Running SKU availability checks
+  5. Analyzing results
+  6. Generating visualizations
+  7. Posting to Teams
+  8. Saving operational findings to knowledge base
+
+SRE Agent (18:27:15)
+────────────────────
+  
+  
+  Reading knowledge base and loading the capacity management skill.
+
+SRE Agent (18:27:15)
+────────────────────
+  Read file: memory: finops-hub-health-check-findings.md
+
+SRE Agent (18:27:27)
+────────────────────
+  **Implementing capacity management updates**
+  
+  Good, I've read the knowledge base and loaded the capacity management skill. Let me update my todo list and
+  proceed.
+  
+  From the knowledge base, I can identify:
+  - Subscription: `cab7feeb-759d-478c-ade6-9326de0651ff`
+  - Hub cluster: `msbwtreyhub.westus.kusto.windows.net` in **westus**
+  - Resource group: `ftk-trey-sre`
+  - UAMI client_id: `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`
+  
+  
+  Now I need to scope the SKU availability checks for westus, focusing on the VM families commonly deployed and the
+  Azure Data Explorer SKUs that support the FinOps Hub, then run the audits to see what's available.
+
+SRE Agent (18:27:38)
+────────────────────
+  **Thinking**
+  
+  Let me establish the scope based on what I know:
+  
+  **Subscription:** `cab7feeb-759d-478c-ade6-9326de0651ff`
+  **UAMI client_id:** `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`
+  **Known deployment region:** `westus` (FinOps Hub cluster location)
+  
+  Since no priority SKU list exists in the knowledge base, I'll:
+  1. Audit commonly deployed VM families (D-series, E-series, F-series, B-series, Standard_DS, etc.)
+  
+  
+  2. List the resources in the resource group to identify what's actually deployed and what other regions might be in
+  use, then check the Kusto cluster's current SKU configuration
+  
+  I'll start by querying the resource group to map out the full deployment footprint, then run SKU availability
+  checks for the relevant regions and services in parallel.
+
+SRE Agent (18:27:38)
+────────────────────
+  Establishing scope by checking deployed resources and the Kusto cluster configuration.
+
+SRE Agent (18:27:38)
+────────────────────
+  
+
+SRE Agent (18:27:53)
+────────────────────
+  **Analyzing resource group infrastructure**
+  
+  The resource group `ftk-trey-sre` has resources in `eastus2` (SRE agent infrastructure) and the FinOps Hub Kusto
+  cluster is in `westus` (from the knowledge base). Let me now establish the full scope:
+  
+  **Regions to audit:**
+  - `westus` - FinOps Hub Kusto cluster location
+  - `eastus2` - SRE agent infrastructure location
+  
+  
+  - **Subscription:** `cab7feeb-759d-478c-ade6-9326de0651ff`
+  - **UAMI client_id:** `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`
+  
+  Since there's no priority VM SKU list in the knowledge base, I'll audit the commonly deployed VM families and check
+  the Kusto cluster SKU. I need to look up the current SKU of the `msbwtreyhub` cluster in westus to determine which
+  ADX SKUs to validate against.
+  
+  The cluster might be in a different resource group, so I'll need to search for it across the subscription.
+
+SRE Agent (18:27:54)
+────────────────────
+  The SRE agent resources are in `eastus2`, while the FinOps Hub Kusto cluster is in `westus`. Let me check the Kusto
+  cluster's current SKU to establish the ADX audit scope.
+
+SRE Agent (18:27:54)
+────────────────────
+  
+
+SRE Agent (18:28:11)
+────────────────────
+  **Summarizing assessment findings**
+  
+  Good, I now have the full scope established. Let me summarize what I've found:
+  
+  **Subscription:** `cab7feeb-759d-478c-ade6-9326de0651ff`
+  **UAMI client_id:** `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`
+  
+  **Deployment regions:**
+  - `westus` - Both Kusto clusters (FinOps Hub)
+  - `eastus2` - SRE agent infrastructure
+  
+  **Kusto clusters (ADX SKUs to audit):**
+  
+  
+  1. `msbw-finops-hub` in `westus` — SKU: `Standard_E4ads_v5` (capacity: 2, tier: Standard), version 12.0
+  2. `msbwtreyhub` in `westus` — SKU: `Standard_E4d_v4` (capacity: 2, tier: Standard), version 13.0
+  
+  Since there's no priority VM SKU list, I'll audit the commonly deployed families like D-series, E-series, F-series,
+  B-series, and L-series. Now I'm querying SKU availability across both regions to get the compute and Kusto data I
+  need.
+
+SRE Agent (18:28:16)
+────────────────────
+  Scope established. Two Kusto clusters in `westus` (SKUs: `Standard_E4ads_v5` and `Standard_E4d_v4`), plus SRE
+  infrastructure in `eastus2`. Now collecting SKU availability across both regions and both providers.
+
+SRE Agent (18:28:25)
+────────────────────
+  **Running parallel SKU availability checks**
+  
+  Let me continue with the SKU availability collection. I'll run all 4 checks in parallel:
+  1. Compute SKU availability for westus
+  2. Compute SKU availability for eastus2
+  3. Kusto SKU availability for westus with Standard_E4ads_v5
+  4. Kusto SKU availability for westus with Standard_E4d_v4
+
+SRE Agent (18:28:25)
+────────────────────
+  Collecting Compute and Kusto SKU availability across both deployment regions in parallel.
+
+SRE Agent (18:28:39)
+────────────────────
+  **Reviewing SKU availability results**
+  
+  Good, I have the results from the SKU availability checks. Let me now read the full Compute SKU data files to
+  extract the restriction details. I need to parse the large JSON files to get the restriction summaries.
+  
+  Let me read the output files to get the full data, focusing on the restriction_summary sections and the restricted
+  SKUs.
+
+SRE Agent (18:28:40)
+────────────────────
+  Data collected. Now reading the full Compute SKU results to extract restriction details.
+
+SRE Agent (18:28:48)
+────────────────────
+  
+  
+  All SKU data collected. Now uploading the large Compute SKU result files to the code interpreter for analysis and
+  chart generation.
+
+SRE Agent (18:28:52)
+────────────────────
+  **Analyzing SKU availability data**
+  
+  The SKU availability data has been collected and uploaded to the code interpreter session. Now I need to analyze
+  the data, generate visualizations, and produce the report. Let me process everything in Python.
+
+SRE Agent (18:28:56)
+────────────────────
+  Files uploaded. Now analyzing the full Compute SKU data and generating visualizations.
+
+SRE Agent (18:29:16)
+────────────────────
+  
+  
+  Analyzing the full Compute SKU data and generating charts in a single Python execution.
+
+SRE Agent (18:29:20)
+────────────────────
+  Python:
+  import json
+  import matplotlib
+  matplotlib.use('Agg')
+  import … (exit 0)
+
+SRE Agent (18:29:27)
+────────────────────
+  
+  
+  Good, the analysis phase is progressing well. Now generating the visualizations with the data I've collected. Let
+  me produce the charts and compile the full report.
+
+SRE Agent (18:29:59)
+────────────────────
+  
+  
+  Generating the charts and compiling the final report.
+
+SRE Agent (18:30:01)
+────────────────────
+  Python:
+  import json
+  import matplotlib
+  matplotlib.use('Agg')
+  import … (exit 0)
+
+SRE Agent (18:30:08)
+────────────────────
+  
+  
+  Charts generated successfully. Now posting the final report to Teams and saving findings to the knowledge base.
+
+SRE Agent (18:30:51)
+────────────────────
+  
+  
+  Posting the final report to Teams with embedded charts.
+
+SRE Agent (18:30:58)
+────────────────────
+  **Planning remaining tasks**
+  
+  The Teams report was posted successfully. Now I need to complete the remaining tasks:
+  1. Mark task 8 as completed (Teams post was successful)
+  2. Save findings to the knowledge base (task 9)
+  
+  Let me finish up.
+
+SRE Agent (18:31:01)
+────────────────────
+  Teams report posted successfully. Now saving operational findings to the knowledge base.
+
+SRE Agent (18:31:05)
+────────────────────
+  
+  
+  Completing the final task — saving operational findings to the knowledge base.
+
+SRE Agent (18:31:05)
+────────────────────
+  Read file: memory: advisor-suppression-review-findings.md
+
+SRE Agent (18:31:10)
+────────────────────
+  **Investigating task interruption issues**
+  
+  The scheduled task execution was interrupted before I could save the findings to the knowledge base. Let me
+  complete that final step now.
+
+SRE Agent (18:31:37)
+────────────────────
+  Completing the final task — saving the SKU availability audit findings to the knowledge base.
+
+SRE Agent (18:31:37)
+────────────────────
+  Created file: memory: sku-availability-audit-findings.md (86 lines)
+
+SRE Agent (18:31:51)
+────────────────────
+  
+  
+  The weekly SKU Availability Audit completed successfully. Here's the summary:
+  
+  **Compute SKU Availability:**
+  - **westus**: 73 of 1,173 SKUs restricted (6.2%) — low risk
+  - **eastus2**: 239 of 1,286 SKUs restricted (18.6%) — moderate risk
+  - All restrictions are `NotAvailableForSubscription` (offer-level), not capacity exhaustion
+  
+  **Critical ADX Finding:**
+  - `Standard_E4ads_v5` is **NOT available** via the Microsoft.Kusto regional API in westus — cluster
+  `msbw-finops-hub` (v12.0) uses this SKU. Existing instance runs fine, but new provisioning/scaling would fail.
+  - `Standard_E4d_v4` is confirmed available — cluster `msbwtreyhub` (v13.0) is unaffected.
+  
+  **Top Action:** Plan SKU migration for `msbw-finops-hub` from `Standard_E4ads_v5` to `Standard_E4d_v4`, combined
+  with a version upgrade from v12.0 to v14.0.
+  
+  Report posted to Teams and findings saved to knowledge base.
+
+Brett Wilson (20:32:28)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+SRE Agent (20:32:55)
+────────────────────
+  
+  
+  ```python
+  # chart-name: sku-restrictions-by-region
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import numpy as np
+  from collections import defaultdict
+  
+  regions_list = ['westus', 'eastus2']
+  unrestricted = [1100, 1047]
+  restricted = [73, 239]
+  totals = [1173, 1286]
+  
+  vm_families_by_region = {
+      'westus': {'NVadsv5': 9, 'DPromo': 8, 'DS': 8, 'DSPromo': 8, 'Lsv2': 6, 'G': 5, 'GS': 5, 'GS-': 4, 'Ls': 4,
+  'NCsv3': 3},
+      'eastus2': {'M-ms': 20, 'DPromo': 16, 'DSPromo': 16, 'Lsv2': 12, 'E-adsv5': 11, 'E-asv4': 11, 'E-asv5': 11,
+  'G': 10, 'GS': 10, 'Mms': 10, 'NCsv3': 8}
+  }
+  
+  all_families = defaultdict(int)
+  for region, families in vm_families_by_region.items():
+      for fam, count in families.items():
+          all_families[fam] += count
+  
+  top_families = sorted(all_families.items(), key=lambda x: -x[1])[:12]
+  fam_names = [f[0] for f in top_families]
+  fam_counts_westus = [vm_families_by_region['westus'].get(f, 0) for f in fam_names]
+  fam_counts_eastus2 = [vm_families_by_region['eastus2'].get(f, 0) for f in fam_names]
+  
+  fig, axes = plt.subplots(1, 2, figsize=(14, 5.5))
+  
+  x = np.arange(len(regions_list))
+  width = 0.35
+  
+  bars1 = axes[0].bar(x, unrestricted, width, label='Available', color='#2ecc71', edgecolor='white')
+  bars2 = axes[0].bar(x, restricted, width, bottom=unrestricted, label='Restricted', color='#e74c3c',
+  edgecolor='white')
+  
+  axes[0].set_xlabel('Region', fontsize=11)
+  axes[0].set_ylabel('SKU Count', fontsize=11)
+  axes[0].set_title('Compute SKU Availability by Region', fontsize=13, fontweight='bold')
+  axes[0].set_xticks(x)
+  axes[0].set_xticklabels(regions_list, fontsize=10)
+  axes[0].legend(fontsize=9)
+  
+  for i, (r, t) in enumerate(zip(restricted, totals)):
+      pct = round(r / t * 100, 1)
+      axes[0].text(i, unrestricted[i] + r + 15, f'{r} ({pct}%)', ha='center', va='bottom', fontsize=9,
+  fontweight='bold', color='#e74c3c')
+  
+  axes[0].set_ylim(0, max(totals) * 1.15)
+  axes[0].grid(axis='y', alpha=0.3)
+  
+  y = np.arange(len(fam_names))
+  height = 0.35
+  
+  axes[1].barh(y + height/2, fam_counts_westus, height, label='westus', color='#3498db', edgecolor='white')
+  axes[1].barh(y - height/2, fam_counts_eastus2, height, label='eastus2', color='#e67e22', edgecolor='white')
+  
+  axes[1].set_xlabel('Restricted SKU Count', fontsize=11)
+  axes[1].set_ylabel('VM Family', fontsize=11)
+  axes[1].set_title('Top Restricted VM Families by Region', fontsize=13, fontweight='bold')
+  axes[1].set_yticks(y)
+  axes[1].set_yticklabels(fam_names, fontsize=9)
+  axes[1].legend(fontsize=9)
+  axes[1].grid(axis='x', alpha=0.3)
+  axes[1].invert_yaxis()
+  
+  plt.tight_layout()
+  plt.savefig('sku-restrictions-by-region.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: zone-availability-by-region
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  
+  zone_data = {
+      'westus': {'No zones': 1100, '1 zone': 0, '2 zones': 0, '3 zones': 0},
+      'eastus2': {'No zones': 147, '1 zone': 0, '2 zones': 0, '3 zones': 900}
+  }
+  
+  fig2, axes2 = plt.subplots(1, 2, figsize=(14, 5))
+  
+  for idx, (region, zone_counts) in enumerate(zone_data.items()):
+      labels = list(zone_counts.keys())
+      values = list(zone_counts.values())
+      colors_pie = ['#95a5a6', '#f39c12', '#e67e22', '#2ecc71']
+  
+      wedges, texts, autotexts = axes2[idx].pie(values, labels=labels, autopct='%1.0f%%', colors=colors_pie,
+  startangle=90, textprops={'fontsize': 9})
+      axes2[idx].set_title(f'{region} — Available VM SKU Zone Distribution', fontsize=12, fontweight='bold')
+  
+  plt.tight_layout()
+  plt.savefig('zone-availability-by-region.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: adx-sku-availability
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  
+  adx_skus = ['Standard_E4ads_v5', 'Standard_E4d_v4']
+  adx_status = [0, 1]
+  adx_colors = ['#e74c3c', '#2ecc71']
+  adx_labels = ['NOT Available', 'Available']
+  cluster_names = ['msbw-finops-hub\n(v12.0)', 'msbwtreyhub\n(v13.0)']
+  
+  fig3, ax3 = plt.subplots(figsize=(8, 4))
+  
+  bars = ax3.barh(range(len(adx_skus)), [1, 1], color=adx_colors, edgecolor='white', height=0.5)
+  ax3.set_yticks(range(len(adx_skus)))
+  ax3.set_yticklabels([f'{cluster_names[i]}\n{adx_skus[i]}' for i in range(len(adx_skus))], fontsize=10)
+  ax3.set_xlim(0, 1.5)
+  ax3.set_xticks([])
+  ax3.set_title('Azure Data Explorer SKU Availability — westus', fontsize=13, fontweight='bold')
+  
+  for i, (status, label) in enumerate(zip(adx_status, adx_labels)):
+      ax3.text(0.5, i, label, ha='center', va='center', fontsize=12, fontweight='bold', color='white')
+  
+  ax3.set_xlabel('Microsoft.Kusto Regional SKU API Check', fontsize=10)
+  ax3.grid(False)
+  
+  plt.tight_layout()
+  plt.savefig('adx-sku-availability.svg', bbox_inches='tight')
+  plt.close()
+  ```
+
+Brett Wilson (23:27:46)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         SRE Agent (23:28:04)
+────────────────────
+  
+  
+  ```python
+  # chart-name: sku-restrictions-by-region
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import numpy as np
+  from collections import defaultdict
+  
+  regions_list = ['westus', 'eastus2']
+  unrestricted = [1100, 1047]
+  restricted = [73, 239]
+  totals = [1173, 1286]
+  
+  vm_families_by_region = {
+      'westus': {'NVadsv5': 9, 'DPromo': 8, 'DS': 8, 'DSPromo': 8, 'Lsv2': 6, 'G': 5, 'GS': 5, 'GS-': 4, 'Ls': 4,
+  'NCsv3': 3},
+      'eastus2': {'M-ms': 20, 'DPromo': 16, 'DSPromo': 16, 'Lsv2': 12, 'E-adsv5': 11, 'E-asv4': 11, 'E-asv5': 11,
+  'G': 10, 'GS': 10, 'Mms': 10, 'NCsv3': 8}
+  }
+  
+  all_families = defaultdict(int)
+  for region, families in vm_families_by_region.items():
+      for fam, count in families.items():
+          all_families[fam] += count
+  
+  top_families = sorted(all_families.items(), key=lambda x: -x[1])[:12]
+  fam_names = [f[0] for f in top_families]
+  fam_counts_westus = [vm_families_by_region['westus'].get(f, 0) for f in fam_names]
+  fam_counts_eastus2 = [vm_families_by_region['eastus2'].get(f, 0) for f in fam_names]
+  
+  fig, axes = plt.subplots(1, 2, figsize=(14, 5.5))
+  
+  x = np.arange(len(regions_list))
+  width = 0.35
+  
+  bars1 = axes[0].bar(x, unrestricted, width, label='Available', color='#2ecc71', edgecolor='white')
+  bars2 = axes[0].bar(x, restricted, width, bottom=unrestricted, label='Restricted', color='#e74c3c',
+  edgecolor='white')
+  
+  axes[0].set_xlabel('Region', fontsize=11)
+  axes[0].set_ylabel('SKU Count', fontsize=11)
+  axes[0].set_title('Compute SKU Availability by Region', fontsize=13, fontweight='bold')
+  axes[0].set_xticks(x)
+  axes[0].set_xticklabels(regions_list, fontsize=10)
+  axes[0].legend(fontsize=9)
+  
+  for i, (r, t) in enumerate(zip(restricted, totals)):
+      pct = round(r / t * 100, 1)
+      axes[0].text(i, unrestricted[i] + r + 15, f'{r} ({pct}%)', ha='center', va='bottom', fontsize=9,
+  fontweight='bold', color='#e74c3c')
+  
+  axes[0].set_ylim(0, max(totals) * 1.15)
+  axes[0].grid(axis='y', alpha=0.3)
+  
+  y = np.arange(len(fam_names))
+  height = 0.35
+  
+  axes[1].barh(y + height/2, fam_counts_westus, height, label='westus', color='#3498db', edgecolor='white')
+  axes[1].barh(y - height/2, fam_counts_eastus2, height, label='eastus2', color='#e67e22', edgecolor='white')
+  
+  axes[1].set_xlabel('Restricted SKU Count', fontsize=11)
+  axes[1].set_ylabel('VM Family', fontsize=11)
+  axes[1].set_title('Top Restricted VM Families by Region', fontsize=13, fontweight='bold')
+  axes[1].set_yticks(y)
+  axes[1].set_yticklabels(fam_names, fontsize=9)
+  axes[1].legend(fontsize=9)
+  axes[1].grid(axis='x', alpha=0.3)
+  axes[1].invert_yaxis()
+  
+  plt.tight_layout()
+  plt.savefig('sku-restrictions-by-region.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: zone-availability-by-region
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  
+  zone_data = {
+      'westus': {'No zones': 1100, '1 zone': 0, '2 zones': 0, '3 zones': 0},
+      'eastus2': {'No zones': 147, '1 zone': 0, '2 zones': 0, '3 zones': 900}
+  }
+  
+  fig2, axes2 = plt.subplots(1, 2, figsize=(14, 5))
+  
+  for idx, (region, zone_counts) in enumerate(zone_data.items()):
+      labels = list(zone_counts.keys())
+      values = list(zone_counts.values())
+      colors_pie = ['#95a5a6', '#f39c12', '#e67e22', '#2ecc71']
+  
+      wedges, texts, autotexts = axes2[idx].pie(values, labels=labels, autopct='%1.0f%%', colors=colors_pie,
+  startangle=90, textprops={'fontsize': 9})
+      axes2[idx].set_title(f'{region} — Available VM SKU Zone Distribution', fontsize=12, fontweight='bold')
+  
+  plt.tight_layout()
+  plt.savefig('zone-availability-by-region.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: adx-sku-availability
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  
+  adx_skus = ['Standard_E4ads_v5', 'Standard_E4d_v4']
+  adx_status = [0, 1]
+  adx_colors = ['#e74c3c', '#2ecc71']
+  adx_labels = ['NOT Available', 'Available']
+  cluster_names = ['msbw-finops-hub\n(v12.0)', 'msbwtreyhub\n(v13.0)']
+  
+  fig3, ax3 = plt.subplots(figsize=(8, 4))
+  
+  bars = ax3.barh(range(len(adx_skus)), [1, 1], color=adx_colors, edgecolor='white', height=0.5)
+  ax3.set_yticks(range(len(adx_skus)))
+  ax3.set_yticklabels([f'{cluster_names[i]}\n{adx_skus[i]}' for i in range(len(adx_skus))], fontsize=10)
+  ax3.set_xlim(0, 1.5)
+  ax3.set_xticks([])
+  ax3.set_title('Azure Data Explorer SKU Availability — westus', fontsize=13, fontweight='bold')
+  
+  for i, (status, label) in enumerate(zip(adx_status, adx_labels)):
+      ax3.text(0.5, i, label, ha='center', va='center', fontsize=12, fontweight='bold', color='white')
+  
+  ax3.set_xlabel('Microsoft.Kusto Regional SKU API Check', fontsize=10)
+  ax3.grid(False)
+  
+  plt.tight_layout()
+  plt.savefig('adx-sku-availability.svg', bbox_inches='tight')
+  plt.close()
+  ```
+

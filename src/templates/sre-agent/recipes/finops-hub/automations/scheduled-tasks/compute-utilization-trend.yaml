@@ -1,0 +1,80 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: ComputeUtilizationTrend
+spec:
+  name: ComputeUtilizationTrend
+  description: Weekly VM quota utilization trend review across subscriptions and regions
+  cron_expression: 0 7 * * 1
+  agent_mode: autonomous
+  agent: azure-capacity-manager
+  agent_prompt: '# Compute Utilization Trend
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting, read all documents in the knowledge base. Pay special attention to prior capacity run notes, known quota API workarounds, and active subscription or region scope notes.
+
+    Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
+
+
+
+    Load your relevant capacity management skill. Note the `client_id` for Python tool authentication.
+
+
+    ## Python tools available
+
+
+    Pass `client_id` as a parameter to each Python tool for UAMI authentication.
+
+
+    - `resource-graph-query`: Run with `query` and optional `subscription_ids` to discover active subscriptions, active VM resources, regions, and prior tagging or ownership context.
+
+    - `vm-quota-usage`: Run with `subscription_id` and optional `location` to retrieve VM family current usage, limits, and utilization percentages.
+
+
+    ## 1. Establish scope
+
+
+    Use `resource-graph-query` to identify active subscriptions with compute resources and the regions where virtual machines, virtual machine scale sets, or AKS node pools are deployed. Exclude disabled, test-only, or explicitly out-of-scope subscriptions if documented in the knowledge base.
+
+
+    ## 2. Collect quota utilization
+
+
+    For each active subscription and region, run `vm-quota-usage` with `subscription_id`, `location`, and `client_id`. Capture VM family current usage, limit, utilization percentage, warning status, and critical status.
+
+
+    ## 3. Compare to prior week
+
+
+    Compare current results against prior #remember findings or prior run notes. Identify VM families where utilization increased materially, where headroom decreased, or where the trend suggests quota risk before the next weekly run.
+
+
+    ## 4. Flag growing utilization
+
+
+    Flag any family above 80% utilization, any family above 95% utilization, and any family with week-over-week growth that could exceed 80% within the next two reporting periods. Include subscription, region, VM family, current utilization, previous utilization when known, and recommended action.
+
+
+    ## Report format
+
+
+    Produce a markdown report with an executive summary, a risk scorecard table by subscription and region, a VM family trend table, and a recommended action list. Use 🔴 for critical quota pressure, 🟡 for growing or warning utilization, and 🟢 for healthy headroom.
+
+
+    ## Persistence
+
+
+    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
+
+
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, cost amounts, or customer financial data to git or the knowledge base. Financial detail goes to Teams only.
+
+
+    ## Visualizations
+
+
+    Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum a utilization trend chart and a current headroom comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message alongside the text tables.'
+

@@ -154,6 +154,26 @@
           href: toolkit/hubs/upgrade.md
         - name: Compatibility guide
           href: toolkit/hubs/compatibility.md
+    - name: FinOps toolkit SRE Agent
+      items:
+        - name: Overview
+          href: toolkit/sre-agent/overview.md
+        - name: Deploy
+          href: toolkit/sre-agent/deploy.md
+        - name: Agents and skills
+          href: toolkit/sre-agent/agents.md
+        - name: Tools
+          href: toolkit/sre-agent/tools.md
+        - name: Scheduled tasks
+          href: toolkit/sre-agent/scheduled-tasks.md
+        - name: Knowledge and memory
+          href: toolkit/sre-agent/knowledge.md
+        - name: Security and permissions
+          href: toolkit/sre-agent/security.md
+        - name: Troubleshooting
+          href: toolkit/sre-agent/troubleshooting.md
+        - name: Template reference
+          href: toolkit/sre-agent/template.md
     - name: Power BI
       items:
         - name: Overview

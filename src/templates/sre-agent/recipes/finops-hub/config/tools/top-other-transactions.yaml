@@ -1,0 +1,32 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: top-other-transactions
+spec:
+  type: KustoTool
+  connector: finops-hub-kusto
+  toolMode: Auto
+  description: |-
+    Returns top non-usage, non-commitment purchase transactions such as Marketplace or other miscellaneous purchases. Use it to investigate large non-RI and non-savings-plan charges. If the result is empty or ZERO_ROWS_RETURNED, run data-freshness-check before concluding there were no purchases and surface any Transactions() export, ingestion, or stored-function diagnostic. Available parameters: N, startDate, endDate.
+
+    Output contract:
+    If the tool returns the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed but do not treat the analysis as fully healthy. Run data-freshness-check and inspect Transactions() row_count, schema_status, and diagnostic_code before stating there were no matching transactions. If diagnostic_code is TRANSACTIONS_ZERO_ROWS, report an export / ingestion / stored-function action item and continue the report with that limitation.
+  database: hub
+  query: |-
+    Costs()
+    | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate## and tolower(tostring(ChargeCategory)) != 'usage' and isempty(CommitmentDiscountType) and toreal(BilledCost) > 0
+    | top ##N## by toreal(BilledCost)
+    | project ChargePeriodStart, ChargeCategory, BilledCost, BillingCurrency, SubAccountName, x_InvoiceSectionName, PricingCategory, PricingQuantity, PricingUnit, ProviderName, PublisherName
+  parameters:
+  - name: N
+    type: string
+    description: "Number of top other transactions to return. Default: 10"
+    required: true
+  - name: startDate
+    type: string
+    description: "Start date for other transaction search (e.g., startofmonth(ago(30d))). Default: startofmonth(ago(30d))"
+    required: true
+  - name: endDate
+    type: string
+    description: "End date for other transaction search (e.g., startofmonth(now())). Default: startofmonth(now())"
+    required: true

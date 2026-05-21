@@ -1,0 +1,38 @@
+// ============================================================================
+// Query: Top N Cost by Billing Profile, Invoice Section, Team, Product, Application, Environment
+// Description:
+//   Returns the top N costs using the full financial hierarchy: Billing Profile → Invoice Section → Team → Product → Application → Environment.
+//   Includes percent of total cost for context.
+// Author: FinOps Toolkit
+// Parameters:
+//   N: Number of top results to return (default: 5)
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(30d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
+// Output:
+//   Each row represents a unique combination in the financial hierarchy with total cost and percent of total.
+// Usage:
+//   Use this query for detailed cost allocation and reporting across financial and business dimensions.
+// Last Tested: 2025-05-17
+// ============================================================================
+// Top N cost by Billing Profile, Invoice Section, Team, Product, Application
+// Reports costs using the full financial hierarchy: Billing Profile → Invoice Section → Team → Product → Application
+let N = 5; // Set to desired number of top results
+let startDate = startofmonth(ago(30d)); // Default: last month
+let endDate = startofmonth(now());
+let GrandTotal = toscalar(
+    Costs()
+    | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+    | summarize sum(toreal(EffectiveCost))
+);
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| extend x_Team = tostring(Tags['team'])
+| extend x_Product = tostring(Tags['product'])
+| extend x_Application = tostring(Tags['application'])
+| extend x_Environment = tostring(Tags['environment'])
+| summarize EffectiveCost = sum(toreal(EffectiveCost))
+    by x_BillingProfileName, x_InvoiceSectionName, x_Team, x_Product, x_Application, x_Environment
+| extend PercentOfTotal = 100.0 * EffectiveCost / GrandTotal
+| project x_BillingProfileName, x_InvoiceSectionName, x_Team, x_Product, x_Application, x_Environment, EffectiveCost, PercentOfTotal
+| order by EffectiveCost desc
+| top N by EffectiveCost

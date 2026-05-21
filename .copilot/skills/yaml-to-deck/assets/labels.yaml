@@ -1,0 +1,18 @@
+# FinOps Toolkit deck branding labels.
+# These are the production strings used by the renderer for cover, ASK footers,
+# and PPTX metadata. Pass --labels /Users/brett/src/ftk/finops-toolkit/.copilot/skills/yaml-to-deck/assets/labels.yaml to use them.
+labels:
+  cover.built-by-prefix: Built by
+  cover.partnership-prefix: In partnership with
+  cover.subtitle-prefix: Subtitle
+  cover.audience-prefix: Audience tag
+  cover.cobrand-prefix: Co-brand
+  ask.footer-prefix: Asks
+  ask.footer-separator: ', #'
+  ask.footer-first-mark: '#'
+  ask-b.owners-header: Who owns this
+  ask-c.monday-header: Monday move
+  ask-c.code-marker-prefix: srectl
+  index.entry-separator: ' · '
+  index.ask-mark: '#'
+  pptx.author: FinOps Toolkit community

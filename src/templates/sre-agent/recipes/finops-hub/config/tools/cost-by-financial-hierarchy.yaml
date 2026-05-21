@@ -1,0 +1,42 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: cost-by-financial-hierarchy
+spec:
+  type: KustoTool
+  connector: finops-hub-kusto
+  toolMode: Auto
+  description: |-
+    Returns the top costs across the financial hierarchy of billing profile, invoice section, team, product, application, and environment, with percent of total cost. Use it for allocation, showback, or business-dimension reporting. Available parameters: N, startDate, endDate.
+  database: hub
+  query: |-
+    let GrandTotal = toscalar(
+        Costs()
+        | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##
+        | summarize sum(toreal(EffectiveCost))
+    );
+    Costs()
+    | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##
+    | extend x_Team = tostring(Tags['team'])
+    | extend x_Product = tostring(Tags['product'])
+    | extend x_Application = tostring(Tags['application'])
+    | extend x_Environment = tostring(Tags['environment'])
+    | summarize EffectiveCost = sum(toreal(EffectiveCost))
+        by x_BillingProfileName, x_InvoiceSectionName, x_Team, x_Product, x_Application, x_Environment
+    | extend PercentOfTotal = 100.0 * EffectiveCost / GrandTotal
+    | project x_BillingProfileName, x_InvoiceSectionName, x_Team, x_Product, x_Application, x_Environment, EffectiveCost, PercentOfTotal
+    | order by EffectiveCost desc
+    | top ##N## by EffectiveCost
+  parameters:
+  - name: N
+    type: string
+    description: "Number of top hierarchy rows to return. Default: 5"
+    required: true
+  - name: startDate
+    type: string
+    description: "Start date for the reporting period (e.g., startofmonth(ago(30d))). Default: startofmonth(ago(30d))"
+    required: true
+  - name: endDate
+    type: string
+    description: "End date for the reporting period (e.g., startofmonth(now())). Default: startofmonth(now())"
+    required: true

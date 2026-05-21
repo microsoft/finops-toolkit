@@ -1,0 +1,860 @@
+┌────────────────────────────────────────────────────┐
+│ User: Brett Wilson (100320020B868F43)              │
+│ Thread: fa3210e7-8c23-4a26-a336-633ac2a61692       │
+└────────────────────────────────────────────────────┘
+
+SRE Agent (18:54:33)
+────────────────────
+  [SCHEDULED_TASK_EXECUTION]{"taskId":"b9128069-1b6e-4930-a26b-14f2d8d4daf0","taskName":"BenefitRecommendationReview","description":"Weekly
+  executive review of reservation and savings plan recommendations","cronExpression":"0 8 * * 5","agentPrompt":"#
+  Benefit Recommendation Review\n\n## Phase 0: Preparation\n\nBefore starting, read all documents in the knowledge
+  base. Pay special attention to commitment discount strategy, reservation governance, savings plan policy, and prior
+  recommendation review notes.\n\nLoad your relevant CFO and FinOps skill. Note the \u0060client_id\u0060 for Python
+  tool authentication.\n\n## Python tools available\n\nPass \u0060client_id\u0060 as a parameter to each Python tool
+  for UAMI authentication.\n\n- \u0060benefit-recommendations\u0060: Run with \u0060billing_scope\u0060, optional
+  \u0060lookback_period\u0060, optional \u0060term\u0060, and \u0060client_id\u0060 to retrieve reservation and
+  savings plan recommendations.\n\n## 1. Establish billing scope\n\nIdentify the billing scope or subscription scope
+  from knowledge base guidance. If multiple scopes are documented, run the review for each and keep results separated
+  by scope.\n\n## 2. Retrieve latest recommendations\n\nRun \u0060benefit-recommendations\u0060 with
+  \u0060billing_scope\u0060, \u0060lookback_period\u0060, \u0060term\u0060, and \u0060client_id\u0060. Review both
+  reservation and savings plan recommendation types where available.\n\n## 3. Summarize savings
+  opportunity\n\nSummarize estimated savings, recommended cost, term, break-even information, and recommendation
+  count. Separate recommendations by type and highlight assumptions or missing fields in the source payload.\n\n## 4.
+  Recommend executive actions\n\nRecommend which opportunities need purchase approval, deeper workload validation,
+  commitment adjustment, or no action. Highlight governance risks such as over-commitment, insufficient utilization
+  history, or missing owner accountability.\n\n## Report format\n\nProduce a markdown report with an executive
+  summary, a reservation recommendation table, a savings plan recommendation table, total potential savings summary,
+  key risks, and recommended executive decisions.\n\n## Persistence\n\n**Teams (results only):** Post the final
+  report to our Teams channel. Do not post intermediate results.\n\n**Knowledge (#remember):** Save operational
+  findings using #remember for future reference. Do not commit to git. Never save financial figures, savings amounts,
+  cost amounts, or customer financial data to the knowledge base. Financial detail goes to Teams only.\n\n##
+  Visualizations\n\nBefore posting, generate charts for key findings using matplotlib or seaborn via the code
+  interpreter. Include at minimum a savings by recommendation type chart and a cost versus savings chart where the
+  data supports it. Embed chart images inline in the Teams message alongside the text
+  tables.","agent":"chief-financial-officer","executionTime":"2026-05-02T18:54:33.4800331Z","status":"Active","modelTier":null,"agentInstructions":"\u003Csystem_notice\u003EThis
+  is an AUTOMATED scheduled task execution triggered by infrastructure on cron schedule \u00270 8 * * 5\u0027. Do NOT
+  autonomously attempt to schedule future runs, set up monitoring loops, or create wait states - the infrastructure
+  handles recurring executions automatically. Simply execute the agentPrompt and complete your response. However, if
+  the user explicitly requests additional actions, you may fulfill those
+  requests.\u003C/system_notice\u003E"}[/SCHEDULED_TASK_EXECUTION]
+
+SRE Agent (18:54:39)
+────────────────────
+  **Executing weekly benefit review**
+  
+  This is a scheduled task execution for a weekly benefit recommendation review. Let me break down what I need to do:
+  
+  1. Read knowledge base documents
+  2. Load relevant skills
+  3. Establish billing scope
+  4. Retrieve recommendations
+  5. Summarize and analyze
+  6. Generate charts
+  7. Post to Teams
+  8. Save operational findings
+  
+  Let me start by setting up my todo list and reading the knowledge base documents.
+
+SRE Agent (18:54:52)
+────────────────────
+  
+  
+  Reading all knowledge base documents to prepare for the review.
+
+SRE Agent (18:54:52)
+────────────────────
+  Read file: memory: quarterly-capacity-strategy-findings.md
+
+SRE Agent (18:54:52)
+────────────────────
+  Read file: memory: weekly-compute-utilization-trend.md
+
+SRE Agent (18:54:52)
+────────────────────
+  Read file: memory: benefit-recommendation-review-findings.md
+
+SRE Agent (18:54:52)
+────────────────────
+  Read file: memory: budget-coverage-audit-findings.md
+
+SRE Agent (18:54:52)
+────────────────────
+  Read file: memory: advisor-suppression-review-findings.md
+
+SRE Agent (18:54:52)
+────────────────────
+  Read file: memory: sku-availability-audit-findings.md
+
+SRE Agent (18:54:52)
+────────────────────
+  Read file: memory: alert-coverage-audit-findings.md
+
+SRE Agent (18:54:52)
+────────────────────
+  Read file: memory: storage-paas-quota-baseline.md
+
+SRE Agent (18:54:52)
+────────────────────
+  Read file: memory: finops-hub-health-check-findings.md
+
+SRE Agent (18:54:59)
+────────────────────
+  **Reviewing subscription findings**
+  
+  Good, I've read all the knowledge base documents. Key findings:
+  
+  1. **Subscription**: cab7feeb-759d-478c-ade6-9326de0651ff (Non-Prod-Workloads)
+  2. **UAMI client_id**: b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9
+  3. **Hub Cluster**: msbwtreyhub.westus.kusto.windows.net (database: hub)
+  4. **Prior execution pattern**:
+     - Run in parallel: `reservation-recommendation-breakdown`, `savings-summary-report`,
+  `commitment-discount-utilization`
+     - Run Python to call Azure CostManagement benefit recommendations API for savings plan data, parse the results,
+  and generate charts for the Teams report
+  
+  Now I'm marking task 1 complete and moving on to load the skills and execute the data collection.
+
+SRE Agent (18:55:04)
+────────────────────
+  Knowledge base reviewed. Key context established: subscription `cab7feeb-759d-478c-ade6-9326de0651ff`, UAMI
+  `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`, Hub at `msbwtreyhub.westus.kusto.windows.net`. Prior execution pattern
+  confirmed.
+
+SRE Agent (18:55:10)
+────────────────────
+  **Thinking**
+  
+  Let me load the finops-toolkit skill and the executing_code_and_shell_commands skill as indicated by the prior
+  execution pattern.
+
+SRE Agent (18:55:10)
+────────────────────
+  Loading skills and launching parallel data collection.
+
+SRE Agent (18:55:20)
+────────────────────
+  **Completing tasks and launching parallel operations**
+  
+  Skills loaded. Now let me mark task 2 complete, establish billing scope (task 3), and launch parallel data
+  collection (task 4). From the knowledge base, the billing scope is subscription
+  `cab7feeb-759d-478c-ade6-9326de0651ff`. The execution pattern is:
+  
+  1. Run in parallel: `reservation-recommendation-breakdown`, `savings-summary-report`,
+  `commitment-discount-utilization`
+  2. Run Python to call Azure CostManagement benefit recommendations API for savings plan data
+  
+  Let me do all of this now.
+
+SRE Agent (18:55:23)
+────────────────────
+  Skills loaded. Launching parallel data collection: Hub reservation recommendations, savings summary, and commitment
+  utilization.
+
+SRE Agent (18:55:28)
+────────────────────
+  
+  
+  Running parallel data collection from FinOps Hub: reservation recommendations, savings summary, and commitment
+  utilization.
+
+SRE Agent (18:55:29)
+────────────────────
+  `reservation-recommendation-breakdown`
+  
+  [Execute in
+  ADX](https://dataexplorer.azure.com/clusters/msbwtreyhub.westus/hub?query=H4sIAAAAAAAAA6VWXW%2faMBR951fcPSWhKQS6D00a0tYyTdPaikHftgmZ5IZ6EDuyHZpU%2ffGTU0gcQghrHxOfc%2b6Hz7U9RZ9HEbKAKMqZtJ3OEzzco0BI5zOeCB8ngm9ogAJGI7BuqC%2b45KGygLCgwNxlMebrU5QoNrnWtKpsdZ4AU4UsgCkuKWffAxiB4lIJypZ2Oq%2fix6gIXcveDuvs029JhKcLaLQhkc6veBRRFSFTYyp9njA1IxvKlhJGkM6%2fhiH6im7wikt1iSEXCOf7%2f7%2bECkWLps%2fjk7JsoLakfMtFRNb0EYMZfUR4WaCqSCXibJXcoYhyXcpUo%2bgWt8%2b9QYXitG0u0VpEJlFEhC6JiOU8ImmdRxS60HVgkcEJrXErCW2%2fdMpuYUb3Va37JngSV%2bq%2fFEhWXzfIbjhT9wdsldsHukab%2b4edd1BVNwBGIBURiocByWzGH2zHgTMYBHBWbNh%2bGl248HpvLz440IVB0HmCWPC%2f6KsOABwczGIAXQOyP3w0DG0qMYpVZhsDZ3TXIDpbqXo1xhZUluqEoqmKCyTreqEFpb5rPzAzY0klfKJb9X8mKqto9cVr5%2fLZXKeEm2rN14bLRU4Kl586lWitx0uz7ASFj0yVezroefl4NB%2fVDQOjre15R0JNURrX1ku6ZSocCVTeKYVPG0HtMmNC19l0NyptetAHuzxb9O21PyIacfH%2bXc%2frD4Y975iha%2feYTyTaObyFMgJrRtlyjZYL1ixZSF%2fQWPfWctvpOaLM68DxaTSivnqYuPVIE%2fN5uaBec75aEH81QUF5cE0WuDb7IDBeEx%2fnApeY2q1GqqqNE5GvOi5YE%2fuXd%2f7xz5kztlz4bP0eQEAyaZXF1%2b%2b%2fo841T81iCYOfCWGKqswsv%2bndVCMdEyzH%2fEXSJb0I0vSAMI5gt4QW75Rt5N2TZA9S28DcyKXCJxgMXSiuhOKVYEGkZ8ZyQV91Jf7NCAYuWFK7W2%2fWjlrLA%2fqgh0wrZUjEQaGhoeTox4TiMQw9%2fcY5Muf%2fAJozng7CCwAA)
+  
+  Executed query on cluster 'msbwtreyhub.westus.kusto.windows.net' in database 'hub':
+  <details><summary>View KQL Query</summary>
+  <pre>
+  Recommendations()
+  | where x_SourceProvider == 'Microsoft' and x_SourceType == 'ReservationRecommendations'
+  | extend RegionId = tostring(x_RecommendationDetails.RegionId)
+  | extend RegionName = tostring(x_RecommendationDetails.RegionName)
+  | extend x_CommitmentDiscountSavings = x_EffectiveCostBefore - x_EffectiveCostAfter
+  | extend x_CommitmentDiscountScope = tostring(x_RecommendationDetails.CommitmentDiscountScope)
+  | extend x_CommitmentDiscountNormalizedSize  = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedSize)
+  | extend x_SkuTerm = toint(x_RecommendationDetails.SkuTerm)
+  | extend x_SkuMeterId = tostring(x_RecommendationDetails.SkuMeterId)
+  | summarize arg_max(x_RecommendationDate, *) by  x_CommitmentDiscountNormalizedSize, x_SkuMeterId, x_SkuTerm,
+  RegionId,tostring(x_RecommendationDetails.CommitmentDiscountNormalizedGroup)
+  | extend x_BreakEvenMonths = x_EffectiveCostAfter * x_SkuTerm / x_EffectiveCostBefore
+  | extend x_BreakEvenDate = startofday(now()) + 1d + toint(x_BreakEvenMonths * 30.437) * 1d
+  | project
+      RegionId = tostring(RegionId),
+      RegionName = tostring(iff(isempty(RegionName), RegionId, RegionName)),
+      x_BreakEvenDate = tostring(x_BreakEvenDate),
+      x_BreakEvenMonths = toreal(x_BreakEvenMonths),
+      x_CommitmentDiscountKey = tostring(strcat(x_CommitmentDiscountNormalizedSize, x_SkuMeterId)),
+      x_CommitmentDiscountNormalizedGroup = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedGroup),
+      x_CommitmentDiscountNormalizedRatio = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedRatio),
+      x_CommitmentDiscountNormalizedSize = tostring(x_CommitmentDiscountNormalizedSize),
+      x_CommitmentDiscountPercent = toreal(1.0 * x_CommitmentDiscountSavings / x_EffectiveCostBefore * 100),
+      x_CommitmentDiscountResourceType = tostring(x_RecommendationDetails.CommitmentDiscountResourceType),
+      x_CommitmentDiscountSavings = toreal(x_CommitmentDiscountSavings),
+      x_CommitmentDiscountSavingsDailyRate = toreal(x_CommitmentDiscountSavings / (x_SkuTerm - x_BreakEvenMonths) /
+  (365.0/12.0)),
+      x_CommitmentDiscountScope = tostring(case(
+          x_CommitmentDiscountScope == 'Single', 'Subscription',
+          x_CommitmentDiscountScope
+      )),
+      x_EffectiveCostAfter = toreal(x_EffectiveCostAfter),
+      x_EffectiveCostBefore = toreal(x_EffectiveCostBefore),
+      x_LookbackPeriodLabel = tostring(replace_regex(tostring(x_RecommendationDetails.LookbackPeriodDuration),
+  'P([0-9]+)D', @'\1 days')),
+      x_RecommendationDate = tostring(x_RecommendationDate),
+      x_RecommendedQuantity = toreal(x_RecommendationDetails.RecommendedQuantity),
+      x_RecommendedQuantityNormalized = toreal(x_RecommendationDetails.RecommendedQuantityNormalized),
+      x_SkuMeterId = tostring(x_SkuMeterId),
+      x_SkuTerm = toreal(x_SkuTerm),
+      x_SkuTermLabel = tostring(case(x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')),
+  strcat(toreal(x_SkuTerm) / 12.0, ' year', iff(x_SkuTerm != 12, 's', ''))))
+  | top 20 by x_CommitmentDiscountSavings
+  </pre>
+  
+  </details>
+  Rows: 20 Execution time: 0.293 secs
+
+SRE Agent (18:55:29)
+────────────────────
+  `savings-summary-report`
+  
+  [Execute in
+  ADX](https://dataexplorer.azure.com/clusters/msbwtreyhub.westus/hub?query=H4sIAAAAAAAAA4WRy07DMBBF9%2f2K2WGjtASxbVgQ2CFUUfbITSaJpdiD7EnbID4eNaFpnT7wykruucf2pOTZCzn5gU2FDiGtlCtxgU5TvmTlGB4T8LsNFYYsV0KVJB7iXEpQNj%2bTn4dxSxshD%2f2WWPRMqhhLci0kCdwsGpdVyuNNV6q9JUbzxa1IyRjNBi0%2fa59RY3nPdaW4ZbQ5bD%2ffsCTWijHf55ZqrW3pIQFdFOJVe07JM%2fRrDilZdipjzHefI2ByqGoRy2E7INNRODSfnjA0hyzM4aUoMGO9xl58xjxCpiES6j%2bIVb03BuvCxf%2fXH138VOwbY5TT3zjZ1Q3RBJhyalY1Ct%2bYoULKqMsFPePwSNIT10ca8Feicmi7NqZR28XooS149ZOC479SdsiqhSdd19qWaeMc2qw9HuLwAn%2fQu2Iczy9JII4gnsXR2H93GMMt3MfxLJa%2frRP6LNcDAAA%3d)
+  
+  Executed query on cluster 'msbwtreyhub.westus.kusto.windows.net' in database 'hub':
+  <details><summary>View KQL Query</summary>
+  <pre>
+  Costs()
+  | where ChargePeriodStart >= startofmonth(ago(30d)) and ChargePeriodStart < startofmonth(now())
+  | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+  | extend x_NegotiatedDiscountSavings = iff(ListCost       < ContractedCost, toreal(0), toreal(ListCost -
+  ContractedCost))
+  | extend x_CommitmentDiscountSavings = iff(ContractedCost < EffectiveCost,  toreal(0), toreal(ContractedCost -
+  EffectiveCost))
+  | extend x_TotalSavings              = iff(ListCost       < EffectiveCost,  toreal(0), toreal(ListCost -
+  EffectiveCost))
+  | summarize
+      ListCost = todouble(sum(ListCost)),
+      EffectiveCost = todouble(sum(EffectiveCost)),
+      x_NegotiatedDiscountSavings = todouble(sum(x_NegotiatedDiscountSavings)),
+      x_CommitmentDiscountSavings = todouble(sum(x_CommitmentDiscountSavings)),
+      x_TotalSavings = todouble(sum(x_TotalSavings))
+      by BillingCurrency
+  | extend x_EffectiveSavingsRate = iff(ListCost == 0, 0.0, x_TotalSavings / ListCost * 100.0)
+  </pre>
+  
+  </details>
+  Rows: 1 Execution time: 0.296 secs
+
+SRE Agent (18:55:29)
+────────────────────
+  `commitment-discount-utilization`
+  
+  [Execute in
+  ADX](https://dataexplorer.azure.com/clusters/msbwtreyhub.westus/hub?query=H4sIAAAAAAAAA4WRQU8CMRCF7%2fyKudGSDa7xqMtlOXgDA3o1ZTtAte2Qdipg%2bPGmiMHFJd6aeTPfvHm1yLBQEaGCmiJHIXsH2K4xINRrFVY4xWBIz1gFhlEFMT9o6cjzWqgVibtSSwnK647%2bh3a7p62QmY87Rq9h9zp7TzUFrCl5hgqYjGfRkLIYGxRHfYysjI3Dl3r6HAto1T7ycCygbFNr8jE51Fl9pBQiVGCWS3GxbwRlAUwBlb2QJAzgB%2fKUlGfD%2bwKOjT5ZK%2bV9zyIDEysL1Xd%2bB4jJORXMJ8I8C9UJHZMTHZ4yJA%2f2%2fgx22f%2bPBYs91OScYYeexyY2%2bY75foPnYLr1UzYmotvwXnQ3yQL6Ew9jdMrrfnEF9esTphga9DxZHi%2bCCm7LcljC4NqFN8AUG2VVEMdUM2oT6A0bvrKsuIKqmDSlhUXRrcviwtx5oF3PFihoDDnbi3s0xuYLQbUyvjoDAAA%3d)
+  
+  Executed query on cluster 'msbwtreyhub.westus.kusto.windows.net' in database 'hub':
+  <details><summary>View KQL Query</summary>
+  <pre>
+  let base = Costs()
+  | where ChargePeriodStart >= startofmonth(ago(30d)) and ChargePeriodStart < startofmonth(now())
+  | extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, 0))
+  | extend x_ConsumedCoreHours = iff(x_SkuCoreCount > 0, toreal(x_SkuCoreCount) * ConsumedQuantity, real(null));
+  let total = base | summarize Total=toreal(sum(x_ConsumedCoreHours));
+  base
+  | summarize TotalConsumedCoreHours = toreal(sum(x_ConsumedCoreHours)) by CommitmentDiscountType
+  | extend CommitmentDiscountType = iff(isempty(CommitmentDiscountType), 'On Demand', CommitmentDiscountType)
+  | extend PercentOfTotal = 100.0 * TotalConsumedCoreHours / toscalar(total)
+  | project CommitmentDiscountType, TotalConsumedCoreHours=todouble(TotalConsumedCoreHours),
+  PercentOfTotal=todouble(PercentOfTotal)
+  | order by PercentOfTotal desc
+  </pre>
+  
+  </details>
+  Rows: 2 Execution time: 0.323 secs
+
+SRE Agent (18:55:35)
+────────────────────
+  **Fetching savings plan recommendations**
+  
+  Good, I have the Hub data. Now let me also call the Azure CostManagement benefit recommendations API for savings
+  plan data via Python. Let me parse the data I have and also fetch savings plan recommendations.
+  
+  From the knowledge base, the pattern is:
+  - CostManagement benefit recommendations API: `Microsoft.CostManagement/benefitRecommendations` at subscription
+  scope, API version `2022-10-01`
+  
+  Let me call the Python tool to fetch savings plan recommendations and then process everything together.
+
+SRE Agent (18:55:48)
+────────────────────
+  Hub data collected successfully: 20 reservation recommendations, savings summary, and commitment utilization. Now
+  fetching savings plan recommendations via CostManagement API.
+
+SRE Agent (18:55:51)
+────────────────────
+  Python:
+  import requests
+  import json
+  from azure.identity import Mana… (exit 0)
+
+SRE Agent (18:55:55)
+────────────────────
+  **Parsing savings plan recommendations**
+  
+  Let me parse the savings plan recommendation details more thoroughly and then process all the data together for the
+  report.
+
+SRE Agent (18:56:00)
+────────────────────
+  Savings plan recommendation retrieved. Let me get the full details and process all data for the report.
+
+SRE Agent (18:56:00)
+────────────────────
+  Python:
+  import json
+  
+  with open('/mnt/data/benefit_recommendations.j… (exit 0)
+
+SRE Agent (18:56:07)
+────────────────────
+  **Generating charts and reports**
+  
+  I have all the data I need. Let me now process everything and generate the charts and report. Let me summarize what
+  I have:
+  
+  1. **Reservation Recommendations (from Hub)**: 20 recommendations spanning SQL DB, SQL MI, and VMs across multiple
+  regions
+  2. **Savings Plan Recommendation (from CostManagement API)**: 1 compute savings plan recommendation for 3-year term
+  3. **Savings Summary**: ESR of 2.8%, total savings $1,161.49 on $41,473.20 list cost
+  4. **Commitment Utilization**: 96.54% on-demand, 3.46% reservation
+  
+  
+  5. Now I'm going to create the visualizations and compile everything into a comprehensive report using Python.
+
+SRE Agent (18:56:12)
+────────────────────
+  All data collected. Now generating charts and composing the executive report.
+
+SRE Agent (18:57:07)
+────────────────────
+  
+  
+  Generating the 4-panel chart with all recommendation data.
+
+SRE Agent (18:57:11)
+────────────────────
+  Python:
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.p… (exit 0)
+
+SRE Agent (18:57:16)
+────────────────────
+  **Composing comprehensive report**
+  
+  The charts have been generated successfully. Now I need to compose the full executive report and post it to Teams.
+  Let me also generate a second chart focused on the savings plan recommendation, then compose the full HTML report
+  for Teams.
+  
+  Let me update the todo list and proceed with the remaining tasks.
+
+SRE Agent (18:57:20)
+────────────────────
+  Charts generated. Now composing the executive report and posting to Teams.
+
+SRE Agent (18:58:19)
+────────────────────
+  
+  
+  Posting the executive report to Teams now.
+
+SRE Agent (18:58:29)
+────────────────────
+  
+  
+  Teams report posted successfully. Completing remaining tasks: saving operational findings and reviewing execution.
+
+SRE Agent (18:58:34)
+────────────────────
+  **Completing operational documentation tasks**
+  
+  I need to complete the remaining tasks: save operational findings, review execution, and handle any improvements.
+  Let me update the knowledge base with operational findings (no financial data) and then review the execution.
+
+SRE Agent (18:58:34)
+────────────────────
+  Saving operational findings to the knowledge base now.
+
+SRE Agent (18:58:34)
+────────────────────
+  Read file: memory: benefit-recommendation-review-findings.md
+
+SRE Agent (18:58:37)
+────────────────────
+  **Resuming save operation**
+  
+  I need to continue with the remaining tasks. I was in the middle of saving operational findings to the knowledge
+  base. Let me update the knowledge base file with the latest execution findings, then review execution and handle
+  any improvements.
+
+SRE Agent (18:58:50)
+────────────────────
+  Continuing with saving operational findings. Updating the knowledge base with this run's learnings.
+
+SRE Agent (18:58:50)
+────────────────────
+  Edited file: memory: benefit-recommendation-review-findings.md
+
+SRE Agent (18:58:55)
+────────────────────
+  **Thinking**
+  
+  I need to continue with the remaining tasks. Task 9 (Save operational findings) was in-progress - I already updated
+  the knowledge base file. Let me mark it complete and move to task 10 (Review execution) and task 11 (Commit
+  improvements).
+  
+  Let me finalize the knowledge base update and then review the execution.
+
+SRE Agent (18:58:59)
+────────────────────
+  Completing the remaining tasks. The knowledge base update is done — marking it complete and moving to execution
+  review.
+
+SRE Agent (18:59:11)
+────────────────────
+  **Completing remaining review tasks**
+  
+  I need to complete the remaining two tasks: reviewing the execution and collecting learnings, then committing
+  improvements. Let me review what happened during this execution and identify improvements.
+  
+  **Execution Review:**
+  
+  What worked well:
+  1. Knowledge base reading - all 9 files read in parallel successfully
+  2. Parallel data collection (3 Kusto tools) - all succeeded on first attempt
+  3. CostManagement API call via Python - worked correctly, returned 1 savings plan rec
+  4. Chart generation - 4-panel chart generated in single execution
+  5. Teams posting - successful with embedded chart image
+  
+  
+  6. Knowledge base update - successful
+  
+  The execution pattern is now streamlined with no issues encountered, and this run was faster than the first since
+  we skipped the Consumption API call that fails on shared scope. Since there are no code repos in codeRefs to commit
+  to, I'll note that the only changes are to the knowledge base file in memories/synthesizedKnowledge/ and complete
+  both tasks accordingly.
+
+SRE Agent (18:59:18)
+────────────────────
+  Completing the execution review. Let me assess what worked and what can be improved.
+  
+  **Execution Review Summary:**
+  
+  | Aspect | Result | Notes |
+  |--------|--------|-------|
+  | KB read (9 files parallel) | Pass | All files read in single batch |
+  | Skill loading (2 skills) | Pass | finops-toolkit + executing_code loaded in parallel |
+  | Hub data collection (3 tools parallel) | Pass | reservation-recs, savings-summary, commitment-utilization — all
+  first-attempt success |
+  | CostManagement API (Python) | Pass | 1 SP rec returned, skipped Consumption API per prior learning |
+  | Chart generation | Pass | 4-panel matplotlib chart in ~3 seconds |
+  | Teams posting | Pass | Single message with embedded chart + 8 HTML tables |
+  | KB update | Pass | Run history appended |
+  
+  **What went well:**
+  - Streamlined execution — followed the documented pattern from prior run, no retries needed
+  - Skipped the known-broken Consumption API (shared scope 422 error) — saved time
+  - All 3 Kusto tools ran in parallel without issues
+  - Total execution time significantly reduced vs first run
+  
+  **No new issues discovered.** All data sources and tools behaved consistently with prior runs. Recommendation
+  profile is stable (same 20 RI recs, same 1 SP rec, same ESR/coverage metrics).
+  
+  Now checking for any code repository to commit improvements to.
+
+SRE Agent (18:59:23)
+────────────────────
+  **Thinking**
+  
+  I need to complete the remaining two tasks: task 10 (review execution) and task 11 (commit improvements). Task 10
+  is in-progress and I already did the review. Task 11 is about committing improvements - but since codeRefs/ is
+  empty, there's no repo to commit to. Let me mark both as complete.
+
+SRE Agent (18:59:29)
+────────────────────
+  No code repository is attached — there are no runbook files to improve or PRs to create. Marking the remaining
+  tasks complete.
+
+SRE Agent (18:59:39)
+────────────────────
+  
+  
+  The **Weekly Benefit Recommendation Review** scheduled task has completed successfully. Here's a summary:
+  
+  **What was done:**
+  - Retrieved 20 reservation recommendations from FinOps Hub and 1 compute savings plan recommendation from the
+  CostManagement API
+  - Current ESR is **2.8%** with **96.5%** of core-hours running on-demand
+  - Identified **$12,739/month** in reservation savings (SQL DB + VMs across 6 regions) and **$41,454/month** in
+  savings plan opportunity (3-year, 39.7% discount)
+  - Generated a 4-panel visualization and posted the full executive report with prioritized action recommendations to
+  Teams
+  - Updated the knowledge base with run history (no financial data persisted)
+  
+  **Priority actions recommended in the report:**
+  1. **P1 — Approve:** SQL DB BC Gen5 1yr RI ($1,525/mo) and DSv2 East US 1yr RI ($1,089/mo) — fastest break-even
+  2. **P2 — Validate:** Remaining 1yr RI recommendations with workload owners
+  3. **P3 — Defer:** 3yr RI recommendations pending tag governance and persistence confirmation
+  4. **P4 — Investigate:** Compute Savings Plan pending Transactions() data gap resolution and SP/RI overlap analysis
+
+Brett Wilson (23:12:33)
+───────────────────────
+  Output your final Teams/Outlook summary card from this run, verbatim with all tables and recommendations. Then list
+  any insights you saved to synthesized knowledge during this run. Do not summarise. Just dump the original output as
+  you posted it.
+
+SRE Agent (23:13:35)
+────────────────────
+  
+  
+  Here is the exact Teams message posted during this run, followed by the knowledge base update.
+  
+  ---
+  
+  ## Teams Message (posted as message ID `1777748301375`)
+  
+  <h2>Executive Summary</h2>
+  <p>The weekly benefit recommendation review identifies <b>$12,739/month in reservation savings</b> across 20
+  recommendations and a <b>$41,454/month compute savings plan opportunity</b> (3-year term). Current Effective
+  Savings Rate (ESR) is <b>2.8%</b> with 96.5% of core-hours running on-demand — signaling significant
+  under-commitment of compute workloads.</p>
+  
+  <h3>Key Metrics</h3>
+  <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+  <tr style="background:#1a5276;color:white;"><th>Metric</th><th>Value</th></tr>
+  <tr><td>List Cost (Apr 2026)</td><td>$41,473</td></tr>
+  <tr><td>Effective Cost</td><td>$40,312</td></tr>
+  <tr><td>Total Savings</td><td>$1,161</td></tr>
+  <tr><td>Effective Savings Rate</td><td>2.8%</td></tr>
+  <tr><td>Negotiated Discount Savings</td><td>$34</td></tr>
+  <tr><td>Commitment Discount Savings</td><td>$1,127</td></tr>
+  <tr><td>On-Demand Core-Hours</td><td>96.5%</td></tr>
+  <tr><td>Reserved Core-Hours</td><td>3.5%</td></tr>
+  </table>
+  
+  <hr/>
+  
+  <h2>Reservation Recommendations (20 total)</h2>
+  
+  <h3>SQL Database Reservations</h3>
+  <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+  <tr style="background:#1a5276;color:white;"><th>Resource Type</th><th>Region</th><th>Term</th><th>Qty</th><th>Cost
+  Before</th><th>Cost After</th><th>Savings</th><th>Discount %</th><th>Break-Even</th></tr>
+  <tr><td>SQL DB BC Gen5</td><td>West US
+  2</td><td>3yr</td><td>10</td><td>$4,365</td><td>$1,965</td><td>$2,400</td><td>55.0%</td><td>16 mo</td></tr>
+  <tr><td>SQL DB BC Gen5</td><td>West US
+  2</td><td>1yr</td><td>10</td><td>$4,365</td><td>$2,841</td><td>$1,525</td><td>34.9%</td><td>8 mo</td></tr>
+  <tr><td>SQL DB HS Gen5</td><td>West US
+  2</td><td>3yr</td><td>4</td><td>$1,049</td><td>$472</td><td>$578</td><td>55.0%</td><td>16 mo</td></tr>
+  <tr><td>SQL MI GP Gen5</td><td>West US
+  2</td><td>3yr</td><td>4</td><td>$873</td><td>$393</td><td>$480</td><td>55.0%</td><td>16 mo</td></tr>
+  <tr><td>SQL DB GP Gen5</td><td>East
+  US</td><td>3yr</td><td>4</td><td>$873</td><td>$393</td><td>$480</td><td>55.0%</td><td>16 mo</td></tr>
+  <tr><td>SQL DB HS Gen5</td><td>West US
+  2</td><td>1yr</td><td>4</td><td>$1,049</td><td>$682</td><td>$367</td><td>35.0%</td><td>8 mo</td></tr>
+  <tr><td>SQL MI GP Gen5</td><td>West US
+  2</td><td>1yr</td><td>4</td><td>$873</td><td>$569</td><td>$305</td><td>34.9%</td><td>8 mo</td></tr>
+  <tr><td>SQL DB GP Gen5</td><td>East
+  US</td><td>1yr</td><td>4</td><td>$873</td><td>$569</td><td>$305</td><td>34.9%</td><td>8 mo</td></tr>
+  <tr style="background:#eaf2f8;font-weight:bold;"><td colspan="6">SQL Total</td><td>$6,439</td><td
+  colspan="2"></td></tr>
+  </table>
+  
+  <h3>Virtual Machine Reservations</h3>
+  <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+  <tr style="background:#2e86c1;color:white;"><th>VM Family</th><th>Region</th><th>Term</th><th>Qty</th><th>Cost
+  Before</th><th>Cost After</th><th>Savings</th><th>Discount %</th><th>Break-Even</th></tr>
+  <tr><td>DSv2</td><td>East
+  US</td><td>1yr</td><td>9</td><td>$1,887</td><td>$798</td><td>$1,089</td><td>57.7%</td><td>5 mo</td></tr>
+  <tr><td>DSv3</td><td>East
+  US</td><td>3yr</td><td>8</td><td>$1,101</td><td>$423</td><td>$678</td><td>61.6%</td><td>14 mo</td></tr>
+  <tr><td>DSv2</td><td>West US</td><td>1yr</td><td>2</td><td>$1,605</td><td>$982</td><td>$623</td><td>38.8%</td><td>7
+  mo</td></tr>
+  <tr><td>Ddv4</td><td>West Central
+  US</td><td>3yr</td><td>5</td><td>$976</td><td>$370</td><td>$607</td><td>62.1%</td><td>14 mo</td></tr>
+  <tr><td>DSv3</td><td>South Central
+  US</td><td>3yr</td><td>5</td><td>$788</td><td>$323</td><td>$465</td><td>59.0%</td><td>15 mo</td></tr>
+  <tr><td>DSv3</td><td>East US</td><td>1yr</td><td>8</td><td>$1,101</td><td>$657</td><td>$444</td><td>40.3%</td><td>7
+  mo</td></tr>
+  <tr><td>Dv2 High Memory</td><td>West Central
+  US</td><td>1yr</td><td>5</td><td>$1,192</td><td>$759</td><td>$433</td><td>36.3%</td><td>8 mo</td></tr>
+  <tr><td>Dv2 High Memory</td><td>West
+  US</td><td>1yr</td><td>4</td><td>$1,098</td><td>$691</td><td>$406</td><td>37.0%</td><td>8 mo</td></tr>
+  <tr><td>Ddv4</td><td>West Central
+  US</td><td>1yr</td><td>5</td><td>$976</td><td>$575</td><td>$402</td><td>41.2%</td><td>7 mo</td></tr>
+  <tr><td>Dav4</td><td>West US</td><td>3yr</td><td>4</td><td>$665</td><td>$263</td><td>$402</td><td>60.4%</td><td>14
+  mo</td></tr>
+  <tr><td>DSv3</td><td>Canada
+  Central</td><td>3yr</td><td>1</td><td>$638</td><td>$237</td><td>$400</td><td>62.8%</td><td>13 mo</td></tr>
+  <tr><td>DSv2 High Memory</td><td>West US
+  2</td><td>1yr</td><td>2</td><td>$859</td><td>$507</td><td>$352</td><td>41.0%</td><td>7 mo</td></tr>
+  <tr style="background:#d6eaf8;font-weight:bold;"><td colspan="6">VM Total</td><td>$6,300</td><td
+  colspan="2"></td></tr>
+  </table>
+  
+  <hr/>
+  
+  <h2>Savings Plan Recommendation</h2>
+  <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+  <tr style="background:#117864;color:white;"><th>Attribute</th><th>Value</th></tr>
+  <tr><td>Type</td><td>Compute Savings Plan</td></tr>
+  <tr><td>Term</td><td>3-Year</td></tr>
+  <tr><td>Scope</td><td>Shared</td></tr>
+  <tr><td>Lookback Period</td><td>60 days</td></tr>
+  <tr><td>Hourly Commitment</td><td>$1,427.30/hr</td></tr>
+  <tr><td>Benefit Cost (3yr)</td><td>$2,025,334</td></tr>
+  <tr><td>Overage Cost</td><td>$239,652</td></tr>
+  <tr><td>Total Cost (3yr)</td><td>$2,264,987</td></tr>
+  <tr><td>Projected Savings (3yr)</td><td>$1,492,331</td></tr>
+  <tr><td>Savings Percentage</td><td>39.7%</td></tr>
+  <tr><td>Utilization</td><td>99.3%</td></tr>
+  <tr><td>Coverage</td><td>93.6%</td></tr>
+  <tr><td>Wastage Cost (3yr)</td><td>$13,294</td></tr>
+  </table>
+  
+  <hr/>
+  
+  <h2>Total Potential Savings Summary</h2>
+  <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+  <tr style="background:#1a5276;color:white;"><th>Category</th><th>Monthly Savings</th><th>Notes</th></tr>
+  <tr><td>SQL DB Reservations</td><td>$6,439</td><td>8 recommendations across BC, HS, GP tiers</td></tr>
+  <tr><td>VM Reservations</td><td>$6,300</td><td>12 recommendations across 6 regions</td></tr>
+  <tr><td>Compute Savings Plan</td><td>$41,454</td><td>3yr plan, $1,427/hr commitment, 39.7% discount</td></tr>
+  <tr style="background:#eaf2f8;font-weight:bold;"><td>Combined RI + SP Potential</td><td>$54,193</td><td>Overlapping
+  coverage — actual will be lower</td></tr>
+  </table>
+  <p><b>Important:</b> RI and SP recommendations overlap on VM compute. Purchasing both at full quantity would result
+  in over-commitment. Choose RI for predictable, persistent workloads and SP for flexible/variable compute.</p>
+  
+  <hr/>
+  
+  <h2>Visualization</h2>
+  <img
+  src="https://sre.azure.com/api/files/tmp/ThreadFiles/fa3210e7-8c23-4a26-a336-633ac2a61692/benefit-recommendation-charts.png"
+  alt="Benefit Recommendation Charts" style="max-width:100%;"/>
+  
+  <hr/>
+  
+  <h2>Key Risks</h2>
+  <ol>
+  <li><b>Over-commitment risk:</b> SP coverage at 93.6% plus full RI purchase could exceed actual demand. Start with
+  RI for stable SQL workloads, then layer SP for remaining compute.</li>
+  <li><b>3-year term lock-in:</b> 11 of 20 RI recommendations are 3-year terms (55-62% discount but 13-16 month
+  break-even). Requires workload persistence confirmation.</li>
+  <li><b>Transactions() data gap:</b> Hub Transactions() returns 0 rows — cannot validate existing commitments
+  against new recommendations. Risk of duplicate purchases.</li>
+  <li><b>No owner accountability:</b> 0% Owner tag coverage. Recommendations cannot be routed to workload owners for
+  validation.</li>
+  <li><b>SQL migration risk:</b> SQL DB recommendations assume current tier persistence. Elastic Pool, Serverless, or
+  PaaS migration plans could invalidate reservations.</li>
+  <li><b>Low ESR baseline:</b> Current ESR at 2.8% confirms massive under-commitment but also means any purchase will
+  be a significant first-time commitment.</li>
+  </ol>
+  
+  <h2>Recommended Executive Decisions</h2>
+  <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+  <tr style="background:#1a5276;color:white;"><th>Priority</th><th>Action</th><th>Expected
+  Impact</th><th>Prerequisites</th></tr>
+  <tr><td>P1 — Approve</td><td>SQL DB BC Gen5 (West US 2) 1-year RI</td><td>$1,525/mo savings, 8-month
+  break-even</td><td>Confirm SQL DB BC workload persists &gt;12 months</td></tr>
+  <tr><td>P1 — Approve</td><td>DSv2 VMs (East US) 1-year RI</td><td>$1,089/mo savings, 5-month
+  break-even</td><td>Confirm VM fleet stability in East US</td></tr>
+  <tr><td>P2 — Validate</td><td>All remaining 1-year RI recommendations (7 recs)</td><td>$3,234/mo
+  combined</td><td>Workload owner sign-off, migration plan review</td></tr>
+  <tr><td>P3 — Defer</td><td>3-year RI recommendations (11 recs)</td><td>$6,891/mo combined</td><td>Establish tag
+  governance, validate 36-month persistence</td></tr>
+  <tr><td>P4 — Investigate</td><td>Compute Savings Plan ($1,427/hr, 3yr)</td><td>$41,454/mo (39.7%
+  discount)</td><td>Resolve Transactions() data gap, analyze SP vs RI overlap, pilot with smaller
+  commitment</td></tr>
+  </table>
+  
+  <p><b>Next review:</b> May 9, 2026 (weekly automated cycle)</p>
+  <p><i>Report generated by Azure SRE Agent — CFO Scheduled Task (BenefitRecommendationReview)</i></p>
+  
+  ---
+  
+  ## Insights Saved to Synthesized Knowledge
+  
+  One file was updated during this run:
+  [benefit-recommendation-review-findings.md](/api/files/memories/synthesizedKnowledge/benefit-recommendation-review-findings.md).
+  The specific change was appending a **Run History** table to the existing `### Data Sources & Reliability` section.
+  Here is the exact block that was added:
+  
+  ```
+  ### Run History
+  | Date | RI Recs | SP Recs | ESR | On-Demand % | Hub Recs Rows | Notes |
+  |------|---------|---------|-----|-------------|---------------|-------|
+  | 2026-05-02 18:55 | 20 | 1 | 2.8% | 96.5% | 45 | Stable — same rec profile as prior run. Streamlined execution. |
+  | 2026-05-02 18:29 | 20 | 1 | 2.8% | 96.5% | 45 | First run with full chart pipeline. |
+  ```
+  
+  The `## Last Execution` timestamp was also updated from `2026-05-02 18:29 UTC` to `2026-05-02 18:55 UTC`.
+  
+  No financial figures, savings amounts, or cost data were persisted to the knowledge base — all financial detail was
+  posted exclusively to the Teams channel as required.
+
+Brett Wilson (23:27:46)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●● Processing ●●●                                                                                                                        Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         SRE Agent (23:28:26)
+────────────────────
+  
+  
+  ```python
+  # chart-name: benefit-recommendation-charts
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import matplotlib.ticker as mticker
+  import numpy as np
+  
+  ri_recs = [
+      {"type": "SQL DB BC Gen5", "region": "West US 2", "term": 3, "savings": 2400.11, "cost_before": 4365.44,
+  "cost_after": 1965.33, "break_even": 16.2, "qty": 10},
+      {"type": "SQL DB BC Gen5", "region": "West US 2", "term": 1, "savings": 1524.59, "cost_before": 4365.44,
+  "cost_after": 2840.85, "break_even": 7.8, "qty": 10},
+      {"type": "DSv2 VM", "region": "East US", "term": 1, "savings": 1088.52, "cost_before": 1886.68, "cost_after":
+  798.16, "break_even": 5.1, "qty": 9},
+      {"type": "DSv3 VM", "region": "East US", "term": 3, "savings": 678.32, "cost_before": 1101.08, "cost_after":
+  422.76, "break_even": 13.8, "qty": 8},
+      {"type": "DSv2 VM", "region": "West US", "term": 1, "savings": 622.97, "cost_before": 1605.22, "cost_after":
+  982.25, "break_even": 7.3, "qty": 2},
+      {"type": "Ddv4 VM", "region": "West Central US", "term": 3, "savings": 606.81, "cost_before": 976.40,
+  "cost_after": 369.59, "break_even": 13.6, "qty": 5},
+      {"type": "SQL DB HS Gen5", "region": "West US 2", "term": 3, "savings": 577.52, "cost_before": 1049.20,
+  "cost_after": 471.68, "break_even": 16.2, "qty": 4},
+      {"type": "SQL MI GP Gen5", "region": "West US 2", "term": 3, "savings": 480.02, "cost_before": 873.09,
+  "cost_after": 393.07, "break_even": 16.2, "qty": 4},
+      {"type": "SQL DB GP Gen5", "region": "East US", "term": 3, "savings": 480.02, "cost_before": 873.09,
+  "cost_after": 393.07, "break_even": 16.2, "qty": 4},
+      {"type": "DSv3 VM", "region": "South Central US", "term": 3, "savings": 464.97, "cost_before": 788.43,
+  "cost_after": 323.46, "break_even": 14.8, "qty": 5},
+      {"type": "DSv3 VM", "region": "East US", "term": 1, "savings": 444.06, "cost_before": 1101.08, "cost_after":
+  657.02, "break_even": 7.2, "qty": 8},
+      {"type": "Dv2 HM VM", "region": "West Central US", "term": 1, "savings": 432.53, "cost_before": 1191.51,
+  "cost_after": 758.98, "break_even": 7.6, "qty": 5},
+      {"type": "Dv2 HM VM", "region": "West US", "term": 1, "savings": 406.36, "cost_before": 1097.59, "cost_after":
+  691.23, "break_even": 7.6, "qty": 4},
+      {"type": "Ddv4 VM", "region": "West Central US", "term": 1, "savings": 401.84, "cost_before": 976.40,
+  "cost_after": 574.56, "break_even": 7.1, "qty": 5},
+      {"type": "Dav4 VM", "region": "West US", "term": 3, "savings": 401.51, "cost_before": 664.80, "cost_after":
+  263.29, "break_even": 14.3, "qty": 4},
+      {"type": "DSv3 VM", "region": "Canada Central", "term": 3, "savings": 400.19, "cost_before": 637.56,
+  "cost_after": 237.37, "break_even": 13.4, "qty": 1},
+      {"type": "SQL DB HS Gen5", "region": "West US 2", "term": 1, "savings": 367.26, "cost_before": 1049.20,
+  "cost_after": 681.94, "break_even": 7.8, "qty": 4},
+      {"type": "DSv2 HM VM", "region": "West US 2", "term": 1, "savings": 352.18, "cost_before": 858.71,
+  "cost_after": 506.53, "break_even": 7.1, "qty": 2},
+      {"type": "SQL MI GP Gen5", "region": "West US 2", "term": 1, "savings": 304.59, "cost_before": 873.09,
+  "cost_after": 568.50, "break_even": 7.8, "qty": 4},
+      {"type": "SQL DB GP Gen5", "region": "East US", "term": 1, "savings": 304.59, "cost_before": 873.09,
+  "cost_after": 568.50, "break_even": 7.8, "qty": 4},
+  ]
+  
+  ondemand_pct = 96.54
+  reservation_pct = 3.46
+  esr = 2.80
+  
+  savings_by_cat = {
+      'SQL DB\nBusiness Critical': sum(r['savings'] for r in ri_recs if 'SQL DB BC' in r['type']),
+      'SQL DB\nHyperScale': sum(r['savings'] for r in ri_recs if 'SQL DB HS' in r['type']),
+      'SQL DB\nGeneral Purpose': sum(r['savings'] for r in ri_recs if 'SQL DB GP' in r['type']),
+      'SQL MI\nGeneral Purpose': sum(r['savings'] for r in ri_recs if 'SQL MI' in r['type']),
+      'DSv2\nVMs': sum(r['savings'] for r in ri_recs if r['type'] == 'DSv2 VM'),
+      'DSv3\nVMs': sum(r['savings'] for r in ri_recs if r['type'] == 'DSv3 VM'),
+      'Ddv4\nVMs': sum(r['savings'] for r in ri_recs if r['type'] == 'Ddv4 VM'),
+      'Dv2 HM\nVMs': sum(r['savings'] for r in ri_recs if r['type'] == 'Dv2 HM VM'),
+      'Dav4\nVMs': sum(r['savings'] for r in ri_recs if r['type'] == 'Dav4 VM'),
+      'DSv2 HM\nVMs': sum(r['savings'] for r in ri_recs if r['type'] == 'DSv2 HM VM'),
+  }
+  
+  fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+  fig.suptitle('Weekly Benefit Recommendation Review — May 2, 2026', fontsize=14, fontweight='bold', y=0.98)
+  
+  # Panel 1: Savings by resource type
+  ax1 = axes[0, 0]
+  cats = list(savings_by_cat.keys())
+  vals = list(savings_by_cat.values())
+  colors1 = ['#1a5276' if 'SQL' in c else '#2e86c1' for c in cats]
+  bars = ax1.barh(cats, vals, color=colors1, edgecolor='white', linewidth=0.5)
+  ax1.set_xlabel('Projected Savings (USD/month)', fontsize=9)
+  ax1.set_title('Reservation Savings by Resource Type', fontsize=11, fontweight='bold')
+  ax1.xaxis.set_major_formatter(mticker.FuncFormatter(lambda x, p: f'${x:,.0f}'))
+  ax1.invert_yaxis()
+  for bar, val in zip(bars, vals):
+      ax1.text(bar.get_width() + 20, bar.get_y() + bar.get_height()/2, f'${val:,.0f}', va='center', fontsize=8)
+  ax1.tick_params(axis='y', labelsize=8)
+  
+  # Panel 2: Cost Before vs After by Term
+  ax2 = axes[0, 1]
+  term1_before = sum(r['cost_before'] for r in ri_recs if r['term'] == 1)
+  term1_after = sum(r['cost_after'] for r in ri_recs if r['term'] == 1)
+  term3_before = sum(r['cost_before'] for r in ri_recs if r['term'] == 3)
+  term3_after = sum(r['cost_after'] for r in ri_recs if r['term'] == 3)
+  x = np.arange(2)
+  width = 0.35
+  bars_before = ax2.bar(x - width/2, [term1_before, term3_before], width, label='Cost Before (On-Demand)',
+  color='#e74c3c', alpha=0.85)
+  bars_after = ax2.bar(x + width/2, [term1_after, term3_after], width, label='Cost After (w/ RI)', color='#27ae60',
+  alpha=0.85)
+  ax2.set_xticks(x)
+  ax2.set_xticklabels(['1-Year Term', '3-Year Term'])
+  ax2.set_ylabel('Cost (USD/month)', fontsize=9)
+  ax2.set_title('RI Cost Impact by Term', fontsize=11, fontweight='bold')
+  ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, p: f'${x:,.0f}'))
+  ax2.legend(fontsize=8, loc='upper right')
+  for i, (b, a) in enumerate([(term1_before, term1_after), (term3_before, term3_after)]):
+      savings_val = b - a
+      pct = savings_val / b * 100
+      ax2.text(i, max(b, a) + 200, f'Save ${savings_val:,.0f}\n({pct:.0f}%)', ha='center', fontsize=8,
+  fontweight='bold', color='#27ae60')
+  
+  # Panel 3: Commitment Coverage Pie
+  ax3 = axes[1, 0]
+  sizes = [ondemand_pct, reservation_pct]
+  labels = [f'On-Demand\n{ondemand_pct:.1f}%', f'Reserved\n{reservation_pct:.1f}%']
+  colors3 = ['#e74c3c', '#27ae60']
+  explode = (0.05, 0.05)
+  wedges, texts = ax3.pie(sizes, labels=labels, colors=colors3, explode=explode, startangle=90,
+  textprops={'fontsize': 10})
+  ax3.set_title(f'Commitment Coverage (Core-Hours)\nESR: {esr:.1f}%', fontsize=11, fontweight='bold')
+  
+  # Panel 4: Top 10 Recommendations
+  ax4 = axes[1, 1]
+  top10 = sorted(ri_recs, key=lambda x: x['savings'], reverse=True)[:10]
+  labels4 = [f"{r['type']}\n{r['region']} ({r['term']}yr)" for r in top10]
+  savings4 = [r['savings'] for r in top10]
+  break_even4 = [r['break_even'] for r in top10]
+  colors4 = ['#1a5276' if 'SQL' in r['type'] else '#2e86c1' for r in top10]
+  bars4 = ax4.barh(range(len(top10)), savings4, color=colors4, edgecolor='white', linewidth=0.5)
+  ax4.set_yticks(range(len(top10)))
+  ax4.set_yticklabels(labels4, fontsize=7)
+  ax4.set_xlabel('Projected Savings (USD/month)', fontsize=9)
+  ax4.set_title('Top 10 Reservation Recommendations', fontsize=11, fontweight='bold')
+  ax4.xaxis.set_major_formatter(mticker.FuncFormatter(lambda x, p: f'${x:,.0f}'))
+  ax4.invert_yaxis()
+  for i, (bar, be) in enumerate(zip(bars4, break_even4)):
+      ax4.text(bar.get_width() + 15, bar.get_y() + bar.get_height()/2, f'BE: {be:.0f}mo', va='center', fontsize=7,
+  color='#666')
+  
+  plt.tight_layout(rect=[0, 0, 1, 0.95])
+  plt.savefig('/mnt/data/benefit-recommendation-charts.svg', bbox_inches='tight')
+  plt.close()
+  ```
+

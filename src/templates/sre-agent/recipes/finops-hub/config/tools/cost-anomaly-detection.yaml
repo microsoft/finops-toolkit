@@ -1,0 +1,30 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: cost-anomaly-detection
+spec:
+  type: KustoTool
+  connector: finops-hub-kusto
+  toolMode: Auto
+  description: |-
+    Detects cost spikes and drops with time-series anomaly detection over a configurable history window. Use it when investigating unexpected spend changes or visualizing anomalous daily cost behavior. Available parameters: numberOfMonths, interval.
+  database: hub
+  query: |-
+    let start = startofmonth(ago(##numberOfMonths## * 30d));
+    let end = now();
+    Costs()
+    | where ChargePeriodStart between (start .. end)
+    | summarize DailyCost = sum(EffectiveCost) by bin(ChargePeriodStart, ##interval##)
+    | make-series CostSeries = sum(DailyCost) on ChargePeriodStart from start to end step ##interval##
+    | extend anomalies = series_decompose_anomalies(CostSeries)
+    | project ChargePeriodStart, CostSeries, anomalies
+    | render timechart
+  parameters:
+  - name: numberOfMonths
+    type: string
+    description: "Number of months of historical cost data to analyze. Default: 12"
+    required: true
+  - name: interval
+    type: string
+    description: "Time-series bin and make-series step interval (e.g., 1d). Default: 1d"
+    required: true

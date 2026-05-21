@@ -1,0 +1,27 @@
+id: P1.1.B
+order: 5
+cluster: Quota ≠ Capacity
+asks_verbatim:
+- num: 8
+  theme: Quota ≠ Capacity — I have quota, why deploy fails?
+- num: 13
+  theme: Zonal capacity / AZ stockouts (East US, North Europe)
+- num: 14
+  theme: SKU availability / offer restrictions
+- num: 23
+  theme: CI/CD + capacity pre-flight checks
+- num: 24
+  theme: Proactive capacity monitoring (no real-time API)
+title: Implementation
+content: • Three independent ARM API surfaces, three RBAC scopes:<br/>  - quota = sub × region (Microsoft.Quota)<br/>  - SKU availability = sub × region × zone × offer-type (Microsoft.Compute/locations/skus)<br/>  - CRG attachment = sub × RG × workload (Microsoft.Compute/capacityReservationGroups)<br/>• Portal "show quota" only proves the first surface; ARM rejects on the other two roughly a minute after deploy submission.<br/>• The `azure-capacity-manager` subagent calls `vm-quota-usage`, `sku-availability`, `capacity-reservation-groups`, and `non-compute-quotas` in parallel through the `capacity-daily-monitor` scheduled task and posts a Teams card with the combined verdict.<br/>• The embedded chart is a sample render from a test tenant; numbers will look different in every customer environment. Use it to teach the chart shape, not as a customer finding.
+notes: The daily monitor checks all three failure surfaces in parallel.<br/><br/>Quota by region. SKU restrictions by subscription. Capacity reservation allocation versus reserved supply. Plus hub data freshness — because pipeline health is part of capacity health. Stale data shows up on the same board as a quota breach.<br/><br/>One Teams card. Deployable or blocked, with the specific surface called out. The screenshot is sample output — your customer's numbers will look different.
+layout:
+  kind: ASK_B
+  addresses:
+  - 8
+  - 13
+  - 14
+  - 23
+  - 24
+  verdict: green
+screens: 'assets: image=capacity-health-overview.svg'

@@ -1,0 +1,9 @@
+{
+  "subagents": 5,
+  "skills": 3,
+  "tools": 34,
+  "scheduledTasks": 19,
+  "requiredExperimentalSettings": {
+    "EnableWorkspaceTools": true
+  }
+}

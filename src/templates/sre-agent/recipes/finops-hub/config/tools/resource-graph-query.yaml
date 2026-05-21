@@ -1,0 +1,139 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: resource-graph-query
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Runs Azure Resource Graph KQL queries across one or more subscriptions.
+    Use it to inventory Azure resources, inspect configuration drift, and join
+    resource graph tables when troubleshooting subscription-scale issues.
+  functionCode: |-
+    def main(**kwargs):
+        import requests
+
+        ARM_ENDPOINT = "https://management.azure.com"
+        ARM_SCOPE = "https://management.azure.com/.default"
+
+        query = kwargs.get("query")
+        subscription_ids = kwargs.get("subscription_ids")
+
+        result = {
+            "rows": [],
+            "count": 0,
+            "errors": [],
+        }
+
+        if not isinstance(query, str) or not query.strip():
+            result["errors"].append({"error": "query is required"})
+            return result
+
+        if subscription_ids:
+            if isinstance(subscription_ids, str):
+                subscriptions = [
+                    item.strip()
+                    for item in subscription_ids.split(",")
+                    if item.strip()
+                ]
+            elif isinstance(subscription_ids, (list, tuple, set)):
+                subscriptions = [
+                    str(item).strip()
+                    for item in subscription_ids
+                    if str(item).strip()
+                ]
+            else:
+                subscriptions = [str(subscription_ids).strip()]
+        else:
+            subscriptions = []
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            token = credential.get_token(ARM_SCOPE).token
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+        except Exception as exc:
+            result["errors"].append({"error": f"Failed to initialize Azure ARM credential: {exc}"})
+            return result
+
+        if not subscriptions:
+            try:
+                list_url = f"{ARM_ENDPOINT}/subscriptions?api-version=2022-12-01"
+                list_response = requests.get(list_url, headers=headers, timeout=60)
+                list_response.raise_for_status()
+                list_payload = list_response.json()
+                subscriptions = [
+                    sub.get("subscriptionId")
+                    for sub in list_payload.get("value", [])
+                    if sub.get("subscriptionId")
+                ]
+            except Exception as exc:
+                result["errors"].append({"error": f"Failed to list Azure subscriptions: {exc}"})
+                return result
+
+        if not subscriptions:
+            result["errors"].append({"error": "No subscription IDs were provided or discovered"})
+            return result
+
+        try:
+            graph_url = (
+                f"{ARM_ENDPOINT}/providers/Microsoft.ResourceGraph/resources"
+                "?api-version=2022-10-01"
+            )
+            response = requests.post(
+                graph_url,
+                headers=headers,
+                json={"subscriptions": subscriptions, "query": query},
+                timeout=120,
+            )
+            response.raise_for_status()
+            payload = response.json()
+            data = payload.get("data")
+
+            if isinstance(data, list):
+                rows = data
+            elif isinstance(data, dict):
+                rows = data.get("rows") or data.get("data") or data.get("value") or [data]
+            elif data is None:
+                rows = []
+            else:
+                rows = list(data)
+
+            result["rows"] = rows
+            result["count"] = payload.get("count") or len(rows)
+            result["total_records"] = payload.get("totalRecords")
+            result["result_truncated"] = payload.get("resultTruncated")
+            result["subscriptions"] = subscriptions
+        except Exception as exc:
+            result["errors"].append({"error": f"Failed to run Azure Resource Graph query: {exc}"})
+
+        return result
+  timeoutSeconds: 300
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: query
+      type: string
+      description: Azure Resource Graph KQL query to execute.
+      required: true
+    - name: subscription_ids
+      type: string
+      description: Optional comma-separated Azure subscription IDs. If omitted, all accessible subscriptions are queried.
+      required: false

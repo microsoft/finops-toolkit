@@ -1,0 +1,196 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: benefit-recommendations
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Gets Azure Cost Management benefit recommendations for savings plans and reserved instances
+    at a billing scope. Use it to identify commitment discount recommendation savings, cost,
+    term, and break-even details. Available parameters: billing_scope, lookback_period, term.
+  functionCode: |-
+    def main(**kwargs):
+        from urllib.parse import quote
+
+        import requests
+
+        billing_scope = kwargs.get("billing_scope")
+        lookback_period = kwargs.get("lookback_period") or "Last7Days"
+        term = kwargs.get("term") or "P3Y"
+
+        result = {
+            "billing_scope": billing_scope,
+            "lookback_period": lookback_period,
+            "term": term,
+            "recommendations": [],
+        }
+
+        if not billing_scope:
+            result["error"] = "billing_scope is required"
+            return result
+
+        scope = str(billing_scope).strip().strip("/")
+        filter_expression = (
+            f"properties/lookBackPeriod eq '{lookback_period}' "
+            f"and properties/term eq '{term}'"
+        )
+        url = (
+            f"https://management.azure.com/{scope}"
+            "/providers/Microsoft.CostManagement/benefitRecommendations"
+            f"?api-version=2025-03-01&$filter={quote(filter_expression, safe='')}"
+        )
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            token = credential.get_token("https://management.azure.com/.default")
+            payload_items = []
+            next_url = url
+            while next_url:
+                response = requests.get(
+                    next_url,
+                    headers={"Authorization": f"Bearer {token.token}"},
+                    timeout=300,
+                )
+                response.raise_for_status()
+                payload = response.json()
+                payload_items.extend(payload.get("value", []))
+                next_url = payload.get("nextLink")
+        except Exception as exc:
+            result["error"] = f"Failed to get Cost Management benefit recommendations: {exc}"
+            return result
+
+        def _first(*values):
+            for value in values:
+                if value is not None:
+                    return value
+            return None
+
+        def _nested(source, *path):
+            current = source
+            for key in path:
+                if not isinstance(current, dict):
+                    return None
+                current = current.get(key)
+            return current
+
+        def _number(value):
+            if isinstance(value, (int, float)):
+                return value
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return None
+
+        def _difference(left, right):
+            left_number = _number(left)
+            right_number = _number(right)
+            if left_number is None or right_number is None:
+                return None
+            return left_number - right_number
+
+        def _recommendation_type(item, properties):
+            raw_type = str(
+                _first(
+                    item.get("kind"),
+                    properties.get("benefitType"),
+                    properties.get("recommendationType"),
+                    "",
+                )
+            )
+            normalized = raw_type.lower()
+            if "reservation" in normalized or "reserved" in normalized:
+                return "RI"
+            if "savings" in normalized or "benefit" in normalized:
+                return "SP"
+            return raw_type or None
+
+        for item in payload_items:
+            properties = item.get("properties", {}) if isinstance(item, dict) else {}
+            recommendation_details = properties.get("recommendationDetails") or {}
+            if not isinstance(recommendation_details, dict):
+                recommendation_details = {}
+
+            total_cost = _first(
+                properties.get("totalCost"),
+                _nested(recommendation_details, "totalCost"),
+            )
+            cost_without_benefit = properties.get("costWithoutBenefit")
+            savings = _first(
+                properties.get("estimatedSavingsAmount"),
+                properties.get("totalSavings"),
+                properties.get("savingsAmount"),
+                properties.get("annualSavingsAmount"),
+                _nested(recommendation_details, "averageSavingsAmount"),
+                _nested(recommendation_details, "savingsAmount"),
+                _difference(cost_without_benefit, total_cost),
+            )
+            cost = _first(
+                total_cost,
+                properties.get("costWithBenefit"),
+                properties.get("recommendedQuantityCost"),
+                properties.get("purchaseAmount"),
+                _nested(recommendation_details, "cost"),
+                _nested(recommendation_details, "costWithBenefit"),
+            )
+            recommendation_term = _first(
+                properties.get("term"),
+                _nested(recommendation_details, "term"),
+                term,
+            )
+            break_even = _first(
+                properties.get("breakEvenTime"),
+                properties.get("breakEvenDate"),
+                properties.get("breakEvenPeriod"),
+                _nested(recommendation_details, "breakEvenTime"),
+                _nested(recommendation_details, "breakEvenDate"),
+                _nested(recommendation_details, "breakEvenPeriod"),
+            )
+
+            result["recommendations"].append(
+                {
+                    "type": _recommendation_type(item, properties),
+                    "savings": savings,
+                    "cost": cost,
+                    "total_cost": total_cost,
+                    "cost_without_benefit": cost_without_benefit,
+                    "term": recommendation_term,
+                    "break_even": break_even,
+                    "id": item.get("id"),
+                    "name": item.get("name"),
+                }
+            )
+
+        result["count"] = len(result["recommendations"])
+        return result
+  timeoutSeconds: 300
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: billing_scope
+      type: string
+      description: Azure billing scope or subscription scope to query for benefit recommendations.
+      required: true
+    - name: lookback_period
+      type: string
+      description: Optional lookback period for benefit recommendations. Defaults to Last7Days.
+      required: false
+    - name: term
+      type: string
+      description: Optional commitment term for benefit recommendations. Defaults to P3Y.
+      required: false

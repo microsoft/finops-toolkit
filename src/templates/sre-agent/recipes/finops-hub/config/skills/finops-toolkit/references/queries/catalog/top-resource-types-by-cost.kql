@@ -1,0 +1,13 @@
+// Top N Resource Types by Cost (Custom Date Range)
+// Returns the top N resource types by count and total effective cost for the specified date range.
+// Parameters: N (default: 10), startDate, endDate
+// Author: FinOps Toolkit Team
+// Last Tested: 2025-05-17
+//
+let N = 10;
+let startDate = startofmonth(ago(30d)); // Default: last month
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| summarize ResourceCount = count(), EffectiveCost = sum(EffectiveCost) by ResourceType
+| top N by EffectiveCost desc

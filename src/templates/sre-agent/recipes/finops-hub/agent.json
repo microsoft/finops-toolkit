@@ -1,0 +1,20 @@
+{
+  "access": {
+    "accessLevel": "High",
+    "actionMode": "Autonomous"
+  },
+  "upgradeChannel": "Preview",
+  "defaultModelProvider": "Anthropic",
+  "defaultModelName": "Automatic",
+  "monthlyAgentUnitLimit": 10000,
+  "tags": {
+    "finops-toolkit": "sre-agent",
+    "source": "microsoft-finops-toolkit"
+  },
+  "toggles": {
+    "enableWebhookBridge": false
+  },
+  "experimentalSettings": {
+    "EnableWorkspaceTools": true
+  }
+}

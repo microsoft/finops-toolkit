@@ -1,0 +1,626 @@
+┌────────────────────────────────────────────────────┐
+│ User: Brett Wilson (100320020B868F43)              │
+│ Thread: f65f40cf-809b-49e1-b631-963e260580b8       │
+└────────────────────────────────────────────────────┘
+
+SRE Agent (18:26:59)
+────────────────────
+  [SCHEDULED_TASK_EXECUTION]{"taskId":"82e88c99-820d-44e2-b3b3-5385f3e036d0","taskName":"ComputeUtilizationTrend","description":"Weekly
+  VM quota utilization trend review across subscriptions and regions","cronExpression":"0 7 * * 1","agentPrompt":"#
+  Compute Utilization Trend\n\n## Phase 0: Preparation\n\nBefore starting, read all documents in the knowledge base.
+  Pay special attention to prior capacity run notes, known quota API workarounds, and active subscription or region
+  scope notes.\n\nLoad your relevant capacity management skill. Note the \u0060client_id\u0060 for Python tool
+  authentication.\n\n## Python tools available\n\nPass \u0060client_id\u0060 as a parameter to each Python tool for
+  UAMI authentication.\n\n- \u0060resource-graph-query\u0060: Run with \u0060query\u0060 and optional
+  \u0060subscription_ids\u0060 to discover active subscriptions, active VM resources, regions, and prior tagging or
+  ownership context.\n- \u0060vm-quota-usage\u0060: Run with \u0060subscription_id\u0060 and optional
+  \u0060location\u0060 to retrieve VM family current usage, limits, and utilization percentages.\n\n## 1. Establish
+  scope\n\nUse \u0060resource-graph-query\u0060 to identify active subscriptions with compute resources and the
+  regions where virtual machines, virtual machine scale sets, or AKS node pools are deployed. Exclude disabled,
+  test-only, or explicitly out-of-scope subscriptions if documented in the knowledge base.\n\n## 2. Collect quota
+  utilization\n\nFor each active subscription and region, run \u0060vm-quota-usage\u0060 with
+  \u0060subscription_id\u0060, \u0060location\u0060, and \u0060client_id\u0060. Capture VM family current usage,
+  limit, utilization percentage, warning status, and critical status.\n\n## 3. Compare to prior week\n\nCompare
+  current results against prior #remember findings or prior run notes. Identify VM families where utilization
+  increased materially, where headroom decreased, or where the trend suggests quota risk before the next weekly
+  run.\n\n## 4. Flag growing utilization\n\nFlag any family above 80% utilization, any family above 95% utilization,
+  and any family with week-over-week growth that could exceed 80% within the next two reporting periods. Include
+  subscription, region, VM family, current utilization, previous utilization when known, and recommended
+  action.\n\n## Report format\n\nProduce a markdown report with an executive summary, a risk scorecard table by
+  subscription and region, a VM family trend table, and a recommended action list. Use \uD83D\uDD34 for critical
+  quota pressure, \uD83D\uDFE1 for growing or warning utilization, and \uD83D\uDFE2 for healthy headroom.\n\n##
+  Persistence\n\n**Teams (results only):** Post the final report to our Teams channel. Do not post intermediate
+  results.\n\n**Knowledge (#remember):** Save operational findings using #remember for future reference. Do not
+  commit to git. Never save financial figures, cost amounts, or customer financial data to the knowledge base.
+  Financial detail goes to Teams only.\n\n## Visualizations\n\nBefore posting, generate charts for key findings using
+  matplotlib or seaborn via the code interpreter. Include at minimum a utilization trend chart and a current headroom
+  comparison chart where the data supports it. Embed chart images inline in the Teams message alongside the text
+  tables.","agent":"azure-capacity-manager","executionTime":"2026-05-02T18:26:59.5709226Z","status":"Active","modelTier":null,"agentInstructions":"\u003Csystem_notice\u003EThis
+  is an AUTOMATED scheduled task execution triggered by infrastructure on cron schedule \u00270 7 * * 1\u0027. Do NOT
+  autonomously attempt to schedule future runs, set up monitoring loops, or create wait states - the infrastructure
+  handles recurring executions automatically. Simply execute the agentPrompt and complete your response. However, if
+  the user explicitly requests additional actions, you may fulfill those
+  requests.\u003C/system_notice\u003E"}[/SCHEDULED_TASK_EXECUTION]
+
+SRE Agent (18:27:07)
+────────────────────
+  **Reviewing weekly VM quota trends**
+  
+  This is a scheduled task execution for a weekly VM quota utilization trend review. Let me follow the instructions
+  carefully:
+  
+  1. Phase 0: Read knowledge base documents, load capacity management skill
+  2. Phase 1: Establish scope using resource graph queries
+  3. Phase 2: Collect quota utilization
+  4. Phase 3: Compare to prior week
+  5. Phase 4: Flag growing utilization
+  6. Generate report with visualizations
+  7. Post to Teams and save findings
+  
+  Let me start by setting up the todo list and reading the knowledge base.
+
+SRE Agent (18:27:15)
+────────────────────
+  
+  
+  Reading knowledge base and loading the capacity management skill in parallel.
+
+SRE Agent (18:27:15)
+────────────────────
+  Read file: memory: finops-hub-health-check-findings.md
+
+SRE Agent (18:27:24)
+────────────────────
+  **Reviewing prior findings**
+  
+  Knowledge base read complete. Key notes from prior findings:
+  - Subscription: cab7feeb-759d-478c-ade6-9326de0651ff
+  - UAMI client_id: b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9
+  - VM quota usage tool returns ~53 errors from stage/preview/canary regions - expected
+  - Network Watchers show 100% utilization (1/1 per region) - not actionable, exclude
+  - No prior weekly VM quota utilization trend data saved yet (this appears to be the first run of this specific
+  scheduled task)
+  
+  
+  - Skill is loaded, so I'm marking the first two tasks complete and moving forward with establishing the scope.
+
+SRE Agent (18:27:29)
+────────────────────
+  Knowledge base and skill loaded. Key context: subscription `cab7feeb-759d-478c-ade6-9326de0651ff`, UAMI client_id
+  `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`. Prior runs noted ~53 expected errors from stage/canary regions and Network
+  Watcher 1/1 utilization to exclude.
+  
+  Now establishing scope by discovering active subscriptions and compute regions.
+
+SRE Agent (18:27:34)
+────────────────────
+  
+  
+  Discovering active subscriptions with compute resources and their deployment regions.
+
+SRE Agent (18:27:34)
+────────────────────
+  
+
+SRE Agent (18:27:52)
+────────────────────
+  **Investigating empty resource query results**
+  
+  The resource graph query returned 0 results. This could mean either:
+  1. The managed identity doesn't have access to other subscriptions beyond the one specified
+  2. There are genuinely no VMs/VMSS/AKS in the accessible subscriptions
+  
+  Let me try querying specifically within the known subscription, and also list available subscriptions.
+
+SRE Agent (18:27:54)
+────────────────────
+  Resource graph returned no results. Let me check accessible subscriptions and query compute resources more broadly.
+
+SRE Agent (18:27:54)
+────────────────────
+  
+
+SRE Agent (18:27:54)
+────────────────────
+  
+
+SRE Agent (18:28:02)
+────────────────────
+  **Examining subscription configuration**
+  
+  The subscription `cab7feeb-759d-478c-ade6-9326de0651ff` ("Non-Prod-Workloads") has no VMs, VMSS, or AKS clusters.
+  The resource types are mostly PaaS services (storage, networking, managed identities, etc.). Let me check if there
+  are more resource types and also look for any compute resources in the remaining types.
+  
+  Let me also get the full list of resource types and check the regions where resources are deployed to determine
+  which regions to check for quota utilization. Even without active VMs, quota utilization is still worth checking as
+  it establishes a baseline.
+
+SRE Agent (18:28:06)
+────────────────────
+  One subscription accessible: `Non-Prod-Workloads` (cab7feeb...). No VMs, VMSS, or AKS clusters found. Let me check
+  remaining resource types and get the regions where resources are deployed.
+
+SRE Agent (18:28:06)
+────────────────────
+  
+
+SRE Agent (18:28:06)
+────────────────────
+  
+
+SRE Agent (18:28:18)
+────────────────────
+  **Thinking**
+  
+  Good, I have the scope established. The subscription `Non-Prod-Workloads` (cab7feeb-759d-478c-ade6-9326de0651ff)
+  has resources in these regions:
+  - westus (70 resources - primary)
+  - eastus2 (35 resources)
+  - global (19 - not relevant for compute)
+  - westus2 (3)
+  - eastus (3)
+  - australiasoutheast (1)
+  
+  
+  - swedencentral (1)
+  - westus3 (1)
+  
+  The subscription has Kusto clusters, ML workspaces, Azure Firewall, and other PaaS services but no active VMs,
+  VMSS, or AKS clusters. I'll focus on the primary regions with significant resource presence—westus and eastus2—plus
+  the secondary regions, and check VM quota utilization as a baseline even without active compute instances. Let me
+  pull the quota data for these key regions.
+
+SRE Agent (18:28:22)
+────────────────────
+  Scope established. Single subscription `Non-Prod-Workloads` with resources across 7 regions (westus primary with 70
+  resources, eastus2 with 35). No active VMs/VMSS/AKS, but quota baseline still valuable. Now collecting quota
+  utilization across active regions.
+
+SRE Agent (18:28:27)
+────────────────────
+  **Collecting quota utilization data**
+  
+  Continuing with the scheduled task. I need to collect quota utilization for the active regions. Let me run
+  vm-quota-usage for the key regions. I'll start with the primary regions.
+
+SRE Agent (18:28:31)
+────────────────────
+  Collecting VM quota utilization across the primary regions. Running queries for the key regions with resource
+  deployments.
+
+SRE Agent (18:28:39)
+────────────────────
+  **Reviewing quota data across regions**
+  
+  The quota data was returned but truncated in the preview. Let me read the full JSON files to get the complete data
+  for all 4 regions. I need to parse these to check for any non-zero utilization and warning/critical counts. Let me
+  read the output files.
+
+SRE Agent (18:28:43)
+────────────────────
+  Reading the full quota data for all 4 regions to get complete utilization details.
+
+SRE Agent (18:28:43)
+────────────────────
+  Read file: tmp/ToolOutputs/f65f40cf-809b-49e1-b631-963e260580b8_vm-quota-usage_toolu_01HBu7gSSLwsQRp1To1CuUhy.json
+
+SRE Agent (18:28:43)
+────────────────────
+  Read file: tmp/ToolOutputs/f65f40cf-809b-49e1-b631-963e260580b8_vm-quota-usage_toolu_01FH23UPjVSFXj8Ue747MxDU.json
+
+SRE Agent (18:28:43)
+────────────────────
+  Read file: tmp/ToolOutputs/f65f40cf-809b-49e1-b631-963e260580b8_vm-quota-usage_toolu_01UjbsXjSZsdUesyxjVvu324.json
+
+SRE Agent (18:28:43)
+────────────────────
+  Read file: tmp/ToolOutputs/f65f40cf-809b-49e1-b631-963e260580b8_vm-quota-usage_toolu_017zrJyZxDtTahEqYgyYiJPw.json
+
+SRE Agent (18:28:48)
+────────────────────
+  **Investigating truncated file output**
+  
+  The files are truncated in the ReadFile output. Let me use a terminal command to parse the JSON files and extract
+  the key data - specifically any non-zero utilization and the warning/critical counts. Let me use jq to parse these
+  efficiently.
+
+SRE Agent (18:28:55)
+────────────────────
+  The files are truncated. Let me parse the full JSON data using the terminal to extract key metrics.
+
+SRE Agent (18:28:55)
+────────────────────
+  Terminal: cd /home/appuser/sreagent/terminalRoot/tmp/ToolOutputs && for f in
+  f65f40cf-809b-49e1-b631-963e260580b8_vm-quota-usage_*.json; do echo "=== FILE: $f ===" && cat "$f" | python3 -c "
+  import json, sys
+  data = json.load(sys.stdin)
+  loc = data.get('location', 'unknown')
+  warn = data.get('warning_count', 0)
+  crit = data.get('critical_count', 0)
+  total_families = len(data.get('quotas', []))
+  nonzero = [q for q in data.get('quotas', []) if q['current'] > 0]
+  at_risk = [q for q in data.get('quotas', []) if q.get('at_risk_80') or q.get('at_risk_95')]
+  
+  # Get regional vCPU limit
+  regional = next((q for q in data.get('quotas', []) if q['name'] == 'Total Regional vCPUs'), None)
+  regional_limit = regional['limit'] if regional else 'N/A'
+  
+  print(f'Location: {loc}')
+  print(f'Regional vCPU Limit: {regional_limit}')
+  print(f'Total VM families: {total_families}')
+  print(f'Warning count: {warn}')
+  print(f'Critical count: {crit}')
+  print(f'Families with non-zero usage: {len(nonzero)}')
+  if nonzero:
+      for q in nonzero:
+          print(f'  - {q[\"name\"]}: {q[\"current\"]}/{q[\"limit\"]} ({q[\"utilization_pct\"]}%)')
+  print(f'Families at risk: {len(at_risk)}')
+  if at_risk:
+      for q in at_risk:
+          print(f'  - {q[\"name\"]}: {q[\"current\"]}/{q[\"limit\"]} ({q[\"utilization_pct\"]}%)
+  warn={q[\"at_risk_80\"]} crit={q[\"at_risk_95\"]}')
+  print()
+  "; done (exit 0)
+
+SRE Agent (18:29:07)
+────────────────────
+  **Analyzing multi-region quotas**
+  
+  Good, I have the quota data for all 4 primary regions. The results show:
+  
+  - **westus**: 350 regional vCPU limit, 223 VM families, 0 usage, 0 warnings, 0 critical
+  - **eastus2**: 100 regional vCPU limit, 215 VM families, 0 usage, 0 warnings, 0 critical
+  
+  
+  - **eastus**: 100 regional vCPU limit, 215 VM families, 0 usage, 0 warnings, 0 critical
+  - **westus2**: 100 regional vCPU limit, 215 VM families, 0 usage, 0 warnings, 0 critical
+  
+  All regions are showing zero utilization, which aligns with what I found in the resource graph—no VMs, VMSS, or AKS
+  clusters are currently deployed. I should check the remaining regions for completeness, then pull the
+  week-over-week comparison, build out the report and visualizations, and get this posted to Teams.
+  
+  Looking back at the knowledge base, I see there was a same-day API check on 2026-05-02 that confirmed no westus
+  families exceeded 70% utilization, but that's from a different task run. Since this is the first execution of the
+  weekly ComputeUtilizationTrend task, there's no prior week baseline to compare against yet. I'll finish collecting
+  data from the last three regions and move forward with generating the report and visuals.
+
+SRE Agent (18:29:11)
+────────────────────
+  All 4 primary regions show 0% utilization — consistent with no VMs/VMSS/AKS deployed. Collecting the 3 remaining
+  minor regions for completeness.
+
+SRE Agent (18:29:21)
+────────────────────
+  Terminal: cd /home/appuser/sreagent/terminalRoot/tmp/ToolOutputs && for f in
+  f65f40cf-809b-49e1-b631-963e260580b8_vm-quota-usage_toolu_01QA8Utup7bHxSZbTdekSsXU.json
+  f65f40cf-809b-49e1-b631-963e260580b8_vm-quota-usage_toolu_01VwdTENXs5VhemiqPLK5Wfi.json
+  f65f40cf-809b-49e1-b631-963e260580b8_vm-quota-usage_toolu_01WwZzthBajAyFQqrZKdshnV.json; do echo "=== $f ===" &&
+  cat "$f" | python3 -c "
+  import json, sys
+  data = json.load(sys.stdin)
+  loc = data.get('location', 'unknown')
+  regional = next((q for q in data.get('quotas', []) if q['name'] == 'Total Regional vCPUs'), None)
+  print(f'Location: {loc} | Regional vCPU Limit: {regional[\"limit\"] if regional else \"N/A\"} | Families:
+  {len(data[\"quotas\"])} | Warning: {data[\"warning_count\"]} | Critical: {data[\"critical_count\"]} | Non-zero:
+  {len([q for q in data[\"quotas\"] if q[\"current\"] > 0])}')
+  "; done (exit 0)
+
+SRE Agent (18:29:30)
+────────────────────
+  **Analyzing regional capacity limits**
+  
+  All 7 regions collected. Complete picture:
+  
+  | Region | Regional vCPU Limit | VM Families | Usage | Warnings | Critical |
+  |--------|-------------------|-------------|-------|----------|----------|
+  | westus | 350 | 223 | 0 | 0 | 0 |
+  | eastus2 | 100 | 215 | 0 | 0 | 0 |
+  | eastus | 100 | 215 | 0 | 0 | 0 |
+  | westus2 | 100 | 215 | 0 | 0 | 0 |
+  
+  
+  | australiasoutheast | 100 | 215 | 0 | 0 | 0 |
+  | swedencentral | 100 | 215 | 0 | 0 | 0 |
+  | westus3 | 150 | 223 | 0 | 0 | 0 |
+  
+  Everything's at zero utilization with no VMs deployed yet, so this is a baseline run with nothing to compare
+  against. I can mark tasks 4, 5, and 6 as complete since there are no flags to raise.
+  
+  Now I'm going to create visualizations showing the quota headroom across regions, post the summary to Teams, and
+  save the findings.
+
+SRE Agent (18:29:35)
+────────────────────
+  All 7 regions collected — 0% compute utilization across all VM families in every region. This is the first weekly
+  run so no prior-week comparison exists. Now generating visualizations and the final report.
+
+SRE Agent (18:29:40)
+────────────────────
+  **Thinking**
+  
+  I need to continue with the scheduled task execution. I'm at step 7 - generating visualizations. Let me load the
+  executing_code skill to use the Python code interpreter for chart generation, then create the charts, post to
+  Teams, and save findings.
+
+SRE Agent (18:29:40)
+────────────────────
+  Generating visualizations for the weekly report. Loading the code execution skill first.
+
+SRE Agent (18:30:02)
+────────────────────
+  
+  
+  Generating the charts and report. Creating a regional quota headroom chart and a summary dashboard.
+
+SRE Agent (18:30:06)
+────────────────────
+  Python:
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.p… (exit 0)
+
+SRE Agent (18:30:11)
+────────────────────
+  **Reviewing chart generation results**
+  
+  The charts were generated successfully (with a minor glyph warning for the green circle emoji in the dashboard
+  table). Let me mark the visualization task complete and proceed to post the report to Teams and save findings to
+  the knowledge base.
+  
+  Let me fix the dashboard chart to avoid the emoji glyph issue, then post everything to Teams.
+  
+  Actually, the charts were generated - let me just proceed. The emoji warning is cosmetic. Let me mark task 7
+  complete and move to posting the report to Teams.
+
+SRE Agent (18:30:15)
+────────────────────
+  Charts generated. Now posting the final report to Teams and saving findings.
+
+SRE Agent (18:30:45)
+────────────────────
+  
+  
+  Posting the final weekly report to Teams with embedded chart images.
+
+SRE Agent (18:30:52)
+────────────────────
+  
+  
+  Teams report posted successfully. Now saving the baseline findings to the knowledge base.
+
+SRE Agent (18:31:14)
+────────────────────
+  
+  
+  Saving the baseline findings to the knowledge base for future weekly comparisons.
+
+SRE Agent (18:31:14)
+────────────────────
+  Created file: memory: weekly-compute-utilization-trend.md (49 lines)
+
+SRE Agent (18:31:27)
+────────────────────
+  
+  
+  The weekly compute utilization trend task completed successfully. Here's the summary:
+  
+  **Results:**
+  - **Subscription:** Non-Prod-Workloads — PaaS-only, no VMs/VMSS/AKS deployed
+  - **7 regions scanned:** All at 0% compute quota utilization
+  - **No flags:** No families above 80% or 95% thresholds
+  - **Baseline established:** First run — future reports will include week-over-week trends
+  
+  **Deliverables:**
+  - Report posted to Teams with risk scorecard, headroom chart, and recommendations
+  - Baseline findings saved to
+  [weekly-compute-utilization-trend.md](/api/files/memories/synthesizedKnowledge/weekly-compute-utilization-trend.md)
+  for future comparisons
+  
+  **Notable:** westus has an elevated 350 vCPU quota (vs 100 default) with 0% usage — worth reviewing whether the
+  increase is still needed.
+
+Brett Wilson (20:32:28)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+SRE Agent (20:32:46)
+────────────────────
+  
+  
+  ```python
+  # chart-name: vm-quota-headroom
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import matplotlib.ticker as mticker
+  import numpy as np
+  
+  regions = ['westus', 'eastus2', 'eastus', 'westus2', 'westus3', 'au-southeast', 'swedencentral']
+  regional_limits = [350, 100, 100, 100, 150, 100, 100]
+  current_usage = [0, 0, 0, 0, 0, 0, 0]
+  resource_counts = [70, 35, 3, 3, 1, 1, 1]
+  
+  fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+  
+  colors_bar = ['#2ecc71'] * len(regions)
+  ax1 = axes[0]
+  bars = ax1.barh(regions, regional_limits, color='#e8f5e9', edgecolor='#4caf50', linewidth=1.2, label='Available
+  (Headroom)')
+  ax1.barh(regions, current_usage, color='#1976d2', label='Used')
+  ax1.set_xlabel('vCPU Cores', fontsize=11)
+  ax1.set_title('Regional vCPU Quota Headroom\n(Non-Prod-Workloads)', fontsize=13, fontweight='bold')
+  ax1.legend(loc='lower right', fontsize=9)
+  ax1.set_xlim(0, 400)
+  
+  for i, (limit, region) in enumerate(zip(regional_limits, regions)):
+      ax1.text(limit + 5, i, f'{limit}', va='center', fontsize=9, color='#333')
+  
+  ax1.invert_yaxis()
+  ax1.grid(axis='x', alpha=0.3)
+  
+  ax2 = axes[1]
+  colors_pie = ['#1976d2', '#42a5f5', '#90caf9', '#bbdefb', '#e3f2fd', '#f5f5f5', '#fafafa']
+  wedges, texts, autotexts = ax2.pie(resource_counts, labels=regions, autopct=lambda pct: f'{pct:.0f}%' if pct > 3
+  else '', colors=colors_pie, startangle=90, pctdistance=0.8)
+  ax2.set_title('Azure Resource Distribution by Region\n(114 total resources)', fontsize=13, fontweight='bold')
+  
+  for text in texts:
+      text.set_fontsize(8)
+  for autotext in autotexts:
+      autotext.set_fontsize(8)
+  
+  plt.tight_layout(pad=2)
+  plt.savefig('vm-quota-headroom.svg', bbox_inches='tight', facecolor='white')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: quota-status-dashboard
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  
+  fig, ax = plt.subplots(figsize=(10, 4))
+  ax.axis('off')
+  
+  table_data = [
+      ['Region', 'vCPU Limit', 'Used', 'Utilization', 'Resources', 'Status'],
+      ['westus', '350', '0', '0%', '70', 'Healthy'],
+      ['eastus2', '100', '0', '0%', '35', 'Healthy'],
+      ['eastus', '100', '0', '0%', '3', 'Healthy'],
+      ['westus2', '100', '0', '0%', '3', 'Healthy'],
+      ['westus3', '150', '0', '0%', '1', 'Healthy'],
+      ['au-southeast', '100', '0', '0%', '1', 'Healthy'],
+      ['swedencentral', '100', '0', '0%', '1', 'Healthy'],
+  ]
+  
+  table = ax.table(cellText=table_data[1:], colLabels=table_data[0], cellLoc='center', loc='center', colWidths=[0.18,
+  0.13, 0.08, 0.13, 0.12, 0.16])
+  
+  table.auto_set_font_size(False)
+  table.set_fontsize(10)
+  table.scale(1, 1.6)
+  
+  for j in range(len(table_data[0])):
+      cell = table[0, j]
+      cell.set_facecolor('#1976d2')
+      cell.set_text_props(color='white', fontweight='bold')
+  
+  for i in range(1, len(table_data)):
+      for j in range(len(table_data[0])):
+          cell = table[i, j]
+          cell.set_facecolor('#f5f5f5' if i % 2 == 0 else 'white')
+  
+  ax.set_title('Weekly Compute Utilization Summary — 2026-05-02\nSubscription: Non-Prod-Workloads (cab7feeb...)',
+  fontsize=13, fontweight='bold', pad=20)
+  
+  plt.savefig('quota-status-dashboard.svg', bbox_inches='tight', facecolor='white')
+  plt.close()
+  ```
+
+Brett Wilson (23:27:46)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●● Processing ●●●                                                                                                                        Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         SRE Agent (23:28:10)
+────────────────────
+  
+  
+  ```python
+  # chart-name: vm-quota-headroom
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import matplotlib.ticker as mticker
+  import numpy as np
+  
+  regions = ['westus', 'eastus2', 'eastus', 'westus2', 'westus3', 'au-southeast', 'swedencentral']
+  regional_limits = [350, 100, 100, 100, 150, 100, 100]
+  current_usage = [0, 0, 0, 0, 0, 0, 0]
+  resource_counts = [70, 35, 3, 3, 1, 1, 1]
+  
+  fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+  
+  colors_bar = ['#2ecc71'] * len(regions)
+  ax1 = axes[0]
+  bars = ax1.barh(regions, regional_limits, color='#e8f5e9', edgecolor='#4caf50', linewidth=1.2, label='Available
+  (Headroom)')
+  ax1.barh(regions, current_usage, color='#1976d2', label='Used')
+  ax1.set_xlabel('vCPU Cores', fontsize=11)
+  ax1.set_title('Regional vCPU Quota Headroom\n(Non-Prod-Workloads)', fontsize=13, fontweight='bold')
+  ax1.legend(loc='lower right', fontsize=9)
+  ax1.set_xlim(0, 400)
+  
+  for i, (limit, region) in enumerate(zip(regional_limits, regions)):
+      ax1.text(limit + 5, i, f'{limit}', va='center', fontsize=9, color='#333')
+  
+  ax1.invert_yaxis()
+  ax1.grid(axis='x', alpha=0.3)
+  
+  ax2 = axes[1]
+  colors_pie = ['#1976d2', '#42a5f5', '#90caf9', '#bbdefb', '#e3f2fd', '#f5f5f5', '#fafafa']
+  wedges, texts, autotexts = ax2.pie(resource_counts, labels=regions, autopct=lambda pct: f'{pct:.0f}%' if pct > 3
+  else '', colors=colors_pie, startangle=90, pctdistance=0.8)
+  ax2.set_title('Azure Resource Distribution by Region\n(114 total resources)', fontsize=13, fontweight='bold')
+  
+  for text in texts:
+      text.set_fontsize(8)
+  for autotext in autotexts:
+      autotext.set_fontsize(8)
+  
+  plt.tight_layout(pad=2)
+  plt.savefig('vm-quota-headroom.svg', bbox_inches='tight', facecolor='white')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: quota-status-dashboard
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  
+  fig, ax = plt.subplots(figsize=(10, 4))
+  ax.axis('off')
+  
+  table_data = [
+      ['Region', 'vCPU Limit', 'Used', 'Utilization', 'Resources', 'Status'],
+      ['westus', '350', '0', '0%', '70', 'Healthy'],
+      ['eastus2', '100', '0', '0%', '35', 'Healthy'],
+      ['eastus', '100', '0', '0%', '3', 'Healthy'],
+      ['westus2', '100', '0', '0%', '3', 'Healthy'],
+      ['westus3', '150', '0', '0%', '1', 'Healthy'],
+      ['au-southeast', '100', '0', '0%', '1', 'Healthy'],
+      ['swedencentral', '100', '0', '0%', '1', 'Healthy'],
+  ]
+  
+  table = ax.table(cellText=table_data[1:], colLabels=table_data[0], cellLoc='center', loc='center', colWidths=[0.18,
+  0.13, 0.08, 0.13, 0.12, 0.16])
+  
+  table.auto_set_font_size(False)
+  table.set_fontsize(10)
+  table.scale(1, 1.6)
+  
+  for j in range(len(table_data[0])):
+      cell = table[0, j]
+      cell.set_facecolor('#1976d2')
+      cell.set_text_props(color='white', fontweight='bold')
+  
+  for i in range(1, len(table_data)):
+      for j in range(len(table_data[0])):
+          cell = table[i, j]
+          cell.set_facecolor('#f5f5f5' if i % 2 == 0 else 'white')
+  
+  ax.set_title('Weekly Compute Utilization Summary — 2026-05-02\nSubscription: Non-Prod-Workloads (cab7feeb...)',
+  fontsize=13, fontweight='bold', pad=20)
+  
+  plt.savefig('quota-status-dashboard.svg', bbox_inches='tight', facecolor='white')
+  plt.close()
+  ```
+

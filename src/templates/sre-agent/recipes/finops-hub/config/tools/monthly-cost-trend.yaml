@@ -1,0 +1,26 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: monthly-cost-trend
+spec:
+  type: KustoTool
+  connector: finops-hub-kusto
+  toolMode: Auto
+  description: |-
+    Returns billed and effective cost totals by month for a reporting window. Use it to review monthly cost trends, compare billed versus effective cost, and support budget analysis. Available parameters: startDate, endDate.
+  database: hub
+  query: |-
+    Costs()
+    | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##
+    | extend x_ChargeMonth = startofmonth(ChargePeriodStart)
+    | summarize BilledCost = sum(BilledCost), EffectiveCost = sum(EffectiveCost) by x_ChargeMonth
+    | order by x_ChargeMonth asc
+  parameters:
+  - name: startDate
+    type: string
+    description: "Start date for monthly trend analysis (e.g., startofmonth(ago(365d))). Default: startofmonth(ago(365d))"
+    required: true
+  - name: endDate
+    type: string
+    description: "End date for monthly trend analysis (e.g., startofmonth(now())). Default: startofmonth(now())"
+    required: true

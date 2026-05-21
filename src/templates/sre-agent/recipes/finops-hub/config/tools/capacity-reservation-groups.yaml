@@ -1,0 +1,209 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: capacity-reservation-groups
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Lists Azure capacity reservation groups in a subscription and reports utilization by comparing reserved capacity against allocated virtual machines. Use it to identify unused reserved capacity, overallocated groups, and zone-specific capacity reservation waste.
+  functionCode: |-
+    def main(**kwargs):
+        import requests
+
+        ARM_ENDPOINT = "https://management.azure.com"
+        ARM_SCOPE = "https://management.azure.com/.default"
+        API_VERSION = "2024-03-01"
+
+        subscription_id = kwargs.get("subscription_id")
+
+        if not subscription_id:
+            return {
+                "error": "subscription_id is required",
+                "capacity_reservation_groups": [],
+            }
+
+        def get_attr(obj, *names, default=None):
+            for name in names:
+                if isinstance(obj, dict):
+                    if name in obj and obj[name] is not None:
+                        return obj[name]
+                    properties = obj.get("properties")
+                    if isinstance(properties, dict) and name in properties and properties[name] is not None:
+                        return properties[name]
+                    continue
+                value = getattr(obj, name, None)
+                if value is not None:
+                    return value
+            return default
+
+        def as_list(value):
+            if value is None:
+                return []
+            if isinstance(value, list):
+                return value
+            if isinstance(value, (tuple, set)):
+                return list(value)
+            return [value]
+
+        def as_int(value):
+            try:
+                return int(value or 0)
+            except (TypeError, ValueError):
+                return 0
+
+        def resource_group_from_id(resource_id):
+            if not resource_id:
+                return None
+            parts = [part for part in resource_id.split("/") if part]
+            for index, part in enumerate(parts):
+                if part.lower() == "resourcegroups" and index + 1 < len(parts):
+                    return parts[index + 1]
+            return None
+
+        def subresource_id(item):
+            return get_attr(item, "id", default=str(item))
+
+        result = {
+            "subscription_id": subscription_id,
+            "capacity_reservation_groups": [],
+        }
+        errors = []
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            token = credential.get_token(ARM_SCOPE).token
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+        except Exception as exc:
+            result["error"] = f"Failed to initialize Azure ARM credential: {exc}"
+            return result
+
+        try:
+            list_url = (
+                f"{ARM_ENDPOINT}/subscriptions/{subscription_id}"
+                "/providers/Microsoft.Compute/capacityReservationGroups"
+                f"?api-version={API_VERSION}&$expand=virtualMachinesAssociated"
+            )
+            crgs = []
+            while list_url:
+                response = requests.get(list_url, headers=headers, timeout=120)
+                response.raise_for_status()
+                payload = response.json()
+                crgs.extend(payload.get("value", []))
+                list_url = payload.get("nextLink")
+
+            for crg in crgs:
+                name = get_attr(crg, "name", default="")
+                resource_id = get_attr(crg, "id", default="")
+                resource_group = resource_group_from_id(resource_id)
+                location = get_attr(crg, "location", default=None)
+                zones = as_list(get_attr(crg, "zones", default=[]))
+                detail = crg
+
+                if resource_group and name:
+                    try:
+                        detail_url = (
+                            f"{ARM_ENDPOINT}/subscriptions/{subscription_id}/resourceGroups/{resource_group}"
+                            f"/providers/Microsoft.Compute/capacityReservationGroups/{name}"
+                            f"?api-version={API_VERSION}&$expand=instanceView"
+                        )
+                        detail_response = requests.get(detail_url, headers=headers, timeout=60)
+                        detail_response.raise_for_status()
+                        detail = detail_response.json()
+                    except Exception as exc:
+                        errors.append({
+                            "name": name,
+                            "resource_group": resource_group,
+                            "error": f"Failed to get instance_view: {exc}",
+                        })
+
+                instance_view = get_attr(detail, "instance_view", "instanceView")
+                reservations = as_list(get_attr(instance_view, "capacity_reservations", "capacityReservations", default=[]))
+
+                reserved_count = 0
+                allocated_ids = set()
+                reservation_names = []
+
+                for reservation in reservations:
+                    reservation_name = get_attr(reservation, "name")
+                    if reservation_name:
+                        reservation_names.append(reservation_name)
+
+                    utilization_info = get_attr(reservation, "utilization_info", "utilizationInfo")
+                    reserved_count += as_int(get_attr(utilization_info, "current_capacity", "currentCapacity", default=0))
+
+                    allocated_vms = as_list(get_attr(
+                        utilization_info,
+                        "virtual_machines_allocated",
+                        "virtualMachinesAllocated",
+                        default=[],
+                    ))
+                    for vm in allocated_vms:
+                        vm_id = subresource_id(vm)
+                        if vm_id:
+                            allocated_ids.add(vm_id)
+
+                associated_vms = as_list(get_attr(
+                    detail,
+                    "virtual_machines_associated",
+                    "virtualMachinesAssociated",
+                    default=get_attr(crg, "virtual_machines_associated", "virtualMachinesAssociated", default=[]),
+                ))
+
+                associated_ids = [subresource_id(vm) for vm in associated_vms if subresource_id(vm)]
+                allocated_count = len(allocated_ids)
+                utilization_pct = None
+                if reserved_count > 0:
+                    utilization_pct = round((allocated_count / reserved_count) * 100, 2)
+
+                result["capacity_reservation_groups"].append({
+                    "name": name,
+                    "id": resource_id,
+                    "resource_group": resource_group,
+                    "location": location,
+                    "zones": zones,
+                    "zone": ",".join(str(zone) for zone in zones) if zones else None,
+                    "reserved_count": reserved_count,
+                    "allocated_count": allocated_count,
+                    "utilization_pct": utilization_pct,
+                    "waste": reserved_count > allocated_count,
+                    "waste_count": max(reserved_count - allocated_count, 0),
+                    "overallocated": allocated_count > reserved_count if reserved_count > 0 else False,
+                    "capacity_reservations": reservation_names,
+                    "virtual_machines_allocated": sorted(allocated_ids),
+                    "virtual_machines_associated": associated_ids,
+                })
+        except Exception as exc:
+            result["error"] = f"Failed to list capacity reservation groups: {exc}"
+            return result
+
+        if errors:
+            result["errors"] = errors
+
+        return result
+  timeoutSeconds: 300
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: subscription_id
+      type: string
+      description: Azure subscription ID to query for capacity reservation group utilization.
+      required: true

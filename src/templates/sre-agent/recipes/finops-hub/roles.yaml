@@ -1,0 +1,19 @@
+# FinOps Hub SRE Agent managed identity role requirements
+roles:
+  subscription:
+    - name: Reader
+      roleDefinitionId: acdd72a7-3385-48ef-bd42-f606fba81ae7
+    - name: Log Analytics Reader
+      roleDefinitionId: 73c42c96-874c-492b-b04d-ab87d138a893
+  targetResourceGroups:
+    - name: Reader
+      roleDefinitionId: acdd72a7-3385-48ef-bd42-f606fba81ae7
+    - name: Log Analytics Reader
+      roleDefinitionId: 73c42c96-874c-492b-b04d-ab87d138a893
+    - name: Contributor
+      roleDefinitionId: b24988ac-6180-42a0-ab88-20f7382dd24c
+      when: accessLevel == High
+  finopsHubAdx:
+    - name: AllDatabasesViewer
+      providerRole: Microsoft.Kusto/clusters/principalAssignments
+      appliedBy: bicep/agent-core.bicep

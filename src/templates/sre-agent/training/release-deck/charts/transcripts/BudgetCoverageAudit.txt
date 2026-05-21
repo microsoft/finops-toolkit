@@ -1,0 +1,515 @@
+┌────────────────────────────────────────────────────┐
+│ User: Brett Wilson (100320020B868F43)              │
+│ Thread: 8c82526e-a759-4092-ad98-6d56a2260b25       │
+└────────────────────────────────────────────────────┘
+
+SRE Agent (18:26:59)
+────────────────────
+  [SCHEDULED_TASK_EXECUTION]{"taskId":"fcad4716-dfa4-462e-a2b9-96ea0bf0a79c","taskName":"BudgetCoverageAudit","description":"Monthly
+  audit of subscription budget coverage and missing budget controls","cronExpression":"0 8 15 * *","agentPrompt":"#
+  Budget Coverage Audit\n\n## Phase 0: Preparation\n\nBefore starting, read all documents in the knowledge base. Pay
+  special attention to budgeting standards, subscription ownership notes, and prior missing-budget findings.\n\nLoad
+  your relevant FinOps practitioner skill. Note the \u0060client_id\u0060 for Python tool authentication.\n\n##
+  Python tools available\n\nPass \u0060client_id\u0060 as a parameter to each Python tool for UAMI
+  authentication.\n\n- \u0060resource-graph-query\u0060: Run with \u0060query\u0060, optional
+  \u0060subscription_ids\u0060, and \u0060client_id\u0060 to find subscriptions, budget resources, tags, ownership
+  metadata, and budget coverage gaps.\n\n## 1. Establish subscription inventory\n\nRun
+  \u0060resource-graph-query\u0060 to identify active subscriptions and subscription metadata needed for ownership,
+  environment, cost center, or portfolio grouping. Exclude subscriptions that are documented as out of scope.\n\n##
+  2. Find configured budgets\n\nRun \u0060resource-graph-query\u0060 against budget resource types and related policy
+  or governance metadata. Identify subscription-level budgets and any documented management-group or shared budget
+  coverage that should count as coverage.\n\n## 3. Identify coverage gaps\n\nCompare active subscriptions with
+  detected budget coverage. Report subscriptions missing budgets, subscriptions with ambiguous budget scope, and
+  subscriptions where owner metadata is missing or incomplete.\n\n## 4. Recommend remediation\n\nRecommend budget
+  creation, owner follow-up, tag correction, or policy remediation for each uncovered subscription. Prioritize
+  production and high-risk environments first.\n\n## Report format\n\nProduce a markdown report with an executive
+  summary, a subscription budget coverage table, a missing-budget table, ownership gaps, and recommended remediation
+  actions.\n\n## Persistence\n\n**Teams (results only):** Post the final report to our Teams channel. Do not post
+  intermediate results.\n\n**Knowledge (#remember):** Save operational findings using #remember for future reference.
+  Do not commit to git. Never save financial figures, cost amounts, budget amounts, or customer financial data to the
+  knowledge base. Financial detail goes to Teams only.\n\n## Visualizations\n\nBefore posting, generate charts for
+  key findings using matplotlib or seaborn via the code interpreter. Include at minimum a budget coverage by
+  portfolio chart and a missing-budget count by environment chart where the data supports it. Embed chart images
+  inline in the Teams message alongside the text
+  tables.","agent":"finops-practitioner","executionTime":"2026-05-02T18:26:59.5972188Z","status":"Active","modelTier":null,"agentInstructions":"\u003Csystem_notice\u003EThis
+  is an AUTOMATED scheduled task execution triggered by infrastructure on cron schedule \u00270 8 15 * *\u0027. Do
+  NOT autonomously attempt to schedule future runs, set up monitoring loops, or create wait states - the
+  infrastructure handles recurring executions automatically. Simply execute the agentPrompt and complete your
+  response. However, if the user explicitly requests additional actions, you may fulfill those
+  requests.\u003C/system_notice\u003E"}[/SCHEDULED_TASK_EXECUTION]
+
+SRE Agent (18:27:06)
+────────────────────
+  **Executing Budget Coverage Audit**
+  
+  This is a scheduled task execution for a Budget Coverage Audit. Let me break down what I need to do:
+  
+  1. Read knowledge base documents
+  2. Load the FinOps practitioner skill
+  3. Establish subscription inventory using resource-graph-query
+  4. Find configured budgets
+  5. Identify coverage gaps
+  6. Recommend remediation
+  7. Generate visualizations
+  8. Post report to Teams
+  9. Save operational findings to knowledge base
+  
+  Let me start by setting up the todo list and reading the knowledge base.
+
+SRE Agent (18:27:14)
+────────────────────
+  
+  
+  Reading knowledge base and loading the FinOps practitioner skill in parallel.
+
+SRE Agent (18:27:14)
+────────────────────
+  Read file: memory: finops-hub-health-check-findings.md
+
+SRE Agent (18:27:20)
+────────────────────
+  **Addressing missing finops skill**
+  
+  Knowledge base read complete. The finops-practitioner skill isn't available, but I can use
+  `executing_code_and_shell_commands` for Python code execution and `azure-cost-management` for Azure cost topics.
+  Let me load the executing code skill since I need the Python tools for resource-graph-query, and also load the
+  azure-cost-management skill.
+  
+  The client_id for UAMI authentication is: `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`
+  
+  
+  Now I'll load those skills and update my task list.
+
+SRE Agent (18:27:25)
+────────────────────
+  Knowledge base read complete. The `finops-practitioner` skill isn't available directly, but I'll use the code
+  execution skill for resource graph queries and the azure-cost-management skill. The UAMI client_id is
+  `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`.
+
+SRE Agent (18:27:33)
+────────────────────
+  **Confirming code execution loaded**
+  
+  Good, the executing_code skill is now loaded. Let me mark task 2 as completed and move to task 3 - establishing the
+  subscription inventory. I'll use Python with Azure Resource Graph to query subscriptions and their metadata.
+  
+  Let me start by querying active subscriptions and their budgets in parallel.
+
+SRE Agent (18:27:35)
+────────────────────
+  Skill loaded. Now querying active subscriptions and budget resources in parallel.
+
+SRE Agent (18:27:42)
+────────────────────
+  
+  
+  Querying active subscriptions and budget resources in parallel via Azure Resource Graph.
+
+SRE Agent (18:27:45)
+────────────────────
+  Python:
+  import requests
+  import json
+  from azure.identity import Mana… (exit 0)
+
+SRE Agent (18:27:49)
+────────────────────
+  **Discovering active subscriptions**
+  
+  Good, I found 1 active subscription: "Non-Prod-Workloads" (cab7feeb-759d-478c-ade6-9326de0651ff) with no tags. Now
+  I need to query for budget resources. Let me query for budgets and also get resource group details for more
+  context.
+
+SRE Agent (18:28:00)
+────────────────────
+  Found 1 active subscription: **Non-Prod-Workloads** (`cab7feeb-759d-478c-ade6-9326de0651ff`) with no tags. Now
+  querying for budget resources and resource group metadata.
+
+SRE Agent (18:28:01)
+────────────────────
+  Python:
+  import requests
+  import json
+  from azure.identity import Mana… (exit 0)
+
+SRE Agent (18:28:08)
+────────────────────
+  **Querying subscription budget data**
+  
+  Good, I have the subscription and budget data. Let me now query for resource groups and their tags to get more
+  context about the environment, and also check if there are any management-group-level budgets. Let me continue with
+  the analysis.
+  
+  Key findings so far:
+  1. **1 active subscription**: "Non-Prod-Workloads" (cab7feeb-759d-478c-ade6-9326de0651ff) - no tags
+  2. **1 budget configured**: "FDPOAzureBudget" - $12,000/month, with 6 alert notifications (4 actual, 2 forecasted),
+  all routing to action groups
+  
+  
+  3. Now I'm pulling the resource group details to see what resources are deployed and whether they have any
+  organizational tags that might help explain the budget structure.
+
+SRE Agent (18:28:13)
+────────────────────
+  Good data collected. 1 subscription found with 1 budget configured. Now querying resource groups for
+  environment/ownership metadata.
+
+SRE Agent (18:28:28)
+────────────────────
+  Python:
+  import requests
+  import json
+  from azure.identity import Mana… (exit 0)
+
+SRE Agent (18:28:37)
+────────────────────
+  **Completing budget coverage audit**
+  
+  I have all the data I need to complete the analysis. Let me continue with the budget coverage audit. Here's what
+  I've found so far:
+  
+  1. **1 active subscription**: "Non-Prod-Workloads" (cab7feeb-759d-478c-ade6-9326de0651ff) - no subscription-level
+  tags
+  2. **1 budget configured**: "FDPOAzureBudget" - $12,000/month with 6 alert thresholds
+  3. **20 resource groups**: Only 6 have any tags, only 2 have environment tags ("development"), 0 have owner tags, 0
+  have cost center tags
+  
+  
+  4. **Major tagging gaps**: The subscription lacks environment, owner, and cost center tags; 14 resource groups are
+  completely untagged; none have owner or cost center tags; only 2 have environment tags
+  
+  Now I'm wrapping up the gap analysis and checking whether there are any resource-group-level budgets configured,
+  then I'll generate the visualizations and post the findings to Teams.
+
+SRE Agent (18:28:48)
+────────────────────
+  Good data collected. Let me check for resource-group-level budgets and complete the gap analysis.
+
+SRE Agent (18:29:10)
+────────────────────
+  Python:
+  import requests
+  import json
+  from azure.identity import Mana… (exit 0)
+
+SRE Agent (18:29:18)
+────────────────────
+  
+  
+  All data collected. Now completing the gap analysis, generating visualizations, and building the report.
+
+SRE Agent (18:29:39)
+────────────────────
+  
+  
+  Continuing with chart generation. All data is collected — generating visualizations now.
+
+SRE Agent (18:29:42)
+────────────────────
+  Python:
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.p… (exit 0)
+
+SRE Agent (18:29:48)
+────────────────────
+  
+  
+  Charts generated successfully. Marking visualization task complete and posting the final report to Teams.
+
+SRE Agent (18:30:28)
+────────────────────
+  
+  
+  Posting the final budget coverage audit report to Teams with embedded charts.
+
+SRE Agent (18:30:36)
+────────────────────
+  
+  
+  Teams report posted successfully. Completing the remaining tasks — marking Teams post done and saving operational
+  findings to the knowledge base.
+
+SRE Agent (18:30:39)
+────────────────────
+  
+  
+  Completing the final task — saving operational findings to the knowledge base. No financial figures will be stored.
+
+SRE Agent (18:30:39)
+────────────────────
+  Read file: memory: advisor-suppression-review-findings.md
+
+SRE Agent (18:31:08)
+────────────────────
+  
+  
+  Completing the final task — saving operational findings to the knowledge base (no financial data).
+
+SRE Agent (18:31:08)
+────────────────────
+  Created file: memory: budget-coverage-audit-findings.md (72 lines)
+
+SRE Agent (18:31:28)
+────────────────────
+  
+  
+  The Budget Coverage Audit has completed successfully. Here's a summary of what was done:
+  
+  **Audit Scope:** 1 active subscription (Non-Prod-Workloads), 20 resource groups
+  
+  **Key Findings:**
+  - **Budget exists** — FDPOAzureBudget with 6 alert thresholds (actual + forecast) routing to action groups
+  - **No RG-level budgets** — 0/20 resource groups have dedicated budgets
+  - **No budget enforcement policy** — 32 policies exist, none enforce budget creation
+  - **Critical tag gaps** — 0% Owner coverage, 0% CostCenter coverage, 10% Environment coverage
+  
+  **Actions Taken:**
+  1. Queried subscription inventory, budgets (Consumption API), resource group tags, and policy assignments
+  2. Generated 3 charts (budget coverage, tag coverage, alert configuration)
+  3. Posted full report with embedded charts to Teams ([message
+  link](https://teams.microsoft.com/l/message/19%3ABpZihiFQYCvAeVjSALERBqmtDPW7p8_QESgBTG7xz7M1%40thread.tacv2/1777746628950?groupId=8b3d5b2c-2edc-4a9f-a0ff-0ed3856d5af3&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47&createdTime=1777746628950&parentMessageId=1777746628950))
+  4. Saved operational findings (no financial data) to
+  [budget-coverage-audit-findings.md](/api/files/memories/synthesizedKnowledge/budget-coverage-audit-findings.md)
+  
+  **Maturity: Crawl** — subscription budget exists with good alert structure, but tag governance and policy
+  enforcement are needed to advance to Walk stage.
+
+Brett Wilson (20:32:28)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+SRE Agent (20:32:48)
+────────────────────
+  
+  
+  ```python
+  # chart-name: budget-coverage-audit
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  fig, ax = plt.subplots(figsize=(6, 4))
+  categories = ['Subscription-Level\nBudget', 'RG-Level\nBudgets', 'Budget\nEnforcement Policy']
+  covered = [1, 0, 0]
+  total = [1, 20, 1]
+  uncovered = [t - c for c, t in zip(covered, total)]
+  
+  x = np.arange(len(categories))
+  width = 0.35
+  
+  bars1 = ax.bar(x - width/2, covered, width, label='Covered', color='#2ecc71', edgecolor='white')
+  bars2 = ax.bar(x + width/2, uncovered, width, label='Not Covered', color='#e74c3c', edgecolor='white')
+  
+  for bar in bars1:
+      h = bar.get_height()
+      if h > 0:
+          ax.text(bar.get_x() + bar.get_width()/2., h + 0.2, f'{int(h)}', ha='center', va='bottom',
+  fontweight='bold', fontsize=11)
+  for bar in bars2:
+      h = bar.get_height()
+      if h > 0:
+          ax.text(bar.get_x() + bar.get_width()/2., h + 0.2, f'{int(h)}', ha='center', va='bottom',
+  fontweight='bold', fontsize=11)
+  
+  ax.set_ylabel('Count')
+  ax.set_title('Budget Coverage Audit — May 2026', fontsize=13, fontweight='bold')
+  ax.set_xticks(x)
+  ax.set_xticklabels(categories, fontsize=10)
+  ax.legend(loc='upper right')
+  ax.set_ylim(0, max(total) + 3)
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.tight_layout()
+  plt.savefig('budget-coverage-audit.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: tag-coverage-audit
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  fig, ax = plt.subplots(figsize=(6, 4))
+  tag_categories = ['Any Tag', 'Environment', 'Owner', 'Cost Center']
+  tagged = [6, 2, 0, 0]
+  not_tagged = [14, 18, 20, 20]
+  total_rgs = 20
+  
+  x = np.arange(len(tag_categories))
+  bars_t = ax.barh(x, tagged, height=0.4, label='Tagged', color='#2ecc71', edgecolor='white')
+  bars_nt = ax.barh(x, not_tagged, height=0.4, left=tagged, label='Not Tagged', color='#e74c3c', edgecolor='white',
+  alpha=0.8)
+  
+  for i, (t, nt) in enumerate(zip(tagged, not_tagged)):
+      pct = t / total_rgs * 100
+      ax.text(total_rgs + 0.5, i, f'{pct:.0f}%', ha='left', va='center', fontweight='bold', fontsize=10,
+  color='#2ecc71' if pct >= 50 else '#e74c3c')
+  
+  ax.set_yticks(x)
+  ax.set_yticklabels(tag_categories, fontsize=11)
+  ax.set_xlabel('Resource Groups (out of 20)')
+  ax.set_title('Resource Group Tag Coverage — May 2026', fontsize=13, fontweight='bold')
+  ax.legend(loc='lower right')
+  ax.set_xlim(0, 24)
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.tight_layout()
+  plt.savefig('tag-coverage-audit.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: budget-alert-config
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  
+  fig, ax = plt.subplots(figsize=(6, 3.5))
+  alert_types = ['Actual 80%', 'Actual 125%', 'Actual 150%', 'Actual 200%', 'Forecast 100%', 'Forecast 125%']
+  colors_list = ['#27ae60', '#f39c12', '#e67e22', '#e74c3c', '#3498db', '#2980b9']
+  thresholds = [80, 125, 150, 200, 100, 125]
+  
+  bars = ax.barh(range(len(alert_types)), thresholds, color=colors_list, edgecolor='white', height=0.6)
+  for i, (bar, t) in enumerate(zip(bars, thresholds)):
+      ax.text(bar.get_width() + 2, bar.get_y() + bar.get_height()/2, f'{t}%', ha='left', va='center',
+  fontweight='bold', fontsize=10)
+  
+  ax.set_yticks(range(len(alert_types)))
+  ax.set_yticklabels(alert_types, fontsize=10)
+  ax.set_xlabel('Threshold (%)')
+  ax.set_title('Budget Alert Thresholds — FDPOAzureBudget', fontsize=12, fontweight='bold')
+  ax.axvline(x=100, color='gray', linestyle='--', alpha=0.5, label='100% line')
+  ax.set_xlim(0, 220)
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.tight_layout()
+  plt.savefig('budget-alert-config.svg', bbox_inches='tight')
+  plt.close()
+  ```
+
+Brett Wilson (23:27:46)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         SRE Agent (23:28:01)
+────────────────────
+  
+  
+  ```python
+  # chart-name: budget-coverage-audit
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  fig, ax = plt.subplots(figsize=(6, 4))
+  categories = ['Subscription-Level\nBudget', 'RG-Level\nBudgets', 'Budget\nEnforcement Policy']
+  covered = [1, 0, 0]
+  total = [1, 20, 1]
+  uncovered = [t - c for c, t in zip(covered, total)]
+  
+  x = np.arange(len(categories))
+  width = 0.35
+  
+  bars1 = ax.bar(x - width/2, covered, width, label='Covered', color='#2ecc71', edgecolor='white')
+  bars2 = ax.bar(x + width/2, uncovered, width, label='Not Covered', color='#e74c3c', edgecolor='white')
+  
+  for bar in bars1:
+      h = bar.get_height()
+      if h > 0:
+          ax.text(bar.get_x() + bar.get_width()/2., h + 0.2, f'{int(h)}', ha='center', va='bottom',
+  fontweight='bold', fontsize=11)
+  for bar in bars2:
+      h = bar.get_height()
+      if h > 0:
+          ax.text(bar.get_x() + bar.get_width()/2., h + 0.2, f'{int(h)}', ha='center', va='bottom',
+  fontweight='bold', fontsize=11)
+  
+  ax.set_ylabel('Count')
+  ax.set_title('Budget Coverage Audit — May 2026', fontsize=13, fontweight='bold')
+  ax.set_xticks(x)
+  ax.set_xticklabels(categories, fontsize=10)
+  ax.legend(loc='upper right')
+  ax.set_ylim(0, max(total) + 3)
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.tight_layout()
+  plt.savefig('budget-coverage-audit.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: tag-coverage-audit
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  fig, ax = plt.subplots(figsize=(6, 4))
+  tag_categories = ['Any Tag', 'Environment', 'Owner', 'Cost Center']
+  tagged = [6, 2, 0, 0]
+  not_tagged = [14, 18, 20, 20]
+  total_rgs = 20
+  
+  x = np.arange(len(tag_categories))
+  bars_t = ax.barh(x, tagged, height=0.4, label='Tagged', color='#2ecc71', edgecolor='white')
+  bars_nt = ax.barh(x, not_tagged, height=0.4, left=tagged, label='Not Tagged', color='#e74c3c', edgecolor='white',
+  alpha=0.8)
+  
+  for i, (t, nt) in enumerate(zip(tagged, not_tagged)):
+      pct = t / total_rgs * 100
+      ax.text(total_rgs + 0.5, i, f'{pct:.0f}%', ha='left', va='center', fontweight='bold', fontsize=10,
+  color='#2ecc71' if pct >= 50 else '#e74c3c')
+  
+  ax.set_yticks(x)
+  ax.set_yticklabels(tag_categories, fontsize=11)
+  ax.set_xlabel('Resource Groups (out of 20)')
+  ax.set_title('Resource Group Tag Coverage — May 2026', fontsize=13, fontweight='bold')
+  ax.legend(loc='lower right')
+  ax.set_xlim(0, 24)
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.tight_layout()
+  plt.savefig('tag-coverage-audit.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: budget-alert-config
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  
+  fig, ax = plt.subplots(figsize=(6, 3.5))
+  alert_types = ['Actual 80%', 'Actual 125%', 'Actual 150%', 'Actual 200%', 'Forecast 100%', 'Forecast 125%']
+  colors_list = ['#27ae60', '#f39c12', '#e67e22', '#e74c3c', '#3498db', '#2980b9']
+  thresholds = [80, 125, 150, 200, 100, 125]
+  
+  bars = ax.barh(range(len(alert_types)), thresholds, color=colors_list, edgecolor='white', height=0.6)
+  for i, (bar, t) in enumerate(zip(bars, thresholds)):
+      ax.text(bar.get_width() + 2, bar.get_y() + bar.get_height()/2, f'{t}%', ha='left', va='center',
+  fontweight='bold', fontsize=10)
+  
+  ax.set_yticks(range(len(alert_types)))
+  ax.set_yticklabels(alert_types, fontsize=10)
+  ax.set_xlabel('Threshold (%)')
+  ax.set_title('Budget Alert Thresholds — FDPOAzureBudget', fontsize=12, fontweight='bold')
+  ax.axvline(x=100, color='gray', linestyle='--', alpha=0.5, label='100% line')
+  ax.set_xlim(0, 220)
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.tight_layout()
+  plt.savefig('budget-alert-config.svg', bbox_inches='tight')
+  plt.close()
+  ```
+

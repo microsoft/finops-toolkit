@@ -1,0 +1,91 @@
+- name: Capacity management
+  href: ../operations/README.md
+  items:
+    - name: Overview
+      href: ../operations/README.md
+    - name: Forecast
+      href: ../operations/capacity-planning/README.md
+      items:
+        - name: Capacity and billing operations
+          href: ../operations/capacity-and-quotas/README.md
+        - name: Capacity planning
+          href: ../operations/capacity-planning/README.md
+        - name: Customer isolation
+          href: README.md
+          items:
+            - name: Overview
+              href: README.md
+            - name: Single-tenant
+              href: single-tenant/README.md
+            - name: Multi-tenant
+              href: multi-tenant/README.md
+    - name: Procure
+      href: ../operations/quota/README.md
+      items:
+        - name: Billing models
+          href: ../billing/README.md
+          items:
+            - name: Overview
+              href: ../billing/README.md
+            - name: Microsoft Customer Agreement
+              href: ../billing/modern/README.md
+              items:
+                - name: Overview
+                  href: ../billing/modern/README.md
+                - name: Subscription creation (billing scope)
+                  href: ../operations/modern/README.md
+            - name: Enterprise Agreement
+              href: ../billing/legacy/README.md
+              items:
+                - name: Overview
+                  href: ../billing/legacy/README.md
+                - name: Subscription creation (billing scope)
+                  href: ../operations/legacy/README.md
+        - name: Quota operations
+          href: ../operations/quota/README.md
+        - name: Capacity reservations
+          href: ../operations/capacity-reservations/README.md
+        - name: AKS capacity governance
+          href: ../operations/aks-capacity/README.md
+        - name: Non-compute quotas
+          href: ../operations/non-compute-quotas/README.md
+    - name: Allocate
+      href: ../operations/quota-groups/README.md
+      items:
+        - name: Quota groups
+          href: ../operations/quota-groups/README.md
+    - name: Monitor
+      href: ../operations/monitoring-alerting/README.md
+      items:
+        - name: Monitoring & alerting
+          href: ../operations/monitoring-alerting/README.md
+        - name: Capacity governance
+          href: ../operations/capacity-governance/README.md
+        - name: Tools & scripts
+          href: ../operations/tools-scripts/README.md
+          items:
+            - name: Overview
+              href: ../operations/tools-scripts/README.md
+            - name: Get-AzVMQuotaUsage.ps1
+              href: ../operations/tools-scripts/get-azvmquotausage.md
+            - name: Get-AzAvailabilityZoneMapping.ps1
+              href: ../operations/tools-scripts/get-azavailabilityzonemapping.md
+            - name: Show-AzVMQuotaReport.ps1
+              href: ../operations/tools-scripts/show-azvmquotareport.md
+            - name: Get-BenefitRecommendations.ps1
+              href: ../operations/tools-scripts/get-benefitrecommendations.md
+            - name: Deploy-AnomalyAlert.ps1
+              href: ../operations/tools-scripts/deploy-anomalyalert.md
+            - name: Deploy-BulkALZ.ps1
+              href: ../operations/tools-scripts/deploy-bulkalz.md
+        - name: Support & reference
+          href: ../operations/support-and-reference/README.md
+          items:
+            - name: Overview
+              href: ../operations/support-and-reference/README.md
+            - name: Support escalation
+              href: ../operations/escalation/README.md
+            - name: Tenant hygiene
+              href: ../operations/tenant-hygiene/README.md
+            - name: Glossary
+              href: ../operations/glossary.md
