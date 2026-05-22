@@ -701,7 +701,7 @@ $tableSchemas = @{
         @{ name = "SubscriptionGuid_g"; type = "string" }
         @{ name = "SubscriptionName_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
-        @{ name = "FitScore_s"; type = "string" }
+        @{ name = "FitScore_d"; type = "real" }
         @{ name = "Tags_s"; type = "string" }
         @{ name = "DetailsURL_s"; type = "string" }
         @{ name = "GeneratedDate_s"; type = "string" }
