@@ -36,7 +36,7 @@ Optional:
   --target-resource-group <name>      Repeatable target resource group. Defaults to --resource-group.
   --cluster-uri <uri>                 Kusto connector URI, including database name.
                                       Example: https://<cluster>.<region>.kusto.windows.net/Hub
-  --cluster-resource-id <id>          Kusto cluster ARM resource ID for Viewer RBAC.
+  --cluster-resource-id <id>          Optional Kusto cluster ARM resource ID. Real deployments resolve this from --cluster-uri when possible; dry-run requires it.
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
@@ -114,6 +114,89 @@ validate_kusto_uri() {
   local path="${uri#https://}"
   if [[ "$path" != */* || -z "${path#*/}" ]]; then
     fail "Error: --cluster-uri must include the Kusto database name. Example: https://<cluster>.<region>.kusto.windows.net/Hub" 2
+  fi
+}
+
+parse_kusto_cluster_name() {
+  local uri="$1"
+  local host
+  host="${uri#https://}"
+  host="${host%%/*}"
+  printf '%s\n' "${host%%.*}"
+}
+
+resolve_kusto_cluster_resource_id() {
+  local uri="$1"
+  local cluster_name
+  local cluster_uri
+  local resource_id
+  local graph_result_count
+
+  cluster_name="$(parse_kusto_cluster_name "$uri")"
+  [[ -n "$cluster_name" ]] || fail "Error: could not parse Kusto cluster name from --cluster-uri" 2
+  cluster_uri="${uri%/*}"
+
+  resource_id="$(az resource list \
+    --subscription "$SUBSCRIPTION_ID" \
+    --resource-type Microsoft.Kusto/clusters \
+    --query "[?name=='${cluster_name}'].id | [0]" \
+    -o tsv 2>/dev/null || true)"
+
+  if [[ -n "$resource_id" && "$resource_id" != "null" ]]; then
+    printf '%s\n' "$resource_id"
+    return 0
+  fi
+
+  resource_id="$(az graph query \
+    -q "Resources | where type =~ 'microsoft.kusto/clusters' | where name =~ '${cluster_name}' or tostring(properties.uri) =~ '${cluster_uri}' | project id | limit 2" \
+    -o json 2>/dev/null | jq -r '.data[].id' 2>/dev/null || true)"
+  graph_result_count="$(printf '%s\n' "$resource_id" | sed '/^$/d' | wc -l | tr -d ' ')"
+
+  if [[ "$graph_result_count" == "1" ]]; then
+    printf '%s\n' "$resource_id"
+    return 0
+  fi
+
+  if [[ -z "$resource_id" || "$resource_id" == "null" ]]; then
+    fail "Error: could not resolve Kusto cluster '${cluster_name}'. Pass --cluster-resource-id so deployment can assign AllDatabasesViewer before creating the connector." 2
+  fi
+
+  fail "Error: Kusto cluster '${cluster_name}' resolved to multiple resources. Pass --cluster-resource-id explicitly so deployment assigns AllDatabasesViewer to the intended cluster." 2
+}
+
+warn_kusto_private_query_limitation() {
+  local cluster_id="$1"
+  local cluster_json
+  local public_network_access
+  local private_endpoint_count
+  local cluster_uri
+  local docs_url="https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations"
+
+  [[ -n "$cluster_id" ]] || return 0
+
+  cluster_json="$(az resource show --ids "$cluster_id" --api-version 2023-08-15 -o json 2>/dev/null || true)"
+  if [[ -z "$cluster_json" ]]; then
+    echo -e "${YELLOW}Warning: Could not inspect Kusto cluster network access. Deployment will continue.${NC}"
+    echo "  Cluster: $cluster_id"
+    echo "  Review SRE Agent private endpoint limitations: $docs_url"
+    echo ""
+    return 0
+  fi
+
+  public_network_access="$(echo "$cluster_json" | jq -r '.properties.publicNetworkAccess // .publicNetworkAccess // ""' 2>/dev/null || true)"
+  private_endpoint_count="$(echo "$cluster_json" | jq -r '((.properties.privateEndpointConnections // .privateEndpointConnections // []) | length)' 2>/dev/null || echo 0)"
+  cluster_uri="$(echo "$cluster_json" | jq -r '.properties.uri // .uri // empty' 2>/dev/null || true)"
+
+  if [[ "$public_network_access" == "Disabled" ]]; then
+    echo -e "${YELLOW}Warning: The Kusto cluster denies public query access.${NC}"
+    echo "  Cluster: ${cluster_uri:-$cluster_id}"
+    echo "  publicNetworkAccess: ${public_network_access}"
+    echo "  private endpoint connections: ${private_endpoint_count}"
+    echo "  SRE Agent will still be deployed and the finops-hub-kusto connector will still be created."
+    echo "  Per the SRE Agent known limitations, private endpoint ADX blocks direct KQL queries."
+    echo "  The customer can enable public query access if they want the Kusto connector to become healthy:"
+    echo "  $docs_url"
+    echo ""
   fi
 }
 
@@ -203,10 +286,6 @@ done
 [[ -n "$LOCATION" ]] || fail "Error: --location <region> is required" 2
 validate_kusto_uri "$CLUSTER_URI"
 
-if [[ -n "$CLUSTER_URI" && -z "$CLUSTER_RESOURCE_ID" ]]; then
-  fail "Error: --cluster-resource-id is required when --cluster-uri is provided so the agent identity can read the Hub database" 2
-fi
-
 if [[ "${#TARGET_RGS[@]}" -eq 0 ]]; then
   TARGET_RGS=("$RESOURCE_GROUP")
 fi
@@ -225,11 +304,32 @@ else
   fail "Python 3 is required" 1
 fi
 
+if [[ -n "$CLUSTER_URI" && -z "$CLUSTER_RESOURCE_ID" ]]; then
+  if [[ -n "$DRY_RUN" ]]; then
+    fail "Error: --cluster-resource-id is required with --cluster-uri for --dry-run because dry-run makes no Azure calls. Real deployments can resolve it from the Kusto URI." 2
+  fi
+
+  echo "Resolving Kusto cluster resource ID from --cluster-uri..."
+  az account show --subscription "$SUBSCRIPTION_ID" >/dev/null
+  az account set --subscription "$SUBSCRIPTION_ID"
+  CLUSTER_RESOURCE_ID="$(resolve_kusto_cluster_resource_id "$CLUSTER_URI")"
+  echo "  Kusto cluster: $CLUSTER_RESOURCE_ID"
+fi
+
+if [[ -n "$CLUSTER_RESOURCE_ID" && -z "$DRY_RUN" ]]; then
+  warn_kusto_private_query_limitation "$CLUSTER_RESOURCE_ID"
+fi
+
 ACCESS_LEVEL="$(recipe_value "${RECIPE_DIR}/agent.json" '.access.accessLevel')"
 [[ -n "$ACCESS_LEVEL" ]] || ACCESS_LEVEL="Low"
 ACTION_MODE_RAW="$(recipe_value "${RECIPE_DIR}/agent.json" '.access.actionMode')"
 [[ -n "$ACTION_MODE_RAW" ]] || ACTION_MODE_RAW="Review"
 ACTION_MODE="$(normalize_action_mode "$ACTION_MODE_RAW")"
+UPGRADE_CHANNEL="$(recipe_value "${RECIPE_DIR}/agent.json" '.upgradeChannel')"
+[[ -n "$UPGRADE_CHANNEL" ]] || UPGRADE_CHANNEL="Stable"
+MONTHLY_AGENT_UNIT_LIMIT="$(recipe_value "${RECIPE_DIR}/agent.json" '.monthlyAgentUnitLimit')"
+[[ -n "$MONTHLY_AGENT_UNIT_LIMIT" ]] || MONTHLY_AGENT_UNIT_LIMIT="10000"
+EXPERIMENTAL_SETTINGS="$(jq -c '.experimentalSettings // {"EnableSandboxGroup": true, "EnableWorkspaceTools": true}' "${RECIPE_DIR}/agent.json")"
 TAGS="$(jq -c '.tags // {"finops-toolkit":"sre-agent","source":"microsoft-finops-toolkit"}' "${RECIPE_DIR}/agent.json")"
 TARGET_RGS_JSON="$(printf '%s\n' "${TARGET_RGS[@]}" | jq -R . | jq -sc '.')"
 
@@ -247,8 +347,11 @@ jq -n \
   --arg location "$LOCATION" \
   --arg accessLevel "$ACCESS_LEVEL" \
   --arg actionMode "$ACTION_MODE" \
+  --arg upgradeChannel "$UPGRADE_CHANNEL" \
+  --argjson monthlyAgentUnitLimit "$MONTHLY_AGENT_UNIT_LIMIT" \
   --arg kustoClusterId "$CLUSTER_RESOURCE_ID" \
   --argjson targetResourceGroups "$TARGET_RGS_JSON" \
+  --argjson experimentalSettings "$EXPERIMENTAL_SETTINGS" \
   --argjson tags "$TAGS" \
   '{
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
@@ -260,6 +363,9 @@ jq -n \
       "targetResourceGroups": { "value": $targetResourceGroups },
       "accessLevel": { "value": $accessLevel },
       "actionMode": { "value": $actionMode },
+      "upgradeChannel": { "value": $upgradeChannel },
+      "monthlyAgentUnitLimit": { "value": $monthlyAgentUnitLimit },
+      "experimentalSettings": { "value": $experimentalSettings },
       "tags": { "value": $tags },
       "finopsHubKustoClusterResourceId": { "value": $kustoClusterId }
     }

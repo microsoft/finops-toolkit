@@ -29,37 +29,14 @@ spec:
 
     - Call out missing data, uncertainty, and follow-up steps needed for a decision.
 
-    - For month-level, fiscal-period, or scheduled financial reports, rely on aggregate Kusto tools. Do not use costs-enriched-base for raw full-month exports; use it only for narrow row-level drill-down after an aggregate result identifies the scope.
+    - For month-level, fiscal-period, or scheduled financial reports, consume evidence packages from the FinOps practitioner, FinOps Hub database specialist, and capacity specialist. Do not run raw data-collection tools yourself.
 
     - Keep the analysis strategic, financially rigorous, and actionable.
-    - When top-other-transactions returns the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed, then run data-freshness-check before stating that no transactions matched. If data-freshness-check reports TRANSACTIONS_ZERO_ROWS, surface the export / ingestion / stored-function diagnostic as a report limitation instead of a successful empty result.'
+    - Do not own autonomous scheduled tasks. Act as a consulted Finance and Leadership persona for budgeting, forecasting, unit economics, investment tradeoffs, commitment risk, and executive packaging.'
   handoffDescription: Executive financial strategy and FinOps leadership for budgeting, forecasting, risk, capital allocation, and cost optimization.
   handoffs: []
   tools:
-  - RunAzCliReadCommands
   - execute_python
-  - data-freshness-check
-  - ai-cost-by-application
-  - ai-daily-trend
-  - ai-model-cost-comparison
-  - ai-token-usage-breakdown
-  - commitment-discount-utilization
-  - cost-anomaly-detection
-  - cost-by-financial-hierarchy
-  - cost-by-region-trend
-  - cost-forecasting-model
-  - costs-enriched-base
-  - monthly-cost-change-percentage
-  - monthly-cost-trend
-  - quarterly-cost-by-resource-group
-  - reservation-recommendation-breakdown
-  - savings-summary-report
-  - service-price-benchmarking
-  - top-commitment-transactions
-  - top-other-transactions
-  - top-resource-groups-by-cost
-  - top-resource-types-by-cost
-  - top-services-by-cost
   - PostTeamsMessage
   - ReplyToTeamsMessage
   - GetTeamsMessages

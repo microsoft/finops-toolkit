@@ -3,7 +3,7 @@ title: Specialist agents and skills (Azure SRE Agent in the FinOps toolkit)
 description: Understand how the FinOps toolkit configures Azure SRE Agent with specialist agents, tools, skills, and knowledge to automate FinOps and capacity management work.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/06/2026
+ms.date: 05/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -13,7 +13,7 @@ ms.reviewer: brettwil
 
 # Specialist agents and skills (Azure SRE Agent in the FinOps toolkit)
 
-The FinOps toolkit configures [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview) with a multi-agent architecture. One orchestrator receives prompts and scheduled tasks, then delegates work to specialist subagents with focused FinOps, finance, capacity, database, and hub operations expertise.
+The FinOps toolkit configures [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview) with a multi-agent architecture aligned to the canonical FinOps Framework. One orchestrator receives prompts and scheduled tasks, then delegates work to specialist subagents with focused FinOps, finance, capacity, database, and hub operations expertise.
 
 The template configures 5 subagents, 3 skills, 34 tools (21 Kusto tools and 13 Python tools), and a FinOps hub connector. The orchestrator keeps the experience simple. The specialist agents keep answers grounded in the right domain.
 
@@ -23,13 +23,13 @@ The template configures 5 subagents, 3 skills, 34 tools (21 Kusto tools and 13 P
 
 Domain: FinOps practice guidance, cost allocation, optimization, anomaly response, AI cost management, governance, and operating-model design.
 
-The `finops-practitioner` agent helps teams apply FinOps principles to real Azure cost and usage questions. It assesses business context, maturity, stakeholders, and trade-offs before recommending actions.
+The `finops-practitioner` agent helps teams apply FinOps principles to real Azure cost and usage questions. It assesses business context, maturity, stakeholders, and trade-offs before recommending actions. It leads scheduled FinOps workflows and delegates evidence collection to specialists.
 
 What it does:
 
 - Guides cost allocation, shared-cost strategy, showback, and chargeback.
-- Investigates cost anomalies and cost drivers.
-- Plans workload optimization, rate optimization, governance, and practice health improvements.
+- Orchestrates cost anomaly and cost-driver investigations using evidence from `ftk-database-query`.
+- Plans Usage Optimization, Rate Optimization, Governance, Policy & Risk, and practice health improvements.
 - Translates FinOps concepts into practical Microsoft Cost Management and FinOps toolkit steps.
 - Keeps recommendations maturity-aware across Crawl, Walk, and Run stages.
 
@@ -37,8 +37,9 @@ Key tools it uses:
 
 - Azure discovery tools, such as `CheckAzureResource` and `RunAzCliReadCommands`
 - Python analysis through `execute_python`
-- FinOps hub Kusto tools, such as `costs-enriched-base`, `cost-anomaly-detection`, `cost-by-financial-hierarchy`, `monthly-cost-trend`, `reservation-recommendation-breakdown`, and `savings-summary-report`
-- AI cost tools, such as `ai-token-usage-breakdown`, `ai-model-cost-comparison`, and `ai-cost-by-application`
+- Governance and remediation tools such as `resource-graph-query`, `benefit-recommendations`, budget deployment, anomaly alert deployment, and Advisor suppression tools
+- Delegation to `ftk-database-query` for every Kusto, FOCUS, `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` evidence request
+- Delegation to `azure-capacity-manager` for quota, capacity reservation, SKU, region, zone, and AI/GPU capacity evidence
 
 When it's invoked:
 
@@ -71,9 +72,9 @@ Use this agent versus another:
 
 ## azure-capacity-manager
 
-Domain: Azure quota, capacity reservations, quota groups, region access, zone mapping, AKS capacity, and capacity-to-rate alignment.
+Domain: Azure capacity evidence for Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization support, Governance, Policy & Risk, and Automation, Tools & Services.
 
-The `azure-capacity-manager` agent manages the Azure capacity supply chain: forecast, procure, allocate, and monitor. It separates capacity guarantees from pricing commitments so teams can make better quota, reservation, and savings decisions.
+The `azure-capacity-manager` agent maps Azure quota, region, SKU, zone, capacity reservation, and AKS capacity evidence into the FinOps Framework. It separates capacity guarantees from pricing commitments so teams can make better quota, reservation, and savings decisions.
 
 What it does:
 
@@ -87,13 +88,14 @@ Key tools it uses:
 
 - Azure CLI tools, such as `RunAzCliReadCommands`, `RunAzCliWriteCommands`, and `GetAzCliHelp`
 - Python analysis through `execute_python`
-- FinOps hub tools, such as `commitment-discount-utilization`, `cost-forecasting-model`, `costs-enriched-base`, `reservation-recommendation-breakdown`, and `savings-summary-report`
-- Cost anomaly context through `cost-anomaly-detection`
+- Capacity tools such as `vm-quota-usage`, `non-compute-quotas`, `db-service-quotas`, `sku-availability`, and `capacity-reservation-groups`
+- Azure Resource Graph and benefit recommendation tools where capacity, inventory, and rate-optimization context intersect
+- Delegation to `ftk-database-query` for Kusto-backed forecast, commitment utilization, savings, pricing, recommendation, and transaction evidence
 
 When it's invoked:
 
 - A user asks about quota, capacity reservations, region access, availability zones, AKS capacity, or capacity governance.
-- A scheduled capacity task checks daily quota usage, weekly supply readiness, monthly planning, or quarterly strategy.
+- A scheduled capacity task checks daily quota usage, weekly capacity readiness, monthly planning, or quarterly strategy.
 - Another agent needs capacity context before recommending commitments, scaling changes, or regional moves.
 
 Example prompts:
@@ -123,7 +125,7 @@ Use this agent versus another:
 
 Domain: Executive finance, budgeting, forecasting, risk, capital allocation, cloud economics, and board-ready FinOps narratives.
 
-The `chief-financial-officer` agent turns cost and usage evidence into financial guidance. It focuses on business outcomes, executive summaries, quantified assumptions, and decision-ready recommendations.
+The `chief-financial-officer` agent turns evidence packages into financial guidance. It focuses on business outcomes, executive summaries, quantified assumptions, and decision-ready recommendations. It is a consultative persona and doesn't own autonomous scheduled tasks or raw data collection.
 
 What it does:
 
@@ -135,17 +137,14 @@ What it does:
 
 Key tools it uses:
 
-- Azure discovery through `RunAzCliReadCommands`
-- Python analysis through `execute_python`
-- Finance and trend tools, such as `cost-forecasting-model`, `monthly-cost-trend`, `monthly-cost-change-percentage`, `cost-by-financial-hierarchy`, and `quarterly-cost-by-resource-group`
-- Savings and pricing tools, such as `savings-summary-report`, `service-price-benchmarking`, `commitment-discount-utilization`, and `top-commitment-transactions`
-- AI unit economics tools, such as `ai-token-usage-breakdown`, `ai-model-cost-comparison`, and `ai-cost-by-application`
+- Python analysis through `execute_python` for scenario calculations and executive packaging
+- Evidence packages from `finops-practitioner`, `ftk-database-query`, and `azure-capacity-manager`
+- Teams tools for final communication when a configured workflow asks for executive delivery
 
 When it's invoked:
 
 - A user asks for executive summaries, budget variance, forecast drift, board narratives, or portfolio trade-offs.
-- A scheduled finance task prepares daily budget checks, weekly variance reviews, monthly forecasts, quarterly business reviews, or annual planning.
-- The `finops-practitioner` agent needs finance leadership for executive framing or prioritization.
+- The `finops-practitioner` agent needs finance leadership for executive framing, prioritization, commitment risk, or investment tradeoffs.
 
 Example prompts:
 
@@ -276,8 +275,8 @@ Agents can also recommend handoffs when the work crosses domain boundaries:
 
 - `finops-practitioner` hands executive finance narratives, portfolio prioritization, and board-level recommendations to `chief-financial-officer`.
 - `finops-practitioner` hands deep FinOps hub database and KQL work to `ftk-database-query`.
-- `finops-practitioner` hands hub deployment, upgrade, and troubleshooting work to `ftk-hubs-agent`.
-- Capacity work routes to `azure-capacity-manager` when the task involves quota, capacity reservations, region access, zones, AKS capacity, or capacity governance.
+- `finops-practitioner` hands capacity evidence requests to `azure-capacity-manager` when the task involves quota, capacity reservations, region access, zones, AKS capacity, or capacity governance.
+- Hub deployment, upgrade, and troubleshooting work routes to `ftk-hubs-agent`.
 
 Handoffs keep each response focused. The FinOps specialist can frame the business problem, the KQL specialist can gather evidence, the capacity specialist can validate supply constraints, and the finance specialist can turn the findings into an executive decision.
 
@@ -289,7 +288,7 @@ Skills give agents a domain reference map. The template applies all three skills
 
 ### azure-capacity-management
 
-Provides Azure capacity management guidance for SaaS ISVs running workloads in their own Azure subscriptions under Enterprise Agreement or Microsoft Customer Agreement billing. It covers quota operations, quota groups, capacity reservation groups, region access, zonal enablement, AKS capacity governance, non-compute quotas, capacity alerts, and capacity supply-chain planning.
+Provides Azure capacity management guidance for SaaS ISVs running workloads in their own Azure subscriptions under Enterprise Agreement or Microsoft Customer Agreement billing. It covers quota operations, quota groups, capacity reservation groups, region access, zonal enablement, AKS capacity governance, non-compute quotas, and capacity alerts. In this recipe, those references are used as implementation detail under the canonical FinOps Framework capabilities.
 
 The `azure-capacity-manager` agent is instructed to load this skill before capacity work. Capacity scheduled tasks also tell the agent to load it before checking quota, capacity reservation, SKU, or supply-readiness signals.
 
@@ -316,7 +315,7 @@ The agent combines four layers:
 3. **Tools** gather evidence from Azure, FinOps hubs, Python analysis, and Kusto queries.
 4. **Knowledge** supplies onboarding guidance, notification patterns, and known issue context.
 
-Together, these layers help the agent move from a question to an evidence-backed recommendation. The orchestrator delegates, the specialist loads the right skill, tools collect the data, and knowledge keeps the answer aligned with the deployed environment.
+Together, these layers help the agent move from a question to an evidence-backed recommendation. The orchestrator delegates, the specialist loads the right skill, tools collect the data, and knowledge keeps the answer aligned with the deployed environment. The FinOps practitioner coordinates the operating model, the database specialist gathers Kusto evidence, the capacity specialist gathers Azure capacity evidence, and the CFO supplies finance and leadership framing.
 
 <br>
 
@@ -345,8 +344,9 @@ Related FinOps capabilities:
 - [Anomaly management](../../framework/understand/anomalies.md)
 - [Cost allocation](../../framework/understand/allocation.md)
 - [Reporting and analytics](../../framework/understand/reporting.md)
+- [Architecting for cloud](../../framework/optimize/architecting.md)
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 

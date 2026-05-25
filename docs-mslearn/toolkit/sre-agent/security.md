@@ -188,7 +188,7 @@ Related FinOps capabilities:
 - [Reporting and analytics](../../framework/understand/reporting.md)
 - [Anomaly management](../../framework/understand/anomalies.md)
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 

@@ -9,7 +9,7 @@ Deploys the FinOps Toolkit SRE Agent using the canonical Microsoft SRE Agent rec
 - 34 tools in `config/tools/`
 - 19 scheduled tasks in `automations/scheduled-tasks/`
 - 1 FinOps Hub Kusto connector in `connectors.json`
-- 6 uploaded knowledge documents: files in `knowledge/` plus `../../../claude-plugin/output-styles/ftk-output-style.md`
+- 6 uploaded KnowledgeFile sources: files in `knowledge/` plus `../../../claude-plugin/output-styles/ftk-output-style.md`
 
 ## Deploy
 
@@ -21,7 +21,7 @@ bash ../../bin/deploy.sh \
   --name <your-agent-name> \
   --location <your-region> \
   --cluster-uri https://<cluster>.<region>.kusto.windows.net/Hub \
-  --cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>
+  [--cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>]
 ```
 
-The deployment uses the explicit subscription passed with `--subscription`.
+The deployment uses the explicit subscription passed with `--subscription`. Real deployments resolve the Kusto cluster resource ID from `--cluster-uri` when possible. Pass `--cluster-resource-id` when the cluster cannot be resolved automatically or when running `--dry-run`.

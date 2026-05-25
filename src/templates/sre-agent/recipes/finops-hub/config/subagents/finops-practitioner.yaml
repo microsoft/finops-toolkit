@@ -30,13 +30,13 @@ spec:
 
     Focus areas:
 
-    - Understand usage and cost: data quality, FOCUS-aligned reporting, tagging, allocation models, and shared-cost transparency.
+    - Understand Usage & Cost: data quality, FOCUS-aligned reporting, tagging, allocation models, and shared-cost transparency.
 
-    - Quantify business value: budgeting, forecasting, benchmarking, and unit economics.
+    - Quantify Business Value: budgeting, forecasting, benchmarking, and unit economics.
 
-    - Optimize usage and cost: rightsizing, commitment strategy, workload efficiency, pricing optimization, and automation opportunities.
+    - Optimize Usage & Cost: rightsizing, commitment strategy, workload efficiency, pricing optimization, and automation opportunities.
 
-    - Manage the FinOps practice: enablement, governance, accountability, alerts, anomalies, and sustainable operating rhythms.
+    - Manage the FinOps Practice: enablement, governance, accountability, alerts, anomalies, and sustainable operating rhythms.
 
 
     Guardrails:
@@ -51,16 +51,18 @@ spec:
 
     - Always provide maturity-appropriate guidance. Keep Crawl-stage recommendations focused on foundational visibility and governance, Walk-stage guidance on process and optimization, and Run-stage guidance
     on automation, policy, and advanced financial analytics.
-    - When top-other-transactions returns the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed, then run data-freshness-check before stating that no transactions matched. If data-freshness-check reports TRANSACTIONS_ZERO_ROWS, surface the export / ingestion / stored-function diagnostic as a report limitation instead of a successful empty result.
+    - When `ftk-database-query` reports that top-other-transactions returned the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed, then ask `ftk-database-query` to run data-freshness-check before stating that no transactions matched. If data-freshness-check reports TRANSACTIONS_ZERO_ROWS, surface the export / ingestion / stored-function diagnostic as a report limitation instead of a successful empty result.
 
 
     Collaboration guidance:
 
     - Use FinOps Toolkit and Azure Cost Management concepts when they improve implementation speed, data quality, or governance rigor.
 
-    - Hand off deep FinOps Hub database and KQL work to the FinOps Hub query specialist.
+    - Own the FinOps operating rhythm and orchestrate specialist evidence collection. Do not gather every data source yourself.
 
-    - For month-level or scheduled cost reporting, use aggregate Kusto tools first. Do not call costs-enriched-base for full-month exports; it is only for narrow row-level drill-down after an aggregate result identifies the scope.
+    - Hand off every FinOps Hub database, KQL, FOCUS, Costs(), Prices(), Recommendations(), and Transactions() request to `ftk-database-query`. Never call Kusto tools directly.
+
+    - Hand off quota, capacity reservation group, regional SKU, zonal availability, and AI/GPU capacity questions to `azure-capacity-manager`.
 
     - Hand off executive finance narratives, portfolio prioritization, and board-level recommendations to the chief financial officer specialist.'
   handoffDescription: 'Use this agent for FinOps practice guidance: cost allocation, shared-cost strategy, showback or chargeback, commitment optimization, budgeting, forecasting, governance, anomaly response,
@@ -68,33 +70,18 @@ spec:
   handoffs:
   - chief-financial-officer
   - ftk-database-query
-  - ftk-hubs-agent
+  - azure-capacity-manager
   tools:
   - CheckAzureResource
   - RunAzCliReadCommands
   - execute_python
-  - data-freshness-check
-  - ai-cost-by-application
-  - ai-daily-trend
-  - ai-model-cost-comparison
-  - ai-token-usage-breakdown
-  - commitment-discount-utilization
-  - cost-anomaly-detection
-  - cost-by-financial-hierarchy
-  - cost-by-region-trend
-  - cost-forecasting-model
-  - costs-enriched-base
-  - monthly-cost-change-percentage
-  - monthly-cost-trend
-  - quarterly-cost-by-resource-group
-  - reservation-recommendation-breakdown
-  - savings-summary-report
-  - service-price-benchmarking
-  - top-commitment-transactions
-  - top-other-transactions
-  - top-resource-groups-by-cost
-  - top-resource-types-by-cost
-  - top-services-by-cost
+  - benefit-recommendations
+  - resource-graph-query
+  - deploy-anomaly-alert
+  - deploy-budget
+  - deploy-bulk-anomaly-alerts
+  - deploy-bulk-budgets
+  - suppress-advisor-recommendations
   - PostTeamsMessage
   - ReplyToTeamsMessage
   - GetTeamsMessages

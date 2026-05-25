@@ -3,7 +3,7 @@ title: Troubleshoot Azure SRE Agent deployments from the FinOps toolkit
 description: Resolve common deployment, tenant, connector, data, and query issues for Azure SRE Agent deployments from the FinOps toolkit.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/06/2026
+ms.date: 05/25/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -97,6 +97,14 @@ az provider register --namespace Microsoft.Resources
 **Cause:** `bin/deploy.sh` does not create notification connectors because Teams and Outlook require interactive OAuth setup.
 
 **Workaround:** Add the Teams or Outlook connector in [sre.azure.com](https://sre.azure.com), select the agent managed identity, and send a test message.
+
+### Kusto connector is unhealthy for a private endpoint cluster
+
+**Symptom:** The SRE Agent deployment succeeds and the `finops-hub-kusto` connector is created, but the connector doesn't become healthy. The deployment output may warn that the Azure Data Explorer cluster denies public query access.
+
+**Cause:** Hosted Azure SRE Agent runs outside your VNET. Azure SRE Agent can use ARM for resource discovery, health, metrics, and management operations, but direct KQL queries to private endpoint Azure Data Explorer clusters are a documented limitation when `publicNetworkAccess` is `Disabled`.
+
+**Workaround:** Review the [Azure SRE Agent VNET known limitations](https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations), then decide whether to enable public query access for the Azure Data Explorer cluster. The FinOps toolkit deployment doesn't change customer cluster networking automatically. Until public query access is enabled or Azure SRE Agent adds private endpoint ADX query support, Kusto tools that depend on `finops-hub-kusto` are expected to fail while ARM-based health and metrics operations continue to work.
 
 <br>
 

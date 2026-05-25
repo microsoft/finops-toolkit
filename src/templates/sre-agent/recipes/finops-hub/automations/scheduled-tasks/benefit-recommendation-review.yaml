@@ -7,7 +7,7 @@ spec:
   description: Weekly executive review of reservation and savings plan recommendations
   cron_expression: 0 8 * * 5
   agent_mode: autonomous
-  agent: chief-financial-officer
+  agent: finops-practitioner
   agent_prompt: '# Benefit Recommendation Review
 
 
@@ -16,13 +16,13 @@ spec:
 
     Before starting, read all documents in the knowledge base. Pay special attention to commitment discount strategy, reservation governance, savings plan policy, and prior recommendation review notes.
 
-    Output style: Apply `ftk-output-style.md` from the knowledge base to every report and Teams message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, capacity supply-chain sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
+    Output style: Apply `ftk-output-style.md` from the knowledge base to every report and Teams message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
 
     Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
 
 
 
-    Load your relevant CFO and FinOps skill. Note the `client_id` for Python tool authentication.
+    Load the FinOps toolkit and Azure Cost Management skills. Lead this as the FinOps practitioner. Use `benefit-recommendations` for current Cost Management recommendations, delegate any Kusto-backed recommendation, utilization, transaction, or savings evidence to `ftk-database-query`, and consult `chief-financial-officer` for approval framing, commitment risk, and executive decision language.
 
 
     ## Python tools available
@@ -52,10 +52,10 @@ spec:
     Summarize estimated savings, recommended cost, term, break-even information, and recommendation count. Separate recommendations by type and highlight assumptions or missing fields in the source payload.
 
 
-    ## 4. Recommend executive actions
+    ## 4. Consult finance and recommend executive actions
 
 
-    Recommend which opportunities need purchase approval, deeper workload validation, commitment adjustment, or no action. Highlight governance risks such as over-commitment, insufficient utilization history, or missing owner accountability.
+    Consult `chief-financial-officer` for the financial decision frame, then recommend which opportunities need purchase approval, deeper workload validation, commitment adjustment, or no action. Highlight governance risks such as over-commitment, insufficient utilization history, or missing owner accountability.
 
 
     ## Report format

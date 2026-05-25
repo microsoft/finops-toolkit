@@ -3,7 +3,7 @@ title: Python tools
 description: Review the Python tools the FinOps toolkit ships for Azure SRE Agent for Azure quota, capacity, budgets, anomaly alerts, Resource Graph, FinOps hub health, and Advisor suppressions.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/06/2026
+ms.date: 05/25/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -496,7 +496,7 @@ Related FinOps capabilities:
 - [Anomaly management](../../framework/understand/anomalies.md)
 - [Budgeting](../../framework/quantify/budgeting.md)
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 

@@ -4,7 +4,7 @@
 - **YAML:** sre-config/scheduled-tasks/advisor-suppression-review.yaml
 - **Cron:** 0 9 1 * * — monthly on day 1 at 09:00 UTC
 - **Owning subagent:** finops-practitioner
-- **FinOps Framework capability:** Workload Optimization
+- **FinOps Framework capability:** Usage Optimization
 - **Maturity:** Walk
 - **Tools used:** PostTeamsMessage, resource-graph-query, query
 
@@ -69,4 +69,4 @@ No tabular data was present in the final output.
 - [advisor-suppression-review-findings.md](/api/files/memories/synthesizedKnowledge/advisor-suppression-review-findings.md)
 
 ## MCAPS asks this task answers
-- **#45:** Operationalizes workload optimization governance by finding one orphaned Advisor suppression and requiring owner/TTL/justification for future suppressions.
+- **#45:** Operationalizes Usage Optimization governance by finding one orphaned Advisor suppression and requiring owner/TTL/justification for future suppressions.

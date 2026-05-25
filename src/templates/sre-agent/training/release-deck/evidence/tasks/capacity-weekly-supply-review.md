@@ -9,11 +9,11 @@
 - **Tools used:** PostTeamsMessage, vm-quota-usage, non-compute-quotas, capacity-reservation-groups, benefit-recommendations, reservation-recommendation-breakdown
 
 ## Latest run summary
-The weekly capacity supply chain review completed successfully. Here's the summary: **Quota Headroom:** All green — zero active VM compute usage across 49 regions (10,599 entries), no at-risk families. Non-compute quotas all under 2% utilization; 7 Network Watcher entries flagged at 100% are cosmetic (Azure auto-provisioned defaults). **CRG Audit:** No capacity reservation groups deployed — $0 waste. **SKU Availability:** 1,100/1,173 compute SKUs available in westus (73
+The weekly capacity evidence review completed successfully. Here's the summary: **Quota Headroom:** All green — zero active VM compute usage across 49 regions (10,599 entries), no at-risk families. Non-compute quotas all under 2% utilization; 7 Network Watcher entries flagged at 100% are cosmetic (Azure auto-provisioned defaults). **CRG Audit:** No capacity reservation groups deployed — $0 waste. **SKU Availability:** 1,100/1,173 compute SKUs available in westus (73
 
 ## Final Teams card / Outlook output (verbatim)
 ~~~~text
-The weekly capacity supply chain review completed successfully. Here's the
+The weekly capacity evidence review completed successfully. Here's the
 summary:
 
 **Quota Headroom:** All green — zero active VM compute usage across 49

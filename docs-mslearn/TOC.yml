@@ -54,7 +54,7 @@
                   href: framework/optimize/optimize-cloud-usage-cost.md
                 - name: Architecting for cloud
                   href: framework/optimize/architecting.md
-                - name: Workload optimization
+                - name: Usage optimization
                   href: framework/optimize/workloads.md
                 - name: Rate optimization
                   href: framework/optimize/rates.md
@@ -190,7 +190,7 @@
           href: toolkit/power-bi/invoicing.md
         - name: Rate optimization report
           href: toolkit/power-bi/rate-optimization.md
-        - name: Workload optimization report
+        - name: Usage optimization report
           href: toolkit/power-bi/workload-optimization.md
         - name: Data ingestion report
           href: toolkit/power-bi/data-ingestion.md

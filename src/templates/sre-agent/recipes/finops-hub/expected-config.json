@@ -1,9 +1,23 @@
 {
+  "agent": {
+    "accessLevel": "High",
+    "actionMode": "autonomous",
+    "upgradeChannel": "Stable",
+    "experimentalSettings": [
+      "EnableSandboxGroup",
+      "EnableWorkspaceTools"
+    ]
+  },
   "subagents": 5,
   "skills": 3,
   "tools": 34,
-  "scheduledTasks": 19,
-  "requiredExperimentalSettings": {
-    "EnableWorkspaceTools": true
-  }
+  "knowledgeSources": [
+    "chart-artifact-verification.md",
+    "document-index.md",
+    "ftk-output-style.md",
+    "known-issues-and-workarounds.md",
+    "onboarding-recommendations.md",
+    "teams-notification-guide.md"
+  ],
+  "scheduledTasks": 19
 }

@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: flanakin
 ms.author: micflan
-ms.date: 04/04/2026
+ms.date: 05/25/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -762,7 +762,7 @@ Indicates that the account loading data in Power BI doesn't have the [Storage Bl
 
 <sup>Severity: Major</sup>
 
-Azure Resource Graph queries in the Governance and Workload optimization Power BI reports may return an error similar to:
+Azure Resource Graph queries in the Governance and Usage optimization Power BI reports may return an error similar to:
 
 > _OLE DB or ODBC error: [Expression.Error] Please provide below info when asking for support: timestamp = {timestamp}, correlationId = {guid}. Details: Response payload size is {number}, and has exceeded the limit of 16777216. Please consider querying less data at a time and make paginated call if needed._
 

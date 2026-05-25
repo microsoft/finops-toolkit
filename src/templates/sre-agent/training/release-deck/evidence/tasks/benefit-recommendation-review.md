@@ -3,7 +3,7 @@
 ## Identity
 - **YAML:** sre-config/scheduled-tasks/benefit-recommendation-review.yaml
 - **Cron:** 0 8 * * 5 — weekly on Friday at 08:00 UTC
-- **Owning subagent:** chief-financial-officer
+- **Owning subagent:** finops-practitioner
 - **FinOps Framework capability:** Rate Optimization (RI/SP)
 - **Maturity:** Walk
 - **Tools used:** PostTeamsMessage, benefit-recommendations

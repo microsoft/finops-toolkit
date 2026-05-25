@@ -4,7 +4,7 @@ metadata:
   name: CapacityQuarterlyStrategy
 spec:
   name: CapacityQuarterlyStrategy
-  description: Quarterly capacity strategy review — supply chain maturity, commitment alignment, architecture evolution
+  description: Quarterly capacity strategy review — FinOps maturity, commitment alignment, architecture evolution
   cron_expression: 0 9 1 1,4,7,10 *
   agent_mode: autonomous
   agent: azure-capacity-manager
@@ -16,7 +16,7 @@ spec:
 
     Before starting any analysis, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
 
-    Output style: Apply `ftk-output-style.md` from the knowledge base to every report and Teams message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, capacity supply-chain sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
+    Output style: Apply `ftk-output-style.md` from the knowledge base to every report and Teams message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
 
     Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
 
@@ -25,7 +25,7 @@ spec:
     Load your azure-capacity-management skill.
 
 
-    Quarterly strategic review bridging capacity management with FinOps rate optimization.
+    Quarterly strategic review bridging capacity management with FinOps Rate Optimization, Architecting & Workload Placement, and Executive Strategy Alignment.
 
     ## Python tools available for this task
 
@@ -36,23 +36,23 @@ spec:
     - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds
 
 
-    ## 1. Supply Chain Maturity Assessment
+    ## 1. FinOps Capability Maturity Assessment
 
 
-    Assess maturity across the four supply chain steps:
+    Assess maturity across the FinOps capabilities this capacity review supports:
 
 
-    | Step | Crawl | Walk | Run |
+    | Capability | Crawl | Walk | Run |
 
     |------|-------|------|-----|
 
-    | Forecast | Ad-hoc estimates | Telemetry-based | Automated with CI/CD gates |
+    | Planning & Estimating | Ad-hoc estimates | Telemetry-based estimates | Estimate checks integrated into workload intake |
 
-    | Procure | Reactive requests | Planned pipeline | Proactive with quota groups |
+    | Forecasting | Reactive demand projection | Forecasts from cost and utilization trends | Forecasts integrated into budget and engineering planning |
 
-    | Allocate | No reservations | CRGs for critical SKUs | Shared CRGs with overallocation |
+    | Architecting & Workload Placement | Ad-hoc placement decisions | Regular architecture and placement review | Placement decisions integrated into engineering intake and governance |
 
-    | Monitor | Manual checks | Alert-based | Automated governance program |
+    | Automation, Tools & Services | Manual quota checks | Alert-based quota and capacity governance | Automated guardrails and exception review |
 
 
     Score current maturity and recommend next-level actions.
@@ -61,7 +61,7 @@ spec:
     ## 2. Commitment Alignment
 
 
-    Run `benefit-recommendations`, `reservation-recommendation-breakdown`, `commitment-discount-utilization`, and `savings-summary-report` Kusto tools with quarterly scope.
+    Run `benefit-recommendations` directly for Azure Cost Management recommendations. Ask `ftk-database-query` to run `reservation-recommendation-breakdown`, `commitment-discount-utilization`, and `savings-summary-report` with quarterly scope for Kusto-backed commitment and savings evidence.
 
 
     Align capacity reservations with commitment purchases:
@@ -134,11 +134,11 @@ spec:
 
     Quarterly capacity strategy brief for leadership:
 
-    - Supply chain maturity scorecard with progression plan
+    - FinOps capability maturity scorecard with progression plan
 
     - Commitment alignment matrix (capacity + pricing)
 
-    - Quarterly procurement and allocation roadmap
+    - Quarterly capacity and workload-placement roadmap
 
     - Key risks and mitigations
 

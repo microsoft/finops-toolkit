@@ -132,22 +132,25 @@ Every recommendation must include:
 
 ## FinOps domain conventions
 
-- Reference FinOps Framework capabilities by their official names (e.g., "Managing commitment-based discounts", not "reservation management")
+- Reference FinOps Framework capabilities by their official names (e.g., "Rate Optimization", not "reservation management")
 - Use FOCUS specification terminology when discussing cost data fields (e.g., BilledCost, EffectiveCost, ListCost, ContractedCost)
 - Reference maturity levels as Crawl/Walk/Run when discussing FinOps practice maturity
 - Cite the six FinOps principles when they are relevant to a recommendation
 - For Azure-specific guidance, reference the official Microsoft documentation URL
 
-## Azure capacity management reporting
+## Azure capacity evidence in FinOps reports
 
-Capacity management reports must treat Azure capacity as a supply chain, not just a cost or utilization problem. Use the four-step model from the Azure capacity management guidance:
+Capacity findings must be mapped into the canonical FinOps Framework. Treat Azure capacity data as evidence for Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization, Budgeting, Governance, Policy & Risk, and Automation, Tools & Services. Do not present Azure capacity guidance as a separate operating framework.
 
-| Step | Required question | Typical evidence |
+| FinOps capability | Required question | Typical evidence |
 |------|-------------------|------------------|
-| Forecast | What demand is expected, over what period, and from which business driver? | Historical usage, growth rate, P95/P99 demand, onboarding plans, forecast assumptions |
-| Procure | Which access, quota, SKU, region, or zone blockers must be cleared before deployment? | Quota usage, quota group state, region access, zonal enablement, SKU restrictions, support request status |
-| Allocate | Which reserved or shared capacity is assigned to which workload or stamp? | Capacity reservation groups, sharing configuration, zone mapping, owner, allocated vs. reserved capacity |
-| Monitor | Which signals show emerging risk or waste? | Quota utilization, CRG utilization, overallocation ratio, quota alerts, budget alerts, anomaly alerts, CI/CD gate results |
+| Planning & Estimating | What capacity is required for a planned workload, scenario, or deployment? | Workload requirements, historical usage, growth rate, P95/P99 demand, onboarding plans, estimate assumptions |
+| Forecasting | When will demand exceed available quota, access, SKU, zone, or reserved-capacity headroom? | Quota usage, projected growth, forecast breach date, region and SKU availability, capacity reservation utilization |
+| Architecting & Workload Placement | Which regions, zones, SKUs, or deployment patterns should change to satisfy workload constraints and business goals? | SKU restrictions, zone mapping, CRG association, architecture constraints, placement decisions |
+| Usage Optimization | Which resources, reservations, or deployment patterns are overallocated, underutilized, or inefficient? | Utilization, rightsizing candidates, unused reserved capacity, quota headroom, workload demand signals |
+| Rate Optimization | Where do capacity guarantees and pricing commitments need coordinated review? | Benefit recommendations, commitment utilization, savings evidence, CRG usage, unmatched reservation or savings-plan opportunities |
+| Governance, Policy & Risk | Which capacity, quota, region, or zone risks need ownership, exception handling, or executive escalation? | Risk thresholds, approved regions/SKUs, owner metadata, escalation paths, exception status |
+| Automation, Tools & Services | Which controls should make capacity risk visible before deployment or scale events? | Quota alerts, budget alerts, anomaly alerts, CI/CD gate results, policy or workflow status |
 
 ### Capacity terminology
 
@@ -168,8 +171,8 @@ Show formulas for all derived capacity metrics:
 - `Headroom = Limit - Current usage`
 - `Utilization % = Current usage / Limit * 100`
 - `Forecast breach date = Date when projected usage reaches threshold`
-- `CRG utilization % = Allocated or used reserved instances / Reserved instances * 100`
-- `CRG overallocation ratio = Associated demand / Reserved instances`
+- `CRG utilization % = Allocated VM count / reserved capacity quantity * 100`
+- `CRG overallocation ratio = Associated VM demand / reserved capacity quantity`
 
 Label missing limits, unknown usage, estimated defaults, and API failures explicitly. For non-compute and PaaS quotas, separate API-reported limits from estimated defaults and state the source for each row.
 
@@ -194,13 +197,13 @@ For capacity, quota, SKU, CRG, region, zone, AKS, or PaaS limit reports, include
 ## Summary
 [Capacity posture, top blocker, and exact scope/time period]
 
-## Capacity supply chain status
-[Table organized by Forecast / Procure / Allocate / Monitor]
+## FinOps capability status
+[Table organized by Planning & Estimating / Forecasting / Architecting & Workload Placement / Usage Optimization / Rate Optimization / Governance, Policy & Risk / Automation, Tools & Services]
 
 ## Risk register
 [Ranked table with subscription, region, service/SKU, current usage, limit, utilization %, headroom, source, status, and owner/action]
 
-## Procurement and allocation actions
+## Capacity and workload actions
 [Quota increase, quota group transfer, region access, zonal enablement, SKU substitution, CRG create/resize/share, or policy/gate action]
 
 ## Confidence and caveats

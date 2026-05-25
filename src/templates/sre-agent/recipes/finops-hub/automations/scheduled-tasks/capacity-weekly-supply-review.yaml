@@ -4,11 +4,11 @@ metadata:
   name: CapacityWeeklySupplyReview
 spec:
   name: CapacityWeeklySupplyReview
-  description: Weekly capacity supply chain review — quota headroom, CRG cost optimization, SKU availability, benefit recommendations
+  description: Weekly FinOps capacity management review — quota headroom, CRG cost optimization, SKU availability, benefit recommendations
   cron_expression: 0 8 * * 1
   agent_mode: autonomous
   agent: azure-capacity-manager
-  agent_prompt: '# Weekly Capacity Supply Chain Review
+  agent_prompt: '# Weekly FinOps Capacity Management Review
 
 
     ## Phase 0: Preparation
@@ -16,7 +16,7 @@ spec:
 
     Before starting any analysis, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
 
-    Output style: Apply `ftk-output-style.md` from the knowledge base to every report and Teams message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, capacity supply-chain sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
+    Output style: Apply `ftk-output-style.md` from the knowledge base to every report and Teams message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
 
     Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
 
@@ -25,7 +25,7 @@ spec:
     Load your azure-capacity-management skill.
 
 
-    Weekly review covering Forecast, Procure, and Allocate steps of the capacity supply chain.
+    Weekly review mapping Azure capacity signals into FinOps Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization support, Governance, Policy & Risk, and Automation, Tools & Services.
 
     ## Python tools available for this task
 
@@ -95,7 +95,7 @@ spec:
     ## 4. Benefit Recommendations
 
 
-    Run `benefit-recommendations` to get current RI/SP recommendations. Keep using `reservation-recommendation-breakdown` Kusto tool where Hub cost context is available.
+    Run `benefit-recommendations` directly to get current RI/SP recommendations. Where Hub cost context is available, ask `ftk-database-query` to run `reservation-recommendation-breakdown` for Kusto-backed recommendation evidence.
 
     Cross-reference with capacity reservation strategy:
 
@@ -120,7 +120,7 @@ spec:
     ## Output
 
 
-    Produce a weekly capacity supply chain briefing with:
+    Produce a weekly FinOps capacity management briefing with:
 
     - Quota headroom scorecard (🔴🟡🟢 by VM family)
 
@@ -128,10 +128,10 @@ spec:
 
     - Benefit recommendation highlights
 
-    - Action items for procurement team
+    - Action items for platform, engineering, and finance stakeholders
 
 
-    Use #remember to note key supply chain findings. Use deep investigation if any quota is critically low.
+    Use #remember to note key FinOps capacity findings. Use deep investigation if any quota is critically low.
 
 
     ## Deliver
@@ -140,7 +140,7 @@ spec:
 
     **Visualizations:** Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum one trend chart and one comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed the chart images inline in the Teams message alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
 
-    **Teams (capacity results only):** Post the final weekly capacity briefing to our Teams channel. Include the quota headroom scorecard, CRG waste summary, benefit recommendations, and procurement action items. Do not post intermediate results — only the completed briefing. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If no Teams connector/channel is configured or `PostTeamsMessage` was not found during the once-per-run guard check, return the completed report in the run output with a note that Teams delivery was skipped. If a Teams connector/channel is configured and the single final `PostTeamsMessage` attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
+    **Teams (capacity results only):** Post the final weekly capacity briefing to our Teams channel. Include the quota headroom scorecard, CRG waste summary, benefit recommendations, and capacity action items. Do not post intermediate results — only the completed briefing. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If no Teams connector/channel is configured or `PostTeamsMessage` was not found during the once-per-run guard check, return the completed report in the run output with a note that Teams delivery was skipped. If a Teams connector/channel is configured and the single final `PostTeamsMessage` attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
 
 
     **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — quota API failures, SKU availability discoveries, CRG query patterns, Python tool workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'

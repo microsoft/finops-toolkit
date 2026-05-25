@@ -19,6 +19,15 @@ param accessLevel string
 @description('Agent action mode.')
 param actionMode string
 
+@description('Agent upgrade channel.')
+param upgradeChannel string
+
+@description('Monthly agent unit limit.')
+param monthlyAgentUnitLimit int
+
+@description('Agent experimental settings.')
+param experimentalSettings object
+
 @description('Azure resource tags.')
 param tags object = {}
 
@@ -56,6 +65,9 @@ module sreAgent 'modules/sre-agent.bicep' = {
     managedResourceGroupIds: targetResourceGroupIds
     accessLevel: accessLevel
     actionMode: actionMode
+    upgradeChannel: upgradeChannel
+    monthlyAgentUnitLimit: monthlyAgentUnitLimit
+    experimentalSettings: experimentalSettings
     tags: tags
   }
 }

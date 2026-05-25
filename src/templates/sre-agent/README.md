@@ -29,10 +29,10 @@ The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CAT
 
 | Subagent | Scheduled tasks | Focus |
 |----------|----------------:|-------|
-| `azure-capacity-manager` | 9 | Quota, capacity reservation groups, region and zone access, AKS capacity, and capacity governance |
-| `chief-financial-officer` | 3 | Budgeting, forecasting, AI unit economics, benefit recommendations, and executive financial reporting |
-| `finops-practitioner` | 5 | Cost optimization, budget and alert coverage, Advisor suppressions, and monthly cost analysis |
-| `ftk-database-query` | 0 | Schema-aware FinOps Hub KQL and database analysis support |
+| `azure-capacity-manager` | 9 | Quota, capacity reservation groups, region and zone access, AKS capacity, and capacity evidence for Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, and Governance, Policy & Risk |
+| `chief-financial-officer` | 0 | Consultative finance and leadership persona for budgeting, forecasting, AI unit economics, commitment risk, and executive financial framing |
+| `finops-practitioner` | 8 | FinOps operating rhythm, specialist orchestration, cost optimization, budget and alert coverage, Advisor suppressions, and monthly/semiannual reporting |
+| `ftk-database-query` | 0 | Schema-aware FinOps Hub KQL and database evidence specialist; owns all Kusto tools |
 | `ftk-hubs-agent` | 2 | Hub health, data freshness, and monitoring scope validation |
 
 | Tool type | Count | Examples |
@@ -40,7 +40,9 @@ The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CAT
 | KustoTool | 21 | `cost-anomaly-detection`, `ai-token-usage-breakdown`, `reservation-recommendation-breakdown` |
 | PythonTool | 13 | `vm-quota-usage`, `data-freshness-check`, `db-service-quotas`, `sku-availability` |
 
-`bin/post-provision.sh` uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md`. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, capacity-risk, confidence, and disclaimer conventions.
+The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Stable` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. `bin/post-provision.sh` uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible Knowledge Sources, then waits for the expected sources to index. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
+
+The recipe is aligned to the canonical FinOps Framework. `finops-practitioner` owns the operating rhythm and scheduled report orchestration, `ftk-database-query` owns all Kusto and FOCUS evidence collection, `azure-capacity-manager` owns Azure capacity evidence under the relevant FinOps capabilities, and `chief-financial-officer` is consulted for finance and leadership framing rather than owning scheduled tasks.
 
 | Scheduled task | Agent | Schedule |
 |----------------|-------|----------|
@@ -52,14 +54,14 @@ The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CAT
 | `CostOptimization` | `finops-practitioner` | `0 8 * * 1` |
 | `NonComputeQuotaAudit` | `azure-capacity-manager` | `0 7 * * 2` |
 | `DbQuotaAudit` | `azure-capacity-manager` | `0 7 * * 3` |
-| `SkuAvailabilityAudit` | `azure-capacity-manager` | `0 7 * * 3` |
+| `SkuAvailabilityAudit` | `azure-capacity-manager` | `30 7 * * 3` |
 | `MonitoringScopeValidation` | `ftk-hubs-agent` | `0 9 * * 4` |
-| `BenefitRecommendationReview` | `chief-financial-officer` | `0 8 * * 5` |
+| `BenefitRecommendationReview` | `finops-practitioner` | `0 8 * * 5` |
 | `AdvisorSuppressionReview` | `finops-practitioner` | `0 9 1 * *` |
-| `AIWorkloadCostAnalysis` | `chief-financial-officer` | `0 10 1 * *` |
+| `AIWorkloadCostAnalysis` | `finops-practitioner` | `0 10 1 * *` |
 | `CapacityMonthlyPlanning` | `azure-capacity-manager` | `0 9 1 * *` |
 | `StoragePaasGrowthForecast` | `azure-capacity-manager` | `0 8 1 * *` |
-| `YOY` | `chief-financial-officer` | `0 9 5 1,7 *` |
+| `Semiannual` | `finops-practitioner` | `0 9 5 1,7 *` |
 | `BudgetCoverageAudit` | `finops-practitioner` | `0 8 15 * *` |
 | `AlertCoverageAudit` | `finops-practitioner` | `0 8 16 * *` |
 | `CapacityQuarterlyStrategy` | `azure-capacity-manager` | `0 9 1 1,4,7,10 *` |
@@ -92,7 +94,7 @@ bash bin/deploy.sh \
   --name <your-agent-name> \
   --location <your-region> \
   --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
-  --cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name> \
+  [--cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>] \
   [--target-resource-group <target-rg> ...] \
   [--dry-run] \
   [--force] \
@@ -116,7 +118,7 @@ Optional:
   --target-resource-group <name>      Repeatable target resource group. Defaults to --resource-group.
   --cluster-uri <uri>                 Kusto connector URI, including database name.
                                       Example: https://<cluster>.<region>.kusto.windows.net/Hub
-  --cluster-resource-id <id>          Kusto cluster ARM resource ID for Viewer RBAC.
+  --cluster-resource-id <id>          Optional Kusto cluster ARM resource ID. Real deployments resolve this from --cluster-uri when possible; dry-run requires it.
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
@@ -137,13 +139,15 @@ bash bin/deploy.sh \
   -n <your-agent-name> \
   -l <your-region> \
   --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
-  --cluster-resource-id /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster> \
+  [--cluster-resource-id /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster>] \
   --dry-run
 ```
 
 When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane and the remaining recipe assets with `srectl`.
 
-Supporting resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Rerunning the script with the same values updates the same Log Analytics workspace, Application Insights component, user-assigned managed identity, RBAC assignments, and SRE Agent. `--deploy-name` only changes the ARM deployment record and local build directory.
+Supporting resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Rerunning the script with the same values updates the same Log Analytics workspace, Application Insights component, user-assigned managed identity, RBAC assignments, and SRE Agent. Post-provisioning deletes existing scheduled tasks with the recipe's task names before applying manifests so redeployments don't create duplicate automations. `--deploy-name` only changes the ARM deployment record and local build directory.
+
+If `--cluster-uri` points to an Azure Data Explorer cluster with `publicNetworkAccess` set to `Disabled`, the script still deploys all resources, assigns the agent identity `AllDatabasesViewer`, and creates the `finops-hub-kusto` connector. It also prints a warning with the SRE Agent known-limitations URL because private endpoint ADX blocks direct KQL queries from the hosted agent. The customer can decide whether to enable public query access for the connector after reviewing <https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations>.
 
 ## Recipe identity policy
 
@@ -163,7 +167,7 @@ bash bin/verify-agent.sh \
   --expected recipes/finops-hub
 ```
 
-If you passed `--cluster-uri`, confirm the `finops-hub-kusto` connector is healthy in `https://sre.azure.com`.
+If you passed `--cluster-uri`, confirm the `finops-hub-kusto` connector in `https://sre.azure.com`. If the deployment warned that the cluster denies public query access, the connector is expected to remain unhealthy until the customer enables public query access or Microsoft adds private endpoint ADX query support for SRE Agent.
 
 ## CI/CD example
 

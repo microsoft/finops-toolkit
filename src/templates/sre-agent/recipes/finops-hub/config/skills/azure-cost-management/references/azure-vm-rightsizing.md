@@ -290,4 +290,4 @@ Ensure the target SKU preserves the same `licenseType` setting during resize.
 - [Instance size flexibility](https://learn.microsoft.com/azure/virtual-machines/reserved-vm-instance-size-flexibility)
 - [Azure Monitor metrics](https://learn.microsoft.com/azure/azure-monitor/essentials/data-platform-metrics)
 - [Azure Retail Prices API](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices)
-- [Workload optimization (FinOps Framework)](https://learn.microsoft.com/cloud-computing/finops/framework/optimize/workloads)
+- [Usage Optimization (FinOps Framework)](https://www.finops.org/framework/capabilities/usage-optimization/)

@@ -178,20 +178,196 @@ fi
 echo ""
 
 echo "Step 3/6: Uploading knowledge base..."
+KNOWLEDGE_DOC_NAMES=()
+
+knowledge_source_name() {
+  basename "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[[:space:]]+/-/g'
+}
+
+knowledge_content_type() {
+  local file="$1"
+  case "${file##*.}" in
+    md) echo "text/markdown" ;;
+    txt) echo "text/plain" ;;
+    json) echo "application/json" ;;
+    csv) echo "text/csv" ;;
+    yaml|yml) echo "application/yaml" ;;
+    *) file --mime-type -b "$file" 2>/dev/null || echo "application/octet-stream" ;;
+  esac
+}
+
 upload_knowledge_file() {
   local file="$1"
   local label="${2:-$file}"
-  echo "  doc: $label"
-  (
-    cd "$BUILD_DIR"
-    srectl doc upload --file "$file"
-  )
+  local source_name
+  local display_name
+  local content_type
+  local body_file
+  local response_file
+  local token
+  local http_code
+
+  source_name="$(knowledge_source_name "$file")"
+  display_name="$(basename "$file")"
+  content_type="$(knowledge_content_type "$file")"
+  body_file="${KNOWLEDGE_SOURCE_DIR}/${source_name}.json"
+  response_file="${KNOWLEDGE_SOURCE_DIR}/${source_name}.response.json"
+
+  echo "  knowledge source: $label"
+
+  jq -n \
+    --arg name "$source_name" \
+    --arg display_name "$display_name" \
+    --arg file_name "$display_name" \
+    --arg content_type "$content_type" \
+    --arg file_content "$(base64 < "$file" | tr -d '\n')" \
+    '{
+      name: $name,
+      type: "KnowledgeItem",
+      properties: {
+        dataConnectorType: "KnowledgeFile",
+        dataSource: $name,
+        extendedProperties: {
+          displayName: $display_name,
+          fileName: $file_name,
+          fileContent: $file_content,
+          contentType: $content_type
+        }
+      }
+    }' > "$body_file"
+
+  for attempt in 1 2 3 4 5; do
+    token="$(get_sre_token)"
+    [[ -n "$token" ]] || fail "Error: failed to get Azure SRE Agent bearer token" 1
+
+    if http_code="$(curl -sS -o "$response_file" -w "%{http_code}" \
+      -X PUT "${ENDPOINT}/api/v2/extendedAgent/connectors/${source_name}" \
+      -H "Authorization: Bearer ${token}" \
+      -H "Content-Type: application/json" \
+      --data-binary "@${body_file}")"; then
+      :
+    else
+      http_code="000"
+    fi
+
+    case "$http_code" in
+      200|201|202)
+        return 0
+        ;;
+    esac
+
+    echo "  knowledge source attempt ${attempt}/5 returned HTTP ${http_code}"
+    if [[ "$attempt" != "5" ]]; then
+      sleep 15
+    fi
+  done
+
+  echo "  knowledge source response: $response_file"
+  sed -n '1,120p' "$response_file" >&2 || true
+  fail "Failed to upload knowledge source: $display_name" 1
 }
+
+verify_knowledge_docs() {
+  local expected_docs=("$@")
+  local token
+  local http_code
+  local response_file="${KNOWLEDGE_SOURCE_DIR}/knowledge-sources.response.json"
+  local detail_file
+  local attempt
+  local missing
+  local unindexed
+  local doc
+  local source_name
+  local entry
+  local indexed
+  local reason
+
+  [[ "${#expected_docs[@]}" -gt 0 ]] || return 0
+  command -v az >/dev/null || fail "az is required to verify knowledge indexing" 1
+  command -v curl >/dev/null || fail "curl is required to verify knowledge indexing" 1
+  command -v jq >/dev/null || fail "jq is required to verify knowledge indexing" 1
+
+  echo "  waiting for knowledge sources to index..."
+  for ((attempt = 1; attempt <= 20; attempt++)); do
+    token="$(get_sre_token)"
+    [[ -n "$token" ]] || fail "Error: failed to get Azure SRE Agent bearer token" 1
+
+    if http_code="$(curl -sS -o "$response_file" -w "%{http_code}" \
+      "${ENDPOINT}/api/v2/extendedAgent/connectors" \
+      -H "Authorization: Bearer ${token}")"; then
+      :
+    else
+      http_code="000"
+    fi
+
+    missing=0
+    unindexed=0
+    if [[ "$http_code" == "200" ]]; then
+      for doc in "${expected_docs[@]}"; do
+        source_name="$(knowledge_source_name "$doc")"
+        entry="$(jq -c --arg name "$source_name" '[.value[]? | select(.name == $name and .properties.dataConnectorType == "KnowledgeFile")][0] // empty' "$response_file" 2>/dev/null || true)"
+        if [[ -z "$entry" ]]; then
+          missing=$((missing + 1))
+          continue
+        fi
+
+        detail_file="${KNOWLEDGE_SOURCE_DIR}/${source_name}.detail.json"
+        if http_code="$(curl -sS -o "$detail_file" -w "%{http_code}" \
+          "${ENDPOINT}/api/v2/extendedAgent/connectors/${source_name}" \
+          -H "Authorization: Bearer ${token}")"; then
+          :
+        else
+          http_code="000"
+        fi
+
+        indexed="$(jq -r '.properties.extendedProperties.createdAt // empty' "$detail_file" 2>/dev/null || true)"
+        [[ -n "$indexed" ]] || unindexed=$((unindexed + 1))
+      done
+
+      if [[ "$missing" -eq 0 && "$unindexed" -eq 0 ]]; then
+        echo "  knowledge sources indexed: ${#expected_docs[@]} docs"
+        return 0
+      fi
+
+      echo "  knowledge indexing attempt ${attempt}/20: ${missing} missing, ${unindexed} not indexed"
+    else
+      echo "  knowledge indexing attempt ${attempt}/20: connectors returned HTTP ${http_code}"
+    fi
+
+    [[ "$attempt" -lt 20 ]] && sleep 15
+  done
+
+  echo "  knowledge source status:" >&2
+  if [[ -f "$response_file" ]]; then
+    for doc in "${expected_docs[@]}"; do
+      source_name="$(knowledge_source_name "$doc")"
+      entry="$(jq -c --arg name "$source_name" '[.value[]? | select(.name == $name and .properties.dataConnectorType == "KnowledgeFile")][0] // empty' "$response_file" 2>/dev/null || true)"
+      if [[ -z "$entry" ]]; then
+        echo "    ${doc}: missing" >&2
+      else
+        detail_file="${KNOWLEDGE_SOURCE_DIR}/${source_name}.detail.json"
+        indexed="$(jq -r '.properties.extendedProperties.createdAt // empty' "$detail_file" 2>/dev/null || true)"
+        reason="$(jq -r '.properties.extendedProperties.errorReason // ""' "$detail_file" 2>/dev/null || true)"
+        echo "    ${doc}: indexed=${indexed}${reason:+ reason=${reason}}" >&2
+      fi
+    done
+  fi
+  fail "Knowledge sources failed to index" 1
+}
+
+command -v az >/dev/null || fail "az is required to upload knowledge sources" 1
+command -v base64 >/dev/null || fail "base64 is required to upload knowledge sources" 1
+command -v curl >/dev/null || fail "curl is required to upload knowledge sources" 1
+command -v jq >/dev/null || fail "jq is required to upload knowledge sources" 1
+
+KNOWLEDGE_SOURCE_DIR="${BUILD_DIR}/knowledge-sources"
+mkdir -p "$KNOWLEDGE_SOURCE_DIR"
 
 KNOWLEDGE_DIR="${RECIPE_DIR}/knowledge"
 if [[ -d "$KNOWLEDGE_DIR" ]]; then
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue
+    KNOWLEDGE_DOC_NAMES+=("$(basename "$file")")
     upload_knowledge_file "$file" "${file#${RECIPE_DIR}/}"
   done < <(find "$KNOWLEDGE_DIR" -type f | sort)
 else
@@ -200,7 +376,9 @@ fi
 
 OUTPUT_STYLE_DOC="${RECIPE_DIR}/../../../claude-plugin/output-styles/ftk-output-style.md"
 [[ -f "$OUTPUT_STYLE_DOC" ]] || fail "Error: output style knowledge document not found: $OUTPUT_STYLE_DOC" 1
+KNOWLEDGE_DOC_NAMES+=("$(basename "$OUTPUT_STYLE_DOC")")
 upload_knowledge_file "$OUTPUT_STYLE_DOC" "claude-plugin/output-styles/ftk-output-style.md"
+verify_knowledge_docs "${KNOWLEDGE_DOC_NAMES[@]}"
 echo ""
 
 apply_yaml_dir() {
@@ -222,6 +400,79 @@ apply_yaml_dir() {
     )
   done < <(find "$dir" -type f \( -name "*.yaml" -o -name "*.yml" \) | sort)
   echo "  ${label}: ${total} applied"
+}
+
+scheduled_task_names() {
+  local dir="$1"
+
+  python3 - "$dir" <<'PY'
+import pathlib
+import sys
+
+try:
+    import yaml
+except ImportError:
+    print("PyYAML is required to read scheduled task manifests", file=sys.stderr)
+    sys.exit(1)
+
+root = pathlib.Path(sys.argv[1])
+for path in sorted(root.rglob("*")):
+    if not path.is_file() or path.suffix.lower() not in {".yaml", ".yml"}:
+        continue
+    with path.open("r", encoding="utf-8") as handle:
+        data = yaml.safe_load(handle) or {}
+    metadata = data.get("metadata") or {}
+    spec = data.get("spec") or {}
+    name = metadata.get("name") or spec.get("name")
+    if not name:
+        raise SystemExit(f"Scheduled task manifest missing metadata.name/spec.name: {path}")
+    print(name)
+PY
+}
+
+delete_existing_scheduled_tasks() {
+  local dir="$1"
+  local names_file="${BUILD_DIR}/scheduledtasks.names"
+  local response_file="${BUILD_DIR}/scheduledtasks.existing.json"
+  local token
+  local http_code
+  local name
+  local ids
+  local id
+  local deleted=0
+
+  [[ -d "$dir" ]] || return 0
+  scheduled_task_names "$dir" > "$names_file"
+  [[ -s "$names_file" ]] || return 0
+
+  token="$(get_sre_token)"
+  [[ -n "$token" ]] || fail "Error: failed to get Azure SRE Agent bearer token" 1
+
+  if http_code="$(curl -sS -o "$response_file" -w "%{http_code}" \
+    "${ENDPOINT}/api/v1/scheduledtasks" \
+    -H "Authorization: Bearer ${token}")"; then
+    :
+  else
+    http_code="000"
+  fi
+
+  [[ "$http_code" == "200" ]] || fail "Failed to list existing scheduled tasks before apply (HTTP ${http_code})" 1
+
+  while IFS= read -r name; do
+    [[ -n "$name" ]] || continue
+    ids="$(jq -r --arg name "$name" '.[]? | select(.name == $name) | .id // empty' "$response_file" 2>/dev/null || true)"
+    while IFS= read -r id; do
+      [[ -n "$id" ]] || continue
+      echo "  scheduled-task: deleting existing ${name} (${id})"
+      (
+        cd "$BUILD_DIR"
+        srectl scheduledtask delete --id "$id" --quiet
+      )
+      deleted=$((deleted + 1))
+    done <<< "$ids"
+  done < "$names_file"
+
+  [[ "$deleted" -eq 0 ]] || echo "  scheduled-task: ${deleted} existing deleted before apply"
 }
 
 ordered_subagent_files() {
@@ -317,7 +568,7 @@ SKILLS_WORK="${BUILD_DIR}/skills"
 rm -rf "$SKILLS_WORK"
 mkdir -p "$SKILLS_WORK"
 if [[ -d "$SKILLS_SRC" ]]; then
-  cp -R "${SKILLS_SRC}/." "$SKILLS_WORK/"
+  cp -RL "${SKILLS_SRC}/." "$SKILLS_WORK/"
   for skill_dir in "$SKILLS_WORK"/*; do
     [[ -d "$skill_dir" && -f "$skill_dir/SKILL.md" ]] || continue
     skill_name="$(basename "$skill_dir")"
@@ -336,6 +587,7 @@ echo ""
 echo "Step 6/6: Applying scheduled tasks..."
 TASK_DIR="${RECIPE_DIR}/automations/scheduled-tasks"
 if [[ -d "$TASK_DIR" ]]; then
+  delete_existing_scheduled_tasks "$TASK_DIR"
   total=0
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue

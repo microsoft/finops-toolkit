@@ -24,16 +24,17 @@ The plugin registers an [Azure MCP Server](https://github.com/Azure/azure-mcp) w
 
 | Skill | Trigger keywords | Description |
 |-------|-----------------|-------------|
-| **finops-toolkit** | "FinOps hubs", "KQL queries", "Kusto", "Hub database", "ADX cluster" | FinOps hubs query and deployment. KQL-based cost analysis with a think-execute framework, 17 pre-built queries, and schema validation. |
+| **finops-toolkit** | "FinOps hubs", "Hub database", "ADX cluster", "FinOps Toolkit" | FinOps hubs context, deployment guidance, schema references, and workflow guidance. `ftk-database-query` owns Kusto execution and raw FinOps Hub evidence. |
 | **azure-cost-management** | "Azure Advisor", "savings plans", "reservations", "budgets", "cost exports", "MACC", "Azure credits" | Azure Cost Management operations: recommendations, budgets, exports, anomaly alerts, and commitment tracking. |
 
 ### Agents
 
 | Agent | Color | Description |
 |-------|-------|-------------|
-| **chief-financial-officer** | Blue | Strategic CFO with 25+ years experience. Covers financial strategy, FP&A, capital allocation, risk management, treasury, tax, investor relations, and FinOps. Produces structured executive-level analysis. |
-| **finops-practitioner** | Green | Certified FinOps expert grounded in the six FinOps principles and the Crawl-Walk-Run maturity model. Guides cost allocation, commitment optimization, showback/chargeback, and practice adoption. |
-| **ftk-database-query** | Cyan | KQL specialist for the FinOps hubs database. Queries `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` functions. Uses a catalog of 17 pre-built queries before writing custom KQL. |
+| **azure-capacity-manager** | Orange | Azure capacity evidence specialist for quota, capacity reservation groups, SKU availability, region and zone access, AKS readiness, non-compute quotas, and capacity-to-rate coordination. |
+| **chief-financial-officer** | Blue | Consultative finance and leadership persona. Frames budget, forecast, commitment, risk, and investment tradeoffs from evidence packages; does not collect raw telemetry. |
+| **finops-practitioner** | Green | FinOps operating-rhythm owner grounded in the six FinOps principles and the Crawl-Walk-Run maturity model. Orchestrates database, capacity, finance, and hub specialists. |
+| **ftk-database-query** | Cyan | KQL specialist for the FinOps hubs database. Owns all `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` evidence. Uses the uploaded query catalog before writing custom KQL. |
 | **ftk-hubs-agent** | Red | Azure infrastructure engineer for FinOps hubs deployment, upgrades, and troubleshooting. Handles Bicep templates, Cost Management exports, and post-deployment validation with platform-aware CLI guidance. |
 
 ### Commands
@@ -52,7 +53,7 @@ The plugin registers an [Azure MCP Server](https://github.com/Azure/azure-mcp) w
 
 ### Query catalog
 
-17 pre-built KQL queries for common FinOps scenarios, located in `skills/finops-toolkit/references/queries/catalog/`:
+The core KQL query catalog for common FinOps scenarios is located in `skills/finops-toolkit/references/queries/catalog/`. The SRE Agent recipe exposes these plus AI and commitment-analysis Kusto tools through `ftk-database-query`.
 
 | Query | Purpose |
 |-------|---------|

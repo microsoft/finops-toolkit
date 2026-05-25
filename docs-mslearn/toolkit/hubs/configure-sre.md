@@ -35,7 +35,7 @@ The [SRE agent template](https://github.com/microsoft/finops-toolkit/tree/main/s
 
 | Component | Count | Description |
 |-----------|-------|-------------|
-| SRE agent | 1 | [`Microsoft.App/agents`](https://learn.microsoft.com/azure/sre-agent/overview) resource in [autonomous mode](https://learn.microsoft.com/azure/sre-agent/run-modes) |
+| SRE agent | 1 | Stable [`Microsoft.App/agents`](https://learn.microsoft.com/azure/sre-agent/overview) resource in [autonomous mode](https://learn.microsoft.com/azure/sre-agent/run-modes) |
 | Managed identity | 1 | User-assigned managed identity for the agent |
 | Log Analytics | 1 | Workspace for agent telemetry |
 | Application Insights | 1 | Linked to Log Analytics for monitoring |
@@ -66,7 +66,7 @@ bash bin/deploy.sh \
   --name <your-agent-name> \
   --location <your-region> \
   --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
-  --cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>
+  [--cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>]
 ```
 
 ### [PowerShell](#tab/powershell)
@@ -87,16 +87,18 @@ The [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/sr
 2. Runs a subscription-scoped Azure CLI + Bicep deployment from `infra/main.bicep`.
 3. Runs `bin/post-provision.sh`, which configures the Kusto connector through the SRE Agent data plane and applies the remaining recipe assets with `srectl`.
 
-The post-provision step uses [`srectl`](https://learn.microsoft.com/azure/sre-agent/tools) to apply 3 skills, 5 subagents, 34 tools, 19 scheduled tasks, and 6 knowledge documents.
+The post-provision step uses [`srectl`](https://learn.microsoft.com/azure/sre-agent/tools) to apply 3 skills, 5 subagents, 34 tools, and 19 scheduled tasks. It also uploads 6 portal-visible Knowledge Sources through the SRE Agent data plane.
 
 ### Grant the optional Azure Data Explorer viewer role
 
-To grant the agent's managed identity the `AllDatabasesViewer` role on your Azure Data Explorer cluster, pass `--cluster-resource-id` with `--cluster-uri`. The deployment uses the [Azure Data Explorer role module](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/infra/modules/kusto-viewer-rbac.bicep):
+To grant the agent's managed identity the `AllDatabasesViewer` role on your Azure Data Explorer cluster, pass `--cluster-uri`. The deployment resolves the cluster ARM resource ID from the URI when the cluster is in the target subscription. If the cluster is in another subscription or can't be resolved, pass `--cluster-resource-id` explicitly. The deployment uses the [Azure Data Explorer role module](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/infra/modules/kusto-viewer-rbac.bicep):
 
 ```bash
 --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
 --cluster-resource-id /subscriptions/.../resourceGroups/<adx-rg>/providers/Microsoft.Kusto/clusters/<adx-cluster-name>
 ```
+
+If your Azure Data Explorer cluster has `publicNetworkAccess` set to `Disabled`, the deployment still creates all SRE Agent resources, assigns `AllDatabasesViewer`, and creates the `finops-hub-kusto` connector. The script also prints a warning because hosted Azure SRE Agent can't run direct KQL queries against private endpoint ADX clusters. Review the [Azure SRE Agent VNET known limitations](https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations), then decide whether to enable public query access for the cluster. Until public query access is enabled or Azure SRE Agent adds private endpoint ADX query support, the connector is expected to remain unhealthy.
 
 ### Redeploy an existing agent
 
@@ -110,7 +112,7 @@ bash bin/deploy.sh \
   --name <your-agent-name> \
   --location <your-region> \
   --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
-  --cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>
+  [--cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>]
 ```
 
 ### Delete the deployment
@@ -159,15 +161,25 @@ The template deploys 19 scheduled tasks from the [`recipes/finops-hub/automation
 |------|-------|----------|-----------------|
 | HubsHealthCheck | ftk-hubs-agent | Daily 6:00 AM | Hub version, data freshness, and pipeline status |
 | CapacityDailyMonitor | azure-capacity-manager | Daily 6:30 AM | Quota usage, CRG utilization, and alert status |
-| Monthly | finops-practitioner | Monthly on the 5th at 5:15 PM | Month-over-month cost analysis with FinOps Kusto tools |
+| ComputeUtilizationTrend | azure-capacity-manager | Weekly Monday 7:00 AM | VM quota utilization trends across subscriptions and regions |
 | CostOptimization | finops-practitioner | Weekly Monday 8:00 AM | Orphaned resources, rightsizing, and commitment opportunities |
 | CapacityWeeklySupplyReview | azure-capacity-manager | Weekly Monday 8:00 AM | Quota headroom, CRG cost-waste audit, and benefit recommendations |
-| CapacityMonthlyPlanning | azure-capacity-manager | Monthly 1st 9:00 AM | Demand forecast, procurement pipeline, and governance review |
-| YOY | chief-financial-officer | January 5 and July 5 at 9:00 AM | Semiannual year-over-year finance analysis with forecast |
-| AIWorkloadCostAnalysis | chief-financial-officer | Monthly 1st 10:00 AM | AI token economics, model efficiency, and cost allocation |
-| CapacityQuarterlyStrategy | azure-capacity-manager | Quarterly 9:00 AM | Supply chain maturity, commitment alignment, and architecture review |
+| NonComputeQuotaAudit | azure-capacity-manager | Weekly Tuesday 7:00 AM | Storage, network, and non-compute quota risks |
+| DbQuotaAudit | azure-capacity-manager | Weekly Wednesday 7:00 AM | Database quota and region or zone access risks |
+| SkuAvailabilityAudit | azure-capacity-manager | Weekly Wednesday 7:30 AM | Regional SKU availability and deployment blockers |
+| MonitoringScopeValidation | ftk-hubs-agent | Weekly Thursday 9:00 AM | Subscription monitoring coverage and hub freshness |
+| BenefitRecommendationReview | finops-practitioner | Weekly Friday 8:00 AM | Reservation and savings plan recommendations with finance framing |
+| StoragePaasGrowthForecast | azure-capacity-manager | Monthly 1st 8:00 AM | Storage and PaaS quota growth forecast |
+| AdvisorSuppressionReview | finops-practitioner | Monthly 1st 9:00 AM | Active Advisor suppression age, expiration, and risk |
+| CapacityMonthlyPlanning | azure-capacity-manager | Monthly 1st 9:00 AM | Demand forecast, capacity request pipeline, and governance review |
+| AIWorkloadCostAnalysis | finops-practitioner | Monthly 1st 10:00 AM | AI token economics, model efficiency, and cost allocation |
+| Monthly | finops-practitioner | Monthly on the 5th at 5:15 PM | Month-over-month cost analysis using Kusto evidence delegated to ftk-database-query |
+| BudgetCoverageAudit | finops-practitioner | Monthly 15th 8:00 AM | Subscription budget coverage and missing guardrails |
+| AlertCoverageAudit | finops-practitioner | Monthly 16th 8:00 AM | Cost anomaly alert coverage across active subscriptions |
+| Semiannual | finops-practitioner | January 5 and July 5 at 9:00 AM | Semiannual year-over-year finance analysis with forecast and CFO consultation |
+| CapacityQuarterlyStrategy | azure-capacity-manager | Quarterly 9:00 AM | FinOps capability maturity, commitment alignment, and architecture review |
 
-Each scheduled task reads the uploaded knowledge documents before it starts and applies `ftk-output-style.md` for evidence, formatting, capacity-risk, confidence, and caveat conventions. Send financial results to Teams through the configured [notification connector](https://learn.microsoft.com/azure/sre-agent/send-notifications). Save only operational notes, such as tool errors, workarounds, and patterns, to agent [memory](https://learn.microsoft.com/azure/sre-agent/memory) with `#remember`; don't save financial data.
+Each scheduled task reads the uploaded knowledge documents before it starts and applies `ftk-output-style.md` for evidence, formatting, FinOps capability mapping, confidence, and caveat conventions. Send financial results to Teams through the configured [notification connector](https://learn.microsoft.com/azure/sre-agent/send-notifications). Save only operational notes, such as tool errors, workarounds, and patterns, to agent [memory](https://learn.microsoft.com/azure/sre-agent/memory) with `#remember`; don't save financial data.
 
 <br>
 
@@ -189,12 +201,12 @@ Browser success with CLI failure indicates that the CLI token was issued for the
 
 Azure SRE Agent includes platform capabilities that are on by default in this template:
 
-- **Code interpreter**: Azure SRE Agent can run Python and shell commands in a sandboxed environment for data analysis, chart generation, and report formatting. The [Bicep template](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/infra/modules/sre-agent.bicep) sets `experimentalSettings.EnableWorkspaceTools`. See [Use code interpreter](https://learn.microsoft.com/azure/sre-agent/use-code-interpreter).
+- **Workspace tools**: Azure SRE Agent can run file, terminal, and Python operations in a sandboxed environment for data analysis, chart generation, and report formatting. The [Bicep template](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/infra/modules/sre-agent.bicep) deploys the stable agent API and sets `experimentalSettings.EnableSandboxGroup` and `experimentalSettings.EnableWorkspaceTools`. See [Deep context](https://learn.microsoft.com/azure/sre-agent/workspace-tools).
 - **DocsGuide**: DocsGuide provides Azure documentation grounding for agent responses. See [Use DocsGuide](https://learn.microsoft.com/azure/sre-agent/use-docsguide).
 - **Visualization**: Built-in chart and table rendering for investigation results. See [Tools](https://learn.microsoft.com/azure/sre-agent/tools).
 - **Memory**: Memory stores operational knowledge across sessions. See [Memory and knowledge](https://learn.microsoft.com/azure/sre-agent/memory).
 
-The analytical subagents (`finops-practitioner`, `chief-financial-officer`, `azure-capacity-manager`, and `ftk-database-query`) include `execute_python` in the [agent configuration](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent/recipes/finops-hub/config/subagents) so they can produce charts, tables, and downloadable artifacts from FinOps data.
+The analytical subagents include `execute_python` where they need calculations, charts, tables, and downloadable artifacts. `finops-practitioner` orchestrates scheduled analysis, `ftk-database-query` owns Kusto evidence, `azure-capacity-manager` owns Azure capacity evidence, and `chief-financial-officer` provides finance and leadership consultation.
 
 <br>
 

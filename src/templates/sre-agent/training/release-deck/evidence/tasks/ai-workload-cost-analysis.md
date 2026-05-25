@@ -3,7 +3,7 @@
 ## Identity
 - **YAML:** sre-config/scheduled-tasks/ai-workload-cost-analysis.yaml
 - **Cron:** 0 10 1 * * — monthly on day 1 at 10:00 UTC
-- **Owning subagent:** chief-financial-officer
+- **Owning subagent:** finops-practitioner
 - **FinOps Framework capability:** Unit Economics (FinOps for AI)
 - **Maturity:** Walk
 - **Tools used:** PostTeamsMessage, resource-graph-query, vm-quota-usage, ai-model-cost-comparison, ai-cost-by-application

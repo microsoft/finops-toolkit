@@ -16,7 +16,7 @@ spec:
 
     Before starting, read all documents in the knowledge base. Pay special attention to anomaly detection standards, monitoring ownership notes, and prior alert coverage gaps.
 
-    Output style: Apply `ftk-output-style.md` from the knowledge base to every report and Teams message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, capacity supply-chain sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
+    Output style: Apply `ftk-output-style.md` from the knowledge base to every report and Teams message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
 
     Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
 

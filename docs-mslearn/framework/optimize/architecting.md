@@ -3,7 +3,7 @@ title: Architecting for cloud
 description: This article helps you understand the architecting for cloud capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -96,7 +96,7 @@ If you're looking for something specific, vote for an existing or create a new i
 
 Related FinOps capabilities:
 
-- [Workload optimization](./workloads.md)
+- [Usage optimization](./workloads.md)
 - [Rate optimization](./rates.md)
 
 Other resources:

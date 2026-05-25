@@ -58,7 +58,9 @@ spec:
     - RunAzCliReadCommands
     - RunAzCliWriteCommands
     - GetAzCliHelp
+    - execute_python
     - data-freshness-check
+    - resource-graph-query
     - sku-availability
     - PostTeamsMessage
     - ReplyToTeamsMessage

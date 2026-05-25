@@ -3,7 +3,7 @@ title: Kusto tools
 description: Review the FinOps hub Kusto tools the FinOps toolkit ships for Azure SRE Agent and learn when to use each tool for cost, commitment discount, anomaly, forecast, AI, and price analysis.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/06/2026
+ms.date: 05/25/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -16,6 +16,9 @@ ms.reviewer: brettwil
 The FinOps toolkit deployment configures Azure SRE Agent with 21 Kusto tools that query your FinOps hub Azure Data Explorer database through the `finops-hub-kusto` connector. Each tool is configured as a `KustoTool` and uses the FinOps hub query catalog to ground agent responses in cost, price, recommendation, transaction, and AI usage data. Tool source lives at [`src/templates/sre-agent/recipes/finops-hub/config/tools`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/).
 
 This reference also calls out related optimization tools that appear in scheduled-task requirements when they affect the same analysis path. Those tools aren't Kusto tools unless explicitly marked as `KustoTool`.
+
+> [!IMPORTANT]
+> Kusto tools require the hosted Azure SRE Agent to reach the Azure Data Explorer query endpoint. If the FinOps hub cluster has `publicNetworkAccess` set to `Disabled`, the toolkit still deploys the agent, assigns `AllDatabasesViewer`, and creates the connector, but the connector is expected to remain unhealthy. Review the [Azure SRE Agent VNET known limitations](https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations), then decide whether to enable public query access for the cluster.
 
 Use this reference when you want to understand which tool fits a prompt, scheduled task, or custom agent workflow. For a summary of all the agent's tools, see [Tools shipped for Azure SRE Agent in the FinOps toolkit](tools.md).
 
@@ -302,15 +305,15 @@ Sample output shape: One row per model and token direction with `Model`, `Direct
 
 <br>
 
-## Workload optimization
+## Usage optimization
 
-Use workload optimization tools to identify idle, orphaned, or wasteful resources before starting cleanup work.
+Use Usage Optimization tools to identify idle, orphaned, or wasteful resources before starting cleanup work.
 
 ### idle-resource-sweep
 
 Source status: No `idle-resource-sweep.yaml` file appears in the source inventory for [`src/templates/sre-agent/recipes/finops-hub/config/tools`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/).
 
-Reviews idle or orphaned resource candidates for workload optimization.
+Reviews idle or orphaned resource candidates for Usage Optimization.
 
 This Gate-named tool is a required analysis path, but the current template doesn't include an `idle-resource-sweep` Kusto tool YAML file. Until a dedicated tool is added, ground idle-resource reviews with `top-resource-types-by-cost`, `top-resource-groups-by-cost`, and narrow `costs-enriched-base` drill-downs. Then correlate candidates with Azure Resource Graph or Azure Advisor data through the relevant Python or built-in Azure tools before recommending cleanup.
 

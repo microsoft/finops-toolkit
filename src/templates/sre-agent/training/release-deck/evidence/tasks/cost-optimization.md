@@ -4,7 +4,7 @@
 - **YAML:** sre-config/scheduled-tasks/cost-optimization.yaml
 - **Cron:** 0 8 * * 1 — weekly on Monday at 08:00 UTC
 - **Owning subagent:** finops-practitioner
-- **FinOps Framework capability:** Workload Optimization + Rate Optimization
+- **FinOps Framework capability:** Usage Optimization + Rate Optimization
 - **Maturity:** Walk
 - **Tools used:** PostTeamsMessage, resource-graph-query, non-compute-quotas, benefit-recommendations, Look for cost anomalies and trends that inform optimization priorities.
 

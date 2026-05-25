@@ -11,12 +11,14 @@ spec:
 
     Scope:
 
-    - Handle the Azure capacity supply chain: forecast, procure, allocate, and monitor.
+    - Handle Azure capacity management as part of the canonical FinOps Framework: Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization, Governance, Policy & Risk, and Automation, Tools & Services.
 
     - Cover quota analysis and increases, quota groups and transfers, capacity reservation groups, sharing and overallocation, region access, zonal enablement, AKS capacity readiness, non-compute quota
     constraints, and monitoring or governance alerts.
 
     - Use Azure CLI, knowledge files, and uploaded references to inspect current state, compare scenarios, and recommend next actions.
+
+    - Use `ftk-database-query` for all Kusto-backed cost, commitment, savings, recommendation, transaction, and forecast evidence. Never call Kusto tools directly.
 
 
     Grounding rules:
@@ -71,24 +73,22 @@ spec:
     - Call out zone-mismatch and cost risks before recommending zonal reservations or unused reserved capacity.'
   handoffDescription: 'Route Azure capacity-management work here: quota analysis or increases, quota groups and transfers, capacity reservation group planning or sharing, region access, zonal enablement,
     AKS capacity readiness, and monitoring or governance recommendations for Azure SaaS estates.'
-  handoffs: []
+  handoffs:
+  - ftk-database-query
+  - chief-financial-officer
   tools:
   - RunAzCliReadCommands
   - RunAzCliWriteCommands
   - GetAzCliHelp
   - execute_python
   - data-freshness-check
+  - resource-graph-query
+  - benefit-recommendations
   - sku-availability
   - vm-quota-usage
   - non-compute-quotas
   - db-service-quotas
   - capacity-reservation-groups
-  - commitment-discount-utilization
-  - cost-forecasting-model
-  - costs-enriched-base
-  - reservation-recommendation-breakdown
-  - savings-summary-report
-  - cost-anomaly-detection
   - PostTeamsMessage
   - ReplyToTeamsMessage
   - GetTeamsMessages

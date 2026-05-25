@@ -3,7 +3,7 @@ title: Scheduled tasks (Azure SRE Agent in the FinOps toolkit)
 description: Learn how the FinOps toolkit's scheduled tasks automate daily, weekly, monthly, and quarterly FinOps operating rhythms on Azure SRE Agent.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/06/2026
+ms.date: 05/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -21,28 +21,29 @@ The template deploys 19 scheduled tasks from `src/templates/sre-agent/recipes/fi
 
 ## Daily tasks
 
-Daily tasks run every morning to validate FinOps hub health and monitor capacity supply chain signals. They keep cost and capacity surprises visible before each business day.
+Daily tasks run every morning to validate FinOps hub health and monitor Azure capacity signals that feed Planning & Estimating, Architecting & Workload Placement, Usage Optimization, Governance, Policy & Risk, and Automation, Tools & Services. They keep cost and capacity surprises visible before each business day.
 
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
 | `HubsHealthCheck` | `ftk-hubs-agent` | Daily at 6:00 AM<br>`0 6 * * *` | FinOps hub version and data freshness validation |
-| `CapacityDailyMonitor` | `azure-capacity-manager` | Daily at 6:30 AM<br>`30 6 * * *` | Daily capacity supply chain health check — quota usage, CRG utilization, zone capacity |
+| `CapacityDailyMonitor` | `azure-capacity-manager` | Daily at 6:30 AM<br>`30 6 * * *` | Daily capacity health check — quota usage, CRG utilization, zone capacity |
 
 <br>
 
 ## Weekly tasks
 
-Weekly tasks summarize cost optimization, capacity supply chain, and benefit recommendation activity for the previous week. They give the team a recurring rhythm for deeper analysis without manual report requests.
+Weekly tasks summarize cost optimization, Azure capacity evidence, and benefit recommendation activity for the previous week. They give the team a recurring rhythm for deeper analysis without manual report requests.
 
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
 | `ComputeUtilizationTrend` | `azure-capacity-manager` | Weekly on Monday at 7:00 AM<br>`0 7 * * 1` | Weekly VM quota utilization trend review across subscriptions and regions |
 | `CostOptimization` | `finops-practitioner` | Weekly on Monday at 8:00 AM<br>`0 8 * * 1` | Comprehensive cost optimization report with orphaned resources, rightsizing, and commitment analysis |
-| `CapacityWeeklySupplyReview` | `azure-capacity-manager` | Weekly on Monday at 8:00 AM<br>`0 8 * * 1` | Weekly capacity supply chain review — quota headroom, CRG cost optimization, SKU availability, benefit recommendations |
+| `CapacityWeeklySupplyReview` | `azure-capacity-manager` | Weekly on Monday at 8:00 AM<br>`0 8 * * 1` | Weekly capacity evidence review — quota headroom, CRG cost optimization, SKU availability, benefit recommendations |
 | `NonComputeQuotaAudit` | `azure-capacity-manager` | Weekly on Tuesday at 7:00 AM<br>`0 7 * * 2` | Weekly audit of storage, network, and non-compute quota usage at risk |
-| `SkuAvailabilityAudit` | `azure-capacity-manager` | Weekly on Wednesday at 7:00 AM<br>`0 7 * * 3` | Weekly audit of regional SKU availability and restrictions that could block deployments |
+| `DbQuotaAudit` | `azure-capacity-manager` | Weekly on Wednesday at 7:00 AM<br>`0 7 * * 3` | Weekly audit of database quota and region or zone access risks |
+| `SkuAvailabilityAudit` | `azure-capacity-manager` | Weekly on Wednesday at 7:30 AM<br>`30 7 * * 3` | Weekly audit of regional SKU availability and restrictions that could block deployments |
 | `MonitoringScopeValidation` | `ftk-hubs-agent` | Weekly on Thursday at 9:00 AM<br>`0 9 * * 4` | Weekly validation that FinOps hub monitoring covers all active subscriptions |
-| `BenefitRecommendationReview` | `chief-financial-officer` | Weekly on Friday at 8:00 AM<br>`0 8 * * 5` | Weekly executive review of reservation and savings plan recommendations |
+| `BenefitRecommendationReview` | `finops-practitioner` | Weekly on Friday at 8:00 AM<br>`0 8 * * 5` | Weekly review of reservation and savings plan recommendations, with CFO consultation for decision framing |
 
 <br>
 
@@ -54,10 +55,10 @@ Monthly tasks run after billing data finalizes to produce year-to-date analysis,
 |------|-------|----------|-------------|
 | `StoragePaasGrowthForecast` | `azure-capacity-manager` | Monthly on the 1st at 8:00 AM<br>`0 8 1 * *` | Monthly storage and PaaS quota growth forecast across active subscriptions |
 | `AdvisorSuppressionReview` | `finops-practitioner` | Monthly on the 1st at 9:00 AM<br>`0 9 1 * *` | Monthly review of active Advisor recommendation suppressions for stale or expired decisions |
-| `CapacityMonthlyPlanning` | `azure-capacity-manager` | Monthly on the 1st at 9:00 AM<br>`0 9 1 * *` | Monthly capacity planning cycle — forecast demand, procurement pipeline, governance review |
+| `CapacityMonthlyPlanning` | `azure-capacity-manager` | Monthly on the 1st at 9:00 AM<br>`0 9 1 * *` | Monthly capacity planning cycle — demand forecast, capacity request pipeline, governance review |
 | `Monthly` | `finops-practitioner` | Monthly on the 5th at 5:15 PM<br>`15 17 5 * *` | Autonomous month-over-month cost analysis with FinOps hub tools |
-| `AIWorkloadCostAnalysis` | `chief-financial-officer` | Monthly on the 1st at 10:00 AM<br>`0 10 1 * *` | Monthly AI workload cost analysis — token economics, model efficiency, and cost allocation for Azure OpenAI |
-| `YOY` | `chief-financial-officer` | January 5 and July 5 at 9:00 AM<br>`0 9 5 1,7 *` | Semiannual year-over-year finance analysis with forecast |
+| `AIWorkloadCostAnalysis` | `finops-practitioner` | Monthly on the 1st at 10:00 AM<br>`0 10 1 * *` | Monthly AI workload cost analysis — token economics, model efficiency, and cost allocation for Azure OpenAI |
+| `Semiannual` | `finops-practitioner` | January 5 and July 5 at 9:00 AM<br>`0 9 5 1,7 *` | Semiannual year-over-year finance analysis with forecast and CFO consultation |
 | `BudgetCoverageAudit` | `finops-practitioner` | Monthly on the 15th at 8:00 AM<br>`0 8 15 * *` | Monthly audit of subscription budget coverage and missing budget controls |
 | `AlertCoverageAudit` | `finops-practitioner` | Monthly on the 16th at 8:00 AM<br>`0 8 16 * *` | Monthly audit of cost anomaly alert coverage across active subscriptions |
 
@@ -65,11 +66,11 @@ Monthly tasks run after billing data finalizes to produce year-to-date analysis,
 
 ## Quarterly tasks
 
-Quarterly tasks run at the start of each calendar quarter to summarize capacity supply chain maturity, commitment alignment, and architecture evolution. Use them to feed leadership reviews and the next quarter's planning cycle.
+Quarterly tasks run at the start of each calendar quarter to summarize capacity-related FinOps capability maturity, commitment alignment, and architecture evolution. Use them to feed leadership reviews and the next quarter's planning cycle.
 
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
-| `CapacityQuarterlyStrategy` | `azure-capacity-manager` | Quarterly on January 1, April 1, July 1, and October 1 at 9:00 AM<br>`0 9 1 1,4,7,10 *` | Quarterly capacity strategy review — supply chain maturity, commitment alignment, architecture evolution |
+| `CapacityQuarterlyStrategy` | `azure-capacity-manager` | Quarterly on January 1, April 1, July 1, and October 1 at 9:00 AM<br>`0 9 1 1,4,7,10 *` | Quarterly capacity strategy review — FinOps capability maturity, commitment alignment, architecture evolution |
 
 <br>
 
@@ -87,13 +88,13 @@ Each scheduled task is defined in YAML under `src/templates/sre-agent/recipes/fi
 ### CapacityDailyMonitor
 
 - **Data sources queried:** VM quota usage through `vm-quota-usage`, capacity reservation group data through `capacity-reservation-groups`, non-compute quota context through `non-compute-quotas`, Azure CLI discovery for AKS and regional resources, and hub freshness checks where cost context is needed.
-- **Output format and content:** A daily capacity supply-chain health report with quota pressure, capacity reservation utilization, AKS node pool readiness, alert status, and urgent capacity blockers.
+- **Output format and content:** A daily capacity health report with quota pressure, capacity reservation utilization, AKS node pool readiness, alert status, and urgent capacity blockers mapped to FinOps capability impact.
 - **Recommended actions generated:** File quota increases, redistribute workload demand, adjust capacity reservation groups, investigate underutilized reservations, validate AKS node pool capacity, and escalate imminent deployment blockers.
 - **Customization options:** Change the daily cron from `30 6 * * *`, tune warning and critical quota-utilization thresholds, define target capacity reservation utilization bands, scope monitored subscriptions or regions, and add workload-specific AKS node pool checks.
 
 ### Monthly
 
-- **Data sources queried:** FinOps hub Kusto tools including `data-freshness-check`, `monthly-cost-trend`, `monthly-cost-change-percentage`, `top-services-by-cost`, `top-resource-groups-by-cost`, `cost-by-region-trend`, `cost-anomaly-detection`, `savings-summary-report`, `commitment-discount-utilization`, `cost-forecasting-model`, `reservation-recommendation-breakdown`, `top-resource-types-by-cost`, `service-price-benchmarking`, `top-other-transactions`, and `costs-enriched-base`.
+- **Data sources queried:** `finops-practitioner` delegates FinOps hub Kusto evidence to `ftk-database-query`, including `data-freshness-check`, `monthly-cost-trend`, `monthly-cost-change-percentage`, `top-services-by-cost`, `top-resource-groups-by-cost`, `cost-by-region-trend`, `cost-anomaly-detection`, `savings-summary-report`, `commitment-discount-utilization`, `cost-forecasting-model`, `reservation-recommendation-breakdown`, `top-resource-types-by-cost`, `service-price-benchmarking`, and `top-other-transactions`. Capacity-risk evidence is delegated to `azure-capacity-manager`.
 - **Output format and content:** A daily month-over-month cost analysis with executive summary, service and resource group drivers, anomalies, forecasts, savings and commitment signals, regional distribution, tag coverage, marketplace or other purchases, charts where data supports them, and action items.
 - **Recommended actions generated:** Investigate anomalies, correct cost allocation gaps, prioritize cost drivers, act on savings opportunities, review commitment utilization, address forecast risk, and validate tags or financial hierarchy gaps.
 - **Customization options:** Change the monthly cron from `15 17 5 * *`, adjust anomaly and variance thresholds, change the comparison window, scope the analysis to selected subscriptions or billing entities, and add or remove Kusto sections from the report.
@@ -115,7 +116,7 @@ Each scheduled task is defined in YAML under `src/templates/sre-agent/recipes/fi
 ### CapacityWeeklySupplyReview
 
 - **Data sources queried:** VM quota usage, `capacity-reservation-groups`, `non-compute-quotas`, `sku-availability`, benefit and reservation recommendations, Azure CLI regional discovery, and commitment-related cost signals.
-- **Output format and content:** A weekly capacity supply review covering quota headroom, capacity reservation waste, SKU and zone availability, region access, non-compute constraints, and capacity-to-rate optimization opportunities.
+- **Output format and content:** A weekly capacity evidence review covering quota headroom, capacity reservation waste, SKU and zone availability, region access, non-compute constraints, and capacity-to-rate optimization opportunities mapped to FinOps capabilities.
 - **Recommended actions generated:** Increase quota, rebalance capacity reservations, release or resize underused CRGs, validate alternate SKUs or regions, align capacity reservations with reservation or savings opportunities, and escalate SKU restrictions.
 - **Customization options:** Change the weekly cron from `0 8 * * 1`, tune quota and CRG utilization thresholds, set approved regions and SKU allowlists, scope the review to critical workloads, and adjust how benefit recommendations are ranked.
 
@@ -126,12 +127,19 @@ Each scheduled task is defined in YAML under `src/templates/sre-agent/recipes/fi
 - **Recommended actions generated:** Request quota increases, reduce or redistribute usage, add missing quota monitoring, validate estimated limits with service owners, and escalate high-risk storage or network quotas before deployments fail.
 - **Customization options:** Change the weekly cron from `0 7 * * 2`, tune at-risk utilization thresholds, choose monitored services, scope subscriptions or regions, and define how to handle quotas that report current usage but not limits.
 
+### DbQuotaAudit
+
+- **Data sources queried:** `db-service-quotas` for SQL DB, SQL Managed Instance, Cosmos DB, PostgreSQL Flexible Server, and MySQL Flexible Server quota, region, and availability-zone access signals.
+- **Output format and content:** A weekly database quota report that separates service limits, regional access, zone access, estimated or missing evidence, and workload impact by subscription and region.
+- **Recommended actions generated:** Request database quota increases, validate region or zone access, adjust database placement plans, add owner routing for capacity risks, and escalate blockers before deployment or scale events.
+- **Customization options:** Change the weekly cron from `0 7 * * 3`, choose database services or regions to inspect, tune risk thresholds, and define owner metadata requirements.
+
 ### SkuAvailabilityAudit
 
 - **Data sources queried:** `sku-availability` for regional SKU availability and restrictions, Azure subscription and region discovery, and workload-provided SKU filters when present.
 - **Output format and content:** A weekly availability report that lists requested SKUs by region, availability status, restrictions, deployment blockers, and recommended fallback regions or SKU families.
 - **Recommended actions generated:** Change deployment region or SKU, request regional access where possible, update landing-zone allowed SKU lists, revise deployment plans, and escalate blockers that affect production capacity.
-- **Customization options:** Change the weekly cron from `0 7 * * 3`, tune the SKU and region scope, add required workload SKUs, define preferred fallback regions, and change the severity threshold for restricted or unavailable SKUs.
+- **Customization options:** Change the weekly cron from `30 7 * * 3`, tune the SKU and region scope, add required workload SKUs, define preferred fallback regions, and change the severity threshold for restricted or unavailable SKUs.
 
 ### MonitoringScopeValidation
 
@@ -142,7 +150,7 @@ Each scheduled task is defined in YAML under `src/templates/sre-agent/recipes/fi
 
 ### BenefitRecommendationReview
 
-- **Data sources queried:** `benefit-recommendations` for reservation and savings plan opportunities, billing-scope context, commitment discount utilization, and related cost summaries for executive prioritization.
+- **Data sources queried:** `benefit-recommendations` for reservation and savings plan opportunities, billing-scope context, plus Kusto-backed commitment utilization and savings evidence delegated to `ftk-database-query`.
 - **Output format and content:** A weekly executive report with total savings opportunity, recommendation categories, term and scope assumptions, purchase candidates, risk notes, and decision-ready next steps.
 - **Recommended actions generated:** Approve high-confidence purchases, reject or defer recommendations that conflict with demand forecasts, adjust commitment coverage, request validation from workload owners, and document finance approval decisions.
 - **Customization options:** Change the weekly cron from `0 8 * * 5`, tune minimum savings and confidence thresholds, set preferred commitment terms, scope recommendations by billing profile or subscription, and add finance approval rules.
@@ -163,21 +171,21 @@ Each scheduled task is defined in YAML under `src/templates/sre-agent/recipes/fi
 
 ### CapacityMonthlyPlanning
 
-- **Data sources queried:** `cost-forecasting-model`, `vm-quota-usage`, `capacity-reservation-groups`, `resource-graph-query`, `commitment-discount-utilization`, `savings-summary-report`, and benefit recommendations for demand, procurement, allocation, and cost impact.
-- **Output format and content:** A monthly capacity planning packet with demand forecast, procurement pipeline, quota and CRG allocation review, cost impact, governance findings, and planning decisions.
-- **Recommended actions generated:** Submit quota and capacity requests, adjust capacity reservations, align procurement with forecasted demand, rebalance allocation across subscriptions, and update governance controls for capacity planning.
-- **Customization options:** Change the monthly cron from `0 9 1 * *`, tune forecast horizon and growth thresholds, choose capacity planning regions and SKUs, set acceptable CRG utilization bands, and add procurement workflow fields.
+- **Data sources queried:** `azure-capacity-manager` uses `vm-quota-usage`, `capacity-reservation-groups`, `resource-graph-query`, and benefit recommendations directly, then asks `ftk-database-query` for Kusto-backed forecast, commitment utilization, and savings evidence.
+- **Output format and content:** A monthly capacity planning packet with demand forecast, capacity request pipeline, quota and CRG allocation review, cost impact, governance findings, and planning decisions.
+- **Recommended actions generated:** Submit quota and capacity requests, adjust capacity reservations, align capacity requests with forecasted demand, rebalance allocation across subscriptions, and update governance controls for capacity planning.
+- **Customization options:** Change the monthly cron from `0 9 1 * *`, tune forecast horizon and growth thresholds, choose capacity planning regions and SKUs, set acceptable CRG utilization bands, and add capacity request workflow fields.
 
-### YOY
+### Semiannual
 
-- **Data sources queried:** FinOps hub Kusto tools including `monthly-cost-trend`, `quarterly-cost-by-resource-group`, `cost-anomaly-detection`, `savings-summary-report`, `commitment-discount-utilization`, `cost-by-financial-hierarchy`, `cost-forecasting-model`, `reservation-recommendation-breakdown`, `cost-by-region-trend`, `top-resource-types-by-cost`, `service-price-benchmarking`, `monthly-cost-change-percentage`, `top-commitment-transactions`, `top-other-transactions`, and `costs-enriched-base`.
+- **Data sources queried:** `finops-practitioner` delegates FinOps hub Kusto evidence to `ftk-database-query`, including `monthly-cost-trend`, `quarterly-cost-by-resource-group`, `cost-anomaly-detection`, `savings-summary-report`, `commitment-discount-utilization`, `cost-by-financial-hierarchy`, `cost-forecasting-model`, `reservation-recommendation-breakdown`, `cost-by-region-trend`, `top-resource-types-by-cost`, `service-price-benchmarking`, `monthly-cost-change-percentage`, `top-commitment-transactions`, and `top-other-transactions`.
 - **Output format and content:** A semiannual year-over-year finance report with spend trend, forward forecast, quarterly trends, service portfolio analysis, anomaly narrative, savings realization, commitment performance, hierarchy views, and executive actions.
 - **Recommended actions generated:** Reforecast budgets, address variance drivers, approve savings actions, adjust commitments, escalate financial hierarchy gaps, and document finance risks before fiscal reviews.
 - **Customization options:** Change the semiannual cron from `0 9 5 1,7 *`, align fiscal calendar assumptions, tune variance and forecast thresholds, scope the report by billing or management group hierarchy, and add finance-specific KPI sections.
 
 ### AIWorkloadCostAnalysis
 
-- **Data sources queried:** AI cost tools including `ai-token-usage-breakdown`, `ai-model-cost-comparison`, `ai-daily-trend`, and `ai-cost-by-application`, plus cost and capacity context from Azure discovery when needed.
+- **Data sources queried:** `finops-practitioner` delegates AI cost Kusto evidence to `ftk-database-query`, including `ai-token-usage-breakdown`, `ai-model-cost-comparison`, `ai-daily-trend`, and `ai-cost-by-application`, plus cost and capacity context from Azure discovery and `azure-capacity-manager` when needed.
 - **Output format and content:** A monthly AI cost report covering token economics, model mix, application allocation, daily trends, input and output ratios, month-over-month AI cost movement, optimization opportunities, and charts.
 - **Recommended actions generated:** Substitute models where quality allows, optimize prompts, rightsize environments, improve application cost allocation, assess commitment coverage, and prioritize workloads with high token cost growth.
 - **Customization options:** Change the monthly cron from `0 10 1 * *`, tune token-cost and growth thresholds, choose model families or applications in scope, add quality or latency guardrails for model substitution, and change chargeback allocation rules.
@@ -198,9 +206,9 @@ Each scheduled task is defined in YAML under `src/templates/sre-agent/recipes/fi
 
 ### CapacityQuarterlyStrategy
 
-- **Data sources queried:** VM quota usage, reservation and savings recommendations, `commitment-discount-utilization`, `savings-summary-report`, `reservation-recommendation-breakdown`, Azure Resource Graph, Azure CLI architecture signals, and non-compute quota context.
-- **Output format and content:** A quarterly strategy report covering supply-chain maturity, commitment alignment, architecture evolution, region and quota strategy, governance health, risk register, and executive recommendations.
-- **Recommended actions generated:** Mature capacity governance, align reservations and savings plans with demand, update regional architecture, address non-compute quota constraints, revise procurement processes, and set quarterly capacity objectives.
+- **Data sources queried:** VM quota usage, reservation and savings recommendations, Kusto-backed commitment and savings evidence delegated to `ftk-database-query`, Azure Resource Graph, Azure CLI architecture signals, and non-compute quota context.
+- **Output format and content:** A quarterly strategy report covering FinOps capability maturity, commitment alignment, architecture evolution, region and quota strategy, governance health, risk register, and executive recommendations.
+- **Recommended actions generated:** Mature capacity governance, align reservations and savings plans with demand, update regional architecture, address non-compute quota constraints, revise capacity request processes, and set quarterly capacity objectives.
 - **Customization options:** Change the quarterly cron from `0 9 1 1,4,7,10 *`, tune maturity scoring and risk thresholds, set strategic regions and SKU families, align with quarterly business review dates, and add organization-specific governance criteria.
 
 <br>
@@ -252,7 +260,7 @@ Related FinOps capabilities:
 - [Anomaly management](../../framework/understand/anomalies.md)
 - [Reporting and analytics](../../framework/understand/reporting.md)
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 

@@ -3,12 +3,12 @@ title: Governance workbook
 description: Azure Monitor workbook focused on governance, providing an overview of your Azure environment's governance posture and compliance.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: nteyan
-#customer intent: As a FinOps user, I want to understand what the FinOps Governance workbook is and how it can help me implement the Cloud policy and governance capability.
+#customer intent: As a FinOps user, I want to understand what the FinOps Governance workbook is and how it can help me implement the Governance, Policy & Risk capability.
 ---
 
 # Governance workbook
@@ -220,7 +220,7 @@ If you're looking for something specific, vote for an existing or create a new i
 
 Related FinOps capabilities:
 
-- [Cloud policy and governance](../../framework/manage/governance.md)
+- [Governance, Policy & Risk](../../framework/manage/governance.md)
 
 Related products:
 

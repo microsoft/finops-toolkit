@@ -65,7 +65,7 @@ bash bin/deploy.sh \
   --name <your-agent-name> \
   --location <your-region> \
   --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
-  --cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name> \
+  [--cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>] \
   [--target-resource-group <target-rg> ...] \
   [--dry-run] \
   [--force] \
@@ -89,7 +89,7 @@ Optional:
   --target-resource-group <name>      Repeatable target resource group. Defaults to --resource-group.
   --cluster-uri <uri>                 Kusto connector URI, including database name.
                                       Example: https://<cluster>.<region>.kusto.windows.net/Hub
-  --cluster-resource-id <id>          Kusto cluster ARM resource ID for Viewer RBAC.
+  --cluster-resource-id <id>          Optional Kusto cluster ARM resource ID. Real deployments resolve this from --cluster-uri when possible; dry-run requires it.
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
@@ -116,7 +116,9 @@ bash bin/deploy.sh \
 
 When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane and the remaining recipe assets with `srectl`.
 
-Resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Use the same values to update an existing deployment. `--deploy-name` only changes the ARM deployment record and local build directory.
+Resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Use the same values to update an existing deployment. Post-provisioning deletes existing scheduled tasks with the recipe's task names before applying manifests so redeployments don't create duplicate automations. `--deploy-name` only changes the ARM deployment record and local build directory.
+
+If `--cluster-uri` points to an Azure Data Explorer cluster with `publicNetworkAccess` set to `Disabled`, the script still deploys all resources, assigns the agent identity `AllDatabasesViewer`, and creates the `finops-hub-kusto` connector. It also prints a warning with the SRE Agent known-limitations URL because private endpoint ADX blocks direct KQL queries from the hosted agent. The customer can decide whether to enable public query access for the connector after reviewing <https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations>.
 
 ## Recipe identity defaults
 
@@ -136,7 +138,7 @@ bash bin/verify-agent.sh \
   --expected recipes/finops-hub
 ```
 
-Then confirm the agent in [sre.azure.com](https://sre.azure.com). If you passed `--cluster-uri`, verify that the `finops-hub-kusto` connector is healthy.
+Then confirm the agent in [sre.azure.com](https://sre.azure.com). If you passed `--cluster-uri`, verify the `finops-hub-kusto` connector. If the deployment warned that the cluster denies public query access, the connector is expected to remain unhealthy until the customer enables public query access or Microsoft adds private endpoint ADX query support for SRE Agent.
 
 ## Configure notifications
 
@@ -190,7 +192,7 @@ bash bin/deploy.sh \
   --name <your-agent-name> \
   --location <your-region> \
   --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
-  --cluster-resource-id /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster> \
+  [--cluster-resource-id /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster>] \
   --no-telemetry
 ```
 

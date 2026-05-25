@@ -181,9 +181,398 @@ Describe 'SRE Agent deploy template' {
 
                 $firstPath | Should -Be $secondPath
                 $firstPath | Should -Match 'sre-agent-customer-sre-agent-[a-f0-9]{12}'
+
+                $parameters = Get-Content -Path $firstPath -Raw | ConvertFrom-Json
+                $parameters.parameters.upgradeChannel.value | Should -Be 'Stable'
+                $parameters.parameters.experimentalSettings.value.EnableSandboxGroup | Should -BeTrue
+                $parameters.parameters.experimentalSettings.value.EnableWorkspaceTools | Should -BeTrue
+                $parameters.parameters.monthlyAgentUnitLimit.value | Should -Be 10000
             }
             finally {
                 Remove-Item -Path $deployRoot -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+
+        It 'requires cluster resource ID for dry-run when a Kusto URI is provided' {
+            if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
+
+            $result = Invoke-BashCommand "bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l westus3 --cluster-uri https://example.westus3.kusto.windows.net/Hub --dry-run"
+
+            $result.ExitCode | Should -Be 2
+            $result.Output | Should -Match '--cluster-resource-id is required with --cluster-uri for --dry-run'
+        }
+
+        It 'auto-resolves the Kusto cluster resource ID before deployment' {
+            if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
+
+            $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sre-agent-kusto-resolve-" + [guid]::NewGuid().ToString('N'))
+            $binDir = Join-Path $tempRoot 'bin'
+            $deployRoot = Join-Path $tempRoot 'deploy'
+            New-Item -ItemType Directory -Force -Path $binDir, $deployRoot | Out-Null
+
+            $fakeAz = Join-Path $binDir 'az'
+            @'
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$*" == *"account get-access-token"* ]]; then
+  echo "fake-token"
+  exit 0
+fi
+
+if [[ "$*" == *"resource list"* ]]; then
+  exit 0
+fi
+
+if [[ "$*" == *"graph query"* ]]; then
+  cat <<'JSON'
+{
+  "data": [
+    {
+      "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-hub/providers/Microsoft.Kusto/clusters/example"
+    }
+  ]
+}
+JSON
+  exit 0
+fi
+
+if [[ "$*" == *"deployment sub create"* ]]; then
+  cat <<'JSON'
+{
+  "properties": {
+    "provisioningState": "Succeeded",
+    "outputs": {
+      "SRE_AGENT_ENDPOINT": { "value": "https://example.azuresre.ai" },
+      "MANAGED_IDENTITY_ID": { "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test-customer/providers/Microsoft.ManagedIdentity/userAssignedIdentities/customer-sre-agent-id" },
+      "AGENT_PORTAL_URL": { "value": "https://sre.azure.com/#/agent/00000000-0000-0000-0000-000000000000/rg-test-customer/customer-sre-agent" }
+    }
+  }
+}
+JSON
+  exit 0
+fi
+
+case "$*" in
+  *"account show"*|*"account set"*|*"provider register"*|*"version"*)
+    exit 0
+    ;;
+esac
+
+exit 0
+'@ | Set-Content -Path $fakeAz -NoNewline
+            & chmod +x $fakeAz
+
+            $fakeSrectl = Join-Path $binDir 'srectl'
+            @'
+#!/usr/bin/env bash
+set -euo pipefail
+exit 0
+'@ | Set-Content -Path $fakeSrectl -NoNewline
+            & chmod +x $fakeSrectl
+
+            $fakeCurl = Join-Path $binDir 'curl'
+            @'
+#!/usr/bin/env bash
+set -euo pipefail
+
+out=""
+url=""
+method="GET"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -o)
+      out="$2"
+      shift 2
+      ;;
+    -w)
+      shift 2
+      ;;
+    -X)
+      method="$2"
+      shift 2
+      ;;
+    -H|--data-binary)
+      shift 2
+      ;;
+    http*)
+      url="$1"
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+if [[ "$url" == */api/v2/extendedAgent/connectors/finops-hub-kusto ]]; then
+  cat > "$out" <<'JSON'
+{"name":"finops-hub-kusto","properties":{"dataConnectorType":"Kusto"}}
+JSON
+  printf "201"
+  exit 0
+fi
+
+if [[ "$url" == */api/v2/extendedAgent/connectors ]]; then
+  cat > "$out" <<'JSON'
+{
+  "value": [
+    { "name": "chart-artifact-verification.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "chart-artifact-verification.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "document-index.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "document-index.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "ftk-output-style.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "ftk-output-style.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "known-issues-and-workarounds.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "known-issues-and-workarounds.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "onboarding-recommendations.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "onboarding-recommendations.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "teams-notification-guide.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "teams-notification-guide.md", "createdAt": "2026-05-25T19:57:31Z" } } }
+  ]
+}
+JSON
+  printf "200"
+  exit 0
+fi
+
+if [[ "$url" == */api/v2/extendedAgent/connectors/* ]]; then
+  cat > "$out" <<'JSON'
+{
+  "properties": {
+    "dataConnectorType": "KnowledgeFile",
+    "extendedProperties": {
+      "createdAt": "2026-05-25T19:57:31Z",
+      "lastModifiedAt": "2026-05-25T19:57:31Z"
+    }
+  }
+}
+JSON
+  if [[ "$method" == "PUT" ]]; then printf "201"; else printf "200"; fi
+  exit 0
+fi
+
+if [[ "$url" == */api/v1/scheduledtasks ]]; then
+  cat > "$out" <<'JSON'
+[]
+JSON
+  printf "200"
+  exit 0
+fi
+
+if [[ "$url" == */api/v1/scheduledtasks ]]; then
+  cat > "$out" <<'JSON'
+[]
+JSON
+  printf "200"
+  exit 0
+fi
+
+cat > "$out" <<'JSON'
+{
+  "files": [
+    { "name": "chart-artifact-verification.md", "isIndexed": true, "errorReason": null },
+    { "name": "document-index.md", "isIndexed": true, "errorReason": null },
+    { "name": "ftk-output-style.md", "isIndexed": true, "errorReason": null },
+    { "name": "known-issues-and-workarounds.md", "isIndexed": true, "errorReason": null },
+    { "name": "onboarding-recommendations.md", "isIndexed": true, "errorReason": null },
+    { "name": "teams-notification-guide.md", "isIndexed": true, "errorReason": null }
+  ],
+  "continuationToken": ""
+}
+JSON
+printf "200"
+'@ | Set-Content -Path $fakeCurl -NoNewline
+            & chmod +x $fakeCurl
+
+            try {
+                $command = "PATH='$binDir':`$PATH SRE_AGENT_DEPLOY_DIR='$deployRoot' bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://example.westus3.kusto.windows.net/Hub"
+                $result = Invoke-BashCommand $command
+                $result.ExitCode | Should -Be 0
+                $result.Output | Should -Match 'Resolving Kusto cluster resource ID from --cluster-uri'
+                $result.Output | Should -Match '/providers/Microsoft\.Kusto/clusters/example'
+
+                $parametersFile = (Get-ChildItem -Path $deployRoot -Recurse -Filter 'deploy.parameters.json' | Select-Object -First 1).FullName
+                $parametersFile | Should -Not -BeNullOrEmpty
+                $parameters = Get-Content -Path $parametersFile -Raw | ConvertFrom-Json
+                $parameters.parameters.finopsHubKustoClusterResourceId.value | Should -Be '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-hub/providers/Microsoft.Kusto/clusters/example'
+            }
+            finally {
+                Remove-Item -Path $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+
+        It 'warns but continues when the Kusto cluster denies public query access' {
+            if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
+
+            $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sre-agent-kusto-private-" + [guid]::NewGuid().ToString('N'))
+            $binDir = Join-Path $tempRoot 'bin'
+            $deployRoot = Join-Path $tempRoot 'deploy'
+            New-Item -ItemType Directory -Force -Path $binDir, $deployRoot | Out-Null
+
+            $fakeAz = Join-Path $binDir 'az'
+            @'
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$*" == *"account get-access-token"* ]]; then
+  echo "fake-token"
+  exit 0
+fi
+
+if [[ "$*" == *"resource show"* ]]; then
+  cat <<'JSON'
+{
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-hub/providers/Microsoft.Kusto/clusters/privateadx",
+  "properties": {
+    "uri": "https://privateadx.westus.kusto.windows.net",
+    "publicNetworkAccess": "Disabled",
+    "privateEndpointConnections": [
+      {
+        "name": "privateadx-ep",
+        "properties": {
+          "privateLinkServiceConnectionState": {
+            "status": "Approved"
+          }
+        }
+      }
+    ]
+  }
+}
+JSON
+  exit 0
+fi
+
+if [[ "$*" == *"deployment sub create"* ]]; then
+  cat <<'JSON'
+{
+  "properties": {
+    "provisioningState": "Succeeded",
+    "outputs": {
+      "SRE_AGENT_ENDPOINT": { "value": "https://example.azuresre.ai" },
+      "MANAGED_IDENTITY_ID": { "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test-customer/providers/Microsoft.ManagedIdentity/userAssignedIdentities/customer-sre-agent-id" },
+      "AGENT_PORTAL_URL": { "value": "https://sre.azure.com/#/agent/00000000-0000-0000-0000-000000000000/rg-test-customer/customer-sre-agent" }
+    }
+  }
+}
+JSON
+  exit 0
+fi
+
+case "$*" in
+  *"account show"*|*"account set"*|*"provider register"*|*"version"*)
+    exit 0
+    ;;
+esac
+
+exit 0
+'@ | Set-Content -Path $fakeAz -NoNewline
+            & chmod +x $fakeAz
+
+            $fakeSrectl = Join-Path $binDir 'srectl'
+            @'
+#!/usr/bin/env bash
+set -euo pipefail
+exit 0
+'@ | Set-Content -Path $fakeSrectl -NoNewline
+            & chmod +x $fakeSrectl
+
+            $fakeCurl = Join-Path $binDir 'curl'
+            @'
+#!/usr/bin/env bash
+set -euo pipefail
+
+out=""
+url=""
+method="GET"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -o)
+      out="$2"
+      shift 2
+      ;;
+    -w)
+      shift 2
+      ;;
+    -X)
+      method="$2"
+      shift 2
+      ;;
+    -H|--data-binary)
+      shift 2
+      ;;
+    http*)
+      url="$1"
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+if [[ "$url" == */api/v2/extendedAgent/connectors/finops-hub-kusto ]]; then
+  cat > "$out" <<'JSON'
+{"name":"finops-hub-kusto","properties":{"dataConnectorType":"Kusto"}}
+JSON
+  printf "201"
+  exit 0
+fi
+
+if [[ "$url" == */api/v2/extendedAgent/connectors ]]; then
+  cat > "$out" <<'JSON'
+{
+  "value": [
+    { "name": "chart-artifact-verification.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "chart-artifact-verification.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "document-index.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "document-index.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "ftk-output-style.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "ftk-output-style.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "known-issues-and-workarounds.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "known-issues-and-workarounds.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "onboarding-recommendations.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "onboarding-recommendations.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "teams-notification-guide.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "teams-notification-guide.md", "createdAt": "2026-05-25T19:57:31Z" } } }
+  ]
+}
+JSON
+  printf "200"
+  exit 0
+fi
+
+if [[ "$url" == */api/v2/extendedAgent/connectors/* ]]; then
+  cat > "$out" <<'JSON'
+{
+  "properties": {
+    "dataConnectorType": "KnowledgeFile",
+    "extendedProperties": {
+      "createdAt": "2026-05-25T19:57:31Z",
+      "lastModifiedAt": "2026-05-25T19:57:31Z"
+    }
+  }
+}
+JSON
+  if [[ "$method" == "PUT" ]]; then printf "201"; else printf "200"; fi
+  exit 0
+fi
+
+if [[ "$url" == */api/v1/scheduledtasks ]]; then
+  cat > "$out" <<'JSON'
+[]
+JSON
+  printf "200"
+  exit 0
+fi
+
+cat > "$out" <<'JSON'
+{}
+JSON
+printf "200"
+'@ | Set-Content -Path $fakeCurl -NoNewline
+            & chmod +x $fakeCurl
+
+            try {
+                $clusterId = '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-hub/providers/Microsoft.Kusto/clusters/privateadx'
+                $command = "PATH='$binDir':`$PATH SRE_AGENT_DEPLOY_DIR='$deployRoot' bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://privateadx.westus.kusto.windows.net/Hub --cluster-resource-id $clusterId"
+                $result = Invoke-BashCommand $command
+                $result.ExitCode | Should -Be 0
+                $result.Output | Should -Match 'Warning: The Kusto cluster denies public query access'
+                $result.Output | Should -Match 'private endpoint ADX blocks direct KQL queries'
+                $result.Output | Should -Match 'https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations'
+                $result.Output | Should -Match 'SRE Agent ready'
+            }
+            finally {
+                Remove-Item -Path $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
             }
         }
 
@@ -205,6 +594,23 @@ Describe 'SRE Agent deploy template' {
         It 'removes shipped recipe identity defaults' {
             $agentJson = Get-Content -Path $script:AgentJsonPath -Raw
             $agentJson | Should -Not -Match '"identity"'
+        }
+
+        It 'uses the stable SRE Agent API and sandbox configuration' {
+            $agentJson = Get-Content -Path $script:AgentJsonPath -Raw | ConvertFrom-Json
+            $mainBicep = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/main.bicep') -Raw
+            $sreAgentBicep = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/modules/sre-agent.bicep') -Raw
+            $verifyScript = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/verify-agent.sh') -Raw
+
+            $agentJson.upgradeChannel | Should -Be 'Stable'
+            $agentJson.experimentalSettings.EnableSandboxGroup | Should -BeTrue
+            $agentJson.experimentalSettings.EnableWorkspaceTools | Should -BeTrue
+            $sreAgentBicep | Should -Match 'Microsoft\.App/agents@2026-01-01'
+            $sreAgentBicep | Should -Not -Match 'Microsoft\.App/agents@2025-05-01-preview'
+            $sreAgentBicep | Should -Match 'upgradeChannel: upgradeChannel'
+            $mainBicep | Should -Match 'EnableSandboxGroup'
+            $mainBicep | Should -Match 'EnableWorkspaceTools'
+            $verifyScript | Should -Match 'API_VERSION="2026-01-01"'
         }
 
         It 'limits legacy config env-var references to the allowlist' {
@@ -303,6 +709,104 @@ esac
 '@ | Set-Content -Path $fakeSrectl -NoNewline
             & chmod +x $fakeSrectl
 
+            $fakeAz = Join-Path $binDir 'az'
+            @'
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$*" == *"account get-access-token"* ]]; then
+  echo "fake-token"
+  exit 0
+fi
+exit 1
+'@ | Set-Content -Path $fakeAz -NoNewline
+            & chmod +x $fakeAz
+
+            $fakeCurl = Join-Path $binDir 'curl'
+            @'
+#!/usr/bin/env bash
+set -euo pipefail
+
+out=""
+url=""
+method="GET"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -o)
+      out="$2"
+      shift 2
+      ;;
+    -w)
+      shift 2
+      ;;
+    -X)
+      method="$2"
+      shift 2
+      ;;
+    -H|--data-binary)
+      shift 2
+      ;;
+    http*)
+      url="$1"
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+if [[ "$url" == */api/v2/extendedAgent/connectors ]]; then
+  cat > "$out" <<'JSON'
+{
+  "value": [
+    { "name": "chart-artifact-verification.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "chart-artifact-verification.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "document-index.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "document-index.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "ftk-output-style.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "ftk-output-style.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "known-issues-and-workarounds.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "known-issues-and-workarounds.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "onboarding-recommendations.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "onboarding-recommendations.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "teams-notification-guide.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "teams-notification-guide.md", "createdAt": "2026-05-25T19:57:31Z" } } }
+  ]
+}
+JSON
+  printf "200"
+  exit 0
+fi
+
+if [[ "$url" == */api/v2/extendedAgent/connectors/* ]]; then
+  cat > "$out" <<'JSON'
+{
+  "type": "KnowledgeItem",
+  "properties": {
+    "dataConnectorType": "KnowledgeFile",
+    "extendedProperties": {
+      "createdAt": "2026-05-25T19:57:31Z",
+      "lastModifiedAt": "2026-05-25T19:57:31Z"
+    }
+  }
+}
+JSON
+  if [[ "$method" == "PUT" ]]; then printf "201"; else printf "200"; fi
+  exit 0
+fi
+
+cat > "$out" <<'JSON'
+{
+  "files": [
+    { "name": "chart-artifact-verification.md", "isIndexed": true, "errorReason": null },
+    { "name": "document-index.md", "isIndexed": true, "errorReason": null },
+    { "name": "ftk-output-style.md", "isIndexed": true, "errorReason": null },
+    { "name": "known-issues-and-workarounds.md", "isIndexed": true, "errorReason": null },
+    { "name": "onboarding-recommendations.md", "isIndexed": true, "errorReason": null },
+    { "name": "teams-notification-guide.md", "isIndexed": true, "errorReason": null }
+  ],
+  "continuationToken": ""
+}
+JSON
+printf "200"
+'@ | Set-Content -Path $fakeCurl -NoNewline
+            & chmod +x $fakeCurl
+
             try {
                 $command = "PATH='$binDir':`$PATH SRECTL_LOG='$logPath' bash '$script:PostProvisionScript' --endpoint https://example.azuresre.ai --recipe '$script:RecipeDir' --build-dir '$buildDir'"
                 $result = Invoke-BashCommand $command
@@ -327,14 +831,35 @@ esac
             $verifyScript | Should -Match 'EXP_CONN_NAMES=.*EXPECTED_CONNECTORS'
         }
 
-        It 'uploads the shared FinOps output style as knowledge' {
+        It 'uploads the shared FinOps output style as a portal knowledge source' {
             $postProvisionScript = Get-Content -Path $script:PostProvisionScript -Raw
 
             Test-Path $script:OutputStylePath | Should -BeTrue
             $postProvisionScript | Should -Match 'claude-plugin/output-styles/ftk-output-style\.md'
             $postProvisionScript | Should -Match 'upload_knowledge_file'
-            $postProvisionScript | Should -Match 'srectl doc upload'
             $postProvisionScript | Should -Match 'output style knowledge document not found'
+            $postProvisionScript | Should -Match '/api/v2/extendedAgent/connectors'
+            $postProvisionScript | Should -Match 'Knowledge sources failed to index'
+            $postProvisionScript | Should -Match 'KnowledgeItem'
+            $postProvisionScript | Should -Match 'KnowledgeFile'
+            $postProvisionScript | Should -Not -Match 'srectl doc upload'
+            $postProvisionScript | Should -Not -Match '/api/v1/agentmemory/files'
+        }
+
+        It 'requires expected knowledge sources and verifies indexing' {
+            $expectedConfig = Get-Content -Path (Join-Path $script:RecipeDir 'expected-config.json') -Raw | ConvertFrom-Json
+            $verifyScript = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/verify-agent.sh') -Raw
+
+            $expectedConfig.knowledgeSources.Count | Should -Be 6
+            $expectedConfig.knowledgeSources | Should -Contain 'ftk-output-style.md'
+            $expectedConfig.PSObject.Properties.Name | Should -Not -Contain 'knowledgeDocs'
+            $verifyScript | Should -Match '/api/v2/extendedAgent/connectors'
+            $verifyScript | Should -Match '\$expected\[\] \| \. as \$name \| select\(\$actual \| index\(\$name\)\)'
+            $verifyScript | Should -Match 'Knowledge sources expected'
+            $verifyScript | Should -Match 'Knowledge sources indexed'
+            $verifyScript | Should -Match 'Unindexed knowledge sources'
+            $verifyScript | Should -Not -Match '/api/v1/agentmemory/files'
+            $verifyScript | Should -Not -Match 'Knowledge connector rows'
         }
 
         It 'requires every scheduled task to apply the shared output style' {
@@ -346,6 +871,17 @@ esac
                 $content = Get-Content -Path $file.FullName -Raw
                 $content | Should -Match $expectedInstruction
             }
+        }
+
+        It 'deletes existing scheduled tasks before applying manifests' {
+            $postProvisionScript = Get-Content -Path $script:PostProvisionScript -Raw
+            $verifyScript = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/verify-agent.sh') -Raw
+
+            $postProvisionScript | Should -Match 'delete_existing_scheduled_tasks'
+            $postProvisionScript | Should -Match '/api/v1/scheduledtasks'
+            $postProvisionScript | Should -Match 'srectl scheduledtask delete'
+            $verifyScript | Should -Match 'Scheduled task duplicates'
+            $verifyScript | Should -Match '0 duplicates'
         }
 
         It 'extends the shared output style for Azure capacity management' {

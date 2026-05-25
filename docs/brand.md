@@ -230,7 +230,7 @@ Rules:
 
 Reference the practice by its official name from the [FinOps Framework](https://www.finops.org/framework/). The toolkit implements a subset; don't claim to ship the framework.
 
-Use Crawl/Walk/Run when discussing maturity. Use the official capability names (e.g., "Managing commitment-based discounts", not "reservation management").
+Use Crawl/Walk/Run when discussing maturity. Use the official capability names (e.g., "Rate Optimization", not "reservation management").
 
 ---
 

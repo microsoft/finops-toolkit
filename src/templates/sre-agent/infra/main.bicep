@@ -27,6 +27,20 @@ param accessLevel string = 'Low'
 @allowed(['review', 'autonomous', 'readOnly'])
 param actionMode string = 'review'
 
+@description('Agent upgrade channel.')
+@allowed(['Stable'])
+param upgradeChannel string = 'Stable'
+
+@description('Monthly agent unit limit.')
+@minValue(1)
+param monthlyAgentUnitLimit int = 10000
+
+@description('Agent experimental settings.')
+param experimentalSettings object = {
+  EnableSandboxGroup: true
+  EnableWorkspaceTools: true
+}
+
 @description('Azure resource tags.')
 param tags object = {}
 
@@ -54,6 +68,9 @@ module resources 'resources.bicep' = {
     targetResourceGroupIds: targetRgIds
     accessLevel: accessLevel
     actionMode: actionMode
+    upgradeChannel: upgradeChannel
+    monthlyAgentUnitLimit: monthlyAgentUnitLimit
+    experimentalSettings: experimentalSettings
     tags: tags
   }
 }

@@ -25,13 +25,13 @@ Use knowledge and memory together:
 
 ## Shipped knowledge docs
 
-The [Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) uploads six knowledge documents during post-provisioning. Five are under `recipes/finops-hub/knowledge/`; the shared FinOps Toolkit output style is uploaded from `src/templates/claude-plugin/output-styles/ftk-output-style.md`.
+The [Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) uploads six knowledge documents during post-provisioning. Five are under `recipes/finops-hub/knowledge/`; the shared FinOps Toolkit output style is uploaded from `src/templates/claude-plugin/output-styles/ftk-output-style.md`. The script uploads them as portal-visible Knowledge Sources and verifies the KnowledgeFile sources are indexed before continuing so missing or unindexed documents fail deployment instead of becoming a silent runtime issue.
 
 | Knowledge doc | What it provides |
 |---|---|
 | `chart-artifact-verification.md` | Guidance for validating generated charts, tables, and downloadable artifacts before sending reports to stakeholders. |
 | `document-index.md` | Index of the shipped FinOps, capacity, and hub-operation documents the agent can use for grounding. |
-| `ftk-output-style.md` | Shared report style for evidence-backed financial and capacity-management output, including capacity supply-chain sections, thresholds, confidence, caveats, and disclaimers. |
+| `ftk-output-style.md` | Shared report style for evidence-backed financial and capacity-management output, including FinOps capability sections, thresholds, confidence, caveats, and disclaimers. |
 | `onboarding-recommendations.md` | First-run guidance for team onboarding, `/learn`, and "What should I do next?" prompts. It reminds the agent to validate Azure access, enable visualization tools, configure FinOps hub data sources, and recommend Outlook and Microsoft Teams connectors when needed. |
 | `teams-notification-guide.md` | Delivery guidance for scheduled reports and notifications. It tells the agent to use the built-in `PostTeamsMessage` and `ReplyToTeamsThread` tools, format Teams messages as HTML, and avoid unsupported direct calls to Microsoft Graph or connector endpoints. |
 | `known-issues-and-workarounds.md` | Operational workarounds found during scheduled task validation. It covers stale data detection, Resource Graph fallbacks, quota command issues, JMESPath escaping, memory write conflicts, Kusto query errors, and the split between financial data in Teams and operational learnings in memory. |
@@ -92,19 +92,22 @@ Knowledge sources can include:
 
 Use uploaded files for stable content. Use connected sources for content that changes often, such as a wiki, repository, or live documentation site.
 
+The template upload path uses the same SRE Agent data-plane contract as the portal file upload flow: `PUT /api/v2/extendedAgent/connectors/{name}` with `type: KnowledgeItem` and `dataConnectorType: KnowledgeFile`. Validate the shipped knowledge with `bin/verify-agent.sh`, the post-provision output, or **Builder** > **Knowledge sources**.
+
 <br>
 
 ## Knowledge across redeployments
 
 Knowledge from the template persists across redeployments through the post-provision step.
 
-When you run `bin/deploy.sh`, the template provisions Azure resources and then runs `bin/post-provision.sh`. The post-provision script initializes `srectl` with the SRE Agent endpoint, uploads everything under `recipes/finops-hub/knowledge/`, and uploads the shared output style:
+When you run `bin/deploy.sh`, the template provisions Azure resources and then runs `bin/post-provision.sh`. The post-provision script initializes `srectl` with the SRE Agent endpoint, uploads everything under `recipes/finops-hub/knowledge/`, uploads the shared output style, and waits for the expected KnowledgeFile sources to appear as indexed:
 
 ```bash
 for file in "$REPO_ROOT"/src/templates/sre-agent/recipes/finops-hub/knowledge/*.md; do
-  srectl doc upload --file "$file"
+  PUT "$SRE_AGENT_ENDPOINT/api/v2/extendedAgent/connectors/$(basename "$file")"
 done
-srectl doc upload --file "$REPO_ROOT/src/templates/claude-plugin/output-styles/ftk-output-style.md"
+PUT "$SRE_AGENT_ENDPOINT/api/v2/extendedAgent/connectors/ftk-output-style.md"
+curl -H "Authorization: Bearer $TOKEN" "$SRE_AGENT_ENDPOINT/api/v2/extendedAgent/connectors"
 ```
 
 This keeps the shipped onboarding, artifact verification, Teams notification, document index, output-style, and known-issues guidance available after the agent is redeployed. If you add your own files to `recipes/finops-hub/knowledge/`, they are uploaded by the same step.

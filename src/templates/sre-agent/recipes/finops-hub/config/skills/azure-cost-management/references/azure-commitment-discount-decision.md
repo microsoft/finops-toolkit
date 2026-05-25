@@ -180,7 +180,7 @@ This decision framework maps to the FinOps Framework's rate optimization capabil
 - **Optimize**: Purchase commitments based on this decision framework, exchange underutilized reservations, adjust commitment levels
 - **Operate**: Establish governance processes for commitment purchases, renewals, and exchanges; monitor utilization weekly; report savings to stakeholders
 
-Link: [Rate optimization (FinOps Framework)](https://learn.microsoft.com/cloud-computing/finops/framework/optimize/rates)
+Link: [Rate Optimization (FinOps Framework)](https://www.finops.org/framework/capabilities/rate-optimization/)
 
 ---
 
@@ -211,7 +211,7 @@ Link: [Rate optimization (FinOps Framework)](https://learn.microsoft.com/cloud-c
 - [Azure savings plan overview](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/savings-plan-compute-overview)
 - [Azure Reservations overview](https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations)
 - [Decide between a savings plan and a reservation](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/decide-between-savings-plan-reservation)
-- [Rate optimization (FinOps Framework)](https://learn.microsoft.com/cloud-computing/finops/framework/optimize/rates)
+- [Rate Optimization (FinOps Framework)](https://www.finops.org/framework/capabilities/rate-optimization/)
 - [Choose commitment amount](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/choose-commitment-amount)
 - [Benefit Recommendations API](https://learn.microsoft.com/rest/api/cost-management/benefit-recommendations)
 - [Reservation trade-in to savings plans](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/reservation-trade-in)

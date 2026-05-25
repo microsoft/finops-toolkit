@@ -3,7 +3,7 @@
 ## Identity
 - **YAML:** sre-config/scheduled-tasks/yoy-report.yaml
 - **Cron:** 0 9 5 1,7 * — every six months on January 5 and July 5 at 09:00 UTC
-- **Owning subagent:** chief-financial-officer
+- **Owning subagent:** finops-practitioner
 - **FinOps Framework capability:** Reporting & Analytics / Forecasting
 - **Maturity:** Walk
 - **Tools used:** PostTeamsMessage, benefit-recommendations, data-freshness-check, resource-graph-query, Costs(), costs-enriched-base, monthly-cost-trend, top-services-by-cost, quarterly-cost-by-resource-group, cost-anomaly-detection, savings-summary-report, commitment-discount-utilization, cost-by-financial-hierarchy, cost-forecasting-model, reservation-recommendation-breakdown, cost-by-region-trend, top-resource-types-by-cost, monthly-cost-change-percentage, top-commitment-transactions, Transactions()

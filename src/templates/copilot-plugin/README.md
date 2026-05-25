@@ -12,13 +12,25 @@ A [GitHub Copilot CLI](https://docs.github.com/en/copilot/concepts/agents/copilo
 
 ## Installation
 
-Install the plugin from a local checkout:
+Install from the repository root (uses the `.plugin/` discovery convention — recommended):
+
+```bash
+copilot plugin install microsoft/finops-toolkit
+```
+
+Or install from a specific repository subdirectory (does not rely on symlinks):
+
+```bash
+copilot plugin install microsoft/finops-toolkit:src/templates/copilot-plugin
+```
+
+Or install from a local checkout:
 
 ```bash
 copilot plugin install ./src/templates/copilot-plugin
 ```
 
-Or install directly from the GitHub marketplace shipped in this repository:
+Or install via the bundled marketplace, which also exposes the Microsoft Learn MCP plugin:
 
 ```bash
 copilot plugin marketplace add microsoft/finops-toolkit
@@ -55,16 +67,17 @@ The plugin registers an [Azure MCP Server](https://github.com/Azure/azure-mcp) w
 
 | Skill | Trigger keywords | Description |
 |-------|-----------------|-------------|
-| **finops-toolkit** | "FinOps hubs", "KQL queries", "Kusto", "Hub database", "ADX cluster" | FinOps hubs query and deployment. KQL-based cost analysis with a think-execute framework, 17 pre-built queries, and schema validation. |
+| **finops-toolkit** | "FinOps hubs", "Hub database", "ADX cluster", "FinOps Toolkit" | FinOps hubs context, deployment guidance, schema references, and workflow guidance. `ftk-database-query` owns Kusto execution and raw FinOps Hub evidence. |
 | **azure-cost-management** | "Azure Advisor", "savings plans", "reservations", "budgets", "cost exports", "MACC", "Azure credits" | Azure Cost Management operations: recommendations, budgets, exports, anomaly alerts, and commitment tracking. |
 
 ### Agents
 
 | Agent | Description |
 |-------|-------------|
-| **chief-financial-officer** | Strategic CFO with 25+ years experience. Covers financial strategy, FP&A, capital allocation, risk management, treasury, tax, investor relations, and FinOps. Produces structured executive-level analysis. |
-| **finops-practitioner** | Certified FinOps expert grounded in the six FinOps principles and the Crawl-Walk-Run maturity model. Guides cost allocation, commitment optimization, showback/chargeback, and practice adoption. |
-| **ftk-database-query** | KQL specialist for the FinOps hubs database. Queries `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` functions. Uses a catalog of 17 pre-built queries before writing custom KQL. |
+| **azure-capacity-manager** | Azure capacity evidence specialist for quota, capacity reservation groups, SKU availability, region and zone access, AKS readiness, non-compute quotas, and capacity-to-rate coordination. |
+| **chief-financial-officer** | Consultative finance and leadership persona. Frames budget, forecast, commitment, risk, and investment tradeoffs from evidence packages; does not collect raw telemetry. |
+| **finops-practitioner** | FinOps operating-rhythm owner grounded in the six FinOps principles and the Crawl-Walk-Run maturity model. Orchestrates database, capacity, finance, and hub specialists. |
+| **ftk-database-query** | KQL specialist for the FinOps hubs database. Owns all `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` evidence. Uses the uploaded query catalog before writing custom KQL. |
 | **ftk-hubs-agent** | Azure infrastructure engineer for FinOps hubs deployment, upgrades, and troubleshooting. Handles Bicep templates, Cost Management exports, and post-deployment validation with platform-aware CLI guidance. |
 
 ### Commands

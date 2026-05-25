@@ -123,7 +123,7 @@ All KQL queries are located in `references/queries/`:
 
 ## References
 
-- [FinOps Framework (Microsoft Learn)](https://learn.microsoft.com/cloud-computing/finops/framework/finops-framework)
+- [FinOps Framework (FinOps Foundation)](https://www.finops.org/framework/)
 - [FinOps Hubs Overview](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview)
 - [KQL Documentation](https://learn.microsoft.com/azure/data-explorer/kusto/query/)
 - [FinOps Foundation](https://www.finops.org/framework/)

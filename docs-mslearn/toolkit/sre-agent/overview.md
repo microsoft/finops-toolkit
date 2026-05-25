@@ -3,7 +3,7 @@ title: Azure SRE Agent in the FinOps toolkit
 description: Learn how the FinOps toolkit deploys Azure SRE Agent with FinOps and capacity management automation on top of FinOps hubs.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/06/2026
+ms.date: 05/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -26,6 +26,11 @@ The FinOps toolkit deployment helps teams move from dashboards and alerts to an 
 > Estimated cost: Varies by Azure SRE Agent preview pricing, telemetry ingestion, and your existing FinOps hub footprint.
 >
 > The template provisions an Azure SRE Agent, Log Analytics workspace, Application Insights resource, and user-assigned managed identity. Costs depend on the selected region, Azure SRE Agent pricing, Log Analytics and Application Insights ingestion and retention, and the Azure Data Explorer footprint you connect to. The managed identity and RBAC assignments don't typically add direct cost.
+<!-- prettier-ignore-end -->
+
+<!-- prettier-ignore-start -->
+> [!IMPORTANT]
+> The FinOps toolkit deploys all SRE Agent resources even when the connected Azure Data Explorer cluster uses private endpoints. If the cluster has `publicNetworkAccess` set to `Disabled`, hosted Azure SRE Agent can't run direct KQL queries against the cluster. The deployment warns and links to the [Azure SRE Agent VNET known limitations](https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations) so the customer can decide whether to enable public query access.
 <!-- prettier-ignore-end -->
 
 <br>
@@ -70,7 +75,7 @@ The FinOps toolkit deployment is copied from the Microsoft SRE Agent starter-lab
 6. `srectl` initializes with the deployed agent endpoint and applies skills, agents, tools, knowledge, and scheduled tasks.
 7. You optionally add Outlook and Teams connectors in [sre.azure.com](https://sre.azure.com) when you want scheduled reports delivered outside the agent chat.
 
-The result is a single Azure SRE Agent with a FinOps operating model layered on top. The `finops-practitioner` agent handles cost visibility, anomaly response, allocation, optimization, AI cost management, and practice health. The `azure-capacity-manager` agent monitors quota, capacity reservations, regional access, zone mapping, and capacity-to-rate alignment. The `chief-financial-officer` agent prepares budgeting, forecasting, executive finance, and unit economics narratives. The `ftk-database-query` agent runs focused Kusto diagnostics, and the `ftk-hubs-agent` monitors FinOps hub health and data freshness.
+The result is a single Azure SRE Agent with a FinOps Framework-aligned operating model layered on top. The `finops-practitioner` agent owns the FinOps operating rhythm and scheduled analysis. The `ftk-database-query` agent owns all Kusto and FOCUS evidence collection. The `azure-capacity-manager` agent maps Azure capacity signals into Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization support, Governance, Policy & Risk, and Automation, Tools & Services. The `chief-financial-officer` agent provides finance and leadership consultation, and the `ftk-hubs-agent` monitors FinOps hub health and data freshness.
 
 <br>
 
@@ -123,8 +128,9 @@ Related FinOps capabilities:
 
 - [Anomaly management](../../framework/understand/anomalies.md)
 - [Reporting and analytics](../../framework/understand/reporting.md)
+- [Architecting for cloud](../../framework/optimize/architecting.md)
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 

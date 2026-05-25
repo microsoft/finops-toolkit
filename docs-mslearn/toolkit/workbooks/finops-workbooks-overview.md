@@ -3,7 +3,7 @@ title: Deploy FinOps workbooks
 description: FinOps workbooks are Azure Monitor workbooks that help you implement FinOps capabilities, including optimization and governance, to achieve your FinOps goals.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/25/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -79,8 +79,8 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
-- [Cloud policy and governance](../../framework/manage/governance.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
+- [Governance, Policy & Risk](../../framework/manage/governance.md)
 
 Related products:
 

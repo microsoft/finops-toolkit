@@ -29,13 +29,22 @@ param accessLevel string
 @description('Agent action mode.')
 param actionMode string
 
+@description('Agent upgrade channel.')
+param upgradeChannel string
+
+@description('Monthly agent unit limit.')
+param monthlyAgentUnitLimit int
+
+@description('Agent experimental settings.')
+param experimentalSettings object
+
 @description('Azure resource tags.')
 param tags object = {}
 
 var sreAgentAdminRoleId = 'e79298df-d852-4c6d-84f9-5d13249d1e55'
 
 #disable-next-line BCP081
-resource sreAgent 'Microsoft.App/agents@2025-05-01-preview' = {
+resource sreAgent 'Microsoft.App/agents@2026-01-01' = {
   name: agentName
   location: location
   tags: union(tags, {
@@ -59,6 +68,9 @@ resource sreAgent 'Microsoft.App/agents@2025-05-01-preview' = {
       identity: identityId
       accessLevel: accessLevel
     }
+    upgradeChannel: upgradeChannel
+    monthlyAgentUnitLimit: monthlyAgentUnitLimit
+    experimentalSettings: experimentalSettings
     mcpServers: []
     logConfiguration: {
       applicationInsightsConfiguration: {

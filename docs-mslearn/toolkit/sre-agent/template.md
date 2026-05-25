@@ -3,7 +3,7 @@ title: Azure SRE Agent template reference (FinOps toolkit)
 description: Review the FinOps toolkit's Azure SRE Agent deployment template, parameters, outputs, script flags, and Bicep module structure.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/06/2026
+ms.date: 05/25/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -50,6 +50,9 @@ Here are the parameters you can use to customize the deployment:
 | **targetResourceGroups** | Array | `[]` | Resource group names | Optional. Resource groups the agent can observe or act on. Defaults to the agent resource group. |
 | **accessLevel** | String | `Low` | `Low`, `High` | Optional. Agent access level. |
 | **actionMode** | String | `review` | `review`, `autonomous`, `readOnly` | Optional. Agent action mode. |
+| **upgradeChannel** | String | `Stable` | `Stable` | Optional. Agent upgrade channel. |
+| **monthlyAgentUnitLimit** | Int | `10000` | 1 or higher | Optional. Monthly agent unit limit. |
+| **experimentalSettings** | Object | `{ "EnableSandboxGroup": true, "EnableWorkspaceTools": true }` | Object | Optional. Agent sandbox and workspace tool settings for the stable SRE Agent runtime. |
 | **finopsHubKustoClusterResourceId** | String | `""` | Azure resource ID | Optional. Azure Data Explorer cluster resource ID for the FinOps hub role assignment. |
 
 <br>
@@ -67,6 +70,14 @@ Here are the parameters you can use to customize the deployment:
 | **targetResourceGroups** | `--target-resource-group` | Target resource group names. Defaults to the agent resource group. |
 | **finopsHubKustoClusterResourceId** | `--cluster-resource-id` | Optional cluster resource ID used to assign `AllDatabasesViewer`. |
 | **FinOps Hub Kusto connector URI** | `--cluster-uri` | Database-qualified Kusto URI, such as `https://cluster.region.kusto.windows.net/Hub`. |
+
+<br>
+
+## Azure Data Explorer network access
+
+When `--cluster-uri` points to an Azure Data Explorer cluster, the deployment inspects the cluster's network access setting before creating the agent. If `publicNetworkAccess` is `Disabled`, the deployment doesn't stop. It still deploys all resources, assigns the agent managed identity `AllDatabasesViewer`, and creates the `finops-hub-kusto` connector.
+
+The deployment prints a warning with the [Azure SRE Agent VNET known limitations](https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations) because hosted Azure SRE Agent can't run direct KQL queries against private endpoint ADX clusters. The customer must decide whether to enable public query access for the cluster. Until public query access is enabled or Azure SRE Agent adds private endpoint ADX query support, the connector is expected to remain unhealthy.
 
 <br>
 
@@ -102,7 +113,7 @@ Supporting resource names are deterministic for the subscription ID, agent resou
 | `--location <region>` | Yes | Azure region. |
 | `--target-resource-group <name>` | No | Repeatable target resource group. Defaults to `--resource-group`. |
 | `--cluster-uri <uri>` | No | Database-qualified FinOps hub Kusto URI, such as `https://cluster.region.kusto.windows.net/Hub`. |
-| `--cluster-resource-id <id>` | Required with `--cluster-uri` | Kusto cluster ARM resource ID for `AllDatabasesViewer`. |
+| `--cluster-resource-id <id>` | Optional with `--cluster-uri` for real deployments; required for `--dry-run` | Kusto cluster ARM resource ID for `AllDatabasesViewer`. Real deployments resolve it from `--cluster-uri` when the cluster is in the target subscription. |
 | `--deploy-name <name>` | No | Deployment name override. Defaults to a deterministic name from subscription ID, resource group, and agent name. |
 | `--dry-run` | No | Validate inputs and write parameters without Azure calls. |
 | `--force`, `--fallback-srectl`, `--no-telemetry` | No | Compatibility flags accepted by the wrapper. |
@@ -110,7 +121,7 @@ Supporting resource names are deterministic for the subscription ID, agent resou
 
 ### Post-provision
 
-Use `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane, initialize the deployed agent endpoint with `srectl`, and apply agents, skills, tools, knowledge documents, and scheduled tasks.
+Use `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane, initialize the deployed agent endpoint with `srectl`, upload KnowledgeFile sources, and apply agents, skills, tools, and scheduled tasks.
 
 | Bash flag | Required | Description |
 | --------- | -------- | ----------- |
@@ -132,7 +143,7 @@ The template uses a subscription-scoped entry point and resource group modules:
 | `infra/resources.bicep` | Resource group | Orchestrates identity, monitoring, and Azure SRE Agent modules, then surfaces outputs to the subscription deployment. |
 | `infra/modules/identity.bicep` | Resource group | Creates the user-assigned managed identity used by the agent. |
 | `infra/modules/monitoring.bicep` | Resource group | Creates the Log Analytics workspace and workspace-based Application Insights component for telemetry. |
-| `infra/modules/sre-agent.bicep` | Resource group | Creates the `Microsoft.App/agents` resource, configures action mode, assigns SRE Agent Administrator to the deployer, and exposes the agent endpoint for `srectl`. |
+| `infra/modules/sre-agent.bicep` | Resource group | Creates the stable `Microsoft.App/agents@2026-01-01` resource, configures action mode, sandbox, and workspace tool settings, assigns SRE Agent Administrator to the deployer, and exposes the agent endpoint for `srectl`. |
 | `infra/modules/resource-group-rbac.bicep` | Resource group | Assigns Reader, Monitoring Reader, Log Analytics Reader, and optionally Contributor to the agent user-assigned managed identity. |
 | `infra/modules/kusto-viewer-rbac.bicep` | Resource group | Assigns `AllDatabasesViewer` on an existing Azure Data Explorer cluster to the user-assigned managed identity when cluster parameters are provided. |
 

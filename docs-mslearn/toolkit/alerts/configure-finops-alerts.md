@@ -3,7 +3,7 @@ title: Configure FinOps alerts
 description: Learn how to configure and customize FinOps alerts to perform notifications and actions based on your organizational needs.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -86,7 +86,7 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [Reporting and analytics](../../framework/understand/reporting.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 

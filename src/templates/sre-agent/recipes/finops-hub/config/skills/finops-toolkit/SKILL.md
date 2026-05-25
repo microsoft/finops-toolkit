@@ -137,7 +137,7 @@ Official Microsoft documentation for FinOps and the FinOps toolkit. Source: [lea
 | [finops-framework.md](references/docs-mslearn/framework/finops-framework.md) | FinOps Framework overview |
 | [capabilities.md](references/docs-mslearn/framework/capabilities.md) | FinOps capabilities reference |
 
-#### Understand cloud usage and cost
+#### Understand Usage & Cost
 
 | File | Description |
 |------|-------------|
@@ -164,7 +164,7 @@ Official Microsoft documentation for FinOps and the FinOps toolkit. Source: [lea
 |------|-------------|
 | [optimize-cloud-usage-cost.md](references/docs-mslearn/framework/optimize/optimize-cloud-usage-cost.md) | Optimize pillar overview |
 | [architecting.md](references/docs-mslearn/framework/optimize/architecting.md) | Architecting for cloud |
-| [workloads.md](references/docs-mslearn/framework/optimize/workloads.md) | Workload optimization |
+| [workloads.md](references/docs-mslearn/framework/optimize/workloads.md) | Usage optimization |
 | [rates.md](references/docs-mslearn/framework/optimize/rates.md) | Rate optimization |
 | [licensing.md](references/docs-mslearn/framework/optimize/licensing.md) | Licensing and SaaS |
 | [sustainability.md](references/docs-mslearn/framework/optimize/sustainability.md) | Cloud sustainability |
@@ -273,7 +273,7 @@ Official Microsoft documentation for FinOps and the FinOps toolkit. Source: [lea
 | [help-me-choose.md](references/docs-mslearn/toolkit/power-bi/help-me-choose.md) | Help me choose a Power BI report |
 | [cost-summary.md](references/docs-mslearn/toolkit/power-bi/cost-summary.md) | Cost summary report |
 | [rate-optimization.md](references/docs-mslearn/toolkit/power-bi/rate-optimization.md) | Rate optimization report |
-| [workload-optimization.md](references/docs-mslearn/toolkit/power-bi/workload-optimization.md) | Workload optimization report |
+| [workload-optimization.md](references/docs-mslearn/toolkit/power-bi/workload-optimization.md) | Usage optimization report |
 | [governance.md](references/docs-mslearn/toolkit/power-bi/governance.md) | Governance report |
 | [data-ingestion.md](references/docs-mslearn/toolkit/power-bi/data-ingestion.md) | Data ingestion report |
 | [invoicing.md](references/docs-mslearn/toolkit/power-bi/invoicing.md) | Invoicing report |

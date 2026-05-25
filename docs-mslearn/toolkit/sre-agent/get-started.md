@@ -3,7 +3,7 @@ title: Get started with the FinOps toolkit on Azure SRE Agent
 description: Learn what to do after deploying Azure SRE Agent with the FinOps toolkit — first queries, scheduled tasks, and specialized subagents.
 author: flanakin
 ms.author: micflan
-ms.date: 05/06/2026
+ms.date: 05/25/2026
 ms.topic: quickstart
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -33,9 +33,9 @@ Use this map to connect each post-deployment activity to the agent, task, tool, 
 
 | Capability | Agent | Tasks | Tools | Output | You decide |
 |------------|-------|-------|-------|--------|------------|
-| Cost visibility and anomaly review | [`finops-practitioner`](agents.md#finops-practitioner) | [`MOM`](scheduled-tasks.md#mom), [`CostOptimization`](scheduled-tasks.md#costoptimization), and [`AlertCoverageAudit`](scheduled-tasks.md#alertcoverageaudit) | [Cost analysis](tools.md#cost-analysis-and-reporting), [anomaly detection](tools.md#anomaly-detection-and-forecasting), [forecasting](tools.md#anomaly-detection-and-forecasting), and [rate optimization](tools.md#rate-optimization) tools | Cost drivers, anomaly findings, forecasts, and prioritized actions from the scheduled task outputs | Which owners investigate, which anomalies are expected, and which optimization actions should move first |
+| Cost visibility and anomaly review | [`finops-practitioner`](agents.md#finops-practitioner) | [`Monthly`](scheduled-tasks.md#monthly), [`CostOptimization`](scheduled-tasks.md#costoptimization), and [`AlertCoverageAudit`](scheduled-tasks.md#alertcoverageaudit) | [Cost analysis](tools.md#cost-analysis-and-reporting), [anomaly detection](tools.md#anomaly-detection-and-forecasting), [forecasting](tools.md#anomaly-detection-and-forecasting), and [rate optimization](tools.md#rate-optimization) tools through [`ftk-database-query`](agents.md#ftk-database-query) where Kusto evidence is required | Cost drivers, anomaly findings, forecasts, and prioritized actions from the scheduled task outputs | Which owners investigate, which anomalies are expected, and which optimization actions should move first |
 | Capacity and quota posture | [`azure-capacity-manager`](agents.md#azure-capacity-manager) | [`CapacityDailyMonitor`](scheduled-tasks.md#capacitydailymonitor), [`ComputeUtilizationTrend`](scheduled-tasks.md#computeutilizationtrend), [`CapacityWeeklySupplyReview`](scheduled-tasks.md#capacityweeklysupplyreview), and [`NonComputeQuotaAudit`](scheduled-tasks.md#noncomputequotaaudit) | [`vm-quota-usage`](tools.md#capacity-management), [`capacity-reservation-groups`](tools.md#capacity-management), [`non-compute-quotas`](tools.md#capacity-management), and [`sku-availability`](tools.md#capacity-management) | Quota pressure, capacity reservation waste, SKU restrictions, and capacity blockers from the capacity task outputs | Which quota requests, region changes, reservation changes, or workload moves need action |
-| Finance and commitment decisions | [`chief-financial-officer`](agents.md#chief-financial-officer) | [`BenefitRecommendationReview`](scheduled-tasks.md#benefitrecommendationreview), [`YTD`](scheduled-tasks.md#ytd), and [`AIWorkloadCostAnalysis`](scheduled-tasks.md#aiworkloadcostanalysis) | [Benefit, savings, commitment, forecasting, and AI cost tools](tools.md#rate-optimization) | Executive summaries, savings opportunities, forecast risk, and decision-ready commitment context from finance task outputs | Which purchases, deferrals, budget changes, or executive escalations are approved |
+| Finance and commitment decisions | [`finops-practitioner`](agents.md#finops-practitioner), consulting [`chief-financial-officer`](agents.md#chief-financial-officer) | [`BenefitRecommendationReview`](scheduled-tasks.md#benefitrecommendationreview), [`Semiannual`](scheduled-tasks.md#semiannual), and [`AIWorkloadCostAnalysis`](scheduled-tasks.md#aiworkloadcostanalysis) | [Benefit, savings, commitment, forecasting, and AI cost tools](tools.md#rate-optimization) through [`ftk-database-query`](agents.md#ftk-database-query) where Kusto evidence is required | Executive summaries, savings opportunities, forecast risk, and decision-ready commitment context from FinOps task outputs with CFO framing | Which purchases, deferrals, budget changes, or executive escalations are approved |
 | Hub health and data trust | [`ftk-hubs-agent`](agents.md#ftk-hubs-agent) | [`HubsHealthCheck`](scheduled-tasks.md#hubshealthcheck) and [`MonitoringScopeValidation`](scheduled-tasks.md#monitoringscopevalidation) | [`data-freshness-check`](tools.md#data-ingestion-and-health), Azure discovery, and hub configuration tools | Hub version, connectivity, data freshness, and monitoring coverage findings from hub health task outputs | Whether reports are trustworthy, which exports need repair, and when to pause analysis that depends on stale data |
 
 <br>
@@ -72,7 +72,7 @@ The agent includes [5 specialized subagents](agents.md), and you can ask the orc
 
 - [`finops-practitioner`](agents.md#finops-practitioner) — cost analysis, optimization, budgets, alerts, and FinOps practice guidance
 - [`azure-capacity-manager`](agents.md#azure-capacity-manager) — quota, capacity reservations, SKU availability, and capacity governance
-- [`chief-financial-officer`](agents.md#chief-financial-officer) — financial strategy, commitment decisions, budgeting, forecasting, and executive finance narratives
+- [`chief-financial-officer`](agents.md#chief-financial-officer) — consultative financial strategy, commitment decisions, budgeting, forecasting, and executive finance narratives
 - [`ftk-database-query`](agents.md#ftk-database-query) — direct Kusto queries, schema validation, pricing, recommendations, and transactions against FinOps hubs
 - [`ftk-hubs-agent`](agents.md#ftk-hubs-agent) — hub health, data freshness, exports, connectivity, deployment, and upgrade troubleshooting
 
@@ -114,8 +114,9 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [Reporting and analytics](../../framework/understand/reporting.md)
+- [Architecting for cloud](../../framework/optimize/architecting.md)
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 

@@ -73,8 +73,17 @@ exp_list() {
     echo "$EXPECTED_CONFIG" | jq -r "$path // [] | sort | join(\",\")" 2>/dev/null
   fi
 }
+count_present_names() {
+  local values="$1"
+  local expected_csv="$2"
+  echo "$values" | jq -r --arg expected_csv "$expected_csv" '
+    ($expected_csv | split(",") | map(select(. != ""))) as $expected
+    | [.[].name] as $actual
+    | [$expected[] | . as $name | select($actual | index($name))] | length
+  ' 2>/dev/null || echo 0
+}
 
-API_VERSION="2025-05-01-preview"
+API_VERSION="2026-01-01"
 ARM_BASE="https://management.azure.com/subscriptions/${SUB}/resourceGroups/${RG}/providers/Microsoft.App/agents/${AGENT}"
 
 # Resolve agent endpoint
@@ -132,12 +141,23 @@ check "Agent exists" "yes" "yes"
 check "Access level" "$(echo "$PROPS" | jq -r '.accessLevel')" "$(exp '.agent.accessLevel')"
 check "Action mode" "$(echo "$PROPS" | jq -r '.mode')" "$(exp '.agent.actionMode')"
 check "Upgrade channel" "$(echo "$PROPS" | jq -r '.upgradeChannel')" "$(exp '.agent.upgradeChannel')"
+EXP_EXPERIMENTAL_SETTINGS="$(exp_list '.agent.experimentalSettings')"
+if [[ -n "$EXP_EXPERIMENTAL_SETTINGS" ]]; then
+  EXP_EXPERIMENTAL_CT=$(exp '.agent.experimentalSettings | length' "-")
+  ACTUAL_EXPERIMENTAL_SETTINGS="$(echo "$PROPS" | jq -r '.experimentalSettings')"
+  ACTUAL_EXPERIMENTAL_VALUES="$(printf '%s\n' "$ACTUAL_EXPERIMENTAL_SETTINGS" | jq -R 'split(",") | map({name: .})')"
+  EXPERIMENTAL_PRESENT=$(count_present_names "$ACTUAL_EXPERIMENTAL_VALUES" "$EXP_EXPERIMENTAL_SETTINGS")
+  check "Experimental settings expected" "$EXPERIMENTAL_PRESENT" "$EXP_EXPERIMENTAL_CT"
+  RESULTS="${RESULTS}\n  Experimental settings|${ACTUAL_EXPERIMENTAL_SETTINGS}|—|"
+else
+  check "Experimental settings" "$(echo "$PROPS" | jq -r '.experimentalSettings')" "-"
+fi
 check "Model provider" "$(echo "$PROPS" | jq -r '.modelProvider')" "$(exp '.agent.defaultModelProvider')"
 check "Incident platform" "$(echo "$PROPS" | jq -r '.incidentPlatform')" "$(exp '.agent.incidentPlatform')"
 
 # ── Connectors (ARM) ──
 CONNECTORS=$(arm_get "/DataConnectors")
-CONNECTOR_VALUES=$(echo "$CONNECTORS" | jq -c '(.value // []) | if type == "array" then . else [] end' 2>/dev/null || echo "[]")
+CONNECTOR_VALUES=$(echo "$CONNECTORS" | jq -c '(.value // []) | if type == "array" then [.[] | select(.properties.dataConnectorType != "KnowledgeFile" and .properties.dataConnectorType != "KnowledgeText" and .properties.dataConnectorType != "KnowledgeWebPage")] else [] end' 2>/dev/null || echo "[]")
 CONN_CT=$(echo "$CONNECTOR_VALUES" | jq 'length')
 CONN_HEALTHY=$(echo "$CONNECTOR_VALUES" | jq '[.[] | select(.properties.provisioningState == "Succeeded")] | length')
 CONN_ERRORED=$(echo "$CONNECTOR_VALUES" | jq '[.[] | select(.properties.provisioningState != "Succeeded" and .properties.provisioningState != "Running")] | length')
@@ -205,7 +225,30 @@ EXP_TASK_CT=$(exp '.scheduledTasks | length' "-")
 EXP_TASK_NAMES=$(exp_list '.scheduledTasks')
 check "Scheduled Tasks (unique)" "$TASK_UNIQUE" "$EXP_TASK_CT"
 [[ -n "$EXP_TASK_NAMES" ]] && check "Task names" "$TASK_NAMES" "$EXP_TASK_NAMES" || true
-[[ "$TASK_CT" != "$TASK_UNIQUE" ]] && RESULTS="${RESULTS}\n  ⚠️  Duplicates|${TASK_CT} total, ${TASK_UNIQUE} unique|—|"
+if [[ "$TASK_CT" != "$TASK_UNIQUE" ]]; then
+  RESULTS="${RESULTS}\n  Scheduled task duplicates|${TASK_CT} total, ${TASK_UNIQUE} unique|0 duplicates|❌ FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+# ── Knowledge sources ──
+DATA_CONNECTORS=$(dp_get "/api/v2/extendedAgent/connectors")
+KNOWLEDGE_SOURCE_VALUES=$(echo "$DATA_CONNECTORS" | jq -c '[.value[]? | select(.properties.dataConnectorType == "KnowledgeFile" or .properties.dataConnectorType == "KnowledgeText" or .properties.dataConnectorType == "KnowledgeWebPage")]' 2>/dev/null || echo "[]")
+KS_CT=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq 'length')
+KS_NAMES=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq -r '[.[].name] | sort | join(",")' 2>/dev/null)
+KS_INDEXED=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq '[.[] | select(.properties.extendedProperties.createdAt != null)] | length' 2>/dev/null || echo 0)
+EXP_KS_CT=$(exp '.knowledgeSources | length' "-")
+EXP_KS_NAMES=$(exp_list '.knowledgeSources')
+check "Knowledge sources" "$KS_CT" "$EXP_KS_CT"
+if [[ -n "$EXP_KS_NAMES" ]]; then
+  KS_EXPECTED_PRESENT=$(count_present_names "$KNOWLEDGE_SOURCE_VALUES" "$EXP_KS_NAMES")
+  check "Knowledge sources expected" "$KS_EXPECTED_PRESENT" "$EXP_KS_CT"
+fi
+check "Knowledge sources indexed" "$KS_INDEXED" "$KS_CT"
+UNINDEXED_KNOWLEDGE_SOURCES=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq -r '.[] | select(.properties.extendedProperties.createdAt == null) | "\(.name): \(.properties.extendedProperties.errorReason // "not indexed")"' 2>/dev/null)
+if [[ -n "$UNINDEXED_KNOWLEDGE_SOURCES" ]]; then
+  RESULTS="${RESULTS}\n  ⚠️  Unindexed knowledge sources|${UNINDEXED_KNOWLEDGE_SOURCES}|—|❌ FAIL"
+  FAIL=$((FAIL + 1))
+fi
 
 # ── Response Plans (Incident Filters) ──
 FILTERS=$(dp_get "/api/v1/incidentPlayground/filters")

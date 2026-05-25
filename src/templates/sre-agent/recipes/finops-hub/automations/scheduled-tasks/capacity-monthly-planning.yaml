@@ -4,7 +4,7 @@ metadata:
   name: CapacityMonthlyPlanning
 spec:
   name: CapacityMonthlyPlanning
-  description: Monthly capacity planning cycle — forecast demand, procurement pipeline, governance review
+  description: Monthly capacity planning cycle — demand forecast, capacity request pipeline, governance review
   cron_expression: 0 9 1 * *
   agent_mode: autonomous
   agent: azure-capacity-manager
@@ -16,7 +16,7 @@ spec:
 
     Before starting any analysis, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
 
-    Output style: Apply `ftk-output-style.md` from the knowledge base to every report and Teams message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, capacity supply-chain sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
+    Output style: Apply `ftk-output-style.md` from the knowledge base to every report and Teams message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
 
     Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
 
@@ -25,7 +25,7 @@ spec:
     Load your azure-capacity-management skill.
 
 
-    Monthly planning covers all four supply chain steps: Forecast → Procure → Allocate → Monitor.
+    Monthly planning maps Azure capacity signals into FinOps Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization support, Budgeting support, and Governance, Policy & Risk.
 
     ## Python tools available for this task
 
@@ -40,7 +40,7 @@ spec:
     ## 1. Demand Forecast
 
 
-    Run `cost-forecasting-model` Kusto tool with 180-day historical, 90-day forecast.
+    Ask `ftk-database-query` to run `cost-forecasting-model` Kusto tool with 180-day historical, 90-day forecast.
 
     Filter to compute services. Project:
 
@@ -61,10 +61,10 @@ spec:
     Reference: `references/docs/operations/capacity-planning/README.md`
 
 
-    ## 2. Procurement Pipeline
+    ## 2. Capacity Request Pipeline
 
 
-    Based on the demand forecast, use `vm-quota-usage` and build a procurement pipeline:
+    Based on the demand forecast, use `vm-quota-usage` and build a capacity request pipeline:
 
     - Quota increases needed (by subscription, region, family)
 
@@ -77,7 +77,7 @@ spec:
     - Estimated lead times for each request type
 
 
-    Reference: `references/docs/operations/quota/README.md` and skill section on procurement
+    Reference: `references/docs/operations/quota/README.md` and capacity request guidance in the uploaded knowledge.
 
 
     ## 3. Allocation Review
@@ -102,7 +102,7 @@ spec:
     ## 4. Cost Impact
 
 
-    Run `benefit-recommendations`, `commitment-discount-utilization`, and `savings-summary-report` Kusto tools.
+    Run `benefit-recommendations` directly, then ask `ftk-database-query` to run `commitment-discount-utilization` and `savings-summary-report` for Kusto-backed rate-optimization evidence.
 
     Calculate:
 
@@ -139,7 +139,7 @@ spec:
 
     - Demand forecast table (VM family × region × month)
 
-    - Procurement pipeline with status and lead times
+    - Capacity request pipeline with status and lead times
 
     - CRG portfolio review with cost impact
 
@@ -157,7 +157,7 @@ spec:
 
     **Visualizations:** Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum one trend chart and one comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed the chart images inline in the Teams message alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
 
-    **Teams (capacity results only):** Post the final monthly capacity planning report to our Teams channel. Include the demand forecast, procurement pipeline, CRG portfolio review, governance scorecard, and recommended actions. Do not post intermediate results — only the completed report. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If no Teams connector/channel is configured or `PostTeamsMessage` was not found during the once-per-run guard check, return the completed report in the run output with a note that Teams delivery was skipped. If a Teams connector/channel is configured and the single final `PostTeamsMessage` attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
+    **Teams (capacity results only):** Post the final monthly capacity planning report to our Teams channel. Include the demand forecast, capacity request pipeline, CRG portfolio review, governance scorecard, and recommended actions. Do not post intermediate results — only the completed report. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If no Teams connector/channel is configured or `PostTeamsMessage` was not found during the once-per-run guard check, return the completed report in the run output with a note that Teams delivery was skipped. If a Teams connector/channel is configured and the single final `PostTeamsMessage` attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
 
 
-    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — forecasting model accuracy, procurement lead time observations, governance gaps discovered, CLI workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — forecasting model accuracy, capacity request lead time observations, governance gaps discovered, CLI workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'

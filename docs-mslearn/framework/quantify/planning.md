@@ -3,7 +3,7 @@ title: Planning and estimating
 description: This article helps you understand the planning and estimating capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -104,7 +104,7 @@ Related FinOps capabilities:
 
 - [Forecasting](./forecasting.md)
 - [Architecting for cloud](../optimize/architecting.md)
-- [Workload optimization](../optimize/workloads.md)
+- [Usage optimization](../optimize/workloads.md)
 - [Rate optimization](../optimize/rates.md)
 
 Related products:
