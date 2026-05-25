@@ -15,19 +15,18 @@ ms.reviewer: brettwil
 
 The FinOps toolkit ships scheduled tasks that run recurring FinOps operating-rhythm workflows on Azure SRE Agent. They turn common reviews into autonomous checks that gather data, route work to the right specialist agent, generate charts where the data supports them, and post completed reports to Microsoft Teams when a Teams notification connector is configured.
 
-The template deploys 18 scheduled tasks from `src/templates/sre-agent/sre-config/scheduled-tasks/`. These tasks cover daily health checks, weekly optimization and capacity reviews, monthly planning and finance reports, and quarterly strategy.
+The template deploys 19 scheduled tasks from `src/templates/sre-agent/recipes/finops-hub/automations/scheduled-tasks/`. These tasks cover daily health checks, weekly optimization and capacity reviews, monthly planning and finance reports, semiannual year-over-year analysis, and quarterly strategy.
 
 <br>
 
 ## Daily tasks
 
-Daily tasks run every morning to validate FinOps hub health, monitor capacity supply chain signals, and analyze month-over-month cost movement. They keep cost and capacity surprises visible before each business day.
+Daily tasks run every morning to validate FinOps hub health and monitor capacity supply chain signals. They keep cost and capacity surprises visible before each business day.
 
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
 | `HubsHealthCheck` | `ftk-hubs-agent` | Daily at 6:00 AM<br>`0 6 * * *` | FinOps hub version and data freshness validation |
 | `CapacityDailyMonitor` | `azure-capacity-manager` | Daily at 6:30 AM<br>`30 6 * * *` | Daily capacity supply chain health check — quota usage, CRG utilization, zone capacity |
-| `MOM` | `finops-practitioner` | Daily at 5:15 PM<br>`15 17 * * *` | Autonomous month-over-month cost analysis with all 17 Kusto tools |
 
 <br>
 
@@ -56,8 +55,9 @@ Monthly tasks run after billing data finalizes to produce year-to-date analysis,
 | `StoragePaasGrowthForecast` | `azure-capacity-manager` | Monthly on the 1st at 8:00 AM<br>`0 8 1 * *` | Monthly storage and PaaS quota growth forecast across active subscriptions |
 | `AdvisorSuppressionReview` | `finops-practitioner` | Monthly on the 1st at 9:00 AM<br>`0 9 1 * *` | Monthly review of active Advisor recommendation suppressions for stale or expired decisions |
 | `CapacityMonthlyPlanning` | `azure-capacity-manager` | Monthly on the 1st at 9:00 AM<br>`0 9 1 * *` | Monthly capacity planning cycle — forecast demand, procurement pipeline, governance review |
-| `YTD` | `chief-financial-officer` | Monthly on the 1st at 9:00 AM<br>`0 9 1 * *` | Fiscal year-to-date analysis with forecast through end of fiscal year |
+| `Monthly` | `finops-practitioner` | Monthly on the 5th at 5:15 PM<br>`15 17 5 * *` | Autonomous month-over-month cost analysis with FinOps hub tools |
 | `AIWorkloadCostAnalysis` | `chief-financial-officer` | Monthly on the 1st at 10:00 AM<br>`0 10 1 * *` | Monthly AI workload cost analysis — token economics, model efficiency, and cost allocation for Azure OpenAI |
+| `YOY` | `chief-financial-officer` | January 5 and July 5 at 9:00 AM<br>`0 9 5 1,7 *` | Semiannual year-over-year finance analysis with forecast |
 | `BudgetCoverageAudit` | `finops-practitioner` | Monthly on the 15th at 8:00 AM<br>`0 8 15 * *` | Monthly audit of subscription budget coverage and missing budget controls |
 | `AlertCoverageAudit` | `finops-practitioner` | Monthly on the 16th at 8:00 AM<br>`0 8 16 * *` | Monthly audit of cost anomaly alert coverage across active subscriptions |
 
@@ -75,7 +75,7 @@ Quarterly tasks run at the start of each calendar quarter to summarize capacity 
 
 ## Task details
 
-Each scheduled task is defined in YAML under `src/templates/sre-agent/sre-config/scheduled-tasks/`. You can customize the schedule by changing the `cron_expression` in the task definition before deployment. You can also tune the task prompt to change thresholds, scope, report sections, and recommended actions for your operating model.
+Each scheduled task is defined in YAML under `src/templates/sre-agent/recipes/finops-hub/automations/scheduled-tasks/`. You can customize the schedule by changing the `cron_expression` in the task definition before deployment. You can also tune the task prompt to change thresholds, scope, report sections, and recommended actions for your operating model.
 
 ### HubsHealthCheck
 
@@ -91,12 +91,12 @@ Each scheduled task is defined in YAML under `src/templates/sre-agent/sre-config
 - **Recommended actions generated:** File quota increases, redistribute workload demand, adjust capacity reservation groups, investigate underutilized reservations, validate AKS node pool capacity, and escalate imminent deployment blockers.
 - **Customization options:** Change the daily cron from `30 6 * * *`, tune warning and critical quota-utilization thresholds, define target capacity reservation utilization bands, scope monitored subscriptions or regions, and add workload-specific AKS node pool checks.
 
-### MOM
+### Monthly
 
 - **Data sources queried:** FinOps hub Kusto tools including `data-freshness-check`, `monthly-cost-trend`, `monthly-cost-change-percentage`, `top-services-by-cost`, `top-resource-groups-by-cost`, `cost-by-region-trend`, `cost-anomaly-detection`, `savings-summary-report`, `commitment-discount-utilization`, `cost-forecasting-model`, `reservation-recommendation-breakdown`, `top-resource-types-by-cost`, `service-price-benchmarking`, `top-other-transactions`, and `costs-enriched-base`.
 - **Output format and content:** A daily month-over-month cost analysis with executive summary, service and resource group drivers, anomalies, forecasts, savings and commitment signals, regional distribution, tag coverage, marketplace or other purchases, charts where data supports them, and action items.
 - **Recommended actions generated:** Investigate anomalies, correct cost allocation gaps, prioritize cost drivers, act on savings opportunities, review commitment utilization, address forecast risk, and validate tags or financial hierarchy gaps.
-- **Customization options:** Change the daily cron from `15 17 * * *`, adjust anomaly and variance thresholds, change the comparison window, scope the analysis to selected subscriptions or billing entities, and add or remove Kusto sections from the report.
+- **Customization options:** Change the monthly cron from `15 17 5 * *`, adjust anomaly and variance thresholds, change the comparison window, scope the analysis to selected subscriptions or billing entities, and add or remove Kusto sections from the report.
 
 ### ComputeUtilizationTrend
 
@@ -168,12 +168,12 @@ Each scheduled task is defined in YAML under `src/templates/sre-agent/sre-config
 - **Recommended actions generated:** Submit quota and capacity requests, adjust capacity reservations, align procurement with forecasted demand, rebalance allocation across subscriptions, and update governance controls for capacity planning.
 - **Customization options:** Change the monthly cron from `0 9 1 * *`, tune forecast horizon and growth thresholds, choose capacity planning regions and SKUs, set acceptable CRG utilization bands, and add procurement workflow fields.
 
-### YTD
+### YOY
 
 - **Data sources queried:** FinOps hub Kusto tools including `monthly-cost-trend`, `quarterly-cost-by-resource-group`, `cost-anomaly-detection`, `savings-summary-report`, `commitment-discount-utilization`, `cost-by-financial-hierarchy`, `cost-forecasting-model`, `reservation-recommendation-breakdown`, `cost-by-region-trend`, `top-resource-types-by-cost`, `service-price-benchmarking`, `monthly-cost-change-percentage`, `top-commitment-transactions`, `top-other-transactions`, and `costs-enriched-base`.
-- **Output format and content:** A monthly fiscal year-to-date finance report with year-to-date spend, end-of-year forecast, quarterly trends, service portfolio analysis, anomaly narrative, savings realization, commitment performance, hierarchy views, and executive actions.
+- **Output format and content:** A semiannual year-over-year finance report with spend trend, forward forecast, quarterly trends, service portfolio analysis, anomaly narrative, savings realization, commitment performance, hierarchy views, and executive actions.
 - **Recommended actions generated:** Reforecast budgets, address variance drivers, approve savings actions, adjust commitments, escalate financial hierarchy gaps, and document finance risks before fiscal reviews.
-- **Customization options:** Change the monthly cron from `0 9 1 * *`, align fiscal calendar assumptions, tune variance and forecast thresholds, scope the report by billing or management group hierarchy, and add finance-specific KPI sections.
+- **Customization options:** Change the semiannual cron from `0 9 5 1,7 *`, align fiscal calendar assumptions, tune variance and forecast thresholds, scope the report by billing or management group hierarchy, and add finance-specific KPI sections.
 
 ### AIWorkloadCostAnalysis
 
@@ -221,7 +221,7 @@ For connector setup, see [Deploy Azure SRE Agent with the FinOps toolkit](deploy
 
 ## Roadmap
 
-The deployed template includes the 18 scheduled tasks listed on this page. The repository also includes a broader planned task roadmap in the [scheduled task catalog](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/CATALOG.md).
+The deployed template includes the 19 scheduled tasks listed on this page. The repository also includes the detailed current task catalog in [CATALOG.md](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/CATALOG.md).
 
 The catalog is a roadmap for future automation ideas. It includes more than 74 potential daily, weekly, monthly, quarterly, and annual tasks across FinOps, capacity management, FinOps for AI, governance, optimization, benchmarking, and executive reporting. Those catalog entries are planned ideas, not deployed scheduled tasks, unless they are listed in the deployed task catalog above.
 

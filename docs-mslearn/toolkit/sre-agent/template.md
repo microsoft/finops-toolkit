@@ -13,7 +13,7 @@ ms.reviewer: brettwil
 
 # Azure SRE Agent template reference (FinOps toolkit)
 
-This reference summarizes the [FinOps toolkit's Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent). Use it to review deployment prerequisites, Bicep parameters, Azure Developer CLI (`azd`) outputs, script options, and module structure before you deploy or customize the template.
+This reference summarizes the [FinOps toolkit's Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent). Use it to review deployment prerequisites, Bicep parameters, script options, and module structure before you deploy or customize the template.
 
 <br>
 
@@ -27,13 +27,12 @@ Ensure the following prerequisites are met before you deploy the template:
   | Task | Minimum permission |
   | ---- | ------------------ |
   | Deploy the subscription-scoped Bicep template and create the target resource group | [Contributor](/azure/role-based-access-control/built-in-roles#contributor) on the subscription |
-  | Assign subscription roles to the agent managed identity | [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator), [User Access Administrator](/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](/azure/role-based-access-control/built-in-roles#owner) on the subscription |
-  | Create or update the custom zone peers role in post-provision | Permission to create role definitions and role assignments on the subscription |
+  | Assign target resource group roles to the agent managed identity | [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator), [User Access Administrator](/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](/azure/role-based-access-control/built-in-roles#owner) on each target resource group |
   | Assign Azure Data Explorer access when cluster parameters are set | Permission to create `Microsoft.Kusto/clusters/principalAssignments` on the target cluster |
   | Apply Azure SRE Agent objects with `srectl` | Access to the deployed Azure SRE Agent endpoint |
 
 - The `Microsoft.App` resource provider must be registered in the subscription.
-- The [Azure Developer CLI (`azd`)](/azure/developer/azure-developer-cli/install-azd), [Azure CLI](/cli/azure/install-azure-cli), .NET SDK, and `python3` must be available locally.
+- [Azure CLI](/cli/azure/install-azure-cli), `curl`, `jq`, Bash 3.2 or newer, `python3` with PyYAML, and `srectl` must be available locally.
 - A FinOps hub with Azure Data Explorer is required when you want the agent to query hub data.
 <!-- prettier-ignore-end -->
 
@@ -45,36 +44,35 @@ Here are the parameters you can use to customize the deployment:
 
 | Parameter | Type | Default value | Allowed values | Description |
 | --------- | ---- | ------------- | -------------- | ----------- |
-| **environmentName** | String | None | Any string | Required. Name of the `azd` environment. |
-| **location** | String | `eastus2` | `swedencentral`, `eastus2`, `australiaeast` | Optional. Primary location for all resources. |
-| **resourceGroupName** | String | `rg-${environmentName}` | Any string | Optional. Resource group name override. |
-| **adxClusterName** | String | `""` | Any string | Optional. Azure Data Explorer cluster name for the FinOps hub role assignment. |
-| **adxClusterResourceGroupName** | String | `""` | Any string | Optional. Resource group that contains the Azure Data Explorer cluster. |
-| **deployerPrincipalType** | String | `User` | `User`, `ServicePrincipal` | Optional. Principal type for the deploying identity. Use `ServicePrincipal` for CI/CD pipelines. |
-| **finopsHubClusterUri** | String | `""` | Any valid Kusto cluster URI with database name | Optional. FinOps hub Azure Data Explorer cluster URI, such as `https://cluster.region.kusto.windows.net/hub`. |
+| **resourceGroupName** | String | None | Any string | Required. Resource group that contains the SRE Agent resources. |
+| **agentName** | String | None | Any string | Required. Azure SRE Agent name. |
+| **location** | String | `eastus2` | `swedencentral`, `uksouth`, `eastus2`, `australiaeast` | Optional. Primary location for all resources. |
+| **targetResourceGroups** | Array | `[]` | Resource group names | Optional. Resource groups the agent can observe or act on. Defaults to the agent resource group. |
+| **accessLevel** | String | `Low` | `Low`, `High` | Optional. Agent access level. |
+| **actionMode** | String | `review` | `review`, `autonomous`, `readOnly` | Optional. Agent action mode. |
+| **finopsHubKustoClusterResourceId** | String | `""` | Azure resource ID | Optional. Azure Data Explorer cluster resource ID for the FinOps hub role assignment. |
 
 <br>
 
-## Environment values
+## Deployment values
 
-The deployment wrapper sets these `azd` environment values before it runs `azd up`:
+`bin/deploy.sh` writes a deployment parameter file under the local SRE Agent deployment cache, then runs `az deployment sub create` directly. It doesn't use Azure Developer CLI environments.
 
-| Environment value | Source | Description |
-| ----------------- | ------ | ----------- |
-| **AZURE_ENV_NAME** | `--environment` or `-Environment` | Target `azd` environment name. |
-| **AZURE_LOCATION** | `--location` or `-Location` | Azure location for the deployment. Defaults to `eastus2`. |
-| **AZURE_PRINCIPAL_TYPE** | `--principal-type` or `-PrincipalType` | Deployer principal type. Defaults to `User`. |
-| **AZURE_RESOURCE_GROUP** | `--resource-group` or `-ResourceGroup` | Target resource group. Defaults to the environment name in the wrapper script. |
-| **AZURE_SUBSCRIPTION_ID** | `--subscription` or `-Subscription` | Azure subscription ID. Defaults to the current Azure CLI account. |
-| **FINOPS_HUB_CLUSTER_URI** | `--finops-hub-cluster-uri` or `-FinopsHubClusterUri` | Required FinOps hub Azure Data Explorer cluster URI. |
-| **FINOPS_HUB_CLUSTER_NAME** | `--finops-hub-cluster-name` or `-FinopsHubClusterName` | Optional cluster name used to assign `AllDatabasesViewer`. |
-| **FINOPS_HUB_CLUSTER_RESOURCE_GROUP** | `--finops-hub-cluster-resource-group` or `-FinopsHubClusterResourceGroup` | Optional cluster resource group used to assign `AllDatabasesViewer`. |
+| Value | Source | Description |
+| ----- | ------ | ----------- |
+| **subscription** | `--subscription` | Azure subscription ID. |
+| **resourceGroupName** | `--resource-group` | Resource group that contains the SRE Agent resources. |
+| **agentName** | `--name` | Azure SRE Agent name. |
+| **location** | `--location` | Azure location for the deployment. |
+| **targetResourceGroups** | `--target-resource-group` | Target resource group names. Defaults to the agent resource group. |
+| **finopsHubKustoClusterResourceId** | `--cluster-resource-id` | Optional cluster resource ID used to assign `AllDatabasesViewer`. |
+| **FinOps Hub Kusto connector URI** | `--cluster-uri` | Database-qualified Kusto URI, such as `https://cluster.region.kusto.windows.net/Hub`. |
 
 <br>
 
 ## Outputs
 
-Here are the `azd` environment outputs generated by the deployment:
+Here are the outputs generated by the deployment:
 
 | Output | Type | Description |
 | ------ | ---- | ----------- |
@@ -87,35 +85,40 @@ Here are the `azd` environment outputs generated by the deployment:
 
 ## Script flags
 
-The template includes Bash and PowerShell scripts for one-shot deployment and post-provision configuration.
+The template includes Bash scripts for one-shot deployment and post-provision configuration.
 
 ### Deployment wrapper
 
-Use `deploy.sh` or `deploy.ps1` to create or select an `azd` environment, set environment values, deploy the template, and refresh outputs.
+Use `bin/deploy.sh` to write deterministic ARM parameters, deploy `infra/main.bicep` with Azure CLI, and run `bin/post-provision.sh`.
 
-| Bash flag | PowerShell parameter | Required | Description |
-| --------- | -------------------- | -------- | ----------- |
-| `--environment <name>` | `-Environment <name>` | Yes | Target `azd` environment name. |
-| `--location <region>` | `-Location <region>` | No | Azure location. Defaults to `eastus2`. |
-| `--subscription <subscription-id>` | `-Subscription <subscription-id>` | No | Azure subscription ID. Defaults to the current Azure CLI account. |
-| `--resource-group <name>` | `-ResourceGroup <name>` | No | Azure resource group. Defaults to the environment name in the wrapper script. |
-| `--principal-type <type>` | `-PrincipalType <type>` | No | Deployer principal type. Defaults to `User`. |
-| `--finops-hub-cluster-uri <uri>` | `-FinopsHubClusterUri <uri>` | Yes, unless `--destroy` or `-Destroy` is used | FinOps hub Kusto cluster URI. |
-| `--finops-hub-cluster-name <name>` | `-FinopsHubClusterName <name>` | No | Azure Data Explorer cluster name for `AllDatabasesViewer` assignment. |
-| `--finops-hub-cluster-resource-group <name>` | `-FinopsHubClusterResourceGroup <name>` | No | Azure Data Explorer cluster resource group. |
-| `--env-file <path>` | `-EnvFile <path>` | No | Load `azd`-style values from a `.env` file before applying overrides. |
-| `--clone-env <name>` | `-CloneEnv <name>` | No | Load values from `.azure/<name>/.env` before applying overrides. Can't be used with `--env-file` or `-EnvFile`. |
-| `--replace` | `-Replace` | No | Delete Azure resources for the target environment first, remove the local `azd` environment, and then recreate it. |
-| `--destroy` | `-Destroy` | No | Tear down the target environment and remove it without deploying. |
-| `-h`, `--help` | `-Help` | No | Show script help. |
+Supporting resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Rerunning the script with the same tuple updates the same Log Analytics workspace, Application Insights component, user-assigned managed identity, RBAC assignments, and SRE Agent instead of creating timestamped duplicates. The optional `--deploy-name` only names the ARM deployment record and local build directory.
+
+| Bash flag | Required | Description |
+| --------- | -------- | ----------- |
+| `--recipe <dir>` | Yes | Recipe directory. Use `recipes/finops-hub`. |
+| `--subscription <subscription-id>` | Yes | Azure subscription ID. |
+| `--resource-group <name>` | Yes | Resource group for SRE Agent resources. |
+| `--name <name>` | Yes | Azure SRE Agent name. |
+| `--location <region>` | Yes | Azure region. |
+| `--target-resource-group <name>` | No | Repeatable target resource group. Defaults to `--resource-group`. |
+| `--cluster-uri <uri>` | No | Database-qualified FinOps hub Kusto URI, such as `https://cluster.region.kusto.windows.net/Hub`. |
+| `--cluster-resource-id <id>` | Required with `--cluster-uri` | Kusto cluster ARM resource ID for `AllDatabasesViewer`. |
+| `--deploy-name <name>` | No | Deployment name override. Defaults to a deterministic name from subscription ID, resource group, and agent name. |
+| `--dry-run` | No | Validate inputs and write parameters without Azure calls. |
+| `--force`, `--fallback-srectl`, `--no-telemetry` | No | Compatibility flags accepted by the wrapper. |
+| `-h`, `--help` | No | Show script help. |
 
 ### Post-provision
 
-Use `post-provision.sh` or `post-provision.ps1` to install `srectl`, initialize the deployed agent endpoint, apply agents, skills, tools, knowledge documents, scheduled tasks, and create custom Azure permissions.
+Use `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane, initialize the deployed agent endpoint with `srectl`, and apply agents, skills, tools, knowledge documents, and scheduled tasks.
 
-| Bash flag | PowerShell parameter | Required | Description |
-| --------- | -------------------- | -------- | ----------- |
-| `--dry-run` | `-DryRun` | No | Log the changes that would be applied without validating the endpoint, installing `srectl`, initializing the workspace, creating custom permissions, or applying configuration. |
+| Bash flag | Required | Description |
+| --------- | -------- | ----------- |
+| `--endpoint <url>` | Yes | SRE Agent endpoint returned by deployment. |
+| `--recipe <dir>` | Yes | Recipe directory. |
+| `--build-dir <dir>` | Yes | Working directory for generated post-provision files. |
+| `--kusto-connector-uri <uri>` | No | Database-qualified Kusto connector URI. |
+| `--managed-identity-id <id>` | Required with `--kusto-connector-uri` | Agent user-assigned managed identity resource ID. |
 
 <br>
 
@@ -125,13 +128,13 @@ The template uses a subscription-scoped entry point and resource group modules:
 
 | File | Scope | Deploys or configures |
 | ---- | ----- | --------------------- |
-| `infra/bicep/main.bicep` | Subscription | Creates the target resource group, calls the resource group deployment, assigns subscription RBAC, and optionally assigns Azure Data Explorer roles. |
-| `infra/bicep/resources.bicep` | Resource group | Orchestrates identity, monitoring, and Azure SRE Agent modules, then surfaces outputs to the subscription deployment. |
-| `infra/bicep/modules/identity.bicep` | Resource group | Creates the user-assigned managed identity used by the agent. |
-| `infra/bicep/modules/monitoring.bicep` | Resource group | Creates the Log Analytics workspace and workspace-based Application Insights component for telemetry. |
-| `infra/bicep/modules/sre-agent.bicep` | Resource group | Creates the `Microsoft.App/agents` resource, enables workspace tools, configures autonomous actions, assigns SRE Agent Administrator to the deployer, and creates the optional FinOps hub Kusto connector. |
-| `infra/bicep/modules/subscription-rbac.bicep` | Subscription | Assigns Reader and Monitoring Contributor to the agent user-assigned managed identity. |
-| `infra/bicep/modules/adx-role.bicep` | Resource group | Assigns `AllDatabasesViewer` on an existing Azure Data Explorer cluster to the user-assigned and system-assigned managed identities when cluster parameters are provided. |
+| `infra/main.bicep` | Subscription | Creates the target resource group, calls the resource group deployment, assigns target resource group RBAC, and optionally assigns Azure Data Explorer roles. |
+| `infra/resources.bicep` | Resource group | Orchestrates identity, monitoring, and Azure SRE Agent modules, then surfaces outputs to the subscription deployment. |
+| `infra/modules/identity.bicep` | Resource group | Creates the user-assigned managed identity used by the agent. |
+| `infra/modules/monitoring.bicep` | Resource group | Creates the Log Analytics workspace and workspace-based Application Insights component for telemetry. |
+| `infra/modules/sre-agent.bicep` | Resource group | Creates the `Microsoft.App/agents` resource, configures action mode, assigns SRE Agent Administrator to the deployer, and exposes the agent endpoint for `srectl`. |
+| `infra/modules/resource-group-rbac.bicep` | Resource group | Assigns Reader, Monitoring Reader, Log Analytics Reader, and optionally Contributor to the agent user-assigned managed identity. |
+| `infra/modules/kusto-viewer-rbac.bicep` | Resource group | Assigns `AllDatabasesViewer` on an existing Azure Data Explorer cluster to the user-assigned managed identity when cluster parameters are provided. |
 
 <br>
 
@@ -165,7 +168,6 @@ Related products:
 
 - [Azure SRE Agent](/azure/sre-agent/overview)
 - [Azure Data Explorer](/azure/data-explorer/)
-- [Azure Developer CLI](/azure/developer/azure-developer-cli/overview)
 
 Related solutions:
 

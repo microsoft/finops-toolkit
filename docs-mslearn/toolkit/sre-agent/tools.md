@@ -17,10 +17,10 @@ The FinOps toolkit deployment configures Azure SRE Agent with tools that ground 
 
 Use this article as a catalog of the tools included with the template. For deeper implementation details, review the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references.
 
-The template configures 33 tools: 21 Kusto query tools and 12 Python tools, as documented in the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references.
+The template configures 34 tools: 21 Kusto query tools and 13 Python tools, as documented in the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references.
 
 > [!NOTE]
-> The agent list shows subagents that reference each tool in `sre-config/agents`. Tools marked "Not assigned" are included in the tool catalog, but aren't referenced by a subagent configuration. For agent roles and tool usage, see [agents and skills](agents.md).
+> The agent list shows subagents that reference each tool in `recipes/finops-hub/config/subagents`. Tools marked "Not assigned" are included in the tool catalog, but aren't referenced by a subagent configuration. For agent roles and tool usage, see [agents and skills](agents.md).
 
 <br>
 

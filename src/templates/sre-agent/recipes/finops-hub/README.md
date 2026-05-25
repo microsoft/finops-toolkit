@@ -14,7 +14,14 @@ Deploys the FinOps Toolkit SRE Agent using the canonical Microsoft SRE Agent rec
 ## Deploy
 
 ```bash
-bash ../../bin/deploy.sh . --finops-hub-cluster-uri https://<cluster>.<region>.kusto.windows.net/hub
+bash ../../bin/deploy.sh \
+  --recipe . \
+  --subscription <subscription-id> \
+  --resource-group <your-rg> \
+  --name <your-agent-name> \
+  --location <your-region> \
+  --cluster-uri https://<cluster>.<region>.kusto.windows.net/Hub \
+  --cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>
 ```
 
-The deployment uses the currently selected Azure CLI subscription.
+The deployment uses the explicit subscription passed with `--subscription`.

@@ -56,7 +56,7 @@ If a response doesn't have enough context, narrow the question by subscription, 
 
 ## Scheduled tasks run automatically
 
-The agent runs [18 scheduled tasks](scheduled-tasks.md) on daily, weekly, monthly, and quarterly cadences. The [scheduled tasks reference](scheduled-tasks.md) lists daily, weekly, monthly, and quarterly tasks for health, optimization, capacity, planning, finance, and strategy reviews.
+The agent runs [19 scheduled tasks](scheduled-tasks.md) on daily, weekly, monthly, semiannual, and quarterly cadences. The [scheduled tasks reference](scheduled-tasks.md) lists daily, weekly, monthly, semiannual, and quarterly tasks for health, optimization, capacity, planning, finance, and strategy reviews.
 
 You don't need to trigger scheduled tasks because each task has a cron expression in its task definition, and [task details](scheduled-tasks.md#task-details) describe how reports are formatted for Microsoft Teams when notifications are configured.
 

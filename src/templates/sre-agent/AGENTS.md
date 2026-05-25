@@ -1,6 +1,6 @@
 # Agent instructions
 
-**⛔ PROHIBITED: Manual Azure resource intervention.** Do not run Azure control-plane or data-plane commands against live SRE Agent resources outside the canonical entry point `bin/deploy.sh` and its owned helper scripts in `bicep/`. All Azure changes go through the release process. No exceptions.
+**⛔ PROHIBITED: Manual Azure resource intervention.** Do not run Azure control-plane or data-plane commands against live SRE Agent resources outside the canonical entry point `bin/deploy.sh` and its owned helper scripts in `infra/` and `bin/post-provision.sh`. All Azure changes go through the release process. No exceptions.
 
 Load the `azure-sre-agent` skill at session start and after every compaction or summarization.
 
@@ -18,7 +18,8 @@ Load the `azure-sre-agent` skill at session start and after every compaction or 
 
 - [README.md](README.md) — Deployment guide and architecture
 - [CATALOG.md](CATALOG.md) — Full scheduled-task catalog
-- `bin/deploy.sh` — Canonical deployment entry point
+- `bin/deploy.sh` — Canonical deployment entry point copied from the Microsoft starter-lab setup flow and updated for no-azd FinOps deployment
+- `infra/` — Copied-and-updated Microsoft starter-lab Bicep baseline
 - `recipes/finops-hub/` — Recipe content
 - `.upstream-pin` — Upstream canonical template pin
 

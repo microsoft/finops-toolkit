@@ -1,6 +1,6 @@
 # FinOps toolkit SRE Agent knowledge document index
 
-This document is the canonical index for the repository-provided knowledge base. It is also a deployment verification sentinel after `recipes/finops-hub/knowledge/` is uploaded through `bicep/apply-extras.sh`.
+This document is the canonical index for the repository-provided knowledge base. It is also a deployment verification sentinel after `recipes/finops-hub/knowledge/` is uploaded through `bin/post-provision.sh`.
 
 ## Document inventory
 
@@ -14,7 +14,7 @@ This document is the canonical index for the repository-provided knowledge base.
 
 ## Listing contract
 
-- Knowledge files are uploaded by `bicep/apply-extras.sh` with the SRE Agent data-plane upload endpoint.
+- Knowledge files are uploaded by `bin/post-provision.sh` with `srectl doc upload`.
 - If the knowledge index is not visible in the portal after upload, treat it as an upload visibility failure or an empty knowledge base.
 
 ## Source

@@ -33,6 +33,8 @@ RG="$2"
 AGENT="$3"
 EXPECTED_DIR=""
 EXPECTED_CONFIG=""
+EXPECTED_CONNECTORS=""
+EXPECTED_CONFIG_HAS_CONNECTORS="false"
 shift 3
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -47,6 +49,12 @@ az() { command az "$@" --subscription "$SUB"; }
 # Load expected-config.json if present
 if [[ -n "$EXPECTED_DIR" && -f "${EXPECTED_DIR}/expected-config.json" ]]; then
   EXPECTED_CONFIG=$(cat "${EXPECTED_DIR}/expected-config.json")
+  if echo "$EXPECTED_CONFIG" | jq -e 'has("connectors")' >/dev/null 2>&1; then
+    EXPECTED_CONFIG_HAS_CONNECTORS="true"
+  fi
+fi
+if [[ -n "$EXPECTED_DIR" && -f "${EXPECTED_DIR}/connectors.json" ]]; then
+  EXPECTED_CONNECTORS=$(jq -c '.connectors // []' "${EXPECTED_DIR}/connectors.json" 2>/dev/null || echo "[]")
 fi
 
 # Helper: get expected value from expected-config.json
@@ -129,20 +137,27 @@ check "Incident platform" "$(echo "$PROPS" | jq -r '.incidentPlatform')" "$(exp 
 
 # ── Connectors (ARM) ──
 CONNECTORS=$(arm_get "/DataConnectors")
-CONN_CT=$(echo "$CONNECTORS" | jq '.value | length')
-CONN_HEALTHY=$(echo "$CONNECTORS" | jq '[.value[] | select(.properties.provisioningState == "Succeeded")] | length')
-CONN_ERRORED=$(echo "$CONNECTORS" | jq '[.value[] | select(.properties.provisioningState != "Succeeded" and .properties.provisioningState != "Running")] | length')
+CONNECTOR_VALUES=$(echo "$CONNECTORS" | jq -c '(.value // []) | if type == "array" then . else [] end' 2>/dev/null || echo "[]")
+CONN_CT=$(echo "$CONNECTOR_VALUES" | jq 'length')
+CONN_HEALTHY=$(echo "$CONNECTOR_VALUES" | jq '[.[] | select(.properties.provisioningState == "Succeeded")] | length')
+CONN_ERRORED=$(echo "$CONNECTOR_VALUES" | jq '[.[] | select(.properties.provisioningState != "Succeeded" and .properties.provisioningState != "Running")] | length')
 EXP_CONN_CT=$(exp '.connectors | length' "-")
+if [[ "$EXPECTED_CONFIG_HAS_CONNECTORS" != "true" && -n "$EXPECTED_CONNECTORS" ]]; then
+  EXP_CONN_CT=$(echo "$EXPECTED_CONNECTORS" | jq 'length')
+fi
 check "Connectors (total)" "$CONN_CT" "$EXP_CONN_CT"
 check "Connectors (healthy)" "$CONN_HEALTHY" "$CONN_CT"
 # Show errored connectors explicitly
 if [[ "$CONN_ERRORED" -gt 0 ]]; then
-  ERRORED_LIST=$(echo "$CONNECTORS" | jq -r '.value[] | select(.properties.provisioningState != "Succeeded" and .properties.provisioningState != "Running") | "\(.name) (\(.properties.dataConnectorType)): \(.properties.provisioningState)"')
+  ERRORED_LIST=$(echo "$CONNECTOR_VALUES" | jq -r '.[] | select(.properties.provisioningState != "Succeeded" and .properties.provisioningState != "Running") | "\(.name) (\(.properties.dataConnectorType)): \(.properties.provisioningState)"')
   RESULTS="${RESULTS}\n  ⚠ Errored connectors|${ERRORED_LIST}||❌ FAIL"
   FAIL=$((FAIL + 1))
 fi
-CONN_NAMES=$(echo "$CONNECTORS" | jq -r '.value[].name' 2>/dev/null | sort | tr '\n' ', ' | sed 's/,$//')
+CONN_NAMES=$(echo "$CONNECTOR_VALUES" | jq -r '.[].name' 2>/dev/null | sort | tr '\n' ', ' | sed 's/,$//')
 EXP_CONN_NAMES=$(exp_list '.connectors[].name')
+if [[ "$EXPECTED_CONFIG_HAS_CONNECTORS" != "true" && -n "$EXPECTED_CONNECTORS" ]]; then
+  EXP_CONN_NAMES=$(echo "$EXPECTED_CONNECTORS" | jq -r '[.[].name] | sort | join(",")')
+fi
 [[ -n "$EXP_CONN_NAMES" ]] && check "Connector names" "$CONN_NAMES" "$EXP_CONN_NAMES" || RESULTS="${RESULTS}\n  Connector names|${CONN_NAMES}|—|"
 
 # ── Skills ──

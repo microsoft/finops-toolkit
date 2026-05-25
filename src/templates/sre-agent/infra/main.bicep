@@ -1,0 +1,93 @@
+// Copied from microsoft/sre-agent labs/starter-lab/infra/main.bicep and
+// updated for the FinOps Toolkit SRE Agent template:
+// - no azd environment dependency
+// - no Grubify sample application
+// - resource-group scoped target access
+
+targetScope = 'subscription'
+
+@description('Resource group that holds the SRE Agent resources.')
+param resourceGroupName string
+
+@description('SRE Agent name.')
+param agentName string
+
+@description('Primary location for all resources.')
+@allowed(['swedencentral', 'uksouth', 'eastus2', 'australiaeast'])
+param location string = 'eastus2'
+
+@description('Resource groups the agent can observe or act on.')
+param targetResourceGroups array = []
+
+@description('Agent access level.')
+@allowed(['Low', 'High'])
+param accessLevel string = 'Low'
+
+@description('Agent action mode.')
+@allowed(['review', 'autonomous', 'readOnly'])
+param actionMode string = 'review'
+
+@description('Azure resource tags.')
+param tags object = {}
+
+@description('Optional. FinOps Hub Azure Data Explorer cluster resource ID for Kusto viewer assignment.')
+param finopsHubKustoClusterResourceId string = ''
+
+var targetRgs = empty(targetResourceGroups) ? [resourceGroupName] : targetResourceGroups
+var agentResourceGroupId = subscriptionResourceId('Microsoft.Resources/resourceGroups', resourceGroupName)
+var targetRgIds = [for rgName in targetRgs: subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)]
+var namingSeed = toLower('${subscription().subscriptionId}|${agentResourceGroupId}|${agentName}')
+
+resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
+  name: resourceGroupName
+  location: location
+  tags: tags
+}
+
+module resources 'resources.bicep' = {
+  name: 'resources-deployment'
+  scope: rg
+  params: {
+    agentName: agentName
+    location: location
+    namingSeed: namingSeed
+    targetResourceGroupIds: targetRgIds
+    accessLevel: accessLevel
+    actionMode: actionMode
+    tags: tags
+  }
+}
+
+module targetRbac 'modules/resource-group-rbac.bicep' = [for rgName in targetRgs: {
+  name: 'target-rbac-${uniqueString(toLower(subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)), namingSeed)}'
+  scope: resourceGroup(rgName)
+  params: {
+    principalId: resources.outputs.identityPrincipalId
+    accessLevel: accessLevel
+  }
+}]
+
+var hasKustoCluster = !empty(finopsHubKustoClusterResourceId)
+var kustoClusterSubscriptionId = hasKustoCluster ? split(finopsHubKustoClusterResourceId, '/')[2] : ''
+var kustoClusterResourceGroupName = hasKustoCluster ? split(finopsHubKustoClusterResourceId, '/')[4] : ''
+var kustoClusterName = hasKustoCluster ? split(finopsHubKustoClusterResourceId, '/')[8] : ''
+
+module finopsHubKustoViewerRbac 'modules/kusto-viewer-rbac.bicep' = if (hasKustoCluster) {
+  name: 'kusto-rbac-${uniqueString(finopsHubKustoClusterResourceId, namingSeed)}'
+  scope: resourceGroup(kustoClusterSubscriptionId, kustoClusterResourceGroupName)
+  params: {
+    clusterName: kustoClusterName
+    principalId: resources.outputs.identityPrincipalId
+    principalTenantId: tenant().tenantId
+    principalAssignmentName: 'sre-agent-${uniqueString(finopsHubKustoClusterResourceId, namingSeed, 'all-db-viewer')}'
+  }
+}
+
+output AZURE_RESOURCE_GROUP string = rg.name
+output AZURE_LOCATION string = location
+output SRE_AGENT_NAME string = resources.outputs.agentName
+output SRE_AGENT_ENDPOINT string = resources.outputs.agentEndpoint
+output AGENT_PORTAL_URL string = resources.outputs.agentPortalUrl
+output MANAGED_IDENTITY_ID string = resources.outputs.identityId
+output MANAGED_IDENTITY_PRINCIPAL_ID string = resources.outputs.identityPrincipalId
+output LOG_ANALYTICS_WORKSPACE_ID string = resources.outputs.logAnalyticsWorkspaceId

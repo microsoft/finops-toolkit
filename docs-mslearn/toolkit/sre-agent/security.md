@@ -73,7 +73,7 @@ This permission lets the agent query hub data, including cost, usage, commitment
 
 ## Connector permissions
 
-The agent doesn't create Teams or Outlook notification connectors during `azd up`. You add them interactively in [sre.azure.com](https://sre.azure.com) after deployment.
+The agent doesn't create Teams or Outlook notification connectors during deployment. You add them interactively in [sre.azure.com](https://sre.azure.com) after deployment.
 
 To configure a Teams or Outlook connector, the configuring user needs **Contributor** on the agent resource group, including these actions:
 
@@ -121,7 +121,7 @@ Use these checks when deployment or `srectl` configuration fails:
 2. Re-authenticate against the tenant that owns the subscription.
 3. Re-run `srectl init --resource-url <endpoint>`, then retry `srectl status`.
 
-Browser access can succeed while `srectl` returns `401`, `403`, or `Forbidden: Access denied by PDP` if the CLI token was issued for the wrong tenant. The deployment script sets the active subscription before `azd up` to reduce this risk.
+Browser access can succeed while `srectl` returns `401`, `403`, or `Forbidden: Access denied by PDP` if the CLI token was issued for the wrong tenant. The deployment script sets the active subscription before deployment to reduce this risk.
 
 Connector setup can also cross identity boundaries. The Azure resource permissions come from the resource tenant, while Teams or Outlook OAuth uses the Microsoft 365 account that signs in to the connector.
 

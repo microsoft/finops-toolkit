@@ -15,7 +15,7 @@ ms.reviewer: brettwil
 
 The FinOps toolkit configures [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview) with a multi-agent architecture. One orchestrator receives prompts and scheduled tasks, then delegates work to specialist subagents with focused FinOps, finance, capacity, database, and hub operations expertise.
 
-The template configures 5 subagents, 3 skills, 33 tools (21 Kusto tools and 12 Python tools), and a FinOps hub connector. The orchestrator keeps the experience simple. The specialist agents keep answers grounded in the right domain.
+The template configures 5 subagents, 3 skills, 34 tools (21 Kusto tools and 13 Python tools), and a FinOps hub connector. The orchestrator keeps the experience simple. The specialist agents keep answers grounded in the right domain.
 
 <br>
 

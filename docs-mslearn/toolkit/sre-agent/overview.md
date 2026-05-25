@@ -13,7 +13,7 @@ ms.reviewer: brettwil
 
 # Azure SRE Agent in the FinOps toolkit
 
-The FinOps toolkit ships an Azure Developer CLI template that deploys [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview) and configures it for FinOps and capacity management workflows on top of [FinOps hubs](../hubs/finops-hubs-overview.md). The deployment includes specialist subagents, FOCUS-aligned Kusto and Python tools, scheduled tasks, and grounded knowledge so the agent can investigate cost changes, monitor quota and capacity signals, prepare executive summaries, and deliver scheduled updates. The deployment focuses on three core design principles:
+The FinOps toolkit ships a single-script Azure CLI + Bicep template that deploys [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview) and configures it for FinOps and capacity management workflows on top of [FinOps hubs](../hubs/finops-hubs-overview.md). The deployment includes specialist subagents, FOCUS-aligned Kusto and Python tools, scheduled tasks, and grounded knowledge so the agent can investigate cost changes, monitor quota and capacity signals, prepare executive summaries, and deliver scheduled updates. The deployment focuses on three core design principles:
 
 - **Automate the rhythm**<br>_Run daily, weekly, monthly, and quarterly FinOps workflows without waiting for manual report requests._
 - **Ground every answer**<br>_Use FinOps hub data, FOCUS-aligned Kusto tools, and Azure platform context to keep recommendations tied to evidence._
@@ -47,13 +47,12 @@ The FinOps toolkit's Azure SRE Agent template deploys and configures these resou
 | Managed identity | 1 | User-assigned managed identity for the agent |
 | Log Analytics | 1 | Workspace for agent telemetry |
 | Application Insights | 1 | Linked to Log Analytics for monitoring |
-| Subscription RBAC | 2 | Reader and Monitoring Contributor role assignments |
-| Custom role | 1 | `FinOps SRE Zone Peers Reader` for cross-subscription zone mapping |
+| Target resource group RBAC | 3-4 per target group | Reader, Monitoring Reader, Log Analytics Reader, and Contributor when `accessLevel` is `High` |
 | Azure Data Explorer role | Optional | `AllDatabasesViewer` when Azure Data Explorer parameters are provided |
 | Subagents | 5 | `azure-capacity-manager`, `chief-financial-officer`, `finops-practitioner`, `ftk-database-query`, and `ftk-hubs-agent` |
 | Skills | 3 | `azure-capacity-management`, `azure-cost-management`, and `finops-toolkit` |
-| Tools | 33 | 21 Kusto tools for FinOps hub queries and 12 Python tools for Azure capacity APIs |
-| Scheduled tasks | 18 | 9 core reporting tasks and 9 capacity and governance audits |
+| Tools | 34 | 21 Kusto tools and 13 Python tools |
+| Scheduled tasks | 19 | Daily, weekly, monthly, semiannual, and quarterly recurring workflows |
 | Connector | 1 | Kusto MCP connector to your FinOps hub Azure Data Explorer cluster |
 | Notification connectors | 0 by default | Outlook and Teams can be added after deployment in the Azure SRE Agent portal |
 
@@ -61,14 +60,14 @@ The FinOps toolkit's Azure SRE Agent template deploys and configures these resou
 
 ## Architecture overview
 
-The FinOps toolkit deployment uses Azure Developer CLI (`azd`) for the Bicep template and `srectl` to configure Azure SRE Agent. The deployment runs in this order:
+The FinOps toolkit deployment is copied from the Microsoft SRE Agent starter-lab pattern and updated to use Azure CLI + Bicep directly. It doesn't use `azd`. The deployment runs in this order:
 
-1. `azd up` deploys the subscription-scoped Bicep template.
-2. Bicep creates the resource group, managed identity, monitoring resources, and Azure SRE Agent.
-3. Bicep assigns Reader and Monitoring Contributor at the subscription scope.
-4. Bicep can optionally assign `AllDatabasesViewer` on your FinOps hub Azure Data Explorer cluster.
-5. When `finopsHubClusterUri` is provided, Bicep creates the Kusto connector for the FinOps hub Azure Data Explorer cluster.
-6. The post-provision hook installs `srectl`, initializes it with the deployed agent endpoint, and applies skills, agents, tools, knowledge, and scheduled tasks.
+1. `bin/deploy.sh` sets the Azure CLI subscription context.
+2. Azure CLI deploys the subscription-scoped Bicep template.
+3. Bicep creates the resource group, managed identity, monitoring resources, and Azure SRE Agent.
+4. Bicep assigns target resource group RBAC and can optionally assign `AllDatabasesViewer` on your FinOps hub Azure Data Explorer cluster.
+5. `bin/post-provision.sh` creates the Kusto connector through the SRE Agent data plane.
+6. `srectl` initializes with the deployed agent endpoint and applies skills, agents, tools, knowledge, and scheduled tasks.
 7. You optionally add Outlook and Teams connectors in [sre.azure.com](https://sre.azure.com) when you want scheduled reports delivered outside the agent chat.
 
 The result is a single Azure SRE Agent with a FinOps operating model layered on top. The `finops-practitioner` agent handles cost visibility, anomaly response, allocation, optimization, AI cost management, and practice health. The `azure-capacity-manager` agent monitors quota, capacity reservations, regional access, zone mapping, and capacity-to-rate alignment. The `chief-financial-officer` agent prepares budgeting, forecasting, executive finance, and unit economics narratives. The `ftk-database-query` agent runs focused Kusto diagnostics, and the `ftk-hubs-agent` monitors FinOps hub health and data freshness.

@@ -5,6 +5,7 @@ Describe 'SRE Agent deploy template' {
     BeforeAll {
         $script:RepoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
         $script:DeployScript = Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/deploy.sh'
+        $script:PostProvisionScript = Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/post-provision.sh'
         $script:RecipeDir = Join-Path $script:RepoRoot 'src/templates/sre-agent/recipes/finops-hub'
         $script:ReadmePath = Join-Path $script:RepoRoot 'src/templates/sre-agent/README.md'
         $script:DocsPath = Join-Path $script:RepoRoot 'docs-mslearn/toolkit/sre-agent/deploy.md'
@@ -108,19 +109,19 @@ Describe 'SRE Agent deploy template' {
             $cases = @(
                 @{
                     Command = "bash '$script:DeployScript' --recipe '$script:RecipeDir' --dry-run"
-                    Match   = 'Resource group'
+                    Match   = 'subscription'
                 }
                 @{
-                    Command = "bash '$script:DeployScript' --recipe '$script:RecipeDir' -g rg-x --dry-run"
-                    Match   = 'Agent name'
+                    Command = "bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 --dry-run"
+                    Match   = 'resource-group'
                 }
                 @{
-                    Command = "bash '$script:DeployScript' --recipe '$script:RecipeDir' -g rg-x -n a --dry-run"
-                    Match   = 'Region'
+                    Command = "bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-x --dry-run"
+                    Match   = 'name'
                 }
                 @{
-                    Command = "bash '$script:DeployScript' --recipe '$script:RecipeDir' -g rg-x -n a -l westus3 --dry-run"
-                    Match   = 'cluster-uri'
+                    Command = "bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-x -n a --dry-run"
+                    Match   = 'location'
                 }
             )
 
@@ -149,25 +150,52 @@ Describe 'SRE Agent deploy template' {
             if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
             $result = Invoke-BashCommand "bash '$script:DeployScript' --dry-run rg-test"
             $result.ExitCode | Should -Be 2
-            $result.Output | Should -Match '--recipe <dir> is required'
+            $result.Output | Should -Match 'unknown argument'
         }
 
         It 'shows customer values and not maintainer defaults on happy-path dry-run' {
             if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
-            $result = Invoke-BashCommand @"
-bash '$script:DeployScript' \
-  --recipe '$script:RecipeDir' \
-  -g rg-test-customer \
-  -n customer-sre-agent \
-  -l westus3 \
-  --cluster-uri https://example.westus3.kusto.windows.net/hub \
-  --dry-run
-"@
+            $result = Invoke-BashCommand "bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l westus3 --cluster-uri https://example.westus3.kusto.windows.net/Hub --cluster-resource-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test/providers/Microsoft.Kusto/clusters/fake --dry-run"
             $result.ExitCode | Should -Be 0
             $result.Output | Should -Match 'rg-test-customer'
             $result.Output | Should -Match 'customer-sre-agent'
             $result.Output | Should -Match 'westus3'
             $result.Output | Should -Not -Match 'rg-finops-sre-agent|finops-sre-agent|eastus2'
+        }
+
+        It 'uses a deterministic default deployment name across dry-runs' {
+            if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
+
+            $deployRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sre-agent-deploy-name-" + [guid]::NewGuid().ToString('N'))
+            try {
+                $command = "SRE_AGENT_DEPLOY_DIR='$deployRoot' bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l westus3 --cluster-uri https://example.westus3.kusto.windows.net/Hub --cluster-resource-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test/providers/Microsoft.Kusto/clusters/fake --dry-run"
+                $first = Invoke-BashCommand $command
+                $second = Invoke-BashCommand $command
+
+                $first.ExitCode | Should -Be 0
+                $second.ExitCode | Should -Be 0
+                $firstPath = [regex]::Match($first.Output, 'Parameters:\s+(.+)').Groups[1].Value.Trim()
+                $secondPath = [regex]::Match($second.Output, 'Parameters:\s+(.+)').Groups[1].Value.Trim()
+
+                $firstPath | Should -Be $secondPath
+                $firstPath | Should -Match 'sre-agent-customer-sre-agent-[a-f0-9]{12}'
+            }
+            finally {
+                Remove-Item -Path $deployRoot -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+
+        It 'routes deploy through the copied starter-lab infra and post-provision path' {
+            if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
+
+            $deployContent = Get-Content -Path $script:DeployScript -Raw
+            $deployContent | Should -Match 'INFRA_DIR=.*infra'
+            $deployContent | Should -Match '\$\{INFRA_DIR\}/main\.bicep'
+            $deployContent | Should -Match 'post-provision\.sh'
+            $deployContent | Should -Not -Match 'bicep/assemble-agent|apply-extras|hydrate-extensions'
+
+            Test-Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/main.bicep') | Should -BeTrue
+            Test-Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/post-provision.sh') | Should -BeTrue
         }
     }
 
@@ -196,81 +224,121 @@ bash '$script:DeployScript' \
 
         It 'keeps connectors.secrets.env out of scripts' {
             if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
-            $result = Invoke-BashCommand "git grep -nE 'connectors\.secrets\.env' -- src/templates/sre-agent/bin src/templates/sre-agent/bicep"
+            $result = Invoke-BashCommand "git grep -nE 'connectors\.secrets\.env' -- src/templates/sre-agent/bin src/templates/sre-agent/infra"
             $result.ExitCode | Should -Be 1
         }
 
-        It 'removes the old generic env resolver' {
+        It 'removes the legacy custom bicep deployment surface' {
+            Test-Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bicep') | Should -BeFalse
+            Test-Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/hydrate-extensions.sh') | Should -BeFalse
+        }
+
+        It 'uses deterministic subscription and resource group identity for support resource names' {
+            $mainBicep = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/main.bicep') -Raw
+            $resourcesBicep = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/resources.bicep') -Raw
+
+            $mainBicep | Should -Match "agentResourceGroupId = subscriptionResourceId\('Microsoft\.Resources/resourceGroups', resourceGroupName\)"
+            $mainBicep | Should -Match 'namingSeed = toLower'
+            $mainBicep | Should -Match 'subscription\(\)\.subscriptionId'
+            $mainBicep | Should -Match 'agentResourceGroupId'
+            $mainBicep | Should -Match 'agentName'
+
+            $resourcesBicep | Should -Match 'param namingSeed string'
+            $resourcesBicep | Should -Match 'uniqueSuffix = uniqueString\(namingSeed\)'
+            $resourcesBicep | Should -Not -Match 'resourceGroup\(\)\.id|deployment\(\)\.name'
+        }
+
+        It 'applies subagents after their local handoff targets' {
             if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
-            $result = Invoke-BashCommand "git grep -nF 'resolve_env_vars' -- src/templates/sre-agent/bicep/assemble-agent.sh"
-            $result.ExitCode | Should -Be 1
+
+            $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sre-agent-post-provision-" + [guid]::NewGuid().ToString('N'))
+            $binDir = Join-Path $tempRoot 'bin'
+            $buildDir = Join-Path $tempRoot 'build'
+            $logPath = Join-Path $tempRoot 'srectl.log'
+            New-Item -ItemType Directory -Force -Path $binDir, $buildDir | Out-Null
+
+            $fakeSrectl = Join-Path $binDir 'srectl'
+            @'
+#!/usr/bin/env bash
+set -euo pipefail
+
+seen() {
+  [[ -f "${SRECTL_LOG:?}" ]] && grep -qx "$1" "$SRECTL_LOG"
+}
+
+case "${1:-}" in
+  init|doc|skill|scheduledtask)
+    exit 0
+    ;;
+  apply-yaml)
+    file=""
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --file)
+          file="$2"
+          shift 2
+          ;;
+        *)
+          shift
+          ;;
+      esac
+    done
+    if [[ "$file" == */config/subagents/* ]]; then
+      base="$(basename "$file")"
+      if [[ "$base" == "finops-practitioner.yaml" ]]; then
+        seen "chief-financial-officer.yaml" || exit 17
+        seen "ftk-database-query.yaml" || exit 18
+        seen "ftk-hubs-agent.yaml" || exit 19
+      fi
+      echo "$base" >> "$SRECTL_LOG"
+    fi
+    exit 0
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+'@ | Set-Content -Path $fakeSrectl -NoNewline
+            & chmod +x $fakeSrectl
+
+            try {
+                $command = "PATH='$binDir':`$PATH SRECTL_LOG='$logPath' bash '$script:PostProvisionScript' --endpoint https://example.azuresre.ai --recipe '$script:RecipeDir' --build-dir '$buildDir'"
+                $result = Invoke-BashCommand $command
+                $result.ExitCode | Should -Be 0
+
+                $order = @(Get-Content -Path $logPath)
+                [array]::IndexOf($order, 'chief-financial-officer.yaml') | Should -BeLessThan ([array]::IndexOf($order, 'finops-practitioner.yaml'))
+                [array]::IndexOf($order, 'ftk-database-query.yaml') | Should -BeLessThan ([array]::IndexOf($order, 'finops-practitioner.yaml'))
+                [array]::IndexOf($order, 'ftk-hubs-agent.yaml') | Should -BeLessThan ([array]::IndexOf($order, 'finops-practitioner.yaml'))
+            }
+            finally {
+                Remove-Item -Path $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+
+        It 'derives expected recipe connectors for verification' {
+            $verifyScript = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/verify-agent.sh') -Raw
+
+            $verifyScript | Should -Match 'connectors\.json'
+            $verifyScript | Should -Match 'EXPECTED_CONNECTORS'
+            $verifyScript | Should -Match 'EXP_CONN_CT=.*EXPECTED_CONNECTORS'
+            $verifyScript | Should -Match 'EXP_CONN_NAMES=.*EXPECTED_CONNECTORS'
         }
     }
 
-    Context 'what-if regressions' {
-        It 'returns nonzero when az deployment sub what-if fails' {
+    Context 'copy-and-update deployment contract' {
+        It 'rejects what-if because the copied starter-lab flow deploys directly' {
             if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
-
-            $shimDir = Join-Path ([System.IO.Path]::GetTempPath()) ("sre-agent-az-shim-" + [guid]::NewGuid().ToString('N'))
-            New-Item -ItemType Directory -Path $shimDir -Force | Out-Null
-            try {
-                $azShim = @'
-#!/usr/bin/env bash
-set -eu
-if [[ "$1 $2 $3" == "deployment sub what-if" ]]; then
-  echo "simulated what-if failure" >&2
-  exit 1
-fi
-if [[ "$1 $2" == "account show" ]]; then
-  if [[ "${*: -2}" == "-o tsv" ]]; then
-    if printf '%s\n' "$*" | grep -q -- '--query name'; then
-      echo "Test Subscription"
-    else
-      echo "00000000-0000-0000-0000-000000000000"
-    fi
-    exit 0
-  fi
-fi
-if [[ "$1 $2" == "group exists" ]]; then
-  echo "false"
-  exit 0
-fi
-if [[ "$1 $2" == "kusto cluster" ]]; then
-  echo "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test/providers/Microsoft.Kusto/clusters/fake"
-  exit 0
-fi
-echo "unexpected az call: $*" >&2
-exit 0
-'@
-                $azShimPath = Join-Path $shimDir 'az'
-                Set-Content -Path $azShimPath -Value $azShim -NoNewline
-                & chmod +x $azShimPath
-
-                # Captures the exit code from deploy.sh what-if handling around bin/deploy.sh:566-585.
-                $result = Invoke-BashCommandWithPath @"
-bash '$script:DeployScript' \
-  --recipe '$script:RecipeDir' \
-  --subscription 00000000-0000-0000-0000-000000000000 \
-  -g rg-test \
-  -n test-agent \
-  -l westus3 \
-  --cluster-uri https://example.westus3.kusto.windows.net/hub \
-  --cluster-resource-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test/providers/Microsoft.Kusto/clusters/fake \
-  --what-if
-"@ $shimDir
-
-                $result.ExitCode | Should -Not -Be 0
-                $result.Output | Should -Match 'What-if found errors'
-                $result.Output | Should -Match 'simulated what-if failure'
-            }
-            finally {
-                Remove-Item -Path $shimDir -Recurse -Force -ErrorAction SilentlyContinue
-            }
+            $result = Invoke-BashCommand "bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test -n test-agent -l westus3 --what-if"
+            $result.ExitCode | Should -Be 2
+            $result.Output | Should -Match 'unknown flag'
         }
 
-        It 'can verify what-if bypasses change detection when a safe shim strategy exists' {
+        It 'documents that azd is not used' {
             if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
-            Set-ItResult -Skipped -Because 'deploy.sh invokes diff-agent.sh by absolute repo path; PATH shimming cannot safely intercept it in this harness'
+            $result = Invoke-BashCommand "git grep -nF 'azd' -- src/templates/sre-agent/bin src/templates/sre-agent/infra docs-mslearn/toolkit/sre-agent/deploy.md src/templates/sre-agent/README.md"
+            $result.Output | Should -Match 'azd'
+            $result.Output | Should -Match 'not used|doesn''t use'
         }
     }
 }

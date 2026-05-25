@@ -1,6 +1,6 @@
 # Known issues and workarounds for FinOps toolkit SRE Agent scheduled tasks
 
-Use this guidance when executing scheduled tasks or investigating task execution failures. These issues were identified during UAT of all 9 scheduled tasks on April 28, 2026.
+Use this guidance when executing scheduled tasks or investigating task execution failures. These issues were identified during the first nine-task UAT pass on April 28, 2026 and remain useful patterns for the current 19-task schedule.
 
 ## 0. Source control and credential safety
 
@@ -213,7 +213,7 @@ The split is:
 
 ## Summary of agent resilience
 
-All 9 scheduled tasks completed despite encountering errors. Key resilience patterns observed:
+All tasks in the first nine-task UAT pass completed despite encountering errors. Key resilience patterns observed:
 
 | Pattern | Behavior |
 |---------|----------|

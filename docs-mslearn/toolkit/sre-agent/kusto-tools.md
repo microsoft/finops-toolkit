@@ -13,7 +13,7 @@ ms.reviewer: brettwil
 
 # Kusto tools
 
-The FinOps toolkit deployment configures Azure SRE Agent with 21 Kusto tools that query your FinOps hub Azure Data Explorer database through the `finops-hub-kusto` connector. Each tool is configured as a `KustoTool` and uses the FinOps hub query catalog to ground agent responses in cost, price, recommendation, transaction, and AI usage data. Tool source lives at [`src/templates/sre-agent/tools`](../../../src/templates/sre-agent/tools/).
+The FinOps toolkit deployment configures Azure SRE Agent with 21 Kusto tools that query your FinOps hub Azure Data Explorer database through the `finops-hub-kusto` connector. Each tool is configured as a `KustoTool` and uses the FinOps hub query catalog to ground agent responses in cost, price, recommendation, transaction, and AI usage data. Tool source lives at [`src/templates/sre-agent/recipes/finops-hub/config/tools`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/).
 
 This reference also calls out related optimization tools that appear in scheduled-task requirements when they affect the same analysis path. Those tools aren't Kusto tools unless explicitly marked as `KustoTool`.
 
@@ -23,13 +23,12 @@ Use this reference when you want to understand which tool fits a prompt, schedul
 
 ## Source validation
 
-The template source contains 34 tool YAML files in [`src/templates/sre-agent/tools`](../../../src/templates/sre-agent/tools/). The production FinOps hub Kusto inventory is the subset with `spec.type: KustoTool` and `spec.connector: finops-hub-kusto`. That subset contains 21 tools. The remaining files are 12 `PythonTool` files and one example `KustoTool` that uses `example_connector`, so they aren't part of the FinOps hub Kusto catalog.
+The template source contains 34 tool YAML files in [`src/templates/sre-agent/recipes/finops-hub/config/tools`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/). The production FinOps hub Kusto inventory is the subset with `spec.type: KustoTool` and `spec.connector: finops-hub-kusto`. That subset contains 21 tools. The remaining files are 13 `PythonTool` files, so they aren't part of the FinOps hub Kusto catalog.
 
 | Source category | Count | Evidence |
 |-----------------|------:|----------|
-| FinOps hub Kusto tools | 21 | [`ai-cost-by-application`](../../../src/templates/sre-agent/tools/ai-cost-by-application.yaml), [`ai-daily-trend`](../../../src/templates/sre-agent/tools/ai-daily-trend.yaml), [`ai-model-cost-comparison`](../../../src/templates/sre-agent/tools/ai-model-cost-comparison.yaml), [`ai-token-usage-breakdown`](../../../src/templates/sre-agent/tools/ai-token-usage-breakdown.yaml), [`commitment-discount-utilization`](../../../src/templates/sre-agent/tools/commitment-discount-utilization.yaml), [`cost-anomaly-detection`](../../../src/templates/sre-agent/tools/cost-anomaly-detection.yaml), [`cost-by-financial-hierarchy`](../../../src/templates/sre-agent/tools/cost-by-financial-hierarchy.yaml), [`cost-by-region-trend`](../../../src/templates/sre-agent/tools/cost-by-region-trend.yaml), [`cost-forecasting-model`](../../../src/templates/sre-agent/tools/cost-forecasting-model.yaml), [`costs-enriched-base`](../../../src/templates/sre-agent/tools/costs-enriched-base.yaml), [`monthly-cost-change-percentage`](../../../src/templates/sre-agent/tools/monthly-cost-change-percentage.yaml), [`monthly-cost-trend`](../../../src/templates/sre-agent/tools/monthly-cost-trend.yaml), [`quarterly-cost-by-resource-group`](../../../src/templates/sre-agent/tools/quarterly-cost-by-resource-group.yaml), [`reservation-recommendation-breakdown`](../../../src/templates/sre-agent/tools/reservation-recommendation-breakdown.yaml), [`savings-summary-report`](../../../src/templates/sre-agent/tools/savings-summary-report.yaml), [`service-price-benchmarking`](../../../src/templates/sre-agent/tools/service-price-benchmarking.yaml), [`top-commitment-transactions`](../../../src/templates/sre-agent/tools/top-commitment-transactions.yaml), [`top-other-transactions`](../../../src/templates/sre-agent/tools/top-other-transactions.yaml), [`top-resource-groups-by-cost`](../../../src/templates/sre-agent/tools/top-resource-groups-by-cost.yaml), [`top-resource-types-by-cost`](../../../src/templates/sre-agent/tools/top-resource-types-by-cost.yaml), and [`top-services-by-cost`](../../../src/templates/sre-agent/tools/top-services-by-cost.yaml) |
-| Related Python tools | 12 | [`benefit-recommendations`](../../../src/templates/sre-agent/tools/benefit-recommendations.yaml), [`capacity-reservation-groups`](../../../src/templates/sre-agent/tools/capacity-reservation-groups.yaml), [`data-freshness-check`](../../../src/templates/sre-agent/tools/data-freshness-check.yaml), [`deploy-anomaly-alert`](../../../src/templates/sre-agent/tools/deploy-anomaly-alert.yaml), [`deploy-budget`](../../../src/templates/sre-agent/tools/deploy-budget.yaml), [`deploy-bulk-anomaly-alerts`](../../../src/templates/sre-agent/tools/deploy-bulk-anomaly-alerts.yaml), [`deploy-bulk-budgets`](../../../src/templates/sre-agent/tools/deploy-bulk-budgets.yaml), [`non-compute-quotas`](../../../src/templates/sre-agent/tools/non-compute-quotas.yaml), [`resource-graph-query`](../../../src/templates/sre-agent/tools/resource-graph-query.yaml), [`sku-availability`](../../../src/templates/sre-agent/tools/sku-availability.yaml), [`suppress-advisor-recommendations`](../../../src/templates/sre-agent/tools/suppress-advisor-recommendations.yaml), and [`vm-quota-usage`](../../../src/templates/sre-agent/tools/vm-quota-usage.yaml) |
-| Excluded example tool | 1 | [`example_tool`](../../../src/templates/sre-agent/tools/example_tool.yaml) is a sample `KustoTool` with `example_connector`, not `finops-hub-kusto`. |
+| FinOps hub Kusto tools | 21 | [`ai-cost-by-application`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-cost-by-application.yaml), [`ai-daily-trend`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-daily-trend.yaml), [`ai-model-cost-comparison`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-model-cost-comparison.yaml), [`ai-token-usage-breakdown`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-token-usage-breakdown.yaml), [`commitment-discount-utilization`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/commitment-discount-utilization.yaml), [`cost-anomaly-detection`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-anomaly-detection.yaml), [`cost-by-financial-hierarchy`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-by-financial-hierarchy.yaml), [`cost-by-region-trend`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-by-region-trend.yaml), [`cost-forecasting-model`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-forecasting-model.yaml), [`costs-enriched-base`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/costs-enriched-base.yaml), [`monthly-cost-change-percentage`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/monthly-cost-change-percentage.yaml), [`monthly-cost-trend`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/monthly-cost-trend.yaml), [`quarterly-cost-by-resource-group`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/quarterly-cost-by-resource-group.yaml), [`reservation-recommendation-breakdown`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/reservation-recommendation-breakdown.yaml), [`savings-summary-report`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/savings-summary-report.yaml), [`service-price-benchmarking`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/service-price-benchmarking.yaml), [`top-commitment-transactions`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-commitment-transactions.yaml), [`top-other-transactions`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-other-transactions.yaml), [`top-resource-groups-by-cost`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-resource-groups-by-cost.yaml), [`top-resource-types-by-cost`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-resource-types-by-cost.yaml), and [`top-services-by-cost`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-services-by-cost.yaml) |
+| Related Python tools | 13 | [`benefit-recommendations`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/benefit-recommendations.yaml), [`capacity-reservation-groups`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/capacity-reservation-groups.yaml), [`data-freshness-check`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/data-freshness-check.yaml), [`db-service-quotas`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/db-service-quotas.yaml), [`deploy-anomaly-alert`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-anomaly-alert.yaml), [`deploy-budget`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-budget.yaml), [`deploy-bulk-anomaly-alerts`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-bulk-anomaly-alerts.yaml), [`deploy-bulk-budgets`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-bulk-budgets.yaml), [`non-compute-quotas`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/non-compute-quotas.yaml), [`resource-graph-query`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/resource-graph-query.yaml), [`sku-availability`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/sku-availability.yaml), [`suppress-advisor-recommendations`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/suppress-advisor-recommendations.yaml), and [`vm-quota-usage`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/vm-quota-usage.yaml) |
 
 <br>
 
@@ -39,7 +38,7 @@ Use cost analysis tools to review cost and usage from different reporting angles
 
 ### costs-enriched-base
 
-Source YAML: [`costs-enriched-base.yaml`](../../../src/templates/sre-agent/tools/costs-enriched-base.yaml).
+Source YAML: [`costs-enriched-base.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/costs-enriched-base.yaml).
 
 Queries a guarded, enriched row-level cost and usage sample with tags, resource details, savings fields, commitment fields, and FinOps toolkit metadata.
 
@@ -51,7 +50,7 @@ Sample output shape: One row per cost record with fields such as `ChargePeriodSt
 
 ### monthly-cost-trend
 
-Source YAML: [`monthly-cost-trend.yaml`](../../../src/templates/sre-agent/tools/monthly-cost-trend.yaml).
+Source YAML: [`monthly-cost-trend.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/monthly-cost-trend.yaml).
 
 Queries monthly billed and effective cost totals to show cost trends over time.
 
@@ -63,7 +62,7 @@ Sample output shape: One row per month with `x_ChargeMonth`, `BilledCost`, and `
 
 ### monthly-cost-change-percentage
 
-Source YAML: [`monthly-cost-change-percentage.yaml`](../../../src/templates/sre-agent/tools/monthly-cost-change-percentage.yaml).
+Source YAML: [`monthly-cost-change-percentage.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/monthly-cost-change-percentage.yaml).
 
 Queries month-over-month billed and effective cost changes as percentages.
 
@@ -75,7 +74,7 @@ Sample output shape: One row per month with `ChargePeriodStart`, `BilledCost`, `
 
 ### quarterly-cost-by-resource-group
 
-Source YAML: [`quarterly-cost-by-resource-group.yaml`](../../../src/templates/sre-agent/tools/quarterly-cost-by-resource-group.yaml).
+Source YAML: [`quarterly-cost-by-resource-group.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/quarterly-cost-by-resource-group.yaml).
 
 Queries quarterly cost by resource group, subscription, and month for a reporting window.
 
@@ -87,7 +86,7 @@ Sample output shape: One row per subscription, resource group, and month with `S
 
 ### cost-by-region-trend
 
-Source YAML: [`cost-by-region-trend.yaml`](../../../src/templates/sre-agent/tools/cost-by-region-trend.yaml).
+Source YAML: [`cost-by-region-trend.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-by-region-trend.yaml).
 
 Queries effective cost trends by Azure region.
 
@@ -99,7 +98,7 @@ Sample output shape: One row per region with `RegionName` and `EffectiveCost`.
 
 ### cost-by-financial-hierarchy
 
-Source YAML: [`cost-by-financial-hierarchy.yaml`](../../../src/templates/sre-agent/tools/cost-by-financial-hierarchy.yaml).
+Source YAML: [`cost-by-financial-hierarchy.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-by-financial-hierarchy.yaml).
 
 Queries costs organized by billing profile, invoice section, team, product, application, environment, and other financial hierarchy fields.
 
@@ -111,7 +110,7 @@ Sample output shape: One row per financial hierarchy combination with `x_Billing
 
 ### top-services-by-cost
 
-Source YAML: [`top-services-by-cost.yaml`](../../../src/templates/sre-agent/tools/top-services-by-cost.yaml).
+Source YAML: [`top-services-by-cost.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-services-by-cost.yaml).
 
 Queries the Azure services with the highest effective cost.
 
@@ -123,7 +122,7 @@ Sample output shape: One row per service with `ServiceName` and `EffectiveCost`.
 
 ### top-resource-types-by-cost
 
-Source YAML: [`top-resource-types-by-cost.yaml`](../../../src/templates/sre-agent/tools/top-resource-types-by-cost.yaml).
+Source YAML: [`top-resource-types-by-cost.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-resource-types-by-cost.yaml).
 
 Queries the resource types with the highest effective cost and resource counts.
 
@@ -135,7 +134,7 @@ Sample output shape: One row per resource type with `ResourceType`, `ResourceCou
 
 ### top-resource-groups-by-cost
 
-Source YAML: [`top-resource-groups-by-cost.yaml`](../../../src/templates/sre-agent/tools/top-resource-groups-by-cost.yaml).
+Source YAML: [`top-resource-groups-by-cost.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-resource-groups-by-cost.yaml).
 
 Queries the resource groups with the highest effective cost.
 
@@ -153,7 +152,7 @@ Use commitment discount tools to review reservation and savings plan utilization
 
 ### commitment-discount-utilization
 
-Source YAML: [`commitment-discount-utilization.yaml`](../../../src/templates/sre-agent/tools/commitment-discount-utilization.yaml).
+Source YAML: [`commitment-discount-utilization.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/commitment-discount-utilization.yaml).
 
 Queries consumed core hours by commitment discount type, including reservation, savings plan, and on-demand usage.
 
@@ -165,7 +164,7 @@ Sample output shape: One row per commitment category with `CommitmentDiscountTyp
 
 ### reservation-recommendation-breakdown
 
-Source YAML: [`reservation-recommendation-breakdown.yaml`](../../../src/templates/sre-agent/tools/reservation-recommendation-breakdown.yaml).
+Source YAML: [`reservation-recommendation-breakdown.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/reservation-recommendation-breakdown.yaml).
 
 Queries detailed reservation recommendations, including savings, break-even dates, normalized sizes, scope, and term details.
 
@@ -177,7 +176,7 @@ Sample output shape: One row per reservation recommendation with fields such as 
 
 ### benefit-recommendations
 
-Source YAML: [`benefit-recommendations.yaml`](../../../src/templates/sre-agent/tools/benefit-recommendations.yaml).
+Source YAML: [`benefit-recommendations.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/benefit-recommendations.yaml).
 
 Gets Microsoft Cost Management benefit recommendations for savings plans and reserved instances at a billing scope.
 
@@ -189,7 +188,7 @@ Sample output shape: A JSON object with `billing_scope`, `lookback_period`, `ter
 
 ### savings-summary-report
 
-Source YAML: [`savings-summary-report.yaml`](../../../src/templates/sre-agent/tools/savings-summary-report.yaml).
+Source YAML: [`savings-summary-report.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/savings-summary-report.yaml).
 
 Queries list cost, effective cost, negotiated savings, commitment savings, total savings, and savings rate.
 
@@ -201,7 +200,7 @@ Sample output shape: One row per billing currency with `BillingCurrency`, `ListC
 
 ### top-commitment-transactions
 
-Source YAML: [`top-commitment-transactions.yaml`](../../../src/templates/sre-agent/tools/top-commitment-transactions.yaml).
+Source YAML: [`top-commitment-transactions.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-commitment-transactions.yaml).
 
 Queries the largest non-usage commitment discount purchase transactions, including reservations and savings plans.
 
@@ -219,7 +218,7 @@ Use anomaly detection tools to identify unusual cost patterns that need investig
 
 ### cost-anomaly-detection
 
-Source YAML: [`cost-anomaly-detection.yaml`](../../../src/templates/sre-agent/tools/cost-anomaly-detection.yaml).
+Source YAML: [`cost-anomaly-detection.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-anomaly-detection.yaml).
 
 Queries cost time series and detects unusual spikes or drops across a configurable history window.
 
@@ -237,7 +236,7 @@ Use forecasting tools to project future cost based on historical patterns.
 
 ### cost-forecasting-model
 
-Source YAML: [`cost-forecasting-model.yaml`](../../../src/templates/sre-agent/tools/cost-forecasting-model.yaml).
+Source YAML: [`cost-forecasting-model.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-forecasting-model.yaml).
 
 Queries historical cost trends and projects future effective cost.
 
@@ -255,7 +254,7 @@ Use AI/ML cost tools to analyze Azure OpenAI and related AI service costs, token
 
 ### ai-cost-by-application
 
-Source YAML: [`ai-cost-by-application.yaml`](../../../src/templates/sre-agent/tools/ai-cost-by-application.yaml).
+Source YAML: [`ai-cost-by-application.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-cost-by-application.yaml).
 
 Queries AI and machine learning costs by application, team, and environment tags.
 
@@ -267,7 +266,7 @@ Sample output shape: One row per application, team, environment, and cost center
 
 ### ai-daily-trend
 
-Source YAML: [`ai-daily-trend.yaml`](../../../src/templates/sre-agent/tools/ai-daily-trend.yaml).
+Source YAML: [`ai-daily-trend.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-daily-trend.yaml).
 
 Queries daily AI and machine learning cost trends.
 
@@ -279,7 +278,7 @@ Sample output shape: One row per day with `ChargePeriodStart`, daily AI cost, da
 
 ### ai-model-cost-comparison
 
-Source YAML: [`ai-model-cost-comparison.yaml`](../../../src/templates/sre-agent/tools/ai-model-cost-comparison.yaml).
+Source YAML: [`ai-model-cost-comparison.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-model-cost-comparison.yaml).
 
 Queries AI model costs so the agent can compare costs across models.
 
@@ -291,7 +290,7 @@ Sample output shape: One row per model with `Model`, `TokenCount`, `EffectiveCos
 
 ### ai-token-usage-breakdown
 
-Source YAML: [`ai-token-usage-breakdown.yaml`](../../../src/templates/sre-agent/tools/ai-token-usage-breakdown.yaml).
+Source YAML: [`ai-token-usage-breakdown.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-token-usage-breakdown.yaml).
 
 Queries AI token usage by model, model version, and input or output direction.
 
@@ -309,7 +308,7 @@ Use workload optimization tools to identify idle, orphaned, or wasteful resource
 
 ### idle-resource-sweep
 
-Source status: No `idle-resource-sweep.yaml` file appears in the source inventory for [`src/templates/sre-agent/tools`](../../../src/templates/sre-agent/tools/).
+Source status: No `idle-resource-sweep.yaml` file appears in the source inventory for [`src/templates/sre-agent/recipes/finops-hub/config/tools`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/).
 
 Reviews idle or orphaned resource candidates for workload optimization.
 
@@ -327,7 +326,7 @@ Use price analysis tools to compare prices, savings, and non-commitment transact
 
 ### service-price-benchmarking
 
-Source YAML: [`service-price-benchmarking.yaml`](../../../src/templates/sre-agent/tools/service-price-benchmarking.yaml).
+Source YAML: [`service-price-benchmarking.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/service-price-benchmarking.yaml).
 
 Queries service price benchmarks, including list cost, contracted cost, effective cost, negotiated savings, commitment savings, and total savings.
 
@@ -339,7 +338,7 @@ Sample output shape: One row per service with `ServiceName`, `ListCost`, `Contra
 
 ### top-other-transactions
 
-Source YAML: [`top-other-transactions.yaml`](../../../src/templates/sre-agent/tools/top-other-transactions.yaml).
+Source YAML: [`top-other-transactions.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-other-transactions.yaml).
 
 Queries the largest non-usage and non-commitment transactions, such as Marketplace or miscellaneous charges.
 

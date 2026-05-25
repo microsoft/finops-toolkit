@@ -15,7 +15,7 @@ EOF
 check_prerequisites() {
   local missing=0
 
-  for cmd in az jq; do
+  for cmd in az curl git jq srectl; do
     if ! command -v "$cmd" &>/dev/null; then
       echo "  ❌ Missing: $cmd" >&2
       missing=$((missing + 1))
@@ -31,11 +31,6 @@ check_prerequisites() {
       echo "  ❌ Missing: PyYAML — install: pip install pyyaml" >&2
       missing=$((missing + 1))
     fi
-  fi
-
-  if ! command -v curl &>/dev/null; then
-    echo "  ❌ Missing: curl" >&2
-    missing=$((missing + 1))
   fi
 
   if [[ $missing -gt 0 ]]; then

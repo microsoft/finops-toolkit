@@ -39,7 +39,7 @@ In B2B environments, the Azure subscription and Azure SRE Agent resource can liv
 
 ## Fix common deployment failures
 
-Use these checks after `azd up` or the post-provision hook fails.
+Use these checks after `bin/deploy.sh` or post-provisioning fails.
 
 ### Unsupported region
 
@@ -86,7 +86,7 @@ az provider register --namespace Microsoft.Resources
 
 **Symptom:** Azure resources deploy, but skills, agents, tools, scheduled tasks, knowledge documents, or the Kusto connector don't appear in [sre.azure.com](https://sre.azure.com).
 
-**Cause:** The post-provision hook couldn't install or run `srectl`, initialize the endpoint, or apply the SRE configuration.
+**Cause:** The post-provision step couldn't run `srectl`, initialize the endpoint, configure the Kusto connector, or apply the SRE configuration.
 
 **Workaround:** Check that `.NET 9.0 SDK`, Azure CLI, `python3`, and `bash` are available locally. Then rerun the post-provision script from `src/templates/sre-agent`.
 
@@ -94,7 +94,7 @@ az provider register --namespace Microsoft.Resources
 
 **Symptom:** Scheduled tasks run, but Teams or Outlook delivery doesn't work.
 
-**Cause:** `azd up` doesn't create notification connectors because Teams and Outlook require interactive OAuth setup.
+**Cause:** `bin/deploy.sh` does not create notification connectors because Teams and Outlook require interactive OAuth setup.
 
 **Workaround:** Add the Teams or Outlook connector in [sre.azure.com](https://sre.azure.com), select the agent managed identity, and send a test message.
 
@@ -233,7 +233,6 @@ Related products:
 
 - [Azure SRE Agent](/azure/sre-agent/overview)
 - [Azure Data Explorer](/azure/data-explorer/)
-- [Azure Developer CLI](/azure/developer/azure-developer-cli/overview)
 
 Related solutions:
 

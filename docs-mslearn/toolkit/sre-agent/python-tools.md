@@ -13,7 +13,7 @@ ms.reviewer: brettwil
 
 # Python tools
 
-The FinOps toolkit deployment configures Azure SRE Agent with 12 Python tools that call Azure APIs through the agent's managed identity. These tools complement the Kusto tools by checking Azure platform state, deploying Cost Management controls, and automating governance tasks that aren't stored in FinOps hub data.
+The FinOps toolkit deployment configures Azure SRE Agent with 13 Python tools that call Azure APIs through the agent's managed identity. These tools complement the Kusto tools by checking Azure platform state, deploying Cost Management controls, and automating governance tasks that aren't stored in FinOps hub data.
 
 Use Python tools when the agent needs live Azure Resource Manager, Resource Graph, Cost Management, Azure Data Explorer, or Advisor data instead of historical cost and usage data from the FinOps hub.
 
@@ -22,22 +22,23 @@ Use Python tools when the agent needs live Azure Resource Manager, Resource Grap
 
 ## Source inventory
 
-The following table maps the 12 Python tools documented on this page to their source YAML files. Use this inventory to audit this reference page against the template source. It doesn't assert that no other YAML files exist under `src/templates/sre-agent/tools/`.
+The following table maps the 13 Python tools documented on this page to their source YAML files. Use this inventory to audit this reference page against the template source. It doesn't assert that no other YAML files exist under `src/templates/sre-agent/recipes/finops-hub/config/tools/`.
 
 | Tool | Source file |
 |------|-------------|
-| `vm-quota-usage` | `src/templates/sre-agent/tools/vm-quota-usage.yaml` |
-| `capacity-reservation-groups` | `src/templates/sre-agent/tools/capacity-reservation-groups.yaml` |
-| `sku-availability` | `src/templates/sre-agent/tools/sku-availability.yaml` |
-| `non-compute-quotas` | `src/templates/sre-agent/tools/non-compute-quotas.yaml` |
-| `deploy-budget` | `src/templates/sre-agent/tools/deploy-budget.yaml` |
-| `deploy-bulk-budgets` | `src/templates/sre-agent/tools/deploy-bulk-budgets.yaml` |
-| `deploy-anomaly-alert` | `src/templates/sre-agent/tools/deploy-anomaly-alert.yaml` |
-| `deploy-bulk-anomaly-alerts` | `src/templates/sre-agent/tools/deploy-bulk-anomaly-alerts.yaml` |
-| `resource-graph-query` | `src/templates/sre-agent/tools/resource-graph-query.yaml` |
-| `benefit-recommendations` | `src/templates/sre-agent/tools/benefit-recommendations.yaml` |
-| `data-freshness-check` | `src/templates/sre-agent/tools/data-freshness-check.yaml` |
-| `suppress-advisor-recommendations` | `src/templates/sre-agent/tools/suppress-advisor-recommendations.yaml` |
+| `vm-quota-usage` | `src/templates/sre-agent/recipes/finops-hub/config/tools/vm-quota-usage.yaml` |
+| `capacity-reservation-groups` | `src/templates/sre-agent/recipes/finops-hub/config/tools/capacity-reservation-groups.yaml` |
+| `sku-availability` | `src/templates/sre-agent/recipes/finops-hub/config/tools/sku-availability.yaml` |
+| `non-compute-quotas` | `src/templates/sre-agent/recipes/finops-hub/config/tools/non-compute-quotas.yaml` |
+| `deploy-budget` | `src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-budget.yaml` |
+| `deploy-bulk-budgets` | `src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-bulk-budgets.yaml` |
+| `deploy-anomaly-alert` | `src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-anomaly-alert.yaml` |
+| `deploy-bulk-anomaly-alerts` | `src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-bulk-anomaly-alerts.yaml` |
+| `resource-graph-query` | `src/templates/sre-agent/recipes/finops-hub/config/tools/resource-graph-query.yaml` |
+| `benefit-recommendations` | `src/templates/sre-agent/recipes/finops-hub/config/tools/benefit-recommendations.yaml` |
+| `data-freshness-check` | `src/templates/sre-agent/recipes/finops-hub/config/tools/data-freshness-check.yaml` |
+| `db-service-quotas` | `src/templates/sre-agent/recipes/finops-hub/config/tools/db-service-quotas.yaml` |
+| `suppress-advisor-recommendations` | `src/templates/sre-agent/recipes/finops-hub/config/tools/suppress-advisor-recommendations.yaml` |
 
 <br>
 

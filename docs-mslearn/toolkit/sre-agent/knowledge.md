@@ -25,10 +25,12 @@ Use knowledge and memory together:
 
 ## Shipped knowledge docs
 
-The [Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) includes three knowledge documents under `sre-config/knowledge/`. They are uploaded during post-provisioning so the agent can use them during onboarding and investigations.
+The [Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) includes five knowledge documents under `recipes/finops-hub/knowledge/`. They are uploaded during post-provisioning so the agent can use them during onboarding and investigations.
 
 | Knowledge doc | What it provides |
 |---|---|
+| `chart-artifact-verification.md` | Guidance for validating generated charts, tables, and downloadable artifacts before sending reports to stakeholders. |
+| `document-index.md` | Index of the shipped FinOps, capacity, and hub-operation documents the agent can use for grounding. |
 | `onboarding-recommendations.md` | First-run guidance for team onboarding, `/learn`, and "What should I do next?" prompts. It reminds the agent to validate Azure access, enable visualization tools, configure FinOps hub data sources, and recommend Outlook and Microsoft Teams connectors when needed. |
 | `teams-notification-guide.md` | Delivery guidance for scheduled reports and notifications. It tells the agent to use the built-in `PostTeamsMessage` and `ReplyToTeamsThread` tools, format Teams messages as HTML, and avoid unsupported direct calls to Microsoft Graph or connector endpoints. |
 | `known-issues-and-workarounds.md` | Operational workarounds found during scheduled task validation. It covers stale data detection, Resource Graph fallbacks, quota command issues, JMESPath escaping, memory write conflicts, Kusto query errors, and the split between financial data in Teams and operational learnings in memory. |
@@ -95,13 +97,13 @@ Use uploaded files for stable content. Use connected sources for content that ch
 
 Knowledge from the template persists across redeployments through the post-provision step.
 
-When you run `azd up`, the template provisions Azure resources and then runs `scripts/post-provision.sh` or `scripts/post-provision.ps1`. The post-provision script initializes `srectl` with the SRE Agent endpoint and uploads everything under `sre-config/knowledge/`:
+When you run `bin/deploy.sh`, the template provisions Azure resources and then runs `bin/post-provision.sh`. The post-provision script initializes `srectl` with the SRE Agent endpoint and uploads everything under `recipes/finops-hub/knowledge/`:
 
 ```bash
-srectl doc upload --file "$REPO_ROOT/sre-config/knowledge"
+srectl doc upload --file "$REPO_ROOT/recipes/finops-hub/knowledge"
 ```
 
-This keeps the shipped onboarding, Teams notification, and known-issues guidance available after the agent is redeployed. If you add your own files to `sre-config/knowledge/`, they are uploaded by the same step.
+This keeps the shipped onboarding, artifact verification, Teams notification, document index, and known-issues guidance available after the agent is redeployed. If you add your own files to `recipes/finops-hub/knowledge/`, they are uploaded by the same step.
 
 <br>
 

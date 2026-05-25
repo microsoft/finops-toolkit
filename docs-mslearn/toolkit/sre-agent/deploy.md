@@ -3,7 +3,7 @@ title: Deploy Azure SRE Agent with the FinOps toolkit
 description: Deploy the FinOps toolkit Azure SRE Agent template with explicit CLI parameters, connect it to a FinOps hub Data Explorer cluster, and validate the deployment.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/19/2026
+ms.date: 05/25/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -16,6 +16,8 @@ ms.reviewer: brettwil
 # Deploy Azure SRE Agent with the FinOps toolkit
 
 In this tutorial, you learn how to deploy the [FinOps toolkit Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent), connect it to a [FinOps hub](../hubs/finops-hubs-overview.md), and validate the deployment.
+
+The deployment flow is copied from the Microsoft SRE Agent starter lab and updated for the FinOps toolkit. It uses Azure CLI + Bicep for infrastructure, the SRE Agent data plane for the Kusto connector, and `srectl` for the rest of post-provision agent configuration. It doesn't use `azd`.
 
 ## What gets deployed
 
@@ -39,8 +41,8 @@ The FinOps hub recipe (`src/templates/sre-agent/recipes/finops-hub/`) deploys:
 - A subscription where you have the **Owner** or **User Access Administrator** role.
 - The `Microsoft.App` resource provider registered in the subscription.
 - [Azure CLI](/cli/azure/install-azure-cli).
-- `jq`, `python3` with `PyYAML`, `curl`, and Bash 3.2 or newer.
-- [`srectl`](/azure/sre-agent/tools) only when you use `--fallback-srectl`.
+- `curl`, `jq`, `python3` with `PyYAML`, and Bash 3.2 or newer.
+- [`srectl`](/azure/sre-agent/tools).
 
 Run:
 
@@ -58,14 +60,14 @@ cd src/templates/sre-agent
 
 bash bin/deploy.sh \
   --recipe recipes/finops-hub \
+  --subscription <subscription-id> \
   --resource-group <your-rg> \
   --name <your-agent-name> \
   --location <your-region> \
-  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/hub \
-  [--subscription <subscription-id>] \
+  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
+  --cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name> \
   [--target-resource-group <target-rg> ...] \
-  [--cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>] \
-  [--dry-run | --what-if] \
+  [--dry-run] \
   [--force] \
   [--fallback-srectl] \
   [--no-telemetry]
@@ -75,30 +77,25 @@ bash bin/deploy.sh \
 
 ```text
 Usage: bash bin/deploy.sh --recipe <dir> [options]
-       bash bin/deploy.sh <legacy.parameters.json> [options]
 
-Required for recipe directories:
-  --recipe <dir>                        Recipe directory to assemble
-  -g, --resource-group <name>          Resource group (portal field: "Resource group")
-  -n, --name <name>                    Agent name (portal field: "Agent name")
-  -l, --location <region>              Region (portal field: "Region"; currently documented: swedencentral, eastus2, australiaeast)
-      --cluster-uri <uri>              Kusto connector URI when the recipe declares one
+Required:
+  --recipe <dir>                      Recipe directory
+  --subscription <id>                 Azure subscription
+  -g, --resource-group <name>         Resource group for the agent
+  -n, --name <name>                   Agent name
+  -l, --location <region>             Azure region
 
 Optional:
-      --subscription <id>              Subscription (portal field: "Subscription")
-      --target-resource-group <name>   Repeatable target resource group
-      --cluster-resource-id <id>       Kusto cluster ARM resource ID
-      --deploy-name <name>             Deployment name override
-      --dry-run                        Assemble and validate inputs without Azure calls
-      --what-if                        Run live ARM what-if validation
-      --force                          Continue when diff/discovery would otherwise stop
-      --fallback-srectl                Deploy ARM core, then hydrate extensions with srectl
-      --no-telemetry                   Disable anonymous telemetry for this run
-  -h, --help                           Show this help
-
-Legacy input:
-  A pre-assembled .parameters.json file is accepted only as a positional argument.
-  When using a legacy parameters file, identity and cluster flags are ignored.
+  --target-resource-group <name>      Repeatable target resource group. Defaults to --resource-group.
+  --cluster-uri <uri>                 Kusto connector URI, including database name.
+                                      Example: https://<cluster>.<region>.kusto.windows.net/Hub
+  --cluster-resource-id <id>          Kusto cluster ARM resource ID for Viewer RBAC.
+  --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
+  --dry-run                           Validate inputs and write parameters without Azure calls.
+  --force                             Accepted for compatibility.
+  --fallback-srectl                   Accepted for compatibility; post-provision uses the SRE Agent data plane and srectl.
+  --no-telemetry                      Accepted for compatibility.
+  -h, --help                          Show this help.
 ```
 
 ## Validation modes
@@ -108,36 +105,18 @@ Dry-run is hermetic and skips live Azure calls:
 ```bash
 bash bin/deploy.sh \
   --recipe recipes/finops-hub \
+  --subscription <subscription-id> \
   -g <your-rg> \
   -n <your-agent-name> \
   -l <your-region> \
-  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/hub \
+  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
+  --cluster-resource-id /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster> \
   --dry-run
 ```
 
-What-if is a live ARM validation:
+When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane and the remaining recipe assets with `srectl`.
 
-```bash
-bash bin/deploy.sh \
-  --recipe recipes/finops-hub \
-  -g <your-rg> \
-  -n <your-agent-name> \
-  -l <your-region> \
-  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/hub \
-  --what-if
-```
-
-If your tenant blocks ARM extension child-resource writes, use constrained mode:
-
-```bash
-bash bin/deploy.sh \
-  --recipe recipes/finops-hub \
-  -g <your-rg> \
-  -n <your-agent-name> \
-  -l <your-region> \
-  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/hub \
-  --fallback-srectl
-```
+Resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Use the same values to update an existing deployment. `--deploy-name` only changes the ARM deployment record and local build directory.
 
 ## Recipe identity defaults
 
@@ -206,10 +185,11 @@ After:
 ```bash
 bash bin/deploy.sh \
   --recipe recipes/finops-hub \
+  --subscription <subscription-id> \
   --resource-group <your-rg> \
   --name <your-agent-name> \
   --location <your-region> \
-  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/hub \
+  --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
   --cluster-resource-id /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster> \
   --no-telemetry
 ```

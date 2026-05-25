@@ -116,6 +116,6 @@ Tool mix:
 
 ## Operating notes
 
-- Scheduled tasks are applied outside the main Bicep deployment by `bicep/apply-extras.sh`.
+- The Kusto connector is applied outside the main Bicep deployment by `bin/post-provision.sh` using the SRE Agent data plane. Scheduled tasks are applied by the same helper using `srectl`.
 - `README.md` carries the deployment workflow; this file carries the detailed implemented recipe inventory.
 - Add or remove scheduled task YAML, tool YAML, subagent YAML, or skill directories first, then update this catalog and `README.md` in the same change.

@@ -1,5 +1,5 @@
 upstream_repo=https://github.com/microsoft/sre-agent
-upstream_path=sreagent-templates/
-pinned_sha=8e231b008679a89f26934b24b792ad7c8aea8b08
-pinned_date=2026-05-07
+upstream_path=labs/starter-lab/
+pinned_sha=a401e003a3874c374f5fff5278123a1f603fe270
+pinned_date=2026-05-25
 pinned_version=1.0.0
