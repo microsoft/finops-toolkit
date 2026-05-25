@@ -258,7 +258,7 @@ EXP_FILTER_CT=$(exp '.responsePlans | length' "-")
 EXP_FILTER_NAMES=$(exp_list '.responsePlans[].name')
 check "Response Plans" "$FILTER_CT" "$EXP_FILTER_CT"
 [[ -n "$EXP_FILTER_NAMES" ]] && check "Filter names" "$FILTER_NAMES" "$EXP_FILTER_NAMES" || RESULTS="${RESULTS}\n  Filter names|${FILTER_NAMES}|—|"
-  EXP_FILTERS=$(find "$EXPECTED_DIR/automations/incident-filters" -name "*.yaml" 2>/dev/null | wc -l | tr -d ' ')
+  EXP_FILTERS=$(find -L "$EXPECTED_DIR/automations/incident-filters" -name "*.yaml" 2>/dev/null | wc -l | tr -d ' ')
 [[ -n "$EXP_FILTER_NAMES" ]] && check "Filter names" "$FILTER_NAMES" "$EXP_FILTER_NAMES" || RESULTS="${RESULTS}\n  Filter names|${FILTER_NAMES}|—|"
 
 # ── GitHub ──

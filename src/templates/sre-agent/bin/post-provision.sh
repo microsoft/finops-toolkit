@@ -369,7 +369,7 @@ if [[ -d "$KNOWLEDGE_DIR" ]]; then
     [[ -z "$file" ]] && continue
     KNOWLEDGE_DOC_NAMES+=("$(basename "$file")")
     upload_knowledge_file "$file" "${file#${RECIPE_DIR}/}"
-  done < <(find "$KNOWLEDGE_DIR" -type f | sort)
+  done < <(find -L "$KNOWLEDGE_DIR" -type f | sort)
 else
   echo "  no knowledge directory"
 fi
@@ -398,7 +398,7 @@ apply_yaml_dir() {
       cd "$BUILD_DIR"
       srectl apply-yaml --file "$file" --quiet
     )
-  done < <(find "$dir" -type f \( -name "*.yaml" -o -name "*.yml" \) | sort)
+  done < <(find -L "$dir" -type f \( -name "*.yaml" -o -name "*.yml" \) | sort)
   echo "  ${label}: ${total} applied"
 }
 
@@ -406,6 +406,7 @@ scheduled_task_names() {
   local dir="$1"
 
   python3 - "$dir" <<'PY'
+import os
 import pathlib
 import sys
 
@@ -416,9 +417,14 @@ except ImportError:
     sys.exit(1)
 
 root = pathlib.Path(sys.argv[1])
-for path in sorted(root.rglob("*")):
-    if not path.is_file() or path.suffix.lower() not in {".yaml", ".yml"}:
-        continue
+paths = []
+for dirpath, _, filenames in os.walk(root, followlinks=True):
+    for filename in filenames:
+        path = pathlib.Path(dirpath) / filename
+        if path.suffix.lower() in {".yaml", ".yml"}:
+            paths.append(path)
+
+for path in sorted(paths):
     with path.open("r", encoding="utf-8") as handle:
         data = yaml.safe_load(handle) or {}
     metadata = data.get("metadata") or {}
@@ -479,6 +485,7 @@ ordered_subagent_files() {
   local dir="$1"
 
   python3 - "$dir" <<'PY'
+import os
 import pathlib
 import sys
 
@@ -489,10 +496,13 @@ except ImportError:
     sys.exit(1)
 
 root = pathlib.Path(sys.argv[1])
-files = sorted(
-    path for path in root.rglob("*")
-    if path.is_file() and path.suffix.lower() in {".yaml", ".yml"}
-)
+files = []
+for dirpath, _, filenames in os.walk(root, followlinks=True):
+    for filename in filenames:
+        path = pathlib.Path(dirpath) / filename
+        if path.suffix.lower() in {".yaml", ".yml"}:
+            files.append(path)
+files = sorted(files)
 
 by_name = {}
 metadata = {}
@@ -597,7 +607,7 @@ if [[ -d "$TASK_DIR" ]]; then
       cd "$BUILD_DIR"
       srectl scheduledtask apply --file "$file" --quiet
     )
-  done < <(find "$TASK_DIR" -type f \( -name "*.yaml" -o -name "*.yml" \) | sort)
+  done < <(find -L "$TASK_DIR" -type f \( -name "*.yaml" -o -name "*.yml" \) | sort)
   echo "  scheduled-task: ${total} applied"
 else
   echo "  scheduled-task: none"
