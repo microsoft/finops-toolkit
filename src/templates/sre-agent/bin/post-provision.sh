@@ -146,6 +146,60 @@ apply_kusto_connector() {
   fail "Failed to configure finops-hub-kusto connector" 1
 }
 
+apply_built_in_tools_config() {
+  local config_file="$1"
+  local output_dir="$2"
+  local body_file="${output_dir}/built-in-tools.json"
+  local response_file="${output_dir}/built-in-tools.response.json"
+  local token
+  local http_code
+  local override_count
+
+  [[ -f "$config_file" ]] || {
+    echo "  built-in tools: no config"
+    return 0
+  }
+
+  override_count="$(jq '.overrides | length' "$config_file")"
+  if [[ "$override_count" == "0" ]]; then
+    echo "  built-in tools: no overrides"
+    return 0
+  fi
+
+  jq '{overrides: [.overrides[] | {name, enabled}]}' "$config_file" > "$body_file"
+
+  for attempt in 1 2 3 4 5; do
+    token="$(get_sre_token)"
+    [[ -n "$token" ]] || fail "Error: failed to get Azure SRE Agent bearer token" 1
+
+    if http_code="$(curl -sS -o "$response_file" -w "%{http_code}" \
+      -X POST "${ENDPOINT}/api/v2/agent/tools/configure" \
+      -H "Authorization: Bearer ${token}" \
+      -H "Content-Type: application/json" \
+      --data-binary "@${body_file}")"; then
+      :
+    else
+      http_code="000"
+    fi
+
+    case "$http_code" in
+      200|201|202|204)
+        echo "  built-in tools configured: ${override_count} overrides"
+        return 0
+        ;;
+    esac
+
+    echo "  built-in tools attempt ${attempt}/5 returned HTTP ${http_code}"
+    if [[ "$attempt" != "5" ]]; then
+      sleep 15
+    fi
+  done
+
+  echo "  built-in tools response: $response_file"
+  sed -n '1,120p' "$response_file" >&2 || true
+  fail "Failed to configure built-in tools" 1
+}
+
 echo ""
 echo "============================================="
 echo "  SRE Agent - Post-Provision Setup"
@@ -155,7 +209,7 @@ echo "Agent endpoint: $ENDPOINT"
 echo "Recipe:         $RECIPE_DIR"
 echo ""
 
-echo "Step 1/6: Initializing srectl..."
+echo "Step 1/7: Initializing srectl..."
 (
   cd "$BUILD_DIR"
   srectl init --resource-url "$ENDPOINT" --quiet
@@ -168,16 +222,25 @@ if [[ -n "$KUSTO_CONNECTOR_URI" ]]; then
   command -v az >/dev/null || fail "az is required when --kusto-connector-uri is provided" 1
   command -v curl >/dev/null || fail "curl is required when --kusto-connector-uri is provided" 1
   command -v jq >/dev/null || fail "jq is required when --kusto-connector-uri is provided" 1
-  echo "Step 2/6: Configuring FinOps Hub Kusto connector..."
+  echo "Step 2/7: Configuring FinOps Hub Kusto connector..."
   CONNECTOR_DIR="${BUILD_DIR}/connectors"
   mkdir -p "$CONNECTOR_DIR"
   apply_kusto_connector "$CONNECTOR_DIR"
 else
-  echo "Step 2/6: Kusto connector skipped"
+  echo "Step 2/7: Kusto connector skipped"
 fi
 echo ""
 
-echo "Step 3/6: Uploading knowledge base..."
+command -v az >/dev/null || fail "az is required to configure built-in tools" 1
+command -v curl >/dev/null || fail "curl is required to configure built-in tools" 1
+command -v jq >/dev/null || fail "jq is required to configure built-in tools" 1
+echo "Step 3/7: Configuring built-in tools..."
+BUILT_IN_TOOLS_DIR="${BUILD_DIR}/built-in-tools"
+mkdir -p "$BUILT_IN_TOOLS_DIR"
+apply_built_in_tools_config "${RECIPE_DIR}/config/built-in-tools.json" "$BUILT_IN_TOOLS_DIR"
+echo ""
+
+echo "Step 4/7: Uploading knowledge base..."
 KNOWLEDGE_DOC_NAMES=()
 
 knowledge_source_name() {
@@ -568,11 +631,11 @@ apply_subagents_dir() {
   echo "  subagent: ${total} applied"
 }
 
-echo "Step 4/6: Applying tools..."
+echo "Step 5/7: Applying tools..."
 apply_yaml_dir "tool" "${RECIPE_DIR}/config/tools"
 echo ""
 
-echo "Step 5/6: Applying skills and subagents..."
+echo "Step 6/7: Applying skills and subagents..."
 SKILLS_SRC="${RECIPE_DIR}/config/skills"
 SKILLS_WORK="${BUILD_DIR}/skills"
 rm -rf "$SKILLS_WORK"
@@ -594,7 +657,7 @@ fi
 apply_subagents_dir "${RECIPE_DIR}/config/subagents"
 echo ""
 
-echo "Step 6/6: Applying scheduled tasks..."
+echo "Step 7/7: Applying scheduled tasks..."
 TASK_DIR="${RECIPE_DIR}/automations/scheduled-tasks"
 if [[ -d "$TASK_DIR" ]]; then
   delete_existing_scheduled_tasks "$TASK_DIR"

@@ -82,6 +82,15 @@ count_present_names() {
     | [$expected[] | . as $name | select($actual | index($name))] | length
   ' 2>/dev/null || echo 0
 }
+count_enabled_names() {
+  local values="$1"
+  local expected_csv="$2"
+  echo "$values" | jq -r --arg expected_csv "$expected_csv" '
+    ($expected_csv | split(",") | map(select(. != ""))) as $expected
+    | [.[] | select(.enabled == true) | .name] as $actual
+    | [$expected[] | . as $name | select($actual | index($name))] | length
+  ' 2>/dev/null || echo 0
+}
 
 API_VERSION="2026-01-01"
 ARM_BASE="https://management.azure.com/subscriptions/${SUB}/resourceGroups/${RG}/providers/Microsoft.App/agents/${AGENT}"
@@ -197,6 +206,28 @@ EXP_SA_CT=$(exp '.subagents | length' "-")
 EXP_SA_NAMES=$(exp_list '.subagents')
 check "Subagents" "$SA_CT" "$EXP_SA_CT"
 [[ -n "$EXP_SA_NAMES" ]] && check "Subagent names" "$SA_NAMES" "$EXP_SA_NAMES" || RESULTS="${RESULTS}\n  Subagent names|${SA_NAMES}|—|"
+
+# ── Built-in tool configuration ──
+EXP_BUILT_IN_TOOL_NAMES=$(exp_list '.builtInTools.enabled')
+if [[ -n "$EXP_BUILT_IN_TOOL_NAMES" ]]; then
+  AGENT_TOOLS=$(dp_get "/api/v2/agent/tools")
+  AGENT_TOOL_VALUES=$(echo "$AGENT_TOOLS" | jq -c '.data // []' 2>/dev/null || echo "[]")
+  EXP_BUILT_IN_TOOL_CT=$(exp '.builtInTools.enabled | length' "-")
+  BUILT_IN_ENABLED_PRESENT=$(count_enabled_names "$AGENT_TOOL_VALUES" "$EXP_BUILT_IN_TOOL_NAMES")
+  check "Built-in tools enabled" "$BUILT_IN_ENABLED_PRESENT" "$EXP_BUILT_IN_TOOL_CT"
+
+  EXPECTED_LOG_QUERY_CT=$(exp '.builtInTools.categories["Log Query"]' "-")
+  if [[ "$EXPECTED_LOG_QUERY_CT" != "-" ]]; then
+    ACTUAL_LOG_QUERY_CT=$(echo "$AGENT_TOOL_VALUES" | jq '[.[] | select(.category == "Log Query" and .enabled == true)] | length' 2>/dev/null || echo 0)
+    check "Log Query tools enabled" "$ACTUAL_LOG_QUERY_CT" "$EXPECTED_LOG_QUERY_CT"
+  fi
+
+  EXPECTED_VISUALIZATION_CT=$(exp '.builtInTools.categories.Visualization' "-")
+  if [[ "$EXPECTED_VISUALIZATION_CT" != "-" ]]; then
+    ACTUAL_VISUALIZATION_CT=$(echo "$AGENT_TOOL_VALUES" | jq '[.[] | select(.category == "Visualization" and .enabled == true)] | length' 2>/dev/null || echo 0)
+    check "Visualization tools enabled" "$ACTUAL_VISUALIZATION_CT" "$EXPECTED_VISUALIZATION_CT"
+  fi
+fi
 
 # ── Hooks ──
 HOOKS=$(dp_get "/api/v2/extendedAgent/hooks")

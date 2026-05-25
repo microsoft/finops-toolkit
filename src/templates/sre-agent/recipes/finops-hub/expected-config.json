@@ -8,6 +8,23 @@
       "EnableWorkspaceTools"
     ]
   },
+  "builtInTools": {
+    "enabled": [
+      "PlotAreaChartWithCorrelation",
+      "PlotBarChart",
+      "PlotHeatmap",
+      "PlotPieChart",
+      "PlotScatter",
+      "QueryAppInsightsByAppId",
+      "QueryAppInsightsByResourceId",
+      "QueryLogAnalyticsByResourceId",
+      "QueryLogAnalyticsByWorkspaceId"
+    ],
+    "categories": {
+      "Log Query": 4,
+      "Visualization": 5
+    }
+  },
   "subagents": 5,
   "skills": 3,
   "tools": 34,

@@ -17,6 +17,7 @@ This catalog is the controlling reference for aligning the `recipes/finops-hub/`
 | Subagents | 5 | `config/subagents/*.yaml` |
 | Skills | 3 | `config/skills/*/` |
 | Tools | 34 | `config/tools/*.yaml` |
+| Built-in tool overrides | 9 | `config/built-in-tools.json` |
 | Scheduled tasks | 19 | `automations/scheduled-tasks/*.yaml` |
 | Connector | 1 | `connectors.json` |
 | Knowledge docs | 6 | Five recipe knowledge files plus `../claude-plugin/output-styles/ftk-output-style.md` |
@@ -100,6 +101,15 @@ Hard boundaries:
 ### Kusto tools
 
 All Kusto tools are owned by `ftk-database-query`. Other agents request Kusto evidence from that specialist instead of calling these tools directly.
+
+### Built-in tools
+
+The recipe enables the SRE Agent built-in Log Query and Visualization categories through `config/built-in-tools.json` during post-provisioning. These are platform tools, not custom recipe tools:
+
+| Category | Enabled tools |
+|----------|---------------|
+| Log Query | `QueryLogAnalyticsByWorkspaceId`, `QueryAppInsightsByAppId`, `QueryAppInsightsByResourceId`, `QueryLogAnalyticsByResourceId` |
+| Visualization | `PlotScatter`, `PlotHeatmap`, `PlotBarChart`, `PlotPieChart`, `PlotAreaChartWithCorrelation` |
 
 | Tool | Purpose |
 |------|---------|

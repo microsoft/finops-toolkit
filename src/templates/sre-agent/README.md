@@ -19,6 +19,7 @@ The deployment flow is copied from the Microsoft SRE Agent starter lab and updat
 | Subagents | 5 | FinOps, CFO, capacity, database-query, and hubs specialists |
 | Skills | 3 | Azure capacity management, Azure cost management, and FinOps Toolkit |
 | Tools | 34 | Kusto and Python tools for FinOps and capacity analysis |
+| Built-in tool overrides | 9 | Enables SRE Agent Log Query and Visualization tools |
 | Scheduled tasks | 19 | Recurring FinOps, capacity, governance, and reporting tasks |
 | Connector | 1 | Optional FinOps Hub Kusto connector when `--cluster-uri` is provided |
 | Knowledge docs | 6 | Five recipe knowledge docs plus the FinOps Toolkit output style |
@@ -40,7 +41,7 @@ The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CAT
 | KustoTool | 21 | `cost-anomaly-detection`, `ai-token-usage-breakdown`, `reservation-recommendation-breakdown` |
 | PythonTool | 13 | `vm-quota-usage`, `data-freshness-check`, `db-service-quotas`, `sku-availability` |
 
-The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Stable` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. `bin/post-provision.sh` uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible Knowledge Sources, then waits for the expected sources to index. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
+The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Stable` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. `bin/post-provision.sh` enables the SRE Agent built-in Log Query and Visualization tools, uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible Knowledge Sources, then waits for the expected sources to index. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
 
 The recipe is aligned to the canonical FinOps Framework. `finops-practitioner` owns the operating rhythm and scheduled report orchestration, `ftk-database-query` owns all Kusto and FOCUS evidence collection, `azure-capacity-manager` owns Azure capacity evidence under the relevant FinOps capabilities, and `chief-financial-officer` is consulted for finance and leadership framing rather than owning scheduled tasks.
 
@@ -143,7 +144,7 @@ bash bin/deploy.sh \
   --dry-run
 ```
 
-When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane and the remaining recipe assets with `srectl`.
+When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane, enable built-in Log Query and Visualization tools, and apply the remaining recipe assets with `srectl`.
 
 Supporting resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Rerunning the script with the same values updates the same Log Analytics workspace, Application Insights component, user-assigned managed identity, RBAC assignments, and SRE Agent. Post-provisioning deletes existing scheduled tasks with the recipe's task names before applying manifests so redeployments don't create duplicate automations. `--deploy-name` only changes the ARM deployment record and local build directory.
 
