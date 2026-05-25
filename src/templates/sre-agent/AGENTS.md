@@ -13,6 +13,7 @@ Load the `azure-sre-agent` skill at session start and after every compaction or 
 | Tools | 34 | Kusto and Python tools under `recipes/finops-hub/config/tools/` |
 | Scheduled tasks | 19 | FinOps, capacity, governance, and reporting automations |
 | Connector | 1 | Kusto connector to FinOps Hub ADX cluster |
+| Knowledge docs | 6 | Five recipe knowledge files plus `ftk-output-style.md` from the Claude plugin output styles |
 
 ## Key references
 
@@ -21,6 +22,7 @@ Load the `azure-sre-agent` skill at session start and after every compaction or 
 - `bin/deploy.sh` — Canonical deployment entry point copied from the Microsoft starter-lab setup flow and updated for no-azd FinOps deployment
 - `infra/` — Copied-and-updated Microsoft starter-lab Bicep baseline
 - `recipes/finops-hub/` — Recipe content
+- `../claude-plugin/output-styles/ftk-output-style.md` — Uploaded as SRE Agent knowledge and referenced by every scheduled task for report formatting
 - `.upstream-pin` — Upstream canonical template pin
 
 ## Scheduled task Teams delivery

@@ -7,6 +7,8 @@ Describe 'SRE Agent deploy template' {
         $script:DeployScript = Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/deploy.sh'
         $script:PostProvisionScript = Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/post-provision.sh'
         $script:RecipeDir = Join-Path $script:RepoRoot 'src/templates/sre-agent/recipes/finops-hub'
+        $script:ScheduledTaskDir = Join-Path $script:RecipeDir 'automations/scheduled-tasks'
+        $script:OutputStylePath = Join-Path $script:RepoRoot 'src/templates/claude-plugin/output-styles/ftk-output-style.md'
         $script:ReadmePath = Join-Path $script:RepoRoot 'src/templates/sre-agent/README.md'
         $script:DocsPath = Join-Path $script:RepoRoot 'docs-mslearn/toolkit/sre-agent/deploy.md'
         $script:AgentJsonPath = Join-Path $script:RecipeDir 'agent.json'
@@ -323,6 +325,41 @@ esac
             $verifyScript | Should -Match 'EXPECTED_CONNECTORS'
             $verifyScript | Should -Match 'EXP_CONN_CT=.*EXPECTED_CONNECTORS'
             $verifyScript | Should -Match 'EXP_CONN_NAMES=.*EXPECTED_CONNECTORS'
+        }
+
+        It 'uploads the shared FinOps output style as knowledge' {
+            $postProvisionScript = Get-Content -Path $script:PostProvisionScript -Raw
+
+            Test-Path $script:OutputStylePath | Should -BeTrue
+            $postProvisionScript | Should -Match 'claude-plugin/output-styles/ftk-output-style\.md'
+            $postProvisionScript | Should -Match 'upload_knowledge_file'
+            $postProvisionScript | Should -Match 'srectl doc upload'
+            $postProvisionScript | Should -Match 'output style knowledge document not found'
+        }
+
+        It 'requires every scheduled task to apply the shared output style' {
+            $taskFiles = @(Get-ChildItem -Path $script:ScheduledTaskDir -Filter '*.yaml')
+            $taskFiles.Count | Should -Be 19
+
+            $expectedInstruction = [regex]::Escape('Output style: Apply `ftk-output-style.md`')
+            foreach ($file in $taskFiles) {
+                $content = Get-Content -Path $file.FullName -Raw
+                $content | Should -Match $expectedInstruction
+            }
+        }
+
+        It 'extends the shared output style for Azure capacity management' {
+            $outputStyle = Get-Content -Path $script:OutputStylePath -Raw
+
+            $outputStyle | Should -Match 'Azure capacity management reporting'
+            $outputStyle | Should -Match 'Forecast'
+            $outputStyle | Should -Match 'Procure'
+            $outputStyle | Should -Match 'Allocate'
+            $outputStyle | Should -Match 'Monitor'
+            $outputStyle | Should -Match 'Capacity reservation group'
+            $outputStyle | Should -Match 'Quota group'
+            $outputStyle | Should -Match 'Logical zone'
+            $outputStyle | Should -Match 'CRG utilization'
         }
     }
 

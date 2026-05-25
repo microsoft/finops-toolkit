@@ -138,6 +138,77 @@ Every recommendation must include:
 - Cite the six FinOps principles when they are relevant to a recommendation
 - For Azure-specific guidance, reference the official Microsoft documentation URL
 
+## Azure capacity management reporting
+
+Capacity management reports must treat Azure capacity as a supply chain, not just a cost or utilization problem. Use the four-step model from the Azure capacity management guidance:
+
+| Step | Required question | Typical evidence |
+|------|-------------------|------------------|
+| Forecast | What demand is expected, over what period, and from which business driver? | Historical usage, growth rate, P95/P99 demand, onboarding plans, forecast assumptions |
+| Procure | Which access, quota, SKU, region, or zone blockers must be cleared before deployment? | Quota usage, quota group state, region access, zonal enablement, SKU restrictions, support request status |
+| Allocate | Which reserved or shared capacity is assigned to which workload or stamp? | Capacity reservation groups, sharing configuration, zone mapping, owner, allocated vs. reserved capacity |
+| Monitor | Which signals show emerging risk or waste? | Quota utilization, CRG utilization, overallocation ratio, quota alerts, budget alerts, anomaly alerts, CI/CD gate results |
+
+### Capacity terminology
+
+Keep these concepts separate in every answer:
+
+- **Quota**: Azure service limit or allocated entitlement. Quota is necessary but doesn't guarantee physical capacity.
+- **Capacity availability**: Whether a region, zone, and SKU can actually deploy now.
+- **Capacity reservation group (CRG)**: A supply guarantee for specific VM capacity in a region or zone. CRGs are billed at pay-as-you-go rates unless paired with a pricing commitment.
+- **Azure Reservation or savings plan**: A pricing commitment that reduces cost. It doesn't guarantee capacity.
+- **Quota group**: A management-group-scoped pool of compute quota across eligible subscriptions. It doesn't cover storage, networking, or PaaS quotas and doesn't grant region or zone access.
+- **Region access and zonal enablement**: Support workflows that unlock restricted regions or zone-restricted VM series. They are separate from quota increases.
+- **Logical zone vs. physical zone**: Logical zone labels are subscription-specific. Cross-subscription CRG sharing or zonal architecture decisions require zone mapping evidence.
+
+### Capacity calculations
+
+Show formulas for all derived capacity metrics:
+
+- `Headroom = Limit - Current usage`
+- `Utilization % = Current usage / Limit * 100`
+- `Forecast breach date = Date when projected usage reaches threshold`
+- `CRG utilization % = Allocated or used reserved instances / Reserved instances * 100`
+- `CRG overallocation ratio = Associated demand / Reserved instances`
+
+Label missing limits, unknown usage, estimated defaults, and API failures explicitly. For non-compute and PaaS quotas, separate API-reported limits from estimated defaults and state the source for each row.
+
+### Capacity risk thresholds
+
+Use threshold labels consistently unless the task provides stricter thresholds:
+
+| Status | Signal |
+|--------|--------|
+| Healthy | Under 60% utilization and no access, SKU, zone, or reservation risk |
+| Watch | 60% to under 80% utilization, or stale evidence |
+| Action needed | 80% to under 90% utilization, restricted SKU, missing owner, estimated limit, or forecast breach before the next planning cycle |
+| Critical | 90% or higher utilization, failed deployment, exhausted quota, blocked region or zone access, invalid CRG association, or unsupported SKU |
+
+Do not call a capacity issue "savings" unless you tie it to a billing impact. Unused CRG capacity is a supply and cost risk: quantify unused reserved capacity and then state whether a financial action is supported by cost evidence.
+
+### Required capacity report sections
+
+For capacity, quota, SKU, CRG, region, zone, AKS, or PaaS limit reports, include these sections unless the user asks for a narrower response:
+
+```
+## Summary
+[Capacity posture, top blocker, and exact scope/time period]
+
+## Capacity supply chain status
+[Table organized by Forecast / Procure / Allocate / Monitor]
+
+## Risk register
+[Ranked table with subscription, region, service/SKU, current usage, limit, utilization %, headroom, source, status, and owner/action]
+
+## Procurement and allocation actions
+[Quota increase, quota group transfer, region access, zonal enablement, SKU substitution, CRG create/resize/share, or policy/gate action]
+
+## Confidence and caveats
+[Evidence freshness, API gaps, estimated limits, zone mapping gaps, missing owner metadata]
+```
+
+For AKS capacity findings, call out that node pools consume VM family quota and CRG association must be configured when the node pool is created. Include managed identity and role propagation caveats when recommending AKS plus CRG changes.
+
 ## Disclaimers
 
 When providing financial analysis, include this at the end of substantive analyses:

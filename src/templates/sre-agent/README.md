@@ -21,6 +21,7 @@ The deployment flow is copied from the Microsoft SRE Agent starter lab and updat
 | Tools | 34 | Kusto and Python tools for FinOps and capacity analysis |
 | Scheduled tasks | 19 | Recurring FinOps, capacity, governance, and reporting tasks |
 | Connector | 1 | Optional FinOps Hub Kusto connector when `--cluster-uri` is provided |
+| Knowledge docs | 6 | Five recipe knowledge docs plus the FinOps Toolkit output style |
 
 ## Current recipe inventory
 
@@ -38,6 +39,8 @@ The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CAT
 |-----------|------:|----------|
 | KustoTool | 21 | `cost-anomaly-detection`, `ai-token-usage-breakdown`, `reservation-recommendation-breakdown` |
 | PythonTool | 13 | `vm-quota-usage`, `data-freshness-check`, `db-service-quotas`, `sku-availability` |
+
+`bin/post-provision.sh` uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md`. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, capacity-risk, confidence, and disclaimer conventions.
 
 | Scheduled task | Agent | Schedule |
 |----------------|-------|----------|

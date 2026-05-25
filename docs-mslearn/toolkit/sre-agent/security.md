@@ -3,7 +3,7 @@ title: Security and permissions for Azure SRE Agent in the FinOps toolkit
 description: Review the permissions, identities, run modes, and data flows the FinOps toolkit configures on Azure SRE Agent before you deploy it in your environment.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/06/2026
+ms.date: 05/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -135,7 +135,7 @@ The agent reads operational and cost data from these sources:
 - Azure resource metadata through Reader permissions.
 - Azure Monitor context through Monitoring Contributor.
 - Availability zone peer mappings through the custom zone peers role.
-- Uploaded knowledge documents that describe FinOps toolkit tools, Teams notification patterns, and known issues.
+- Uploaded knowledge documents that describe FinOps toolkit tools, Teams notification patterns, report output style, and known issues.
 
 Scheduled reports and investigation summaries can be sent to:
 

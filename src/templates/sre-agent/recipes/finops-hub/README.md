@@ -9,7 +9,7 @@ Deploys the FinOps Toolkit SRE Agent using the canonical Microsoft SRE Agent rec
 - 34 tools in `config/tools/`
 - 19 scheduled tasks in `automations/scheduled-tasks/`
 - 1 FinOps Hub Kusto connector in `connectors.json`
-- Knowledge documents in `knowledge/`
+- 6 uploaded knowledge documents: files in `knowledge/` plus `../../../claude-plugin/output-styles/ftk-output-style.md`
 
 ## Deploy
 

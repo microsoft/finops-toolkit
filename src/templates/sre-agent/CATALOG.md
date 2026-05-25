@@ -8,6 +8,7 @@ This catalog documents the current `recipes/finops-hub/` implementation for the 
 - Skills: `recipes/finops-hub/config/skills/*/`
 - Tools: `recipes/finops-hub/config/tools/*.yaml`
 - Scheduled tasks: `recipes/finops-hub/automations/scheduled-tasks/*.yaml`
+- Output style knowledge: `../claude-plugin/output-styles/ftk-output-style.md`
 
 ## Implemented inventory
 
@@ -18,6 +19,7 @@ This catalog documents the current `recipes/finops-hub/` implementation for the 
 | Tools | 34 | `config/tools/*.yaml` |
 | Scheduled tasks | 19 | `automations/scheduled-tasks/*.yaml` |
 | Connector | 1 | `connectors.json` |
+| Knowledge docs | 6 | Five recipe knowledge files plus `../claude-plugin/output-styles/ftk-output-style.md` |
 
 Tool mix:
 
@@ -117,5 +119,6 @@ Tool mix:
 ## Operating notes
 
 - The Kusto connector is applied outside the main Bicep deployment by `bin/post-provision.sh` using the SRE Agent data plane. Scheduled tasks are applied by the same helper using `srectl`.
+- `bin/post-provision.sh` uploads `ftk-output-style.md` from the Claude plugin output styles as a knowledge document. Every scheduled task explicitly applies that style for report and Teams-message output.
 - `README.md` carries the deployment workflow; this file carries the detailed implemented recipe inventory.
 - Add or remove scheduled task YAML, tool YAML, subagent YAML, or skill directories first, then update this catalog and `README.md` in the same change.

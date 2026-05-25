@@ -3,7 +3,7 @@ title: Manage knowledge and memory (Azure SRE Agent in the FinOps toolkit)
 description: Learn how knowledge grounds the FinOps toolkit's Azure SRE Agent in your team's context and how memory keeps operational learnings available across sessions and redeployments.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/06/2026
+ms.date: 05/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -25,12 +25,13 @@ Use knowledge and memory together:
 
 ## Shipped knowledge docs
 
-The [Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) includes five knowledge documents under `recipes/finops-hub/knowledge/`. They are uploaded during post-provisioning so the agent can use them during onboarding and investigations.
+The [Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) uploads six knowledge documents during post-provisioning. Five are under `recipes/finops-hub/knowledge/`; the shared FinOps Toolkit output style is uploaded from `src/templates/claude-plugin/output-styles/ftk-output-style.md`.
 
 | Knowledge doc | What it provides |
 |---|---|
 | `chart-artifact-verification.md` | Guidance for validating generated charts, tables, and downloadable artifacts before sending reports to stakeholders. |
 | `document-index.md` | Index of the shipped FinOps, capacity, and hub-operation documents the agent can use for grounding. |
+| `ftk-output-style.md` | Shared report style for evidence-backed financial and capacity-management output, including capacity supply-chain sections, thresholds, confidence, caveats, and disclaimers. |
 | `onboarding-recommendations.md` | First-run guidance for team onboarding, `/learn`, and "What should I do next?" prompts. It reminds the agent to validate Azure access, enable visualization tools, configure FinOps hub data sources, and recommend Outlook and Microsoft Teams connectors when needed. |
 | `teams-notification-guide.md` | Delivery guidance for scheduled reports and notifications. It tells the agent to use the built-in `PostTeamsMessage` and `ReplyToTeamsThread` tools, format Teams messages as HTML, and avoid unsupported direct calls to Microsoft Graph or connector endpoints. |
 | `known-issues-and-workarounds.md` | Operational workarounds found during scheduled task validation. It covers stale data detection, Resource Graph fallbacks, quota command issues, JMESPath escaping, memory write conflicts, Kusto query errors, and the split between financial data in Teams and operational learnings in memory. |
@@ -97,13 +98,16 @@ Use uploaded files for stable content. Use connected sources for content that ch
 
 Knowledge from the template persists across redeployments through the post-provision step.
 
-When you run `bin/deploy.sh`, the template provisions Azure resources and then runs `bin/post-provision.sh`. The post-provision script initializes `srectl` with the SRE Agent endpoint and uploads everything under `recipes/finops-hub/knowledge/`:
+When you run `bin/deploy.sh`, the template provisions Azure resources and then runs `bin/post-provision.sh`. The post-provision script initializes `srectl` with the SRE Agent endpoint, uploads everything under `recipes/finops-hub/knowledge/`, and uploads the shared output style:
 
 ```bash
-srectl doc upload --file "$REPO_ROOT/recipes/finops-hub/knowledge"
+for file in "$REPO_ROOT"/src/templates/sre-agent/recipes/finops-hub/knowledge/*.md; do
+  srectl doc upload --file "$file"
+done
+srectl doc upload --file "$REPO_ROOT/src/templates/claude-plugin/output-styles/ftk-output-style.md"
 ```
 
-This keeps the shipped onboarding, artifact verification, Teams notification, document index, and known-issues guidance available after the agent is redeployed. If you add your own files to `recipes/finops-hub/knowledge/`, they are uploaded by the same step.
+This keeps the shipped onboarding, artifact verification, Teams notification, document index, output-style, and known-issues guidance available after the agent is redeployed. If you add your own files to `recipes/finops-hub/knowledge/`, they are uploaded by the same step.
 
 <br>
 

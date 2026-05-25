@@ -178,19 +178,29 @@ fi
 echo ""
 
 echo "Step 3/6: Uploading knowledge base..."
+upload_knowledge_file() {
+  local file="$1"
+  local label="${2:-$file}"
+  echo "  doc: $label"
+  (
+    cd "$BUILD_DIR"
+    srectl doc upload --file "$file"
+  )
+}
+
 KNOWLEDGE_DIR="${RECIPE_DIR}/knowledge"
 if [[ -d "$KNOWLEDGE_DIR" ]]; then
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue
-    echo "  doc: ${file#${RECIPE_DIR}/}"
-    (
-      cd "$BUILD_DIR"
-      srectl doc upload --file "$file"
-    )
+    upload_knowledge_file "$file" "${file#${RECIPE_DIR}/}"
   done < <(find "$KNOWLEDGE_DIR" -type f | sort)
 else
   echo "  no knowledge directory"
 fi
+
+OUTPUT_STYLE_DOC="${RECIPE_DIR}/../../../claude-plugin/output-styles/ftk-output-style.md"
+[[ -f "$OUTPUT_STYLE_DOC" ]] || fail "Error: output style knowledge document not found: $OUTPUT_STYLE_DOC" 1
+upload_knowledge_file "$OUTPUT_STYLE_DOC" "claude-plugin/output-styles/ftk-output-style.md"
 echo ""
 
 apply_yaml_dir() {

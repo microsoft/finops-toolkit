@@ -3,7 +3,7 @@ title: Configure an SRE agent for FinOps hubs
 description: Learn how to configure an Azure SRE agent to connect to your FinOps hub for scheduled cost analysis, capacity monitoring, and reporting.
 author: msbrett
 ms.author: brettwil
-ms.date: 04/28/2026
+ms.date: 05/25/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -46,7 +46,7 @@ The [SRE agent template](https://github.com/microsoft/finops-toolkit/tree/main/s
 | Tools | 34 | Kusto and Python tools for cost, capacity, governance, and reporting workflows |
 | Connector | 1 | Kusto MCP connector to the FinOps hub Azure Data Explorer cluster |
 | Scheduled tasks | 19 | Reports at daily, weekly, monthly, semiannual, and quarterly cadences |
-| Knowledge docs | 5 | Onboarding, artifact verification, Teams notification patterns, known issues, and document index guidance |
+| Knowledge docs | 6 | Onboarding, artifact verification, Teams notification patterns, known issues, document index guidance, and the FinOps Toolkit output style |
 
 <br>
 
@@ -87,7 +87,7 @@ The [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/sr
 2. Runs a subscription-scoped Azure CLI + Bicep deployment from `infra/main.bicep`.
 3. Runs `bin/post-provision.sh`, which configures the Kusto connector through the SRE Agent data plane and applies the remaining recipe assets with `srectl`.
 
-The post-provision step uses [`srectl`](https://learn.microsoft.com/azure/sre-agent/tools) to apply 3 skills, 5 subagents, 34 tools, 19 scheduled tasks, and 5 knowledge documents.
+The post-provision step uses [`srectl`](https://learn.microsoft.com/azure/sre-agent/tools) to apply 3 skills, 5 subagents, 34 tools, 19 scheduled tasks, and 6 knowledge documents.
 
 ### Grant the optional Azure Data Explorer viewer role
 
@@ -167,7 +167,7 @@ The template deploys 19 scheduled tasks from the [`recipes/finops-hub/automation
 | AIWorkloadCostAnalysis | chief-financial-officer | Monthly 1st 10:00 AM | AI token economics, model efficiency, and cost allocation |
 | CapacityQuarterlyStrategy | azure-capacity-manager | Quarterly 9:00 AM | Supply chain maturity, commitment alignment, and architecture review |
 
-Each scheduled task reads the uploaded knowledge documents before it starts. Send financial results to Teams through the configured [notification connector](https://learn.microsoft.com/azure/sre-agent/send-notifications). Save only operational notes, such as tool errors, workarounds, and patterns, to agent [memory](https://learn.microsoft.com/azure/sre-agent/memory) with `#remember`; don't save financial data.
+Each scheduled task reads the uploaded knowledge documents before it starts and applies `ftk-output-style.md` for evidence, formatting, capacity-risk, confidence, and caveat conventions. Send financial results to Teams through the configured [notification connector](https://learn.microsoft.com/azure/sre-agent/send-notifications). Save only operational notes, such as tool errors, workarounds, and patterns, to agent [memory](https://learn.microsoft.com/azure/sre-agent/memory) with `#remember`; don't save financial data.
 
 <br>
 
