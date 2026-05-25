@@ -437,12 +437,19 @@ AGENT_PORTAL_URL="$(deployment_output_value "$RESULT_FILE" "AGENT_PORTAL_URL" "h
 
 echo ""
 echo -e "${YELLOW}[4/4] Configuring SRE Agent with srectl...${NC}"
-bash "${SCRIPT_DIR}/post-provision.sh" \
-  --endpoint "$AGENT_ENDPOINT" \
-  --recipe "$RECIPE_DIR" \
-  --build-dir "${BUILD_DIR}/post-provision" \
-  --kusto-connector-uri "$CLUSTER_URI" \
+POST_PROVISION_ARGS=(
+  --endpoint "$AGENT_ENDPOINT"
+  --recipe "$RECIPE_DIR"
+  --build-dir "${BUILD_DIR}/post-provision"
   --managed-identity-id "$MANAGED_IDENTITY_ID"
+)
+
+if [[ -n "$CLUSTER_URI" ]]; then
+  POST_PROVISION_ARGS+=(--kusto-connector-uri "$CLUSTER_URI")
+fi
+
+bash "${SCRIPT_DIR}/post-provision.sh" \
+  "${POST_PROVISION_ARGS[@]}"
 
 echo ""
 echo -e "${BLUE}============================================================${NC}"
