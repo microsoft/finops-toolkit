@@ -16,6 +16,45 @@ Deploy and configure an Azure SRE Agent with the FinOps toolkit recipe under `re
 | Scheduled tasks | 19 | Recurring FinOps, capacity, governance, and reporting tasks |
 | Connector | 1 | Optional FinOps Hub Kusto connector when `--cluster-uri` is provided |
 
+## Current recipe inventory
+
+The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CATALOG.md) is the detailed inventory; this section summarizes what ships.
+
+| Subagent | Scheduled tasks | Focus |
+|----------|----------------:|-------|
+| `azure-capacity-manager` | 9 | Quota, capacity reservation groups, region and zone access, AKS capacity, and capacity governance |
+| `chief-financial-officer` | 3 | Budgeting, forecasting, AI unit economics, benefit recommendations, and executive financial reporting |
+| `finops-practitioner` | 5 | Cost optimization, budget and alert coverage, Advisor suppressions, and monthly cost analysis |
+| `ftk-database-query` | 0 | Schema-aware FinOps Hub KQL and database analysis support |
+| `ftk-hubs-agent` | 2 | Hub health, data freshness, and monitoring scope validation |
+
+| Tool type | Count | Examples |
+|-----------|------:|----------|
+| KustoTool | 21 | `cost-anomaly-detection`, `ai-token-usage-breakdown`, `reservation-recommendation-breakdown` |
+| PythonTool | 13 | `vm-quota-usage`, `data-freshness-check`, `db-service-quotas`, `sku-availability` |
+
+| Scheduled task | Agent | Schedule |
+|----------------|-------|----------|
+| `CapacityDailyMonitor` | `azure-capacity-manager` | `30 6 * * *` |
+| `HubsHealthCheck` | `ftk-hubs-agent` | `0 6 * * *` |
+| `Monthly` | `finops-practitioner` | `15 17 5 * *` |
+| `CapacityWeeklySupplyReview` | `azure-capacity-manager` | `0 8 * * 1` |
+| `ComputeUtilizationTrend` | `azure-capacity-manager` | `0 7 * * 1` |
+| `CostOptimization` | `finops-practitioner` | `0 8 * * 1` |
+| `NonComputeQuotaAudit` | `azure-capacity-manager` | `0 7 * * 2` |
+| `DbQuotaAudit` | `azure-capacity-manager` | `0 7 * * 3` |
+| `SkuAvailabilityAudit` | `azure-capacity-manager` | `0 7 * * 3` |
+| `MonitoringScopeValidation` | `ftk-hubs-agent` | `0 9 * * 4` |
+| `BenefitRecommendationReview` | `chief-financial-officer` | `0 8 * * 5` |
+| `AdvisorSuppressionReview` | `finops-practitioner` | `0 9 1 * *` |
+| `AIWorkloadCostAnalysis` | `chief-financial-officer` | `0 10 1 * *` |
+| `CapacityMonthlyPlanning` | `azure-capacity-manager` | `0 9 1 * *` |
+| `StoragePaasGrowthForecast` | `azure-capacity-manager` | `0 8 1 * *` |
+| `YOY` | `chief-financial-officer` | `0 9 5 1,7 *` |
+| `BudgetCoverageAudit` | `finops-practitioner` | `0 8 15 * *` |
+| `AlertCoverageAudit` | `finops-practitioner` | `0 8 16 * *` |
+| `CapacityQuarterlyStrategy` | `azure-capacity-manager` | `0 9 1 1,4,7,10 *` |
+
 ## Prerequisites
 
 - Azure CLI (`az`)

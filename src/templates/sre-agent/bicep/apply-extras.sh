@@ -137,6 +137,22 @@ arm_put_subresource() {
   rm -f "$tmp"
 }
 
+arm_delete_subresource() {
+  local type="$1" name="$2"
+  local url="${ARM_BASE}/${type}/${name}?api-version=${API_VERSION}"
+  echo "  ARM DELETE ${type}/${name}"
+  local result
+  result=$(az rest -m DELETE --url "$url" -o json 2>&1) && {
+    echo "    ok"
+  } || {
+    if grep -Eiq 'not found|notfound|could not be found' <<< "$result"; then
+      echo "    not present"
+    else
+      echo "    FAILED — $(echo "$result" | grep -o '"message":"[^"]*"' | head -1 | cut -d'"' -f4)"
+    fi
+  }
+}
+
 # ---------------------------------------------------------------------------
 # Helper: PUT an ARM connector sub-resource (native properties, no base64).
 # Used for MCP connectors, KnowledgeFile connectors.
@@ -325,6 +341,17 @@ fi
 count=$(jq '.scheduledTasks // [] | length' "$FILE")
 if [[ "$count" -gt 0 ]]; then
   echo "scheduledTasks: ${count}"
+  desired_task_names=$(jq -r '.scheduledTasks[]?.metadata.name // empty' "$FILE" | sort -u)
+  while IFS=':' read -r old_name new_name; do
+    [[ -n "$old_name" && -n "$new_name" ]] || continue
+    if grep -Fxq "$new_name" <<< "$desired_task_names"; then
+      arm_delete_subresource "scheduledTasks" "$old_name"
+    fi
+  done <<'EOF'
+MOM:Monthly
+YTD:YOY
+EOF
+
   for i in $(seq 0 $((count - 1))); do
     name=$(jq -r --argjson i "$i" '.scheduledTasks[$i].metadata.name' "$FILE")
     spec=$(jq -c --argjson i "$i" '.scheduledTasks[$i].spec' "$FILE")
@@ -624,7 +651,7 @@ if [[ "$count" -gt 0 ]]; then
   fi
 fi
 
-# 4h. MCP connectors — ARM PUT (native properties, no data-plane token needed)
+# 4h. Connectors — ARM PUT (native properties, no data-plane token needed)
 count=$(jq '.connectors // [] | length' "$FILE")
 if [[ "$count" -gt 0 ]]; then
   echo "connectors: ${count} (ARM)"

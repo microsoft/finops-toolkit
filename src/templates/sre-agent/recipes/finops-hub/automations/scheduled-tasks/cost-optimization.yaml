@@ -34,7 +34,7 @@ spec:
     ## Phase 1: Discovery
 
 
-    1. Determine scope: Ask the user for subscription(s) or management group, or use the current authenticated context.
+    1. Determine scope from the configured scheduled-task scope, documented knowledge-base scope, or current authenticated context. Do not wait for user input during this autonomous scheduled run. If scope cannot be determined, report the missing scope as a blocking configuration issue.
 
     2. Verify authentication: confirm the SRE Agent has a `client_id` available for UAMI authentication and pass it to each Python tool.
 
@@ -346,7 +346,7 @@ spec:
 
     **Visualizations:** Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum one trend chart and one comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed the chart images inline in the Teams message alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
 
-    **Teams (financial results only):** Post the final cost optimization report to our Teams channel. Include the executive summary, total identified savings, quick wins, and prioritized next steps. Do not post intermediate results — only the completed report. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
+    **Teams (financial results only):** Post the final cost optimization report to our Teams channel. Include the executive summary, total identified savings, quick wins, and prioritized next steps. Do not post intermediate results — only the completed report. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If no Teams connector/channel is configured or `PostTeamsMessage` was not found during the once-per-run guard check, return the completed report in the run output with a note that Teams delivery was skipped. If a Teams connector/channel is configured and the single final `PostTeamsMessage` attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
 
 
     **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — query failures, Resource Graph workarounds, Advisor API patterns, tool errors encountered. Never save financial figures, cost amounts, savings numbers, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'

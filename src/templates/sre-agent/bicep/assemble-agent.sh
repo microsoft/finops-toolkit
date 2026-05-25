@@ -350,7 +350,8 @@ REPO_INSTRUCTIONS="[]"
 [[ -f "${DIR}/data/repo-instructions.json" ]] && REPO_INSTRUCTIONS=$(cat "${DIR}/data/repo-instructions.json")
 
 MD_FILES=$(find "${DIR}/data" -maxdepth 1 -name "*.md" -type f 2>/dev/null || true; \
-           find "${DIR}/data/knowledge" -maxdepth 1 -name "*.md" -type f 2>/dev/null || true)
+           find "${DIR}/data/knowledge" -maxdepth 1 -name "*.md" -type f 2>/dev/null || true; \
+           find "${DIR}/knowledge" -maxdepth 1 -name "*.md" -type f 2>/dev/null || true)
 if [[ -n "$MD_FILES" ]]; then
   MD_COUNT=$(echo "$MD_FILES" | wc -l | tr -d ' ')
   _log "Found ${MD_COUNT} knowledge .md file(s) in data/"

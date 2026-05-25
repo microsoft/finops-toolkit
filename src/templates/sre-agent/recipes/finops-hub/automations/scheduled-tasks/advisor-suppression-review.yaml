@@ -65,7 +65,7 @@ spec:
     ## Persistence
 
 
-    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
+    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If no Teams connector/channel is configured or `PostTeamsMessage` was not found during the once-per-run guard check, return the completed report in the run output with a note that Teams delivery was skipped. If a Teams connector/channel is configured and the single final `PostTeamsMessage` attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
 
 
     **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, cost amounts, recommendation savings amounts, or customer financial data to git or the knowledge base. Financial detail goes to Teams only.

@@ -466,11 +466,15 @@ echo "  Monthly limit: $(jq -r '.parameters.monthlyAgentUnitLimit.value // 10000
 [[ "$EXTENSION_FALLBACK" == "srectl" ]] && echo "  Extension mode: ARM core + srectl hydration"
 echo
 
+SUMMARY_ARM_FILE="$FILE"
+[[ "$EXTENSION_FALLBACK" == "srectl" ]] && SUMMARY_ARM_FILE="$DEPLOY_FILE"
+
 echo "  Bicep (ARM) resources:"
-WH=$(jq -r '.parameters.enableWebhookBridge.value // false' "$FILE")
+echo "    ✓ Agent core (agent, identity, Log Analytics, App Insights, RBAC)"
+WH=$(jq -r '.parameters.enableWebhookBridge.value // false' "$SUMMARY_ARM_FILE")
 [[ "$WH" == "true" ]] && echo "    ✓ Webhook bridge (Logic App)"
 for tog in enableLogAnalyticsConnector enableAppInsightsConnector enableAzureMonitorConnector; do
-  v=$(jq -r ".parameters.${tog}.value // false" "$FILE")
+  v=$(jq -r ".parameters.${tog}.value // false" "$SUMMARY_ARM_FILE")
   if [[ "$v" == "true" ]]; then
     case "$tog" in
       enableLogAnalyticsConnector) echo "    ✓ Log Analytics connector" ;;
@@ -479,27 +483,28 @@ for tog in enableLogAnalyticsConnector enableAppInsightsConnector enableAzureMon
     esac
   fi
 done
-n=$(jq -r '.parameters.connectors.value // [] | length' "$FILE")
+n=$(jq -r '.parameters.connectors.value // [] | length' "$SUMMARY_ARM_FILE")
 if [[ "$n" -gt 0 ]]; then
-  for cname in $(jq -r '.parameters.connectors.value[].name' "$FILE" 2>/dev/null); do
-    ctype=$(jq -r ".parameters.connectors.value[] | select(.name==\"$cname\") | .properties.dataConnectorType" "$FILE")
+  for cname in $(jq -r '.parameters.connectors.value[].name' "$SUMMARY_ARM_FILE" 2>/dev/null); do
+    ctype=$(jq -r ".parameters.connectors.value[] | select(.name==\"$cname\") | .properties.dataConnectorType" "$SUMMARY_ARM_FILE")
     echo "    ✓ Connector: ${cname} (${ctype})"
   done
 fi
-KUSTO_RBAC_ENABLED=$(jq -r '.parameters.enableFinopsHubKustoViewerRole.value // false' "$FILE")
+KUSTO_RBAC_ENABLED=$(jq -r '.parameters.enableFinopsHubKustoViewerRole.value // false' "$SUMMARY_ARM_FILE")
 if [[ "$KUSTO_RBAC_ENABLED" == "true" ]]; then
-  KUSTO_RBAC_CLUSTER_ID=$(jq -r '.parameters.finopsHubKustoClusterResourceId.value // ""' "$FILE")
+  KUSTO_RBAC_CLUSTER_ID=$(jq -r '.parameters.finopsHubKustoClusterResourceId.value // ""' "$SUMMARY_ARM_FILE")
   echo "    ✓ Kusto RBAC: AllDatabasesViewer (system MI)"
   [[ -n "$KUSTO_RBAC_CLUSTER_ID" ]] && echo "      Cluster: ${KUSTO_RBAC_CLUSTER_ID}"
 fi
 for arr in skills subagents; do
-  n=$(jq -r ".parameters.${arr}.value // [] | length" "$FILE")
+  n=$(jq -r ".parameters.${arr}.value // [] | length" "$SUMMARY_ARM_FILE")
   [[ "$n" -gt 0 ]] && echo "    ✓ ${arr}: ${n}"
 done
 echo
 echo "  Data-plane (apply-extras):"
 if [[ -f "$DISCOVERED_EXTRAS_FILE" ]]; then
   for key in hooks commonPrompts incidentPlatforms incidentFilters scheduledTasks httpTriggers repos knowledgeItems knowledge; do
+    [[ "$EXTENSION_FALLBACK" == "srectl" && "$key" == "scheduledTasks" ]] && continue
     n=$(jq -r ".${key} // [] | length" "$DISCOVERED_EXTRAS_FILE" 2>/dev/null)
     if [[ "$n" -gt 0 ]]; then
       case "$key" in
@@ -515,8 +520,25 @@ if [[ -f "$DISCOVERED_EXTRAS_FILE" ]]; then
       esac
     fi
   done
+  if [[ "$EXTENSION_FALLBACK" == "srectl" ]]; then
+    n=$(jq -r '.parameters.connectors.value // [] | length' "$FILE")
+    [[ "$n" -gt 0 ]] && echo "    ✓ Connectors: ${n}"
+  fi
 else
   echo "    (extras file not found — data-plane items shown in change detection below)"
+fi
+
+if [[ "$EXTENSION_FALLBACK" == "srectl" && -d "$INPUT" ]]; then
+  echo
+  echo "  srectl hydration:"
+  n=$(find "$INPUT/config/tools" -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | wc -l | tr -d ' ')
+  [[ "$n" -gt 0 ]] && echo "    ✓ Tools: ${n}"
+  n=$(find "$INPUT/config/subagents" -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | wc -l | tr -d ' ')
+  [[ "$n" -gt 0 ]] && echo "    ✓ Subagents: ${n}"
+  n=$(find "$INPUT/config/skills" -mindepth 1 -maxdepth 1 -type d -exec test -f '{}/SKILL.md' ';' -print 2>/dev/null | wc -l | tr -d ' ')
+  [[ "$n" -gt 0 ]] && echo "    ✓ Skills: ${n}"
+  n=$(find "$INPUT/automations/scheduled-tasks" -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | wc -l | tr -d ' ')
+  [[ "$n" -gt 0 ]] && echo "    ✓ Scheduled tasks: ${n}"
 fi
 
 echo
@@ -641,7 +663,10 @@ APPLY_EXTRAS_FILE="${DISCOVERED_EXTRAS_FILE}"
 if [[ "$EXTENSION_FALLBACK" == "srectl" && -f "$APPLY_EXTRAS_FILE" ]]; then
   FALLBACK_EXTRAS_FILE=$(mktemp "${TMPDIR:-/tmp}/sre-fallback-extras.XXXXXX.json")
   CLEANUP_FILES+=("$FALLBACK_EXTRAS_FILE")
-  jq '.scheduledTasks = []' "$APPLY_EXTRAS_FILE" > "$FALLBACK_EXTRAS_FILE"
+  jq --slurpfile params "$FILE" '
+    .scheduledTasks = [] |
+    .connectors = ((.connectors // []) + ($params[0].parameters.connectors.value // []))
+  ' "$APPLY_EXTRAS_FILE" > "$FALLBACK_EXTRAS_FILE"
   APPLY_EXTRAS_FILE="$FALLBACK_EXTRAS_FILE"
 fi
 

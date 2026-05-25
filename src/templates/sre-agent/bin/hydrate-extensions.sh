@@ -161,6 +161,31 @@ if [[ -d "$SCHEDULED_TASKS_DIR" ]]; then
     ) | tr -d '\000' | sed -n 's/.*\[[0-9][0-9]*\] \([A-Za-z0-9._-][A-Za-z0-9._-]*\).*/\1/p' | sort -u
   )
 
+  DESIRED_TASK_NAMES=$(
+    while IFS= read -r file; do
+      [[ -z "$file" ]] && continue
+      awk -F': *' '/^[[:space:]]*name:[[:space:]]*/{gsub(/"/, "", $2); print $2; exit}' "$file" | tr -d '\r' | xargs
+    done < <(find "$SCHEDULED_TASKS_DIR" -type f \( -name "*.yaml" -o -name "*.yml" \) | sort) | sort -u
+  )
+
+  while IFS=':' read -r old_name new_name; do
+    [[ -n "$old_name" && -n "$new_name" ]] || continue
+    if grep -Fxq "$new_name" <<< "$DESIRED_TASK_NAMES" && grep -Fxq "$old_name" <<< "$EXISTING_TASK_NAMES"; then
+      echo "  scheduled-task: ${old_name} (renamed to ${new_name}, deleting stale task)"
+      if (
+        cd "$WORKDIR"
+        srectl scheduledtask delete --id "$old_name" --quiet
+      ); then
+        EXISTING_TASK_NAMES=$(grep -Fxv "$old_name" <<< "$EXISTING_TASK_NAMES" || true)
+      else
+        failed=$((failed + 1))
+      fi
+    fi
+  done <<'EOF'
+MOM:Monthly
+YTD:YOY
+EOF
+
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue
     scheduled_total=$((scheduled_total + 1))
