@@ -1,0 +1,19 @@
+{
+  "name": "microsoft-finops-toolkit",
+  "version": "13.0.0",
+  "description": "FinOps Toolkit skills for AI-powered cloud financial management.",
+  "author": {
+    "name": "Microsoft",
+    "url": "https://github.com/microsoft"
+  },
+  "homepage": "https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/finops-toolkit-overview",
+  "repository": "https://github.com/microsoft/finops-toolkit",
+  "license": "MIT",
+  "keywords": [
+    "finops",
+    "cost-management",
+    "cloud-optimization",
+    "capacity-management"
+  ],
+  "skills": "./"
+}
