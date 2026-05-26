@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Summarizes list cost, effective cost, negotiated discount savings, commitment discount savings, total savings, and effective savings rate by billing currency. Use it to quantify savings from rate optimization and commitments. Available parameters: startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##

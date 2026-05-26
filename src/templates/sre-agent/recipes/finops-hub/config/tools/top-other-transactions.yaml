@@ -11,7 +11,7 @@ spec:
 
     Output contract:
     If the tool returns the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed but do not treat the analysis as fully healthy. Run data-freshness-check and inspect Transactions() row_count, schema_status, and diagnostic_code before stating there were no matching transactions. If diagnostic_code is TRANSACTIONS_ZERO_ROWS, report an export / ingestion / stored-function action item and continue the report with that limitation.
-  database: hub
+  database: Hub
   query: |-
     Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate## and tolower(tostring(ChargeCategory)) != 'usage' and isempty(CommitmentDiscountType) and toreal(BilledCost) > 0

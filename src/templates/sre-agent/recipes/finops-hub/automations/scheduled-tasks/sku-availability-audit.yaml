@@ -16,22 +16,22 @@ spec:
 
     Before starting, read all documents in the knowledge base. Pay special attention to deployment region notes, restricted SKU findings, and planned capacity requests.
 
-    Output style: Apply `ftk-output-style.md` from the knowledge base to every report and Teams message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
+    Output style: Apply `ftk-output-style.md` from the knowledge base to every report, Teams message, and Outlook email message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
 
-    Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
+    Delivery and rendering guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage`, `SendOutlookEmail`, `PlotBarChart`, `PlotPieChart`, `PlotAreaChartWithCorrelation`, and `ExecutePythonCode` are present. Do not call notification, email, connector, Microsoft Graph, `dynamicInvoke`, raw webhook, or connector APIs just to test availability. Use visualization tools first for charts when available, with `ExecutePythonCode` or code-interpreter chart generation only as a fallback. Complete the report before delivery. When a Teams connector/channel is configured, make one final `PostTeamsMessage` attempt to the configured Teams channel. When an Outlook connector/recipient is configured, make one final `SendOutlookEmail` attempt with the same final report and any generated chart artifacts. If a configured delivery path fails, mark the task/run failed instead of degrading to local output or probing alternate paths. If neither Teams nor Outlook delivery is configured or available, render the completed report in the run output and explicitly state which delivery paths were skipped.
 
 
 
-    Load your relevant capacity management skill. Note the `client_id` for Python tool authentication.
+    Load your relevant capacity management skill. Use the agent system-managed identity for Python tool authentication.
 
 
     ## Python tools available
 
 
-    Pass `client_id` as a parameter to each Python tool for UAMI authentication.
+    Python tools use DefaultAzureCredential with the agent system-managed identity.
 
 
-    - `sku-availability`: Run with `subscription_id`, `location`, optional `sku_filter`, optional `resource_provider`, and `client_id`. Use the default `resource_provider: compute` to list Compute SKU availability, zones, and restrictions. Use `resource_provider: kusto` for Azure Data Explorer / Kusto SKU eligibility checks before FinOps Hub analytics backend deployments or upgrades.
+    - `sku-availability`: Run with `subscription_id`, `location`, optional `sku_filter`, optional `resource_provider`. Use the default `resource_provider: compute` to list Compute SKU availability, zones, and restrictions. Use `resource_provider: kusto` for Azure Data Explorer / Kusto SKU eligibility checks before FinOps Hub analytics backend deployments or upgrades.
 
 
     ## 1. Establish region and SKU scope
@@ -43,7 +43,7 @@ spec:
     ## 2. Collect SKU availability
 
 
-    Run `sku-availability` for each scoped subscription and region using `subscription_id`, `location`, optional `sku_filter`, `resource_provider`, and `client_id`.
+    Run `sku-availability` for each scoped subscription and region using `subscription_id`, `location`, optional `sku_filter`, `resource_provider`.
 
 
     - For Compute, use `resource_provider: compute` or omit it to preserve the default behavior. Capture total SKUs, restricted SKUs, restriction reason codes, zone availability, and restriction values.
@@ -72,13 +72,13 @@ spec:
     ## Persistence
 
 
-    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If no Teams connector/channel is configured or `PostTeamsMessage` was not found during the once-per-run guard check, return the completed report in the run output with a note that Teams delivery was skipped. If a Teams connector/channel is configured and the single final `PostTeamsMessage` attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
+    **Teams and Outlook (results only):** Post the final report to our Teams channel. Do not post intermediate results. Use `PostTeamsMessage` and `SendOutlookEmail` only when the delivery guard found each tool available once per run. If neither Teams nor Outlook delivery is configured or available, return the completed report in the run output with a note naming the skipped delivery paths. If any configured Teams or Outlook final delivery attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
 
 
-    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, cost amounts, or customer financial data to git or the knowledge base. Financial detail goes to Teams only.
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, cost amounts, or customer financial data to git or the knowledge base. Financial detail goes to configured Teams and Outlook delivery only.
 
 
     ## Visualizations
 
 
-    Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum a restricted SKU count by region chart and a restriction reason-code chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message alongside the text tables.'
+    Before delivery, generate charts for key findings using `PlotBarChart`, `PlotPieChart`, or `PlotAreaChartWithCorrelation` when those visualization tools fit the data. Use `ExecutePythonCode` or matplotlib/seaborn via the code interpreter only when the visualization tools are unavailable or cannot express the required chart. Include at minimum a restricted SKU count by region chart and a restriction reason-code chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message and attach or embed them in the Outlook email alongside the text tables.'

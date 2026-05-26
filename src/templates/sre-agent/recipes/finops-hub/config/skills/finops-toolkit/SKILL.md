@@ -2,7 +2,7 @@
 name: finops-toolkit
 description: This skill should be used when the user asks about "FinOps hubs", "FinOps toolkit", "KQL queries", "Kusto", "cost data analysis", "Hub database", "Costs function", "Prices function", "Recommendations function", "FinOps hubs deployment", "Azure Data Explorer", "ADX cluster", or any FinOps hubs operations.
 license: MIT
-compatibility: Requires Azure MCP Server and Azure CLI authentication. For queries, requires Database Viewer access to FinOps hub ADX cluster.
+compatibility: Requires Azure MCP Server and Azure CLI authentication. For queries, requires AllDatabasesViewer access to the FinOps hub ADX cluster.
 metadata:
   author: microsoft
   version: "1.0"

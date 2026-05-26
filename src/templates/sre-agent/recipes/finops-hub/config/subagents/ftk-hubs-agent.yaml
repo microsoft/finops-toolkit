@@ -59,10 +59,15 @@ spec:
     - RunAzCliWriteCommands
     - GetAzCliHelp
     - execute_python
+    - ExecutePythonCode
+    - PlotBarChart
+    - PlotPieChart
+    - PlotAreaChartWithCorrelation
     - data-freshness-check
     - resource-graph-query
     - sku-availability
     - PostTeamsMessage
+    - SendOutlookEmail
     - ReplyToTeamsMessage
     - GetTeamsMessages
   hooks:

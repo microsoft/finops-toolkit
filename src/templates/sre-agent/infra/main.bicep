@@ -79,7 +79,7 @@ module targetRbac 'modules/resource-group-rbac.bicep' = [for rgName in targetRgs
   name: 'target-rbac-${uniqueString(toLower(subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)), namingSeed)}'
   scope: resourceGroup(rgName)
   params: {
-    principalId: resources.outputs.identityPrincipalId
+    principalId: resources.outputs.agentPrincipalId
     accessLevel: accessLevel
   }
 }]
@@ -89,12 +89,12 @@ var kustoClusterSubscriptionId = hasKustoCluster ? split(finopsHubKustoClusterRe
 var kustoClusterResourceGroupName = hasKustoCluster ? split(finopsHubKustoClusterResourceId, '/')[4] : ''
 var kustoClusterName = hasKustoCluster ? split(finopsHubKustoClusterResourceId, '/')[8] : ''
 
-module finopsHubKustoViewerRbac 'modules/kusto-viewer-rbac.bicep' = if (hasKustoCluster) {
+module finopsHubKustoAllDatabasesViewerRbac 'modules/kusto-all-databases-viewer-rbac.bicep' = if (hasKustoCluster) {
   name: 'kusto-rbac-${uniqueString(finopsHubKustoClusterResourceId, namingSeed)}'
   scope: resourceGroup(kustoClusterSubscriptionId, kustoClusterResourceGroupName)
   params: {
     clusterName: kustoClusterName
-    principalId: resources.outputs.identityPrincipalId
+    principalApplicationId: resources.outputs.agentPrincipalId
     principalTenantId: tenant().tenantId
     principalAssignmentName: 'sre-agent-${uniqueString(finopsHubKustoClusterResourceId, namingSeed, 'all-db-viewer')}'
   }
@@ -105,6 +105,6 @@ output AZURE_LOCATION string = location
 output SRE_AGENT_NAME string = resources.outputs.agentName
 output SRE_AGENT_ENDPOINT string = resources.outputs.agentEndpoint
 output AGENT_PORTAL_URL string = resources.outputs.agentPortalUrl
-output MANAGED_IDENTITY_ID string = resources.outputs.identityId
-output MANAGED_IDENTITY_PRINCIPAL_ID string = resources.outputs.identityPrincipalId
+output SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID string = resources.outputs.agentPrincipalId
+output SYSTEM_MANAGED_IDENTITY_TENANT_ID string = resources.outputs.agentTenantId
 output LOG_ANALYTICS_WORKSPACE_ID string = resources.outputs.logAnalyticsWorkspaceId

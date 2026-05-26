@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Returns top resource-group cost rows by subscription and month for a quarterly-style reporting window. Use it to identify high-cost resource groups and single-month cost drivers. Available parameters: N, startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##

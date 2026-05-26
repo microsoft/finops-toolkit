@@ -34,7 +34,6 @@ param tags object = {}
 var uniqueSuffix = uniqueString(namingSeed)
 var logAnalyticsName = 'law-${uniqueSuffix}'
 var appInsightsName = 'appi-${uniqueSuffix}'
-var identityName = '${agentName}-id-${uniqueSuffix}'
 
 module monitoring 'modules/monitoring.bicep' = {
   name: 'monitoring'
@@ -45,20 +44,11 @@ module monitoring 'modules/monitoring.bicep' = {
   }
 }
 
-module identity 'modules/identity.bicep' = {
-  name: 'identity'
-  params: {
-    location: location
-    identityName: identityName
-  }
-}
-
 module sreAgent 'modules/sre-agent.bicep' = {
   name: 'sre-agent'
   params: {
     location: location
     agentName: agentName
-    identityId: identity.outputs.identityId
     appInsightsAppId: monitoring.outputs.appInsightsAppId
     appInsightsConnectionString: monitoring.outputs.appInsightsConnectionString
     appInsightsId: monitoring.outputs.appInsightsId
@@ -75,6 +65,6 @@ module sreAgent 'modules/sre-agent.bicep' = {
 output agentName string = sreAgent.outputs.agentName
 output agentEndpoint string = sreAgent.outputs.agentEndpoint
 output agentPortalUrl string = sreAgent.outputs.agentPortalUrl
-output identityId string = identity.outputs.identityId
-output identityPrincipalId string = identity.outputs.identityPrincipalId
+output agentPrincipalId string = sreAgent.outputs.agentPrincipalId
+output agentTenantId string = sreAgent.outputs.agentTenantId
 output logAnalyticsWorkspaceId string = monitoring.outputs.logAnalyticsWorkspaceId

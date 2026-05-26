@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Forecasts future effective cost from historical cost data using Kusto time-series forecasting. Use it for budgeting, forward-looking spend estimates, and trend projection. Available parameters: startDate, endDate, forecastPeriods, interval.
-  database: hub
+  database: Hub
   query: |-
     Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##

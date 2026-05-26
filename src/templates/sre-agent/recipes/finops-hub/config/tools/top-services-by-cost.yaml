@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Returns top Azure services by effective cost for a specified reporting window. Use it to identify the highest-cost services and prioritize service-level cost optimization. Available parameters: N, startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##

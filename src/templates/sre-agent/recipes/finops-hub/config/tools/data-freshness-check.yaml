@@ -9,7 +9,8 @@ spec:
   description: |-
     Checks FinOps Hub function data freshness in an Azure Data Explorer hub database
     through direct Azure Data Explorer REST queries. This tool is authoritative for
-    hub data freshness. Stale memory notes, raw KQL rollups, and ingestion timestamp
+    hub data freshness. Access/queryability failures are reported separately from
+    stale or empty data. Stale memory notes, raw KQL rollups, and ingestion timestamp
     checks are superseded when they conflict with this result.
     The tool reports row counts, latest data dates, staleness in days, stored-function
     schema status, and precise diagnostics for empty or stale datasets. Transactions()
@@ -24,10 +25,15 @@ spec:
 
         KUSTO_SCOPE = "https://api.kusto.windows.net/.default"
         KUSTO_QUERY_PATH = "/v2/rest/query"
-        FRESHNESS_THRESHOLD_DAYS = 3
+        DEFAULT_FRESHNESS_THRESHOLD_DAYS = 3
 
         cluster_uri = kwargs.get("cluster_uri")
         database = kwargs.get("database")
+        freshness_threshold_days = kwargs.get("freshness_threshold_days", DEFAULT_FRESHNESS_THRESHOLD_DAYS)
+        try:
+            freshness_threshold_days = int(freshness_threshold_days)
+        except (TypeError, ValueError):
+            freshness_threshold_days = DEFAULT_FRESHNESS_THRESHOLD_DAYS
 
         result = {
             "cluster_uri": cluster_uri,
@@ -37,6 +43,7 @@ spec:
             "stale_count": 0,
             "empty_count": 0,
             "error_count": 0,
+            "queryable_count": 0,
             "hub_data_stale": False,
             "attention_required": False,
             "status": "unknown",
@@ -48,7 +55,7 @@ spec:
                 "method": "direct_adx_rest_query",
                 "endpoint": KUSTO_QUERY_PATH,
                 "authoritative_function": "Costs()",
-                "freshness_threshold_days": FRESHNESS_THRESHOLD_DAYS,
+                "freshness_threshold_days": freshness_threshold_days,
                 "supersedes": [
                     "stale memory conclusions",
                     "raw KQL freshness rollups",
@@ -93,6 +100,26 @@ spec:
             return value.isoformat().replace("+00:00", "Z")
 
         def _table_rows(payload):
+            if isinstance(payload, list):
+                for frame in payload:
+                    if not isinstance(frame, dict):
+                        continue
+                    frame_type = frame.get("FrameType") or frame.get("frameType")
+                    table_kind = frame.get("TableKind") or frame.get("tableKind")
+                    if frame_type == "DataTable" and table_kind in (None, "PrimaryResult"):
+                        rows = frame.get("Rows") or frame.get("rows") or []
+                        columns = frame.get("Columns") or frame.get("columns") or []
+                        column_names = [
+                            column.get("ColumnName") or column.get("columnName") or column.get("name")
+                            for column in columns
+                            if isinstance(column, dict)
+                        ]
+                        return rows, column_names
+                return [], []
+
+            if not isinstance(payload, dict):
+                return [], []
+
             tables = payload.get("Tables") or payload.get("tables") or []
             if not tables:
                 return [], []
@@ -151,13 +178,8 @@ spec:
             return response.json()
 
         try:
-            client_id = kwargs.get("client_id")
-            if client_id:
-                from azure.identity import ManagedIdentityCredential
-                credential = ManagedIdentityCredential(client_id=client_id)
-            else:
-                from azure.identity import DefaultAzureCredential
-                credential = DefaultAzureCredential()
+            from azure.identity import DefaultAzureCredential
+            credential = DefaultAzureCredential()
             token = credential.get_token(KUSTO_SCOPE).token
             headers = {
                 "Accept": "application/json",
@@ -254,6 +276,8 @@ spec:
             schema_column_count = None
             diagnostic_code = "OK"
             diagnostic_message = None
+            schema_error = None
+            data_error = None
 
             try:
                 schema_payload = _execute_kusto(check["schema_query"])
@@ -264,14 +288,18 @@ spec:
                 else:
                     schema_status = "no_schema_rows"
             except Exception as exc:
+                schema_error = str(exc)
                 schema_status = "error"
                 errors.append({"function_name": function_name, "phase": "schema", "error": str(exc)})
                 diagnostic = _append_diagnostic(
                     function_name,
                     "error",
                     f"{function_name.strip('()').upper()}_SCHEMA_QUERY_FAILED",
-                    f"{function_name} schema verification failed. Verify the stored function exists and is compatible with this Hub version before treating the dataset as empty.",
-                    ["Check the Hub version and stored function deployment for this dataset."],
+                    f"{function_name} schema verification failed: {exc}",
+                    [
+                        "If this is HTTP 403, verify the agent identity has ADX AllDatabasesViewer on the cluster.",
+                        "If this is a semantic error, check the Hub version and stored function deployment for this dataset.",
+                    ],
                     ["Stored-function schema query failed."],
                 )
                 diagnostic_code = diagnostic["code"]
@@ -291,7 +319,7 @@ spec:
                         latest_ingestion_time = _to_utc(_row_value(freshness_rows[0], freshness_columns, "LatestIngestionTime", 2))
                         if latest_data is not None:
                             staleness_days = round((now - latest_data).total_seconds() / 86400, 2)
-                    is_stale = not has_data or staleness_days is None or staleness_days > FRESHNESS_THRESHOLD_DAYS
+                    is_stale = not has_data or staleness_days is None or staleness_days > freshness_threshold_days
                 else:
                     is_stale = not has_data
 
@@ -309,12 +337,12 @@ spec:
                     )
                     diagnostic_code = diagnostic["code"]
                     diagnostic_message = diagnostic["message"]
-                elif staleness_days is not None and staleness_days > FRESHNESS_THRESHOLD_DAYS:
+                elif staleness_days is not None and staleness_days > freshness_threshold_days:
                     diagnostic = _append_diagnostic(
                         function_name,
                         "warning" if not check["required_for_hub_health"] else "error",
                         check["stale_code"],
-                        f"{function_name} latest data is {staleness_days} days old, which exceeds the {FRESHNESS_THRESHOLD_DAYS}-day freshness threshold.",
+                        f"{function_name} latest data is {staleness_days} days old, which exceeds the {freshness_threshold_days}-day freshness threshold.",
                         [
                             f"Verify the {check['expected_export_dataset']} export is still running.",
                             f"Verify Data Factory ingestion processed the {check['source_dataset']} dataset successfully.",
@@ -323,13 +351,17 @@ spec:
                     diagnostic_code = diagnostic["code"]
                     diagnostic_message = diagnostic["message"]
             except Exception as exc:
+                data_error = str(exc)
                 errors.append({"function_name": function_name, "phase": "data", "error": str(exc)})
                 diagnostic = _append_diagnostic(
                     function_name,
                     "error",
                     f"{function_name.strip('()').upper()}_QUERY_FAILED",
-                    f"{function_name} data query failed. Report this as a stored-function or schema error, not as an empty dataset.",
-                    ["Check the Hub version and stored function compatibility for this dataset."],
+                    f"{function_name} data query failed: {exc}",
+                    [
+                        "If this is HTTP 403, verify the agent identity has ADX AllDatabasesViewer on the cluster.",
+                        "If this is a semantic error, check the Hub version and stored function compatibility for this dataset.",
+                    ],
                     ["Data query failed before row count could be verified."],
                 )
                 diagnostic_code = diagnostic["code"]
@@ -345,9 +377,12 @@ spec:
                     "latest_ingestion_time": _iso(latest_ingestion_time),
                     "staleness_days": staleness_days,
                     "is_stale": is_stale,
+                    "is_queryable": schema_error is None and data_error is None,
                     "has_data": has_data,
                     "schema_status": schema_status,
                     "schema_column_count": schema_column_count,
+                    "schema_error": schema_error,
+                    "data_error": data_error,
                     "required_for_hub_health": check["required_for_hub_health"],
                     "diagnostic_code": diagnostic_code,
                     "diagnostic_message": diagnostic_message,
@@ -361,6 +396,7 @@ spec:
         result["stale_count"] = sum(1 for function in result["functions"] if function["is_stale"])
         result["empty_count"] = sum(1 for function in result["functions"] if not function["has_data"])
         result["error_count"] = len(errors)
+        result["queryable_count"] = sum(1 for function in result["functions"] if function["is_queryable"])
 
         functions_with_data_dates = [
             function for function in result["functions"] if function["latest_data_date"] is not None
@@ -404,11 +440,6 @@ spec:
   authScopes:
     - ARM
   parameters:
-    - name: client_id
-      type: string
-      description: |-
-        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
-      required: false
     - name: cluster_uri
       type: string
       description: Azure Data Explorer cluster URI to query for data freshness.
@@ -416,4 +447,8 @@ spec:
     - name: database
       type: string
       description: Optional Azure Data Explorer database name. Defaults to hub.
+      required: false
+    - name: freshness_threshold_days
+      type: integer
+      description: Optional age threshold for production freshness checks. Defaults to 3 days; use a higher value for eval datasets with intentionally old data.
       required: false

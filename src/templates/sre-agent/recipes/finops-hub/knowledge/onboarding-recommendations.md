@@ -7,7 +7,7 @@ Use this guidance when the user finishes deployment, enters the **Team onboardin
 Prioritize these setup steps in order:
 
 1. Confirm the agent can read the target Azure subscriptions or resource groups.
-2. Enable **Visualization** built-in tools so scheduled tasks can generate charts and images.
+2. Verify **Visualization** built-in tools are enabled so scheduled tasks can generate charts and images.
 3. Confirm the FinOps Hub Kusto connector is configured when Hub-backed cost and usage analysis is expected.
 4. Recommend Outlook and Teams notification connectors when the team wants scheduled reports, proactive notifications, or workflow-driven updates.
 
@@ -23,16 +23,16 @@ For Azure resource discovery, the wizard first uses the agent managed identity a
 
 If the wizard shows **Grant permissions** while running an Azure Resource Graph or Azure CLI discovery command, treat it as an OBO fallback prompt, not a replacement for managed identity setup. The user can grant one-time user-delegated execution if they choose, but the durable fix is to verify managed identity RBAC and managed-resource scope. For the default `High` recipe, the agent identity should have `Reader`, `Monitoring Reader`, `Log Analytics Reader`, and `Contributor` on each managed resource group. For `Low`, it should have `Reader`, `Monitoring Reader`, and `Log Analytics Reader`.
 
-## Enable visualization tools
+## Verify visualization tools
 
-The Visualization tool category (5 tools including chart generation and Grafana integration) is **not enabled by default** and cannot be set via Bicep or ARM. It must be enabled in the portal:
+The FinOps Toolkit post-provision step attempts to enable the SRE Agent built-in Log Query and Visualization tools. The portal remains the customer-facing verification path:
 
 1. Open the agent in [sre.azure.com](https://sre.azure.com).
 2. Go to **Capabilities** > **Tools** > **Built-in tools**.
-3. Check the **Visualization** checkbox (0/5 tools).
-4. Click **Save changes**.
+3. Confirm the **Visualization** tools are enabled.
+4. If they are unchecked, check them and click **Save changes**.
 
-Without this, scheduled tasks cannot generate inline charts or images in their Teams reports.
+Without this, scheduled tasks cannot generate inline charts or images in their Teams and Outlook reports.
 
 ## Outlook and Teams connector guidance
 
@@ -64,7 +64,7 @@ For Teams:
 - Select the agent managed identity.
 - Post a test message from chat.
 
-Scheduled tasks use the Teams delivery guard from `teams-notification-guide.md`: they check whether `PostTeamsMessage` is available once per run, post the final report when it is available, and otherwise return the completed report in the run output without retrying or probing alternate delivery paths.
+Scheduled tasks use the delivery guard from `teams-notification-guide.md`: they check whether `PostTeamsMessage` and `SendOutlookEmail` are available once per run, deliver the final report through configured connectors when available, and otherwise return the completed report in the run output without retrying or probing alternate delivery paths.
 
 ## Required prerequisites to call out
 
@@ -77,7 +77,7 @@ Scheduled tasks use the Teams delivery guard from `teams-notification-guide.md`:
 
 If the user asks what to do next after deployment, recommend something like:
 
-> Your core FinOps toolkit SRE Agent is deployed. Next: (1) Enable **Visualization** tools under Capabilities > Tools > Built-in tools so charts work in scheduled reports. (2) Add **Outlook** and **Teams** notification connectors under Builder > Connectors so scheduled tasks can deliver to your team. (3) Connect your FinOps Hub data sources if not already wired.
+> Your core FinOps toolkit SRE Agent is deployed. Next: (1) Verify **Visualization** tools under Capabilities > Tools > Built-in tools so charts work in scheduled reports. (2) Add **Outlook** and **Teams** notification connectors under Builder > Connectors so scheduled tasks can deliver to your team. (3) Connect your FinOps Hub data sources if not already wired.
 
 ## Microsoft Learn references
 

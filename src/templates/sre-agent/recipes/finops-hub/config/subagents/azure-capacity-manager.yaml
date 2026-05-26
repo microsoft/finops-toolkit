@@ -82,6 +82,10 @@ spec:
   - RunAzCliWriteCommands
   - GetAzCliHelp
   - execute_python
+  - ExecutePythonCode
+  - PlotBarChart
+  - PlotPieChart
+  - PlotAreaChartWithCorrelation
   - data-freshness-check
   - resource-graph-query
   - benefit-recommendations
@@ -91,6 +95,7 @@ spec:
   - db-service-quotas
   - capacity-reservation-groups
   - PostTeamsMessage
+  - SendOutlookEmail
   - ReplyToTeamsMessage
   - GetTeamsMessages
   hooks:

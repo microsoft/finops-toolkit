@@ -15,7 +15,7 @@ spec:
     Covers MySQL Flexible Server regional access and zone-redundant HA capability.
     Use include_capabilities for detailed SQL MI hardware family, PostgreSQL, and MySQL capability rows.
     Results normalize locations, utilization percentages, at-risk flags, provider errors, and soft skips.
-    The tool uses Azure ARM REST with UAMI or DefaultAzureCredential authentication only.
+    The tool uses Azure ARM REST with DefaultAzureCredential and the agent system-managed identity by default.
     Inspired by https://github.com/naspinall-MS/az-quota-helper (MIT).
   functionCode: |-
     def main(**kwargs):
@@ -106,13 +106,8 @@ spec:
         result["services"] = [SERVICE_DISPLAY[key] for key in ALL_SERVICE_KEYS if key in selected_services]
 
         try:
-            client_id = kwargs.get("client_id")
-            if client_id:
-                from azure.identity import ManagedIdentityCredential
-                credential = ManagedIdentityCredential(client_id=client_id)
-            else:
-                from azure.identity import DefaultAzureCredential
-                credential = DefaultAzureCredential()
+            from azure.identity import DefaultAzureCredential
+            credential = DefaultAzureCredential()
             token = credential.get_token(ARM_SCOPE).token
             headers = {
                 "Authorization": f"Bearer {token}",
@@ -549,10 +544,6 @@ spec:
   authScopes:
     - ARM
   parameters:
-    - name: client_id
-      type: string
-      description: Optional UAMI client ID for ManagedIdentityCredential. If omitted, uses DefaultAzureCredential.
-      required: false
     - name: subscription_id
       type: string
       description: Azure subscription ID to query for database service quotas and access.

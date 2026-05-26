@@ -125,6 +125,16 @@ parse_kusto_cluster_name() {
   printf '%s\n' "${host%%.*}"
 }
 
+parse_kusto_database_name() {
+  local uri="$1"
+  local path
+  path="${uri#https://}"
+  path="${path#*/}"
+  path="${path%%\?*}"
+  path="${path%%#*}"
+  printf '%s\n' "${path%%/*}"
+}
+
 to_lower() {
   printf '%s\n' "$1" | tr '[:upper:]' '[:lower:]'
 }
@@ -313,6 +323,9 @@ done
 [[ -n "$AGENT_NAME" ]] || fail "Error: --name <name> is required" 2
 [[ -n "$LOCATION" ]] || fail "Error: --location <region> is required" 2
 validate_kusto_uri "$CLUSTER_URI"
+if [[ -n "$CLUSTER_URI" ]]; then
+  [[ -n "$(parse_kusto_database_name "$CLUSTER_URI")" ]] || fail "Error: could not parse Kusto database name from --cluster-uri" 2
+fi
 
 append_target_rg "$RESOURCE_GROUP"
 
@@ -465,11 +478,11 @@ if [[ "$STATE" != "Succeeded" ]]; then
 fi
 
 AGENT_ENDPOINT="$(deployment_output_value "$RESULT_FILE" "SRE_AGENT_ENDPOINT")"
-MANAGED_IDENTITY_ID="$(deployment_output_value "$RESULT_FILE" "MANAGED_IDENTITY_ID")"
+SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID="$(deployment_output_value "$RESULT_FILE" "SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID")"
 AGENT_PORTAL_URL="$(deployment_output_value "$RESULT_FILE" "AGENT_PORTAL_URL" "https://sre.azure.com")"
 
 [[ -n "$AGENT_ENDPOINT" ]] || fail "Deployment succeeded but did not return SRE_AGENT_ENDPOINT" 1
-[[ -n "$MANAGED_IDENTITY_ID" ]] || fail "Deployment succeeded but did not return MANAGED_IDENTITY_ID" 1
+[[ -n "$SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID" ]] || fail "Deployment succeeded but did not return SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID" 1
 
 echo ""
 echo -e "${YELLOW}[4/4] Configuring SRE Agent with srectl...${NC}"
@@ -477,7 +490,6 @@ POST_PROVISION_ARGS=(
   --endpoint "$AGENT_ENDPOINT"
   --recipe "$RECIPE_DIR"
   --build-dir "${BUILD_DIR}/post-provision"
-  --managed-identity-id "$MANAGED_IDENTITY_ID"
 )
 
 if [[ -n "$CLUSTER_URI" ]]; then

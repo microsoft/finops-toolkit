@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Analyzes consumed core hours by commitment discount type, including on-demand usage, for a specified reporting window. Use it to review reservation and savings plan utilization mix. Available parameters: startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     let base = Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##

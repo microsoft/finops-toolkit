@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Summarizes effective cost by Azure region for a specified reporting window. Use it to identify regional spend distribution and regional optimization opportunities. Available parameters: startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##

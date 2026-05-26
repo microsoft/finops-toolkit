@@ -7,9 +7,6 @@ param location string
 @description('SRE Agent name.')
 param agentName string
 
-@description('User-assigned managed identity resource ID.')
-param identityId string
-
 @description('Application Insights App ID.')
 param appInsightsAppId string
 
@@ -53,19 +50,16 @@ resource sreAgent 'Microsoft.App/agents@2026-01-01' = {
     'finops-toolkit': 'sre-agent'
   })
   identity: {
-    type: 'SystemAssigned, UserAssigned'
-    userAssignedIdentities: {
-      '${identityId}': {}
-    }
+    type: 'SystemAssigned'
   }
   properties: {
     knowledgeGraphConfiguration: {
       managedResources: managedResourceGroupIds
-      identity: identityId
+      identity: 'system'
     }
     actionConfiguration: {
       mode: actionMode
-      identity: identityId
+      identity: 'system'
       accessLevel: accessLevel
     }
     upgradeChannel: upgradeChannel
@@ -95,3 +89,5 @@ output agentName string = sreAgent.name
 output agentId string = sreAgent.id
 output agentEndpoint string = sreAgent.properties.agentEndpoint
 output agentPortalUrl string = 'https://sre.azure.com/#/agent/${subscription().subscriptionId}/${resourceGroup().name}/${sreAgent.name}'
+output agentPrincipalId string = sreAgent.identity.principalId
+output agentTenantId string = sreAgent.identity.tenantId

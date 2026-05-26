@@ -7,7 +7,7 @@ spec:
   connector: finops-hub-kusto
   toolMode: Auto
   description: 'Breaks down Azure OpenAI costs by application, team, and environment using resource tags. Use for AI chargeback, showback, and cost allocation. Parameters: startDate, endDate.'
-  database: hub
+  database: Hub
   query: "Costs()\n| where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##\n| where x_SkuMeterSubcategory has 'OpenAI'\n| extend parsedTags = parse_json(Tags)\n| extend Application\
     \ = tostring(parsedTags['application'])\n| extend CostCenter = tostring(parsedTags['CostCenter'])\n| extend Environment = tostring(parsedTags['environment'])\n| extend Team = tostring(parsedTags['team'])\n\
     | summarize\n    TokenCount = sum(ConsumedQuantity),\n    EffectiveCost = sum(EffectiveCost),\n    BilledCost = sum(BilledCost)\n    by Application, CostCenter, Team, Environment, ResourceName, x_SkuMeterSubcategory\n\

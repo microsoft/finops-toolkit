@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Returns the top costs across the financial hierarchy of billing profile, invoice section, team, product, application, and environment, with percent of total cost. Use it for allocation, showback, or business-dimension reporting. Available parameters: N, startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     let GrandTotal = toscalar(
         Costs()

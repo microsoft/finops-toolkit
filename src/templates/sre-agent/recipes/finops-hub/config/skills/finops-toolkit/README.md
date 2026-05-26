@@ -10,7 +10,7 @@ Triggered when you ask about: FinOps hubs, FinOps toolkit, KQL queries, Kusto, c
 
 - Azure CLI authenticated (`az login`)
 - Azure MCP Server (provided by the plugin)
-- Database Viewer access to a FinOps hubs ADX cluster
+- AllDatabasesViewer access to a FinOps hubs ADX cluster
 - Environment configured in `.ftk/environments.local.md` (use `/ftk-hubs-connect`)
 
 ## Core rules

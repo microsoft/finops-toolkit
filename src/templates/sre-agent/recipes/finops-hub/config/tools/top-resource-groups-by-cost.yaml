@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Returns top resource groups by effective cost for a specified reporting window. Use it to focus optimization and reporting on the highest-cost resource groups. Available parameters: N, startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##

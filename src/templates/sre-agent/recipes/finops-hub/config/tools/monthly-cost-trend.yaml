@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Returns billed and effective cost totals by month for a reporting window. Use it to review monthly cost trends, compare billed versus effective cost, and support budget analysis. Available parameters: startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##

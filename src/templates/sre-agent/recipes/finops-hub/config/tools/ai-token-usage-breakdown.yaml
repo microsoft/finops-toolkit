@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: 'Returns Azure OpenAI token consumption broken down by model version and direction (input/output). Calculates unit cost per token. Use when analyzing AI workload costs, token economics, or
     model cost efficiency. Parameters: startDate, endDate.'
-  database: hub
+  database: Hub
   query: "Costs()\n| where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##\n| where x_SkuMeterSubcategory has 'OpenAI'\n| extend Model = x_SkuDescription\n| extend Direction = case(\n\
     \    Model contains 'Input', 'Input',\n    Model contains 'Output', 'Output',\n    'Other')\n| summarize\n    TokenCount = sum(ConsumedQuantity),\n    EffectiveCost = sum(EffectiveCost),\n    BilledCost\
     \ = sum(BilledCost),\n    ListCost = sum(ListCost)\n    by Model, Direction, x_SkuDescription\n| extend UnitCostPerToken = iff(TokenCount == 0, 0.0, EffectiveCost / TokenCount)\n| extend CostPer1KTokens\

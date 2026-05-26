@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Analyzes Microsoft reservation recommendations from Recommendations(), including savings, break-even dates, normalized sizes, scope, and term details. Use it to evaluate reservation purchase recommendations and prioritize savings opportunities. Available parameters: N.
-  database: hub
+  database: Hub
   query: |-
     Recommendations()
     | where x_SourceProvider == 'Microsoft' and x_SourceType == 'ReservationRecommendations'

@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Returns top resource types by resource count and effective cost for a specified reporting window. Use it to identify costly resource categories for optimization. Available parameters: N, startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##

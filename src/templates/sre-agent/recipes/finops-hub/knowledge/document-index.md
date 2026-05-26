@@ -11,7 +11,7 @@ This document is the canonical index for the repository-provided knowledge base.
 | `ftk-output-style.md` | Shared FinOps Toolkit output style for evidence-backed financial and capacity-management reports. Uploaded from `src/templates/claude-plugin/output-styles/ftk-output-style.md`. |
 | `known-issues-and-workarounds.md` | Operational issues, failure modes, and workarounds learned from scheduled task UAT. |
 | `onboarding-recommendations.md` | First-run and connector setup guidance for teams deploying the FinOps toolkit SRE Agent. |
-| `teams-notification-guide.md` | Correct Teams notification tool usage and delivery rules for scheduled reports. |
+| `teams-notification-guide.md` | Correct Teams and Outlook notification tool usage and delivery rules for scheduled reports. |
 
 ## Listing contract
 

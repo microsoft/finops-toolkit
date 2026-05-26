@@ -1,6 +1,6 @@
 # Chart artifact verification
 
-Scheduled tasks that generate charts must validate chart artifacts with non-visual checks before embedding them in Teams messages or attaching them to reports. Visual inspection is not a reliable verification gate in autonomous runs because image-viewing tools might be unavailable.
+Scheduled tasks that generate charts must validate chart artifacts with non-visual checks before embedding them in Teams messages or Outlook reports. Visual inspection is not a reliable verification gate in autonomous runs because image-viewing tools might be unavailable.
 
 ## Required checks
 

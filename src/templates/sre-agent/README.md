@@ -13,7 +13,7 @@ The deployment flow is copied from the Microsoft SRE Agent starter lab and updat
 | Component | Count | Description |
 |-----------|-------|-------------|
 | SRE Agent | 1 | `Microsoft.App/agents` resource |
-| Managed identity | 1 | User-assigned identity plus system-assigned identity |
+| Managed identity | 1 | Agent system-assigned managed identity |
 | Log Analytics | 1 | Workspace for agent telemetry |
 | Application Insights | 1 | Linked to Log Analytics |
 | Subagents | 5 | FinOps, CFO, capacity, database-query, and hubs specialists |
@@ -146,7 +146,7 @@ bash bin/deploy.sh \
 
 When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane, enable built-in Log Query and Visualization tools, and apply the remaining recipe assets with `srectl`.
 
-Supporting resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Rerunning the script with the same values updates the same Log Analytics workspace, Application Insights component, user-assigned managed identity, RBAC assignments, and SRE Agent. Post-provisioning deletes existing scheduled tasks with the recipe's task names before applying manifests so redeployments don't create duplicate automations. `--deploy-name` only changes the ARM deployment record and local build directory.
+Supporting resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Rerunning the script with the same values updates the same Log Analytics workspace, Application Insights component, system-managed identity RBAC assignments, and SRE Agent. Post-provisioning deletes existing scheduled tasks with the recipe's task names before applying manifests so redeployments don't create duplicate automations. `--deploy-name` only changes the ARM deployment record and local build directory.
 
 The deployment intentionally keeps the SRE Agent onboarding wizard in the portal. The wizard uses the agent managed identity first to discover managed Azure resources and may show a **Grant permissions** OBO prompt if the identity cannot read a scope yet. Do not bypass that flow. Instead, confirm the agent has the expected managed-resource scopes and RBAC:
 
@@ -155,7 +155,7 @@ The deployment intentionally keeps the SRE Agent onboarding wizard in the portal
 - When `--cluster-uri` resolves to a same-subscription FinOps Hub Kusto cluster, the cluster's resource group is also added to managed resources and receives target-scope RBAC.
 - With the default `High` recipe, target-scope RBAC is `Reader`, `Monitoring Reader`, `Log Analytics Reader`, and `Contributor`. `Low` omits `Contributor`.
 
-If `--cluster-uri` points to an Azure Data Explorer cluster with `publicNetworkAccess` set to `Disabled`, the script still deploys all resources, assigns the agent identity `AllDatabasesViewer`, and creates the `finops-hub-kusto` connector. It also prints a warning with the SRE Agent known-limitations URL because private endpoint ADX blocks direct KQL queries from the hosted agent. The customer can decide whether to enable public query access for the connector after reviewing <https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations>.
+If `--cluster-uri` points to an Azure Data Explorer cluster with `publicNetworkAccess` set to `Disabled`, the script still deploys all resources, assigns the agent identity `AllDatabasesViewer` on the cluster, and creates the `finops-hub-kusto` connector. It also prints a warning with the SRE Agent known-limitations URL because private endpoint ADX blocks direct KQL queries from the hosted agent. The customer can decide whether to enable public query access for the connector after reviewing <https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations>.
 
 ## Recipe identity policy
 

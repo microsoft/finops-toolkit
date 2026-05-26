@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Calculates month-over-month percent change for billed and effective cost. Use it to spot monthly cost spikes, drops, and volatility over a configurable period. Available parameters: startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##

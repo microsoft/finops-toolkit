@@ -19,7 +19,6 @@ Required:
 
 Optional:
   --kusto-connector-uri <uri>   Database-qualified Kusto connector URI
-  --managed-identity-id <id>    Agent user-assigned managed identity resource ID
   -h, --help                    Show this help
 EOF
   exit "${1:-0}"
@@ -42,7 +41,6 @@ ENDPOINT=""
 RECIPE_DIR=""
 BUILD_DIR=""
 KUSTO_CONNECTOR_URI=""
-MANAGED_IDENTITY_ID=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -64,11 +62,6 @@ while [[ $# -gt 0 ]]; do
     --kusto-connector-uri)
       require_value "--kusto-connector-uri" "${2:-}"
       KUSTO_CONNECTOR_URI="$2"
-      shift 2
-      ;;
-    --managed-identity-id)
-      require_value "--managed-identity-id" "${2:-}"
-      MANAGED_IDENTITY_ID="$2"
       shift 2
       ;;
     -h|--help)
@@ -105,14 +98,13 @@ apply_kusto_connector() {
   jq -n \
     --arg name "$connector_name" \
     --arg data_source "$KUSTO_CONNECTOR_URI" \
-    --arg identity "$MANAGED_IDENTITY_ID" \
     '{
       name: $name,
       type: "AgentConnector",
       properties: {
         dataConnectorType: "Kusto",
         dataSource: $data_source,
-        identity: $identity
+        identity: "system"
       }
     }' > "$body_file"
 
@@ -220,7 +212,6 @@ echo "  srectl initialized"
 echo ""
 
 if [[ -n "$KUSTO_CONNECTOR_URI" ]]; then
-  [[ -n "$MANAGED_IDENTITY_ID" ]] || fail "Error: --managed-identity-id is required when --kusto-connector-uri is provided" 2
   command -v az >/dev/null || fail "az is required when --kusto-connector-uri is provided" 1
   command -v curl >/dev/null || fail "curl is required when --kusto-connector-uri is provided" 1
   command -v jq >/dev/null || fail "jq is required when --kusto-connector-uri is provided" 1

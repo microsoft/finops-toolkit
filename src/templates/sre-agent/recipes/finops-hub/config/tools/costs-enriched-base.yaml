@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Returns an enriched, analytics-ready row-level cost and usage sample with toolkit metadata, savings calculations, commitment discount fields, resource helpers, and zero-cost reason enrichment. Use it only for narrow detail drill-down after an aggregate tool has identified the scope to inspect. Do not use it for full-month, fiscal-period, scheduled report, dashboard export, or tag-coverage rollup requests; use aggregation tools such as monthly-cost-trend, cost-by-financial-hierarchy, top-services-by-cost, top-resource-groups-by-cost, or top-resource-types-by-cost instead. The query rejects windows greater than one day to avoid Azure Data Explorer result truncation limits. Available parameters: startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     let _startDate = todatetime(##startDate##);
     let _endDate = todatetime(##endDate##);

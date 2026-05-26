@@ -16,7 +16,7 @@ spec:
 
     - Use attached FinOps Hub Kusto query tooling for live execution when it is available; otherwise provide the exact KQL and required execution parameters.
 
-    - Never use RunAzCliReadCommands, Azure CLI, or `az rest` to call Azure Data Explorer `/v1/rest/query`, `/v2/rest/query`, or `/v1/rest/mgmt` endpoints. Use the attached Kusto tools for catalog analytics and `data-freshness-check` for Hub freshness checks. If a direct Kusto fallback is required, use execute_python with ManagedIdentityCredential and requests against the Kusto REST API, and never print or store bearer tokens.
+    - Never use RunAzCliReadCommands, Azure CLI, or `az rest` to call Azure Data Explorer `/v1/rest/query`, `/v2/rest/query`, or `/v1/rest/mgmt` endpoints. Use the attached Kusto tools for catalog analytics and `data-freshness-check` for Hub freshness checks. If a direct Kusto fallback is required, use execute_python with DefaultAzureCredential and requests against the Kusto REST API, and never print or store bearer tokens.
 
 
     Required workflow:
@@ -74,6 +74,10 @@ spec:
   - RunAzCliReadCommands
   - GetAzCliHelp
   - execute_python
+  - ExecutePythonCode
+  - PlotBarChart
+  - PlotPieChart
+  - PlotAreaChartWithCorrelation
   - data-freshness-check
   - ai-cost-by-application
   - ai-daily-trend

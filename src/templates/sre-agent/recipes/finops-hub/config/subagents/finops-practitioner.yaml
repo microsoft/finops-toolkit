@@ -77,6 +77,10 @@ spec:
   - CheckAzureResource
   - RunAzCliReadCommands
   - execute_python
+  - ExecutePythonCode
+  - PlotBarChart
+  - PlotPieChart
+  - PlotAreaChartWithCorrelation
   - benefit-recommendations
   - resource-graph-query
   - deploy-anomaly-alert
@@ -85,6 +89,7 @@ spec:
   - deploy-bulk-budgets
   - suppress-advisor-recommendations
   - PostTeamsMessage
+  - SendOutlookEmail
   - ReplyToTeamsMessage
   - GetTeamsMessages
   hooks:

@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Benchmarks services by list cost, contracted cost, effective cost, negotiated savings, commitment savings, and total savings. Use it to compare pricing outcomes and identify service-level savings opportunities. Available parameters: startDate, endDate.
-  database: hub
+  database: Hub
   query: |-
     Costs()
     | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##

@@ -8,7 +8,7 @@ spec:
   toolMode: Auto
   description: |-
     Detects cost spikes and drops with time-series anomaly detection over a configurable history window. Use it when investigating unexpected spend changes or visualizing anomalous daily cost behavior. Available parameters: numberOfMonths, interval.
-  database: hub
+  database: Hub
   query: |-
     let start = startofmonth(ago(##numberOfMonths## * 30d));
     let end = now();

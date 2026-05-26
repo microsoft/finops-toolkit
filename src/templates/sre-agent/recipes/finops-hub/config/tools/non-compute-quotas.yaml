@@ -38,13 +38,8 @@ spec:
             return result
 
         try:
-            client_id = kwargs.get("client_id")
-            if client_id:
-                from azure.identity import ManagedIdentityCredential
-                credential = ManagedIdentityCredential(client_id=client_id)
-            else:
-                from azure.identity import DefaultAzureCredential
-                credential = DefaultAzureCredential()
+            from azure.identity import DefaultAzureCredential
+            credential = DefaultAzureCredential()
             token = credential.get_token("https://management.azure.com/.default").token
             headers = {
                 "Authorization": f"Bearer {token}",
@@ -500,11 +495,6 @@ spec:
   authScopes:
     - ARM
   parameters:
-    - name: client_id
-      type: string
-      description: |-
-        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
-      required: false
     - name: subscription_id
       type: string
       description: Azure subscription ID to query for non-compute service quota utilization.

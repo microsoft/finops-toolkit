@@ -22,25 +22,25 @@ Use the SRE Agent memory system for operational learnings:
 - **`#remember`** — save discrete operational facts (e.g., "quota API requires az vm list-usage fallback")
 - **`memories/synthesizedKnowledge/`** — the agent's persistent knowledge files, updated automatically after each session
 - **Session insights** — automatically captured 30 minutes after a thread goes quiet
-- **Teams channel** — the delivery destination for all financial reports and status results
+- **Teams channel and Outlook mailbox** — the delivery destinations for financial reports and status results
 
 The split is:
-- **Financial data (costs, savings, forecasts, grades)** → Teams channel only. Never persist financial figures.
+- **Financial data (costs, savings, forecasts, grades)** → configured Teams and Outlook delivery only. Never persist financial figures.
 - **Operational learnings (tool errors, workarounds, patterns)** → `#remember` or synthesized knowledge. Never include dollar amounts.
 
-## 1. Teams tool discovery and availability
+## 1. Teams and Outlook tool discovery and availability
 
-**Symptom:** Subagents report "PostTeamsChannelMessage tool was not available," "PostTeamsMessage tool was not available," or "could not locate the Teams posting function."
+**Symptom:** Subagents report "PostTeamsChannelMessage tool was not available," "PostTeamsMessage tool was not available," "SendOutlookEmail tool was not available," or "could not locate the notification function."
 
-**Cause:** Teams delivery depends on the Teams notification connector, its configured channel, and the Teams tools exposed in the current run. Scheduled-task entrypoint agents must list `PostTeamsMessage`, `ReplyToTeamsMessage`, and `GetTeamsMessages`. A run can still start without usable Teams delivery if no connector/channel is configured, or if configured connector delivery fails.
+**Cause:** Connector delivery depends on the Teams and Outlook connectors, their configuration, and the tools exposed in the current run. Scheduled-task entrypoint agents must list `PostTeamsMessage`, `SendOutlookEmail`, `ReplyToTeamsMessage`, and `GetTeamsMessages`. A run can still start without usable delivery if no connector is configured, or if configured connector delivery fails.
 
 **Workaround:**
-- Check available tools exactly once per run. Treat Teams delivery as available only when `PostTeamsMessage` is present.
-- Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to probe availability.
-- If no Teams connector/channel is configured and `PostTeamsMessage` is unavailable, finish the report in the run output, note that Teams delivery was unavailable, and do not retry or use alternate delivery paths.
-- If a Teams connector/channel is configured, delivery through that configured Teams channel is mandatory. Use `PostTeamsMessage` for one final delivery attempt after the report is complete. If configured Teams delivery fails because the connector/tool is missing, unauthorized, unavailable, or otherwise unsuccessful, mark the task/run failed. Do not degrade to local output, do not mark the report as delivered, and do not retry.
+- Check available tools exactly once per run. Treat Teams delivery as available only when `PostTeamsMessage` is present. Treat Outlook delivery as available only when `SendOutlookEmail` is present.
+- Do not call `PostTeamsMessage`, `SendOutlookEmail`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to probe availability.
+- If no connector is configured and the delivery tools are unavailable, finish the report in the run output, note that connector delivery was unavailable, and do not retry or use alternate delivery paths.
+- If Teams or Outlook is configured, delivery through that configured connector is mandatory. Use `PostTeamsMessage` and/or `SendOutlookEmail` for one final delivery attempt after the report is complete. If configured delivery fails because the connector/tool is missing, unauthorized, unavailable, or otherwise unsuccessful, mark the task/run failed. Do not degrade to local output, do not mark the report as delivered, and do not retry.
 
-**Status:** Prompt-level and tool-assignment guardrail. Production delivery remains the built-in `PostTeamsMessage` path when the connector/channel is configured.
+**Status:** Prompt-level and tool-assignment guardrail. Production delivery remains the built-in `PostTeamsMessage` and `SendOutlookEmail` paths when the connectors are configured.
 
 ## 2. Superseded data freshness conclusions
 
@@ -162,7 +162,7 @@ The split is:
 **Workaround:**
 - Use the configured FinOps Hub Kusto tools through the `finops-hub-kusto` connector for catalog queries.
 - Use `data-freshness-check` for Hub data staleness and function coverage checks.
-- If a direct fallback is required, use `execute_python` with `azure.identity.ManagedIdentityCredential` and `requests`. Request the `https://api.kusto.windows.net/.default` scope and POST JSON to `https://<cluster-host>/v2/rest/query` with `db` and `csl` fields.
+- If a direct fallback is required, use `execute_python` with `azure.identity.DefaultAzureCredential` and `requests`. Request the `https://api.kusto.windows.net/.default` scope and POST JSON to `https://<cluster-host>/v2/rest/query` with `db` and `csl` fields.
 - Never print, save, or echo bearer tokens. Do not use `az rest` for Kusto query or management endpoints.
 
 **Microsoft Learn references:**
