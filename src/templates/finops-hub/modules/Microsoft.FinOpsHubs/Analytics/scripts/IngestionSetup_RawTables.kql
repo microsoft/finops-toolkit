@@ -272,6 +272,58 @@
 .alter table AmortizedCosts_raw policy streamingingestion disable
 
 
+//===| BillingPeriods |=================================================================================================
+// Supported versions:
+// - FOCUS 1.4+ (no Cost Management export shipped yet)
+//======================================================================================================================
+
+// BillingPeriods_raw table -- Create the table if it doesn't exist
+.create-merge table BillingPeriods_raw ( ignore: string )
+
+// BillingPeriods_raw table -- Remove all columns to allow changing column types
+.alter table BillingPeriods_raw ( ignore: string )
+
+// BillingPeriods_raw table -- Redefine all columns
+.alter table BillingPeriods_raw (
+    BillingPeriodCreated:     datetime,  // FOCUS 1.4+
+    BillingPeriodEnd:         datetime,  // FOCUS 1.4+
+    BillingPeriodLastUpdated: datetime,  // FOCUS 1.4+
+    BillingPeriodStart:       datetime,  // FOCUS 1.4+
+    BillingPeriodStatus:      string,    // FOCUS 1.4+
+    InvoiceIssuerName:        string,    // FOCUS 1.4+
+    x_SourceName:             string,    // Hubs v1_4+
+    x_SourceProvider:         string,    // Hubs v1_4+
+    x_SourceType:             string,    // Hubs v1_4+
+    x_SourceVersion:          string     // Hubs v1_4+
+)
+
+// BillingPeriods_raw ingestion mapping
+.create-or-alter table BillingPeriods_raw ingestion parquet mapping "BillingPeriods_raw_mapping"
+```
+[
+    { "Column": "BillingPeriodCreated",     "Properties": { "Field": "BillingPeriodCreated" } },
+    { "Column": "BillingPeriodEnd",         "Properties": { "Field": "BillingPeriodEnd" } },
+    { "Column": "BillingPeriodLastUpdated", "Properties": { "Field": "BillingPeriodLastUpdated" } },
+    { "Column": "BillingPeriodStart",       "Properties": { "Field": "BillingPeriodStart" } },
+    { "Column": "BillingPeriodStatus",      "Properties": { "Field": "BillingPeriodStatus" } },
+    { "Column": "InvoiceIssuerName",        "Properties": { "Field": "InvoiceIssuerName" } },
+    { "Column": "x_SourceName",             "Properties": { "Field": "x_SourceName" } },
+    { "Column": "x_SourceProvider",         "Properties": { "Field": "x_SourceProvider" } },
+    { "Column": "x_SourceType",             "Properties": { "Field": "x_SourceType" } },
+    { "Column": "x_SourceVersion",          "Properties": { "Field": "x_SourceVersion" } }
+]
+```
+
+// BillingPeriods_raw retention policy (clear historical data)
+.alter-merge table BillingPeriods_raw policy retention softdelete = 0d recoverability = disabled
+
+// BillingPeriods_raw retention policy (set the user-defined retention period)
+.alter-merge table BillingPeriods_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
+
+// Disable BillingPeriods_raw streaming ingestion (required for Fabric)
+.alter table BillingPeriods_raw policy streamingingestion disable
+
+
 //===| CommitmentDiscountUsage |========================================================================================
 // Supported versions:
 // - MS EA reservation details: 2023-03-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-ea
@@ -335,19 +387,19 @@
 .alter table CommitmentDiscountUsage_raw policy streamingingestion disable
 
 
-//===| Contract commitment |============================================================================================
+//===| Contract commitments |===========================================================================================
 // Supported versions:
-// - FOCUS 1.3+ (no Cost Management export shipped yet)
+// - FOCUS 1.4+ (no Cost Management export shipped yet)
 //======================================================================================================================
 
-// ContractCommitment_raw table -- Create the table if it doesn't exist
-.create-merge table ContractCommitment_raw ( ignore: string )
+// ContractCommitments_raw table -- Create the table if it doesn't exist
+.create-merge table ContractCommitments_raw ( ignore: string )
 
-// ContractCommitment_raw table -- Remove all columns to allow changing column types
-.alter table ContractCommitment_raw ( ignore: string )
+// ContractCommitments_raw table -- Remove all columns to allow changing column types
+.alter table ContractCommitments_raw ( ignore: string )
 
-// ContractCommitment_raw table -- Redefine all columns
-.alter table ContractCommitment_raw (
+// ContractCommitments_raw table -- Redefine all columns
+.alter table ContractCommitments_raw (
     BenefitCategory:                       string,    // FOCUS 1.4+
     BillingCurrency:                       string,    // FOCUS 1.3+
     ContractCommitmentApplicability:       string,    // FOCUS 1.4+ (JSON)
@@ -376,14 +428,14 @@
     PaymentUpfrontPercentage:              real,      // FOCUS 1.4+
     PricingCurrency:                       string,    // FOCUS 1.3+
     PricingCurrencyContractCommitmentCost: real,      // FOCUS 1.4+
-    x_SourceName:                          string,    // Hubs v1_3+
-    x_SourceProvider:                      string,    // Hubs v1_3+
-    x_SourceType:                          string,    // Hubs v1_3+
-    x_SourceVersion:                       string     // Hubs v1_3+
+    x_SourceName:                          string,    // Hubs v1_4+
+    x_SourceProvider:                      string,    // Hubs v1_4+
+    x_SourceType:                          string,    // Hubs v1_4+
+    x_SourceVersion:                       string     // Hubs v1_4+
 )
 
-// ContractCommitment_raw ingestion mapping
-.create-or-alter table ContractCommitment_raw ingestion parquet mapping "ContractCommitment_raw_mapping"
+// ContractCommitments_raw ingestion mapping
+.create-or-alter table ContractCommitments_raw ingestion parquet mapping "ContractCommitments_raw_mapping"
 ```
 [
     { "Column": "BenefitCategory",                       "Properties": { "Field": "BenefitCategory" } },
@@ -421,14 +473,14 @@
 ]
 ```
 
-// ContractCommitment_raw retention policy (clear historical data)
-.alter-merge table ContractCommitment_raw policy retention softdelete = 0d recoverability = disabled
+// ContractCommitments_raw retention policy (clear historical data)
+.alter-merge table ContractCommitments_raw policy retention softdelete = 0d recoverability = disabled
 
-// ContractCommitment_raw retention policy (set the user-defined retention period)
-.alter-merge table ContractCommitment_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
+// ContractCommitments_raw retention policy (set the user-defined retention period)
+.alter-merge table ContractCommitments_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
-// Disable ContractCommitment_raw streaming ingestion (required for Fabric)
-.alter table ContractCommitment_raw policy streamingingestion disable
+// Disable ContractCommitments_raw streaming ingestion (required for Fabric)
+.alter table ContractCommitments_raw policy streamingingestion disable
 
 
 //===| Costs |==========================================================================================================
@@ -483,14 +535,28 @@
     CommitmentDiscountQuantity: real,      // FOCUS 1.1+
     CommitmentDiscountStatus:   string,    // FOCUS 1.0+
     CommitmentDiscountType:     string,    // FOCUS 1.0-preview+
-    CommitmentDiscountUnit:     string,    // FOCUS 1.1+
-    ConsumedQuantity:           real,      // FOCUS 1.0+
-    ConsumedUnit:               string,    // FOCUS 1.0+
-    ContractApplied:            string,    // FOCUS 1.3+ (JSON)
+    CommitmentDiscountUnit:                     string,    // FOCUS 1.1+
+    CommitmentProgramEligibilityDetails:        string,    // FOCUS 1.4+ (JSON)
+    ConsumedQuantity:                           real,      // FOCUS 1.0+
+    ConsumedUnit:                               string,    // FOCUS 1.0+
+    ContractApplied:                            string,    // FOCUS 1.3+ (JSON)
+    ContractCommitmentBenefitCategory:          string,    // FOCUS 1.4+
+    ContractCommitmentCreated:                  datetime,  // FOCUS 1.4+
+    ContractCommitmentDiscountPercentage:       real,      // FOCUS 1.4+
+    ContractCommitmentDurationType:             string,    // FOCUS 1.4+
+    ContractCommitmentFulfillmentInterval:      string,    // FOCUS 1.4+
+    ContractCommitmentLastUpdated:              datetime,  // FOCUS 1.4+
+    ContractCommitmentLifecycleStatus:          string,    // FOCUS 1.4+
+    ContractCommitmentModel:                    string,    // FOCUS 1.4+
+    ContractCommitmentOfferCategory:            string,    // FOCUS 1.4+
+    ContractCommitmentPaymentInterval:          string,    // FOCUS 1.4+
+    ContractCommitmentPaymentModel:             string,    // FOCUS 1.4+
+    ContractCommitmentPaymentUpfrontPercentage: real,      // FOCUS 1.4+
     ContractedCost:             real,      // FOCUS 1.0+
     ContractedUnitPrice:        real,      // FOCUS 1.0+
     EffectiveCost:              real,      // FOCUS 1.0-preview+
     HostProviderName:           string,    // FOCUS 1.3+
+    InvoiceDetailId:            string,    // FOCUS 1.4+
     InvoiceId:                  string,    // FOCUS 1.2+
     InvoiceIssuerName:          string,    // FOCUS 0.5+
     ListCost:                   real,      // FOCUS 1.0-preview+
@@ -499,9 +565,9 @@
     PricingCurrency:            string,    // FOCUS 1.2+
     PricingQuantity:            real,      // FOCUS 1.0-preview+
     PricingUnit:                string,    // FOCUS 1.0-preview+
-    ProviderName:               string,    // FOCUS 0.5+
-    PublisherName:              string,    // FOCUS 0.5+
-    Region:                     string,    // FOCUS 0.5-1.0-preview (deprecated)
+    ProviderName:               string,    // FOCUS 0.5-1.3 (removed in 1.4; kept for back compat)
+    PublisherName:              string,    // FOCUS 0.5-1.3 (removed in 1.4; kept for back compat)
+    Region:                     string,    // FOCUS 0.5-1.0-preview (removed; kept for back compat)
     RegionId:                   string,    // FOCUS 1.0+
     RegionName:                 string,    // FOCUS 1.0+
     ResourceId:                 string,    // FOCUS 0.5+
@@ -768,6 +834,90 @@
 
 // Disable Costs_raw streaming ingestion (required for Fabric)
 .alter table Costs_raw policy streamingingestion disable
+
+
+//===| InvoiceDetails |=================================================================================================
+// Supported versions:
+// - FOCUS 1.4+ (no Cost Management export shipped yet)
+//======================================================================================================================
+
+// InvoiceDetails_raw table -- Create the table if it doesn't exist
+.create-merge table InvoiceDetails_raw ( ignore: string )
+
+// InvoiceDetails_raw table -- Remove all columns to allow changing column types
+.alter table InvoiceDetails_raw ( ignore: string )
+
+// InvoiceDetails_raw table -- Redefine all columns
+.alter table InvoiceDetails_raw (
+    BilledCost:                     real,      // FOCUS 1.4+
+    BillingAccountId:               string,    // FOCUS 1.4+
+    BillingCurrency:                string,    // FOCUS 1.4+
+    BillingPeriodEnd:               datetime,  // FOCUS 1.4+
+    BillingPeriodStart:             datetime,  // FOCUS 1.4+
+    ChargeCategory:                 string,    // FOCUS 1.4+
+    InvoiceDetailCreated:           datetime,  // FOCUS 1.4+
+    InvoiceDetailDescription:       string,    // FOCUS 1.4+
+    InvoiceDetailGrain:             string,    // FOCUS 1.4+
+    InvoiceDetailId:                string,    // FOCUS 1.4+
+    InvoiceDetailLastUpdated:       datetime,  // FOCUS 1.4+
+    InvoiceId:                      string,    // FOCUS 1.4+
+    InvoiceIssueDate:               datetime,  // FOCUS 1.4+
+    InvoiceIssueStatus:             string,    // FOCUS 1.4+
+    InvoiceIssuerName:              string,    // FOCUS 1.4+
+    PaymentCurrency:                string,    // FOCUS 1.4+
+    PaymentCurrencyBilledCost:      real,      // FOCUS 1.4+
+    PaymentCurrencyInvoiceDetailId: string,    // FOCUS 1.4+
+    PaymentDueDate:                 datetime,  // FOCUS 1.4+
+    PaymentTerms:                   string,    // FOCUS 1.4+
+    PurchaseOrderNumber:            string,    // FOCUS 1.4+
+    ReferenceInvoiceId:             string,    // FOCUS 1.4+
+    x_SourceName:                   string,    // Hubs v1_4+
+    x_SourceProvider:               string,    // Hubs v1_4+
+    x_SourceType:                   string,    // Hubs v1_4+
+    x_SourceVersion:                string     // Hubs v1_4+
+)
+
+// InvoiceDetails_raw ingestion mapping
+.create-or-alter table InvoiceDetails_raw ingestion parquet mapping "InvoiceDetails_raw_mapping"
+```
+[
+    { "Column": "BilledCost",                     "Properties": { "Field": "BilledCost" } },
+    { "Column": "BillingAccountId",               "Properties": { "Field": "BillingAccountId" } },
+    { "Column": "BillingCurrency",                "Properties": { "Field": "BillingCurrency" } },
+    { "Column": "BillingPeriodEnd",               "Properties": { "Field": "BillingPeriodEnd" } },
+    { "Column": "BillingPeriodStart",             "Properties": { "Field": "BillingPeriodStart" } },
+    { "Column": "ChargeCategory",                 "Properties": { "Field": "ChargeCategory" } },
+    { "Column": "InvoiceDetailCreated",           "Properties": { "Field": "InvoiceDetailCreated" } },
+    { "Column": "InvoiceDetailDescription",       "Properties": { "Field": "InvoiceDetailDescription" } },
+    { "Column": "InvoiceDetailGrain",             "Properties": { "Field": "InvoiceDetailGrain" } },
+    { "Column": "InvoiceDetailId",                "Properties": { "Field": "InvoiceDetailId" } },
+    { "Column": "InvoiceDetailLastUpdated",       "Properties": { "Field": "InvoiceDetailLastUpdated" } },
+    { "Column": "InvoiceId",                      "Properties": { "Field": "InvoiceId" } },
+    { "Column": "InvoiceIssueDate",               "Properties": { "Field": "InvoiceIssueDate" } },
+    { "Column": "InvoiceIssueStatus",             "Properties": { "Field": "InvoiceIssueStatus" } },
+    { "Column": "InvoiceIssuerName",              "Properties": { "Field": "InvoiceIssuerName" } },
+    { "Column": "PaymentCurrency",                "Properties": { "Field": "PaymentCurrency" } },
+    { "Column": "PaymentCurrencyBilledCost",      "Properties": { "Field": "PaymentCurrencyBilledCost" } },
+    { "Column": "PaymentCurrencyInvoiceDetailId", "Properties": { "Field": "PaymentCurrencyInvoiceDetailId" } },
+    { "Column": "PaymentDueDate",                 "Properties": { "Field": "PaymentDueDate" } },
+    { "Column": "PaymentTerms",                   "Properties": { "Field": "PaymentTerms" } },
+    { "Column": "PurchaseOrderNumber",            "Properties": { "Field": "PurchaseOrderNumber" } },
+    { "Column": "ReferenceInvoiceId",             "Properties": { "Field": "ReferenceInvoiceId" } },
+    { "Column": "x_SourceName",                   "Properties": { "Field": "x_SourceName" } },
+    { "Column": "x_SourceProvider",               "Properties": { "Field": "x_SourceProvider" } },
+    { "Column": "x_SourceType",                   "Properties": { "Field": "x_SourceType" } },
+    { "Column": "x_SourceVersion",                "Properties": { "Field": "x_SourceVersion" } }
+]
+```
+
+// InvoiceDetails_raw retention policy (clear historical data)
+.alter-merge table InvoiceDetails_raw policy retention softdelete = 0d recoverability = disabled
+
+// InvoiceDetails_raw retention policy (set the user-defined retention period)
+.alter-merge table InvoiceDetails_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
+
+// Disable InvoiceDetails_raw streaming ingestion (required for Fabric)
+.alter table InvoiceDetails_raw policy streamingingestion disable
 
 
 //===| Prices |=========================================================================================================
