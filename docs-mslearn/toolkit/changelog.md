@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 05/14/2026
+ms.date: 05/19/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -25,29 +25,39 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### Claude Code plugin v15.0.0
+-->
+
+<br><a name="latest"></a>
+
+## v15
+
+_Released June 2026_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v15
+
+- **Fixed**
+  - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` in the [data dictionary](help/data-dictionary.md) to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
+
+### Claude Code plugin v15
 
 - **Added**
   - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management ([#2043](https://github.com/microsoft/finops-toolkit/pull/2043)).
   - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
   - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
 
-### Bicep Registry module pending updates
-
-- Cost Management export modules for subscriptions and resource groups.
-
-### [Configure scopes](hubs/configure-scopes.md) updates
+### [FinOps hubs](hubs/finops-hubs-overview.md) v15
 
 - **Changed**
   - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
 
-### [Data dictionary](help/data-dictionary.md) updates
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v15)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v14...v15)
+<!-- prettier-ignore-end -->
 
-- **Fixed**
-  - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
--->
-
-<br><a name="latest"></a>
+<br>
 
 ## v14
 
