@@ -50,10 +50,12 @@ All KQL queries are located in `references/queries/`:
 
 **Database Rules:**
 - Always use "Hub" database, NEVER "Ingestion"
-- Function-based access: `Costs()`, `Prices()`, `CommitmentDiscountUsage()`, `ContractCommitment()`, `Recommendations()`, `Transactions()`
+- Function-based access: `Costs()`, `Prices()`, `CommitmentDiscountUsage()`, `ContractCommitments()`, `BillingPeriods()`, `InvoiceDetails()`, `Recommendations()`, `Transactions()`
 - The unversioned functions (`Costs()`, etc.) return the latest GA FOCUS schema (v1_4). Use versioned functions (`Costs_v1_0()`, `Costs_v1_2()`, `Costs_v1_4()`) to pin to a specific schema.
-- FOCUS 1.4 added: `AllocatedMethodId`, `AllocatedMethodDetails`, `AllocatedResourceId`, `AllocatedResourceName`, `AllocatedTags` (data-generator split cost allocation), `ContractApplied` (per-row contract commitment application), `ServiceProviderName` and `HostProviderName` (replacing deprecated `ProviderName` / `PublisherName`, which are removed in 1.4). Also added the `ContractCommitment` supplemental dataset.
-- The `ContractCommitment()` function (FOCUS 1.4+) returns provider-confirmed contract commitment metadata — the dataset feeding `ContractApplied` JSON arrays on each cost row.
+- FOCUS 1.4 added: `AllocatedMethodId`, `AllocatedMethodDetails`, `AllocatedResourceId`, `AllocatedResourceName`, `AllocatedTags` (data-generator split cost allocation), `ContractApplied` (per-row contract commitment application), `ServiceProviderName` and `HostProviderName` (replacing removed `ProviderName` / `PublisherName`), `CommitmentProgramEligibilityDetails`, `InvoiceDetailId`, and 12 `ContractCommitment*` per-row columns. Also added three supplemental datasets: `ContractCommitments`, `BillingPeriods`, and `InvoiceDetails`.
+- The `ContractCommitments()` function (FOCUS 1.4+) returns provider-confirmed contract commitment metadata — the dataset feeding `ContractApplied` JSON arrays on each cost row.
+- The `BillingPeriods()` function (FOCUS 1.4+) returns billing period metadata (start/end/status) for use with `InvoiceDetailId` joins.
+- The `InvoiceDetails()` function (FOCUS 1.4+) returns invoice line-item metadata associated with `InvoiceId` on the cost rows.
 
 ---
 
