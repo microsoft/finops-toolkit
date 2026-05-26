@@ -17,9 +17,9 @@ This catalog is the controlling reference for aligning the `recipes/finops-hub/`
 | Subagents | 5 | `config/subagents/*.yaml` |
 | Skills | 3 | `config/skills/*/` |
 | Tools | 34 | `config/tools/*.yaml` |
-| Built-in tool overrides | 9 | `config/built-in-tools.json` |
+| Tool overrides | 9 | `config/built-in-tools.json` |
 | Scheduled tasks | 19 | `automations/scheduled-tasks/*.yaml` |
-| Connector | 1 | `connectors.json` |
+| Connectors | 1 | `connectors.json` |
 | Knowledge docs | 6 | Five recipe knowledge files plus `../claude-plugin/output-styles/ftk-output-style.md` |
 
 Tool mix:
@@ -48,6 +48,8 @@ Primary references:
 - Azure capacity governance for ISVs: <https://microsoft.github.io/azcapman/>
 
 ## Agent operating model
+
+All subagents include `SearchMemory` so each agent can read uploaded Knowledge Sources, including `ftk-output-style.md`, known issues, and prior operational notes. Specialist ownership still controls action scope: memory access is shared, but Kusto, capacity, hubs, and finance responsibilities remain separated.
 
 | Subagent | Role in the operating model | Direct tool policy | FinOps / capacity alignment |
 |----------|-----------------------------|--------------------|----------------------------|
@@ -104,7 +106,7 @@ All Kusto tools are owned by `ftk-database-query`. Other agents request Kusto ev
 
 ### Built-in tools
 
-The recipe enables the SRE Agent built-in Log Query and Visualization categories through `config/built-in-tools.json` during post-provisioning. These are platform tools, not custom recipe tools:
+The recipe enables SRE Agent platform tools through `config/built-in-tools.json` during post-provisioning. These are platform tools, not custom recipe tools. FinOps Hub database access remains owned by the custom Kusto tools assigned to `ftk-database-query`.
 
 | Category | Enabled tools |
 |----------|---------------|
@@ -155,7 +157,8 @@ The recipe enables the SRE Agent built-in Log Query and Visualization categories
 
 ## Operating notes
 
-- The Kusto connector is applied outside the main Bicep deployment by `bin/post-provision.sh` using the SRE Agent data plane. Scheduled tasks are applied by the same helper using `srectl`.
+- The Kusto connector is applied outside the main Bicep deployment by `bin/post-provision.sh` using the SRE Agent data plane. `finops-hub-kusto` supports the recipe's custom query tools. Scheduled tasks are applied by the same helper using `srectl`.
+- The portal Team onboarding wizard is part of the expected customer flow and must not be bypassed. The deployment supports it by adding the agent resource group, explicit target resource groups, and same-subscription FinOps Hub resource group to the agent managed-resource scope, then assigning the agent identity target-scope RBAC for Azure Resource Graph and Azure CLI discovery.
 - When the target Azure Data Explorer cluster denies public query access, `bin/deploy.sh` still deploys all resources and creates the connector, then warns that private endpoint ADX blocks direct KQL queries from the hosted SRE Agent and links to the SRE Agent known limitations.
 - The SRE Agent resource is deployed with `Microsoft.App/agents@2026-01-01`, `upgradeChannel: Stable`, `experimentalSettings.EnableSandboxGroup`, and `experimentalSettings.EnableWorkspaceTools`.
 - `bin/post-provision.sh` uploads `ftk-output-style.md` from the Claude plugin output styles as a portal-visible Knowledge Source and verifies the expected KnowledgeFile sources are indexed. Every scheduled task explicitly applies that style for report and Teams-message output.

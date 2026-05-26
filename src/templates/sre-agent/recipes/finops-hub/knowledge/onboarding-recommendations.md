@@ -11,6 +11,18 @@ Prioritize these setup steps in order:
 3. Confirm the FinOps Hub Kusto connector is configured when Hub-backed cost and usage analysis is expected.
 4. Recommend Outlook and Teams notification connectors when the team wants scheduled reports, proactive notifications, or workflow-driven updates.
 
+## Team onboarding wizard
+
+Do not bypass the SRE Agent **Team onboarding** wizard. It is the customer-facing first-run flow that discovers Azure resources, code, logs, incidents, and knowledge context.
+
+For Azure resource discovery, the wizard first uses the agent managed identity against the resource groups listed in `knowledgeGraphConfiguration.managedResources`. The FinOps Toolkit deployment should include:
+
+- The SRE Agent resource group.
+- Any explicit `--target-resource-group` values.
+- The FinOps Hub resource group when `--cluster-uri` resolves to a same-subscription Kusto cluster.
+
+If the wizard shows **Grant permissions** while running an Azure Resource Graph or Azure CLI discovery command, treat it as an OBO fallback prompt, not a replacement for managed identity setup. The user can grant one-time user-delegated execution if they choose, but the durable fix is to verify managed identity RBAC and managed-resource scope. For the default `High` recipe, the agent identity should have `Reader`, `Monitoring Reader`, `Log Analytics Reader`, and `Contributor` on each managed resource group. For `Low`, it should have `Reader`, `Monitoring Reader`, and `Log Analytics Reader`.
+
 ## Enable visualization tools
 
 The Visualization tool category (5 tools including chart generation and Grafana integration) is **not enabled by default** and cannot be set via Bicep or ARM. It must be enabled in the portal:

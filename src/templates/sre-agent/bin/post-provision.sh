@@ -96,16 +96,18 @@ get_sre_token() {
 
 apply_kusto_connector() {
   local connector_dir="$1"
-  local body_file="${connector_dir}/finops-hub-kusto.json"
-  local response_file="${connector_dir}/finops-hub-kusto.response.json"
+  local connector_name="$2"
+  local body_file="${connector_dir}/${connector_name}.json"
+  local response_file="${connector_dir}/${connector_name}.response.json"
   local token
   local http_code
 
   jq -n \
+    --arg name "$connector_name" \
     --arg data_source "$KUSTO_CONNECTOR_URI" \
     --arg identity "$MANAGED_IDENTITY_ID" \
     '{
-      name: "finops-hub-kusto",
+      name: $name,
       type: "AgentConnector",
       properties: {
         dataConnectorType: "Kusto",
@@ -119,7 +121,7 @@ apply_kusto_connector() {
     [[ -n "$token" ]] || fail "Error: failed to get Azure SRE Agent bearer token" 1
 
     if http_code="$(curl -sS -o "$response_file" -w "%{http_code}" \
-      -X PUT "${ENDPOINT}/api/v2/extendedAgent/connectors/finops-hub-kusto" \
+      -X PUT "${ENDPOINT}/api/v2/extendedAgent/connectors/${connector_name}" \
       -H "Authorization: Bearer ${token}" \
       -H "Content-Type: application/json" \
       --data-binary "@${body_file}")"; then
@@ -130,20 +132,20 @@ apply_kusto_connector() {
 
     case "$http_code" in
       200|201|202)
-        echo "  finops-hub-kusto connector configured"
+        echo "  ${connector_name} connector configured"
         return 0
         ;;
     esac
 
-    echo "  connector attempt ${attempt}/5 returned HTTP ${http_code}"
+    echo "  ${connector_name} connector attempt ${attempt}/5 returned HTTP ${http_code}"
     if [[ "$attempt" != "5" ]]; then
       sleep 15
     fi
   done
 
-  echo "  connector response: $response_file"
+  echo "  ${connector_name} connector response: $response_file"
   sed -n '1,120p' "$response_file" >&2 || true
-  fail "Failed to configure finops-hub-kusto connector" 1
+  fail "Failed to configure ${connector_name} connector" 1
 }
 
 apply_built_in_tools_config() {
@@ -225,7 +227,7 @@ if [[ -n "$KUSTO_CONNECTOR_URI" ]]; then
   echo "Step 2/7: Configuring FinOps Hub Kusto connector..."
   CONNECTOR_DIR="${BUILD_DIR}/connectors"
   mkdir -p "$CONNECTOR_DIR"
-  apply_kusto_connector "$CONNECTOR_DIR"
+  apply_kusto_connector "$CONNECTOR_DIR" "finops-hub-kusto"
 else
   echo "Step 2/7: Kusto connector skipped"
 fi

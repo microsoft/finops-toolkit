@@ -36,6 +36,7 @@ spec:
   handoffDescription: Executive financial strategy and FinOps leadership for budgeting, forecasting, risk, capital allocation, and cost optimization.
   handoffs: []
   tools:
+  - SearchMemory
   - execute_python
   - PostTeamsMessage
   - ReplyToTeamsMessage

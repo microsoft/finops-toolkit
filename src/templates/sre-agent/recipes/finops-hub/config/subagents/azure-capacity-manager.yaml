@@ -77,6 +77,7 @@ spec:
   - ftk-database-query
   - chief-financial-officer
   tools:
+  - SearchMemory
   - RunAzCliReadCommands
   - RunAzCliWriteCommands
   - GetAzCliHelp

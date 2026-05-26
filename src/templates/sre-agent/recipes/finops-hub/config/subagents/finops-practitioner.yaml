@@ -71,7 +71,9 @@ spec:
   - chief-financial-officer
   - ftk-database-query
   - azure-capacity-manager
+  - ftk-hubs-agent
   tools:
+  - SearchMemory
   - CheckAzureResource
   - RunAzCliReadCommands
   - execute_python

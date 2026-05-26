@@ -33,7 +33,7 @@ Required:
   -l, --location <region>             Azure region
 
 Optional:
-  --target-resource-group <name>      Repeatable target resource group. Defaults to --resource-group.
+  --target-resource-group <name>      Repeatable target resource group. The agent resource group is always included.
   --cluster-uri <uri>                 Kusto connector URI, including database name.
                                       Example: https://<cluster>.<region>.kusto.windows.net/Hub
   --cluster-resource-id <id>          Optional Kusto cluster ARM resource ID. Real deployments resolve this from --cluster-uri when possible; dry-run requires it.
@@ -123,6 +123,34 @@ parse_kusto_cluster_name() {
   host="${uri#https://}"
   host="${host%%/*}"
   printf '%s\n' "${host%%.*}"
+}
+
+to_lower() {
+  printf '%s\n' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+append_target_rg() {
+  local rg="$1"
+  local existing
+  [[ -n "$rg" ]] || return 0
+  if [[ "${#TARGET_RGS[@]}" -gt 0 ]]; then
+    for existing in "${TARGET_RGS[@]}"; do
+      if [[ "$(to_lower "$existing")" == "$(to_lower "$rg")" ]]; then
+        return 0
+      fi
+    done
+  fi
+  TARGET_RGS+=("$rg")
+}
+
+resource_id_subscription() {
+  local resource_id="$1"
+  printf '%s\n' "$resource_id" | awk -F/ '{print $3}'
+}
+
+resource_id_resource_group() {
+  local resource_id="$1"
+  printf '%s\n' "$resource_id" | awk -F/ '{print $5}'
 }
 
 resolve_kusto_cluster_resource_id() {
@@ -286,9 +314,7 @@ done
 [[ -n "$LOCATION" ]] || fail "Error: --location <region> is required" 2
 validate_kusto_uri "$CLUSTER_URI"
 
-if [[ "${#TARGET_RGS[@]}" -eq 0 ]]; then
-  TARGET_RGS=("$RESOURCE_GROUP")
-fi
+append_target_rg "$RESOURCE_GROUP"
 
 command -v az >/dev/null || fail "Azure CLI (az) is required" 1
 command -v jq >/dev/null || fail "jq is required" 1
@@ -318,6 +344,16 @@ fi
 
 if [[ -n "$CLUSTER_RESOURCE_ID" && -z "$DRY_RUN" ]]; then
   warn_kusto_private_query_limitation "$CLUSTER_RESOURCE_ID"
+fi
+
+if [[ -n "$CLUSTER_RESOURCE_ID" ]]; then
+  CLUSTER_SUBSCRIPTION_ID="$(resource_id_subscription "$CLUSTER_RESOURCE_ID")"
+  CLUSTER_RESOURCE_GROUP="$(resource_id_resource_group "$CLUSTER_RESOURCE_ID")"
+  if [[ "$(to_lower "$CLUSTER_SUBSCRIPTION_ID")" == "$(to_lower "$SUBSCRIPTION_ID")" ]]; then
+    append_target_rg "$CLUSTER_RESOURCE_GROUP"
+  else
+    echo -e "${YELLOW}Warning: FinOps Hub cluster is in subscription ${CLUSTER_SUBSCRIPTION_ID}; add agent managed-resource scope and resource-group RBAC for ${CLUSTER_RESOURCE_GROUP} separately.${NC}" >&2
+  fi
 fi
 
 ACCESS_LEVEL="$(recipe_value "${RECIPE_DIR}/agent.json" '.access.accessLevel')"

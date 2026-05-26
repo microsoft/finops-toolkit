@@ -164,12 +164,62 @@ fi
 check "Model provider" "$(echo "$PROPS" | jq -r '.modelProvider')" "$(exp '.agent.defaultModelProvider')"
 check "Incident platform" "$(echo "$PROPS" | jq -r '.incidentPlatform')" "$(exp '.agent.incidentPlatform')"
 
-# ── Connectors (ARM) ──
-CONNECTORS=$(arm_get "/DataConnectors")
+# ── Onboarding discovery prerequisites ──
+MANAGED_RESOURCE_GROUPS=$(echo "$AGENT_JSON" | jq -r '.properties.knowledgeGraphConfiguration.managedResources // [] | join(",")' 2>/dev/null)
+EXPECTED_RG_ID="/subscriptions/${SUB}/resourceGroups/${RG}"
+MANAGED_RESOURCE_GROUP_PRESENT=$(echo "$AGENT_JSON" | jq -r --arg expected "$EXPECTED_RG_ID" '
+  [.properties.knowledgeGraphConfiguration.managedResources[]? | ascii_downcase] | index($expected | ascii_downcase) != null
+' 2>/dev/null || echo false)
+[[ "$MANAGED_RESOURCE_GROUP_PRESENT" == "true" ]] && check "Onboarding managed resource group" "present" "present" || check "Onboarding managed resource group" "missing" "present"
+RESULTS="${RESULTS}\n  Managed resource groups|${MANAGED_RESOURCE_GROUPS}|—|"
+
+ACTION_IDENTITY=$(echo "$AGENT_JSON" | jq -r '.properties.actionConfiguration.identity // empty' 2>/dev/null)
+ACTION_PRINCIPAL_ID=""
+if [[ -n "$ACTION_IDENTITY" ]]; then
+  ACTION_PRINCIPAL_ID=$(echo "$AGENT_JSON" | jq -r --arg identity "$ACTION_IDENTITY" '
+    .identity.userAssignedIdentities as $identities
+    | ($identities[$identity].principalId // (
+        $identities
+        | to_entries[]
+        | select(.key | ascii_downcase == ($identity | ascii_downcase))
+        | .value.principalId
+      ) // empty)
+  ' 2>/dev/null)
+fi
+
+if [[ -n "$ACTION_PRINCIPAL_ID" ]]; then
+  EXPECTED_TARGET_ROLES="Log Analytics Reader,Monitoring Reader,Reader"
+  if [[ "$(echo "$PROPS" | jq -r '.accessLevel')" == "High" ]]; then
+    EXPECTED_TARGET_ROLES="Contributor,Log Analytics Reader,Monitoring Reader,Reader"
+  fi
+
+  MANAGED_SCOPE_CT=$(echo "$AGENT_JSON" | jq '.properties.knowledgeGraphConfiguration.managedResources // [] | length' 2>/dev/null || echo 0)
+  MANAGED_SCOPES_WITH_RBAC=0
+  while IFS= read -r managed_scope; do
+    [[ -n "$managed_scope" ]] || continue
+    TARGET_ROLE_ASSIGNMENTS=$(az role assignment list --assignee "$ACTION_PRINCIPAL_ID" --scope "$managed_scope" -o json 2>/dev/null || echo "[]")
+    TARGET_ROLE_NAMES=$(echo "$TARGET_ROLE_ASSIGNMENTS" | jq -r '[.[].roleDefinitionName] | sort | join(",")' 2>/dev/null)
+    TARGET_ROLES_PRESENT=$(echo "$TARGET_ROLE_ASSIGNMENTS" | jq -r --arg expected_csv "$EXPECTED_TARGET_ROLES" '
+      ($expected_csv | split(",") | map(select(. != ""))) as $expected
+      | [.[].roleDefinitionName] as $actual
+      | all($expected[]; $actual | index(.))
+    ' 2>/dev/null || echo false)
+    if [[ "$TARGET_ROLES_PRESENT" == "true" ]]; then
+      MANAGED_SCOPES_WITH_RBAC=$((MANAGED_SCOPES_WITH_RBAC + 1))
+    fi
+    RESULTS="${RESULTS}\n  Onboarding identity roles (${managed_scope})|${TARGET_ROLE_NAMES}|—|"
+  done < <(echo "$AGENT_JSON" | jq -r '.properties.knowledgeGraphConfiguration.managedResources[]?' 2>/dev/null)
+  check "Onboarding identity RBAC" "$MANAGED_SCOPES_WITH_RBAC" "$MANAGED_SCOPE_CT"
+else
+  check "Onboarding identity RBAC" "missing action identity" "present"
+fi
+
+# ── Connectors ──
+CONNECTORS=$(dp_get "/api/v2/extendedAgent/connectors")
 CONNECTOR_VALUES=$(echo "$CONNECTORS" | jq -c '(.value // []) | if type == "array" then [.[] | select(.properties.dataConnectorType != "KnowledgeFile" and .properties.dataConnectorType != "KnowledgeText" and .properties.dataConnectorType != "KnowledgeWebPage")] else [] end' 2>/dev/null || echo "[]")
 CONN_CT=$(echo "$CONNECTOR_VALUES" | jq 'length')
-CONN_HEALTHY=$(echo "$CONNECTOR_VALUES" | jq '[.[] | select(.properties.provisioningState == "Succeeded")] | length')
-CONN_ERRORED=$(echo "$CONNECTOR_VALUES" | jq '[.[] | select(.properties.provisioningState != "Succeeded" and .properties.provisioningState != "Running")] | length')
+CONN_HEALTHY=$(echo "$CONNECTOR_VALUES" | jq '[.[] | select((.properties.provisioningState // "Succeeded") == "Succeeded" or (.properties.provisioningState // "Succeeded") == "Running")] | length')
+CONN_ERRORED=$(echo "$CONNECTOR_VALUES" | jq '[.[] | select((.properties.provisioningState // "Succeeded") != "Succeeded" and (.properties.provisioningState // "Succeeded") != "Running")] | length')
 EXP_CONN_CT=$(exp '.connectors | length' "-")
 if [[ "$EXPECTED_CONFIG_HAS_CONNECTORS" != "true" && -n "$EXPECTED_CONNECTORS" ]]; then
   EXP_CONN_CT=$(echo "$EXPECTED_CONNECTORS" | jq 'length')
@@ -178,7 +228,7 @@ check "Connectors (total)" "$CONN_CT" "$EXP_CONN_CT"
 check "Connectors (healthy)" "$CONN_HEALTHY" "$CONN_CT"
 # Show errored connectors explicitly
 if [[ "$CONN_ERRORED" -gt 0 ]]; then
-  ERRORED_LIST=$(echo "$CONNECTOR_VALUES" | jq -r '.[] | select(.properties.provisioningState != "Succeeded" and .properties.provisioningState != "Running") | "\(.name) (\(.properties.dataConnectorType)): \(.properties.provisioningState)"')
+  ERRORED_LIST=$(echo "$CONNECTOR_VALUES" | jq -r '.[] | select((.properties.provisioningState // "Succeeded") != "Succeeded" and (.properties.provisioningState // "Succeeded") != "Running") | "\(.name) (\(.properties.dataConnectorType)): \(.properties.provisioningState)"')
   RESULTS="${RESULTS}\n  ⚠ Errored connectors|${ERRORED_LIST}||❌ FAIL"
   FAIL=$((FAIL + 1))
 fi
@@ -206,6 +256,28 @@ EXP_SA_CT=$(exp '.subagents | length' "-")
 EXP_SA_NAMES=$(exp_list '.subagents')
 check "Subagents" "$SA_CT" "$EXP_SA_CT"
 [[ -n "$EXP_SA_NAMES" ]] && check "Subagent names" "$SA_NAMES" "$EXP_SA_NAMES" || RESULTS="${RESULTS}\n  Subagent names|${SA_NAMES}|—|"
+
+EXP_ALL_SUBAGENT_TOOLS=$(exp_list '.subagentRequirements.allTools')
+if [[ -n "$EXP_ALL_SUBAGENT_TOOLS" ]]; then
+  SUBAGENTS_WITH_TOOLS=$(echo "$SUBAGENTS" | jq -r --arg expected_csv "$EXP_ALL_SUBAGENT_TOOLS" '
+    ($expected_csv | split(",") | map(select(. != ""))) as $expected
+    | [.value[]? | select((.properties.tools // []) as $tools | all($expected[]; $tools | index(.)))] | length
+  ' 2>/dev/null || echo 0)
+  check "Subagents with required tools" "$SUBAGENTS_WITH_TOOLS" "$SA_CT"
+fi
+
+if [[ -n "$EXPECTED_CONFIG" ]]; then
+  EXP_HANDOFF_AGENT_NAMES=$(echo "$EXPECTED_CONFIG" | jq -r '.subagentRequirements.handoffs // {} | keys | sort | join(",")' 2>/dev/null)
+  if [[ -n "$EXP_HANDOFF_AGENT_NAMES" ]]; then
+    IFS=',' read -r -a HANDOFF_AGENTS <<< "$EXP_HANDOFF_AGENT_NAMES"
+    for handoff_agent in "${HANDOFF_AGENTS[@]}"; do
+      [[ -n "$handoff_agent" ]] || continue
+      EXP_HANDOFFS=$(echo "$EXPECTED_CONFIG" | jq -r --arg agent "$handoff_agent" '.subagentRequirements.handoffs[$agent] // [] | sort | join(",")' 2>/dev/null)
+      ACTUAL_HANDOFFS=$(echo "$SUBAGENTS" | jq -r --arg agent "$handoff_agent" '[.value[]? | select(.name == $agent)][0].properties.handoffs // [] | sort | join(",")' 2>/dev/null)
+      check "Handoffs: ${handoff_agent}" "$ACTUAL_HANDOFFS" "$EXP_HANDOFFS"
+    done
+  fi
+fi
 
 # ── Built-in tool configuration ──
 EXP_BUILT_IN_TOOL_NAMES=$(exp_list '.builtInTools.enabled')

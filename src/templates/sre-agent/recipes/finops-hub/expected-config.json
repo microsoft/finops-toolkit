@@ -26,6 +26,19 @@
     }
   },
   "subagents": 5,
+  "subagentRequirements": {
+    "allTools": [
+      "SearchMemory"
+    ],
+    "handoffs": {
+      "finops-practitioner": [
+        "azure-capacity-manager",
+        "chief-financial-officer",
+        "ftk-database-query",
+        "ftk-hubs-agent"
+      ]
+    }
+  },
   "skills": 3,
   "tools": 34,
   "knowledgeSources": [
