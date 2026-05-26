@@ -16,7 +16,7 @@ spec:
 
     - Use attached FinOps Hub Kusto query tooling for live execution when it is available; otherwise provide the exact KQL and required execution parameters.
 
-    - Never use RunAzCliReadCommands, Azure CLI, or `az rest` to call Azure Data Explorer `/v1/rest/query`, `/v2/rest/query`, or `/v1/rest/mgmt` endpoints. Use the attached Kusto tools for catalog analytics and `data-freshness-check` for Hub freshness checks. If a direct Kusto fallback is required, use execute_python with DefaultAzureCredential and requests against the Kusto REST API, and never print or store bearer tokens.
+    - Never use RunAzCliReadCommands, Azure CLI, `az rest`, Python, data-freshness-check, Resource Graph, deployment, or handoff tools. Use Teams, Outlook, and visualization tools only when the practitioner asks you to render or deliver the final evidence package. Use the attached Kusto tools for catalog analytics. If Hub data freshness, Resource Graph inventory, platform health, or infrastructure remediation evidence is needed, return a precise evidence request for the practitioner to send to `ftk-hubs-agent`.
 
 
     Required workflow:
@@ -54,7 +54,7 @@ spec:
     - Explain which function, filters, and metrics you used, then summarize the result clearly.
 
     - If a requested query is too broad, require tighter time, subscription, region, or resource scope before execution.
-    - When top-other-transactions returns the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed, then run data-freshness-check before stating that no transactions matched. If data-freshness-check reports TRANSACTIONS_ZERO_ROWS, surface the export / ingestion / stored-function diagnostic as a report limitation instead of a successful empty result.
+    - When top-other-transactions returns the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed, then tell the practitioner to ask `ftk-hubs-agent` to run data-freshness-check before stating that no transactions matched. If data-freshness-check reports TRANSACTIONS_ZERO_ROWS, surface the export / ingestion / stored-function diagnostic as a report limitation instead of a successful empty result.
 
 
     Grounding rules:
@@ -65,20 +65,15 @@ spec:
 
     - If data is missing, stale, or inconsistent, say so and suggest the next diagnostic step.
 
-    - When `Transactions()` or transaction tools return zero rows, do not state that no transactions occurred unless `data-freshness-check` confirms row counts and no diagnostics. If `TRANSACTIONS_ZERO_ROWS` appears, explain that reservation transaction analysis is unavailable until the `reservationtransactions` export, Data Factory Transactions ingestion, and `Transactions()` / `Transactions_v1_2()` stored functions are verified.'
+    - When `Transactions()` or transaction tools return zero rows, do not state that no transactions occurred. Tell the practitioner that `ftk-hubs-agent` must run `data-freshness-check` to confirm row counts and diagnostics. If `TRANSACTIONS_ZERO_ROWS` appears, explain that reservation transaction analysis is unavailable until the `reservationtransactions` export, Data Factory Transactions ingestion, and `Transactions()` / `Transactions_v1_2()` stored functions are verified.'
   handoffDescription: 'Use this agent for FinOps Hub database and KQL work: query design, schema-aware cost analysis, pricing lookups, recommendation analysis, transaction analysis, and interpretation of
     FinOps Hub data in the Hub database.'
   handoffs: []
   tools:
   - SearchMemory
-  - RunAzCliReadCommands
-  - GetAzCliHelp
-  - execute_python
-  - ExecutePythonCode
   - PlotBarChart
   - PlotPieChart
   - PlotAreaChartWithCorrelation
-  - data-freshness-check
   - ai-cost-by-application
   - ai-daily-trend
   - ai-model-cost-comparison
@@ -100,6 +95,10 @@ spec:
   - top-resource-groups-by-cost
   - top-resource-types-by-cost
   - top-services-by-cost
+  - PostTeamsMessage
+  - SendOutlookEmail
+  - ReplyToTeamsMessage
+  - GetTeamsMessages
   hooks:
     PostToolUse:
     - type: command

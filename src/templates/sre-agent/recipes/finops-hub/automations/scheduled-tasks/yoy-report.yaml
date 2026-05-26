@@ -18,7 +18,7 @@ spec:
 
     Output style: Apply `ftk-output-style.md` from the knowledge base to every report, Teams message, and Outlook email message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
 
-    Delivery and rendering guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage`, `SendOutlookEmail`, `PlotBarChart`, `PlotPieChart`, `PlotAreaChartWithCorrelation`, and `ExecutePythonCode` are present. Do not call notification, email, connector, Microsoft Graph, `dynamicInvoke`, raw webhook, or connector APIs just to test availability. Use visualization tools first for charts when available, with `ExecutePythonCode` or code-interpreter chart generation only as a fallback. Complete the report before delivery. When a Teams connector/channel is configured, make one final `PostTeamsMessage` attempt to the configured Teams channel. When an Outlook connector/recipient is configured, make one final `SendOutlookEmail` attempt with the same final report and any generated chart artifacts. If a configured delivery path fails, mark the task/run failed instead of degrading to local output or probing alternate paths. If neither Teams nor Outlook delivery is configured or available, render the completed report in the run output and explicitly state which delivery paths were skipped.
+    Tool routing and delivery guard: This scheduled task is owned by `finops-practitioner`, which has no direct tools. Use subagent handoffs for all tool work and pass the full task scope, evidence already collected, open questions, and desired output shape with each handoff. Use `ftk-database-query` for FinOps Hub Kusto, cost, pricing, recommendation, and transaction query tools. Use `azure-capacity-manager` for capacity, quota, capacity reservation group, SKU availability, database service quota, and benefit recommendation Python tools. Use `ftk-hubs-agent` for FinOps Hub infrastructure health, Resource Graph inventory, data freshness, deployment, remediation, alert and budget deployment, and Advisor suppression operations. Use `chief-financial-officer` only for executive finance framing. Use a tool-bearing specialist (`ftk-database-query`, `azure-capacity-manager`, or `ftk-hubs-agent`) for visualization and Teams/Outlook delivery after the final evidence package is assembled. Ask that delivery specialist to check available visualization and delivery tools exactly once per run and remember whether `PostTeamsMessage`, `SendOutlookEmail`, `PlotBarChart`, `PlotPieChart`, `PlotAreaChartWithCorrelation`, and `ExecutePythonCode` are present. Do not call notification, email, connector, Microsoft Graph, `dynamicInvoke`, raw webhook, or connector APIs just to test availability. Use visualization tools first for charts when available, with `ExecutePythonCode` or code-interpreter chart generation only as a fallback. Complete the report before delivery. When a Teams connector/channel is configured, ask the delivery specialist to make one final `PostTeamsMessage` attempt to the configured Teams channel. When an Outlook connector/recipient is configured, ask the delivery specialist to make one final `SendOutlookEmail` attempt with the same final report and any generated chart artifacts. If a configured delivery path fails, mark the task/run failed instead of degrading to local output or probing alternate paths. If neither Teams nor Outlook delivery is configured or available, render the completed report in the run output and explicitly state which delivery paths were skipped.
 
 
 
@@ -29,11 +29,11 @@ spec:
 
     ## Specialist evidence requests for this task
 
-    Do not run Kusto tools directly. Ask `ftk-database-query` to run fiscal cost, pricing, savings, recommendation, and transaction tools. Use `benefit-recommendations` and `resource-graph-query` directly where non-Kusto Azure Cost Management or resource-inventory evidence is needed.
+    Do not run Kusto tools directly. Ask `ftk-database-query` to run fiscal cost, pricing, savings, recommendation, and transaction tools. Ask `azure-capacity-manager` to run `benefit-recommendations` and ask `ftk-hubs-agent` to run `resource-graph-query` where non-Kusto Azure Cost Management or resource-inventory evidence is needed.
 
-    - `benefit-recommendations`: Run with billing_scope and lookback to get reservation and savings plan recommendations
-    - `ftk-database-query`: Run `data-freshness-check` with cluster_uri and database to check Hub data freshness
-    - `resource-graph-query`: Run with query and subscriptions to execute Azure Resource Graph KQL
+    - `azure-capacity-manager`: Run `benefit-recommendations` with billing_scope and lookback to get reservation and savings plan recommendations
+    - `ftk-hubs-agent`: Run `data-freshness-check` with cluster_uri and database to check Hub data freshness
+    - `ftk-hubs-agent`: Run `resource-graph-query` with query and subscriptions to execute Azure Resource Graph KQL
 
 
     ## Phase 1: Data Collection
@@ -41,7 +41,7 @@ spec:
 
     ### 1.1 Verify Connectivity
 
-    Ask `ftk-database-query` to run `data-freshness-check` with the FinOps Hub cluster URI and Hub database. Treat its direct REST `Costs()` latest data date as the authoritative freshness source and mark any conflicting stale-memory, raw-KQL, or ingestion timestamp conclusion as superseded and unsafe. Proceed if latest `Costs()` data is 3 days old or newer. Do not ask for `costs-enriched-base` for freshness checks or fiscal-period reports; use aggregated Kusto tools for complete-month reporting windows and reserve row-level detail for one-day drill-downs only.
+    Ask `ftk-hubs-agent` to run `data-freshness-check` with the FinOps Hub cluster URI and Hub database. Treat its direct REST `Costs()` latest data date as the authoritative freshness source and mark any conflicting stale-memory, raw-KQL, or ingestion timestamp conclusion as superseded and unsafe. Proceed if latest `Costs()` data is 3 days old or newer. Do not ask for `costs-enriched-base` for freshness checks or fiscal-period reports; use aggregated Kusto tools for complete-month reporting windows and reserve row-level detail for one-day drill-downs only.
 
 
     ### 1.2 Year-over-year trends
@@ -89,7 +89,7 @@ spec:
 
     ### 1.10 Reservation Recommendations
 
-    Run `benefit-recommendations` directly and ask `ftk-database-query` to run `reservation-recommendation-breakdown`. Identify commitments that could save money before fiscal year end.
+    Ask `azure-capacity-manager` to run `benefit-recommendations` and ask `ftk-database-query` to run `reservation-recommendation-breakdown`. Identify commitments that could save money before fiscal year end.
 
 
     ### 1.11 Regional Analysis
@@ -99,7 +99,7 @@ spec:
 
     ### 1.12 Resource Type Efficiency
 
-    Run `resource-graph-query` for current Azure resource inventory, then ask `ftk-database-query` to run `top-resource-types-by-cost` with N=20 for the current and prior-year comparison periods. Track resource type evolution.
+    Ask `ftk-hubs-agent` to run `resource-graph-query` for current Azure resource inventory, then ask `ftk-database-query` to run `top-resource-types-by-cost` with N=20 for the current and prior-year comparison periods. Track resource type evolution.
 
 
     ### 1.13 Price Benchmarking
@@ -114,12 +114,12 @@ spec:
 
     ### 1.15 Commitment Transactions
 
-    Ask `ftk-database-query` to run `top-commitment-transactions` with N=20 for the current and prior-year comparison periods. Track major RI/SP purchases. If it returns zero rows or `ZERO_ROWS_RETURNED`, ask `ftk-database-query` to run `data-freshness-check` and report whether `Transactions()` has the `TRANSACTIONS_ZERO_ROWS` diagnostic. Do not conclude there were no commitment purchases until the export, ingestion, and stored-function diagnostic is clear.
+    Ask `ftk-database-query` to run `top-commitment-transactions` with N=20 for the current and prior-year comparison periods. Track major RI/SP purchases. If it returns zero rows or `ZERO_ROWS_RETURNED`, ask `ftk-hubs-agent` to run `data-freshness-check` and report whether `Transactions()` has the `TRANSACTIONS_ZERO_ROWS` diagnostic. Do not conclude there were no commitment purchases until the export, ingestion, and stored-function diagnostic is clear.
 
 
     ### 1.16 Other Transactions
 
-    Ask `ftk-database-query` to run `top-other-transactions` with N=20 for the current and prior-year comparison periods. If it returns zero rows or `ZERO_ROWS_RETURNED`, ask `ftk-database-query` to run `data-freshness-check` and report whether `Transactions()` has the `TRANSACTIONS_ZERO_ROWS` diagnostic. Do not conclude there were no non-usage spend patterns until the export, ingestion, and stored-function diagnostic is clear.
+    Ask `ftk-database-query` to run `top-other-transactions` with N=20 for the current and prior-year comparison periods. If it returns zero rows or `ZERO_ROWS_RETURNED`, ask `ftk-hubs-agent` to run `data-freshness-check` and report whether `Transactions()` has the `TRANSACTIONS_ZERO_ROWS` diagnostic. Do not conclude there were no non-usage spend patterns until the export, ingestion, and stored-function diagnostic is clear.
 
 
     **Checkpoint:** ALL data collected. Proceed to strategic analysis.
@@ -171,9 +171,9 @@ spec:
 
 
 
-    **Visualizations:** Before delivery, generate charts for key findings using `PlotBarChart`, `PlotPieChart`, or `PlotAreaChartWithCorrelation` when those visualization tools fit the data. Use `ExecutePythonCode` or matplotlib/seaborn via the code interpreter only when the visualization tools are unavailable or cannot express the required chart. Include at minimum one trend chart and one comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed the chart images inline in the Teams message and attach or embed them in the Outlook email alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
+    **Visualizations:** Before delivery, ask the selected delivery specialist to generate charts for key findings using `PlotBarChart`, `PlotPieChart`, or `PlotAreaChartWithCorrelation` when those visualization tools fit the data. Use `ExecutePythonCode` or matplotlib/seaborn via the code interpreter only when the visualization tools are unavailable or cannot express the required chart. Include at minimum one trend chart and one comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed the chart images inline in the Teams message and attach or embed them in the Outlook email alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
 
-    **Teams and Outlook (financial results only):** Post the final report to our Teams channel. Include the year-over-year scorecard, forecast scenarios, and planning recommendations. Do not post intermediate results — only the completed report. Use `PostTeamsMessage` and `SendOutlookEmail` only when the delivery guard found each tool available once per run. If neither Teams nor Outlook delivery is configured or available, return the completed report in the run output with a note naming the skipped delivery paths. If any configured Teams or Outlook final delivery attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
+    **Teams and Outlook (financial results only):** Post the final report to our Teams channel. Include the year-over-year scorecard, forecast scenarios, and planning recommendations. Do not post intermediate results — only the completed report. Ask the selected delivery specialist to use `PostTeamsMessage` and `SendOutlookEmail` only when the delivery guard found each tool available once per run. If neither Teams nor Outlook delivery is configured or available, return the completed report in the run output with a note naming the skipped delivery paths. If any configured Teams or Outlook final delivery attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
 
 
     **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — tool errors encountered, workarounds discovered, data quality observations, query patterns that worked or failed. Never save financial figures, cost amounts, savings numbers, or any customer financial data to the knowledge base. Financial detail goes to configured Teams and Outlook delivery only.'

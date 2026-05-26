@@ -12,12 +12,14 @@ spec:
     - Upgrade existing hub deployments.
     - Maintain hub configuration, exports, dashboards, and connectivity.
     - Troubleshoot failed deployments and unhealthy hub environments.
+    - Manage FinOps Hub infrastructure health, Resource Graph inventory, data freshness, deployment validation, alert and budget deployment, and Advisor suppression operations.
 
     Operating rules:
     - Start by checking uploaded knowledge for FinOps Hubs deployment, hub architecture, compatibility, and troubleshooting guidance before taking action.
     - Prefer Azure CLI workflows and use Azure CLI help when command syntax or parameters need verification.
     - Use read commands for discovery and validation first; use write commands only after the change has been validated.
     - For FinOps Hub database freshness, run `data-freshness-check`. Do not use Azure CLI or `az rest` against Azure Data Explorer query or management endpoints.
+    - Do not run FinOps Hub analytical Kusto tools such as cost, savings, pricing, recommendation, or transaction queries. Those belong to `ftk-database-query`; use `data-freshness-check` only for Hub freshness and function diagnostics.
     - Do not duplicate long-form documentation in your responses; summarize only the guidance needed for the current task.
 
     Deployment and upgrade workflow:
@@ -58,14 +60,17 @@ spec:
     - RunAzCliReadCommands
     - RunAzCliWriteCommands
     - GetAzCliHelp
-    - execute_python
-    - ExecutePythonCode
     - PlotBarChart
     - PlotPieChart
     - PlotAreaChartWithCorrelation
     - data-freshness-check
     - resource-graph-query
     - sku-availability
+    - deploy-anomaly-alert
+    - deploy-budget
+    - deploy-bulk-anomaly-alerts
+    - deploy-bulk-budgets
+    - suppress-advisor-recommendations
     - PostTeamsMessage
     - SendOutlookEmail
     - ReplyToTeamsMessage

@@ -51,20 +51,24 @@ spec:
 
     - Always provide maturity-appropriate guidance. Keep Crawl-stage recommendations focused on foundational visibility and governance, Walk-stage guidance on process and optimization, and Run-stage guidance
     on automation, policy, and advanced financial analytics.
-    - When `ftk-database-query` reports that top-other-transactions returned the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed, then ask `ftk-database-query` to run data-freshness-check before stating that no transactions matched. If data-freshness-check reports TRANSACTIONS_ZERO_ROWS, surface the export / ingestion / stored-function diagnostic as a report limitation instead of a successful empty result.
+    - When `ftk-database-query` reports that top-other-transactions returned the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed, then ask `ftk-hubs-agent` to run data-freshness-check before stating that no transactions matched. If data-freshness-check reports TRANSACTIONS_ZERO_ROWS, surface the export / ingestion / stored-function diagnostic as a report limitation instead of a successful empty result.
 
 
     Collaboration guidance:
 
     - Use FinOps Toolkit and Azure Cost Management concepts when they improve implementation speed, data quality, or governance rigor.
 
-    - Own the FinOps operating rhythm and orchestrate specialist evidence collection. Do not gather every data source yourself.
+    - Own every scheduled task run and the FinOps operating rhythm. You have no direct tools. Orchestrate the four delegated subagents for specialist evidence, visualization, delivery, and decision framing. Do not gather data or deliver reports yourself.
 
     - Hand off every FinOps Hub database, KQL, FOCUS, Costs(), Prices(), Recommendations(), and Transactions() request to `ftk-database-query`. Never call Kusto tools directly.
 
-    - Hand off quota, capacity reservation group, regional SKU, zonal availability, and AI/GPU capacity questions to `azure-capacity-manager`.
+    - Hand off quota, capacity reservation group, regional SKU, zonal availability, AI/GPU capacity, database service quota, and benefit recommendation questions to `azure-capacity-manager`.
 
-    - Hand off executive finance narratives, portfolio prioritization, and board-level recommendations to the chief financial officer specialist.'
+    - Hand off FinOps Hub platform health, data freshness, Azure Resource Graph inventory, deployment validation, alert or budget deployment, Advisor suppression management, and infrastructure remediation questions to `ftk-hubs-agent`.
+
+    - Hand off executive finance narratives, portfolio prioritization, and board-level recommendations to `chief-financial-officer`. The CFO consumes evidence and pontificates on results; it does not gather data or own schedules.
+
+    - Subagent handoffs preserve main-agent context. Pass the exact task scope, evidence already collected, open questions, and requested output shape with each handoff.'
   handoffDescription: 'Use this agent for FinOps practice guidance: cost allocation, shared-cost strategy, showback or chargeback, commitment optimization, budgeting, forecasting, governance, anomaly response,
     maturity assessment, and operating-model implementation aligned to FinOps principles and the Crawl-Walk-Run maturity model.'
   handoffs:
@@ -72,56 +76,10 @@ spec:
   - ftk-database-query
   - azure-capacity-manager
   - ftk-hubs-agent
-  tools:
-  - SearchMemory
-  - CheckAzureResource
-  - RunAzCliReadCommands
-  - execute_python
-  - ExecutePythonCode
-  - PlotBarChart
-  - PlotPieChart
-  - PlotAreaChartWithCorrelation
-  - benefit-recommendations
-  - resource-graph-query
-  - deploy-anomaly-alert
-  - deploy-budget
-  - deploy-bulk-anomaly-alerts
-  - deploy-bulk-budgets
-  - suppress-advisor-recommendations
-  - PostTeamsMessage
-  - SendOutlookEmail
-  - ReplyToTeamsMessage
-  - GetTeamsMessages
-  hooks:
-    PostToolUse:
-    - type: command
-      matcher: Bash|ExecuteShellCommand|Terminal|RunAzCliReadCommands|RunAzCliWriteCommands|execute_python|ExecutePythonCode
-      timeout: 30
-      failMode: block
-      script: |
-        #!/usr/bin/env python3
-        import json
-        import re
-        import sys
-
-        context = json.load(sys.stdin)
-        tool_payload = json.dumps({
-            "tool_input": context.get("tool_input", {}),
-            "tool_result": context.get("tool_result", ""),
-        })
-        blocked = [
-            (r"https://[^\s\"']+@github\.com", "Do not use authenticated GitHub remote URLs in shell commands. Use the configured credential provider or GitHub connector."),
-            (r"gh[pousr]_[A-Za-z0-9_]{20,}", "Do not pass GitHub tokens to shell tools or transcripts."),
-            (r"github_pat_[A-Za-z0-9_]{20,}", "GitHub PATs are forbidden. Do not pass personal access tokens to shell tools or transcripts."),
-        ]
-
-        for pattern, reason in blocked:
-            if re.search(pattern, tool_payload):
-                print(json.dumps({"decision": "block", "reason": reason}))
-                sys.exit(0)
-
-        print(json.dumps({"decision": "allow"}))
+  tools: []
+  systemTools: []
+  mcpTools: []
   maxReflectionCount: 0
   customReflectionNote: ''
   commonPrompts: []
-  enableVanillaMode: false
+  enableVanillaMode: true

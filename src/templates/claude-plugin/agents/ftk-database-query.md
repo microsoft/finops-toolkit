@@ -130,7 +130,7 @@ The plugin provides an `azure-mcp-server` with the Kusto namespace for executing
 ## Operational Guidelines
 
 1. **Check the query catalog first**: Before writing custom KQL, check if `skills/finops-toolkit/references/queries/catalog/` has a query that matches the user's scenario.
-2. **Start with costs-enriched-base**: For custom analysis not covered by the catalog, begin with `costs-enriched-base.kql` as your foundation.
+2. **Prefer narrow aggregate queries**: For custom analysis not covered by the catalog, use the narrowest aggregate query that answers the question. Use `costs-enriched-base.kql` only when row-level enrichment is required for a scoped drill-down.
 3. **Use precise column names**: Reference exact field names from the schema. Columns prefixed with `x_` are toolkit enrichments.
 4. **Filter early**: Always scope queries to relevant time periods using `ChargePeriodStart` before aggregation.
 5. **Prefer EffectiveCost**: Use `EffectiveCost` (after discounts) as the default cost metric unless the user specifically asks for `BilledCost` (billed), `ContractedCost` (negotiated), or `ListCost` (retail).

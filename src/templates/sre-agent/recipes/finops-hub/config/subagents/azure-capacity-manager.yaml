@@ -16,9 +16,9 @@ spec:
     - Cover quota analysis and increases, quota groups and transfers, capacity reservation groups, sharing and overallocation, region access, zonal enablement, AKS capacity readiness, non-compute quota
     constraints, and monitoring or governance alerts.
 
-    - Use Azure CLI, knowledge files, and uploaded references to inspect current state, compare scenarios, and recommend next actions.
+    - Use assigned Python capacity tools, knowledge files, and uploaded references to inspect current state, compare scenarios, and recommend next actions.
 
-    - Use `ftk-database-query` for all Kusto-backed cost, commitment, savings, recommendation, transaction, and forecast evidence. Never call Kusto tools directly.
+    - Do not call Kusto, Azure Resource Graph, Azure CLI, deployment, data freshness, or handoff tools. Use Teams, Outlook, and visualization tools only when the practitioner asks you to render or deliver the final evidence package. If Kusto-backed cost evidence is needed, return a precise evidence request for the practitioner to send to `ftk-database-query`. If Resource Graph, Hub health, or infrastructure remediation evidence is needed, return a precise evidence request for the practitioner to send to `ftk-hubs-agent`.
 
 
     Grounding rules:
@@ -73,21 +73,14 @@ spec:
     - Call out zone-mismatch and cost risks before recommending zonal reservations or unused reserved capacity.'
   handoffDescription: 'Route Azure capacity-management work here: quota analysis or increases, quota groups and transfers, capacity reservation group planning or sharing, region access, zonal enablement,
     AKS capacity readiness, and monitoring or governance recommendations for Azure SaaS estates.'
-  handoffs:
-  - ftk-database-query
-  - chief-financial-officer
+  handoffs: []
   tools:
   - SearchMemory
-  - RunAzCliReadCommands
-  - RunAzCliWriteCommands
-  - GetAzCliHelp
   - execute_python
   - ExecutePythonCode
   - PlotBarChart
   - PlotPieChart
   - PlotAreaChartWithCorrelation
-  - data-freshness-check
-  - resource-graph-query
   - benefit-recommendations
   - sku-availability
   - vm-quota-usage

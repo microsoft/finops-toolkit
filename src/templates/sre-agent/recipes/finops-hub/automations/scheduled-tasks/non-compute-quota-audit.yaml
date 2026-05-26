@@ -7,7 +7,7 @@ spec:
   description: Weekly audit of storage, network, and non-compute quota usage at risk
   cron_expression: 0 7 * * 2
   agent_mode: autonomous
-  agent: azure-capacity-manager
+  agent: finops-practitioner
   agent_prompt: '# Non-Compute Quota Audit
 
 
@@ -18,17 +18,19 @@ spec:
 
     Output style: Apply `ftk-output-style.md` from the knowledge base to every report, Teams message, and Outlook email message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
 
-    Delivery and rendering guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage`, `SendOutlookEmail`, `PlotBarChart`, `PlotPieChart`, `PlotAreaChartWithCorrelation`, and `ExecutePythonCode` are present. Do not call notification, email, connector, Microsoft Graph, `dynamicInvoke`, raw webhook, or connector APIs just to test availability. Use visualization tools first for charts when available, with `ExecutePythonCode` or code-interpreter chart generation only as a fallback. Complete the report before delivery. When a Teams connector/channel is configured, make one final `PostTeamsMessage` attempt to the configured Teams channel. When an Outlook connector/recipient is configured, make one final `SendOutlookEmail` attempt with the same final report and any generated chart artifacts. If a configured delivery path fails, mark the task/run failed instead of degrading to local output or probing alternate paths. If neither Teams nor Outlook delivery is configured or available, render the completed report in the run output and explicitly state which delivery paths were skipped.
+    Tool routing and delivery guard: This scheduled task is owned by `finops-practitioner`, which has no direct tools. Use subagent handoffs for all tool work and pass the full task scope, evidence already collected, open questions, and desired output shape with each handoff. Use `ftk-database-query` for FinOps Hub Kusto, cost, pricing, recommendation, and transaction query tools. Use `azure-capacity-manager` for capacity, quota, capacity reservation group, SKU availability, database service quota, and benefit recommendation Python tools. Use `ftk-hubs-agent` for FinOps Hub infrastructure health, Resource Graph inventory, data freshness, deployment, remediation, alert and budget deployment, and Advisor suppression operations. Use `chief-financial-officer` only for executive finance framing. Use a tool-bearing specialist (`ftk-database-query`, `azure-capacity-manager`, or `ftk-hubs-agent`) for visualization and Teams/Outlook delivery after the final evidence package is assembled. Ask that delivery specialist to check available visualization and delivery tools exactly once per run and remember whether `PostTeamsMessage`, `SendOutlookEmail`, `PlotBarChart`, `PlotPieChart`, `PlotAreaChartWithCorrelation`, and `ExecutePythonCode` are present. Do not call notification, email, connector, Microsoft Graph, `dynamicInvoke`, raw webhook, or connector APIs just to test availability. Use visualization tools first for charts when available, with `ExecutePythonCode` or code-interpreter chart generation only as a fallback. Complete the report before delivery. When a Teams connector/channel is configured, ask the delivery specialist to make one final `PostTeamsMessage` attempt to the configured Teams channel. When an Outlook connector/recipient is configured, ask the delivery specialist to make one final `SendOutlookEmail` attempt with the same final report and any generated chart artifacts. If a configured delivery path fails, mark the task/run failed instead of degrading to local output or probing alternate paths. If neither Teams nor Outlook delivery is configured or available, render the completed report in the run output and explicitly state which delivery paths were skipped.
 
 
 
-    Load your relevant capacity management skill. Use the agent system-managed identity for Python tool authentication.
+    Orchestration rule: This scheduled task is owned by `finops-practitioner`. Delegate non-compute quota evidence collection and specialist analysis to `azure-capacity-manager`; do not try to run capacity tools directly from the practitioner. When the specialist returns evidence, assemble the final FinOps report, apply `ftk-output-style.md`, generate supported visualizations, and deliver the completed output through configured connectors.
+
+    Ask `azure-capacity-manager` to load its capacity-management guidance and use the agent system-managed identity for Python tool authentication.
 
 
-    ## Python tools available
+    ## Specialist tools to request from `azure-capacity-manager`
 
 
-    Python tools use DefaultAzureCredential with the agent system-managed identity.
+    Ask `azure-capacity-manager` to use Python tools with DefaultAzureCredential and the agent system-managed identity.
 
 
     - `non-compute-quotas`: Run with `subscription_id`, optional `location` to retrieve storage, network, and estimated non-compute service quota utilization.
@@ -43,7 +45,7 @@ spec:
     ## 2. Collect quota usage
 
 
-    For each active subscription, run `non-compute-quotas` with `subscription_id`, optional `location`. Use the tool''s normalized `quotas` array for tables and charts. If only legacy `services` records are available, normalize them with safe accessors before reporting: accept `service_name` or `service`, `quota_name` or `name`, `current_count` or `currentValue` or `current`, and default missing `location` to `subscription`. Capture service name, quota name, current count, limit, utilization percentage, count source, limit source, limit type, and any errors.
+    For each active subscription, ask `azure-capacity-manager` to run `non-compute-quotas` with `subscription_id`, optional `location`. Use the tool''s normalized `quotas` array for tables and charts. If only legacy `services` records are available, normalize them with safe accessors before reporting: accept `service_name` or `service`, `quota_name` or `name`, `current_count` or `currentValue` or `current`, and default missing `location` to `subscription`. Capture service name, quota name, current count, limit, utilization percentage, count source, limit source, limit type, and any errors.
 
 
     ## 3. Separate reported and estimated limits
@@ -67,7 +69,7 @@ spec:
     ## Persistence
 
 
-    **Teams and Outlook (results only):** Post the final report to our Teams channel. Do not post intermediate results. Use `PostTeamsMessage` and `SendOutlookEmail` only when the delivery guard found each tool available once per run. If neither Teams nor Outlook delivery is configured or available, return the completed report in the run output with a note naming the skipped delivery paths. If any configured Teams or Outlook final delivery attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
+    **Teams and Outlook (results only):** Post the final report to our Teams channel. Do not post intermediate results. Ask the selected delivery specialist to use `PostTeamsMessage` and `SendOutlookEmail` only when the delivery guard found each tool available once per run. If neither Teams nor Outlook delivery is configured or available, return the completed report in the run output with a note naming the skipped delivery paths. If any configured Teams or Outlook final delivery attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
 
 
     **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, cost amounts, or customer financial data to git or the knowledge base. Financial detail goes to configured Teams and Outlook delivery only.
@@ -76,4 +78,4 @@ spec:
     ## Visualizations
 
 
-    Before delivery, generate charts for key findings using `PlotBarChart`, `PlotPieChart`, or `PlotAreaChartWithCorrelation` when those visualization tools fit the data. Use `ExecutePythonCode` or matplotlib/seaborn via the code interpreter only when the visualization tools are unavailable or cannot express the required chart. Build chart data from normalized quota rows and use `.get()`/safe-access patterns instead of indexing fields like `location` directly, because subscription-scoped non-compute quota rows may not be regional. Include at minimum a quota utilization by service chart and an at-risk quota count by subscription chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message and attach or embed them in the Outlook email alongside the text tables.'
+    Before delivery, ask the selected delivery specialist to generate charts for key findings using `PlotBarChart`, `PlotPieChart`, or `PlotAreaChartWithCorrelation` when those visualization tools fit the data. Use `ExecutePythonCode` or matplotlib/seaborn via the code interpreter only when the visualization tools are unavailable or cannot express the required chart. Build chart data from normalized quota rows and use `.get()`/safe-access patterns instead of indexing fields like `location` directly, because subscription-scoped non-compute quota rows may not be regional. Include at minimum a quota utilization by service chart and an at-risk quota count by subscription chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message and attach or embed them in the Outlook email alongside the text tables.'

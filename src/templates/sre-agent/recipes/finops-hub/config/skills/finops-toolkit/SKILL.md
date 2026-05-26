@@ -78,7 +78,7 @@ Check the catalog before writing custom KQL. Read the `.kql` file, substitute pa
 
 | Query | Description |
 |-------|-------------|
-| [costs-enriched-base.kql](references/queries/catalog/costs-enriched-base.kql) | Base query with full enrichment and savings logic for all cost columns. **Start here for custom analytics.** |
+| [costs-enriched-base.kql](references/queries/catalog/costs-enriched-base.kql) | Base query with full enrichment and savings logic for all cost columns. Use for scoped row-level custom analytics or repeated drill-downs. |
 | [monthly-cost-trend.kql](references/queries/catalog/monthly-cost-trend.kql) | Total billed and effective cost by month for trend analysis and executive reporting. |
 | [monthly-cost-change-percentage.kql](references/queries/catalog/monthly-cost-change-percentage.kql) | Month-over-month cost change percentage for both billed and effective costs. |
 | [top-services-by-cost.kql](references/queries/catalog/top-services-by-cost.kql) | Top N Azure services by cost. Key for cost visibility. |
@@ -87,6 +87,10 @@ Check the catalog before writing custom KQL. Read the `.kql` file, substitute pa
 | [quarterly-cost-by-resource-group.kql](references/queries/catalog/quarterly-cost-by-resource-group.kql) | Effective cost by resource group for quarterly or multi-month reporting. |
 | [cost-by-region-trend.kql](references/queries/catalog/cost-by-region-trend.kql) | Effective cost by Azure region for regional cost driver analysis. |
 | [cost-by-financial-hierarchy.kql](references/queries/catalog/cost-by-financial-hierarchy.kql) | Cost allocation by billing profile, invoice section, team, product, and app for showback/chargeback. |
+| [ai-cost-by-application.kql](references/queries/catalog/ai-cost-by-application.kql) | Azure OpenAI costs by application, cost center, team, and environment tags. |
+| [ai-daily-trend.kql](references/queries/catalog/ai-daily-trend.kql) | Daily Azure OpenAI token and effective cost trend. |
+| [ai-model-cost-comparison.kql](references/queries/catalog/ai-model-cost-comparison.kql) | Azure OpenAI model cost efficiency and discount comparison. |
+| [ai-token-usage-breakdown.kql](references/queries/catalog/ai-token-usage-breakdown.kql) | Azure OpenAI token consumption and cost by model and direction. |
 | [cost-anomaly-detection.kql](references/queries/catalog/cost-anomaly-detection.kql) | Detect unusual cost spikes or drops using statistical anomaly detection. |
 | [cost-forecasting-model.kql](references/queries/catalog/cost-forecasting-model.kql) | Project future costs for budgeting and planning with configurable forecast horizon. |
 | [service-price-benchmarking.kql](references/queries/catalog/service-price-benchmarking.kql) | Compare list, contracted, effective, negotiated, and commitment prices by service. |
@@ -113,7 +117,7 @@ For detailed documentation: `references/finops-hubs-deployment.md`
 | [references/finops-hubs.md](references/finops-hubs.md) | Analysis guide: KQL execution, query catalog protocol, tool matrix, performance rules. **Read before any cost query.** |
 | [references/finops-hubs-deployment.md](references/finops-hubs-deployment.md) | Deployment and configuration: ADX clusters, Fabric, Data Factory, exports, Key Vault, Power BI dashboards. |
 | [references/settings-format.md](references/settings-format.md) | Format specification for `.ftk/environments.local.md` — named environments with cluster-uri, tenant, subscription, and resource-group. |
-| [references/queries/INDEX.md](references/queries/INDEX.md) | Query catalog with scenario-to-query matrix, parameter docs, and usage guidance for all 17 pre-built KQL queries. |
+| [references/queries/INDEX.md](references/queries/INDEX.md) | Query catalog with scenario-to-query matrix, parameter docs, and usage guidance for all 21 pre-built KQL queries. |
 | [references/queries/finops-hub-database-guide.md](references/queries/finops-hub-database-guide.md) | Hub database schema: all four functions, column definitions, enrichment columns, and query best practices. **Read before writing custom KQL.** |
 | [references/workflows/ftk-hubs-connect.md](references/workflows/ftk-hubs-connect.md) | Workflow to discover FinOps hub instances via Resource Graph, connect, and save environment config. |
 | [references/workflows/ftk-hubs-healthCheck.md](references/workflows/ftk-hubs-healthCheck.md) | Health check workflow: version comparison against stable/dev releases, upgrade guidance, and diagnostic steps. |

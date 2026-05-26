@@ -39,7 +39,7 @@ Some environments have strong tag coverage, some rely more on financial hierarch
 ## Recommended workflow
 
 ### 1. Inspect populated business fields first
-Start with `costs-enriched-base.kql` or a small direct query against `Costs()`:
+Start with `cost-by-financial-hierarchy.kql` when billing hierarchy answers the allocation question. Use `costs-enriched-base.kql` or a small direct query against `Costs()` only to inspect a narrow sample of populated tags and enrichment fields:
 
 ```kusto
 Costs()

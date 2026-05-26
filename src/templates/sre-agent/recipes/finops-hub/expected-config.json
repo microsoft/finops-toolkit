@@ -25,11 +25,97 @@
       "Visualization": 5
     }
   },
-  "subagents": 5,
+  "subagents": [
+    "azure-capacity-manager",
+    "chief-financial-officer",
+    "finops-practitioner",
+    "ftk-database-query",
+    "ftk-hubs-agent"
+  ],
   "subagentRequirements": {
-    "allTools": [
-      "SearchMemory"
+    "toolOwners": [
+      "azure-capacity-manager",
+      "ftk-database-query",
+      "ftk-hubs-agent"
     ],
+    "noTools": [
+      "chief-financial-officer",
+      "finops-practitioner"
+    ],
+    "toolsByAgent": {
+      "azure-capacity-manager": [
+        "ExecutePythonCode",
+        "PlotAreaChartWithCorrelation",
+        "PlotBarChart",
+        "PlotPieChart",
+        "GetTeamsMessages",
+        "PostTeamsMessage",
+        "ReplyToTeamsMessage",
+        "SearchMemory",
+        "SendOutlookEmail",
+        "benefit-recommendations",
+        "capacity-reservation-groups",
+        "db-service-quotas",
+        "execute_python",
+        "non-compute-quotas",
+        "sku-availability",
+        "vm-quota-usage"
+      ],
+      "chief-financial-officer": [],
+      "finops-practitioner": [],
+      "ftk-database-query": [
+        "PlotAreaChartWithCorrelation",
+        "PlotBarChart",
+        "PlotPieChart",
+        "GetTeamsMessages",
+        "PostTeamsMessage",
+        "ReplyToTeamsMessage",
+        "SearchMemory",
+        "SendOutlookEmail",
+        "ai-cost-by-application",
+        "ai-daily-trend",
+        "ai-model-cost-comparison",
+        "ai-token-usage-breakdown",
+        "commitment-discount-utilization",
+        "cost-anomaly-detection",
+        "cost-by-financial-hierarchy",
+        "cost-by-region-trend",
+        "cost-forecasting-model",
+        "costs-enriched-base",
+        "monthly-cost-change-percentage",
+        "monthly-cost-trend",
+        "quarterly-cost-by-resource-group",
+        "reservation-recommendation-breakdown",
+        "savings-summary-report",
+        "service-price-benchmarking",
+        "top-commitment-transactions",
+        "top-other-transactions",
+        "top-resource-groups-by-cost",
+        "top-resource-types-by-cost",
+        "top-services-by-cost"
+      ],
+      "ftk-hubs-agent": [
+        "GetAzCliHelp",
+        "PlotAreaChartWithCorrelation",
+        "PlotBarChart",
+        "PlotPieChart",
+        "GetTeamsMessages",
+        "PostTeamsMessage",
+        "ReplyToTeamsMessage",
+        "RunAzCliReadCommands",
+        "RunAzCliWriteCommands",
+        "SearchMemory",
+        "SendOutlookEmail",
+        "data-freshness-check",
+        "deploy-anomaly-alert",
+        "deploy-budget",
+        "deploy-bulk-anomaly-alerts",
+        "deploy-bulk-budgets",
+        "resource-graph-query",
+        "sku-availability",
+        "suppress-advisor-recommendations"
+      ]
+    },
     "handoffs": {
       "finops-practitioner": [
         "azure-capacity-manager",
@@ -37,9 +123,19 @@
         "ftk-database-query",
         "ftk-hubs-agent"
       ]
-    }
+    },
+    "noHandoffs": [
+      "azure-capacity-manager",
+      "chief-financial-officer",
+      "ftk-database-query",
+      "ftk-hubs-agent"
+    ]
   },
-  "skills": 3,
+  "skills": [
+    "azure-capacity-management",
+    "azure-cost-management",
+    "finops-toolkit"
+  ],
   "tools": 34,
   "knowledgeSources": [
     "chart-artifact-verification.md",
@@ -49,5 +145,46 @@
     "onboarding-recommendations.md",
     "teams-notification-guide.md"
   ],
-  "scheduledTasks": 19
+  "scheduledTasks": [
+    "AdvisorSuppressionReview",
+    "AIWorkloadCostAnalysis",
+    "AlertCoverageAudit",
+    "BenefitRecommendationReview",
+    "BudgetCoverageAudit",
+    "CapacityDailyMonitor",
+    "CapacityMonthlyPlanning",
+    "CapacityQuarterlyStrategy",
+    "CapacityWeeklySupplyReview",
+    "ComputeUtilizationTrend",
+    "CostOptimization",
+    "DbQuotaAudit",
+    "HubsHealthCheck",
+    "MonitoringScopeValidation",
+    "Monthly",
+    "NonComputeQuotaAudit",
+    "SkuAvailabilityAudit",
+    "StoragePaasGrowthForecast",
+    "Semiannual"
+  ],
+  "scheduledTaskRequirements": {
+    "ownerAgent": "finops-practitioner",
+    "promptRequiredText": [
+      "Tool routing and delivery guard",
+      "owned by `finops-practitioner`, which has no direct tools",
+      "Use `ftk-database-query` for FinOps Hub Kusto",
+      "Use `azure-capacity-manager` for capacity",
+      "Use `ftk-hubs-agent` for FinOps Hub infrastructure health",
+      "Use `chief-financial-officer` only for executive finance framing"
+    ],
+    "promptForbiddenText": [
+      "Delivery and rendering guard: Check the available tools exactly once",
+      "Use `resource-graph-query` directly",
+      "Use `benefit-recommendations` directly",
+      "Run `benefit-recommendations` directly",
+      "Ask `ftk-database-query` to run `data-freshness-check`",
+      "Ask `azure-capacity-manager` to run `data-freshness-check`",
+      "Ask `azure-capacity-manager` to use `resource-graph-query`",
+      "Ask `azure-capacity-manager` to run `resource-graph-query`"
+    ]
+  }
 }

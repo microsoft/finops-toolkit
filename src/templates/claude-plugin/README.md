@@ -53,11 +53,11 @@ The plugin registers an [Azure MCP Server](https://github.com/Azure/azure-mcp) w
 
 ### Query catalog
 
-The core KQL query catalog for common FinOps scenarios is located in `skills/finops-toolkit/references/queries/catalog/`. The SRE Agent recipe exposes these plus AI and commitment-analysis Kusto tools through `ftk-database-query`.
+The core KQL query catalog for common FinOps scenarios is located in `skills/finops-toolkit/references/queries/catalog/`. The SRE Agent recipe exposes these Kusto-backed queries through `ftk-database-query`.
 
 | Query | Purpose |
 |-------|---------|
-| `costs-enriched-base.kql` | Base query with full enrichment and savings logic. Start here for custom analytics. |
+| `costs-enriched-base.kql` | Base query with full enrichment and savings logic for scoped custom drill-downs. |
 | `monthly-cost-trend.kql` | Billed and effective cost by month for trend analysis. |
 | `monthly-cost-change-percentage.kql` | Month-over-month cost change percentage. |
 | `top-services-by-cost.kql` | Top N Azure services by cost. |
@@ -66,6 +66,10 @@ The core KQL query catalog for common FinOps scenarios is located in `skills/fin
 | `quarterly-cost-by-resource-group.kql` | Effective cost by resource group for multi-month reporting. |
 | `cost-by-region-trend.kql` | Effective cost by Azure region. |
 | `cost-by-financial-hierarchy.kql` | Cost by billing profile, invoice section, team, product, app. |
+| `ai-cost-by-application.kql` | Azure OpenAI cost by application/team/environment. |
+| `ai-daily-trend.kql` | Daily Azure OpenAI cost and token trend. |
+| `ai-model-cost-comparison.kql` | Azure OpenAI model cost efficiency. |
+| `ai-token-usage-breakdown.kql` | Azure OpenAI tokens by model and direction. |
 | `cost-anomaly-detection.kql` | Statistical anomaly detection for cost spikes. |
 | `cost-forecasting-model.kql` | Projected future costs with configurable forecast horizon. |
 | `service-price-benchmarking.kql` | Compare list, contracted, effective, and commitment prices. |

@@ -1,0 +1,35 @@
+// ============================================================================
+// Query: Azure OpenAI Token Usage Breakdown
+// Description:
+//   Breaks Azure OpenAI token consumption down by model version and input/output direction.
+//   Calculates effective unit cost per token and cost per 1K tokens.
+// Author: FinOps Toolkit Team
+// Parameters:
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(30d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
+// Output:
+//   Each row represents one model and direction with token count and cost metrics.
+// Usage:
+//   Use this query to analyze AI workload unit economics, token direction mix, and model cost efficiency.
+// Last Updated: 2026-05-26
+// ============================================================================
+
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| where x_SkuMeterSubcategory has "OpenAI"
+| extend Model = x_SkuDescription
+| extend Direction = case(
+    Model contains "Input", "Input",
+    Model contains "Output", "Output",
+    "Other")
+| summarize
+    TokenCount = sum(ConsumedQuantity),
+    EffectiveCost = sum(EffectiveCost),
+    BilledCost = sum(BilledCost),
+    ListCost = sum(ListCost)
+    by Model, Direction, x_SkuDescription
+| extend UnitCostPerToken = iff(TokenCount == 0, 0.0, EffectiveCost / TokenCount)
+| extend CostPer1KTokens = UnitCostPerToken * 1000
+| order by EffectiveCost desc

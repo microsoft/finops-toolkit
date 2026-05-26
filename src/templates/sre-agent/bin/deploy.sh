@@ -461,13 +461,40 @@ echo -e "${YELLOW}[3/4] Deploying infrastructure with Azure CLI + Bicep...${NC}"
 echo "  Registering Microsoft.App provider..."
 az provider register -n Microsoft.App --wait --output none
 
+echo "  Starting deployment: $DEPLOY_NAME"
 az deployment sub create \
   --subscription "$SUBSCRIPTION_ID" \
   --location "$LOCATION" \
   --name "$DEPLOY_NAME" \
   --template-file "${INFRA_DIR}/main.bicep" \
   --parameters "@${PARAMETERS_FILE}" \
-  --output json | tee "$RESULT_FILE"
+  --no-wait \
+  --output none
+
+echo "  Waiting for deployment to complete..."
+DEPLOYMENT_START="$(date +%s)"
+DEPLOYMENT_JSON="{}"
+STATE=""
+while true; do
+  DEPLOYMENT_JSON="$(az deployment sub show \
+    --subscription "$SUBSCRIPTION_ID" \
+    --name "$DEPLOY_NAME" \
+    --output json 2>/dev/null || echo "{}")"
+  STATE="$(echo "$DEPLOYMENT_JSON" | jq -r '.properties.provisioningState // "Accepted"' 2>/dev/null)"
+
+  case "$STATE" in
+    Succeeded|Failed|Canceled)
+      break
+      ;;
+    *)
+      NOW="$(date +%s)"
+      echo "  Deployment state: ${STATE} ($((NOW - DEPLOYMENT_START))s elapsed)"
+      sleep 10
+      ;;
+  esac
+done
+
+printf '%s\n' "$DEPLOYMENT_JSON" > "$RESULT_FILE"
 
 STATE="$(jq -r '.properties.provisioningState // "Failed"' "$RESULT_FILE")"
 if [[ "$STATE" != "Succeeded" ]]; then

@@ -16,25 +16,25 @@ The deployment flow is copied from the Microsoft SRE Agent starter lab and updat
 | Managed identity | 1 | Agent system-assigned managed identity |
 | Log Analytics | 1 | Workspace for agent telemetry |
 | Application Insights | 1 | Linked to Log Analytics |
-| Subagents | 5 | FinOps, CFO, capacity, database-query, and hubs specialists |
+| Custom agents | 5 | FinOps practitioner orchestrator plus CFO, capacity, database-query, and hubs specialists |
 | Skills | 3 | Azure capacity management, Azure cost management, and FinOps Toolkit |
-| Tools | 34 | Kusto and Python tools for FinOps and capacity analysis |
+| Tools | 34 | Kusto, capacity, and Hub infrastructure tools |
 | Tool overrides | 9 | Enables SRE Agent Log Query and Visualization tools |
-| Scheduled tasks | 19 | Recurring FinOps, capacity, governance, and reporting tasks |
+| Scheduled tasks | 19 | Recurring FinOps, capacity, governance, and reporting tasks, all owned by `finops-practitioner` |
 | Connectors | 1 | Optional FinOps Hub Kusto connector when `--cluster-uri` is provided |
 | Knowledge docs | 6 | Five recipe knowledge docs plus the FinOps Toolkit output style |
 
 ## Current recipe inventory
 
-The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CATALOG.md) is the detailed inventory; this section summarizes what ships.
+The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CATALOG.md) is the authoritative inventory and FinOps Framework alignment reference, including the subagent-to-capability, tool, and scheduled-task matrix; this section summarizes what ships.
 
-| Subagent | Scheduled tasks | Focus |
-|----------|----------------:|-------|
-| `azure-capacity-manager` | 9 | Quota, capacity reservation groups, region and zone access, AKS capacity, and capacity evidence for Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, and Governance, Policy & Risk |
-| `chief-financial-officer` | 0 | Consultative finance and leadership persona for budgeting, forecasting, AI unit economics, commitment risk, and executive financial framing |
-| `finops-practitioner` | 8 | FinOps operating rhythm, specialist orchestration, cost optimization, budget and alert coverage, Advisor suppressions, and monthly/semiannual reporting |
-| `ftk-database-query` | 0 | Schema-aware FinOps Hub KQL and database evidence specialist; owns all Kusto tools |
-| `ftk-hubs-agent` | 2 | Hub health, data freshness, and monitoring scope validation |
+| Agent | Scheduled tasks owned | Focus |
+|-------|----------------------:|-------|
+| `finops-practitioner` | 19 | Sole scheduled-task owner. Runs the operating rhythm, delegates specialist evidence collection, applies the output style, assembles reports, and delivers results. |
+| `azure-capacity-manager` | 0 | Tool-bearing delegated subagent for quota, capacity reservation groups, region and zone access, AKS capacity, and capacity evidence. Owns the capacity Python tools; does not own Kusto, Resource Graph, Hub freshness, CLI, or remediation deployment tools. |
+| `chief-financial-officer` | 0 | Consultative subagent with no tools. Provides finance and leadership framing for budgeting, forecasting, AI unit economics, commitment risk, and executive decisions from evidence supplied by the practitioner. |
+| `ftk-database-query` | 0 | Tool-bearing delegated subagent for schema-aware FinOps Hub KQL and database evidence. Owns the Kusto tools; does not own Python, Azure CLI, Resource Graph, Hub freshness, or remediation deployment tools. |
+| `ftk-hubs-agent` | 0 | Tool-bearing delegated subagent for Hub health, data freshness, monitoring scope validation, deployment, upgrade, connector readiness, Resource Graph inventory, and explicit remediation deployment tooling. |
 
 | Tool type | Count | Examples |
 |-----------|------:|----------|
@@ -43,29 +43,37 @@ The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CAT
 
 The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Stable` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. `bin/post-provision.sh` enables the SRE Agent built-in Log Query and Visualization tools. It uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible Knowledge Sources, then waits for the expected sources to index. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
 
-The recipe is aligned to the canonical FinOps Framework. `finops-practitioner` owns the operating rhythm and scheduled report orchestration, `ftk-database-query` owns all Kusto and FOCUS evidence collection, `azure-capacity-manager` owns Azure capacity evidence under the relevant FinOps capabilities, and `chief-financial-officer` is consulted for finance and leadership framing rather than owning scheduled tasks.
+The recipe is aligned to the 2026 FinOps Framework. `finops-practitioner` owns all scheduled tasks and orchestrates four delegated subagents. Three delegated subagents have tools: `ftk-database-query` owns Kusto and FOCUS evidence collection, `azure-capacity-manager` owns capacity Python evidence, and `ftk-hubs-agent` owns Hub platform and infrastructure health tooling. `chief-financial-officer` is consulted for finance and leadership framing and has no tools or scheduled tasks. Capacity and quota management is mapped into the canonical capabilities and phases, not a separate azcapman operating model.
 
-| Scheduled task | Agent | Schedule |
+The phase model is iterative:
+
+| Phase | How the recipe uses it |
+|-------|------------------------|
+| Inform | Build trusted cost, usage, allocation, forecast, unit-economics, data freshness, and capacity-headroom evidence. |
+| Optimize | Identify rate, usage, workload placement, SKU, quota, CRG, and architecture opportunities with business-value tradeoffs. |
+| Operate | Run scheduled governance, budget, alert, reporting, connector, and continuous-improvement workflows. |
+
+| Scheduled task | Owning agent | Schedule |
 |----------------|-------|----------|
-| `CapacityDailyMonitor` | `azure-capacity-manager` | `30 6 * * *` |
-| `HubsHealthCheck` | `ftk-hubs-agent` | `0 6 * * *` |
+| `CapacityDailyMonitor` | `finops-practitioner` | `30 6 * * *` |
+| `HubsHealthCheck` | `finops-practitioner` | `0 6 * * *` |
 | `Monthly` | `finops-practitioner` | `15 17 5 * *` |
-| `CapacityWeeklySupplyReview` | `azure-capacity-manager` | `0 8 * * 1` |
-| `ComputeUtilizationTrend` | `azure-capacity-manager` | `0 7 * * 1` |
+| `CapacityWeeklySupplyReview` | `finops-practitioner` | `0 8 * * 1` |
+| `ComputeUtilizationTrend` | `finops-practitioner` | `0 7 * * 1` |
 | `CostOptimization` | `finops-practitioner` | `0 8 * * 1` |
-| `NonComputeQuotaAudit` | `azure-capacity-manager` | `0 7 * * 2` |
-| `DbQuotaAudit` | `azure-capacity-manager` | `0 7 * * 3` |
-| `SkuAvailabilityAudit` | `azure-capacity-manager` | `30 7 * * 3` |
-| `MonitoringScopeValidation` | `ftk-hubs-agent` | `0 9 * * 4` |
+| `NonComputeQuotaAudit` | `finops-practitioner` | `0 7 * * 2` |
+| `DbQuotaAudit` | `finops-practitioner` | `0 7 * * 3` |
+| `SkuAvailabilityAudit` | `finops-practitioner` | `30 7 * * 3` |
+| `MonitoringScopeValidation` | `finops-practitioner` | `0 9 * * 4` |
 | `BenefitRecommendationReview` | `finops-practitioner` | `0 8 * * 5` |
 | `AdvisorSuppressionReview` | `finops-practitioner` | `0 9 1 * *` |
 | `AIWorkloadCostAnalysis` | `finops-practitioner` | `0 10 1 * *` |
-| `CapacityMonthlyPlanning` | `azure-capacity-manager` | `0 9 1 * *` |
-| `StoragePaasGrowthForecast` | `azure-capacity-manager` | `0 8 1 * *` |
+| `CapacityMonthlyPlanning` | `finops-practitioner` | `0 9 1 * *` |
+| `StoragePaasGrowthForecast` | `finops-practitioner` | `0 8 1 * *` |
 | `Semiannual` | `finops-practitioner` | `0 9 5 1,7 *` |
 | `BudgetCoverageAudit` | `finops-practitioner` | `0 8 15 * *` |
 | `AlertCoverageAudit` | `finops-practitioner` | `0 8 16 * *` |
-| `CapacityQuarterlyStrategy` | `azure-capacity-manager` | `0 9 1 1,4,7,10 *` |
+| `CapacityQuarterlyStrategy` | `finops-practitioner` | `0 9 1 1,4,7,10 *` |
 
 ## Prerequisites
 

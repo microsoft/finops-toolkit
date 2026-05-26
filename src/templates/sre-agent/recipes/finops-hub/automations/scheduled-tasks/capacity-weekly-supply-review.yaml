@@ -7,7 +7,7 @@ spec:
   description: Weekly FinOps capacity management review — quota headroom, CRG cost optimization, SKU availability, benefit recommendations
   cron_expression: 0 8 * * 1
   agent_mode: autonomous
-  agent: azure-capacity-manager
+  agent: finops-practitioner
   agent_prompt: '# Weekly FinOps Capacity Management Review
 
 
@@ -18,30 +18,32 @@ spec:
 
     Output style: Apply `ftk-output-style.md` from the knowledge base to every report, Teams message, and Outlook email message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
 
-    Delivery and rendering guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage`, `SendOutlookEmail`, `PlotBarChart`, `PlotPieChart`, `PlotAreaChartWithCorrelation`, and `ExecutePythonCode` are present. Do not call notification, email, connector, Microsoft Graph, `dynamicInvoke`, raw webhook, or connector APIs just to test availability. Use visualization tools first for charts when available, with `ExecutePythonCode` or code-interpreter chart generation only as a fallback. Complete the report before delivery. When a Teams connector/channel is configured, make one final `PostTeamsMessage` attempt to the configured Teams channel. When an Outlook connector/recipient is configured, make one final `SendOutlookEmail` attempt with the same final report and any generated chart artifacts. If a configured delivery path fails, mark the task/run failed instead of degrading to local output or probing alternate paths. If neither Teams nor Outlook delivery is configured or available, render the completed report in the run output and explicitly state which delivery paths were skipped.
+    Tool routing and delivery guard: This scheduled task is owned by `finops-practitioner`, which has no direct tools. Use subagent handoffs for all tool work and pass the full task scope, evidence already collected, open questions, and desired output shape with each handoff. Use `ftk-database-query` for FinOps Hub Kusto, cost, pricing, recommendation, and transaction query tools. Use `azure-capacity-manager` for capacity, quota, capacity reservation group, SKU availability, database service quota, and benefit recommendation Python tools. Use `ftk-hubs-agent` for FinOps Hub infrastructure health, Resource Graph inventory, data freshness, deployment, remediation, alert and budget deployment, and Advisor suppression operations. Use `chief-financial-officer` only for executive finance framing. Use a tool-bearing specialist (`ftk-database-query`, `azure-capacity-manager`, or `ftk-hubs-agent`) for visualization and Teams/Outlook delivery after the final evidence package is assembled. Ask that delivery specialist to check available visualization and delivery tools exactly once per run and remember whether `PostTeamsMessage`, `SendOutlookEmail`, `PlotBarChart`, `PlotPieChart`, `PlotAreaChartWithCorrelation`, and `ExecutePythonCode` are present. Do not call notification, email, connector, Microsoft Graph, `dynamicInvoke`, raw webhook, or connector APIs just to test availability. Use visualization tools first for charts when available, with `ExecutePythonCode` or code-interpreter chart generation only as a fallback. Complete the report before delivery. When a Teams connector/channel is configured, ask the delivery specialist to make one final `PostTeamsMessage` attempt to the configured Teams channel. When an Outlook connector/recipient is configured, ask the delivery specialist to make one final `SendOutlookEmail` attempt with the same final report and any generated chart artifacts. If a configured delivery path fails, mark the task/run failed instead of degrading to local output or probing alternate paths. If neither Teams nor Outlook delivery is configured or available, render the completed report in the run output and explicitly state which delivery paths were skipped.
 
 
 
-    Load your azure-capacity-management skill.
+    Orchestration rule: This scheduled task is owned by `finops-practitioner`. Delegate capacity evidence collection and specialist analysis to `azure-capacity-manager`; do not try to run capacity tools directly from the practitioner. When the specialist returns evidence, assemble the final FinOps report, apply `ftk-output-style.md`, generate supported visualizations, and deliver the completed output through configured connectors.
+
+    Ask `azure-capacity-manager` to load its azure-capacity-management skill during the handoff.
 
 
     Weekly review mapping Azure capacity signals into FinOps Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization support, Governance, Policy & Risk, and Automation, Tools & Services.
 
-    ## Python tools available for this task
+    ## Specialist tools to request from `azure-capacity-manager`
 
-    The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Python tools use DefaultAzureCredential with the agent system-managed identity.
+    Ask `azure-capacity-manager` to use the following Python tools instead of `az` CLI commands when available. Specialist tools use their configured authentication and the agent system-managed identity where required.
 
     - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds
     - `non-compute-quotas`: Run with subscription_id and location to get Storage and Network quota usage
     - `capacity-reservation-groups`: Run with subscription_id and resource_group when scoped to list CRGs with instanceView utilization
-    - `sku-availability`: Run with subscription_id and location to get Compute SKU availability and restrictions by default. Use `resource_provider: kusto` with a planned Data Explorer SKU in `sku_filter` to preflight Azure Data Explorer / Kusto eligibility for FinOps Hub analytics deployments; never infer Kusto availability from Compute SKU results.
-    - `benefit-recommendations`: Run with billing_scope and lookback to get reservation and savings plan recommendations
+    - `sku-availability`: Ask `azure-capacity-manager` to run with subscription_id and location to get Compute SKU availability and restrictions by default. Use `resource_provider: kusto` with a planned Data Explorer SKU in `sku_filter` to preflight Azure Data Explorer / Kusto eligibility for FinOps Hub analytics deployments; never infer Kusto availability from Compute SKU results.
+    - `azure-capacity-manager`: Run `benefit-recommendations` with billing_scope and lookback to get reservation and savings plan recommendations
 
 
     ## 1. Quota Headroom Analysis
 
 
-    Run comprehensive quota analysis across all subscriptions using `vm-quota-usage` and `non-compute-quotas`:
+    Ask `azure-capacity-manager` to run comprehensive quota analysis across all subscriptions using `vm-quota-usage` and `non-compute-quotas`:
 
     - Aggregate quota usage by VM family across subscriptions
 
@@ -60,7 +62,7 @@ spec:
     ## 2. CRG Cost-Waste Audit
 
 
-    Use `capacity-reservation-groups` for all capacity reservations:
+    Ask `azure-capacity-manager` to use `capacity-reservation-groups` for all capacity reservations:
 
     - Calculate weekly cost of unused reserved capacity (reserved minus allocated × pay-as-you-go rate)
 
@@ -80,13 +82,13 @@ spec:
     ## 3. SKU and Zone Availability Validation
 
 
-    Use `sku-availability` to validate SKU and zone availability for shared CRGs and upcoming deployments:
+    Ask `azure-capacity-manager` to use `sku-availability` to validate SKU and zone availability for shared CRGs and upcoming deployments:
 
     - Verify that planned SKUs are available in the required locations and zones
 
     - Flag any SKU restrictions that could block planned scaling
 
-    - For FinOps Hub Data Explorer backend work, run `sku-availability` with `resource_provider: kusto` and the planned ADX SKU as `sku_filter`; treat `is_available: false` as a deploy or upgrade blocker.
+    - For FinOps Hub Data Explorer backend work, ask `azure-capacity-manager` to run `sku-availability` with `resource_provider: kusto` and the planned ADX SKU as `sku_filter`; treat `is_available: false` as a deploy or upgrade blocker.
 
 
     Reference: Skill section on zone alignment and `references/docs/operations/capacity-planning/README.md`
@@ -95,7 +97,7 @@ spec:
     ## 4. Benefit Recommendations
 
 
-    Run `benefit-recommendations` directly to get current RI/SP recommendations. Where Hub cost context is available, ask `ftk-database-query` to run `reservation-recommendation-breakdown` for Kusto-backed recommendation evidence.
+    Ask `azure-capacity-manager` to run `benefit-recommendations` when current RI/SP recommendations are needed. Where Hub cost context is available, ask `ftk-database-query` to run `reservation-recommendation-breakdown` for Kusto-backed recommendation evidence.
 
     Cross-reference with capacity reservation strategy:
 
@@ -107,7 +109,7 @@ spec:
     ## 5. Region and SKU Availability
 
 
-    Use `sku-availability` to check for any new region access or zonal enablement needs:
+    Ask `azure-capacity-manager` to use `sku-availability` to check for any new region access or zonal enablement needs:
 
     - Upcoming deployments that need new regions?
 
@@ -138,9 +140,9 @@ spec:
 
 
 
-    **Visualizations:** Before delivery, generate charts for key findings using `PlotBarChart`, `PlotPieChart`, or `PlotAreaChartWithCorrelation` when those visualization tools fit the data. Use `ExecutePythonCode` or matplotlib/seaborn via the code interpreter only when the visualization tools are unavailable or cannot express the required chart. Include at minimum one trend chart and one comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed the chart images inline in the Teams message and attach or embed them in the Outlook email alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
+    **Visualizations:** Before delivery, ask the selected delivery specialist to generate charts for key findings using `PlotBarChart`, `PlotPieChart`, or `PlotAreaChartWithCorrelation` when those visualization tools fit the data. Use `ExecutePythonCode` or matplotlib/seaborn via the code interpreter only when the visualization tools are unavailable or cannot express the required chart. Include at minimum one trend chart and one comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed the chart images inline in the Teams message and attach or embed them in the Outlook email alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
 
-    **Teams and Outlook (capacity results only):** Post the final weekly capacity briefing to our Teams channel. Include the quota headroom scorecard, CRG waste summary, benefit recommendations, and capacity action items. Do not post intermediate results — only the completed briefing. Use `PostTeamsMessage` and `SendOutlookEmail` only when the delivery guard found each tool available once per run. If neither Teams nor Outlook delivery is configured or available, return the completed report in the run output with a note naming the skipped delivery paths. If any configured Teams or Outlook final delivery attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
+    **Teams and Outlook (capacity results only):** Post the final weekly capacity briefing to our Teams channel. Include the quota headroom scorecard, CRG waste summary, benefit recommendations, and capacity action items. Do not post intermediate results — only the completed briefing. Ask the selected delivery specialist to use `PostTeamsMessage` and `SendOutlookEmail` only when the delivery guard found each tool available once per run. If neither Teams nor Outlook delivery is configured or available, return the completed report in the run output with a note naming the skipped delivery paths. If any configured Teams or Outlook final delivery attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
 
 
     **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — quota API failures, SKU availability discoveries, CRG query patterns, Python tool workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to configured Teams and Outlook delivery only.'

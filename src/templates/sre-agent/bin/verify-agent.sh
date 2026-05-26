@@ -175,7 +175,9 @@ RESULTS="${RESULTS}\n  Managed resource groups|${MANAGED_RESOURCE_GROUPS}|—|"
 
 ACTION_IDENTITY=$(echo "$AGENT_JSON" | jq -r '.properties.actionConfiguration.identity // empty' 2>/dev/null)
 ACTION_PRINCIPAL_ID=""
-if [[ -n "$ACTION_IDENTITY" ]]; then
+if [[ "$(printf '%s' "$ACTION_IDENTITY" | tr '[:upper:]' '[:lower:]')" == "system" ]]; then
+  ACTION_PRINCIPAL_ID=$(echo "$AGENT_JSON" | jq -r '.identity.principalId // empty' 2>/dev/null)
+elif [[ -n "$ACTION_IDENTITY" ]]; then
   ACTION_PRINCIPAL_ID=$(echo "$AGENT_JSON" | jq -r --arg identity "$ACTION_IDENTITY" '
     .identity.userAssignedIdentities as $identities
     | ($identities[$identity].principalId // (
@@ -250,6 +252,7 @@ check "Skills" "$SKILL_CT" "$EXP_SKILL_CT"
 
 # ── Subagents ──
 SUBAGENTS=$(dp_get "/api/v2/extendedAgent/agents")
+SUBAGENTS_V1=$(dp_get "/api/v1/extendedAgent/agents?page=1&limit=200")
 SA_CT=$(echo "$SUBAGENTS" | jq '.value | length' 2>/dev/null || echo 0)
 SA_NAMES=$(echo "$SUBAGENTS" | jq -r '.value[].name' 2>/dev/null | sort | tr '\n' ', ' | sed 's/,$//')
 EXP_SA_CT=$(exp '.subagents | length' "-")
@@ -257,13 +260,36 @@ EXP_SA_NAMES=$(exp_list '.subagents')
 check "Subagents" "$SA_CT" "$EXP_SA_CT"
 [[ -n "$EXP_SA_NAMES" ]] && check "Subagent names" "$SA_NAMES" "$EXP_SA_NAMES" || RESULTS="${RESULTS}\n  Subagent names|${SA_NAMES}|—|"
 
-EXP_ALL_SUBAGENT_TOOLS=$(exp_list '.subagentRequirements.allTools')
-if [[ -n "$EXP_ALL_SUBAGENT_TOOLS" ]]; then
-  SUBAGENTS_WITH_TOOLS=$(echo "$SUBAGENTS" | jq -r --arg expected_csv "$EXP_ALL_SUBAGENT_TOOLS" '
-    ($expected_csv | split(",") | map(select(. != ""))) as $expected
-    | [.value[]? | select((.properties.tools // []) as $tools | all($expected[]; $tools | index(.)))] | length
-  ' 2>/dev/null || echo 0)
-  check "Subagents with required tools" "$SUBAGENTS_WITH_TOOLS" "$SA_CT"
+EXP_TOOL_OWNER_NAMES=$(exp_list '.subagentRequirements.toolOwners')
+if [[ -n "$EXP_TOOL_OWNER_NAMES" ]]; then
+  ACTUAL_TOOL_OWNER_NAMES=$(echo "$SUBAGENTS" | jq -r '
+    [.value[]? | select((((.properties.tools // []) | length) + ((.properties.systemTools // []) | length) + ((.properties.mcpTools // []) | length)) > 0) | .name] | sort | join(",")
+  ' 2>/dev/null)
+  check "Tool-bearing agents" "$ACTUAL_TOOL_OWNER_NAMES" "$EXP_TOOL_OWNER_NAMES"
+fi
+
+EXP_NO_TOOL_NAMES=$(exp_list '.subagentRequirements.noTools')
+if [[ -n "$EXP_NO_TOOL_NAMES" ]]; then
+  ACTUAL_NO_TOOL_NAMES=$(echo "$SUBAGENTS" | jq -r '
+    [.value[]? | select((((.properties.tools // []) | length) + ((.properties.systemTools // []) | length) + ((.properties.mcpTools // []) | length)) == 0) | .name] | sort | join(",")
+  ' 2>/dev/null)
+  check "Agents without tools" "$ACTUAL_NO_TOOL_NAMES" "$EXP_NO_TOOL_NAMES"
+fi
+
+if [[ -n "$EXPECTED_CONFIG" ]]; then
+  EXP_TOOLS_BY_AGENT_NAMES=$(echo "$EXPECTED_CONFIG" | jq -r '.subagentRequirements.toolsByAgent // {} | keys | sort | join(",")' 2>/dev/null)
+  if [[ -n "$EXP_TOOLS_BY_AGENT_NAMES" ]]; then
+    IFS=',' read -r -a TOOLS_BY_AGENT_NAMES <<< "$EXP_TOOLS_BY_AGENT_NAMES"
+    for tools_agent in "${TOOLS_BY_AGENT_NAMES[@]}"; do
+      [[ -n "$tools_agent" ]] || continue
+      EXP_AGENT_TOOLS=$(echo "$EXPECTED_CONFIG" | jq -r --arg agent "$tools_agent" '.subagentRequirements.toolsByAgent[$agent] // [] | sort | join(",")' 2>/dev/null)
+      ACTUAL_AGENT_TOOLS=$(echo "$SUBAGENTS" | jq -r --arg agent "$tools_agent" '
+        ([.value[]? | select(.name == $agent)][0].properties // {})
+        | (((.tools // []) + (.systemTools // []) + (.mcpTools // [])) | sort | join(","))
+      ' 2>/dev/null)
+      check "Tools: ${tools_agent}" "$ACTUAL_AGENT_TOOLS" "$EXP_AGENT_TOOLS"
+    done
+  fi
 fi
 
 if [[ -n "$EXPECTED_CONFIG" ]]; then
@@ -276,6 +302,14 @@ if [[ -n "$EXPECTED_CONFIG" ]]; then
       ACTUAL_HANDOFFS=$(echo "$SUBAGENTS" | jq -r --arg agent "$handoff_agent" '[.value[]? | select(.name == $agent)][0].properties.handoffs // [] | sort | join(",")' 2>/dev/null)
       check "Handoffs: ${handoff_agent}" "$ACTUAL_HANDOFFS" "$EXP_HANDOFFS"
     done
+  fi
+
+  EXP_NO_HANDOFF_NAMES=$(exp_list '.subagentRequirements.noHandoffs')
+  if [[ -n "$EXP_NO_HANDOFF_NAMES" ]]; then
+    ACTUAL_NO_HANDOFF_NAMES=$(echo "$SUBAGENTS" | jq -r '
+      [.value[]? | select(((.properties.handoffs // []) | length) == 0) | .name] | sort | join(",")
+    ' 2>/dev/null)
+    check "Agents without handoffs" "$ACTUAL_NO_HANDOFF_NAMES" "$EXP_NO_HANDOFF_NAMES"
   fi
 fi
 
@@ -331,6 +365,74 @@ check "Scheduled Tasks (unique)" "$TASK_UNIQUE" "$EXP_TASK_CT"
 if [[ "$TASK_CT" != "$TASK_UNIQUE" ]]; then
   RESULTS="${RESULTS}\n  Scheduled task duplicates|${TASK_CT} total, ${TASK_UNIQUE} unique|0 duplicates|❌ FAIL"
   FAIL=$((FAIL + 1))
+fi
+EXP_TASK_OWNER=$(exp '.scheduledTaskRequirements.ownerAgent' "")
+if [[ -n "$EXP_TASK_OWNER" ]]; then
+  TASKS_WITH_EXPECTED_OWNER=$(echo "$TASKS" | jq -r --arg owner "$EXP_TASK_OWNER" '
+    [.[]? | select((.agent // .properties.agent // .spec.agent // .agentName // .properties.agentName // .properties.targetAgent // "") == $owner)] | length
+  ' 2>/dev/null || echo 0)
+  check "Scheduled task owner" "$TASKS_WITH_EXPECTED_OWNER" "$TASK_CT"
+  TASK_OWNER_MISMATCHES=$(echo "$TASKS" | jq -r --arg owner "$EXP_TASK_OWNER" '
+    [.[]?
+      | (.agent // .properties.agent // .spec.agent // .agentName // .properties.agentName // .properties.targetAgent // "missing") as $actual
+      | select($actual != $owner)
+      | "\(.name // .metadata.name // .id // "unnamed") -> \($actual)"
+    ] | join("; ")
+  ' 2>/dev/null)
+  if [[ -n "$TASK_OWNER_MISMATCHES" ]]; then
+    RESULTS="${RESULTS}\n  Scheduled task owner mismatches|${TASK_OWNER_MISMATCHES}|${EXP_TASK_OWNER}|❌ FAIL"
+    FAIL=$((FAIL + 1))
+  fi
+fi
+if [[ -n "$EXPECTED_CONFIG" ]]; then
+  EXP_TASK_PROMPT_REQUIRED=$(echo "$EXPECTED_CONFIG" | jq -c '.scheduledTaskRequirements.promptRequiredText // []' 2>/dev/null || echo "[]")
+  EXP_TASK_PROMPT_REQUIRED_CT=$(echo "$EXP_TASK_PROMPT_REQUIRED" | jq 'length' 2>/dev/null || echo 0)
+  if [[ "$EXP_TASK_PROMPT_REQUIRED_CT" -gt 0 ]]; then
+    TASKS_WITH_REQUIRED_PROMPT=$(echo "$TASKS" | jq -r --argjson required "$EXP_TASK_PROMPT_REQUIRED" '
+      [.[]?
+        | (.agentPrompt // .agent_prompt // .prompt // .properties.agentPrompt // .properties.agent_prompt // .properties.prompt // .spec.agentPrompt // .spec.agent_prompt // .spec.prompt // "") as $prompt
+        | select(([$required[] as $needle | select(($prompt | contains($needle)) | not)] | length) == 0)
+      ] | length
+    ' 2>/dev/null || echo 0)
+    check "Scheduled task prompt required text" "$TASKS_WITH_REQUIRED_PROMPT" "$TASK_CT"
+    TASK_REQUIRED_PROMPT_MISMATCHES=$(echo "$TASKS" | jq -r --argjson required "$EXP_TASK_PROMPT_REQUIRED" '
+      [.[]?
+        | (.name // .metadata.name // .id // "unnamed") as $name
+        | (.agentPrompt // .agent_prompt // .prompt // .properties.agentPrompt // .properties.agent_prompt // .properties.prompt // .spec.agentPrompt // .spec.agent_prompt // .spec.prompt // "") as $prompt
+        | select(([$required[] as $needle | select(($prompt | contains($needle)) | not)] | length) > 0)
+        | $name
+      ] | join(",")
+    ' 2>/dev/null)
+    if [[ -n "$TASK_REQUIRED_PROMPT_MISMATCHES" ]]; then
+      RESULTS="${RESULTS}\n  Scheduled task prompt missing routing guard|${TASK_REQUIRED_PROMPT_MISMATCHES}|all tasks|❌ FAIL"
+      FAIL=$((FAIL + 1))
+    fi
+  fi
+
+  EXP_TASK_PROMPT_FORBIDDEN=$(echo "$EXPECTED_CONFIG" | jq -c '.scheduledTaskRequirements.promptForbiddenText // []' 2>/dev/null || echo "[]")
+  EXP_TASK_PROMPT_FORBIDDEN_CT=$(echo "$EXP_TASK_PROMPT_FORBIDDEN" | jq 'length' 2>/dev/null || echo 0)
+  if [[ "$EXP_TASK_PROMPT_FORBIDDEN_CT" -gt 0 ]]; then
+    TASKS_WITH_FORBIDDEN_PROMPT=$(echo "$TASKS" | jq -r --argjson forbidden "$EXP_TASK_PROMPT_FORBIDDEN" '
+      [.[]?
+        | (.agentPrompt // .agent_prompt // .prompt // .properties.agentPrompt // .properties.agent_prompt // .properties.prompt // .spec.agentPrompt // .spec.agent_prompt // .spec.prompt // "") as $prompt
+        | select(([$forbidden[] as $needle | select($prompt | contains($needle))] | length) > 0)
+      ] | length
+    ' 2>/dev/null || echo 0)
+    check "Scheduled task prompt forbidden text" "$TASKS_WITH_FORBIDDEN_PROMPT" "0"
+    TASK_FORBIDDEN_PROMPT_MISMATCHES=$(echo "$TASKS" | jq -r --argjson forbidden "$EXP_TASK_PROMPT_FORBIDDEN" '
+      [.[]?
+        | (.name // .metadata.name // .id // "unnamed") as $name
+        | (.agentPrompt // .agent_prompt // .prompt // .properties.agentPrompt // .properties.agent_prompt // .properties.prompt // .spec.agentPrompt // .spec.agent_prompt // .spec.prompt // "") as $prompt
+        | [ $forbidden[] as $needle | select($prompt | contains($needle)) | $needle ] as $matches
+        | select(($matches | length) > 0)
+        | "\($name): \($matches | join("; "))"
+      ] | join(" | ")
+    ' 2>/dev/null)
+    if [[ -n "$TASK_FORBIDDEN_PROMPT_MISMATCHES" ]]; then
+      RESULTS="${RESULTS}\n  Scheduled task prompt forbidden matches|${TASK_FORBIDDEN_PROMPT_MISMATCHES}|none|❌ FAIL"
+      FAIL=$((FAIL + 1))
+    fi
+  fi
 fi
 
 # ── Knowledge sources ──
