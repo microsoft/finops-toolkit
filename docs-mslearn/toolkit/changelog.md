@@ -80,7 +80,8 @@ _Released April 2026_
   - Fixed incorrect Azure China ADX DNS suffix (`kusto.chinacloudapi.cn` → `kusto.windows.cn`) ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
   - Fixed `createUiDefinition.json` storage URL validation to accept sovereign cloud storage suffixes ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
   - Fixed `gitapp.hub.com` typo in ADF linked service URL ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
-  - Fixed Data Factory ingestion memory pressure by replacing `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts so temporary concatenated strings are no longer allocated during emptiness filtering.
+  - Fixed Data Factory ingestion memory pressure during emptiness filtering.
+    - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
   - Fixed `msexports_ExecuteETL` pipeline failing on empty export files by adding a row count check ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
   - Fixed Data Explorer dashboard cost and savings KPIs producing invalid sums in multi-billing-currency tenants by adding a Currency parameter that scopes tile queries to a single currency ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
