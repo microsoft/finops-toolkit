@@ -66,30 +66,30 @@ CommitmentDiscountUsage_v1_4()
 }
 
 
-// ContractCommitment_final_v1_4
+// ContractCommitments_final_v1_4
 .create-or-alter function
-with (docstring = 'Gets all contract commitments aligned to FOCUS 1.4.', folder = 'ContractCommitment')
-ContractCommitment_v1_4()
+with (docstring = 'Gets all contract commitments aligned to FOCUS 1.4.', folder = 'ContractCommitments')
+ContractCommitments_v1_4()
 {
-    database('Ingestion').ContractCommitment_final_v1_4
-    | union (
-        database('Ingestion').ContractCommitment_final_v1_3
-        // FOCUS 1.4 column defaults (data was ingested under v1_3 schema)
-        | extend BenefitCategory                       = ''
-        | extend ContractCommitmentApplicability       = dynamic(null)
-        | extend Created                               = datetime(null)
-        | extend DiscountPercentage                    = real(null)
-        | extend DurationType                          = ''
-        | extend FulfillmentInterval                   = ''
-        | extend LastUpdated                           = datetime(null)
-        | extend LifecycleStatus                       = ''
-        | extend Model                                 = ''
-        | extend OfferCategory                         = ''
-        | extend PaymentInterval                       = ''
-        | extend PaymentModel                          = ''
-        | extend PaymentUpfrontPercentage              = real(null)
-        | extend PricingCurrencyContractCommitmentCost = real(null)
-    )
+    database('Ingestion').ContractCommitments_final_v1_4
+}
+
+
+// BillingPeriods_final_v1_4
+.create-or-alter function
+with (docstring = 'Gets all billing periods aligned to FOCUS 1.4.', folder = 'BillingPeriods')
+BillingPeriods_v1_4()
+{
+    database('Ingestion').BillingPeriods_final_v1_4
+}
+
+
+// InvoiceDetails_final_v1_4
+.create-or-alter function
+with (docstring = 'Gets all invoice details aligned to FOCUS 1.4.', folder = 'InvoiceDetails')
+InvoiceDetails_v1_4()
+{
+    database('Ingestion').InvoiceDetails_final_v1_4
 }
 
 
@@ -225,33 +225,55 @@ Costs_v1_4()
         | extend SkuPriceDetails = iff(isempty(SkuPriceDetails.OperatingSystem) and isnotempty(x_SkuOperatingSystem),
             parse_json(replace_string(tostring(SkuPriceDetails), '}', strcat(@',"OperatingSystem":"', x_SkuOperatingSystem, '"}'))),
             SkuPriceDetails)
-        // FOCUS 1.3 column defaults (data was ingested under v1_0 schema)
-        | extend AllocatedMethodId      = ''
-        | extend AllocatedMethodDetails = dynamic(null)
-        | extend AllocatedResourceId    = ''
-        | extend AllocatedResourceName  = ''
-        | extend AllocatedTags          = dynamic(null)
-        | extend ContractApplied        = dynamic(null)
-        | extend ServiceProviderName    = ProviderName
-        | extend HostProviderName       = PublisherName
+        // FOCUS 1.4 column defaults (data was ingested under v1_0 schema)
+        | extend AllocatedMethodId                             = ''
+        | extend AllocatedMethodDetails                        = dynamic(null)
+        | extend AllocatedResourceId                           = ''
+        | extend AllocatedResourceName                         = ''
+        | extend AllocatedTags                                 = dynamic(null)
+        | extend CommitmentProgramEligibilityDetails           = dynamic(null)
+        | extend ContractApplied                               = dynamic(null)
+        | extend ContractCommitmentBenefitCategory             = ''
+        | extend ContractCommitmentCreated                     = datetime(null)
+        | extend ContractCommitmentDiscountPercentage          = real(null)
+        | extend ContractCommitmentDurationType                = ''
+        | extend ContractCommitmentFulfillmentInterval         = ''
+        | extend ContractCommitmentLastUpdated                 = datetime(null)
+        | extend ContractCommitmentLifecycleStatus             = ''
+        | extend ContractCommitmentModel                       = ''
+        | extend ContractCommitmentOfferCategory               = ''
+        | extend ContractCommitmentPaymentInterval             = ''
+        | extend ContractCommitmentPaymentModel                = ''
+        | extend ContractCommitmentPaymentUpfrontPercentage    = real(null)
+        | extend HostProviderName                              = PublisherName
+        | extend InvoiceDetailId                               = ''
+        | extend ServiceProviderName                           = ProviderName
     )
     | union (
         database('Ingestion').Costs_final_v1_2
-        // FOCUS 1.3 column defaults (data was ingested under v1_2 schema)
-        | extend AllocatedMethodId      = ''
-        | extend AllocatedMethodDetails = dynamic(null)
-        | extend AllocatedResourceId    = ''
-        | extend AllocatedResourceName  = ''
-        | extend AllocatedTags          = dynamic(null)
-        | extend ContractApplied        = dynamic(null)
-        | extend ServiceProviderName    = ProviderName
-        | extend HostProviderName       = PublisherName
-    )
-    | union (
-        database('Ingestion').Costs_final_v1_3
-        // No column adds needed; v1_3 already has the FOCUS 1.3 columns. The
-        // deprecated ProviderName / PublisherName fall off via the | project
-        // list below since FOCUS 1.4 removes them.
+        // FOCUS 1.4 column defaults (data was ingested under v1_2 schema)
+        | extend AllocatedMethodId                             = ''
+        | extend AllocatedMethodDetails                        = dynamic(null)
+        | extend AllocatedResourceId                           = ''
+        | extend AllocatedResourceName                         = ''
+        | extend AllocatedTags                                 = dynamic(null)
+        | extend CommitmentProgramEligibilityDetails           = dynamic(null)
+        | extend ContractApplied                               = dynamic(null)
+        | extend ContractCommitmentBenefitCategory             = ''
+        | extend ContractCommitmentCreated                     = datetime(null)
+        | extend ContractCommitmentDiscountPercentage          = real(null)
+        | extend ContractCommitmentDurationType                = ''
+        | extend ContractCommitmentFulfillmentInterval         = ''
+        | extend ContractCommitmentLastUpdated                 = datetime(null)
+        | extend ContractCommitmentLifecycleStatus             = ''
+        | extend ContractCommitmentModel                       = ''
+        | extend ContractCommitmentOfferCategory               = ''
+        | extend ContractCommitmentPaymentInterval             = ''
+        | extend ContractCommitmentPaymentModel                = ''
+        | extend ContractCommitmentPaymentUpfrontPercentage    = real(null)
+        | extend HostProviderName                              = PublisherName
+        | extend InvoiceDetailId                               = ''
+        | extend ServiceProviderName                           = ProviderName
     )
     | extend SkuPriceDetails = iff(isnotempty(SkuPriceDetails), SkuPriceDetails, parse_json(replace_regex(tostring(x_SkuDetails), @'([\{,])"', @'\1"x_')))
     | project
@@ -283,13 +305,27 @@ Costs_v1_4()
         CommitmentDiscountStatus,
         CommitmentDiscountType,
         CommitmentDiscountUnit,
+        CommitmentProgramEligibilityDetails,
         ConsumedQuantity,
         ConsumedUnit,
         ContractApplied,
+        ContractCommitmentBenefitCategory,
+        ContractCommitmentCreated,
+        ContractCommitmentDiscountPercentage,
+        ContractCommitmentDurationType,
+        ContractCommitmentFulfillmentInterval,
+        ContractCommitmentLastUpdated,
+        ContractCommitmentLifecycleStatus,
+        ContractCommitmentModel,
+        ContractCommitmentOfferCategory,
+        ContractCommitmentPaymentInterval,
+        ContractCommitmentPaymentModel,
+        ContractCommitmentPaymentUpfrontPercentage,
         ContractedCost,
         ContractedUnitPrice,
         EffectiveCost,
         HostProviderName,
+        InvoiceDetailId,
         InvoiceId,
         InvoiceIssuerName,
         ListCost,
