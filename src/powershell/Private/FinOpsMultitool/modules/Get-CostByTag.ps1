@@ -75,6 +75,24 @@ function Get-CostByTag {
         }
     }
 
+    # Skip tags with very low resource coverage (< 3 resources tagged)
+    # These produce mostly "(untagged)" results and waste API calls
+    if ($ExistingTags -and $tagsToQuery.Count -gt 8) {
+        $cafTags = $tagsToQuery | Select-Object -First ([math]::Min($tagsToQuery.Count, 7))
+        $extraTags = $tagsToQuery | Select-Object -Skip 7
+        $filteredExtras = @()
+        foreach ($t in $extraTags) {
+            $tagInfo = if ($ExistingTags.ContainsKey($t)) { $ExistingTags[$t] } else { $null }
+            $count = if ($tagInfo -and $tagInfo.TotalResources) { $tagInfo.TotalResources } else { 0 }
+            if ($count -ge 3) { $filteredExtras += $t }
+        }
+        $skipped = $tagsToQuery.Count - $cafTags.Count - $filteredExtras.Count
+        $tagsToQuery = $cafTags + $filteredExtras
+        if ($skipped -gt 0) {
+            Write-Host "  Skipped $skipped low-coverage tags (< 3 resources) to reduce API calls" -ForegroundColor Yellow
+        }
+    }
+
     $results = @{}
     $useMgScope = Test-MgCostScope
     $mgPath = "/providers/Microsoft.Management/managementGroups/$TenantId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
@@ -287,17 +305,14 @@ function Get-CostByTag {
         $skipSubs.Clear()
         Write-Host "  Batched tag query not available, falling back to per-tag queries ($($tagsToQuery.Count) tags)..." -ForegroundColor Yellow
 
-        # Initial cooldown — prior cost queries may have consumed rate budget
-        Write-Host "    Initial cooldown (5s) before per-tag queries..." -ForegroundColor Gray
-        Start-Sleep -Seconds 5
-
+        # Pace each call to stay under rate limit (~10 req/10s)
+        # 1.5s per call = ~7 per 10s window = comfortably under limit
+        # Total: 1.5s x tags vs 10-40s per 429 retry = much faster
         $tagQueryCount = 0
         foreach ($tagName in $tagsToQuery) {
-            # Throttle: pause every 2 queries to stay under rate limit (~10 req/10s)
             $tagQueryCount++
-            if ($tagQueryCount -gt 1 -and ($tagQueryCount % 2) -eq 1) {
-                Write-Host "    Throttle pause (2s) to avoid 429..." -ForegroundColor Gray
-                Start-Sleep -Seconds 2
+            if ($tagQueryCount -gt 1) {
+                Start-Sleep -Milliseconds 1500
             }
 
             try {
