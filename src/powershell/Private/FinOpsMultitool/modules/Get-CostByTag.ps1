@@ -62,17 +62,34 @@ function Get-CostByTag {
     }
 
     # Also include any additional existing tags not already in the list
+    # Sorted by resource coverage (descending) so the most-used tags survive any cap
     if ($ExistingTags) {
         $alreadyLower = $tagsToQuery | ForEach-Object { $_.ToLower() }
         $systemPrefixes = @('hidden-', 'ms-resource-', 'aks-managed-', 'kubernetes.io', 'displayname')
-        foreach ($key in ($ExistingTags.Keys | Sort-Object)) {
+        # Exact-match system/auto-generated tags (Azure Policy, Monitor, Automanage, etc.)
+        $systemExact = @(
+            'action', 'automanage', 'contact', 'alertrulecreatedwithalertsrecommendations',
+            'createdby', 'createddate', 'createdtime', 'createdon',
+            'environment-type', 'intune-deployed', 'policyassignmentname',
+            'statuschangedate', 'vmsize', 'offer', 'publisher', 'sku'
+        )
+        $extras = @()
+        foreach ($key in $ExistingTags.Keys) {
             if ($key.ToLower() -in $alreadyLower) { continue }
             $skip = $false
-            foreach ($prefix in $systemPrefixes) {
-                if ($key.ToLower().StartsWith($prefix)) { $skip = $true; break }
+            if ($key.ToLower() -in $systemExact) { $skip = $true }
+            if (-not $skip) {
+                foreach ($prefix in $systemPrefixes) {
+                    if ($key.ToLower().StartsWith($prefix)) { $skip = $true; break }
+                }
             }
-            if (-not $skip) { $tagsToQuery += $key }
+            if (-not $skip) {
+                $coverage = if ($ExistingTags[$key].TotalResources) { $ExistingTags[$key].TotalResources } else { 0 }
+                $extras += [PSCustomObject]@{ Name = $key; Coverage = $coverage }
+            }
         }
+        $extras = $extras | Sort-Object Coverage -Descending
+        foreach ($e in $extras) { $tagsToQuery += $e.Name }
     }
 
     # Skip tags with very low resource coverage (< 3 resources tagged)
@@ -401,11 +418,14 @@ function Get-CostByTag {
         $skipSubs.Clear()
 
         # Cap at 5 tags for per-tag fallback to limit API calls
+        # Tags are already ordered: CAF matches first, then extras by coverage desc
         $maxFallbackTags = 5
         if ($tagsToQuery.Count -gt $maxFallbackTags) {
-            $skippedCount = $tagsToQuery.Count - $maxFallbackTags
-            $tagsToQuery = $tagsToQuery | Select-Object -First $maxFallbackTags
-            Write-Host "  Capped to $maxFallbackTags tags for per-tag fallback (skipped $skippedCount)" -ForegroundColor Yellow
+            $kept = $tagsToQuery | Select-Object -First $maxFallbackTags
+            $dropped = $tagsToQuery | Select-Object -Skip $maxFallbackTags
+            Write-Host "  Capped to $maxFallbackTags tags (kept: $($kept -join ', '))" -ForegroundColor Yellow
+            Write-Host "  Skipped: $($dropped -join ', ')" -ForegroundColor DarkGray
+            $tagsToQuery = $kept
         }
 
         Write-Host "  Batched tag query not available, falling back to per-tag queries ($($tagsToQuery.Count) tags)..." -ForegroundColor Yellow
