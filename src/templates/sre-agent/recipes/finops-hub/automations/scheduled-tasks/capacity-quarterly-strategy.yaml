@@ -54,7 +54,7 @@ spec:
 
     | Architecting & Workload Placement | Ad-hoc placement decisions | Regular architecture and placement review | Placement decisions integrated into engineering intake and governance |
 
-    | Automation, Tools & Services | Manual quota checks | Alert-based quota and capacity governance | Automated guardrails and exception review |
+    | Automation, Tools, & Services | Manual quota checks | Alert-based quota and capacity governance | Automated guardrails and exception review |
 
 
     Score current maturity and recommend next-level actions.

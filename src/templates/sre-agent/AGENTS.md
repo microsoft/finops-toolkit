@@ -9,17 +9,17 @@ Load the `azure-sre-agent` skill at session start and after every compaction or 
 | Component | Count | Details |
 |-----------|-------|---------|
 | Custom agents | 5 | `finops-practitioner` orchestrator plus four delegated subagents: `azure-capacity-manager`, `chief-financial-officer`, `ftk-database-query`, `ftk-hubs-agent` |
-| Tool-bearing delegated subagents | 3 | `azure-capacity-manager`, `ftk-database-query`, `ftk-hubs-agent`; `chief-financial-officer` has no tools |
+| Tool-bearing delegated subagents | 3 | `azure-capacity-manager`, `ftk-database-query`, `ftk-hubs-agent`; `finops-practitioner` and `chief-financial-officer` have no tools |
 | Skills | 3 | `azure-capacity-management`, `azure-cost-management`, `finops-toolkit` |
 | Tools | 34 | Kusto, capacity, and Hub infrastructure tools under `recipes/finops-hub/config/tools/` |
 | Scheduled tasks | 19 | All owned by `finops-practitioner`; specialist agents are delegated by prompt, not scheduled directly |
-| Connector | 1 | Kusto connector to FinOps Hub ADX cluster |
+| Connectors | 1 | Kusto connector to FinOps Hub ADX cluster |
 | Knowledge docs | 6 | Five recipe knowledge files plus `ftk-output-style.md` from the Claude plugin output styles |
 
 ## Key references
 
 - [README.md](README.md) — Deployment guide and architecture
-- [CATALOG.md](CATALOG.md) — Full scheduled-task catalog
+- [CATALOG.md](CATALOG.md) — Authoritative FinOps Framework alignment, inventory, tool ownership, and scheduled-task catalog
 - `bin/deploy.sh` — Canonical deployment entry point copied from the Microsoft starter-lab setup flow and updated for no-azd FinOps deployment
 - `infra/` — Copied-and-updated Microsoft starter-lab Bicep baseline
 - `recipes/finops-hub/` — Recipe content

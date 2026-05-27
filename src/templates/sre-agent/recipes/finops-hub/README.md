@@ -10,8 +10,12 @@ Deploys the FinOps Toolkit SRE Agent using the canonical Microsoft SRE Agent rec
 - 34 tools in `config/tools/`
 - 9 platform tool overrides in `config/built-in-tools.json`
 - 19 scheduled tasks in `automations/scheduled-tasks/`, all owned by `finops-practitioner`
-- 1 FinOps Hub Kusto connector in `connectors.json`
+- 1 connector in `connectors.json`: FinOps Hub Kusto
 - 6 uploaded KnowledgeFile sources: files in `knowledge/` plus `../../../claude-plugin/output-styles/ftk-output-style.md`
+
+## Framework mapping
+
+The authoritative FinOps Framework mapping for this recipe is [../../CATALOG.md](../../CATALOG.md). It maps the toolkit and SRE Agent to FinOps domains, capabilities, personas, principles, phases, agent ownership, tool ownership, scheduled-task ownership, and required handoffs. Keep this recipe aligned to that catalog when changing subagents, tools, skills, knowledge sources, or scheduled tasks.
 
 ## Deploy
 

@@ -27,7 +27,7 @@ spec:
     Ask `azure-capacity-manager` to load its azure-capacity-management skill during the handoff.
 
 
-    Weekly review mapping Azure capacity signals into FinOps Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization support, Governance, Policy & Risk, and Automation, Tools & Services.
+    Weekly review mapping Azure capacity signals into FinOps Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization support, Governance, Policy & Risk, and Automation, Tools, & Services.
 
     ## Specialist tools to request from `azure-capacity-manager`
 

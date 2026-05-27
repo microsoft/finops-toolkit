@@ -3,7 +3,7 @@ title: Azure SRE Agent template reference (FinOps toolkit)
 description: Review the FinOps toolkit's Azure SRE Agent deployment template, parameters, outputs, script flags, and Bicep module structure.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/25/2026
+ms.date: 05/26/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -121,7 +121,7 @@ Supporting resource names are deterministic for the subscription ID, agent resou
 
 ### Post-provision
 
-Use `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane, initialize the deployed agent endpoint with `srectl`, upload KnowledgeFile sources, and apply agents, skills, tools, and scheduled tasks.
+Use `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane when requested, initialize the deployed agent endpoint with `srectl`, upload KnowledgeFile sources, and apply agents, skills, tools, and scheduled tasks.
 
 | Bash flag | Required | Description |
 | --------- | -------- | ----------- |

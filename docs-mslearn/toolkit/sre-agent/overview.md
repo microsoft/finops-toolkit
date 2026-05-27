@@ -3,7 +3,7 @@ title: Azure SRE Agent in the FinOps toolkit
 description: Learn how the FinOps toolkit deploys Azure SRE Agent with FinOps and capacity management automation on top of FinOps hubs.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/25/2026
+ms.date: 05/26/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -58,7 +58,7 @@ The FinOps toolkit's Azure SRE Agent template deploys and configures these resou
 | Skills | 3 | `azure-capacity-management`, `azure-cost-management`, and `finops-toolkit` |
 | Tools | 34 | 21 Kusto tools and 13 Python tools |
 | Scheduled tasks | 19 | Daily, weekly, monthly, semiannual, and quarterly recurring workflows |
-| Connector | 1 | Kusto MCP connector to your FinOps hub Azure Data Explorer cluster |
+| Connectors | 1 | Optional Kusto connector to your FinOps hub Azure Data Explorer cluster |
 | Notification connectors | 0 by default | Outlook and Teams can be added after deployment in the Azure SRE Agent portal |
 
 <br>
@@ -71,11 +71,11 @@ The FinOps toolkit deployment is copied from the Microsoft SRE Agent starter-lab
 2. Azure CLI deploys the subscription-scoped Bicep template.
 3. Bicep creates the resource group, managed identity, monitoring resources, and Azure SRE Agent.
 4. Bicep assigns target resource group RBAC and can optionally assign `AllDatabasesViewer` on your FinOps hub Azure Data Explorer cluster.
-5. `bin/post-provision.sh` creates the Kusto connector through the SRE Agent data plane.
+5. `bin/post-provision.sh` creates the Kusto connector through the SRE Agent data plane when a Kusto URI is provided.
 6. `srectl` initializes with the deployed agent endpoint and applies skills, agents, tools, knowledge, and scheduled tasks.
 7. You optionally add Outlook and Teams connectors in [sre.azure.com](https://sre.azure.com) when you want scheduled reports delivered outside the agent chat.
 
-The result is a single Azure SRE Agent with a FinOps Framework-aligned operating model layered on top. The `finops-practitioner` agent owns the FinOps operating rhythm and scheduled analysis. The `ftk-database-query` agent owns all Kusto and FOCUS evidence collection. The `azure-capacity-manager` agent maps Azure capacity signals into Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization support, Governance, Policy & Risk, and Automation, Tools & Services. The `chief-financial-officer` agent provides finance and leadership consultation, and the `ftk-hubs-agent` monitors FinOps hub health and data freshness.
+The result is a single Azure SRE Agent with a FinOps Framework-aligned operating model layered on top. The `finops-practitioner` agent owns the FinOps operating rhythm and scheduled analysis, has no direct tools, and delegates evidence collection to specialists. The `ftk-database-query` agent owns all Kusto and FOCUS evidence collection. The `azure-capacity-manager` agent maps Azure capacity signals into Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization support, Governance, Policy & Risk, and Automation, Tools & Services. The `chief-financial-officer` agent provides finance and leadership consultation, and the `ftk-hubs-agent` monitors FinOps hub health and data freshness.
 
 <br>
 

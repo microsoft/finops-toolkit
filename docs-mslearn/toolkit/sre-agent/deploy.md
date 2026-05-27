@@ -3,7 +3,7 @@ title: Deploy Azure SRE Agent with the FinOps toolkit
 description: Deploy the FinOps toolkit Azure SRE Agent template with explicit CLI parameters, connect it to a FinOps hub Data Explorer cluster, and validate the deployment.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/25/2026
+ms.date: 05/26/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -93,7 +93,7 @@ Optional:
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
-  --fallback-srectl                   Accepted for compatibility; post-provision uses the SRE Agent data plane and srectl.
+  --fallback-srectl                   Accepted for compatibility; srectl is always used for post-provision.
   --no-telemetry                      Accepted for compatibility.
   -h, --help                          Show this help.
 ```
@@ -114,7 +114,7 @@ bash bin/deploy.sh \
   --dry-run
 ```
 
-When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane and the remaining recipe assets with `srectl`.
+When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane when requested and apply the remaining recipe assets with `srectl`.
 
 Resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Use the same values to update an existing deployment. Post-provisioning deletes existing scheduled tasks with the recipe's task names before applying manifests so redeployments don't create duplicate automations. `--deploy-name` only changes the ARM deployment record and local build directory.
 

@@ -515,6 +515,9 @@ echo ""
 echo -e "${YELLOW}[4/4] Configuring SRE Agent with srectl...${NC}"
 POST_PROVISION_ARGS=(
   --endpoint "$AGENT_ENDPOINT"
+  --subscription "$SUBSCRIPTION_ID"
+  --resource-group "$RESOURCE_GROUP"
+  --name "$AGENT_NAME"
   --recipe "$RECIPE_DIR"
   --build-dir "${BUILD_DIR}/post-provision"
 )

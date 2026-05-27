@@ -27,7 +27,7 @@ spec:
     Ask `azure-capacity-manager` to load its azure-capacity-management skill during the handoff.
 
 
-    This daily check maps Azure capacity health into FinOps Automation, Tools & Services, Usage Optimization, and Governance, Policy & Risk signals so issues are visible before they block deployments.
+    This daily check maps Azure capacity health into FinOps Automation, Tools, & Services, Usage Optimization, and Governance, Policy & Risk signals so issues are visible before they block deployments.
 
     ## Specialist tools to request from `azure-capacity-manager`
 

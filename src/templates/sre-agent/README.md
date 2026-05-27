@@ -5,7 +5,7 @@ Deploy and configure an Azure SRE Agent with the FinOps toolkit recipe under `re
 The deployment flow is copied from the Microsoft SRE Agent starter lab and updated for the FinOps toolkit:
 
 - Azure CLI + Bicep deploy the SRE Agent infrastructure.
-- The copied Microsoft starter-lab post-provision path configures the Kusto connector through the SRE Agent data plane, then uses `srectl` for knowledge, tools, skills, subagents, and scheduled tasks.
+- The post-provision path configures the Kusto connector through the SRE Agent data plane, then uses `srectl` for knowledge, tools, skills, subagents, and scheduled tasks.
 - `azd` is not used.
 
 ## What you get
@@ -43,7 +43,7 @@ The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CAT
 
 The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Stable` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. `bin/post-provision.sh` enables the SRE Agent built-in Log Query and Visualization tools. It uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible Knowledge Sources, then waits for the expected sources to index. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
 
-The recipe is aligned to the 2026 FinOps Framework. `finops-practitioner` owns all scheduled tasks and orchestrates four delegated subagents. Three delegated subagents have tools: `ftk-database-query` owns Kusto and FOCUS evidence collection, `azure-capacity-manager` owns capacity Python evidence, and `ftk-hubs-agent` owns Hub platform and infrastructure health tooling. `chief-financial-officer` is consulted for finance and leadership framing and has no tools or scheduled tasks. Capacity and quota management is mapped into the canonical capabilities and phases, not a separate azcapman operating model.
+The recipe is aligned to the FinOps Framework references listed in [CATALOG.md](CATALOG.md). `finops-practitioner` owns all scheduled tasks, has no direct tools, and orchestrates four delegated subagents. Three delegated subagents have tools: `ftk-database-query` owns Kusto and FOCUS evidence collection, `azure-capacity-manager` owns capacity Python evidence, and `ftk-hubs-agent` owns Hub platform and infrastructure health tooling. `chief-financial-officer` is consulted for finance and leadership framing and has no tools or scheduled tasks. Capacity and quota management is mapped into the canonical domains, capabilities, personas, principles, and phases, not a separate azcapman operating model.
 
 The phase model is iterative:
 
@@ -131,7 +131,7 @@ Optional:
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
-  --fallback-srectl                   Accepted for compatibility; post-provision uses the SRE Agent data plane and srectl.
+  --fallback-srectl                   Accepted for compatibility; srectl is always used for post-provision.
   --no-telemetry                      Accepted for compatibility.
   -h, --help                          Show this help.
 ```
@@ -152,7 +152,7 @@ bash bin/deploy.sh \
   --dry-run
 ```
 
-When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane, enable built-in Log Query and Visualization tools, and apply the remaining recipe assets with `srectl`.
+When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane when requested, enable built-in Log Query and Visualization tools, and apply the remaining recipe assets with `srectl`.
 
 Supporting resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Rerunning the script with the same values updates the same Log Analytics workspace, Application Insights component, system-managed identity RBAC assignments, and SRE Agent. Post-provisioning deletes existing scheduled tasks with the recipe's task names before applying manifests so redeployments don't create duplicate automations. `--deploy-name` only changes the ARM deployment record and local build directory.
 

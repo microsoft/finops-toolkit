@@ -10,10 +10,13 @@ set -euo pipefail
 
 usage() {
   cat <<EOF
-Usage: bash bin/post-provision.sh --endpoint <url> --recipe <dir> --build-dir <dir> [options]
+Usage: bash bin/post-provision.sh --endpoint <url> --subscription <id> --resource-group <name> --name <agent> --recipe <dir> --build-dir <dir> [options]
 
 Required:
   --endpoint <url>              SRE Agent endpoint
+  --subscription <id>           Azure subscription that contains the SRE Agent
+  --resource-group <name>       Resource group that contains the SRE Agent
+  --name <agent>                SRE Agent name
   --recipe <dir>                Recipe directory
   --build-dir <dir>             Working directory for generated connector/workspace files
 
@@ -38,15 +41,34 @@ require_value() {
 }
 
 ENDPOINT=""
+SUBSCRIPTION_ID=""
+RESOURCE_GROUP=""
+AGENT_NAME=""
 RECIPE_DIR=""
 BUILD_DIR=""
 KUSTO_CONNECTOR_URI=""
+ARM_API_VERSION="2025-05-01-preview"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --endpoint)
       require_value "--endpoint" "${2:-}"
       ENDPOINT="$2"
+      shift 2
+      ;;
+    --subscription)
+      require_value "--subscription" "${2:-}"
+      SUBSCRIPTION_ID="$2"
+      shift 2
+      ;;
+    --resource-group)
+      require_value "--resource-group" "${2:-}"
+      RESOURCE_GROUP="$2"
+      shift 2
+      ;;
+    --name)
+      require_value "--name" "${2:-}"
+      AGENT_NAME="$2"
       shift 2
       ;;
     --recipe)
@@ -74,6 +96,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -n "$ENDPOINT" ]] || fail "Error: --endpoint <url> is required" 2
+[[ -n "$SUBSCRIPTION_ID" ]] || fail "Error: --subscription <id> is required" 2
+[[ -n "$RESOURCE_GROUP" ]] || fail "Error: --resource-group <name> is required" 2
+[[ -n "$AGENT_NAME" ]] || fail "Error: --name <agent> is required" 2
 [[ -n "$RECIPE_DIR" ]] || fail "Error: --recipe <dir> is required" 2
 [[ -n "$BUILD_DIR" ]] || fail "Error: --build-dir <dir> is required" 2
 [[ -d "$RECIPE_DIR" ]] || fail "Error: recipe directory not found: $RECIPE_DIR" 1
@@ -82,6 +107,7 @@ command -v srectl >/dev/null || fail "srectl is required" 1
 RECIPE_DIR="$(cd "$RECIPE_DIR" && pwd)"
 mkdir -p "$BUILD_DIR"
 BUILD_DIR="$(cd "$BUILD_DIR" && pwd)"
+ARM_BASE="https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.App/agents/${AGENT_NAME}"
 
 get_sre_token() {
   az account get-access-token --resource https://azuresre.dev --query accessToken -o tsv 2>/dev/null
@@ -138,6 +164,88 @@ apply_kusto_connector() {
   echo "  ${connector_name} connector response: $response_file"
   sed -n '1,120p' "$response_file" >&2 || true
   fail "Failed to configure ${connector_name} connector" 1
+}
+
+apply_connector_from_config() {
+  local connector_dir="$1"
+  local connector_json="$2"
+  local connector_name
+  local connector_type
+  local connector_type_lower
+  local body_file
+  local response_file
+  local result
+
+  connector_name="$(jq -r '.name // empty' <<< "$connector_json")"
+  [[ -n "$connector_name" ]] || fail "Error: connector entry missing name" 1
+
+  connector_type="$(jq -r '.properties.dataConnectorType // .properties.type // empty' <<< "$connector_json")"
+  [[ -n "$connector_type" ]] || fail "Error: connector ${connector_name} missing properties.dataConnectorType" 1
+  connector_type_lower="$(printf '%s' "$connector_type" | tr '[:upper:]' '[:lower:]')"
+
+  body_file="${connector_dir}/${connector_name}.json"
+  response_file="${connector_dir}/${connector_name}.response.json"
+
+  if [[ "$connector_type_lower" == "mcp" ]]; then
+    jq -e '.properties.extendedProperties.type == "http" and (.properties.extendedProperties.endpoint // "") != ""' <<< "$connector_json" >/dev/null \
+      || fail "Error: MCP connector ${connector_name} must use the documented Streamable-HTTP connector shape with properties.extendedProperties.type and endpoint" 1
+
+    jq -e '(.properties.extendedProperties.headers? | type) != "object"' <<< "$connector_json" >/dev/null \
+      || fail "Error: MCP connector ${connector_name} must flatten custom headers into properties.extendedProperties instead of nesting a headers object" 1
+  fi
+
+  # Upstream microsoft/sre-agent applies MCP connectors as ARM child resources:
+  # Microsoft.App/agents/connectors@2025-05-01-preview with native properties.
+  jq -n --argjson connector "$connector_json" '
+    {
+      properties: (
+        ($connector.properties // {})
+        | if (.identity // "") == "" then . + {identity: "system"} else . end
+      )
+    }
+  ' > "$body_file"
+
+  for attempt in 1 2 3 4 5; do
+    if result="$(az rest -m PUT \
+      --url "${ARM_BASE}/connectors/${connector_name}?api-version=${ARM_API_VERSION}" \
+      --body "@${body_file}" \
+      --headers "Content-Type=application/json" \
+      -o json 2>&1)"; then
+      printf '%s\n' "$result" > "$response_file"
+      echo "  ${connector_name} connector configured"
+      return 0
+    fi
+
+    printf '%s\n' "$result" > "$response_file"
+    echo "  ${connector_name} connector attempt ${attempt}/5 failed"
+    if [[ "$attempt" != "5" ]]; then
+      sleep 15
+    fi
+  done
+
+  echo "  ${connector_name} connector response: $response_file"
+  sed -n '1,120p' "$response_file" >&2 || true
+  fail "Failed to configure ${connector_name} connector" 1
+}
+
+apply_recipe_connectors() {
+  local config_file="$1"
+  local connector_dir="$2"
+  local total=0
+  local connector_json
+
+  [[ -f "$config_file" ]] || {
+    echo "  recipe connectors: no config"
+    return 0
+  }
+
+  while IFS= read -r connector_json; do
+    [[ -n "$connector_json" ]] || continue
+    apply_connector_from_config "$connector_dir" "$connector_json"
+    total=$((total + 1))
+  done < <(jq -c '.connectors[]? | select(((.properties.dataConnectorType // .properties.type // "") | ascii_downcase) != "kusto")' "$config_file")
+
+  echo "  recipe connectors: ${total} configured"
 }
 
 apply_built_in_tools_config() {
@@ -211,22 +319,21 @@ echo "Step 1/7: Initializing srectl..."
 echo "  srectl initialized"
 echo ""
 
+command -v az >/dev/null || fail "az is required to configure connectors and built-in tools" 1
+command -v curl >/dev/null || fail "curl is required to configure connectors and built-in tools" 1
+command -v jq >/dev/null || fail "jq is required to configure connectors and built-in tools" 1
+CONNECTOR_DIR="${BUILD_DIR}/connectors"
+mkdir -p "$CONNECTOR_DIR"
+
 if [[ -n "$KUSTO_CONNECTOR_URI" ]]; then
-  command -v az >/dev/null || fail "az is required when --kusto-connector-uri is provided" 1
-  command -v curl >/dev/null || fail "curl is required when --kusto-connector-uri is provided" 1
-  command -v jq >/dev/null || fail "jq is required when --kusto-connector-uri is provided" 1
   echo "Step 2/7: Configuring FinOps Hub Kusto connector..."
-  CONNECTOR_DIR="${BUILD_DIR}/connectors"
-  mkdir -p "$CONNECTOR_DIR"
   apply_kusto_connector "$CONNECTOR_DIR" "finops-hub-kusto"
 else
   echo "Step 2/7: Kusto connector skipped"
 fi
+apply_recipe_connectors "${RECIPE_DIR}/connectors.json" "$CONNECTOR_DIR"
 echo ""
 
-command -v az >/dev/null || fail "az is required to configure built-in tools" 1
-command -v curl >/dev/null || fail "curl is required to configure built-in tools" 1
-command -v jq >/dev/null || fail "jq is required to configure built-in tools" 1
 echo "Step 3/7: Configuring built-in tools..."
 BUILT_IN_TOOLS_DIR="${BUILD_DIR}/built-in-tools"
 mkdir -p "$BUILT_IN_TOOLS_DIR"
