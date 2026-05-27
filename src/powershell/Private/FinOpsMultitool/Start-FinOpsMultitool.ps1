@@ -49,7 +49,7 @@ function Get-PlainAccessToken {
 # -- Shared Runspace Pool --------------------------------------------------
 # Created once at script load. Reused by Invoke-AzRestMethodWithRetry and
 # Search-AzGraphSafe to avoid the ~1-2s cold-start per runspace creation.
-$script:RunspacePool = [runspacefactory]::CreateRunspacePool(1, 4)
+$script:RunspacePool = [runspacefactory]::CreateRunspacePool(1, 6)
 $script:RunspacePool.Open()
 
 function Invoke-AzRestMethodWithRetry {

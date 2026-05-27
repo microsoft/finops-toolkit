@@ -172,6 +172,89 @@ function Get-CostByTag {
         return $perTag
     }
 
+    # Helper: Fire multiple REST calls in parallel using the shared runspace pool.
+    # Each call handles its own 429 retry internally, so pool slots may block
+    # briefly on throttle but other slots continue processing.
+    function Invoke-ParallelRestCalls {
+        param(
+            [array]$Calls,            # Array of @{ Path; Body; SubId; SubName }
+            [int]$TimeoutSeconds = 90
+        )
+        $pendingJobs = [System.Collections.Generic.List[hashtable]]::new()
+        foreach ($call in $Calls) {
+            $ps = [powershell]::Create()
+            $ps.RunspacePool = $script:RunspacePool
+            [void]$ps.AddScript({
+                param($path, $payload)
+                for ($attempt = 0; $attempt -le 3; $attempt++) {
+                    $params = @{ Path = $path; Method = 'POST'; ErrorAction = 'Stop' }
+                    if ($payload) { $params['Payload'] = $payload }
+                    try {
+                        $r = Invoke-AzRestMethod @params
+                        if ($r.StatusCode -ne 429) {
+                            $hdrs = @{}
+                            if ($r.Headers) { foreach ($k in $r.Headers.Keys) { $hdrs[$k] = $r.Headers[$k] } }
+                            return [PSCustomObject]@{ StatusCode = $r.StatusCode; Content = $r.Content; Headers = $hdrs }
+                        }
+                        # 429 — parse Retry-After or exponential backoff
+                        $retryAfter = 10
+                        if ($r.Headers -and $r.Headers['Retry-After']) {
+                            $parsed = 0
+                            if ([int]::TryParse($r.Headers['Retry-After'], [ref]$parsed)) { $retryAfter = [math]::Max($parsed, 5) }
+                        } else { $retryAfter = [math]::Min(10 * [math]::Pow(2, $attempt), 60) }
+                        Start-Sleep -Seconds $retryAfter
+                    } catch {
+                        return [PSCustomObject]@{ StatusCode = 0; Content = "{`"error`":{`"message`":`"$($_.Exception.Message)`"}}"; Headers = @{} }
+                    }
+                }
+                return [PSCustomObject]@{ StatusCode = 429; Content = '{"error":{"message":"Rate limited after retries"}}'; Headers = @{} }
+            }).AddArgument($call.Path).AddArgument($call.Body)
+            $async = $ps.BeginInvoke()
+            [void]$pendingJobs.Add(@{ PS = $ps; Async = $async; Call = $call; Result = $null })
+        }
+
+        # Poll until all complete or timeout, keeping WPF UI responsive
+        $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+        while ((Get-Date) -lt $deadline) {
+            $allDone = $true
+            foreach ($job in $pendingJobs) {
+                if ($null -ne $job.Result) { continue }
+                if ($job.Async.IsCompleted) {
+                    try {
+                        $raw = $job.PS.EndInvoke($job.Async)
+                        $resp = if ($raw -and $raw.Count -gt 0) { $raw[0] } else { $null }
+                        if (-not $resp) { $resp = [PSCustomObject]@{ StatusCode = 0; Content = '{}'; Headers = @{} } }
+                        if ($null -eq $resp.Content) { $resp = [PSCustomObject]@{ StatusCode = $resp.StatusCode; Content = '{}'; Headers = @{} } }
+                        $job.Result = $resp
+                    } catch {
+                        $job.Result = [PSCustomObject]@{ StatusCode = 0; Content = '{}'; Headers = @{} }
+                    }
+                    $job.PS.Dispose()
+                } else { $allDone = $false }
+            }
+            if ($allDone) { break }
+            try {
+                $frame = [System.Windows.Threading.DispatcherFrame]::new()
+                [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
+                    [System.Windows.Threading.DispatcherPriority]::Background,
+                    [action] { $frame.Continue = $false }
+                )
+                [System.Windows.Threading.Dispatcher]::PushFrame($frame)
+            } catch { }
+            Start-Sleep -Milliseconds 50
+        }
+
+        # Cleanup any timed-out jobs
+        foreach ($job in $pendingJobs) {
+            if ($null -eq $job.Result) {
+                try { $job.PS.Stop() } catch { }
+                $job.PS.Dispose()
+                $job.Result = [PSCustomObject]@{ StatusCode = 408; Content = '{"error":{"message":"Timeout"}}'; Headers = @{} }
+            }
+        }
+        return $pendingJobs
+    }
+
     # -- Strategy 1: Batched query using TagKey + TagValue grouping -----
     # This uses a single API call to get cost data for ALL tags at once,
     # instead of one call per tag. Dramatically reduces API calls and 429s.
@@ -224,36 +307,48 @@ function Get-CostByTag {
             }
         }
 
-        # Per-sub fallback for batched query
+        # Per-sub fallback for batched query (parallel)
         if (-not $batchSuccess -and $Subscriptions) {
             $allBatched = @{}
+            $calls = @()
             foreach ($sub in $Subscriptions) {
                 if ($skipSubs.Contains($sub.Id)) { continue }
-                $subPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
-                Write-Host "    Batched per-sub query: $($sub.Name) ($tf)..." -ForegroundColor Gray
-                $subResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $body
-                if ($subResp.StatusCode -eq 200) {
-                    $subBatch = Parse-BatchedCostRows -ResponseContent $subResp.Content
-                    foreach ($key in $subBatch.Keys) {
-                        if (-not $allBatched.ContainsKey($key)) {
-                            $allBatched[$key] = [System.Collections.Generic.List[PSCustomObject]]::new()
+                $calls += @{
+                    Path    = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+                    Body    = $body
+                    SubId   = $sub.Id
+                    SubName = $sub.Name
+                }
+            }
+            if ($calls.Count -gt 0) {
+                Write-Host "    Querying $($calls.Count) subs in parallel (batched $tf)..." -ForegroundColor Cyan
+                $parallelJobs = Invoke-ParallelRestCalls -Calls $calls
+                foreach ($pj in $parallelJobs) {
+                    $subResp = $pj.Result
+                    $subName = $pj.Call.SubName
+                    $subId   = $pj.Call.SubId
+                    if ($subResp.StatusCode -eq 200) {
+                        $subBatch = Parse-BatchedCostRows -ResponseContent $subResp.Content
+                        foreach ($key in $subBatch.Keys) {
+                            if (-not $allBatched.ContainsKey($key)) {
+                                $allBatched[$key] = [System.Collections.Generic.List[PSCustomObject]]::new()
+                            }
+                            foreach ($r in $subBatch[$key]) { [void]$allBatched[$key].Add($r) }
                         }
-                        foreach ($r in $subBatch[$key]) { [void]$allBatched[$key].Add($r) }
                     }
-                }
-                elseif ($subResp.StatusCode -eq 400) {
-                    $errBody = try { ($subResp.Content | ConvertFrom-Json).error.message } catch { '' }
-                    Write-Host "    Batched query failed for '$($sub.Name)' (HTTP 400): $($errBody.Substring(0, [math]::Min(120, $errBody.Length)))" -ForegroundColor Yellow
-                    [void]$skipSubs.Add($sub.Id)
-                    if ($errBody -match 'AO View Charges') { $script:costAccessIssue = 'EA' }
-                }
-                elseif ($subResp.StatusCode -eq 403) {
-                    $errBody = try { ($subResp.Content | ConvertFrom-Json).error.message } catch { '' }
-                    Write-Host "    Batched query forbidden for '$($sub.Name)' (HTTP 403)" -ForegroundColor Yellow
-                    $script:costAccessIssue = 'MCA'
-                }
-                else {
-                    Write-Host "    Batched query unexpected response for '$($sub.Name)' (HTTP $($subResp.StatusCode))" -ForegroundColor Yellow
+                    elseif ($subResp.StatusCode -eq 400) {
+                        $errBody = try { ($subResp.Content | ConvertFrom-Json).error.message } catch { '' }
+                        Write-Host "    Batched query failed for '$subName' (HTTP 400): $($errBody.Substring(0, [math]::Min(120, $errBody.Length)))" -ForegroundColor Yellow
+                        [void]$skipSubs.Add($subId)
+                        if ($errBody -match 'AO View Charges') { $script:costAccessIssue = 'EA' }
+                    }
+                    elseif ($subResp.StatusCode -eq 403) {
+                        Write-Host "    Batched query forbidden for '$subName' (HTTP 403)" -ForegroundColor Yellow
+                        $script:costAccessIssue = 'MCA'
+                    }
+                    else {
+                        Write-Host "    Batched query: '$subName' HTTP $($subResp.StatusCode)" -ForegroundColor Yellow
+                    }
                 }
             }
             if ($allBatched.Count -gt 0) {
@@ -300,19 +395,26 @@ function Get-CostByTag {
     # -- Strategy 2: Per-tag fallback (only if batched query failed) ----
     # This is the original approach - one API call per tag. Only used when
     # the TagKey+TagValue grouping is not supported by the subscription type.
+    # Optimized: per-sub queries run in parallel; tag count capped at 5.
     if (-not $batchSuccess) {
         # Clear skipSubs from batched query — Dimension/TagKey != Tag grouping
         $skipSubs.Clear()
+
+        # Cap at 5 tags for per-tag fallback to limit API calls
+        $maxFallbackTags = 5
+        if ($tagsToQuery.Count -gt $maxFallbackTags) {
+            $skippedCount = $tagsToQuery.Count - $maxFallbackTags
+            $tagsToQuery = $tagsToQuery | Select-Object -First $maxFallbackTags
+            Write-Host "  Capped to $maxFallbackTags tags for per-tag fallback (skipped $skippedCount)" -ForegroundColor Yellow
+        }
+
         Write-Host "  Batched tag query not available, falling back to per-tag queries ($($tagsToQuery.Count) tags)..." -ForegroundColor Yellow
 
-        # Pace each call to stay under rate limit (~10 req/10s)
-        # 1.5s per call = ~7 per 10s window = comfortably under limit
-        # Total: 1.5s x tags vs 10-40s per 429 retry = much faster
         $tagQueryCount = 0
         foreach ($tagName in $tagsToQuery) {
             $tagQueryCount++
             if ($tagQueryCount -gt 1) {
-                Start-Sleep -Milliseconds 1500
+                Start-Sleep -Milliseconds 500
             }
 
             try {
@@ -351,102 +453,61 @@ function Get-CostByTag {
 
                     if ($useMgScope) {
                         $response = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $body
-                        Write-Host "    MG-scope response: HTTP $($response.StatusCode)" -ForegroundColor Gray
                         if ($response.StatusCode -in @(401, 403)) {
                             Set-MgCostScopeFailed
-                            Write-Warning "  MG-scope cost-by-tag returned HTTP $($response.StatusCode) - falling back to per-subscription"
                             $useMgScope = $false
                         }
-                        elseif ($response.StatusCode -ne 200) {
-                            Write-Warning "  MG-scope cost-by-tag returned HTTP $($response.StatusCode) - falling back to per-subscription"
-                            if ($response.Content) {
-                                $errBody = try { ($response.Content | ConvertFrom-Json).error.message } catch { $response.Content.Substring(0, [math]::Min(200, $response.Content.Length)) }
-                                Write-Warning "    Response: $errBody"
-                            }
-                            $useMgScope = $false
-                        }
-                        else {
+                        elseif ($response.StatusCode -eq 200) {
                             $tagCosts = Parse-CostRows -ResponseContent $response.Content
                             if ($tagCosts.Count -gt 0) {
                                 $gotData = $true
                                 $usedTimeframe = $tf
                                 Write-Host "    Found $($tagCosts.Count) tag values via MG scope ($tf)" -ForegroundColor Green
                             }
-                            else {
-                                Write-Host "    MG scope returned 0 rows for $tf" -ForegroundColor Yellow
-                            }
+                        }
+                        else {
+                            $useMgScope = $false
                         }
                     }
 
-                    # Per-subscription fallback (also runs if MG scope returned no rows)
+                    # Per-subscription fallback — parallel (also runs if MG scope returned no rows)
                     if ((-not $useMgScope -or -not $gotData) -and $Subscriptions) {
                         $tagCosts = [System.Collections.Generic.List[PSCustomObject]]::new()
-
-                        # Sample first 3 subs - if all return 0, skip the remaining subs
-                        $sampleSize = [math]::Min(3, $Subscriptions.Count)
-                        $sampleHits = 0
-                        for ($i = 0; $i -lt $sampleSize; $i++) {
-                            $sub = $Subscriptions[$i]
+                        $calls = @()
+                        foreach ($sub in $Subscriptions) {
                             if ($skipSubs.Contains($sub.Id)) { continue }
-                            $subPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
-                            Write-Host "    Per-sub query: $($sub.Name) ($tf)..." -ForegroundColor Gray
-                            $subResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $body
-                            Write-Host "    Per-sub response: HTTP $($subResp.StatusCode)" -ForegroundColor Gray
-                            if ($subResp.StatusCode -eq 200) {
-                                # Log raw response for diagnostics
-                                $rawParsed = try { ($subResp.Content | ConvertFrom-Json) } catch { $null }
-                                $rowCount = if ($rawParsed -and $rawParsed.properties -and $rawParsed.properties.rows) { $rawParsed.properties.rows.Count } else { 0 }
-                                $colNames = if ($rawParsed -and $rawParsed.properties -and $rawParsed.properties.columns) { ($rawParsed.properties.columns | ForEach-Object { "$($_.name)($($_.type))" }) -join ', ' } else { 'N/A' }
-                                Write-Host "    Columns: $colNames | Rows: $rowCount" -ForegroundColor Gray
-                                if ($rowCount -gt 0 -and $rowCount -le 5) {
-                                    foreach ($row in $rawParsed.properties.rows) {
-                                        Write-Host "      Row: $($row -join ' | ')" -ForegroundColor DarkGray
-                                    }
-                                }
-                                $subRows = Parse-CostRows -ResponseContent $subResp.Content
-                                foreach ($r in $subRows) { [void]$tagCosts.Add($r) }
-                                if ($subRows.Count -gt 0) { $sampleHits++ }
-                            }
-                            elseif ($subResp.Content) {
-                                $errBody = try { ($subResp.Content | ConvertFrom-Json).error.message } catch { $subResp.Content.Substring(0, [math]::Min(300, $subResp.Content.Length)) }
-                                if ($errBody -match 'Invalid dataset grouping') {
-                                    [void]$skipSubs.Add($sub.Id)
-                                    Write-Host "    Skipping '$($sub.Name)' - subscription type does not support Tag grouping" -ForegroundColor Yellow
-                                }
-                                elseif ($errBody -match 'AO View Charges') {
-                                    $script:costAccessIssue = 'EA'
-                                }
-                                elseif ($subResp.StatusCode -eq 403) {
-                                    $script:costAccessIssue = 'MCA'
-                                }
-                                else {
-                                    Write-Warning "    Per-sub error: $errBody"
-                                }
+                            $calls += @{
+                                Path    = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+                                Body    = $body
+                                SubId   = $sub.Id
+                                SubName = $sub.Name
                             }
                         }
-
-                        # Only iterate remaining subs if sample found data
-                        if ($sampleHits -gt 0 -and $Subscriptions.Count -gt $sampleSize) {
-                            Write-Host "    Sample found data, querying remaining $($Subscriptions.Count - $sampleSize) subs..." -ForegroundColor Cyan
-                            for ($i = $sampleSize; $i -lt $Subscriptions.Count; $i++) {
-                                $sub = $Subscriptions[$i]
-                                if ($skipSubs.Contains($sub.Id)) { continue }
-                                $subPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
-                                $subResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $body
+                        if ($calls.Count -gt 0) {
+                            Write-Host "    Querying $($calls.Count) subs in parallel for $tagName ($tf)..." -ForegroundColor Cyan
+                            $parallelJobs = Invoke-ParallelRestCalls -Calls $calls
+                            foreach ($pj in $parallelJobs) {
+                                $subResp = $pj.Result
                                 if ($subResp.StatusCode -eq 200) {
                                     $subRows = Parse-CostRows -ResponseContent $subResp.Content
                                     foreach ($r in $subRows) { [void]$tagCosts.Add($r) }
                                 }
-                                elseif ($subResp.StatusCode -eq 400 -and $subResp.Content -match 'Invalid dataset grouping') {
-                                    [void]$skipSubs.Add($sub.Id)
+                                elseif ($subResp.StatusCode -eq 400) {
+                                    $errBody = try { ($subResp.Content | ConvertFrom-Json).error.message } catch { '' }
+                                    if ($errBody -match 'Invalid dataset grouping') {
+                                        [void]$skipSubs.Add($pj.Call.SubId)
+                                    }
+                                    elseif ($errBody -match 'AO View Charges') {
+                                        $script:costAccessIssue = 'EA'
+                                    }
+                                }
+                                elseif ($subResp.StatusCode -eq 403) {
+                                    $script:costAccessIssue = 'MCA'
                                 }
                             }
                         }
-                        elseif ($sampleHits -eq 0 -and $Subscriptions.Count -gt $sampleSize) {
-                            Write-Host "    Sample of $sampleSize subs returned 0 rows - skipping remaining subs for $tf" -ForegroundColor Yellow
-                        }
 
-                        # Merge duplicate tag values across subs (case-sensitive to surface casing inconsistencies)
+                        # Merge duplicate tag values across subs
                         if ($tagCosts.Count -gt 0) {
                             $merged = $tagCosts | Group-Object TagValue -CaseSensitive | ForEach-Object {
                                 [PSCustomObject]@{
@@ -458,10 +519,7 @@ function Get-CostByTag {
                             $tagCosts = @($merged)
                             $gotData = $true
                             $usedTimeframe = $tf
-                            Write-Host "    Found $($tagCosts.Count) tag values via per-sub fallback ($tf)" -ForegroundColor Green
-                        }
-                        else {
-                            Write-Host "    Per-sub fallback returned 0 rows for $tf" -ForegroundColor Yellow
+                            Write-Host "    Found $($tagCosts.Count) tag values via per-sub parallel ($tf)" -ForegroundColor Green
                         }
                     }
                 }
