@@ -68,7 +68,7 @@ function Get-CostByTag {
         $systemPrefixes = @('hidden-', 'ms-resource-', 'aks-managed-', 'kubernetes.io', 'displayname')
         # Exact-match system/auto-generated tags (Azure Policy, Monitor, Automanage, etc.)
         $systemExact = @(
-            'action', 'automanage', 'contact', 'alertrulecreatedwithalertsrecommendations',
+            'action', 'automanage', 'alertrulecreatedwithalertsrecommendations',
             'createdby', 'createddate', 'createdtime', 'createdon',
             'environment-type', 'intune-deployed', 'policyassignmentname',
             'statuschangedate', 'vmsize', 'offer', 'publisher', 'sku'
@@ -417,13 +417,16 @@ function Get-CostByTag {
         # Clear skipSubs from batched query — Dimension/TagKey != Tag grouping
         $skipSubs.Clear()
 
-        # Cap at 5 tags for per-tag fallback to limit API calls
+        # Dynamic tag cap based on subscription count — parallel queries make
+        # more tags feasible when there are fewer subs to iterate
+        $subCount = if ($Subscriptions) { $Subscriptions.Count } else { 1 }
+        $maxFallbackTags = if ($subCount -le 3) { 10 } elseif ($subCount -le 10) { 7 } else { 5 }
+
         # Tags are already ordered: CAF matches first, then extras by coverage desc
-        $maxFallbackTags = 5
         if ($tagsToQuery.Count -gt $maxFallbackTags) {
             $kept = $tagsToQuery | Select-Object -First $maxFallbackTags
             $dropped = $tagsToQuery | Select-Object -Skip $maxFallbackTags
-            Write-Host "  Capped to $maxFallbackTags tags (kept: $($kept -join ', '))" -ForegroundColor Yellow
+            Write-Host "  Capped to $maxFallbackTags tags for $subCount sub(s) (kept: $($kept -join ', '))" -ForegroundColor Yellow
             Write-Host "  Skipped: $($dropped -join ', ')" -ForegroundColor DarkGray
             $tagsToQuery = $kept
         }
