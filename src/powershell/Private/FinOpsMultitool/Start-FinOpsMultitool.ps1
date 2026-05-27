@@ -32,17 +32,26 @@ function Get-PlainAccessToken {
     $tok = (Get-AzAccessToken -ResourceUrl $ResourceUrl).Token
     if ($tok -is [securestring]) {
         $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($tok)
-        try   { [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr) }
+        try { [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr) }
         finally { [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
-    } else { $tok }
+    }
+    else { $tok }
 }
 
 # -- Shared Helper: Invoke-AzRestMethodWithRetry ----------------------------
 # Wraps Invoke-AzRestMethod with:
+#   - Reusable runspace pool (avoids cold-start per call)
 #   - Background runspace with 60s timeout (prevents indefinite hangs)
 #   - Automatic retry on HTTP 429 (throttling) with DispatcherFrame UI wait
 # Cost Management API rate-limits aggressively; per-sub queries across
 # multiple scan stages can exhaust the quota quickly.
+
+# -- Shared Runspace Pool --------------------------------------------------
+# Created once at script load. Reused by Invoke-AzRestMethodWithRetry and
+# Search-AzGraphSafe to avoid the ~1-2s cold-start per runspace creation.
+$script:RunspacePool = [runspacefactory]::CreateRunspacePool(1, 4)
+$script:RunspacePool.Open()
+
 function Invoke-AzRestMethodWithRetry {
     param(
         [string]$Path,
@@ -52,28 +61,24 @@ function Invoke-AzRestMethodWithRetry {
         [int]$TimeoutSeconds = 60
     )
     for ($attempt = 0; $attempt -le $MaxRetries; $attempt++) {
-        # Run Invoke-AzRestMethod in a background runspace so it can be
-        # killed on timeout (the cmdlet has no TimeoutSec parameter).
-        $rs = [runspacefactory]::CreateRunspace()
-        $rs.Open()
         $ps = [powershell]::Create()
-        $ps.Runspace = $rs
+        $ps.RunspacePool = $script:RunspacePool
         [void]$ps.AddScript({
-            param($p, $m, $pl)
-            $params = @{ Path = $p; Method = $m; ErrorAction = 'Stop' }
-            if ($pl) { $params['Payload'] = $pl }
-            $r = Invoke-AzRestMethod @params
-            # Return a simple hashtable that survives runspace serialization
-            $hdrs = @{}
-            if ($r.Headers) {
-                foreach ($k in $r.Headers.Keys) { $hdrs[$k] = $r.Headers[$k] }
-            }
-            [PSCustomObject]@{
-                StatusCode = $r.StatusCode
-                Content    = $r.Content
-                Headers    = $hdrs
-            }
-        }).AddArgument($Path).AddArgument($Method).AddArgument($Payload)
+                param($p, $m, $pl)
+                $params = @{ Path = $p; Method = $m; ErrorAction = 'Stop' }
+                if ($pl) { $params['Payload'] = $pl }
+                $r = Invoke-AzRestMethod @params
+                # Return a simple hashtable that survives runspace serialization
+                $hdrs = @{}
+                if ($r.Headers) {
+                    foreach ($k in $r.Headers.Keys) { $hdrs[$k] = $r.Headers[$k] }
+                }
+                [PSCustomObject]@{
+                    StatusCode = $r.StatusCode
+                    Content    = $r.Content
+                    Headers    = $hdrs
+                }
+            }).AddArgument($Path).AddArgument($Method).AddArgument($Payload)
 
         $asyncResult = $ps.BeginInvoke()
         $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
@@ -83,7 +88,7 @@ function Invoke-AzRestMethodWithRetry {
             $frame = [System.Windows.Threading.DispatcherFrame]::new()
             [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
                 [System.Windows.Threading.DispatcherPriority]::Background,
-                [action]{ $frame.Continue = $false }
+                [action] { $frame.Continue = $false }
             )
             [System.Windows.Threading.Dispatcher]::PushFrame($frame)
             Start-Sleep -Milliseconds 100
@@ -94,20 +99,21 @@ function Invoke-AzRestMethodWithRetry {
             try {
                 $raw = $ps.EndInvoke($asyncResult)
                 $resp = if ($raw -and $raw.Count -gt 0) { $raw[0] } else { $null }
-            } catch {
-                $ps.Dispose(); $rs.Close()
+            }
+            catch {
+                $ps.Dispose()
                 throw
             }
-        } else {
+        }
+        else {
             $ps.Stop()
             Write-Warning "  REST call timed out after $($TimeoutSeconds)s: $Method $Path"
-            $ps.Dispose(); $rs.Close()
+            $ps.Dispose()
             # Return a synthetic timeout response
             return [PSCustomObject]@{ StatusCode = 408; Content = '{"error":{"message":"Request timed out"}}'; Headers = @{} }
         }
 
         $ps.Dispose()
-        $rs.Close()
 
         # Ensure we never return null or a response with null Content
         if (-not $resp) {
@@ -126,7 +132,8 @@ function Invoke-AzRestMethodWithRetry {
             if ([int]::TryParse($resp.Headers['Retry-After'], [ref]$parsed)) {
                 $retryAfter = [math]::Max($parsed, 5)
             }
-        } else {
+        }
+        else {
             $retryAfter = [math]::Min(10 * [math]::Pow(2, $attempt), 60)
         }
         Write-Host "  [429 Throttled] Waiting $($retryAfter)s before retry ($($attempt+1)/$MaxRetries)..." -ForegroundColor Yellow
@@ -142,7 +149,7 @@ function Invoke-AzRestMethodWithRetry {
             $frame = [System.Windows.Threading.DispatcherFrame]::new()
             [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
                 [System.Windows.Threading.DispatcherPriority]::Background,
-                [action]{ $frame.Continue = $false }
+                [action] { $frame.Continue = $false }
             )
             [System.Windows.Threading.Dispatcher]::PushFrame($frame)
             Start-Sleep -Milliseconds 100
@@ -180,28 +187,26 @@ function Search-AzGraphSafe {
         [int]$MaxRetries = 2
     )
     for ($attempt = 0; $attempt -le $MaxRetries; $attempt++) {
-        # Build Search-AzGraph in a background runspace so it can be killed on timeout
-        $rs = [runspacefactory]::CreateRunspace()
-        $rs.Open()
         $ps = [powershell]::Create()
-        $ps.Runspace = $rs
+        $ps.RunspacePool = $script:RunspacePool
         [void]$ps.AddScript({
-            param($q, $s, $f, $st)
-            $p = @{ Query = $q; Subscription = $s; First = $f; ErrorAction = 'Stop' }
-            if ($st) { $p['SkipToken'] = $st }
-            $r = Search-AzGraph @p
-            # Serialize data to JSON inside the runspace to preserve nested
-            # property hierarchy.  Deserialized PSObjects lose navigability
-            # for deep properties like $row.properties.displayName.
-            $json = if ($r.Data -and $r.Data.Count -gt 0) {
-                $r.Data | ConvertTo-Json -Depth 20 -Compress
-            } else { '[]' }
-            [PSCustomObject]@{
-                JsonData  = $json
-                SkipToken = $r.SkipToken
-                Count     = if ($r.Data) { $r.Data.Count } else { 0 }
-            }
-        }).AddArgument($Query).AddArgument($Subscription).AddArgument($First).AddArgument($SkipToken)
+                param($q, $s, $f, $st)
+                $p = @{ Query = $q; Subscription = $s; First = $f; ErrorAction = 'Stop' }
+                if ($st) { $p['SkipToken'] = $st }
+                $r = Search-AzGraph @p
+                # Serialize data to JSON inside the runspace to preserve nested
+                # property hierarchy.  Deserialized PSObjects lose navigability
+                # for deep properties like $row.properties.displayName.
+                $json = if ($r.Data -and $r.Data.Count -gt 0) {
+                    $r.Data | ConvertTo-Json -Depth 20 -Compress
+                }
+                else { '[]' }
+                [PSCustomObject]@{
+                    JsonData  = $json
+                    SkipToken = $r.SkipToken
+                    Count     = if ($r.Data) { $r.Data.Count } else { 0 }
+                }
+            }).AddArgument($Query).AddArgument($Subscription).AddArgument($First).AddArgument($SkipToken)
 
         $asyncResult = $ps.BeginInvoke()
         $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
@@ -211,14 +216,14 @@ function Search-AzGraphSafe {
             $frame = [System.Windows.Threading.DispatcherFrame]::new()
             [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
                 [System.Windows.Threading.DispatcherPriority]::Background,
-                [action]{ $frame.Continue = $false }
+                [action] { $frame.Continue = $false }
             )
             [System.Windows.Threading.Dispatcher]::PushFrame($frame)
             Start-Sleep -Milliseconds 100
         }
 
         $result = $null
-        $is429  = $false
+        $is429 = $false
         if ($asyncResult.IsCompleted) {
             try {
                 $raw = $ps.EndInvoke($asyncResult)
@@ -230,7 +235,8 @@ function Search-AzGraphSafe {
                         $parsed = $wrapper.JsonData | ConvertFrom-Json
                         # ConvertFrom-Json returns single object if 1 row, wrap in array
                         if ($parsed -is [array]) { $parsed } else { @($parsed) }
-                    } else { @() }
+                    }
+                    else { @() }
                     $result = [PSCustomObject]@{
                         Data      = $data
                         SkipToken = $wrapper.SkipToken
@@ -243,17 +249,18 @@ function Search-AzGraphSafe {
                     if ($errMsg -match '429|throttl|Too Many Requests') { $is429 = $true; $result = $null }
                     elseif (-not $result) { throw $ps.Streams.Error[0].Exception }
                 }
-            } catch {
-                if ($_.Exception.Message -match '429|throttl|Too Many Requests') { $is429 = $true }
-                else { $ps.Dispose(); $rs.Close(); throw }
             }
-        } else {
+            catch {
+                if ($_.Exception.Message -match '429|throttl|Too Many Requests') { $is429 = $true }
+                else { $ps.Dispose(); throw }
+            }
+        }
+        else {
             $ps.Stop()
             Write-Warning "  Resource Graph query timed out after $($TimeoutSeconds)s"
         }
 
         $ps.Dispose()
-        $rs.Close()
 
         # If not 429, return whatever we got
         if (-not $is429) { return $result }
@@ -269,7 +276,7 @@ function Search-AzGraphSafe {
             $frame = [System.Windows.Threading.DispatcherFrame]::new()
             [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
                 [System.Windows.Threading.DispatcherPriority]::Background,
-                [action]{ $frame.Continue = $false }
+                [action] { $frame.Continue = $false }
             )
             [System.Windows.Threading.Dispatcher]::PushFrame($frame)
             Start-Sleep -Milliseconds 100
@@ -333,6 +340,7 @@ $controls = @(
     # Overview
     'ContractTypeText', 'ContractDetailText', 'TotalCostText',
     'ForecastText', 'SubCountText', 'TotalSavingsText', 'SubCostGrid',
+    'CostAccessWarning', 'CostAccessWarningText',
     'ResourceCostGrid',
     'ResourceCountNote',
     # Cost Analysis
@@ -426,6 +434,11 @@ $script:scanData = @{
 # -- Session Action Log (tags deployed/removed, policies assigned/unassigned) --
 $script:actionLog = [System.Collections.Generic.List[PSCustomObject]]::new()
 
+# -- Cost Access Issue Tracking ----------------------------------------
+# Set by cost query modules when they detect billing policy restrictions.
+# Checked by Populate-OverviewTab to display a warning banner.
+$script:costAccessIssue = $null
+
 ###########################################################################
 # HELPER FUNCTIONS
 ###########################################################################
@@ -436,7 +449,7 @@ function Update-UIStatus {
     $script:ProgressBar.Value = $Percent
     # Force UI refresh
     [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
-        [action]{}, [System.Windows.Threading.DispatcherPriority]::Background
+        [action] {}, [System.Windows.Threading.DispatcherPriority]::Background
     )
 }
 
@@ -447,7 +460,7 @@ function Update-ScanStatus {
     if ($script:StatusText) {
         $script:StatusText.Text = $Message
         [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
-            [action]{}, [System.Windows.Threading.DispatcherPriority]::Background
+            [action] {}, [System.Windows.Threading.DispatcherPriority]::Background
         )
     }
 }
@@ -515,6 +528,28 @@ function Add-HierarchyNode {
 function Populate-OverviewTab {
     $d = $script:scanData
 
+    # Cost access warning banner
+    if ($script:costAccessIssue) {
+        $agreementType = if ($d.Contract -and $d.Contract[0].AgreementType) { $d.Contract[0].AgreementType } else { '' }
+        $warningMsg = switch ($script:costAccessIssue) {
+            'EA' { "Cost data is unavailable. This EA enrollment has 'AO View Charges' disabled. An Enterprise Administrator must enable it in the Azure portal (Cost Management + Billing > Enrollment > Policies) for cost data to appear." }
+            'MCA' {
+                if ($agreementType -eq 'MicrosoftPartnerAgreement') {
+                    "Cost data is unavailable. This subscription is managed by a CSP partner. The partner must enable Azure Cost Management access in Partner Center for cost data to appear."
+                }
+                else {
+                    "Cost data is unavailable. Verify that your account has the Billing Profile Reader or Cost Management Reader role on the billing profile. For MCA subscriptions, cost access is controlled by billing RBAC, not subscription RBAC."
+                }
+            }
+            default { "Cost data is unavailable due to a billing access restriction. Contact your billing administrator." }
+        }
+        $script:CostAccessWarningText.Text = $warningMsg
+        $script:CostAccessWarning.Visibility = 'Visible'
+    }
+    else {
+        $script:CostAccessWarning.Visibility = 'Collapsed'
+    }
+
     # Contract
     if ($d.Contract -and $d.Contract.Count -gt 0) {
         $primary = $d.Contract[0]
@@ -527,7 +562,8 @@ function Populate-OverviewTab {
     $skippedCount = if ($d.Auth.SkippedSubs) { $d.Auth.SkippedSubs.Count } else { 0 }
     if ($skippedCount -gt 0) {
         $script:SubCountText.Text = "$subCount (+$skippedCount skipped)"
-    } else {
+    }
+    else {
         $script:SubCountText.Text = $subCount.ToString()
     }
 
@@ -535,13 +571,13 @@ function Populate-OverviewTab {
     $totalActual = 0; $totalForecast = 0; $currency = 'USD'
     if ($d.Costs) {
         foreach ($entry in $d.Costs.GetEnumerator()) {
-            $totalActual   += $entry.Value.Actual
+            $totalActual += $entry.Value.Actual
             $totalForecast += $entry.Value.Forecast
             $currency = $entry.Value.Currency
         }
     }
-    $script:TotalCostText.Text  = "$(Get-CurrencySymbol $currency)$($totalActual.ToString('N2'))"
-    $script:ForecastText.Text   = "$(Get-CurrencySymbol $currency)$($totalForecast.ToString('N2'))"
+    $script:TotalCostText.Text = "$(Get-CurrencySymbol $currency)$($totalActual.ToString('N2'))"
+    $script:ForecastText.Text = "$(Get-CurrencySymbol $currency)$($totalForecast.ToString('N2'))"
 
     # Total savings
     $totalSavings = 0
@@ -576,31 +612,31 @@ function Populate-OverviewTab {
             $subOrphans = @($d.Orphans.Orphans | Where-Object { $_.SubscriptionId -eq $sub.Id })
             foreach ($o in $subOrphans) {
                 $orphanSave += switch ($o.Category) {
-                    'Orphaned Disk'          {
+                    'Orphaned Disk' {
                         $diskGb = 0
                         if ($o.Detail -match '(\d+)\s*GB') { $diskGb = [int]$Matches[1] }
-                        if ($o.Detail -match 'Premium')    { $diskGb * 0.12 }
+                        if ($o.Detail -match 'Premium') { $diskGb * 0.12 }
                         elseif ($o.Detail -match 'Standard_SSD') { $diskGb * 0.075 }
                         else { $diskGb * 0.04 }
                     }
-                    'Unattached Public IP'   { 3.65 }
-                    'Unattached NIC'         { 0 }
-                    'Deallocated VM'         { 15 }
+                    'Unattached Public IP' { 3.65 }
+                    'Unattached NIC' { 0 }
+                    'Deallocated VM' { 15 }
                     'Empty App Service Plan' { 55 }
-                    'Old Snapshot'           { 5 }
-                    default                  { 5 }
+                    'Old Snapshot' { 5 }
+                    default { 5 }
                 }
             }
         }
         $sym = Get-CurrencySymbol $c.Currency
 
         [void]$subRows.Add([PSCustomObject]@{
-            Subscription         = $sub.Name
-            'Actual (MTD)'       = $c.Actual.ToString('N2')
-            'Forecast'           = $c.Forecast.ToString('N2')
-            '% of Total'         = "$pct%"
-            Currency             = $c.Currency
-        })
+                Subscription   = $sub.Name
+                'Actual (MTD)' = $c.Actual.ToString('N2')
+                'Forecast'     = $c.Forecast.ToString('N2')
+                '% of Total'   = "$pct%"
+                Currency       = $c.Currency
+            })
     }
     $script:SubCostGrid.ItemsSource = @($subRows | Sort-Object { [double]($_.'Actual (MTD)') } -Descending)
 
@@ -620,21 +656,22 @@ function Populate-OverviewTab {
         foreach ($r in $display) {
             $pct = if ($totalActualAll -gt 0) { [math]::Round(($r.Actual / $totalActualAll) * 100, 2) } else { 0 }
             [void]$resRows.Add([PSCustomObject]@{
-                'Resource Group' = $r.ResourceGroup
-                'Resource Type'  = $r.ResourceType
-                'Actual (MTD)'   = $r.Actual.ToString('N2')
-                'Forecast'       = $r.Forecast.ToString('N2')
-                '% of Total'     = "$pct%"
-                'Currency'       = $r.Currency
-                'Resource Path'  = $r.ResourcePath
-            })
+                    'Resource Group' = $r.ResourceGroup
+                    'Resource Type'  = $r.ResourceType
+                    'Actual (MTD)'   = $r.Actual.ToString('N2')
+                    'Forecast'       = $r.Forecast.ToString('N2')
+                    '% of Total'     = "$pct%"
+                    'Currency'       = $r.Currency
+                    'Resource Path'  = $r.ResourcePath
+                })
         }
         $script:ResourceCostGrid.ItemsSource = @($resRows)
 
         $excluded = $totalResources - $display.Count
         if ($excluded -gt 0) {
             $script:ResourceCountNote.Text = "$($display.Count) of $totalResources resources shown (threshold: $(Get-CurrencySymbol $currency)$($threshold.ToString('N2'))/mo MTD, $excluded below threshold)"
-        } else {
+        }
+        else {
             $script:ResourceCountNote.Text = "$totalResources resources"
         }
     }
@@ -646,6 +683,22 @@ function Populate-OverviewTab {
             -CostMap $d.Costs -Subscriptions $d.Auth.Subscriptions
     }
     elseif ($d.Hierarchy -and $d.Hierarchy.FlatSubs) {
+        # Add an explanatory header when the MG tree isn't available
+        $infoItem = [System.Windows.Controls.TreeViewItem]::new()
+        $infoItem.Header = "[i] Management group hierarchy unavailable"
+        $infoItem.FontStyle = 'Italic'
+        $infoItem.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#888888')
+        $infoItem.IsEnabled = $false
+
+        $reasonItem = [System.Windows.Controls.TreeViewItem]::new()
+        $reasonItem.Header = "Requires Management Group Reader or higher role at the tenant root scope."
+        $reasonItem.FontSize = 11
+        $reasonItem.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#999999')
+        $reasonItem.IsEnabled = $false
+        $infoItem.Items.Add($reasonItem) | Out-Null
+        $infoItem.IsExpanded = $true
+        $script:HierarchyTree.Items.Add($infoItem) | Out-Null
+
         foreach ($sub in $d.Hierarchy.FlatSubs) {
             $item = [System.Windows.Controls.TreeViewItem]::new()
             $cost = ''
@@ -684,8 +737,8 @@ function Populate-TagsTab {
 
     # Tag summary
     if ($d.Tags) {
-        $script:TagCountText.Text     = if ($null -ne $d.Tags.TagCount) { $d.Tags.TagCount.ToString() } else { '0' }
-        $script:TagCoverageText.Text  = if ($null -ne $d.Tags.TagCoverage) { "$($d.Tags.TagCoverage)%" } else { '0%' }
+        $script:TagCountText.Text = if ($null -ne $d.Tags.TagCount) { $d.Tags.TagCount.ToString() } else { '0' }
+        $script:TagCoverageText.Text = if ($null -ne $d.Tags.TagCoverage) { "$($d.Tags.TagCoverage)%" } else { '0%' }
         $script:UntaggedCountText.Text = if ($null -ne $d.Tags.UntaggedCount) { $d.Tags.UntaggedCount.ToString('N0') } else { '0' }
 
         # Inventory grid - preserve all tag value casing variants for discovery
@@ -693,7 +746,7 @@ function Populate-TagsTab {
         $script:TagInventoryGrid.Columns.Clear()
 
         # Data columns
-        foreach ($col in @('Tag Name','Resources','Unique Values','Values')) {
+        foreach ($col in @('Tag Name', 'Resources', 'Unique Values', 'Values')) {
             $dgCol = [System.Windows.Controls.DataGridTextColumn]::new()
             $dgCol.Header = $col
             $dgCol.Binding = [System.Windows.Data.Binding]::new($col)
@@ -714,16 +767,16 @@ function Populate-TagsTab {
         $invCellFactory.SetValue([System.Windows.Controls.Button]::ContentProperty, 'Remove')
         $invCellFactory.SetBinding([System.Windows.Controls.Button]::TagProperty, [System.Windows.Data.Binding]::new('Tag Name'))
         $invCellFactory.SetValue([System.Windows.Controls.Button]::FontSizeProperty, [double]10)
-        $invCellFactory.SetValue([System.Windows.Controls.Button]::PaddingProperty, [System.Windows.Thickness]::new(6,1,6,1))
-        $invCellFactory.SetValue([System.Windows.Controls.Button]::MarginProperty, [System.Windows.Thickness]::new(2,1,2,1))
+        $invCellFactory.SetValue([System.Windows.Controls.Button]::PaddingProperty, [System.Windows.Thickness]::new(6, 1, 6, 1))
+        $invCellFactory.SetValue([System.Windows.Controls.Button]::MarginProperty, [System.Windows.Thickness]::new(2, 1, 2, 1))
         $invCellFactory.SetValue([System.Windows.Controls.Button]::CursorProperty, [System.Windows.Input.Cursors]::Hand)
         $invCellFactory.SetValue([System.Windows.Controls.Button]::BorderThicknessProperty, [System.Windows.Thickness]::new(1))
         $invCellFactory.SetValue([System.Windows.Controls.Button]::BackgroundProperty, [System.Windows.Media.BrushConverter]::new().ConvertFromString('#FDE7E9'))
         $invCellFactory.SetValue([System.Windows.Controls.Button]::ForegroundProperty, [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D13438'))
-        $invCellFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]{
-            param($sender, $e)
-            Show-TagRemovePanel -TagName $sender.Tag
-        })
+        $invCellFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler] {
+                param($sender, $e)
+                Show-TagRemovePanel -TagName $sender.Tag
+            })
 
         $invCellTemplate = [System.Windows.DataTemplate]::new()
         $invCellTemplate.VisualTree = $invCellFactory
@@ -735,10 +788,10 @@ function Populate-TagsTab {
             $allValues = @($entry.Value.Values | ForEach-Object { $_.Value })
             $values = $allValues -join ', '
             $tagRows += [PSCustomObject]@{
-                'Tag Name'       = $entry.Key
-                'Resources'      = $entry.Value.TotalResources
-                'Unique Values'  = $allValues.Count
-                'Values'         = $values
+                'Tag Name'      = $entry.Key
+                'Resources'     = $entry.Value.TotalResources
+                'Unique Values' = $allValues.Count
+                'Values'        = $values
             }
         }
         $script:TagInventoryGrid.ItemsSource = @($tagRows | Sort-Object 'Resources' -Descending)
@@ -749,11 +802,13 @@ function Populate-TagsTab {
             $shown = $d.Tags.UntaggedResources.Count
             if ($shown -lt $total) {
                 $script:UntaggedNote.Text = "Showing $shown of $total untagged resources"
-            } else {
+            }
+            else {
                 $script:UntaggedNote.Text = "$shown untagged resource$(if($shown -ne 1){'s'})"
             }
             $script:UntaggedResourcesGrid.ItemsSource = @($d.Tags.UntaggedResources)
-        } else {
+        }
+        else {
             $script:UntaggedNote.Text = "No untagged resources found"
             $script:UntaggedResourcesGrid.ItemsSource = @()
         }
@@ -761,7 +816,7 @@ function Populate-TagsTab {
 
     # Tag recommendations with inline action buttons
     if ($d.TagRecs) {
-        $presentCount  = $d.TagRecs.Present.Count
+        $presentCount = $d.TagRecs.Present.Count
         $analysisCount = $d.TagRecs.Analysis.Count
         $script:TagComplianceText.Text = "Tag compliance: $($d.TagRecs.CompliancePercent)% ($presentCount of $analysisCount recommended tags found)"
 
@@ -770,11 +825,11 @@ function Populate-TagsTab {
         $script:TagRecsGrid.Columns.Clear()
 
         # Data columns
-        foreach ($col in @('Tag','Status','Location','Priority','Pillar','Purpose')) {
+        foreach ($col in @('Tag', 'Status', 'Location', 'Priority', 'Pillar', 'Purpose')) {
             $dgCol = [System.Windows.Controls.DataGridTextColumn]::new()
             $dgCol.Header = $col
             $dgCol.Binding = [System.Windows.Data.Binding]::new($col)
-            if ($col -in @('Location','Purpose')) {
+            if ($col -in @('Location', 'Purpose')) {
                 $dgCol.Width = [System.Windows.Controls.DataGridLength]::new(1, [System.Windows.Controls.DataGridLengthUnitType]::Star)
                 $dgCol.ElementStyle = [System.Windows.Style]::new([System.Windows.Controls.TextBlock])
                 $dgCol.ElementStyle.Setters.Add([System.Windows.Setter]::new([System.Windows.Controls.TextBlock]::TextWrappingProperty, [System.Windows.TextWrapping]::Wrap))
@@ -793,20 +848,21 @@ function Populate-TagsTab {
         $cellFactory.SetBinding([System.Windows.Controls.Button]::ForegroundProperty, [System.Windows.Data.Binding]::new('ActionFg'))
         $cellFactory.SetBinding([System.Windows.Controls.Button]::TagProperty, [System.Windows.Data.Binding]::new('ActionTagName'))
         $cellFactory.SetValue([System.Windows.Controls.Button]::FontSizeProperty, [double]10)
-        $cellFactory.SetValue([System.Windows.Controls.Button]::PaddingProperty, [System.Windows.Thickness]::new(6,1,6,1))
-        $cellFactory.SetValue([System.Windows.Controls.Button]::MarginProperty, [System.Windows.Thickness]::new(2,1,2,1))
+        $cellFactory.SetValue([System.Windows.Controls.Button]::PaddingProperty, [System.Windows.Thickness]::new(6, 1, 6, 1))
+        $cellFactory.SetValue([System.Windows.Controls.Button]::MarginProperty, [System.Windows.Thickness]::new(2, 1, 2, 1))
         $cellFactory.SetValue([System.Windows.Controls.Button]::CursorProperty, [System.Windows.Input.Cursors]::Hand)
         $cellFactory.SetValue([System.Windows.Controls.Button]::BorderThicknessProperty, [System.Windows.Thickness]::new(1))
-        $cellFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]{
-            param($sender, $e)
-            $tagName = $sender.Tag
-            $status  = $sender.Content
-            if ($status -eq 'Add') {
-                Show-TagDeployPanel -TagName $tagName
-            } elseif ($status -eq 'Remove') {
-                Show-TagRemovePanel -TagName $tagName
-            }
-        })
+        $cellFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler] {
+                param($sender, $e)
+                $tagName = $sender.Tag
+                $status = $sender.Content
+                if ($status -eq 'Add') {
+                    Show-TagDeployPanel -TagName $tagName
+                }
+                elseif ($status -eq 'Remove') {
+                    Show-TagRemovePanel -TagName $tagName
+                }
+            })
 
         $cellTemplate = [System.Windows.DataTemplate]::new()
         $cellTemplate.VisualTree = $cellFactory
@@ -884,80 +940,83 @@ function Populate-OptimizationTab {
     # Currency helper
     $currency = if ($d.ResourceCosts -and $d.ResourceCosts.Count -gt 0) {
         Get-CurrencySymbol -Code $d.ResourceCosts[0].Currency
-    } else { '$' }
+    }
+    else { '$' }
 
     # AHB
     if ($d.AHB) {
-        $script:AHBCountText.Text   = "$($d.AHB.TotalOpportunities) resources"
-        $script:AHBDetailText.Text  = "$($d.AHB.WindowsVMs.Count) VMs, $($d.AHB.SQLVMs.Count) SQL VMs, $($d.AHB.SQLDatabases.Count) SQL DBs"
+        $script:AHBCountText.Text = "$($d.AHB.TotalOpportunities) resources"
+        $script:AHBDetailText.Text = "$($d.AHB.WindowsVMs.Count) VMs, $($d.AHB.SQLVMs.Count) SQL VMs, $($d.AHB.SQLDatabases.Count) SQL DBs"
         $script:AHBSummaryText.Text = $d.AHB.Summary
 
         $ahbRows = @()
         foreach ($vm in $d.AHB.WindowsVMs) {
             $rc = Find-ResourceCost -Name $vm.name -SubscriptionId $vm.subscriptionId -ResourceGroup $vm.resourceGroup -ResourceType 'microsoft.compute/virtualmachines'
-            $actual   = if ($rc) { $rc.Actual } else { $null }
+            $actual = if ($rc) { $rc.Actual } else { $null }
             $forecast = if ($rc) { $rc.Forecast } else { $null }
             # AHB saves ~40% on Windows VM licensing component
-            $ahbActual   = if ($actual)   { [math]::Round($actual   * 0.6, 2) } else { $null }
-            $ahbForecast = if ($forecast)  { [math]::Round($forecast * 0.6, 2) } else { $null }
+            $ahbActual = if ($actual) { [math]::Round($actual * 0.6, 2) } else { $null }
+            $ahbForecast = if ($forecast) { [math]::Round($forecast * 0.6, 2) } else { $null }
             $ahbRows += [PSCustomObject]@{
-                Type              = 'Windows VM'
-                Name              = $vm.name
-                ResourceGroup     = $vm.resourceGroup
-                Size              = $vm.vmSize
-                CurrentLicense    = $vm.currentLicense
-                Location          = $vm.location
-                'Actual (MTD)'    = if ($actual)      { "$currency$($actual.ToString('N2'))" }      else { '-' }
-                'Forecast'        = if ($forecast)     { "$currency$($forecast.ToString('N2'))" }    else { '-' }
-                'With AHB (MTD)'  = if ($ahbActual)    { "$currency$($ahbActual.ToString('N2'))" }   else { '-' }
-                'With AHB (Mo.)'  = if ($ahbForecast)  { "$currency$($ahbForecast.ToString('N2'))" } else { '-' }
+                Type             = 'Windows VM'
+                Name             = $vm.name
+                ResourceGroup    = $vm.resourceGroup
+                Size             = $vm.vmSize
+                CurrentLicense   = $vm.currentLicense
+                Location         = $vm.location
+                'Actual (MTD)'   = if ($actual) { "$currency$($actual.ToString('N2'))" }      else { '-' }
+                'Forecast'       = if ($forecast) { "$currency$($forecast.ToString('N2'))" }    else { '-' }
+                'With AHB (MTD)' = if ($ahbActual) { "$currency$($ahbActual.ToString('N2'))" }   else { '-' }
+                'With AHB (Mo.)' = if ($ahbForecast) { "$currency$($ahbForecast.ToString('N2'))" } else { '-' }
             }
         }
         foreach ($sql in $d.AHB.SQLVMs) {
             $rc = Find-ResourceCost -Name $sql.name -SubscriptionId $sql.subscriptionId -ResourceGroup $sql.resourceGroup -ResourceType 'microsoft.sqlvirtualmachine/sqlvirtualmachines'
-            $actual   = if ($rc) { $rc.Actual } else { $null }
+            $actual = if ($rc) { $rc.Actual } else { $null }
             $forecast = if ($rc) { $rc.Forecast } else { $null }
-            $ahbActual   = if ($actual)   { [math]::Round($actual   * 0.45, 2) } else { $null }
-            $ahbForecast = if ($forecast)  { [math]::Round($forecast * 0.45, 2) } else { $null }
+            $ahbActual = if ($actual) { [math]::Round($actual * 0.45, 2) } else { $null }
+            $ahbForecast = if ($forecast) { [math]::Round($forecast * 0.45, 2) } else { $null }
             $ahbRows += [PSCustomObject]@{
-                Type              = 'SQL VM'
-                Name              = $sql.name
-                ResourceGroup     = $sql.resourceGroup
-                Size              = $sql.sqlEdition
-                CurrentLicense    = $sql.currentLicense
-                Location          = $sql.location
-                'Actual (MTD)'    = if ($actual)      { "$currency$($actual.ToString('N2'))" }      else { '-' }
-                'Forecast'        = if ($forecast)     { "$currency$($forecast.ToString('N2'))" }    else { '-' }
-                'With AHB (MTD)'  = if ($ahbActual)    { "$currency$($ahbActual.ToString('N2'))" }   else { '-' }
-                'With AHB (Mo.)'  = if ($ahbForecast)  { "$currency$($ahbForecast.ToString('N2'))" } else { '-' }
+                Type             = 'SQL VM'
+                Name             = $sql.name
+                ResourceGroup    = $sql.resourceGroup
+                Size             = $sql.sqlEdition
+                CurrentLicense   = $sql.currentLicense
+                Location         = $sql.location
+                'Actual (MTD)'   = if ($actual) { "$currency$($actual.ToString('N2'))" }      else { '-' }
+                'Forecast'       = if ($forecast) { "$currency$($forecast.ToString('N2'))" }    else { '-' }
+                'With AHB (MTD)' = if ($ahbActual) { "$currency$($ahbActual.ToString('N2'))" }   else { '-' }
+                'With AHB (Mo.)' = if ($ahbForecast) { "$currency$($ahbForecast.ToString('N2'))" } else { '-' }
             }
         }
         foreach ($db in $d.AHB.SQLDatabases) {
             $rc = Find-ResourceCost -Name $db.name -SubscriptionId $db.subscriptionId -ResourceGroup $db.resourceGroup -ResourceType 'microsoft.sql/servers/databases'
-            $actual   = if ($rc) { $rc.Actual } else { $null }
+            $actual = if ($rc) { $rc.Actual } else { $null }
             $forecast = if ($rc) { $rc.Forecast } else { $null }
             # AHB saves ~55% on SQL DB licensing component
-            $ahbActual   = if ($actual)   { [math]::Round($actual   * 0.45, 2) } else { $null }
-            $ahbForecast = if ($forecast)  { [math]::Round($forecast * 0.45, 2) } else { $null }
+            $ahbActual = if ($actual) { [math]::Round($actual * 0.45, 2) } else { $null }
+            $ahbForecast = if ($forecast) { [math]::Round($forecast * 0.45, 2) } else { $null }
             $ahbRows += [PSCustomObject]@{
-                Type              = 'SQL Database'
-                Name              = $db.name
-                ResourceGroup     = $db.resourceGroup
-                Size              = $db.sku
-                CurrentLicense    = $db.currentLicense
-                Location          = $db.location
-                'Actual (MTD)'    = if ($actual)      { "$currency$($actual.ToString('N2'))" }      else { '-' }
-                'Forecast'        = if ($forecast)     { "$currency$($forecast.ToString('N2'))" }    else { '-' }
-                'With AHB (MTD)'  = if ($ahbActual)    { "$currency$($ahbActual.ToString('N2'))" }   else { '-' }
-                'With AHB (Mo.)'  = if ($ahbForecast)  { "$currency$($ahbForecast.ToString('N2'))" } else { '-' }
+                Type             = 'SQL Database'
+                Name             = $db.name
+                ResourceGroup    = $db.resourceGroup
+                Size             = $db.sku
+                CurrentLicense   = $db.currentLicense
+                Location         = $db.location
+                'Actual (MTD)'   = if ($actual) { "$currency$($actual.ToString('N2'))" }      else { '-' }
+                'Forecast'       = if ($forecast) { "$currency$($forecast.ToString('N2'))" }    else { '-' }
+                'With AHB (MTD)' = if ($ahbActual) { "$currency$($ahbActual.ToString('N2'))" }   else { '-' }
+                'With AHB (Mo.)' = if ($ahbForecast) { "$currency$($ahbForecast.ToString('N2'))" } else { '-' }
             }
         }
         if ($ahbRows.Count -eq 0) {
             $script:AHBGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No AHB-eligible resources found. All resources are using Azure Hybrid Benefit or are not eligible.' })
-        } else {
+        }
+        else {
             $script:AHBGrid.ItemsSource = @($ahbRows)
         }
-    } else {
+    }
+    else {
         $script:AHBGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No AHB-eligible resources found.' })
     }
 
@@ -969,7 +1028,8 @@ function Populate-OptimizationTab {
         foreach ($rec in $d.Reservations.AdvisorRecommendations) {
             if ($rec.Problem -match 'savings plan' -or $rec.Solution -match 'savings plan') {
                 $spRecs += $rec
-            } else {
+            }
+            else {
                 $riRecs += $rec
             }
         }
@@ -980,10 +1040,10 @@ function Populate-OptimizationTab {
             $contractType = $d.Contract[0].AgreementType
         }
         $contractNote = switch -Regex ($contractType) {
-            'EnterpriseAgreement'              { 'EA customers: RI/SP pricing reflects your negotiated EA rates. Savings shown are vs. your EA pay-as-you-go rate.' }
-            'MicrosoftCustomerAgreement'       { 'MCA customers: RI/SP savings are calculated against your MCA list prices. Actual savings may vary based on negotiated discounts.' }
-            'MicrosoftOnlineServicesProgram'   { 'PAYGO customers: Savings shown are vs. retail pay-as-you-go rates. Consider an EA or MCA for even deeper discounts on top of RI/SP.' }
-            default                             { 'Savings are estimated against your current pricing model.' }
+            'EnterpriseAgreement' { 'EA customers: RI/SP pricing reflects your negotiated EA rates. Savings shown are vs. your EA pay-as-you-go rate.' }
+            'MicrosoftCustomerAgreement' { 'MCA customers: RI/SP savings are calculated against your MCA list prices. Actual savings may vary based on negotiated discounts.' }
+            'MicrosoftOnlineServicesProgram' { 'PAYGO customers: Savings shown are vs. retail pay-as-you-go rates. Consider an EA or MCA for even deeper discounts on top of RI/SP.' }
+            default { 'Savings are estimated against your current pricing model.' }
         }
         if ($script:RIContractNote) { $script:RIContractNote.Text = $contractNote }
         if ($script:SPContractNote) { $script:SPContractNote.Text = $contractNote }
@@ -992,7 +1052,7 @@ function Populate-OptimizationTab {
         $riRows = @()
         foreach ($rec in $riRecs) {
             $rc = Find-ResourceCost -Name $rec.ResourceName -SubscriptionId $rec.SubscriptionId -ResourceGroup $null -ResourceType $rec.ResourceType
-            $actual   = if ($rc) { $rc.Actual } else { $null }
+            $actual = if ($rc) { $rc.Actual } else { $null }
             $forecast = if ($rc) { $rc.Forecast } else { $null }
             $monthlySavings = if ($rec.AnnualSavings) { [math]::Round($rec.AnnualSavings / 12, 2) } else { $null }
             $riRows += [PSCustomObject]@{
@@ -1026,7 +1086,8 @@ function Populate-OptimizationTab {
         }
         if ($riRows.Count -eq 0) {
             $script:RIGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No Reserved Instance recommendations at this time.' })
-        } else {
+        }
+        else {
             $script:RIGrid.ItemsSource = @($riRows)
         }
 
@@ -1034,7 +1095,7 @@ function Populate-OptimizationTab {
         $spRows = @()
         foreach ($rec in $spRecs) {
             $rc = Find-ResourceCost -Name $rec.ResourceName -SubscriptionId $rec.SubscriptionId -ResourceGroup $null -ResourceType $rec.ResourceType
-            $actual   = if ($rc) { $rc.Actual } else { $null }
+            $actual = if ($rc) { $rc.Actual } else { $null }
             $forecast = if ($rc) { $rc.Forecast } else { $null }
             $monthlySavings = if ($rec.AnnualSavings) { [math]::Round($rec.AnnualSavings / 12, 2) } else { $null }
             $spRows += [PSCustomObject]@{
@@ -1053,23 +1114,25 @@ function Populate-OptimizationTab {
         }
         if ($spRows.Count -eq 0) {
             $script:SPGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No Savings Plan recommendations at this time.' })
-        } else {
+        }
+        else {
             $script:SPGrid.ItemsSource = @($spRows)
         }
-    } else {
+    }
+    else {
         $script:RIGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No Reserved Instance recommendations at this time.' })
         $script:SPGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No Savings Plan recommendations at this time.' })
     }
 
     # Advisor
     if ($d.Optimization -and $d.Optimization.TotalCount -gt 0) {
-        $script:AdvisorCountText.Text   = $d.Optimization.TotalCount.ToString()
+        $script:AdvisorCountText.Text = $d.Optimization.TotalCount.ToString()
         $script:AdvisorSavingsText.Text = "Est. $currency$($d.Optimization.EstimatedAnnualSavings.ToString('N2'))/yr"
 
         $advRows = @()
         foreach ($rec in $d.Optimization.Recommendations) {
             $rc = Find-ResourceCost -Name $rec.ResourceName -SubscriptionId $rec.SubscriptionId -ResourceGroup $null -ResourceType $rec.ResourceType
-            $actual   = if ($rc) { $rc.Actual } else { $null }
+            $actual = if ($rc) { $rc.Actual } else { $null }
             $forecast = if ($rc) { $rc.Forecast } else { $null }
             $monthlySavings = if ($rec.AnnualSavings) { [math]::Round($rec.AnnualSavings / 12, 2) } else { $null }
             $advRows += [PSCustomObject]@{
@@ -1086,8 +1149,9 @@ function Populate-OptimizationTab {
             }
         }
         $script:AdvisorGrid.ItemsSource = @($advRows)
-    } else {
-        $script:AdvisorCountText.Text   = '0'
+    }
+    else {
+        $script:AdvisorCountText.Text = '0'
         $script:AdvisorSavingsText.Text = "$currency" + "0.00/yr"
         $script:AdvisorGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No Advisor cost optimization recommendations at this time. This is normal for well-optimized or small environments.' })
     }
@@ -1099,7 +1163,8 @@ function Populate-GuidanceTab {
     # Currency helper
     $currency = if ($d.ResourceCosts -and $d.ResourceCosts.Count -gt 0) {
         Get-CurrencySymbol -Code $d.ResourceCosts[0].Currency
-    } else { '$' }
+    }
+    else { '$' }
 
     # =====================================================================
     # HELPER: Add a rich text line to a StackPanel
@@ -1172,13 +1237,13 @@ function Populate-GuidanceTab {
     if ($d.Tags -and $d.Tags.TagNames) {
         $lcKeys = $d.Tags.TagNames.Keys | ForEach-Object { $_.ToLower() }
         $tagWeights = @{
-            'CostCenter'          = @{ Weight = 3; Alts = @('costcenter', 'cost-center', 'cost_center', 'cc') }
-            'BusinessUnit'        = @{ Weight = 3; Alts = @('businessunit', 'bu', 'business-unit', 'department', 'dept') }
-            'ApplicationName'     = @{ Weight = 2; Alts = @('applicationname', 'application', 'app', 'appname') }
-            'WorkloadName'        = @{ Weight = 1; Alts = @('workloadname', 'workload', 'workload-name') }
-            'OpsTeam'             = @{ Weight = 1; Alts = @('opsteam', 'ops-team', 'ops_team', 'owner', 'technicalowner') }
-            'Criticality'         = @{ Weight = 1; Alts = @('criticality', 'sla', 'tier') }
-            'DataClassification'  = @{ Weight = 1; Alts = @('dataclassification', 'data-classification', 'classification') }
+            'CostCenter'         = @{ Weight = 3; Alts = @('costcenter', 'cost-center', 'cost_center', 'cc') }
+            'BusinessUnit'       = @{ Weight = 3; Alts = @('businessunit', 'bu', 'business-unit', 'department', 'dept') }
+            'ApplicationName'    = @{ Weight = 2; Alts = @('applicationname', 'application', 'app', 'appname') }
+            'WorkloadName'       = @{ Weight = 1; Alts = @('workloadname', 'workload', 'workload-name') }
+            'OpsTeam'            = @{ Weight = 1; Alts = @('opsteam', 'ops-team', 'ops_team', 'owner', 'technicalowner') }
+            'Criticality'        = @{ Weight = 1; Alts = @('criticality', 'sla', 'tier') }
+            'DataClassification' = @{ Weight = 1; Alts = @('dataclassification', 'data-classification', 'classification') }
         }
         foreach ($tag in $tagWeights.Keys) {
             $allNames = @($tag.ToLower()) + $tagWeights[$tag].Alts
@@ -1216,7 +1281,8 @@ function Populate-GuidanceTab {
     if ($d.Commitments -and $d.Commitments.HasData) {
         if ($d.Commitments.RIAvgUtilization -ge 80) { $optScore += 5 }
         elseif ($d.Commitments.RIAvgUtilization -ge 60) { $optScore += 3 }
-    } else {
+    }
+    else {
         # No commitments = no waste, partial credit
         $optScore += 2
     }
@@ -1227,14 +1293,16 @@ function Populate-GuidanceTab {
         if ($d.Optimization.TotalCount -eq 0) { $optScore += 5 }
         elseif ($d.Optimization.TotalCount -le 3) { $optScore += 3 }
         elseif ($d.Optimization.TotalCount -le 10) { $optScore += 1 }
-    } else { $optScore += 2 }
+    }
+    else { $optScore += 2 }
     # Few orphaned resources: 5 pts
     if ($d.Orphans) {
         $orphanTotal = if ($d.Orphans.TotalCount) { $d.Orphans.TotalCount } else { 0 }
         if ($orphanTotal -eq 0) { $optScore += 5 }
         elseif ($orphanTotal -le 3) { $optScore += 3 }
         elseif ($orphanTotal -le 10) { $optScore += 1 }
-    } else { $optScore += 2 }
+    }
+    else { $optScore += 2 }
     $breakdown['Optimization'] = [math]::Min($optScore, 20)
     $score += $breakdown['Optimization']
 
@@ -1246,7 +1314,8 @@ function Populate-GuidanceTab {
     if ($d.PolicyRecs) {
         $policyPct = if ($d.PolicyRecs.Analysis.Count -gt 0) {
             [math]::Round(($d.PolicyRecs.Assigned.Count / $d.PolicyRecs.Analysis.Count) * 100, 0)
-        } else { 0 }
+        }
+        else { 0 }
         $govScore += [math]::Min([math]::Floor($policyPct / 20), 5)
     }
     # Policy compliance > 80%: 5 pts
@@ -1374,50 +1443,52 @@ function Populate-GuidanceTab {
     # --- Critical: Tag coverage ---
     if ($d.Tags -and $d.Tags.TagCoverage -lt 50) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 1; Impact = 'Critical'; Category = 'Allocation'
-            Title = "Increase tag coverage from $($d.Tags.TagCoverage)% to 80%+"
-            Detail = 'Untagged resources cannot be allocated to business units. Use Azure Policy to enforce tagging at resource creation. Start with CostCenter, Environment, and Application tags.'
-        })
-    } elseif ($d.Tags -and $d.Tags.TagCoverage -lt 80) {
+                Priority = 1; Impact = 'Critical'; Category = 'Allocation'
+                Title = "Increase tag coverage from $($d.Tags.TagCoverage)% to 80%+"
+                Detail = 'Untagged resources cannot be allocated to business units. Use Azure Policy to enforce tagging at resource creation. Start with CostCenter, Environment, and Application tags.'
+            })
+    }
+    elseif ($d.Tags -and $d.Tags.TagCoverage -lt 80) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 2; Impact = 'High'; Category = 'Allocation'
-            Title = "Improve tag coverage from $($d.Tags.TagCoverage)% to 80%+"
-            Detail = 'Good progress on tagging. Focus on untagged resources using Azure Policy tag inheritance and the Deploy Missing Tags feature on the Tags tab.'
-        })
+                Priority = 2; Impact = 'High'; Category = 'Allocation'
+                Title = "Improve tag coverage from $($d.Tags.TagCoverage)% to 80%+"
+                Detail = 'Good progress on tagging. Focus on untagged resources using Azure Policy tag inheritance and the Deploy Missing Tags feature on the Tags tab.'
+            })
     }
 
     # --- Critical: No budgets ---
     if (-not $d.Budgets -or -not $d.Budgets.HasData) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 1; Impact = 'Critical'; Category = 'Budgeting'
-            Title = 'Set up Azure Budgets with alert thresholds'
-            Detail = 'No budgets detected. Create budgets at the subscription level with 50%, 75%, 90%, and 100% alert thresholds. Use action groups to notify finance and engineering teams.'
-        })
-    } elseif ($d.Budgets.BudgetCoverage -lt 50) {
+                Priority = 1; Impact = 'Critical'; Category = 'Budgeting'
+                Title = 'Set up Azure Budgets with alert thresholds'
+                Detail = 'No budgets detected. Create budgets at the subscription level with 50%, 75%, 90%, and 100% alert thresholds. Use action groups to notify finance and engineering teams.'
+            })
+    }
+    elseif ($d.Budgets.BudgetCoverage -lt 50) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 2; Impact = 'High'; Category = 'Budgeting'
-            Title = "Expand budget coverage from $($d.Budgets.BudgetCoverage)% to 100%"
-            Detail = "Only $($d.Budgets.SubsWithBudget) of $($d.Budgets.SubsWithBudget + $d.Budgets.SubsWithoutBudget) subscriptions have budgets. Every production subscription should have an Azure Budget."
-        })
+                Priority = 2; Impact = 'High'; Category = 'Budgeting'
+                Title = "Expand budget coverage from $($d.Budgets.BudgetCoverage)% to 100%"
+                Detail = "Only $($d.Budgets.SubsWithBudget) of $($d.Budgets.SubsWithBudget + $d.Budgets.SubsWithoutBudget) subscriptions have budgets. Every production subscription should have an Azure Budget."
+            })
     }
 
     # --- High: Over-budget subscriptions ---
     if ($d.Budgets -and $d.Budgets.OverBudgetCount -gt 0) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 1; Impact = 'Critical'; Category = 'Budgeting'
-            Title = "$($d.Budgets.OverBudgetCount) subscription(s) are over budget"
-            Detail = 'Investigate the over-budget subscriptions on the Overview tab. Check for unexpected scaling events, new resource deployments, or pricing changes.'
-        })
+                Priority = 1; Impact = 'Critical'; Category = 'Budgeting'
+                Title = "$($d.Budgets.OverBudgetCount) subscription(s) are over budget"
+                Detail = 'Investigate the over-budget subscriptions on the Overview tab. Check for unexpected scaling events, new resource deployments, or pricing changes.'
+            })
     }
 
     # --- High: Missing required tags ---
     if ($d.TagRecs -and $d.TagRecs.MissingRequired.Count -gt 0) {
         $names = ($d.TagRecs.MissingRequired | ForEach-Object { $_.TagName }) -join ', '
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 2; Impact = 'High'; Category = 'Allocation'
-            Title = "Deploy missing required tags: $names"
-            Detail = 'Microsoft Cloud Adoption Framework requires these tags for chargeback/showback. Use the Tags tab to deploy them to subscriptions or resource groups.'
-        })
+                Priority = 2; Impact = 'High'; Category = 'Allocation'
+                Title = "Deploy missing required tags: $names"
+                Detail = 'Microsoft Cloud Adoption Framework requires these tags for chargeback/showback. Use the Tags tab to deploy them to subscriptions or resource groups.'
+            })
     }
 
     # --- High: No FinOps policies ---
@@ -1425,29 +1496,29 @@ function Populate-GuidanceTab {
         $missingCount = $d.PolicyRecs.Missing.Count
         $totalPolicies = $d.PolicyRecs.Analysis.Count
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 2; Impact = 'High'; Category = 'Governance'
-            Title = "Deploy $missingCount of $totalPolicies recommended FinOps policies"
-            Detail = 'Azure Policy enforces cost governance at scale. Start with Audit mode to measure impact, then move to Deny for critical policies like allowed VM sizes and required tags. Use the Policy tab to deploy.'
-        })
+                Priority = 2; Impact = 'High'; Category = 'Governance'
+                Title = "Deploy $missingCount of $totalPolicies recommended FinOps policies"
+                Detail = 'Azure Policy enforces cost governance at scale. Start with Audit mode to measure impact, then move to Deny for critical policies like allowed VM sizes and required tags. Use the Policy tab to deploy.'
+            })
     }
 
     # --- Medium: AHB opportunities ---
     if ($d.AHB -and $d.AHB.TotalOpportunities -gt 0) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 3; Impact = 'Medium'; Category = 'Optimization'
-            Title = "Enable Azure Hybrid Benefit on $($d.AHB.TotalOpportunities) resource(s)"
-            Detail = 'If you have existing Windows Server or SQL Server licenses with Software Assurance, AHB saves 40-85% on compute. This is free money with no architectural changes.'
-        })
+                Priority = 3; Impact = 'Medium'; Category = 'Optimization'
+                Title = "Enable Azure Hybrid Benefit on $($d.AHB.TotalOpportunities) resource(s)"
+                Detail = 'If you have existing Windows Server or SQL Server licenses with Software Assurance, AHB saves 40-85% on compute. This is free money with no architectural changes.'
+            })
     }
 
     # --- Medium: Advisor recommendations ---
     if ($d.Optimization -and $d.Optimization.TotalCount -gt 0) {
         $estSavings = $d.Optimization.EstimatedAnnualSavings.ToString('N2')
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 3; Impact = 'Medium'; Category = 'Optimization'
-            Title = "$($d.Optimization.TotalCount) Advisor cost recommendations (est. $currency$estSavings/yr)"
-            Detail = 'Review Azure Advisor recommendations on the Optimization tab. Common quick wins: rightsize VMs, delete unused resources, shut down dev/test outside business hours.'
-        })
+                Priority = 3; Impact = 'Medium'; Category = 'Optimization'
+                Title = "$($d.Optimization.TotalCount) Advisor cost recommendations (est. $currency$estSavings/yr)"
+                Detail = 'Review Azure Advisor recommendations on the Optimization tab. Common quick wins: rightsize VMs, delete unused resources, shut down dev/test outside business hours.'
+            })
     }
 
     # --- Medium: Orphaned resources ---
@@ -1455,10 +1526,10 @@ function Populate-GuidanceTab {
         $orphanTotal = if ($d.Orphans.TotalCount) { $d.Orphans.TotalCount } else { 0 }
         if ($orphanTotal -gt 0) {
             [void]$actions.Add([PSCustomObject]@{
-                Priority = 3; Impact = 'Medium'; Category = 'Optimization'
-                Title = "Clean up $orphanTotal orphaned/idle resource(s)"
-                Detail = 'Orphaned disks, unattached IPs, deallocated VMs, and empty App Service Plans cost money but serve no purpose. Review on the Optimization tab.'
-            })
+                    Priority = 3; Impact = 'Medium'; Category = 'Optimization'
+                    Title = "Clean up $orphanTotal orphaned/idle resource(s)"
+                    Detail = 'Orphaned disks, unattached IPs, deallocated VMs, and empty App Service Plans cost money but serve no purpose. Review on the Optimization tab.'
+                })
         }
     }
 
@@ -1466,67 +1537,67 @@ function Populate-GuidanceTab {
     if ($d.Reservations -and ($d.Reservations.TotalAdvisorCount + $d.Reservations.TotalReservationCount) -gt 0) {
         $riSavings = $d.Reservations.EstimatedAnnualSavings.ToString('N2')
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 3; Impact = 'Medium'; Category = 'Optimization'
-            Title = "Evaluate RI/Savings Plan opportunities (est. $currency$riSavings/yr)"
-            Detail = 'For steady-state workloads, Reserved Instances save 30-72% vs. pay-as-you-go. Savings Plans offer flexibility across VM families. Start with 1-year terms to reduce risk.'
-        })
+                Priority = 3; Impact = 'Medium'; Category = 'Optimization'
+                Title = "Evaluate RI/Savings Plan opportunities (est. $currency$riSavings/yr)"
+                Detail = 'For steady-state workloads, Reserved Instances save 30-72% vs. pay-as-you-go. Savings Plans offer flexibility across VM families. Start with 1-year terms to reduce risk.'
+            })
     }
 
     # --- Lower: Commitment utilization ---
     if ($d.Commitments -and $d.Commitments.HasData -and $d.Commitments.UnderutilizedRIs.Count -gt 0) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 4; Impact = 'Low'; Category = 'Optimization'
-            Title = "$($d.Commitments.UnderutilizedRIs.Count) underutilized reservation(s) (below 80%)"
-            Detail = 'Exchange or refund underperforming reservations. Azure allows one-time exchanges to better-fitting SKUs or regions. Target 80%+ utilization on all commitments.'
-        })
+                Priority = 4; Impact = 'Low'; Category = 'Optimization'
+                Title = "$($d.Commitments.UnderutilizedRIs.Count) underutilized reservation(s) (below 80%)"
+                Detail = 'Exchange or refund underperforming reservations. Azure allows one-time exchanges to better-fitting SKUs or regions. Target 80%+ utilization on all commitments.'
+            })
     }
 
     # --- No MG hierarchy = flat org ---
     if (-not $d.Hierarchy -or -not $d.Hierarchy.RootGroup) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 4; Impact = 'Low'; Category = 'Governance'
-            Title = 'Set up Management Group hierarchy'
-            Detail = 'Management Groups enable policy inheritance and cost rollup at the organizational level. Structure as: Tenant Root > Platform / Landing Zones > Production / Dev / Sandbox.'
-        })
+                Priority = 4; Impact = 'Low'; Category = 'Governance'
+                Title = 'Set up Management Group hierarchy'
+                Detail = 'Management Groups enable policy inheritance and cost rollup at the organizational level. Structure as: Tenant Root > Platform / Landing Zones > Production / Dev / Sandbox.'
+            })
     }
 
     # --- Positive: Add encouragement for things done well ---
     if ($d.Budgets -and $d.Budgets.HasData -and $d.Budgets.BudgetCoverage -ge 80) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 10; Impact = 'Strength'; Category = 'Budgeting'
-            Title = "Budget coverage is $($d.Budgets.BudgetCoverage)% - well governed"
-            Detail = 'Consider adding action groups that auto-scale down or shut off dev resources when budgets hit 90%.'
-        })
+                Priority = 10; Impact = 'Strength'; Category = 'Budgeting'
+                Title = "Budget coverage is $($d.Budgets.BudgetCoverage)% - well governed"
+                Detail = 'Consider adding action groups that auto-scale down or shut off dev resources when budgets hit 90%.'
+            })
     }
     if ($d.Tags -and $d.Tags.TagCoverage -ge 80) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 10; Impact = 'Strength'; Category = 'Allocation'
-            Title = "Tag coverage at $($d.Tags.TagCoverage)% - strong cost allocation"
-            Detail = 'Next step: implement tag-based cost allocation rules in Cost Management to automatically distribute shared costs to business units.'
-        })
+                Priority = 10; Impact = 'Strength'; Category = 'Allocation'
+                Title = "Tag coverage at $($d.Tags.TagCoverage)% - strong cost allocation"
+                Detail = 'Next step: implement tag-based cost allocation rules in Cost Management to automatically distribute shared costs to business units.'
+            })
     }
     if ($d.PolicyInv -and $d.PolicyInv.AssignmentCount -gt 5) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 10; Impact = 'Strength'; Category = 'Governance'
-            Title = "$($d.PolicyInv.AssignmentCount) policies in place - governance foundation established"
-            Detail = 'Review compliance % on the Policy tab. Move Audit-mode policies to Deny for critical rules once compliance is above 90%.'
-        })
+                Priority = 10; Impact = 'Strength'; Category = 'Governance'
+                Title = "$($d.PolicyInv.AssignmentCount) policies in place - governance foundation established"
+                Detail = 'Review compliance % on the Policy tab. Move Audit-mode policies to Deny for critical rules once compliance is above 90%.'
+            })
     }
     if ($d.Savings -and $d.Savings.TotalMonthly -gt 0) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 10; Impact = 'Strength'; Category = 'Optimization'
-            Title = "Already saving $currency$($d.Savings.TotalMonthly.ToString('N2'))/mo from commitments"
-            Detail = 'Great foundation. Monitor utilization monthly and consider expanding coverage as workloads stabilize.'
-        })
+                Priority = 10; Impact = 'Strength'; Category = 'Optimization'
+                Title = "Already saving $currency$($d.Savings.TotalMonthly.ToString('N2'))/mo from commitments"
+                Detail = 'Great foundation. Monitor utilization monthly and consider expanding coverage as workloads stabilize.'
+            })
     }
 
     # Fall back if nothing
     if ($actions.Count -eq 0) {
         [void]$actions.Add([PSCustomObject]@{
-            Priority = 5; Impact = 'Info'; Category = 'General'
-            Title = 'Run a full scan with Cost Management Reader permissions for detailed recommendations'
-            Detail = 'The scanner needs cost and policy data to generate specific actions. Ensure the account has Reader + Cost Management Reader at the management group or subscription scope.'
-        })
+                Priority = 5; Impact = 'Info'; Category = 'General'
+                Title = 'Run a full scan with Cost Management Reader permissions for detailed recommendations'
+                Detail = 'The scanner needs cost and policy data to generate specific actions. Ensure the account has Reader + Cost Management Reader at the management group or subscription scope.'
+            })
     }
 
     # Sort: Critical first, Strength last
@@ -1599,9 +1670,11 @@ function Populate-GuidanceTab {
     if ($d.Tags) {
         if ($d.Tags.TagCoverage -lt 50) {
             Add-GuidanceLine -Panel $script:UnderstandPanel -Icon '!' -Bold 'CRITICAL:' -Normal "Only $($d.Tags.TagCoverage)% of resources are tagged. Target 80%+ for meaningful cost allocation. Use Azure Policy to auto-apply tags at resource creation." -Color '#D13438'
-        } elseif ($d.Tags.TagCoverage -lt 80) {
+        }
+        elseif ($d.Tags.TagCoverage -lt 80) {
             Add-GuidanceLine -Panel $script:UnderstandPanel -Icon '!' -Bold 'Tag coverage:' -Normal "$($d.Tags.TagCoverage)%. Good progress. Focus on the remaining untagged resources using tag inheritance policies." -Color '#FF8C00'
-        } else {
+        }
+        else {
             Add-GuidanceLine -Panel $script:UnderstandPanel -Icon '+' -Bold 'Tag coverage:' -Normal "$($d.Tags.TagCoverage)% - strong foundation for showback/chargeback." -Color '#107C10'
         }
     }
@@ -1633,13 +1706,16 @@ function Populate-GuidanceTab {
 
     if ($dayOfMonth -le 3) {
         Add-GuidanceLine -Panel $script:QuantifyPanel -Icon 'i' -Bold "Day $dayOfMonth of billing period ($pctMonthElapsed% elapsed)." -Normal 'Forecasts are less reliable this early. Check back after day 7 for more accurate projections.' -Color '#0078D4'
-    } elseif ($dayOfMonth -le 7) {
+    }
+    elseif ($dayOfMonth -le 7) {
         Add-GuidanceLine -Panel $script:QuantifyPanel -Icon 'i' -Bold "Early in billing period (day $dayOfMonth)." -Normal 'Forecast accuracy improves after week 1.' -Color '#0078D4'
-    } else {
+    }
+    else {
         if ($totalActual -gt 0 -and $totalForecast -gt $totalActual * 1.2) {
             $increase = [math]::Round((($totalForecast - $totalActual) / $totalActual) * 100, 0)
             Add-GuidanceLine -Panel $script:QuantifyPanel -Icon '!' -Bold "Forecast is $increase% above MTD spend." -Normal "$currency$($totalForecast.ToString('N2')) projected vs $currency$($totalActual.ToString('N2')) actual on day $dayOfMonth/$daysInMonth. Review scaling patterns and set budget alerts." -Color '#FF8C00'
-        } elseif ($totalForecast -gt 0) {
+        }
+        elseif ($totalForecast -gt 0) {
             Add-GuidanceLine -Panel $script:QuantifyPanel -Icon '+' -Bold 'Costs appear stable.' -Normal "Forecast $currency$($totalForecast.ToString('N2')) is within 20% of MTD spend on day $dayOfMonth/$daysInMonth." -Color '#107C10'
         }
     }
@@ -1648,7 +1724,8 @@ function Populate-GuidanceTab {
     }
     if (-not $d.Budgets -or -not $d.Budgets.HasData) {
         Add-GuidanceLine -Panel $script:QuantifyPanel -Icon '!' -Bold 'No Azure Budgets detected.' -Normal 'Set budgets at subscription or resource group level with 50%, 75%, 90%, 100% thresholds. Use action groups for email + auto-shutdown.' -Color '#D13438'
-    } else {
+    }
+    else {
         Add-GuidanceLine -Panel $script:QuantifyPanel -Icon '+' -Bold "Budget coverage: $($d.Budgets.BudgetCoverage)%." -Normal "$($d.Budgets.SubsWithBudget) subscription(s) have budgets configured." -Color '#107C10'
     }
     Add-GuidanceLine -Panel $script:QuantifyPanel -Icon '>' -Bold 'TIP:' -Normal 'Use Cost Management Exports to send daily/monthly cost data to a Storage Account for Power BI dashboards and FinOps reporting.' -Color '#8764B8'
@@ -1763,13 +1840,13 @@ function Draw-TrendChart {
     $maxCost = ($months | Measure-Object -Property Cost -Maximum).Maximum
     if ($maxCost -le 0) { $maxCost = 1 }
 
-    $canvasW  = 900
-    $canvasH  = 200
-    $barGap   = 12
-    $labelH   = 30
-    $chartH   = $canvasH - $labelH
+    $canvasW = 900
+    $canvasH = 200
+    $barGap = 12
+    $labelH = 30
+    $chartH = $canvasH - $labelH
     $barCount = $months.Count
-    $barW     = [math]::Floor(($canvasW - ($barGap * ($barCount + 1))) / $barCount)
+    $barW = [math]::Floor(($canvasW - ($barGap * ($barCount + 1))) / $barCount)
     if ($barW -gt 120) { $barW = 120 }
 
     $colors = @('#0078D4', '#005A9E', '#0063B1', '#2B88D8', '#106EBE', '#004578')
@@ -1782,9 +1859,9 @@ function Draw-TrendChart {
 
         # Bar rectangle
         $rect = [System.Windows.Shapes.Rectangle]::new()
-        $rect.Width  = $barW
+        $rect.Width = $barW
         $rect.Height = $barH
-        $rect.Fill   = [System.Windows.Media.BrushConverter]::new().ConvertFromString($colors[$i % $colors.Count])
+        $rect.Fill = [System.Windows.Media.BrushConverter]::new().ConvertFromString($colors[$i % $colors.Count])
         $rect.RadiusX = 3
         $rect.RadiusY = 3
         [System.Windows.Controls.Canvas]::SetLeft($rect, $x)
@@ -1803,7 +1880,8 @@ function Draw-TrendChart {
             $labelTop = $y + 4
             $costLabel.Foreground = [System.Windows.Media.Brushes]::White
             $costLabel.FontWeight = 'SemiBold'
-        } else {
+        }
+        else {
             $costLabel.Foreground = [System.Windows.Media.Brushes]::Gray
         }
         [System.Windows.Controls.Canvas]::SetLeft($costLabel, $x)
@@ -1825,35 +1903,38 @@ function Draw-TrendChart {
 
     # Trend note
     $firstCost = $months[0].Cost
-    $lastCost  = $months[$months.Count - 1].Cost
+    $lastCost = $months[$months.Count - 1].Cost
     if ($firstCost -gt 0) {
         $changePct = [math]::Round((($lastCost - $firstCost) / $firstCost) * 100, 1)
         $direction = if ($changePct -gt 0) { "up" } elseif ($changePct -lt 0) { "down" } else { "flat" }
         $script:TrendNote.Text = "6-month trend: $currency$($firstCost.ToString('N2')) -> $currency$($lastCost.ToString('N2')) ($direction $([math]::Abs($changePct))%)"
-    } else {
+    }
+    else {
         $script:TrendNote.Text = ""
     }
 }
 
 # Trend subscription dropdown handler
 $script:TrendSubSelector.Add_SelectionChanged({
-    $d = $script:scanData.CostTrend
-    if (-not $d -or -not $d.HasData) { return }
+        $d = $script:scanData.CostTrend
+        if (-not $d -or -not $d.HasData) { return }
 
-    $selectedIdx = $script:TrendSubSelector.SelectedIndex
-    if ($selectedIdx -le 0) {
-        # All subscriptions
-        Draw-TrendChart -Months $d.Months
-    } else {
-        $selectedName = $script:TrendSubSelector.SelectedItem
-        $sub = $script:scanData.Auth.Subscriptions | Where-Object { $_.Name -eq $selectedName } | Select-Object -First 1
-        if ($sub -and $d.BySubscription -and $d.BySubscription.ContainsKey($sub.Id)) {
-            Draw-TrendChart -Months $d.BySubscription[$sub.Id]
-        } else {
-            Draw-TrendChart -Months @()
+        $selectedIdx = $script:TrendSubSelector.SelectedIndex
+        if ($selectedIdx -le 0) {
+            # All subscriptions
+            Draw-TrendChart -Months $d.Months
         }
-    }
-})
+        else {
+            $selectedName = $script:TrendSubSelector.SelectedItem
+            $sub = $script:scanData.Auth.Subscriptions | Where-Object { $_.Name -eq $selectedName } | Select-Object -First 1
+            if ($sub -and $d.BySubscription -and $d.BySubscription.ContainsKey($sub.Id)) {
+                Draw-TrendChart -Months $d.BySubscription[$sub.Id]
+            }
+            else {
+                Draw-TrendChart -Months @()
+            }
+        }
+    })
 
 #-----------------------------------------------------------------------
 # TAG DEPLOYMENT UI WIRING
@@ -1868,7 +1949,7 @@ function Load-TagScopes {
     if (-not $script:tagDeployScopesLoaded -and $script:scanData.Auth) {
         $script:TagDeployStatus.Text = 'Loading scopes...'
         [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
-            [action]{}, [System.Windows.Threading.DispatcherPriority]::Background
+            [action] {}, [System.Windows.Threading.DispatcherPriority]::Background
         )
         $script:tagDeployScopes = Get-TagScopes -Subscriptions $script:scanData.Auth.Subscriptions
         $script:tagDeployScopesLoaded = $true
@@ -1981,19 +2062,19 @@ function Populate-PolicyTab {
 
     # Summary cards
     if ($d.PolicyInv) {
-        $script:PolicyCountText.Text      = $d.PolicyInv.AssignmentCount.ToString()
-        $script:PolicyComplianceText.Text  = "$($d.PolicyInv.CompliancePct)%"
+        $script:PolicyCountText.Text = $d.PolicyInv.AssignmentCount.ToString()
+        $script:PolicyComplianceText.Text = "$($d.PolicyInv.CompliancePct)%"
         $script:PolicyNonCompliantText.Text = $d.PolicyInv.TotalNonCompliant.ToString('N0')
 
         # Assignment inventory grid with inline Unassign button
         $script:PolicyInventoryGrid.AutoGenerateColumns = $false
         $script:PolicyInventoryGrid.Columns.Clear()
 
-        foreach ($col in @('Assignment Name','Type','Effect','Enforcement','Origin','Subscription','Scope')) {
+        foreach ($col in @('Assignment Name', 'Type', 'Effect', 'Enforcement', 'Origin', 'Subscription', 'Scope')) {
             $dgCol = [System.Windows.Controls.DataGridTextColumn]::new()
             $dgCol.Header = $col
             $dgCol.Binding = [System.Windows.Data.Binding]::new($col)
-            if ($col -in @('Assignment Name','Scope')) {
+            if ($col -in @('Assignment Name', 'Scope')) {
                 $dgCol.Width = [System.Windows.Controls.DataGridLength]::new(1, [System.Windows.Controls.DataGridLengthUnitType]::Star)
                 $dgCol.ElementStyle = [System.Windows.Style]::new([System.Windows.Controls.TextBlock])
                 $dgCol.ElementStyle.Setters.Add([System.Windows.Setter]::new([System.Windows.Controls.TextBlock]::TextWrappingProperty, [System.Windows.TextWrapping]::Wrap))
@@ -2010,78 +2091,82 @@ function Populate-PolicyTab {
         $cellFactory.SetValue([System.Windows.Controls.Button]::ContentProperty, 'Unassign')
         $cellFactory.SetBinding([System.Windows.Controls.Button]::TagProperty, [System.Windows.Data.Binding]::new('AssignmentIndex'))
         $cellFactory.SetValue([System.Windows.Controls.Button]::FontSizeProperty, [double]10)
-        $cellFactory.SetValue([System.Windows.Controls.Button]::PaddingProperty, [System.Windows.Thickness]::new(6,1,6,1))
-        $cellFactory.SetValue([System.Windows.Controls.Button]::MarginProperty, [System.Windows.Thickness]::new(2,1,2,1))
+        $cellFactory.SetValue([System.Windows.Controls.Button]::PaddingProperty, [System.Windows.Thickness]::new(6, 1, 6, 1))
+        $cellFactory.SetValue([System.Windows.Controls.Button]::MarginProperty, [System.Windows.Thickness]::new(2, 1, 2, 1))
         $cellFactory.SetValue([System.Windows.Controls.Button]::CursorProperty, [System.Windows.Input.Cursors]::Hand)
         $cellFactory.SetValue([System.Windows.Controls.Button]::BackgroundProperty, [System.Windows.Media.BrushConverter]::new().ConvertFromString('#FDE7E9'))
         $cellFactory.SetValue([System.Windows.Controls.Button]::ForegroundProperty, [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D13438'))
         $cellFactory.SetValue([System.Windows.Controls.Button]::BorderThicknessProperty, [System.Windows.Thickness]::new(1))
-        $cellFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]{
-            param($sender, $e)
-            $idx = [int]$sender.Tag
-            $assignment = $script:scanData.PolicyInv.Assignments[$idx]
-            $displayName = $assignment.AssignmentName
-            $policyDefId = $assignment.PolicyDefId
+        $cellFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler] {
+                param($sender, $e)
+                $idx = [int]$sender.Tag
+                $assignment = $script:scanData.PolicyInv.Assignments[$idx]
+                $displayName = $assignment.AssignmentName
+                $policyDefId = $assignment.PolicyDefId
 
-            # Find ALL assignments with the same PolicyDefId (same policy assigned multiple times)
-            $matchingAssignments = @($script:scanData.PolicyInv.Assignments | Where-Object {
-                $_.PolicyDefId -and $policyDefId -and $_.PolicyDefId.ToLower() -eq $policyDefId.ToLower()
-            })
+                # Find ALL assignments with the same PolicyDefId (same policy assigned multiple times)
+                $matchingAssignments = @($script:scanData.PolicyInv.Assignments | Where-Object {
+                        $_.PolicyDefId -and $policyDefId -and $_.PolicyDefId.ToLower() -eq $policyDefId.ToLower()
+                    })
 
-            $matchCount = $matchingAssignments.Count
-            $statusLabel = if ($matchCount -gt 1) { "Removing $matchCount assignments of this policy..." } else { "Removing assignment..." }
+                $matchCount = $matchingAssignments.Count
+                $statusLabel = if ($matchCount -gt 1) { "Removing $matchCount assignments of this policy..." } else { "Removing assignment..." }
 
-            $script:PolicyDeployTitle.Text = "Unassign: $displayName"
-            $script:PolicyDeployStatus.Text = $statusLabel
-            $script:PolicyDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
-            $script:PolicyDeployPanel.Visibility = 'Visible'
-            $script:PolicyScopeSelector.Visibility = 'Collapsed'
-            $script:PolicyEffectSelector.Visibility = 'Collapsed'
-            $script:PolicyParamsPanel.Visibility = 'Collapsed'
-            $script:PolicyRemediateButton.Visibility = 'Collapsed'
-            foreach ($ctrl in @($script:PolicyScopeSelector, $script:PolicyEffectSelector)) {
-                $parent = $ctrl.Parent
-                if ($parent) {
-                    $ctrlIdx = $parent.Children.IndexOf($ctrl)
-                    if ($ctrlIdx -gt 0) { $parent.Children[$ctrlIdx - 1].Visibility = 'Collapsed' }
-                }
-            }
-            $script:PolicyDeployButton.Visibility = 'Collapsed'
-
-            [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
-                [System.Windows.Threading.DispatcherPriority]::Render, [action]{})
-
-            $successCount = 0
-            $failMsg = ''
-            foreach ($ma in $matchingAssignments) {
-                try {
-                    $result = Remove-PolicyAssignment -AssignmentId $ma.AssignmentId
-                    if ($result.Success) {
-                        $successCount++
-                    } else {
-                        $failMsg = $result.Message
+                $script:PolicyDeployTitle.Text = "Unassign: $displayName"
+                $script:PolicyDeployStatus.Text = $statusLabel
+                $script:PolicyDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
+                $script:PolicyDeployPanel.Visibility = 'Visible'
+                $script:PolicyScopeSelector.Visibility = 'Collapsed'
+                $script:PolicyEffectSelector.Visibility = 'Collapsed'
+                $script:PolicyParamsPanel.Visibility = 'Collapsed'
+                $script:PolicyRemediateButton.Visibility = 'Collapsed'
+                foreach ($ctrl in @($script:PolicyScopeSelector, $script:PolicyEffectSelector)) {
+                    $parent = $ctrl.Parent
+                    if ($parent) {
+                        $ctrlIdx = $parent.Children.IndexOf($ctrl)
+                        if ($ctrlIdx -gt 0) { $parent.Children[$ctrlIdx - 1].Visibility = 'Collapsed' }
                     }
-                } catch {
-                    $failMsg = $_.Exception.Message
                 }
-            }
+                $script:PolicyDeployButton.Visibility = 'Collapsed'
 
-            if ($successCount -eq $matchCount) {
-                $script:PolicyDeployStatus.Text = "Unassigned: $displayName ($successCount assignment(s) removed)"
-                $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
-                $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Policy Unassigned'; Detail = "$displayName ($successCount removed)" })
-                # Disable all matching buttons in the grid
-                $sender.Content = 'Removed'
-                $sender.IsEnabled = $false
-            } elseif ($successCount -gt 0) {
-                $script:PolicyDeployStatus.Text = "Partial: $successCount of $matchCount removed. Error: $failMsg"
-                $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-            } else {
-                $script:PolicyDeployStatus.Text = "Failed: $failMsg"
-                $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-            }
-            $script:PolicyDeployButton.Visibility = 'Visible'
-        })
+                [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
+                    [System.Windows.Threading.DispatcherPriority]::Render, [action] {})
+
+                $successCount = 0
+                $failMsg = ''
+                foreach ($ma in $matchingAssignments) {
+                    try {
+                        $result = Remove-PolicyAssignment -AssignmentId $ma.AssignmentId
+                        if ($result.Success) {
+                            $successCount++
+                        }
+                        else {
+                            $failMsg = $result.Message
+                        }
+                    }
+                    catch {
+                        $failMsg = $_.Exception.Message
+                    }
+                }
+
+                if ($successCount -eq $matchCount) {
+                    $script:PolicyDeployStatus.Text = "Unassigned: $displayName ($successCount assignment(s) removed)"
+                    $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
+                    $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Policy Unassigned'; Detail = "$displayName ($successCount removed)" })
+                    # Disable all matching buttons in the grid
+                    $sender.Content = 'Removed'
+                    $sender.IsEnabled = $false
+                }
+                elseif ($successCount -gt 0) {
+                    $script:PolicyDeployStatus.Text = "Partial: $successCount of $matchCount removed. Error: $failMsg"
+                    $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
+                }
+                else {
+                    $script:PolicyDeployStatus.Text = "Failed: $failMsg"
+                    $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
+                }
+                $script:PolicyDeployButton.Visibility = 'Visible'
+            })
 
         $cellTemplate = [System.Windows.DataTemplate]::new()
         $cellTemplate.VisualTree = $cellFactory
@@ -2115,7 +2200,8 @@ function Populate-PolicyTab {
                 'Total Evaluated' = $_.TotalResources
                 'Compliance %'    = if (($_.Compliant + $_.NonCompliant) -gt 0) {
                     [math]::Round(($_.Compliant / ($_.Compliant + $_.NonCompliant)) * 100, 1).ToString() + '%'
-                } else { '-' }
+                }
+                else { '-' }
             }
         }
         $script:PolicyComplianceGrid.ItemsSource = @($compRows)
@@ -2123,8 +2209,8 @@ function Populate-PolicyTab {
 
     # Policy recommendations with inline action buttons
     if ($d.PolicyRecs) {
-        $assignedCount  = $d.PolicyRecs.Assigned.Count
-        $analysisCount  = $d.PolicyRecs.Analysis.Count
+        $assignedCount = $d.PolicyRecs.Assigned.Count
+        $analysisCount = $d.PolicyRecs.Analysis.Count
         $script:PolicyRecsCountText.Text = "$assignedCount / $analysisCount"
         $script:PolicyRecsComplianceText.Text = "CAF policy coverage: $($d.PolicyRecs.CompliancePct)% ($assignedCount of $analysisCount recommended policies assigned)"
 
@@ -2133,7 +2219,7 @@ function Populate-PolicyTab {
         $script:PolicyRecsGrid.Columns.Clear()
 
         # Data columns
-        foreach ($col in @('Policy','Status','Category','Priority','Pillar','Effect','Purpose')) {
+        foreach ($col in @('Policy', 'Status', 'Category', 'Priority', 'Pillar', 'Effect', 'Purpose')) {
             $dgCol = [System.Windows.Controls.DataGridTextColumn]::new()
             $dgCol.Header = $col
             $dgCol.Binding = [System.Windows.Data.Binding]::new($col)
@@ -2156,21 +2242,22 @@ function Populate-PolicyTab {
         $cellFactory.SetBinding([System.Windows.Controls.Button]::ForegroundProperty, [System.Windows.Data.Binding]::new('ActionFg'))
         $cellFactory.SetBinding([System.Windows.Controls.Button]::TagProperty, [System.Windows.Data.Binding]::new('PolicyIndex'))
         $cellFactory.SetValue([System.Windows.Controls.Button]::FontSizeProperty, [double]10)
-        $cellFactory.SetValue([System.Windows.Controls.Button]::PaddingProperty, [System.Windows.Thickness]::new(6,1,6,1))
-        $cellFactory.SetValue([System.Windows.Controls.Button]::MarginProperty, [System.Windows.Thickness]::new(2,1,2,1))
+        $cellFactory.SetValue([System.Windows.Controls.Button]::PaddingProperty, [System.Windows.Thickness]::new(6, 1, 6, 1))
+        $cellFactory.SetValue([System.Windows.Controls.Button]::MarginProperty, [System.Windows.Thickness]::new(2, 1, 2, 1))
         $cellFactory.SetValue([System.Windows.Controls.Button]::CursorProperty, [System.Windows.Input.Cursors]::Hand)
         $cellFactory.SetValue([System.Windows.Controls.Button]::BorderThicknessProperty, [System.Windows.Thickness]::new(1))
-        $cellFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]{
-            param($sender, $e)
-            $idx = [int]$sender.Tag
-            $pol = $script:scanData.PolicyRecs.Analysis[$idx]
-            if ($pol.Status -eq 'Missing') {
-                $polParams = if ($pol.Parameters) { $pol.Parameters } else { @() }
-                Show-PolicyDeployPanel -PolicyDisplayName $pol.DisplayName -PolicyDefId $pol.PolicyDefId -AllowedEffects $pol.AllowedEffects -DefaultEffect $pol.DefaultEffect -Parameters $polParams
-            } else {
-                Show-PolicyUnassignPanel -PolicyDisplayName $pol.DisplayName -PolicyDefId $pol.PolicyDefId
-            }
-        })
+        $cellFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler] {
+                param($sender, $e)
+                $idx = [int]$sender.Tag
+                $pol = $script:scanData.PolicyRecs.Analysis[$idx]
+                if ($pol.Status -eq 'Missing') {
+                    $polParams = if ($pol.Parameters) { $pol.Parameters } else { @() }
+                    Show-PolicyDeployPanel -PolicyDisplayName $pol.DisplayName -PolicyDefId $pol.PolicyDefId -AllowedEffects $pol.AllowedEffects -DefaultEffect $pol.DefaultEffect -Parameters $polParams
+                }
+                else {
+                    Show-PolicyUnassignPanel -PolicyDisplayName $pol.DisplayName -PolicyDefId $pol.PolicyDefId
+                }
+            })
 
         $cellTemplate = [System.Windows.DataTemplate]::new()
         $cellTemplate.VisualTree = $cellFactory
@@ -2211,12 +2298,12 @@ function Show-PolicyDeployPanel {
         [object[]]$Parameters = @()
     )
 
-    $script:policyDeployCurrentDefId   = $PolicyDefId
-    $script:policyDeployCurrentName    = $PolicyDisplayName
-    $script:policyDeployCurrentParams  = $Parameters
+    $script:policyDeployCurrentDefId = $PolicyDefId
+    $script:policyDeployCurrentName = $PolicyDisplayName
+    $script:policyDeployCurrentParams = $Parameters
     $script:policyUnassignMode = $false
-    $script:PolicyDeployTitle.Text     = "Deploy policy: $PolicyDisplayName"
-    $script:PolicyDeployStatus.Text    = ''
+    $script:PolicyDeployTitle.Text = "Deploy policy: $PolicyDisplayName"
+    $script:PolicyDeployStatus.Text = ''
     $script:PolicyDeployPanel.Visibility = 'Visible'
     $script:PolicyDeployButton.Content = 'Deploy Policy'
     $script:PolicyDeployButton.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#0078D4')
@@ -2269,7 +2356,7 @@ function Show-PolicyDeployPanel {
     if (-not $script:policyDeployScopesLoaded -and $script:scanData.Auth) {
         $script:PolicyDeployStatus.Text = 'Loading scopes...'
         [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
-            [action]{}, [System.Windows.Threading.DispatcherPriority]::Background
+            [action] {}, [System.Windows.Threading.DispatcherPriority]::Background
         )
         $script:policyDeployScopes = Get-PolicyScopes -Subscriptions $script:scanData.Auth.Subscriptions
         $script:policyDeployScopesLoaded = $true
@@ -2292,10 +2379,10 @@ function Show-PolicyUnassignPanel {
     )
 
     $script:policyDeployCurrentDefId = $PolicyDefId
-    $script:policyDeployCurrentName  = $PolicyDisplayName
+    $script:policyDeployCurrentName = $PolicyDisplayName
     $script:policyUnassignMode = $true
-    $script:PolicyDeployTitle.Text     = "Unassign policy: $PolicyDisplayName"
-    $script:PolicyDeployStatus.Text    = ''
+    $script:PolicyDeployTitle.Text = "Unassign policy: $PolicyDisplayName"
+    $script:PolicyDeployStatus.Text = ''
     $script:PolicyDeployPanel.Visibility = 'Visible'
     $script:PolicyRemediateButton.Visibility = 'Collapsed'
 
@@ -2319,8 +2406,8 @@ function Show-PolicyUnassignPanel {
     $matchingAssignments = @()
     if ($script:scanData.PolicyInv -and $script:scanData.PolicyInv.Assignments) {
         $matchingAssignments = @($script:scanData.PolicyInv.Assignments | Where-Object {
-            $_.PolicyDefId -and $_.PolicyDefId.ToLower() -eq $PolicyDefId.ToLower()
-        })
+                $_.PolicyDefId -and $_.PolicyDefId.ToLower() -eq $PolicyDefId.ToLower()
+            })
     }
 
     if ($matchingAssignments.Count -eq 0) {
@@ -2346,7 +2433,22 @@ function Populate-BillingTab {
     $d = $script:scanData.Billing
 
     if (-not $d -or -not $d.HasBillingAccess) {
-        $script:BillingAccessNote.Text = "[!] No billing account access. Assign Billing Reader on your billing account to see billing profiles, invoice sections, and cost allocation rules."
+        $agreementType = if ($script:scanData.Contract -and $script:scanData.Contract[0].AgreementType) { $script:scanData.Contract[0].AgreementType } else { '' }
+        $billingMsg = switch -Wildcard ($agreementType) {
+            'EnterpriseAgreement' {
+                "[!] No billing account access.`n`nFor EA enrollments, billing data requires an EA role (Enterprise Administrator, EA Reader, or Department Reader) assigned at the enrollment level. Standard subscription RBAC roles (Reader, Contributor, Owner) do not grant access to billing accounts or departments.`n`nTo resolve: In the Azure portal, go to Cost Management + Billing > Billing scopes, select your EA enrollment, and ask an Enterprise Administrator to assign you the EA Reader role."
+            }
+            'MicrosoftPartnerAgreement' {
+                "[!] No billing account access.`n`nThis subscription is managed by a CSP partner. Billing account access is controlled by the partner organization. Contact your CSP partner to request visibility into billing profiles and invoice sections, or ask them to assign Billing Reader on the billing account in Partner Center."
+            }
+            'MicrosoftCustomerAgreement' {
+                "[!] No billing account access.`n`nFor MCA accounts, billing data requires a billing role (Billing Account Reader, Billing Profile Reader, or Invoice Section Reader) assigned on the billing account. Standard Azure RBAC roles on subscriptions do not grant billing access.`n`nTo resolve: In the Azure portal, go to Cost Management + Billing > Billing scopes, select your billing account, and assign Billing Account Reader to your user."
+            }
+            default {
+                "[!] No billing account access. Assign Billing Reader on your billing account to see billing profiles, invoice sections, and cost allocation rules."
+            }
+        }
+        $script:BillingAccessNote.Text = $billingMsg
         return
     }
     $script:BillingAccessNote.Text = ''
@@ -2362,7 +2464,8 @@ function Populate-BillingTab {
             }
         }
         $script:BillingAccountsGrid.ItemsSource = @($baRows)
-    } else {
+    }
+    else {
         $script:BillingAccountsGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No billing accounts found.' })
     }
 
@@ -2378,7 +2481,8 @@ function Populate-BillingTab {
             }
         }
         $script:BillingProfilesGrid.ItemsSource = @($bpRows)
-    } else {
+    }
+    else {
         $script:BillingProfilesGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No billing profiles found (MCA/MPA only).' })
     }
 
@@ -2393,7 +2497,8 @@ function Populate-BillingTab {
             }
         }
         $script:InvoiceSectionsGrid.ItemsSource = @($isRows)
-    } else {
+    }
+    else {
         $script:InvoiceSectionsGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No invoice sections found (MCA only).' })
     }
 
@@ -2416,17 +2521,18 @@ function Populate-BillingTab {
     if ($d.CostAllocationRules.Count -gt 0) {
         $carRows = $d.CostAllocationRules | ForEach-Object {
             [PSCustomObject]@{
-                'Rule Name'       = $_.RuleName
-                'Description'     = $_.Description
-                'Status'          = $_.Status
-                'Source Count'    = $_.SourceCount
-                'Target Count'    = $_.TargetCount
-                'Created'         = $_.CreatedDate
-                'Updated'         = $_.UpdatedDate
+                'Rule Name'    = $_.RuleName
+                'Description'  = $_.Description
+                'Status'       = $_.Status
+                'Source Count' = $_.SourceCount
+                'Target Count' = $_.TargetCount
+                'Created'      = $_.CreatedDate
+                'Updated'      = $_.UpdatedDate
             }
         }
         $script:CostAllocationGrid.ItemsSource = @($carRows)
-    } else {
+    }
+    else {
         $script:CostAllocationGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No cost allocation rules configured. Cost allocation rules let you redistribute shared costs across subscriptions.' })
     }
 }
@@ -2459,21 +2565,22 @@ function Populate-BudgetSection {
             foreach ($budget in $b.Budgets) {
                 $sym = Get-CurrencySymbol $budget.Currency
                 [void]$rows.Add([PSCustomObject]@{
-                    Subscription   = $budget.Subscription
-                    'Budget Name'  = $budget.BudgetName
-                    Category       = $budget.Category
-                    'Budget Amount' = "$sym$(([double]$budget.Amount).ToString('N2'))"
-                    'Actual Spend' = "$sym$(([double]$budget.ActualSpend).ToString('N2'))"
-                    '% Used'       = "$($budget.PctUsed)%"
-                    'Forecast'     = "$sym$(([double]$budget.Forecast).ToString('N2'))"
-                    '% Forecast'   = "$($budget.PctForecast)%"
-                    Risk           = $budget.Risk
-                    Thresholds     = $budget.Thresholds
-                    Contacts       = if ($budget.ContactEmails) { $budget.ContactEmails } else { '' }
-                })
+                        Subscription    = $budget.Subscription
+                        'Budget Name'   = $budget.BudgetName
+                        Category        = $budget.Category
+                        'Budget Amount' = "$sym$(([double]$budget.Amount).ToString('N2'))"
+                        'Actual Spend'  = "$sym$(([double]$budget.ActualSpend).ToString('N2'))"
+                        '% Used'        = "$($budget.PctUsed)%"
+                        'Forecast'      = "$sym$(([double]$budget.Forecast).ToString('N2'))"
+                        '% Forecast'    = "$($budget.PctForecast)%"
+                        Risk            = $budget.Risk
+                        Thresholds      = $budget.Thresholds
+                        Contacts        = if ($budget.ContactEmails) { $budget.ContactEmails } else { '' }
+                    })
             }
-            $script:BudgetGrid.ItemsSource = @($rows | Sort-Object { [double]($_.'% Used' -replace '%','') } -Descending)
-        } else {
+            $script:BudgetGrid.ItemsSource = @($rows | Sort-Object { [double]($_.'% Used' -replace '%', '') } -Descending)
+        }
+        else {
             $script:BudgetGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No budgets configured. Set up Azure Budgets to track spend against targets.' })
         }
     }
@@ -2513,13 +2620,13 @@ function Populate-AnomalySection {
                     if ([math]::Abs($changePct) -ge 25) {
                         $direction = if ($changePct -gt 0) { 'Up' } else { 'Down' }
                         [void]$anomalies.Add([PSCustomObject]@{
-                            Subscription = $sub.Name
-                            'Prior Month (est.)' = "$currency$($estLastMonth.ToString('N2'))"
-                            'Current Forecast' = "$currency$($currentCost.ToString('N2'))"
-                            'Change' = "$currency$($change.ToString('N2'))"
-                            'Change %' = "$changePct%"
-                            Direction = $direction
-                        })
+                                Subscription         = $sub.Name
+                                'Prior Month (est.)' = "$currency$($estLastMonth.ToString('N2'))"
+                                'Current Forecast'   = "$currency$($currentCost.ToString('N2'))"
+                                'Change'             = "$currency$($change.ToString('N2'))"
+                                'Change %'           = "$changePct%"
+                                Direction            = $direction
+                            })
                     }
                 }
             }
@@ -2528,8 +2635,9 @@ function Populate-AnomalySection {
 
     if ($anomalies.Count -gt 0) {
         $script:AnomalyNote.Text = "$($anomalies.Count) subscription(s) with 25%+ month-over-month cost change detected."
-        $script:AnomalyGrid.ItemsSource = @($anomalies | Sort-Object { [math]::Abs([double]($_.'Change %' -replace '%','')) } -Descending)
-    } else {
+        $script:AnomalyGrid.ItemsSource = @($anomalies | Sort-Object { [math]::Abs([double]($_.'Change %' -replace '%', '')) } -Descending)
+    }
+    else {
         $script:AnomalyNote.Text = 'No significant cost anomalies detected (all subscriptions within 25% of prior month).'
         $script:AnomalyGrid.ItemsSource = @()
     }
@@ -2562,18 +2670,19 @@ function Populate-AlertsSection {
         foreach ($a in $aa.TriggeredAlerts) {
             $sym = Get-CurrencySymbol $a.Unit
             [void]$rows.Add([PSCustomObject]@{
-                Subscription = $a.Subscription
-                Type         = $a.AlertType
-                Category     = $a.Category
-                Status       = $a.Status
-                Amount       = "$sym$(([double]$a.Amount).ToString('N2'))"
-                'Current Spend' = "$sym$(([double]$a.CurrentSpend).ToString('N2'))"
-                Contacts     = $a.Contacts
-                Created      = $a.CreatedAt
-            })
+                    Subscription    = $a.Subscription
+                    Type            = $a.AlertType
+                    Category        = $a.Category
+                    Status          = $a.Status
+                    Amount          = "$sym$(([double]$a.Amount).ToString('N2'))"
+                    'Current Spend' = "$sym$(([double]$a.CurrentSpend).ToString('N2'))"
+                    Contacts        = $a.Contacts
+                    Created         = $a.CreatedAt
+                })
         }
         $script:TriggeredAlertsGrid.ItemsSource = @($rows | Sort-Object Created -Descending)
-    } else {
+    }
+    else {
         $script:TriggeredAlertsGrid.ItemsSource = @()
     }
 
@@ -2582,15 +2691,16 @@ function Populate-AlertsSection {
         $rows = [System.Collections.Generic.List[PSCustomObject]]::new()
         foreach ($r in $aa.ConfiguredRules) {
             [void]$rows.Add([PSCustomObject]@{
-                Subscription = $r.Subscription
-                'Rule Name'  = $r.DisplayName
-                Status       = $r.Status
-                Recipients   = $r.ToEmails
-                'Next Run'   = $r.NextRunTime
-            })
+                    Subscription = $r.Subscription
+                    'Rule Name'  = $r.DisplayName
+                    Status       = $r.Status
+                    Recipients   = $r.ToEmails
+                    'Next Run'   = $r.NextRunTime
+                })
         }
         $script:ConfiguredRulesGrid.ItemsSource = @($rows)
-    } else {
+    }
+    else {
         $script:ConfiguredRulesGrid.ItemsSource = @()
     }
 }
@@ -2618,30 +2728,32 @@ function Populate-CommitmentSection {
         $commitRows = [System.Collections.Generic.List[PSCustomObject]]::new()
         foreach ($ri in $d.Commitments.Reservations) {
             [void]$commitRows.Add([PSCustomObject]@{
-                Type = 'Reservation'
-                Name = $ri.Name
-                'Resource Type' = $ri.ResourceType
-                Quantity = $ri.Quantity
-                'Utilization %' = "$($ri.UtilizationPercent)%"
-                Status = $ri.Status
-            })
+                    Type            = 'Reservation'
+                    Name            = $ri.Name
+                    'Resource Type' = $ri.ResourceType
+                    Quantity        = $ri.Quantity
+                    'Utilization %' = "$($ri.UtilizationPercent)%"
+                    Status          = $ri.Status
+                })
         }
         foreach ($sp in $d.Commitments.SavingsPlans) {
             [void]$commitRows.Add([PSCustomObject]@{
-                Type = 'Savings Plan'
-                Name = $sp.Name
-                'Resource Type' = $sp.BenefitType
-                Quantity = '-'
-                'Utilization %' = "$($sp.UtilizationPercent)%"
-                Status = $sp.Status
-            })
+                    Type            = 'Savings Plan'
+                    Name            = $sp.Name
+                    'Resource Type' = $sp.BenefitType
+                    Quantity        = '-'
+                    'Utilization %' = "$($sp.UtilizationPercent)%"
+                    Status          = $sp.Status
+                })
         }
         if ($commitRows.Count -gt 0) {
             $script:CommitmentGrid.ItemsSource = @($commitRows)
-        } else {
+        }
+        else {
             $script:CommitmentGrid.ItemsSource = @([PSCustomObject]@{ Status = 'No active reservations or savings plans found.' })
         }
-    } else {
+    }
+    else {
         $script:RIUtilText.Text = 'N/A'
         $script:RIUtilDetail.Text = 'Could not query commitment data'
         $script:CommitmentGrid.ItemsSource = @([PSCustomObject]@{ Status = 'Commitment utilization data not available.' })
@@ -2656,18 +2768,19 @@ function Populate-OrphanedSection {
 
     # Map orphan categories to ARM resource types for cost lookup
     $categoryToType = @{
-        'Orphaned Disk'         = 'microsoft.compute/disks'
-        'Unattached Public IP'  = 'microsoft.network/publicipaddresses'
-        'Unattached NIC'        = 'microsoft.network/networkinterfaces'
-        'Deallocated VM'        = 'microsoft.compute/virtualmachines'
-        'Empty App Service Plan'= 'microsoft.web/serverfarms'
-        'Old Snapshot'          = 'microsoft.compute/snapshots'
+        'Orphaned Disk'          = 'microsoft.compute/disks'
+        'Unattached Public IP'   = 'microsoft.network/publicipaddresses'
+        'Unattached NIC'         = 'microsoft.network/networkinterfaces'
+        'Deallocated VM'         = 'microsoft.compute/virtualmachines'
+        'Empty App Service Plan' = 'microsoft.web/serverfarms'
+        'Old Snapshot'           = 'microsoft.compute/snapshots'
     }
 
     # Currency helper
     $currency = if ($d.ResourceCosts -and $d.ResourceCosts.Count -gt 0) {
         Get-CurrencySymbol -Code $d.ResourceCosts[0].Currency
-    } else { '$' }
+    }
+    else { '$' }
 
     if ($d.Orphans -and $d.Orphans.Orphans.Count -gt 0) {
         $orphans = $d.Orphans.Orphans
@@ -2694,7 +2807,8 @@ function Populate-OrphanedSection {
                 $daysInMonth = [DateTime]::DaysInMonth((Get-Date).Year, (Get-Date).Month)
                 $projectedMonthly = $mtdCost / $dayOfMonth * $daysInMonth
                 [math]::Round($projectedMonthly * 12, 2)
-            } else { $null }
+            }
+            else { $null }
 
             if ($mtdCost -and $mtdCost -gt 0) {
                 $totalWaste += $mtdCost
@@ -2702,14 +2816,14 @@ function Populate-OrphanedSection {
             }
 
             [void]$orphanRows.Add([PSCustomObject]@{
-                Category         = $o.Category
-                Resource         = $o.ResourceName
-                'Resource Group' = $o.ResourceGroup
-                Location         = $o.Location
-                Detail           = $o.Detail
-                'Cost (MTD)'     = if ($mtdCost) { "$currency$($mtdCost.ToString('N2'))" } else { '-' }
-                'Est. Annual'    = if ($annualEst) { "$currency$($annualEst.ToString('N2'))" } else { '-' }
-            })
+                    Category         = $o.Category
+                    Resource         = $o.ResourceName
+                    'Resource Group' = $o.ResourceGroup
+                    Location         = $o.Location
+                    Detail           = $o.Detail
+                    'Cost (MTD)'     = if ($mtdCost) { "$currency$($mtdCost.ToString('N2'))" } else { '-' }
+                    'Est. Annual'    = if ($annualEst) { "$currency$($annualEst.ToString('N2'))" } else { '-' }
+                })
         }
         $script:OrphanGrid.ItemsSource = @($orphanRows)
 
@@ -2727,7 +2841,8 @@ function Populate-OrphanedSection {
             $summary += " $uncosted resources had no cost data (may be zero-cost or recently created)."
         }
         $script:OrphanSummaryText.Text = $summary
-    } else {
+    }
+    else {
         $script:OrphanCountText.Text = '0'
         $script:OrphanDetailText.Text = 'No orphaned resources'
         $script:OrphanSummaryText.Text = 'No orphaned or idle resources detected. Environment looks clean.'
@@ -2749,7 +2864,8 @@ function Populate-IdleVMSection {
     if (-not $script:resCostMapBuilt) { Build-ResourceCostMap }
     $currency = if ($d.ResourceCosts -and $d.ResourceCosts.Count -gt 0) {
         Get-CurrencySymbol -Code $d.ResourceCosts[0].Currency
-    } else { '$' }
+    }
+    else { '$' }
 
     $idleCount = ($d.IdleVMs.IdleVMs | Where-Object { $_.Classification -eq 'Idle' }).Count
     $underCount = ($d.IdleVMs.IdleVMs | Where-Object { $_.Classification -eq 'Underutilized' }).Count
@@ -2758,19 +2874,19 @@ function Populate-IdleVMSection {
     $rows = @()
     foreach ($vm in $d.IdleVMs.IdleVMs) {
         $rc = Find-ResourceCost -Name $vm.VMName -SubscriptionId $vm.SubscriptionId -ResourceGroup $vm.ResourceGroup -ResourceType 'microsoft.compute/virtualmachines'
-        $actual   = if ($rc) { "$currency$($rc.Actual.ToString('N2'))" } else { '-' }
+        $actual = if ($rc) { "$currency$($rc.Actual.ToString('N2'))" } else { '-' }
         $forecast = if ($rc) { "$currency$($rc.Forecast.ToString('N2'))" } else { '-' }
         $rows += [PSCustomObject]@{
-            Classification = $vm.Classification
-            VM             = $vm.VMName
+            Classification   = $vm.Classification
+            VM               = $vm.VMName
             'Resource Group' = $vm.ResourceGroup
-            Size           = $vm.VMSize
-            OS             = $vm.OS
-            'Avg CPU (14d)' = "$($vm.AvgCPU14d)%"
-            'Net/Day'      = $vm.NetworkPerDay
-            'Cost (MTD)'   = $actual
-            Forecast       = $forecast
-            Recommendation = $vm.Recommendation
+            Size             = $vm.VMSize
+            OS               = $vm.OS
+            'Avg CPU (14d)'  = "$($vm.AvgCPU14d)%"
+            'Net/Day'        = $vm.NetworkPerDay
+            'Cost (MTD)'     = $actual
+            Forecast         = $forecast
+            Recommendation   = $vm.Recommendation
         }
     }
     $script:IdleVMGrid.ItemsSource = @($rows)
@@ -2789,21 +2905,21 @@ function Populate-StorageTierSection {
     }
 
     $archiveCount = ($d.StorageTier.Recommendations | Where-Object { $_.Recommendation -eq 'Archive' }).Count
-    $coolCount    = ($d.StorageTier.Recommendations | Where-Object { $_.Recommendation -eq 'Cool' }).Count
+    $coolCount = ($d.StorageTier.Recommendations | Where-Object { $_.Recommendation -eq 'Cool' }).Count
     $script:StorageTierSummaryText.Text = "$($d.StorageTier.Count) account(s) flagged: $archiveCount for Archive, $coolCount for Cool (of $($d.StorageTier.TotalHotAccounts) hot-tier accounts)"
 
     $rows = @()
     foreach ($sa in $d.StorageTier.Recommendations) {
         $rows += [PSCustomObject]@{
-            'Storage Account' = $sa.StorageAccount
-            'Resource Group'  = $sa.ResourceGroup
-            Location          = $sa.Location
-            SKU               = $sa.SKU
-            'Current Tier'    = $sa.CurrentTier
-            'Capacity (GB)'   = $sa.CapacityGB
+            'Storage Account'    = $sa.StorageAccount
+            'Resource Group'     = $sa.ResourceGroup
+            Location             = $sa.Location
+            SKU                  = $sa.SKU
+            'Current Tier'       = $sa.CurrentTier
+            'Capacity (GB)'      = $sa.CapacityGB
             'Transactions (30d)' = $sa.Transactions30d
-            Recommendation    = $sa.Recommendation
-            'Est. Savings'    = "$($sa.EstSavingsPct)%"
+            Recommendation       = $sa.Recommendation
+            'Est. Savings'       = "$($sa.EstSavingsPct)%"
         }
     }
     $script:StorageTierGrid.ItemsSource = @($rows)
@@ -2844,10 +2960,10 @@ function Populate-ResourcesTab {
     # FinOps Framework
     $script:ResourcesFinOpsPanel.Children.Clear()
     $finopsLinks = @(
-        ,@('FinOps Foundation', 'https://www.finops.org/', 'The FinOps Foundation — framework, community, certifications.')
-        ,@('FinOps with Azure', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/finops/', 'Microsoft Learn — FinOps principles applied to Azure.')
-        ,@('Cloud Adoption Framework — Cost Management', 'https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/manage/azure-server-management/cost-management', 'CAF discipline for managing cloud costs at enterprise scale.')
-        ,@('FinOps Toolkit (GitHub)', 'https://github.com/microsoft/finops-toolkit', 'Open-source Power BI reports, workbooks, and Bicep modules from Microsoft.')
+        , @('FinOps Foundation', 'https://www.finops.org/', 'The FinOps Foundation — framework, community, certifications.')
+        , @('FinOps with Azure', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/finops/', 'Microsoft Learn — FinOps principles applied to Azure.')
+        , @('Cloud Adoption Framework — Cost Management', 'https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/manage/azure-server-management/cost-management', 'CAF discipline for managing cloud costs at enterprise scale.')
+        , @('FinOps Toolkit (GitHub)', 'https://github.com/microsoft/finops-toolkit', 'Open-source Power BI reports, workbooks, and Bicep modules from Microsoft.')
     )
     foreach ($item in $finopsLinks) {
         $script:ResourcesFinOpsPanel.Children.Add((New-LinkBlock -Text $item[0] -Url $item[1] -Description $item[2])) | Out-Null
@@ -2856,10 +2972,10 @@ function Populate-ResourcesTab {
     # Cost Management
     $script:ResourcesCostPanel.Children.Clear()
     $costLinks = @(
-        ,@('Azure Cost Management Overview', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/overview-cost-management', 'Core service for analyzing, monitoring, and optimizing Azure costs.')
-        ,@('Azure Advisor — Cost Recommendations', 'https://learn.microsoft.com/en-us/azure/advisor/advisor-cost-recommendations', 'Automated right-sizing, shutdown, and purchase recommendations.')
-        ,@('Azure Pricing Calculator', 'https://azure.microsoft.com/en-us/pricing/calculator/', 'Estimate costs before deploying resources.')
-        ,@('Cost Management Best Practices', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/cost-mgt-best-practices', 'Official best practices for Azure cost management.')
+        , @('Azure Cost Management Overview', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/overview-cost-management', 'Core service for analyzing, monitoring, and optimizing Azure costs.')
+        , @('Azure Advisor — Cost Recommendations', 'https://learn.microsoft.com/en-us/azure/advisor/advisor-cost-recommendations', 'Automated right-sizing, shutdown, and purchase recommendations.')
+        , @('Azure Pricing Calculator', 'https://azure.microsoft.com/en-us/pricing/calculator/', 'Estimate costs before deploying resources.')
+        , @('Cost Management Best Practices', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/cost-mgt-best-practices', 'Official best practices for Azure cost management.')
     )
     foreach ($item in $costLinks) {
         $script:ResourcesCostPanel.Children.Add((New-LinkBlock -Text $item[0] -Url $item[1] -Description $item[2])) | Out-Null
@@ -2868,10 +2984,10 @@ function Populate-ResourcesTab {
     # Rate Optimization
     $script:ResourcesRatePanel.Children.Clear()
     $rateLinks = @(
-        ,@('Azure Reservations', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/reservations/save-compute-costs-reservations', 'Lock in discounted rates for VMs, SQL, Cosmos, and more (30-72% savings).')
-        ,@('Azure Savings Plans', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/savings-plan/', 'Flexible hourly commitment across compute services (15-65% savings).')
-        ,@('Azure Hybrid Benefit', 'https://learn.microsoft.com/en-us/azure/virtual-machines/windows/hybrid-use-benefit-licensing', 'Use existing Windows/SQL licenses to save 40-85% on Azure VMs and SQL.')
-        ,@('Dev/Test Pricing', 'https://azure.microsoft.com/en-us/pricing/dev-test/', 'Discounted rates for dev/test workloads — no Windows license charges.')
+        , @('Azure Reservations', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/reservations/save-compute-costs-reservations', 'Lock in discounted rates for VMs, SQL, Cosmos, and more (30-72% savings).')
+        , @('Azure Savings Plans', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/savings-plan/', 'Flexible hourly commitment across compute services (15-65% savings).')
+        , @('Azure Hybrid Benefit', 'https://learn.microsoft.com/en-us/azure/virtual-machines/windows/hybrid-use-benefit-licensing', 'Use existing Windows/SQL licenses to save 40-85% on Azure VMs and SQL.')
+        , @('Dev/Test Pricing', 'https://azure.microsoft.com/en-us/pricing/dev-test/', 'Discounted rates for dev/test workloads — no Windows license charges.')
     )
     foreach ($item in $rateLinks) {
         $script:ResourcesRatePanel.Children.Add((New-LinkBlock -Text $item[0] -Url $item[1] -Description $item[2])) | Out-Null
@@ -2880,10 +2996,10 @@ function Populate-ResourcesTab {
     # Governance
     $script:ResourcesGovernancePanel.Children.Clear()
     $govLinks = @(
-        ,@('Azure Policy Overview', 'https://learn.microsoft.com/en-us/azure/governance/policy/overview', 'Enforce organizational standards and assess compliance at scale.')
-        ,@('Tagging Strategy', 'https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging', 'CAF tagging best practices for cost allocation and governance.')
-        ,@('Management Group Hierarchy', 'https://learn.microsoft.com/en-us/azure/governance/management-groups/overview', 'Organize subscriptions and apply policies at scale.')
-        ,@('Azure Budgets', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets', 'Set spending thresholds and receive alerts when costs exceed targets.')
+        , @('Azure Policy Overview', 'https://learn.microsoft.com/en-us/azure/governance/policy/overview', 'Enforce organizational standards and assess compliance at scale.')
+        , @('Tagging Strategy', 'https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging', 'CAF tagging best practices for cost allocation and governance.')
+        , @('Management Group Hierarchy', 'https://learn.microsoft.com/en-us/azure/governance/management-groups/overview', 'Organize subscriptions and apply policies at scale.')
+        , @('Azure Budgets', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets', 'Set spending thresholds and receive alerts when costs exceed targets.')
     )
     foreach ($item in $govLinks) {
         $script:ResourcesGovernancePanel.Children.Add((New-LinkBlock -Text $item[0] -Url $item[1] -Description $item[2])) | Out-Null
@@ -2892,11 +3008,11 @@ function Populate-ResourcesTab {
     # Workbooks & Tools
     $script:ResourcesToolsPanel.Children.Clear()
     $toolLinks = @(
-        ,@('Orphaned Resources Workbook', 'https://github.com/dolevshor/azure-orphan-resources', 'Community Azure Workbook showing orphaned resources across subscriptions.')
-        ,@('Azure Optimization Engine (AOE)', 'https://github.com/helderpinto/AzureOptimizationEngine', 'Automated optimization recommendations engine using Log Analytics.')
-        ,@('Cost Management Labs', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/quick-acm-cost-analysis', 'Hands-on quickstart: analyze costs in the Azure portal.')
-        ,@('Azure Charts', 'https://azurecharts.com/', 'Visual changelog of Azure services, regions, and updates.')
-        ,@('Azure FinOps Multitool (this app)', 'https://github.com/z-larsen/Azure-FinOps-Multitool', 'Source code and documentation for this scanner.')
+        , @('Orphaned Resources Workbook', 'https://github.com/dolevshor/azure-orphan-resources', 'Community Azure Workbook showing orphaned resources across subscriptions.')
+        , @('Azure Optimization Engine (AOE)', 'https://github.com/helderpinto/AzureOptimizationEngine', 'Automated optimization recommendations engine using Log Analytics.')
+        , @('Cost Management Labs', 'https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/quick-acm-cost-analysis', 'Hands-on quickstart: analyze costs in the Azure portal.')
+        , @('Azure Charts', 'https://azurecharts.com/', 'Visual changelog of Azure services, regions, and updates.')
+        , @('Azure FinOps Multitool (this app)', 'https://github.com/z-larsen/Azure-FinOps-Multitool', 'Source code and documentation for this scanner.')
     )
     foreach ($item in $toolLinks) {
         $script:ResourcesToolsPanel.Children.Add((New-LinkBlock -Text $item[0] -Url $item[1] -Description $item[2])) | Out-Null
@@ -2950,7 +3066,8 @@ function Populate-BudgetsTab {
                     $script:BudgetActionGroupSelector.Items.Add($agItem) | Out-Null
                 }
             }
-        } catch {
+        }
+        catch {
             Write-Warning "Could not list action groups for $($sub.Name): $($_.Exception.Message)"
         }
     }
@@ -3003,26 +3120,28 @@ function Update-BudgetDetailView {
         foreach ($b in $budgets) {
             $sym = Get-CurrencySymbol $b.Currency
             [void]$rows.Add([PSCustomObject]@{
-                Subscription   = $b.Subscription
-                'Budget Name'  = $b.BudgetName
-                Category       = $b.Category
-                'Amount'       = "$sym$(([double]$b.Amount).ToString('N2'))"
-                'Actual Spend' = "$sym$(([double]$b.ActualSpend).ToString('N2'))"
-                '% Used'       = "$($b.PctUsed)%"
-                'Forecast'     = "$sym$(([double]$b.Forecast).ToString('N2'))"
-                '% Forecast'   = "$($b.PctForecast)%"
-                'Risk'         = $b.Risk
-                'Tag Filter'   = if ($b.TagFilter) { $b.TagFilter } else { '' }
-                'Time Grain'   = $b.TimeGrain
-                'Thresholds'   = $b.Thresholds
-                'Contacts'     = if ($b.ContactEmails) { $b.ContactEmails } else { '' }
-            })
+                    Subscription   = $b.Subscription
+                    'Budget Name'  = $b.BudgetName
+                    Category       = $b.Category
+                    'Amount'       = "$sym$(([double]$b.Amount).ToString('N2'))"
+                    'Actual Spend' = "$sym$(([double]$b.ActualSpend).ToString('N2'))"
+                    '% Used'       = "$($b.PctUsed)%"
+                    'Forecast'     = "$sym$(([double]$b.Forecast).ToString('N2'))"
+                    '% Forecast'   = "$($b.PctForecast)%"
+                    'Risk'         = $b.Risk
+                    'Tag Filter'   = if ($b.TagFilter) { $b.TagFilter } else { '' }
+                    'Time Grain'   = $b.TimeGrain
+                    'Thresholds'   = $b.Thresholds
+                    'Contacts'     = if ($b.ContactEmails) { $b.ContactEmails } else { '' }
+                })
         }
-        $script:BudgetDetailGrid.ItemsSource = @($rows | Sort-Object { [double]($_.'% Used' -replace '[^0-9.]','') } -Descending)
-    } else {
+        $script:BudgetDetailGrid.ItemsSource = @($rows | Sort-Object { [double]($_.'% Used' -replace '[^0-9.]', '') } -Descending)
+    }
+    else {
         if ($selectedName -eq 'All Subscriptions') {
             $script:BudgetSubSummary.Text = "No budgets configured on any subscription. Use the section below to deploy one."
-        } else {
+        }
+        else {
             $script:BudgetSubSummary.Text = "No budget configured on '$selectedName'. Use the section below to deploy one."
         }
         $script:BudgetDetailGrid.ItemsSource = @()
@@ -3105,7 +3224,7 @@ function Deploy-BudgetFromTab {
     }
 
     # Get tag filter values
-    $tagFilterName  = ''
+    $tagFilterName = ''
     $tagFilterValue = ''
     if ($script:BudgetDeployTagNameSelector.SelectedItem -and $script:BudgetDeployTagNameSelector.SelectedItem.Tag) {
         $tagFilterName = $script:BudgetDeployTagNameSelector.SelectedItem.Tag
@@ -3124,7 +3243,7 @@ function Deploy-BudgetFromTab {
 
     # Force UI update
     [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
-        [action]{}, [System.Windows.Threading.DispatcherPriority]::Background
+        [action] {}, [System.Windows.Threading.DispatcherPriority]::Background
     )
 
     $successCount = 0
@@ -3133,7 +3252,8 @@ function Deploy-BudgetFromTab {
 
     if ($scope -eq 'All Subscriptions') {
         $targetSubs = $d.Auth.Subscriptions
-    } else {
+    }
+    else {
         # Specific subscription selected
         $targetSubs = @($d.Auth.Subscriptions | Where-Object { $_.Id -eq $scopeSubId })
         if ($targetSubs.Count -eq 0) {
@@ -3171,11 +3291,13 @@ function Deploy-BudgetFromTab {
 
             if ($resp.StatusCode -in @(200, 201)) {
                 $successCount++
-            } else {
+            }
+            else {
                 $failCount++
                 Write-Warning "Budget deploy failed on $($sub.Name): $($resp.StatusCode) $($resp.Content)"
             }
-        } catch {
+        }
+        catch {
             $failCount++
             Write-Warning "Budget deploy error on $($sub.Name): $($_.Exception.Message)"
         }
@@ -3185,7 +3307,8 @@ function Deploy-BudgetFromTab {
     if ($failCount -eq 0) {
         $script:BudgetDeployStatus.Foreground = '#107C10'
         $script:BudgetDeployStatus.Text = "Successfully deployed budget '$budgetName' to $successCount subscription(s) with $($thresholds.Count) threshold(s).$tagNote"
-    } else {
+    }
+    else {
         $script:BudgetDeployStatus.Foreground = '#D83B01'
         $script:BudgetDeployStatus.Text = "Deployed to $successCount sub(s), $failCount failed. Check console for details."
     }
@@ -3213,7 +3336,7 @@ function Deploy-BudgetPolicyFromTab {
     $script:BudgetPolicyStatus.Text = "Deploying budget policy ($effect)..."
 
     [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
-        [System.Windows.Threading.DispatcherPriority]::Render, [action]{})
+        [System.Windows.Threading.DispatcherPriority]::Render, [action] {})
 
     try {
         $result = Deploy-PolicyAssignment -Scope $scope -PolicyDefinitionId $policyDefId `
@@ -3221,11 +3344,13 @@ function Deploy-BudgetPolicyFromTab {
         if ($result.Success) {
             $script:BudgetPolicyStatus.Foreground = '#107C10'
             $script:BudgetPolicyStatus.Text = "Budget policy deployed ($effect) to $($sub.Name)."
-        } else {
+        }
+        else {
             $script:BudgetPolicyStatus.Foreground = '#D83B01'
             $script:BudgetPolicyStatus.Text = "Failed: $($result.Message)"
         }
-    } catch {
+    }
+    catch {
         $script:BudgetPolicyStatus.Foreground = '#D83B01'
         $script:BudgetPolicyStatus.Text = "Error: $($_.Exception.Message)"
     }
@@ -3254,12 +3379,14 @@ function Start-PolicyRemediation {
         if ($resp.StatusCode -in @(200, 201)) {
             Write-Host "    Remediation task '$remediationName' created." -ForegroundColor Green
             return [PSCustomObject]@{ Success = $true; Message = "Remediation task '$remediationName' created. Check Policy > Remediation in the portal for progress."; Name = $remediationName }
-        } else {
+        }
+        else {
             $errBody = ($resp.Content | ConvertFrom-Json -ErrorAction SilentlyContinue)
             $errMsg = if ($errBody.error) { $errBody.error.message } else { "HTTP $($resp.StatusCode)" }
             return [PSCustomObject]@{ Success = $false; Message = $errMsg }
         }
-    } catch {
+    }
+    catch {
         return [PSCustomObject]@{ Success = $false; Message = $_.Exception.Message }
     }
 }
@@ -3287,7 +3414,8 @@ function Populate-Scorecard {
         $tagScore = 'N/A'
         if ($d.Tags -and $d.Tags.PerSubscription -and $d.Tags.PerSubscription.ContainsKey($sub.Id)) {
             $tagScore = "$($d.Tags.PerSubscription[$sub.Id].Coverage)%"
-        } elseif ($d.Tags) {
+        }
+        elseif ($d.Tags) {
             $tagScore = "$($d.Tags.TagCoverage)%"
         }
 
@@ -3306,20 +3434,20 @@ function Populate-Scorecard {
             # Estimate monthly savings per orphan category (conservative Azure pricing)
             foreach ($o in $subOrphans) {
                 $orphanSavings += switch ($o.Category) {
-                    'Orphaned Disk'          {
+                    'Orphaned Disk' {
                         # Estimate based on disk size from Detail field
                         $diskGb = 0
                         if ($o.Detail -match '(\d+)\s*GB') { $diskGb = [int]$Matches[1] }
-                        if ($o.Detail -match 'Premium')    { $diskGb * 0.12 }    # ~$0.12/GB/mo Premium SSD
+                        if ($o.Detail -match 'Premium') { $diskGb * 0.12 }    # ~$0.12/GB/mo Premium SSD
                         elseif ($o.Detail -match 'Standard_SSD') { $diskGb * 0.075 }
                         else { $diskGb * 0.04 }                                   # Standard HDD
                     }
-                    'Unattached Public IP'   { 3.65 }    # ~$0.005/hr static IP
-                    'Unattached NIC'         { 0 }       # NICs are free but clutter
-                    'Deallocated VM'         { 15 }      # OS disk + IP costs while deallocated
+                    'Unattached Public IP' { 3.65 }    # ~$0.005/hr static IP
+                    'Unattached NIC' { 0 }       # NICs are free but clutter
+                    'Deallocated VM' { 15 }      # OS disk + IP costs while deallocated
                     'Empty App Service Plan' { 55 }      # Basic tier ~$55/mo
-                    'Old Snapshot'           { 5 }       # ~$0.05/GB, typical 100GB
-                    default                  { 5 }
+                    'Old Snapshot' { 5 }       # ~$0.05/GB, typical 100GB
+                    default { 5 }
                 }
             }
         }
@@ -3346,19 +3474,19 @@ function Populate-Scorecard {
         }
 
         [void]$rows.Add([PSCustomObject]@{
-            Subscription     = $sub.Name
-            'Actual (MTD)'   = "$sym$($costActual.ToString('N2'))"
-            'Forecast'       = "$sym$($costForecast.ToString('N2'))"
-            'Tag Coverage'   = $tagScore
-            'Optimizations'  = $optCount
-            'Orphaned'       = $orphanCount
-            'Orphan Savings' = if ($orphanSavings -gt 0) { "$sym$([math]::Round($orphanSavings, 2).ToString('N2'))/mo" } else { '-' }
-            'Budget Status'  = $budgetRisk
-            'Cost Trend'     = $trendDir
-        })
+                Subscription     = $sub.Name
+                'Actual (MTD)'   = "$sym$($costActual.ToString('N2'))"
+                'Forecast'       = "$sym$($costForecast.ToString('N2'))"
+                'Tag Coverage'   = $tagScore
+                'Optimizations'  = $optCount
+                'Orphaned'       = $orphanCount
+                'Orphan Savings' = if ($orphanSavings -gt 0) { "$sym$([math]::Round($orphanSavings, 2).ToString('N2'))/mo" } else { '-' }
+                'Budget Status'  = $budgetRisk
+                'Cost Trend'     = $trendDir
+            })
     }
 
-    $script:ScorecardGrid.ItemsSource = @($rows | Sort-Object { [double]($_.'Actual (MTD)' -replace '[^0-9.]','') } -Descending)
+    $script:ScorecardGrid.ItemsSource = @($rows | Sort-Object { [double]($_.'Actual (MTD)' -replace '[^0-9.]', '') } -Descending)
 }
 
 # -- Subscription Selector Dialog ----------------------------------------
@@ -3430,9 +3558,9 @@ function Show-SubscriptionSelector {
     $subListPanel = $dlgWin.FindName('SubListPanel')
     $selectAllBtn = $dlgWin.FindName('SelectAllBtn')
     $selectNoneBtn = $dlgWin.FindName('SelectNoneBtn')
-    $countLabel   = $dlgWin.FindName('CountLabel')
-    $cancelBtn    = $dlgWin.FindName('CancelBtn')
-    $okBtn        = $dlgWin.FindName('OkBtn')
+    $countLabel = $dlgWin.FindName('CountLabel')
+    $cancelBtn = $dlgWin.FindName('CancelBtn')
+    $okBtn = $dlgWin.FindName('OkBtn')
 
     # Build checkbox list
     $checkboxes = [System.Collections.Generic.List[System.Windows.Controls.CheckBox]]::new()
@@ -3467,9 +3595,9 @@ function Show-SubscriptionSelector {
     # OK / Cancel
     $script:_subSelectorResult = $null
     $okBtn.Add_Click({
-        $script:_subSelectorResult = @($checkboxes | Where-Object { $_.IsChecked } | ForEach-Object { $_.Tag })
-        $dlgWin.Close()
-    }.GetNewClosure())
+            $script:_subSelectorResult = @($checkboxes | Where-Object { $_.IsChecked } | ForEach-Object { $_.Tag })
+            $dlgWin.Close()
+        }.GetNewClosure())
     $cancelBtn.Add_Click({ $dlgWin.Close() }.GetNewClosure())
 
     [void]$dlgWin.ShowDialog()
@@ -3537,38 +3665,38 @@ function Show-ExportDialog {
     $exportWin.Owner = $script:window
 
     $htmlTile = $exportWin.FindName('HtmlTile')
-    $csvTile  = $exportWin.FindName('CsvTile')
-    $pbiTile  = $exportWin.FindName('PbiTile')
+    $csvTile = $exportWin.FindName('CsvTile')
+    $pbiTile = $exportWin.FindName('PbiTile')
 
     # Hover effects
-    $hoverIn  = { param($s,$e) $s.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#EBF5FF'); $s.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#0078D4') }
-    $hoverOut = { param($s,$e) $s.Background = [System.Windows.Media.Brushes]::White; $s.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#DDD') }
+    $hoverIn = { param($s, $e) $s.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#EBF5FF'); $s.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#0078D4') }
+    $hoverOut = { param($s, $e) $s.Background = [System.Windows.Media.Brushes]::White; $s.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#DDD') }
     foreach ($tile in @($htmlTile, $csvTile, $pbiTile)) {
         $tile.Add_MouseEnter($hoverIn)
         $tile.Add_MouseLeave($hoverOut)
     }
 
     $htmlTile.Add_MouseLeftButtonDown({
-        $exportWin.Tag = 'HTML'
-        $exportWin.Close()
-    }.GetNewClosure())
+            $exportWin.Tag = 'HTML'
+            $exportWin.Close()
+        }.GetNewClosure())
 
     $csvTile.Add_MouseLeftButtonDown({
-        $exportWin.Tag = 'CSV'
-        $exportWin.Close()
-    }.GetNewClosure())
+            $exportWin.Tag = 'CSV'
+            $exportWin.Close()
+        }.GetNewClosure())
 
     $pbiTile.Add_MouseLeftButtonDown({
-        $exportWin.Tag = 'PBI'
-        $exportWin.Close()
-    }.GetNewClosure())
+            $exportWin.Tag = 'PBI'
+            $exportWin.Close()
+        }.GetNewClosure())
 
     $exportWin.ShowDialog() | Out-Null
 
     switch ($exportWin.Tag) {
         'HTML' { Export-ScanReport -Format 'HTML' }
-        'CSV'  { Export-ScanReport -Format 'CSV' }
-        'PBI'  { Export-PowerBIData }
+        'CSV' { Export-ScanReport -Format 'CSV' }
+        'PBI' { Export-PowerBIData }
     }
 }
 
@@ -3794,7 +3922,7 @@ function Export-PowerBIData {
     # 12. AHB Opportunities
     if ($d.AHB -and $d.AHB.TotalOpportunities -gt 0) {
         $ahbRows = @()
-        foreach ($prop in @('WindowsVMs','SQLVMs','SQLDatabases')) {
+        foreach ($prop in @('WindowsVMs', 'SQLVMs', 'SQLDatabases')) {
             if ($d.AHB.$prop) {
                 $ahbRows += $d.AHB.$prop | ForEach-Object {
                     [PSCustomObject]@{
@@ -3886,7 +4014,7 @@ function Export-PowerBIData {
     Add-Type -AssemblyName System.IO.Compression
 
     $csvFiles = Get-ChildItem -Path $exportDir -Filter '*.csv'
-    $numericCols = @('ActualMTD','Forecast','Cost','Amount','ActualSpend','PercentUsed','AnnualSavings','AvgUtilization','MinUtilization','MaxUtilization','ReservedHours','UsedHours','ResourceCount')
+    $numericCols = @('ActualMTD', 'Forecast', 'Cost', 'Amount', 'ActualSpend', 'PercentUsed', 'AnnualSavings', 'AvgUtilization', 'MinUtilization', 'MaxUtilization', 'ReservedHours', 'UsedHours', 'ResourceCount')
     $exportDirEscaped = $exportDir -replace '\\', '\\\\'
 
     # Build DataModelSchema JSON manually to avoid ConvertTo-Json issues
@@ -3902,7 +4030,7 @@ function Export-PowerBIData {
     foreach ($csv in $csvFiles) {
         $tblName = [System.IO.Path]::GetFileNameWithoutExtension($csv.Name)
         $headerLine = Get-Content $csv.FullName -First 1
-        $headers = ($headerLine -replace '"','') -split ','
+        $headers = ($headerLine -replace '"', '') -split ','
         $tblGuid = [guid]::NewGuid().ToString()
 
         [void]$sb.Append(',{"name":"' + $tblName + '","lineageTag":"' + $tblGuid + '","columns":[')
@@ -3929,7 +4057,8 @@ function Export-PowerBIData {
             $mExpr += '"    Typed = Table.TransformColumnTypes(Headers, {' + $castStr + '})"'
             $mExpr += '"in"'
             $mExpr += '"    Typed"'
-        } else {
+        }
+        else {
             $mExpr += '"    Source = Csv.Document(File.Contents(CsvFolderPath & \"\\\\' + $tblName + '.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),"'
             $mExpr += '"    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true])"'
             $mExpr += '"in"'
@@ -3944,7 +4073,7 @@ function Export-PowerBIData {
     # Relationships
     $tblNames = @('CsvFolderPath') + @($csvFiles | ForEach-Object { [System.IO.Path]::GetFileNameWithoutExtension($_.Name) })
     $relFragments = @()
-    $subIdTables = @('Budgets','OrphanedResources','AHBOpportunities')
+    $subIdTables = @('Budgets', 'OrphanedResources', 'AHBOpportunities')
     foreach ($ft in $subIdTables) {
         if ($ft -in $tblNames -and 'SubscriptionCosts' -in $tblNames) {
             $rGuid = [guid]::NewGuid().ToString()
@@ -3984,7 +4113,8 @@ function Export-PowerBIData {
         $sw = [System.IO.StreamWriter]::new($newDm.Open(), $unicodeNoBom)
         $sw.Write($modelJson)
         $sw.Close()
-    } finally {
+    }
+    finally {
         $zip.Dispose()
     }
 
@@ -4004,13 +4134,15 @@ function Export-ScanReport {
         $dlg.FileName = "FinOps-Report-$(Get-Date -Format 'yyyy-MM-dd')"
         if ($dlg.ShowDialog() -ne $true) { return }
         $path = $dlg.FileName
-    } elseif ($Format -eq 'HTML') {
+    }
+    elseif ($Format -eq 'HTML') {
         $dlg = [Microsoft.Win32.SaveFileDialog]::new()
         $dlg.Filter = "HTML Report (*.html)|*.html"
         $dlg.FileName = "FinOps-Report-$(Get-Date -Format 'yyyy-MM-dd')"
         if ($dlg.ShowDialog() -ne $true) { return }
         $path = $dlg.FileName
-    } else {
+    }
+    else {
         # Legacy fallback — combined dialog
         $dlg = [Microsoft.Win32.SaveFileDialog]::new()
         $dlg.Filter = "HTML Report (*.html)|*.html|CSV File (*.csv)|*.csv"
@@ -4027,11 +4159,11 @@ function Export-ScanReport {
         foreach ($sub in $d.Auth.Subscriptions) {
             $c = if ($d.Costs -and $d.Costs.ContainsKey($sub.Id)) { $d.Costs[$sub.Id] } else { @{ Actual = 0; Forecast = 0; Currency = 'USD' } }
             $rows += [PSCustomObject]@{
-                Subscription = $sub.Name
+                Subscription   = $sub.Name
                 SubscriptionId = $sub.Id
-                ActualMTD = $c.Actual
-                Forecast = $c.Forecast
-                Currency = $c.Currency
+                ActualMTD      = $c.Actual
+                Forecast       = $c.Forecast
+                Currency       = $c.Currency
             }
         }
         $rows | Export-Csv -Path $path -NoTypeInformation -Encoding UTF8
@@ -4166,7 +4298,7 @@ footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ddd; font-s
 <p class="text-muted">Score based on FinOps Foundation Maturity Model and Microsoft Cloud Adoption Framework. Categories: Visibility (25), Allocation (20), Budgeting (15), Optimization (20), Governance (20).</p>
 <div style="margin:15px 0;">
 "@)
-    foreach ($cat in @('Visibility','Allocation','Budgeting','Optimization','Governance')) {
+    foreach ($cat in @('Visibility', 'Allocation', 'Budgeting', 'Optimization', 'Governance')) {
         $catMax = switch ($cat) { 'Visibility' { 25 } 'Allocation' { 20 } 'Budgeting' { 15 } default { 20 } }
         $catVal = if ($rptBreakdown.ContainsKey($cat)) { $rptBreakdown[$cat] } else { 0 }
         $pct = if ($catMax -gt 0) { [math]::Round(($catVal / $catMax) * 100) } else { 0 }
@@ -4200,7 +4332,8 @@ footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ddd; font-s
             if ($subBudgets.Count -gt 0) {
                 $worstRisk = ($subBudgets | Sort-Object PctUsed -Descending | Select-Object -First 1).Risk
                 $budgetTxt = $worstRisk
-            } else { $budgetTxt = 'No Budget' }
+            }
+            else { $budgetTxt = 'No Budget' }
         }
         $budgetClass = switch ($budgetTxt) { 'Over Budget' { 'status-warn' } 'At Risk' { 'status-warn' } 'On Track' { 'status-good' } default { 'text-muted' } }
 
@@ -4257,7 +4390,8 @@ footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ddd; font-s
                 }
             }
         }
-    } else {
+    }
+    else {
         [void]$sb.Append('<p class="text-muted">No cost trend data available.</p>')
     }
 
@@ -4274,7 +4408,8 @@ footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ddd; font-s
             [void]$sb.Append("<td class=`"text-right`">$sym$($r.Actual.ToString('N2'))</td><td class=`"text-right`">$sym$($r.Forecast.ToString('N2'))</td></tr>")
         }
         [void]$sb.Append("</table>")
-    } else {
+    }
+    else {
         [void]$sb.Append('<p class="text-muted">No resource-level cost data available.</p>')
     }
 
@@ -4315,7 +4450,7 @@ footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ddd; font-s
         if ($d.Tags.UntaggedResources -and $d.Tags.UntaggedResources.Count -gt 0) {
             $utShown = $d.Tags.UntaggedResources.Count
             $utTotal = $d.Tags.UntaggedCount
-            $utNote  = if ($utShown -lt $utTotal) { " (showing $utShown of $utTotal)" } else { "" }
+            $utNote = if ($utShown -lt $utTotal) { " (showing $utShown of $utTotal)" } else { "" }
             [void]$sb.Append("<h3>Untagged Resources$utNote</h3>")
             [void]$sb.Append("<table><tr><th>Resource Name</th><th>Resource Type</th><th>Resource Group</th><th>Subscription</th><th>Location</th></tr>")
             foreach ($ur in $d.Tags.UntaggedResources) {
@@ -4323,7 +4458,8 @@ footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ddd; font-s
             }
             [void]$sb.Append("</table>")
         }
-    } else {
+    }
+    else {
         [void]$sb.Append('<p class="text-muted">No tag data available.</p>')
     }
 
@@ -4433,7 +4569,8 @@ footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ddd; font-s
             [void]$sb.Append("<td class=`"text-right`">$([math]::Round($b.PctUsed,1))%</td><td class=`"$riskCls`">$($b.Risk)</td></tr>")
         }
         [void]$sb.Append("</table>")
-    } else {
+    }
+    else {
         [void]$sb.Append('<p class="text-muted">No budgets configured. Consider creating budgets for all production subscriptions.</p>')
     }
 
@@ -4470,112 +4607,137 @@ footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ddd; font-s
 # SCAN STAGES (DispatcherTimer-based staged loading)
 ###########################################################################
 $script:scanStages = @(
-    @{ Label = 'Verifying tenant context...';         Pct = 5;   Action = {
-        if (-not $script:scanData.Auth) {
-            throw "No tenant selected. Click 'Commercial Tenant' or 'Gov Tenant' first."
+    @{ Label = 'Verifying tenant context...'; Pct = 5; Action = {
+            if (-not $script:scanData.Auth) {
+                throw "No tenant selected. Click 'Commercial Tenant' or 'Gov Tenant' first."
+            }
+            $script:MgCostScopeFailed = $false  # Reset MG-scope flag for fresh scan
+            $envLabel = $script:scanData.Auth.Environment
+            $script:TenantLabel.Text = "Tenant: $($script:scanData.Auth.TenantId)  |  $($script:scanData.Auth.AccountName)  |  $envLabel"
+            if ($envLabel -eq 'AzureUSGovernment') {
+                $script:GovTenantButton.Content = "$($script:LockClosed) Gov Tenant"
+            }
+            else {
+                $script:TenantButton.Content = "$($script:LockClosed) Commercial Tenant"
+            }
         }
-        $script:MgCostScopeFailed = $false  # Reset MG-scope flag for fresh scan
-        $envLabel = $script:scanData.Auth.Environment
-        $script:TenantLabel.Text = "Tenant: $($script:scanData.Auth.TenantId)  |  $($script:scanData.Auth.AccountName)  |  $envLabel"
-        if ($envLabel -eq 'AzureUSGovernment') {
-            $script:GovTenantButton.Content = "$($script:LockClosed) Gov Tenant"
-        } else {
-            $script:TenantButton.Content = "$($script:LockClosed) Commercial Tenant"
+    }
+    @{ Label = 'Loading management group hierarchy...'; Pct = 15; Action = {
+            $script:scanData.Hierarchy = Get-TenantHierarchy -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions
         }
-    }}
-    @{ Label = 'Loading management group hierarchy...'; Pct = 15;  Action = {
-        $script:scanData.Hierarchy = Get-TenantHierarchy -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Detecting contract type...';           Pct = 25;  Action = {
-        $script:scanData.Contract = Get-ContractInfo -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Querying cost data...';                Pct = 30;  Action = {
-        $script:scanData.Costs = Get-CostData -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Querying resource-level costs...';      Pct = 40;  Action = {
-        $script:scanData.ResourceCosts = Get-ResourceCosts -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions -CostData $script:scanData.Costs
-    }}
-    @{ Label = 'Scanning tag inventory...';            Pct = 50;  Action = {
-        $script:scanData.Tags = Get-TagInventory -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Querying cost by tag...';              Pct = 55;  Action = {
-        $tagNames = if ($script:scanData.Tags) { $script:scanData.Tags.TagNames } else { @{} }
-        $script:scanData.CostByTag = Get-CostByTag -TenantId $script:scanData.Auth.TenantId -ExistingTags $tagNames -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Querying 6-month cost trend...';       Pct = 60;  Action = {
-        $script:scanData.CostTrend = Get-CostTrend -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Scanning AHB opportunities...';        Pct = 64;  Action = {
-        $script:scanData.AHB = Get-AHBOpportunities -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Scanning commitment utilization...';   Pct = 68;  Action = {
-        $agreementType = if ($script:scanData.Contract -and $script:scanData.Contract[0].AgreementType) { $script:scanData.Contract[0].AgreementType } else { '' }
-        $script:scanData.Commitments = Get-CommitmentUtilization -Subscriptions $script:scanData.Auth.Subscriptions -AgreementType $agreementType
-    }}
-    @{ Label = 'Scanning orphaned resources...';       Pct = 70;  Action = {
-        $script:scanData.Orphans = Get-OrphanedResources -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Scanning idle VMs...';                 Pct = 73;  Action = {
-        $script:scanData.IdleVMs = Get-IdleVMs -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Scanning storage tier advice...';      Pct = 75;  Action = {
-        $script:scanData.StorageTier = Get-StorageTierAdvice -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Loading reservation advice...';        Pct = 77;  Action = {
-        $script:scanData.Reservations = Get-ReservationAdvice -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Loading optimization advice...';       Pct = 80;  Action = {
-        $script:scanData.Optimization = Get-OptimizationAdvice -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Querying budget status...';            Pct = 82;  Action = {
-        $script:scanData.Budgets = Get-BudgetStatus -Subscriptions $script:scanData.Auth.Subscriptions -CostData $script:scanData.Costs
-    }}
-    @{ Label = 'Querying anomaly alerts...';           Pct = 84;  Action = {
-        $script:scanData.AnomalyAlerts = Get-AnomalyAlerts -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Calculating savings realized...';      Pct = 86;  Action = {
-        $script:scanData.Savings = Get-SavingsRealized -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions -CommitmentData $script:scanData.Commitments
-    }}
-    @{ Label = 'Analyzing tag compliance...';          Pct = 88;  Action = {
-        $tagNames = if ($script:scanData.Tags) { $script:scanData.Tags.TagNames } else { @{} }
-        $tagLocs  = if ($script:scanData.Tags) { $script:scanData.Tags.TagLocations } else { @{} }
-        $script:scanData.TagRecs = Get-TagRecommendations -ExistingTags $tagNames -TagLocations $tagLocs
-    }}
-    @{ Label = 'Scanning policy assignments...';       Pct = 89;  Action = {
-        $script:scanData.PolicyInv = Get-PolicyInventory -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Analyzing FinOps policy coverage...';  Pct = 90;  Action = {
-        $assignments = if ($script:scanData.PolicyInv) { $script:scanData.PolicyInv.Assignments } else { @() }
-        $script:scanData.PolicyRecs = Get-PolicyRecommendations -ExistingAssignments $assignments
-    }}
-    @{ Label = 'Querying billing structure...';        Pct = 92;  Action = {
-        $script:scanData.Billing = Get-BillingStructure -Subscriptions $script:scanData.Auth.Subscriptions
-    }}
-    @{ Label = 'Building dashboard...';                Pct = 96;  Action = {
-        try { Populate-OverviewTab }      catch { Write-Warning "Populate-OverviewTab failed: $($_.Exception.Message)" }
-        try { Populate-CostTab }           catch { Write-Warning "Populate-CostTab failed: $($_.Exception.Message)" }
-        try { Populate-TrendChart }        catch { Write-Warning "Populate-TrendChart failed: $($_.Exception.Message)" }
-        try { Populate-AnomalySection }    catch { Write-Warning "Populate-AnomalySection failed: $($_.Exception.Message)" }
-        try { Populate-AlertsSection }     catch { Write-Warning "Populate-AlertsSection failed: $($_.Exception.Message)" }
-        try { Populate-TagsTab }           catch { Write-Warning "Populate-TagsTab failed: $($_.Exception.Message)" }
-        try { Populate-PolicyTab }         catch { Write-Warning "Populate-PolicyTab failed: $($_.Exception.Message)" }
-        try { Populate-CommitmentSection } catch { Write-Warning "Populate-CommitmentSection failed: $($_.Exception.Message)" }
-        try { Populate-OrphanedSection }   catch { Write-Warning "Populate-OrphanedSection failed: $($_.Exception.Message)" }
-        try { Populate-OptimizationTab }   catch { Write-Warning "Populate-OptimizationTab failed: $($_.Exception.Message)" }
-        try { Populate-IdleVMSection }     catch { Write-Warning "Populate-IdleVMSection failed: $($_.Exception.Message)" }
-        try { Populate-StorageTierSection } catch { Write-Warning "Populate-StorageTierSection failed: $($_.Exception.Message)" }
-        try { Populate-BudgetSection }     catch { Write-Warning "Populate-BudgetSection failed: $($_.Exception.Message)" }
-        try { Populate-BudgetsTab }        catch { Write-Warning "Populate-BudgetsTab failed: $($_.Exception.Message)" }
-        try { Populate-Scorecard }         catch { Write-Warning "Populate-Scorecard failed: $($_.Exception.Message)" }
-        try { Populate-BillingTab }        catch { Write-Warning "Populate-BillingTab failed: $($_.Exception.Message)" }
-        try { Populate-GuidanceTab }       catch { Write-Warning "Populate-GuidanceTab failed: $($_.Exception.Message)" }
-        try { Populate-ResourcesTab }      catch { Write-Warning "Populate-ResourcesTab failed: $($_.Exception.Message)" }
-        $script:tagDeployScopesLoaded = $false   # Reset so scopes reload on next tag deploy
-        $script:policyDeployScopesLoaded = $false  # Reset so scopes reload on next policy deploy
-    }}
-    @{ Label = 'Scan complete!';                       Pct = 100; Action = {
-        $script:ExportButton.IsEnabled = $true
-    }}
+    }
+    @{ Label = 'Detecting contract type...'; Pct = 25; Action = {
+            $script:scanData.Contract = Get-ContractInfo -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Querying cost data...'; Pct = 30; Action = {
+            $script:scanData.Costs = Get-CostData -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Querying resource-level costs...'; Pct = 40; Action = {
+            $script:scanData.ResourceCosts = Get-ResourceCosts -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions -CostData $script:scanData.Costs
+        }
+    }
+    @{ Label = 'Scanning tag inventory...'; Pct = 50; Action = {
+            $script:scanData.Tags = Get-TagInventory -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Querying cost by tag...'; Pct = 55; Action = {
+            $tagNames = if ($script:scanData.Tags) { $script:scanData.Tags.TagNames } else { @{} }
+            $script:scanData.CostByTag = Get-CostByTag -TenantId $script:scanData.Auth.TenantId -ExistingTags $tagNames -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Querying 6-month cost trend...'; Pct = 60; Action = {
+            $script:scanData.CostTrend = Get-CostTrend -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Scanning AHB opportunities...'; Pct = 64; Action = {
+            $script:scanData.AHB = Get-AHBOpportunities -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Scanning commitment utilization...'; Pct = 68; Action = {
+            $agreementType = if ($script:scanData.Contract -and $script:scanData.Contract[0].AgreementType) { $script:scanData.Contract[0].AgreementType } else { '' }
+            $script:scanData.Commitments = Get-CommitmentUtilization -Subscriptions $script:scanData.Auth.Subscriptions -AgreementType $agreementType
+        }
+    }
+    @{ Label = 'Scanning orphaned resources...'; Pct = 70; Action = {
+            $script:scanData.Orphans = Get-OrphanedResources -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Scanning idle VMs...'; Pct = 73; Action = {
+            $script:scanData.IdleVMs = Get-IdleVMs -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Scanning storage tier advice...'; Pct = 75; Action = {
+            $script:scanData.StorageTier = Get-StorageTierAdvice -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Loading reservation advice...'; Pct = 77; Action = {
+            $script:scanData.Reservations = Get-ReservationAdvice -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Loading optimization advice...'; Pct = 80; Action = {
+            $script:scanData.Optimization = Get-OptimizationAdvice -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Querying budget status...'; Pct = 82; Action = {
+            $script:scanData.Budgets = Get-BudgetStatus -Subscriptions $script:scanData.Auth.Subscriptions -CostData $script:scanData.Costs
+        }
+    }
+    @{ Label = 'Querying anomaly alerts...'; Pct = 84; Action = {
+            $script:scanData.AnomalyAlerts = Get-AnomalyAlerts -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Calculating savings realized...'; Pct = 86; Action = {
+            $script:scanData.Savings = Get-SavingsRealized -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions -CommitmentData $script:scanData.Commitments
+        }
+    }
+    @{ Label = 'Analyzing tag compliance...'; Pct = 88; Action = {
+            $tagNames = if ($script:scanData.Tags) { $script:scanData.Tags.TagNames } else { @{} }
+            $tagLocs = if ($script:scanData.Tags) { $script:scanData.Tags.TagLocations } else { @{} }
+            $script:scanData.TagRecs = Get-TagRecommendations -ExistingTags $tagNames -TagLocations $tagLocs
+        }
+    }
+    @{ Label = 'Scanning policy assignments...'; Pct = 89; Action = {
+            $script:scanData.PolicyInv = Get-PolicyInventory -TenantId $script:scanData.Auth.TenantId -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Analyzing FinOps policy coverage...'; Pct = 90; Action = {
+            $assignments = if ($script:scanData.PolicyInv) { $script:scanData.PolicyInv.Assignments } else { @() }
+            $script:scanData.PolicyRecs = Get-PolicyRecommendations -ExistingAssignments $assignments
+        }
+    }
+    @{ Label = 'Querying billing structure...'; Pct = 92; Action = {
+            $script:scanData.Billing = Get-BillingStructure -Subscriptions $script:scanData.Auth.Subscriptions
+        }
+    }
+    @{ Label = 'Building dashboard...'; Pct = 96; Action = {
+            try { Populate-OverviewTab }      catch { Write-Warning "Populate-OverviewTab failed: $($_.Exception.Message)" }
+            try { Populate-CostTab }           catch { Write-Warning "Populate-CostTab failed: $($_.Exception.Message)" }
+            try { Populate-TrendChart }        catch { Write-Warning "Populate-TrendChart failed: $($_.Exception.Message)" }
+            try { Populate-AnomalySection }    catch { Write-Warning "Populate-AnomalySection failed: $($_.Exception.Message)" }
+            try { Populate-AlertsSection }     catch { Write-Warning "Populate-AlertsSection failed: $($_.Exception.Message)" }
+            try { Populate-TagsTab }           catch { Write-Warning "Populate-TagsTab failed: $($_.Exception.Message)" }
+            try { Populate-PolicyTab }         catch { Write-Warning "Populate-PolicyTab failed: $($_.Exception.Message)" }
+            try { Populate-CommitmentSection } catch { Write-Warning "Populate-CommitmentSection failed: $($_.Exception.Message)" }
+            try { Populate-OrphanedSection }   catch { Write-Warning "Populate-OrphanedSection failed: $($_.Exception.Message)" }
+            try { Populate-OptimizationTab }   catch { Write-Warning "Populate-OptimizationTab failed: $($_.Exception.Message)" }
+            try { Populate-IdleVMSection }     catch { Write-Warning "Populate-IdleVMSection failed: $($_.Exception.Message)" }
+            try { Populate-StorageTierSection } catch { Write-Warning "Populate-StorageTierSection failed: $($_.Exception.Message)" }
+            try { Populate-BudgetSection }     catch { Write-Warning "Populate-BudgetSection failed: $($_.Exception.Message)" }
+            try { Populate-BudgetsTab }        catch { Write-Warning "Populate-BudgetsTab failed: $($_.Exception.Message)" }
+            try { Populate-Scorecard }         catch { Write-Warning "Populate-Scorecard failed: $($_.Exception.Message)" }
+            try { Populate-BillingTab }        catch { Write-Warning "Populate-BillingTab failed: $($_.Exception.Message)" }
+            try { Populate-GuidanceTab }       catch { Write-Warning "Populate-GuidanceTab failed: $($_.Exception.Message)" }
+            try { Populate-ResourcesTab }      catch { Write-Warning "Populate-ResourcesTab failed: $($_.Exception.Message)" }
+            $script:tagDeployScopesLoaded = $false   # Reset so scopes reload on next tag deploy
+            $script:policyDeployScopesLoaded = $false  # Reset so scopes reload on next policy deploy
+        }
+    }
+    @{ Label = 'Scan complete!'; Pct = 100; Action = {
+            $script:ExportButton.IsEnabled = $true
+        }
+    }
 )
 
 $script:currentStage = 0
@@ -4583,45 +4745,46 @@ $script:scanTimer = [System.Windows.Threading.DispatcherTimer]::new()
 $script:scanTimer.Interval = [TimeSpan]::FromMilliseconds(50)
 
 $script:scanTimer.Add_Tick({
-    if ($script:currentStage -ge $script:scanStages.Count) {
-        $script:scanTimer.Stop()
-        $script:ScanButton.IsEnabled = $true
-        $script:TenantButton.IsEnabled = $true
-        $script:GovTenantButton.IsEnabled = $true
-        $script:ScanButton.Content = "Re-Scan"
-        return
-    }
-
-    $stage = $script:scanStages[$script:currentStage]
-
-    try {
-        $script:StatusText.Text = $stage.Label
-        $script:ProgressBar.Value = $stage.Pct
-        # Force UI update before running the action
-        [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
-            [action]{}, [System.Windows.Threading.DispatcherPriority]::Background
-        )
-
-        & $stage.Action
-    } catch {
-        Write-Warning "Stage '$($stage.Label)' failed: $($_.Exception.Message)"
-        $script:StatusText.Text = "Warning: $($stage.Label) - $($_.Exception.Message)"
-
-        # If authentication failed, abort the entire scan
-        if (-not $script:scanData.Auth) {
+        if ($script:currentStage -ge $script:scanStages.Count) {
             $script:scanTimer.Stop()
             $script:ScanButton.IsEnabled = $true
             $script:TenantButton.IsEnabled = $true
             $script:GovTenantButton.IsEnabled = $true
-            $script:ScanButton.Content = "Retry Scan"
-            $script:StatusText.Text = "Scan aborted: $($_.Exception.Message)"
-            $script:ProgressBar.Value = 0
+            $script:ScanButton.Content = "Re-Scan"
             return
         }
-    }
 
-    $script:currentStage++
-})
+        $stage = $script:scanStages[$script:currentStage]
+
+        try {
+            $script:StatusText.Text = $stage.Label
+            $script:ProgressBar.Value = $stage.Pct
+            # Force UI update before running the action
+            [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
+                [action] {}, [System.Windows.Threading.DispatcherPriority]::Background
+            )
+
+            & $stage.Action
+        }
+        catch {
+            Write-Warning "Stage '$($stage.Label)' failed: $($_.Exception.Message)"
+            $script:StatusText.Text = "Warning: $($stage.Label) - $($_.Exception.Message)"
+
+            # If authentication failed, abort the entire scan
+            if (-not $script:scanData.Auth) {
+                $script:scanTimer.Stop()
+                $script:ScanButton.IsEnabled = $true
+                $script:TenantButton.IsEnabled = $true
+                $script:GovTenantButton.IsEnabled = $true
+                $script:ScanButton.Content = "Retry Scan"
+                $script:StatusText.Text = "Scan aborted: $($_.Exception.Message)"
+                $script:ProgressBar.Value = 0
+                return
+            }
+        }
+
+        $script:currentStage++
+    })
 
 ###########################################################################
 # EVENT WIRING
@@ -4629,685 +4792,719 @@ $script:scanTimer.Add_Tick({
 
 # Scan Button
 $script:ScanButton.Add_Click({
-    $script:ScanButton.IsEnabled = $false
-    $script:TenantButton.IsEnabled = $false
-    $script:GovTenantButton.IsEnabled = $false
-    $script:ExportButton.IsEnabled = $false
-    $script:currentStage = 0
-    $script:scanTimer.Start()
-})
+        $script:ScanButton.IsEnabled = $false
+        $script:TenantButton.IsEnabled = $false
+        $script:GovTenantButton.IsEnabled = $false
+        $script:ExportButton.IsEnabled = $false
+        $script:costAccessIssue = $null
+        $script:currentStage = 0
+        $script:scanTimer.Start()
+    })
 
 # Lock icon characters (surrogates for PS 5.1 compat)
-$script:LockOpen   = [char]::ConvertFromUtf32(0x1F513)   # open lock
+$script:LockOpen = [char]::ConvertFromUtf32(0x1F513)   # open lock
 $script:LockClosed = [char]::ConvertFromUtf32(0x1F512)   # closed lock
 
 # Choose Commercial Tenant Button
 $script:TenantButton.Add_Click({
-    $script:TenantButton.IsEnabled = $false
-    $script:GovTenantButton.IsEnabled = $false
-    $script:ScanButton.IsEnabled = $false
-    # Show unlocked while choosing
-    $script:TenantButton.Content = "$($script:LockOpen) Commercial Tenant"
-    $script:StatusText.Text = 'Connecting to Azure Commercial...'
-    try {
-        $authResult = @(Initialize-Scanner -Environment 'AzureCloud' -ParentWindow $window)
-        $script:scanData.Auth = $authResult[-1]
-        $envLabel = $script:scanData.Auth.Environment
-        $subCount = $script:scanData.Auth.Subscriptions.Count
+        $script:TenantButton.IsEnabled = $false
+        $script:GovTenantButton.IsEnabled = $false
+        $script:ScanButton.IsEnabled = $false
+        # Show unlocked while choosing
+        $script:TenantButton.Content = "$($script:LockOpen) Commercial Tenant"
+        $script:StatusText.Text = 'Connecting to Azure Commercial...'
+        try {
+            $authResult = @(Initialize-Scanner -Environment 'AzureCloud' -ParentWindow $window)
+            $script:scanData.Auth = $authResult[-1]
+            $envLabel = $script:scanData.Auth.Environment
+            $subCount = $script:scanData.Auth.Subscriptions.Count
 
-        # Let user select which subscriptions to scan
-        $selected = Show-SubscriptionSelector -Subscriptions $script:scanData.Auth.Subscriptions -SkippedSubs $script:scanData.Auth.SkippedSubs -ParentWindow $window
-        $script:scanData.Auth | Add-Member -NotePropertyName Subscriptions -NotePropertyValue @($selected) -Force
-        $subCount = $script:scanData.Auth.Subscriptions.Count
+            # Let user select which subscriptions to scan
+            $selected = Show-SubscriptionSelector -Subscriptions $script:scanData.Auth.Subscriptions -SkippedSubs $script:scanData.Auth.SkippedSubs -ParentWindow $window
+            $script:scanData.Auth | Add-Member -NotePropertyName Subscriptions -NotePropertyValue @($selected) -Force
+            $subCount = $script:scanData.Auth.Subscriptions.Count
 
-        $script:TenantLabel.Text = "Tenant: $($script:scanData.Auth.TenantId)  |  $($script:scanData.Auth.AccountName)  |  $envLabel"
-        $tenantSize = if ($script:scanData.Auth.TenantSize) { " [$($script:scanData.Auth.TenantSize)]" } else { '' }
-        $script:StatusText.Text = "Connected to $envLabel ($subCount subs$tenantSize). Click 'Scan' to begin."
-        # Show locked after successful selection
-        $script:TenantButton.Content = "$($script:LockClosed) Commercial Tenant"
-    } catch {
-        $script:StatusText.Text = "Tenant switch failed: $($_.Exception.Message)"
-    }
-    $script:TenantButton.IsEnabled = $true
-    $script:GovTenantButton.IsEnabled = $true
-    $script:ScanButton.IsEnabled = $true
-})
+            $script:TenantLabel.Text = "Tenant: $($script:scanData.Auth.TenantId)  |  $($script:scanData.Auth.AccountName)  |  $envLabel"
+            $tenantSize = if ($script:scanData.Auth.TenantSize) { " [$($script:scanData.Auth.TenantSize)]" } else { '' }
+            $script:StatusText.Text = "Connected to $envLabel ($subCount subs$tenantSize). Click 'Scan' to begin."
+            # Show locked after successful selection
+            $script:TenantButton.Content = "$($script:LockClosed) Commercial Tenant"
+        }
+        catch {
+            $script:StatusText.Text = "Tenant switch failed: $($_.Exception.Message)"
+        }
+        $script:TenantButton.IsEnabled = $true
+        $script:GovTenantButton.IsEnabled = $true
+        $script:ScanButton.IsEnabled = $true
+    })
 
 # Choose Gov Tenant Button
 $script:GovTenantButton.Add_Click({
-    $script:TenantButton.IsEnabled = $false
-    $script:GovTenantButton.IsEnabled = $false
-    $script:ScanButton.IsEnabled = $false
-    $script:GovTenantButton.Content = "$($script:LockOpen) Gov Tenant"
-    $script:StatusText.Text = 'Connecting to Azure Government...'
-    try {
-        $authResult = @(Initialize-Scanner -Environment 'AzureUSGovernment' -ParentWindow $window)
-        $script:scanData.Auth = $authResult[-1]
-        $envLabel = $script:scanData.Auth.Environment
-        $subCount = $script:scanData.Auth.Subscriptions.Count
+        $script:TenantButton.IsEnabled = $false
+        $script:GovTenantButton.IsEnabled = $false
+        $script:ScanButton.IsEnabled = $false
+        $script:GovTenantButton.Content = "$($script:LockOpen) Gov Tenant"
+        $script:StatusText.Text = 'Connecting to Azure Government...'
+        try {
+            $authResult = @(Initialize-Scanner -Environment 'AzureUSGovernment' -ParentWindow $window)
+            $script:scanData.Auth = $authResult[-1]
+            $envLabel = $script:scanData.Auth.Environment
+            $subCount = $script:scanData.Auth.Subscriptions.Count
 
-        # Let user select which subscriptions to scan
-        $selected = Show-SubscriptionSelector -Subscriptions $script:scanData.Auth.Subscriptions -SkippedSubs $script:scanData.Auth.SkippedSubs -ParentWindow $window
-        $script:scanData.Auth | Add-Member -NotePropertyName Subscriptions -NotePropertyValue @($selected) -Force
-        $subCount = $script:scanData.Auth.Subscriptions.Count
+            # Let user select which subscriptions to scan
+            $selected = Show-SubscriptionSelector -Subscriptions $script:scanData.Auth.Subscriptions -SkippedSubs $script:scanData.Auth.SkippedSubs -ParentWindow $window
+            $script:scanData.Auth | Add-Member -NotePropertyName Subscriptions -NotePropertyValue @($selected) -Force
+            $subCount = $script:scanData.Auth.Subscriptions.Count
 
-        $script:TenantLabel.Text = "Tenant: $($script:scanData.Auth.TenantId)  |  $($script:scanData.Auth.AccountName)  |  $envLabel"
-        $tenantSize = if ($script:scanData.Auth.TenantSize) { " [$($script:scanData.Auth.TenantSize)]" } else { '' }
-        $script:StatusText.Text = "Connected to $envLabel ($subCount subs$tenantSize). Click 'Scan' to begin."
-        $script:GovTenantButton.Content = "$($script:LockClosed) Gov Tenant"
-    } catch {
-        $script:StatusText.Text = "Gov tenant switch failed: $($_.Exception.Message)"
-    }
-    $script:TenantButton.IsEnabled = $true
-    $script:GovTenantButton.IsEnabled = $true
-    $script:ScanButton.IsEnabled = $true
-})
+            $script:TenantLabel.Text = "Tenant: $($script:scanData.Auth.TenantId)  |  $($script:scanData.Auth.AccountName)  |  $envLabel"
+            $tenantSize = if ($script:scanData.Auth.TenantSize) { " [$($script:scanData.Auth.TenantSize)]" } else { '' }
+            $script:StatusText.Text = "Connected to $envLabel ($subCount subs$tenantSize). Click 'Scan' to begin."
+            $script:GovTenantButton.Content = "$($script:LockClosed) Gov Tenant"
+        }
+        catch {
+            $script:StatusText.Text = "Gov tenant switch failed: $($_.Exception.Message)"
+        }
+        $script:TenantButton.IsEnabled = $true
+        $script:GovTenantButton.IsEnabled = $true
+        $script:ScanButton.IsEnabled = $true
+    })
 
 # Export Button — show export format chooser dialog
 $script:ExportButton.Add_Click({
-    Show-ExportDialog
-})
+        Show-ExportDialog
+    })
 
 # Budget Tab - Subscription Selector
 $script:BudgetSubSelector.Add_SelectionChanged({
-    Update-BudgetDetailView
-})
+        Update-BudgetDetailView
+    })
 
 # Budget Tab - Deploy Button
 $script:BudgetDeployButton.Add_Click({
-    Deploy-BudgetFromTab
-})
+        Deploy-BudgetFromTab
+    })
 
 # Budget Tab - Cancel Button
 $script:BudgetDeployCancelButton.Add_Click({
-    $script:BudgetDeployNameInput.Text = 'default-budget'
-    $script:BudgetDeployAmountInput.Text = '1000'
-    $script:BudgetDeployEmailInput.Text = ''
-    $script:BudgetThreshold1.Text = ''
-    $script:BudgetThreshold2.Text = ''
-    $script:BudgetThreshold3.Text = ''
-    $script:BudgetThreshold4.Text = ''
-    $script:BudgetDeployStatus.Text = ''
-})
+        $script:BudgetDeployNameInput.Text = 'default-budget'
+        $script:BudgetDeployAmountInput.Text = '1000'
+        $script:BudgetDeployEmailInput.Text = ''
+        $script:BudgetThreshold1.Text = ''
+        $script:BudgetThreshold2.Text = ''
+        $script:BudgetThreshold3.Text = ''
+        $script:BudgetThreshold4.Text = ''
+        $script:BudgetDeployStatus.Text = ''
+    })
 
 # Budget Policy - Deploy Button
 $script:BudgetPolicyDeployButton.Add_Click({
-    Deploy-BudgetPolicyFromTab
-})
+        Deploy-BudgetPolicyFromTab
+    })
 
 # Budget Policy - Cancel Button
 $script:BudgetPolicyCancelButton.Add_Click({
-    $script:BudgetPolicyStatus.Text = ''
-})
+        $script:BudgetPolicyStatus.Text = ''
+    })
 
 # Tag Selector (Cost Analysis tab)
 $script:TagSelector.Add_SelectionChanged({
-    $selectedTag = $script:TagSelector.SelectedItem
-    if (-not $selectedTag -or -not $script:scanData.CostByTag) { return }
+        $selectedTag = $script:TagSelector.SelectedItem
+        if (-not $selectedTag -or -not $script:scanData.CostByTag) { return }
 
-    $data = $script:scanData.CostByTag.CostByTag
-    $tf   = $script:scanData.CostByTag.UsedTimeframe
-    $costLabel = if ($tf -eq 'Custom') { 'Cost (Last Month)' } else { 'Cost (MTD)' }
+        $data = $script:scanData.CostByTag.CostByTag
+        $tf = $script:scanData.CostByTag.UsedTimeframe
+        $costLabel = if ($tf -eq 'Custom') { 'Cost (Last Month)' } else { 'Cost (MTD)' }
 
-    if ($data.ContainsKey($selectedTag) -and $data[$selectedTag].Count -gt 0) {
-        $tfNote = if ($tf -eq 'Custom') { ' (showing last month - current month data still processing)' } else { '' }
-        $script:NoTagsLabel.Text = $tfNote
-        $rows = $data[$selectedTag] | ForEach-Object {
-            [PSCustomObject]@{
-                'Tag Value'  = $_.TagValue
-                $costLabel   = $_.Cost.ToString('N2')
-                'Currency'   = $_.Currency
+        if ($data.ContainsKey($selectedTag) -and $data[$selectedTag].Count -gt 0) {
+            $tfNote = if ($tf -eq 'Custom') { ' (showing last month - current month data still processing)' } else { '' }
+            $script:NoTagsLabel.Text = $tfNote
+            $rows = $data[$selectedTag] | ForEach-Object {
+                [PSCustomObject]@{
+                    'Tag Value' = $_.TagValue
+                    $costLabel  = $_.Cost.ToString('N2')
+                    'Currency'  = $_.Currency
+                }
             }
+            $script:CostByTagGrid.ItemsSource = @($rows)
         }
-        $script:CostByTagGrid.ItemsSource = @($rows)
-    } else {
-        $script:CostByTagGrid.ItemsSource = @()
-        $script:NoTagsLabel.Text = "[!] No cost data returned for tag '$selectedTag'. The tag exists on resources but the Cost Management API did not return cost allocations. This can happen if the tagged resources have zero spend this month or if cost data is still processing."
-    }
-})
+        else {
+            $script:CostByTagGrid.ItemsSource = @()
+            $script:NoTagsLabel.Text = "[!] No cost data returned for tag '$selectedTag'. The tag exists on resources but the Cost Management API did not return cost allocations. This can happen if the tagged resources have zero spend this month or if cost data is still processing."
+        }
+    })
 
 # Tag Deploy Button (handles Add, Remove, and Custom modes)
 $script:TagDeployButton.Add_Click({
-    $tagName = $script:tagDeployCurrentTag
+        $tagName = $script:tagDeployCurrentTag
 
-    # In custom mode, read tag name from the input
-    if ($script:tagCustomMode) {
-        $tagName = $script:TagNameInput.Text.Trim()
-        if ([string]::IsNullOrWhiteSpace($tagName)) {
-            $script:TagDeployStatus.Text = 'Please enter a tag name.'
+        # In custom mode, read tag name from the input
+        if ($script:tagCustomMode) {
+            $tagName = $script:TagNameInput.Text.Trim()
+            if ([string]::IsNullOrWhiteSpace($tagName)) {
+                $script:TagDeployStatus.Text = 'Please enter a tag name.'
+                return
+            }
+            $script:tagDeployCurrentTag = $tagName
+        }
+
+        $selectedIdx = $script:TagScopeSelector.SelectedIndex
+
+        if (-not $tagName) {
+            $script:TagDeployStatus.Text = 'No tag selected.'
             return
         }
-        $script:tagDeployCurrentTag = $tagName
-    }
-
-    $selectedIdx = $script:TagScopeSelector.SelectedIndex
-
-    if (-not $tagName) {
-        $script:TagDeployStatus.Text = 'No tag selected.'
-        return
-    }
-    if ($selectedIdx -lt 0) {
-        $script:TagDeployStatus.Text = 'Please select a scope.'
-        return
-    }
-
-    # Determine target scopes — single scope or mass removal (all scopes for a subscription)
-    $allCount = if ($script:tagRemoveMode -and $script:tagRemoveAllEntries) { $script:tagRemoveAllEntries.Count } else { 0 }
-    $massRemove = $script:tagRemoveMode -and ($selectedIdx -lt $allCount)
-
-    if ($massRemove) {
-        # Mass remove: gather the sub + all its RGs from the loaded scopes
-        $selectedAll = $script:tagRemoveAllEntries[$selectedIdx]
-        $targetScopes = @($script:tagDeployScopes | Where-Object { $_.Scope -like "/subscriptions/$($selectedAll.SubId)*" })
-    } else {
-        # Single scope: adjust index if in remove mode (offset by allCount)
-        $adjustedIdx = if ($script:tagRemoveMode) { $selectedIdx - $allCount } else { $selectedIdx }
-        if ($adjustedIdx -lt 0 -or $adjustedIdx -ge $script:tagDeployScopes.Count) {
+        if ($selectedIdx -lt 0) {
             $script:TagDeployStatus.Text = 'Please select a scope.'
             return
         }
-        $targetScopes = @($script:tagDeployScopes[$adjustedIdx])
-    }
 
-    $scope = $targetScopes[0].Scope
-    $script:TagDeployButton.IsEnabled = $false
+        # Determine target scopes — single scope or mass removal (all scopes for a subscription)
+        $allCount = if ($script:tagRemoveMode -and $script:tagRemoveAllEntries) { $script:tagRemoveAllEntries.Count } else { 0 }
+        $massRemove = $script:tagRemoveMode -and ($selectedIdx -lt $allCount)
 
-    if ($script:tagRemoveMode) {
-        # REMOVE TAG (single or mass)
-        $valueFilter = $script:TagValueInput.Text.Trim()
-        $filterLabel = if ($valueFilter) { " (value='$valueFilter')" } else { '' }
-        $script:TagDeployStatus.Text = if ($massRemove) { "Removing$filterLabel from sub, RGs, and resources..." } else { "Removing$filterLabel..." }
-        $script:TagDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
-
-        try {
-            $token = Get-PlainAccessToken
-        } catch {
-            $script:TagDeployStatus.Text = "Failed: Could not get access token - $($_.Exception.Message)"
-            $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-            $script:TagDeployButton.IsEnabled = $true
-            return
+        if ($massRemove) {
+            # Mass remove: gather the sub + all its RGs from the loaded scopes
+            $selectedAll = $script:tagRemoveAllEntries[$selectedIdx]
+            $targetScopes = @($script:tagDeployScopes | Where-Object { $_.Scope -like "/subscriptions/$($selectedAll.SubId)*" })
+        }
+        else {
+            # Single scope: adjust index if in remove mode (offset by allCount)
+            $adjustedIdx = if ($script:tagRemoveMode) { $selectedIdx - $allCount } else { $selectedIdx }
+            if ($adjustedIdx -lt 0 -or $adjustedIdx -ge $script:tagDeployScopes.Count) {
+                $script:TagDeployStatus.Text = 'Please select a scope.'
+                return
+            }
+            $targetScopes = @($script:tagDeployScopes[$adjustedIdx])
         }
 
-        $allScopes = $targetScopes | ForEach-Object { $_.Scope }
-        $subId = if ($massRemove) { $script:tagRemoveAllEntries[$selectedIdx].SubId } else { '' }
+        $scope = $targetScopes[0].Scope
+        $script:TagDeployButton.IsEnabled = $false
 
-        $rs = [runspacefactory]::CreateRunspace()
-        $rs.Open()
-        $ps = [powershell]::Create()
-        $ps.Runspace = $rs
-        [void]$ps.AddScript({
-            param($deployScopeList, $deployTagName, $deployToken, $massMode, $subscriptionId, $valueFilter)
-            $successCount = 0
-            $failCount = 0
-            $failMsg = ''
-            $baseUri = 'https://management.azure.com'
-            $hdrs = @{ 'Authorization' = "Bearer $deployToken"; 'Content-Type' = 'application/json' }
+        if ($script:tagRemoveMode) {
+            # REMOVE TAG (single or mass)
+            $valueFilter = $script:TagValueInput.Text.Trim()
+            $filterLabel = if ($valueFilter) { " (value='$valueFilter')" } else { '' }
+            $script:TagDeployStatus.Text = if ($massRemove) { "Removing$filterLabel from sub, RGs, and resources..." } else { "Removing$filterLabel..." }
+            $script:TagDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
 
-            # If mass mode, find individual resources via Resource Graph (with pagination)
-            if ($massMode -and $subscriptionId) {
-                try {
-                    # Escape single quotes to prevent KQL injection
-                    $safeTagName = $deployTagName -replace "'", "\\'"
-                    $safeValueFilter = if ($valueFilter) { $valueFilter -replace "'", "\\'" } else { $null }
-                    # Use case-insensitive tag lookup: enumerate tag keys and compare with tolower()
-                    if ($safeValueFilter) {
-                        $tagFilter = "| mv-expand bagexpansion=array tkeys = bag_keys(tags) | where tolower(tostring(tkeys)) == tolower('$safeTagName') and tags[tostring(tkeys)] == '$safeValueFilter'"
-                    } else {
-                        $tagFilter = "| mv-expand bagexpansion=array tkeys = bag_keys(tags) | where tolower(tostring(tkeys)) == tolower('$safeTagName')"
-                    }
-                    # Query both resources and resourcecontainers (sub/RG-level tags)
-                    $query = "resources $tagFilter | project id | union (resourcecontainers $tagFilter | project id)"
-                    $skipToken = $null
-                    do {
-                        $rgBody = @{
-                            subscriptions = @($subscriptionId)
-                            query         = $query
-                            options       = @{ '$top' = 1000 }
+            try {
+                $token = Get-PlainAccessToken
+            }
+            catch {
+                $script:TagDeployStatus.Text = "Failed: Could not get access token - $($_.Exception.Message)"
+                $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
+                $script:TagDeployButton.IsEnabled = $true
+                return
+            }
+
+            $allScopes = $targetScopes | ForEach-Object { $_.Scope }
+            $subId = if ($massRemove) { $script:tagRemoveAllEntries[$selectedIdx].SubId } else { '' }
+
+            $rs = [runspacefactory]::CreateRunspace()
+            $rs.Open()
+            $ps = [powershell]::Create()
+            $ps.Runspace = $rs
+            [void]$ps.AddScript({
+                    param($deployScopeList, $deployTagName, $deployToken, $massMode, $subscriptionId, $valueFilter)
+                    $successCount = 0
+                    $failCount = 0
+                    $failMsg = ''
+                    $baseUri = 'https://management.azure.com'
+                    $hdrs = @{ 'Authorization' = "Bearer $deployToken"; 'Content-Type' = 'application/json' }
+
+                    # If mass mode, find individual resources via Resource Graph (with pagination)
+                    if ($massMode -and $subscriptionId) {
+                        try {
+                            # Escape single quotes to prevent KQL injection
+                            $safeTagName = $deployTagName -replace "'", "\\'"
+                            $safeValueFilter = if ($valueFilter) { $valueFilter -replace "'", "\\'" } else { $null }
+                            # Use case-insensitive tag lookup: enumerate tag keys and compare with tolower()
+                            if ($safeValueFilter) {
+                                $tagFilter = "| mv-expand bagexpansion=array tkeys = bag_keys(tags) | where tolower(tostring(tkeys)) == tolower('$safeTagName') and tags[tostring(tkeys)] == '$safeValueFilter'"
+                            }
+                            else {
+                                $tagFilter = "| mv-expand bagexpansion=array tkeys = bag_keys(tags) | where tolower(tostring(tkeys)) == tolower('$safeTagName')"
+                            }
+                            # Query both resources and resourcecontainers (sub/RG-level tags)
+                            $query = "resources $tagFilter | project id | union (resourcecontainers $tagFilter | project id)"
+                            $skipToken = $null
+                            do {
+                                $rgBody = @{
+                                    subscriptions = @($subscriptionId)
+                                    query         = $query
+                                    options       = @{ '$top' = 1000 }
+                                }
+                                if ($skipToken) { $rgBody.options['$skipToken'] = $skipToken }
+                                $rgBodyJson = $rgBody | ConvertTo-Json -Depth 5
+                                $rgUri = "$baseUri/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01"
+                                $rgResp = Invoke-WebRequest -Uri $rgUri -Method Post -Body $rgBodyJson -Headers $hdrs `
+                                    -UseBasicParsing -TimeoutSec 60 -ErrorAction Stop
+                                $rgData = ($rgResp.Content | ConvertFrom-Json)
+                                if ($rgData.data) {
+                                    foreach ($row in $rgData.data) {
+                                        if ($row.id -and ($row.id -notin $deployScopeList)) {
+                                            $deployScopeList += $row.id
+                                        }
+                                    }
+                                }
+                                $skipToken = $rgData.'$skipToken'
+                            } while ($skipToken)
                         }
-                        if ($skipToken) { $rgBody.options['$skipToken'] = $skipToken }
-                        $rgBodyJson = $rgBody | ConvertTo-Json -Depth 5
-                        $rgUri = "$baseUri/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01"
-                        $rgResp = Invoke-WebRequest -Uri $rgUri -Method Post -Body $rgBodyJson -Headers $hdrs `
-                            -UseBasicParsing -TimeoutSec 60 -ErrorAction Stop
-                        $rgData = ($rgResp.Content | ConvertFrom-Json)
-                        if ($rgData.data) {
-                            foreach ($row in $rgData.data) {
-                                if ($row.id -and ($row.id -notin $deployScopeList)) {
-                                    $deployScopeList += $row.id
+                        catch {
+                            # Resource Graph query failed — continue with sub/RG scopes only
+                        }
+
+                        # If value filter is set, also filter sub/RG scopes — only remove from those where tag has the specific value
+                        if ($valueFilter) {
+                            $filteredScopes = @()
+                            foreach ($s in $deployScopeList) {
+                                try {
+                                    $tagUri = "$baseUri$s/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
+                                    $tagResp = Invoke-WebRequest -Uri $tagUri -Method Get -Headers $hdrs `
+                                        -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
+                                    $tagData = ($tagResp.Content | ConvertFrom-Json)
+                                    # Case-insensitive tag name lookup
+                                    $matched = $false
+                                    if ($tagData.properties.tags) {
+                                        foreach ($tk in $tagData.properties.tags.PSObject.Properties) {
+                                            if ($tk.Name -ieq $deployTagName -and $tk.Value -eq $valueFilter) {
+                                                $matched = $true; break
+                                            }
+                                        }
+                                    }
+                                    if ($matched) { $filteredScopes += $s }
+                                }
+                                catch {
+                                    # Can't read tags — include scope anyway to attempt removal
+                                    $filteredScopes += $s
                                 }
                             }
+                            $deployScopeList = $filteredScopes
                         }
-                        $skipToken = $rgData.'$skipToken'
-                    } while ($skipToken)
-                } catch {
-                    # Resource Graph query failed — continue with sub/RG scopes only
-                }
+                    }
 
-                # If value filter is set, also filter sub/RG scopes — only remove from those where tag has the specific value
-                if ($valueFilter) {
-                    $filteredScopes = @()
-                    foreach ($s in $deployScopeList) {
+                    foreach ($deployScope in $deployScopeList) {
+                        # Resolve the actual tag name casing from the resource to ensure exact match
+                        $actualTagName = $deployTagName
                         try {
-                            $tagUri = "$baseUri$s/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
-                            $tagResp = Invoke-WebRequest -Uri $tagUri -Method Get -Headers $hdrs `
-                                -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
-                            $tagData = ($tagResp.Content | ConvertFrom-Json)
-                            # Case-insensitive tag name lookup
-                            $matched = $false
-                            if ($tagData.properties.tags) {
-                                foreach ($tk in $tagData.properties.tags.PSObject.Properties) {
-                                    if ($tk.Name -ieq $deployTagName -and $tk.Value -eq $valueFilter) {
-                                        $matched = $true; break
+                            $tagCheckUri = "$baseUri$deployScope/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
+                            $tagCheckResp = Invoke-WebRequest -Uri $tagCheckUri -Method Get -Headers $hdrs `
+                                -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
+                            $tagCheckData = ($tagCheckResp.Content | ConvertFrom-Json)
+                            if ($tagCheckData.properties.tags) {
+                                foreach ($tk in $tagCheckData.properties.tags.PSObject.Properties) {
+                                    if ($tk.Name -ieq $deployTagName) {
+                                        $actualTagName = $tk.Name
+                                        break
                                     }
                                 }
                             }
-                            if ($matched) { $filteredScopes += $s }
-                        } catch {
-                            # Can't read tags — include scope anyway to attempt removal
-                            $filteredScopes += $s
                         }
-                    }
-                    $deployScopeList = $filteredScopes
-                }
-            }
+                        catch {}
 
-            foreach ($deployScope in $deployScopeList) {
-                # Resolve the actual tag name casing from the resource to ensure exact match
-                $actualTagName = $deployTagName
-                try {
-                    $tagCheckUri = "$baseUri$deployScope/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
-                    $tagCheckResp = Invoke-WebRequest -Uri $tagCheckUri -Method Get -Headers $hdrs `
-                        -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
-                    $tagCheckData = ($tagCheckResp.Content | ConvertFrom-Json)
-                    if ($tagCheckData.properties.tags) {
-                        foreach ($tk in $tagCheckData.properties.tags.PSObject.Properties) {
-                            if ($tk.Name -ieq $deployTagName) {
-                                $actualTagName = $tk.Name
+                        $uri = "$baseUri$deployScope/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
+                        $body = @{
+                            operation  = 'Delete'
+                            properties = @{ tags = @{ $actualTagName = '' } }
+                        } | ConvertTo-Json -Depth 5
+                        $hdrs = @{ 'Authorization' = "Bearer $deployToken"; 'Content-Type' = 'application/json' }
+                        $succeeded = $false
+                        $lastErr = $null
+                        for ($retryAttempt = 0; $retryAttempt -lt 3; $retryAttempt++) {
+                            try {
+                                $resp = Invoke-WebRequest -Uri $uri -Method Patch -Body $body -Headers $hdrs `
+                                    -UseBasicParsing -TimeoutSec 30 -ErrorAction Stop
+                                $successCount++
+                                $succeeded = $true
                                 break
                             }
+                            catch {
+                                $lastErr = $_
+                                $statusCode = 0
+                                if ($_.Exception -is [System.Net.WebException] -and $_.Exception.Response) {
+                                    $statusCode = [int]$_.Exception.Response.StatusCode
+                                }
+                                if ($statusCode -ge 500 -and $retryAttempt -lt 2) {
+                                    Start-Sleep -Milliseconds (1000 * ($retryAttempt + 1))
+                                    continue
+                                }
+                            }
+                        }
+                        if (-not $succeeded) {
+                            $failCount++
+                            $errMsg = $lastErr.Exception.Message
+                            if ($lastErr.Exception -is [System.Net.WebException] -and $lastErr.Exception.Response) {
+                                try {
+                                    $sr = [System.IO.StreamReader]::new($lastErr.Exception.Response.GetResponseStream())
+                                    $errContent = $sr.ReadToEnd(); $sr.Close()
+                                    $errBody = $errContent | ConvertFrom-Json -ErrorAction SilentlyContinue
+                                    if ($errBody.error) { $errMsg = $errBody.error.message }
+                                }
+                                catch {}
+                            }
+                            # Include the failing resource scope for diagnostics
+                            $shortScope = ($deployScope -split '/')[-1]
+                            if (-not $failMsg) { $failMsg = "$errMsg (resource: $shortScope)" }
                         }
                     }
-                } catch {}
+                    [PSCustomObject]@{ SuccessCount = $successCount; FailCount = $failCount; FailMsg = $failMsg }
+                }).AddArgument($allScopes).AddArgument($tagName).AddArgument($token).AddArgument($massRemove).AddArgument($subId).AddArgument($valueFilter)
 
-                $uri = "$baseUri$deployScope/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
-                $body = @{
-                    operation  = 'Delete'
-                    properties = @{ tags = @{ $actualTagName = '' } }
-                } | ConvertTo-Json -Depth 5
-                $hdrs = @{ 'Authorization' = "Bearer $deployToken"; 'Content-Type' = 'application/json' }
-                $succeeded = $false
-                $lastErr = $null
-                for ($retryAttempt = 0; $retryAttempt -lt 3; $retryAttempt++) {
+            $asyncResult = $ps.BeginInvoke()
+            $deadline = (Get-Date).AddSeconds(300)
+            while (-not $asyncResult.IsCompleted -and (Get-Date) -lt $deadline) {
+                $frame = [System.Windows.Threading.DispatcherFrame]::new()
+                [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
+                    [System.Windows.Threading.DispatcherPriority]::Background,
+                    [action] { $frame.Continue = $false }
+                )
+                [System.Windows.Threading.Dispatcher]::PushFrame($frame)
+                Start-Sleep -Milliseconds 100
+            }
+
+            if ($asyncResult.IsCompleted) {
+                try {
+                    $results = $ps.EndInvoke($asyncResult)
+                    $result = if ($results.Count -gt 0) { $results[0] } else { $null }
+                }
+                catch {
+                    $result = [PSCustomObject]@{ SuccessCount = 0; FailCount = 1; FailMsg = $_.Exception.Message }
+                }
+                if ($result -and $result.FailCount -eq 0) {
+                    $script:TagDeployStatus.Text = "Removed '$tagName' from $($result.SuccessCount) scope(s)"
+                    $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
+                    $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Tag Removed'; Detail = "$tagName ($($result.SuccessCount) scopes)" })
+                }
+                elseif ($result -and $result.SuccessCount -gt 0) {
+                    $script:TagDeployStatus.Text = "Partial: $($result.SuccessCount) OK, $($result.FailCount) failed - $($result.FailMsg)"
+                    $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
+                    $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Tag Removed (Partial)'; Detail = "$tagName ($($result.SuccessCount) OK, $($result.FailCount) failed)" })
+                }
+                else {
+                    $errMsg = if ($result) { $result.FailMsg } else { 'Unknown error' }
+                    $script:TagDeployStatus.Text = "Failed: $errMsg"
+                    $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
+                }
+            }
+            else {
+                $ps.Stop()
+                $script:TagDeployStatus.Text = 'Failed: Removal timed out'
+                $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
+            }
+            $ps.Dispose()
+            $rs.Close()
+        }
+        else {
+            # ADD TAG
+            $tagValue = $script:TagValueInput.Text.Trim()
+            if ([string]::IsNullOrWhiteSpace($tagValue)) {
+                $script:TagDeployStatus.Text = 'Please enter a tag value.'
+                $script:TagDeployButton.IsEnabled = $true
+                return
+            }
+
+            $script:TagDeployStatus.Text = 'Deploying...'
+            $script:TagDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
+
+            try {
+                $token = Get-PlainAccessToken
+            }
+            catch {
+                $script:TagDeployStatus.Text = "Failed: Could not get access token - $($_.Exception.Message)"
+                $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
+                $script:TagDeployButton.IsEnabled = $true
+                return
+            }
+
+            $rs = [runspacefactory]::CreateRunspace()
+            $rs.Open()
+            $ps = [powershell]::Create()
+            $ps.Runspace = $rs
+            [void]$ps.AddScript({
+                    param($deployScope, $deployTagName, $deployTagValue, $deployToken)
+                    $uri = "https://management.azure.com$deployScope/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
+                    $body = @{
+                        operation  = 'Merge'
+                        properties = @{ tags = @{ $deployTagName = $deployTagValue } }
+                    } | ConvertTo-Json -Depth 5
+                    $hdrs = @{ 'Authorization' = "Bearer $deployToken"; 'Content-Type' = 'application/json' }
                     try {
                         $resp = Invoke-WebRequest -Uri $uri -Method Patch -Body $body -Headers $hdrs `
                             -UseBasicParsing -TimeoutSec 30 -ErrorAction Stop
-                        $successCount++
-                        $succeeded = $true
-                        break
-                    } catch {
-                        $lastErr = $_
-                        $statusCode = 0
+                        [PSCustomObject]@{ Success = $true; Message = "Tag '$deployTagName=$deployTagValue' applied" }
+                    }
+                    catch {
+                        $errMsg = $_.Exception.Message
                         if ($_.Exception -is [System.Net.WebException] -and $_.Exception.Response) {
-                            $statusCode = [int]$_.Exception.Response.StatusCode
+                            try {
+                                $sr = [System.IO.StreamReader]::new($_.Exception.Response.GetResponseStream())
+                                $errContent = $sr.ReadToEnd(); $sr.Close()
+                                $errBody = $errContent | ConvertFrom-Json -ErrorAction SilentlyContinue
+                                if ($errBody.error) { $errMsg = $errBody.error.message }
+                            }
+                            catch {}
                         }
-                        if ($statusCode -ge 500 -and $retryAttempt -lt 2) {
-                            Start-Sleep -Milliseconds (1000 * ($retryAttempt + 1))
-                            continue
-                        }
+                        [PSCustomObject]@{ Success = $false; Message = $errMsg }
                     }
+                }).AddArgument($scope).AddArgument($tagName).AddArgument($tagValue).AddArgument($token)
+
+            $asyncResult = $ps.BeginInvoke()
+            $deadline = (Get-Date).AddSeconds(35)
+            while (-not $asyncResult.IsCompleted -and (Get-Date) -lt $deadline) {
+                $frame = [System.Windows.Threading.DispatcherFrame]::new()
+                [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
+                    [System.Windows.Threading.DispatcherPriority]::Background,
+                    [action] { $frame.Continue = $false }
+                )
+                [System.Windows.Threading.Dispatcher]::PushFrame($frame)
+                Start-Sleep -Milliseconds 100
+            }
+
+            if ($asyncResult.IsCompleted) {
+                try {
+                    $results = $ps.EndInvoke($asyncResult)
+                    $result = if ($results.Count -gt 0) { $results[0] } else { $null }
                 }
-                if (-not $succeeded) {
-                    $failCount++
-                    $errMsg = $lastErr.Exception.Message
-                    if ($lastErr.Exception -is [System.Net.WebException] -and $lastErr.Exception.Response) {
-                        try {
-                            $sr = [System.IO.StreamReader]::new($lastErr.Exception.Response.GetResponseStream())
-                            $errContent = $sr.ReadToEnd(); $sr.Close()
-                            $errBody = $errContent | ConvertFrom-Json -ErrorAction SilentlyContinue
-                            if ($errBody.error) { $errMsg = $errBody.error.message }
-                        } catch {}
-                    }
-                    # Include the failing resource scope for diagnostics
-                    $shortScope = ($deployScope -split '/')[-1]
-                    if (-not $failMsg) { $failMsg = "$errMsg (resource: $shortScope)" }
+                catch {
+                    $result = [PSCustomObject]@{ Success = $false; Message = $_.Exception.Message }
+                }
+                if ($result -and $result.Success) {
+                    $script:TagDeployStatus.Text = "Deployed: $tagName=$tagValue"
+                    $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
+                    $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Tag Deployed'; Detail = "$tagName=$tagValue" })
+                }
+                else {
+                    $errMsg = if ($result) { $result.Message } else { 'Unknown error' }
+                    $script:TagDeployStatus.Text = "Failed: $errMsg"
+                    $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
                 }
             }
-            [PSCustomObject]@{ SuccessCount = $successCount; FailCount = $failCount; FailMsg = $failMsg }
-        }).AddArgument($allScopes).AddArgument($tagName).AddArgument($token).AddArgument($massRemove).AddArgument($subId).AddArgument($valueFilter)
-
-        $asyncResult = $ps.BeginInvoke()
-        $deadline = (Get-Date).AddSeconds(300)
-        while (-not $asyncResult.IsCompleted -and (Get-Date) -lt $deadline) {
-            $frame = [System.Windows.Threading.DispatcherFrame]::new()
-            [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
-                [System.Windows.Threading.DispatcherPriority]::Background,
-                [action]{ $frame.Continue = $false }
-            )
-            [System.Windows.Threading.Dispatcher]::PushFrame($frame)
-            Start-Sleep -Milliseconds 100
-        }
-
-        if ($asyncResult.IsCompleted) {
-            try {
-                $results = $ps.EndInvoke($asyncResult)
-                $result = if ($results.Count -gt 0) { $results[0] } else { $null }
-            } catch {
-                $result = [PSCustomObject]@{ SuccessCount = 0; FailCount = 1; FailMsg = $_.Exception.Message }
-            }
-            if ($result -and $result.FailCount -eq 0) {
-                $script:TagDeployStatus.Text = "Removed '$tagName' from $($result.SuccessCount) scope(s)"
-                $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
-                $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Tag Removed'; Detail = "$tagName ($($result.SuccessCount) scopes)" })
-            } elseif ($result -and $result.SuccessCount -gt 0) {
-                $script:TagDeployStatus.Text = "Partial: $($result.SuccessCount) OK, $($result.FailCount) failed - $($result.FailMsg)"
-                $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-                $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Tag Removed (Partial)'; Detail = "$tagName ($($result.SuccessCount) OK, $($result.FailCount) failed)" })
-            } else {
-                $errMsg = if ($result) { $result.FailMsg } else { 'Unknown error' }
-                $script:TagDeployStatus.Text = "Failed: $errMsg"
+            else {
+                $ps.Stop()
+                $script:TagDeployStatus.Text = 'Failed: Deployment timed out after 30 seconds'
                 $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
             }
-        } else {
-            $ps.Stop()
-            $script:TagDeployStatus.Text = 'Failed: Removal timed out'
-            $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-        }
-        $ps.Dispose()
-        $rs.Close()
-    } else {
-        # ADD TAG
-        $tagValue = $script:TagValueInput.Text.Trim()
-        if ([string]::IsNullOrWhiteSpace($tagValue)) {
-            $script:TagDeployStatus.Text = 'Please enter a tag value.'
-            $script:TagDeployButton.IsEnabled = $true
-            return
+            $ps.Dispose()
+            $rs.Close()
         }
 
-        $script:TagDeployStatus.Text = 'Deploying...'
-        $script:TagDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
-
-        try {
-            $token = Get-PlainAccessToken
-        } catch {
-            $script:TagDeployStatus.Text = "Failed: Could not get access token - $($_.Exception.Message)"
-            $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-            $script:TagDeployButton.IsEnabled = $true
-            return
-        }
-
-        $rs = [runspacefactory]::CreateRunspace()
-        $rs.Open()
-        $ps = [powershell]::Create()
-        $ps.Runspace = $rs
-        [void]$ps.AddScript({
-            param($deployScope, $deployTagName, $deployTagValue, $deployToken)
-            $uri = "https://management.azure.com$deployScope/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
-            $body = @{
-                operation  = 'Merge'
-                properties = @{ tags = @{ $deployTagName = $deployTagValue } }
-            } | ConvertTo-Json -Depth 5
-            $hdrs = @{ 'Authorization' = "Bearer $deployToken"; 'Content-Type' = 'application/json' }
-            try {
-                $resp = Invoke-WebRequest -Uri $uri -Method Patch -Body $body -Headers $hdrs `
-                    -UseBasicParsing -TimeoutSec 30 -ErrorAction Stop
-                [PSCustomObject]@{ Success = $true; Message = "Tag '$deployTagName=$deployTagValue' applied" }
-            } catch {
-                $errMsg = $_.Exception.Message
-                if ($_.Exception -is [System.Net.WebException] -and $_.Exception.Response) {
-                    try {
-                        $sr = [System.IO.StreamReader]::new($_.Exception.Response.GetResponseStream())
-                        $errContent = $sr.ReadToEnd(); $sr.Close()
-                        $errBody = $errContent | ConvertFrom-Json -ErrorAction SilentlyContinue
-                        if ($errBody.error) { $errMsg = $errBody.error.message }
-                    } catch {}
-                }
-                [PSCustomObject]@{ Success = $false; Message = $errMsg }
-            }
-        }).AddArgument($scope).AddArgument($tagName).AddArgument($tagValue).AddArgument($token)
-
-        $asyncResult = $ps.BeginInvoke()
-        $deadline = (Get-Date).AddSeconds(35)
-        while (-not $asyncResult.IsCompleted -and (Get-Date) -lt $deadline) {
-            $frame = [System.Windows.Threading.DispatcherFrame]::new()
-            [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
-                [System.Windows.Threading.DispatcherPriority]::Background,
-                [action]{ $frame.Continue = $false }
-            )
-            [System.Windows.Threading.Dispatcher]::PushFrame($frame)
-            Start-Sleep -Milliseconds 100
-        }
-
-        if ($asyncResult.IsCompleted) {
-            try {
-                $results = $ps.EndInvoke($asyncResult)
-                $result = if ($results.Count -gt 0) { $results[0] } else { $null }
-            } catch {
-                $result = [PSCustomObject]@{ Success = $false; Message = $_.Exception.Message }
-            }
-            if ($result -and $result.Success) {
-                $script:TagDeployStatus.Text = "Deployed: $tagName=$tagValue"
-                $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
-                $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Tag Deployed'; Detail = "$tagName=$tagValue" })
-            } else {
-                $errMsg = if ($result) { $result.Message } else { 'Unknown error' }
-                $script:TagDeployStatus.Text = "Failed: $errMsg"
-                $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-            }
-        } else {
-            $ps.Stop()
-            $script:TagDeployStatus.Text = 'Failed: Deployment timed out after 30 seconds'
-            $script:TagDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-        }
-        $ps.Dispose()
-        $rs.Close()
-    }
-
-    $script:TagDeployButton.IsEnabled = $true
-})
+        $script:TagDeployButton.IsEnabled = $true
+    })
 
 # Tag Deploy Cancel Button
 $script:TagDeployCancelButton.Add_Click({
-    $script:TagDeployPanel.Visibility = 'Collapsed'
-    $script:tagDeployCurrentTag = $null
-})
+        $script:TagDeployPanel.Visibility = 'Collapsed'
+        $script:tagDeployCurrentTag = $null
+    })
 
 # Deploy Custom Tag Button
 $script:CustomTagButton.Add_Click({
-    Show-CustomTagDeployPanel
-})
+        Show-CustomTagDeployPanel
+    })
 
 # Policy Deploy / Unassign Button (handles both modes)
 $script:PolicyDeployButton.Add_Click({
-    $defId       = $script:policyDeployCurrentDefId
-    $displayName = $script:policyDeployCurrentName
+        $defId = $script:policyDeployCurrentDefId
+        $displayName = $script:policyDeployCurrentName
 
-    if (-not $defId) {
-        $script:PolicyDeployStatus.Text = 'No policy selected.'
-        return
-    }
-
-    $script:PolicyDeployButton.IsEnabled = $false
-
-    if ($script:policyUnassignMode) {
-        # UNASSIGN MODE
-        $targets = $script:policyUnassignTargets
-        if (-not $targets -or $targets.Count -eq 0) {
-            $script:PolicyDeployStatus.Text = 'No assignment found to remove.'
-            $script:PolicyDeployButton.IsEnabled = $true
+        if (-not $defId) {
+            $script:PolicyDeployStatus.Text = 'No policy selected.'
             return
         }
 
-        $script:PolicyDeployStatus.Text = 'Removing assignment(s)...'
-        $script:PolicyDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
+        $script:PolicyDeployButton.IsEnabled = $false
 
-        [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
-            [System.Windows.Threading.DispatcherPriority]::Render, [action]{})
+        if ($script:policyUnassignMode) {
+            # UNASSIGN MODE
+            $targets = $script:policyUnassignTargets
+            if (-not $targets -or $targets.Count -eq 0) {
+                $script:PolicyDeployStatus.Text = 'No assignment found to remove.'
+                $script:PolicyDeployButton.IsEnabled = $true
+                return
+            }
 
-        $successCount = 0
-        $failMsg = ''
-        foreach ($assignment in $targets) {
-            try {
-                $result = Remove-PolicyAssignment -AssignmentId $assignment.AssignmentId
-                if ($result.Success) {
-                    $successCount++
-                } else {
-                    $failMsg = $result.Message
+            $script:PolicyDeployStatus.Text = 'Removing assignment(s)...'
+            $script:PolicyDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
+
+            [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
+                [System.Windows.Threading.DispatcherPriority]::Render, [action] {})
+
+            $successCount = 0
+            $failMsg = ''
+            foreach ($assignment in $targets) {
+                try {
+                    $result = Remove-PolicyAssignment -AssignmentId $assignment.AssignmentId
+                    if ($result.Success) {
+                        $successCount++
+                    }
+                    else {
+                        $failMsg = $result.Message
+                    }
                 }
-            } catch {
-                $failMsg = $_.Exception.Message
+                catch {
+                    $failMsg = $_.Exception.Message
+                }
+            }
+
+            if ($successCount -eq $targets.Count) {
+                $script:PolicyDeployStatus.Text = "Unassigned: $displayName ($successCount assignment(s) removed)"
+                $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
+                $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Policy Unassigned'; Detail = "$displayName ($successCount removed)" })
+            }
+            elseif ($successCount -gt 0) {
+                $script:PolicyDeployStatus.Text = "Partial: $successCount of $($targets.Count) removed. Last error: $failMsg"
+                $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
+            }
+            else {
+                $script:PolicyDeployStatus.Text = "Failed: $failMsg"
+                $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
             }
         }
+        else {
+            # DEPLOY MODE
+            $effect = $script:PolicyEffectSelector.SelectedItem
+            $selectedIdx = $script:PolicyScopeSelector.SelectedIndex
 
-        if ($successCount -eq $targets.Count) {
-            $script:PolicyDeployStatus.Text = "Unassigned: $displayName ($successCount assignment(s) removed)"
-            $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
-            $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Policy Unassigned'; Detail = "$displayName ($successCount removed)" })
-        } elseif ($successCount -gt 0) {
-            $script:PolicyDeployStatus.Text = "Partial: $successCount of $($targets.Count) removed. Last error: $failMsg"
-            $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-        } else {
-            $script:PolicyDeployStatus.Text = "Failed: $failMsg"
-            $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-        }
-    } else {
-        # DEPLOY MODE
-        $effect      = $script:PolicyEffectSelector.SelectedItem
-        $selectedIdx = $script:PolicyScopeSelector.SelectedIndex
+            if (-not $effect) {
+                $script:PolicyDeployStatus.Text = 'Please select an effect.'
+                $script:PolicyDeployButton.IsEnabled = $true
+                return
+            }
+            if ($selectedIdx -lt 0 -or $selectedIdx -ge $script:policyDeployScopes.Count) {
+                $script:PolicyDeployStatus.Text = 'Please select a scope.'
+                $script:PolicyDeployButton.IsEnabled = $true
+                return
+            }
 
-        if (-not $effect) {
-            $script:PolicyDeployStatus.Text = 'Please select an effect.'
-            $script:PolicyDeployButton.IsEnabled = $true
-            return
-        }
-        if ($selectedIdx -lt 0 -or $selectedIdx -ge $script:policyDeployScopes.Count) {
-            $script:PolicyDeployStatus.Text = 'Please select a scope.'
-            $script:PolicyDeployButton.IsEnabled = $true
-            return
-        }
+            $scope = $script:policyDeployScopes[$selectedIdx].Scope
 
-        $scope = $script:policyDeployScopes[$selectedIdx].Scope
-
-        # Collect dynamic parameter values
-        $additionalParams = @{}
-        if ($script:policyParamTextBoxes -and $script:policyParamTextBoxes.Count -gt 0) {
-            foreach ($key in $script:policyParamTextBoxes.Keys) {
-                $entry = $script:policyParamTextBoxes[$key]
-                $val = $entry.TextBox.Text.Trim()
-                $paramDef = $entry.Param
-                if ($paramDef.Required -and [string]::IsNullOrWhiteSpace($val)) {
-                    $script:PolicyDeployStatus.Text = "Required parameter missing: $($paramDef.Label -replace ' \*$','')"
-                    $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-                    $script:PolicyDeployButton.IsEnabled = $true
-                    return
-                }
-                if (-not [string]::IsNullOrWhiteSpace($val)) {
-                    if ($paramDef.IsArray) {
-                        $additionalParams[$key] = @($val -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-                    } else {
-                        $additionalParams[$key] = $val
+            # Collect dynamic parameter values
+            $additionalParams = @{}
+            if ($script:policyParamTextBoxes -and $script:policyParamTextBoxes.Count -gt 0) {
+                foreach ($key in $script:policyParamTextBoxes.Keys) {
+                    $entry = $script:policyParamTextBoxes[$key]
+                    $val = $entry.TextBox.Text.Trim()
+                    $paramDef = $entry.Param
+                    if ($paramDef.Required -and [string]::IsNullOrWhiteSpace($val)) {
+                        $script:PolicyDeployStatus.Text = "Required parameter missing: $($paramDef.Label -replace ' \*$','')"
+                        $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
+                        $script:PolicyDeployButton.IsEnabled = $true
+                        return
+                    }
+                    if (-not [string]::IsNullOrWhiteSpace($val)) {
+                        if ($paramDef.IsArray) {
+                            $additionalParams[$key] = @($val -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+                        }
+                        else {
+                            $additionalParams[$key] = $val
+                        }
                     }
                 }
             }
-        }
 
-        $script:PolicyDeployStatus.Text = 'Deploying...'
-        $script:PolicyDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
+            $script:PolicyDeployStatus.Text = 'Deploying...'
+            $script:PolicyDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
 
-        [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
-            [System.Windows.Threading.DispatcherPriority]::Render, [action]{})
+            [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
+                [System.Windows.Threading.DispatcherPriority]::Render, [action] {})
 
-        try {
-            $result = Deploy-PolicyAssignment -Scope $scope -PolicyDefinitionId $defId -Effect $effect -DisplayName $displayName -AdditionalParameters $additionalParams
-            if ($result.Success) {
-                $script:PolicyDeployStatus.Text = "Deployed: $displayName ($effect)"
-                $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
-                $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Policy Deployed'; Detail = "$displayName ($effect)" })
-                if ($effect -in @('DeployIfNotExists', 'Modify')) {
-                    $script:lastPolicyAssignmentScope = $scope
-                    $script:lastPolicyAssignmentId = "$scope/providers/Microsoft.Authorization/policyAssignments/$($result.AssignmentName)"
-                    $script:PolicyRemediateButton.Visibility = 'Visible'
-                } else {
+            try {
+                $result = Deploy-PolicyAssignment -Scope $scope -PolicyDefinitionId $defId -Effect $effect -DisplayName $displayName -AdditionalParameters $additionalParams
+                if ($result.Success) {
+                    $script:PolicyDeployStatus.Text = "Deployed: $displayName ($effect)"
+                    $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
+                    $script:actionLog.Add([PSCustomObject]@{ Time = (Get-Date -Format 'HH:mm:ss'); Type = 'Policy Deployed'; Detail = "$displayName ($effect)" })
+                    if ($effect -in @('DeployIfNotExists', 'Modify')) {
+                        $script:lastPolicyAssignmentScope = $scope
+                        $script:lastPolicyAssignmentId = "$scope/providers/Microsoft.Authorization/policyAssignments/$($result.AssignmentName)"
+                        $script:PolicyRemediateButton.Visibility = 'Visible'
+                    }
+                    else {
+                        $script:PolicyRemediateButton.Visibility = 'Collapsed'
+                    }
+                }
+                else {
+                    $script:PolicyDeployStatus.Text = "Failed: $($result.Message)"
+                    $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
                     $script:PolicyRemediateButton.Visibility = 'Collapsed'
                 }
-            } else {
-                $script:PolicyDeployStatus.Text = "Failed: $($result.Message)"
+            }
+            catch {
+                $script:PolicyDeployStatus.Text = "Failed: $($_.Exception.Message)"
                 $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
                 $script:PolicyRemediateButton.Visibility = 'Collapsed'
             }
-        } catch {
-            $script:PolicyDeployStatus.Text = "Failed: $($_.Exception.Message)"
-            $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-            $script:PolicyRemediateButton.Visibility = 'Collapsed'
         }
-    }
-    $script:PolicyDeployButton.IsEnabled = $true
-})
+        $script:PolicyDeployButton.IsEnabled = $true
+    })
 
 # Policy Remediation Button
 $script:PolicyRemediateButton.Add_Click({
-    if (-not $script:lastPolicyAssignmentId -or -not $script:lastPolicyAssignmentScope) {
-        $script:PolicyDeployStatus.Text = 'No policy assignment to remediate.'
-        return
-    }
+        if (-not $script:lastPolicyAssignmentId -or -not $script:lastPolicyAssignmentScope) {
+            $script:PolicyDeployStatus.Text = 'No policy assignment to remediate.'
+            return
+        }
 
-    $script:PolicyRemediateButton.IsEnabled = $false
-    $script:PolicyDeployStatus.Text = 'Creating remediation task...'
-    $script:PolicyDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
+        $script:PolicyRemediateButton.IsEnabled = $false
+        $script:PolicyDeployStatus.Text = 'Creating remediation task...'
+        $script:PolicyDeployStatus.Foreground = [System.Windows.Media.Brushes]::Gray
 
-    [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
-        [System.Windows.Threading.DispatcherPriority]::Render, [action]{})
+        [System.Windows.Threading.Dispatcher]::CurrentDispatcher.Invoke(
+            [System.Windows.Threading.DispatcherPriority]::Render, [action] {})
 
-    try {
-        $remResult = Start-PolicyRemediation -Scope $script:lastPolicyAssignmentScope -PolicyAssignmentId $script:lastPolicyAssignmentId
-        if ($remResult.Success) {
-            $script:PolicyDeployStatus.Text = $remResult.Message
-            $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
-        } else {
-            $script:PolicyDeployStatus.Text = "Remediation failed: $($remResult.Message)"
+        try {
+            $remResult = Start-PolicyRemediation -Scope $script:lastPolicyAssignmentScope -PolicyAssignmentId $script:lastPolicyAssignmentId
+            if ($remResult.Success) {
+                $script:PolicyDeployStatus.Text = $remResult.Message
+                $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#107C10')
+            }
+            else {
+                $script:PolicyDeployStatus.Text = "Remediation failed: $($remResult.Message)"
+                $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
+            }
+        }
+        catch {
+            $script:PolicyDeployStatus.Text = "Remediation error: $($_.Exception.Message)"
             $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
         }
-    } catch {
-        $script:PolicyDeployStatus.Text = "Remediation error: $($_.Exception.Message)"
-        $script:PolicyDeployStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#D83B01')
-    }
-    $script:PolicyRemediateButton.IsEnabled = $true
-})
+        $script:PolicyRemediateButton.IsEnabled = $true
+    })
 
 # Policy Deploy Cancel Button
 $script:PolicyDeployCancelButton.Add_Click({
-    $script:PolicyDeployPanel.Visibility = 'Collapsed'
-    $script:PolicyRemediateButton.Visibility = 'Collapsed'
-    $script:policyDeployCurrentDefId = $null
-    $script:policyDeployCurrentName  = $null
-    $script:policyUnassignMode = $false
-    $script:policyUnassignTargets = @()
-    # Restore visibility of scope/effect/params for next open
-    $script:PolicyScopeSelector.Visibility = 'Visible'
-    $script:PolicyEffectSelector.Visibility = 'Visible'
-    $script:PolicyParamsPanel.Visibility = 'Visible'
-    foreach ($ctrl in @($script:PolicyScopeSelector, $script:PolicyEffectSelector)) {
-        $parent = $ctrl.Parent
-        if ($parent) {
-            $idx = $parent.Children.IndexOf($ctrl)
-            if ($idx -gt 0) { $parent.Children[$idx - 1].Visibility = 'Visible' }
+        $script:PolicyDeployPanel.Visibility = 'Collapsed'
+        $script:PolicyRemediateButton.Visibility = 'Collapsed'
+        $script:policyDeployCurrentDefId = $null
+        $script:policyDeployCurrentName = $null
+        $script:policyUnassignMode = $false
+        $script:policyUnassignTargets = @()
+        # Restore visibility of scope/effect/params for next open
+        $script:PolicyScopeSelector.Visibility = 'Visible'
+        $script:PolicyEffectSelector.Visibility = 'Visible'
+        $script:PolicyParamsPanel.Visibility = 'Visible'
+        foreach ($ctrl in @($script:PolicyScopeSelector, $script:PolicyEffectSelector)) {
+            $parent = $ctrl.Parent
+            if ($parent) {
+                $idx = $parent.Children.IndexOf($ctrl)
+                if ($idx -gt 0) { $parent.Children[$idx - 1].Visibility = 'Visible' }
+            }
         }
-    }
-})
+    })
 
 # Tree Selection
 $script:HierarchyTree.Add_SelectedItemChanged({
-    param($s, $e)
-    $selected = $e.NewValue
-    if (-not $selected -or -not $selected.Tag) { return }
+        param($s, $e)
+        $selected = $e.NewValue
+        if (-not $selected -or -not $selected.Tag) { return }
 
-    $info = $selected.Tag
-    if ($info.Type -eq 'Sub') {
-        $script:StatusText.Text = "Selected: $($info.Name) ($($info.Id))"
-    }
-    elseif ($info.Type -eq 'MG') {
-        $script:StatusText.Text = "Management Group: $($info.Name)"
-    }
-})
+        $info = $selected.Tag
+        if ($info.Type -eq 'Sub') {
+            $script:StatusText.Text = "Selected: $($info.Name) ($($info.Id))"
+        }
+        elseif ($info.Type -eq 'MG') {
+            $script:StatusText.Text = "Management Group: $($info.Name)"
+        }
+    })
 
 ###########################################################################
 # LAUNCH
@@ -5320,3 +5517,9 @@ Write-Host "  Launching GUI..." -ForegroundColor Cyan
 Write-Host ""
 
 $window.ShowDialog() | Out-Null
+
+# Clean up the shared runspace pool
+if ($script:RunspacePool) {
+    $script:RunspacePool.Close()
+    $script:RunspacePool.Dispose()
+}

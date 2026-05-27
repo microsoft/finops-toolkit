@@ -216,6 +216,11 @@
                                 </Border>
                             </WrapPanel>
 
+                            <!-- Cost Access Warning Banner -->
+                            <Border x:Name="CostAccessWarning" Visibility="Collapsed" Background="#FFF4CE" BorderBrush="#F7D154" BorderThickness="1" CornerRadius="4" Padding="12,8" Margin="0,0,0,10">
+                                <TextBlock x:Name="CostAccessWarningText" TextWrapping="Wrap" FontSize="12" Foreground="#6B5900"/>
+                            </Border>
+
                             <!-- Subscription Cost Table -->
                             <TextBlock Text="Subscription Costs" Style="{StaticResource SectionHeader}"/>
                             <DataGrid x:Name="SubCostGrid" MaxHeight="250"/>

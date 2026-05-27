@@ -29,13 +29,13 @@ function Get-CostByTag {
 
     # Also check variations
     $variations = @{
-        'CostCenter'          = @('cost-center', 'costcenter', 'cost_center', 'cc')
-        'BusinessUnit'        = @('bu', 'businessunit', 'business-unit', 'department', 'dept')
-        'ApplicationName'     = @('applicationname', 'application', 'app', 'appname', 'app-name')
-        'WorkloadName'        = @('workloadname', 'workload', 'workload-name', 'workload_name')
-        'OpsTeam'             = @('opsteam', 'ops-team', 'ops_team', 'owner', 'technicalowner')
-        'Criticality'         = @('criticality', 'sla', 'tier', 'importance')
-        'DataClassification'  = @('dataclassification', 'data-classification', 'data_classification', 'classification')
+        'CostCenter'         = @('cost-center', 'costcenter', 'cost_center', 'cc')
+        'BusinessUnit'       = @('bu', 'businessunit', 'business-unit', 'department', 'dept')
+        'ApplicationName'    = @('applicationname', 'application', 'app', 'appname', 'app-name')
+        'WorkloadName'       = @('workloadname', 'workload', 'workload-name', 'workload_name')
+        'OpsTeam'            = @('opsteam', 'ops-team', 'ops_team', 'owner', 'technicalowner')
+        'Criticality'        = @('criticality', 'sla', 'tier', 'importance')
+        'DataClassification' = @('dataclassification', 'data-classification', 'data_classification', 'classification')
     }
 
     $existingKeys = if ($ExistingTags) { $ExistingTags.Keys | ForEach-Object { $_.ToLower() } } else { @() }
@@ -97,7 +97,7 @@ function Get-CostByTag {
             $n = $cols[$i].name.ToLower()
             if ($n -eq 'cost' -or $n -eq 'totalcost' -or $n -match 'precost|pretaxcost') { $costIdx = $i }
             elseif ($n -match 'currency|billingcurrency') { $currIdx = $i }
-            elseif ($n -eq 'tagvalue')  { $tagIdx = $i }
+            elseif ($n -eq 'tagvalue') { $tagIdx = $i }
         }
         # Fallback: if TagValue column not found, pick first String column that isn't TagKey or Currency
         if ($tagIdx -eq -1) {
@@ -107,166 +107,357 @@ function Get-CostByTag {
         }
         # Final positional fallback
         if ($costIdx -eq -1) { $costIdx = 0 }
-        if ($tagIdx -eq -1)  { $tagIdx  = if ($cols.Count -ge 4) { 2 } else { 1 } }
+        if ($tagIdx -eq -1) { $tagIdx = if ($cols.Count -ge 4) { 2 } else { 1 } }
         if ($currIdx -eq -1) { $currIdx = if ($cols.Count -ge 4) { 3 } else { 2 } }
 
         foreach ($row in $result.properties.rows) {
-            $cost     = [math]::Round([double]$row[$costIdx], 2)
-            $value    = if ($row[$tagIdx]) { $row[$tagIdx] } else { '(untagged)' }
+            $cost = [math]::Round([double]$row[$costIdx], 2)
+            $value = if ($row[$tagIdx]) { $row[$tagIdx] } else { '(untagged)' }
             $currency = if ($currIdx -lt $row.Count) { $row[$currIdx] } else { 'USD' }
             [void]$parsed.Add([PSCustomObject]@{ TagValue = $value; Cost = $cost; Currency = $currency })
         }
         return $parsed
     }
 
-    # Build both timeframe bodies: MonthToDate first, then last month as fallback
+    # Helper: parse batched TagKey+TagValue response into per-tag results
+    function Parse-BatchedCostRows {
+        param($ResponseContent)
+        $perTag = @{}
+        $result = ($ResponseContent | ConvertFrom-Json)
+        if (-not $result.properties -or -not $result.properties.rows -or $result.properties.rows.Count -eq 0) {
+            return $perTag
+        }
+        $cols = $result.properties.columns
+        $costIdx = -1; $keyIdx = -1; $valIdx = -1; $currIdx = -1
+        for ($i = 0; $i -lt $cols.Count; $i++) {
+            $n = $cols[$i].name.ToLower()
+            if ($n -eq 'cost' -or $n -eq 'totalcost' -or $n -match 'precost|pretaxcost') { $costIdx = $i }
+            elseif ($n -eq 'tagkey') { $keyIdx = $i }
+            elseif ($n -eq 'tagvalue') { $valIdx = $i }
+            elseif ($n -match 'currency|billingcurrency') { $currIdx = $i }
+        }
+        if ($costIdx -eq -1) { $costIdx = 0 }
+        if ($keyIdx -eq -1) { $keyIdx = 1 }
+        if ($valIdx -eq -1) { $valIdx = 2 }
+        if ($currIdx -eq -1) { $currIdx = 3 }
+
+        foreach ($row in $result.properties.rows) {
+            $tagKey = if ($row[$keyIdx]) { $row[$keyIdx] } else { '' }
+            $tagVal = if ($row[$valIdx]) { $row[$valIdx] } else { '(untagged)' }
+            $cost = [math]::Round([double]$row[$costIdx], 2)
+            $currency = if ($currIdx -lt $row.Count) { $row[$currIdx] } else { 'USD' }
+            if (-not $perTag.ContainsKey($tagKey)) {
+                $perTag[$tagKey] = [System.Collections.Generic.List[PSCustomObject]]::new()
+            }
+            [void]$perTag[$tagKey].Add([PSCustomObject]@{ TagValue = $tagVal; Cost = $cost; Currency = $currency })
+        }
+        return $perTag
+    }
+
+    # -- Strategy 1: Batched query using TagKey + TagValue grouping -----
+    # This uses a single API call to get cost data for ALL tags at once,
+    # instead of one call per tag. Dramatically reduces API calls and 429s.
+    $batchedResults = $null
+    $batchSuccess = $false
+    $usedTimeframe = 'MonthToDate'
+
     $timeframes = @('MonthToDate', 'Custom')
+    foreach ($tf in $timeframes) {
+        if ($batchSuccess) { break }
+        Write-Host "  Querying cost by all tags (batched, $tf)..." -ForegroundColor Cyan
 
-    foreach ($tagName in $tagsToQuery) {
+        $bodyObj = @{
+            type    = 'ActualCost'
+            dataset = @{
+                granularity = 'None'
+                aggregation = @{
+                    totalCost = @{ name = 'Cost'; function = 'Sum' }
+                }
+                grouping    = @(
+                    @{ type = 'Dimension'; name = 'TagKey' }
+                    @{ type = 'Dimension'; name = 'TagValue' }
+                )
+            }
+        }
+        if ($tf -eq 'Custom') {
+            $lastMonthStart = (Get-Date).AddMonths(-1).ToString('yyyy-MM-01')
+            $lastMonthEnd = (Get-Date -Day 1).AddDays(-1).ToString('yyyy-MM-dd')
+            $bodyObj['timeframe'] = 'Custom'
+            $bodyObj['timePeriod'] = @{ from = $lastMonthStart; to = $lastMonthEnd }
+        }
+        else {
+            $bodyObj['timeframe'] = $tf
+        }
+        $body = $bodyObj | ConvertTo-Json -Depth 10
 
-        try {
-            $tagCosts = [System.Collections.Generic.List[PSCustomObject]]::new()
-            $gotData  = $false
-            $usedTimeframe = 'MonthToDate'
+        if ($useMgScope) {
+            $response = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $body
+            if ($response.StatusCode -eq 200) {
+                $batchedResults = Parse-BatchedCostRows -ResponseContent $response.Content
+                if ($batchedResults.Count -gt 0) {
+                    $batchSuccess = $true
+                    $usedTimeframe = $tf
+                    Write-Host "    Batched query returned $($batchedResults.Count) tag keys via MG scope ($tf)" -ForegroundColor Green
+                }
+            }
+            elseif ($response.StatusCode -in @(401, 403)) {
+                Set-MgCostScopeFailed
+                $useMgScope = $false
+            }
+        }
 
-            foreach ($tf in $timeframes) {
-                if ($gotData) { break }
-
-                Write-Host "  Querying cost by tag: $tagName ($tf)..." -ForegroundColor Cyan
-                $bodyObj = @{
-                    type      = 'ActualCost'
-                    dataset   = @{
-                        granularity = 'None'
-                        aggregation = @{
-                            totalCost = @{ name = 'Cost'; function = 'Sum' }
+        # Per-sub fallback for batched query
+        if (-not $batchSuccess -and $Subscriptions) {
+            $allBatched = @{}
+            foreach ($sub in $Subscriptions) {
+                if ($skipSubs.Contains($sub.Id)) { continue }
+                $subPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+                Write-Host "    Batched per-sub query: $($sub.Name) ($tf)..." -ForegroundColor Gray
+                $subResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $body
+                if ($subResp.StatusCode -eq 200) {
+                    $subBatch = Parse-BatchedCostRows -ResponseContent $subResp.Content
+                    foreach ($key in $subBatch.Keys) {
+                        if (-not $allBatched.ContainsKey($key)) {
+                            $allBatched[$key] = [System.Collections.Generic.List[PSCustomObject]]::new()
                         }
-                        grouping = @(
-                            @{ type = 'Tag'; name = $tagName }
-                        )
+                        foreach ($r in $subBatch[$key]) { [void]$allBatched[$key].Add($r) }
                     }
                 }
-                if ($tf -eq 'Custom') {
-                    $lastMonthStart = (Get-Date).AddMonths(-1).ToString('yyyy-MM-01')
-                    $lastMonthEnd   = (Get-Date -Day 1).AddDays(-1).ToString('yyyy-MM-dd')
-                    $bodyObj['timeframe'] = 'Custom'
-                    $bodyObj['timePeriod'] = @{ from = $lastMonthStart; to = $lastMonthEnd }
-                } else {
-                    $bodyObj['timeframe'] = $tf
+                elseif ($subResp.StatusCode -eq 400) {
+                    $errBody = try { ($subResp.Content | ConvertFrom-Json).error.message } catch { '' }
+                    Write-Host "    Batched query failed for '$($sub.Name)' (HTTP 400): $($errBody.Substring(0, [math]::Min(120, $errBody.Length)))" -ForegroundColor Yellow
+                    [void]$skipSubs.Add($sub.Id)
+                    if ($errBody -match 'AO View Charges') { $script:costAccessIssue = 'EA' }
                 }
-                $body = $bodyObj | ConvertTo-Json -Depth 10
+                elseif ($subResp.StatusCode -eq 403) {
+                    $errBody = try { ($subResp.Content | ConvertFrom-Json).error.message } catch { '' }
+                    Write-Host "    Batched query forbidden for '$($sub.Name)' (HTTP 403)" -ForegroundColor Yellow
+                    $script:costAccessIssue = 'MCA'
+                }
+                else {
+                    Write-Host "    Batched query unexpected response for '$($sub.Name)' (HTTP $($subResp.StatusCode))" -ForegroundColor Yellow
+                }
+            }
+            if ($allBatched.Count -gt 0) {
+                $batchedResults = $allBatched
+                $batchSuccess = $true
+                $usedTimeframe = $tf
+                Write-Host "    Batched per-sub query returned $($allBatched.Count) tag keys ($tf)" -ForegroundColor Green
+            }
+        }
+    }
 
+    # Map batched results to per-tag results, matching against tagsToQuery
+    if ($batchSuccess -and $batchedResults) {
+        $tagsToQueryLower = @{}
+        foreach ($t in $tagsToQuery) { $tagsToQueryLower[$t.ToLower()] = $t }
+
+        foreach ($batchKey in $batchedResults.Keys) {
+            # Match batch key to requested tag (case-insensitive)
+            $matchedTag = $null
+            if ($tagsToQueryLower.ContainsKey($batchKey.ToLower())) {
+                $matchedTag = $tagsToQueryLower[$batchKey.ToLower()]
+            }
+            if (-not $matchedTag) { continue }
+
+            $tagCosts = $batchedResults[$batchKey]
+            # Merge duplicate values
+            $merged = $tagCosts | Group-Object TagValue -CaseSensitive | ForEach-Object {
+                [PSCustomObject]@{
+                    TagValue = $_.Name
+                    Cost     = [math]::Round(($_.Group | Measure-Object -Property Cost -Sum).Sum, 2)
+                    Currency = $_.Group[0].Currency
+                }
+            }
+            $results[$matchedTag] = @($merged | Sort-Object Cost -Descending)
+        }
+
+        # Check if any requested tags weren't in batched results
+        $missingTags = @($tagsToQuery | Where-Object { -not $results.ContainsKey($_) })
+        if ($missingTags.Count -gt 0) {
+            Write-Host "  $($missingTags.Count) requested tags had no cost data in batched results" -ForegroundColor Yellow
+        }
+    }
+
+    # -- Strategy 2: Per-tag fallback (only if batched query failed) ----
+    # This is the original approach - one API call per tag. Only used when
+    # the TagKey+TagValue grouping is not supported by the subscription type.
+    if (-not $batchSuccess) {
+        # Clear skipSubs from batched query — Dimension/TagKey != Tag grouping
+        $skipSubs.Clear()
+        Write-Host "  Batched tag query not available, falling back to per-tag queries ($($tagsToQuery.Count) tags)..." -ForegroundColor Yellow
+
+        # Initial cooldown — prior cost queries may have consumed rate budget
+        Write-Host "    Initial cooldown (5s) before per-tag queries..." -ForegroundColor Gray
+        Start-Sleep -Seconds 5
+
+        $tagQueryCount = 0
+        foreach ($tagName in $tagsToQuery) {
+            # Throttle: pause every 2 queries to stay under rate limit (~10 req/10s)
+            $tagQueryCount++
+            if ($tagQueryCount -gt 1 -and ($tagQueryCount % 2) -eq 1) {
+                Write-Host "    Throttle pause (2s) to avoid 429..." -ForegroundColor Gray
+                Start-Sleep -Seconds 2
+            }
+
+            try {
                 $tagCosts = [System.Collections.Generic.List[PSCustomObject]]::new()
+                $gotData = $false
+                $usedTimeframe = 'MonthToDate'
 
-                if ($useMgScope) {
-                    $response = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $body
-                    Write-Host "    MG-scope response: HTTP $($response.StatusCode)" -ForegroundColor Gray
-                    if ($response.StatusCode -in @(401, 403)) {
-                        Set-MgCostScopeFailed
-                        Write-Warning "  MG-scope cost-by-tag returned HTTP $($response.StatusCode) - falling back to per-subscription"
-                        $useMgScope = $false
-                    }
-                    elseif ($response.StatusCode -ne 200) {
-                        Write-Warning "  MG-scope cost-by-tag returned HTTP $($response.StatusCode) - falling back to per-subscription"
-                        if ($response.Content) {
-                            $errBody = try { ($response.Content | ConvertFrom-Json).error.message } catch { $response.Content.Substring(0, [math]::Min(200, $response.Content.Length)) }
-                            Write-Warning "    Response: $errBody"
+                foreach ($tf in $timeframes) {
+                    if ($gotData) { break }
+
+                    Write-Host "  Querying cost by tag: $tagName ($tf)..." -ForegroundColor Cyan
+                    $bodyObj = @{
+                        type    = 'ActualCost'
+                        dataset = @{
+                            granularity = 'None'
+                            aggregation = @{
+                                totalCost = @{ name = 'Cost'; function = 'Sum' }
+                            }
+                            grouping    = @(
+                                @{ type = 'TagKey'; name = $tagName }
+                            )
                         }
-                        $useMgScope = $false
+                    }
+                    if ($tf -eq 'Custom') {
+                        $lastMonthStart = (Get-Date).AddMonths(-1).ToString('yyyy-MM-01')
+                        $lastMonthEnd = (Get-Date -Day 1).AddDays(-1).ToString('yyyy-MM-dd')
+                        $bodyObj['timeframe'] = 'Custom'
+                        $bodyObj['timePeriod'] = @{ from = $lastMonthStart; to = $lastMonthEnd }
                     }
                     else {
-                        $tagCosts = Parse-CostRows -ResponseContent $response.Content
-                        if ($tagCosts.Count -gt 0) {
-                            $gotData = $true
-                            $usedTimeframe = $tf
-                            Write-Host "    Found $($tagCosts.Count) tag values via MG scope ($tf)" -ForegroundColor Green
-                        } else {
-                            Write-Host "    MG scope returned 0 rows for $tf" -ForegroundColor Yellow
-                        }
+                        $bodyObj['timeframe'] = $tf
                     }
-                }
+                    $body = $bodyObj | ConvertTo-Json -Depth 10
 
-                # Per-subscription fallback (also runs if MG scope returned no rows)
-                if ((-not $useMgScope -or -not $gotData) -and $Subscriptions) {
                     $tagCosts = [System.Collections.Generic.List[PSCustomObject]]::new()
 
-                    # Sample first 3 subs - if all return 0, skip the remaining subs
-                    $sampleSize = [math]::Min(3, $Subscriptions.Count)
-                    $sampleHits = 0
-                    for ($i = 0; $i -lt $sampleSize; $i++) {
-                        $sub = $Subscriptions[$i]
-                        if ($skipSubs.Contains($sub.Id)) { continue }
-                        $subPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
-                        Write-Host "    Per-sub query: $($sub.Name) ($tf)..." -ForegroundColor Gray
-                        $subResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $body
-                        Write-Host "    Per-sub response: HTTP $($subResp.StatusCode)" -ForegroundColor Gray
-                        if ($subResp.StatusCode -eq 200) {
-                            # Log raw response for diagnostics
-                            $rawParsed = try { ($subResp.Content | ConvertFrom-Json) } catch { $null }
-                            $rowCount = if ($rawParsed -and $rawParsed.properties -and $rawParsed.properties.rows) { $rawParsed.properties.rows.Count } else { 0 }
-                            $colNames = if ($rawParsed -and $rawParsed.properties -and $rawParsed.properties.columns) { ($rawParsed.properties.columns | ForEach-Object { "$($_.name)($($_.type))" }) -join ', ' } else { 'N/A' }
-                            Write-Host "    Columns: $colNames | Rows: $rowCount" -ForegroundColor Gray
-                            if ($rowCount -gt 0 -and $rowCount -le 5) {
-                                foreach ($row in $rawParsed.properties.rows) {
-                                    Write-Host "      Row: $($row -join ' | ')" -ForegroundColor DarkGray
-                                }
+                    if ($useMgScope) {
+                        $response = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $body
+                        Write-Host "    MG-scope response: HTTP $($response.StatusCode)" -ForegroundColor Gray
+                        if ($response.StatusCode -in @(401, 403)) {
+                            Set-MgCostScopeFailed
+                            Write-Warning "  MG-scope cost-by-tag returned HTTP $($response.StatusCode) - falling back to per-subscription"
+                            $useMgScope = $false
+                        }
+                        elseif ($response.StatusCode -ne 200) {
+                            Write-Warning "  MG-scope cost-by-tag returned HTTP $($response.StatusCode) - falling back to per-subscription"
+                            if ($response.Content) {
+                                $errBody = try { ($response.Content | ConvertFrom-Json).error.message } catch { $response.Content.Substring(0, [math]::Min(200, $response.Content.Length)) }
+                                Write-Warning "    Response: $errBody"
                             }
-                            $subRows = Parse-CostRows -ResponseContent $subResp.Content
-                            foreach ($r in $subRows) { [void]$tagCosts.Add($r) }
-                            if ($subRows.Count -gt 0) { $sampleHits++ }
-                        } elseif ($subResp.Content) {
-                            $errBody = try { ($subResp.Content | ConvertFrom-Json).error.message } catch { $subResp.Content.Substring(0, [math]::Min(300, $subResp.Content.Length)) }
-                            if ($errBody -match 'Invalid dataset grouping') {
-                                [void]$skipSubs.Add($sub.Id)
-                                Write-Host "    Skipping '$($sub.Name)' - subscription type does not support Tag grouping" -ForegroundColor Yellow
-                            } else {
-                                Write-Warning "    Per-sub error: $errBody"
+                            $useMgScope = $false
+                        }
+                        else {
+                            $tagCosts = Parse-CostRows -ResponseContent $response.Content
+                            if ($tagCosts.Count -gt 0) {
+                                $gotData = $true
+                                $usedTimeframe = $tf
+                                Write-Host "    Found $($tagCosts.Count) tag values via MG scope ($tf)" -ForegroundColor Green
+                            }
+                            else {
+                                Write-Host "    MG scope returned 0 rows for $tf" -ForegroundColor Yellow
                             }
                         }
                     }
 
-                    # Only iterate remaining subs if sample found data
-                    if ($sampleHits -gt 0 -and $Subscriptions.Count -gt $sampleSize) {
-                        Write-Host "    Sample found data, querying remaining $($Subscriptions.Count - $sampleSize) subs..." -ForegroundColor Cyan
-                        for ($i = $sampleSize; $i -lt $Subscriptions.Count; $i++) {
+                    # Per-subscription fallback (also runs if MG scope returned no rows)
+                    if ((-not $useMgScope -or -not $gotData) -and $Subscriptions) {
+                        $tagCosts = [System.Collections.Generic.List[PSCustomObject]]::new()
+
+                        # Sample first 3 subs - if all return 0, skip the remaining subs
+                        $sampleSize = [math]::Min(3, $Subscriptions.Count)
+                        $sampleHits = 0
+                        for ($i = 0; $i -lt $sampleSize; $i++) {
                             $sub = $Subscriptions[$i]
                             if ($skipSubs.Contains($sub.Id)) { continue }
                             $subPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+                            Write-Host "    Per-sub query: $($sub.Name) ($tf)..." -ForegroundColor Gray
                             $subResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $body
+                            Write-Host "    Per-sub response: HTTP $($subResp.StatusCode)" -ForegroundColor Gray
                             if ($subResp.StatusCode -eq 200) {
+                                # Log raw response for diagnostics
+                                $rawParsed = try { ($subResp.Content | ConvertFrom-Json) } catch { $null }
+                                $rowCount = if ($rawParsed -and $rawParsed.properties -and $rawParsed.properties.rows) { $rawParsed.properties.rows.Count } else { 0 }
+                                $colNames = if ($rawParsed -and $rawParsed.properties -and $rawParsed.properties.columns) { ($rawParsed.properties.columns | ForEach-Object { "$($_.name)($($_.type))" }) -join ', ' } else { 'N/A' }
+                                Write-Host "    Columns: $colNames | Rows: $rowCount" -ForegroundColor Gray
+                                if ($rowCount -gt 0 -and $rowCount -le 5) {
+                                    foreach ($row in $rawParsed.properties.rows) {
+                                        Write-Host "      Row: $($row -join ' | ')" -ForegroundColor DarkGray
+                                    }
+                                }
                                 $subRows = Parse-CostRows -ResponseContent $subResp.Content
                                 foreach ($r in $subRows) { [void]$tagCosts.Add($r) }
-                            } elseif ($subResp.StatusCode -eq 400 -and $subResp.Content -match 'Invalid dataset grouping') {
-                                [void]$skipSubs.Add($sub.Id)
+                                if ($subRows.Count -gt 0) { $sampleHits++ }
+                            }
+                            elseif ($subResp.Content) {
+                                $errBody = try { ($subResp.Content | ConvertFrom-Json).error.message } catch { $subResp.Content.Substring(0, [math]::Min(300, $subResp.Content.Length)) }
+                                if ($errBody -match 'Invalid dataset grouping') {
+                                    [void]$skipSubs.Add($sub.Id)
+                                    Write-Host "    Skipping '$($sub.Name)' - subscription type does not support Tag grouping" -ForegroundColor Yellow
+                                }
+                                elseif ($errBody -match 'AO View Charges') {
+                                    $script:costAccessIssue = 'EA'
+                                }
+                                elseif ($subResp.StatusCode -eq 403) {
+                                    $script:costAccessIssue = 'MCA'
+                                }
+                                else {
+                                    Write-Warning "    Per-sub error: $errBody"
+                                }
                             }
                         }
-                    } elseif ($sampleHits -eq 0 -and $Subscriptions.Count -gt $sampleSize) {
-                        Write-Host "    Sample of $sampleSize subs returned 0 rows - skipping remaining subs for $tf" -ForegroundColor Yellow
-                    }
 
-                    # Merge duplicate tag values across subs (case-sensitive to surface casing inconsistencies)
-                    if ($tagCosts.Count -gt 0) {
-                        $merged = $tagCosts | Group-Object TagValue -CaseSensitive | ForEach-Object {
-                            [PSCustomObject]@{
-                                TagValue = $_.Name
-                                Cost     = [math]::Round(($_.Group | Measure-Object -Property Cost -Sum).Sum, 2)
-                                Currency = $_.Group[0].Currency
+                        # Only iterate remaining subs if sample found data
+                        if ($sampleHits -gt 0 -and $Subscriptions.Count -gt $sampleSize) {
+                            Write-Host "    Sample found data, querying remaining $($Subscriptions.Count - $sampleSize) subs..." -ForegroundColor Cyan
+                            for ($i = $sampleSize; $i -lt $Subscriptions.Count; $i++) {
+                                $sub = $Subscriptions[$i]
+                                if ($skipSubs.Contains($sub.Id)) { continue }
+                                $subPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+                                $subResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $body
+                                if ($subResp.StatusCode -eq 200) {
+                                    $subRows = Parse-CostRows -ResponseContent $subResp.Content
+                                    foreach ($r in $subRows) { [void]$tagCosts.Add($r) }
+                                }
+                                elseif ($subResp.StatusCode -eq 400 -and $subResp.Content -match 'Invalid dataset grouping') {
+                                    [void]$skipSubs.Add($sub.Id)
+                                }
                             }
                         }
-                        $tagCosts = @($merged)
-                        $gotData = $true
-                        $usedTimeframe = $tf
-                        Write-Host "    Found $($tagCosts.Count) tag values via per-sub fallback ($tf)" -ForegroundColor Green
-                    } else {
-                        Write-Host "    Per-sub fallback returned 0 rows for $tf" -ForegroundColor Yellow
+                        elseif ($sampleHits -eq 0 -and $Subscriptions.Count -gt $sampleSize) {
+                            Write-Host "    Sample of $sampleSize subs returned 0 rows - skipping remaining subs for $tf" -ForegroundColor Yellow
+                        }
+
+                        # Merge duplicate tag values across subs (case-sensitive to surface casing inconsistencies)
+                        if ($tagCosts.Count -gt 0) {
+                            $merged = $tagCosts | Group-Object TagValue -CaseSensitive | ForEach-Object {
+                                [PSCustomObject]@{
+                                    TagValue = $_.Name
+                                    Cost     = [math]::Round(($_.Group | Measure-Object -Property Cost -Sum).Sum, 2)
+                                    Currency = $_.Group[0].Currency
+                                }
+                            }
+                            $tagCosts = @($merged)
+                            $gotData = $true
+                            $usedTimeframe = $tf
+                            Write-Host "    Found $($tagCosts.Count) tag values via per-sub fallback ($tf)" -ForegroundColor Green
+                        }
+                        else {
+                            Write-Host "    Per-sub fallback returned 0 rows for $tf" -ForegroundColor Yellow
+                        }
                     }
                 }
-            }
 
-            $results[$tagName] = $tagCosts | Sort-Object Cost -Descending
-        } catch {
-            Write-Warning "Cost-by-tag query for '$tagName' failed: $($_.Exception.Message)"
+                $results[$tagName] = $tagCosts | Sort-Object Cost -Descending
+            }
+            catch {
+                Write-Warning "Cost-by-tag query for '$tagName' failed: $($_.Exception.Message)"
+            }
         }
-    }
+    } # end per-tag fallback
 
     # Determine which timeframe was used (for display hint)
     $usedLastMonth = $false
@@ -275,9 +466,9 @@ function Get-CostByTag {
     }
 
     return [PSCustomObject]@{
-        TagsQueried    = $tagsToQuery
-        CostByTag      = $results
-        NoTagsFound    = ($tagsToQuery.Count -eq 0)
-        UsedTimeframe  = $usedTimeframe
+        TagsQueried   = $tagsToQuery
+        CostByTag     = $results
+        NoTagsFound   = ($tagsToQuery.Count -eq 0)
+        UsedTimeframe = $usedTimeframe
     }
 }

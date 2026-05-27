@@ -35,14 +35,14 @@ function Get-CostData {
     try {
         Write-Host "  Querying actual costs (MG scope)..." -ForegroundColor Cyan
         $actualBody = @{
-            type       = 'ActualCost'
-            timeframe  = 'MonthToDate'
-            dataset    = @{
+            type      = 'ActualCost'
+            timeframe = 'MonthToDate'
+            dataset   = @{
                 granularity = 'None'
                 aggregation = @{
                     totalCost = @{ name = 'Cost'; function = 'Sum' }
                 }
-                grouping = @(
+                grouping    = @(
                     @{ type = 'Dimension'; name = 'SubscriptionId' }
                 )
             }
@@ -63,8 +63,8 @@ function Get-CostData {
 
         if ($result.properties.rows) {
             foreach ($row in $result.properties.rows) {
-                $subId   = $row[1]
-                $amount  = [math]::Round($row[0], 2)
+                $subId = $row[1]
+                $amount = [math]::Round($row[0], 2)
                 $currency = $row[2]
 
                 if (-not $costMap.ContainsKey($subId)) {
@@ -74,7 +74,8 @@ function Get-CostData {
                 $costMap[$subId].Currency = $currency
             }
         }
-    } catch {
+    }
+    catch {
         Write-Warning "Actual cost query failed: $($_.Exception.Message)"
         Write-Warning "Falling back to per-subscription queries."
         $costMap = Get-CostDataPerSubscription -Subscriptions $Subscriptions
@@ -90,18 +91,18 @@ function Get-CostData {
         $monthEnd = (Get-Date -Year $now.Year -Month $now.Month -Day 1).AddMonths(1).AddDays(-1)
 
         $forecastBody = @{
-            type       = 'Usage'
-            timeframe  = 'Custom'
-            timePeriod = @{
+            type                    = 'Usage'
+            timeframe               = 'Custom'
+            timePeriod              = @{
                 from = $now.ToString('yyyy-MM-dd')
                 to   = $monthEnd.ToString('yyyy-MM-dd')
             }
-            dataset    = @{
+            dataset                 = @{
                 granularity = 'None'
                 aggregation = @{
                     totalCost = @{ name = 'Cost'; function = 'Sum' }
                 }
-                grouping = @(
+                grouping    = @(
                     @{ type = 'Dimension'; name = 'SubscriptionId' }
                 )
             }
@@ -124,8 +125,8 @@ function Get-CostData {
             # to get the full-month projected cost.
             $forecastSums = @{}
             foreach ($row in $fResult.properties.rows) {
-                $subId   = $row[1]
-                $amount  = [double]$row[0]
+                $subId = $row[1]
+                $amount = [double]$row[0]
                 if (-not $forecastSums.ContainsKey($subId)) { $forecastSums[$subId] = 0 }
                 $forecastSums[$subId] += $amount
             }
@@ -137,10 +138,12 @@ function Get-CostData {
             }
             $forecastSuccess = $true
             Write-Host "  MG-scope forecast: got data for $($forecastSums.Count) subscriptions" -ForegroundColor Green
-        } else {
+        }
+        else {
             throw "MG-scope forecast returned 0 rows"
         }
-    } catch {
+    }
+    catch {
         Write-Warning "MG-scope forecast failed: $($_.Exception.Message)"
         Write-Host "  Falling back to per-subscription forecast queries..." -ForegroundColor Yellow
     }
@@ -161,13 +164,13 @@ function Get-CostData {
             }
             try {
                 $fBody = @{
-                    type       = 'Usage'
-                    timeframe  = 'Custom'
-                    timePeriod = @{
+                    type                    = 'Usage'
+                    timeframe               = 'Custom'
+                    timePeriod              = @{
                         from = $now.ToString('yyyy-MM-dd')
                         to   = $monthEnd.ToString('yyyy-MM-dd')
                     }
-                    dataset    = @{
+                    dataset                 = @{
                         granularity = 'None'
                         aggregation = @{
                             totalCost = @{ name = 'Cost'; function = 'Sum' }
@@ -190,7 +193,8 @@ function Get-CostData {
                         $hitCount++
                     }
                 }
-            } catch {
+            }
+            catch {
                 # Forecast not available for this sub
             }
         }
@@ -245,8 +249,19 @@ function Get-CostDataPerSubscription {
             if ($resp.StatusCode -eq 200) {
                 $res = ($resp.Content | ConvertFrom-Json)
                 if ($res.properties.rows -and $res.properties.rows.Count -gt 0) {
-                    $actual   = [math]::Round($res.properties.rows[0][0], 2)
+                    $actual = [math]::Round($res.properties.rows[0][0], 2)
                     $currency = $res.properties.rows[0][1]
+                }
+            }
+            elseif ($resp.StatusCode -in @(400, 403) -and $resp.Content) {
+                $errMsg = try { ($resp.Content | ConvertFrom-Json).error.message } catch { '' }
+                if ($errMsg -match 'AO View Charges') {
+                    $script:costAccessIssue = 'EA'
+                    Write-Warning "  Cost data disabled for EA account owners. Enable 'AO View Charges' in the EA portal."
+                }
+                elseif ($resp.StatusCode -eq 403) {
+                    $script:costAccessIssue = 'MCA'
+                    Write-Warning "  Cost data access denied. Verify Billing Profile Reader or Cost Management Reader role assignment."
                 }
             }
 
@@ -258,13 +273,13 @@ function Get-CostDataPerSubscription {
                     $now = Get-Date
                     $monthEnd = (Get-Date -Year $now.Year -Month $now.Month -Day 1).AddMonths(1).AddDays(-1)
                     $fBody = @{
-                        type       = 'Usage'
-                        timeframe  = 'Custom'
-                        timePeriod = @{
+                        type                    = 'Usage'
+                        timeframe               = 'Custom'
+                        timePeriod              = @{
                             from = $now.ToString('yyyy-MM-dd')
                             to   = $monthEnd.ToString('yyyy-MM-dd')
                         }
-                        dataset    = @{
+                        dataset                 = @{
                             granularity = 'None'
                             aggregation = @{
                                 totalCost = @{ name = 'Cost'; function = 'Sum' }
@@ -282,11 +297,13 @@ function Get-CostDataPerSubscription {
                             $costMap[$sub.Id].Forecast = $actual + $fAmount
                         }
                     }
-                } catch {
+                }
+                catch {
                     # Forecast not available for all account types
                 }
             }
-        } catch {
+        }
+        catch {
             Write-Warning "  Cost query failed for $($sub.Name): $($_.Exception.Message)"
         }
     }
