@@ -5,7 +5,7 @@ Deploy and configure an Azure SRE Agent with the FinOps toolkit recipe under `re
 The deployment flow is copied from the Microsoft SRE Agent starter lab and updated for the FinOps toolkit:
 
 - Azure CLI + Bicep deploy the SRE Agent infrastructure.
-- The post-provision path configures the Kusto connector through the SRE Agent data plane, then uses `srectl` for knowledge, tools, skills, subagents, and scheduled tasks.
+- The post-provision path configures the Kusto connector and KnowledgeFile sources through the SRE Agent data plane, then uses `srectl` for tools, skills, subagents, and scheduled tasks.
 - `azd` is not used.
 
 ## What you get
@@ -41,7 +41,7 @@ The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CAT
 | KustoTool | 21 | `cost-anomaly-detection`, `ai-token-usage-breakdown`, `reservation-recommendation-breakdown` |
 | PythonTool | 13 | `vm-quota-usage`, `data-freshness-check`, `db-service-quotas`, `sku-availability` |
 
-The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Stable` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. `bin/post-provision.sh` enables the SRE Agent built-in Log Query and Visualization tools. It uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible Knowledge Sources, then waits for the expected sources to index. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
+The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Stable` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. `bin/post-provision.sh` enables the SRE Agent built-in Log Query and Visualization tools. It uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible `KnowledgeFile` sources, then verifies the expected sources are indexed before tools, subagents, and scheduled tasks are applied. The post-provision path also removes direct Agent Memory document artifacts left by older broken deployments so the portal Knowledge Sources remain the source of truth. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
 
 The recipe is aligned to the FinOps Framework references listed in [CATALOG.md](CATALOG.md). `finops-practitioner` owns all scheduled tasks, has no direct tools, and orchestrates four delegated subagents. Three delegated subagents have tools: `ftk-database-query` owns Kusto and FOCUS evidence collection, `azure-capacity-manager` owns capacity Python evidence, and `ftk-hubs-agent` owns Hub platform and infrastructure health tooling. `chief-financial-officer` is consulted for finance and leadership framing and has no tools or scheduled tasks. Capacity and quota management is mapped into the canonical domains, capabilities, personas, principles, and phases, not a separate azcapman operating model.
 

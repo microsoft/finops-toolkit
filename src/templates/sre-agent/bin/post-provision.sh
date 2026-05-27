@@ -518,6 +518,22 @@ verify_knowledge_docs() {
   fail "Knowledge sources failed to index" 1
 }
 
+delete_direct_agentmemory_docs() {
+  local docs=("$@")
+  local doc
+
+  [[ "${#docs[@]}" -gt 0 ]] || return 0
+  command -v srectl >/dev/null || fail "srectl is required to clean direct Agent Memory documents" 1
+
+  echo "  cleaning direct Agent Memory document artifacts..."
+  for doc in "${docs[@]}"; do
+    (
+      cd "$BUILD_DIR"
+      srectl doc delete --name "$doc" --quiet >/dev/null 2>&1 || true
+    )
+  done
+}
+
 command -v az >/dev/null || fail "az is required to upload knowledge sources" 1
 command -v base64 >/dev/null || fail "base64 is required to upload knowledge sources" 1
 command -v curl >/dev/null || fail "curl is required to upload knowledge sources" 1
@@ -527,11 +543,12 @@ KNOWLEDGE_SOURCE_DIR="${BUILD_DIR}/knowledge-sources"
 mkdir -p "$KNOWLEDGE_SOURCE_DIR"
 
 KNOWLEDGE_DIR="${RECIPE_DIR}/knowledge"
+KNOWLEDGE_MEMORY_FILES=()
 if [[ -d "$KNOWLEDGE_DIR" ]]; then
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue
     KNOWLEDGE_DOC_NAMES+=("$(basename "$file")")
-    upload_knowledge_file "$file" "${file#${RECIPE_DIR}/}"
+    KNOWLEDGE_MEMORY_FILES+=("$file")
   done < <(find -L "$KNOWLEDGE_DIR" -type f | sort)
 else
   echo "  no knowledge directory"
@@ -540,7 +557,15 @@ fi
 OUTPUT_STYLE_DOC="${RECIPE_DIR}/../../../claude-plugin/output-styles/ftk-output-style.md"
 [[ -f "$OUTPUT_STYLE_DOC" ]] || fail "Error: output style knowledge document not found: $OUTPUT_STYLE_DOC" 1
 KNOWLEDGE_DOC_NAMES+=("$(basename "$OUTPUT_STYLE_DOC")")
-upload_knowledge_file "$OUTPUT_STYLE_DOC" "claude-plugin/output-styles/ftk-output-style.md"
+KNOWLEDGE_MEMORY_FILES+=("$OUTPUT_STYLE_DOC")
+delete_direct_agentmemory_docs "${KNOWLEDGE_DOC_NAMES[@]}"
+for file in "${KNOWLEDGE_MEMORY_FILES[@]}"; do
+  if [[ "$file" == "$OUTPUT_STYLE_DOC" ]]; then
+    upload_knowledge_file "$file" "claude-plugin/output-styles/ftk-output-style.md"
+  else
+    upload_knowledge_file "$file" "${file#${RECIPE_DIR}/}"
+  fi
+done
 verify_knowledge_docs "${KNOWLEDGE_DOC_NAMES[@]}"
 echo ""
 

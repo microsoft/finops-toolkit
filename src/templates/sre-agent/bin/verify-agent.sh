@@ -443,16 +443,61 @@ KS_NAMES=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq -r '[.[].name] | sort | join(","
 KS_INDEXED=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq '[.[] | select(.properties.extendedProperties.createdAt != null)] | length' 2>/dev/null || echo 0)
 EXP_KS_CT=$(exp '.knowledgeSources | length' "-")
 EXP_KS_NAMES=$(exp_list '.knowledgeSources')
-check "Knowledge sources" "$KS_CT" "$EXP_KS_CT"
-if [[ -n "$EXP_KS_NAMES" ]]; then
+check "Knowledge sources total" "$KS_CT" "-"
+if [[ -n "$EXP_KS_NAMES" && "$EXP_KS_CT" != "-" ]]; then
   KS_EXPECTED_PRESENT=$(count_present_names "$KNOWLEDGE_SOURCE_VALUES" "$EXP_KS_NAMES")
   check "Knowledge sources expected" "$KS_EXPECTED_PRESENT" "$EXP_KS_CT"
+  KS_EXPECTED_INDEXED=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq -r --arg expected_csv "$EXP_KS_NAMES" '
+    ($expected_csv | split(",") | map(select(. != ""))) as $expected
+    | [.[] | select(.properties.extendedProperties.createdAt != null) | .name] as $actual
+    | [$expected[] | . as $name | select($actual | index($name))] | length
+  ' 2>/dev/null || echo 0)
+  check "Knowledge sources expected indexed" "$KS_EXPECTED_INDEXED" "$EXP_KS_CT"
 fi
-check "Knowledge sources indexed" "$KS_INDEXED" "$KS_CT"
 UNINDEXED_KNOWLEDGE_SOURCES=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq -r '.[] | select(.properties.extendedProperties.createdAt == null) | "\(.name): \(.properties.extendedProperties.errorReason // "not indexed")"' 2>/dev/null)
 if [[ -n "$UNINDEXED_KNOWLEDGE_SOURCES" ]]; then
   RESULTS="${RESULTS}\n  ⚠️  Unindexed knowledge sources|${UNINDEXED_KNOWLEDGE_SOURCES}|—|❌ FAIL"
   FAIL=$((FAIL + 1))
+fi
+
+AGENT_MEMORY_STATUS=$(dp_get "/api/v1/agentmemory/status")
+AGENT_MEMORY_INDEXER=$(dp_get "/api/v1/agentmemory/indexer-status")
+AGENT_MEMORY_FILES=$(dp_get "/api/v1/agentmemory/files")
+AGENT_MEMORY_ENABLED=$(echo "$AGENT_MEMORY_STATUS" | jq -r '.enabled // false' 2>/dev/null || echo "false")
+AGENT_MEMORY_RETRIEVAL=$(echo "$AGENT_MEMORY_STATUS" | jq -r '.documentRetrievalEnabled // false' 2>/dev/null || echo "false")
+AGENT_MEMORY_INDEX_STATUS=$(echo "$AGENT_MEMORY_INDEXER" | jq -r '.lastExecution.status // empty' 2>/dev/null || true)
+AGENT_MEMORY_PROCESSED=$(echo "$AGENT_MEMORY_INDEXER" | jq -r '.lastExecution.documentsProcessed // 0' 2>/dev/null || echo 0)
+AGENT_MEMORY_FAILED=$(echo "$AGENT_MEMORY_INDEXER" | jq -r '.lastExecution.documentsFailed // 0' 2>/dev/null || echo 0)
+AGENT_MEMORY_ERRORS=$(echo "$AGENT_MEMORY_INDEXER" | jq '.errors // [] | length' 2>/dev/null || echo 0)
+AGENT_MEMORY_DOC_CT=$(echo "$AGENT_MEMORY_FILES" | jq '.files // [] | length' 2>/dev/null || echo 0)
+AGENT_MEMORY_DOC_NAMES=$(echo "$AGENT_MEMORY_FILES" | jq -r '[.files[]?.name] | sort | join(",")' 2>/dev/null)
+if [[ "$EXP_KS_CT" != "-" ]]; then
+  check "Agent Memory enabled" "$AGENT_MEMORY_ENABLED" "true"
+  check "Agent Memory document retrieval" "$AGENT_MEMORY_RETRIEVAL" "true"
+  check "Agent Memory documents total" "$AGENT_MEMORY_DOC_CT" "-"
+  if [[ -n "$EXP_KS_NAMES" ]]; then
+    AGENT_MEMORY_EXPECTED_PRESENT=$(echo "$AGENT_MEMORY_FILES" | jq -r --arg expected_csv "$EXP_KS_NAMES" '
+      ($expected_csv | split(",") | map(select(. != ""))) as $expected
+      | [.files[]? | select(.isIndexed == true) | .name] as $actual
+      | [$expected[] | "knowledge_" + . + ".md" | . as $name | select($actual | index($name))] | length
+    ' 2>/dev/null || echo 0)
+    check "Agent Memory expected indexed" "$AGENT_MEMORY_EXPECTED_PRESENT" "$EXP_KS_CT"
+    AGENT_MEMORY_DIRECT_PRESENT=$(echo "$AGENT_MEMORY_FILES" | jq -r --arg expected_csv "$EXP_KS_NAMES" '
+      ($expected_csv | split(",") | map(select(. != ""))) as $expected
+      | [.files[]? | .name] as $actual
+      | [$expected[] | . as $name | select($actual | index($name))] | length
+    ' 2>/dev/null || echo 0)
+    check "Direct Agent Memory document artifacts" "$AGENT_MEMORY_DIRECT_PRESENT" "0"
+  fi
+  if [[ "$AGENT_MEMORY_INDEX_STATUS" == "Success" && "$AGENT_MEMORY_FAILED" -eq 0 && "$AGENT_MEMORY_ERRORS" -eq 0 ]]; then
+    RESULTS="${RESULTS}\n  Agent Memory latest indexer run|processed=${AGENT_MEMORY_PROCESSED}|success|✅ PASS"
+    PASS=$((PASS + 1))
+  else
+    RESULTS="${RESULTS}\n  Agent Memory latest indexer run|status=${AGENT_MEMORY_INDEX_STATUS:-unknown}, processed=${AGENT_MEMORY_PROCESSED}, failed=${AGENT_MEMORY_FAILED}, errors=${AGENT_MEMORY_ERRORS}|success|❌ FAIL"
+    FAIL=$((FAIL + 1))
+  fi
+  RESULTS="${RESULTS}\n  Knowledge source names|${KS_NAMES}|—|"
+  RESULTS="${RESULTS}\n  Agent Memory document names|${AGENT_MEMORY_DOC_NAMES}|—|"
 fi
 
 # ── Response Plans (Incident Filters) ──
