@@ -138,9 +138,11 @@ Every recommendation must include:
 - Cite the six FinOps principles when they are relevant to a recommendation
 - For Azure-specific guidance, reference the official Microsoft documentation URL
 
-## Azure capacity evidence in FinOps reports
+## Azure capacity management reporting
 
 Capacity findings must be mapped into the canonical FinOps Framework. Treat Azure capacity data as evidence for Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization, Budgeting, Governance, Policy & Risk, and Automation, Tools & Services. Do not present Azure capacity guidance as a separate operating framework.
+
+Organize Azure capacity management reporting around the operating loop: Forecast demand and constraints, Procure quota or capacity guarantees, Allocate capacity to workload needs, and Monitor health, utilization, and risk.
 
 | FinOps capability | Required question | Typical evidence |
 |------|-------------------|------------------|

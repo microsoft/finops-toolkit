@@ -6,6 +6,7 @@ Describe 'SRE Agent deploy template' {
         $script:RepoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
         $script:DeployScript = Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/deploy.sh'
         $script:PostProvisionScript = Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/post-provision.sh'
+        $script:VerifyScript = Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/verify-agent.sh'
         $script:RecipeDir = Join-Path $script:RepoRoot 'src/templates/sre-agent/recipes/finops-hub'
         $script:ScheduledTaskDir = Join-Path $script:RecipeDir 'automations/scheduled-tasks'
         $script:OutputStylePath = Join-Path $script:RepoRoot 'src/templates/claude-plugin/output-styles/ftk-output-style.md'
@@ -46,7 +47,7 @@ Describe 'SRE Agent deploy template' {
             try {
                 $originalPath = $env:PATH
                 $env:PATH = "${PathPrefix}:$originalPath"
-                $output = & bash -lc $Command 2>&1
+                $output = & bash -c $Command 2>&1
                 [pscustomobject]@{
                     ExitCode = $LASTEXITCODE
                     Output   = ($output -join "`n")
@@ -56,6 +57,20 @@ Describe 'SRE Agent deploy template' {
                 $env:PATH = $originalPath
                 Pop-Location
             }
+        }
+
+        function Set-BashStub {
+            param(
+                [Parameter(Mandatory)]
+                [string] $Path,
+
+                [Parameter(Mandatory)]
+                [string] $Content
+            )
+
+            $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+            [System.IO.File]::WriteAllText($Path, ($Content -replace "`r`n", "`n"), $utf8NoBom)
+            & chmod +x $Path
         }
     }
 
@@ -148,6 +163,22 @@ Describe 'SRE Agent deploy template' {
             $result.Output | Should -Match 'requires a value'
         }
 
+        It 'errors when verify-agent expected config is missing its value' {
+            if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
+            $result = Invoke-BashCommand "bash '$script:VerifyScript' 00000000-0000-0000-0000-000000000000 rg-test test-agent --expected"
+            $result.ExitCode | Should -Be 2
+            $result.Output | Should -Match 'flag --expected requires a value'
+            $result.Output | Should -Not -Match 'unbound variable'
+        }
+
+        It 'rejects unknown verify-agent arguments before Azure calls' {
+            if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
+            $result = Invoke-BashCommand "bash '$script:VerifyScript' 00000000-0000-0000-0000-000000000000 rg-test test-agent --bogus"
+            $result.ExitCode | Should -Be 2
+            $result.Output | Should -Match "unknown argument '--bogus'"
+            $result.Output | Should -Not -Match 'Could not resolve agent endpoint'
+        }
+
         It 'rejects the positional footgun' {
             if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
             $result = Invoke-BashCommand "bash '$script:DeployScript' --dry-run rg-test"
@@ -211,7 +242,7 @@ Describe 'SRE Agent deploy template' {
             New-Item -ItemType Directory -Force -Path $binDir, $deployRoot | Out-Null
 
             $fakeAz = Join-Path $binDir 'az'
-            @'
+            Set-BashStub -Path $fakeAz -Content @'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -237,6 +268,22 @@ JSON
   exit 0
 fi
 
+if [[ "$*" == *"deployment sub show"* ]]; then
+  cat <<'JSON'
+{
+  "properties": {
+    "provisioningState": "Succeeded",
+    "outputs": {
+      "SRE_AGENT_ENDPOINT": { "value": "https://example.azuresre.ai" },
+      "SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID": { "value": "00000000-0000-0000-0000-000000000001" },
+      "AGENT_PORTAL_URL": { "value": "https://sre.azure.com/#/agent/00000000-0000-0000-0000-000000000000/rg-test-customer/customer-sre-agent" }
+    }
+  }
+}
+JSON
+  exit 0
+fi
+
 if [[ "$*" == *"deployment sub create"* ]]; then
   cat <<'JSON'
 {
@@ -244,7 +291,7 @@ if [[ "$*" == *"deployment sub create"* ]]; then
     "provisioningState": "Succeeded",
     "outputs": {
       "SRE_AGENT_ENDPOINT": { "value": "https://example.azuresre.ai" },
-      "MANAGED_IDENTITY_ID": { "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test-customer/providers/Microsoft.ManagedIdentity/userAssignedIdentities/customer-sre-agent-id" },
+      "SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID": { "value": "00000000-0000-0000-0000-000000000001" },
       "AGENT_PORTAL_URL": { "value": "https://sre.azure.com/#/agent/00000000-0000-0000-0000-000000000000/rg-test-customer/customer-sre-agent" }
     }
   }
@@ -260,19 +307,17 @@ case "$*" in
 esac
 
 exit 0
-'@ | Set-Content -Path $fakeAz -NoNewline
-            & chmod +x $fakeAz
+'@
 
             $fakeSrectl = Join-Path $binDir 'srectl'
-            @'
+            Set-BashStub -Path $fakeSrectl -Content @'
 #!/usr/bin/env bash
 set -euo pipefail
 exit 0
-'@ | Set-Content -Path $fakeSrectl -NoNewline
-            & chmod +x $fakeSrectl
+'@
 
             $fakeCurl = Join-Path $binDir 'curl'
-            @'
+            Set-BashStub -Path $fakeCurl -Content @'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -376,12 +421,11 @@ cat > "$out" <<'JSON'
 }
 JSON
 printf "200"
-'@ | Set-Content -Path $fakeCurl -NoNewline
-            & chmod +x $fakeCurl
+'@
 
             try {
-                $command = "PATH='$binDir':`$PATH SRE_AGENT_DEPLOY_DIR='$deployRoot' bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://example.westus3.kusto.windows.net/Hub"
-                $result = Invoke-BashCommand $command
+                $command = "SRE_AGENT_DEPLOY_DIR='$deployRoot' bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://example.westus3.kusto.windows.net/Hub"
+                $result = Invoke-BashCommandWithPath $command $binDir
                 $result.ExitCode | Should -Be 0
                 $result.Output | Should -Match 'Resolving Kusto cluster resource ID from --cluster-uri'
                 $result.Output | Should -Match '/providers/Microsoft\.Kusto/clusters/example'
@@ -405,7 +449,7 @@ printf "200"
             New-Item -ItemType Directory -Force -Path $binDir, $deployRoot | Out-Null
 
             $fakeAz = Join-Path $binDir 'az'
-            @'
+            Set-BashStub -Path $fakeAz -Content @'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -437,6 +481,22 @@ JSON
   exit 0
 fi
 
+if [[ "$*" == *"deployment sub show"* ]]; then
+  cat <<'JSON'
+{
+  "properties": {
+    "provisioningState": "Succeeded",
+    "outputs": {
+      "SRE_AGENT_ENDPOINT": { "value": "https://example.azuresre.ai" },
+      "SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID": { "value": "00000000-0000-0000-0000-000000000001" },
+      "AGENT_PORTAL_URL": { "value": "https://sre.azure.com/#/agent/00000000-0000-0000-0000-000000000000/rg-test-customer/customer-sre-agent" }
+    }
+  }
+}
+JSON
+  exit 0
+fi
+
 if [[ "$*" == *"deployment sub create"* ]]; then
   cat <<'JSON'
 {
@@ -444,7 +504,7 @@ if [[ "$*" == *"deployment sub create"* ]]; then
     "provisioningState": "Succeeded",
     "outputs": {
       "SRE_AGENT_ENDPOINT": { "value": "https://example.azuresre.ai" },
-      "MANAGED_IDENTITY_ID": { "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test-customer/providers/Microsoft.ManagedIdentity/userAssignedIdentities/customer-sre-agent-id" },
+      "SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID": { "value": "00000000-0000-0000-0000-000000000001" },
       "AGENT_PORTAL_URL": { "value": "https://sre.azure.com/#/agent/00000000-0000-0000-0000-000000000000/rg-test-customer/customer-sre-agent" }
     }
   }
@@ -460,19 +520,17 @@ case "$*" in
 esac
 
 exit 0
-'@ | Set-Content -Path $fakeAz -NoNewline
-            & chmod +x $fakeAz
+'@
 
             $fakeSrectl = Join-Path $binDir 'srectl'
-            @'
+            Set-BashStub -Path $fakeSrectl -Content @'
 #!/usr/bin/env bash
 set -euo pipefail
 exit 0
-'@ | Set-Content -Path $fakeSrectl -NoNewline
-            & chmod +x $fakeSrectl
+'@
 
             $fakeCurl = Join-Path $binDir 'curl'
-            @'
+            Set-BashStub -Path $fakeCurl -Content @'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -558,13 +616,12 @@ cat > "$out" <<'JSON'
 {}
 JSON
 printf "200"
-'@ | Set-Content -Path $fakeCurl -NoNewline
-            & chmod +x $fakeCurl
+'@
 
             try {
                 $clusterId = '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-hub/providers/Microsoft.Kusto/clusters/privateadx'
-                $command = "PATH='$binDir':`$PATH SRE_AGENT_DEPLOY_DIR='$deployRoot' bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://privateadx.westus.kusto.windows.net/Hub --cluster-resource-id $clusterId"
-                $result = Invoke-BashCommand $command
+                $command = "SRE_AGENT_DEPLOY_DIR='$deployRoot' bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://privateadx.westus.kusto.windows.net/Hub --cluster-resource-id $clusterId"
+                $result = Invoke-BashCommandWithPath $command $binDir
                 $result.ExitCode | Should -Be 0
                 $result.Output | Should -Match 'Warning: The Kusto cluster denies public query access'
                 $result.Output | Should -Match 'private endpoint ADX blocks direct KQL queries'
@@ -666,7 +723,7 @@ printf "200"
             New-Item -ItemType Directory -Force -Path $binDir, $buildDir | Out-Null
 
             $fakeSrectl = Join-Path $binDir 'srectl'
-            @'
+            Set-BashStub -Path $fakeSrectl -Content @'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -706,11 +763,10 @@ case "${1:-}" in
     exit 0
     ;;
 esac
-'@ | Set-Content -Path $fakeSrectl -NoNewline
-            & chmod +x $fakeSrectl
+'@
 
             $fakeAz = Join-Path $binDir 'az'
-            @'
+            Set-BashStub -Path $fakeAz -Content @'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -719,11 +775,10 @@ if [[ "$*" == *"account get-access-token"* ]]; then
   exit 0
 fi
 exit 1
-'@ | Set-Content -Path $fakeAz -NoNewline
-            & chmod +x $fakeAz
+'@
 
             $fakeCurl = Join-Path $binDir 'curl'
-            @'
+            Set-BashStub -Path $fakeCurl -Content @'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -804,12 +859,11 @@ cat > "$out" <<'JSON'
 }
 JSON
 printf "200"
-'@ | Set-Content -Path $fakeCurl -NoNewline
-            & chmod +x $fakeCurl
+'@
 
             try {
-                $command = "PATH='$binDir':`$PATH SRECTL_LOG='$logPath' bash '$script:PostProvisionScript' --endpoint https://example.azuresre.ai --recipe '$script:RecipeDir' --build-dir '$buildDir'"
-                $result = Invoke-BashCommand $command
+                $command = "SRECTL_LOG='$logPath' bash '$script:PostProvisionScript' --endpoint https://example.azuresre.ai --subscription 00000000-0000-0000-0000-000000000000 --resource-group rg-test-customer --name customer-sre-agent --recipe '$script:RecipeDir' --build-dir '$buildDir'"
+                $result = Invoke-BashCommandWithPath $command $binDir
                 $result.ExitCode | Should -Be 0
 
                 $order = @(Get-Content -Path $logPath)
@@ -848,7 +902,7 @@ printf "200"
 
         It 'requires expected knowledge sources and verifies indexing' {
             $expectedConfig = Get-Content -Path (Join-Path $script:RecipeDir 'expected-config.json') -Raw | ConvertFrom-Json
-            $verifyScript = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/verify-agent.sh') -Raw
+            $verifyScript = Get-Content -Path $script:VerifyScript -Raw
 
             $expectedConfig.knowledgeSources.Count | Should -Be 6
             $expectedConfig.knowledgeSources | Should -Contain 'ftk-output-style.md'
@@ -858,8 +912,17 @@ printf "200"
             $verifyScript | Should -Match 'Knowledge sources expected'
             $verifyScript | Should -Match 'Knowledge sources indexed'
             $verifyScript | Should -Match 'Unindexed knowledge sources'
-            $verifyScript | Should -Not -Match '/api/v1/agentmemory/files'
+            $verifyScript | Should -Not -Match '/api/v1/agentmemory'
+            $verifyScript | Should -Not -Match '"knowledge_" \+'
             $verifyScript | Should -Not -Match 'Knowledge connector rows'
+        }
+
+        It 'does not duplicate response plan verification with dead incident-filter scan state' {
+            $verifyScript = Get-Content -Path $script:VerifyScript -Raw
+
+            ([regex]::Matches($verifyScript, 'check "Filter names"')).Count | Should -Be 1
+            $verifyScript | Should -Not -Match 'EXP_FILTERS'
+            $verifyScript | Should -Not -Match 'automations/incident-filters'
         }
 
         It 'requires every scheduled task to apply the shared output style' {
