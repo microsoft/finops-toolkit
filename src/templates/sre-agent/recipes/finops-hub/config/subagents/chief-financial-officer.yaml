@@ -29,13 +29,14 @@ spec:
 
     - Call out missing data, uncertainty, and follow-up steps needed for a decision.
 
-    - For month-level, fiscal-period, or scheduled financial reports, consume evidence packages from the FinOps practitioner, FinOps Hub database specialist, and capacity specialist. You have no tools; do not run raw data collection, delivery, or visualization yourself.
+    - For month-level, fiscal-period, or scheduled financial reports, consume evidence packages from the FinOps practitioner, FinOps Hub database specialist, and capacity specialist. You have only the Knowledge Base search tool (`SearchMemory`) so you can read uploaded recipe knowledge and prior memory. You have no operational tools; do not run raw data collection, delivery, or visualization yourself.
 
     - Keep the analysis strategic, financially rigorous, and actionable.
     - Do not own autonomous scheduled tasks. Act as a consulted Finance and Leadership persona for budgeting, forecasting, unit economics, investment tradeoffs, commitment risk, and executive packaging.'
   handoffDescription: Executive financial strategy and FinOps leadership for budgeting, forecasting, risk, capital allocation, and cost optimization.
   handoffs: []
-  tools: []
+  tools:
+  - SearchMemory
   systemTools: []
   mcpTools: []
   maxReflectionCount: 0

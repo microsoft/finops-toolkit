@@ -33,6 +33,9 @@
     "ftk-hubs-agent"
   ],
   "subagentRequirements": {
+    "knowledgeOnlyTools": [
+      "SearchMemory"
+    ],
     "toolOwners": [
       "azure-capacity-manager",
       "ftk-database-query",
@@ -61,8 +64,12 @@
         "sku-availability",
         "vm-quota-usage"
       ],
-      "chief-financial-officer": [],
-      "finops-practitioner": [],
+      "chief-financial-officer": [
+        "SearchMemory"
+      ],
+      "finops-practitioner": [
+        "SearchMemory"
+      ],
       "ftk-database-query": [
         "PlotAreaChartWithCorrelation",
         "PlotBarChart",
@@ -170,7 +177,7 @@
     "ownerAgent": "finops-practitioner",
     "promptRequiredText": [
       "Tool routing and delivery guard",
-      "owned by `finops-practitioner`, which has no direct tools",
+      "owned by `finops-practitioner`, which has KB-only SearchMemory and no operational tools",
       "Use `ftk-database-query` for FinOps Hub Kusto",
       "Use `azure-capacity-manager` for capacity",
       "Use `ftk-hubs-agent` for FinOps Hub infrastructure health",

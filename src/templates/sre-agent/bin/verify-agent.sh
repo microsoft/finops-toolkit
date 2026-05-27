@@ -262,18 +262,24 @@ check "Subagents" "$SA_CT" "$EXP_SA_CT"
 
 EXP_TOOL_OWNER_NAMES=$(exp_list '.subagentRequirements.toolOwners')
 if [[ -n "$EXP_TOOL_OWNER_NAMES" ]]; then
-  ACTUAL_TOOL_OWNER_NAMES=$(echo "$SUBAGENTS" | jq -r '
-    [.value[]? | select((((.properties.tools // []) | length) + ((.properties.systemTools // []) | length) + ((.properties.mcpTools // []) | length)) > 0) | .name] | sort | join(",")
+  KNOWLEDGE_ONLY_TOOLS=$(exp_list '.subagentRequirements.knowledgeOnlyTools')
+  ACTUAL_TOOL_OWNER_NAMES=$(echo "$SUBAGENTS" | jq -r --arg knowledgeOnlyTools "$KNOWLEDGE_ONLY_TOOLS" '
+    [.value[]?
+      | select(((((.properties.tools // []) + (.properties.systemTools // []) + (.properties.mcpTools // [])) - (($knowledgeOnlyTools | split(",") | map(select(length > 0))) // [])) | length) > 0)
+      | .name] | sort | join(",")
   ' 2>/dev/null)
-  check "Tool-bearing agents" "$ACTUAL_TOOL_OWNER_NAMES" "$EXP_TOOL_OWNER_NAMES"
+  check "Operational tool-bearing agents" "$ACTUAL_TOOL_OWNER_NAMES" "$EXP_TOOL_OWNER_NAMES"
 fi
 
 EXP_NO_TOOL_NAMES=$(exp_list '.subagentRequirements.noTools')
 if [[ -n "$EXP_NO_TOOL_NAMES" ]]; then
-  ACTUAL_NO_TOOL_NAMES=$(echo "$SUBAGENTS" | jq -r '
-    [.value[]? | select((((.properties.tools // []) | length) + ((.properties.systemTools // []) | length) + ((.properties.mcpTools // []) | length)) == 0) | .name] | sort | join(",")
+  KNOWLEDGE_ONLY_TOOLS=$(exp_list '.subagentRequirements.knowledgeOnlyTools')
+  ACTUAL_NO_TOOL_NAMES=$(echo "$SUBAGENTS" | jq -r --arg knowledgeOnlyTools "$KNOWLEDGE_ONLY_TOOLS" '
+    [.value[]?
+      | select(((((.properties.tools // []) + (.properties.systemTools // []) + (.properties.mcpTools // [])) - (($knowledgeOnlyTools | split(",") | map(select(length > 0))) // [])) | length) == 0)
+      | .name] | sort | join(",")
   ' 2>/dev/null)
-  check "Agents without tools" "$ACTUAL_NO_TOOL_NAMES" "$EXP_NO_TOOL_NAMES"
+  check "Agents without operational tools" "$ACTUAL_NO_TOOL_NAMES" "$EXP_NO_TOOL_NAMES"
 fi
 
 if [[ -n "$EXPECTED_CONFIG" ]]; then
