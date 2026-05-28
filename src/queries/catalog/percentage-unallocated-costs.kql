@@ -23,7 +23,7 @@
 //   organization's allocation rules. Parameterize allocationEvidenceTagKeys to match local
 //   convention. ResourceId is intentionally not used because the spec did not define whether
 //   non-resource charges should be excluded from the KPI denominator.
-// Last Tested: Pending validation against live FinOps Hub deployment
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (SEM0019 fixed: decimal(0)→real(0))
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());
@@ -35,7 +35,7 @@ Costs()
 | extend tmp_HasAllocationEvidenceTag = array_length(set_intersect(tmp_TagKeys, allocationEvidenceTagKeys)) > 0
 | extend tmp_IsUnallocated = isempty(x_CostAllocationRuleName) and isempty(x_CostCenter) and not(tmp_HasAllocationEvidenceTag)
 | summarize
-    UnallocatedEffectiveCost = todouble(sum(iff(tmp_IsUnallocated, EffectiveCost, decimal(0)))),
+    UnallocatedEffectiveCost = todouble(sum(iff(tmp_IsUnallocated, EffectiveCost, real(0)))),
     TotalEffectiveCost = todouble(sum(EffectiveCost))
     by BillingCurrency
 | extend UnallocatedPercent = todouble(iff(TotalEffectiveCost == 0.0, 0.0, UnallocatedEffectiveCost / TotalEffectiveCost * 100.0))
