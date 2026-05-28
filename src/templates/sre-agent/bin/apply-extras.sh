@@ -505,7 +505,10 @@ TOOL_COUNT="$(jq '.tools // [] | length' "$EXTRAS_FILE")"
 if [[ "$TOOL_COUNT" -gt 0 ]]; then
   for i in $(seq 0 $((TOOL_COUNT - 1))); do
     name="$(jq -r --argjson index "$i" '.tools[$index].metadata.name' "$EXTRAS_FILE")"
-    props="$(jq -c --argjson index "$i" '.tools[$index].spec' "$EXTRAS_FILE")"
+    props="$(jq -c --argjson index "$i" '
+      .tools[$index].spec
+      | if (.type // "") == "PythonTool" then .type = "PythonFunctionTool" else . end
+    ' "$EXTRAS_FILE")"
     dataplane_put_extended "tools" "$name" "ExtendedAgentTool" "[]" "$props"
   done
 else
