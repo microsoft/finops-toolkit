@@ -1004,99 +1004,154 @@ function Invoke-FinOpsMultitool {
             }
 
             # -- Contextual Guidance ---------------------------------------
-            $guidance = $null
+            # Severity: Red = address immediately, Yellow = needs attention, Green = doing well
+            $guidanceItems = @()
             switch ($mod.Fn) {
                 'Get-OrphanedResources' {
                     $orphanCount = if ($data.Orphans) { @($data.Orphans).Count } else { 0 }
-                    if ($orphanCount -gt 0) {
+                    if ($orphanCount -gt 10) {
                         $categories = @($data.Orphans | ForEach-Object { $_.Category } | Sort-Object -Unique) -join ', '
-                        $guidance = @(
-                            "Review and delete orphaned resources to eliminate waste ($categories)."
-                            "Use Azure Policy 'Audit unattached disks' to prevent future orphans."
-                            "Docs: https://learn.microsoft.com/azure/advisor/advisor-cost-recommendations"
+                        $guidanceItems = @(
+                            @{ Severity = 'Red'; Message = "$orphanCount orphaned resources found ($categories). These generate cost with zero value." }
+                            @{ Severity = 'Red'; Message = "FinOps Principle: Eliminate waste before optimizing. Orphaned resources are the easiest wins." }
+                            @{ Severity = 'Yellow'; Message = "Set up Azure Policy to audit unattached disks, NICs, and public IPs to prevent future orphans." }
+                            @{ Severity = 'Yellow'; Message = "Build a monthly cleanup cadence — orphans accumulate fast as teams scale up and down."; Docs = 'https://learn.microsoft.com/azure/advisor/advisor-cost-recommendations' }
+                        )
+                    }
+                    elseif ($orphanCount -gt 0) {
+                        $categories = @($data.Orphans | ForEach-Object { $_.Category } | Sort-Object -Unique) -join ', '
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "$orphanCount orphaned resources found ($categories). Review and delete to reclaim spend." }
+                            @{ Severity = 'Yellow'; Message = "Use Azure Policy to audit unattached disks and NICs going forward."; Docs = 'https://learn.microsoft.com/azure/advisor/advisor-cost-recommendations' }
                         )
                     }
                     else {
-                        $guidance = @("No orphaned resources found — environment is clean.")
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "No orphaned resources. Environment is clean — good operational hygiene." }
+                        )
                     }
                 }
                 'Get-IdleVMs' {
                     $idleCount = if ($data.IdleVMs) { @($data.IdleVMs).Count } else { 0 }
-                    if ($idleCount -gt 0) {
-                        $guidance = @(
-                            "Right-size or deallocate idle VMs. Check Azure Advisor for SKU recommendations."
-                            "Consider auto-shutdown schedules for dev/test VMs (saves 50-70%)."
-                            "Docs: https://learn.microsoft.com/azure/advisor/advisor-cost-recommendations#optimize-virtual-machine-spend"
+                    $scanned = if ($data.ScannedVMs) { $data.ScannedVMs } else { 0 }
+                    if ($idleCount -gt 5) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Red'; Message = "$idleCount of $scanned VMs are idle or underutilized. This is likely significant wasted spend." }
+                            @{ Severity = 'Red'; Message = "FinOps Action: Check Azure Advisor for right-size recommendations before deleting — some may just need a smaller SKU." }
+                            @{ Severity = 'Yellow'; Message = "For dev/test workloads, implement auto-shutdown schedules (saves 50-70% on non-production VMs)." }
+                            @{ Severity = 'Yellow'; Message = "Consider Azure Spot VMs for fault-tolerant workloads — up to 90% discount vs. pay-as-you-go."; Docs = 'https://learn.microsoft.com/azure/virtual-machines/spot-vms' }
+                        )
+                    }
+                    elseif ($idleCount -gt 0) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "$idleCount idle VMs detected. Right-size or deallocate to reduce spend." }
+                            @{ Severity = 'Yellow'; Message = "Check Advisor for SKU recommendations. Auto-shutdown schedules help for dev/test."; Docs = 'https://learn.microsoft.com/azure/advisor/advisor-cost-recommendations#optimize-virtual-machine-spend' }
+                        )
+                    }
+                    else {
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "All $scanned running VMs are actively utilized. Compute spend looks healthy." }
                         )
                     }
                 }
                 'Get-StorageTierAdvice' {
                     $recoCount = if ($data.Recommendations) { @($data.Recommendations).Count } else { 0 }
                     if ($recoCount -gt 0) {
-                        $guidance = @(
-                            "Move infrequently accessed data to Cool or Cold tiers (up to 50-75% savings)."
-                            "Enable lifecycle management policies to auto-tier based on last access time."
-                            "Docs: https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview"
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "$recoCount storage accounts can be moved to a cheaper tier (Cool or Cold saves 50-75%)." }
+                            @{ Severity = 'Yellow'; Message = "FinOps Principle: Match storage tier to access patterns. Most data is written once and rarely read." }
+                            @{ Severity = 'Yellow'; Message = "Enable lifecycle management policies to auto-tier blobs based on last access time — set it and forget it."; Docs = 'https://learn.microsoft.com/azure/storage/blobs/lifecycle-management-overview' }
+                        )
+                    }
+                    else {
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "All storage accounts are appropriately tiered. Good data lifecycle management." }
                         )
                     }
                 }
                 'Get-AHBOpportunities' {
                     $ahbCount = if ($rows) { @($rows).Count } else { 0 }
-                    if ($ahbCount -gt 0) {
-                        $guidance = @(
-                            "Apply Azure Hybrid Benefit to save up to 40% on Windows and 55% on SQL licensing."
-                            "Requires active Software Assurance or qualifying subscription licenses."
-                            "Docs: https://learn.microsoft.com/azure/virtual-machines/windows/hybrid-use-benefit-licensing"
+                    if ($ahbCount -gt 5) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Red'; Message = "$ahbCount resources eligible for Azure Hybrid Benefit — up to 40% savings on Windows, 55% on SQL licensing." }
+                            @{ Severity = 'Red'; Message = "FinOps Action: AHB is one of the highest-impact, lowest-effort optimizations. Apply to all eligible VMs and SQL resources." }
+                            @{ Severity = 'Yellow'; Message = "Requires Software Assurance or qualifying subscription licenses. Check with your licensing team."; Docs = 'https://learn.microsoft.com/azure/virtual-machines/windows/hybrid-use-benefit-licensing' }
+                        )
+                    }
+                    elseif ($ahbCount -gt 0) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "$ahbCount resources can use Azure Hybrid Benefit (up to 40% Windows / 55% SQL savings)." }
+                            @{ Severity = 'Yellow'; Message = "Requires Software Assurance. Low effort to apply — high cost impact."; Docs = 'https://learn.microsoft.com/azure/virtual-machines/windows/hybrid-use-benefit-licensing' }
                         )
                     }
                 }
                 'Get-TagInventory' {
                     $coverage = if ($data.TagCoverage) { $data.TagCoverage } else { 0 }
-                    if ($coverage -lt 50) {
-                        $guidance = @(
-                            "Tag coverage is low ($coverage%). Start with these cost allocation tags:"
-                            "  CostCenter, Environment, Owner, Application, Department"
-                            "Use Azure Policy 'Require a tag and its value' to enforce tagging at deployment."
-                            "Docs: https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging"
+                    $isHub = if ($data.Source -eq 'Hub') { $true } else { $false }
+                    $sourceNote = if ($isHub) { " (based on resources with cost data — actual coverage across all resources may differ)" } else { "" }
+                    if ($coverage -lt 30) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Red'; Message = "Tag coverage is critically low at $coverage%$sourceNote." }
+                            @{ Severity = 'Red'; Message = "FinOps Foundation: Tags are the #1 requirement for cost allocation. Without tags, you cannot do chargeback, showback, or unit economics." }
+                            @{ Severity = 'Red'; Message = "Start with these 5 essential tags: CostCenter, Environment, Owner, Application, Department." }
+                            @{ Severity = 'Yellow'; Message = "Use Azure Policy 'Require a tag and its value' to enforce tagging at deployment time." }
+                            @{ Severity = 'Yellow'; Message = "Use 'Inherit a tag from the resource group' policy to auto-tag existing resources."; Docs = 'https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging' }
+                        )
+                    }
+                    elseif ($coverage -lt 50) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Red'; Message = "Tag coverage at $coverage%$sourceNote — below the minimum for reliable cost allocation." }
+                            @{ Severity = 'Yellow'; Message = "FinOps requires 80%+ tag coverage for meaningful chargeback. Prioritize tagging high-cost resources first." }
+                            @{ Severity = 'Yellow'; Message = "Essential tags: CostCenter, Environment, Owner, Application, Department." }
+                            @{ Severity = 'Yellow'; Message = "Deploy tag inheritance policies to propagate subscription/RG tags to child resources."; Docs = 'https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging' }
                         )
                     }
                     elseif ($coverage -lt 80) {
-                        $guidance = @(
-                            "Tag coverage at $coverage% — good progress. Target 80%+ for reliable cost allocation."
-                            "Focus on untagged resources with the highest cost first."
-                            "Use tag inheritance policies to auto-apply subscription/RG tags to resources."
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "Tag coverage at $coverage%$sourceNote — good progress, but target 80%+ for reliable cost allocation." }
+                            @{ Severity = 'Yellow'; Message = "Focus on the highest-cost untagged resources. Use Cost Management views to find them." }
+                            @{ Severity = 'Yellow'; Message = "Enable tag inheritance policies to auto-apply subscription/RG tags to new resources." }
                         )
                     }
                     else {
-                        $guidance = @(
-                            "Tag coverage at $coverage% — excellent. Enable tag-based cost allocation in Cost Management."
-                            "Consider adding a 'Criticality' tag for workload priority in incident response."
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "Tag coverage at $coverage%$sourceNote — strong tagging discipline." }
+                            @{ Severity = 'Green'; Message = "Enable tag-based cost allocation in Cost Management to leverage your tags for chargeback." }
+                            @{ Severity = 'Green'; Message = "Consider adding a 'Criticality' tag for incident response prioritization."; Docs = 'https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging' }
                         )
                     }
                 }
                 'Get-CostByTag' {
                     if ($data.CostByTag -and $data.CostByTag.Count -gt 0) {
-                        # Find the tag with highest untagged cost
                         $untaggedCost = 0
                         foreach ($tag in $data.CostByTag.GetEnumerator()) {
                             foreach ($v in $tag.Value) {
                                 if ($v.TagValue -eq '(untagged)') { $untaggedCost += [double]$v.Cost }
                             }
                         }
-                        if ($untaggedCost -gt 0) {
-                            $guidance = @(
-                                "Untagged spend detected ($("{0:C0}" -f $untaggedCost)). This cost cannot be allocated to teams or projects."
-                                "Prioritize tagging high-cost untagged resources. Use Cost Management tag views to identify them."
+                        if ($untaggedCost -gt 1000) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Red'; Message = "Untagged spend: $("{0:C0}" -f $untaggedCost). This cost cannot be allocated to any team, project, or budget." }
+                                @{ Severity = 'Red'; Message = "FinOps Impact: Untagged spend creates 'shadow IT' — no one owns it, no one optimizes it." }
+                                @{ Severity = 'Yellow'; Message = "Use Cost Management tag views to identify the highest-cost untagged resources and tag them first." }
+                            )
+                        }
+                        elseif ($untaggedCost -gt 0) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Yellow'; Message = "Some untagged spend detected ($("{0:C0}" -f $untaggedCost)). Tag remaining resources for full cost traceability." }
                             )
                         }
                         else {
-                            $guidance = @("All scanned cost is tagged — cost allocation is fully traceable.")
+                            $guidanceItems = @(
+                                @{ Severity = 'Green'; Message = "All scanned cost is tagged. Cost allocation is fully traceable — enables chargeback and showback." }
+                            )
                         }
                     }
                     elseif ($data.NoTagsFound) {
-                        $guidance = @(
-                            "No tags exist to analyze cost against. Tag resources first (see Tag Inventory guidance)."
-                            "Start with: CostCenter, Environment, Owner — these enable chargeback/showback."
+                        $guidanceItems = @(
+                            @{ Severity = 'Red'; Message = "No tags exist to analyze cost against. Cost allocation is impossible without tags." }
+                            @{ Severity = 'Red'; Message = "FinOps Foundation: Start with CostCenter, Environment, and Owner tags. These 3 enable basic chargeback/showback." }
+                            @{ Severity = 'Yellow'; Message = "Run Tag Inventory first, then come back to Cost by Tag to see the financial impact."; Docs = 'https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging' }
                         )
                     }
                 }
@@ -1108,17 +1163,27 @@ function Invoke-FinOpsMultitool {
                         if ($previous -gt 0) {
                             $change = [math]::Round((($current - $previous) / $previous) * 100, 1)
                             if ($change -gt 20) {
-                                $guidance = @(
-                                    "Cost increased $change% month-over-month. Investigate new deployments or usage spikes."
-                                    "Set up Cost Management alerts to catch unexpected increases early."
-                                    "Docs: https://learn.microsoft.com/azure/cost-management-billing/costs/cost-mgt-alerts-monitor-usage-spending"
+                                $guidanceItems = @(
+                                    @{ Severity = 'Red'; Message = "Cost spiked $change% month-over-month. Investigate immediately — this is abnormal growth." }
+                                    @{ Severity = 'Red'; Message = "FinOps Action: Check for new deployments, usage spikes, or runaway auto-scale." }
+                                    @{ Severity = 'Yellow'; Message = "Set up Cost Management budget alerts at 80%, 90%, 100% to catch spikes early."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/costs/cost-mgt-alerts-monitor-usage-spending' }
                                 )
                             }
                             elseif ($change -gt 5) {
-                                $guidance = @("Cost increased $change% MoM — moderate growth. Review new resources deployed this period.")
+                                $guidanceItems = @(
+                                    @{ Severity = 'Yellow'; Message = "Cost increased $change% MoM. Moderate growth — review new resources deployed this period." }
+                                    @{ Severity = 'Yellow'; Message = "FinOps Practice: Establish a monthly cost review cadence to catch trends before they become problems." }
+                                )
+                            }
+                            elseif ($change -lt -5) {
+                                $guidanceItems = @(
+                                    @{ Severity = 'Green'; Message = "Cost decreased $([math]::Abs($change))% MoM. Optimization efforts are working." }
+                                )
                             }
                             else {
-                                $guidance = @("Cost trend is stable ($change% change). Good cost discipline.")
+                                $guidanceItems = @(
+                                    @{ Severity = 'Green'; Message = "Cost trend is stable ($change% change). Good cost discipline and predictable spend." }
+                                )
                             }
                         }
                     }
@@ -1126,79 +1191,158 @@ function Invoke-FinOpsMultitool {
                 'Get-ReservationAdvice' {
                     if ($data.AdvisorRecommendations -and @($data.AdvisorRecommendations).Count -gt 0) {
                         $totalSavings = if ($data.EstimatedAnnualSavings) { $data.EstimatedAnnualSavings } else { 0 }
-                        $guidance = @(
-                            "Reservation purchase opportunities found ($("{0:C0}" -f $totalSavings)/year estimated savings)."
-                            "Start with 1-year terms for flexibility. Use shared scope to maximize utilization."
-                            "Review 14-day utilization trends before purchasing to ensure steady-state usage."
-                            "Docs: https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations"
-                        )
+                        if ($totalSavings -gt 10000) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Red'; Message = "Significant reservation savings available: $("{0:C0}" -f $totalSavings)/year." }
+                                @{ Severity = 'Red'; Message = "FinOps Principle: Commitment-based discounts (RIs, Savings Plans) are the single largest cost lever — typically 30-60% savings." }
+                                @{ Severity = 'Yellow'; Message = "Start with 1-year terms for flexibility. Use shared scope to maximize utilization across subscriptions." }
+                                @{ Severity = 'Yellow'; Message = "Review 14-day usage trends before purchasing to ensure steady-state workloads."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations' }
+                            )
+                        }
+                        else {
+                            $guidanceItems = @(
+                                @{ Severity = 'Yellow'; Message = "Reservation savings available: $("{0:C0}" -f $totalSavings)/year. Consider purchasing for steady-state workloads." }
+                                @{ Severity = 'Yellow'; Message = "Start with 1-year terms. Use shared scope for best utilization."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations' }
+                            )
+                        }
                     }
                     else {
-                        $guidance = @("No reservation recommendations from Advisor. Current commitment coverage may be sufficient.")
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "No reservation recommendations. Current commitment coverage appears sufficient." }
+                        )
                     }
                 }
                 'Get-CommitmentUtilization' {
                     if ($data.HasData) {
                         $riUtil = if ($data.RIAvgUtilization) { [double]$data.RIAvgUtilization } else { 100 }
                         $spUtil = if ($data.SPAvgUtilization) { [double]$data.SPAvgUtilization } else { 100 }
-                        if ($riUtil -lt 80 -or $spUtil -lt 80) {
-                            $guidance = @(
-                                "Underutilized commitments detected. Review scope and SKU alignment."
-                                "Consider exchanging underused RIs or adjusting savings plan scope."
-                                "Target 95%+ utilization — below 80% may cost more than on-demand."
+                        $lowUtil = ($riUtil -lt 80) -or ($spUtil -lt 80)
+                        $medUtil = ($riUtil -lt 95) -or ($spUtil -lt 95)
+                        if ($lowUtil) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Red'; Message = "Commitment utilization below 80%. You may be paying more than on-demand pricing." }
+                                @{ Severity = 'Red'; Message = "FinOps Action: Review scope and SKU alignment. Exchange underused RIs for better-fitting ones." }
+                                @{ Severity = 'Yellow'; Message = "Target 95%+ utilization. Consider switching unused RIs to Savings Plans for more flexibility."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/manage-reserved-vm-instance' }
+                            )
+                        }
+                        elseif ($medUtil) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Yellow'; Message = "Commitment utilization at RI: $($data.RIAvgUtilization)%, SP: $($data.SPAvgUtilization)%. Room to improve." }
+                                @{ Severity = 'Yellow'; Message = "Review scope settings — broadening scope can improve utilization across subscriptions." }
                             )
                         }
                         else {
-                            $guidance = @("Commitment utilization is healthy (RI: $($data.RIAvgUtilization)%, SP: $($data.SPAvgUtilization)%).")
+                            $guidanceItems = @(
+                                @{ Severity = 'Green'; Message = "Commitment utilization is excellent (RI: $($data.RIAvgUtilization)%, SP: $($data.SPAvgUtilization)%). Maximum discount realized." }
+                            )
                         }
+                    }
+                }
+                'Get-SavingsRealized' {
+                    if ($data.TotalMonthly -and $data.TotalMonthly -gt 0) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "Realizing $($data.TotalMonthly.ToString('C0'))/month ($($data.TotalAnnual.ToString('C0'))/year) in commitment discounts." }
+                            @{ Severity = 'Green'; Message = "FinOps Maturity: Active savings tracking shows Run-level FinOps maturity. Keep reviewing quarterly." }
+                        )
+                    }
+                    else {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "No savings from commitments detected. Evaluate RIs and Savings Plans for steady-state workloads." }
+                            @{ Severity = 'Yellow'; Message = "FinOps Practice: Commitment discounts are the #1 cost optimization lever (30-60% savings)."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations' }
+                        )
                     }
                 }
                 'Get-BudgetStatus' {
                     $atRisk = if ($data.AtRiskCount) { $data.AtRiskCount } else { 0 }
                     $over = if ($data.OverBudgetCount) { $data.OverBudgetCount } else { 0 }
-                    $coverage = if ($data.BudgetCoverage) { $data.BudgetCoverage } else { 0 }
+                    $bCoverage = if ($data.BudgetCoverage) { $data.BudgetCoverage } else { 0 }
                     if ($over -gt 0) {
-                        $guidance = @(
-                            "$over budget(s) exceeded. Review overage causes and adjust budget amounts or spending."
-                            "Add action groups to trigger alerts at 80%, 90%, 100% thresholds."
+                        $guidanceItems = @(
+                            @{ Severity = 'Red'; Message = "$over budget(s) exceeded. Immediate review needed — spending is above approved levels." }
+                            @{ Severity = 'Red'; Message = "FinOps Action: Identify the cause (new deployments, usage spike, missing commitment) and remediate." }
+                            @{ Severity = 'Yellow'; Message = "Add action groups with alerts at 80%, 90%, 100% thresholds to catch overruns earlier next period."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets' }
                         )
                     }
                     elseif ($atRisk -gt 0) {
-                        $guidance = @(
-                            "$atRisk budget(s) at risk of overrun. Review forecasted spend vs. remaining budget."
-                            "Consider proactive cost reduction before period end."
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "$atRisk budget(s) at risk of overrun. Review forecasted spend vs. remaining budget." }
+                            @{ Severity = 'Yellow'; Message = "FinOps Practice: Proactive budget monitoring prevents end-of-period surprises. Consider cost reduction now." }
                         )
                     }
-                    elseif ($coverage -lt 50) {
-                        $guidance = @(
-                            "Budget coverage is $coverage%. Create budgets for each subscription or resource group."
-                            "Budgets are the foundation of FinOps — they enable alerts, forecasting, and accountability."
-                            "Docs: https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets"
+                    elseif ($bCoverage -lt 50) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Red'; Message = "Budget coverage is only $bCoverage%. Most subscriptions have no budget — spending is untracked." }
+                            @{ Severity = 'Red'; Message = "FinOps Foundation: Budgets are the starting point for cost accountability. Without them, there's no alerting, no forecasting, no governance." }
+                            @{ Severity = 'Yellow'; Message = "Create a budget for every subscription. Start with last month's actual spend + 10% buffer."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets' }
                         )
                     }
                     else {
-                        $guidance = @("Budgets are healthy. All within thresholds with $coverage% coverage.")
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "Budgets are healthy. All within thresholds with $bCoverage% coverage. Good financial governance." }
+                        )
+                    }
+                }
+                'Get-AnomalyAlerts' {
+                    $activeAlerts = if ($data.ActiveAlertCount) { $data.ActiveAlertCount } else { 0 }
+                    $rules = if ($data.ConfiguredRuleCount) { $data.ConfiguredRuleCount } else { 0 }
+                    if ($activeAlerts -gt 0) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "$activeAlerts active anomaly alerts. Review to determine if they indicate unexpected spend patterns." }
+                            @{ Severity = 'Yellow'; Message = "FinOps Practice: Cost anomaly detection is an early warning system. Investigate anomalies promptly." }
+                        )
+                    }
+                    elseif ($rules -eq 0) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "No anomaly detection rules configured. Set up Cost Management anomaly alerts for early spend warnings." }
+                            @{ Severity = 'Yellow'; Message = "Anomaly detection is built into Azure Cost Management at no extra cost."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges' }
+                        )
+                    }
+                    else {
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "Anomaly detection is configured with $rules rule(s) and no active alerts. Monitoring is working." }
+                        )
                     }
                 }
                 'Get-PolicyInventory' {
                     $compliance = if ($data.CompliancePct) { $data.CompliancePct } else { 0 }
                     $nonCompliant = if ($data.TotalNonCompliant) { $data.TotalNonCompliant } else { 0 }
-                    if ($nonCompliant -gt 0) {
-                        $guidance = @(
-                            "$nonCompliant non-compliant resources found ($compliance% compliance)."
-                            "Review non-compliant resources and remediate or create exemptions."
-                            "Use 'Deny' effect for critical policies, 'Audit' for visibility during rollout."
+                    if ($nonCompliant -gt 20) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Red'; Message = "$nonCompliant non-compliant resources ($compliance% compliance). Governance gaps are significant." }
+                            @{ Severity = 'Yellow'; Message = "FinOps Governance: Use 'Deny' for critical policies (e.g., required tags). Use 'Audit' first during rollout." }
+                            @{ Severity = 'Yellow'; Message = "Create remediation tasks for existing non-compliant resources."; Docs = 'https://learn.microsoft.com/azure/governance/policy/how-to/remediate-resources' }
+                        )
+                    }
+                    elseif ($nonCompliant -gt 0) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "$nonCompliant non-compliant resources ($compliance% compliance). Review and remediate or create exemptions." }
+                        )
+                    }
+                    else {
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "Full policy compliance ($compliance%). Strong governance posture." }
                         )
                     }
                 }
                 'Get-PolicyRecommendations' {
                     if ($data.Analysis -and @($data.Analysis).Count -gt 0) {
                         $missing = @($data.Analysis | Where-Object { $_.Status -eq 'Missing' })
-                        if ($missing.Count -gt 0) {
-                            $guidance = @(
-                                "$($missing.Count) recommended policies are not assigned."
-                                "Start with: tag enforcement, allowed locations, and allowed VM SKUs."
-                                "Docs: https://learn.microsoft.com/azure/governance/policy/samples/built-in-policies"
+                        if ($missing.Count -gt 5) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Red'; Message = "$($missing.Count) recommended FinOps policies are not assigned. Governance foundation is incomplete." }
+                                @{ Severity = 'Yellow'; Message = "Priority policies: tag enforcement, allowed VM SKUs, allowed locations, resource naming." }
+                                @{ Severity = 'Yellow'; Message = "FinOps Practice: Policy-driven governance prevents cost waste at deployment time — cheaper than cleanup."; Docs = 'https://learn.microsoft.com/azure/governance/policy/samples/built-in-policies' }
+                            )
+                        }
+                        elseif ($missing.Count -gt 0) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Yellow'; Message = "$($missing.Count) recommended policies not yet assigned. Review and deploy as needed." }
+                                @{ Severity = 'Yellow'; Message = "Start with: tag enforcement, allowed locations, and allowed VM SKUs."; Docs = 'https://learn.microsoft.com/azure/governance/policy/samples/built-in-policies' }
+                            )
+                        }
+                        else {
+                            $guidanceItems = @(
+                                @{ Severity = 'Green'; Message = "All recommended FinOps policies are assigned. Strong governance foundation." }
                             )
                         }
                     }
@@ -1206,25 +1350,65 @@ function Invoke-FinOpsMultitool {
                 'Get-OptimizationAdvice' {
                     if ($data.Recommendations -and @($data.Recommendations).Count -gt 0) {
                         $highImpact = @($data.Recommendations | Where-Object { $_.Impact -eq 'High' })
-                        $guidance = @(
-                            "$(@($data.Recommendations).Count) Advisor recommendations ($($highImpact.Count) high-impact)."
-                            "Prioritize high-impact items first — they offer the largest return for effort."
-                            "Dismiss recommendations you've already evaluated to keep the list actionable."
-                        )
+                        if ($highImpact.Count -gt 5) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Red'; Message = "$($highImpact.Count) high-impact Advisor recommendations. Significant savings available." }
+                                @{ Severity = 'Red'; Message = "FinOps Action: Start with high-impact items — they offer the largest return for effort." }
+                                @{ Severity = 'Yellow'; Message = "Dismiss recommendations you've evaluated to keep the list actionable. Review monthly." }
+                            )
+                        }
+                        else {
+                            $guidanceItems = @(
+                                @{ Severity = 'Yellow'; Message = "$(@($data.Recommendations).Count) Advisor recommendations ($($highImpact.Count) high-impact). Review and prioritize." }
+                                @{ Severity = 'Yellow'; Message = "Dismiss evaluated items to keep the list clean. Azure Advisor refreshes daily." }
+                            )
+                        }
                     }
                     else {
-                        $guidance = @("No Advisor cost recommendations — well optimized.")
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "No Advisor cost recommendations. Environment is well optimized." }
+                        )
+                    }
+                }
+                'Get-CostData' {
+                    if ($data -is [hashtable] -and $data.Count -gt 0) {
+                        $totalActual = 0
+                        foreach ($sub in $data.GetEnumerator()) { $totalActual += [double]$sub.Value.Actual }
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "Current period spend: $("{0:C0}" -f $totalActual) across $($data.Count) subscription(s)." }
+                            @{ Severity = 'Green'; Message = "FinOps Practice: Review actual vs. forecast regularly. Pair this data with Budget Status to track variance." }
+                        )
+                    }
+                }
+                'Get-ResourceCosts' {
+                    $topCount = if ($data) { @($data).Count } else { 0 }
+                    if ($topCount -gt 0) {
+                        $topCost = [double](@($data) | Sort-Object { [double]$_.Actual } -Descending | Select-Object -First 1).Actual
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "Top resource costs $("{0:C2}" -f $topCost). Focus optimization on the largest cost drivers." }
+                            @{ Severity = 'Yellow'; Message = "FinOps Practice: The top 20% of resources typically drive 80% of spend. Optimize these first." }
+                        )
                     }
                 }
             }
 
-            # Render guidance
-            if ($guidance) {
+            # Render guidance with severity colors
+            if ($guidanceItems.Count -gt 0) {
                 Write-Host ""
-                Write-Host "    GUIDANCE" -ForegroundColor Yellow
-                foreach ($line in $guidance) {
-                    $color = if ($line -match '^Docs:') { 'DarkCyan' } else { 'DarkYellow' }
-                    Write-Host "    $line" -ForegroundColor $color
+                # Determine overall severity for the header
+                $hasCritical = $guidanceItems | Where-Object { $_.Severity -eq 'Red' }
+                $hasWarning = $guidanceItems | Where-Object { $_.Severity -eq 'Yellow' }
+                $headerColor = if ($hasCritical) { 'Red' } elseif ($hasWarning) { 'Yellow' } else { 'Green' }
+                $headerIcon = switch ($headerColor) { 'Red' { '[!]' } 'Yellow' { '[~]' } 'Green' { '[+]' } }
+                Write-Host "    $headerIcon GUIDANCE" -ForegroundColor $headerColor
+
+                foreach ($item in $guidanceItems) {
+                    $color = switch ($item.Severity) { 'Red' { 'Red' } 'Yellow' { 'DarkYellow' } 'Green' { 'Green' } default { 'Gray' } }
+                    $icon = switch ($item.Severity) { 'Red' { '!' } 'Yellow' { '~' } 'Green' { '+' } default { '-' } }
+                    Write-Host "    $icon $($item.Message)" -ForegroundColor $color
+                    if ($item.Docs) {
+                        Write-Host "      $($item.Docs)" -ForegroundColor DarkCyan
+                    }
                 }
             }
 
