@@ -527,7 +527,7 @@ if [[ "$SKILL_COUNT" -gt 0 ]]; then
         description: (.skills[$index].metadata.description // ""),
         tools: (.skills[$index].metadata.spec.tools // []),
         skillContent: (.skills[$index].skillContent // ""),
-        additionalFiles: (.skills[$index].additionalFiles // [])
+        additionalFiles: []
       }' "$EXTRAS_FILE")"
     dataplane_put_extended "skills" "$name" "Skill" "[]" "$props"
   done
