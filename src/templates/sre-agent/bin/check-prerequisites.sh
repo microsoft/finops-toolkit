@@ -15,7 +15,7 @@ EOF
 check_prerequisites() {
   local missing=0
 
-  for cmd in az curl git jq srectl; do
+  for cmd in az curl git jq; do
     if ! command -v "$cmd" &>/dev/null; then
       echo "  ❌ Missing: $cmd" >&2
       missing=$((missing + 1))

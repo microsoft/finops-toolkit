@@ -1,6 +1,6 @@
 # Agent instructions
 
-**⛔ PROHIBITED: Manual Azure resource intervention.** Do not run Azure control-plane or data-plane commands against live SRE Agent resources outside the canonical entry point `bin/deploy.sh` and its owned helper scripts in `infra/` and `bin/post-provision.sh`. All Azure changes go through the release process. No exceptions.
+**⛔ PROHIBITED: Manual Azure resource intervention.** Do not run Azure control-plane or data-plane commands against live SRE Agent resources outside the canonical entry point `bin/deploy.sh` and its owned helper scripts in `infra/`, `bin/apply-extras.sh`, and the deprecated compatibility wrapper `bin/post-provision.sh`. All Azure changes go through the release process. No exceptions.
 
 Load the `azure-sre-agent` skill at session start and after every compaction or summarization.
 

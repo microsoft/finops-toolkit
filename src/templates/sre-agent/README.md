@@ -5,7 +5,7 @@ Deploy and configure an Azure SRE Agent with the FinOps toolkit recipe under `re
 The deployment flow is copied from the Microsoft SRE Agent starter lab and updated for the FinOps toolkit:
 
 - Azure CLI + Bicep deploy the SRE Agent infrastructure.
-- The post-provision path configures the Kusto connector and KnowledgeFile sources through the SRE Agent data plane, then uses `srectl` for tools, skills, subagents, and scheduled tasks.
+- `bin/apply-extras.sh` applies recipe assets that are not deployed by Bicep: connectors, KnowledgeFile sources, built-in tool configuration, tools, skills, subagents, and scheduled tasks.
 - `azd` is not used.
 
 ## What you get
@@ -41,7 +41,7 @@ The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CAT
 | KustoTool | 21 | `cost-anomaly-detection`, `ai-token-usage-breakdown`, `reservation-recommendation-breakdown` |
 | PythonTool | 13 | `vm-quota-usage`, `data-freshness-check`, `db-service-quotas`, `sku-availability` |
 
-The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Stable` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. `bin/post-provision.sh` enables the SRE Agent built-in Log Query and Visualization tools. It uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible `KnowledgeFile` sources, then verifies the expected sources are indexed before tools, subagents, and scheduled tasks are applied. The post-provision path also removes direct Agent Memory document artifacts left by older broken deployments so the portal Knowledge Sources remain the source of truth. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
+The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Stable` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. `bin/apply-extras.sh` enables the SRE Agent built-in Log Query and Visualization tools. It uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible `KnowledgeFile` sources, then verifies the expected sources are indexed before tools, subagents, and scheduled tasks are applied. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
 
 Scheduled reports must distinguish product or deployment defects from expected evaluation-data limits and customer-owned delegation. Limited Hub history, empty transaction diagnostics, and missing multi-period trigger evidence reduce confidence; they are not by themselves deployment failures. Broader management group, billing, quota, or subscription visibility should be reported as a required customer delegation step unless this template explicitly owns the role assignment.
 
@@ -84,7 +84,6 @@ The phase model is iterative:
 - `jq`
 - `python3` with PyYAML
 - Bash 3.2 or newer
-- `srectl`
 - `Microsoft.App` registered in the target subscription
 
 Run:
@@ -109,7 +108,6 @@ bash bin/deploy.sh \
   [--target-resource-group <target-rg> ...] \
   [--dry-run] \
   [--force] \
-  [--fallback-srectl] \
   [--no-telemetry]
 ```
 
@@ -133,7 +131,7 @@ Optional:
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
-  --fallback-srectl                   Accepted for compatibility; srectl is always used for post-provision.
+  --fallback-srectl                   Accepted for compatibility; ignored.
   --no-telemetry                      Accepted for compatibility.
   -h, --help                          Show this help.
 ```
@@ -154,9 +152,23 @@ bash bin/deploy.sh \
   --dry-run
 ```
 
-When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane when requested, enable built-in Log Query and Visualization tools, and apply the remaining recipe assets with `srectl`.
+You can also validate the local extras assembly without Azure calls:
 
-Supporting resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Rerunning the script with the same values updates the same Log Analytics workspace, Application Insights component, system-managed identity RBAC assignments, and SRE Agent. Post-provisioning deletes existing scheduled tasks with the recipe's task names before applying manifests so redeployments don't create duplicate automations. `--deploy-name` only changes the ARM deployment record and local build directory.
+```bash
+bash bin/apply-extras.sh \
+  --endpoint https://example.sre.azure.com \
+  --subscription <subscription-id> \
+  --resource-group <your-rg> \
+  --name <your-agent-name> \
+  --recipe recipes/finops-hub \
+  --build-dir /tmp/ftk-sre-agent-extras \
+  --kusto-connector-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
+  --dry-run
+```
+
+When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/apply-extras.sh` to apply the recipe extras. The helper follows the upstream SRE Agent template pattern: connectors and KnowledgeFile sources use ARM child resources, while built-in tool configuration, custom tools, skills, subagents, and scheduled tasks use the SRE Agent data plane.
+
+Supporting resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Rerunning the script with the same values updates the same Log Analytics workspace, Application Insights component, system-managed identity RBAC assignments, and SRE Agent. The apply-extras step deletes existing scheduled tasks with the recipe's task names before applying manifests so redeployments don't create duplicate automations. `--deploy-name` only changes the ARM deployment record and local build directory.
 
 The deployment intentionally keeps the SRE Agent onboarding wizard in the portal. The wizard uses the agent managed identity first to discover managed Azure resources and may show a **Grant permissions** OBO prompt if the identity cannot read a scope yet. Do not bypass that flow. Instead, confirm the agent has the expected managed-resource scopes and RBAC:
 

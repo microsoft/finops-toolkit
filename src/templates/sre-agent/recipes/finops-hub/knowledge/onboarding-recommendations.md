@@ -25,7 +25,7 @@ If the wizard shows **Grant permissions** while running an Azure Resource Graph 
 
 ## Verify visualization tools
 
-The FinOps Toolkit post-provision step attempts to enable the SRE Agent built-in Log Query and Visualization tools. The portal remains the customer-facing verification path:
+The FinOps Toolkit apply-extras step attempts to enable the SRE Agent built-in Log Query and Visualization tools. The portal remains the customer-facing verification path:
 
 1. Open the agent in [sre.azure.com](https://sre.azure.com).
 2. Go to **Capabilities** > **Tools** > **Built-in tools**.
@@ -42,7 +42,7 @@ Important platform constraint:
 
 - Outlook and Teams connectors are supported by Azure SRE Agent.
 - Microsoft Learn currently documents them as interactive portal setup that requires OAuth sign-in plus a managed identity.
-- Do not imply that these connectors are provisioned by the FinOps Toolkit Bicep templates or `post-provision` automation.
+- Do not imply that these connectors are provisioned by the FinOps Toolkit Bicep templates or `apply-extras` automation.
 
 ## Manual connector steps to recommend
 

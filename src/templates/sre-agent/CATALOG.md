@@ -201,7 +201,7 @@ All Kusto tools are owned by `ftk-database-query`. Other agents request Kusto ev
 
 ### Built-in tools
 
-The recipe enables SRE Agent platform tools through `config/built-in-tools.json` during post-provisioning. These are platform tools, not custom recipe tools. FinOps Hub database access remains owned by the custom Kusto tools assigned to `ftk-database-query`.
+The recipe enables SRE Agent platform tools through `config/built-in-tools.json` during the apply-extras step. These are platform tools, not custom recipe tools. FinOps Hub database access remains owned by the custom Kusto tools assigned to `ftk-database-query`.
 
 | Category | Enabled tools |
 |----------|---------------|
@@ -228,10 +228,10 @@ The recipe enables SRE Agent platform tools through `config/built-in-tools.json`
 
 ## Operating notes
 
-- The Kusto connector is applied by `bin/post-provision.sh` through the SRE Agent data plane when a Kusto URI is provided. The Bicep deployment grants the agent managed identity `AllDatabasesViewer` on the Azure Data Explorer cluster before the Kusto connector is created. This is required because the Hub functions can resolve cross-database references such as `Ingestion`. `finops-hub-kusto` supports the recipe's custom query tools. Scheduled tasks are applied by the same helper using `srectl`.
+- The Kusto connector is applied by `bin/apply-extras.sh` as an SRE Agent connector child resource when a Kusto URI is provided. The Bicep deployment grants the agent managed identity `AllDatabasesViewer` on the Azure Data Explorer cluster before the Kusto connector is created. This is required because the Hub functions can resolve cross-database references such as `Ingestion`. `finops-hub-kusto` supports the recipe's custom query tools. Scheduled tasks are applied by the same helper through the SRE Agent data plane.
 - The portal Team onboarding wizard is part of the expected customer flow and must not be bypassed. The deployment supports it by adding the agent resource group, explicit target resource groups, and same-subscription FinOps Hub resource group to the agent managed-resource scope, then assigning the agent identity target-scope RBAC for Azure Resource Graph and Azure CLI discovery.
 - When the target Azure Data Explorer cluster denies public query access, `bin/deploy.sh` still deploys all resources, grants cluster `AllDatabasesViewer`, and creates the connector, then warns that private endpoint ADX blocks direct KQL queries from the hosted SRE Agent and links to the SRE Agent known limitations.
 - The SRE Agent resource is deployed with `Microsoft.App/agents@2026-01-01`, `upgradeChannel: Stable`, `experimentalSettings.EnableSandboxGroup`, and `experimentalSettings.EnableWorkspaceTools`.
-- `bin/post-provision.sh` uploads `ftk-output-style.md` from the Claude plugin output styles as a portal-visible `KnowledgeFile` source and verifies the expected KnowledgeFile sources are indexed. Every scheduled task explicitly applies that style for report, Teams-message, and Outlook-email output.
+- `bin/apply-extras.sh` uploads `ftk-output-style.md` from the Claude plugin output styles as a portal-visible `KnowledgeFile` source and verifies the expected KnowledgeFile sources are indexed. Every scheduled task explicitly applies that style for report, Teams-message, and Outlook-email output.
 - `README.md` carries the deployment workflow; this file carries the detailed implemented recipe inventory.
 - Add or remove scheduled task YAML, tool YAML, subagent YAML, or skill directories first, then update this catalog and `README.md` in the same change.

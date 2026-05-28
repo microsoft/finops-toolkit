@@ -3,7 +3,7 @@ title: Configure an SRE agent for FinOps hubs
 description: Learn how to configure an Azure SRE agent to connect to your FinOps hub for scheduled cost analysis, capacity monitoring, and reporting.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/25/2026
+ms.date: 05/28/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -24,7 +24,6 @@ ms.reviewer: micflan
 - An Azure subscription where you have the **Owner** or **User Access Administrator** role. [Learn more](/azure/role-based-access-control/built-in-roles).
 - The `Microsoft.App` resource provider [registered](https://learn.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) on the subscription.
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) 2.60 or later.
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) for [`srectl`](https://learn.microsoft.com/azure/sre-agent/tools).
 - `curl`, `jq`, `python3`, and `bash` available locally for the [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent).
 
 <br>
@@ -85,9 +84,9 @@ The [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/sr
 
 1. Sets the `az` CLI context to the target subscription. This step is required for [B2B tenant environments](#troubleshoot-b2b-tenant-environments).
 2. Runs a subscription-scoped Azure CLI + Bicep deployment from `infra/main.bicep`.
-3. Runs `bin/post-provision.sh`, which configures the Kusto connector through the SRE Agent data plane and applies the remaining recipe assets with `srectl`.
+3. Runs `bin/apply-extras.sh`, which applies the recipe assets that are not deployed by Bicep.
 
-The post-provision step uses [`srectl`](https://learn.microsoft.com/azure/sre-agent/tools) to apply 3 skills, 5 subagents, 34 tools, and 19 scheduled tasks. It also uploads 6 portal-visible Knowledge Sources through the SRE Agent data plane.
+The extras step follows the Microsoft SRE Agent template pattern: connectors and KnowledgeFile sources are applied as SRE Agent child resources, while built-in tool configuration, 3 skills, 5 subagents, 34 tools, and 19 scheduled tasks are applied through the SRE Agent data plane.
 
 ### Grant the optional Azure Data Explorer viewer role
 
@@ -129,7 +128,7 @@ az group delete --subscription <subscription-id> --name <your-rg>
 
 After `bin/deploy.sh` completes, use the template's [post-deployment verification guidance](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent#verify):
 
-1. Confirm `bin/post-provision.sh` completed without errors.
+1. Confirm `bin/apply-extras.sh` completed without errors.
 2. Open [sre.azure.com](https://sre.azure.com), switch to the directory that contains your subscription, and select your agent.
 3. Confirm 5 subagents, 3 skills, and 34 tools appear in **Builder**.
 4. Go to **Scheduled tasks** and confirm 19 tasks are listed and active.
@@ -159,25 +158,25 @@ The template deploys 19 scheduled tasks from the [`recipes/finops-hub/automation
 
 | Task | Agent | Schedule | What it reports |
 |------|-------|----------|-----------------|
-| HubsHealthCheck | ftk-hubs-agent | Daily 6:00 AM | Hub version, data freshness, and pipeline status |
-| CapacityDailyMonitor | azure-capacity-manager | Daily 6:30 AM | Quota usage, CRG utilization, and alert status |
-| ComputeUtilizationTrend | azure-capacity-manager | Weekly Monday 7:00 AM | VM quota utilization trends across subscriptions and regions |
+| HubsHealthCheck | finops-practitioner | Daily 6:00 AM | Hub version, data freshness, and pipeline status |
+| CapacityDailyMonitor | finops-practitioner | Daily 6:30 AM | Quota usage, CRG utilization, and alert status |
+| ComputeUtilizationTrend | finops-practitioner | Weekly Monday 7:00 AM | VM quota utilization trends across subscriptions and regions |
 | CostOptimization | finops-practitioner | Weekly Monday 8:00 AM | Orphaned resources, rightsizing, and commitment opportunities |
-| CapacityWeeklySupplyReview | azure-capacity-manager | Weekly Monday 8:00 AM | Quota headroom, CRG cost-waste audit, and benefit recommendations |
-| NonComputeQuotaAudit | azure-capacity-manager | Weekly Tuesday 7:00 AM | Storage, network, and non-compute quota risks |
-| DbQuotaAudit | azure-capacity-manager | Weekly Wednesday 7:00 AM | Database quota and region or zone access risks |
-| SkuAvailabilityAudit | azure-capacity-manager | Weekly Wednesday 7:30 AM | Regional SKU availability and deployment blockers |
-| MonitoringScopeValidation | ftk-hubs-agent | Weekly Thursday 9:00 AM | Subscription monitoring coverage and hub freshness |
+| CapacityWeeklySupplyReview | finops-practitioner | Weekly Monday 8:00 AM | Quota headroom, CRG cost-waste audit, and benefit recommendations |
+| NonComputeQuotaAudit | finops-practitioner | Weekly Tuesday 7:00 AM | Storage, network, and non-compute quota risks |
+| DbQuotaAudit | finops-practitioner | Weekly Wednesday 7:00 AM | Database quota and region or zone access risks |
+| SkuAvailabilityAudit | finops-practitioner | Weekly Wednesday 7:30 AM | Regional SKU availability and deployment blockers |
+| MonitoringScopeValidation | finops-practitioner | Weekly Thursday 9:00 AM | Subscription monitoring coverage and hub freshness |
 | BenefitRecommendationReview | finops-practitioner | Weekly Friday 8:00 AM | Reservation and savings plan recommendations with finance framing |
-| StoragePaasGrowthForecast | azure-capacity-manager | Monthly 1st 8:00 AM | Storage and PaaS quota growth forecast |
+| StoragePaasGrowthForecast | finops-practitioner | Monthly 1st 8:00 AM | Storage and PaaS quota growth forecast |
 | AdvisorSuppressionReview | finops-practitioner | Monthly 1st 9:00 AM | Active Advisor suppression age, expiration, and risk |
-| CapacityMonthlyPlanning | azure-capacity-manager | Monthly 1st 9:00 AM | Demand forecast, capacity request pipeline, and governance review |
+| CapacityMonthlyPlanning | finops-practitioner | Monthly 1st 9:00 AM | Demand forecast, capacity request pipeline, and governance review |
 | AIWorkloadCostAnalysis | finops-practitioner | Monthly 1st 10:00 AM | AI token economics, model efficiency, and cost allocation |
 | Monthly | finops-practitioner | Monthly on the 5th at 5:15 PM | Month-over-month cost analysis using Kusto evidence delegated to ftk-database-query |
 | BudgetCoverageAudit | finops-practitioner | Monthly 15th 8:00 AM | Subscription budget coverage and missing guardrails |
 | AlertCoverageAudit | finops-practitioner | Monthly 16th 8:00 AM | Cost anomaly alert coverage across active subscriptions |
 | Semiannual | finops-practitioner | January 5 and July 5 at 9:00 AM | Semiannual year-over-year finance analysis with forecast and CFO consultation |
-| CapacityQuarterlyStrategy | azure-capacity-manager | Quarterly 9:00 AM | FinOps capability maturity, commitment alignment, and architecture review |
+| CapacityQuarterlyStrategy | finops-practitioner | Quarterly 9:00 AM | FinOps capability maturity, commitment alignment, and architecture review |
 
 Each scheduled task reads the uploaded knowledge documents before it starts and applies `ftk-output-style.md` for evidence, formatting, FinOps capability mapping, confidence, and caveat conventions. Send financial results to Teams through the configured [notification connector](https://learn.microsoft.com/azure/sre-agent/send-notifications). Save only operational notes, such as tool errors, workarounds, and patterns, to agent [memory](https://learn.microsoft.com/azure/sre-agent/memory) with `#remember`; don't save financial data.
 
@@ -187,11 +186,11 @@ Each scheduled task reads the uploaded knowledge documents before it starts and 
 
 In B2B environments, the Azure subscription and Azure SRE Agent resource can live in a different Microsoft Entra tenant than your Microsoft 365 home tenant. The deployment script sets the active subscription before deployment to align the CLI context with the resource tenant.
 
-If [sre.azure.com](https://sre.azure.com) shows the agent correctly but [`srectl`](https://learn.microsoft.com/azure/sre-agent/tools) returns `401`, `403`, or `Forbidden: Access denied by PDP`, use the [B2B tenant troubleshooting steps](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent#b2b-tenant-note-for-srectl):
+If [sre.azure.com](https://sre.azure.com) shows the agent correctly but `bin/apply-extras.sh` cannot get an SRE Agent data-plane token, use these B2B tenant checks:
 
 1. Confirm the active Azure CLI context points at the subscription that owns the SRE agent resource.
 2. Re-authenticate against the tenant that owns the subscription.
-3. Re-run `srectl init --resource-url <endpoint>`, then retry `srectl status`.
+3. Run `az login --scope https://azuresre.dev/.default`, then rerun `bin/deploy.sh` or `bin/apply-extras.sh`.
 
 Browser success with CLI failure indicates that the CLI token was issued for the wrong tenant. The [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) runs `az account set --subscription` before deployment to set the target subscription context.
 

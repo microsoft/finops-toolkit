@@ -1,6 +1,6 @@
 # FinOps toolkit SRE Agent knowledge document index
 
-This document is the canonical index for the repository-provided knowledge base. It is also a deployment verification sentinel after `recipes/finops-hub/knowledge/` is uploaded as SRE Agent KnowledgeFile sources through `bin/post-provision.sh`.
+This document is the canonical index for the repository-provided knowledge base. It is also a deployment verification sentinel after `recipes/finops-hub/knowledge/` is uploaded as SRE Agent KnowledgeFile sources through `bin/apply-extras.sh`.
 
 ## Document inventory
 
@@ -15,7 +15,7 @@ This document is the canonical index for the repository-provided knowledge base.
 
 ## Listing contract
 
-- Knowledge files are uploaded by `bin/post-provision.sh` as portal-visible KnowledgeFile sources.
+- Knowledge files are uploaded by `bin/apply-extras.sh` as portal-visible KnowledgeFile sources.
 - `ftk-output-style.md` is uploaded by the same script from the Claude plugin output-style directory so scheduled tasks can apply one shared report style.
 - If the knowledge index is not visible in the portal after upload, treat it as an upload visibility failure or an empty knowledge base.
 

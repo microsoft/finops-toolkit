@@ -6,7 +6,7 @@
 # for this template:
 #   - uses Azure CLI + Bicep directly, not azd
 #   - deploys the FinOps SRE Agent infrastructure only, not the Grubify lab app
-#   - configures the agent with srectl after ARM succeeds
+#   - applies non-Bicep recipe assets with apply-extras after ARM succeeds
 # =============================================================================
 
 set -euo pipefail
@@ -40,7 +40,7 @@ Optional:
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
-  --fallback-srectl                   Accepted for compatibility; srectl is always used for post-provision.
+  --fallback-srectl                   Accepted for compatibility; ignored.
   --no-telemetry                      Accepted for compatibility.
   -h, --help                          Show this help.
 EOF
@@ -331,7 +331,6 @@ append_target_rg "$RESOURCE_GROUP"
 
 command -v az >/dev/null || fail "Azure CLI (az) is required" 1
 command -v jq >/dev/null || fail "jq is required" 1
-command -v srectl >/dev/null || fail "srectl is required" 1
 command -v git >/dev/null || fail "git is required" 1
 
 PYTHON_CMD=""
@@ -427,7 +426,6 @@ echo -e "${BLUE}============================================================${NC
 echo ""
 echo -e "${YELLOW}[1/4] Checking prerequisites...${NC}"
 echo "  az:       $(az version --query '\"azure-cli\"' -o tsv 2>/dev/null || echo found)"
-echo "  srectl:   $(srectl --version 2>/dev/null | head -1 || echo found)"
 echo "  jq:       $(jq --version)"
 echo "  python:   $($PYTHON_CMD --version 2>&1)"
 echo "  azd:      not used"
@@ -512,22 +510,22 @@ AGENT_PORTAL_URL="$(deployment_output_value "$RESULT_FILE" "AGENT_PORTAL_URL" "h
 [[ -n "$SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID" ]] || fail "Deployment succeeded but did not return SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID" 1
 
 echo ""
-echo -e "${YELLOW}[4/4] Configuring SRE Agent with srectl...${NC}"
-POST_PROVISION_ARGS=(
+echo -e "${YELLOW}[4/4] Applying SRE Agent extras...${NC}"
+APPLY_EXTRAS_ARGS=(
   --endpoint "$AGENT_ENDPOINT"
   --subscription "$SUBSCRIPTION_ID"
   --resource-group "$RESOURCE_GROUP"
   --name "$AGENT_NAME"
   --recipe "$RECIPE_DIR"
-  --build-dir "${BUILD_DIR}/post-provision"
+  --build-dir "${BUILD_DIR}/extras"
 )
 
 if [[ -n "$CLUSTER_URI" ]]; then
-  POST_PROVISION_ARGS+=(--kusto-connector-uri "$CLUSTER_URI")
+  APPLY_EXTRAS_ARGS+=(--kusto-connector-uri "$CLUSTER_URI")
 fi
 
-bash "${SCRIPT_DIR}/post-provision.sh" \
-  "${POST_PROVISION_ARGS[@]}"
+bash "${SCRIPT_DIR}/apply-extras.sh" \
+  "${APPLY_EXTRAS_ARGS[@]}"
 
 echo ""
 echo -e "${BLUE}============================================================${NC}"
