@@ -33,7 +33,7 @@
 //     the let bindings for rolling windows.
 //   - KPI limitation vs canonical definition: This implementation uses
 //     EffectiveCost as the cost basis for commitment-discount waste analytics.
-// Last Tested: Pending validation against live FinOps Hub deployment
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: ZERO_ROWS — Schema match after SEM0019 fix; data gap — same as commitment-utilization-score. Re-UAT on commitment-active hub recommended.
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());
@@ -45,10 +45,10 @@ let filteredCosts =
 let commitmentWaste =
     filteredCosts
     | summarize
-        UnusedCost = sum(iff(CommitmentDiscountStatus == 'Unused', EffectiveCost, decimal(0))),
+        UnusedCost = sum(iff(CommitmentDiscountStatus == 'Unused', EffectiveCost, real(0))),
         TotalCost = sum(EffectiveCost)
         by BillingCurrency, CommitmentDiscountId, CommitmentDiscountName, CommitmentDiscountType
-    | extend WastePercent = iff(TotalCost == decimal(0), 0.0, todouble(UnusedCost) / todouble(TotalCost) * 100.0)
+    | extend WastePercent = iff(TotalCost == 0.0, 0.0, todouble(UnusedCost) / todouble(TotalCost) * 100.0)
     | project
         BillingCurrency,
         CommitmentDiscountId,
@@ -60,14 +60,14 @@ let commitmentWaste =
 let grandTotals =
     filteredCosts
     | summarize
-        UnusedCost = sum(iff(CommitmentDiscountStatus == 'Unused', EffectiveCost, decimal(0))),
+        UnusedCost = sum(iff(CommitmentDiscountStatus == 'Unused', EffectiveCost, real(0))),
         TotalCost = sum(EffectiveCost)
         by BillingCurrency
     | extend
         CommitmentDiscountId = '',
         CommitmentDiscountName = '(All Commitments)',
         CommitmentDiscountType = ''
-    | extend WastePercent = iff(TotalCost == decimal(0), 0.0, todouble(UnusedCost) / todouble(TotalCost) * 100.0)
+    | extend WastePercent = iff(TotalCost == 0.0, 0.0, todouble(UnusedCost) / todouble(TotalCost) * 100.0)
     | project
         BillingCurrency,
         CommitmentDiscountId,
