@@ -25,14 +25,19 @@
 //   single global savings scalar against each currency's cost, producing misleading per-currency COIN values for
 //   multi-currency hubs. Recommendations() has no BillingCurrency column, so we now report one hub-wide row. For
 //   multi-currency hubs operators should normalize Costs() to a single reporting currency before consuming COINScore.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (COIN=100; expected with zero Recommendations savings in this hub)
+//   Time-grain fix (post-UAT, 2026-05-28): Recommendations() has NO RELIABLE BUSINESS TIME GRAIN. The
+//   `x_RecommendationDate` column is documented but commonly null in live Hubs (verified null on every row in trey-hub
+//   2026-05-28 UAT), and `x_IngestionTime` is the ingestion timestamp, not an applicability period. Reservation
+//   recommendations are point-in-time optimization snapshots, not dated events, so we aggregate the entire current
+//   recommendation set and compare against the windowed Cost amortization. Filtering Recommendations() by a date
+//   column would silently drop all unstamped rows (false COIN=100). Cost denominator remains windowed.
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (COIN≈97.66 with $18,976.30 reservation-recommendation savings opportunity captured after time-grain fix)
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());
 let totalSavingsOpportunity = toscalar(
     Recommendations()
     | where x_SourceType == 'ReservationRecommendations'
-    | where x_RecommendationDate >= startDate and x_RecommendationDate < endDate
     | summarize TotalSavingsOpportunity = todouble(sum(x_EffectiveCostSavings))
 );
 Costs()
