@@ -18,7 +18,7 @@ The deployment flow is copied from the Microsoft SRE Agent starter lab and updat
 | Application Insights | 1 | Linked to Log Analytics |
 | Custom agents | 5 | FinOps practitioner orchestrator plus CFO, capacity, database-query, and hubs specialists |
 | Skills | 3 | Azure capacity management, Azure cost management, and FinOps Toolkit |
-| Tools | 34 | Kusto, capacity, and Hub infrastructure tools |
+| Tools | 50 | Kusto, capacity, and Hub infrastructure tools |
 | Tool overrides | 9 | Enables SRE Agent Log Query and Visualization tools |
 | Scheduled tasks | 19 | Recurring FinOps, capacity, governance, and reporting tasks, all owned by `finops-practitioner` |
 | Connectors | 1 | Optional FinOps Hub Kusto connector when `--cluster-uri` is provided |
@@ -38,12 +38,12 @@ The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CAT
 
 | Tool type | Count | Examples |
 |-----------|------:|----------|
-| KustoTool | 21 | `cost-anomaly-detection`, `ai-token-usage-breakdown`, `reservation-recommendation-breakdown` |
+| KustoTool | 37 | `cost-anomaly-detection`, `allocation-accuracy-index`, `cost-optimization-index`, `reservation-recommendation-breakdown` |
 | PythonTool | 13 | `vm-quota-usage`, `data-freshness-check`, `db-service-quotas`, `sku-availability` |
 
 The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Preview` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. This matches the upstream SRE Agent template default and enables the extended-agent skill, tool, subagent, and schedule APIs used by the recipe. `bin/apply-extras.sh` enables the SRE Agent built-in Log Query and Visualization tools. It uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible `KnowledgeFile` sources, then verifies the expected sources are indexed before tools, subagents, and scheduled tasks are applied. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
 
-Skills are applied with their `SKILL.md` content and tool references. Supporting reference material that must be available to the agent should be uploaded as KnowledgeFile sources; the current SRE Agent data plane rejects skill payloads with non-empty `additionalFiles`.
+Skills are applied with their `SKILL.md` content and tool references. The FinOps Toolkit query references resolve through the canonical `src/queries` catalog so the SRE Agent recipe does not carry a stale copy. Supporting reference material that must be available to the agent should be uploaded as KnowledgeFile sources; the current SRE Agent data plane rejects skill payloads with non-empty `additionalFiles`.
 
 Scheduled reports must distinguish product or deployment defects from expected evaluation-data limits and customer-owned delegation. Limited Hub history, empty transaction diagnostics, and missing multi-period trigger evidence reduce confidence; they are not by themselves deployment failures. Broader management group, billing, quota, or subscription visibility should be reported as a required customer delegation step unless this template explicitly owns the role assignment.
 

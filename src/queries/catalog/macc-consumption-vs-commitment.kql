@@ -15,7 +15,7 @@
 //   Use this query to monitor monthly MACC burn against committed spend for billing accounts in the active FinOps Hub.
 // Scope Notes:
 //   MACC-only: Query targets Microsoft Azure Consumption Commitment (MACC) customers. Non-MACC billing accounts will join to zero CommitmentAmount and emit a ratio of 0.0.
-//   OPEN: x_MonetaryCommitment aggregation semantics need live validation against a real FinOps Hub deployment; if Transactions() repeats balances per billing period, replace sum() with max() or a deduplicated latest-event scan.
+//   OPEN: x_MonetaryCommitment aggregation semantics need validation against a MACC-active FinOps Hub; if Transactions() repeats balances per billing period, replace sum() with max() or a deduplicated latest-event scan.
 //   Per-profile commitment allocation: x_BillingProfileId is unavailable in Transactions(), so the commitment is
 //   collected at the BillingAccountId level and then allocated PROPORTIONALLY across profiles by each profile's
 //   share of account consumption in the reporting window. This preserves the spec output contract (BillingProfileId
@@ -24,7 +24,7 @@
 //   share of MACC drawdown. Wave-boundary fix (T-3000.15 cross-model review): opus-4.6 flagged BillingAccountId in
 //   output (spec deviation); gpt-5.5 flagged that naive broadcasting would duplicate commitment per profile. The
 //   allocation pattern below resolves both findings.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (CommitmentAmount=0; expected given Transactions/MACC data gap)
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS_SCHEMA_WITH_DATA_GAP — 1 row returned; test hub has 0 Transactions() rows and 0 x_MonetaryCommitment rows, so MACC value semantics require re-UAT on a MACC-active hub.
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());
@@ -40,7 +40,7 @@ let accountCommitment =
     | where x_TransactionType in ('MACC', 'MonetaryCommitment', 'Microsoft Azure Consumption Commitment')
         or isnotnull(x_MonetaryCommitment)
     | extend ReportingMonth = startofmonth(ChargePeriodStart)
-    // VALIDATE: sum(x_MonetaryCommitment) represents the total MACC obligation for the window.
+    // VALIDATE on a MACC-active hub: sum(x_MonetaryCommitment) represents the total MACC obligation for the window.
     // If the Hub deployment records this repeatedly per billing period instead of once per purchase,
     // switch to max() or scan for the most-recent MACC event per period.
     | summarize AccountCommitment = todouble(sum(x_MonetaryCommitment)) by BillingCurrency, BillingAccountId, ReportingMonth;

@@ -6,7 +6,7 @@ This catalog is the controlling reference for aligning the `recipes/finops-hub/`
 - Expected inventory: `recipes/finops-hub/expected-config.json`
 - Custom agents: `recipes/finops-hub/config/subagents/*.yaml`
 - Skills: `recipes/finops-hub/config/skills/*/`
-- Tools: `recipes/finops-hub/config/tools/*.yaml`
+- Tools: `recipes/finops-hub/config/tools/*.yaml` plus generated Kusto tools from `src/queries/catalog/*.kql`
 - Scheduled tasks: `recipes/finops-hub/automations/scheduled-tasks/*.yaml`
 - Output style knowledge: `../claude-plugin/output-styles/ftk-output-style.md`
 
@@ -16,7 +16,7 @@ This catalog is the controlling reference for aligning the `recipes/finops-hub/`
 |-----------|------:|--------|
 | Custom agents | 5 | Practitioner orchestrator plus four delegated subagents in `config/subagents/*.yaml` |
 | Skills | 3 | `config/skills/*/` |
-| Tools | 34 | `config/tools/*.yaml` |
+| Tools | 50 | 34 explicit YAML tools plus 16 generated Kusto tools from `src/queries/catalog/*.kql` |
 | Tool overrides | 9 | `config/built-in-tools.json` |
 | Scheduled tasks | 19 | All set `spec.agent: finops-practitioner` in `automations/scheduled-tasks/*.yaml` |
 | Connectors | 1 | `connectors.json`: FinOps Hub Kusto |
@@ -26,7 +26,7 @@ Tool mix:
 
 | Tool type | Count |
 |-----------|------:|
-| KustoTool | 21 |
+| KustoTool | 37 |
 | PythonTool | 13 |
 | MCP tool namespaces | 0 |
 
@@ -69,7 +69,7 @@ Scheduled reports must classify gaps before recommending action: product or depl
 | Custom agent | Role in the operating model | Direct tool policy | FinOps / capacity alignment |
 |----------|-----------------------------|--------------------|----------------------------|
 | `finops-practitioner` | Practice lead and scheduled-report orchestrator. Owns the FinOps operating rhythm, applies the output style, frames business questions, routes evidence requests, and turns specialist outputs into actions. | No direct tools. Delegates Kusto evidence to `ftk-database-query`, capacity evidence to `azure-capacity-manager`, Hub platform and infrastructure checks to `ftk-hubs-agent`, and executive decision framing to `chief-financial-officer`. | FinOps Practitioner persona; central enablement; collaboration; Reporting & Analytics, Governance, Policy & Risk, Usage Optimization, Rate Optimization, and leadership strategy alignment. |
-| `ftk-database-query` | FinOps Hub evidence specialist. Owns all Kusto/FOCUS query execution, Kusto result interpretation, schema guidance, and query diagnostics. | Owns every `KustoTool`. Does not own Azure CLI, Python capacity, infrastructure health, or remediation tools. No scheduled-task ownership. | Understand Usage & Cost; Data Ingestion, Allocation, Reporting & Analytics, Anomaly Management, pricing, recommendation, and commitment evidence. |
+| `ftk-database-query` | FinOps Hub evidence specialist. Owns all Kusto/FOCUS query execution, Kusto result interpretation, schema guidance, and query diagnostics. | Owns every `KustoTool`, including explicit recipe YAML tools and generated KPI tools from `src/queries/catalog/*.kql`. Does not own Azure CLI, Python capacity, infrastructure health, or remediation tools. No scheduled-task ownership. | Understand Usage & Cost; Data Ingestion, Allocation, Reporting & Analytics, Anomaly Management, pricing, recommendation, KPI, unit economics, and commitment evidence. |
 | `azure-capacity-manager` | Engineering and platform capacity specialist. Owns quota, region, zone, SKU, CRG, non-compute quota, database quota, AKS readiness, and capacity-to-rate coordination. | Owns capacity Python tools only. Does not own Kusto, Resource Graph, Hub freshness, Azure CLI, or remediation deployment tools. | Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization support, Governance, Policy & Risk, and Automation, Tools, & Services. |
 | `chief-financial-officer` | Consultative finance and leadership persona. Frames budget, forecast, commitment, risk, and investment tradeoffs for executive audiences. | Should not own scheduled tasks or raw data collection. Consumes evidence packages from `finops-practitioner` and specialists. | Finance and Leadership personas; Quantify Business Value; leadership strategy alignment; Budgeting, Forecasting, Unit Economics, investment decisions. |
 | `ftk-hubs-agent` | FinOps Hub platform specialist. Owns hub health, deployment, upgrade, connector, export freshness, monitoring scope, and analytics-backend readiness. | Owns platform discovery, Resource Graph inventory, `data-freshness-check`, ADX SKU preflight, hub troubleshooting tools, and explicit remediation deployment tools. Does not own business cost-analysis reports. | Data Ingestion and Reporting & Analytics foundation; Automation, Tools, & Services; Governance, Policy & Risk. |
@@ -94,7 +94,7 @@ The SRE Agent recipe is an orchestration layer over the toolkit and azcapman ass
 | `src/templates/agent-skills/azure-cost-management/` | Canonical Azure Cost Management skill content for Advisor, budgets, anomaly alerts, savings plans, reservations, and related cost workflows. |
 | `src/templates/sre-agent/submodules/azcapman/agents/azure-capacity-manager.md` | Canonical azcapman capacity specialist persona. |
 | `src/templates/sre-agent/submodules/azcapman/skills/azure-capacity-management/` | Canonical azcapman capacity skill and references. The recipe uses symlinks; do not duplicate this content. |
-| `src/queries/` | Canonical FinOps Hub Kusto query catalog. Custom Kusto tools must come from here first when a new query is needed. |
+| `src/queries/` | Canonical FinOps Hub Kusto query catalog. Custom Kusto tools are generated from this catalog when a query does not already have an explicit recipe YAML override. |
 | `src/templates/claude-plugin/output-styles/ftk-output-style.md` | Shared FinOps Toolkit report style uploaded as SRE Agent knowledge and referenced by every scheduled task. |
 
 ## Custom agent capability matrix
@@ -104,7 +104,7 @@ This matrix is the reference for which custom agent owns each FinOps capability 
 | Custom agent | Persona / function | FinOps capabilities owned or directly implemented | Direct custom tools | Scheduled tasks owned | Required handoffs and consults |
 |----------|--------------------|----------------------------------------------------|---------------------|---------------------|-------------------------------|
 | `finops-practitioner` | FinOps Practitioner and operating-rhythm orchestrator. Leads practice cadence, report assembly, output style, and remediation approval flow. | Allocation, Reporting & Analytics orchestration, Anomaly Management orchestration, Budgeting, KPIs & Benchmarking, Unit Economics, Usage Optimization orchestration, Rate Optimization orchestration, FinOps Practice Operations, Governance, Policy & Risk, Automation, Tools, & Services, and Invoicing & Chargeback orchestration. | None. | All 19 scheduled tasks. | Must delegate all Kusto/FOCUS evidence to `ftk-database-query`; capacity, quota, SKU, zone, region, and CRG evidence to `azure-capacity-manager`; executive finance framing to `chief-financial-officer`; FinOps Hub platform readiness, Resource Graph, visualization, delivery, and infrastructure/remediation tooling to `ftk-hubs-agent`. |
-| `ftk-database-query` | FinOps Hub evidence specialist. Owns Kusto, FOCUS, `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` evidence packages. | Data Ingestion evidence, Allocation evidence, Reporting & Analytics evidence, Anomaly Management evidence, Forecasting evidence, KPIs & Benchmarking evidence, Unit Economics evidence, Rate Optimization evidence, Usage Optimization evidence, Invoicing & Chargeback evidence. | `ai-cost-by-application`, `ai-daily-trend`, `ai-model-cost-comparison`, `ai-token-usage-breakdown`, `commitment-discount-utilization`, `cost-anomaly-detection`, `cost-by-financial-hierarchy`, `cost-by-region-trend`, `cost-forecasting-model`, `costs-enriched-base`, `monthly-cost-change-percentage`, `monthly-cost-trend`, `quarterly-cost-by-resource-group`, `reservation-recommendation-breakdown`, `savings-summary-report`, `service-price-benchmarking`, `top-commitment-transactions`, `top-other-transactions`, `top-resource-groups-by-cost`, `top-resource-types-by-cost`, `top-services-by-cost`. | None. This specialist is invoked by other scheduled tasks for evidence collection. | Returns evidence packages to `finops-practitioner`; does not own business recommendations, infrastructure checks, capacity evidence, or remediation decisions. |
+| `ftk-database-query` | FinOps Hub evidence specialist. Owns Kusto, FOCUS, `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` evidence packages. | Data Ingestion evidence, Allocation evidence, Reporting & Analytics evidence, Anomaly Management evidence, Forecasting evidence, KPIs & Benchmarking evidence, Unit Economics evidence, Rate Optimization evidence, Usage Optimization evidence, Invoicing & Chargeback evidence. | All 37 FinOps Hub `KustoTool` definitions listed in the Tool inventory, including explicit recipe YAML tools and generated KPI tools from `src/queries/catalog/*.kql`. | None. This specialist is invoked by other scheduled tasks for evidence collection. | Returns evidence packages to `finops-practitioner`; does not own business recommendations, infrastructure checks, capacity evidence, or remediation decisions. |
 | `azure-capacity-manager` | Engineering and platform capacity specialist sourced from the toolkit and azcapman. Owns Azure capacity, quota, SKU, region, zone, CRG, AKS, and non-compute limit evidence. | Planning & Estimating, Forecasting, Architecting & Workload Placement, Usage Optimization, Rate Optimization support, Governance, Policy & Risk, Automation, Tools, & Services. | `benefit-recommendations`, `sku-availability`, `vm-quota-usage`, `non-compute-quotas`, `db-service-quotas`, `capacity-reservation-groups`. | None. Invoked by `finops-practitioner` scheduled tasks for capacity evidence. | Returns capacity evidence to `finops-practitioner`. It does not query Kusto, run Resource Graph, check Hub freshness, or hand off to other agents. |
 | `chief-financial-officer` | Finance and Leadership consultative persona. Frames budget, forecast, capital allocation, commitment risk, and executive tradeoffs. | Budgeting, Forecasting, KPIs & Benchmarking, Unit Economics, Rate Optimization decision framing, Invoicing & Chargeback framing, and leadership strategy alignment. | None. | None. Finance is consulted; it does not run autonomous scheduled tasks. | Consumes packaged evidence from `finops-practitioner`, `ftk-database-query`, `azure-capacity-manager`, and `ftk-hubs-agent`. Must not query Kusto, collect raw telemetry, investigate capacity directly, or deliver reports. |
 | `ftk-hubs-agent` | FinOps Hub platform specialist. Owns hub deployment, upgrade, health, connector, export, monitoring scope, analytics-backend readiness, Resource Graph inventory, and explicit remediation deployment tooling. | Data Ingestion platform readiness, Reporting & Analytics platform readiness, Automation, Tools, & Services, Governance, Policy & Risk. | `data-freshness-check`, `resource-graph-query`, `sku-availability`, `deploy-anomaly-alert`, `deploy-budget`, `deploy-bulk-anomaly-alerts`, `deploy-bulk-budgets`, `suppress-advisor-recommendations`. | None. Invoked by `finops-practitioner` scheduled tasks for Hub platform and infrastructure evidence. | Returns infrastructure evidence to `finops-practitioner`. It does not own business cost analysis, capacity evidence, or executive framing. |
@@ -115,18 +115,18 @@ The phase column is a primary operating lens, not a workflow gate. Scheduled tas
 
 | FinOps capability | Domain | Primary phase lens | Recipe owner | Scheduled tasks | Primary tool families |
 |-------------------|--------|--------------------|--------------|-----------------|-----------------------|
-| Data Ingestion | Understand Usage & Cost | Inform | `ftk-hubs-agent`, `ftk-database-query` | `HubsHealthCheck`, `MonitoringScopeValidation`; evidence support for `Monthly` and `Semiannual` | `data-freshness-check`, FinOps Hub Kusto tools, Hub platform checks |
-| Allocation | Understand Usage & Cost | Inform | `finops-practitioner`, `ftk-database-query` | `Monthly`, `Semiannual`, `AIWorkloadCostAnalysis` | `cost-by-financial-hierarchy`, `ai-cost-by-application`, resource inventory evidence |
+| Data Ingestion | Understand Usage & Cost | Inform | `ftk-hubs-agent`, `ftk-database-query` | `HubsHealthCheck`, `MonitoringScopeValidation`; evidence support for `Monthly` and `Semiannual` | `data-freshness-check`, `cost-visibility-delay`, `data-update-frequency`, FinOps Hub Kusto tools, Hub platform checks |
+| Allocation | Understand Usage & Cost | Inform | `finops-practitioner`, `ftk-database-query` | `Monthly`, `Semiannual`, `AIWorkloadCostAnalysis` | `cost-by-financial-hierarchy`, `ai-cost-by-application`, `allocation-accuracy-index`, `percentage-unallocated-costs`, `percentage-untagged-costs`, `tagging-policy-compliance`, resource inventory evidence |
 | Reporting & Analytics | Understand Usage & Cost | Inform | `finops-practitioner`, `ftk-database-query` | `Monthly`, `Semiannual`, `CostOptimization`, `AIWorkloadCostAnalysis` | Cost trend, top-N, savings, pricing, AI, FinOps Hub Kusto evidence, visualization, and notification tools |
-| Anomaly Management | Understand Usage & Cost | Inform / Operate | `finops-practitioner`, `ftk-database-query` | `AlertCoverageAudit`, `CostOptimization`, `Monthly`, `Semiannual` | `cost-anomaly-detection`, `deploy-anomaly-alert`, `deploy-bulk-anomaly-alerts`, `resource-graph-query` |
+| Anomaly Management | Understand Usage & Cost | Inform / Operate | `finops-practitioner`, `ftk-database-query` | `AlertCoverageAudit`, `CostOptimization`, `Monthly`, `Semiannual` | `cost-anomaly-detection`, `anomaly-detection-rate`, `anomaly-variance-total`, `deploy-anomaly-alert`, `deploy-bulk-anomaly-alerts`, `resource-graph-query` |
 | Planning & Estimating | Quantify Business Value | Inform | `azure-capacity-manager`, `finops-practitioner` | `CapacityMonthlyPlanning`, `CapacityQuarterlyStrategy`, `StoragePaasGrowthForecast`, `Semiannual` | `vm-quota-usage`, `non-compute-quotas`, `capacity-reservation-groups`, `cost-forecasting-model` |
 | Forecasting | Quantify Business Value | Inform | `azure-capacity-manager`, `ftk-database-query`, `finops-practitioner` | `CapacityMonthlyPlanning`, `StoragePaasGrowthForecast`, `Monthly`, `Semiannual` | `cost-forecasting-model`, `monthly-cost-trend`, quota and capacity trend tools |
 | Budgeting | Quantify Business Value | Inform / Operate | `finops-practitioner`, `chief-financial-officer` | `BudgetCoverageAudit`, `Monthly`, `Semiannual` | `deploy-budget`, `deploy-bulk-budgets`, `monthly-cost-trend`, `cost-forecasting-model` |
-| KPIs & Benchmarking | Quantify Business Value | Inform | `finops-practitioner`, `ftk-database-query`, `chief-financial-officer` | `Monthly`, `Semiannual`, `AIWorkloadCostAnalysis` | `service-price-benchmarking`, `savings-summary-report`, `ai-model-cost-comparison`, visualization tools |
-| Unit Economics | Quantify Business Value | Inform | `finops-practitioner`, `ftk-database-query`, `chief-financial-officer` | `AIWorkloadCostAnalysis`, `Monthly`, `Semiannual` | AI token and model cost tools, `cost-by-financial-hierarchy`, `service-price-benchmarking` |
+| KPIs & Benchmarking | Quantify Business Value | Inform | `finops-practitioner`, `ftk-database-query`, `chief-financial-officer` | `Monthly`, `Semiannual`, `AIWorkloadCostAnalysis` | `service-price-benchmarking`, `savings-summary-report`, FinOps KPI Kusto tools, AI model comparison, visualization tools |
+| Unit Economics | Quantify Business Value | Inform | `finops-practitioner`, `ftk-database-query`, `chief-financial-officer` | `AIWorkloadCostAnalysis`, `Monthly`, `Semiannual` | AI token and model cost tools, `compute-cost-per-core`, `cost-per-gb-stored`, `cost-by-financial-hierarchy`, `service-price-benchmarking` |
 | Architecting & Workload Placement | Optimize Usage & Cost | Optimize | `azure-capacity-manager`, `finops-practitioner` | `CapacityWeeklySupplyReview`, `SkuAvailabilityAudit`, `ComputeUtilizationTrend`, `CapacityQuarterlyStrategy` | `sku-availability`, `resource-graph-query`, `vm-quota-usage`, `capacity-reservation-groups` |
-| Rate Optimization | Optimize Usage & Cost | Optimize | `finops-practitioner`, `ftk-database-query`, `azure-capacity-manager`, `chief-financial-officer` | `BenefitRecommendationReview`, `CapacityMonthlyPlanning`, `CapacityQuarterlyStrategy`, `Monthly`, `Semiannual` | `benefit-recommendations`, `commitment-discount-utilization`, `reservation-recommendation-breakdown`, `savings-summary-report`, `service-price-benchmarking` |
-| Usage Optimization | Optimize Usage & Cost | Optimize | `finops-practitioner`, `azure-capacity-manager`, `ftk-database-query` | `CostOptimization`, `ComputeUtilizationTrend`, `CapacityDailyMonitor`, `CapacityWeeklySupplyReview` | `top-services-by-cost`, `top-resource-types-by-cost`, `resource-graph-query`, quota and CRG tools |
+| Rate Optimization | Optimize Usage & Cost | Optimize | `finops-practitioner`, `ftk-database-query`, `azure-capacity-manager`, `chief-financial-officer` | `BenefitRecommendationReview`, `CapacityMonthlyPlanning`, `CapacityQuarterlyStrategy`, `Monthly`, `Semiannual` | `benefit-recommendations`, `commitment-discount-utilization`, `commitment-utilization-score`, `commitment-discount-waste`, `compute-spend-commitment-coverage`, `cost-optimization-index`, `macc-consumption-vs-commitment`, `reservation-recommendation-breakdown`, `savings-summary-report`, `service-price-benchmarking` |
+| Usage Optimization | Optimize Usage & Cost | Optimize | `finops-practitioner`, `azure-capacity-manager`, `ftk-database-query` | `CostOptimization`, `ComputeUtilizationTrend`, `CapacityDailyMonitor`, `CapacityWeeklySupplyReview` | `top-services-by-cost`, `top-resource-types-by-cost`, `compute-cost-per-core`, `cost-per-gb-stored`, `storage-tier-distribution`, `resource-graph-query`, quota and CRG tools |
 | Sustainability | Optimize Usage & Cost | Optimize | Guidance only through `finops-practitioner` | None | No direct recipe tool. Consider only when optimization decisions materially affect sustainability goals. |
 | Licensing & SaaS | Optimize Usage & Cost | Optimize | Guidance only through `finops-practitioner` and `chief-financial-officer` | None | No direct recipe tool. Azure Hybrid Benefit evidence can appear in FinOps Hub cost data, but this recipe does not ship a Licensing & SaaS workflow. |
 | FinOps Practice Operations | Manage the FinOps Practice | Operate | `finops-practitioner` | `Monthly`, `Semiannual`, all governance review tasks | Scheduled task cadence, output style, memory, Teams/Outlook delivery pattern |
@@ -181,18 +181,34 @@ All Kusto tools are owned by `ftk-database-query`. Other agents request Kusto ev
 | `ai-daily-trend` | Reports daily Azure OpenAI cost and token consumption trends. |
 | `ai-model-cost-comparison` | Compares cost per 1K tokens across Azure OpenAI model versions. |
 | `ai-token-usage-breakdown` | Breaks Azure OpenAI token consumption down by model version and input/output direction. |
+| `allocation-accuracy-index` | Measures directly attributed cost as a share of total effective cost. |
+| `anomaly-detection-rate` | Measures the share of effective spend on anomaly-flagged daily buckets. |
+| `anomaly-variance-total` | Quantifies signed and absolute unpredicted spend variance for anomaly events. |
+| `commitment-discount-waste` | Measures unused commitment value as a share of total commitment cost. |
 | `commitment-discount-utilization` | Analyzes consumed core hours by commitment discount type. |
+| `commitment-utilization-score` | Computes commitment utilization amount, potential, and score by commitment and currency. |
+| `compute-cost-per-core` | Computes hourly and effective average compute cost per consumed vCPU core hour. |
+| `compute-spend-commitment-coverage` | Measures compute spend covered by commitment discounts. |
 | `cost-anomaly-detection` | Detects cost spikes and drops over a configurable history window. |
 | `cost-by-financial-hierarchy` | Summarizes costs across billing profile, invoice section, team, product, application, and environment. |
 | `cost-by-region-trend` | Summarizes effective cost by Azure region. |
 | `cost-forecasting-model` | Forecasts future effective cost from historical cost data. |
+| `cost-optimization-index` | Computes the hub-wide Cost Optimization Index from current recommendations and windowed cost. |
+| `cost-per-gb-stored` | Calculates storage cost per normalized GB-month. |
+| `cost-visibility-delay` | Measures cost data visibility delay from charge period end to Hub ingestion. |
 | `costs-enriched-base` | Returns enriched row-level cost and usage samples for drill-down analysis. |
+| `data-update-frequency` | Measures Hub ingestion update cadence from distinct ingestion timestamps. |
+| `macc-consumption-vs-commitment` | Measures MACC consumption versus commitment drawdown by billing profile and month. |
 | `monthly-cost-change-percentage` | Calculates month-over-month billed and effective cost change. |
 | `monthly-cost-trend` | Returns billed and effective cost totals by month. |
+| `percentage-unallocated-costs` | Measures the share of effective cost without allocation evidence. |
+| `percentage-untagged-costs` | Measures the share of effective cost associated with resources that have no tags. |
 | `quarterly-cost-by-resource-group` | Returns top resource-group cost rows by subscription and month. |
 | `reservation-recommendation-breakdown` | Analyzes Microsoft reservation recommendations from `Recommendations()`. |
 | `savings-summary-report` | Summarizes list cost, effective cost, negotiated discount savings, commitment savings, and effective savings rate. |
 | `service-price-benchmarking` | Benchmarks services by list, contracted, and effective cost. |
+| `storage-tier-distribution` | Summarizes storage cost and GB-month distribution by access-tier bucket. |
+| `tagging-policy-compliance` | Measures cost-weighted compliance with required tag keys. |
 | `top-commitment-transactions` | Returns top non-usage commitment discount purchase transactions. |
 | `top-other-transactions` | Returns top non-usage, non-commitment purchase transactions. |
 | `top-resource-groups-by-cost` | Returns top resource groups by effective cost. |

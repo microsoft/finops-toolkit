@@ -78,18 +78,34 @@ spec:
   - ai-daily-trend
   - ai-model-cost-comparison
   - ai-token-usage-breakdown
+  - allocation-accuracy-index
+  - anomaly-detection-rate
+  - anomaly-variance-total
+  - commitment-discount-waste
   - commitment-discount-utilization
+  - commitment-utilization-score
   - cost-anomaly-detection
   - cost-by-financial-hierarchy
   - cost-by-region-trend
   - cost-forecasting-model
+  - cost-optimization-index
+  - cost-per-gb-stored
+  - cost-visibility-delay
   - costs-enriched-base
+  - compute-cost-per-core
+  - compute-spend-commitment-coverage
+  - data-update-frequency
+  - macc-consumption-vs-commitment
   - monthly-cost-change-percentage
   - monthly-cost-trend
+  - percentage-unallocated-costs
+  - percentage-untagged-costs
   - quarterly-cost-by-resource-group
   - reservation-recommendation-breakdown
   - savings-summary-report
   - service-price-benchmarking
+  - storage-tier-distribution
+  - tagging-policy-compliance
   - top-commitment-transactions
   - top-other-transactions
   - top-resource-groups-by-cost

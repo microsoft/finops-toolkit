@@ -56,6 +56,136 @@ def collect_yaml(root: pathlib.Path) -> list[JsonObject]:
     return [load_yaml(path) for path in yaml_files(root)]
 
 
+def read_kql_body(path: pathlib.Path) -> str:
+    text = read_text(path)
+    lines = text.splitlines()
+    start = 0
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped == "" or stripped.startswith("//"):
+            continue
+        start = index
+        break
+    return "\n".join(lines[start:]).rstrip()
+
+
+def collect_kql_comment_block(path: pathlib.Path) -> list[str]:
+    comments: list[str] = []
+    for line in read_text(path).splitlines():
+        stripped = line.strip()
+        if stripped == "":
+            continue
+        if not stripped.startswith("//"):
+            break
+        comments.append(stripped[2:].strip())
+    return comments
+
+
+def kql_description(path: pathlib.Path) -> str:
+    comments = collect_kql_comment_block(path)
+    query_name = path.stem.replace("-", " ")
+    description_lines: list[str] = []
+    in_description = False
+    for comment in comments:
+        if comment == "Description:":
+            in_description = True
+            continue
+        if comment == "Parameters:" or comment.startswith("Query:"):
+            if in_description:
+                break
+            if comment.startswith("Query:"):
+                query_name = comment.split(":", 1)[1].strip() or query_name
+            continue
+        if in_description:
+            description_lines.append(comment)
+    description = " ".join(part for part in description_lines if part)
+    if not description:
+        description = f"Runs the {query_name} FinOps Hub catalog query."
+    return description
+
+
+def kql_parameters(path: pathlib.Path) -> list[JsonObject]:
+    comments = collect_kql_comment_block(path)
+    query = read_kql_body(path)
+    parameters: list[JsonObject] = []
+    in_parameters = False
+    for comment in comments:
+        if comment == "Parameters:":
+            in_parameters = True
+            continue
+        if not in_parameters:
+            continue
+        if comment.startswith("Each row") or comment.startswith("Use this query"):
+            break
+        if comment.lower().startswith("none"):
+            break
+        if ":" not in comment:
+            continue
+        name, raw_description = comment.split(":", 1)
+        name = name.strip()
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+            continue
+        if not re.search(rf"^let\s+{re.escape(name)}\s*=", query, flags=re.MULTILINE):
+            continue
+        if any(parameter["name"] == name for parameter in parameters):
+            continue
+        parameters.append(
+            {
+                "name": name,
+                "type": "string",
+                "description": raw_description.strip(),
+                "required": True,
+            }
+        )
+    return parameters
+
+
+def replace_kql_parameter_defaults(query: str, parameters: list[JsonObject]) -> str:
+    for parameter in parameters:
+        name = re.escape(str(parameter["name"]))
+        query = re.sub(
+            rf"^let\s+{name}\s*=\s*[^;\n]+;",
+            f"let {parameter['name']} = ##{parameter['name']}##;",
+            query,
+            count=1,
+            flags=re.MULTILINE,
+        )
+    return query
+
+
+def collect_catalog_kusto_tools(recipe_dir: pathlib.Path, explicit_tool_names: set[str]) -> list[JsonObject]:
+    catalog_dir = (recipe_dir / "../../../../queries/catalog").resolve()
+    if not catalog_dir.is_dir():
+        return []
+
+    generated: list[JsonObject] = []
+    for path in sorted(catalog_dir.glob("*.kql")):
+        name = path.stem
+        if name in explicit_tool_names:
+            continue
+        parameters = kql_parameters(path)
+        query = replace_kql_parameter_defaults(read_kql_body(path), parameters)
+        spec: JsonObject = {
+            "type": "KustoTool",
+            "connector": "finops-hub-kusto",
+            "toolMode": "Auto",
+            "description": kql_description(path),
+            "database": "Hub",
+            "query": query,
+        }
+        if parameters:
+            spec["parameters"] = parameters
+        generated.append(
+            {
+                "api_version": "azuresre.ai/v2",
+                "kind": "ExtendedAgentTool",
+                "metadata": {"name": name},
+                "spec": spec,
+            }
+        )
+    return generated
+
+
 def metadata_name(item: JsonObject) -> str:
     metadata = item.get("metadata") or {}
     spec = item.get("spec") or {}
@@ -254,13 +384,16 @@ def main() -> int:
     if not recipe_dir.is_dir():
         raise SystemExit(f"Recipe directory not found: {recipe_dir}")
 
+    explicit_tools = collect_yaml(recipe_dir / "config/tools")
+    generated_tools = collect_catalog_kusto_tools(recipe_dir, {metadata_name(tool) for tool in explicit_tools})
+
     extras = {
         "connectors": collect_connectors(recipe_dir, args.kusto_connector_uri),
         "builtInTools": load_json(recipe_dir / "config/built-in-tools.json", {"overrides": []}),
         "knowledgeItems": collect_knowledge_items(recipe_dir),
         "skills": collect_skill_directories(recipe_dir / "config/skills"),
         "subagents": ordered_subagents(recipe_dir / "config/subagents"),
-        "tools": collect_yaml(recipe_dir / "config/tools"),
+        "tools": [*explicit_tools, *generated_tools],
         "scheduledTasks": collect_yaml(recipe_dir / "automations/scheduled-tasks"),
     }
 

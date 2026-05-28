@@ -1,6 +1,6 @@
 # FinOps Toolkit skill
 
-KQL-based cost analysis and infrastructure deployment for [FinOps hubs](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview). Provides a query catalog of 21 pre-built KQL queries, database schema documentation, hub deployment workflows, and a structured think-execute framework for financial analysis.
+KQL-based cost analysis and infrastructure deployment for [FinOps hubs](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview). Provides a query catalog of 37 pre-built KQL queries, database schema documentation, hub deployment workflows, and a structured think-execute framework for financial analysis.
 
 ## When this skill activates
 
@@ -36,7 +36,7 @@ Columns prefixed with `x_` are toolkit enrichments added during ingestion (e.g.,
 
 ## Query catalog
 
-21 pre-built KQL queries in `references/queries/catalog/`. Always check the catalog before writing custom KQL.
+37 pre-built KQL queries in `references/queries/catalog/`. Always check the catalog before writing custom KQL.
 
 | Query | Purpose | Parameters |
 |-------|---------|------------|
@@ -62,7 +62,7 @@ Columns prefixed with `x_` are toolkit enrichments added during ingestion (e.g.,
 | `top-other-transactions.kql` | Top N non-usage transactions | `N`, `startDate`, `endDate` |
 | `reservation-recommendation-breakdown.kql` | Reservation recommendations with break-even | Filter by service/region |
 
-See `references/queries/INDEX.md` for the full scenario-to-query matrix.
+In this recipe, `references/queries/INDEX.md` is local source guidance; deployed SRE Agent instances receive executable query tools and Knowledge Sources, not skill additional files.
 
 ## Hub deployment
 
@@ -84,8 +84,8 @@ See `references/finops-hubs-deployment.md` for deployment methods, scope configu
 | `references/finops-hubs.md` | Analysis guide: KQL execution, query catalog protocol, tool matrix, performance rules, quality checklist |
 | `references/finops-hubs-deployment.md` | Deployment: prerequisites, methods (portal/PowerShell/Bicep), exports, backfill, Fabric, dashboards |
 | `references/settings-format.md` | `.ftk/environments.local.md` format: named environments with cluster-uri, tenant, subscription |
-| `references/queries/INDEX.md` | Query-to-scenario matrix with parameters and usage guidance |
-| `references/queries/finops-hub-database-guide.md` | Full database schema: all four functions, column definitions, enrichment columns, query best practices |
+| `src/queries/INDEX.md` | Local canonical query-to-scenario matrix with parameters and usage guidance for all 37 pre-built KQL queries |
+| `src/queries/finops-hub-database-guide.md` | Local canonical database schema: all four functions, column definitions, enrichment columns, query best practices |
 | `references/workflows/ftk-hubs-connect.md` | Hub discovery via Resource Graph, connection validation, environment persistence |
 | `references/workflows/ftk-hubs-healthCheck.md` | Version comparison against stable/dev releases, data freshness check |
 

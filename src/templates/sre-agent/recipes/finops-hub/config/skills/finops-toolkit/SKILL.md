@@ -30,7 +30,7 @@ Load only the references relevant to the task at hand.
 | Task | Load these references first |
 |------|-----------------------------|
 | Write or run a KQL query | `references/finops-hubs.md`, `references/queries/finops-hub-database-guide.md` |
-| Use a pre-built query | `references/queries/INDEX.md`, then the specific `.kql` file |
+| Use a pre-built query | Use the attached Kusto tool with the matching query name; use uploaded Knowledge Sources for schema and output-style guidance. |
 | Deploy a new hub | `references/finops-hubs-deployment.md`, `toolkit/hubs/deploy.md`, `toolkit/hubs/template.md` |
 | Upgrade a hub | `references/finops-hubs-deployment.md`, `toolkit/hubs/upgrade.md`, `toolkit/hubs/compatibility.md` |
 | Savings / ESR analysis | `toolkit/hubs/savings-calculations.md`, `savings-summary-report.kql`, `commitment-discount-utilization.kql` |
@@ -74,7 +74,7 @@ Environment settings are read from `.ftk/environments.local.md` at the project r
 
 ## Query catalog
 
-Check the catalog before writing custom KQL. Read the `.kql` file, substitute parameters, then execute. See `references/queries/INDEX.md` for the full scenario-to-query matrix.
+Use the attached Kusto tools before writing custom KQL. The tool names mirror the canonical `src/queries/catalog` query IDs. In deployed SRE Agent instances, skill reference files are build-time source material and are not sent as skill `additionalFiles`; rely on the attached tools and uploaded Knowledge Sources at runtime.
 
 | Query | Description |
 |-------|-------------|
@@ -82,7 +82,7 @@ Check the catalog before writing custom KQL. Read the `.kql` file, substitute pa
 | [monthly-cost-trend.kql](references/queries/catalog/monthly-cost-trend.kql) | Total billed and effective cost by month for trend analysis and executive reporting. |
 | [monthly-cost-change-percentage.kql](references/queries/catalog/monthly-cost-change-percentage.kql) | Month-over-month cost change percentage for both billed and effective costs. |
 | [top-services-by-cost.kql](references/queries/catalog/top-services-by-cost.kql) | Top N Azure services by cost. Key for cost visibility. |
-| [top-resource-types-by-cost.kql](references/queries/catalog/top-resource-types-by-cost.kql) | Top N resource types by cost and usage (VMs, storage, etc.). |
+| [top-resource-types-by-cost.kql](references/queries/catalog/top-resource-types-by-cost.kql) | Top N resource types by cost and usage. |
 | [top-resource-groups-by-cost.kql](references/queries/catalog/top-resource-groups-by-cost.kql) | Top N resource groups by effective cost. |
 | [quarterly-cost-by-resource-group.kql](references/queries/catalog/quarterly-cost-by-resource-group.kql) | Effective cost by resource group for quarterly or multi-month reporting. |
 | [cost-by-region-trend.kql](references/queries/catalog/cost-by-region-trend.kql) | Effective cost by Azure region for regional cost driver analysis. |
@@ -92,13 +92,29 @@ Check the catalog before writing custom KQL. Read the `.kql` file, substitute pa
 | [ai-model-cost-comparison.kql](references/queries/catalog/ai-model-cost-comparison.kql) | Azure OpenAI model cost efficiency and discount comparison. |
 | [ai-token-usage-breakdown.kql](references/queries/catalog/ai-token-usage-breakdown.kql) | Azure OpenAI token consumption and cost by model and direction. |
 | [cost-anomaly-detection.kql](references/queries/catalog/cost-anomaly-detection.kql) | Detect unusual cost spikes or drops using statistical anomaly detection. |
+| [anomaly-detection-rate.kql](references/queries/catalog/anomaly-detection-rate.kql) | Measure the share of effective spend on anomaly-flagged daily buckets. |
+| [anomaly-variance-total.kql](references/queries/catalog/anomaly-variance-total.kql) | Quantify unpredicted spend variance for anomaly events. |
 | [cost-forecasting-model.kql](references/queries/catalog/cost-forecasting-model.kql) | Project future costs for budgeting and planning with configurable forecast horizon. |
 | [service-price-benchmarking.kql](references/queries/catalog/service-price-benchmarking.kql) | Compare list, contracted, effective, negotiated, and commitment prices by service. |
 | [commitment-discount-utilization.kql](references/queries/catalog/commitment-discount-utilization.kql) | Reservation and savings plan utilization analysis for rate optimization. |
-| [savings-summary-report.kql](references/queries/catalog/savings-summary-report.kql) | Total realized savings and Effective Savings Rate (ESR) KPI. |
+| [commitment-utilization-score.kql](references/queries/catalog/commitment-utilization-score.kql) | Commitment utilization amount, potential, and score by commitment and currency. |
+| [commitment-discount-waste.kql](references/queries/catalog/commitment-discount-waste.kql) | Unused commitment value as a share of total commitment cost. |
+| [compute-spend-commitment-coverage.kql](references/queries/catalog/compute-spend-commitment-coverage.kql) | Share of compute spend covered by commitment discounts. |
+| [cost-optimization-index.kql](references/queries/catalog/cost-optimization-index.kql) | Hub-wide Cost Optimization Index from current recommendations and windowed cost. |
+| [macc-consumption-vs-commitment.kql](references/queries/catalog/macc-consumption-vs-commitment.kql) | MACC consumption versus commitment drawdown by billing profile and month. |
+| [savings-summary-report.kql](references/queries/catalog/savings-summary-report.kql) | Total realized savings and Effective Savings Rate KPI. |
 | [top-commitment-transactions.kql](references/queries/catalog/top-commitment-transactions.kql) | Top N reservation or savings plan purchases by cost impact. |
-| [top-other-transactions.kql](references/queries/catalog/top-other-transactions.kql) | Top N non-commitment, non-usage transactions (support, marketplace, etc.). |
+| [top-other-transactions.kql](references/queries/catalog/top-other-transactions.kql) | Top N non-commitment, non-usage transactions. |
 | [reservation-recommendation-breakdown.kql](references/queries/catalog/reservation-recommendation-breakdown.kql) | Microsoft reservation recommendations with projected savings and break-even analysis. |
+| [allocation-accuracy-index.kql](references/queries/catalog/allocation-accuracy-index.kql) | Directly attributed cost as a share of total effective cost. |
+| [percentage-unallocated-costs.kql](references/queries/catalog/percentage-unallocated-costs.kql) | Share of effective cost without allocation evidence. |
+| [percentage-untagged-costs.kql](references/queries/catalog/percentage-untagged-costs.kql) | Share of effective cost associated with resources that have no tags. |
+| [tagging-policy-compliance.kql](references/queries/catalog/tagging-policy-compliance.kql) | Cost-weighted compliance with required tag keys. |
+| [compute-cost-per-core.kql](references/queries/catalog/compute-cost-per-core.kql) | Hourly and effective average compute cost per consumed vCPU core hour. |
+| [cost-per-gb-stored.kql](references/queries/catalog/cost-per-gb-stored.kql) | Storage cost per normalized GB-month. |
+| [storage-tier-distribution.kql](references/queries/catalog/storage-tier-distribution.kql) | Storage cost and GB-month distribution by access-tier bucket. |
+| [cost-visibility-delay.kql](references/queries/catalog/cost-visibility-delay.kql) | Cost data visibility delay from charge period end to Hub ingestion. |
+| [data-update-frequency.kql](references/queries/catalog/data-update-frequency.kql) | Hub ingestion update cadence from distinct ingestion timestamps. |
 
 ## Infrastructure deployment
 
@@ -117,8 +133,8 @@ For detailed documentation: `references/finops-hubs-deployment.md`
 | [references/finops-hubs.md](references/finops-hubs.md) | Analysis guide: KQL execution, query catalog protocol, tool matrix, performance rules. **Read before any cost query.** |
 | [references/finops-hubs-deployment.md](references/finops-hubs-deployment.md) | Deployment and configuration: ADX clusters, Fabric, Data Factory, exports, Key Vault, Power BI dashboards. |
 | [references/settings-format.md](references/settings-format.md) | Format specification for `.ftk/environments.local.md` — named environments with cluster-uri, tenant, subscription, and resource-group. |
-| [references/queries/INDEX.md](references/queries/INDEX.md) | Query catalog with scenario-to-query matrix, parameter docs, and usage guidance for all 21 pre-built KQL queries. |
-| [references/queries/finops-hub-database-guide.md](references/queries/finops-hub-database-guide.md) | Hub database schema: all four functions, column definitions, enrichment columns, and query best practices. **Read before writing custom KQL.** |
+| `src/queries/INDEX.md` | Build-time canonical query catalog with scenario-to-query matrix, parameter docs, and usage guidance for all 37 pre-built KQL queries. The deployed SRE Agent receives executable tools rather than these files as skill attachments. |
+| `src/queries/finops-hub-database-guide.md` | Build-time canonical Hub database schema reference. Runtime schema guidance should come from uploaded Knowledge Sources and attached query tools. |
 | [references/workflows/ftk-hubs-connect.md](references/workflows/ftk-hubs-connect.md) | Workflow to discover FinOps hub instances via Resource Graph, connect, and save environment config. |
 | [references/workflows/ftk-hubs-healthCheck.md](references/workflows/ftk-hubs-healthCheck.md) | Health check workflow: version comparison against stable/dev releases, upgrade guidance, and diagnostic steps. |
 
