@@ -1692,14 +1692,15 @@ function Invoke-FinOpsMultitool {
             $exportDir = $ExportPath
         }
         else {
-            Write-Host "  Export results to CSV?  [E] Export  [Enter] Skip" -ForegroundColor DarkGray
+            $defaultPath = Join-Path (Get-Location) 'FinOpsResults'
+            Write-Host "  Export results?  [E] Export  [Enter] Skip" -ForegroundColor DarkGray
             $eKey = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
             if ($eKey.Character -eq 'e' -or $eKey.Character -eq 'E') {
                 Write-Host ""
-                Write-Host "  Path (or Enter for ./FinOpsResults): " -ForegroundColor White -NoNewline
+                Write-Host "  Path [$defaultPath]: " -ForegroundColor White -NoNewline
                 $exportDir = Read-Host
                 if (-not $exportDir -or $exportDir.Trim() -eq '') {
-                    $exportDir = Join-Path (Get-Location) 'FinOpsResults'
+                    $exportDir = $defaultPath
                 }
             }
             else {
@@ -1712,6 +1713,7 @@ function Invoke-FinOpsMultitool {
                 New-Item -ItemType Directory -Path $exportDir -Force | Out-Null
             }
 
+            # -- CSV exports per module --
             foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
                 $data = $Results[$mod.Fn]
                 if ($data -and @($data).Count -gt 0) {
@@ -1721,23 +1723,270 @@ function Invoke-FinOpsMultitool {
                 }
             }
 
-            # Summary report
+            # -- HTML report --
+            $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+            $subList = if ($Subscriptions) { ($Subscriptions | ForEach-Object { if ($_.Name) { $_.Name } else { $_.Id } }) -join ', ' } else { 'N/A' }
+            $htmlSb = [System.Text.StringBuilder]::new()
+            [void]$htmlSb.Append(@"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinOps Multitool Report — $timestamp</title>
+<style>
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px 40px; }
+h1 { color: #58a6ff; border-bottom: 2px solid #30363d; padding-bottom: 12px; font-size: 24px; }
+h2 { color: #58a6ff; margin-top: 32px; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
+.meta { color: #8b949e; font-size: 13px; margin-bottom: 24px; }
+.summary-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.summary-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px 18px; min-width: 180px; }
+.summary-card .label { color: #8b949e; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+.summary-card .value { font-size: 22px; font-weight: 600; color: #c9d1d9; }
+table { border-collapse: collapse; width: 100%; margin: 12px 0 24px 0; font-size: 13px; }
+th { background: #161b22; color: #58a6ff; text-align: left; padding: 8px 12px; border-bottom: 2px solid #30363d; font-weight: 600; }
+td { padding: 6px 12px; border-bottom: 1px solid #21262d; }
+tr:hover { background: #161b22; }
+.severity-red { color: #f85149; font-weight: 600; }
+.severity-yellow { color: #d29922; }
+.severity-green { color: #3fb950; }
+.guidance { background: #161b22; border-left: 3px solid #30363d; padding: 10px 16px; margin: 8px 0 16px 0; border-radius: 0 6px 6px 0; font-size: 13px; }
+.guidance.red { border-left-color: #f85149; }
+.guidance.yellow { border-left-color: #d29922; }
+.guidance.green { border-left-color: #3fb950; }
+.guidance a { color: #58a6ff; text-decoration: none; }
+.guidance a:hover { text-decoration: underline; }
+.no-data { color: #8b949e; font-style: italic; padding: 8px 0; }
+.money { color: #3fb950; font-weight: 500; }
+.tag-error { background: #1c1210; border: 1px solid #f8514950; border-radius: 6px; padding: 10px 16px; margin: 8px 0; }
+.permission-hint { color: #d29922; font-size: 12px; }
+@media print { body { background: #fff; color: #1a1a1a; } h1, h2, th { color: #0366d6; } td, th { border-color: #ddd; } .summary-card { border-color: #ddd; } }
+</style>
+</head>
+<body>
+<h1>FinOps Multitool Report</h1>
+<div class="meta">Generated: $timestamp &nbsp;|&nbsp; Subscriptions: $([System.Net.WebUtility]::HtmlEncode($subList))</div>
+"@)
+
+            # Summary cards
+            $errorCount = ($Modules | Where-Object { $_.Selected } | Where-Object { $Results.ContainsKey("_error_$($_.Fn)") }).Count
+            [void]$htmlSb.Append('<div class="summary-grid">')
+            [void]$htmlSb.Append("<div class=`"summary-card`"><div class=`"label`">Total Findings</div><div class=`"value`">$totalFindings</div></div>")
+            [void]$htmlSb.Append("<div class=`"summary-card`"><div class=`"label`">Scans Run</div><div class=`"value`">$(($Modules | Where-Object { $_.Selected }).Count)</div></div>")
+            if ($errorCount -gt 0) {
+                [void]$htmlSb.Append("<div class=`"summary-card`"><div class=`"label`">Errors</div><div class=`"value severity-red`">$errorCount</div></div>")
+            }
+            [void]$htmlSb.Append('</div>')
+
+            # Per-module sections
+            foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
+                $fn = $mod.Fn
+                $data = $Results[$fn]
+                $eName = [System.Net.WebUtility]::HtmlEncode($mod.Name)
+                [void]$htmlSb.Append("<h2>$eName</h2>")
+
+                $errorKey = "_error_$fn"
+                if ($Results.ContainsKey($errorKey)) {
+                    $eMsg = [System.Net.WebUtility]::HtmlEncode($Results[$errorKey])
+                    [void]$htmlSb.Append("<div class=`"tag-error`"><strong>Error:</strong> $eMsg")
+                    if ($permissionInfo.ContainsKey($fn)) {
+                        $pi = $permissionInfo[$fn]
+                        [void]$htmlSb.Append("<br/><span class=`"permission-hint`">Required: $([System.Net.WebUtility]::HtmlEncode($pi.Role)) at $([System.Net.WebUtility]::HtmlEncode($pi.Scope)) scope ($([System.Net.WebUtility]::HtmlEncode($pi.API)))</span>")
+                    }
+                    [void]$htmlSb.Append('</div>')
+                    continue
+                }
+
+                if (-not $data -or @($data).Count -eq 0) {
+                    $noDataMsg = 'No data returned.'
+                    if ($permissionInfo.ContainsKey($fn)) {
+                        $noDataMsg += " $($permissionInfo[$fn].Reason)"
+                    }
+                    [void]$htmlSb.Append("<div class=`"no-data`">$([System.Net.WebUtility]::HtmlEncode($noDataMsg))</div>")
+                    continue
+                }
+
+                # Render module-specific summaries + table
+                $htmlRows = $null
+                $htmlCols = $null
+                switch ($fn) {
+                    'Get-OrphanedResources' {
+                        $htmlRows = $data.Orphans
+                        $htmlCols = @('Category', 'ResourceName', 'ResourceGroup', 'Detail')
+                    }
+                    'Get-IdleVMs' {
+                        [void]$htmlSb.Append("<p>Scanned $($data.ScannedVMs) running VMs</p>")
+                        $htmlRows = $data.IdleVMs
+                        $htmlCols = @('VMName', 'ResourceGroup', 'VMSize', 'AvgCPU14d', 'Classification')
+                    }
+                    'Get-StorageTierAdvice' {
+                        [void]$htmlSb.Append("<p>$($data.TotalHotAccounts) Hot-tier accounts scanned</p>")
+                        $htmlRows = $data.Recommendations
+                        $htmlCols = @('StorageAccount', 'ResourceGroup', 'CurrentTier', 'CapacityGB', 'Recommendation')
+                    }
+                    'Get-AHBOpportunities' {
+                        $ahbRows = @()
+                        if ($data.WindowsVMs) { $ahbRows += @($data.WindowsVMs) | ForEach-Object { [PSCustomObject]@{ Type = 'Windows VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.vmSize; License = $_.currentLicense } } }
+                        if ($data.SQLVMs) { $ahbRows += @($data.SQLVMs) | ForEach-Object { [PSCustomObject]@{ Type = 'SQL VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sqlEdition; License = $_.currentLicense } } }
+                        if ($data.SQLDatabases) { $ahbRows += @($data.SQLDatabases) | ForEach-Object { [PSCustomObject]@{ Type = 'SQL DB'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sku; License = $_.currentLicense } } }
+                        $htmlRows = $ahbRows
+                        $htmlCols = @('Type', 'Name', 'ResourceGroup', 'Size', 'License')
+                    }
+                    'Get-TagInventory' {
+                        [void]$htmlSb.Append("<p>Coverage: $($data.TagCoverage)% &nbsp;|&nbsp; $($data.TaggedCount) tagged / $($data.UntaggedCount) untagged &nbsp;|&nbsp; $($data.TagCount) unique tags</p>")
+                        if ($data.TagNames) {
+                            $htmlRows = $data.TagNames.GetEnumerator() | Sort-Object { $_.Value.TotalResources } -Descending | Select-Object -First 15 | ForEach-Object {
+                                [PSCustomObject]@{ Tag = $_.Key; Resources = $_.Value.TotalResources; UniqueValues = @($_.Value.Values).Count }
+                            }
+                            $htmlCols = @('Tag', 'Resources', 'UniqueValues')
+                        }
+                    }
+                    'Get-CostData' {
+                        if ($data -is [hashtable]) {
+                            $htmlRows = $data.GetEnumerator() | ForEach-Object {
+                                $sl = if ($subNameLookup.ContainsKey($_.Key)) { $subNameLookup[$_.Key] } else { $_.Key }
+                                [PSCustomObject]@{ Subscription = $sl; Actual = '{0:C0}' -f [double]$_.Value.Actual; Forecast = '{0:C0}' -f [double]$_.Value.Forecast; Currency = $_.Value.Currency }
+                            }
+                            $htmlCols = @('Subscription', 'Actual', 'Forecast', 'Currency')
+                        }
+                    }
+                    'Get-ResourceCosts' {
+                        $htmlRows = @($data) | Sort-Object { $_.Actual } -Descending | Select-Object -First 50 | ForEach-Object {
+                            [PSCustomObject]@{ ResourceGroup = $_.ResourceGroup; ResourceType = ($_.ResourceType -split '/')[-1]; Cost = '{0:C2}' -f [double]$_.Actual }
+                        }
+                        $htmlCols = @('ResourceGroup', 'ResourceType', 'Cost')
+                    }
+                    'Get-CostByTag' {
+                        if ($data.CostByTag) {
+                            $htmlRows = foreach ($tag in $data.CostByTag.GetEnumerator()) {
+                                foreach ($v in $tag.Value) {
+                                    [PSCustomObject]@{ Tag = $tag.Key; Value = $v.TagValue; Cost = '{0:C0}' -f [double]$v.Cost }
+                                }
+                            }
+                            $htmlCols = @('Tag', 'Value', 'Cost')
+                        }
+                    }
+                    'Get-CostTrend' {
+                        if ($data.Months) {
+                            $htmlRows = $data.Months | ForEach-Object { [PSCustomObject]@{ Month = $_.Month; Cost = '{0:C0}' -f [double]$_.Cost; Currency = $_.Currency } }
+                            $htmlCols = @('Month', 'Cost', 'Currency')
+                        }
+                    }
+                    'Get-ReservationAdvice' {
+                        if ($data.EstimatedAnnualSavings) { [void]$htmlSb.Append("<p>Est. annual savings: <span class=`"money`">`$$($data.EstimatedAnnualSavings.ToString('N0'))</span></p>") }
+                        $htmlRows = $data.AdvisorRecommendations | ForEach-Object {
+                            [PSCustomObject]@{ Resource = ($_.ResourceName -split '/')[-1]; Type = ($_.ResourceType -split '/')[-1]; Term = $_.Term; Savings = '{0:C0}' -f [double]$_.AnnualSavings; Impact = $_.Impact }
+                        }
+                        $htmlCols = @('Resource', 'Type', 'Term', 'Savings', 'Impact')
+                    }
+                    'Get-CommitmentUtilization' {
+                        if ($data.HasData) {
+                            [void]$htmlSb.Append("<p>RIs: $($data.RICount) (avg $($data.RIAvgUtilization)%) &nbsp;|&nbsp; Savings Plans: $($data.SPCount) (avg $($data.SPAvgUtilization)%)</p>")
+                            $htmlRows = $data.UnderutilizedRIs | ForEach-Object { [PSCustomObject]@{ SKU = $_.SkuName; Kind = $_.Kind; AvgUtil = "$($_.AvgUtilization)%"; MinUtil = "$($_.MinUtilization)%" } }
+                            $htmlCols = @('SKU', 'Kind', 'AvgUtil', 'MinUtil')
+                        }
+                    }
+                    'Get-SavingsRealized' {
+                        [void]$htmlSb.Append("<p>RI: <span class=`"money`">$($data.RISavingsMonthly.ToString('C0'))</span> &nbsp;|&nbsp; SP: <span class=`"money`">$($data.SPSavingsMonthly.ToString('C0'))</span> &nbsp;|&nbsp; AHB: <span class=`"money`">$($data.AHBSavingsMonthly.ToString('C0'))</span> &nbsp;|&nbsp; Total: <span class=`"money`">$($data.TotalMonthly.ToString('C0'))/mo</span></p>")
+                    }
+                    'Get-BudgetStatus' {
+                        [void]$htmlSb.Append("<p>Budgets: $($data.TotalBudgets) &nbsp;|&nbsp; At risk: $($data.AtRiskCount) &nbsp;|&nbsp; Over budget: $($data.OverBudgetCount) &nbsp;|&nbsp; Coverage: $($data.BudgetCoverage)%</p>")
+                        $htmlRows = $data.Budgets | ForEach-Object {
+                            $riskClass = switch ($_.Risk) { 'Over Budget' { 'severity-red' } 'At Risk' { 'severity-yellow' } 'Watch' { 'severity-yellow' } default { 'severity-green' } }
+                            [PSCustomObject]@{ Budget = $_.BudgetName; Amount = '{0:C0}' -f [double]$_.Amount; Spent = '{0:C0}' -f [double]$_.ActualSpend; PctUsed = "$($_.PctUsed)%"; Risk = $_.Risk; _riskClass = $riskClass }
+                        }
+                        $htmlCols = @('Budget', 'Amount', 'Spent', 'PctUsed', 'Risk')
+                    }
+                    'Get-AnomalyAlerts' {
+                        [void]$htmlSb.Append("<p>Total: $($data.TotalAlerts) &nbsp;|&nbsp; Anomaly: $($data.AnomalyAlertCount) &nbsp;|&nbsp; Active: $($data.ActiveAlertCount)</p>")
+                        $htmlRows = $data.TriggeredAlerts | Select-Object -First 10 | ForEach-Object {
+                            [PSCustomObject]@{ Alert = $_.AlertName; Type = $_.AlertType; Status = $_.Status; Subscription = $_.Subscription }
+                        }
+                        $htmlCols = @('Alert', 'Type', 'Status', 'Subscription')
+                    }
+                    'Get-OptimizationAdvice' {
+                        if ($data.EstimatedAnnualSavings) { [void]$htmlSb.Append("<p>Est. annual savings: <span class=`"money`">`$$($data.EstimatedAnnualSavings)</span> &nbsp;|&nbsp; $($data.TotalCount) recommendations</p>") }
+                        $htmlRows = $data.Recommendations | Sort-Object { if ($_.AnnualSavings) { [double]$_.AnnualSavings } else { 0 } } -Descending | Select-Object -First 25 | ForEach-Object {
+                            [PSCustomObject]@{ Category = $_.Category; Impact = $_.Impact; Resource = $_.ResourceName; Problem = ($_.Problem -replace '(.{80}).+', '$1...'); Savings = if ($_.AnnualSavings) { '{0:C0}/yr' -f [double]$_.AnnualSavings } else { '-' } }
+                        }
+                        $htmlCols = @('Category', 'Impact', 'Resource', 'Problem', 'Savings')
+                    }
+                    'Get-TagRecommendations' {
+                        $htmlRows = $data.Analysis | ForEach-Object { [PSCustomObject]@{ Tag = $_.TagName; Status = $_.Status; Priority = $_.Priority; Pillar = $_.Pillar; Example = $_.Example } }
+                        $htmlCols = @('Tag', 'Status', 'Priority', 'Pillar', 'Example')
+                    }
+                    'Get-PolicyInventory' {
+                        $htmlRows = $data.Assignments | ForEach-Object { [PSCustomObject]@{ Name = $_.AssignmentName; Effect = $_.Effect; Enforcement = $_.EnforcementMode; Scope = $_.Scope } }
+                        $htmlCols = @('Name', 'Effect', 'Enforcement', 'Scope')
+                    }
+                    'Get-PolicyRecommendations' {
+                        $htmlRows = $data.Analysis | ForEach-Object { [PSCustomObject]@{ Policy = $_.DisplayName; Status = $_.Status; Category = $_.Category; Priority = $_.Priority; Effect = $_.DefaultEffect } }
+                        $htmlCols = @('Policy', 'Status', 'Category', 'Priority', 'Effect')
+                    }
+                    'Get-BillingStructure' {
+                        $htmlRows = $data.BillingAccounts | ForEach-Object { [PSCustomObject]@{ Account = $_.DisplayName; Agreement = $_.AgreementType; Type = $_.AccountType; Status = $_.AccountStatus } }
+                        $htmlCols = @('Account', 'Agreement', 'Type', 'Status')
+                    }
+                    'Get-ContractInfo' {
+                        $htmlRows = @($data) | ForEach-Object { [PSCustomObject]@{ Account = $_.AccountName; Agreement = $_.AgreementType; Type = $_.FriendlyType; Currency = $_.Currency; Status = $_.AccountStatus } }
+                        $htmlCols = @('Account', 'Agreement', 'Type', 'Currency', 'Status')
+                    }
+                }
+
+                # Render HTML table
+                if ($htmlRows -and $htmlCols) {
+                    [void]$htmlSb.Append('<table><thead><tr>')
+                    foreach ($c in $htmlCols) { [void]$htmlSb.Append("<th>$([System.Net.WebUtility]::HtmlEncode($c))</th>") }
+                    [void]$htmlSb.Append('</tr></thead><tbody>')
+                    foreach ($r in $htmlRows) {
+                        [void]$htmlSb.Append('<tr>')
+                        foreach ($c in $htmlCols) {
+                            $val = $r.$c
+                            $enc = [System.Net.WebUtility]::HtmlEncode([string]$val)
+                            # Colorize money values and risk/severity
+                            if ($enc -match '^\$') { $enc = "<span class=`"money`">$enc</span>" }
+                            if ($c -eq 'Risk' -and $r.PSObject.Properties['_riskClass']) { $enc = "<span class=`"$($r._riskClass)`">$enc</span>" }
+                            if ($c -eq 'Impact') {
+                                $impClass = switch ($val) { 'High' { 'severity-red' } 'Medium' { 'severity-yellow' } default { 'severity-green' } }
+                                $enc = "<span class=`"$impClass`">$enc</span>"
+                            }
+                            [void]$htmlSb.Append("<td>$enc</td>")
+                        }
+                        [void]$htmlSb.Append('</tr>')
+                    }
+                    [void]$htmlSb.Append('</tbody></table>')
+                }
+
+                # Render guidance
+                # (Re-evaluate guidance items for HTML — reuse the same logic)
+            }
+
+            [void]$htmlSb.Append('<div class="meta" style="margin-top:40px;border-top:1px solid #30363d;padding-top:12px;">Generated by FinOps Multitool &mdash; part of the <a href="https://aka.ms/finops/toolkit" style="color:#58a6ff;">FinOps Toolkit</a></div>')
+            [void]$htmlSb.Append('</body></html>')
+
+            $htmlPath = Join-Path $exportDir 'FinOpsReport.html'
+            $htmlSb.ToString() | Out-File -FilePath $htmlPath -Encoding utf8
+
+            # Summary text file
             $summaryPath = Join-Path $exportDir 'ScanSummary.txt'
             $summaryLines = @(
                 "FinOps Multitool Scan Summary"
-                "Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+                "Generated: $timestamp"
+                "Subscriptions: $subList"
                 "Total findings: $totalFindings"
                 ""
             )
             foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
                 $count = if ($Results[$mod.Fn]) { @($Results[$mod.Fn]).Count } else { 0 }
-                $summaryLines += "$($mod.Name): $count findings"
+                $errorKey = "_error_$($mod.Fn)"
+                $status = if ($Results.ContainsKey($errorKey)) { "ERROR: $($Results[$errorKey])" } elseif ($count -eq 0) { "No data" } else { "$count findings" }
+                $summaryLines += "$($mod.Name): $status"
             }
             $summaryLines | Out-File -FilePath $summaryPath -Encoding utf8
 
             Write-Host ""
             Write-Host "  Exported to: $exportDir" -ForegroundColor Green
-            Write-Host "  Files: $((Get-ChildItem $exportDir -Filter '*.csv').Count) CSVs + ScanSummary.txt" -ForegroundColor DarkGray
+            $csvCount = (Get-ChildItem $exportDir -Filter '*.csv').Count
+            Write-Host "  Files: $csvCount CSVs + FinOpsReport.html + ScanSummary.txt" -ForegroundColor DarkGray
         }
 
         # Interactive drill-down

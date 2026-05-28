@@ -91,16 +91,16 @@ An optional CSV/JSON export saves to the output path.
 
 Each scan module requires specific Azure RBAC roles. The TUI will tell you which role is needed if a scan fails due to missing permissions.
 
-| Category     | Scans                                                             | Required Role              | Scope                        |
-| ------------ | ----------------------------------------------------------------- | -------------------------- | ---------------------------- |
-| Optimization | Orphaned Resources, Idle VMs, Storage Tier Advice, AHB            | Reader                     | Subscription                 |
-| Governance   | Tag Inventory, Tag Recommendations, Policy Inventory/Recs         | Reader                     | Subscription                 |
-| Cost         | Cost Data, Resource Costs, Cost by Tag, Cost Trend                | Cost Management Reader     | Subscription or MG           |
-| Commitments  | Reservation Advice, Commitment Utilization, Savings Realized      | Cost Management Reader     | Subscription                 |
-| Monitoring   | Budget Status, Anomaly Alerts                                     | Cost Management Reader     | Subscription                 |
-| Advisor      | Optimization Advice                                               | Reader                     | Subscription                 |
-| Account      | Billing Structure, Contract Info                                  | Billing Reader             | Billing Account              |
-| Hub (opt.)   | All scans via Hub data                                            | Storage Blob Data Reader   | Hub Storage Account          |
+| Category     | Scans                                                        | Required Role            | Scope               |
+| ------------ | ------------------------------------------------------------ | ------------------------ | ------------------- |
+| Optimization | Orphaned Resources, Idle VMs, Storage Tier Advice, AHB       | Reader                   | Subscription        |
+| Governance   | Tag Inventory, Tag Recommendations, Policy Inventory/Recs    | Reader                   | Subscription        |
+| Cost         | Cost Data, Resource Costs, Cost by Tag, Cost Trend           | Cost Management Reader   | Subscription or MG  |
+| Commitments  | Reservation Advice, Commitment Utilization, Savings Realized | Cost Management Reader   | Subscription        |
+| Monitoring   | Budget Status, Anomaly Alerts                                | Cost Management Reader   | Subscription        |
+| Advisor      | Optimization Advice                                          | Reader                   | Subscription        |
+| Account      | Billing Structure, Contract Info                             | Billing Reader           | Billing Account     |
+| Hub (opt.)   | All scans via Hub data                                       | Storage Blob Data Reader | Hub Storage Account |
 
 ## Available Scans
 
