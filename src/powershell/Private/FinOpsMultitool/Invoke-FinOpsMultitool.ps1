@@ -96,6 +96,31 @@ function Invoke-FinOpsMultitool {
         @{ Name = 'Contract Info'; Fn = 'Get-ContractInfo'; Selected = $true; Category = 'Account' }
     )
 
+    # -- Permission Requirements per Module --------------------------------
+    # Maps each function to the Azure RBAC role(s) needed and a human-readable reason
+    $permissionInfo = @{
+        'Get-OrphanedResources'     = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph'; Reason = 'Requires read access to query resource metadata via Azure Resource Graph.' }
+        'Get-IdleVMs'               = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph + Monitor Metrics'; Reason = 'Requires Reader to query VM metadata and Monitor metrics for CPU/network utilization.' }
+        'Get-StorageTierAdvice'     = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph'; Reason = 'Requires read access to query storage account configurations.' }
+        'Get-AHBOpportunities'      = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph'; Reason = 'Requires read access to query VM license types.' }
+        'Get-TagInventory'          = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph'; Reason = 'Requires read access to inventory resource tags via Resource Graph.' }
+        'Get-TagRecommendations'    = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph'; Reason = 'Requires read access to analyze existing tags and suggest improvements.' }
+        'Get-PolicyInventory'       = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Manager'; Reason = 'Requires read access to list policy assignments and definitions.' }
+        'Get-PolicyRecommendations' = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Manager'; Reason = 'Requires read access to evaluate policy coverage gaps.' }
+        'Get-CostData'              = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action. Assign Cost Management Reader or Reader at the subscription or MG scope.' }
+        'Get-ResourceCosts'         = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action. Assign Cost Management Reader or Reader at the subscription or MG scope.' }
+        'Get-CostByTag'             = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action to query cost grouped by tag dimensions.' }
+        'Get-CostTrend'             = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action to retrieve historical monthly cost data.' }
+        'Get-ReservationAdvice'     = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Consumption Reservation Recommendations API'; Reason = 'Requires Microsoft.Consumption/reservationRecommendations/read to retrieve reservation purchase advice.' }
+        'Get-CommitmentUtilization' = @{ Role = 'Cost Management Reader or Reservation Reader'; Scope = 'Reservation Order or Subscription'; API = 'Consumption Reservation Summaries API'; Reason = 'Requires Microsoft.Consumption/reservationSummaries/read. If no reservations exist, this will be empty.' }
+        'Get-SavingsRealized'       = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Benefit Utilization API'; Reason = 'Requires Microsoft.CostManagement/benefitUtilizationSummaries/read. Returns empty if no active reservations or savings plans.' }
+        'Get-BudgetStatus'          = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Consumption Budgets API'; Reason = 'Requires Microsoft.Consumption/budgets/read. Returns empty if no budgets are configured for scanned subscriptions.' }
+        'Get-AnomalyAlerts'         = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Alerts API'; Reason = 'Requires Microsoft.CostManagement/alerts/read. Returns empty if no cost anomalies were detected.' }
+        'Get-OptimizationAdvice'    = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Advisor API'; Reason = 'Requires Microsoft.Advisor/recommendations/read to retrieve cost optimization recommendations.' }
+        'Get-BillingStructure'      = @{ Role = 'Billing Reader or EA Reader'; Scope = 'Billing Account'; API = 'Billing API'; Reason = 'Requires Microsoft.Billing/*/read. This is a billing-scope role, not a subscription role. Contact your billing admin.' }
+        'Get-ContractInfo'          = @{ Role = 'Billing Reader'; Scope = 'Billing Account'; API = 'Billing API'; Reason = 'Requires Microsoft.Billing/billingProperty/read. May require billing account access beyond subscription Reader.' }
+    }
+
     # =====================================================================
     #  BANNER
     # =====================================================================
@@ -774,6 +799,7 @@ function Invoke-FinOpsMultitool {
                 Write-Host "`r  [$bar] $pct%  ($current/$total) $($mod.Name) " -ForegroundColor Red -NoNewline
                 Write-Host "  FAILED: $($_.Exception.Message)" -ForegroundColor Red
                 $results[$mod.Fn] = @()
+                $results["_error_$($mod.Fn)"] = $_.Exception.Message
             }
         }
 
@@ -829,11 +855,26 @@ function Invoke-FinOpsMultitool {
         $totalFindings = 0
         foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
             $data = $Results[$mod.Fn]
+            $errorKey = "_error_$($mod.Fn)"
+            $hasError = $Results.ContainsKey($errorKey)
             $count = if ($data) { @($data).Count } else { 0 }
             $totalFindings += $count
-            $icon = if ($count -gt 0) { '*' } else { '-' }
-            $color = if ($count -gt 0) { 'Yellow' } else { 'DarkGray' }
-            Write-Host "  $icon $($mod.Name.PadRight(30)) $count findings" -ForegroundColor $color
+            if ($hasError) {
+                $icon = '!'
+                $color = 'Red'
+                $suffix = 'error (see details below)'
+            }
+            elseif ($count -gt 0) {
+                $icon = '*'
+                $color = 'Yellow'
+                $suffix = "$count findings"
+            }
+            else {
+                $icon = '-'
+                $color = 'DarkGray'
+                $suffix = '0 findings'
+            }
+            Write-Host "  $icon $($mod.Name.PadRight(30)) $suffix" -ForegroundColor $color
         }
 
         Write-Host ""
@@ -843,7 +884,45 @@ function Invoke-FinOpsMultitool {
         # -- Display results per module ------------------------------------
         foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
             $data = $Results[$mod.Fn]
-            if (-not $data -or @($data).Count -eq 0) { continue }
+            if (-not $data -or @($data).Count -eq 0) {
+                # Show why data is missing — error or permissions
+                $errorKey = "_error_$($mod.Fn)"
+                $errorMsg = if ($Results.ContainsKey($errorKey)) { $Results[$errorKey] } else { $null }
+                $pInfo = if ($permissionInfo.ContainsKey($mod.Fn)) { $permissionInfo[$mod.Fn] } else { $null }
+
+                Write-SectionHeader $mod.Name
+                if ($errorMsg) {
+                    # Detect permission-related errors
+                    $isPermError = $errorMsg -match '(?i)403|401|Forbidden|Unauthorized|AuthorizationFailed|does not have authorization|InsufficientPermissions|BillingAccountNotFound'
+                    if ($isPermError -and $pInfo) {
+                        Write-Host "    [!] ACCESS DENIED" -ForegroundColor Red
+                        Write-Host "    $errorMsg" -ForegroundColor DarkGray
+                        Write-Host ""
+                        Write-Host "    Required role:  $($pInfo.Role)" -ForegroundColor Yellow
+                        Write-Host "    Scope:          $($pInfo.Scope)" -ForegroundColor Yellow
+                        Write-Host "    API:            $($pInfo.API)" -ForegroundColor DarkGray
+                        Write-Host "    $($pInfo.Reason)" -ForegroundColor DarkGray
+                    }
+                    else {
+                        Write-Host "    [!] ERROR: $errorMsg" -ForegroundColor Red
+                        if ($pInfo) {
+                            Write-Host "    If this is a permissions issue:" -ForegroundColor DarkGray
+                            Write-Host "    Required role: $($pInfo.Role) at $($pInfo.Scope) scope" -ForegroundColor DarkGray
+                        }
+                    }
+                }
+                else {
+                    # No error but no data — could be legitimately empty
+                    Write-Host "    No data returned." -ForegroundColor DarkGray
+                    if ($pInfo) {
+                        Write-Host "    Possible reasons:" -ForegroundColor DarkGray
+                        Write-Host "    - $($pInfo.Reason)" -ForegroundColor DarkGray
+                        Write-Host "    - Required role: $($pInfo.Role) at $($pInfo.Scope) scope" -ForegroundColor DarkGray
+                    }
+                }
+                Write-Host ""
+                continue
+            }
 
             Write-SectionHeader $mod.Name
 
