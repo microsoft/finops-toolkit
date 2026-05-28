@@ -245,7 +245,8 @@ function Invoke-FinOpsMultitool {
                     $tColor = if ($t -eq $tCursor) { 'Green' } else { 'Gray' }
                     $tLabel = if ($tenants[$t].Name -and $tenants[$t].Name -ne $tenants[$t].TenantId) {
                         "$($tenants[$t].Name)  ($($tenants[$t].TenantId))"
-                    } else { $tenants[$t].TenantId }
+                    }
+                    else { $tenants[$t].TenantId }
                     $current = if ($tenants[$t].TenantId -eq $currentTenantId) { ' (current)' } else { '' }
                     $tLine = "$tPrefix$tLabel$current"
                     if ($tLine.Length -gt 80) { $tLine = $tLine.Substring(0, 77) + '...' }
@@ -1371,4 +1372,9 @@ function Invoke-FinOpsMultitool {
 
     Write-Host "  Done. Results available in `$FinOpsResults" -ForegroundColor Green
     Write-Host ""
+}
+
+# Auto-invoke when run directly (not dot-sourced or imported as module)
+if ($MyInvocation.InvocationName -ne '.') {
+    Invoke-FinOpsMultitool @PSBoundParameters
 }
