@@ -547,7 +547,7 @@ function Invoke-FinOpsMultitool {
                                     aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
                                     grouping    = @(@{ type = 'Dimension'; name = 'SubscriptionId' })
                                 }
-                                includeActualCost       = $true
+                                includeActualCost       = $false
                                 includeFreshPartialCost = $false
                             } | ConvertTo-Json -Depth 10
 
@@ -564,7 +564,9 @@ function Invoke-FinOpsMultitool {
                                     }
                                     foreach ($subId in $fctSums.Keys) {
                                         if ($hubCostData.ContainsKey($subId)) {
-                                            $hubCostData[$subId].Forecast = [math]::Round($fctSums[$subId], 2)
+                                            # Full-month projection = actual MTD + remaining forecast
+                                            $actual = $hubCostData[$subId].Actual
+                                            $hubCostData[$subId].Forecast = [math]::Round($actual + $fctSums[$subId], 2)
                                         }
                                     }
                                     $forecastFilled = $true
@@ -589,7 +591,7 @@ function Invoke-FinOpsMultitool {
                                             granularity = 'None'
                                             aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
                                         }
-                                        includeActualCost       = $true
+                                        includeActualCost       = $false
                                         includeFreshPartialCost = $false
                                     } | ConvertTo-Json -Depth 10
                                     $fResp = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01" -Method POST -Payload $fBody
@@ -599,7 +601,9 @@ function Invoke-FinOpsMultitool {
                                             $fctTotal = 0
                                             foreach ($row in $fRes.properties.rows) { $fctTotal += [double]$row[0] }
                                             if ($hubCostData.ContainsKey($sub.Id)) {
-                                                $hubCostData[$sub.Id].Forecast = [math]::Round($fctTotal, 2)
+                                                # Full-month projection = actual MTD + remaining forecast
+                                                $actual = $hubCostData[$sub.Id].Actual
+                                                $hubCostData[$sub.Id].Forecast = [math]::Round($actual + $fctTotal, 2)
                                                 $fctHits++
                                             }
                                         }
