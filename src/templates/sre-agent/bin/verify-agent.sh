@@ -101,6 +101,9 @@ count_enabled_names() {
     | [$expected[] | . as $name | select($actual | index($name))] | length
   ' 2>/dev/null || echo 0
 }
+knowledge_source_name() {
+  basename "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/-+/-/g; s/^-//; s/-$//'
+}
 
 API_VERSION="2026-01-01"
 ARM_BASE="https://management.azure.com/subscriptions/${SUB}/resourceGroups/${RG}/providers/Microsoft.App/agents/${AGENT}"
@@ -454,24 +457,37 @@ DATA_CONNECTORS=$(dp_get "/api/v2/extendedAgent/connectors")
 KNOWLEDGE_SOURCE_VALUES=$(echo "$DATA_CONNECTORS" | jq -c '[.value[]? | select(.properties.dataConnectorType == "KnowledgeFile" or .properties.dataConnectorType == "KnowledgeText" or .properties.dataConnectorType == "KnowledgeWebPage")]' 2>/dev/null || echo "[]")
 KS_CT=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq 'length')
 KS_NAMES=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq -r '[.[].name] | sort | join(",")' 2>/dev/null)
-KS_INDEXED=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq '[.[] | select(.properties.extendedProperties.createdAt != null)] | length' 2>/dev/null || echo 0)
 EXP_KS_CT=$(exp '.knowledgeSources | length' "-")
 EXP_KS_NAMES=$(exp_list '.knowledgeSources')
 check "Knowledge sources total" "$KS_CT" "-"
 if [[ -n "$EXP_KS_NAMES" && "$EXP_KS_CT" != "-" ]]; then
-  KS_EXPECTED_PRESENT=$(count_present_names "$KNOWLEDGE_SOURCE_VALUES" "$EXP_KS_NAMES")
+  KS_EXPECTED_PRESENT=0
+  KS_EXPECTED_INDEXED=0
+  KS_EXPECTED_UNINDEXED=""
+  IFS=',' read -r -a EXPECTED_KNOWLEDGE_DOCS <<< "$EXP_KS_NAMES"
+  for doc in "${EXPECTED_KNOWLEDGE_DOCS[@]}"; do
+    [[ -n "$doc" ]] || continue
+    source_name="$(knowledge_source_name "$doc")"
+    present=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq -r --arg name "$source_name" --arg display "$doc" '
+      [ .[] | select(.name == $name or .properties.extendedProperties.displayName == $display) ] | length
+    ' 2>/dev/null || echo 0)
+    if [[ "$present" -gt 0 ]]; then
+      KS_EXPECTED_PRESENT=$((KS_EXPECTED_PRESENT + 1))
+      detail=$(dp_get "/api/v2/extendedAgent/connectors/${source_name}")
+      indexed=$(echo "$detail" | jq -r '.properties.extendedProperties.createdAt // empty' 2>/dev/null || true)
+      if [[ -n "$indexed" ]]; then
+        KS_EXPECTED_INDEXED=$((KS_EXPECTED_INDEXED + 1))
+      else
+        KS_EXPECTED_UNINDEXED="${KS_EXPECTED_UNINDEXED}${KS_EXPECTED_UNINDEXED:+; }${source_name}"
+      fi
+    fi
+  done
   check "Knowledge sources expected" "$KS_EXPECTED_PRESENT" "$EXP_KS_CT"
-  KS_EXPECTED_INDEXED=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq -r --arg expected_csv "$EXP_KS_NAMES" '
-    ($expected_csv | split(",") | map(select(. != ""))) as $expected
-    | [.[] | select(.properties.extendedProperties.createdAt != null) | .name] as $actual
-    | [$expected[] | . as $name | select($actual | index($name))] | length
-  ' 2>/dev/null || echo 0)
   check "Knowledge sources indexed" "$KS_EXPECTED_INDEXED" "$EXP_KS_CT"
-fi
-UNINDEXED_KNOWLEDGE_SOURCES=$(echo "$KNOWLEDGE_SOURCE_VALUES" | jq -r '.[] | select(.properties.extendedProperties.createdAt == null) | "\(.name): \(.properties.extendedProperties.errorReason // "not indexed")"' 2>/dev/null)
-if [[ -n "$UNINDEXED_KNOWLEDGE_SOURCES" ]]; then
-  RESULTS="${RESULTS}\n  ⚠️  Unindexed knowledge sources|${UNINDEXED_KNOWLEDGE_SOURCES}|—|❌ FAIL"
-  FAIL=$((FAIL + 1))
+  if [[ -n "$KS_EXPECTED_UNINDEXED" ]]; then
+    RESULTS="${RESULTS}\n  ⚠️  Unindexed knowledge sources|${KS_EXPECTED_UNINDEXED}|—|❌ FAIL"
+    FAIL=$((FAIL + 1))
+  fi
 fi
 RESULTS="${RESULTS}\n  Knowledge source names|${KS_NAMES}|—|"
 
