@@ -524,6 +524,96 @@ function Invoke-FinOpsMultitool {
                 if ($DataSource.Source -eq 'Hub') {
                     $hubCostData = ConvertTo-CostDataFromHub -HubData $hubRaw
                     $hubResourceCosts = ConvertTo-ResourceCostsFromHub -HubData $hubRaw
+
+                    # Hub exports are historical actuals — enrich with live forecast from Cost Management API
+                    try {
+                        Write-Host "  Fetching forecast data from Cost Management API..." -ForegroundColor DarkGray
+                        $now = Get-Date
+                        $monthEnd = (Get-Date -Year $now.Year -Month $now.Month -Day 1).AddMonths(1).AddDays(-1)
+                        $forecastFilled = $false
+
+                        # Try MG-scope forecast first
+                        $fctTenantId = (Get-AzContext).Tenant.Id
+                        if ($fctTenantId) {
+                            $fctBody = @{
+                                type                    = 'Usage'
+                                timeframe               = 'Custom'
+                                timePeriod              = @{
+                                    from = $now.ToString('yyyy-MM-dd')
+                                    to   = $monthEnd.ToString('yyyy-MM-dd')
+                                }
+                                dataset                 = @{
+                                    granularity = 'None'
+                                    aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
+                                    grouping    = @(@{ type = 'Dimension'; name = 'SubscriptionId' })
+                                }
+                                includeActualCost       = $true
+                                includeFreshPartialCost = $false
+                            } | ConvertTo-Json -Depth 10
+
+                            $fctPath = "/providers/Microsoft.Management/managementGroups/$fctTenantId/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01"
+                            $fctResp = Invoke-AzRestMethodWithRetry -Path $fctPath -Method POST -Payload $fctBody
+                            if ($fctResp.StatusCode -eq 200) {
+                                $fctResult = ($fctResp.Content | ConvertFrom-Json)
+                                if ($fctResult.properties.rows -and $fctResult.properties.rows.Count -gt 0) {
+                                    $fctSums = @{}
+                                    foreach ($row in $fctResult.properties.rows) {
+                                        $subId = $row[1]
+                                        if (-not $fctSums.ContainsKey($subId)) { $fctSums[$subId] = 0 }
+                                        $fctSums[$subId] += [double]$row[0]
+                                    }
+                                    foreach ($subId in $fctSums.Keys) {
+                                        if ($hubCostData.ContainsKey($subId)) {
+                                            $hubCostData[$subId].Forecast = [math]::Round($fctSums[$subId], 2)
+                                        }
+                                    }
+                                    $forecastFilled = $true
+                                    Write-Host "  Forecast data loaded for $($fctSums.Count) subscription(s)" -ForegroundColor Green
+                                }
+                            }
+                        }
+
+                        # Per-subscription fallback if MG-scope failed
+                        if (-not $forecastFilled -and $Subscriptions) {
+                            $fctHits = 0
+                            foreach ($sub in $Subscriptions) {
+                                try {
+                                    $fBody = @{
+                                        type                    = 'Usage'
+                                        timeframe               = 'Custom'
+                                        timePeriod              = @{
+                                            from = $now.ToString('yyyy-MM-dd')
+                                            to   = $monthEnd.ToString('yyyy-MM-dd')
+                                        }
+                                        dataset                 = @{
+                                            granularity = 'None'
+                                            aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
+                                        }
+                                        includeActualCost       = $true
+                                        includeFreshPartialCost = $false
+                                    } | ConvertTo-Json -Depth 10
+                                    $fResp = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01" -Method POST -Payload $fBody
+                                    if ($fResp.StatusCode -eq 200) {
+                                        $fRes = ($fResp.Content | ConvertFrom-Json)
+                                        if ($fRes.properties.rows -and $fRes.properties.rows.Count -gt 0) {
+                                            $total = 0
+                                            foreach ($row in $fRes.properties.rows) { $total += [double]$row[0] }
+                                            if ($hubCostData.ContainsKey($sub.Id)) {
+                                                $hubCostData[$sub.Id].Forecast = [math]::Round($total, 2)
+                                                $fctHits++
+                                            }
+                                        }
+                                    }
+                                }
+                                catch { }
+                            }
+                            if ($fctHits -gt 0) { Write-Host "  Forecast data loaded for $fctHits subscription(s)" -ForegroundColor Green }
+                        }
+                    }
+                    catch {
+                        Write-Host "  Forecast data unavailable: $($_.Exception.Message)" -ForegroundColor DarkGray
+                    }
+
                     Write-Host "  Hub data loaded: $(@($hubRaw).Count) cost records, $($hubTagInventory.TagCount) tags, $($hubTagInventory.TagCoverage)% coverage" -ForegroundColor Green
                 }
                 else {
