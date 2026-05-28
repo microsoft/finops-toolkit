@@ -28,8 +28,8 @@ param accessLevel string = 'Low'
 param actionMode string = 'review'
 
 @description('Agent upgrade channel.')
-@allowed(['Stable'])
-param upgradeChannel string = 'Stable'
+@allowed(['Stable', 'Preview'])
+param upgradeChannel string = 'Preview'
 
 @description('Monthly agent unit limit.')
 @minValue(1)

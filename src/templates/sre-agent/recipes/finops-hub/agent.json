@@ -3,7 +3,7 @@
     "accessLevel": "High",
     "actionMode": "Autonomous"
   },
-  "upgradeChannel": "Stable",
+  "upgradeChannel": "Preview",
   "defaultModelProvider": "Anthropic",
   "defaultModelName": "Automatic",
   "monthlyAgentUnitLimit": 10000,

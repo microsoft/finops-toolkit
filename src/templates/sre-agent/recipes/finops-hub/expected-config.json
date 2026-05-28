@@ -2,7 +2,7 @@
   "agent": {
     "accessLevel": "High",
     "actionMode": "autonomous",
-    "upgradeChannel": "Stable",
+    "upgradeChannel": "Preview",
     "experimentalSettings": [
       "EnableSandboxGroup",
       "EnableWorkspaceTools"
