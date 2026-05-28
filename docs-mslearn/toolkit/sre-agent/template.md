@@ -3,7 +3,7 @@ title: Azure SRE Agent template reference (FinOps toolkit)
 description: Review the FinOps toolkit's Azure SRE Agent deployment template, parameters, outputs, script flags, and Bicep module structure.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/26/2026
+ms.date: 05/28/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -145,7 +145,7 @@ The template uses a subscription-scoped entry point and resource group modules:
 | `infra/modules/monitoring.bicep` | Resource group | Creates the Log Analytics workspace and workspace-based Application Insights component for telemetry. |
 | `infra/modules/sre-agent.bicep` | Resource group | Creates the stable `Microsoft.App/agents@2026-01-01` resource, configures action mode, sandbox, and workspace tool settings, assigns SRE Agent Administrator to the deployer, and exposes the agent endpoint for `srectl`. |
 | `infra/modules/resource-group-rbac.bicep` | Resource group | Assigns Reader, Monitoring Reader, Log Analytics Reader, and optionally Contributor to the agent user-assigned managed identity. |
-| `infra/modules/kusto-viewer-rbac.bicep` | Resource group | Assigns `AllDatabasesViewer` on an existing Azure Data Explorer cluster to the user-assigned managed identity when cluster parameters are provided. |
+| `infra/modules/kusto-all-databases-viewer-rbac.bicep` | Resource group | Assigns `AllDatabasesViewer` on an existing Azure Data Explorer cluster to the user-assigned managed identity when cluster parameters are provided. |
 
 <br>
 
