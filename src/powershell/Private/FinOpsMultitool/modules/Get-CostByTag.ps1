@@ -202,30 +202,32 @@ function Get-CostByTag {
             $ps = [powershell]::Create()
             $ps.RunspacePool = $script:RunspacePool
             [void]$ps.AddScript({
-                param($path, $payload)
-                for ($attempt = 0; $attempt -le 3; $attempt++) {
-                    $params = @{ Path = $path; Method = 'POST'; ErrorAction = 'Stop' }
-                    if ($payload) { $params['Payload'] = $payload }
-                    try {
-                        $r = Invoke-AzRestMethod @params
-                        if ($r.StatusCode -ne 429) {
-                            $hdrs = @{}
-                            if ($r.Headers) { foreach ($k in $r.Headers.Keys) { $hdrs[$k] = $r.Headers[$k] } }
-                            return [PSCustomObject]@{ StatusCode = $r.StatusCode; Content = $r.Content; Headers = $hdrs }
+                    param($path, $payload)
+                    for ($attempt = 0; $attempt -le 3; $attempt++) {
+                        $params = @{ Path = $path; Method = 'POST'; ErrorAction = 'Stop' }
+                        if ($payload) { $params['Payload'] = $payload }
+                        try {
+                            $r = Invoke-AzRestMethod @params
+                            if ($r.StatusCode -ne 429) {
+                                $hdrs = @{}
+                                if ($r.Headers) { foreach ($k in $r.Headers.Keys) { $hdrs[$k] = $r.Headers[$k] } }
+                                return [PSCustomObject]@{ StatusCode = $r.StatusCode; Content = $r.Content; Headers = $hdrs }
+                            }
+                            # 429 — parse Retry-After or exponential backoff
+                            $retryAfter = 10
+                            if ($r.Headers -and $r.Headers['Retry-After']) {
+                                $parsed = 0
+                                if ([int]::TryParse($r.Headers['Retry-After'], [ref]$parsed)) { $retryAfter = [math]::Max($parsed, 5) }
+                            }
+                            else { $retryAfter = [math]::Min(10 * [math]::Pow(2, $attempt), 60) }
+                            Start-Sleep -Seconds $retryAfter
                         }
-                        # 429 — parse Retry-After or exponential backoff
-                        $retryAfter = 10
-                        if ($r.Headers -and $r.Headers['Retry-After']) {
-                            $parsed = 0
-                            if ([int]::TryParse($r.Headers['Retry-After'], [ref]$parsed)) { $retryAfter = [math]::Max($parsed, 5) }
-                        } else { $retryAfter = [math]::Min(10 * [math]::Pow(2, $attempt), 60) }
-                        Start-Sleep -Seconds $retryAfter
-                    } catch {
-                        return [PSCustomObject]@{ StatusCode = 0; Content = "{`"error`":{`"message`":`"$($_.Exception.Message)`"}}"; Headers = @{} }
+                        catch {
+                            return [PSCustomObject]@{ StatusCode = 0; Content = "{`"error`":{`"message`":`"$($_.Exception.Message)`"}}"; Headers = @{} }
+                        }
                     }
-                }
-                return [PSCustomObject]@{ StatusCode = 429; Content = '{"error":{"message":"Rate limited after retries"}}'; Headers = @{} }
-            }).AddArgument($call.Path).AddArgument($call.Body)
+                    return [PSCustomObject]@{ StatusCode = 429; Content = '{"error":{"message":"Rate limited after retries"}}'; Headers = @{} }
+                }).AddArgument($call.Path).AddArgument($call.Body)
             $async = $ps.BeginInvoke()
             [void]$pendingJobs.Add(@{ PS = $ps; Async = $async; Call = $call; Result = $null })
         }
@@ -243,22 +245,16 @@ function Get-CostByTag {
                         if (-not $resp) { $resp = [PSCustomObject]@{ StatusCode = 0; Content = '{}'; Headers = @{} } }
                         if ($null -eq $resp.Content) { $resp = [PSCustomObject]@{ StatusCode = $resp.StatusCode; Content = '{}'; Headers = @{} } }
                         $job.Result = $resp
-                    } catch {
+                    }
+                    catch {
                         $job.Result = [PSCustomObject]@{ StatusCode = 0; Content = '{}'; Headers = @{} }
                     }
                     $job.PS.Dispose()
-                } else { $allDone = $false }
+                }
+                else { $allDone = $false }
             }
             if ($allDone) { break }
-            try {
-                $frame = [System.Windows.Threading.DispatcherFrame]::new()
-                [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
-                    [System.Windows.Threading.DispatcherPriority]::Background,
-                    [action] { $frame.Continue = $false }
-                )
-                [System.Windows.Threading.Dispatcher]::PushFrame($frame)
-            } catch { }
-            Start-Sleep -Milliseconds 50
+            Wait-WithDispatcher -Milliseconds 50
         }
 
         # Cleanup any timed-out jobs
@@ -343,7 +339,7 @@ function Get-CostByTag {
                 foreach ($pj in $parallelJobs) {
                     $subResp = $pj.Result
                     $subName = $pj.Call.SubName
-                    $subId   = $pj.Call.SubId
+                    $subId = $pj.Call.SubId
                     if ($subResp.StatusCode -eq 200) {
                         $subBatch = Parse-BatchedCostRows -ResponseContent $subResp.Content
                         foreach ($key in $subBatch.Keys) {
@@ -416,20 +412,6 @@ function Get-CostByTag {
     if (-not $batchSuccess) {
         # Clear skipSubs from batched query — Dimension/TagKey != Tag grouping
         $skipSubs.Clear()
-
-        # Dynamic tag cap based on subscription count — parallel queries make
-        # more tags feasible when there are fewer subs to iterate
-        $subCount = if ($Subscriptions) { $Subscriptions.Count } else { 1 }
-        $maxFallbackTags = if ($subCount -le 3) { 10 } elseif ($subCount -le 10) { 7 } else { 5 }
-
-        # Tags are already ordered: CAF matches first, then extras by coverage desc
-        if ($tagsToQuery.Count -gt $maxFallbackTags) {
-            $kept = $tagsToQuery | Select-Object -First $maxFallbackTags
-            $dropped = $tagsToQuery | Select-Object -Skip $maxFallbackTags
-            Write-Host "  Capped to $maxFallbackTags tags for $subCount sub(s) (kept: $($kept -join ', '))" -ForegroundColor Yellow
-            Write-Host "  Skipped: $($dropped -join ', ')" -ForegroundColor DarkGray
-            $tagsToQuery = $kept
-        }
 
         Write-Host "  Batched tag query not available, falling back to per-tag queries ($($tagsToQuery.Count) tags)..." -ForegroundColor Yellow
 

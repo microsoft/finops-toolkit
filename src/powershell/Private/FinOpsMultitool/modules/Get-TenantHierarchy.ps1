@@ -27,25 +27,14 @@ function Get-TenantHierarchy {
         $ps = [powershell]::Create()
         $ps.Runspace = $rs
         [void]$ps.AddScript({
-            param($tid)
-            Get-AzManagementGroup -GroupId $tid -Expand -Recurse -ErrorAction Stop
-        }).AddArgument($TenantId)
+                param($tid)
+                Get-AzManagementGroup -GroupId $tid -Expand -Recurse -ErrorAction Stop
+            }).AddArgument($TenantId)
 
         $asyncResult = $ps.BeginInvoke()
-        $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
 
-        # Pump WPF dispatcher while waiting so the UI stays responsive
-        while (-not $asyncResult.IsCompleted -and (Get-Date) -lt $deadline) {
-            try {
-                $frame = [System.Windows.Threading.DispatcherFrame]::new()
-                [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
-                    [System.Windows.Threading.DispatcherPriority]::Background,
-                    [action]{ $frame.Continue = $false }
-                )
-                [System.Windows.Threading.Dispatcher]::PushFrame($frame)
-            } catch { }
-            Start-Sleep -Milliseconds 100
-        }
+        # Wait for runspace — uses DispatcherFrame when WPF is loaded, else Start-Sleep
+        Wait-ForRunspace -AsyncResult $asyncResult -TimeoutSeconds $TimeoutSeconds
 
         if ($asyncResult.IsCompleted) {
             $rootGroup = $ps.EndInvoke($asyncResult)
@@ -63,7 +52,8 @@ function Get-TenantHierarchy {
                     SubscriptionMap = $subMap
                 }
             }
-        } else {
+        }
+        else {
             # Timed out — stop and fall through to fallback
             $ps.Stop()
             $ps.Dispose(); $rs.Close()
@@ -84,7 +74,8 @@ function Get-TenantHierarchy {
             SubscriptionMap = @{}
             FlatSubs        = $subs
         }
-    } catch {
+    }
+    catch {
         Write-Warning "Failed to load management group hierarchy: $($_.Exception.Message)"
         Write-Warning "Falling back to flat subscription list."
 
