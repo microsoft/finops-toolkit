@@ -579,11 +579,11 @@ function Invoke-FinOpsMultitool {
     # =====================================================================
     function Write-SectionHeader {
         param([string]$Title, [string]$Color = 'Cyan')
-        $pad = '#' * ($Title.Length + 6)
+        $line = '═' * 55
         Write-Host ""
-        Write-Host "  $pad" -ForegroundColor $Color
-        Write-Host "  ## $Title ##" -ForegroundColor $Color
-        Write-Host "  $pad" -ForegroundColor $Color
+        Write-Host "  $line" -ForegroundColor $Color
+        Write-Host "  $Title" -ForegroundColor $Color
+        Write-Host "  $line" -ForegroundColor $Color
     }
     function Show-ResultsSummary {
         param(
@@ -932,6 +932,231 @@ function Invoke-FinOpsMultitool {
             }
             else {
                 Write-Host "    (no findings)" -ForegroundColor DarkGray
+            }
+
+            # -- Contextual Guidance ---------------------------------------
+            $guidance = $null
+            switch ($mod.Fn) {
+                'Get-OrphanedResources' {
+                    $orphanCount = if ($data.Orphans) { @($data.Orphans).Count } else { 0 }
+                    if ($orphanCount -gt 0) {
+                        $categories = @($data.Orphans | ForEach-Object { $_.Category } | Sort-Object -Unique) -join ', '
+                        $guidance = @(
+                            "Review and delete orphaned resources to eliminate waste ($categories)."
+                            "Use Azure Policy 'Audit unattached disks' to prevent future orphans."
+                            "Docs: https://learn.microsoft.com/azure/advisor/advisor-cost-recommendations"
+                        )
+                    }
+                    else {
+                        $guidance = @("No orphaned resources found — environment is clean.")
+                    }
+                }
+                'Get-IdleVMs' {
+                    $idleCount = if ($data.IdleVMs) { @($data.IdleVMs).Count } else { 0 }
+                    if ($idleCount -gt 0) {
+                        $guidance = @(
+                            "Right-size or deallocate idle VMs. Check Azure Advisor for SKU recommendations."
+                            "Consider auto-shutdown schedules for dev/test VMs (saves 50-70%)."
+                            "Docs: https://learn.microsoft.com/azure/advisor/advisor-cost-recommendations#optimize-virtual-machine-spend"
+                        )
+                    }
+                }
+                'Get-StorageTierAdvice' {
+                    $recoCount = if ($data.Recommendations) { @($data.Recommendations).Count } else { 0 }
+                    if ($recoCount -gt 0) {
+                        $guidance = @(
+                            "Move infrequently accessed data to Cool or Cold tiers (up to 50-75% savings)."
+                            "Enable lifecycle management policies to auto-tier based on last access time."
+                            "Docs: https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview"
+                        )
+                    }
+                }
+                'Get-AHBOpportunities' {
+                    $ahbCount = if ($rows) { @($rows).Count } else { 0 }
+                    if ($ahbCount -gt 0) {
+                        $guidance = @(
+                            "Apply Azure Hybrid Benefit to save up to 40% on Windows and 55% on SQL licensing."
+                            "Requires active Software Assurance or qualifying subscription licenses."
+                            "Docs: https://learn.microsoft.com/azure/virtual-machines/windows/hybrid-use-benefit-licensing"
+                        )
+                    }
+                }
+                'Get-TagInventory' {
+                    $coverage = if ($data.TagCoverage) { $data.TagCoverage } else { 0 }
+                    if ($coverage -lt 50) {
+                        $guidance = @(
+                            "Tag coverage is low ($coverage%). Start with these cost allocation tags:"
+                            "  CostCenter, Environment, Owner, Application, Department"
+                            "Use Azure Policy 'Require a tag and its value' to enforce tagging at deployment."
+                            "Docs: https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging"
+                        )
+                    }
+                    elseif ($coverage -lt 80) {
+                        $guidance = @(
+                            "Tag coverage at $coverage% — good progress. Target 80%+ for reliable cost allocation."
+                            "Focus on untagged resources with the highest cost first."
+                            "Use tag inheritance policies to auto-apply subscription/RG tags to resources."
+                        )
+                    }
+                    else {
+                        $guidance = @(
+                            "Tag coverage at $coverage% — excellent. Enable tag-based cost allocation in Cost Management."
+                            "Consider adding a 'Criticality' tag for workload priority in incident response."
+                        )
+                    }
+                }
+                'Get-CostByTag' {
+                    if ($data.CostByTag -and $data.CostByTag.Count -gt 0) {
+                        # Find the tag with highest untagged cost
+                        $untaggedCost = 0
+                        foreach ($tag in $data.CostByTag.GetEnumerator()) {
+                            foreach ($v in $tag.Value) {
+                                if ($v.TagValue -eq '(untagged)') { $untaggedCost += [double]$v.Cost }
+                            }
+                        }
+                        if ($untaggedCost -gt 0) {
+                            $guidance = @(
+                                "Untagged spend detected ($("{0:C0}" -f $untaggedCost)). This cost cannot be allocated to teams or projects."
+                                "Prioritize tagging high-cost untagged resources. Use Cost Management tag views to identify them."
+                            )
+                        }
+                        else {
+                            $guidance = @("All scanned cost is tagged — cost allocation is fully traceable.")
+                        }
+                    }
+                    elseif ($data.NoTagsFound) {
+                        $guidance = @(
+                            "No tags exist to analyze cost against. Tag resources first (see Tag Inventory guidance)."
+                            "Start with: CostCenter, Environment, Owner — these enable chargeback/showback."
+                        )
+                    }
+                }
+                'Get-CostTrend' {
+                    if ($data.Months -and @($data.Months).Count -ge 2) {
+                        $sorted = @($data.Months) | Sort-Object Month -Descending | Select-Object -First 2
+                        $current = [double]$sorted[0].Cost
+                        $previous = [double]$sorted[1].Cost
+                        if ($previous -gt 0) {
+                            $change = [math]::Round((($current - $previous) / $previous) * 100, 1)
+                            if ($change -gt 20) {
+                                $guidance = @(
+                                    "Cost increased $change% month-over-month. Investigate new deployments or usage spikes."
+                                    "Set up Cost Management alerts to catch unexpected increases early."
+                                    "Docs: https://learn.microsoft.com/azure/cost-management-billing/costs/cost-mgt-alerts-monitor-usage-spending"
+                                )
+                            }
+                            elseif ($change -gt 5) {
+                                $guidance = @("Cost increased $change% MoM — moderate growth. Review new resources deployed this period.")
+                            }
+                            else {
+                                $guidance = @("Cost trend is stable ($change% change). Good cost discipline.")
+                            }
+                        }
+                    }
+                }
+                'Get-ReservationAdvice' {
+                    if ($data.AdvisorRecommendations -and @($data.AdvisorRecommendations).Count -gt 0) {
+                        $totalSavings = if ($data.EstimatedAnnualSavings) { $data.EstimatedAnnualSavings } else { 0 }
+                        $guidance = @(
+                            "Reservation purchase opportunities found ($("{0:C0}" -f $totalSavings)/year estimated savings)."
+                            "Start with 1-year terms for flexibility. Use shared scope to maximize utilization."
+                            "Review 14-day utilization trends before purchasing to ensure steady-state usage."
+                            "Docs: https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations"
+                        )
+                    }
+                    else {
+                        $guidance = @("No reservation recommendations from Advisor. Current commitment coverage may be sufficient.")
+                    }
+                }
+                'Get-CommitmentUtilization' {
+                    if ($data.HasData) {
+                        $riUtil = if ($data.RIAvgUtilization) { [double]$data.RIAvgUtilization } else { 100 }
+                        $spUtil = if ($data.SPAvgUtilization) { [double]$data.SPAvgUtilization } else { 100 }
+                        if ($riUtil -lt 80 -or $spUtil -lt 80) {
+                            $guidance = @(
+                                "Underutilized commitments detected. Review scope and SKU alignment."
+                                "Consider exchanging underused RIs or adjusting savings plan scope."
+                                "Target 95%+ utilization — below 80% may cost more than on-demand."
+                            )
+                        }
+                        else {
+                            $guidance = @("Commitment utilization is healthy (RI: $($data.RIAvgUtilization)%, SP: $($data.SPAvgUtilization)%).")
+                        }
+                    }
+                }
+                'Get-BudgetStatus' {
+                    $atRisk = if ($data.AtRiskCount) { $data.AtRiskCount } else { 0 }
+                    $over = if ($data.OverBudgetCount) { $data.OverBudgetCount } else { 0 }
+                    $coverage = if ($data.BudgetCoverage) { $data.BudgetCoverage } else { 0 }
+                    if ($over -gt 0) {
+                        $guidance = @(
+                            "$over budget(s) exceeded. Review overage causes and adjust budget amounts or spending."
+                            "Add action groups to trigger alerts at 80%, 90%, 100% thresholds."
+                        )
+                    }
+                    elseif ($atRisk -gt 0) {
+                        $guidance = @(
+                            "$atRisk budget(s) at risk of overrun. Review forecasted spend vs. remaining budget."
+                            "Consider proactive cost reduction before period end."
+                        )
+                    }
+                    elseif ($coverage -lt 50) {
+                        $guidance = @(
+                            "Budget coverage is $coverage%. Create budgets for each subscription or resource group."
+                            "Budgets are the foundation of FinOps — they enable alerts, forecasting, and accountability."
+                            "Docs: https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets"
+                        )
+                    }
+                    else {
+                        $guidance = @("Budgets are healthy. All within thresholds with $coverage% coverage.")
+                    }
+                }
+                'Get-PolicyInventory' {
+                    $compliance = if ($data.CompliancePct) { $data.CompliancePct } else { 0 }
+                    $nonCompliant = if ($data.TotalNonCompliant) { $data.TotalNonCompliant } else { 0 }
+                    if ($nonCompliant -gt 0) {
+                        $guidance = @(
+                            "$nonCompliant non-compliant resources found ($compliance% compliance)."
+                            "Review non-compliant resources and remediate or create exemptions."
+                            "Use 'Deny' effect for critical policies, 'Audit' for visibility during rollout."
+                        )
+                    }
+                }
+                'Get-PolicyRecommendations' {
+                    if ($data.Analysis -and @($data.Analysis).Count -gt 0) {
+                        $missing = @($data.Analysis | Where-Object { $_.Status -eq 'Missing' })
+                        if ($missing.Count -gt 0) {
+                            $guidance = @(
+                                "$($missing.Count) recommended policies are not assigned."
+                                "Start with: tag enforcement, allowed locations, and allowed VM SKUs."
+                                "Docs: https://learn.microsoft.com/azure/governance/policy/samples/built-in-policies"
+                            )
+                        }
+                    }
+                }
+                'Get-OptimizationAdvice' {
+                    if ($data.Recommendations -and @($data.Recommendations).Count -gt 0) {
+                        $highImpact = @($data.Recommendations | Where-Object { $_.Impact -eq 'High' })
+                        $guidance = @(
+                            "$(@($data.Recommendations).Count) Advisor recommendations ($($highImpact.Count) high-impact)."
+                            "Prioritize high-impact items first — they offer the largest return for effort."
+                            "Dismiss recommendations you've already evaluated to keep the list actionable."
+                        )
+                    }
+                    else {
+                        $guidance = @("No Advisor cost recommendations — well optimized.")
+                    }
+                }
+            }
+
+            # Render guidance
+            if ($guidance) {
+                Write-Host ""
+                Write-Host "    GUIDANCE" -ForegroundColor Yellow
+                foreach ($line in $guidance) {
+                    $color = if ($line -match '^Docs:') { 'DarkCyan' } else { 'DarkYellow' }
+                    Write-Host "    $line" -ForegroundColor $color
+                }
             }
 
             Write-Host ""
