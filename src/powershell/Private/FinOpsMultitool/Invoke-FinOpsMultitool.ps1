@@ -521,6 +521,49 @@ function Invoke-FinOpsMultitool {
             }
             if ($hubRaw -and @($hubRaw).Count -gt 0) {
                 $hubTagInventory = ConvertTo-TagInventoryFromHub -HubData $hubRaw
+
+                # Hub tag coverage only reflects resources with cost data — query ARG for true counts
+                try {
+                    $subIds = $Subscriptions | ForEach-Object { $_.Id }
+                    $totalBody = @{
+                        subscriptions = @($subIds)
+                        query = "resources | summarize TotalCount = count()"
+                    } | ConvertTo-Json -Depth 5
+                    $totalResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $totalBody
+                    if ($totalResp.StatusCode -eq 200) {
+                        $totalData = ($totalResp.Content | ConvertFrom-Json)
+                        if ($totalData.data -and $totalData.data.Count -gt 0) {
+                            $argTotal = [int]$totalData.data[0].TotalCount
+
+                            $untaggedBody = @{
+                                subscriptions = @($subIds)
+                                query = "resources | where isnull(tags) or tags == '{}' | summarize UntaggedCount = count()"
+                            } | ConvertTo-Json -Depth 5
+                            $untaggedResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $untaggedBody
+                            if ($untaggedResp.StatusCode -eq 200) {
+                                $untaggedData = ($untaggedResp.Content | ConvertFrom-Json)
+                                $argUntagged = if ($untaggedData.data -and $untaggedData.data.Count -gt 0) { [int]$untaggedData.data[0].UntaggedCount } else { 0 }
+
+                                $argTagged = $argTotal - $argUntagged
+                                $argCoverage = if ($argTotal -gt 0) { [math]::Round(($argTagged / $argTotal) * 100, 1) } else { 0 }
+
+                                # Override Hub coverage with ARG-based coverage
+                                $hubTagInventory = $hubTagInventory | ForEach-Object {
+                                    $_.TotalResources = $argTotal
+                                    $_.TaggedCount = $argTagged
+                                    $_.UntaggedCount = $argUntagged
+                                    $_.TagCoverage = $argCoverage
+                                    $_
+                                }
+                                Write-Host "  Tag coverage corrected via Resource Graph: $argCoverage% ($argTagged/$argTotal)" -ForegroundColor DarkGray
+                            }
+                        }
+                    }
+                }
+                catch {
+                    Write-Host "  Could not verify tag coverage via ARG: $($_.Exception.Message)" -ForegroundColor DarkGray
+                }
+
                 if ($DataSource.Source -eq 'Hub') {
                     $hubCostData = ConvertTo-CostDataFromHub -HubData $hubRaw
                     $hubResourceCosts = ConvertTo-ResourceCostsFromHub -HubData $hubRaw
