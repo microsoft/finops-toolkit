@@ -225,6 +225,74 @@ function Invoke-FinOpsMultitool {
         Write-Host "  Signed in as: $($ctx.Account.Id)" -ForegroundColor Green
         Write-Host ""
 
+        # -- Tenant picker ------------------------------------------------
+        $tenants = @(Get-AzTenant -ErrorAction SilentlyContinue)
+        if ($tenants.Count -gt 1) {
+            Write-Host "  $($tenants.Count) tenants available:" -ForegroundColor White
+            Write-Host ""
+
+            $tCursor = 0
+            $currentTenantId = $ctx.Tenant.Id
+            # Pre-select current tenant
+            for ($t = 0; $t -lt $tenants.Count; $t++) {
+                if ($tenants[$t].TenantId -eq $currentTenantId) { $tCursor = $t; break }
+            }
+
+            while ($true) {
+                [Console]::SetCursorPosition(0, [Console]::CursorTop)
+                for ($t = 0; $t -lt $tenants.Count; $t++) {
+                    $tPrefix = if ($t -eq $tCursor) { '  > ' } else { '    ' }
+                    $tColor = if ($t -eq $tCursor) { 'Green' } else { 'Gray' }
+                    $tLabel = if ($tenants[$t].Name -and $tenants[$t].Name -ne $tenants[$t].TenantId) {
+                        "$($tenants[$t].Name)  ($($tenants[$t].TenantId))"
+                    } else { $tenants[$t].TenantId }
+                    $current = if ($tenants[$t].TenantId -eq $currentTenantId) { ' (current)' } else { '' }
+                    $tLine = "$tPrefix$tLabel$current"
+                    if ($tLine.Length -gt 80) { $tLine = $tLine.Substring(0, 77) + '...' }
+                    Write-Host $tLine.PadRight(85) -ForegroundColor $tColor
+                }
+                Write-Host ""
+                Write-Host "  ↑↓ Navigate  │  Enter = Select tenant  │  Q = Stay in current" -ForegroundColor DarkGray
+
+                $tKey = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+                switch ($tKey.VirtualKeyCode) {
+                    38 { if ($tCursor -gt 0) { $tCursor-- } }
+                    40 { if ($tCursor -lt $tenants.Count - 1) { $tCursor++ } }
+                    13 {
+                        $selectedTenant = $tenants[$tCursor]
+                        if ($selectedTenant.TenantId -ne $currentTenantId) {
+                            Write-Host ""
+                            Write-Host "  Switching to tenant: $($selectedTenant.Name)..." -ForegroundColor Yellow
+                            Connect-AzAccount -TenantId $selectedTenant.TenantId | Out-Null
+                            $ctx = Get-AzContext
+                            Write-Host "  Connected to: $($ctx.Tenant.Id)" -ForegroundColor Green
+                        }
+                        else {
+                            Write-Host ""
+                            Write-Host "  Staying in current tenant." -ForegroundColor Green
+                        }
+                        break
+                    }
+                    81 {
+                        Write-Host ""
+                        Write-Host "  Staying in current tenant." -ForegroundColor Green
+                        break
+                    }
+                }
+                if ($tKey.VirtualKeyCode -eq 13 -or $tKey.VirtualKeyCode -eq 81) { break }
+
+                # Move cursor back up to re-render
+                $tLinesToClear = $tenants.Count + 2
+                [Console]::SetCursorPosition(0, [Console]::CursorTop - $tLinesToClear)
+            }
+            Write-Host ""
+        }
+        elseif ($tenants.Count -eq 1) {
+            $tLabel = if ($tenants[0].Name -and $tenants[0].Name -ne $tenants[0].TenantId) { $tenants[0].Name } else { $tenants[0].TenantId }
+            Write-Host "  Tenant: $tLabel" -ForegroundColor Green
+            Write-Host ""
+        }
+
         if ($PreselectedId) {
             $sub = Get-AzSubscription -SubscriptionId $PreselectedId -ErrorAction SilentlyContinue
             if ($sub) {
