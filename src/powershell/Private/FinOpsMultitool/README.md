@@ -35,7 +35,7 @@ Install-Module Az.Accounts, Az.Resources, Az.ResourceGraph, Az.Storage -Scope Cu
 
 ### 1. Authentication
 
-On launch, the TUI checks for an existing `Az.Accounts` session. If you're not logged in, it prompts you to run `Connect-AzAccount`. It then discovers all accessible subscriptions and lets you select which ones to scan.
+On launch, the TUI checks for an existing `Az.Accounts` session. If you're not logged in, it prompts you to run `Connect-AzAccount`. If your account has access to multiple Azure AD tenants, a tenant picker appears so you can select which tenant to scan. It then discovers all accessible subscriptions and lets you select which ones to scan.
 
 ### 2. Data Source Selection
 
@@ -49,7 +49,7 @@ If a FinOps Hub is detected in any of your subscriptions, you'll be asked to cho
 
 ### 3. Scan Selection
 
-Arrow-key driven menu to toggle individual scans on/off:
+Arrow-key driven menu to toggle individual scans on/off. All scans are selected by default except Billing Structure.
 
 | Key       | Action             |
 | --------- | ------------------ |
@@ -66,7 +66,41 @@ Selected scans run sequentially with a progress bar. When a FinOps Hub is availa
 
 ### 5. Results
 
-Results display inline with formatted tables. An optional CSV/JSON export saves to the output path.
+Results display inline with formatted tables, severity-colored guidance, and permission diagnostics.
+
+**Guidance system** — After each scan result, contextual FinOps guidance appears with severity-based coloring:
+
+| Icon  | Color  | Meaning                            |
+| ----- | ------ | ---------------------------------- |
+| `[!]` | Red    | Critical finding — action required |
+| `[~]` | Yellow | Warning — improvement recommended  |
+| `[+]` | Green  | Healthy — good practices confirmed |
+
+Guidance includes FinOps Foundation best practices, actionable next steps, and links to Microsoft Learn documentation.
+
+**Dollar colorization** — All dollar amounts in results are highlighted in green for quick scanning. Budget rows are colored by risk severity (red for over budget, yellow for at risk, green for on track).
+
+**Permission diagnostics** — When a scan returns no data, the TUI explains why:
+
+- **Access denied** (403/401) — Shows the exact error, required RBAC role, scope, and API
+- **No data** — Explains whether the module requires specific resources (e.g., "Returns empty if no budgets are configured")
+
+An optional CSV/JSON export saves to the output path.
+
+## Required Permissions
+
+Each scan module requires specific Azure RBAC roles. The TUI will tell you which role is needed if a scan fails due to missing permissions.
+
+| Category     | Scans                                                             | Required Role              | Scope                        |
+| ------------ | ----------------------------------------------------------------- | -------------------------- | ---------------------------- |
+| Optimization | Orphaned Resources, Idle VMs, Storage Tier Advice, AHB            | Reader                     | Subscription                 |
+| Governance   | Tag Inventory, Tag Recommendations, Policy Inventory/Recs         | Reader                     | Subscription                 |
+| Cost         | Cost Data, Resource Costs, Cost by Tag, Cost Trend                | Cost Management Reader     | Subscription or MG           |
+| Commitments  | Reservation Advice, Commitment Utilization, Savings Realized      | Cost Management Reader     | Subscription                 |
+| Monitoring   | Budget Status, Anomaly Alerts                                     | Cost Management Reader     | Subscription                 |
+| Advisor      | Optimization Advice                                               | Reader                     | Subscription                 |
+| Account      | Billing Structure, Contract Info                                  | Billing Reader             | Billing Account              |
+| Hub (opt.)   | All scans via Hub data                                            | Storage Blob Data Reader   | Hub Storage Account          |
 
 ## Available Scans
 
@@ -127,6 +161,8 @@ When a Hub is detected, the TUI automatically loads FOCUS cost data from the Hub
 - **Instant tag scans** — Tag Inventory and Cost by Tag read directly from Hub CSV/parquet data instead of querying the Cost Management API
 - **No API throttling** — Hub data is read from Azure Storage, avoiding Cost Management API rate limits
 - **Richer tag data** — Hub exports contain the full Tags JSON per cost record, enabling accurate per-resource tag parsing
+- **Forecast enrichment** — Hub data contains actuals only, so the TUI calls the Cost Management Forecast API to project full-month costs and adds them to Hub actuals
+- **Accurate tag coverage** — Hub only sees resources with cost data. The TUI queries Azure Resource Graph for the true total/untagged resource count and overrides the Hub-derived coverage percentage
 
 Hub data is loaded once at startup and reused across all scans that need it.
 
