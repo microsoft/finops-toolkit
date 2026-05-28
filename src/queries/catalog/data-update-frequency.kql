@@ -16,7 +16,7 @@
 // Scope Notes:
 //   Measures Hub ingestion cadence from x_IngestionTime, not the timing of underlying charges.
 //   Accounts with only one distinct ingestion timestamp return null interval statistics.
-// Last Tested: Pending validation against live FinOps Hub deployment
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
 // =========================================================================
 Costs()
 | summarize

@@ -18,7 +18,7 @@
 //   Tier classification uses x_SkuTier with fallback to x_SkuMeterSubcategory keyword matching.
 //   ConsumedQuantity for storage typically represents GB-months over the billed period (time-weighted), not raw GB at a point in time.
 //   Unclassified rows are intentionally preserved so users can extend the tier-matching logic for uncovered SKUs.
-// Last Tested: Pending validation against live FinOps Hub deployment
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 2 rows returned (Frequent + other tiers)
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

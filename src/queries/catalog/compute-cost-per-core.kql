@@ -22,7 +22,7 @@
 //   compute unit economics. Wave-boundary fix (T-3000.12 cross-model review): gpt-5.5 flagged that the prior
 //   un-scoped predicate mixed non-compute waste into the compute denominator.
 //   Core counts reflect billed VCPUs/vCores from x_SkuDetails, and all monetary values remain denominated in BillingCurrency rather than normalized USD.
-// Last Tested: Pending validation against live FinOps Hub deployment
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned; HourlyCostPerCore=0.019 USD
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

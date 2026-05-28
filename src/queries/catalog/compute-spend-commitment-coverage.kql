@@ -16,7 +16,7 @@
 // Scope Notes:
 //   Denominator uses ContractedCost as the post-negotiated, pre-commitment baseline rather than public retail pricing.
 //   Scope is limited to ServiceCategory == 'Compute', excludes commitment purchase rows, and groups results by BillingCurrency.
-// Last Tested: Pending validation against live FinOps Hub deployment
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (CoveragePercent=0; expected given commitment data gap)
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

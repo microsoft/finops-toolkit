@@ -17,7 +17,7 @@
 // Scope Notes:
 //   Treats both positive spikes and negative drops as anomalies (AnomalyFlags != 0); the Overall row is per BillingCurrency only.
 //   Missing days are zero-filled via make-series default=0.0, and commitment purchase rows are excluded to avoid amortization double-counting.
-// Last Tested: Pending validation against live FinOps Hub deployment
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 13 rows returned (per service category)
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

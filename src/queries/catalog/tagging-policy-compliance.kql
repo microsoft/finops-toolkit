@@ -24,7 +24,7 @@
 //   Policy is defined by the requiredTagKeys parameter. Caller is responsible for
 //   keeping it in sync with their organization's tag policy. Resources with null Tags
 //   or missing/empty required-key values are treated as non-compliant.
-// Last Tested: Pending validation against live FinOps Hub deployment
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

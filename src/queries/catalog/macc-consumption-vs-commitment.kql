@@ -24,7 +24,7 @@
 //   share of MACC drawdown. Wave-boundary fix (T-3000.15 cross-model review): opus-4.6 flagged BillingAccountId in
 //   output (spec deviation); gpt-5.5 flagged that naive broadcasting would duplicate commitment per profile. The
 //   allocation pattern below resolves both findings.
-// Last Tested: Pending validation against live FinOps Hub deployment
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (CommitmentAmount=0; expected given Transactions/MACC data gap)
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

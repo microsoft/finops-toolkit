@@ -25,7 +25,7 @@
 //   single global savings scalar against each currency's cost, producing misleading per-currency COIN values for
 //   multi-currency hubs. Recommendations() has no BillingCurrency column, so we now report one hub-wide row. For
 //   multi-currency hubs operators should normalize Costs() to a single reporting currency before consuming COINScore.
-// Last Tested: Pending validation against live FinOps Hub deployment
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (COIN=100; expected with zero Recommendations savings in this hub)
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

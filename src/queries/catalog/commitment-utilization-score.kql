@@ -18,7 +18,7 @@
 // Scope Notes:
 //   Microsoft Azure commitments only; score is window-based, grand totals are per BillingCurrency,
 //   and Usage-category quantities remain ConsumedUnit-dependent but valid as a ratio within each commitment.
-// Last Tested: Pending validation against live FinOps Hub deployment
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: ZERO_ROWS — Schema match; data gap — no commitment-discount records in 30d window. Re-UAT on commitment-active hub recommended.
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());
