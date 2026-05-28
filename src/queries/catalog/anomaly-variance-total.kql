@@ -1,0 +1,65 @@
+// ============================================================================
+// Query: Total Unpredicted Variance of Spend
+// Description:
+//   Calculates the net unpredicted variance between actual effective cost and the anomaly baseline
+//   for anomaly-flagged daily buckets by service category and billing currency.
+// KPI: Total Unpredicted Variance of Spend
+// Formula: Total effective cost associated with all anomaly events detected less the predicted spend of the services related to the identified anomalies.
+// Author: FinOps toolkit
+// Parameters:
+//   startDate: datetime; start of the reporting period (default: startofmonth(ago(12 * 30d)))
+//   endDate: datetime; end of the reporting period (default: now())
+//   anomalyThreshold: real; anomaly detection sensitivity threshold (default: 1.5)
+// Output:
+//   Each row returns BillingCurrency, ServiceCategory, AnomalyEventCount, UnpredictedVarianceSigned,
+//   and UnpredictedVarianceAbs for anomaly-detected daily buckets; "(All Services)" rows provide
+//   per-currency totals across all service categories.
+// Usage:
+//   Use this query to quantify net anomalous overspend or underspend by service category and currency.
+// Scope Notes:
+//   Per-group anomaly detection runs independently per (ServiceCategory, BillingCurrency), and groups
+//   with sparse history are filtered when no anomaly baseline is produced. Each BillingCurrency is
+//   reported separately and must not be summed across currencies without FX conversion. The default
+//   12-month window supports STL seasonality decomposition, and UnpredictedVarianceAbs is defined as
+//   abs(sum(actual - baseline)) rather than sum(abs(actual - baseline)).
+// Last Tested: Pending validation against live FinOps Hub deployment
+// =========================================================================
+let startDate = startofmonth(ago(12 * 30d));
+let endDate = now();
+let anomalyThreshold = 1.5;
+let anomalyBuckets =
+    Costs()
+    | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+    | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+    | summarize DailyCost = sum(EffectiveCost) by ServiceCategory, BillingCurrency, bin(ChargePeriodStart, 1d)
+    | make-series CostSeries = sum(DailyCost) default=0.0 on ChargePeriodStart from startDate to endDate step 1d by ServiceCategory, BillingCurrency
+    | extend (ad_flag, ad_score, ad_baseline) = series_decompose_anomalies(CostSeries, anomalyThreshold)
+    | mv-expand ChargePeriodStart to typeof(datetime), CostSeries to typeof(real), ad_flag to typeof(real), ad_score to typeof(real), ad_baseline to typeof(real)
+    | extend ad_flag = toint(ad_flag), CostSeries = toreal(CostSeries), ad_score = toreal(ad_score), ad_baseline = toreal(ad_baseline)
+    | where isnotnull(ad_baseline)
+    | where ad_flag != 0
+    | extend Variance = todouble(CostSeries) - todouble(ad_baseline);
+union
+(
+    anomalyBuckets
+    | summarize
+        AnomalyEventCount = count(),
+        UnpredictedVarianceSigned = todouble(sum(Variance)),
+        UnpredictedVarianceAbs = todouble(abs(sum(Variance)))
+        by BillingCurrency, ServiceCategory
+),
+(
+    anomalyBuckets
+    | summarize
+        AnomalyEventCount = count(),
+        UnpredictedVarianceSigned = todouble(sum(Variance)),
+        UnpredictedVarianceAbs = todouble(abs(sum(Variance)))
+        by BillingCurrency
+    | extend ServiceCategory = "(All Services)"
+)
+| project
+    BillingCurrency,
+    ServiceCategory,
+    AnomalyEventCount,
+    UnpredictedVarianceSigned = todouble(UnpredictedVarianceSigned),
+    UnpredictedVarianceAbs = todouble(UnpredictedVarianceAbs)
