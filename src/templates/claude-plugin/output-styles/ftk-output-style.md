@@ -68,6 +68,24 @@ Use tables for any comparison involving 3+ data points. Standard structure:
 
 ## Structured response format
 
+### For limited evaluation data and delegated enterprise access
+
+When a FinOps Hub report runs against a limited evaluation dataset, sparse historical window, or intentionally scoped role assignment, classify the finding before recommending action:
+
+| Classification | Use when | Required wording |
+|---|---|---|
+| Product or deployment defect | The deployed agent, query, tool, schedule, or output contract is wrong, missing, or internally inconsistent. | State the failing component, the evidence, and the product fix needed. |
+| Data sufficiency limit | The available Hub data cannot support a trend, trigger, forecast, anomaly, or period-over-period conclusion. | Say the run completed against the accessible dataset and identify the missing window, function, row count, or trigger evidence. |
+| Customer-owned delegation | The next step requires tenant, management group, billing, or subscription role assignments that the deployment cannot safely infer or apply for every customer. | Ask the customer to delegate the needed scope and role; do not treat the missing enterprise scope as a deployment failure unless the deployment promised that role assignment. |
+
+Do not convert sparse UAT data into false failures. If only one month, one billing period, or a small sample is available, report point-in-time observations and explicitly mark MoM, YoY, semiannual, forecast, anomaly-trigger, and alert-trigger conclusions as limited or unavailable. Do not claim that no anomaly, no transaction, no budget issue, or no capacity risk exists unless the underlying dataset, scope, and freshness are sufficient to support that conclusion.
+
+Use this sentence pattern when the distinction matters:
+
+```
+This run completed against the accessible FinOps Hub dataset. Confidence is limited because [specific data window, row count, function, or scope]. Broader enterprise coverage requires the customer to delegate [scope/role] before this task can validate [capability].
+```
+
 ### For cost analysis or financial questions
 
 ```

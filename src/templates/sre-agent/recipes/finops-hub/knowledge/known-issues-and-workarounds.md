@@ -88,6 +88,24 @@ The split is:
 
 **Status:** Tool-level guardrail and scheduled-task prompt guardrail.
 
+## 2c. Limited UAT data and delegated enterprise scope
+
+**Symptom:** Scheduled reports may flag stale data, missing trends, missing trigger evidence, empty transaction results, zero alert coverage, zero budget coverage, or low-confidence forecasts when the Hub only contains an evaluation data window or when the agent has intentionally scoped role assignments.
+
+**Cause:** UAT and clean deployments can have limited FinOps Hub history by design. Some conclusions require multiple complete periods, populated `Transactions()`, current `Costs()` and `Prices()`, configured alert or budget resources, and role assignments at the subscription, billing, or management group scope. The SRE Agent deployment should grant the roles it owns for its resource group and configured Hub, but enterprise-wide management group delegation is customer-owned because the correct scope and blast radius vary by customer.
+
+**Workaround:**
+- Classify each finding as a product or deployment defect, a data sufficiency limit, or customer-owned delegation before recommending action.
+- Treat invalid queries, missing tools, incorrect task completion, missing Knowledge Sources, or output-format violations as product or deployment defects.
+- Treat one-month history, sparse evaluation data, empty `Transactions()` diagnostics, missing MoM/YoY baselines, and unavailable anomaly or forecast triggers as data sufficiency limits unless `data-freshness-check` proves the Hub pipeline is broken.
+- Treat broader Reader, Cost Management Reader, quota, billing, or management group visibility as customer-owned delegation unless the deployment explicitly promised that assignment.
+- Do not ask the agent to remediate Azure access directly. Report the exact missing scope and role so the customer can delegate it through their normal management group or subscription governance process.
+- Do not state that no anomaly, no budget issue, no transaction, or no capacity risk exists unless the accessible dataset, freshness, and scope are sufficient to support that conclusion.
+
+**Required report wording:** "This run completed against the accessible FinOps Hub dataset. Confidence is limited because <specific data window, row count, function, or scope>. Broader enterprise coverage requires the customer to delegate <scope/role> before this task can validate <capability>."
+
+**Status:** Expected UAT/product-reporting guardrail. Sparse data should reduce confidence, not create false product failures.
+
 ## 3. Azure Resource Graph query failures
 
 **Symptom:** `az graph query` returns "Unknown error" for complex queries. Orphaned resource detection and Resource Graph-based analysis fails.
