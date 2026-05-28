@@ -1,0 +1,29 @@
+// ============================================================================
+// Query: Percentage of Untagged Costs
+// Description:
+//   Calculates the percentage of EffectiveCost attributable to CSP resources with no tags.
+//   Results are grouped by BillingCurrency and exclude commitment purchases to avoid double-counting amortized costs.
+// KPI: Percentage of Costs Associated with Untagged CSP Cloud Resources
+// Formula: (Total Effective Costs Associated with Untagged CSP Cloud Resources During a Period of Time / Total CSP Effective Cost During a Period of Time) x 100
+// Author: FinOps toolkit
+// Parameters:
+//   startDate: datetime = startofmonth(ago(30d))
+//   endDate: datetime = startofmonth(now())
+// Output:
+//   Each row represents one BillingCurrency and returns UntaggedEffectiveCost, TotalEffectiveCost, and UntaggedPercent for the selected period.
+// Usage:
+//   Use this query to measure how much effective cloud spend is associated with untagged CSP resources.
+// Last Tested: Pending validation against live FinOps Hub deployment
+// =========================================================================
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+| extend isUntagged = isnull(Tags) or array_length(bag_keys(Tags)) == 0
+| summarize
+    UntaggedEffectiveCost = todouble(sumif(EffectiveCost, isUntagged)),
+    TotalEffectiveCost = todouble(sum(EffectiveCost))
+    by BillingCurrency
+| extend UntaggedPercent = todouble(iff(TotalEffectiveCost == 0.0, 0.0, UntaggedEffectiveCost / TotalEffectiveCost * 100.0))
+| project BillingCurrency, UntaggedEffectiveCost, TotalEffectiveCost, UntaggedPercent
