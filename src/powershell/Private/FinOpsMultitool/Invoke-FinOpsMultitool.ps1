@@ -596,10 +596,10 @@ function Invoke-FinOpsMultitool {
                                     if ($fResp.StatusCode -eq 200) {
                                         $fRes = ($fResp.Content | ConvertFrom-Json)
                                         if ($fRes.properties.rows -and $fRes.properties.rows.Count -gt 0) {
-                                            $total = 0
-                                            foreach ($row in $fRes.properties.rows) { $total += [double]$row[0] }
+                                            $fctTotal = 0
+                                            foreach ($row in $fRes.properties.rows) { $fctTotal += [double]$row[0] }
                                             if ($hubCostData.ContainsKey($sub.Id)) {
-                                                $hubCostData[$sub.Id].Forecast = [math]::Round($total, 2)
+                                                $hubCostData[$sub.Id].Forecast = [math]::Round($fctTotal, 2)
                                                 $fctHits++
                                             }
                                         }
@@ -1096,7 +1096,7 @@ function Invoke-FinOpsMultitool {
                         $budgetRows = @($rows)
                         # Render header manually
                         $headerStr = @($budgetRows) | Select-Object $validCols | Format-Table -AutoSize | Out-String |
-                            ForEach-Object { $_.TrimEnd() -split "`n" | Where-Object { $_.Trim() } }
+                        ForEach-Object { $_.TrimEnd() -split "`n" | Where-Object { $_.Trim() } }
                         if ($headerStr.Count -ge 2) {
                             Write-Host "    $($headerStr[0])" -ForegroundColor Cyan
                             Write-Host "    $($headerStr[1])" -ForegroundColor DarkCyan
@@ -1109,9 +1109,9 @@ function Invoke-FinOpsMultitool {
                             $riskVal = if ($matchedBudget -and $matchedBudget.Risk) { $matchedBudget.Risk } else { '' }
                             $rowColor = switch ($riskVal) {
                                 'Over Budget' { 'Red' }
-                                'At Risk'     { 'Yellow' }
-                                'Watch'       { 'DarkYellow' }
-                                default       { 'Green' }
+                                'At Risk' { 'Yellow' }
+                                'Watch' { 'DarkYellow' }
+                                default { 'Green' }
                             }
                             Write-ColorizedLine -Text "    $budgetLine" -DefaultColor $rowColor
                         }
