@@ -393,8 +393,8 @@ function Populate-OverviewTab {
         $sorted = @($d.ResourceCosts | Sort-Object { $_.Actual } -Descending)
         $totalResources = $sorted.Count
 
-        # Dynamic spend threshold: 0.1% of total actual spend (minimum $1 to filter noise)
-        $threshold = [math]::Max(1.0, $totalActualAll * 0.001)
+        # Dynamic spend threshold: 0.01% of total actual spend (minimum $0.01 to filter noise)
+        $threshold = [math]::Max(0.01, $totalActualAll * 0.0001)
         $display = @($sorted | Where-Object { $_.Actual -ge $threshold })
         # Safety: if threshold filters everything, show top 50
         if ($display.Count -eq 0) { $display = @($sorted | Select-Object -First 50) }

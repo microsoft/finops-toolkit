@@ -74,26 +74,26 @@ function Invoke-FinOpsMultitool {
         @{ Name = 'AHB Opportunities'; Fn = 'Get-AHBOpportunities'; Selected = $true; Category = 'Optimization' }
         # -- Governance (run early — other modules depend on these) --
         @{ Name = 'Tag Inventory'; Fn = 'Get-TagInventory'; Selected = $true; Category = 'Governance' }
-        @{ Name = 'Tag Recommendations'; Fn = 'Get-TagRecommendations'; Selected = $false; Category = 'Governance' }
-        @{ Name = 'Policy Inventory'; Fn = 'Get-PolicyInventory'; Selected = $false; Category = 'Governance' }
-        @{ Name = 'Policy Recommendations'; Fn = 'Get-PolicyRecommendations'; Selected = $false; Category = 'Governance' }
+        @{ Name = 'Tag Recommendations'; Fn = 'Get-TagRecommendations'; Selected = $true; Category = 'Governance' }
+        @{ Name = 'Policy Inventory'; Fn = 'Get-PolicyInventory'; Selected = $true; Category = 'Governance' }
+        @{ Name = 'Policy Recommendations'; Fn = 'Get-PolicyRecommendations'; Selected = $true; Category = 'Governance' }
         # -- Cost Analysis (depends on Tag Inventory for Cost by Tag) --
-        @{ Name = 'Cost Data'; Fn = 'Get-CostData'; Selected = $false; Category = 'Cost Analysis' }
-        @{ Name = 'Resource Costs'; Fn = 'Get-ResourceCosts'; Selected = $false; Category = 'Cost Analysis' }
-        @{ Name = 'Cost by Tag'; Fn = 'Get-CostByTag'; Selected = $false; Category = 'Cost Analysis' }
-        @{ Name = 'Cost Trend'; Fn = 'Get-CostTrend'; Selected = $false; Category = 'Cost Analysis' }
+        @{ Name = 'Cost Data'; Fn = 'Get-CostData'; Selected = $true; Category = 'Cost Analysis' }
+        @{ Name = 'Resource Costs'; Fn = 'Get-ResourceCosts'; Selected = $true; Category = 'Cost Analysis' }
+        @{ Name = 'Cost by Tag'; Fn = 'Get-CostByTag'; Selected = $true; Category = 'Cost Analysis' }
+        @{ Name = 'Cost Trend'; Fn = 'Get-CostTrend'; Selected = $true; Category = 'Cost Analysis' }
         # -- Commitments --
-        @{ Name = 'Reservation Advice'; Fn = 'Get-ReservationAdvice'; Selected = $false; Category = 'Commitments' }
-        @{ Name = 'Commitment Utilization'; Fn = 'Get-CommitmentUtilization'; Selected = $false; Category = 'Commitments' }
-        @{ Name = 'Savings Realized'; Fn = 'Get-SavingsRealized'; Selected = $false; Category = 'Commitments' }
+        @{ Name = 'Reservation Advice'; Fn = 'Get-ReservationAdvice'; Selected = $true; Category = 'Commitments' }
+        @{ Name = 'Commitment Utilization'; Fn = 'Get-CommitmentUtilization'; Selected = $true; Category = 'Commitments' }
+        @{ Name = 'Savings Realized'; Fn = 'Get-SavingsRealized'; Selected = $true; Category = 'Commitments' }
         # -- Monitoring --
-        @{ Name = 'Budget Status'; Fn = 'Get-BudgetStatus'; Selected = $false; Category = 'Monitoring' }
-        @{ Name = 'Anomaly Alerts'; Fn = 'Get-AnomalyAlerts'; Selected = $false; Category = 'Monitoring' }
+        @{ Name = 'Budget Status'; Fn = 'Get-BudgetStatus'; Selected = $true; Category = 'Monitoring' }
+        @{ Name = 'Anomaly Alerts'; Fn = 'Get-AnomalyAlerts'; Selected = $true; Category = 'Monitoring' }
         # -- Advisor --
         @{ Name = 'Optimization Advice'; Fn = 'Get-OptimizationAdvice'; Selected = $true; Category = 'Advisor' }
         # -- Account --
         @{ Name = 'Billing Structure'; Fn = 'Get-BillingStructure'; Selected = $false; Category = 'Account' }
-        @{ Name = 'Contract Info'; Fn = 'Get-ContractInfo'; Selected = $false; Category = 'Account' }
+        @{ Name = 'Contract Info'; Fn = 'Get-ContractInfo'; Selected = $true; Category = 'Account' }
     )
 
     # =====================================================================
@@ -527,7 +527,7 @@ function Invoke-FinOpsMultitool {
                     $subIds = $Subscriptions | ForEach-Object { $_.Id }
                     $totalBody = @{
                         subscriptions = @($subIds)
-                        query = "resources | summarize TotalCount = count()"
+                        query         = "resources | summarize TotalCount = count()"
                     } | ConvertTo-Json -Depth 5
                     $totalResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $totalBody
                     if ($totalResp.StatusCode -eq 200) {
@@ -537,7 +537,7 @@ function Invoke-FinOpsMultitool {
 
                             $untaggedBody = @{
                                 subscriptions = @($subIds)
-                                query = "resources | where isnull(tags) or tags == '{}' | summarize UntaggedCount = count()"
+                                query         = "resources | where isnull(tags) or tags == '{}' | summarize UntaggedCount = count()"
                             } | ConvertTo-Json -Depth 5
                             $untaggedResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $untaggedBody
                             if ($untaggedResp.StatusCode -eq 200) {
@@ -1276,11 +1276,9 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-TagInventory' {
                     $coverage = if ($data.TagCoverage) { $data.TagCoverage } else { 0 }
-                    $isHub = if ($data.Source -eq 'Hub') { $true } else { $false }
-                    $sourceNote = if ($isHub) { " (based on resources with cost data — actual coverage across all resources may differ)" } else { "" }
                     if ($coverage -lt 30) {
                         $guidanceItems = @(
-                            @{ Severity = 'Red'; Message = "Tag coverage is critically low at $coverage%$sourceNote." }
+                            @{ Severity = 'Red'; Message = "Tag coverage is critically low at $coverage%." }
                             @{ Severity = 'Red'; Message = "FinOps Foundation: Tags are the #1 requirement for cost allocation. Without tags, you cannot do chargeback, showback, or unit economics." }
                             @{ Severity = 'Red'; Message = "Start with these 5 essential tags: CostCenter, Environment, Owner, Application, Department." }
                             @{ Severity = 'Yellow'; Message = "Use Azure Policy 'Require a tag and its value' to enforce tagging at deployment time." }
@@ -1289,7 +1287,7 @@ function Invoke-FinOpsMultitool {
                     }
                     elseif ($coverage -lt 50) {
                         $guidanceItems = @(
-                            @{ Severity = 'Red'; Message = "Tag coverage at $coverage%$sourceNote — below the minimum for reliable cost allocation." }
+                            @{ Severity = 'Red'; Message = "Tag coverage at $coverage% — below the minimum for reliable cost allocation." }
                             @{ Severity = 'Yellow'; Message = "FinOps requires 80%+ tag coverage for meaningful chargeback. Prioritize tagging high-cost resources first." }
                             @{ Severity = 'Yellow'; Message = "Essential tags: CostCenter, Environment, Owner, Application, Department." }
                             @{ Severity = 'Yellow'; Message = "Deploy tag inheritance policies to propagate subscription/RG tags to child resources."; Docs = 'https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging' }
@@ -1297,14 +1295,14 @@ function Invoke-FinOpsMultitool {
                     }
                     elseif ($coverage -lt 80) {
                         $guidanceItems = @(
-                            @{ Severity = 'Yellow'; Message = "Tag coverage at $coverage%$sourceNote — good progress, but target 80%+ for reliable cost allocation." }
+                            @{ Severity = 'Yellow'; Message = "Tag coverage at $coverage% — good progress, but target 80%+ for reliable cost allocation." }
                             @{ Severity = 'Yellow'; Message = "Focus on the highest-cost untagged resources. Use Cost Management views to find them." }
                             @{ Severity = 'Yellow'; Message = "Enable tag inheritance policies to auto-apply subscription/RG tags to new resources." }
                         )
                     }
                     else {
                         $guidanceItems = @(
-                            @{ Severity = 'Green'; Message = "Tag coverage at $coverage%$sourceNote — strong tagging discipline." }
+                            @{ Severity = 'Green'; Message = "Tag coverage at $coverage% — strong tagging discipline." }
                             @{ Severity = 'Green'; Message = "Enable tag-based cost allocation in Cost Management to leverage your tags for chargeback." }
                             @{ Severity = 'Green'; Message = "Consider adding a 'Criticality' tag for incident response prioritization."; Docs = 'https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging' }
                         )
