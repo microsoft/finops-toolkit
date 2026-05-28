@@ -10,24 +10,31 @@
 //   startDate: datetime = startofmonth(ago(30d))
 //   endDate: datetime = startofmonth(now())
 // Output:
-//   Each row represents one billing account + currency + calendar month with ConsumptionAmount, CommitmentAmount, ConsumptionVsCommitmentRatio, and CommitmentBurnPercent.
+//   Each row represents one billing profile + currency + calendar month with ConsumptionAmount, CommitmentAmount, ConsumptionVsCommitmentRatio, and CommitmentBurnPercent. Per-profile CommitmentAmount and ConsumptionAmount sum to account-level totals; the ratio is uniform within an account by construction of the proportional allocation.
 // Usage:
 //   Use this query to monitor monthly MACC burn against committed spend for billing accounts in the active FinOps Hub.
 // Scope Notes:
 //   MACC-only: Query targets Microsoft Azure Consumption Commitment (MACC) customers. Non-MACC billing accounts will join to zero CommitmentAmount and emit a ratio of 0.0.
 //   OPEN: x_MonetaryCommitment aggregation semantics need live validation against a real FinOps Hub deployment; if Transactions() repeats balances per billing period, replace sum() with max() or a deduplicated latest-event scan.
-//   Join key downgrade: x_BillingProfileId is unavailable in Transactions(), so the query joins on BillingAccountId and may aggregate multiple billing profiles together.
+//   Per-profile commitment allocation: x_BillingProfileId is unavailable in Transactions(), so the commitment is
+//   collected at the BillingAccountId level and then allocated PROPORTIONALLY across profiles by each profile's
+//   share of account consumption in the reporting window. This preserves the spec output contract (BillingProfileId
+//   in output) while keeping per-profile ratios analytically meaningful: the sum of CommitmentAmount across all
+//   profiles in an account equals the account-level commitment, and each profile's ratio represents that profile's
+//   share of MACC drawdown. Wave-boundary fix (T-3000.15 cross-model review): opus-4.6 flagged BillingAccountId in
+//   output (spec deviation); gpt-5.5 flagged that naive broadcasting would duplicate commitment per profile. The
+//   allocation pattern below resolves both findings.
 // Last Tested: Pending validation against live FinOps Hub deployment
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());
-Costs()
-| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
-| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
-| extend ReportingMonth = startofmonth(ChargePeriodStart)
-| summarize ConsumptionAmountDecimal = sum(EffectiveCost) by BillingCurrency, BillingAccountId, ReportingMonth, x_BillingProfileId
-| summarize ConsumptionAmount = sum(ConsumptionAmountDecimal) by BillingCurrency, BillingAccountId, ReportingMonth
-| join kind=leftouter (
+let profileConsumption =
+    Costs()
+    | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+    | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+    | extend ReportingMonth = startofmonth(ChargePeriodStart)
+    | summarize ProfileConsumption = todouble(sum(EffectiveCost)) by BillingCurrency, BillingAccountId, x_BillingProfileId, ReportingMonth;
+let accountCommitment =
     Transactions()
     | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
     | where x_TransactionType in ('MACC', 'MonetaryCommitment', 'Microsoft Azure Consumption Commitment')
@@ -36,10 +43,17 @@ Costs()
     // VALIDATE: sum(x_MonetaryCommitment) represents the total MACC obligation for the window.
     // If the Hub deployment records this repeatedly per billing period instead of once per purchase,
     // switch to max() or scan for the most-recent MACC event per period.
-    | summarize CommitmentAmount = sum(x_MonetaryCommitment) by BillingCurrency, BillingAccountId, ReportingMonth
+    | summarize AccountCommitment = todouble(sum(x_MonetaryCommitment)) by BillingCurrency, BillingAccountId, ReportingMonth;
+profileConsumption
+| join kind=leftouter (
+    profileConsumption
+    | summarize AccountConsumption = sum(ProfileConsumption) by BillingCurrency, BillingAccountId, ReportingMonth
 ) on BillingCurrency, BillingAccountId, ReportingMonth
-| extend ConsumptionAmount = todouble(ConsumptionAmount)
-| extend CommitmentAmount = todouble(coalesce(CommitmentAmount, decimal(0)))
+| join kind=leftouter accountCommitment on BillingCurrency, BillingAccountId, ReportingMonth
+| extend AccountCommitment = todouble(coalesce(AccountCommitment, 0.0))
+| extend ProfileShare = iff(AccountConsumption == 0.0, 0.0, ProfileConsumption / AccountConsumption)
+| extend ConsumptionAmount = ProfileConsumption
+| extend CommitmentAmount = AccountCommitment * ProfileShare
 | extend ConsumptionVsCommitmentRatio = iff(CommitmentAmount == 0.0, 0.0, ConsumptionAmount / CommitmentAmount)
 | extend CommitmentBurnPercent = ConsumptionVsCommitmentRatio * 100.0
-| project BillingCurrency, BillingAccountId, ReportingMonth, ConsumptionAmount, CommitmentAmount, ConsumptionVsCommitmentRatio, CommitmentBurnPercent
+| project BillingCurrency, BillingProfileId = x_BillingProfileId, ReportingMonth, ConsumptionAmount, CommitmentAmount, ConsumptionVsCommitmentRatio, CommitmentBurnPercent

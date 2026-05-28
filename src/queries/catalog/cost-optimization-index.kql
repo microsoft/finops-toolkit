@@ -2,7 +2,9 @@
 // Query: Cost Optimization Index (COIN)
 // Description:
 //   Calculates the Cost Optimization Index by comparing total reservation recommendation savings opportunity
-//   against amortized total cost for the reporting window, grouped by billing currency from Costs().
+//   against amortized total cost for the reporting window. Reported as a single hub-wide score because the
+//   Hub `Recommendations()` table does not carry a `BillingCurrency` dimension and savings cannot be safely
+//   attributed back to a specific currency.
 // KPI: Cost Optimization Index (COIN)
 // Formula: COIN Score = [1 – (Total Savings Opportunity / Total Cost)] * 100
 // Author: FinOps toolkit
@@ -10,13 +12,19 @@
 //   startDate: datetime = startofmonth(ago(30d))
 //   endDate: datetime = startofmonth(now())
 // Output:
-//   BillingCurrency: string billing currency from Costs().
+//   ReportingCurrencyScope: string ("HubWide") — single-row scope flag; see Scope Notes for multi-currency hubs.
 //   TotalSavingsOpportunity: double total RI/SP savings opportunity from Recommendations() for the reporting window.
 //   TotalCost: double amortized effective cost from Costs() for the reporting window, excluding commitment purchases.
 //   COINScore: double Cost Optimization Index score clamped to 0 when total cost is 0 or the computed score is negative.
 // Usage:
 //   Use this query to estimate how optimized current spend is relative to reservation and savings plan opportunities in FinOps Hub.
-// Scope Notes: COIN as computed here reflects ONLY commitment-discount (RI/SP) savings opportunities from Microsoft Azure Advisor. Does NOT include rightsizing, idle resources, or workload optimization.
+// Scope Notes:
+//   COIN as computed here reflects ONLY commitment-discount (RI/SP) savings opportunities from Microsoft Azure Advisor.
+//   Does NOT include rightsizing, idle resources, or workload optimization.
+//   Wave-boundary fix (T-3000.13 cross-model review): gpt-5.5 flagged that grouping by `BillingCurrency` repeated the
+//   single global savings scalar against each currency's cost, producing misleading per-currency COIN values for
+//   multi-currency hubs. Recommendations() has no BillingCurrency column, so we now report one hub-wide row. For
+//   multi-currency hubs operators should normalize Costs() to a single reporting currency before consuming COINScore.
 // Last Tested: Pending validation against live FinOps Hub deployment
 // =========================================================================
 let startDate = startofmonth(ago(30d));
@@ -30,8 +38,9 @@ let totalSavingsOpportunity = toscalar(
 Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
-| summarize TotalCost = todouble(sum(EffectiveCost)) by BillingCurrency
+| summarize TotalCost = todouble(sum(EffectiveCost))
+| extend ReportingCurrencyScope = 'HubWide'
 | extend TotalSavingsOpportunity = todouble(coalesce(totalSavingsOpportunity, 0.0))
 | extend RawCOINScore = iff(TotalCost == 0.0, 0.0, (1.0 - TotalSavingsOpportunity / TotalCost) * 100.0)
 | extend COINScore = todouble(iff(RawCOINScore < 0.0, 0.0, RawCOINScore))
-| project BillingCurrency, TotalSavingsOpportunity = todouble(TotalSavingsOpportunity), TotalCost = todouble(TotalCost), COINScore
+| project ReportingCurrencyScope, TotalSavingsOpportunity = todouble(TotalSavingsOpportunity), TotalCost = todouble(TotalCost), COINScore
