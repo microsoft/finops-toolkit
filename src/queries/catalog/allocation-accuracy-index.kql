@@ -1,0 +1,35 @@
+// ============================================================================
+// Query: Allocation Accuracy Index
+// Description:
+//   Calculates the percentage of total effective cost that is directly attributed using a
+//   three-signal heuristic: allocation rule, cost center, or ownership-tag evidence.
+// KPI: Allocation Accuracy Index (AAI)
+// Formula: Allocation Accuracy Index (AAI) = (Directly Attributed Costs / Total Infrastructure Costs) × 100
+// Author: FinOps toolkit
+// Parameters:
+//   startDate: datetime; start date for the reporting period (default: startofmonth(ago(30d)))
+//   endDate: datetime; end date for the reporting period (default: startofmonth(now()))
+//   allocationEvidenceTagKeys: dynamic; tag keys treated as ownership evidence (default: dynamic(['cost-center','team','owner','application','product']))
+// Output:
+//   Each row represents one BillingCurrency and returns DirectlyAttributedCost, TotalEffectiveCost,
+//   and AAI for Hub-visible CSP costs in the reporting window.
+// Usage:
+//   Use this query to measure how much effective cost is directly attributable within FinOps Hub.
+// Scope Notes: Hub-only AAI. Does not include on-prem, SaaS, or other infrastructure outside Hub schema.
+// Last Tested: Pending validation against live FinOps Hub deployment
+// =========================================================================
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
+let allocationEvidenceTagKeys = dynamic(['cost-center','team','owner','application','product']);
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+| extend tmp_IsAttributed = isnotempty(x_CostAllocationRuleName)
+                          or isnotempty(x_CostCenter)
+                          or array_length(set_intersect(bag_keys(Tags), allocationEvidenceTagKeys)) > 0
+| summarize
+    DirectlyAttributedCost = todouble(sumif(EffectiveCost, tmp_IsAttributed)),
+    TotalEffectiveCost = todouble(sum(EffectiveCost))
+    by BillingCurrency
+| extend AAI = iff(TotalEffectiveCost == 0, 0.0, DirectlyAttributedCost / TotalEffectiveCost * 100.0)
+| project BillingCurrency, DirectlyAttributedCost, TotalEffectiveCost, AAI
