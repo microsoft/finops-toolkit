@@ -29,6 +29,12 @@ param actionMode string
 @description('Agent upgrade channel.')
 param upgradeChannel string
 
+@description('Default SRE Agent model provider.')
+param defaultModelProvider string
+
+@description('Default SRE Agent model name.')
+param defaultModelName string
+
 @description('Monthly agent unit limit.')
 param monthlyAgentUnitLimit int
 
@@ -63,6 +69,10 @@ resource sreAgent 'Microsoft.App/agents@2026-01-01' = {
       accessLevel: accessLevel
     }
     upgradeChannel: upgradeChannel
+    defaultModel: {
+      provider: defaultModelProvider
+      name: defaultModelName
+    }
     monthlyAgentUnitLimit: monthlyAgentUnitLimit
     experimentalSettings: experimentalSettings
     mcpServers: []

@@ -3,6 +3,7 @@
     "accessLevel": "High",
     "actionMode": "autonomous",
     "upgradeChannel": "Preview",
+    "defaultModelProvider": "MicrosoftFoundry",
     "experimentalSettings": [
       "EnableSandboxGroup",
       "EnableWorkspaceTools"

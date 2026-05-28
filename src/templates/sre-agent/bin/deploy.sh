@@ -375,6 +375,10 @@ ACTION_MODE_RAW="$(recipe_value "${RECIPE_DIR}/agent.json" '.access.actionMode')
 ACTION_MODE="$(normalize_action_mode "$ACTION_MODE_RAW")"
 UPGRADE_CHANNEL="$(recipe_value "${RECIPE_DIR}/agent.json" '.upgradeChannel')"
 [[ -n "$UPGRADE_CHANNEL" ]] || UPGRADE_CHANNEL="Preview"
+DEFAULT_MODEL_PROVIDER="$(recipe_value "${RECIPE_DIR}/agent.json" '.defaultModelProvider')"
+[[ -n "$DEFAULT_MODEL_PROVIDER" ]] || DEFAULT_MODEL_PROVIDER="MicrosoftFoundry"
+DEFAULT_MODEL_NAME="$(recipe_value "${RECIPE_DIR}/agent.json" '.defaultModelName')"
+[[ -n "$DEFAULT_MODEL_NAME" ]] || DEFAULT_MODEL_NAME="Automatic"
 MONTHLY_AGENT_UNIT_LIMIT="$(recipe_value "${RECIPE_DIR}/agent.json" '.monthlyAgentUnitLimit')"
 [[ -n "$MONTHLY_AGENT_UNIT_LIMIT" ]] || MONTHLY_AGENT_UNIT_LIMIT="10000"
 EXPERIMENTAL_SETTINGS="$(jq -c '.experimentalSettings // {"EnableSandboxGroup": true, "EnableWorkspaceTools": true}' "${RECIPE_DIR}/agent.json")"
@@ -396,6 +400,8 @@ jq -n \
   --arg accessLevel "$ACCESS_LEVEL" \
   --arg actionMode "$ACTION_MODE" \
   --arg upgradeChannel "$UPGRADE_CHANNEL" \
+  --arg defaultModelProvider "$DEFAULT_MODEL_PROVIDER" \
+  --arg defaultModelName "$DEFAULT_MODEL_NAME" \
   --argjson monthlyAgentUnitLimit "$MONTHLY_AGENT_UNIT_LIMIT" \
   --arg kustoClusterId "$CLUSTER_RESOURCE_ID" \
   --argjson targetResourceGroups "$TARGET_RGS_JSON" \
@@ -412,6 +418,8 @@ jq -n \
       "accessLevel": { "value": $accessLevel },
       "actionMode": { "value": $actionMode },
       "upgradeChannel": { "value": $upgradeChannel },
+      "defaultModelProvider": { "value": $defaultModelProvider },
+      "defaultModelName": { "value": $defaultModelName },
       "monthlyAgentUnitLimit": { "value": $monthlyAgentUnitLimit },
       "experimentalSettings": { "value": $experimentalSettings },
       "tags": { "value": $tags },

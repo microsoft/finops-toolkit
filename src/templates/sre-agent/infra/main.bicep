@@ -31,6 +31,13 @@ param actionMode string = 'review'
 @allowed(['Stable', 'Preview'])
 param upgradeChannel string = 'Preview'
 
+@description('Default SRE Agent model provider. MicrosoftFoundry maps to the Azure OpenAI provider in the SRE Agent portal.')
+@allowed(['MicrosoftFoundry', 'Anthropic'])
+param defaultModelProvider string = 'MicrosoftFoundry'
+
+@description('Default SRE Agent model name. Automatic lets SRE Agent route to the appropriate model within the selected provider.')
+param defaultModelName string = 'Automatic'
+
 @description('Monthly agent unit limit.')
 @minValue(1)
 param monthlyAgentUnitLimit int = 10000
@@ -69,6 +76,8 @@ module resources 'resources.bicep' = {
     accessLevel: accessLevel
     actionMode: actionMode
     upgradeChannel: upgradeChannel
+    defaultModelProvider: defaultModelProvider
+    defaultModelName: defaultModelName
     monthlyAgentUnitLimit: monthlyAgentUnitLimit
     experimentalSettings: experimentalSettings
     tags: tags

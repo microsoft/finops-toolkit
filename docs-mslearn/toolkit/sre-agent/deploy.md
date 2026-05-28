@@ -17,7 +17,7 @@ ms.reviewer: brettwil
 
 In this tutorial, you learn how to deploy the [FinOps toolkit Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent), connect it to a [FinOps hub](../hubs/finops-hubs-overview.md), and validate the deployment.
 
-The deployment flow is copied from the Microsoft SRE Agent starter lab and updated for the FinOps toolkit. It uses Azure CLI + Bicep for infrastructure, the SRE Agent data plane for the Kusto connector, and `srectl` for the rest of post-provision agent configuration. It doesn't use `azd`.
+The deployment flow is copied from the Microsoft SRE Agent starter lab and updated for the FinOps toolkit. It uses Azure CLI + Bicep for infrastructure and the supported SRE Agent ARM and data-plane surfaces for recipe configuration. It doesn't use `azd`.
 
 ## What gets deployed
 
@@ -26,14 +26,17 @@ The FinOps hub recipe (`src/templates/sre-agent/recipes/finops-hub/`) deploys:
 | Component | Count | Notes |
 |-----------|-------|-------|
 | SRE Agent | 1 | `Microsoft.App/agents` |
-| User-assigned managed identity | 1 | Plus the agent system-assigned identity |
+| Model provider | 1 | Azure OpenAI provider-level routing (`MicrosoftFoundry` ARM value, `Automatic` model routing) |
+| Managed identity | 1 | Agent system-assigned managed identity |
 | Log Analytics workspace | 1 | Linked to the agent for telemetry |
 | Application Insights | 1 | Linked to Log Analytics |
-| Subagents | 5 | FinOps and Azure capacity specialists |
+| Custom agents | 5 | FinOps practitioner orchestrator plus CFO, capacity, database-query, and hubs specialists |
 | Skills | 3 | Capacity, cost management, and FinOps Toolkit |
-| Tools | 34 | Kusto and Python tools |
+| Tools | 50 | Kusto, capacity, and Hub infrastructure tools |
+| Tool overrides | 9 | Enables SRE Agent Log Query and Visualization tools |
 | Scheduled tasks | 19 | FinOps, governance, and reporting automations |
 | Kusto connector | 0 or 1 | Included when you pass `--cluster-uri` |
+| Knowledge docs | 6 | Five recipe knowledge docs plus the FinOps Toolkit output style |
 
 ## Prerequisites
 
@@ -42,7 +45,6 @@ The FinOps hub recipe (`src/templates/sre-agent/recipes/finops-hub/`) deploys:
 - The `Microsoft.App` resource provider registered in the subscription.
 - [Azure CLI](/cli/azure/install-azure-cli).
 - `curl`, `jq`, `python3` with `PyYAML`, and Bash 3.2 or newer.
-- [`srectl`](/azure/sre-agent/tools).
 
 Run:
 
@@ -93,7 +95,7 @@ Optional:
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
-  --fallback-srectl                   Accepted for compatibility; srectl is always used for post-provision.
+  --fallback-srectl                   Accepted for compatibility; ignored.
   --no-telemetry                      Accepted for compatibility.
   -h, --help                          Show this help.
 ```
@@ -114,7 +116,9 @@ bash bin/deploy.sh \
   --dry-run
 ```
 
-When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/post-provision.sh` to configure the Kusto connector through the SRE Agent data plane when requested and apply the remaining recipe assets with `srectl`.
+When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/apply-extras.sh` to configure the Kusto connector and remaining recipe assets through the supported SRE Agent ARM and data-plane surfaces.
+
+The recipe defaults the parent SRE Agent to Azure OpenAI provider-level routing by setting `defaultModel.provider` to `MicrosoftFoundry` and `defaultModel.name` to `Automatic`. Azure SRE Agent automatically selects the model within the configured provider for each task. The template doesn't pin different models for individual custom agents or scheduled tasks because the documented SRE Agent configuration surface is provider-level.
 
 Resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Use the same values to update an existing deployment. Post-provisioning deletes existing scheduled tasks with the recipe's task names before applying manifests so redeployments don't create duplicate automations. `--deploy-name` only changes the ARM deployment record and local build directory.
 

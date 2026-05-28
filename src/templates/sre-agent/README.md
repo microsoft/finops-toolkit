@@ -13,6 +13,7 @@ The deployment flow is copied from the Microsoft SRE Agent starter lab and updat
 | Component | Count | Description |
 |-----------|-------|-------------|
 | SRE Agent | 1 | `Microsoft.App/agents` resource |
+| Model provider | 1 | Azure OpenAI provider-level routing (`MicrosoftFoundry` ARM value, `Automatic` model routing) |
 | Managed identity | 1 | Agent system-assigned managed identity |
 | Log Analytics | 1 | Workspace for agent telemetry |
 | Application Insights | 1 | Linked to Log Analytics |
@@ -41,7 +42,7 @@ The current implementation is the `recipes/finops-hub/` recipe. [CATALOG.md](CAT
 | KustoTool | 37 | `cost-anomaly-detection`, `allocation-accuracy-index`, `cost-optimization-index`, `reservation-recommendation-breakdown` |
 | PythonTool | 13 | `vm-quota-usage`, `data-freshness-check`, `db-service-quotas`, `sku-availability` |
 
-The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Preview` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. This matches the upstream SRE Agent template default and enables the extended-agent skill, tool, subagent, and schedule APIs used by the recipe. `bin/apply-extras.sh` enables the SRE Agent built-in Log Query and Visualization tools. It uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible `KnowledgeFile` sources, then verifies the expected sources are indexed before tools, subagents, and scheduled tasks are applied. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
+The infrastructure deploys `Microsoft.App/agents@2026-01-01` on the `Preview` upgrade channel with `EnableSandboxGroup` and `EnableWorkspaceTools` enabled. This matches the upstream SRE Agent template default and enables the extended-agent skill, tool, subagent, and schedule APIs used by the recipe. The recipe defaults the parent SRE Agent to Azure OpenAI provider-level routing (`defaultModel.provider = MicrosoftFoundry`, `defaultModel.name = Automatic`). Azure SRE Agent selects the model within the configured provider; this template does not pin different models per custom agent or scheduled task. `bin/apply-extras.sh` enables the SRE Agent built-in Log Query and Visualization tools. It uploads the recipe knowledge files and the shared FinOps Toolkit output style from `../claude-plugin/output-styles/ftk-output-style.md` as portal-visible `KnowledgeFile` sources, then verifies the expected sources are indexed before tools, subagents, and scheduled tasks are applied. Scheduled tasks reference `ftk-output-style.md` so recurring reports use the same evidence, formatting, FinOps capability, confidence, and disclaimer conventions.
 
 Skills are applied with their `SKILL.md` content and tool references. The FinOps Toolkit query references resolve through the canonical `src/queries` catalog so the SRE Agent recipe does not carry a stale copy. Supporting reference material that must be available to the agent should be uploaded as KnowledgeFile sources; the current SRE Agent data plane rejects skill payloads with non-empty `additionalFiles`.
 

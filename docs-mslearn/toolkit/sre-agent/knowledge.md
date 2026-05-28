@@ -25,7 +25,7 @@ Use knowledge and memory together:
 
 ## Shipped knowledge docs
 
-The [Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) uploads six knowledge documents during post-provisioning. Five are under `recipes/finops-hub/knowledge/`; the shared FinOps Toolkit output style is uploaded from `src/templates/claude-plugin/output-styles/ftk-output-style.md`. The script uploads them as portal-visible Knowledge Sources and verifies the KnowledgeFile sources are indexed before continuing so missing or unindexed documents fail deployment instead of becoming a silent runtime issue.
+The [Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) uploads six knowledge documents during extras configuration. Five are under `recipes/finops-hub/knowledge/`; the shared FinOps Toolkit output style is uploaded from `src/templates/claude-plugin/output-styles/ftk-output-style.md`. The script uploads them as portal-visible Knowledge Sources and verifies the KnowledgeFile sources are indexed before continuing so missing or unindexed documents fail deployment instead of becoming a silent runtime issue.
 
 | Knowledge doc | What it provides |
 |---|---|
@@ -92,15 +92,15 @@ Knowledge sources can include:
 
 Use uploaded files for stable content. Use connected sources for content that changes often, such as a wiki, repository, or live documentation site.
 
-The template upload path uses the same SRE Agent data-plane contract as the portal file upload flow: `PUT /api/v2/extendedAgent/connectors/{name}` with `type: KnowledgeItem` and `dataConnectorType: KnowledgeFile`. Validate the shipped knowledge with `bin/verify-agent.sh`, the post-provision output, or **Builder** > **Knowledge sources**.
+The template upload path uses the same SRE Agent data-plane contract as the portal file upload flow: `PUT /api/v2/extendedAgent/connectors/{name}` with `type: KnowledgeItem` and `dataConnectorType: KnowledgeFile`. Validate the shipped knowledge with `bin/verify-agent.sh`, the `bin/apply-extras.sh` output, or **Builder** > **Knowledge sources**.
 
 <br>
 
 ## Knowledge across redeployments
 
-Knowledge from the template persists across redeployments through the post-provision step.
+Knowledge from the template persists across redeployments through the extras configuration step.
 
-When you run `bin/deploy.sh`, the template provisions Azure resources and then runs `bin/post-provision.sh`. The post-provision script initializes `srectl` with the SRE Agent endpoint, uploads everything under `recipes/finops-hub/knowledge/`, uploads the shared output style, and waits for the expected KnowledgeFile sources to appear as indexed:
+When you run `bin/deploy.sh`, the template provisions Azure resources and then runs `bin/apply-extras.sh`. The extras script uploads everything under `recipes/finops-hub/knowledge/`, uploads the shared output style, and waits for the expected KnowledgeFile sources to appear as indexed:
 
 ```bash
 for file in "$REPO_ROOT"/src/templates/sre-agent/recipes/finops-hub/knowledge/*.md; do

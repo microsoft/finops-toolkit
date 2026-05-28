@@ -653,18 +653,25 @@ printf "200"
             $agentJson | Should -Not -Match '"identity"'
         }
 
-        It 'uses the stable SRE Agent API and sandbox configuration' {
+        It 'uses the current SRE Agent API, model provider, and sandbox configuration' {
             $agentJson = Get-Content -Path $script:AgentJsonPath -Raw | ConvertFrom-Json
             $mainBicep = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/main.bicep') -Raw
             $sreAgentBicep = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/modules/sre-agent.bicep') -Raw
             $verifyScript = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/verify-agent.sh') -Raw
 
-            $agentJson.upgradeChannel | Should -Be 'Stable'
+            $agentJson.upgradeChannel | Should -Be 'Preview'
+            $agentJson.defaultModelProvider | Should -Be 'MicrosoftFoundry'
+            $agentJson.defaultModelName | Should -Be 'Automatic'
             $agentJson.experimentalSettings.EnableSandboxGroup | Should -BeTrue
             $agentJson.experimentalSettings.EnableWorkspaceTools | Should -BeTrue
             $sreAgentBicep | Should -Match 'Microsoft\.App/agents@2026-01-01'
             $sreAgentBicep | Should -Not -Match 'Microsoft\.App/agents@2025-05-01-preview'
+            $sreAgentBicep | Should -Match 'defaultModel:'
+            $sreAgentBicep | Should -Match 'provider: defaultModelProvider'
+            $sreAgentBicep | Should -Match 'name: defaultModelName'
             $sreAgentBicep | Should -Match 'upgradeChannel: upgradeChannel'
+            $mainBicep | Should -Match 'defaultModelProvider'
+            $mainBicep | Should -Match 'defaultModelName'
             $mainBicep | Should -Match 'EnableSandboxGroup'
             $mainBicep | Should -Match 'EnableWorkspaceTools'
             $verifyScript | Should -Match 'API_VERSION="2026-01-01"'

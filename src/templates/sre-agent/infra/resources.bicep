@@ -22,6 +22,12 @@ param actionMode string
 @description('Agent upgrade channel.')
 param upgradeChannel string
 
+@description('Default SRE Agent model provider.')
+param defaultModelProvider string
+
+@description('Default SRE Agent model name.')
+param defaultModelName string
+
 @description('Monthly agent unit limit.')
 param monthlyAgentUnitLimit int
 
@@ -56,6 +62,8 @@ module sreAgent 'modules/sre-agent.bicep' = {
     accessLevel: accessLevel
     actionMode: actionMode
     upgradeChannel: upgradeChannel
+    defaultModelProvider: defaultModelProvider
+    defaultModelName: defaultModelName
     monthlyAgentUnitLimit: monthlyAgentUnitLimit
     experimentalSettings: experimentalSettings
     tags: tags
