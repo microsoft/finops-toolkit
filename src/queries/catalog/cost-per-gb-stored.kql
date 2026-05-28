@@ -1,0 +1,42 @@
+// ============================================================================
+// Query: Cost Per Gigabytes Stored
+// Description:
+//   Computes the period-average storage cost per normalized GB-month for storage usage rows.
+//   It summarizes amortized storage cost and normalized storage consumption by billing currency.
+// KPI: Cost per Gigabytes Stored
+// Formula: Cloud Storage Costs / Number of GB stored
+// Author: FinOps toolkit
+// Parameters:
+//   startDate: datetime (default: startofmonth(ago(30d))) - Start date for the reporting period
+//   endDate: datetime (default: startofmonth(now())) - End date for the reporting period
+// Output:
+//   Each row returns BillingCurrency, TotalStorageCost, TotalGBMonths, and CostPerGBMonth for qualifying storage usage in the reporting window.
+// Usage:
+//   Use this query to measure the average amortized storage cost rate per GB-month over a reporting period.
+// Scope Notes: ConsumedQuantity for storage represents GB-months over the billed period (time-weighted average), not point-in-time GB at rest. CostPerGBMonth is a period-average rate.
+// Last Tested: Pending validation against live FinOps Hub deployment
+// =========================================================================
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| where ServiceCategory == 'Storage' and ChargeCategory == 'Usage'
+| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+| extend x_NormalizedGB = case(
+    ConsumedUnit endswith 'TB', todouble(ConsumedQuantity) * 1024.0,
+    ConsumedUnit endswith 'PB', todouble(ConsumedQuantity) * 1048576.0,
+    ConsumedUnit endswith 'MB', todouble(ConsumedQuantity) / 1024.0,
+    todouble(ConsumedQuantity)
+)
+| extend ConsumedUnitBucket = case(
+    ConsumedUnit endswith 'TB', 'TB→GB (×1024)',
+    ConsumedUnit endswith 'PB', 'PB→GB (×1048576)',
+    ConsumedUnit endswith 'MB', 'MB→GB (÷1024)',
+    'GB (pass-through)'
+)
+| summarize
+    TotalStorageCost = todouble(sum(EffectiveCost)),
+    TotalGBMonths = todouble(sum(x_NormalizedGB))
+    by BillingCurrency
+| extend CostPerGBMonth = todouble(iff(TotalGBMonths == 0.0 or isnull(TotalGBMonths), todouble(0), TotalStorageCost / TotalGBMonths))
+| project BillingCurrency, TotalStorageCost, TotalGBMonths, CostPerGBMonth
