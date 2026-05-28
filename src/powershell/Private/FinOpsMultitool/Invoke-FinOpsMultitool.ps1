@@ -744,6 +744,26 @@ function Invoke-FinOpsMultitool {
         Write-Host "  $Title" -ForegroundColor $Color
         Write-Host "  $line" -ForegroundColor $Color
     }
+
+    # Write a line with dollar amounts ($1,234) highlighted in green
+    function Write-ColorizedLine {
+        param(
+            [string]$Text,
+            [string]$DefaultColor = 'White',
+            [string]$MoneyColor = 'Green'
+        )
+        # Split on dollar-amount patterns, render them in green
+        $parts = [regex]::Split($Text, '(\$[\d,]+\.?\d*(?:/\w+)?)')
+        foreach ($part in $parts) {
+            if ($part -match '^\$[\d,]+\.?\d*') {
+                Write-Host $part -ForegroundColor $MoneyColor -NoNewline
+            }
+            else {
+                Write-Host $part -ForegroundColor $DefaultColor -NoNewline
+            }
+        }
+        Write-Host ""
+    }
     function Show-ResultsSummary {
         param(
             [hashtable]$Results,
@@ -845,7 +865,7 @@ function Invoke-FinOpsMultitool {
                     }
                     $cols = @('Resource', 'Type', 'Term', 'Savings', 'Impact')
                     if ($data.EstimatedAnnualSavings) {
-                        Write-Host "    Est. annual savings: $($data.EstimatedAnnualSavings.ToString('C0'))" -ForegroundColor Green
+                        Write-ColorizedLine -Text "    Est. annual savings: $($data.EstimatedAnnualSavings.ToString('C0'))" -DefaultColor 'White'
                     }
                 }
                 'Get-CommitmentUtilization' {
@@ -862,8 +882,8 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-SavingsRealized' {
                     Write-Host "    Monthly savings breakdown:" -ForegroundColor White
-                    Write-Host "      RI:  $($data.RISavingsMonthly.ToString('C0'))   SP: $($data.SPSavingsMonthly.ToString('C0'))   AHB: $($data.AHBSavingsMonthly.ToString('C0'))" -ForegroundColor Cyan
-                    Write-Host "      Total monthly: $($data.TotalMonthly.ToString('C0'))   Annual: $($data.TotalAnnual.ToString('C0'))" -ForegroundColor Green
+                    Write-ColorizedLine -Text "      RI:  $($data.RISavingsMonthly.ToString('C0'))   SP: $($data.SPSavingsMonthly.ToString('C0'))   AHB: $($data.AHBSavingsMonthly.ToString('C0'))" -DefaultColor 'Cyan'
+                    Write-ColorizedLine -Text "      Total monthly: $($data.TotalMonthly.ToString('C0'))   Annual: $($data.TotalAnnual.ToString('C0'))" -DefaultColor 'White'
                     $rows = $null  # summary only
                 }
                 'Get-CostData' {
@@ -932,7 +952,7 @@ function Invoke-FinOpsMultitool {
                                         if ($ln -match '^[\s\-]+$') { Write-Host "    $ln" -ForegroundColor DarkCyan; $hdrDone = $true }
                                         else { Write-Host "    $ln" -ForegroundColor Cyan }
                                     }
-                                    else { Write-Host "    $ln" }
+                                    else { Write-ColorizedLine -Text "    $ln" -DefaultColor 'White' }
                                 }
                             }
                         }
@@ -1002,7 +1022,12 @@ function Invoke-FinOpsMultitool {
                     Write-Host "    Compliance: $($data.CompliancePct)%" -ForegroundColor White
                 }
                 'Get-BudgetStatus' {
-                    Write-Host "    Budgets: $($data.TotalBudgets)  |  At risk: $($data.AtRiskCount)  |  Over budget: $($data.OverBudgetCount)  |  Coverage: $($data.BudgetCoverage)%" -ForegroundColor White
+                    $bSumColor = if ($data.OverBudgetCount -gt 0) { 'Red' } elseif ($data.AtRiskCount -gt 0) { 'Yellow' } else { 'Green' }
+                    Write-Host "    Budgets: $($data.TotalBudgets)  |  " -ForegroundColor White -NoNewline
+                    Write-Host "At risk: $($data.AtRiskCount)" -ForegroundColor $(if ($data.AtRiskCount -gt 0) { 'Yellow' } else { 'Green' }) -NoNewline
+                    Write-Host "  |  " -ForegroundColor White -NoNewline
+                    Write-Host "Over budget: $($data.OverBudgetCount)" -ForegroundColor $(if ($data.OverBudgetCount -gt 0) { 'Red' } else { 'Green' }) -NoNewline
+                    Write-Host "  |  Coverage: $($data.BudgetCoverage)%" -ForegroundColor White
                     $rows = $data.Budgets | ForEach-Object {
                         [PSCustomObject]@{
                             Budget  = $_.BudgetName
@@ -1035,7 +1060,7 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-OptimizationAdvice' {
                     if ($data.EstimatedAnnualSavings) {
-                        Write-Host "    Est. annual savings: `$$($data.EstimatedAnnualSavings)  |  $($data.TotalCount) recommendations" -ForegroundColor Green
+                        Write-ColorizedLine -Text "    Est. annual savings: `$$($data.EstimatedAnnualSavings)  |  $($data.TotalCount) recommendations" -DefaultColor 'White'
                     }
                     $rows = $data.Recommendations | Sort-Object { if ($_.AnnualSavings) { [double]$_.AnnualSavings } else { 0 } } -Descending | Select-Object -First 15 | ForEach-Object {
                         [PSCustomObject]@{
@@ -1066,22 +1091,49 @@ function Invoke-FinOpsMultitool {
             if ($rows -and @($rows).Count -gt 0) {
                 $validCols = $cols | Where-Object { $_ }
                 if ($validCols) {
-                    $tableLines = @($rows) | Select-Object $validCols | Format-Table -AutoSize | Out-String |
-                    ForEach-Object { $_.TrimEnd() -split "`n" | Where-Object { $_.Trim() } }
-                    $headerDone = $false
-                    foreach ($line in $tableLines) {
-                        if (-not $headerDone) {
-                            # First two lines are header + separator
-                            if ($line -match '^[\s\-]+$') {
-                                Write-Host "    $line" -ForegroundColor DarkCyan
-                                $headerDone = $true
+                    # Budget Status: color each row by risk level
+                    if ($mod.Fn -eq 'Get-BudgetStatus') {
+                        $budgetRows = @($rows)
+                        # Render header manually
+                        $headerStr = @($budgetRows) | Select-Object $validCols | Format-Table -AutoSize | Out-String |
+                            ForEach-Object { $_.TrimEnd() -split "`n" | Where-Object { $_.Trim() } }
+                        if ($headerStr.Count -ge 2) {
+                            Write-Host "    $($headerStr[0])" -ForegroundColor Cyan
+                            Write-Host "    $($headerStr[1])" -ForegroundColor DarkCyan
+                        }
+                        # Render each data row with risk-based color
+                        for ($ri = 2; $ri -lt $headerStr.Count; $ri++) {
+                            $budgetLine = $headerStr[$ri]
+                            $matchedBudget = $null
+                            if ($ri - 2 -lt $budgetRows.Count) { $matchedBudget = $budgetRows[$ri - 2] }
+                            $riskVal = if ($matchedBudget -and $matchedBudget.Risk) { $matchedBudget.Risk } else { '' }
+                            $rowColor = switch ($riskVal) {
+                                'Over Budget' { 'Red' }
+                                'At Risk'     { 'Yellow' }
+                                'Watch'       { 'DarkYellow' }
+                                default       { 'Green' }
+                            }
+                            Write-ColorizedLine -Text "    $budgetLine" -DefaultColor $rowColor
+                        }
+                    }
+                    else {
+                        $tableLines = @($rows) | Select-Object $validCols | Format-Table -AutoSize | Out-String |
+                        ForEach-Object { $_.TrimEnd() -split "`n" | Where-Object { $_.Trim() } }
+                        $headerDone = $false
+                        foreach ($line in $tableLines) {
+                            if (-not $headerDone) {
+                                # First two lines are header + separator
+                                if ($line -match '^[\s\-]+$') {
+                                    Write-Host "    $line" -ForegroundColor DarkCyan
+                                    $headerDone = $true
+                                }
+                                else {
+                                    Write-Host "    $line" -ForegroundColor Cyan
+                                }
                             }
                             else {
-                                Write-Host "    $line" -ForegroundColor Cyan
+                                Write-ColorizedLine -Text "    $line" -DefaultColor 'White'
                             }
-                        }
-                        else {
-                            Write-Host "    $line"
                         }
                     }
                 }
