@@ -1,0 +1,45 @@
+// ============================================================================
+// Query: Consumption Versus Commitment
+// Description:
+//   Calculates monthly actual consumption versus monetary commitment for Microsoft Azure Consumption Commitment (MACC) billing accounts.
+//   Uses EffectiveCost from Costs() as the consumption numerator and x_MonetaryCommitment from Transactions() as the commitment denominator.
+// KPI: Consumption versus Commitment
+// Formula: Consumption versus Commitment = Actual Consumption Units / Committed Units
+// Author: FinOps toolkit
+// Parameters:
+//   startDate: datetime = startofmonth(ago(30d))
+//   endDate: datetime = startofmonth(now())
+// Output:
+//   Each row represents one billing account + currency + calendar month with ConsumptionAmount, CommitmentAmount, ConsumptionVsCommitmentRatio, and CommitmentBurnPercent.
+// Usage:
+//   Use this query to monitor monthly MACC burn against committed spend for billing accounts in the active FinOps Hub.
+// Scope Notes:
+//   MACC-only: Query targets Microsoft Azure Consumption Commitment (MACC) customers. Non-MACC billing accounts will join to zero CommitmentAmount and emit a ratio of 0.0.
+//   OPEN: x_MonetaryCommitment aggregation semantics need live validation against a real FinOps Hub deployment; if Transactions() repeats balances per billing period, replace sum() with max() or a deduplicated latest-event scan.
+//   Join key downgrade: x_BillingProfileId is unavailable in Transactions(), so the query joins on BillingAccountId and may aggregate multiple billing profiles together.
+// Last Tested: Pending validation against live FinOps Hub deployment
+// =========================================================================
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+| extend ReportingMonth = startofmonth(ChargePeriodStart)
+| summarize ConsumptionAmountDecimal = sum(EffectiveCost) by BillingCurrency, BillingAccountId, ReportingMonth, x_BillingProfileId
+| summarize ConsumptionAmount = sum(ConsumptionAmountDecimal) by BillingCurrency, BillingAccountId, ReportingMonth
+| join kind=leftouter (
+    Transactions()
+    | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+    | where x_TransactionType in ('MACC', 'MonetaryCommitment', 'Microsoft Azure Consumption Commitment')
+        or isnotnull(x_MonetaryCommitment)
+    | extend ReportingMonth = startofmonth(ChargePeriodStart)
+    // VALIDATE: sum(x_MonetaryCommitment) represents the total MACC obligation for the window.
+    // If the Hub deployment records this repeatedly per billing period instead of once per purchase,
+    // switch to max() or scan for the most-recent MACC event per period.
+    | summarize CommitmentAmount = sum(x_MonetaryCommitment) by BillingCurrency, BillingAccountId, ReportingMonth
+) on BillingCurrency, BillingAccountId, ReportingMonth
+| extend ConsumptionAmount = todouble(ConsumptionAmount)
+| extend CommitmentAmount = todouble(coalesce(CommitmentAmount, decimal(0)))
+| extend ConsumptionVsCommitmentRatio = iff(CommitmentAmount == 0.0, 0.0, ConsumptionAmount / CommitmentAmount)
+| extend CommitmentBurnPercent = ConsumptionVsCommitmentRatio * 100.0
+| project BillingCurrency, BillingAccountId, ReportingMonth, ConsumptionAmount, CommitmentAmount, ConsumptionVsCommitmentRatio, CommitmentBurnPercent
