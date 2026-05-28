@@ -1310,22 +1310,28 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-CostByTag' {
                     if ($data.CostByTag -and $data.CostByTag.Count -gt 0) {
-                        $untaggedCost = 0
+                        # Use the MAX untagged cost across any single tag to avoid double-counting
+                        # (the same resource appears as "(untagged)" under every tag it lacks)
+                        $maxUntaggedCost = 0
+                        $maxUntaggedTag = ''
                         foreach ($tag in $data.CostByTag.GetEnumerator()) {
                             foreach ($v in $tag.Value) {
-                                if ($v.TagValue -eq '(untagged)') { $untaggedCost += [double]$v.Cost }
+                                if ($v.TagValue -eq '(untagged)' -and [double]$v.Cost -gt $maxUntaggedCost) {
+                                    $maxUntaggedCost = [double]$v.Cost
+                                    $maxUntaggedTag = $tag.Key
+                                }
                             }
                         }
-                        if ($untaggedCost -gt 1000) {
+                        if ($maxUntaggedCost -gt 1000) {
                             $guidanceItems = @(
-                                @{ Severity = 'Red'; Message = "Untagged spend: $("{0:C0}" -f $untaggedCost). This cost cannot be allocated to any team, project, or budget." }
+                                @{ Severity = 'Red'; Message = "Untagged spend: $("{0:C0}" -f $maxUntaggedCost) (resources missing '$maxUntaggedTag'). This cost cannot be allocated to any team, project, or budget." }
                                 @{ Severity = 'Red'; Message = "FinOps Impact: Untagged spend creates 'shadow IT' — no one owns it, no one optimizes it." }
                                 @{ Severity = 'Yellow'; Message = "Use Cost Management tag views to identify the highest-cost untagged resources and tag them first." }
                             )
                         }
-                        elseif ($untaggedCost -gt 0) {
+                        elseif ($maxUntaggedCost -gt 0) {
                             $guidanceItems = @(
-                                @{ Severity = 'Yellow'; Message = "Some untagged spend detected ($("{0:C0}" -f $untaggedCost)). Tag remaining resources for full cost traceability." }
+                                @{ Severity = 'Yellow'; Message = "Some untagged spend detected ($("{0:C0}" -f $maxUntaggedCost) missing '$maxUntaggedTag'). Tag remaining resources for full cost traceability." }
                             )
                         }
                         else {
