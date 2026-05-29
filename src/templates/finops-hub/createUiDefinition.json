@@ -906,33 +906,52 @@
             "label": "Networking",
             "elements": [
               {
-                "name": "infraEncryptionIntro",
+                "name": "networkingIntro",
                 "type": "Microsoft.Common.TextBlock",
                 "visible": true,
                 "options": {
-                  "text": "For enhanced security, consider blocking external access to your FinOps hub instance to enable secure, private connectivity to your cloud resources by eliminating exposure to the public internet. Private endpoints can incur significant additional cost. Please understand the cost impact before selecting this option."
+                  "text": "Select the network isolation mode. Private vNet uses private endpoints to block all public access and incurs significant additional cost (private endpoint hours, data processing, plus a NAT Gateway with a public IP for outbound dependencies). Please understand the cost impact before selecting Private vNet."
                 }
               },
               {
-                "name": "enablePublicAccess",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Access",
-                "toolTip": "Indicate whether FinOps hubs resources should be accessible by the internet or not. If set to private, all resources will be hidden behind a virtual network private endpoint. This will incur additional costs for data crossing virtual network boundaries and for virtual network peering, if configured.",
-                "defaultValue": "Public",
-                "multiLine": true,
+                "name": "networkMode",
+                "type": "Microsoft.Common.OptionsGroup",
+                "label": "Network access mode",
+                "defaultValue": "Public (no vNet)",
+                "toolTip": "Choose how FinOps hubs resources are exposed on the network. Public: no virtual network, all resources reachable from the internet. vNet: deploy resources inside a virtual network with a NAT Gateway for outbound traffic, but keep public endpoints (segmentation without private-endpoint cost). Private vNet: all resources are hidden behind private endpoints; public access is blocked. This will incur additional costs for private endpoints, data processing across virtual network boundaries, and for virtual network peering if configured.",
                 "constraints": {
                   "allowedValues": [
                     {
-                      "label": "Public",
-                      "description": "Allow external access to storage and Data Explorer.",
-                      "value": true
+                      "label": "Public (no vNet)",
+                      "value": "public"
                     },
                     {
-                      "label": "Private",
-                      "description": "Block all external access. This will incur additional charges.",
-                      "value": false
+                      "label": "vNet (public endpoints)",
+                      "value": "vnet"
+                    },
+                    {
+                      "label": "Private vNet (private endpoints only)",
+                      "value": "private"
                     }
-                  ]
+                  ],
+                  "required": true
+                },
+                "visible": true
+              },
+              {
+                "name": "vnetModeNote",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": "[equals(steps('advanced').networking.networkMode, 'vnet')]",
+                "options": {
+                  "text": "A virtual network + NSG + 3 subnets are deployed as a scaffold for future expansion, but public endpoints remain. No NAT Gateway and no private endpoints are created, so this mode adds no Azure cost beyond the free VNet primitives. Useful if you want a VNet ready to flip to Private vNet later without recreating resources."
+                }
+              },
+              {
+                "name": "privateModeNote",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": "[equals(steps('advanced').networking.networkMode, 'private')]",
+                "options": {
+                  "text": "Private endpoints and private DNS zones will be created for storage, Key Vault, and Data Explorer. A NAT Gateway with a static public IP is also deployed so deployment scripts and Data Explorer can reach Microsoft Container Registry and the FinOps toolkit open data on GitHub. This incurs charges for private endpoint hours, data processing, NAT Gateway hours, and the public IP. Switching back to vNet or Public later does NOT delete these resources — clean them up manually if you downgrade."
                 }
               },
               {
@@ -949,7 +968,7 @@
                     }
                   ]
                 },
-                "visible": "[equals(steps('advanced').networking.enablePublicAccess, false)]"
+                "visible": "[not(equals(steps('advanced').networking.networkMode, 'public'))]"
               }
             ],
             "visible": true
@@ -970,9 +989,13 @@
               "Microsoft.KeyVault/vaults",
               "Microsoft.Kusto/clusters",
               "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "Microsoft.Network/natGateways",
+              "Microsoft.Network/networkSecurityGroups",
               "Microsoft.Network/privateDnsZones",
               "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
               "Microsoft.Network/privateEndpoints",
+              "Microsoft.Network/publicIPAddresses",
+              "Microsoft.Network/virtualNetworks",
               "Microsoft.Resources/deploymentScripts",
               "Microsoft.Storage/storageAccounts"
             ]
@@ -992,7 +1015,8 @@
       "enableRecommendations": "[steps('recommendations').enableRecommendations]",
       "enableAHBRecommendations": "[steps('recommendations').optional.enableAHBRecommendations]",
       "enableSpotRecommendations": "[steps('recommendations').optional.enableSpotRecommendations]",
-      "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
+      "enablePublicAccess": "[not(equals(steps('advanced').networking.networkMode, 'private'))]",
+      "networkMode": "[steps('advanced').networking.networkMode]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
       "exportRetentionInDays": "[steps('retention').storage.msexportsDays]",

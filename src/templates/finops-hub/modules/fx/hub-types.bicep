@@ -72,7 +72,8 @@ type HubRoutingProperties = {
     keyVaultSku: 'KeyVault SKU. Allowed values: "standard", "premium".'
     keyVaultEnablePurgeProtection: 'Indicates whether purge protection is enabled for the Key Vault. When enabled, deleted Key Vault and its secrets cannot be permanently deleted until the retention period expires, which is required for compliance in some environments.'
     networkAddressPrefix: 'Address prefix for the FinOps hub isolated virtual network, if private network routing is enabled.'
-    privateRouting: 'Indicates whether private network routing is enabled.'
+    vnetIntegration: 'Indicates whether the FinOps hub is deployed inside a virtual network. True for "vnet" and "private" network modes.'
+    privateRouting: 'Indicates whether private network routing is enabled (private endpoints, no public access). True for the "private" network mode only.'
     publisherIsolation: 'Indicates whether FinOps hub resources should be separated by publisher for advanced security.'
     storageInfrastructureEncryption: 'Indicates whether infrastructure encryption is enabled for the storage account.'
     storageSku: 'Storage account SKU. Allowed values: "Premium_LRS", "Premium_ZRS".'
@@ -96,6 +97,7 @@ type HubProperties = {
     keyVaultSku: string
     keyVaultEnablePurgeProtection: bool
     networkAddressPrefix: string
+    vnetIntegration: bool
     privateRouting: bool
     publisherIsolation: bool
     storageInfrastructureEncryption: bool
@@ -191,7 +193,7 @@ func newHubInternal(
   keyVaultSku string,
   keyVaultEnablePurgeProtection bool,
   enableInfrastructureEncryption bool,
-  enablePublicAccess bool,
+  networkMode string,
   networkName string,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
@@ -211,27 +213,28 @@ func newHubInternal(
     keyVaultSku: keyVaultSku
     keyVaultEnablePurgeProtection: keyVaultEnablePurgeProtection
     networkAddressPrefix: networkAddressPrefix
-    privateRouting: !enablePublicAccess
+    vnetIntegration: networkMode != 'public'
+    privateRouting: networkMode == 'private'
     publisherIsolation: false  // TODO: Expose publisher isolation option
     storageInfrastructureEncryption: enableInfrastructureEncryption
     storageSku: storageSku
   }
   routing: {
-    networkId: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks', networkName)
-    networkName: enablePublicAccess ? '' : networkName
-    scriptStorage: enablePublicAccess ? '' : '${take(safeStorageName(name), 16 - length(suffix))}script${suffix}'
+    networkId: networkMode == 'public' ? '' : resourceId('Microsoft.Network/virtualNetworks', networkName)
+    networkName: networkMode == 'public' ? '' : networkName
+    scriptStorage: networkMode != 'private' ? '' : '${take(safeStorageName(name), 16 - length(suffix))}script${suffix}'
     dnsZones: {
-      blob:  enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('blob')
-      dfs:   enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('dfs')
-      queue: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('queue')
-      table: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('table')
+      blob:  networkMode != 'private' ? { id:'', name:'' } : dnsZoneIdName('blob')
+      dfs:   networkMode != 'private' ? { id:'', name:'' } : dnsZoneIdName('dfs')
+      queue: networkMode != 'private' ? { id:'', name:'' } : dnsZoneIdName('queue')
+      table: networkMode != 'private' ? { id:'', name:'' } : dnsZoneIdName('table')
     }
     subnets: {
-      dataExplorer: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'dataExplorer-subnet')!
-      dataFactory:  enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      keyVault:     enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      scripts:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')!
-      storage:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      dataExplorer: networkMode == 'public' ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'dataExplorer-subnet')!
+      dataFactory:  networkMode == 'public' ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      keyVault:     networkMode == 'public' ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      scripts:      networkMode == 'public' ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')!
+      storage:      networkMode == 'public' ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
     }
   }
   core: {
@@ -250,7 +253,7 @@ func newHub(
   keyVaultSku string,
   keyVaultEnablePurgeProtection bool,
   enableInfrastructureEncryption bool,
-  enablePublicAccess bool,
+  networkMode string,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
 ) HubProperties => newHubInternal(
@@ -264,7 +267,7 @@ func newHub(
   keyVaultSku,
   keyVaultEnablePurgeProtection,
   enableInfrastructureEncryption,
-  enablePublicAccess,
+  networkMode,
   '${safeStorageName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
   networkAddressPrefix,
   isTelemetryEnabled ?? true

@@ -156,11 +156,29 @@ param dataExplorerRawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param dataExplorerFinalRetentionInMonths int = 13
 
-@description('Optional. Enable public access to FinOps hubs resources.  Default: true.')
+@description('Optional. DEPRECATED — use networkMode instead. Enable public access to FinOps hubs resources. Default: true. Honored only when networkMode is omitted: false maps to "private", true maps to "public". When networkMode is supplied this parameter is ignored.')
 param enablePublicAccess bool = true
+
+@description('Optional. Network access mode. "public" (default): no virtual network, all resources publicly reachable. "vnet": virtual network + NSG scaffold deployed for future use, but public endpoints remain; no NAT Gateway, no private endpoints, no extra cost beyond the (free) VNet/NSG. "private": full virtual network with private endpoints, NAT Gateway + static public IP for outbound egress (deployment scripts to MCR and ADX open-data to GitHub), public access blocked. When not specified, derived from enablePublicAccess. NOTE: switching modes does not delete resources from previous modes (incremental deployment); to clean up, manually remove orphaned VNet/NAT/PIP/PE/DNS resources after switching to a lower mode.')
+@allowed([
+  'public'
+  'vnet'
+  'private'
+])
+param networkMode string?
 
 @description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
+
+
+//==============================================================================
+// Variables
+//==============================================================================
+
+// Resolve networkMode: explicit value wins; otherwise derive from legacy enablePublicAccess.
+// !empty() guards against both null AND empty-string inputs (the latter could theoretically arrive
+// via templates that pre-existed the @allowed change).
+var effectiveNetworkMode = !empty(networkMode) ? networkMode! : (enablePublicAccess ? 'public' : 'private')
 
 
 //==============================================================================
@@ -194,7 +212,7 @@ module hub 'modules/hub.bicep' = {
     dataExplorerFinalRetentionInMonths: dataExplorerFinalRetentionInMonths
     remoteHubStorageUri: remoteHubStorageUri
     remoteHubStorageKey: remoteHubStorageKey
-    enablePublicAccess: enablePublicAccess
+    networkMode: effectiveNetworkMode
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
   }
 }

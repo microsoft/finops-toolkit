@@ -17,17 +17,20 @@ param hub HubProperties
 //==============================================================================
 
 var nsgName = '${hub.routing.networkName}-nsg'
+var natGatewayName = '${hub.routing.networkName}-natgw'
+var natGatewayPipName = '${hub.routing.networkName}-natgw-pip'
 
 // Workaround https://github.com/Azure/bicep/issues/1853
 var finopsHubSubnetName = 'private-endpoint-subnet'
 var scriptSubnetName = 'script-subnet'
 var dataExplorerSubnetName = 'dataExplorer-subnet'
 
-var subnets = !hub.options.privateRouting ? [] : [
+var subnets = !hub.options.vnetIntegration ? [] : [
   {
     name: finopsHubSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 0)
+      defaultOutboundAccess: false
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -40,8 +43,9 @@ var subnets = !hub.options.privateRouting ? [] : [
   }
   {
     name: scriptSubnetName
-    properties: {
+    properties: union({
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 1)
+      defaultOutboundAccess: false
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -58,16 +62,25 @@ var subnets = !hub.options.privateRouting ? [] : [
           service: 'Microsoft.Storage'
         }
       ]
-    }
+    }, hub.options.privateRouting ? {
+      natGateway: {
+        id: resourceId('Microsoft.Network/natGateways', natGatewayName)
+      }
+    } : {})
   }
   {
     name: dataExplorerSubnetName
-    properties: {
+    properties: union({
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 27, 1)
+      defaultOutboundAccess: false
       networkSecurityGroup: {
         id: nsg.id
       }
-    }
+    }, hub.options.privateRouting ? {
+      natGateway: {
+        id: resourceId('Microsoft.Network/natGateways', natGatewayName)
+      }
+    } : {})
   }
 ]
 
@@ -80,10 +93,10 @@ var subnets = !hub.options.privateRouting ? [] : [
 // Network
 //------------------------------------------------------------------------------
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.options.privateRouting) {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.options.vnetIntegration) {
   name: nsgName
   location: hub.location
-  tags: getHubTags(hub, 'Microsoft.Storage/networkSecurityGroups')
+  tags: getHubTags(hub, 'Microsoft.Network/networkSecurityGroups')
   properties: {
     securityRules: [
       {
@@ -168,10 +181,13 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.opti
   }
 }
 
-resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.privateRouting) {
+resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.vnetIntegration) {
   name: hub.routing.networkName
   location: hub.location
-  tags: getHubTags(hub, 'Microsoft.Storage/virtualNetworks')
+  tags: getHubTags(hub, 'Microsoft.Network/virtualNetworks')
+  dependsOn: hub.options.privateRouting ? [
+    natGateway
+  ] : []
   properties: {
     addressSpace: {
       addressPrefixes: [hub.options.networkAddressPrefix]
@@ -193,6 +209,40 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 }
 
 //------------------------------------------------------------------------------
+// NAT Gateway (for outbound from script + dataExplorer subnets when defaultOutboundAccess is disabled)
+//------------------------------------------------------------------------------
+
+resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (hub.options.privateRouting) {
+  name: natGatewayPipName
+  location: hub.location
+  tags: getHubTags(hub, 'Microsoft.Network/publicIPAddresses')
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Static'
+    publicIPAddressVersion: 'IPv4'
+  }
+}
+
+resource natGateway 'Microsoft.Network/natGateways@2023-11-01' = if (hub.options.privateRouting) {
+  name: natGatewayName
+  location: hub.location
+  tags: getHubTags(hub, 'Microsoft.Network/natGateways')
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    idleTimeoutInMinutes: 4
+    publicIpAddresses: [
+      {
+        id: natGatewayPublicIp.id
+      }
+    ]
+  }
+}
+
+//------------------------------------------------------------------------------
 // Storage DNS zones
 //------------------------------------------------------------------------------
 
@@ -203,7 +253,7 @@ resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if 
     vNet
   ]
   location: 'global'
-  tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
+  tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones')
   properties: {}
 
   resource blobPrivateDnsZoneLink 'virtualNetworkLinks' = {
@@ -226,7 +276,7 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (
     vNet
   ]
   location: 'global'
-  tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
+  tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones')
   properties: {}
 
   resource dfsPrivateDnsZoneLink 'virtualNetworkLinks' = {
@@ -249,7 +299,7 @@ resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
     vNet
   ]
   location: 'global'
-  tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
+  tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones')
   properties: {}
   
   resource queuePrivateDnsZoneLink 'virtualNetworkLinks' = {
@@ -272,7 +322,7 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
     vNet
   ]
   location: 'global'
-  tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
+  tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones')
   properties: {}
   
   resource tablePrivateDnsZoneLink 'virtualNetworkLinks' = {
@@ -369,21 +419,21 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hu
 output config HubProperties = hub
 
 @description('Resource ID of the virtual network.')
-output vNetId string = !hub.options.privateRouting ? '' : vNet.id
+output vNetId string = !hub.options.vnetIntegration ? '' : vNet.id
 
 @description('Virtual network address prefixes.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output vNetAddressSpace array = !hub.options.privateRouting ? [] : vNet.properties.addressSpace.addressPrefixes
+output vNetAddressSpace array = !hub.options.vnetIntegration ? [] : vNet.properties.addressSpace.addressPrefixes
 
 @description('Virtual network subnets.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output vNetSubnets array = !hub.options.privateRouting ? [] : vNet.properties.subnets
+output vNetSubnets array = !hub.options.vnetIntegration ? [] : vNet.properties.subnets
 
 @description('Resource ID of the FinOps hub network subnet.')
-output finopsHubSubnetId string = !hub.options.privateRouting ? '' : vNet::finopsHubSubnet.id
+output finopsHubSubnetId string = !hub.options.vnetIntegration ? '' : vNet::finopsHubSubnet.id
 
 @description('Resource ID of the script storage account network subnet.')
-output scriptSubnetId string = !hub.options.privateRouting ? '' : vNet::scriptSubnet.id
+output scriptSubnetId string = !hub.options.vnetIntegration ? '' : vNet::scriptSubnet.id
 
 @description('Resource ID of the Data Explorer network subnet.')
-output dataExplorerSubnetId string = !hub.options.privateRouting ? '' : vNet::dataExplorerSubnet.id
+output dataExplorerSubnetId string = !hub.options.vnetIntegration ? '' : vNet::dataExplorerSubnet.id

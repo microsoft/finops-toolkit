@@ -167,8 +167,13 @@ param dataExplorerRawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param dataExplorerFinalRetentionInMonths int = 13
 
-@description('Optional. Enable public access to the data lake. Default: true.')
-param enablePublicAccess bool = true
+@description('Optional. Network access mode. "public" (default): no virtual network. "vnet": resources are deployed inside a virtual network with NAT Gateway for outbound, but public endpoints are kept. "private": full virtual network with private endpoints, public access blocked.')
+@allowed([
+  'public'
+  'vnet'
+  'private'
+])
+param networkMode string = 'public'
 
 @description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
@@ -193,7 +198,7 @@ var hub = newHub(
   keyVaultSku,
   enablePurgeProtection,
   enableInfrastructureEncryption,
-  enablePublicAccess,
+  networkMode,
   virtualNetworkAddressPrefix,
   enableDefaultTelemetry
 )
@@ -217,8 +222,8 @@ var telemetryString = join([
   !useAzureDataExplorer ? '' : replace(replace(replace(replace(replace(replace(replace(replace(split(split(dataExplorerSku, 'Standard_')[1], '_')[0], 'C', ''), 'D', ''), 'E', ''), 'L', ''), 'a', ''), 'd', ''), 'i', ''), 's', '')
   // Number of nodes in the cluster
   !useAzureDataExplorer || dataExplorerCapacity == 1 ? '' : 'x${dataExplorerCapacity}'
-  // P = private endpoints enabled
-  enablePublicAccess ? '' : 'P'
+  // V = vnet-only, P = private endpoints enabled
+  networkMode == 'private' ? 'P' : (networkMode == 'vnet' ? 'V' : '')
 ], '')
 
 
