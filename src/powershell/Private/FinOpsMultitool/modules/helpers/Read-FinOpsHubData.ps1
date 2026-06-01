@@ -276,38 +276,63 @@ function Read-FinOpsHubData {
                 Where-Object { -not $_.IsDirectory -and $_.Path -like '*.csv' })
 
             if ($csvBlobs.Count -gt 0) {
-                # Sort descending to get newest export run first
-                $csvBlobs = $csvBlobs | Sort-Object Path -Descending
-
-                # Group by export run folder (parent of the CSV)
-                $runs = [ordered]@{}
+                # Export layout is: .../<billingPeriod>/<runTimestamp>/<guid>/part_*.csv
+                # where billingPeriod = yyyyMMdd-yyyyMMdd and runTimestamp = 12 digits.
+                # Group by billing period, and within each period keep only the latest
+                # run. Walking periods newest-first and skipping empty ones means a
+                # just-started current month (header-only export) falls back to the
+                # latest populated period instead of returning nothing.
+                $periods = [ordered]@{}
                 foreach ($blob in $csvBlobs) {
-                    $runFolder = Split-Path $blob.Path -Parent
-                    if (-not $runs.Contains($runFolder)) {
-                        $runs[$runFolder] = [System.Collections.Generic.List[object]]::new()
+                    $period = [regex]::Match($blob.Path, '(\d{8}-\d{8})').Value
+                    $run = [regex]::Match($blob.Path, '[\\/](\d{12})[\\/]').Groups[1].Value
+                    if (-not $period) { $period = Split-Path (Split-Path $blob.Path -Parent) -Parent }
+                    if (-not $periods.Contains($period)) {
+                        $periods[$period] = @{ Runs = [ordered]@{} }
                     }
-                    $runs[$runFolder].Add($blob)
+                    if (-not $periods[$period].Runs.Contains($run)) {
+                        $periods[$period].Runs[$run] = [System.Collections.Generic.List[object]]::new()
+                    }
+                    $periods[$period].Runs[$run].Add($blob)
                 }
 
-                # Take the most recent run
-                $latestRun = ($runs.GetEnumerator() | Select-Object -First 1).Value
-                Write-Host "    Found $($latestRun.Count) CSV file(s) from latest export" -ForegroundColor DarkGray
+                # Newest billing period first.
+                $orderedPeriods = $periods.Keys | Sort-Object -Descending
+                $periodsLoaded = 0
 
-                foreach ($blob in $latestRun) {
-                    $localFile = Join-Path $tempDir "$(Split-Path $blob.Path -Leaf)"
-                    try {
-                        Get-AzDataLakeGen2ItemContent -Context $ctx -FileSystem 'msexports' -Path $blob.Path -Destination $localFile -Force -ErrorAction Stop | Out-Null
-                        $rows = Import-Csv -Path $localFile
-                        if ($rows -and @($rows).Count -gt 0) {
-                            foreach ($row in $rows) { $allData.Add($row) }
-                            Write-Host "    Loaded $(@($rows).Count) rows from CSV" -ForegroundColor DarkGray
+                foreach ($period in $orderedPeriods) {
+                    if ($periodsLoaded -ge $Months) { break }
+
+                    # Latest run within this period.
+                    $latestRunKey = $periods[$period].Runs.Keys | Sort-Object -Descending | Select-Object -First 1
+                    $runBlobs = $periods[$period].Runs[$latestRunKey]
+                    Write-Host "    Period $period — latest run has $($runBlobs.Count) CSV file(s)" -ForegroundColor DarkGray
+
+                    $periodRows = 0
+                    foreach ($blob in $runBlobs) {
+                        $localFile = Join-Path $tempDir "$([guid]::NewGuid().ToString('N'))-$(Split-Path $blob.Path -Leaf)"
+                        try {
+                            Get-AzDataLakeGen2ItemContent -Context $ctx -FileSystem 'msexports' -Path $blob.Path -Destination $localFile -Force -ErrorAction Stop | Out-Null
+                            $rows = Import-Csv -Path $localFile
+                            if ($rows -and @($rows).Count -gt 0) {
+                                foreach ($row in $rows) { $allData.Add($row) }
+                                $periodRows += @($rows).Count
+                            }
+                        }
+                        catch {
+                            Write-Warning "Failed to read CSV: $($_.Exception.Message)"
+                        }
+                        finally {
+                            Remove-Item $localFile -Force -ErrorAction SilentlyContinue
                         }
                     }
-                    catch {
-                        Write-Warning "Failed to read CSV: $($_.Exception.Message)"
+
+                    if ($periodRows -gt 0) {
+                        Write-Host "    Loaded $periodRows rows from period $period" -ForegroundColor DarkGray
+                        $periodsLoaded++
                     }
-                    finally {
-                        Remove-Item $localFile -Force -ErrorAction SilentlyContinue
+                    else {
+                        Write-Host "    Period $period had no rows — skipping to next" -ForegroundColor DarkGray
                     }
                 }
             }

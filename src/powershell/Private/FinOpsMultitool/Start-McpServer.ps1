@@ -186,38 +186,44 @@ $toolDefinitions = @(
     }
     @{
         name        = 'scan_cost_data'
-        description = 'Get current month actual and forecasted cost per subscription. Returns spend, forecast, and currency.'
+        description = 'Get current month actual and forecasted cost per subscription. Returns spend, forecast, and currency. Uses FinOps Hub export data when available (fast); call detect_cost_data_source first to decide.'
         fn          = 'Get-CostData'
         category    = 'Cost Analysis'
         inputSchema = @{
             type       = 'object'
             properties = @{
-                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
+                subscriptionId  = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
+                subscriptionIds = @{ type = 'array'; items = @{ type = 'string' }; description = 'Subset of subscription IDs to scan (for chunked progress). Overrides subscriptionId when provided.' }
+                dataSource      = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read cost data. 'auto' (default) uses the hub export when it fully covers scope, else the live API. 'hub' forces the export. 'api' forces the live Cost Management API." }
             }
         }
     }
     @{
         name        = 'scan_resource_costs'
-        description = 'Get top resources by cost (actual month-to-date spend) with resource group, type, and forecast.'
+        description = 'Get top resources by cost (actual month-to-date spend) with resource group, type, and forecast. Uses FinOps Hub export data when available (fast); call detect_cost_data_source first to decide.'
         fn          = 'Get-ResourceCosts'
         category    = 'Cost Analysis'
         inputSchema = @{
             type       = 'object'
             properties = @{
-                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
+                subscriptionId  = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
+                subscriptionIds = @{ type = 'array'; items = @{ type = 'string' }; description = 'Subset of subscription IDs to scan (for chunked progress). Overrides subscriptionId when provided.' }
+                dataSource      = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read cost data. 'auto' (default) uses the hub export when it fully covers scope, else the live API. 'hub' forces the export. 'api' forces the live Cost Management API." }
             }
         }
     }
     @{
         name                 = 'scan_cost_by_tag'
-        description          = 'Break down cost by tag key/value pairs. Shows spend per tag value and identifies untagged spend.'
+        description          = 'Break down cost by tag key/value pairs. Shows spend per tag value and identifies untagged spend. Uses FinOps Hub export data when available (fast); call detect_cost_data_source first to decide.'
         fn                   = 'Get-CostByTag'
         category             = 'Cost Analysis'
         requiresTagInventory = $true
         inputSchema          = @{
             type       = 'object'
             properties = @{
-                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
+                subscriptionId  = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
+                subscriptionIds = @{ type = 'array'; items = @{ type = 'string' }; description = 'Subset of subscription IDs to scan (for chunked progress). Overrides subscriptionId when provided.' }
+                dataSource      = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read cost data. 'auto' (default) uses the hub export when it fully covers scope, else the live API. 'hub' forces the export. 'api' forces the live Cost Management API." }
             }
         }
     }
@@ -330,6 +336,18 @@ $toolDefinitions = @(
         }
     }
     @{
+        name        = 'detect_cost_data_source'
+        description = 'Decide how cost scans should run BEFORE invoking any cost tool. Detects a FinOps Hub / cost export in scope, checks whether it is readable (with a specific blocker reason if not), reports which subscriptions it covers and how fresh the data is, and estimates how long the live Cost Management API path would take. Call this first for any cost question so the fast export path can be used, or so the user can be warned and asked before a slow API scan.'
+        fn          = '_detect_cost_source'
+        category    = 'Cost Analysis'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, evaluates all accessible subscriptions.' }
+            }
+        }
+    }
+    @{
         name        = 'run_full_scan'
         description = 'Run all FinOps scan modules (optimization, governance, cost, commitments, monitoring, advisor) and return a comprehensive assessment. This is the most thorough scan — use individual tools for targeted queries.'
         fn          = '_full_scan'
@@ -339,6 +357,7 @@ $toolDefinitions = @(
             properties = @{
                 subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, scans all accessible subscriptions.' }
                 modules        = @{ type = 'array'; items = @{ type = 'string' }; description = 'Optional list of module names to include. Omit to run all.' }
+                dataSource     = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = 'Cost-family data source. auto (default) uses the FinOps Hub export only when it fully covers the scope, else the live Cost Management API; hub forces the export; api skips the export. Governance and optimization modules always use live APIs.' }
             }
         }
     }
@@ -403,6 +422,43 @@ function Resolve-Subscriptions {
 }
 
 # =====================================================================
+#  HELPER: COST DATA SOURCE (HUB) CACHE
+# =====================================================================
+# The MCP server reads the FinOps Hub export at most once per
+# subscription set, then serves spend-breakdown cost tools from that
+# single read. This keeps cost scans fast and avoids repeated Cost
+# Management API round-trips. Governance/optimization tools are NOT
+# routed here — they always use the live Resource Graph / ARM path.
+$script:McpHubCache = @{}
+
+function Get-McpHubData {
+    param(
+        [Parameter(Mandatory)]
+        [object[]]$Subs,
+        [string]$TenantId
+    )
+
+    $key = (@($Subs.Id) | Sort-Object) -join ','
+    if ($script:McpHubCache.ContainsKey($key)) { return $script:McpHubCache[$key] }
+
+    $decision = Resolve-CostDataSource -RequestedSubscriptionIds @($Subs.Id) -TenantId $TenantId
+
+    $raw = $null
+    if ($decision.Readable -and $decision.Hub) {
+        try {
+            $raw = Read-FinOpsHubData -StorageAccountName $decision.Hub.Name -ResourceGroupName $decision.Hub.ResourceGroup -Months 1
+        }
+        catch {
+            $raw = $null
+        }
+    }
+
+    $entry = @{ Decision = $decision; Raw = $raw }
+    $script:McpHubCache[$key] = $entry
+    return $entry
+}
+
+# =====================================================================
 #  HELPER: INVOKE TOOL
 # =====================================================================
 function Invoke-McpTool {
@@ -415,15 +471,93 @@ function Invoke-McpTool {
     if (-not $toolDef) { throw "Unknown tool: $ToolName" }
 
     $subId = if ($Arguments.subscriptionId) { $Arguments.subscriptionId } else { $null }
+    $subIdSubset = if ($Arguments.subscriptionIds) { @($Arguments.subscriptionIds) } else { $null }
+
+    # Resolve the working subscription set, honouring an explicit subset
+    # (used by the agent to chunk large tenants for incremental progress).
+    $resolveSubs = {
+        if ($subIdSubset) { @($subIdSubset | ForEach-Object { Get-AzSubscription -SubscriptionId $_ -ErrorAction Stop }) }
+        else { Resolve-Subscriptions -SubscriptionId $subId }
+    }
 
     # Full scan is a composite tool
     if ($toolDef.fn -eq '_full_scan') {
-        return Invoke-FullScan -SubscriptionId $subId -ModuleFilter $Arguments.modules
+        $ds = if ($Arguments.dataSource) { [string]$Arguments.dataSource } else { 'auto' }
+        return Invoke-FullScan -SubscriptionId $subId -ModuleFilter $Arguments.modules -DataSource $ds
+    }
+
+    # Cost data source detection is a routing helper, not a scan
+    if ($toolDef.fn -eq '_detect_cost_source') {
+        $subs = & $resolveSubs
+        $tenantId = (Get-AzContext).Tenant.Id
+        $decision = Resolve-CostDataSource -RequestedSubscriptionIds @($subs.Id) -TenantId $tenantId
+        return @{
+            tool      = $ToolName
+            module    = 'Resolve-CostDataSource'
+            category  = $toolDef.category
+            data      = $decision
+            timestamp = (Get-Date -Format 'o')
+        }
     }
 
     $fn = $toolDef.fn
-    $subs = Resolve-Subscriptions -SubscriptionId $subId
+    $subs = & $resolveSubs
     $tenantId = (Get-AzContext).Tenant.Id
+
+    # -----------------------------------------------------------------
+    # Export-first routing for spend-breakdown cost tools. When a
+    # readable FinOps Hub export covers the requested scope, serve these
+    # from the export (one read, cached) instead of the Cost Management
+    # API. dataSource: auto (default) | hub | api.
+    #   auto -> hub only when the resolver recommends UseHub, else API
+    #   hub  -> force hub (error if unreadable/empty)
+    #   api  -> skip hub entirely
+    # Only Get-CostData / Get-ResourceCosts / Get-CostByTag have hub
+    # converters; all other cost-family tools stay on the live API.
+    # -----------------------------------------------------------------
+    if ($fn -in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag')) {
+        $requested = if ($Arguments.dataSource) { [string]$Arguments.dataSource } else { 'auto' }
+
+        $hubInfo = $null
+        if ($requested -ne 'api') { $hubInfo = Get-McpHubData -Subs $subs -TenantId $tenantId }
+
+        $useHub = $false
+        if ($hubInfo -and $hubInfo.Raw -and @($hubInfo.Raw).Count -gt 0) {
+            if ($requested -eq 'hub') { $useHub = $true }
+            elseif ($requested -eq 'auto' -and $hubInfo.Decision.Recommendation -eq 'UseHub') { $useHub = $true }
+        }
+
+        if ($requested -eq 'hub' -and -not $useHub) {
+            $d = if ($hubInfo) { $hubInfo.Decision } else { $null }
+            $reason = if ($d) { "$($d.ReadBlocker): $($d.ReadBlockerDetail)" } else { 'no hub found in scope' }
+            throw "Hub data requested but unavailable ($reason). $($d.RemediationHint)"
+        }
+
+        if ($useHub) {
+            $hubResult = switch ($fn) {
+                'Get-CostData' { ConvertTo-CostDataFromHub -HubData $hubInfo.Raw }
+                'Get-ResourceCosts' { ConvertTo-ResourceCostsFromHub -HubData $hubInfo.Raw }
+                'Get-CostByTag' {
+                    $tagInv = ConvertTo-TagInventoryFromHub -HubData $hubInfo.Raw
+                    $existingTags = if ($tagInv.TagNames) { $tagInv.TagNames } else { @{} }
+                    ConvertTo-CostByTagFromHub -HubData $hubInfo.Raw -ExistingTags $existingTags
+                }
+            }
+            return @{
+                tool        = $ToolName
+                module      = $fn
+                category    = $toolDef.category
+                data        = $hubResult
+                source      = 'FinOpsHub'
+                asOf        = $hubInfo.Decision.Freshness
+                coveragePct = $hubInfo.Decision.CoveragePct
+                note        = 'Served from FinOps Hub export (billed actuals). Forecast is not included in the fast path; call with dataSource=api for live forecast.'
+                permission  = if ($permissionMap.ContainsKey($fn)) { $permissionMap[$fn] } else { $null }
+                timestamp   = (Get-Date -Format 'o')
+            }
+        }
+        # otherwise fall through to the live Cost Management API path below
+    }
 
     # Build parameter set based on what the function accepts
     $cmdInfo = Get-Command $fn -ErrorAction Stop
@@ -463,6 +597,7 @@ function Invoke-McpTool {
         module     = $fn
         category   = $toolDef.category
         data       = $result
+        source     = 'LiveApi'
         permission = $permInfo
         timestamp  = (Get-Date -Format 'o')
     }
@@ -474,7 +609,8 @@ function Invoke-McpTool {
 function Invoke-FullScan {
     param(
         [string]$SubscriptionId,
-        [string[]]$ModuleFilter
+        [string[]]$ModuleFilter,
+        [string]$DataSource = 'auto'
     )
 
     $subs = Resolve-Subscriptions -SubscriptionId $SubscriptionId
@@ -488,6 +624,28 @@ function Invoke-FullScan {
 
     $results = @{}
     $errors = @{}
+
+    # -----------------------------------------------------------------
+    # Export-first routing for cost-family modules (mirrors single-tool
+    # routing in Invoke-McpTool). Resolve the hub once; the three modules
+    # with hub converters serve from the export when usable, else fall
+    # through to the live Cost Management API. Governance/optimization
+    # modules always use live APIs.
+    #   auto -> hub only when the resolver recommends UseHub (full cover)
+    #   hub  -> force hub (per-module live-API fallback if a convert fails)
+    #   api  -> skip hub entirely
+    # -----------------------------------------------------------------
+    $costFns = @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag')
+    $hubInfo = $null
+    $hubUsable = $false
+    if ($DataSource -ne 'api' -and ($modulesToRun | Where-Object { $_.fn -in $costFns })) {
+        $hubInfo = Get-McpHubData -Subs $subs -TenantId $tenantId
+        if ($hubInfo -and $hubInfo.Raw -and @($hubInfo.Raw).Count -gt 0) {
+            if ($DataSource -eq 'hub') { $hubUsable = $true }
+            elseif ($DataSource -eq 'auto' -and $hubInfo.Decision.Recommendation -eq 'UseHub') { $hubUsable = $true }
+        }
+    }
+    $hubServed = @{}
 
     # Run Tag Inventory first (other modules depend on it)
     $tagData = $null
@@ -519,6 +677,22 @@ function Invoke-FullScan {
 
         try {
             $fn = $tool.fn
+
+            # Export-first: serve cost-family modules from the hub when usable
+            if ($hubUsable -and $fn -in $costFns) {
+                $results[$tool.name] = switch ($fn) {
+                    'Get-CostData' { ConvertTo-CostDataFromHub -HubData $hubInfo.Raw }
+                    'Get-ResourceCosts' { ConvertTo-ResourceCostsFromHub -HubData $hubInfo.Raw }
+                    'Get-CostByTag' {
+                        $tagInv = ConvertTo-TagInventoryFromHub -HubData $hubInfo.Raw
+                        $existingTags = if ($tagInv.TagNames) { $tagInv.TagNames } else { @{} }
+                        ConvertTo-CostByTagFromHub -HubData $hubInfo.Raw -ExistingTags $existingTags
+                    }
+                }
+                $hubServed[$tool.name] = $true
+                continue
+            }
+
             $cmdInfo = Get-Command $fn -ErrorAction Stop
             $params = @{}
 
@@ -547,12 +721,16 @@ function Invoke-FullScan {
     }
 
     return @{
-        tool          = 'run_full_scan'
-        subscriptions = @($subs | ForEach-Object { @{ id = $_.Id; name = $_.Name } })
-        results       = $results
-        errors        = $errors
-        modulesRun    = $modulesToRun.Count
-        timestamp     = (Get-Date -Format 'o')
+        tool             = 'run_full_scan'
+        subscriptions    = @($subs | ForEach-Object { @{ id = $_.Id; name = $_.Name } })
+        results          = $results
+        errors           = $errors
+        modulesRun       = $modulesToRun.Count
+        costDataSource   = if ($hubUsable) { 'FinOpsHub' } else { 'LiveApi' }
+        hubAsOf          = if ($hubUsable) { $hubInfo.Decision.Freshness } else { $null }
+        hubCoveragePct   = if ($hubUsable) { $hubInfo.Decision.CoveragePct } else { $null }
+        hubServedModules = @($hubServed.Keys)
+        timestamp        = (Get-Date -Format 'o')
     }
 }
 

@@ -16,14 +16,19 @@
 ###########################################################################
 
 # -- Ensure required Az modules are loaded ---------------------------------
-# Some terminals have incomplete PSModulePath — add standard user module paths
+# Some terminals have incomplete PSModulePath — add the edition-appropriate user
+# module path. In PowerShell 7 (Core) we must NOT prepend the Windows PowerShell
+# 5.1 module path: it can shadow Core's modules with older, incompatible versions
+# (for example an old Az.Accounts that then blocks a newer Az.Storage from loading).
 $userModDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'PowerShell\Modules'
 if ($userModDir -and (Test-Path $userModDir) -and $env:PSModulePath -notlike "*$userModDir*") {
     $env:PSModulePath = "$userModDir;$env:PSModulePath"
 }
-$userModDir5 = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'WindowsPowerShell\Modules'
-if ($userModDir5 -and (Test-Path $userModDir5) -and $env:PSModulePath -notlike "*$userModDir5*") {
-    $env:PSModulePath = "$userModDir5;$env:PSModulePath"
+if ($PSEdition -eq 'Desktop') {
+    $userModDir5 = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'WindowsPowerShell\Modules'
+    if ($userModDir5 -and (Test-Path $userModDir5) -and $env:PSModulePath -notlike "*$userModDir5*") {
+        $env:PSModulePath = "$userModDir5;$env:PSModulePath"
+    }
 }
 
 foreach ($azMod in @('Az.Accounts', 'Az.Storage', 'Az.ResourceGraph')) {
@@ -31,7 +36,6 @@ foreach ($azMod in @('Az.Accounts', 'Az.Storage', 'Az.ResourceGraph')) {
         Import-Module $azMod -ErrorAction SilentlyContinue
     }
 }
-
 # -- Helpers (runspace pool, REST retry, ARG wrapper, MG-scope state) ----
 $helpersPath = Join-Path $PSScriptRoot 'modules\helpers'
 . (Join-Path $helpersPath 'Get-PlainAccessToken.ps1')
@@ -39,6 +43,7 @@ $helpersPath = Join-Path $PSScriptRoot 'modules\helpers'
 . (Join-Path $helpersPath 'Search-AzGraphSafe.ps1')
 . (Join-Path $helpersPath 'MgCostScope.ps1')
 . (Join-Path $helpersPath 'Read-FinOpsHubData.ps1')
+. (Join-Path $helpersPath 'Resolve-CostDataSource.ps1')
 
 # -- Set script-scope root (some modules reference $script:ScriptRootDir) -
 $script:ScriptRootDir = $PSScriptRoot

@@ -10,7 +10,7 @@ metadata:
 
 # FinOps Multitool
 
-The FinOps Multitool MCP server exposes 21 read-only tools that scan a live Azure environment for cost savings, governance gaps, and FinOps health. Use it to ground answers about waste, savings, tags, policy, budgets, and commitments in the customer's actual resource state instead of guessing.
+The FinOps Multitool MCP server exposes 22 read-only tools that scan a live Azure environment for cost savings, governance gaps, and FinOps health. Use it to ground answers about waste, savings, tags, policy, budgets, and commitments in the customer's actual resource state instead of guessing.
 
 All tools query Azure Resource Graph, Cost Management, and Azure Advisor with **Reader** scope. They never modify resources. Be proactive: when a user raises a cost, waste, savings, or governance topic, offer to run the matching scan rather than answering abstractly.
 
@@ -40,6 +40,7 @@ Pick the narrowest tool that answers the question. Use `run_full_scan` only for 
 | Tag quality fixes (CAF gaps, casing, duplicates) | `scan_tag_recommendations` | Governance |
 | Azure Policy assignments + compliance | `scan_policy_inventory` | Governance |
 | Policy coverage gaps + recommended guardrails | `scan_policy_recommendations` | Governance |
+| Decide hub export vs live API before a cost scan | `detect_cost_data_source` | Cost Analysis |
 | Current month actual + forecast spend | `scan_cost_data` | Cost Analysis |
 | Top resources by cost | `scan_resource_costs` | Cost Analysis |
 | Cost broken down by tag key/value | `scan_cost_by_tag` | Cost Analysis |
@@ -108,6 +109,7 @@ The multitool is the data engine. Once a scan surfaces a finding, hand off to th
 
 | After this scan / question | Hand off to | For |
 |----------------------------|-------------|-----|
+| Any spend question (`scan_cost_data`, `scan_resource_costs`, `scan_cost_by_tag`) | `cost-data-source` | Choose the fast hub export vs the live API, warn before slow scans, chunk large tenants |
 | `scan_tag_inventory`, `scan_cost_by_tag` | `cost-allocation` | Showback/chargeback model, shared-cost splitting, tag strategy |
 | `scan_tag_recommendations`, `scan_policy_recommendations` | `azure-policy-governance` | Enforce tags/regions/SKUs via Azure Policy (Bicep/ARM) |
 | `scan_policy_inventory` results | `azure-workbooks-finops` | Live in-portal Governance/Optimization workbooks |
