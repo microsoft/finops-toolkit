@@ -37,6 +37,8 @@ spec:
 
     - `data-freshness-check`: Run with `cluster_uri`, optional `database` to validate FinOps Hub function freshness and coverage signals.
 
+    - `ftk-database-query`: Run `percentage-unallocated-costs`, `percentage-untagged-costs`, `tagging-policy-compliance`, and `allocation-accuracy-index` when Kusto is available to validate allocation coverage quality inside the monitored scope.
+
 
     ## 1. Establish active subscription inventory
 
@@ -54,6 +56,8 @@ spec:
 
 
     Cross-reference Resource Graph subscription inventory with subscriptions represented in Hub data coverage notes or Hub query results. Identify active subscriptions with missing, stale, or ambiguous Hub coverage.
+
+    Ask `ftk-database-query` to run `percentage-unallocated-costs`, `percentage-untagged-costs`, `tagging-policy-compliance`, and `allocation-accuracy-index` for the monitored scope. Use those Allocation KPI results to distinguish "subscription missing from monitoring" from "subscription present but allocation/tagging coverage is weak."
 
 
     ## 4. Flag scope gaps

@@ -127,6 +127,13 @@ spec:
     Ask `ftk-database-query` to run `monthly-cost-change-percentage` with startDate=startofmonth(ago(390d)). Track cost volatility and trend direction.
 
 
+    ### 1.17 FinOps KPI Scorecard
+
+    Ask `ftk-database-query` to run the FinOps KPI tools that map directly to `src/queries/KPI.md` for the completed month. Use the same reporting window and keep every KPI result tied to its source tool: `percentage-unallocated-costs`, `percentage-untagged-costs`, `tagging-policy-compliance`, `allocation-accuracy-index`, `anomaly-detection-rate`, `anomaly-variance-total`, `monthly-cost-trend`, `cost-visibility-delay`, `data-update-frequency`, `macc-consumption-vs-commitment`, `ai-token-usage-breakdown`, `ai-daily-trend`, `ai-model-cost-comparison`, `commitment-utilization-score`, `compute-cost-per-core`, `savings-summary-report`, `compute-spend-commitment-coverage`, `commitment-discount-waste`, `cost-optimization-index`, `storage-tier-distribution`, and `cost-per-gb-stored`.
+
+    Summarize the KPI scorecard by FinOps capability: Allocation, Data Ingestion, Anomaly Management, Rate Optimization, Unit Economics, Usage Optimization, AI unit economics, and KPIs & Benchmarking. If a KPI tool returns no rows or cannot run because the underlying Hub function is empty, classify it as a data sufficiency limitation and cite the tool result instead of omitting the KPI.
+
+
     **Checkpoint:** Confirm ALL data collection is complete before strategic analysis.
 
 

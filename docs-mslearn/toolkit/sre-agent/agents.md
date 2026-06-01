@@ -3,7 +3,7 @@ title: Specialist agents and skills (Azure SRE Agent in the FinOps toolkit)
 description: Understand how the FinOps toolkit configures Azure SRE Agent with specialist agents, tools, skills, and knowledge to automate FinOps and capacity management work.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/25/2026
+ms.date: 06/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -15,7 +15,7 @@ ms.reviewer: brettwil
 
 The FinOps toolkit configures [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview) with a multi-agent architecture aligned to the canonical FinOps Framework. One orchestrator receives prompts and scheduled tasks, then delegates work to specialist subagents with focused FinOps, finance, capacity, database, and hub operations expertise.
 
-The template configures 5 subagents, 3 skills, 34 tools (21 Kusto tools and 13 Python tools), and a FinOps hub connector. The orchestrator keeps the experience simple. The specialist agents keep answers grounded in the right domain.
+The template configures 5 subagents, 3 skills, 50 tools (37 generated Kusto tools and 13 Python tools), and a FinOps hub connector. The orchestrator keeps the experience simple. The specialist agents keep answers grounded in the right domain.
 
 <br>
 
@@ -33,13 +33,12 @@ What it does:
 - Translates FinOps concepts into practical Microsoft Cost Management and FinOps toolkit steps.
 - Keeps recommendations maturity-aware across Crawl, Walk, and Run stages.
 
-Key tools it uses:
+Key tool routing:
 
-- Azure discovery tools, such as `CheckAzureResource` and `RunAzCliReadCommands`
-- Python analysis through `execute_python`
-- Governance and remediation tools such as `resource-graph-query`, `benefit-recommendations`, budget deployment, anomaly alert deployment, and Advisor suppression tools
-- Delegation to `ftk-database-query` for every Kusto, FOCUS, `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` evidence request
-- Delegation to `azure-capacity-manager` for quota, capacity reservation, SKU, region, zone, and AI/GPU capacity evidence
+- The orchestrator has no direct operational tools.
+- Delegation to `ftk-database-query` for every Kusto, FOCUS, `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` evidence request.
+- Delegation to `azure-capacity-manager` for quota, capacity reservation, SKU, region, zone, and AI/GPU capacity evidence.
+- Delegation to `ftk-hubs-agent` for Resource Graph, data freshness, hub infrastructure, budget deployment, anomaly alert deployment, and Advisor suppression tools.
 
 When it's invoked:
 

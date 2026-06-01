@@ -122,6 +122,13 @@ spec:
     Ask `ftk-database-query` to run `top-other-transactions` with N=20 for the current and prior-year comparison periods. If it returns zero rows or `ZERO_ROWS_RETURNED`, ask `ftk-hubs-agent` to run `data-freshness-check` and report whether `Transactions()` has the `TRANSACTIONS_ZERO_ROWS` diagnostic. Do not conclude there were no non-usage spend patterns until the export, ingestion, and stored-function diagnostic is clear.
 
 
+    ### 1.17 Fiscal FinOps KPI Scorecard
+
+    Ask `ftk-database-query` to run the full FinOps KPI tool set from `src/queries/KPI.md` for the current fiscal comparison period and, where the query supports date windows, the prior-year comparison period: `percentage-unallocated-costs`, `percentage-untagged-costs`, `tagging-policy-compliance`, `allocation-accuracy-index`, `anomaly-detection-rate`, `anomaly-variance-total`, `monthly-cost-trend`, `cost-visibility-delay`, `data-update-frequency`, `macc-consumption-vs-commitment`, `ai-token-usage-breakdown`, `ai-daily-trend`, `ai-model-cost-comparison`, `commitment-utilization-score`, `compute-cost-per-core`, `savings-summary-report`, `compute-spend-commitment-coverage`, `commitment-discount-waste`, `cost-optimization-index`, `storage-tier-distribution`, and `cost-per-gb-stored`.
+
+    Build the year-over-year KPI scorecard from those outputs. Separate direct KPI measurements from derived executive interpretation, and classify unavailable KPI rows as data sufficiency limitations with the exact source tool named.
+
+
     **Checkpoint:** ALL data collected. Proceed to strategic analysis.
 
 

@@ -3,7 +3,7 @@ title: Security and permissions for Azure SRE Agent in the FinOps toolkit
 description: Review the permissions, identities, run modes, and data flows the FinOps toolkit configures on Azure SRE Agent before you deploy it in your environment.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/25/2026
+ms.date: 06/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -36,33 +36,27 @@ These permissions are needed because deployment creates a resource group, create
 
 ## Managed identity permissions
 
-The template creates a user-assigned managed identity for the agent. Azure SRE Agent also has a system-assigned managed identity for platform operations.
+The template creates an Azure SRE Agent with a system-assigned managed identity.
 
-The user-assigned managed identity is the primary identity you manage. The template uses it for Azure resource operations, action execution, the knowledge graph configuration, and connector setup. The deployment grants the user-assigned managed identity these permissions:
+The system-assigned managed identity is the primary identity the template manages. The template uses it for Azure resource operations, action execution, the knowledge graph configuration, and connector setup. The deployment grants the system-assigned managed identity these permissions:
 
 | Role | Scope | What it grants | Why it's needed |
 |------|-------|----------------|-----------------|
 | Reader | Subscription | Read access to Azure resources and metadata | Lets the agent inspect resource configuration, cost scopes, quota context, and related Azure inventory |
-| Monitoring Contributor | Subscription | Read and write access to Azure Monitor settings and telemetry operations | Lets the agent use monitoring context for investigations and health checks |
-| FinOps SRE Zone Peers Reader | Subscription | `Microsoft.Resources/checkZonePeers/action` | Lets capacity tools map availability zone peer relationships for zone-aware capacity planning |
+| Reader | Target resource groups | Read access to scoped resource groups | Lets the agent inspect explicitly targeted resources |
+| Monitoring Reader | Target resource groups | Read access to Azure Monitor settings and telemetry | Lets the agent use monitoring context for investigations and health checks |
+| Log Analytics Reader | Target resource groups | Read access to Log Analytics resources | Lets the agent query scoped workspace telemetry when configured |
+| Contributor | Target resource groups when `accessLevel` is `High` | Resource-group write access | Lets remediation tools create or update approved alerts and budgets in targeted scopes |
 | AllDatabasesViewer | Azure Data Explorer cluster | Viewer access across databases in the cluster | Lets the Kusto connector query FinOps hub cost data |
 | SRE Agent Administrator | Agent resource | Administer the Azure SRE Agent resource | Lets the deploying principal manage the agent after deployment |
 
-The custom **FinOps SRE Zone Peers Reader** role grants only the zone peering action used by the capacity tools. For multi-subscription capacity management, create and assign this custom role at the management group scope that contains the subscriptions the agent needs to inspect.
-
-> [!NOTE]
-> The `FinOps SRE Zone Peers Reader` custom role is currently only created by the Bash post-provision script. PowerShell deployments must create this role manually or use the Bash script.
-
-With this default scope, the managed identity can read Azure resource metadata, monitoring context, FinOps hub data, and availability zone peer mappings. It can write monitoring settings allowed by Monitoring Contributor and can send messages or email only through connectors you configure. It can't create, update, or delete workload resources unless you grant more permissions.
+With this default scope, the managed identity can read Azure resource metadata, monitoring context, and FinOps hub data. It can write approved remediation resources only in explicitly targeted resource groups when `accessLevel` is `High`, and it can send messages or email only through connectors you configure.
 
 <br>
 
 ## Data Explorer permissions
 
-The agent reads FinOps hub data through an Azure Data Explorer connector. When you provide the optional cluster name and cluster resource group parameters, the deployment assigns `AllDatabasesViewer` on the target Azure Data Explorer cluster to:
-
-- The user-assigned managed identity.
-- The system-assigned managed identity.
+The agent reads FinOps hub data through an Azure Data Explorer connector. When you provide the optional cluster name and cluster resource group parameters, the deployment assigns `AllDatabasesViewer` on the target Azure Data Explorer cluster to the system-assigned managed identity.
 
 This permission lets the agent query hub data, including cost, usage, commitment, allocation, anomaly, and forecast datasets exposed through the FinOps toolkit Kusto tools. It doesn't grant database administration permissions.
 
@@ -115,13 +109,14 @@ Start with Review for workflows that could affect production resources. Use Auto
 
 In B2B environments, the Azure subscription and Azure SRE Agent resource can be in a different Microsoft Entra tenant than your Microsoft 365 home tenant.
 
-Use these checks when deployment or `srectl` configuration fails:
+Use these checks when deployment, Azure MCP Server, or connector configuration fails:
 
 1. Confirm the active Azure CLI context points to the subscription that owns the SRE Agent resource.
 2. Re-authenticate against the tenant that owns the subscription.
-3. Re-run `srectl init --resource-url <endpoint>`, then retry `srectl status`.
+3. When using Azure MCP Server `sreagent` tools, pass the resource tenant, subscription, resource group, and agent name explicitly.
+4. If Azure MCP Server returns `403` from its SRE Agent path, verify the same identity can read the ARM resource and data-plane endpoint before changing agent permissions.
 
-Browser access can succeed while `srectl` returns `401`, `403`, or `Forbidden: Access denied by PDP` if the CLI token was issued for the wrong tenant. The deployment script sets the active subscription before deployment to reduce this risk.
+Browser access can succeed while a local tool returns `401`, `403`, or `Forbidden` if the token was issued for the wrong tenant. The deployment script sets the active subscription before deployment to reduce this risk.
 
 Connector setup can also cross identity boundaries. The Azure resource permissions come from the resource tenant, while Teams or Outlook OAuth uses the Microsoft 365 account that signs in to the connector.
 
@@ -133,8 +128,7 @@ The agent reads operational and cost data from these sources:
 
 - FinOps hub cost and usage data in Azure Data Explorer.
 - Azure resource metadata through Reader permissions.
-- Azure Monitor context through Monitoring Contributor.
-- Availability zone peer mappings through the custom zone peers role.
+- Azure Monitor and Log Analytics context through target resource group reader permissions.
 - Uploaded knowledge documents that describe FinOps toolkit tools, Teams notification patterns, report output style, and known issues.
 
 Scheduled reports and investigation summaries can be sent to:
@@ -154,7 +148,7 @@ Data residency follows the Azure resources and Microsoft 365 services you connec
 Use this checklist before you move from test to production:
 
 - Grant the deployment identity only the permissions needed for deployment.
-- Keep the agent managed identity scoped to Reader, Monitoring Contributor, FinOps SRE Zone Peers Reader, and Azure Data Explorer viewer permissions unless your own workflows require more.
+- Keep the agent managed identity scoped to subscription Reader, target resource group reader/remediation permissions, and Azure Data Explorer viewer permissions unless your own workflows require more.
 - Use Review mode for production workflows that can change Azure resources.
 - Use Autonomous mode only for trusted reports, health checks, and read-only tasks.
 - Configure Teams and Outlook connectors with accounts that are allowed to send to the target audience.

@@ -5,6 +5,7 @@ Describe 'SRE Agent deploy template' {
     BeforeAll {
         $script:RepoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
         $script:DeployScript = Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/deploy.sh'
+        $script:ApplyExtrasScript = Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/apply-extras.sh'
         $script:PostProvisionScript = Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/post-provision.sh'
         $script:VerifyScript = Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/verify-agent.sh'
         $script:RecipeDir = Join-Path $script:RepoRoot 'src/templates/sre-agent/recipes/finops-hub'
@@ -110,8 +111,7 @@ Describe 'SRE Agent deploy template' {
                 '--subscription <id>',
                 '--cluster-uri <uri>',
                 '--cluster-resource-id <id>',
-                '--deploy-name <name>',
-                '--fallback-srectl'
+                '--deploy-name <name>'
             ) | ForEach-Object {
                 $escaped = [regex]::Escape($_)
                 $help.Output | Should -Match $escaped
@@ -214,7 +214,7 @@ Describe 'SRE Agent deploy template' {
                 $firstPath | Should -Match 'sre-agent-customer-sre-agent-[a-f0-9]{12}'
 
                 $parameters = Get-Content -Path $firstPath -Raw | ConvertFrom-Json
-                $parameters.parameters.upgradeChannel.value | Should -Be 'Stable'
+                $parameters.parameters.upgradeChannel.value | Should -Be 'Preview'
                 $parameters.parameters.experimentalSettings.value.EnableSandboxGroup | Should -BeTrue
                 $parameters.parameters.experimentalSettings.value.EnableWorkspaceTools | Should -BeTrue
                 $parameters.parameters.monthlyAgentUnitLimit.value | Should -Be 10000
@@ -248,6 +248,11 @@ set -euo pipefail
 
 if [[ "$*" == *"account get-access-token"* ]]; then
   echo "fake-token"
+  exit 0
+fi
+
+if [[ "${1:-}" == "rest" ]]; then
+  echo "{}"
   exit 0
 fi
 
@@ -309,13 +314,6 @@ esac
 exit 0
 '@
 
-            $fakeSrectl = Join-Path $binDir 'srectl'
-            Set-BashStub -Path $fakeSrectl -Content @'
-#!/usr/bin/env bash
-set -euo pipefail
-exit 0
-'@
-
             $fakeCurl = Join-Path $binDir 'curl'
             Set-BashStub -Path $fakeCurl -Content @'
 #!/usr/bin/env bash
@@ -362,12 +360,12 @@ if [[ "$url" == */api/v2/extendedAgent/connectors ]]; then
   cat > "$out" <<'JSON'
 {
   "value": [
-    { "name": "chart-artifact-verification.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "chart-artifact-verification.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "document-index.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "document-index.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "ftk-output-style.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "ftk-output-style.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "known-issues-and-workarounds.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "known-issues-and-workarounds.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "onboarding-recommendations.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "onboarding-recommendations.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "teams-notification-guide.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "teams-notification-guide.md", "createdAt": "2026-05-25T19:57:31Z" } } }
+    { "name": "chart-artifact-verification-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "chart-artifact-verification.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "document-index-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "document-index.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "ftk-output-style-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "ftk-output-style.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "known-issues-and-workarounds-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "known-issues-and-workarounds.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "onboarding-recommendations-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "onboarding-recommendations.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "teams-notification-guide-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "teams-notification-guide.md", "createdAt": "2026-05-25T19:57:31Z" } } }
   ]
 }
 JSON
@@ -391,9 +389,9 @@ JSON
   exit 0
 fi
 
-if [[ "$url" == */api/v1/scheduledtasks ]]; then
+if [[ "$url" == */api/v2/agent/tools/configure ]]; then
   cat > "$out" <<'JSON'
-[]
+{}
 JSON
   printf "200"
   exit 0
@@ -404,18 +402,44 @@ if [[ "$url" == */api/v1/scheduledtasks ]]; then
 []
 JSON
   printf "200"
+  exit 0
+fi
+
+if [[ "$url" == */api/v2/extendedAgent/agents/* ]]; then
+  [[ -n "${AGENT_APPLY_LOG:-}" ]] && basename "$url" >> "$AGENT_APPLY_LOG"
+  cat > "$out" <<'JSON'
+{
+  "type": "ExtendedAgent",
+  "properties": {
+    "provisioningState": "Succeeded"
+  }
+}
+JSON
+  printf "201"
+  exit 0
+fi
+
+if [[ "$url" == */api/v2/extendedAgent/tools/* || "$url" == */api/v2/extendedAgent/skills/* || "$url" == */api/v2/extendedAgent/scheduledtasks/* ]]; then
+  cat > "$out" <<'JSON'
+{
+  "properties": {
+    "provisioningState": "Succeeded"
+  }
+}
+JSON
+  printf "201"
   exit 0
 fi
 
 cat > "$out" <<'JSON'
 {
   "files": [
-    { "name": "chart-artifact-verification.md", "isIndexed": true, "errorReason": null },
-    { "name": "document-index.md", "isIndexed": true, "errorReason": null },
-    { "name": "ftk-output-style.md", "isIndexed": true, "errorReason": null },
-    { "name": "known-issues-and-workarounds.md", "isIndexed": true, "errorReason": null },
-    { "name": "onboarding-recommendations.md", "isIndexed": true, "errorReason": null },
-    { "name": "teams-notification-guide.md", "isIndexed": true, "errorReason": null }
+    { "name": "chart-artifact-verification-md", "isIndexed": true, "errorReason": null },
+    { "name": "document-index-md", "isIndexed": true, "errorReason": null },
+    { "name": "ftk-output-style-md", "isIndexed": true, "errorReason": null },
+    { "name": "known-issues-and-workarounds-md", "isIndexed": true, "errorReason": null },
+    { "name": "onboarding-recommendations-md", "isIndexed": true, "errorReason": null },
+    { "name": "teams-notification-guide-md", "isIndexed": true, "errorReason": null }
   ],
   "continuationToken": ""
 }
@@ -423,8 +447,13 @@ JSON
 printf "200"
 '@
 
+            Set-BashStub -Path (Join-Path $binDir 'sleep') -Content @'
+#!/usr/bin/env bash
+exit 0
+'@
+
             try {
-                $command = "SRE_AGENT_DEPLOY_DIR='$deployRoot' bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://example.westus3.kusto.windows.net/Hub"
+                $command = "SRE_AGENT_DEPLOY_DIR='$deployRoot' SRE_AGENT_APPLY_REQUEST_DELAY_SECONDS=0 SRE_AGENT_APPLY_RETRY_DELAY_SECONDS=0 bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://example.westus3.kusto.windows.net/Hub"
                 $result = Invoke-BashCommandWithPath $command $binDir
                 $result.ExitCode | Should -Be 0
                 $result.Output | Should -Match 'Resolving Kusto cluster resource ID from --cluster-uri'
@@ -455,6 +484,11 @@ set -euo pipefail
 
 if [[ "$*" == *"account get-access-token"* ]]; then
   echo "fake-token"
+  exit 0
+fi
+
+if [[ "${1:-}" == "rest" ]]; then
+  echo "{}"
   exit 0
 fi
 
@@ -522,13 +556,6 @@ esac
 exit 0
 '@
 
-            $fakeSrectl = Join-Path $binDir 'srectl'
-            Set-BashStub -Path $fakeSrectl -Content @'
-#!/usr/bin/env bash
-set -euo pipefail
-exit 0
-'@
-
             $fakeCurl = Join-Path $binDir 'curl'
             Set-BashStub -Path $fakeCurl -Content @'
 #!/usr/bin/env bash
@@ -575,12 +602,12 @@ if [[ "$url" == */api/v2/extendedAgent/connectors ]]; then
   cat > "$out" <<'JSON'
 {
   "value": [
-    { "name": "chart-artifact-verification.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "chart-artifact-verification.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "document-index.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "document-index.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "ftk-output-style.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "ftk-output-style.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "known-issues-and-workarounds.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "known-issues-and-workarounds.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "onboarding-recommendations.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "onboarding-recommendations.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "teams-notification-guide.md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "teams-notification-guide.md", "createdAt": "2026-05-25T19:57:31Z" } } }
+    { "name": "chart-artifact-verification-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "chart-artifact-verification.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "document-index-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "document-index.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "ftk-output-style-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "ftk-output-style.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "known-issues-and-workarounds-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "known-issues-and-workarounds.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "onboarding-recommendations-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "onboarding-recommendations.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "teams-notification-guide-md", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "teams-notification-guide.md", "createdAt": "2026-05-25T19:57:31Z" } } }
   ]
 }
 JSON
@@ -612,15 +639,40 @@ JSON
   exit 0
 fi
 
+if [[ "$url" == */api/v2/agent/tools/configure ]]; then
+  cat > "$out" <<'JSON'
+{}
+JSON
+  printf "200"
+  exit 0
+fi
+
+if [[ "$url" == */api/v2/extendedAgent/agents/* || "$url" == */api/v2/extendedAgent/tools/* || "$url" == */api/v2/extendedAgent/skills/* || "$url" == */api/v2/extendedAgent/scheduledtasks/* ]]; then
+  cat > "$out" <<'JSON'
+{
+  "properties": {
+    "provisioningState": "Succeeded"
+  }
+}
+JSON
+  printf "201"
+  exit 0
+fi
+
 cat > "$out" <<'JSON'
 {}
 JSON
 printf "200"
 '@
 
+            Set-BashStub -Path (Join-Path $binDir 'sleep') -Content @'
+#!/usr/bin/env bash
+exit 0
+'@
+
             try {
                 $clusterId = '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-hub/providers/Microsoft.Kusto/clusters/privateadx'
-                $command = "SRE_AGENT_DEPLOY_DIR='$deployRoot' bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://privateadx.westus.kusto.windows.net/Hub --cluster-resource-id $clusterId"
+                $command = "SRE_AGENT_DEPLOY_DIR='$deployRoot' SRE_AGENT_APPLY_REQUEST_DELAY_SECONDS=0 SRE_AGENT_APPLY_RETRY_DELAY_SECONDS=0 bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://privateadx.westus.kusto.windows.net/Hub --cluster-resource-id $clusterId"
                 $result = Invoke-BashCommandWithPath $command $binDir
                 $result.ExitCode | Should -Be 0
                 $result.Output | Should -Match 'Warning: The Kusto cluster denies public query access'
@@ -633,17 +685,17 @@ printf "200"
             }
         }
 
-        It 'routes deploy through the copied starter-lab infra and post-provision path' {
+        It 'routes deploy through the copied starter-lab infra and apply-extras path' {
             if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
 
             $deployContent = Get-Content -Path $script:DeployScript -Raw
             $deployContent | Should -Match 'INFRA_DIR=.*infra'
             $deployContent | Should -Match '\$\{INFRA_DIR\}/main\.bicep'
-            $deployContent | Should -Match 'post-provision\.sh'
-            $deployContent | Should -Not -Match 'bicep/assemble-agent|apply-extras|hydrate-extensions'
+            $deployContent | Should -Match 'apply-extras\.sh'
+            $deployContent | Should -Not -Match 'bicep/assemble-agent|hydrate-extensions'
 
             Test-Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/main.bicep') | Should -BeTrue
-            Test-Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/post-provision.sh') | Should -BeTrue
+            Test-Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/apply-extras.sh') | Should -BeTrue
         }
     }
 
@@ -689,6 +741,7 @@ printf "200"
 
             $paths | Should -Be @(
                 'docs-mslearn/toolkit/sre-agent/deploy.md',
+                'src/templates/sre-agent/bin/build-extras.py',
                 'src/templates/sre-agent/README.md',
                 'src/templates/sre-agent/recipes/finops-hub/connectors.json'
             )
@@ -726,51 +779,8 @@ printf "200"
             $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sre-agent-post-provision-" + [guid]::NewGuid().ToString('N'))
             $binDir = Join-Path $tempRoot 'bin'
             $buildDir = Join-Path $tempRoot 'build'
-            $logPath = Join-Path $tempRoot 'srectl.log'
+            $logPath = Join-Path $tempRoot 'agent-apply.log'
             New-Item -ItemType Directory -Force -Path $binDir, $buildDir | Out-Null
-
-            $fakeSrectl = Join-Path $binDir 'srectl'
-            Set-BashStub -Path $fakeSrectl -Content @'
-#!/usr/bin/env bash
-set -euo pipefail
-
-seen() {
-  [[ -f "${SRECTL_LOG:?}" ]] && grep -qx "$1" "$SRECTL_LOG"
-}
-
-case "${1:-}" in
-  init|doc|skill|scheduledtask)
-    exit 0
-    ;;
-  apply-yaml)
-    file=""
-    while [[ $# -gt 0 ]]; do
-      case "$1" in
-        --file)
-          file="$2"
-          shift 2
-          ;;
-        *)
-          shift
-          ;;
-      esac
-    done
-    if [[ "$file" == */config/subagents/* ]]; then
-      base="$(basename "$file")"
-      if [[ "$base" == "finops-practitioner.yaml" ]]; then
-        seen "chief-financial-officer.yaml" || exit 17
-        seen "ftk-database-query.yaml" || exit 18
-        seen "ftk-hubs-agent.yaml" || exit 19
-      fi
-      echo "$base" >> "$SRECTL_LOG"
-    fi
-    exit 0
-    ;;
-  *)
-    exit 0
-    ;;
-esac
-'@
 
             $fakeAz = Join-Path $binDir 'az'
             Set-BashStub -Path $fakeAz -Content @'
@@ -781,6 +791,18 @@ if [[ "$*" == *"account get-access-token"* ]]; then
   echo "fake-token"
   exit 0
 fi
+
+if [[ "${1:-}" == "rest" ]]; then
+  echo "{}"
+  exit 0
+fi
+
+case "$*" in
+  *"account show"*|*"account set"*|*"version"*)
+    exit 0
+    ;;
+esac
+
 exit 1
 '@
 
@@ -822,12 +844,12 @@ if [[ "$url" == */api/v2/extendedAgent/connectors ]]; then
   cat > "$out" <<'JSON'
 {
   "value": [
-    { "name": "chart-artifact-verification.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "chart-artifact-verification.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "document-index.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "document-index.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "ftk-output-style.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "ftk-output-style.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "known-issues-and-workarounds.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "known-issues-and-workarounds.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "onboarding-recommendations.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "onboarding-recommendations.md", "createdAt": "2026-05-25T19:57:31Z" } } },
-    { "name": "teams-notification-guide.md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "teams-notification-guide.md", "createdAt": "2026-05-25T19:57:31Z" } } }
+    { "name": "chart-artifact-verification-md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "chart-artifact-verification.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "document-index-md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "document-index.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "ftk-output-style-md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "ftk-output-style.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "known-issues-and-workarounds-md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "known-issues-and-workarounds.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "onboarding-recommendations-md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "onboarding-recommendations.md", "createdAt": "2026-05-25T19:57:31Z" } } },
+    { "name": "teams-notification-guide-md", "type": "KnowledgeItem", "properties": { "dataConnectorType": "KnowledgeFile", "extendedProperties": { "displayName": "teams-notification-guide.md", "createdAt": "2026-05-25T19:57:31Z" } } }
   ]
 }
 JSON
@@ -852,15 +874,57 @@ JSON
   exit 0
 fi
 
+if [[ "$url" == */api/v2/extendedAgent/agents/* ]]; then
+  [[ -n "${AGENT_APPLY_LOG:-}" ]] && basename "$url" >> "$AGENT_APPLY_LOG"
+  cat > "$out" <<'JSON'
+{
+  "type": "ExtendedAgent",
+  "properties": {
+    "provisioningState": "Succeeded"
+  }
+}
+JSON
+  printf "201"
+  exit 0
+fi
+
+if [[ "$url" == */api/v2/extendedAgent/tools/* || "$url" == */api/v2/extendedAgent/skills/* || "$url" == */api/v2/extendedAgent/scheduledtasks/* ]]; then
+  cat > "$out" <<'JSON'
+{
+  "properties": {
+    "provisioningState": "Succeeded"
+  }
+}
+JSON
+  printf "201"
+  exit 0
+fi
+
+if [[ "$url" == */api/v2/agent/tools/configure ]]; then
+  cat > "$out" <<'JSON'
+{}
+JSON
+  printf "200"
+  exit 0
+fi
+
+if [[ "$url" == */api/v1/scheduledtasks ]]; then
+  cat > "$out" <<'JSON'
+[]
+JSON
+  printf "200"
+  exit 0
+fi
+
 cat > "$out" <<'JSON'
 {
   "files": [
-    { "name": "chart-artifact-verification.md", "isIndexed": true, "errorReason": null },
-    { "name": "document-index.md", "isIndexed": true, "errorReason": null },
-    { "name": "ftk-output-style.md", "isIndexed": true, "errorReason": null },
-    { "name": "known-issues-and-workarounds.md", "isIndexed": true, "errorReason": null },
-    { "name": "onboarding-recommendations.md", "isIndexed": true, "errorReason": null },
-    { "name": "teams-notification-guide.md", "isIndexed": true, "errorReason": null }
+    { "name": "chart-artifact-verification-md", "isIndexed": true, "errorReason": null },
+    { "name": "document-index-md", "isIndexed": true, "errorReason": null },
+    { "name": "ftk-output-style-md", "isIndexed": true, "errorReason": null },
+    { "name": "known-issues-and-workarounds-md", "isIndexed": true, "errorReason": null },
+    { "name": "onboarding-recommendations-md", "isIndexed": true, "errorReason": null },
+    { "name": "teams-notification-guide-md", "isIndexed": true, "errorReason": null }
   ],
   "continuationToken": ""
 }
@@ -868,15 +932,20 @@ JSON
 printf "200"
 '@
 
+            Set-BashStub -Path (Join-Path $binDir 'sleep') -Content @'
+#!/usr/bin/env bash
+exit 0
+'@
+
             try {
-                $command = "SRECTL_LOG='$logPath' bash '$script:PostProvisionScript' --endpoint https://example.azuresre.ai --subscription 00000000-0000-0000-0000-000000000000 --resource-group rg-test-customer --name customer-sre-agent --recipe '$script:RecipeDir' --build-dir '$buildDir'"
+                $command = "AGENT_APPLY_LOG='$logPath' SRE_AGENT_APPLY_REQUEST_DELAY_SECONDS=0 SRE_AGENT_APPLY_RETRY_DELAY_SECONDS=0 bash '$script:PostProvisionScript' --endpoint https://example.azuresre.ai --subscription 00000000-0000-0000-0000-000000000000 --resource-group rg-test-customer --name customer-sre-agent --recipe '$script:RecipeDir' --build-dir '$buildDir'"
                 $result = Invoke-BashCommandWithPath $command $binDir
                 $result.ExitCode | Should -Be 0
 
                 $order = @(Get-Content -Path $logPath)
-                [array]::IndexOf($order, 'chief-financial-officer.yaml') | Should -BeLessThan ([array]::IndexOf($order, 'finops-practitioner.yaml'))
-                [array]::IndexOf($order, 'ftk-database-query.yaml') | Should -BeLessThan ([array]::IndexOf($order, 'finops-practitioner.yaml'))
-                [array]::IndexOf($order, 'ftk-hubs-agent.yaml') | Should -BeLessThan ([array]::IndexOf($order, 'finops-practitioner.yaml'))
+                [array]::IndexOf($order, 'chief-financial-officer') | Should -BeLessThan ([array]::IndexOf($order, 'finops-practitioner'))
+                [array]::IndexOf($order, 'ftk-database-query') | Should -BeLessThan ([array]::IndexOf($order, 'finops-practitioner'))
+                [array]::IndexOf($order, 'ftk-hubs-agent') | Should -BeLessThan ([array]::IndexOf($order, 'finops-practitioner'))
             }
             finally {
                 Remove-Item -Path $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
@@ -893,18 +962,18 @@ printf "200"
         }
 
         It 'uploads the shared FinOps output style as a portal knowledge source' {
-            $postProvisionScript = Get-Content -Path $script:PostProvisionScript -Raw
+            $applyExtrasScript = Get-Content -Path $script:ApplyExtrasScript -Raw
+            $buildExtrasScript = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/build-extras.py') -Raw
 
             Test-Path $script:OutputStylePath | Should -BeTrue
-            $postProvisionScript | Should -Match 'claude-plugin/output-styles/ftk-output-style\.md'
-            $postProvisionScript | Should -Match 'upload_knowledge_file'
-            $postProvisionScript | Should -Match 'output style knowledge document not found'
-            $postProvisionScript | Should -Match '/api/v2/extendedAgent/connectors'
-            $postProvisionScript | Should -Match 'Knowledge sources failed to index'
-            $postProvisionScript | Should -Match 'KnowledgeItem'
-            $postProvisionScript | Should -Match 'KnowledgeFile'
-            $postProvisionScript | Should -Not -Match 'srectl doc upload'
-            $postProvisionScript | Should -Not -Match '/api/v1/agentmemory/files'
+            $buildExtrasScript | Should -Match 'claude-plugin/output-styles/ftk-output-style\.md'
+            $buildExtrasScript | Should -Match 'Output style knowledge document not found'
+            $applyExtrasScript | Should -Match 'knowledgeItems'
+            $applyExtrasScript | Should -Match '/api/v2/extendedAgent/connectors'
+            $applyExtrasScript | Should -Match 'Knowledge sources failed to index'
+            $applyExtrasScript | Should -Match 'KnowledgeFile'
+            $applyExtrasScript | Should -Not -Match ('sr' + 'ectl')
+            $applyExtrasScript | Should -Not -Match '/api/v1/agentmemory/files'
         }
 
         It 'requires expected knowledge sources and verifies indexing' {
@@ -944,12 +1013,12 @@ printf "200"
         }
 
         It 'deletes existing scheduled tasks before applying manifests' {
-            $postProvisionScript = Get-Content -Path $script:PostProvisionScript -Raw
+            $applyExtrasScript = Get-Content -Path $script:ApplyExtrasScript -Raw
             $verifyScript = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/verify-agent.sh') -Raw
 
-            $postProvisionScript | Should -Match 'delete_existing_scheduled_tasks'
-            $postProvisionScript | Should -Match '/api/v1/scheduledtasks'
-            $postProvisionScript | Should -Match 'srectl scheduledtask delete'
+            $applyExtrasScript | Should -Match 'delete_existing_scheduled_tasks'
+            $applyExtrasScript | Should -Match '/api/v1/scheduledtasks'
+            $applyExtrasScript | Should -Match 'dataplane_put_extended "scheduledtasks"'
             $verifyScript | Should -Match 'Scheduled task duplicates'
             $verifyScript | Should -Match '0 duplicates'
         }

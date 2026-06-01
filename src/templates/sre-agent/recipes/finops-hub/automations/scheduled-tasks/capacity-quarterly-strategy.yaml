@@ -36,6 +36,7 @@ spec:
     - `azure-capacity-manager`: Run `benefit-recommendations` with billing_scope and lookback to get reservation and savings plan recommendations
     - `ftk-hubs-agent`: Run `resource-graph-query` with query and subscriptions to execute Azure Resource Graph KQL
     - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds
+    - `ftk-database-query`: Run `commitment-utilization-score`, `commitment-discount-waste`, `compute-spend-commitment-coverage`, `compute-cost-per-core`, and `macc-consumption-vs-commitment` for quarterly Rate Optimization KPI evidence
 
 
     ## 1. FinOps Capability Maturity Assessment
@@ -63,7 +64,7 @@ spec:
     ## 2. Commitment Alignment
 
 
-    Ask `azure-capacity-manager` to run `benefit-recommendations` for Azure Cost Management recommendations. Ask `ftk-database-query` to run `reservation-recommendation-breakdown`, `commitment-discount-utilization`, and `savings-summary-report` with quarterly scope for Kusto-backed commitment and savings evidence.
+    Ask `azure-capacity-manager` to run `benefit-recommendations` for Azure Cost Management recommendations. Ask `ftk-database-query` to run `reservation-recommendation-breakdown`, `commitment-discount-utilization`, `savings-summary-report`, `commitment-utilization-score`, `commitment-discount-waste`, `compute-spend-commitment-coverage`, `compute-cost-per-core`, and `macc-consumption-vs-commitment` with quarterly scope for Kusto-backed commitment, savings, coverage, and unit-economics evidence.
 
 
     Align capacity reservations with commitment purchases:

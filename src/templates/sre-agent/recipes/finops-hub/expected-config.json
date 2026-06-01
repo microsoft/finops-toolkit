@@ -9,6 +9,9 @@
       "EnableWorkspaceTools"
     ]
   },
+  "subscriptionRoleAssignments": [
+    "Reader"
+  ],
   "builtInTools": {
     "enabled": [
       "PlotAreaChartWithCorrelation",

@@ -3,7 +3,7 @@ title: Troubleshoot Azure SRE Agent deployments from the FinOps toolkit
 description: Resolve common deployment, tenant, connector, data, and query issues for Azure SRE Agent deployments from the FinOps toolkit.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/25/2026
+ms.date: 06/01/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -13,27 +13,28 @@ ms.reviewer: brettwil
 
 # Troubleshoot Azure SRE Agent deployments from the FinOps toolkit
 
-Use this guide when the agent deploys, but `srectl`, scheduled tasks, connectors, or data queries don't behave as expected. Start with tenant and deployment checks, then use the known issue sections to match the symptom, cause, and workaround.
+Use this guide when the agent deploys, but Azure MCP Server `sreagent` commands, scheduled tasks, connectors, or data queries don't behave as expected. Start with tenant and deployment checks, then use the known issue sections to match the symptom, cause, and workaround.
 
 <br>
 
 ## Troubleshoot B2B tenant environments
 
-In B2B environments, the Azure subscription and Azure SRE Agent resource can live in a different Microsoft Entra tenant than your Microsoft 365 home tenant. If [sre.azure.com](https://sre.azure.com) shows the agent correctly but [`srectl`](/azure/sre-agent/tools) returns `401`, `403`, or `Forbidden: Access denied by PDP`, treat the issue as tenant selection first.
+In B2B environments, the Azure subscription and Azure SRE Agent resource can live in a different Microsoft Entra tenant than your Microsoft 365 home tenant. If [sre.azure.com](https://sre.azure.com) shows the agent correctly but Azure MCP Server `sreagent` commands return `401`, `403`, `AccessDenied`, or `Forbidden`, treat the issue as tenant selection first.
 
-**Symptom:** Browser access works, but `srectl status`, `srectl agent list`, or other `srectl` API calls fail with `401`, `403`, or `Forbidden`.
+**Symptom:** Browser access works, but Azure MCP Server `sreagent_agents_list`, `sreagent_agents_get`, `sreagent_agents_tools_list`, or related SRE Agent commands fail with `401`, `403`, `AccessDenied`, or `Forbidden`.
 
-**Cause:** The CLI token was issued for the wrong tenant. The browser session can use your Microsoft 365 home tenant, while the Azure SRE Agent resource belongs to a different tenant.
+**Cause:** The tool token can be issued for the wrong tenant or the tool can route the SRE Agent discovery call through a tenant-scoped Resource Graph path. The browser session can use your Microsoft 365 home tenant, while the Azure SRE Agent resource belongs to a different tenant.
 
 **Workaround:**
 
 1. Confirm the active Azure CLI context points at the subscription that owns the Azure SRE Agent resource.
 1. Re-authenticate Azure CLI against the tenant that owns the subscription and resource.
-1. Re-run `srectl init --resource-url <SRE_AGENT_ENDPOINT>`.
-1. Retry `srectl status`, `srectl agent list`, or the failing `srectl` command.
+1. Pass the resource tenant, subscription, resource group, and agent name explicitly to Azure MCP Server `sreagent` commands.
+1. Verify the same identity can read the ARM resource with `az resource show` and can call the SRE Agent data-plane endpoint with a token for `https://azuresre.dev`.
+1. If ARM and direct data-plane calls work but Azure MCP Server `sreagent` commands still return `AccessDenied`, capture the timestamp and correlation ID from the tool response and route it as an Azure MCP Server or Azure SRE Agent B2B access issue.
 
 > [!TIP]
-> Browser success with CLI failure usually means the agent is healthy and the CLI token was issued for the wrong tenant.
+> Browser success with Azure MCP Server failure usually means the agent might be healthy, but the tool credential or SRE Agent discovery path needs tenant-specific verification.
 
 <br>
 
@@ -86,9 +87,9 @@ az provider register --namespace Microsoft.Resources
 
 **Symptom:** Azure resources deploy, but skills, agents, tools, scheduled tasks, knowledge documents, or the Kusto connector don't appear in [sre.azure.com](https://sre.azure.com).
 
-**Cause:** The post-provision step couldn't run `srectl`, initialize the endpoint, configure the Kusto connector, or apply the SRE configuration.
+**Cause:** The post-provision step couldn't resolve the endpoint, get an SRE Agent data-plane token, configure the Kusto connector, or apply the SRE configuration through the supported ARM and data-plane APIs.
 
-**Workaround:** Check that `.NET 9.0 SDK`, Azure CLI, `python3`, and `bash` are available locally. Then rerun the post-provision script from `src/templates/sre-agent`.
+**Workaround:** Check that Azure CLI, `python3`, `jq`, `curl`, and `bash` are available locally. Then rerun `bin/apply-extras.sh` from `src/templates/sre-agent`.
 
 ### Connector setup is missing
 
@@ -116,7 +117,7 @@ The following issues were observed during scheduled task testing. They don't alw
 
 **Symptom:** A subagent reports that `PostTeamsChannelMessage` isn't available or that it couldn't find the Teams posting function.
 
-**Cause:** Subagents invoked with `srectl thread new --agent <subagent>` don't inherit Teams connector tools. Connector tools are available to the base agent or when the platform triggers a scheduled task.
+**Cause:** Subagents invoked directly for manual testing might not inherit Teams connector tools. Connector tools are available to the base agent or when the platform triggers a scheduled task.
 
 **Workaround:**
 
@@ -205,7 +206,7 @@ If the workaround doesn't resolve the issue, [open a GitHub issue](https://githu
 - The failing command, task, or tool name
 - The exact error message
 - Whether [sre.azure.com](https://sre.azure.com) can open the agent successfully
-- Whether the issue affects deployment, `srectl`, scheduled tasks, connectors, or FinOps hub data
+- Whether the issue affects deployment, Azure MCP Server `sreagent` commands, scheduled tasks, connectors, or FinOps hub data
 
 For product ideas or known gaps, [vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20SRE%20Agent%22%20sort%3Areactions-%2B1-desc).
 

@@ -3,7 +3,7 @@ title: Azure SRE Agent template reference (FinOps toolkit)
 description: Review the FinOps toolkit's Azure SRE Agent deployment template, parameters, outputs, script flags, and Bicep module structure.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/28/2026
+ms.date: 06/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -27,7 +27,7 @@ Ensure the following prerequisites are met before you deploy the template:
   | Task | Minimum permission |
   | ---- | ------------------ |
   | Deploy the subscription-scoped Bicep template and create the target resource group | [Contributor](/azure/role-based-access-control/built-in-roles#contributor) on the subscription |
-  | Assign target resource group roles to the agent managed identity | [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator), [User Access Administrator](/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](/azure/role-based-access-control/built-in-roles#owner) on each target resource group |
+  | Assign subscription and target resource group roles to the agent managed identity | [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator), [User Access Administrator](/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](/azure/role-based-access-control/built-in-roles#owner) on the assignment scopes |
   | Assign Azure Data Explorer access when cluster parameters are set | Permission to create `Microsoft.Kusto/clusters/principalAssignments` on the target cluster |
   | Apply Azure SRE Agent objects with `bin/apply-extras.sh` | Access to the deployed Azure SRE Agent endpoint |
 
@@ -56,6 +56,7 @@ Here are the parameters you can use to customize the deployment:
 | **monthlyAgentUnitLimit** | Int | `10000` | 1 or higher | Optional. Monthly agent unit limit. |
 | **experimentalSettings** | Object | `{ "EnableSandboxGroup": true, "EnableWorkspaceTools": true }` | Object | Optional. Agent sandbox and workspace tool settings for the stable SRE Agent runtime. |
 | **finopsHubKustoClusterResourceId** | String | `""` | Azure resource ID | Optional. Azure Data Explorer cluster resource ID for the FinOps hub role assignment. |
+| **enableSubscriptionReaderRole** | Boolean | `true` | `true`, `false` | Optional. Assigns Reader at subscription scope to the agent managed identity. |
 
 <br>
 
@@ -70,6 +71,7 @@ Here are the parameters you can use to customize the deployment:
 | **agentName** | `--name` | Azure SRE Agent name. |
 | **location** | `--location` | Azure location for the deployment. |
 | **targetResourceGroups** | `--target-resource-group` | Target resource group names. Defaults to the agent resource group. |
+| **enableSubscriptionReaderRole** | Default, unless `--no-subscription-reader` is passed | Whether the deployment assigns subscription-scope Reader to the agent managed identity. |
 | **defaultModelProvider** | `agent.json` | Parent SRE Agent model provider. The FinOps hub recipe defaults to Azure OpenAI provider-level routing with `MicrosoftFoundry`. |
 | **defaultModelName** | `agent.json` | Parent SRE Agent model name. The FinOps hub recipe defaults to `Automatic` model routing. |
 | **finopsHubKustoClusterResourceId** | `--cluster-resource-id` | Optional cluster resource ID used to assign `AllDatabasesViewer`. |
@@ -118,9 +120,10 @@ Supporting resource names are deterministic for the subscription ID, agent resou
 | `--target-resource-group <name>` | No | Repeatable target resource group. Defaults to `--resource-group`. |
 | `--cluster-uri <uri>` | No | Database-qualified FinOps hub Kusto URI, such as `https://cluster.region.kusto.windows.net/Hub`. |
 | `--cluster-resource-id <id>` | Optional with `--cluster-uri` for real deployments; required for `--dry-run` | Kusto cluster ARM resource ID for `AllDatabasesViewer`. Real deployments resolve it from `--cluster-uri` when the cluster is in the target subscription. |
+| `--no-subscription-reader` | No | Skips the default subscription-scope Reader assignment. Use only when equivalent read access is granted another way. |
 | `--deploy-name <name>` | No | Deployment name override. Defaults to a deterministic name from subscription ID, resource group, and agent name. |
 | `--dry-run` | No | Validate inputs and write parameters without Azure calls. |
-| `--force`, `--fallback-srectl`, `--no-telemetry` | No | Compatibility flags accepted by the wrapper. |
+| `--force`, `--no-telemetry` | No | Compatibility flags accepted by the wrapper. |
 | `-h`, `--help` | No | Show script help. |
 
 ### Extras configuration
@@ -145,7 +148,7 @@ The template uses a subscription-scoped entry point and resource group modules:
 
 | File | Scope | Deploys or configures |
 | ---- | ----- | --------------------- |
-| `infra/main.bicep` | Subscription | Creates the target resource group, calls the resource group deployment, assigns target resource group RBAC, and optionally assigns Azure Data Explorer roles. |
+| `infra/main.bicep` | Subscription | Creates the target resource group, calls the resource group deployment, assigns subscription and target resource group RBAC, and optionally assigns Azure Data Explorer roles. |
 | `infra/resources.bicep` | Resource group | Orchestrates identity, monitoring, and Azure SRE Agent modules, then surfaces outputs to the subscription deployment. |
 | `infra/modules/monitoring.bicep` | Resource group | Creates the Log Analytics workspace and workspace-based Application Insights component for telemetry. |
 | `infra/modules/sre-agent.bicep` | Resource group | Creates the `Microsoft.App/agents@2026-01-01` resource, configures action mode, model provider, sandbox, and workspace tool settings, assigns SRE Agent Administrator to the deployer, and exposes the agent endpoint for `bin/apply-extras.sh`. |

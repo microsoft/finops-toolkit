@@ -3,7 +3,7 @@ title: Tools shipped for Azure SRE Agent in the FinOps toolkit
 description: Review the Kusto and Python tools the FinOps toolkit ships for Azure SRE Agent for cost analysis, anomaly detection, rate optimization, capacity management, and operations.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/25/2026
+ms.date: 06/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -17,7 +17,7 @@ The FinOps toolkit deployment configures Azure SRE Agent with tools that ground 
 
 Use this article as a catalog of the tools included with the template. For deeper implementation details, review the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references.
 
-The template configures 34 tools: 21 Kusto query tools and 13 Python tools, as documented in the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references. All Kusto tools are assigned only to `ftk-database-query`; other agents request Kusto evidence from that specialist instead of querying FinOps hub directly.
+The template configures 50 tools: 37 Kusto query tools generated from the FinOps hub query catalog and 13 Python tools, as documented in the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references. All Kusto tools are assigned only to `ftk-database-query`; other agents request Kusto evidence from that specialist instead of querying FinOps hub directly.
 
 > [!NOTE]
 > The agent list shows subagents that reference each tool in `recipes/finops-hub/config/subagents`. Tools marked "Not assigned" are included in the tool catalog, but aren't referenced by a subagent configuration. For agent roles and tool usage, see [agents and skills](agents.md).
@@ -53,6 +53,31 @@ Cost analysis and reporting tools summarize FinOps hub cost data by service, reg
 | `top-resource-groups-by-cost` | `Kusto` | Returns top resource groups by effective cost for focused reporting and optimization; see [top-resource-groups-by-cost](kusto-tools.md#top-resource-groups-by-cost). | `ftk-database-query` |
 | `top-resource-types-by-cost` | `Kusto` | Returns top resource types by resource count and effective cost to identify costly categories; see [top-resource-types-by-cost](kusto-tools.md#top-resource-types-by-cost). | `ftk-database-query` |
 | `top-services-by-cost` | `Kusto` | Returns top Azure services by effective cost to prioritize service-level optimization; see [top-services-by-cost](kusto-tools.md#top-services-by-cost). | `ftk-database-query` |
+
+<br>
+
+## FinOps KPI scorecard
+
+FinOps KPI scorecard tools are generated from [`src/queries/catalog`](../../../src/queries/catalog/) and map directly to query links in [`src/queries/KPI.md`](../../../src/queries/KPI.md). Scheduled monthly, semiannual, health, anomaly, capacity, storage, monitoring, and benefit-review tasks request these tools through `ftk-database-query`.
+
+| Tool | Type | Description | Agents |
+|------|------|-------------|--------|
+| `allocation-accuracy-index` | `Kusto` | Measures directly attributed cost as a share of total effective cost. | `ftk-database-query` |
+| `anomaly-detection-rate` | `Kusto` | Measures the share of spend in anomaly-flagged daily buckets. | `ftk-database-query` |
+| `anomaly-variance-total` | `Kusto` | Quantifies unpredicted spend variance for detected anomaly events. | `ftk-database-query` |
+| `commitment-discount-waste` | `Kusto` | Measures unused commitment value as a share of total commitment cost. | `ftk-database-query` |
+| `commitment-utilization-score` | `Kusto` | Computes commitment utilization score by commitment and currency. | `ftk-database-query` |
+| `compute-cost-per-core` | `Kusto` | Calculates effective and hourly compute cost per consumed vCPU core hour. | `ftk-database-query` |
+| `compute-spend-commitment-coverage` | `Kusto` | Measures compute spend covered by commitment discounts. | `ftk-database-query` |
+| `cost-optimization-index` | `Kusto` | Computes a cost optimization index from current recommendations and cost context. | `ftk-database-query` |
+| `cost-per-gb-stored` | `Kusto` | Calculates storage cost per normalized GB-month. | `ftk-database-query` |
+| `cost-visibility-delay` | `Kusto` | Measures cost data visibility delay for data-ingestion KPI reporting. | `ftk-database-query` |
+| `data-update-frequency` | `Kusto` | Measures FinOps hub ingestion update cadence. | `ftk-database-query` |
+| `macc-consumption-vs-commitment` | `Kusto` | Measures Microsoft Azure Consumption Commitment drawdown against commitment. | `ftk-database-query` |
+| `percentage-unallocated-costs` | `Kusto` | Measures the share of cost missing required allocation evidence. | `ftk-database-query` |
+| `percentage-untagged-costs` | `Kusto` | Measures the share of cost on resources with no tags. | `ftk-database-query` |
+| `storage-tier-distribution` | `Kusto` | Summarizes storage cost and GB-month distribution by access-tier bucket. | `ftk-database-query` |
+| `tagging-policy-compliance` | `Kusto` | Measures cost-weighted compliance with required tag keys. | `ftk-database-query` |
 
 <br>
 
@@ -116,7 +141,7 @@ Data ingestion and health tools help agents validate whether FinOps hub data is 
 
 | Tool | Type | Description | Agents |
 |------|------|-------------|--------|
-| `data-freshness-check` | `Python` | Checks FinOps hub function data freshness through direct Azure Data Explorer REST queries. Treats `Costs()` as the authoritative freshness signal with a three-day threshold and supersedes conflicting stale-memory or raw-KQL conclusions; see [data-freshness-check](python-tools.md#data-freshness-check). | `ftk-database-query`, `ftk-hubs-agent`, `azure-capacity-manager` |
+| `data-freshness-check` | `Python` | Checks FinOps hub function data freshness through direct Azure Data Explorer REST queries. Treats `Costs()` as the authoritative freshness signal with a three-day threshold and supersedes conflicting stale-memory or raw-KQL conclusions; see [data-freshness-check](python-tools.md#data-freshness-check). | `ftk-hubs-agent` |
 
 <br>
 

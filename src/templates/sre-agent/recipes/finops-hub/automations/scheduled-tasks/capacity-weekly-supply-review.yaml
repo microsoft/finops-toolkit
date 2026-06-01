@@ -38,6 +38,7 @@ spec:
     - `capacity-reservation-groups`: Run with subscription_id and resource_group when scoped to list CRGs with instanceView utilization
     - `sku-availability`: Ask `azure-capacity-manager` to run with subscription_id and location to get Compute SKU availability and restrictions by default. Use `resource_provider: kusto` with a planned Data Explorer SKU in `sku_filter` to preflight Azure Data Explorer / Kusto eligibility for FinOps Hub analytics deployments; never infer Kusto availability from Compute SKU results.
     - `azure-capacity-manager`: Run `benefit-recommendations` with billing_scope and lookback to get reservation and savings plan recommendations
+    - `ftk-database-query`: Run `commitment-utilization-score`, `commitment-discount-waste`, `compute-spend-commitment-coverage`, and `compute-cost-per-core` when Kusto cost evidence is available
 
 
     ## 1. Quota Headroom Analysis
@@ -97,7 +98,7 @@ spec:
     ## 4. Benefit Recommendations
 
 
-    Ask `azure-capacity-manager` to run `benefit-recommendations` when current RI/SP recommendations are needed. Where Hub cost context is available, ask `ftk-database-query` to run `reservation-recommendation-breakdown` for Kusto-backed recommendation evidence.
+    Ask `azure-capacity-manager` to run `benefit-recommendations` when current RI/SP recommendations are needed. Where Hub cost context is available, ask `ftk-database-query` to run `reservation-recommendation-breakdown`, `commitment-utilization-score`, `commitment-discount-waste`, `compute-spend-commitment-coverage`, and `compute-cost-per-core` for Kusto-backed recommendation, commitment, coverage, and unit-economics evidence.
 
     Cross-reference with capacity reservation strategy:
 

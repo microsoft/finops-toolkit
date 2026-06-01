@@ -37,6 +37,8 @@ spec:
 
     - `non-compute-quotas`: Run with `subscription_id` and optional `location` to retrieve storage, network, and estimated PaaS quota utilization.
 
+    - `ftk-database-query`: Run `storage-tier-distribution` and `cost-per-gb-stored` when FinOps Hub Kusto is connected to add storage unit-economics KPI evidence to the quota forecast.
+
 
     ## 1. Establish scope
 
@@ -54,6 +56,8 @@ spec:
 
 
     Compare current resource counts and quota utilization against prior #remember findings or prior monthly reports. Forecast expected utilization for the next 30, 60, and 90 days using observed growth where prior data exists.
+
+    Ask `ftk-database-query` to run `storage-tier-distribution` and `cost-per-gb-stored` for the same reporting window. Use storage tier mix and cost-per-GB trends to explain whether growth is also creating avoidable storage unit-cost risk.
 
 
     ## 4. Flag subscriptions approaching limits

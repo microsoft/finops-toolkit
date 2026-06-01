@@ -7,7 +7,7 @@ Deploys the FinOps Toolkit SRE Agent using the canonical Microsoft SRE Agent rec
 - 5 custom agents in `config/subagents/`: `finops-practitioner` plus four delegated subagents
 - 3 tool-bearing delegated subagents: `azure-capacity-manager`, `ftk-database-query`, and `ftk-hubs-agent`; `chief-financial-officer` has no tools
 - 3 skills in `config/skills/`
-- 50 tools: 34 explicit tools in `config/tools/` plus 16 generated Kusto tools from `src/queries/catalog/`
+- 50 tools: 37 generated Kusto tools from `src/queries/catalog/` plus 13 Python tools in `config/tools/`
 - 9 platform tool overrides in `config/built-in-tools.json`
 - 19 scheduled tasks in `automations/scheduled-tasks/`, all owned by `finops-practitioner`
 - 1 connector in `connectors.json`: FinOps Hub Kusto

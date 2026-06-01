@@ -29,6 +29,8 @@ spec:
 
     - `data-freshness-check`: Run with cluster_uri and database to check Hub data staleness
 
+    - `ftk-database-query`: Run `cost-visibility-delay` and `data-update-frequency` to collect the FinOps KPI data-ingestion scorecard after `data-freshness-check` establishes authoritative freshness.
+
 
     ## Step 1: Check the latest released FinOps hub version
 
@@ -79,6 +81,8 @@ spec:
 
 
     Report empty `Prices()` or `Recommendations()` results as follow-up items to confirm whether those exports should be configured. Do not report the hub as stale solely because an optional function is empty.
+
+    Ask `ftk-database-query` to run `cost-visibility-delay` and `data-update-frequency` after the Hub platform freshness check. Use those KPI outputs as supporting Data Ingestion evidence, but do not let them override the `data-freshness-check` direct REST verdict for current `Costs()` staleness.
 
 
     Give them a link to Microsoft Cost Management to check the exports: https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/exports

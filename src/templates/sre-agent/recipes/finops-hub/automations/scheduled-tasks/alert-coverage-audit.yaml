@@ -33,6 +33,8 @@ spec:
 
     - `ftk-hubs-agent`: Run `resource-graph-query` with `query`, optional `subscription_ids` to find active subscriptions, cost anomaly alerts, action groups, alert rules, and monitoring metadata.
 
+    - `ftk-database-query`: Run `anomaly-detection-rate` and `anomaly-variance-total` for Kusto-backed Anomaly Management KPI context.
+
 
     ## 1. Establish subscription inventory
 
@@ -50,6 +52,8 @@ spec:
 
 
     Compare active subscriptions with detected anomaly alert coverage. Flag subscriptions missing anomaly detection, subscriptions with disabled or incomplete alerts, and subscriptions missing notification routing.
+
+    Ask `ftk-database-query` to run `anomaly-detection-rate` and `anomaly-variance-total` for the same monitoring period. Use those outputs to distinguish missing alert coverage from low observed anomaly volume, and cite the KPI tool result when anomaly evidence is unavailable.
 
 
     ## 4. Recommend remediation

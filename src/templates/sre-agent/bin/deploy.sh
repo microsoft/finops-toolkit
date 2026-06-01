@@ -37,10 +37,10 @@ Optional:
   --cluster-uri <uri>                 Kusto connector URI, including database name.
                                       Example: https://<cluster>.<region>.kusto.windows.net/Hub
   --cluster-resource-id <id>          Optional Kusto cluster ARM resource ID. Real deployments resolve this from --cluster-uri when possible; dry-run requires it.
+  --no-subscription-reader            Do not assign Reader at subscription scope. Default: assign Reader.
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
-  --fallback-srectl                   Accepted for compatibility; ignored.
   --no-telemetry                      Accepted for compatibility.
   -h, --help                          Show this help.
 EOF
@@ -247,6 +247,7 @@ CLUSTER_URI=""
 CLUSTER_RESOURCE_ID=""
 DEPLOY_NAME=""
 DRY_RUN=""
+ENABLE_SUBSCRIPTION_READER="true"
 TARGET_RGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -291,6 +292,14 @@ while [[ $# -gt 0 ]]; do
       CLUSTER_RESOURCE_ID="$2"
       shift 2
       ;;
+    --subscription-reader)
+      ENABLE_SUBSCRIPTION_READER="true"
+      shift
+      ;;
+    --no-subscription-reader)
+      ENABLE_SUBSCRIPTION_READER="false"
+      shift
+      ;;
     --deploy-name)
       require_value "--deploy-name" "${2:-}"
       DEPLOY_NAME="$2"
@@ -300,7 +309,7 @@ while [[ $# -gt 0 ]]; do
       DRY_RUN="true"
       shift
       ;;
-    --force|--fallback-srectl|--no-telemetry)
+    --force|--no-telemetry)
       shift
       ;;
     -h|--help)
@@ -404,6 +413,7 @@ jq -n \
   --arg defaultModelName "$DEFAULT_MODEL_NAME" \
   --argjson monthlyAgentUnitLimit "$MONTHLY_AGENT_UNIT_LIMIT" \
   --arg kustoClusterId "$CLUSTER_RESOURCE_ID" \
+  --argjson enableSubscriptionReaderRole "$ENABLE_SUBSCRIPTION_READER" \
   --argjson targetResourceGroups "$TARGET_RGS_JSON" \
   --argjson experimentalSettings "$EXPERIMENTAL_SETTINGS" \
   --argjson tags "$TAGS" \
@@ -423,7 +433,8 @@ jq -n \
       "monthlyAgentUnitLimit": { "value": $monthlyAgentUnitLimit },
       "experimentalSettings": { "value": $experimentalSettings },
       "tags": { "value": $tags },
-      "finopsHubKustoClusterResourceId": { "value": $kustoClusterId }
+      "finopsHubKustoClusterResourceId": { "value": $kustoClusterId },
+      "enableSubscriptionReaderRole": { "value": $enableSubscriptionReaderRole }
     }
   }' > "$PARAMETERS_FILE"
 
@@ -446,6 +457,7 @@ if [[ -n "$DRY_RUN" ]]; then
   echo "  Agent: $AGENT_NAME"
   echo "  Region: $LOCATION"
   echo "  Target resource groups: ${TARGET_RGS[*]}"
+  echo "  Subscription Reader: $ENABLE_SUBSCRIPTION_READER"
   echo "  Parameters: $PARAMETERS_FILE"
   echo ""
   echo "Dry run complete. No Azure calls were made."
@@ -460,6 +472,7 @@ echo "  Resource group: $RESOURCE_GROUP"
 echo "  Agent: $AGENT_NAME"
 echo "  Region: $LOCATION"
 echo "  Target resource groups: ${TARGET_RGS[*]}"
+echo "  Subscription Reader: $ENABLE_SUBSCRIPTION_READER"
 echo "  Parameters: $PARAMETERS_FILE"
 echo ""
 

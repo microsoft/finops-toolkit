@@ -131,10 +131,10 @@ Optional:
   --cluster-uri <uri>                 Kusto connector URI, including database name.
                                       Example: https://<cluster>.<region>.kusto.windows.net/Hub
   --cluster-resource-id <id>          Optional Kusto cluster ARM resource ID. Real deployments resolve this from --cluster-uri when possible; dry-run requires it.
+  --no-subscription-reader            Do not assign Reader at subscription scope. Default: assign Reader.
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
-  --fallback-srectl                   Accepted for compatibility; ignored.
   --no-telemetry                      Accepted for compatibility.
   -h, --help                          Show this help.
 ```
@@ -175,6 +175,7 @@ Supporting resource names are deterministic for the subscription ID, agent resou
 
 The deployment intentionally keeps the SRE Agent onboarding wizard in the portal. The wizard uses the agent managed identity first to discover managed Azure resources and may show a **Grant permissions** OBO prompt if the identity cannot read a scope yet. Do not bypass that flow. Instead, confirm the agent has the expected managed-resource scopes and RBAC:
 
+- The deployment assigns `Reader` at subscription scope by default so subscription inventory, Resource Graph, capacity, quota, and coverage tools can inspect the deployment subscription. Pass `--no-subscription-reader` only when you grant equivalent read access another way.
 - The agent resource group is always added to `knowledgeGraphConfiguration.managedResources` and receives the recipe's target-scope RBAC.
 - Each `--target-resource-group` value is added to managed resources and receives the same target-scope RBAC.
 - When `--cluster-uri` resolves to a same-subscription FinOps Hub Kusto cluster, the cluster's resource group is also added to managed resources and receives target-scope RBAC.

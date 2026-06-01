@@ -54,10 +54,14 @@ param tags object = {}
 @description('Optional. FinOps Hub Azure Data Explorer cluster resource ID for Kusto viewer assignment.')
 param finopsHubKustoClusterResourceId string = ''
 
+@description('Assign Reader on the deployment subscription to the agent managed identity.')
+param enableSubscriptionReaderRole bool = true
+
 var targetRgs = empty(targetResourceGroups) ? [resourceGroupName] : targetResourceGroups
 var agentResourceGroupId = subscriptionResourceId('Microsoft.Resources/resourceGroups', resourceGroupName)
 var targetRgIds = [for rgName in targetRgs: subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)]
 var namingSeed = toLower('${subscription().subscriptionId}|${agentResourceGroupId}|${agentName}')
+var readerRoleId = 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
 
 resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: resourceGroupName
@@ -92,6 +96,15 @@ module targetRbac 'modules/resource-group-rbac.bicep' = [for rgName in targetRgs
     accessLevel: accessLevel
   }
 }]
+
+resource subscriptionReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (enableSubscriptionReaderRole) {
+  name: guid(subscription().id, namingSeed, readerRoleId)
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', readerRoleId)
+    principalId: resources.outputs.agentPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
 
 var hasKustoCluster = !empty(finopsHubKustoClusterResourceId)
 var kustoClusterSubscriptionId = hasKustoCluster ? split(finopsHubKustoClusterResourceId, '/')[2] : ''

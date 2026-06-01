@@ -3,7 +3,7 @@ title: Kusto tools
 description: Review the FinOps hub Kusto tools the FinOps toolkit ships for Azure SRE Agent and learn when to use each tool for cost, commitment discount, anomaly, forecast, AI, and price analysis.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/25/2026
+ms.date: 06/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -13,7 +13,7 @@ ms.reviewer: brettwil
 
 # Kusto tools
 
-The FinOps toolkit deployment configures Azure SRE Agent with 21 Kusto tools that query your FinOps hub Azure Data Explorer database through the `finops-hub-kusto` connector. Each tool is configured as a `KustoTool` and uses the FinOps hub query catalog to ground agent responses in cost, price, recommendation, transaction, and AI usage data. Tool source lives at [`src/templates/sre-agent/recipes/finops-hub/config/tools`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/).
+The FinOps toolkit deployment configures Azure SRE Agent with 37 Kusto tools that query your FinOps hub Azure Data Explorer database through the `finops-hub-kusto` connector. Each tool is configured as a `KustoTool` and generated from the FinOps hub query catalog to ground agent responses in cost, price, recommendation, transaction, KPI, and AI usage data. Query source lives at [`src/queries/catalog`](../../../src/queries/catalog/). The SRE Agent recipe rejects explicit Kusto YAML files so the query catalog stays the only source for Kusto tool definitions.
 
 This reference also calls out related optimization tools that appear in scheduled-task requirements when they affect the same analysis path. Those tools aren't Kusto tools unless explicitly marked as `KustoTool`.
 
@@ -26,11 +26,11 @@ Use this reference when you want to understand which tool fits a prompt, schedul
 
 ## Source validation
 
-The template source contains 34 tool YAML files in [`src/templates/sre-agent/recipes/finops-hub/config/tools`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/). The production FinOps hub Kusto inventory is the subset with `spec.type: KustoTool` and `spec.connector: finops-hub-kusto`. That subset contains 21 tools. The remaining files are 13 `PythonTool` files, so they aren't part of the FinOps hub Kusto catalog.
+The template generates every FinOps hub Kusto tool from the 37 `.kql` files in [`src/queries/catalog`](../../../src/queries/catalog/). The recipe keeps 13 `PythonTool` YAML files in [`src/templates/sre-agent/recipes/finops-hub/config/tools`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/). Build validation fails if an explicit Kusto YAML file is added, if a catalog query doesn't generate exactly one Kusto tool, if a KPI-linked query isn't generated as a Kusto tool, or if a KPI-linked query isn't requested by any scheduled task.
 
 | Source category | Count | Evidence |
 |-----------------|------:|----------|
-| FinOps hub Kusto tools | 21 | [`ai-cost-by-application`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-cost-by-application.yaml), [`ai-daily-trend`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-daily-trend.yaml), [`ai-model-cost-comparison`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-model-cost-comparison.yaml), [`ai-token-usage-breakdown`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-token-usage-breakdown.yaml), [`commitment-discount-utilization`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/commitment-discount-utilization.yaml), [`cost-anomaly-detection`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-anomaly-detection.yaml), [`cost-by-financial-hierarchy`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-by-financial-hierarchy.yaml), [`cost-by-region-trend`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-by-region-trend.yaml), [`cost-forecasting-model`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-forecasting-model.yaml), [`costs-enriched-base`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/costs-enriched-base.yaml), [`monthly-cost-change-percentage`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/monthly-cost-change-percentage.yaml), [`monthly-cost-trend`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/monthly-cost-trend.yaml), [`quarterly-cost-by-resource-group`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/quarterly-cost-by-resource-group.yaml), [`reservation-recommendation-breakdown`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/reservation-recommendation-breakdown.yaml), [`savings-summary-report`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/savings-summary-report.yaml), [`service-price-benchmarking`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/service-price-benchmarking.yaml), [`top-commitment-transactions`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-commitment-transactions.yaml), [`top-other-transactions`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-other-transactions.yaml), [`top-resource-groups-by-cost`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-resource-groups-by-cost.yaml), [`top-resource-types-by-cost`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-resource-types-by-cost.yaml), and [`top-services-by-cost`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-services-by-cost.yaml) |
+| FinOps hub Kusto tools | 37 | Generated from [`src/queries/catalog/*.kql`](../../../src/queries/catalog/) by [`build-extras.py`](../../../src/templates/sre-agent/bin/build-extras.py). The catalog is indexed in [`src/queries/INDEX.md`](../../../src/queries/INDEX.md), and KPI-linked tools are mapped in [`src/queries/KPI.md`](../../../src/queries/KPI.md). |
 | Related Python tools | 13 | [`benefit-recommendations`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/benefit-recommendations.yaml), [`capacity-reservation-groups`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/capacity-reservation-groups.yaml), [`data-freshness-check`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/data-freshness-check.yaml), [`db-service-quotas`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/db-service-quotas.yaml), [`deploy-anomaly-alert`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-anomaly-alert.yaml), [`deploy-budget`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-budget.yaml), [`deploy-bulk-anomaly-alerts`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-bulk-anomaly-alerts.yaml), [`deploy-bulk-budgets`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/deploy-bulk-budgets.yaml), [`non-compute-quotas`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/non-compute-quotas.yaml), [`resource-graph-query`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/resource-graph-query.yaml), [`sku-availability`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/sku-availability.yaml), [`suppress-advisor-recommendations`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/suppress-advisor-recommendations.yaml), and [`vm-quota-usage`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/vm-quota-usage.yaml) |
 
 <br>
@@ -41,7 +41,7 @@ Use cost analysis tools to review cost and usage from different reporting angles
 
 ### costs-enriched-base
 
-Source YAML: [`costs-enriched-base.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/costs-enriched-base.yaml).
+Source query: [`costs-enriched-base.kql`](../../../src/queries/catalog/costs-enriched-base.kql).
 
 Queries a guarded, enriched row-level cost and usage sample with tags, resource details, savings fields, commitment fields, and FinOps toolkit metadata.
 
@@ -53,7 +53,7 @@ Sample output shape: One row per cost record with fields such as `ChargePeriodSt
 
 ### monthly-cost-trend
 
-Source YAML: [`monthly-cost-trend.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/monthly-cost-trend.yaml).
+Source query: [`monthly-cost-trend.kql`](../../../src/queries/catalog/monthly-cost-trend.kql).
 
 Queries monthly billed and effective cost totals to show cost trends over time.
 
@@ -65,7 +65,7 @@ Sample output shape: One row per month with `x_ChargeMonth`, `BilledCost`, and `
 
 ### monthly-cost-change-percentage
 
-Source YAML: [`monthly-cost-change-percentage.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/monthly-cost-change-percentage.yaml).
+Source query: [`monthly-cost-change-percentage.kql`](../../../src/queries/catalog/monthly-cost-change-percentage.kql).
 
 Queries month-over-month billed and effective cost changes as percentages.
 
@@ -77,7 +77,7 @@ Sample output shape: One row per month with `ChargePeriodStart`, `BilledCost`, `
 
 ### quarterly-cost-by-resource-group
 
-Source YAML: [`quarterly-cost-by-resource-group.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/quarterly-cost-by-resource-group.yaml).
+Source query: [`quarterly-cost-by-resource-group.kql`](../../../src/queries/catalog/quarterly-cost-by-resource-group.kql).
 
 Queries quarterly cost by resource group, subscription, and month for a reporting window.
 
@@ -89,7 +89,7 @@ Sample output shape: One row per subscription, resource group, and month with `S
 
 ### cost-by-region-trend
 
-Source YAML: [`cost-by-region-trend.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-by-region-trend.yaml).
+Source query: [`cost-by-region-trend.kql`](../../../src/queries/catalog/cost-by-region-trend.kql).
 
 Queries effective cost trends by Azure region.
 
@@ -101,7 +101,7 @@ Sample output shape: One row per region with `RegionName` and `EffectiveCost`.
 
 ### cost-by-financial-hierarchy
 
-Source YAML: [`cost-by-financial-hierarchy.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-by-financial-hierarchy.yaml).
+Source query: [`cost-by-financial-hierarchy.kql`](../../../src/queries/catalog/cost-by-financial-hierarchy.kql).
 
 Queries costs organized by billing profile, invoice section, team, product, application, environment, and other financial hierarchy fields.
 
@@ -113,7 +113,7 @@ Sample output shape: One row per financial hierarchy combination with `x_Billing
 
 ### top-services-by-cost
 
-Source YAML: [`top-services-by-cost.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-services-by-cost.yaml).
+Source query: [`top-services-by-cost.kql`](../../../src/queries/catalog/top-services-by-cost.kql).
 
 Queries the Azure services with the highest effective cost.
 
@@ -125,7 +125,7 @@ Sample output shape: One row per service with `ServiceName` and `EffectiveCost`.
 
 ### top-resource-types-by-cost
 
-Source YAML: [`top-resource-types-by-cost.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-resource-types-by-cost.yaml).
+Source query: [`top-resource-types-by-cost.kql`](../../../src/queries/catalog/top-resource-types-by-cost.kql).
 
 Queries the resource types with the highest effective cost and resource counts.
 
@@ -137,7 +137,7 @@ Sample output shape: One row per resource type with `ResourceType`, `ResourceCou
 
 ### top-resource-groups-by-cost
 
-Source YAML: [`top-resource-groups-by-cost.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-resource-groups-by-cost.yaml).
+Source query: [`top-resource-groups-by-cost.kql`](../../../src/queries/catalog/top-resource-groups-by-cost.kql).
 
 Queries the resource groups with the highest effective cost.
 
@@ -155,7 +155,7 @@ Use commitment discount tools to review reservation and savings plan utilization
 
 ### commitment-discount-utilization
 
-Source YAML: [`commitment-discount-utilization.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/commitment-discount-utilization.yaml).
+Source query: [`commitment-discount-utilization.kql`](../../../src/queries/catalog/commitment-discount-utilization.kql).
 
 Queries consumed core hours by commitment discount type, including reservation, savings plan, and on-demand usage.
 
@@ -167,7 +167,7 @@ Sample output shape: One row per commitment category with `CommitmentDiscountTyp
 
 ### reservation-recommendation-breakdown
 
-Source YAML: [`reservation-recommendation-breakdown.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/reservation-recommendation-breakdown.yaml).
+Source query: [`reservation-recommendation-breakdown.kql`](../../../src/queries/catalog/reservation-recommendation-breakdown.kql).
 
 Queries detailed reservation recommendations, including savings, break-even dates, normalized sizes, scope, and term details.
 
@@ -179,7 +179,7 @@ Sample output shape: One row per reservation recommendation with fields such as 
 
 ### benefit-recommendations
 
-Source YAML: [`benefit-recommendations.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/benefit-recommendations.yaml).
+Source query: [`benefit-recommendations.kql`](../../../src/queries/catalog/benefit-recommendations.kql).
 
 Gets Microsoft Cost Management benefit recommendations for savings plans and reserved instances at a billing scope.
 
@@ -191,7 +191,7 @@ Sample output shape: A JSON object with `billing_scope`, `lookback_period`, `ter
 
 ### savings-summary-report
 
-Source YAML: [`savings-summary-report.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/savings-summary-report.yaml).
+Source query: [`savings-summary-report.kql`](../../../src/queries/catalog/savings-summary-report.kql).
 
 Queries list cost, effective cost, negotiated savings, commitment savings, total savings, and savings rate.
 
@@ -203,7 +203,7 @@ Sample output shape: One row per billing currency with `BillingCurrency`, `ListC
 
 ### top-commitment-transactions
 
-Source YAML: [`top-commitment-transactions.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-commitment-transactions.yaml).
+Source query: [`top-commitment-transactions.kql`](../../../src/queries/catalog/top-commitment-transactions.kql).
 
 Queries the largest non-usage commitment discount purchase transactions, including reservations and savings plans.
 
@@ -221,7 +221,7 @@ Use anomaly detection tools to identify unusual cost patterns that need investig
 
 ### cost-anomaly-detection
 
-Source YAML: [`cost-anomaly-detection.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-anomaly-detection.yaml).
+Source query: [`cost-anomaly-detection.kql`](../../../src/queries/catalog/cost-anomaly-detection.kql).
 
 Queries cost time series and detects unusual spikes or drops across a configurable history window.
 
@@ -239,7 +239,7 @@ Use forecasting tools to project future cost based on historical patterns.
 
 ### cost-forecasting-model
 
-Source YAML: [`cost-forecasting-model.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/cost-forecasting-model.yaml).
+Source query: [`cost-forecasting-model.kql`](../../../src/queries/catalog/cost-forecasting-model.kql).
 
 Queries historical cost trends and projects future effective cost.
 
@@ -257,7 +257,7 @@ Use AI/ML cost tools to analyze Azure OpenAI and related AI service costs, token
 
 ### ai-cost-by-application
 
-Source YAML: [`ai-cost-by-application.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-cost-by-application.yaml).
+Source query: [`ai-cost-by-application.kql`](../../../src/queries/catalog/ai-cost-by-application.kql).
 
 Queries AI and machine learning costs by application, team, and environment tags.
 
@@ -269,7 +269,7 @@ Sample output shape: One row per application, team, environment, and cost center
 
 ### ai-daily-trend
 
-Source YAML: [`ai-daily-trend.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-daily-trend.yaml).
+Source query: [`ai-daily-trend.kql`](../../../src/queries/catalog/ai-daily-trend.kql).
 
 Queries daily AI and machine learning cost trends.
 
@@ -281,7 +281,7 @@ Sample output shape: One row per day with `ChargePeriodStart`, daily AI cost, da
 
 ### ai-model-cost-comparison
 
-Source YAML: [`ai-model-cost-comparison.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-model-cost-comparison.yaml).
+Source query: [`ai-model-cost-comparison.kql`](../../../src/queries/catalog/ai-model-cost-comparison.kql).
 
 Queries AI model costs so the agent can compare costs across models.
 
@@ -293,7 +293,7 @@ Sample output shape: One row per model with `Model`, `TokenCount`, `EffectiveCos
 
 ### ai-token-usage-breakdown
 
-Source YAML: [`ai-token-usage-breakdown.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/ai-token-usage-breakdown.yaml).
+Source query: [`ai-token-usage-breakdown.kql`](../../../src/queries/catalog/ai-token-usage-breakdown.kql).
 
 Queries AI token usage by model, model version, and input or output direction.
 
@@ -302,6 +302,108 @@ Use it when token consumption is the suspected cost driver or when you need to s
 Example prompt: "Break down token usage by model and input versus output tokens for the last week."
 
 Sample output shape: One row per model and token direction with `Model`, `Direction`, `TokenCount`, `EffectiveCost`, `UnitCostPerToken`, and `CostPer1KTokens`.
+
+<br>
+
+## FinOps KPI tools
+
+FinOps KPI tools are generated from the query catalog and map to query links in [`src/queries/KPI.md`](../../../src/queries/KPI.md). Scheduled tasks request these tools through `ftk-database-query` for monthly, semiannual, health, anomaly, capacity, storage, monitoring, AI, and benefit-review scorecards.
+
+### percentage-unallocated-costs
+
+Source query: [`percentage-unallocated-costs.kql`](../../../src/queries/catalog/percentage-unallocated-costs.kql).
+
+Measures the share of effective cost that lacks required allocation evidence for the reporting window.
+
+### percentage-untagged-costs
+
+Source query: [`percentage-untagged-costs.kql`](../../../src/queries/catalog/percentage-untagged-costs.kql).
+
+Measures the share of effective cost on resources that have no tags.
+
+### tagging-policy-compliance
+
+Source query: [`tagging-policy-compliance.kql`](../../../src/queries/catalog/tagging-policy-compliance.kql).
+
+Measures cost-weighted compliance with required tag keys.
+
+### allocation-accuracy-index
+
+Source query: [`allocation-accuracy-index.kql`](../../../src/queries/catalog/allocation-accuracy-index.kql).
+
+Measures directly attributed cost as a share of total effective cost.
+
+### anomaly-detection-rate
+
+Source query: [`anomaly-detection-rate.kql`](../../../src/queries/catalog/anomaly-detection-rate.kql).
+
+Measures the share of effective spend in anomaly-flagged daily buckets.
+
+### anomaly-variance-total
+
+Source query: [`anomaly-variance-total.kql`](../../../src/queries/catalog/anomaly-variance-total.kql).
+
+Quantifies signed and absolute unpredicted spend variance for detected anomaly events.
+
+### cost-visibility-delay
+
+Source query: [`cost-visibility-delay.kql`](../../../src/queries/catalog/cost-visibility-delay.kql).
+
+Measures cost data visibility delay from charge period end to Hub ingestion.
+
+### data-update-frequency
+
+Source query: [`data-update-frequency.kql`](../../../src/queries/catalog/data-update-frequency.kql).
+
+Measures FinOps hub ingestion update cadence from distinct ingestion timestamps.
+
+### commitment-utilization-score
+
+Source query: [`commitment-utilization-score.kql`](../../../src/queries/catalog/commitment-utilization-score.kql).
+
+Computes commitment utilization amount, potential, and score by commitment and currency.
+
+### commitment-discount-waste
+
+Source query: [`commitment-discount-waste.kql`](../../../src/queries/catalog/commitment-discount-waste.kql).
+
+Measures unused commitment value as a share of total commitment cost.
+
+### compute-spend-commitment-coverage
+
+Source query: [`compute-spend-commitment-coverage.kql`](../../../src/queries/catalog/compute-spend-commitment-coverage.kql).
+
+Measures compute spend covered by commitment discounts.
+
+### compute-cost-per-core
+
+Source query: [`compute-cost-per-core.kql`](../../../src/queries/catalog/compute-cost-per-core.kql).
+
+Computes hourly and effective average compute cost per consumed vCPU core hour.
+
+### cost-optimization-index
+
+Source query: [`cost-optimization-index.kql`](../../../src/queries/catalog/cost-optimization-index.kql).
+
+Computes the Hub-wide cost optimization index from current recommendations and cost context.
+
+### cost-per-gb-stored
+
+Source query: [`cost-per-gb-stored.kql`](../../../src/queries/catalog/cost-per-gb-stored.kql).
+
+Calculates storage cost per normalized GB-month.
+
+### macc-consumption-vs-commitment
+
+Source query: [`macc-consumption-vs-commitment.kql`](../../../src/queries/catalog/macc-consumption-vs-commitment.kql).
+
+Measures Microsoft Azure Consumption Commitment drawdown by billing profile and month.
+
+### storage-tier-distribution
+
+Source query: [`storage-tier-distribution.kql`](../../../src/queries/catalog/storage-tier-distribution.kql).
+
+Summarizes storage cost and GB-month distribution by access-tier bucket.
 
 <br>
 
@@ -329,7 +431,7 @@ Use price analysis tools to compare prices, savings, and non-commitment transact
 
 ### service-price-benchmarking
 
-Source YAML: [`service-price-benchmarking.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/service-price-benchmarking.yaml).
+Source query: [`service-price-benchmarking.kql`](../../../src/queries/catalog/service-price-benchmarking.kql).
 
 Queries service price benchmarks, including list cost, contracted cost, effective cost, negotiated savings, commitment savings, and total savings.
 
@@ -341,7 +443,7 @@ Sample output shape: One row per service with `ServiceName`, `ListCost`, `Contra
 
 ### top-other-transactions
 
-Source YAML: [`top-other-transactions.yaml`](../../../src/templates/sre-agent/recipes/finops-hub/config/tools/top-other-transactions.yaml).
+Source query: [`top-other-transactions.kql`](../../../src/queries/catalog/top-other-transactions.kql).
 
 Queries the largest non-usage and non-commitment transactions, such as Marketplace or miscellaneous charges.
 

@@ -30,6 +30,7 @@ spec:
 
     - `ftk-hubs-agent`: Run `resource-graph-query` with query and subscriptions to execute Azure Resource Graph KQL for orphaned resource detection
     - `azure-capacity-manager`: Run `benefit-recommendations` with billing_scope and lookback to get reservation and savings plan recommendations
+    - `ftk-database-query`: Run Kusto KPI tools when a FinOps hub is connected, especially `cost-optimization-index`, `commitment-utilization-score`, `commitment-discount-waste`, `compute-spend-commitment-coverage`, `compute-cost-per-core`, `cost-per-gb-stored`, and `storage-tier-distribution`
 
 
     ## Phase 1: Discovery
@@ -126,6 +127,8 @@ spec:
     - `cost-by-region-trend` when placement or capacity decisions affect optimization.
 
     - `cost-anomaly-detection` for unusual service-level spikes or drops.
+
+    - `cost-optimization-index`, `commitment-utilization-score`, `commitment-discount-waste`, `compute-spend-commitment-coverage`, `compute-cost-per-core`, `cost-per-gb-stored`, and `storage-tier-distribution` for the generated FinOps KPI optimization scorecard.
 
 
     Use the returned evidence to identify cost anomalies and trends that inform optimization priorities.

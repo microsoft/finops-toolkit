@@ -37,6 +37,7 @@ spec:
     - `capacity-reservation-groups`: Run with subscription_id and resource_group when scoped to list CRGs with instanceView utilization
     - `azure-capacity-manager`: Run `benefit-recommendations` with billing_scope and lookback to get reservation and savings plan recommendations
     - `ftk-hubs-agent`: Run `resource-graph-query` with query and subscriptions to execute Azure Resource Graph KQL
+    - `ftk-database-query`: Run `compute-spend-commitment-coverage`, `compute-cost-per-core`, `commitment-utilization-score`, `commitment-discount-waste`, and `macc-consumption-vs-commitment` for capacity-related Rate Optimization KPI evidence
 
 
     ## 1. Demand Forecast
@@ -104,7 +105,7 @@ spec:
     ## 4. Cost Impact
 
 
-    Ask `azure-capacity-manager` to run `benefit-recommendations`, then ask `ftk-database-query` to run `commitment-discount-utilization` and `savings-summary-report` for Kusto-backed rate-optimization evidence.
+    Ask `azure-capacity-manager` to run `benefit-recommendations`, then ask `ftk-database-query` to run `commitment-discount-utilization`, `savings-summary-report`, `compute-spend-commitment-coverage`, `compute-cost-per-core`, `commitment-utilization-score`, `commitment-discount-waste`, and `macc-consumption-vs-commitment` for Kusto-backed rate-optimization and capacity unit-economics evidence.
 
     Calculate:
 

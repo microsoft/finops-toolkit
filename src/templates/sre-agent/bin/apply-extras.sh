@@ -5,7 +5,7 @@
 # Follows the microsoft/sre-agent template pattern: Bicep deploys the ARM
 # resource, then this script applies connectors, KnowledgeFile sources, skills,
 # subagents, tools, and scheduled tasks through the supported ARM/data-plane
-# surfaces. srectl is not used.
+# surfaces.
 # =============================================================================
 
 set -euo pipefail
@@ -68,6 +68,8 @@ BUILD_DIR=""
 KUSTO_CONNECTOR_URI=""
 DRY_RUN=""
 ARM_API_VERSION="2025-05-01-preview"
+REQUEST_DELAY_SECONDS="${SRE_AGENT_APPLY_REQUEST_DELAY_SECONDS:-15}"
+RETRY_DELAY_SECONDS="${SRE_AGENT_APPLY_RETRY_DELAY_SECONDS:-15}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -215,7 +217,7 @@ arm_put_connector() {
 
     printf '%s\n' "$result" > "$response_file"
     echo "  ARM PUT connectors/${name}: attempt ${attempt}/5 failed"
-    [[ "$attempt" != "5" ]] && sleep 15
+    [[ "$attempt" != "5" ]] && sleep "$RETRY_DELAY_SECONDS"
   done
 
   sed -n '1,120p' "$response_file" >&2 || true
@@ -268,7 +270,7 @@ dataplane_put_extended() {
     esac
 
     echo "  PUT ${kind}/${name}: attempt ${attempt}/5 returned HTTP ${http_code}"
-    [[ "$attempt" != "5" ]] && sleep 15
+    [[ "$attempt" != "5" ]] && sleep "$RETRY_DELAY_SECONDS"
   done
 
   sed -n '1,120p' "$response_file" >&2 || true
@@ -316,7 +318,7 @@ apply_built_in_tools_config() {
     esac
 
     echo "  built-in tools: attempt ${attempt}/5 returned HTTP ${http_code}"
-    [[ "$attempt" != "5" ]] && sleep 15
+    [[ "$attempt" != "5" ]] && sleep "$RETRY_DELAY_SECONDS"
   done
 
   sed -n '1,120p' "$response_file" >&2 || true
@@ -430,7 +432,7 @@ verify_knowledge_docs() {
       echo "  knowledge indexing attempt ${attempt}/20: connectors returned HTTP ${http_code}"
     fi
 
-    [[ "$attempt" -lt 20 ]] && sleep 15
+    [[ "$attempt" -lt 20 ]] && sleep "$RETRY_DELAY_SECONDS"
   done
 
   echo "  knowledge source status:" >&2
@@ -492,7 +494,7 @@ if [[ "$KNOWLEDGE_COUNT" -gt 0 ]]; then
       --arg contentType "$content_type" \
       '{properties:{dataConnectorType:"KnowledgeFile",dataSource:$dataSource,extendedProperties:{displayName:$displayName,fileName:$fileName,fileContent:$fileContent,contentType:$contentType}}}')"
     arm_put_connector "$source_name" "$body"
-    [[ -z "$DRY_RUN" && "$i" -lt $((KNOWLEDGE_COUNT - 1)) ]] && sleep 15
+    [[ -z "$DRY_RUN" && "$i" -lt $((KNOWLEDGE_COUNT - 1)) ]] && sleep "$REQUEST_DELAY_SECONDS"
   done
   verify_knowledge_docs "${KNOWLEDGE_DOC_NAMES[@]}"
 else

@@ -153,16 +153,14 @@ def replace_kql_parameter_defaults(query: str, parameters: list[JsonObject]) -> 
     return query
 
 
-def collect_catalog_kusto_tools(recipe_dir: pathlib.Path, explicit_tool_names: set[str]) -> list[JsonObject]:
+def collect_catalog_kusto_tools(recipe_dir: pathlib.Path) -> list[JsonObject]:
     catalog_dir = (recipe_dir / "../../../../queries/catalog").resolve()
     if not catalog_dir.is_dir():
-        return []
+        raise SystemExit(f"FinOps Hub query catalog not found: {catalog_dir}")
 
     generated: list[JsonObject] = []
     for path in sorted(catalog_dir.glob("*.kql")):
         name = path.stem
-        if name in explicit_tool_names:
-            continue
         parameters = kql_parameters(path)
         query = replace_kql_parameter_defaults(read_kql_body(path), parameters)
         spec: JsonObject = {
@@ -184,6 +182,71 @@ def collect_catalog_kusto_tools(recipe_dir: pathlib.Path, explicit_tool_names: s
             }
         )
     return generated
+
+
+def validate_explicit_tools(tools: list[JsonObject]) -> None:
+    explicit_kusto_names: list[str] = []
+    for tool in tools:
+        name = metadata_name(tool)
+        spec = tool.get("spec") or {}
+        if spec.get("type") == "KustoTool":
+            explicit_kusto_names.append(name)
+    if explicit_kusto_names:
+        raise SystemExit(
+            "Kusto tools must be generated from src/queries/catalog/*.kql; "
+            "remove explicit Kusto YAML file(s): "
+            + ", ".join(sorted(explicit_kusto_names))
+        )
+
+
+def catalog_kpi_tool_names(recipe_dir: pathlib.Path) -> set[str]:
+    kpi_path = (recipe_dir / "../../../../queries/KPI.md").resolve()
+    if not kpi_path.is_file():
+        raise SystemExit(f"FinOps KPI catalog not found: {kpi_path}")
+    text = read_text(kpi_path)
+    return set(re.findall(r"\[([a-z0-9-]+)\]\(catalog/\1\.kql\)", text))
+
+
+def validate_tool_and_task_coverage(recipe_dir: pathlib.Path, extras: JsonObject) -> None:
+    catalog_dir = (recipe_dir / "../../../../queries/catalog").resolve()
+    catalog_names = {path.stem for path in catalog_dir.glob("*.kql")}
+    tools = extras.get("tools") or []
+    tool_names = [metadata_name(tool) for tool in tools]
+    duplicate_names = sorted({name for name in tool_names if tool_names.count(name) > 1})
+    if duplicate_names:
+        raise SystemExit("Duplicate tool definitions found: " + ", ".join(duplicate_names))
+
+    kusto_names = {
+        metadata_name(tool)
+        for tool in tools
+        if (tool.get("spec") or {}).get("type") == "KustoTool"
+    }
+    missing_kusto = sorted(catalog_names - kusto_names)
+    if missing_kusto:
+        raise SystemExit(
+            "Catalog query file(s) missing generated Kusto tools: "
+            + ", ".join(missing_kusto)
+        )
+
+    kpi_names = catalog_kpi_tool_names(recipe_dir)
+    missing_kpi_tools = sorted(kpi_names - kusto_names)
+    if missing_kpi_tools:
+        raise SystemExit(
+            "KPI catalog query file(s) missing generated Kusto tools: "
+            + ", ".join(missing_kpi_tools)
+        )
+
+    scheduled_text = "\n".join(json.dumps(task, sort_keys=True) for task in extras.get("scheduledTasks") or [])
+    missing_scheduled_kpis = [
+        name
+        for name in sorted(kpi_names)
+        if not re.search(rf"(?<![A-Za-z0-9_-]){re.escape(name)}(?![A-Za-z0-9_-])", scheduled_text)
+    ]
+    if missing_scheduled_kpis:
+        raise SystemExit(
+            "KPI catalog query tool(s) are not requested by any scheduled task: "
+            + ", ".join(missing_scheduled_kpis)
+        )
 
 
 def metadata_name(item: JsonObject) -> str:
@@ -385,7 +448,8 @@ def main() -> int:
         raise SystemExit(f"Recipe directory not found: {recipe_dir}")
 
     explicit_tools = collect_yaml(recipe_dir / "config/tools")
-    generated_tools = collect_catalog_kusto_tools(recipe_dir, {metadata_name(tool) for tool in explicit_tools})
+    validate_explicit_tools(explicit_tools)
+    generated_tools = collect_catalog_kusto_tools(recipe_dir)
 
     extras = {
         "connectors": collect_connectors(recipe_dir, args.kusto_connector_uri),
@@ -396,6 +460,7 @@ def main() -> int:
         "tools": [*explicit_tools, *generated_tools],
         "scheduledTasks": collect_yaml(recipe_dir / "automations/scheduled-tasks"),
     }
+    validate_tool_and_task_coverage(recipe_dir, extras)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8") as handle:

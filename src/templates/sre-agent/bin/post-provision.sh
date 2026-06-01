@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Compatibility wrapper. The SRE Agent recipe now follows the upstream
-# Bicep + apply-extras pattern and no longer uses srectl for post-provisioning.
+# Bicep + apply-extras pattern for post-provisioning.
 
 set -euo pipefail
 

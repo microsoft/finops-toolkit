@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 05/12/2026
+ms.date: 06/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -65,7 +65,7 @@ _Released April 2026_
   - Added FinOps toolkit SRE Agent documentation pages for Microsoft Learn.
 - **Changed**
   - Set agent action mode to Autonomous so scheduled tasks can deliver reports without human approval.
-  - Switched scheduled task persistence from `srectl scheduledtask create` to `apply` for idempotent re-runs.
+  - Switched scheduled task persistence from legacy CLI creation to manifest apply for idempotent re-runs.
   - Replaced "save to knowledge base" instructions with `#remember` for operational notes across all scheduled tasks.
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14

@@ -33,6 +33,8 @@ spec:
 
     - `azure-capacity-manager`: Run `benefit-recommendations` with `billing_scope`, optional `lookback_period`, optional `term` to retrieve reservation and savings plan recommendations.
 
+    - `ftk-database-query`: Run `reservation-recommendation-breakdown`, `commitment-utilization-score`, `commitment-discount-waste`, `compute-spend-commitment-coverage`, `macc-consumption-vs-commitment`, and `savings-summary-report` for Kusto-backed Rate Optimization and commitment KPI evidence.
+
 
     ## 1. Establish billing scope
 
@@ -50,6 +52,8 @@ spec:
 
 
     Summarize estimated savings, recommended cost, term, break-even information, and recommendation count. Separate recommendations by type and highlight assumptions or missing fields in the source payload.
+
+    Ask `ftk-database-query` to run `reservation-recommendation-breakdown`, `commitment-utilization-score`, `commitment-discount-waste`, `compute-spend-commitment-coverage`, `macc-consumption-vs-commitment`, and `savings-summary-report`. Use these outputs to reconcile external benefit recommendations against realized commitment utilization, commitment waste, compute coverage, MACC drawdown, and effective savings rate.
 
 
     ## 4. Consult finance and recommend executive actions

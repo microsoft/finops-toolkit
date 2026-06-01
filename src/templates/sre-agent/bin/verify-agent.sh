@@ -202,6 +202,20 @@ elif [[ -n "$ACTION_IDENTITY" ]]; then
 fi
 
 if [[ -n "$ACTION_PRINCIPAL_ID" ]]; then
+  EXPECTED_SUBSCRIPTION_ROLES="$(exp_list '.subscriptionRoleAssignments')"
+  if [[ -n "$EXPECTED_SUBSCRIPTION_ROLES" ]]; then
+    SUBSCRIPTION_SCOPE="/subscriptions/${SUB}"
+    SUBSCRIPTION_ROLE_ASSIGNMENTS=$(az role assignment list --assignee "$ACTION_PRINCIPAL_ID" --scope "$SUBSCRIPTION_SCOPE" -o json 2>/dev/null || echo "[]")
+    SUBSCRIPTION_ROLE_NAMES=$(echo "$SUBSCRIPTION_ROLE_ASSIGNMENTS" | jq -r '[.[].roleDefinitionName] | sort | join(",")' 2>/dev/null)
+    SUBSCRIPTION_ROLES_PRESENT=$(echo "$SUBSCRIPTION_ROLE_ASSIGNMENTS" | jq -r --arg expected_csv "$EXPECTED_SUBSCRIPTION_ROLES" '
+      ($expected_csv | split(",") | map(select(. != ""))) as $expected
+      | [.[].roleDefinitionName] as $actual
+      | all($expected[]; $actual | index(.))
+    ' 2>/dev/null || echo false)
+    check "Subscription identity RBAC" "$SUBSCRIPTION_ROLES_PRESENT" "true"
+    RESULTS="${RESULTS}\n  Subscription identity roles (${SUBSCRIPTION_SCOPE})|${SUBSCRIPTION_ROLE_NAMES}|—|"
+  fi
+
   EXPECTED_TARGET_ROLES="Log Analytics Reader,Monitoring Reader,Reader"
   if [[ "$(echo "$PROPS" | jq -r '.accessLevel')" == "High" ]]; then
     EXPECTED_TARGET_ROLES="Contributor,Log Analytics Reader,Monitoring Reader,Reader"

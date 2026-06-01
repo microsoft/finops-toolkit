@@ -11,7 +11,7 @@ Load the `azure-sre-agent` skill at session start and after every compaction or 
 | Custom agents | 5 | `finops-practitioner` orchestrator plus four delegated subagents: `azure-capacity-manager`, `chief-financial-officer`, `ftk-database-query`, `ftk-hubs-agent` |
 | Tool-bearing delegated subagents | 3 | `azure-capacity-manager`, `ftk-database-query`, `ftk-hubs-agent`; `finops-practitioner` and `chief-financial-officer` have no tools |
 | Skills | 3 | `azure-capacity-management`, `azure-cost-management`, `finops-toolkit` |
-| Tools | 50 | 34 explicit tools under `recipes/finops-hub/config/tools/` plus 16 generated Kusto tools from `src/queries/catalog/` |
+| Tools | 50 | 37 generated Kusto tools from `src/queries/catalog/` plus 13 Python tools under `recipes/finops-hub/config/tools/` |
 | Scheduled tasks | 19 | All owned by `finops-practitioner`; specialist agents are delegated by prompt, not scheduled directly |
 | Connectors | 1 | Kusto connector to FinOps Hub ADX cluster |
 | Knowledge docs | 6 | Five recipe knowledge files plus `ftk-output-style.md` from the Claude plugin output styles |

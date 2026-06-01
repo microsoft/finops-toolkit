@@ -34,6 +34,7 @@ spec:
 
     - `ftk-hubs-agent`: Run `resource-graph-query` with query and subscriptions to execute Azure Resource Graph KQL for AI resource discovery
     - `azure-capacity-manager`: Run `vm-quota-usage` with subscription_id and location to get VM family quota usage with at-risk thresholds for GPU capacity
+    - `ftk-database-query`: Run `ai-token-usage-breakdown`, `ai-daily-trend`, and `ai-model-cost-comparison` as the FinOps KPI-backed token consumption evidence set
 
 
     ## FOCUS Alignment
@@ -53,6 +54,9 @@ spec:
 
 
     ## Phase 1: Token Economics
+
+
+    This phase covers the `Token Consumption Metrics` KPI in `src/queries/KPI.md`. Keep `ai-token-usage-breakdown`, `ai-daily-trend`, and `ai-model-cost-comparison` results together as the AI unit-economics KPI evidence set.
 
 
     ### 1.1 Token Usage Breakdown
