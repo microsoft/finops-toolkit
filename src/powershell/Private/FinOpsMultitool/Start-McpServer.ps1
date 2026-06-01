@@ -34,10 +34,35 @@
 
 $ErrorActionPreference = 'Stop'
 
-# Suppress all Write-Host output — scan modules use Write-Host for TUI
-# display, but MCP must only write JSON-RPC to stdout.
-# Redirect Write-Host to stderr so MCP clients see clean JSON on stdout.
-$PSDefaultParameterValues['Write-Host:InformationAction'] = 'SilentlyContinue'
+# ---------------------------------------------------------------------
+# Keep stdout clean for JSON-RPC. Scan modules use Write-Host for TUI
+# status and Az cmdlets emit warnings/progress — in a redirected child
+# process these land on stdout and corrupt the protocol stream. Suppress
+# every non-JSON stream globally and shadow Write-Host so it can never
+# reach stdout. Errors (stream 2) are left intact for try/catch.
+# ---------------------------------------------------------------------
+$WarningPreference = 'SilentlyContinue'
+$VerbosePreference = 'SilentlyContinue'
+$DebugPreference = 'SilentlyContinue'
+$ProgressPreference = 'SilentlyContinue'
+$InformationPreference = 'SilentlyContinue'
+
+# Write-Host bypasses preference variables and writes straight to the
+# host (= stdout when redirected). Shadow it with a function that routes
+# to stderr, so module TUI output is preserved for debugging but never
+# pollutes the JSON-RPC stdout stream.
+function Write-Host {
+    [CmdletBinding()]
+    param(
+        [Parameter(Position = 0, ValueFromPipeline, ValueFromRemainingArguments)]
+        [object[]]$Object,
+        [switch]$NoNewline,
+        [object]$Separator,
+        [object]$ForegroundColor,
+        [object]$BackgroundColor
+    )
+    if ($null -ne $Object) { [Console]::Error.WriteLine(($Object -join ' ')) }
+}
 
 # Import the module
 $psm1Path = Join-Path $PSScriptRoot 'FinOpsMultitool.psm1'
@@ -122,12 +147,12 @@ $toolDefinitions = @(
         }
     }
     @{
-        name        = 'scan_tag_recommendations'
-        description = 'Analyze existing tags and recommend improvements: missing CAF standard tags, inconsistent casing, similar/duplicate names.'
-        fn          = 'Get-TagRecommendations'
-        category    = 'Governance'
+        name                 = 'scan_tag_recommendations'
+        description          = 'Analyze existing tags and recommend improvements: missing CAF standard tags, inconsistent casing, similar/duplicate names.'
+        fn                   = 'Get-TagRecommendations'
+        category             = 'Governance'
         requiresTagInventory = $true
-        inputSchema = @{
+        inputSchema          = @{
             type       = 'object'
             properties = @{
                 subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, scans all accessible subscriptions.' }
@@ -147,12 +172,12 @@ $toolDefinitions = @(
         }
     }
     @{
-        name        = 'scan_policy_recommendations'
-        description = 'Evaluate policy coverage gaps and recommend cost governance policies (tagging, region, SKU restrictions).'
-        fn          = 'Get-PolicyRecommendations'
-        category    = 'Governance'
+        name                    = 'scan_policy_recommendations'
+        description             = 'Evaluate policy coverage gaps and recommend cost governance policies (tagging, region, SKU restrictions).'
+        fn                      = 'Get-PolicyRecommendations'
+        category                = 'Governance'
         requiresPolicyInventory = $true
-        inputSchema = @{
+        inputSchema             = @{
             type       = 'object'
             properties = @{
                 subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, scans all accessible subscriptions.' }
@@ -184,12 +209,12 @@ $toolDefinitions = @(
         }
     }
     @{
-        name        = 'scan_cost_by_tag'
-        description = 'Break down cost by tag key/value pairs. Shows spend per tag value and identifies untagged spend.'
-        fn          = 'Get-CostByTag'
-        category    = 'Cost Analysis'
+        name                 = 'scan_cost_by_tag'
+        description          = 'Break down cost by tag key/value pairs. Shows spend per tag value and identifies untagged spend.'
+        fn                   = 'Get-CostByTag'
+        category             = 'Cost Analysis'
         requiresTagInventory = $true
-        inputSchema = @{
+        inputSchema          = @{
             type       = 'object'
             properties = @{
                 subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
@@ -559,7 +584,7 @@ function Handle-Initialize {
             tools     = @{ listChanged = $false }
             resources = @{ subscribe = $false; listChanged = $false }
         }
-        serverInfo = @{
+        serverInfo      = @{
             name    = $SERVER_NAME
             version = $SERVER_VERSION
         }
@@ -584,7 +609,10 @@ function Handle-ToolsCall {
     $arguments = if ($Params.arguments) { $Params.arguments } else { @{} }
 
     try {
-        $result = Invoke-McpTool -ToolName $toolName -Arguments $arguments
+        # Redirect non-error streams (warning/verbose/debug/information) to
+        # $null so nothing from module execution leaks onto stdout. The
+        # function's return value (stream 1) still flows into $result.
+        $result = Invoke-McpTool -ToolName $toolName -Arguments $arguments 3>$null 4>$null 5>$null 6>$null
         $json = $result | ConvertTo-Json -Depth 20 -Compress
         Send-Result -Id $Id -Result @{
             content = @(
@@ -682,14 +710,14 @@ try {
         $params = if ($msg.params) { $msg.params } else { @{} }
 
         switch ($method) {
-            'initialize'        { Handle-Initialize -Id $id }
-            'initialized'       { <# notification, no response #> }
-            'tools/list'        { Handle-ToolsList -Id $id }
-            'tools/call'        { Handle-ToolsCall -Id $id -Params $params }
-            'resources/list'    { Handle-ResourcesList -Id $id }
-            'resources/read'    { Handle-ResourcesRead -Id $id -Params $params }
+            'initialize' { Handle-Initialize -Id $id }
+            'initialized' { <# notification, no response #> }
+            'tools/list' { Handle-ToolsList -Id $id }
+            'tools/call' { Handle-ToolsCall -Id $id -Params $params }
+            'resources/list' { Handle-ResourcesList -Id $id }
+            'resources/read' { Handle-ResourcesRead -Id $id -Params $params }
             'notifications/initialized' { <# notification, no response #> }
-            'ping'              { Send-Result -Id $id -Result @{} }
+            'ping' { Send-Result -Id $id -Result @{} }
             default {
                 if ($null -ne $id) {
                     Send-Error -Id $id -Code -32601 -Message "Method not found: $method"

@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "finops-multitool": {
+      "type": "stdio",
+      "command": "pwsh",
+      "args": ["-NoProfile", "-File", "${workspaceFolder}/src/powershell/Private/FinOpsMultitool/Start-McpServer.ps1"]
+    }
+  }
+}

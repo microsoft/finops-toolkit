@@ -184,17 +184,32 @@ $costByTag = ConvertTo-CostByTagFromHub -HubData $hubData -ExistingTags $tagInve
 
 ## MCP Server (AI Integration)
 
-The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 20 scan modules as AI-callable tools. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI and GUI.
+The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 20 scan modules — plus a `run_full_scan` composite (21 tools total) — as AI-callable tools. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI and GUI.
 
 ### Setup
 
-Add to your VS Code `settings.json` or `.vscode/mcp.json`:
+For a standalone `.vscode/mcp.json` (workspace or user level), use a top-level `servers` block:
+
+```json
+{
+  "servers": {
+    "finops-multitool": {
+      "type": "stdio",
+      "command": "pwsh",
+      "args": ["-NoProfile", "-File", "path/to/Start-McpServer.ps1"]
+    }
+  }
+}
+```
+
+For VS Code `settings.json`, nest the same under an `mcp` key:
 
 ```json
 {
   "mcp": {
     "servers": {
       "finops-multitool": {
+        "type": "stdio",
         "command": "pwsh",
         "args": ["-NoProfile", "-File", "path/to/Start-McpServer.ps1"]
       }
@@ -205,36 +220,36 @@ Add to your VS Code `settings.json` or `.vscode/mcp.json`:
 
 ### Available Tools
 
-| Tool | Description |
-| ---- | ----------- |
-| `scan_orphaned_resources` | Find unattached disks, NICs, public IPs, NSGs |
-| `scan_idle_vms` | Find VMs with <5% CPU over 14-30 days |
-| `scan_storage_tier_advice` | Storage accounts that could use cooler tiers |
-| `scan_ahb_opportunities` | VMs/SQL not using Azure Hybrid Benefit |
-| `scan_tag_inventory` | Tag coverage %, tag names, resource counts |
-| `scan_tag_recommendations` | Inconsistent casing, missing standard tags |
-| `scan_policy_inventory` | Policy assignments with compliance status |
-| `scan_policy_recommendations` | Policy coverage gaps for cost governance |
-| `scan_cost_data` | Actual + forecasted cost per subscription |
-| `scan_resource_costs` | Top resources by cost (MTD) |
-| `scan_cost_by_tag` | Spend breakdown by tag key/value |
-| `scan_cost_trend` | Month-over-month spend comparison |
-| `scan_reservation_advice` | RI purchase recommendations |
-| `scan_commitment_utilization` | RI and Savings Plan usage rates |
-| `scan_savings_realized` | Actual savings from commitments |
-| `scan_budget_status` | Budget consumption vs thresholds |
-| `scan_anomaly_alerts` | Recent cost anomaly detections |
-| `scan_optimization_advice` | Azure Advisor cost recommendations |
-| `scan_billing_structure` | Billing account hierarchy |
-| `scan_contract_info` | Agreement type, offer, support plan |
-| `run_full_scan` | Run all modules — comprehensive assessment |
+| Tool                          | Description                                   |
+| ----------------------------- | --------------------------------------------- |
+| `scan_orphaned_resources`     | Find unattached disks, NICs, public IPs, NSGs |
+| `scan_idle_vms`               | Find VMs with <5% CPU over 14-30 days         |
+| `scan_storage_tier_advice`    | Storage accounts that could use cooler tiers  |
+| `scan_ahb_opportunities`      | VMs/SQL not using Azure Hybrid Benefit        |
+| `scan_tag_inventory`          | Tag coverage %, tag names, resource counts    |
+| `scan_tag_recommendations`    | Inconsistent casing, missing standard tags    |
+| `scan_policy_inventory`       | Policy assignments with compliance status     |
+| `scan_policy_recommendations` | Policy coverage gaps for cost governance      |
+| `scan_cost_data`              | Actual + forecasted cost per subscription     |
+| `scan_resource_costs`         | Top resources by cost (MTD)                   |
+| `scan_cost_by_tag`            | Spend breakdown by tag key/value              |
+| `scan_cost_trend`             | Month-over-month spend comparison             |
+| `scan_reservation_advice`     | RI purchase recommendations                   |
+| `scan_commitment_utilization` | RI and Savings Plan usage rates               |
+| `scan_savings_realized`       | Actual savings from commitments               |
+| `scan_budget_status`          | Budget consumption vs thresholds              |
+| `scan_anomaly_alerts`         | Recent cost anomaly detections                |
+| `scan_optimization_advice`    | Azure Advisor cost recommendations            |
+| `scan_billing_structure`      | Billing account hierarchy                     |
+| `scan_contract_info`          | Agreement type, offer, support plan           |
+| `run_full_scan`               | Run all modules — comprehensive assessment    |
 
 ### Resources
 
-| URI | Description |
-| --- | ----------- |
+| URI                    | Description                         |
+| ---------------------- | ----------------------------------- |
 | `finops://permissions` | Required RBAC roles per scan module |
-| `finops://modules` | List of all available scan modules |
+| `finops://modules`     | List of all available scan modules  |
 
 ### Architecture
 
