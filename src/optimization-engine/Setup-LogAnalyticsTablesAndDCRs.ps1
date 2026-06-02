@@ -380,7 +380,7 @@ $tableSchemas = @{
         @{ name = "Keys_s"; type = "string" }
         @{ name = "PrincipalNames_s"; type = "string" }
         @{ name = "Owners_s"; type = "string" }
-        @{ name = "CreatedDate_s"; type = "string" }
+        @{ name = "CreatedDate_t"; type = "datetime" }
         @{ name = "DeletedDate_s"; type = "string" }
     )
 
@@ -851,8 +851,8 @@ $tableSchemas = @{
         @{ name = "FilterType_s"; type = "string" }
         @{ name = "InstanceId_g"; type = "string" }
         @{ name = "InstanceName_s"; type = "string" }
-        @{ name = "FilterStartDate_s"; type = "string" }
-        @{ name = "FilterEndDate_s"; type = "string" }
+        @{ name = "FilterStartDate_t"; type = "datetime" }
+        @{ name = "FilterEndDate_t"; type = "datetime" }
         @{ name = "Author_s"; type = "string" }
         @{ name = "Notes_s"; type = "string" }
     )
