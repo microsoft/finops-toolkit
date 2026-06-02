@@ -37,96 +37,156 @@ function Get-SavingsRealized {
     }
 
     $gotMgData = $false
+    $subCount  = if ($Subscriptions) { $Subscriptions.Count } else { 0 }
 
-    # -- Strategy 1: MG-scope queries (2 API calls instead of N*2) ------
-    $mgScopeId = if ($TenantId) { Resolve-CostMgId -TenantId $TenantId } else { $null }
-    if ($hasCommitments -and $mgScopeId) {
+    # Map subscription Id -> friendly name so MG-grouped rows keep per-sub attribution
+    $subNameById = @{}
+    foreach ($s in $Subscriptions) { $subNameById[$s.Id] = $s.Name }
+
+    # Build a Cost Management query body with the requested grouping dimensions
+    function New-SavingsQueryBody {
+        param([string]$Type, [string[]]$Dimensions)
+        @{
+            type      = $Type
+            timeframe = 'MonthToDate'
+            dataset   = @{
+                granularity = 'None'
+                aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
+                grouping    = @($Dimensions | ForEach-Object { @{ type = 'Dimension'; name = $_ } })
+            }
+        } | ConvertTo-Json -Depth 10
+    }
+
+    # Resolve named column indices from a Cost Management query result
+    function Get-SavingsColMap {
+        param($Columns)
+        $map = @{ Cost = 0; ChargeType = -1; PricingModel = -1; SubscriptionId = -1 }
+        for ($c = 0; $c -lt $Columns.Count; $c++) {
+            switch ($Columns[$c].name) {
+                'Cost'           { $map.Cost = $c }
+                'ChargeType'     { $map.ChargeType = $c }
+                'PricingModel'   { $map.PricingModel = $c }
+                'SubscriptionId' { $map.SubscriptionId = $c }
+            }
+        }
+        $map
+    }
+
+    # Parse an ActualCost result for UnusedReservation waste; returns detail rows
+    function Read-SavingsActual {
+        param($Result)
+        $rows = [System.Collections.Generic.List[PSCustomObject]]::new()
+        if (-not $Result -or -not $Result.properties.rows) { return $rows }
+        $m = Get-SavingsColMap -Columns $Result.properties.columns
+        foreach ($row in $Result.properties.rows) {
+            $charge = if ($m.ChargeType -ge 0) { [string]$row[$m.ChargeType] } else { '' }
+            if ($charge -match 'UnusedReservation') {
+                $sub = 'All (MG scope)'
+                if ($m.SubscriptionId -ge 0) {
+                    $sid = [string]$row[$m.SubscriptionId]
+                    $sub = if ($subNameById.ContainsKey($sid)) { $subNameById[$sid] } else { $sid }
+                }
+                $rows.Add([PSCustomObject]@{
+                    Subscription = $sub
+                    Category     = 'Unused Reservation'
+                    Amount       = [math]::Round([double]$row[$m.Cost], 2)
+                    Type         = 'Waste'
+                })
+            }
+        }
+        return $rows
+    }
+
+    # Parse an AmortizedCost result for RI/SP benefit; returns rows + savings totals
+    function Read-SavingsAmort {
+        param($Result)
+        $rows = [System.Collections.Generic.List[PSCustomObject]]::new()
+        $ri = 0.0; $sp = 0.0
+        if ($Result -and $Result.properties.rows) {
+            $m = Get-SavingsColMap -Columns $Result.properties.columns
+            foreach ($row in $Result.properties.rows) {
+                $pm   = if ($m.PricingModel -ge 0) { [string]$row[$m.PricingModel] } else { '' }
+                $cost = [math]::Round([double]$row[$m.Cost], 2)
+                $sub  = 'All (MG scope)'
+                if ($m.SubscriptionId -ge 0) {
+                    $sid = [string]$row[$m.SubscriptionId]
+                    $sub = if ($subNameById.ContainsKey($sid)) { $subNameById[$sid] } else { $sid }
+                }
+                if ($pm -match 'Reservation') {
+                    $ri += $cost * 0.4
+                    $rows.Add([PSCustomObject]@{ Subscription = $sub; Category = 'Reservation Benefit'; Amount = $cost; Type = 'Commitment' })
+                }
+                elseif ($pm -match 'SavingsPlan') {
+                    $sp += $cost * 0.25
+                    $rows.Add([PSCustomObject]@{ Subscription = $sub; Category = 'Savings Plan Benefit'; Amount = $cost; Type = 'Commitment' })
+                }
+            }
+        }
+        return [PSCustomObject]@{ Rows = $rows; RI = $ri; SP = $sp }
+    }
+
+    if ($hasCommitments -and $subCount -eq 1) {
+        # -- Strategy 0: single-subscription fast path (skip MG resolution entirely) --
+        $only = $Subscriptions[0]
         try {
-            Write-Host "  Calculating savings (MG scope)..." -ForegroundColor Cyan
-            $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+            Write-Host "  Calculating savings (single subscription, direct scope)..." -ForegroundColor Cyan
+            $subPath = "/subscriptions/$($only.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
 
-            # ActualCost by ChargeType
-            $actualBody = @{
-                type      = 'ActualCost'
-                timeframe = 'MonthToDate'
-                dataset   = @{
-                    granularity = 'None'
-                    aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
-                    grouping = @( @{ type = 'Dimension'; name = 'ChargeType' } )
-                }
-            } | ConvertTo-Json -Depth 10
-
-            $actualResp = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $actualBody
-            if ($actualResp.StatusCode -in @(401, 403)) {
-                Set-MgCostScopeFailed
-                throw "MG-scope savings query returned HTTP $($actualResp.StatusCode)"
-            }
+            $actualResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload (New-SavingsQueryBody -Type 'ActualCost' -Dimensions @('ChargeType'))
             if ($actualResp.StatusCode -eq 200) {
-                $actualResult = ($actualResp.Content | ConvertFrom-Json)
-                if ($actualResult.properties.rows) {
-                    foreach ($row in $actualResult.properties.rows) {
-                        $chargeType = $row[1]
-                        $cost = [math]::Round([double]$row[0], 2)
-                        if ($chargeType -match 'UnusedReservation') {
-                            [void]$details.Add([PSCustomObject]@{
-                                Subscription = 'All (MG scope)'
-                                Category     = 'Unused Reservation'
-                                Amount       = $cost
-                                Type         = 'Waste'
-                            })
-                        }
-                    }
+                foreach ($d in (Read-SavingsActual -Result ($actualResp.Content | ConvertFrom-Json))) {
+                    $d.Subscription = $only.Name; [void]$details.Add($d)
                 }
             }
 
-            # AmortizedCost by PricingModel
-            $amortBody = @{
-                type      = 'AmortizedCost'
-                timeframe = 'MonthToDate'
-                dataset   = @{
-                    granularity = 'None'
-                    aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
-                    grouping = @( @{ type = 'Dimension'; name = 'PricingModel' } )
-                }
-            } | ConvertTo-Json -Depth 10
-
-            $amortResp = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $amortBody
+            $amortResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload (New-SavingsQueryBody -Type 'AmortizedCost' -Dimensions @('PricingModel'))
             if ($amortResp.StatusCode -eq 200) {
-                $amortResult = ($amortResp.Content | ConvertFrom-Json)
-                if ($amortResult.properties.rows) {
-                    foreach ($row in $amortResult.properties.rows) {
-                        $pricingModel = $row[1]
-                        $cost = [math]::Round([double]$row[0], 2)
-                        if ($pricingModel -match 'Reservation') {
-                            $riSavings += $cost * 0.4
-                            [void]$details.Add([PSCustomObject]@{
-                                Subscription = 'All (MG scope)'
-                                Category     = 'Reservation Benefit'
-                                Amount       = $cost
-                                Type         = 'Commitment'
-                            })
-                        }
-                        elseif ($pricingModel -match 'SavingsPlan') {
-                            $spSavings += $cost * 0.25
-                            [void]$details.Add([PSCustomObject]@{
-                                Subscription = 'All (MG scope)'
-                                Category     = 'Savings Plan Benefit'
-                                Amount       = $cost
-                                Type         = 'Commitment'
-                            })
-                        }
-                    }
-                }
+                $parsed = Read-SavingsAmort -Result ($amortResp.Content | ConvertFrom-Json)
+                foreach ($d in $parsed.Rows) { $d.Subscription = $only.Name; [void]$details.Add($d) }
+                $riSavings += $parsed.RI
+                $spSavings += $parsed.SP
             }
 
             $gotMgData = $true
-            Write-Host "  MG scope savings calculated (2 API calls)" -ForegroundColor Green
+            Write-Host "  Single-subscription savings calculated (2 API calls)" -ForegroundColor Green
         } catch {
-            Write-Warning "  MG-scope savings query failed: $($_.Exception.Message)"
+            Write-Warning "  Single-subscription savings query failed: $($_.Exception.Message)"
+        }
+    }
+    elseif ($hasCommitments) {
+        # -- Strategy 1: MG-scope grouped by SubscriptionId (2 calls, per-sub attribution) --
+        $mgScopeId = if ($TenantId) { Resolve-CostMgId -TenantId $TenantId } else { $null }
+        if ($mgScopeId) {
+            try {
+                Write-Host "  Calculating savings (MG scope, grouped by subscription)..." -ForegroundColor Cyan
+                $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+
+                $actualResp = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload (New-SavingsQueryBody -Type 'ActualCost' -Dimensions @('SubscriptionId', 'ChargeType'))
+                if ($actualResp.StatusCode -in @(401, 403)) {
+                    Set-MgCostScopeFailed
+                    throw "MG-scope savings query returned HTTP $($actualResp.StatusCode)"
+                }
+                if ($actualResp.StatusCode -eq 200) {
+                    foreach ($d in (Read-SavingsActual -Result ($actualResp.Content | ConvertFrom-Json))) { [void]$details.Add($d) }
+                }
+
+                $amortResp = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload (New-SavingsQueryBody -Type 'AmortizedCost' -Dimensions @('SubscriptionId', 'PricingModel'))
+                if ($amortResp.StatusCode -eq 200) {
+                    $parsed = Read-SavingsAmort -Result ($amortResp.Content | ConvertFrom-Json)
+                    foreach ($d in $parsed.Rows) { [void]$details.Add($d) }
+                    $riSavings += $parsed.RI
+                    $spSavings += $parsed.SP
+                }
+
+                $gotMgData = $true
+                Write-Host "  MG scope savings calculated (2 API calls)" -ForegroundColor Green
+            } catch {
+                Write-Warning "  MG-scope savings query failed: $($_.Exception.Message)"
+            }
         }
     }
 
-    # -- Strategy 2: Per-subscription fallback ---------------------------
+    # -- Strategy 2: Per-subscription fallback (only if MG/direct scope unavailable) --
     if ($hasCommitments -and -not $gotMgData) {
     # -- Step 1: Query amortized vs actual to find RI/SP benefit amounts --
     # The difference between ActualCost and AmortizedCost reveals commitment savings
