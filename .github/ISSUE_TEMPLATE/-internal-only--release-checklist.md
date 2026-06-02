@@ -239,34 +239,13 @@ Status icons:
 
 ## 🔜 Post-release clean-up
 
-- [ ] Update the `Toolkit / Should return all known releases` PowerShell integration test based on the latest version.
-  > _See `src/powershell/Tests/Integration/Toolkit.Tests.ps1` > `Get-FinOpsToolkitVersion` > `Should return all known releases`_
-  - Add the latest public version to the `$expected` variable.
-  - Update the file checks to include/exclude any new/removed files.
-- [ ] Update the minor version and add the "dev" label: `<root>/src/scripts/Update-Version.ps1 -Minor -Label dev`
-- [ ] Create a placeholder in the changelog for the new release.
-
-  ```markdown
-  ## vX.Y
-
-  _Released Mmm yyyy_
-
-  > [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/vX.Y) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/vX.Y...vX.Y)
-
-  <br>
-  ```
-
-- [ ] Update remaining branches that were not merged with dev
-  - [ ] TODO: Add branches
-  - [ ] features/anomaly
-  - [ ] features/finley
-  - [ ] features/recs
-  - [ ] features/ux
-  - [ ] features/xcloud
+- [ ] <!-- update-version:post --> Run the `/update-version` command in Claude Code (or complete the following manually):
+  - Bump version to next major with dev label: `<root>/src/scripts/Update-Version.ps1 -Major -Label dev`
+  - Update integration test: add released version to `$expected`, bump `$plannedRelease` in `src/powershell/Tests/Integration/Toolkit.Tests.ps1`.
+  - Add changelog placeholder for the next release in `docs-mslearn/toolkit/changelog.md`.
+  - Merge dev into all feature branches: `<root>/src/scripts/Merge-DevBranch.ps1 *`
 - [ ] Copy any additional code from the following branches and delete them:
   - [ ] features/hack24
   - [ ] features/hourly
-- [ ] Delete the following branches:
-  - [ ] features/alerts
 
 <br>
