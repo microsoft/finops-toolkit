@@ -25,7 +25,7 @@ $dceEndpoint = Get-AutomationVariable -Name  "AzureOptimization_DCEIngestionEndp
 $LogAnalyticsChunkSize = [int] (Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsChunkSize" -ErrorAction SilentlyContinue)
 if (-not($LogAnalyticsChunkSize -gt 0))
 {
-    $LogAnalyticsChunkSize = 6000
+    $LogAnalyticsChunkSize = 150
 }
 $lognamePrefix = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsLogPrefix" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($lognamePrefix))
@@ -62,6 +62,41 @@ function Send-LogIngestionData($accessToken, $dceEndpoint, $dcrImmutableId, $str
     }
     $response = Invoke-WebRequest -Uri $uri -Method POST -Headers $headers -Body $body -UseBasicParsing -TimeoutSec 1000
     return $response.StatusCode
+}
+
+function Close-SqlConnection()
+{
+    if ($null -ne $script:SqlConnection)
+    {
+        if ($script:SqlConnection.State -ne [System.Data.ConnectionState]::Closed)
+        {
+            $script:SqlConnection.Close()
+        }
+        $script:SqlConnection.Dispose()
+        $script:SqlConnection = $null
+        $script:SqlTokenExpiresOn = $null
+    }
+}
+
+function Get-SqlConnection()
+{
+    $refreshWindow = (Get-Date).ToUniversalTime().AddMinutes(5)
+    if ($null -ne $script:SqlConnection -and
+        $script:SqlConnection.State -eq [System.Data.ConnectionState]::Open -and
+        $script:SqlTokenExpiresOn -gt $refreshWindow)
+    {
+        return $script:SqlConnection
+    }
+
+    Close-SqlConnection
+
+    $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+    $script:SqlTokenExpiresOn = $dbToken.ExpiresOn.UtcDateTime
+    $script:SqlConnection = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;Pooling=False")
+    $script:SqlConnection.AccessToken = $dbToken.Token
+    $script:SqlConnection.Open()
+
+    return $script:SqlConnection
 }
 
 #endregion Functions
@@ -112,10 +147,7 @@ do
     $tries++
     try
     {
-        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
-        $Conn.AccessToken = $dbToken.Token
-        $Conn.Open()
+        $Conn = Get-SqlConnection
         $Cmd = New-Object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
@@ -129,19 +161,30 @@ do
     }
     catch
     {
+        Close-SqlConnection
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
     }
+    finally
+    {
+        if ($null -ne $sqlAdapter)
+        {
+            $sqlAdapter.Dispose()
+        }
+        if ($null -ne $Cmd)
+        {
+            $Cmd.Dispose()
+        }
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
+
+Close-SqlConnection
 
 if (-not($connectionSuccess))
 {
     throw "Could not establish connection to SQL."
 }
-
-$Conn.Close()
-$Conn.Dispose()
 
 if ($controlRows.Count -eq 0 -or -not($controlRows[0].LastProcessedDateTime))
 {
@@ -164,9 +207,9 @@ if ([string]::IsNullOrEmpty($dcrImmutableId))
 # Obtain a bearer token for the Logs Ingestion API
 switch ($cloudEnvironment)
 {
-    "AzureChinaCloud"    { $monitorAudience = "https://monitor.azure.cn/" }
-    "AzureUSGovernment"  { $monitorAudience = "https://monitor.azure.us/" }
-    default              { $monitorAudience = "https://monitor.azure.com/" }
+    "AzureChinaCloud" { $monitorAudience = "https://monitor.azure.cn/" }
+    "AzureUSGovernment" { $monitorAudience = "https://monitor.azure.us/" }
+    default { $monitorAudience = "https://monitor.azure.com/" }
 }
 $monitorToken = (Get-AzAccessToken -ResourceUrl $monitorAudience).Token
 
@@ -274,17 +317,13 @@ foreach ($blob in $unprocessedBlobs)
                     $lastProcessedDateTime = $updatedLastProcessedDateTime
                     Write-Output "Updating last processed time / line to $($updatedLastProcessedDateTime) / $updatedLastProcessedLine"
                     $sqlStatement = "UPDATE [$LogAnalyticsIngestControlTable] SET LastProcessedLine = $updatedLastProcessedLine, LastProcessedDateTime = '$updatedLastProcessedDateTime' WHERE StorageContainerName = '$storageAccountSinkContainer'"
-                    $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-                    $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
-                    $Conn.AccessToken = $dbToken.Token
-                    $Conn.Open()
+                    $Conn = Get-SqlConnection
                     $Cmd = New-Object system.Data.SqlClient.SqlCommand
                     $Cmd.Connection = $Conn
                     $Cmd.CommandText = $sqlStatement
                     $Cmd.CommandTimeout = $SqlTimeout
-                    $Cmd.ExecuteReader()
-                    $Conn.Close()
-                    $Conn.Dispose()
+                    $Cmd.ExecuteNonQuery() | Out-Null
+                    $Cmd.Dispose()
                 }
                 else
                 {
@@ -302,5 +341,7 @@ foreach ($blob in $unprocessedBlobs)
 
     Remove-Item -Path $blob.Name -Force
 }
+
+Close-SqlConnection
 
 Write-Output "DONE"

@@ -10,7 +10,7 @@ $dceEndpoint = Get-AutomationVariable -Name  "AzureOptimization_DCEIngestionEndp
 $LogAnalyticsChunkSize = [int] (Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsChunkSize" -ErrorAction SilentlyContinue)
 if (-not($LogAnalyticsChunkSize -gt 0))
 {
-    $LogAnalyticsChunkSize = 6000
+    $LogAnalyticsChunkSize = 150
 }
 $lognamePrefix = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsLogPrefix" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($lognamePrefix))
@@ -77,9 +77,9 @@ $azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
 # Determine the Logs Ingestion API audience URL for this cloud
 switch ($cloudEnvironment)
 {
-    "AzureChinaCloud"    { $monitorAudience = "https://monitor.azure.cn/" }
-    "AzureUSGovernment"  { $monitorAudience = "https://monitor.azure.us/" }
-    default              { $monitorAudience = "https://monitor.azure.com/" }
+    "AzureChinaCloud" { $monitorAudience = "https://monitor.azure.cn/" }
+    "AzureUSGovernment" { $monitorAudience = "https://monitor.azure.us/" }
+    default { $monitorAudience = "https://monitor.azure.com/" }
 }
 
 Write-Output "Getting excluded recommendation sub-type IDs..."
@@ -197,7 +197,7 @@ $filtersJson = $filterObjects | ForEach-Object {
 
 $LogAnalyticsSuffix = "SuppressionsV1"
 $logname = $lognamePrefix + $LogAnalyticsSuffix
-$streamName = "Custom-$lognamePrefix$LogAnalyticsSuffix"
+$streamName = "Custom-$logname"
 
 # Retrieve DCR immutable ID from SQL control table
 $dcrImmutableId = $null

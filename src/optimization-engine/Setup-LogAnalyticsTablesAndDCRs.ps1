@@ -358,7 +358,7 @@ $tableSchemas = @{
         @{ name = "ServiceFamily_s"; type = "string" }
         @{ name = "ServiceInfo1_s"; type = "string" }
         @{ name = "ServiceInfo2_s"; type = "string" }
-        @{ name = "SubscriptionGuid_g"; type = "string" }
+        @{ name = "SubscriptionId"; type = "string" }
         @{ name = "SubscriptionName_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
         @{ name = "Term_s"; type = "string" }
@@ -572,7 +572,7 @@ $tableSchemas = @{
         @{ name = "AddressVersion_s"; type = "string" }
         @{ name = "AssociatedResourceId_s"; type = "string" }
         @{ name = "PublicIpPrefixId_s"; type = "string" }
-        @{ name = "IPAddress_s"; type = "string" }
+        @{ name = "IPAddress"; type = "string" }
         @{ name = "FQDN_s"; type = "string" }
         @{ name = "Zones_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
