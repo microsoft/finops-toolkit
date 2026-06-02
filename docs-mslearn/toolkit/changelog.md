@@ -58,10 +58,10 @@ _Released April 2026_
 ### [SRE agent](sre-agent/overview.md)
 
 - **Added**
-  - Added Azure SRE Agent template with packaged deployment scripts (`deploy.sh`, `deploy.ps1`), Bicep infrastructure, and `azd` integration.
-  - Added 5 subagents (`finops-practitioner`, `azure-capacity-manager`, `chief-financial-officer`, `ftk-database-query`, `ftk-hubs-agent`), 3 skills, 21 Kusto tools, and 1 Kusto MCP connector.
-  - Added 9 scheduled tasks (daily, weekly, monthly, and quarterly cadences) with Teams channel delivery.
-  - Added 3 knowledge documents for agent onboarding, Teams notification patterns, and known issues.
+  - Added Azure SRE Agent template with a packaged Deploy to Azure path, `deploy.sh` local CLI automation, and Bicep infrastructure.
+  - Added 5 subagents (`finops-practitioner`, `azure-capacity-manager`, `chief-financial-officer`, `ftk-database-query`, `ftk-hubs-agent`), 3 skills, 50 tools, and 1 Kusto MCP connector.
+  - Added 19 scheduled tasks (daily, weekly, monthly, semiannual, and quarterly cadences) with Teams channel delivery.
+  - Added 6 knowledge documents for agent onboarding, artifact verification, Teams notification patterns, known issues, document index guidance, and FinOps Toolkit output style.
   - Added FinOps toolkit SRE Agent documentation pages for Microsoft Learn.
 - **Changed**
   - Set agent action mode to Autonomous so scheduled tasks can deliver reports without human approval.

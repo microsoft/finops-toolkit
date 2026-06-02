@@ -1,9 +1,9 @@
 ---
 title: Deploy Azure SRE Agent with the FinOps toolkit
-description: Deploy the FinOps toolkit Azure SRE Agent template with explicit CLI parameters, connect it to a FinOps hub Data Explorer cluster, and validate the deployment.
+description: Deploy the FinOps toolkit Azure SRE Agent template from the Azure portal or CLI, connect it to a FinOps hub Data Explorer cluster, and validate the deployment.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/01/2026
+ms.date: 06/02/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -17,7 +17,7 @@ ms.reviewer: brettwil
 
 In this tutorial, you learn how to deploy the [FinOps toolkit Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent), connect it to a [FinOps hub](../hubs/finops-hubs-overview.md), and validate the deployment.
 
-The deployment flow is copied from the Microsoft SRE Agent starter lab and updated for the FinOps toolkit. It uses Azure CLI + Bicep for infrastructure and the supported SRE Agent ARM and data-plane surfaces for recipe configuration. It doesn't use `azd`.
+The deployment flow is copied from the Microsoft SRE Agent starter lab and updated for the FinOps toolkit. The Azure portal path uses the toolkit's packaged ARM template and an embedded deployment script to apply the SRE Agent recipe. The local CLI path uses Azure CLI + Bicep for infrastructure and the supported SRE Agent ARM and data-plane surfaces for recipe configuration. It doesn't use `azd`.
 
 ## What gets deployed
 
@@ -27,7 +27,7 @@ The FinOps hub recipe (`src/templates/sre-agent/recipes/finops-hub/`) deploys:
 |-----------|-------|-------|
 | SRE Agent | 1 | `Microsoft.App/agents` |
 | Model provider | 1 | Azure OpenAI provider-level routing (`MicrosoftFoundry` ARM value, `Automatic` model routing) |
-| Managed identity | 1 | Agent system-assigned managed identity |
+| Managed identities | 1-2 | Agent system-assigned managed identity; portal deployments also create a user-assigned identity for the deployment script |
 | Log Analytics workspace | 1 | Linked to the agent for telemetry |
 | Application Insights | 1 | Linked to Log Analytics |
 | Custom agents | 5 | FinOps practitioner orchestrator plus CFO, capacity, database-query, and hubs specialists |
@@ -41,10 +41,10 @@ The FinOps hub recipe (`src/templates/sre-agent/recipes/finops-hub/`) deploys:
 ## Prerequisites
 
 - A deployed FinOps hub with Data Explorer.
-- A subscription where you have the **Owner** or **User Access Administrator** role.
+- Permissions to create deployed resources, such as **Contributor** on the subscription when the template creates the agent resource group.
+- Permissions to assign roles at subscription, target resource group, and agent scopes, such as **Role Based Access Control Administrator**, **User Access Administrator**, or **Owner** on those scopes.
 - The `Microsoft.App` resource provider registered in the subscription.
-- [Azure CLI](/cli/azure/install-azure-cli).
-- `curl`, `jq`, `python3` with `PyYAML`, and Bash 3.2 or newer.
+- For local CLI deployments only: [Azure CLI](/cli/azure/install-azure-cli), `curl`, `jq`, `python3` with `PyYAML`, and Bash 3.2 or newer.
 
 Run:
 
@@ -54,6 +54,15 @@ bash bin/check-prerequisites.sh --subscription <subscription-id>
 ```
 
 ## Deploy the FinOps hub recipe
+
+Use the Azure portal deployment when you want the same one-click experience as other FinOps toolkit templates. The template creates the Azure resources, grants the deployment script identity SRE Agent Administrator on the agent, downloads the packaged recipe assets, and applies connectors, tools, skills, subagents, knowledge, and scheduled tasks.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Deploy to Azure](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Fsre-agent%2Flatest%2Fazuredeploy.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Fsre-agent%2Flatest%2FcreateUiDefinition.json)
+<!-- prettier-ignore-end -->
+
+### Deploy from local CLI
 
 Run one script with explicit parameters:
 
@@ -115,7 +124,7 @@ bash bin/deploy.sh \
   --dry-run
 ```
 
-When deploying, `deploy.sh` runs a subscription-scoped ARM deployment and then runs `bin/apply-extras.sh` to configure the Kusto connector and remaining recipe assets through the supported SRE Agent ARM and data-plane surfaces.
+When deploying from the portal, the template runs a subscription-scoped ARM deployment and then runs a `Microsoft.Resources/deploymentScripts` resource to configure the Kusto connector and remaining recipe assets through the supported SRE Agent ARM and data-plane surfaces. When deploying locally, `deploy.sh` runs the same subscription-scoped infrastructure deployment and then runs `bin/apply-extras.sh` for the recipe configuration step.
 
 The recipe defaults the parent SRE Agent to Azure OpenAI provider-level routing by setting `defaultModel.provider` to `MicrosoftFoundry` and `defaultModel.name` to `Automatic`. Azure SRE Agent automatically selects the model within the configured provider for each task. The template doesn't pin different models for individual custom agents or scheduled tasks because the documented SRE Agent configuration surface is provider-level.
 
@@ -147,7 +156,7 @@ Then confirm the agent in [sre.azure.com](https://sre.azure.com). If you passed 
 
 ## Configure notifications
 
-Scheduled tasks deliver reports to Microsoft Teams and Outlook through Azure SRE Agent notification connectors. Connectors require interactive OAuth setup in [sre.azure.com](https://sre.azure.com), so `bin/deploy.sh` doesn't create them.
+Scheduled tasks deliver reports to Microsoft Teams and Outlook through Azure SRE Agent notification connectors. Connectors require interactive OAuth setup in [sre.azure.com](https://sre.azure.com), so the portal template and `bin/deploy.sh` don't create them.
 
 ### Configure Teams
 

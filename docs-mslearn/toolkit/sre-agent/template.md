@@ -3,7 +3,7 @@ title: Azure SRE Agent template reference (FinOps toolkit)
 description: Review the FinOps toolkit's Azure SRE Agent deployment template, parameters, outputs, script flags, and Bicep module structure.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/01/2026
+ms.date: 06/02/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -29,10 +29,10 @@ Ensure the following prerequisites are met before you deploy the template:
   | Deploy the subscription-scoped Bicep template and create the target resource group | [Contributor](/azure/role-based-access-control/built-in-roles#contributor) on the subscription |
   | Assign subscription and target resource group roles to the agent managed identity | [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator), [User Access Administrator](/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](/azure/role-based-access-control/built-in-roles#owner) on the assignment scopes |
   | Assign Azure Data Explorer access when cluster parameters are set | Permission to create `Microsoft.Kusto/clusters/principalAssignments` on the target cluster |
-  | Apply Azure SRE Agent objects with `bin/apply-extras.sh` | Access to the deployed Azure SRE Agent endpoint |
+  | Apply Azure SRE Agent objects with the portal deployment script or `bin/apply-extras.sh` | SRE Agent Administrator on the deployed Azure SRE Agent resource |
 
 - The `Microsoft.App` resource provider must be registered in the subscription.
-- [Azure CLI](/cli/azure/install-azure-cli), `curl`, `jq`, Bash 3.2 or newer, and `python3` with PyYAML must be available locally.
+- For local CLI deployments only: [Azure CLI](/cli/azure/install-azure-cli), `curl`, `jq`, Bash 3.2 or newer, and `python3` with PyYAML must be available locally.
 - A FinOps hub with Azure Data Explorer is required when you want the agent to query hub data.
 <!-- prettier-ignore-end -->
 
@@ -46,23 +46,27 @@ Here are the parameters you can use to customize the deployment:
 | --------- | ---- | ------------- | -------------- | ----------- |
 | **resourceGroupName** | String | None | Any string | Required. Resource group that contains the SRE Agent resources. |
 | **agentName** | String | None | Any string | Required. Azure SRE Agent name. |
-| **location** | String | `eastus2` | `swedencentral`, `uksouth`, `eastus2`, `australiaeast` | Optional. Primary location for all resources. |
+| **location** | String | `eastus2` | `australiaeast`, `canadacentral`, `eastus2`, `francecentral`, `koreacentral`, `swedencentral`, `uksouth` | Optional. Primary location for all resources. |
 | **targetResourceGroups** | Array | `[]` | Resource group names | Optional. Resource groups the agent can observe or act on. Defaults to the agent resource group. |
-| **accessLevel** | String | `Low` | `Low`, `High` | Optional. Agent access level. |
-| **actionMode** | String | `review` | `review`, `autonomous`, `readOnly` | Optional. Agent action mode. |
+| **targetResourceGroupNames** | String | `""` | Comma-separated resource group names | Optional. Portal form input for target resource groups. Defaults to the agent resource group. |
+| **accessLevel** | String | `High` | `Low`, `High` | Optional. Agent access level. |
+| **actionMode** | String | `autonomous` | `review`, `autonomous`, `readOnly` | Optional. Agent action mode. |
 | **upgradeChannel** | String | `Preview` | `Stable`, `Preview` | Optional. Agent upgrade channel. |
 | **defaultModelProvider** | String | `MicrosoftFoundry` | `MicrosoftFoundry`, `Anthropic` | Optional. Parent SRE Agent model provider. `MicrosoftFoundry` maps to Azure OpenAI in the SRE Agent portal. |
 | **defaultModelName** | String | `Automatic` | Any supported model name | Optional. Parent SRE Agent model name. Use `Automatic` so SRE Agent routes to the appropriate model inside the selected provider. |
 | **monthlyAgentUnitLimit** | Int | `10000` | 1 or higher | Optional. Monthly agent unit limit. |
 | **experimentalSettings** | Object | `{ "EnableSandboxGroup": true, "EnableWorkspaceTools": true }` | Object | Optional. Agent sandbox and workspace tool settings for the stable SRE Agent runtime. |
+| **finopsHubKustoConnectorUri** | String | `""` | Database-qualified Kusto URI | Optional. Kusto connector URI for the FinOps hub database, such as `https://cluster.region.kusto.windows.net/Hub`. |
 | **finopsHubKustoClusterResourceId** | String | `""` | Azure resource ID | Optional. Azure Data Explorer cluster resource ID for the FinOps hub role assignment. |
 | **enableSubscriptionReaderRole** | Boolean | `true` | `true`, `false` | Optional. Assigns Reader at subscription scope to the agent managed identity. |
+| **recipePackageUri** | String | Derived from the template URI | Public URI | Optional. URI for the packaged recipe assets used by the portal deployment script. |
+| **forceUpdateTag** | String | Current deployment timestamp | Any string | Optional. Forces the portal deployment script to rerun during redeployment. |
 
 <br>
 
 ## Deployment values
 
-`bin/deploy.sh` writes a deployment parameter file under the local SRE Agent deployment cache, then runs `az deployment sub create` directly. It doesn't use Azure Developer CLI environments.
+The portal template receives values from `createUiDefinition.json`, then runs a subscription-scoped ARM deployment directly from the published toolkit deploy artifacts. `bin/deploy.sh` writes a deployment parameter file under the local SRE Agent deployment cache, then runs `az deployment sub create` directly. Neither path uses Azure Developer CLI environments.
 
 | Value | Source | Description |
 | ----- | ------ | ----------- |
@@ -76,6 +80,14 @@ Here are the parameters you can use to customize the deployment:
 | **defaultModelName** | `agent.json` | Parent SRE Agent model name. The FinOps hub recipe defaults to `Automatic` model routing. |
 | **finopsHubKustoClusterResourceId** | `--cluster-resource-id` | Optional cluster resource ID used to assign `AllDatabasesViewer`. |
 | **FinOps Hub Kusto connector URI** | `--cluster-uri` | Database-qualified Kusto URI, such as `https://cluster.region.kusto.windows.net/Hub`. |
+
+<br>
+
+## Portal recipe configuration
+
+The Deploy to Azure path packages `azuredeploy.json`, `createUiDefinition.json`, and `sre-agent-recipe.zip` under `docs/deploy/sre-agent/<version>/`. The `recipePackageUri` parameter defaults to a file beside the linked template by using the ARM deployment template-link URI. The deployment script downloads that package, reads `extras.json`, and applies the same recipe objects as `bin/apply-extras.sh`.
+
+The deployment script uses a user-assigned managed identity. Bicep grants that identity SRE Agent Administrator on the agent resource before the script runs, then the script uses ARM for connectors and the SRE Agent data plane for built-in tools, knowledge, tools, skills, subagents, and scheduled tasks.
 
 <br>
 

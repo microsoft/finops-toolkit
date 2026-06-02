@@ -3,7 +3,7 @@ title: Troubleshoot Azure SRE Agent deployments from the FinOps toolkit
 description: Resolve common deployment, tenant, connector, data, and query issues for Azure SRE Agent deployments from the FinOps toolkit.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/01/2026
+ms.date: 06/02/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -46,7 +46,7 @@ Use these checks after `bin/deploy.sh` or post-provisioning fails.
 
 **Symptom:** The Bicep deployment fails during validation or resource creation.
 
-**Cause:** The template only supports `australiaeast`, `eastus2`, and `swedencentral`.
+**Cause:** The template only supports `australiaeast`, `canadacentral`, `eastus2`, `francecentral`, `koreacentral`, `swedencentral`, and `uksouth`.
 
 **Workaround:** Redeploy in a supported region.
 
@@ -68,7 +68,7 @@ az provider register --namespace Microsoft.App
 
 **Cause:** The deploying user doesn't have enough permissions to create resources or assign roles.
 
-**Workaround:** Use an account with Owner or User Access Administrator on the target subscription. If you configure notification connectors later, make sure the configuring user can write connections and role assignments in the agent resource group.
+**Workaround:** Use an account with permissions to create resources and assign roles at the affected scopes. Contributor can create the deployed resources; Role Based Access Control Administrator, User Access Administrator, or Owner can assign the required roles. If you configure notification connectors later, make sure the configuring user can write connections and role assignments in the agent resource group.
 
 ### Zone mapping API returns 404
 

@@ -1,0 +1,169 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "config": {
+      "basics": {
+        "description": "Deploy Azure SRE Agent with the FinOps toolkit recipe for FinOps hub analysis, capacity monitoring, scheduled tasks, and specialist agents.",
+        "location": {
+          "label": "Location",
+          "resourceTypes": [
+            "Microsoft.App/agents",
+            "Microsoft.Insights/components",
+            "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "Microsoft.OperationalInsights/workspaces",
+            "Microsoft.Resources/deploymentScripts"
+          ]
+        }
+      }
+    },
+    "resourceTypes": [
+      "Microsoft.App/agents",
+      "Microsoft.Insights/components",
+      "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "Microsoft.OperationalInsights/workspaces",
+      "Microsoft.Resources/deploymentScripts"
+    ],
+    "basics": [
+      {
+        "name": "resourceGroupName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Agent resource group",
+        "defaultValue": "finops-hub-sre",
+        "toolTip": "Resource group that will contain the Azure SRE Agent, monitoring resources, and deployment script identity.",
+        "constraints": {
+          "required": true,
+          "regex": "^[a-zA-Z0-9._()\\-]{1,90}$",
+          "validationMessage": "Enter a valid Azure resource group name."
+        },
+        "visible": true
+      },
+      {
+        "name": "agentName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Agent name",
+        "defaultValue": "finops-hub-sre",
+        "toolTip": "Name of the Azure SRE Agent resource.",
+        "constraints": {
+          "required": true,
+          "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{1,61}[a-zA-Z0-9]$",
+          "validationMessage": "Name must be 3-63 characters and can contain letters, numbers, and hyphens. The first and last characters must be alphanumeric."
+        },
+        "visible": true
+      }
+    ],
+    "steps": [
+      {
+        "name": "configuration",
+        "label": "Configuration",
+        "elements": [
+          {
+            "name": "finopsHubKustoConnectorUri",
+            "type": "Microsoft.Common.TextBox",
+            "label": "FinOps hub Kusto URI",
+            "defaultValue": "",
+            "toolTip": "Optional database-qualified Azure Data Explorer URI for the FinOps hub. Example: https://cluster.region.kusto.windows.net/Hub",
+            "constraints": {
+              "required": false,
+              "regex": "^$|^https://.+\\.kusto\\.windows\\.net/.+",
+              "validationMessage": "Enter a database-qualified Kusto URI such as https://cluster.region.kusto.windows.net/Hub, or leave blank."
+            },
+            "visible": true
+          },
+          {
+            "name": "finopsHubKustoClusterResourceId",
+            "type": "Microsoft.Common.TextBox",
+            "label": "FinOps hub Kusto cluster resource ID",
+            "defaultValue": "",
+            "toolTip": "Optional Azure Data Explorer cluster resource ID. Provide this to assign the agent managed identity AllDatabasesViewer on the cluster.",
+            "constraints": {
+              "required": false,
+              "regex": "^$|^/subscriptions/.+/resourceGroups/.+/providers/Microsoft\\.Kusto/clusters/.+",
+              "validationMessage": "Enter a valid Microsoft.Kusto/clusters resource ID, or leave blank."
+            },
+            "visible": true
+          },
+          {
+            "name": "targetResourceGroups",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Additional target resource groups",
+            "defaultValue": "",
+            "toolTip": "Optional comma-separated resource group names the agent can observe or act on. The agent resource group is always included.",
+            "constraints": {
+              "required": false,
+              "regex": "^$|^[A-Za-z0-9_.()\\-]+(\\s*,\\s*[A-Za-z0-9_.()\\-]+)*$",
+              "validationMessage": "Enter a comma-separated list of resource group names without blank entries or trailing commas."
+            },
+            "visible": true
+          },
+          {
+            "name": "accessLevel",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Access level",
+            "defaultValue": "High",
+            "toolTip": "High adds Contributor on target resource groups for autonomous remediation workflows. Low grants read-only monitoring roles.",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "High",
+                  "value": "High"
+                },
+                {
+                  "label": "Low",
+                  "value": "Low"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "actionMode",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Action mode",
+            "defaultValue": "autonomous",
+            "toolTip": "Review requires approval before write actions. Autonomous lets the agent run enabled actions within its assigned access.",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Autonomous",
+                  "value": "autonomous"
+                },
+                {
+                  "label": "Review",
+                  "value": "review"
+                },
+                {
+                  "label": "Read only",
+                  "value": "readOnly"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "enableSubscriptionReaderRole",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Grant subscription Reader to the agent",
+            "toolTip": "Recommended. Grants the agent managed identity Reader on the deployment subscription for inventory, Resource Graph, capacity, quota, and monitoring coverage workflows.",
+            "defaultValue": true,
+            "visible": true
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "resourceGroupName": "[basics('resourceGroupName')]",
+      "agentName": "[basics('agentName')]",
+      "location": "[location()]",
+      "targetResourceGroupNames": "[steps('configuration').targetResourceGroups]",
+      "finopsHubKustoConnectorUri": "[steps('configuration').finopsHubKustoConnectorUri]",
+      "finopsHubKustoClusterResourceId": "[steps('configuration').finopsHubKustoClusterResourceId]",
+      "accessLevel": "[steps('configuration').accessLevel]",
+      "actionMode": "[steps('configuration').actionMode]",
+      "enableSubscriptionReaderRole": "[steps('configuration').enableSubscriptionReaderRole]"
+    }
+  }
+}

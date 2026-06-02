@@ -3,7 +3,7 @@ title: Configure an SRE agent for FinOps hubs
 description: Learn how to configure an Azure SRE agent to connect to your FinOps hub for scheduled cost analysis, capacity monitoring, and reporting.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/28/2026
+ms.date: 06/02/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -21,10 +21,9 @@ ms.reviewer: micflan
 
 - [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub) with Data Explorer.
 - [Configured scopes](configure-scopes.md) and ingested data successfully.
-- An Azure subscription where you have the **Owner** or **User Access Administrator** role. [Learn more](/azure/role-based-access-control/built-in-roles).
+- Permissions to create deployed resources, such as **Contributor** on the subscription when the template creates the agent resource group. You also need permissions to assign roles at subscription, target resource group, and agent scopes, such as **Role Based Access Control Administrator**, **User Access Administrator**, or **Owner** on those scopes. [Learn more](/azure/role-based-access-control/built-in-roles).
 - The `Microsoft.App` resource provider [registered](https://learn.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) on the subscription.
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) 2.60 or later.
-- `curl`, `jq`, `python3`, and `bash` available locally for the [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent).
+- For local CLI deployments only: [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) 2.60 or later, `curl`, `jq`, `python3`, and `bash` available locally for the [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent).
 
 <br>
 
@@ -35,14 +34,14 @@ The [SRE agent template](https://github.com/microsoft/finops-toolkit/tree/main/s
 | Component | Count | Description |
 |-----------|-------|-------------|
 | SRE agent | 1 | Stable [`Microsoft.App/agents`](https://learn.microsoft.com/azure/sre-agent/overview) resource in [autonomous mode](https://learn.microsoft.com/azure/sre-agent/run-modes) |
-| Managed identity | 1 | User-assigned managed identity for the agent |
+| Managed identities | 1-2 | System-assigned managed identity for the agent; portal deployments also create a user-assigned identity for the deployment script |
 | Log Analytics | 1 | Workspace for agent telemetry |
 | Application Insights | 1 | Linked to Log Analytics for monitoring |
 | Target resource group RBAC | 3-4 per target group | Reader, Monitoring Reader, Log Analytics Reader, and Contributor when `accessLevel` is `High` |
 | Azure Data Explorer role (optional) | 1 | `AllDatabasesViewer` when Azure Data Explorer parameters are provided |
 | Subagents | 5 | `finops-practitioner`, `azure-capacity-manager`, `chief-financial-officer`, `ftk-database-query`, `ftk-hubs-agent` |
 | Skills | 3 | `azure-capacity-management`, `azure-cost-management`, `finops-toolkit` |
-| Tools | 34 | Kusto and Python tools for cost, capacity, governance, and reporting workflows |
+| Tools | 50 | Kusto and Python tools for cost, capacity, governance, and reporting workflows |
 | Connector | 1 | Kusto MCP connector to the FinOps hub Azure Data Explorer cluster |
 | Scheduled tasks | 19 | Reports at daily, weekly, monthly, semiannual, and quarterly cadences |
 | Knowledge docs | 6 | Onboarding, artifact verification, Teams notification patterns, known issues, document index guidance, and the FinOps Toolkit output style |
@@ -51,9 +50,14 @@ The [SRE agent template](https://github.com/microsoft/finops-toolkit/tree/main/s
 
 ## Deploy the SRE agent
 
-The [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) is copied from the Microsoft SRE Agent starter lab and updated for the FinOps toolkit. It uses Azure CLI + Bicep directly and doesn't use `azd`:
+Use the Azure portal deployment for the same one-click experience as other FinOps toolkit templates. The template creates the Azure resources and runs an embedded deployment script to apply the FinOps hub recipe assets.
 
-### [Bash](#tab/bash)
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Deploy to Azure](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Fsre-agent%2Flatest%2Fazuredeploy.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Fsre-agent%2Flatest%2FcreateUiDefinition.json)
+<!-- prettier-ignore-end -->
+
+You can also use the [local deployment script](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent). It is copied from the Microsoft SRE Agent starter lab and updated for the FinOps toolkit. It uses Azure CLI + Bicep directly and doesn't use `azd`:
 
 ```bash
 cd src/templates/sre-agent
@@ -68,29 +72,19 @@ bash bin/deploy.sh \
   [--cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>]
 ```
 
-### [PowerShell](#tab/powershell)
+The portal deployment is the customer-facing template entry point. `bin/deploy.sh` remains available for local CLI automation.
 
-```powershell
-cd src/templates/sre-agent
-
-pwsh -Command './src/scripts/Deploy-Toolkit sre-agent'
-```
-
----
-
-PowerShell deployment support is planned through the toolkit wrapper. The customer-facing template entry point today is `bin/deploy.sh`.
-
-The [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent):
+The local [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent):
 
 1. Sets the `az` CLI context to the target subscription. This step is required for [B2B tenant environments](#troubleshoot-b2b-tenant-environments).
 2. Runs a subscription-scoped Azure CLI + Bicep deployment from `infra/main.bicep`.
 3. Runs `bin/apply-extras.sh`, which applies the recipe assets that are not deployed by Bicep.
 
-The extras step follows the Microsoft SRE Agent template pattern: connectors and KnowledgeFile sources are applied as SRE Agent child resources, while built-in tool configuration, 3 skills, 5 subagents, 34 tools, and 19 scheduled tasks are applied through the SRE Agent data plane.
+The extras step follows the Microsoft SRE Agent template pattern: connectors and KnowledgeFile sources are applied as SRE Agent child resources, while built-in tool configuration, 3 skills, 5 subagents, 50 tools, and 19 scheduled tasks are applied through the SRE Agent data plane.
 
 ### Grant the optional Azure Data Explorer viewer role
 
-To grant the agent's managed identity the `AllDatabasesViewer` role on your Azure Data Explorer cluster, pass `--cluster-uri`. The deployment resolves the cluster ARM resource ID from the URI when the cluster is in the target subscription. If the cluster is in another subscription or can't be resolved, pass `--cluster-resource-id` explicitly. The deployment uses the [Azure Data Explorer role module](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/infra/modules/kusto-viewer-rbac.bicep):
+To grant the agent's managed identity the `AllDatabasesViewer` role on your Azure Data Explorer cluster, pass `--cluster-uri`. The deployment resolves the cluster ARM resource ID from the URI when the cluster is in the target subscription. If the cluster is in another subscription or can't be resolved, pass `--cluster-resource-id` explicitly. The deployment uses the [Azure Data Explorer role module](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/infra/modules/kusto-all-databases-viewer-rbac.bicep):
 
 ```bash
 --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
@@ -130,7 +124,7 @@ After `bin/deploy.sh` completes, use the template's [post-deployment verificatio
 
 1. Confirm `bin/apply-extras.sh` completed without errors.
 2. Open [sre.azure.com](https://sre.azure.com), switch to the directory that contains your subscription, and select your agent.
-3. Confirm 5 subagents, 3 skills, and 34 tools appear in **Builder**.
+3. Confirm 5 subagents, 3 skills, and 50 tools appear in **Builder**.
 4. Go to **Scheduled tasks** and confirm 19 tasks are listed and active.
 5. Ask the agent: `What knowledge documents do you have?` and confirm the shipped knowledge is available.
 
@@ -211,7 +205,7 @@ The analytical subagents include `execute_python` where they need calculations, 
 
 ## Review supported regions
 
-The Azure SRE Agent deployment supports `swedencentral`, `eastus2`, and `australiaeast`. The [Bicep template](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/infra/main.bicep) restricts the `location` parameter with `@allowed`.
+The Azure SRE Agent deployment supports `australiaeast`, `canadacentral`, `eastus2`, `francecentral`, `koreacentral`, `swedencentral`, and `uksouth`. The [Bicep template](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/main.bicep) restricts the `location` parameter with `@allowed`.
 
 <br>
 

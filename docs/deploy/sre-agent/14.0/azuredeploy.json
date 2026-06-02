@@ -1,0 +1,1119 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.40.2.10011",
+      "templateHash": "2403415415579441400"
+    }
+  },
+  "parameters": {
+    "resourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource group that holds the SRE Agent resources."
+      }
+    },
+    "agentName": {
+      "type": "string",
+      "metadata": {
+        "description": "SRE Agent name."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus2",
+      "allowedValues": [
+        "australiaeast",
+        "canadacentral",
+        "eastus2",
+        "francecentral",
+        "koreacentral",
+        "swedencentral",
+        "uksouth"
+      ],
+      "metadata": {
+        "description": "Primary location for all resources."
+      }
+    },
+    "targetResourceGroups": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Resource groups the agent can observe or act on. The agent resource group is always included."
+      }
+    },
+    "targetResourceGroupNames": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Comma-separated resource groups the agent can observe or act on. Used by the Azure portal form."
+      }
+    },
+    "finopsHubKustoConnectorUri": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional database-qualified FinOps Hub Kusto connector URI. Example: https://<cluster>.<region>.kusto.windows.net/Hub"
+      }
+    },
+    "finopsHubKustoClusterResourceId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional. FinOps Hub Azure Data Explorer cluster resource ID for Kusto viewer assignment."
+      }
+    },
+    "accessLevel": {
+      "type": "string",
+      "defaultValue": "High",
+      "allowedValues": [
+        "Low",
+        "High"
+      ],
+      "metadata": {
+        "description": "Agent access level."
+      }
+    },
+    "actionMode": {
+      "type": "string",
+      "defaultValue": "autonomous",
+      "allowedValues": [
+        "review",
+        "autonomous",
+        "readOnly"
+      ],
+      "metadata": {
+        "description": "Agent action mode."
+      }
+    },
+    "upgradeChannel": {
+      "type": "string",
+      "defaultValue": "Preview",
+      "allowedValues": [
+        "Stable",
+        "Preview"
+      ],
+      "metadata": {
+        "description": "Agent upgrade channel."
+      }
+    },
+    "defaultModelProvider": {
+      "type": "string",
+      "defaultValue": "MicrosoftFoundry",
+      "allowedValues": [
+        "MicrosoftFoundry",
+        "Anthropic"
+      ],
+      "metadata": {
+        "description": "Default SRE Agent model provider. MicrosoftFoundry maps to the Azure OpenAI provider in the SRE Agent portal."
+      }
+    },
+    "defaultModelName": {
+      "type": "string",
+      "defaultValue": "Automatic",
+      "metadata": {
+        "description": "Default SRE Agent model name. Automatic lets SRE Agent route to the appropriate model within the selected provider."
+      }
+    },
+    "monthlyAgentUnitLimit": {
+      "type": "int",
+      "defaultValue": 10000,
+      "minValue": 1,
+      "metadata": {
+        "description": "Monthly agent unit limit."
+      }
+    },
+    "experimentalSettings": {
+      "type": "object",
+      "defaultValue": {
+        "EnableSandboxGroup": true,
+        "EnableWorkspaceTools": true
+      },
+      "metadata": {
+        "description": "Agent experimental settings."
+      }
+    },
+    "enableSubscriptionReaderRole": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Assign Reader on the deployment subscription to the agent managed identity."
+      }
+    },
+    "recipePackageUri": {
+      "type": "string",
+      "defaultValue": "[uri(deployment().properties.templateLink.uri, 'sre-agent-recipe.zip')]",
+      "metadata": {
+        "description": "Public URI for the generated SRE Agent recipe package. Deploy-to-Azure links derive this from the template URI."
+      }
+    },
+    "forceUpdateTag": {
+      "type": "string",
+      "defaultValue": "[utcNow()]",
+      "metadata": {
+        "description": "Forces the recipe deployment script to run when the template is redeployed."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {
+        "finops-toolkit": "sre-agent",
+        "source": "microsoft-finops-toolkit"
+      },
+      "metadata": {
+        "description": "Azure resource tags."
+      }
+    }
+  },
+  "variables": {
+    "copy": [
+      {
+        "name": "targetRgIds",
+        "count": "[length(variables('targetRgs'))]",
+        "input": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('targetRgs')[copyIndex('targetRgIds')])]"
+      }
+    ],
+    "rawTargetResourceGroups": "[split(replace(parameters('targetResourceGroupNames'), ' ', ''), ',')]",
+    "parsedTargetResourceGroups": "[filter(variables('rawTargetResourceGroups'), lambda('rgName', not(empty(lambdaVariables('rgName')))))]",
+    "targetRgs": "[union(createArray(parameters('resourceGroupName')), parameters('targetResourceGroups'), variables('parsedTargetResourceGroups'))]",
+    "agentResourceGroupId": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]",
+    "namingSeed": "[toLower(format('{0}|{1}|{2}', subscription().subscriptionId, variables('agentResourceGroupId'), parameters('agentName')))]",
+    "readerRoleId": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
+    "hasKustoCluster": "[not(empty(parameters('finopsHubKustoClusterResourceId')))]",
+    "kustoClusterSubscriptionId": "[if(variables('hasKustoCluster'), split(parameters('finopsHubKustoClusterResourceId'), '/')[2], '')]",
+    "kustoClusterResourceGroupName": "[if(variables('hasKustoCluster'), split(parameters('finopsHubKustoClusterResourceId'), '/')[4], '')]",
+    "kustoClusterName": "[if(variables('hasKustoCluster'), split(parameters('finopsHubKustoClusterResourceId'), '/')[8], '')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('resourceGroupName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]"
+    },
+    {
+      "condition": "[parameters('enableSubscriptionReaderRole')]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[guid(subscription().id, variables('namingSeed'), variables('readerRoleId'))]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('readerRoleId'))]",
+        "principalId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.agentPrincipalId.value]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "resources-deployment",
+      "resourceGroup": "[parameters('resourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "agentName": {
+            "value": "[parameters('agentName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "namingSeed": {
+            "value": "[variables('namingSeed')]"
+          },
+          "targetResourceGroupIds": {
+            "value": "[variables('targetRgIds')]"
+          },
+          "accessLevel": {
+            "value": "[parameters('accessLevel')]"
+          },
+          "actionMode": {
+            "value": "[parameters('actionMode')]"
+          },
+          "upgradeChannel": {
+            "value": "[parameters('upgradeChannel')]"
+          },
+          "defaultModelProvider": {
+            "value": "[parameters('defaultModelProvider')]"
+          },
+          "defaultModelName": {
+            "value": "[parameters('defaultModelName')]"
+          },
+          "monthlyAgentUnitLimit": {
+            "value": "[parameters('monthlyAgentUnitLimit')]"
+          },
+          "experimentalSettings": {
+            "value": "[parameters('experimentalSettings')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.40.2.10011",
+              "templateHash": "11748842726639098374"
+            }
+          },
+          "parameters": {
+            "agentName": {
+              "type": "string",
+              "metadata": {
+                "description": "SRE Agent name."
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for all resources."
+              }
+            },
+            "namingSeed": {
+              "type": "string",
+              "metadata": {
+                "description": "Deterministic naming seed built from subscription ID, agent resource group ID, and agent name."
+              }
+            },
+            "targetResourceGroupIds": {
+              "type": "array",
+              "metadata": {
+                "description": "Resource group IDs shown as managed resources in the SRE Agent."
+              }
+            },
+            "accessLevel": {
+              "type": "string",
+              "metadata": {
+                "description": "Agent access level."
+              }
+            },
+            "actionMode": {
+              "type": "string",
+              "metadata": {
+                "description": "Agent action mode."
+              }
+            },
+            "upgradeChannel": {
+              "type": "string",
+              "metadata": {
+                "description": "Agent upgrade channel."
+              }
+            },
+            "defaultModelProvider": {
+              "type": "string",
+              "metadata": {
+                "description": "Default SRE Agent model provider."
+              }
+            },
+            "defaultModelName": {
+              "type": "string",
+              "metadata": {
+                "description": "Default SRE Agent model name."
+              }
+            },
+            "monthlyAgentUnitLimit": {
+              "type": "int",
+              "metadata": {
+                "description": "Monthly agent unit limit."
+              }
+            },
+            "experimentalSettings": {
+              "type": "object",
+              "metadata": {
+                "description": "Agent experimental settings."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Azure resource tags."
+              }
+            }
+          },
+          "variables": {
+            "uniqueSuffix": "[uniqueString(parameters('namingSeed'))]",
+            "logAnalyticsName": "[format('law-{0}', variables('uniqueSuffix'))]",
+            "appInsightsName": "[format('appi-{0}', variables('uniqueSuffix'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "monitoring",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "logAnalyticsName": {
+                    "value": "[variables('logAnalyticsName')]"
+                  },
+                  "appInsightsName": {
+                    "value": "[variables('appInsightsName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.40.2.10011",
+                      "templateHash": "9164683275614055037"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Location for resources"
+                      }
+                    },
+                    "logAnalyticsName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Log Analytics Workspace name"
+                      }
+                    },
+                    "appInsightsName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Application Insights name"
+                      }
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.OperationalInsights/workspaces",
+                      "apiVersion": "2023-09-01",
+                      "name": "[parameters('logAnalyticsName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "sku": {
+                          "name": "PerGB2018"
+                        },
+                        "retentionInDays": 30
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Insights/components",
+                      "apiVersion": "2020-02-02",
+                      "name": "[parameters('appInsightsName')]",
+                      "location": "[parameters('location')]",
+                      "kind": "web",
+                      "properties": {
+                        "Application_Type": "web",
+                        "Request_Source": "IbizaAIExtension",
+                        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsName'))]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsName'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "logAnalyticsWorkspaceId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsName'))]"
+                    },
+                    "logAnalyticsWorkspaceName": {
+                      "type": "string",
+                      "value": "[parameters('logAnalyticsName')]"
+                    },
+                    "appInsightsId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Insights/components', parameters('appInsightsName'))]"
+                    },
+                    "appInsightsAppId": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightsName')), '2020-02-02').AppId]"
+                    },
+                    "appInsightsConnectionString": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightsName')), '2020-02-02').ConnectionString]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "sre-agent",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "agentName": {
+                    "value": "[parameters('agentName')]"
+                  },
+                  "appInsightsAppId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring'), '2025-04-01').outputs.appInsightsAppId.value]"
+                  },
+                  "appInsightsConnectionString": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring'), '2025-04-01').outputs.appInsightsConnectionString.value]"
+                  },
+                  "appInsightsId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring'), '2025-04-01').outputs.appInsightsId.value]"
+                  },
+                  "managedResourceGroupIds": {
+                    "value": "[parameters('targetResourceGroupIds')]"
+                  },
+                  "accessLevel": {
+                    "value": "[parameters('accessLevel')]"
+                  },
+                  "actionMode": {
+                    "value": "[parameters('actionMode')]"
+                  },
+                  "upgradeChannel": {
+                    "value": "[parameters('upgradeChannel')]"
+                  },
+                  "defaultModelProvider": {
+                    "value": "[parameters('defaultModelProvider')]"
+                  },
+                  "defaultModelName": {
+                    "value": "[parameters('defaultModelName')]"
+                  },
+                  "monthlyAgentUnitLimit": {
+                    "value": "[parameters('monthlyAgentUnitLimit')]"
+                  },
+                  "experimentalSettings": {
+                    "value": "[parameters('experimentalSettings')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.40.2.10011",
+                      "templateHash": "6562535881153200016"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Location for resources."
+                      }
+                    },
+                    "agentName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "SRE Agent name."
+                      }
+                    },
+                    "appInsightsAppId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Application Insights App ID."
+                      }
+                    },
+                    "appInsightsConnectionString": {
+                      "type": "securestring",
+                      "metadata": {
+                        "description": "Application Insights connection string."
+                      }
+                    },
+                    "appInsightsId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Application Insights resource ID."
+                      }
+                    },
+                    "managedResourceGroupIds": {
+                      "type": "array",
+                      "metadata": {
+                        "description": "Resource group IDs to add as managed resources."
+                      }
+                    },
+                    "accessLevel": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Agent access level."
+                      }
+                    },
+                    "actionMode": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Agent action mode."
+                      }
+                    },
+                    "upgradeChannel": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Agent upgrade channel."
+                      }
+                    },
+                    "defaultModelProvider": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Default SRE Agent model provider."
+                      }
+                    },
+                    "defaultModelName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Default SRE Agent model name."
+                      }
+                    },
+                    "monthlyAgentUnitLimit": {
+                      "type": "int",
+                      "metadata": {
+                        "description": "Monthly agent unit limit."
+                      }
+                    },
+                    "experimentalSettings": {
+                      "type": "object",
+                      "metadata": {
+                        "description": "Agent experimental settings."
+                      }
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {},
+                      "metadata": {
+                        "description": "Azure resource tags."
+                      }
+                    }
+                  },
+                  "variables": {
+                    "sreAgentAdminRoleId": "e79298df-d852-4c6d-84f9-5d13249d1e55"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.App/agents",
+                      "apiVersion": "2026-01-01",
+                      "name": "[parameters('agentName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(parameters('tags'), createObject('hidden-link: /app-insights-resource-id', parameters('appInsightsId'), 'source', 'microsoft-sre-agent-starter-lab', 'finops-toolkit', 'sre-agent'))]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
+                      "properties": {
+                        "knowledgeGraphConfiguration": {
+                          "managedResources": "[parameters('managedResourceGroupIds')]",
+                          "identity": "system"
+                        },
+                        "actionConfiguration": {
+                          "mode": "[parameters('actionMode')]",
+                          "identity": "system",
+                          "accessLevel": "[parameters('accessLevel')]"
+                        },
+                        "upgradeChannel": "[parameters('upgradeChannel')]",
+                        "defaultModel": {
+                          "provider": "[parameters('defaultModelProvider')]",
+                          "name": "[parameters('defaultModelName')]"
+                        },
+                        "monthlyAgentUnitLimit": "[parameters('monthlyAgentUnitLimit')]",
+                        "experimentalSettings": "[parameters('experimentalSettings')]",
+                        "mcpServers": [],
+                        "logConfiguration": {
+                          "applicationInsightsConfiguration": {
+                            "appId": "[parameters('appInsightsAppId')]",
+                            "connectionString": "[parameters('appInsightsConnectionString')]"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[resourceId('Microsoft.App/agents', parameters('agentName'))]",
+                      "name": "[guid(resourceId('Microsoft.App/agents', parameters('agentName')), deployer().objectId, variables('sreAgentAdminRoleId'))]",
+                      "properties": {
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('sreAgentAdminRoleId'))]",
+                        "principalId": "[deployer().objectId]",
+                        "principalType": "User"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.App/agents', parameters('agentName'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "agentName": {
+                      "type": "string",
+                      "value": "[parameters('agentName')]"
+                    },
+                    "agentId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.App/agents', parameters('agentName'))]"
+                    },
+                    "agentEndpoint": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.App/agents', parameters('agentName')), '2026-01-01').agentEndpoint]"
+                    },
+                    "agentPortalUrl": {
+                      "type": "string",
+                      "value": "[format('https://sre.azure.com/#/agent/{0}/{1}/{2}', subscription().subscriptionId, resourceGroup().name, parameters('agentName'))]"
+                    },
+                    "agentPrincipalId": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.App/agents', parameters('agentName')), '2026-01-01', 'full').identity.principalId]"
+                    },
+                    "agentTenantId": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.App/agents', parameters('agentName')), '2026-01-01', 'full').identity.tenantId]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'monitoring')]"
+              ]
+            }
+          ],
+          "outputs": {
+            "agentName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'sre-agent'), '2025-04-01').outputs.agentName.value]"
+            },
+            "agentEndpoint": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'sre-agent'), '2025-04-01').outputs.agentEndpoint.value]"
+            },
+            "agentPortalUrl": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'sre-agent'), '2025-04-01').outputs.agentPortalUrl.value]"
+            },
+            "agentPrincipalId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'sre-agent'), '2025-04-01').outputs.agentPrincipalId.value]"
+            },
+            "agentTenantId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'sre-agent'), '2025-04-01').outputs.agentTenantId.value]"
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring'), '2025-04-01').outputs.logAnalyticsWorkspaceId.value]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "targetRbac",
+        "count": "[length(variables('targetRgs'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('target-rbac-{0}', uniqueString(toLower(subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('targetRgs')[copyIndex()])), variables('namingSeed')))]",
+      "resourceGroup": "[variables('targetRgs')[copyIndex()]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "principalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.agentPrincipalId.value]"
+          },
+          "accessLevel": {
+            "value": "[parameters('accessLevel')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.40.2.10011",
+              "templateHash": "6305641259472431615"
+            }
+          },
+          "parameters": {
+            "principalId": {
+              "type": "string",
+              "metadata": {
+                "description": "Principal ID of the managed identity to assign roles to."
+              }
+            },
+            "accessLevel": {
+              "type": "string",
+              "allowedValues": [
+                "Low",
+                "High"
+              ],
+              "metadata": {
+                "description": "Agent access level."
+              }
+            }
+          },
+          "variables": {
+            "readerRoleId": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
+            "monitoringReaderRoleId": "43d0d8ad-25c7-4714-9337-8ba259a9fe05",
+            "logAnalyticsReaderRoleId": "73c42c96-874c-492b-b04d-ab87d138a893",
+            "contributorRoleId": "b24988ac-6180-42a0-ab88-20f7382dd24c",
+            "roleIds": "[if(equals(parameters('accessLevel'), 'High'), createArray(variables('readerRoleId'), variables('monitoringReaderRoleId'), variables('logAnalyticsReaderRoleId'), variables('contributorRoleId')), createArray(variables('readerRoleId'), variables('monitoringReaderRoleId'), variables('logAnalyticsReaderRoleId')))]"
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "roleAssignments",
+                "count": "[length(variables('roleIds'))]"
+              },
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "name": "[guid(resourceGroup().id, parameters('principalId'), variables('roleIds')[copyIndex()])]",
+              "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('roleIds')[copyIndex()])]",
+                "principalId": "[parameters('principalId')]",
+                "principalType": "ServicePrincipal"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment')]"
+      ]
+    },
+    {
+      "condition": "[variables('hasKustoCluster')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('kusto-rbac-{0}', uniqueString(parameters('finopsHubKustoClusterResourceId'), variables('namingSeed')))]",
+      "subscriptionId": "[variables('kustoClusterSubscriptionId')]",
+      "resourceGroup": "[variables('kustoClusterResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "clusterName": {
+            "value": "[variables('kustoClusterName')]"
+          },
+          "principalApplicationId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.agentPrincipalId.value]"
+          },
+          "principalTenantId": {
+            "value": "[tenant().tenantId]"
+          },
+          "principalAssignmentName": {
+            "value": "[format('sre-agent-{0}', uniqueString(parameters('finopsHubKustoClusterResourceId'), variables('namingSeed'), 'all-db-viewer'))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.40.2.10011",
+              "templateHash": "15341408879505554256"
+            }
+          },
+          "parameters": {
+            "clusterName": {
+              "type": "string",
+              "metadata": {
+                "description": "Kusto cluster name."
+              }
+            },
+            "principalApplicationId": {
+              "type": "string",
+              "metadata": {
+                "description": "Microsoft Entra application/client ID to assign to the Kusto cluster."
+              }
+            },
+            "principalTenantId": {
+              "type": "string",
+              "metadata": {
+                "description": "Principal tenant ID."
+              }
+            },
+            "principalAssignmentName": {
+              "type": "string",
+              "metadata": {
+                "description": "Stable principal assignment name."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Kusto/clusters/principalAssignments",
+              "apiVersion": "2024-04-13",
+              "name": "[format('{0}/{1}', parameters('clusterName'), parameters('principalAssignmentName'))]",
+              "properties": {
+                "principalId": "[parameters('principalApplicationId')]",
+                "principalType": "App",
+                "role": "AllDatabasesViewer",
+                "tenantId": "[parameters('principalTenantId')]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "apply-extras",
+      "resourceGroup": "[parameters('resourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "agentName": {
+            "value": "[parameters('agentName')]"
+          },
+          "agentEndpoint": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.agentEndpoint.value]"
+          },
+          "subscriptionId": {
+            "value": "[subscription().subscriptionId]"
+          },
+          "recipePackageUri": {
+            "value": "[parameters('recipePackageUri')]"
+          },
+          "kustoConnectorUri": {
+            "value": "[parameters('finopsHubKustoConnectorUri')]"
+          },
+          "forceUpdateTag": {
+            "value": "[parameters('forceUpdateTag')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.40.2.10011",
+              "templateHash": "5168893811325309322"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for the deployment script resources."
+              }
+            },
+            "agentName": {
+              "type": "string",
+              "metadata": {
+                "description": "SRE Agent name."
+              }
+            },
+            "agentEndpoint": {
+              "type": "string",
+              "metadata": {
+                "description": "SRE Agent data-plane endpoint."
+              }
+            },
+            "subscriptionId": {
+              "type": "string",
+              "metadata": {
+                "description": "Subscription that contains the SRE Agent."
+              }
+            },
+            "recipePackageUri": {
+              "type": "string",
+              "metadata": {
+                "description": "Public URI for the generated SRE Agent recipe package."
+              }
+            },
+            "kustoConnectorUri": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Optional database-qualified Kusto connector URI."
+              }
+            },
+            "forceUpdateTag": {
+              "type": "string",
+              "metadata": {
+                "description": "Forces the deployment script to run when the template is redeployed."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Azure resource tags."
+              }
+            }
+          },
+          "variables": {
+            "$fxv#0": "# Copyright (c) Microsoft Corporation.\n# Licensed under the MIT License.\n\n$ErrorActionPreference = 'Stop'\n\nfunction Get-RequiredEnv($Name) {\n    $value = [Environment]::GetEnvironmentVariable($Name)\n    if ([string]::IsNullOrWhiteSpace($value)) {\n        throw \"Missing required environment variable: $Name\"\n    }\n    return $value\n}\n\nfunction Get-OptionalEnv($Name) {\n    return [Environment]::GetEnvironmentVariable($Name)\n}\n\nfunction ConvertTo-BodyJson($Value) {\n    return ($Value | ConvertTo-Json -Depth 100 -Compress)\n}\n\nfunction Get-PropertyValue($Object, [string[]]$Names, $Default = '') {\n    foreach ($name in $Names) {\n        if ($null -ne $Object -and $Object.PSObject.Properties[$name] -and $null -ne $Object.$name) {\n            return $Object.$name\n        }\n    }\n    return $Default\n}\n\nfunction Get-HttpStatusCode($Exception) {\n    if ($Exception.Response -and $Exception.Response.StatusCode) {\n        return [int]$Exception.Response.StatusCode\n    }\n    return $null\n}\n\nfunction Invoke-WithRetry([scriptblock]$Action, [string]$Label, [int]$MaxAttempts = 5, [int]$DelaySeconds = 15) {\n    for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {\n        try {\n            return & $Action\n        }\n        catch {\n            $statusCode = Get-HttpStatusCode $_.Exception\n            if ($statusCode -and $statusCode -notin @(401, 403, 408, 429, 500, 502, 503, 504)) {\n                throw\n            }\n            if ($attempt -eq $MaxAttempts) {\n                throw\n            }\n            Write-Output \"$Label attempt $attempt/$MaxAttempts failed: $($_.Exception.Message)\"\n            Start-Sleep -Seconds $DelaySeconds\n        }\n    }\n}\n\nfunction Invoke-JsonRest([string]$Method, [string]$Uri, [string]$Token, $Body = $null) {\n    $headers = @{\n        Authorization = \"Bearer $Token\"\n        'Content-Type' = 'application/json'\n    }\n    $parameters = @{\n        Method = $Method\n        Uri = $Uri\n        Headers = $headers\n    }\n    if ($null -ne $Body) {\n        $parameters.Body = ConvertTo-BodyJson $Body\n    }\n    return Invoke-RestMethod @parameters\n}\n\nfunction Get-KnowledgeSourceName([string]$FileName) {\n    $name = [IO.Path]::GetFileName($FileName).ToLowerInvariant() -replace '[^a-z0-9-]+', '-'\n    $name = $name -replace '-+', '-'\n    return $name.Trim('-')\n}\n\nfunction Get-Collection($Value) {\n    if ($null -eq $Value) {\n        return @()\n    }\n    return @($Value)\n}\n\nfunction Convert-TokenToString($Token) {\n    if ($Token -is [Security.SecureString]) {\n        $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($Token)\n        try {\n            return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)\n        }\n        finally {\n            [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)\n        }\n    }\n    return [string]$Token\n}\n\nfunction Get-ArmAccessTokenString() {\n    return Convert-TokenToString (Get-AzAccessToken -ResourceUrl 'https://management.azure.com/').Token\n}\n\nfunction Get-SreAccessTokenString() {\n    return Convert-TokenToString (Get-AzAccessToken -ResourceUrl 'https://azuresre.dev').Token\n}\n\n$subscriptionId = Get-RequiredEnv 'subscriptionId'\n$resourceGroupName = Get-RequiredEnv 'resourceGroupName'\n$agentName = Get-RequiredEnv 'agentName'\n$agentEndpoint = (Get-RequiredEnv 'agentEndpoint').TrimEnd('/')\n$recipePackageUri = Get-RequiredEnv 'recipePackageUri'\n$kustoConnectorUri = Get-OptionalEnv 'kustoConnectorUri'\n$armApiVersion = '2025-05-01-preview'\n$armBase = \"https://management.azure.com/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.App/agents/$agentName\"\n\nWrite-Output 'Connecting with deployment script managed identity...'\nConnect-AzAccount -Identity | Out-Null\nSet-AzContext -Subscription $subscriptionId | Out-Null\n\n$workRoot = Join-Path $env:TEMP 'sre-agent-recipe'\n$zipPath = Join-Path $env:TEMP 'sre-agent-recipe.zip'\nRemove-Item $workRoot -Recurse -Force -ErrorAction SilentlyContinue\nNew-Item -Path $workRoot -ItemType Directory -Force | Out-Null\n\nWrite-Output \"Downloading SRE Agent recipe package: $recipePackageUri\"\nInvoke-WithRetry -Label 'download recipe package' -Action {\n    Invoke-WebRequest -Uri $recipePackageUri -OutFile $zipPath\n} | Out-Null\nExpand-Archive -Path $zipPath -DestinationPath $workRoot -Force\n\n$extrasPath = Join-Path $workRoot 'extras.json'\nif (-not (Test-Path $extrasPath)) {\n    throw \"Recipe package did not contain extras.json\"\n}\n\n$extras = Get-Content $extrasPath -Raw | ConvertFrom-Json -Depth 100\nWrite-Output \"Loaded recipe package from $extrasPath\"\n\nif ([string]::IsNullOrWhiteSpace($kustoConnectorUri)) {\n    $extras.connectors = @(\n        Get-Collection $extras.connectors | Where-Object {\n            $type = Get-PropertyValue $_.properties @('dataConnectorType', 'type')\n            $type -ine 'Kusto'\n        }\n    )\n}\nelse {\n    foreach ($connector in Get-Collection $extras.connectors) {\n        $type = Get-PropertyValue $connector.properties @('dataConnectorType', 'type')\n        if ($type -ieq 'Kusto') {\n            $connector.properties.dataSource = $kustoConnectorUri\n            if (-not $connector.properties.PSObject.Properties['identity']) {\n                $connector.properties | Add-Member -MemberType NoteProperty -Name identity -Value 'system'\n            }\n        }\n    }\n}\n\nfunction Invoke-ArmPutConnector([string]$Name, $Body) {\n    $uri = \"$armBase/connectors/$Name`?api-version=$armApiVersion\"\n    Invoke-WithRetry -Label \"ARM PUT connector $Name\" -Action {\n        Invoke-JsonRest -Method PUT -Uri $uri -Token (Get-ArmAccessTokenString) -Body $Body\n    } | Out-Null\n    Write-Output \"  ARM PUT connectors/${Name}: ok\"\n}\n\nfunction Invoke-SreApi([string]$Method, [string]$Path, $Body = $null) {\n    $uri = \"$agentEndpoint$Path\"\n    return Invoke-WithRetry -Label \"$Method $Path\" -MaxAttempts 21 -DelaySeconds 30 -Action {\n        Invoke-JsonRest -Method $Method -Uri $uri -Token (Get-SreAccessTokenString) -Body $Body\n    }\n}\n\nfunction Invoke-ExtendedPut([string]$Kind, [string]$Name, [string]$Type, $Properties) {\n    $encodedName = [Uri]::EscapeDataString($Name)\n    $body = @{\n        name = $Name\n        type = $Type\n        tags = @()\n        properties = $Properties\n    }\n    Invoke-SreApi -Method PUT -Path \"/api/v2/extendedAgent/$Kind/$encodedName\" -Body $body | Out-Null\n    Write-Output \"  PUT $Kind/${Name}: ok\"\n}\n\nWrite-Output 'Step 1/7: Applying connectors...'\nforeach ($connector in Get-Collection $extras.connectors) {\n    $name = [string]$connector.name\n    $properties = $connector.properties\n    if (-not $properties.PSObject.Properties['identity']) {\n        $properties | Add-Member -MemberType NoteProperty -Name identity -Value 'system'\n    }\n    Invoke-ArmPutConnector -Name $name -Body @{ properties = $properties }\n}\n\nWrite-Output 'Step 2/7: Configuring built-in tools...'\n$overrides = Get-Collection $extras.builtInTools.overrides\nif ($overrides.Count -gt 0) {\n    $body = @{\n        overrides = @($overrides | ForEach-Object {\n            @{\n                name = $_.name\n                enabled = [bool]$_.enabled\n            }\n        })\n    }\n    Invoke-SreApi -Method POST -Path '/api/v2/agent/tools/configure' -Body $body | Out-Null\n    Write-Output \"  built-in tools configured: $($overrides.Count) overrides\"\n}\n\nWrite-Output 'Step 3/7: Uploading knowledge sources...'\nforeach ($item in Get-Collection $extras.knowledgeItems) {\n    $sourceName = Get-KnowledgeSourceName ([string]$item.name)\n    $bytes = [Text.Encoding]::UTF8.GetBytes([string]$item.content)\n    $body = @{\n        properties = @{\n            dataConnectorType = 'KnowledgeFile'\n            dataSource = $sourceName\n            extendedProperties = @{\n                displayName = [string]$item.name\n                fileName = [string]$item.name\n                fileContent = [Convert]::ToBase64String($bytes)\n                contentType = [string](Get-PropertyValue $item @('contentType') 'application/octet-stream')\n            }\n        }\n    }\n    Invoke-ArmPutConnector -Name $sourceName -Body $body\n    Start-Sleep -Seconds 5\n}\n\nWrite-Output 'Step 4/7: Applying tools...'\nforeach ($tool in Get-Collection $extras.tools) {\n    $name = [string]$tool.metadata.name\n    $properties = $tool.spec\n    if ($properties.type -eq 'PythonTool') {\n        $properties.type = 'PythonFunctionTool'\n    }\n    Invoke-ExtendedPut -Kind 'tools' -Name $name -Type 'ExtendedAgentTool' -Properties $properties\n}\n\nWrite-Output 'Step 5/7: Applying skills...'\nforeach ($skill in Get-Collection $extras.skills) {\n    $name = [string]$skill.metadata.name\n    $tools = @()\n    if ($skill.metadata.spec -and $skill.metadata.spec.tools) {\n        $tools = Get-Collection $skill.metadata.spec.tools\n    }\n    $properties = @{\n        name = $name\n        description = [string](Get-PropertyValue $skill.metadata @('description'))\n        tools = $tools\n        skillContent = [string](Get-PropertyValue $skill @('skillContent'))\n        additionalFiles = @()\n    }\n    Invoke-ExtendedPut -Kind 'skills' -Name $name -Type 'Skill' -Properties $properties\n}\n\nWrite-Output 'Step 6/7: Applying subagents...'\nforeach ($subagent in Get-Collection $extras.subagents) {\n    $name = [string]$subagent.metadata.name\n    Invoke-ExtendedPut -Kind 'agents' -Name $name -Type 'ExtendedAgent' -Properties $subagent.spec\n}\n\nWrite-Output 'Step 7/7: Applying scheduled tasks...'\n$scheduledTasks = Get-Collection $extras.scheduledTasks\nif ($scheduledTasks.Count -gt 0) {\n    $existing = Invoke-SreApi -Method GET -Path '/api/v1/scheduledtasks'\n    foreach ($task in $scheduledTasks) {\n        $name = [string]$task.metadata.name\n        foreach ($match in (Get-Collection $existing | Where-Object { $_.name -eq $name })) {\n            if ($match.id) {\n                Invoke-SreApi -Method DELETE -Path \"/api/v1/scheduledtasks/$($match.id)\" | Out-Null\n                Write-Output \"  deleted existing scheduledtasks/$name\"\n            }\n        }\n    }\n\n    foreach ($task in $scheduledTasks) {\n        $name = [string]$task.metadata.name\n        $spec = $task.spec\n        $properties = @{\n            name = [string](Get-PropertyValue $spec @('name') $name)\n            description = [string](Get-PropertyValue $spec @('description'))\n            cronExpression = [string](Get-PropertyValue $spec @('schedule', 'cronExpression', 'cron_expression'))\n            agentPrompt = [string](Get-PropertyValue $spec @('prompt', 'agentPrompt', 'agent_prompt'))\n            agentMode = [string](Get-PropertyValue $spec @('mode', 'agentMode', 'agent_mode') 'Review')\n            isEnabled = [bool](Get-PropertyValue $spec @('enabled') $true)\n            agent = [string](Get-PropertyValue $spec @('agent'))\n        }\n        Invoke-ExtendedPut -Kind 'scheduledtasks' -Name $name -Type 'ScheduledTask' -Properties $properties\n    }\n}\n\nWrite-Output 'SRE Agent extras complete.'\n",
+            "identityName": "[format('id-sre-apply-{0}', uniqueString(resourceGroup().id, parameters('agentName')))]",
+            "scriptName": "[format('apply-sre-{0}', uniqueString(resourceGroup().id, parameters('agentName')))]",
+            "sreAgentAdminRoleId": "e79298df-d852-4c6d-84f9-5d13249d1e55"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2023-01-31",
+              "name": "[variables('identityName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]"
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.App/agents', parameters('agentName'))]",
+              "name": "[guid(resourceId('Microsoft.App/agents', parameters('agentName')), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName')), variables('sreAgentAdminRoleId'))]",
+              "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('sreAgentAdminRoleId'))]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName')), '2023-01-31').principalId]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deploymentScripts",
+              "apiVersion": "2023-08-01",
+              "name": "[variables('scriptName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "kind": "AzurePowerShell",
+              "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName')))]": {}
+                }
+              },
+              "properties": {
+                "azPowerShellVersion": "11.0",
+                "retentionInterval": "PT1H",
+                "cleanupPreference": "OnSuccess",
+                "timeout": "PT2H",
+                "forceUpdateTag": "[parameters('forceUpdateTag')]",
+                "scriptContent": "[variables('$fxv#0')]",
+                "environmentVariables": [
+                  {
+                    "name": "subscriptionId",
+                    "value": "[parameters('subscriptionId')]"
+                  },
+                  {
+                    "name": "resourceGroupName",
+                    "value": "[resourceGroup().name]"
+                  },
+                  {
+                    "name": "agentName",
+                    "value": "[parameters('agentName')]"
+                  },
+                  {
+                    "name": "agentEndpoint",
+                    "value": "[parameters('agentEndpoint')]"
+                  },
+                  {
+                    "name": "recipePackageUri",
+                    "value": "[parameters('recipePackageUri')]"
+                  },
+                  {
+                    "name": "kustoConnectorUri",
+                    "value": "[parameters('kustoConnectorUri')]"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))]",
+                "[extensionResourceId(resourceId('Microsoft.App/agents', parameters('agentName')), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.App/agents', parameters('agentName')), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName')), variables('sreAgentAdminRoleId')))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "identityName": {
+              "type": "string",
+              "value": "[variables('identityName')]"
+            },
+            "scriptName": {
+              "type": "string",
+              "value": "[variables('scriptName')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]",
+        "targetRbac"
+      ]
+    }
+  ],
+  "outputs": {
+    "AZURE_RESOURCE_GROUP": {
+      "type": "string",
+      "value": "[parameters('resourceGroupName')]"
+    },
+    "AZURE_LOCATION": {
+      "type": "string",
+      "value": "[parameters('location')]"
+    },
+    "SRE_AGENT_NAME": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.agentName.value]"
+    },
+    "SRE_AGENT_ENDPOINT": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.agentEndpoint.value]"
+    },
+    "AGENT_PORTAL_URL": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.agentPortalUrl.value]"
+    },
+    "SYSTEM_MANAGED_IDENTITY_PRINCIPAL_ID": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.agentPrincipalId.value]"
+    },
+    "SYSTEM_MANAGED_IDENTITY_TENANT_ID": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.agentTenantId.value]"
+    },
+    "LOG_ANALYTICS_WORKSPACE_ID": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.logAnalyticsWorkspaceId.value]"
+    },
+    "APPLY_EXTRAS_SCRIPT": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'apply-extras'), '2025-04-01').outputs.scriptName.value]"
+    }
+  }
+}
