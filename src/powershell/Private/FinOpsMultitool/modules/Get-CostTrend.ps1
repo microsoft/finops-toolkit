@@ -41,8 +41,9 @@ function Get-CostTrend {
 
     $months = [System.Collections.Generic.List[PSCustomObject]]::new()
     $bySubscription = @{}   # key = subId, value = sorted list of month entries
-    $useMgScope = Test-MgCostScope
-    $mgPath = "/providers/Microsoft.Management/managementGroups/$TenantId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+    $mgScopeId  = Resolve-CostMgId -TenantId $TenantId
+    $useMgScope = [bool]$mgScopeId
+    $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
 
     # Helper: parse cost query rows into month entries
     function Parse-CostRows {

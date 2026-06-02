@@ -2860,7 +2860,7 @@ function Update-BudgetDetailView {
 
     if ($budgets.Count -gt 0) {
         $overBudget = @($budgets | Where-Object { $_.Risk -eq 'Over Budget' }).Count
-        $atRisk = @($budgets | Where-Object { $_.Risk -eq 'At Risk' }).Count
+        $atRisk = @($budgets | Where-Object { $_.Risk -in @('Forecast Over', 'At Risk') }).Count
         $script:BudgetSubSummary.Text = "$($budgets.Count) budget(s) found. $overBudget over budget, $atRisk at risk."
 
         $rows = [System.Collections.Generic.List[PSCustomObject]]::new()
@@ -4082,7 +4082,7 @@ footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ddd; font-s
             }
             else { $budgetTxt = 'No Budget' }
         }
-        $budgetClass = switch ($budgetTxt) { 'Over Budget' { 'status-warn' } 'At Risk' { 'status-warn' } 'On Track' { 'status-good' } default { 'text-muted' } }
+        $budgetClass = switch ($budgetTxt) { 'Over Budget' { 'status-warn' } 'Forecast Over' { 'status-warn' } 'At Risk' { 'status-warn' } 'On Track' { 'status-good' } default { 'text-muted' } }
 
         # Cost trend
         $trendTxt = '-'
@@ -4358,7 +4358,7 @@ $script:scanStages = @(
             if (-not $script:scanData.Auth) {
                 throw "No tenant selected. Click 'Commercial Tenant' or 'Gov Tenant' first."
             }
-            $script:MgCostScopeFailed = $false  # Reset MG-scope flag for fresh scan
+            Reset-CostMgScope  # Reset MG-scope flag + cached cost scope for fresh scan
             $envLabel = $script:scanData.Auth.Environment
             $script:TenantLabel.Text = "Tenant: $($script:scanData.Auth.TenantId)  |  $($script:scanData.Auth.AccountName)  |  $envLabel"
             if ($envLabel -eq 'AzureUSGovernment') {

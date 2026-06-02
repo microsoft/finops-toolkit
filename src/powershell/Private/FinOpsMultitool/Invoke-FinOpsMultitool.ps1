@@ -88,12 +88,14 @@ function Invoke-FinOpsMultitool {
         @{ Name = 'Savings Realized'; Fn = 'Get-SavingsRealized'; Selected = $true; Category = 'Commitments' }
         # -- Monitoring --
         @{ Name = 'Budget Status'; Fn = 'Get-BudgetStatus'; Selected = $true; Category = 'Monitoring' }
+        @{ Name = 'Budget History'; Fn = 'Get-BudgetHistory'; Selected = $true; Category = 'Monitoring' }
         @{ Name = 'Anomaly Alerts'; Fn = 'Get-AnomalyAlerts'; Selected = $true; Category = 'Monitoring' }
         # -- Advisor --
         @{ Name = 'Optimization Advice'; Fn = 'Get-OptimizationAdvice'; Selected = $true; Category = 'Advisor' }
         # -- Account --
         @{ Name = 'Billing Structure'; Fn = 'Get-BillingStructure'; Selected = $false; Category = 'Account' }
         @{ Name = 'Contract Info'; Fn = 'Get-ContractInfo'; Selected = $true; Category = 'Account' }
+        @{ Name = 'MACC Commitment'; Fn = 'Get-MaccCommitment'; Selected = $true; Category = 'Account' }
     )
 
     # -- Permission Requirements per Module --------------------------------
@@ -115,10 +117,12 @@ function Invoke-FinOpsMultitool {
         'Get-CommitmentUtilization' = @{ Role = 'Cost Management Reader or Reservation Reader'; Scope = 'Reservation Order or Subscription'; API = 'Consumption Reservation Summaries API'; Reason = 'Requires Microsoft.Consumption/reservationSummaries/read. If no reservations exist, this will be empty.' }
         'Get-SavingsRealized'       = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Benefit Utilization API'; Reason = 'Requires Microsoft.CostManagement/benefitUtilizationSummaries/read. Returns empty if no active reservations or savings plans.' }
         'Get-BudgetStatus'          = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Consumption Budgets API'; Reason = 'Requires Microsoft.Consumption/budgets/read. Returns empty if no budgets are configured for scanned subscriptions.' }
+        'Get-BudgetHistory'         = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action to retrieve monthly actuals per budget. Runs only when Budget Status returns budgets.' }
         'Get-AnomalyAlerts'         = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Alerts API'; Reason = 'Requires Microsoft.CostManagement/alerts/read. Returns empty if no cost anomalies were detected.' }
         'Get-OptimizationAdvice'    = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Advisor API'; Reason = 'Requires Microsoft.Advisor/recommendations/read to retrieve cost optimization recommendations.' }
         'Get-BillingStructure'      = @{ Role = 'Billing Reader or EA Reader'; Scope = 'Billing Account'; API = 'Billing API'; Reason = 'Requires Microsoft.Billing/*/read. This is a billing-scope role, not a subscription role. Contact your billing admin.' }
         'Get-ContractInfo'          = @{ Role = 'Billing Reader'; Scope = 'Billing Account'; API = 'Billing API'; Reason = 'Requires Microsoft.Billing/billingProperty/read. May require billing account access beyond subscription Reader.' }
+        'Get-MaccCommitment'        = @{ Role = 'Billing Reader or EA Reader'; Scope = 'Billing Account'; API = 'Consumption Lots API'; Reason = 'Requires a billing role on an EA/MCA billing account to read consumption commitment (MACC) lots. Not applicable to PAYGO/CSP/MSDN.' }
     }
 
     # =====================================================================
@@ -768,6 +772,26 @@ function Invoke-FinOpsMultitool {
                         else { @{} }
                         $output = & $fn -Subscriptions $Subscriptions -CostData $costData; break
                     }
+                    'Get-BudgetHistory' {
+                        # Depends on Budget Status — reuse the budgets it already found
+                        $budgetResult = if ($results.ContainsKey('Get-BudgetStatus')) { $results['Get-BudgetStatus'] } else { $null }
+                        $budgetRows = if ($budgetResult -and $budgetResult.Budgets) { @($budgetResult.Budgets) } else { @() }
+                        if ($budgetRows.Count -gt 0) {
+                            $output = & $fn -Budgets $budgetRows -MonthsBack 6
+                        }
+                        else {
+                            $output = @()
+                        }
+                        break
+                    }
+                    'Get-MaccCommitment' {
+                        # Pass the detected agreement type from Contract Info when available
+                        $agreementType = ''
+                        if ($results.ContainsKey('Get-ContractInfo') -and $results['Get-ContractInfo']) {
+                            $agreementType = @($results['Get-ContractInfo'])[0].AgreementType
+                        }
+                        $output = & $fn -Subscriptions $Subscriptions -AgreementType $agreementType; break
+                    }
                     { $_ -eq 'Get-CostByTag' -and -not $hubRaw } {
                         # No Hub data — fall back to API
                         $existingTags = if ($results.ContainsKey('Get-TagInventory') -and $results['Get-TagInventory'].TagNames) {
@@ -1165,6 +1189,25 @@ function Invoke-FinOpsMultitool {
                     }
                     $cols = @('Budget', 'Amount', 'Spent', 'PctUsed', 'Risk')
                 }
+                'Get-BudgetHistory' {
+                    if ($data -and @($data).Count -gt 0) {
+                        $rows = @($data) | ForEach-Object {
+                            [PSCustomObject]@{
+                                Subscription = $_.Subscription
+                                Budget       = $_.BudgetName
+                                Month        = $_.Month
+                                Budgeted     = '{0:C0}' -f [double]$_.BudgetAmount
+                                Actual       = '{0:C0}' -f [double]$_.ActualSpend
+                                PctUsed      = "$($_.PctUsed)%"
+                                Status       = $_.Status
+                            }
+                        }
+                        $cols = @('Subscription', 'Budget', 'Month', 'Budgeted', 'Actual', 'PctUsed', 'Status')
+                    }
+                    else {
+                        Write-Host "    No budget history available (no budgets configured, or no cost data for the period)." -ForegroundColor DarkGray
+                    }
+                }
                 'Get-AnomalyAlerts' {
                     Write-Host "    Alerts: $($data.TotalAlerts)  |  Anomaly: $($data.AnomalyAlertCount)  |  Active: $($data.ActiveAlertCount)  |  Rules: $($data.ConfiguredRuleCount)" -ForegroundColor White
                     $rows = $data.TriggeredAlerts | Select-Object -First 10 | ForEach-Object {
@@ -1183,6 +1226,28 @@ function Invoke-FinOpsMultitool {
                         [PSCustomObject]@{ Account = $_.AccountName; Agreement = $_.AgreementType; Type = $_.FriendlyType; Currency = $_.Currency; Status = $_.AccountStatus }
                     }
                     $cols = @('Account', 'Agreement', 'Type', 'Currency', 'Status')
+                }
+                'Get-MaccCommitment' {
+                    if (-not $data.Applicable) {
+                        Write-Host "    $($data.Reason)" -ForegroundColor DarkGray
+                    }
+                    elseif ($data.HasMacc -and @($data.Commitments).Count -gt 0) {
+                        $rows = @($data.Commitments) | ForEach-Object {
+                            [PSCustomObject]@{
+                                Account    = $_.BillingAccount
+                                Commitment = '{0:C0}' -f [double]$_.Commitment
+                                Consumed   = '{0:C0}' -f [double]$_.Consumed
+                                Remaining  = '{0:C0}' -f [double]$_.Remaining
+                                PctUsed    = "$($_.PctUsed)%"
+                                Status     = $_.Status
+                                Expires    = $_.ExpirationDate
+                            }
+                        }
+                        $cols = @('Account', 'Commitment', 'Consumed', 'Remaining', 'PctUsed', 'Status', 'Expires')
+                    }
+                    else {
+                        Write-Host "    $($data.Reason)" -ForegroundColor DarkGray
+                    }
                 }
                 'Get-OptimizationAdvice' {
                     if ($data.EstimatedAnnualSavings) {
@@ -1235,6 +1300,7 @@ function Invoke-FinOpsMultitool {
                             $riskVal = if ($matchedBudget -and $matchedBudget.Risk) { $matchedBudget.Risk } else { '' }
                             $rowColor = switch ($riskVal) {
                                 'Over Budget' { 'Red' }
+                                'Forecast Over' { 'Yellow' }
                                 'At Risk' { 'Yellow' }
                                 'Watch' { 'DarkYellow' }
                                 default { 'Green' }
@@ -1891,7 +1957,7 @@ tr:hover { background: #161b22; }
                     'Get-BudgetStatus' {
                         [void]$htmlSb.Append("<p>Budgets: $($data.TotalBudgets) &nbsp;|&nbsp; At risk: $($data.AtRiskCount) &nbsp;|&nbsp; Over budget: $($data.OverBudgetCount) &nbsp;|&nbsp; Coverage: $($data.BudgetCoverage)%</p>")
                         $htmlRows = $data.Budgets | ForEach-Object {
-                            $riskClass = switch ($_.Risk) { 'Over Budget' { 'severity-red' } 'At Risk' { 'severity-yellow' } 'Watch' { 'severity-yellow' } default { 'severity-green' } }
+                            $riskClass = switch ($_.Risk) { 'Over Budget' { 'severity-red' } 'Forecast Over' { 'severity-yellow' } 'At Risk' { 'severity-yellow' } 'Watch' { 'severity-yellow' } default { 'severity-green' } }
                             [PSCustomObject]@{ Budget = $_.BudgetName; Amount = '{0:C0}' -f [double]$_.Amount; Spent = '{0:C0}' -f [double]$_.ActualSpend; PctUsed = "$($_.PctUsed)%"; Risk = $_.Risk; _riskClass = $riskClass }
                         }
                         $htmlCols = @('Budget', 'Amount', 'Spent', 'PctUsed', 'Risk')

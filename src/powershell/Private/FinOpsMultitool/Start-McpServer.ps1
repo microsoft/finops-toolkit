@@ -288,6 +288,20 @@ $toolDefinitions = @(
         }
     }
     @{
+        name            = 'scan_budget_history'
+        description     = 'Get monthly budget vs actual history (last N months) for each configured budget. Pro-rates quarterly/annual budgets to a monthly equivalent. Runs Budget Status first to discover budgets.'
+        fn              = 'Get-BudgetHistory'
+        category        = 'Monitoring'
+        requiresBudgets = $true
+        inputSchema     = @{
+            type       = 'object'
+            properties = @{
+                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
+                monthsBack     = @{ type = 'integer'; description = 'Number of months of history to return. Default 6.' }
+            }
+        }
+    }
+    @{
         name        = 'scan_anomaly_alerts'
         description = 'Retrieve recent cost anomaly alerts and detection rules.'
         fn          = 'Get-AnomalyAlerts'
@@ -327,6 +341,18 @@ $toolDefinitions = @(
         name        = 'scan_contract_info'
         description = 'Get agreement type, offer details, currency, and support plan information.'
         fn          = 'Get-ContractInfo'
+        category    = 'Account'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
+            }
+        }
+    }
+    @{
+        name        = 'scan_macc_commitment'
+        description = 'Check Microsoft Azure Consumption Commitment (MACC) status for EA/MCA billing accounts: commitment amount, consumed, remaining, percent burned, and expiration. Returns not-applicable for PAYGO/CSP/MSDN. Requires a billing role.'
+        fn          = 'Get-MaccCommitment'
         category    = 'Account'
         inputSchema = @{
             type       = 'object'
@@ -381,10 +407,12 @@ $permissionMap = @{
     'Get-CommitmentUtilization' = @{ role = 'Cost Management Reader'; scope = 'Subscription'; api = 'Consumption Reservation Summaries API' }
     'Get-SavingsRealized'       = @{ role = 'Cost Management Reader'; scope = 'Subscription'; api = 'Cost Management Benefit Utilization API' }
     'Get-BudgetStatus'          = @{ role = 'Cost Management Reader'; scope = 'Subscription'; api = 'Consumption Budgets API' }
+    'Get-BudgetHistory'         = @{ role = 'Cost Management Reader'; scope = 'Subscription'; api = 'Cost Management Query API' }
     'Get-AnomalyAlerts'         = @{ role = 'Cost Management Reader'; scope = 'Subscription'; api = 'Cost Management Alerts API' }
     'Get-OptimizationAdvice'    = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Advisor API' }
     'Get-BillingStructure'      = @{ role = 'Billing Reader'; scope = 'Billing Account'; api = 'Billing API' }
     'Get-ContractInfo'          = @{ role = 'Billing Reader'; scope = 'Billing Account'; api = 'Billing API' }
+    'Get-MaccCommitment'        = @{ role = 'Billing Reader or EA Reader'; scope = 'Billing Account'; api = 'Consumption Lots API' }
 }
 
 # =====================================================================
@@ -585,6 +613,25 @@ function Invoke-McpTool {
         $policyData = Get-PolicyInventory -Subscriptions $subs -TenantId $tenantId
         $params = @{ ExistingAssignments = if ($policyData.Assignments) { $policyData.Assignments } else { @() } }
     }
+    if ($toolDef.requiresBudgets) {
+        # Budget history depends on Budget Status — discover budgets first
+        $budgetData = Get-BudgetStatus -Subscriptions $subs
+        $budgetRows = if ($budgetData.Budgets) { @($budgetData.Budgets) } else { @() }
+        if ($budgetRows.Count -eq 0) {
+            return @{
+                tool       = $ToolName
+                module     = $fn
+                category   = $toolDef.category
+                data       = @()
+                source     = 'LiveApi'
+                note       = 'No budgets configured for the requested scope; no history to report.'
+                permission = if ($permissionMap.ContainsKey($fn)) { $permissionMap[$fn] } else { $null }
+                timestamp  = (Get-Date -Format 'o')
+            }
+        }
+        $params = @{ Budgets = $budgetRows }
+        if ($Arguments.monthsBack) { $params['MonthsBack'] = [int]$Arguments.monthsBack }
+    }
 
     # Invoke
     $result = & $fn @params
@@ -711,6 +758,15 @@ function Invoke-FullScan {
             }
             if ($tool.requiresPolicyInventory -and $policyData) {
                 $params = @{ ExistingAssignments = if ($policyData.Assignments) { $policyData.Assignments } else { @() } }
+            }
+            if ($tool.requiresBudgets) {
+                $budgetResult = $results['scan_budget_status']
+                $budgetRows = if ($budgetResult -and $budgetResult.Budgets) { @($budgetResult.Budgets) } else { @() }
+                if ($budgetRows.Count -eq 0) {
+                    $results[$tool.name] = @()
+                    continue
+                }
+                $params = @{ Budgets = $budgetRows }
             }
 
             $results[$tool.name] = & $fn @params

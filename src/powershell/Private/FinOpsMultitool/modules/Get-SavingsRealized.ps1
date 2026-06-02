@@ -39,10 +39,11 @@ function Get-SavingsRealized {
     $gotMgData = $false
 
     # -- Strategy 1: MG-scope queries (2 API calls instead of N*2) ------
-    if ($hasCommitments -and $TenantId -and (Test-MgCostScope)) {
+    $mgScopeId = if ($TenantId) { Resolve-CostMgId -TenantId $TenantId } else { $null }
+    if ($hasCommitments -and $mgScopeId) {
         try {
             Write-Host "  Calculating savings (MG scope)..." -ForegroundColor Cyan
-            $mgPath = "/providers/Microsoft.Management/managementGroups/$TenantId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+            $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
 
             # ActualCost by ChargeType
             $actualBody = @{

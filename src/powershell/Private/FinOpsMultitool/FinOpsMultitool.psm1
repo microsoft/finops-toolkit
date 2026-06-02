@@ -67,6 +67,7 @@ $modulePath = Join-Path $PSScriptRoot 'modules'
 . (Join-Path $modulePath 'Get-CommitmentUtilization.ps1')
 . (Join-Path $modulePath 'Get-OrphanedResources.ps1')
 . (Join-Path $modulePath 'Get-BudgetStatus.ps1')
+. (Join-Path $modulePath 'Get-MaccCommitment.ps1')
 . (Join-Path $modulePath 'Get-AnomalyAlerts.ps1')
 . (Join-Path $modulePath 'Get-SavingsRealized.ps1')
 . (Join-Path $modulePath 'Get-PolicyInventory.ps1')

@@ -69,7 +69,8 @@ function Get-ResourceCosts {
     $gotMgData = $false
 
     # -- Strategy 1: MG-scope query (1-10 API calls instead of 300+) ----
-    if ($TenantId -and (Test-MgCostScope)) {
+    $mgScopeId = if ($TenantId) { Resolve-CostMgId -TenantId $TenantId } else { $null }
+    if ($mgScopeId) {
         try {
             Write-Host "  Querying resource costs (MG scope)..." -ForegroundColor Cyan
             $body = @{
@@ -87,7 +88,7 @@ function Get-ResourceCosts {
                 }
             } | ConvertTo-Json -Depth 10
 
-            $mgPath = "/providers/Microsoft.Management/managementGroups/$TenantId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+            $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
             $resp = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $body
 
             if ($resp.StatusCode -eq 200) {

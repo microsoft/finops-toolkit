@@ -111,8 +111,9 @@ function Get-CostByTag {
     }
 
     $results = @{}
-    $useMgScope = Test-MgCostScope
-    $mgPath = "/providers/Microsoft.Management/managementGroups/$TenantId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+    $mgScopeId  = Resolve-CostMgId -TenantId $TenantId
+    $useMgScope = [bool]$mgScopeId
+    $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
 
     # Track subs that don't support Tag grouping (HTTP 400 "Invalid dataset grouping")
     $skipSubs = [System.Collections.Generic.HashSet[string]]::new()
