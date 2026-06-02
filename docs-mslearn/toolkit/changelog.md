@@ -50,6 +50,17 @@ _Released June 2026_
 - **Changed**
   - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
 
+### [Data dictionary](help/data-dictionary.md) updates
+
+- **Fixed**
+  - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
+
+### [Optimization engine](optimization-engine/overview.md) updates
+
+- **Fixed**
+  - Removed call to Azure Classic administrators endpoint (deprecated on May 1, 2026) from Azure RBAC assignments exports ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
+
+-->
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v15)
