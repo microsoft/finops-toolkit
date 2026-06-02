@@ -72,9 +72,10 @@ function Search-AzGraphSafe {
 
         # 429 retry wait
         $retryAfter = [math]::Min(10 * [math]::Pow(2, $attempt), 30)
-        Write-Host "  [429 Throttled - Resource Graph] Waiting $($retryAfter)s before retry ($($attempt+1)/$MaxRetries)..." -ForegroundColor Yellow
+        $friendly = if (Get-Command Get-NextThrottleMessage -ErrorAction SilentlyContinue) { Get-NextThrottleMessage } else { 'Crunching numbers......' }
+        Write-Host "  $friendly" -ForegroundColor Yellow
         if (Get-Command Update-ScanStatus -ErrorAction SilentlyContinue) {
-            Update-ScanStatus "Resource Graph rate limited - waiting $($retryAfter)s..."
+            Update-ScanStatus $friendly
         }
         Wait-WithDispatcher -Milliseconds ($retryAfter * 1000)
     }

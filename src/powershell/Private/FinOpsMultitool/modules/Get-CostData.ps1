@@ -20,14 +20,31 @@ function Get-CostData {
         [string]$TenantId,
 
         [Parameter()]
-        [object[]]$Subscriptions
+        [object[]]$Subscriptions,
+
+        [Parameter()]
+        [switch]$RestrictToSelected
     )
 
     $costMap = @{}
 
+    # Restrict results to the subscriptions the user selected. MG-scope
+    # queries return every subscription under the management group, so we
+    # filter to the selected set to avoid showing unselected siblings.
+    $selectedSubs = $null
+    if ($Subscriptions -and $Subscriptions.Count -gt 0) {
+        $selectedSubs = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        foreach ($s in $Subscriptions) { if ($s.Id) { [void]$selectedSubs.Add([string]$s.Id) } }
+    }
+
     # Resolve the management-group scope we can actually query for cost.
-    # Falls back to per-subscription if no accessible MG returns cost data.
+    # Falls back to per-subscription only if no accessible MG returns cost data.
+    # When the user picked a subset of subscriptions we KEEP the single fast
+    # MG-scope query but add a server-side SubscriptionId filter so only the
+    # selected subs are returned - this avoids the slow per-subscription
+    # fan-out (N calls per timeframe) that triggers 429 throttling.
     $mgScopeId = Resolve-CostMgId -TenantId $TenantId
+    $subFilter = if ($RestrictToSelected) { Get-CostSubscriptionFilter -Subscriptions $Subscriptions } else { $null }
     if (-not $mgScopeId) {
         Write-Host "  Querying actual costs (per-subscription)..." -ForegroundColor Cyan
         return Get-CostDataPerSubscription -Subscriptions $Subscriptions
@@ -36,18 +53,20 @@ function Get-CostData {
     # -- Actual Cost (Month-to-Date) ------------------------------------
     try {
         Write-Host "  Querying actual costs (MG scope)..." -ForegroundColor Cyan
+        $actualDataset = @{
+            granularity = 'None'
+            aggregation = @{
+                totalCost = @{ name = 'Cost'; function = 'Sum' }
+            }
+            grouping    = @(
+                @{ type = 'Dimension'; name = 'SubscriptionId' }
+            )
+        }
+        if ($subFilter) { $actualDataset['filter'] = $subFilter }
         $actualBody = @{
             type      = 'ActualCost'
             timeframe = 'MonthToDate'
-            dataset   = @{
-                granularity = 'None'
-                aggregation = @{
-                    totalCost = @{ name = 'Cost'; function = 'Sum' }
-                }
-                grouping    = @(
-                    @{ type = 'Dimension'; name = 'SubscriptionId' }
-                )
-            }
+            dataset   = $actualDataset
         } | ConvertTo-Json -Depth 10
 
         $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
@@ -68,6 +87,8 @@ function Get-CostData {
                 $subId = $row[1]
                 $amount = [math]::Round($row[0], 2)
                 $currency = $row[2]
+
+                if ($selectedSubs -and -not $selectedSubs.Contains([string]$subId)) { continue }
 
                 if (-not $costMap.ContainsKey($subId)) {
                     $costMap[$subId] = @{ Actual = 0; Forecast = 0; Currency = $currency }
@@ -99,15 +120,19 @@ function Get-CostData {
                 from = $now.ToString('yyyy-MM-dd')
                 to   = $monthEnd.ToString('yyyy-MM-dd')
             }
-            dataset                 = @{
-                granularity = 'None'
-                aggregation = @{
-                    totalCost = @{ name = 'Cost'; function = 'Sum' }
+            dataset                 = $(
+                $fcDataset = @{
+                    granularity = 'None'
+                    aggregation = @{
+                        totalCost = @{ name = 'Cost'; function = 'Sum' }
+                    }
+                    grouping    = @(
+                        @{ type = 'Dimension'; name = 'SubscriptionId' }
+                    )
                 }
-                grouping    = @(
-                    @{ type = 'Dimension'; name = 'SubscriptionId' }
-                )
-            }
+                if ($subFilter) { $fcDataset['filter'] = $subFilter }
+                $fcDataset
+            )
             includeActualCost       = $true
             includeFreshPartialCost = $false
         } | ConvertTo-Json -Depth 10
@@ -125,10 +150,27 @@ function Get-CostData {
             # The Forecast API with includeActualCost returns rows that may have
             # a CostStatus column (Actual/Forecast). Sum all rows per subscription
             # to get the full-month projected cost.
+            # Resolve column indices by name. The forecast endpoint may order
+            # columns differently and adds a CostStatus column, so positional
+            # access can mistake "Forecast"/"Actual" text for a subscription ID.
+            $fCols = $fResult.properties.columns
+            $fCostIdx = -1; $fSubIdx = -1
+            if ($fCols) {
+                for ($ci = 0; $ci -lt $fCols.Count; $ci++) {
+                    $cn = ([string]$fCols[$ci].name).ToLower()
+                    if ($cn -eq 'subscriptionid') { $fSubIdx = $ci }
+                    elseif ($cn -match 'cost|pretaxcost') { $fCostIdx = $ci }
+                }
+            }
+            if ($fCostIdx -eq -1) { $fCostIdx = 0 }
+            if ($fSubIdx -eq -1) { $fSubIdx = 1 }
+
             $forecastSums = @{}
             foreach ($row in $fResult.properties.rows) {
-                $subId = $row[1]
-                $amount = [double]$row[0]
+                $subId = [string]$row[$fSubIdx]
+                if ($subId -notmatch '^[0-9a-fA-F]{8}-') { continue }
+                if ($selectedSubs -and -not $selectedSubs.Contains($subId)) { continue }
+                $amount = [double]$row[$fCostIdx]
                 if (-not $forecastSums.ContainsKey($subId)) { $forecastSums[$subId] = 0 }
                 $forecastSums[$subId] += $amount
             }

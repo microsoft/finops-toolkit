@@ -16,7 +16,10 @@ function Get-ResourceCosts {
         [string]$TenantId,
 
         [Parameter()]
-        $CostData      # Per-sub cost data for forecast ratio distribution
+        $CostData,      # Per-sub cost data for forecast ratio distribution
+
+        [Parameter()]
+        [switch]$RestrictToSelected
     )
 
     # Guard: extract hashtable if pipeline pollution wrapped it in an array
@@ -69,23 +72,30 @@ function Get-ResourceCosts {
     $gotMgData = $false
 
     # -- Strategy 1: MG-scope query (1-10 API calls instead of 300+) ----
+    # When the user picked a subset of subscriptions we KEEP the fast MG-scope
+    # query but add a server-side SubscriptionId filter so only the selected
+    # subs' resources are returned - avoids the slow per-subscription fan-out
+    # that triggers 429 throttling.
     $mgScopeId = if ($TenantId) { Resolve-CostMgId -TenantId $TenantId } else { $null }
+    $subFilter = if ($RestrictToSelected) { Get-CostSubscriptionFilter -Subscriptions $Subscriptions } else { $null }
     if ($mgScopeId) {
         try {
             Write-Host "  Querying resource costs (MG scope)..." -ForegroundColor Cyan
+            $rcDataset = @{
+                granularity = 'None'
+                aggregation = @{
+                    totalCost = @{ name = 'Cost'; function = 'Sum' }
+                }
+                grouping = @(
+                    @{ type = 'Dimension'; name = 'ResourceId' }
+                    @{ type = 'Dimension'; name = 'ResourceGroupName' }
+                )
+            }
+            if ($subFilter) { $rcDataset['filter'] = $subFilter }
             $body = @{
                 type      = 'ActualCost'
                 timeframe = 'MonthToDate'
-                dataset   = @{
-                    granularity = 'None'
-                    aggregation = @{
-                        totalCost = @{ name = 'Cost'; function = 'Sum' }
-                    }
-                    grouping = @(
-                        @{ type = 'Dimension'; name = 'ResourceId' }
-                        @{ type = 'Dimension'; name = 'ResourceGroupName' }
-                    )
-                }
+                dataset   = $rcDataset
             } | ConvertTo-Json -Depth 10
 
             $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"

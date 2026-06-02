@@ -387,6 +387,32 @@ $toolDefinitions = @(
             }
         }
     }
+    @{
+        name        = 'generate_powerbi_template'
+        description = 'Run a full FinOps scan and generate a self-contained Power BI template (.pbit) plus the supporting CSV files. The .pbit ships a curated 4-page report (Cost Overview, Subscriptions, Optimization, Governance) whose CsvFolderPath parameter is pre-pointed at the exported folder. Returns the path to FinOps-Report.pbit.'
+        fn          = '_generate_powerbi'
+        category    = 'Reporting'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, scans all accessible subscriptions in the current tenant.' }
+                outputDir      = @{ type = 'string'; description = 'Folder to write the CSVs and FinOps-Report.pbit into. Defaults to a timestamped folder under the user TEMP directory.' }
+                dataSource     = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = 'Cost-family data source for the scan. auto (default), hub, or api.' }
+            }
+        }
+    }
+    @{
+        name        = 'connect_powerbi_to_hub'
+        description = 'Detect the FinOps Hub in scope and emit the exact connection parameter values to plug into the official FinOps Toolkit Power BI reports (src/power-bi). Returns the storage account, blob endpoint, ingestion container, dataset path, and which report to open. Use this when the user already has a FinOps Hub and wants the toolkit reports instead of a generated .pbit.'
+        fn          = '_connect_powerbi_hub'
+        category    = 'Reporting'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, evaluates all accessible subscriptions in the current tenant.' }
+            }
+        }
+    }
 )
 
 # Permission requirements per tool (same as TUI)
@@ -487,6 +513,99 @@ function Get-McpHubData {
 }
 
 # =====================================================================
+#  HELPER: MAP FULL-SCAN RESULTS -> POWER BI SCAN-DATA SHAPE
+# =====================================================================
+# New-PowerBITemplate consumes the same hashtable shape the GUI keeps in
+# $script:scanData. The full-scan result stores each module's raw output
+# under its tool name, so the mapping is a direct key lookup.
+function ConvertTo-PbiScanData {
+    param([Parameter(Mandatory)][object]$FullScan)
+
+    $r = $FullScan.results
+    if (-not $r) { $r = @{} }
+
+    return @{
+        Auth         = @{
+            TenantId      = (Get-AzContext).Tenant.Id
+            Subscriptions = @($FullScan.subscriptions | ForEach-Object { @{ Name = $_.name; Id = $_.id } })
+        }
+        Costs        = $r['scan_cost_data']
+        ResourceCosts = $r['scan_resource_costs']
+        Tags         = $r['scan_tag_inventory']
+        TagRecs      = $r['scan_tag_recommendations']
+        PolicyInv    = $r['scan_policy_inventory']
+        PolicyRecs   = $r['scan_policy_recommendations']
+        Budgets      = $r['scan_budget_status']
+        Orphans      = $r['scan_orphaned_resources']
+        CostByTag    = $r['scan_cost_by_tag']
+        CostTrend    = $r['scan_cost_trend']
+        Commitments  = $r['scan_commitment_utilization']
+        AHB          = $r['scan_ahb_opportunities']
+        Optimization = $r['scan_optimization_advice']
+        Reservations = $r['scan_reservation_advice']
+        Savings      = $r['scan_savings_realized']
+    }
+}
+
+# =====================================================================
+#  HELPER: HUB -> OFFICIAL POWER BI REPORT CONNECTION PARAMETERS
+# =====================================================================
+# Shapes a Resolve-CostDataSource decision into the parameter values a
+# user plugs into the FinOps Toolkit's official Power BI reports
+# (src/power-bi). The Storage reports read the hub's 'ingestion'
+# container; the KQL reports read the Data Explorer cluster. The exact
+# clusterUri / storageUrlForPowerBI values come from the hub deployment
+# Outputs, so we surface what we can infer plus where to copy the rest.
+function Get-HubPbiConnection {
+    param([Parameter(Mandatory)][object]$Decision)
+
+    if (-not $Decision.HubFound -or -not $Decision.Hub) {
+        return @{
+            hubFound       = $false
+            recommendation = 'NoHub'
+            message        = 'No FinOps Hub found in scope. Deploy a FinOps Hub (https://aka.ms/finops/hubs) to use the official Power BI reports, or use generate_powerbi_template for a live-scan report.'
+        }
+    }
+
+    $acct = $Decision.Hub.Name
+    $storageUrl = "https://$acct.dfs.core.windows.net/ingestion"
+
+    return @{
+        hubFound          = $true
+        readable          = $Decision.Readable
+        recommendation    = $Decision.Recommendation
+        coveragePct       = $Decision.CoveragePct
+        asOf              = $Decision.Freshness
+        hub               = @{
+            storageAccount = $acct
+            resourceGroup  = $Decision.Hub.ResourceGroup
+            subscriptionId = $Decision.Hub.SubscriptionId
+            location       = $Decision.Hub.Location
+        }
+        reportParameters  = @{
+            # Storage-based reports (Cost summary, Rate optimization, etc.)
+            storageUrlForPowerBI = $storageUrl
+            ingestionContainer   = 'ingestion'
+            # KQL/ADX-based reports (Data ingestion, etc.) — copy from hub Outputs
+            clusterUri           = '<copy clusterUri from the hub deployment Outputs>'
+        }
+        reports           = @(
+            @{ name = 'Cost summary';     dataSource = 'Storage'; download = 'https://aka.ms/finops/toolkit/CostSummary.pbix' }
+            @{ name = 'Rate optimization'; dataSource = 'Storage'; download = 'https://aka.ms/finops/toolkit/RateOptimization.pbix' }
+            @{ name = 'Data ingestion';   dataSource = 'KQL';     download = 'https://aka.ms/finops/toolkit/DataIngestion.pbix' }
+        )
+        instructions      = @(
+            "Download the FinOps Toolkit Power BI reports: https://aka.ms/finops/toolkit/reports",
+            "Open a report in Power BI Desktop. When prompted, set 'Storage URL' to: $storageUrl",
+            "For KQL reports, set 'Cluster URI' to the clusterUri value from the hub resource group's deployment Outputs.",
+            "Authorize the storage source with an account that has Storage Blob Data Reader (or a SAS token).",
+            "Leave 'Number of Months' empty to load all data, then Apply."
+        )
+        message           = $Decision.Message
+    }
+}
+
+# =====================================================================
 #  HELPER: INVOKE TOOL
 # =====================================================================
 function Invoke-McpTool {
@@ -524,6 +643,53 @@ function Invoke-McpTool {
             module    = 'Resolve-CostDataSource'
             category  = $toolDef.category
             data      = $decision
+            timestamp = (Get-Date -Format 'o')
+        }
+    }
+
+    # Power BI template generation: full scan -> CSVs + .pbit
+    if ($toolDef.fn -eq '_generate_powerbi') {
+        $ds = if ($Arguments.dataSource) { [string]$Arguments.dataSource } else { 'auto' }
+        $scan = Invoke-FullScan -SubscriptionId $subId -DataSource $ds
+        $pbiScanData = ConvertTo-PbiScanData -FullScan $scan
+
+        $outDir = if ($Arguments.outputDir) {
+            [string]$Arguments.outputDir
+        }
+        else {
+            $stamp = Get-Date -Format 'yyyy-MM-dd_HHmmss'
+            Join-Path ([System.IO.Path]::GetTempPath()) "FinOps-PowerBI-$stamp"
+        }
+
+        $skel = Join-Path (Join-Path $PSScriptRoot 'gui') 'skeleton.pbit'
+        $built = New-PowerBITemplate -ScanData $pbiScanData -OutputDir $outDir -SkeletonPath $skel
+
+        return @{
+            tool          = $ToolName
+            module        = 'New-PowerBITemplate'
+            category      = $toolDef.category
+            data          = @{
+                pbitPath       = $built.PbitPath
+                csvCount       = $built.CsvCount
+                outputDir      = $built.OutputDir
+                subscriptions  = $scan.subscriptions
+                costDataSource = $scan.costDataSource
+            }
+            note          = "Open $($built.PbitPath) in Power BI Desktop. The CsvFolderPath parameter is pre-set to the exported folder; move the folder and the .pbit together or update the parameter."
+            timestamp     = (Get-Date -Format 'o')
+        }
+    }
+
+    # Power BI hub connection: detect hub and emit toolkit-report params
+    if ($toolDef.fn -eq '_connect_powerbi_hub') {
+        $subs = & $resolveSubs
+        $tenantId = (Get-AzContext).Tenant.Id
+        $decision = Resolve-CostDataSource -RequestedSubscriptionIds @($subs.Id) -TenantId $tenantId
+        return @{
+            tool      = $ToolName
+            module    = 'Resolve-CostDataSource'
+            category  = $toolDef.category
+            data      = (Get-HubPbiConnection -Decision $decision)
             timestamp = (Get-Date -Format 'o')
         }
     }

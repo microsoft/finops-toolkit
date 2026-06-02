@@ -72,16 +72,45 @@ function Get-ContractInfo {
         if ($result.value -and $result.value.Count -gt 0) {
             $matchedAccount = $null
 
-            # If multiple billing accounts and we know the agreement type, filter
-            if ($inferredAgreement -and $result.value.Count -gt 1) {
-                $matchedAccount = $result.value | Where-Object {
-                    $_.properties.agreementType -eq $inferredAgreement
-                } | Select-Object -First 1
+            if ($result.value.Count -eq 1) {
+                # Single billing account in scope - unambiguous.
+                $matchedAccount = $result.value[0]
             }
-            if (-not $matchedAccount) {
-                # If only one account or no match, use first
-                $matchedAccount = $result.value | Select-Object -First 1
+            else {
+                # Multiple billing accounts are visible across every tenant the
+                # signed-in identity can reach. Picking by agreement type alone
+                # can surface an account from an unrelated tenant, so confirm the
+                # account actually owns one of the scanned subscriptions before
+                # trusting it. Prefer candidates matching the inferred agreement.
+                $scanIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+                foreach ($sc in $subsToCheck) { if ($sc.Id) { [void]$scanIds.Add([string]$sc.Id) } }
+
+                $candidates = if ($inferredAgreement) {
+                    @($result.value | Where-Object { $_.properties.agreementType -eq $inferredAgreement })
+                } else { @() }
+                if (-not $candidates -or $candidates.Count -eq 0) { $candidates = @($result.value) }
+
+                foreach ($cand in $candidates) {
+                    if ($scanIds.Count -eq 0) { break }
+                    try {
+                        $bsPath = "/providers/Microsoft.Billing/billingAccounts/$($cand.name)/billingSubscriptions?api-version=2024-04-01"
+                        $bsResp = Invoke-AzRestMethodWithRetry -Path $bsPath -Method GET
+                        if ($bsResp -and $bsResp.StatusCode -eq 200 -and $bsResp.Content) {
+                            $bsData = ($bsResp.Content | ConvertFrom-Json)
+                            $owns = $false
+                            foreach ($bs in @($bsData.value)) {
+                                $bsSubId = if ($bs.properties.subscriptionId) { [string]$bs.properties.subscriptionId } else { [string]$bs.name }
+                                if ($scanIds.Contains($bsSubId)) { $owns = $true; break }
+                            }
+                            if ($owns) { $matchedAccount = $cand; break }
+                        }
+                    } catch { }
+                }
+                # No account could be confirmed to own the scanned subscription -
+                # fall through to the subscription-accurate quotaId inference.
             }
+
+            if (-not $matchedAccount) { throw "No billing account confirmed for the scanned subscription" }
 
             $props = $matchedAccount.properties
             $friendlyType = switch ($props.agreementType) {

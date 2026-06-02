@@ -93,3 +93,24 @@ function Resolve-CostMgId {
     Set-MgCostScopeFailed
     return $null
 }
+
+# -- Shared Subscription-Scope Filter -------------------------------------
+# When the user picks a subset of subscriptions we still want the single fast
+# MG-scope cost query (one call covers the whole management group), but scoped
+# to only the selected subscriptions. The Cost Management Query API supports a
+# server-side dataset filter on the SubscriptionId dimension, so we build that
+# filter once and inject it into each cost query body. This avoids the slow
+# per-subscription fan-out (N calls per timeframe) that hammers the throttle.
+function Get-CostSubscriptionFilter {
+    param([object[]]$Subscriptions)
+    if (-not $Subscriptions -or $Subscriptions.Count -eq 0) { return $null }
+    $ids = @($Subscriptions | ForEach-Object { [string]$_.Id } | Where-Object { $_ })
+    if ($ids.Count -eq 0) { return $null }
+    return @{
+        dimensions = @{
+            name     = 'SubscriptionId'
+            operator = 'In'
+            values   = $ids
+        }
+    }
+}

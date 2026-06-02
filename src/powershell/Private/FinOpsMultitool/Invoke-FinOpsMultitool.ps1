@@ -332,9 +332,14 @@ function Invoke-FinOpsMultitool {
             Write-Host "  Subscription $PreselectedId not found, showing picker..." -ForegroundColor Yellow
         }
 
-        $allSubs = @(Get-AzSubscription -ErrorAction SilentlyContinue | Where-Object { $_.State -eq 'Enabled' })
+        # Scope subscription enumeration to the SELECTED tenant only.
+        # Get-AzSubscription with no -TenantId returns subscriptions across every
+        # tenant the signed-in account can access, which incorrectly mixes tenants
+        # together when the user picks one tenant and chooses "All subscriptions".
+        $effectiveTenantId = (Get-AzContext -ErrorAction SilentlyContinue).Tenant.Id
+        $allSubs = @(Get-AzSubscription -TenantId $effectiveTenantId -ErrorAction SilentlyContinue | Where-Object { $_.State -eq 'Enabled' })
         if ($allSubs.Count -eq 0) {
-            Write-Error "No enabled subscriptions found."
+            Write-Error "No enabled subscriptions found in tenant $effectiveTenantId."
             return $null
         }
         if ($allSubs.Count -eq 1) {
@@ -557,23 +562,25 @@ function Invoke-FinOpsMultitool {
                     $totalBody = @{
                         subscriptions = @($subIds)
                         query         = "resources | summarize TotalCount = count()"
+                        options       = @{ resultFormat = 'objectArray' }
                     } | ConvertTo-Json -Depth 5
                     $totalResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $totalBody
                     if ($totalResp.StatusCode -eq 200) {
-                        $totalData = ($totalResp.Content | ConvertFrom-Json)
-                        if ($totalData.data -and $totalData.data.Count -gt 0) {
-                            $argTotal = [int]$totalData.data[0].TotalCount
+                        $totalRows = @(($totalResp.Content | ConvertFrom-Json).data)
+                        if ($totalRows.Count -gt 0) {
+                            $argTotal = [int]$totalRows[0].TotalCount
 
                             $untaggedBody = @{
                                 subscriptions = @($subIds)
                                 query         = "resources | where isnull(tags) or tags == '{}' | summarize UntaggedCount = count()"
+                                options       = @{ resultFormat = 'objectArray' }
                             } | ConvertTo-Json -Depth 5
                             $untaggedResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $untaggedBody
                             if ($untaggedResp.StatusCode -eq 200) {
-                                $untaggedData = ($untaggedResp.Content | ConvertFrom-Json)
-                                $argUntagged = if ($untaggedData.data -and $untaggedData.data.Count -gt 0) { [int]$untaggedData.data[0].UntaggedCount } else { 0 }
+                                $untaggedRows = @(($untaggedResp.Content | ConvertFrom-Json).data)
+                                $argUntagged = if ($untaggedRows.Count -gt 0) { [int]$untaggedRows[0].UntaggedCount } else { 0 }
 
-                                $argTagged = $argTotal - $argUntagged
+                                $argTagged = [math]::Max(0, $argTotal - $argUntagged)
                                 $argCoverage = if ($argTotal -gt 0) { [math]::Round(($argTagged / $argTotal) * 100, 1) } else { 0 }
 
                                 # Override Hub coverage with ARG-based coverage
@@ -777,7 +784,10 @@ function Invoke-FinOpsMultitool {
                         $budgetResult = if ($results.ContainsKey('Get-BudgetStatus')) { $results['Get-BudgetStatus'] } else { $null }
                         $budgetRows = if ($budgetResult -and $budgetResult.Budgets) { @($budgetResult.Budgets) } else { @() }
                         if ($budgetRows.Count -gt 0) {
-                            $output = & $fn -Budgets $budgetRows -MonthsBack 6
+                            # Reuse Cost Trend's already-fetched monthly spend so we don't
+                            # re-hit the throttle-prone Cost Management Query API.
+                            $trendResult = if ($results.ContainsKey('Get-CostTrend')) { $results['Get-CostTrend'] } else { $null }
+                            $output = & $fn -Budgets $budgetRows -MonthsBack 6 -CostTrend $trendResult
                         }
                         else {
                             $output = @()
@@ -1086,9 +1096,20 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-CostTrend' {
-                    # Show per-subscription trend when BySubscription data is available
+                    # Per-sub data only counts when a subscription actually has months
+                    $nonEmptySubs = @()
                     if ($data.BySubscription -and $data.BySubscription.Count -gt 0) {
-                        foreach ($subEntry in $data.BySubscription.GetEnumerator()) {
+                        $nonEmptySubs = @($data.BySubscription.GetEnumerator() | Where-Object { $_.Value -and @($_.Value).Count -gt 0 })
+                    }
+                    $hasMonths = ($data.Months -and @($data.Months).Count -gt 0)
+
+                    if ((-not $nonEmptySubs -or $nonEmptySubs.Count -eq 0) -and -not $hasMonths) {
+                        Write-Host "    No cost trend data returned. Requires Cost Management Reader at the subscription or MG scope, or there is no historical spend in the selected period." -ForegroundColor DarkGray
+                        $rows = $null
+                        $cols = $null
+                    }
+                    elseif ($nonEmptySubs -and $nonEmptySubs.Count -gt 0) {
+                        foreach ($subEntry in $nonEmptySubs) {
                             $subName = if ($subNameLookup.ContainsKey($subEntry.Key)) { $subNameLookup[$subEntry.Key] } else { $subEntry.Key }
                             Write-Host "    $subName" -ForegroundColor White
                             $subRows = $subEntry.Value | ForEach-Object {
@@ -1111,7 +1132,7 @@ function Invoke-FinOpsMultitool {
                         $cols = $null
                     }
                     else {
-                        # Fallback: show aggregate with sub name header
+                        # Fallback: aggregate months with sub name header
                         if ($Subscriptions -and $Subscriptions.Count -gt 0) {
                             $subNames = ($Subscriptions | ForEach-Object { if ($_.Name) { $_.Name } else { $_.Id } }) -join ', '
                             Write-Host "    $subNames" -ForegroundColor White
@@ -1139,7 +1160,13 @@ function Invoke-FinOpsMultitool {
                     Write-Host "    Compliance: $($data.CompliancePercent)%" -ForegroundColor White
                 }
                 'Get-PolicyInventory' {
-                    Write-Host "    Assignments: $($data.AssignmentCount)  |  Compliance: $($data.CompliancePct)%  ($($data.TotalCompliant) compliant, $($data.TotalNonCompliant) non-compliant)" -ForegroundColor White
+                    $hasComplianceData = if ($null -ne $data.HasComplianceData) { $data.HasComplianceData } else { (($data.TotalCompliant + $data.TotalNonCompliant) -gt 0) }
+                    if ($hasComplianceData) {
+                        Write-Host "    Assignments: $($data.AssignmentCount)  |  Compliance: $($data.CompliancePct)%  ($($data.TotalCompliant) compliant, $($data.TotalNonCompliant) non-compliant)" -ForegroundColor White
+                    }
+                    else {
+                        Write-Host "    Assignments: $($data.AssignmentCount)  |  Compliance: data unavailable (no evaluated policy states)" -ForegroundColor White
+                    }
                     $rows = $data.Assignments | Select-Object -First 15 | ForEach-Object {
                         # Parse scope into a readable label
                         $scopeRaw = $_.Scope
@@ -1644,7 +1671,14 @@ function Invoke-FinOpsMultitool {
                 'Get-PolicyInventory' {
                     $compliance = if ($data.CompliancePct) { $data.CompliancePct } else { 0 }
                     $nonCompliant = if ($data.TotalNonCompliant) { $data.TotalNonCompliant } else { 0 }
-                    if ($nonCompliant -gt 20) {
+                    $hasComplianceData = if ($null -ne $data.HasComplianceData) { $data.HasComplianceData } else { (($data.TotalCompliant + $data.TotalNonCompliant) -gt 0) }
+                    if (-not $hasComplianceData) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "No policy compliance data available. Resource Graph 'policystates' returned no rows - Policy Insights may not have evaluated resources yet, or the identity lacks Policy Insights read access." }
+                            @{ Severity = 'Yellow'; Message = "Assignments detected: $($data.AssignmentCount). Compliance percentages require evaluated policy states."; Docs = 'https://learn.microsoft.com/azure/governance/policy/how-to/get-compliance-data' }
+                        )
+                    }
+                    elseif ($nonCompliant -gt 20) {
                         $guidanceItems = @(
                             @{ Severity = 'Red'; Message = "$nonCompliant non-compliant resources ($compliance% compliance). Governance gaps are significant." }
                             @{ Severity = 'Yellow'; Message = "FinOps Governance: Use 'Deny' for critical policies (e.g., required tags). Use 'Audit' first during rollout." }
@@ -2120,6 +2154,7 @@ tr:hover { background: #161b22; }
         'Get-TagRecommendations'    = @('Get-TagInventory')
         'Get-PolicyRecommendations' = @('Get-PolicyInventory')
         'Get-BudgetStatus'          = @('Get-CostData')
+        'Get-BudgetHistory'         = @('Get-BudgetStatus', 'Get-CostTrend')
     }
     foreach ($depEntry in $deps.GetEnumerator()) {
         if ($depEntry.Key -in $selectedFns) {

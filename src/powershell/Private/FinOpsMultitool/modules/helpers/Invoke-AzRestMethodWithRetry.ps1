@@ -9,6 +9,17 @@ if (-not $script:RunspacePool -or $script:RunspacePool.RunspacePoolStateInfo.Sta
     $script:RunspacePool.Open()
 }
 
+# -- Friendly throttle messages --------------------------------------------
+# While waiting out a 429 rate limit, show a rotating, friendly status
+# instead of a technical "throttled" notice. Shared by all retry paths.
+if ($null -eq $script:ThrottleMsgIndex) { $script:ThrottleMsgIndex = 0 }
+function Get-NextThrottleMessage {
+    $msgs = @('Crunching numbers......', 'Fetching numbers......', 'Organizing costs......')
+    $msg = $msgs[$script:ThrottleMsgIndex % $msgs.Count]
+    $script:ThrottleMsgIndex++
+    return $msg
+}
+
 # -- WPF Detection ---------------------------------------------------------
 # When running standalone (no GUI), skip DispatcherFrame pumping and use
 # simple Start-Sleep instead. This lets the same code work in both contexts.
@@ -80,15 +91,30 @@ function Invoke-AzRestMethodWithRetry {
                 param($p, $m, $pl)
                 $params = @{ Path = $p; Method = $m; ErrorAction = 'Stop' }
                 if ($pl) { $params['Payload'] = $pl }
-                $r = Invoke-AzRestMethod @params
-                $hdrs = @{}
-                if ($r.Headers) {
-                    foreach ($k in $r.Headers.Keys) { $hdrs[$k] = $r.Headers[$k] }
+                try {
+                    $r = Invoke-AzRestMethod @params
+                    $hdrs = @{}
+                    if ($r.Headers) {
+                        foreach ($k in $r.Headers.Keys) { $hdrs[$k] = $r.Headers[$k] }
+                    }
+                    [PSCustomObject]@{
+                        StatusCode = $r.StatusCode
+                        Content    = $r.Content
+                        Headers    = $hdrs
+                    }
                 }
-                [PSCustomObject]@{
-                    StatusCode = $r.StatusCode
-                    Content    = $r.Content
-                    Headers    = $hdrs
+                catch {
+                    # A transport-level failure ("An error occurred while sending
+                    # the request", TLS/socket drop, token-acquisition error) has
+                    # no HTTP status and would otherwise re-throw out of EndInvoke
+                    # as a raw ErrorActionPreference=Stop exception. Surface it as
+                    # a synthetic 503 so the caller degrades gracefully.
+                    $msg = "$($_.Exception.Message)" -replace '[\\"]', "'"
+                    [PSCustomObject]@{
+                        StatusCode = 503
+                        Content    = ('{"error":{"message":"' + $msg + '"}}')
+                        Headers    = @{}
+                    }
                 }
             }).AddArgument($Path).AddArgument($Method).AddArgument($Payload)
 
@@ -102,8 +128,16 @@ function Invoke-AzRestMethodWithRetry {
                 $resp = if ($raw -and $raw.Count -gt 0) { $raw[0] } else { $null }
             }
             catch {
+                # Should be rare now that the runspace script catches internally,
+                # but never let an EndInvoke failure bubble up as a raw
+                # terminating error - degrade to a synthetic 503 instead.
                 $ps.Dispose()
-                throw
+                Write-Warning "  REST call failed in runspace: $($_.Exception.Message)"
+                return [PSCustomObject]@{
+                    StatusCode = 503
+                    Content    = '{"error":{"message":"Request failed (transport error)."}}'
+                    Headers    = @{}
+                }
             }
         }
         else {
@@ -135,10 +169,11 @@ function Invoke-AzRestMethodWithRetry {
         else {
             $retryAfter = [math]::Min(10 * [math]::Pow(2, $attempt), 60)
         }
-        Write-Host "  [429 Throttled] Waiting $($retryAfter)s before retry ($($attempt+1)/$MaxRetries)..." -ForegroundColor Yellow
+        $friendly = Get-NextThrottleMessage
+        Write-Host "  $friendly" -ForegroundColor Yellow
 
         if (Get-Command Update-ScanStatus -ErrorAction SilentlyContinue) {
-            Update-ScanStatus "Rate limited - waiting $($retryAfter)s before retry ($($attempt+1)/$MaxRetries)..."
+            Update-ScanStatus $friendly
         }
 
         Wait-WithDispatcher -Milliseconds ($retryAfter * 1000)

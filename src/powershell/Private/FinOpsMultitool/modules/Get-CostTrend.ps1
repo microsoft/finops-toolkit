@@ -14,7 +14,10 @@ function Get-CostTrend {
         [string]$TenantId,
 
         [Parameter()]
-        [object[]]$Subscriptions
+        [object[]]$Subscriptions,
+
+        [Parameter()]
+        [switch]$RestrictToSelected
     )
 
     Write-Host "  Querying 6-month cost trend..." -ForegroundColor Cyan
@@ -42,8 +45,23 @@ function Get-CostTrend {
     $months = [System.Collections.Generic.List[PSCustomObject]]::new()
     $bySubscription = @{}   # key = subId, value = sorted list of month entries
 
+    # When the user picked a subset of subscriptions we KEEP the single fast
+    # MG-scope grouped call but add a server-side SubscriptionId filter so the
+    # trend only includes the selected subs - avoids per-subscription fan-out.
+    $subFilter = if ($RestrictToSelected) { Get-CostSubscriptionFilter -Subscriptions $Subscriptions } else { $null }
+
     # Grouped variant: one MG-scope call returns the per-subscription matrix
     # (month x subscription) in a single response, avoiding an N-subscription loop.
+    $groupedDataset = @{
+        granularity = 'Monthly'
+        aggregation = @{
+            totalCost = @{ name = 'Cost'; function = 'Sum' }
+        }
+        grouping    = @(
+            @{ type = 'Dimension'; name = 'SubscriptionId' }
+        )
+    }
+    if ($subFilter) { $groupedDataset['filter'] = $subFilter }
     $groupedBody = @{
         type      = 'ActualCost'
         timeframe = 'Custom'
@@ -51,15 +69,7 @@ function Get-CostTrend {
             from = $fromStr
             to   = $toStr
         }
-        dataset   = @{
-            granularity = 'Monthly'
-            aggregation = @{
-                totalCost = @{ name = 'Cost'; function = 'Sum' }
-            }
-            grouping    = @(
-                @{ type = 'Dimension'; name = 'SubscriptionId' }
-            )
-        }
+        dataset   = $groupedDataset
     } | ConvertTo-Json -Depth 10
 
     # Helper: parse cost query rows into month entries
@@ -201,6 +211,9 @@ function Get-CostTrend {
             # -- Multi-sub path: one grouped MG-scope query ---------------
             # group by SubscriptionId so a single call returns the month x
             # subscription matrix (aggregate + per-sub) in one response.
+            # When the user picked a subset of subscriptions, skip MG scope
+            # (whole management group) and use the per-subscription loop so the
+            # trend only reflects the selected subscriptions.
             $mgScopeId  = Resolve-CostMgId -TenantId $TenantId
             $useMgScope = [bool]$mgScopeId
             $groupedOk  = $false

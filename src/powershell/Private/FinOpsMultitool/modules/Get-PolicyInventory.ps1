@@ -279,5 +279,7 @@ policyresources
         CompliancePct    = $compliancePct
         TotalCompliant   = $totalCompliant
         TotalNonCompliant = $totalNonCompliant
+        TotalEvaluated   = $totalEvaluated
+        HasComplianceData = ($totalEvaluated -gt 0)
     }
 }

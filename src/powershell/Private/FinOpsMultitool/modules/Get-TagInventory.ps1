@@ -49,16 +49,18 @@ resources
     }
 
     # -- Query 2: Untagged resource count (via REST to avoid runspace issues with single-row aggregates)
+    $untaggedCount = 0
     try {
         $countBody = @{
             subscriptions = @($subIds)
             query = "resources | where isnull(tags) or tags == '{}' | summarize UntaggedCount = count()"
+            options = @{ resultFormat = 'objectArray' }
         } | ConvertTo-Json -Depth 5
         $countResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $countBody
         if ($countResp.StatusCode -eq 200) {
-            $countData = ($countResp.Content | ConvertFrom-Json)
-            if ($countData.data -and $countData.data.Count -gt 0) {
-                $untaggedCount = [int]$countData.data[0].UntaggedCount
+            $countRows = @(($countResp.Content | ConvertFrom-Json).data)
+            if ($countRows.Count -gt 0) {
+                $untaggedCount = [int]$countRows[0].UntaggedCount
             }
         }
     } catch {
@@ -111,16 +113,30 @@ resources
         $totalBody = @{
             subscriptions = @($subIds)
             query = "resources | summarize TotalCount = count()"
+            options = @{ resultFormat = 'objectArray' }
         } | ConvertTo-Json -Depth 5
         $totalResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $totalBody
         if ($totalResp.StatusCode -eq 200) {
-            $totalData = ($totalResp.Content | ConvertFrom-Json)
-            if ($totalData.data -and $totalData.data.Count -gt 0) {
-                $totalCount = [int]$totalData.data[0].TotalCount
+            $totalRows = @(($totalResp.Content | ConvertFrom-Json).data)
+            if ($totalRows.Count -gt 0) {
+                $totalCount = [int]$totalRows[0].TotalCount
             }
         }
     } catch {
         Write-Warning "Total resource count failed: $($_.Exception.Message)"
+    }
+
+    # Fallback: the REST count endpoint returns table-format results in some
+    # tenants (no objectArray rows), leaving the count at 0. Re-derive via the
+    # Resource Graph cmdlet path, which is reliable where the tag query works.
+    if ($totalCount -eq 0) {
+        try {
+            $tcResult = Search-AzGraphSafe -Query "resources | summarize TotalCount = count()" -Subscription $subIds -First 1
+            $tcRows = if ($tcResult) { @($tcResult.Data) } else { @() }
+            if ($tcRows.Count -gt 0 -and $null -ne $tcRows[0].TotalCount) {
+                $totalCount = [int]$tcRows[0].TotalCount
+            }
+        } catch { }
     }
 
     # Fallback: derive counts from detail data if REST queries failed
@@ -183,7 +199,31 @@ resources
         Write-Warning "Tag location query failed: $($_.Exception.Message)"
     }
 
-    $taggedCount = $totalCount - $untaggedCount
+    # Last-resort fallback: when the dedicated total query is unavailable (the
+    # REST endpoint returned no rows and the cmdlet path also came up empty),
+    # derive the total from the tagged + untagged populations so coverage is
+    # still meaningful instead of showing 0 tagged / 0 untagged.
+    if ($totalCount -eq 0) {
+        $taggedFromArg = 0
+        try {
+            $tagCountBody = @{
+                subscriptions = @($subIds)
+                query = "resources | where isnotnull(tags) and tags != '{}' | summarize TaggedCount = count()"
+                options = @{ resultFormat = 'objectArray' }
+            } | ConvertTo-Json -Depth 5
+            $tagCountResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $tagCountBody
+            if ($tagCountResp.StatusCode -eq 200) {
+                $tagCountRows = @(($tagCountResp.Content | ConvertFrom-Json).data)
+                if ($tagCountRows.Count -gt 0) { $taggedFromArg = [int]$tagCountRows[0].TaggedCount }
+            }
+        } catch { }
+        if ($untaggedCount -eq 0 -and $untaggedResources.Count -gt 0) { $untaggedCount = $untaggedResources.Count }
+        if (($taggedFromArg + $untaggedCount) -gt 0) {
+            $totalCount = $taggedFromArg + $untaggedCount
+        }
+    }
+
+    $taggedCount = [math]::Max(0, $totalCount - $untaggedCount)
     $tagCoverage = if ($totalCount -gt 0) { [math]::Round(($taggedCount / $totalCount) * 100, 1) } else { 0 }
 
     return [PSCustomObject]@{
