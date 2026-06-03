@@ -193,16 +193,14 @@ $templates | ForEach-Object {
     # Create target directory
     $destDir = "$outdir/$templateName"
     Write-Verbose "  Creating target directory: $destDir"
-    Remove-Item $destDir -Recurse -ErrorAction SilentlyContinue
+    Remove-Item $destDir -Recurse -Force -ErrorAction SilentlyContinue
     & "$PSScriptRoot/New-Directory.ps1" $destDir
 
     # Copy required files
     Write-Host "  Copying files..."
-    $sourceFiles = Get-ChildItem $srcDir -Force | Where-Object { $_.Name -notin @(".build.config", ".buildignore", "scaffold.json") }
+    $sourceFiles = Get-ChildItem $srcDir | Where-Object { $_.Name -notin @(".build.config", ".buildignore", "scaffold.json") }
     Write-Verbose "    Copying $($sourceFiles.Count) items from source to destination"
     $sourceFiles | Copy-Item -Destination $destDir -Recurse
-
-    Get-ChildItem $destDir -Force -Recurse -Filter ".DS_Store" | Remove-Item -Force
 
     # Run custom build scripts after copying files (operates on release copy, not source)
     if ($buildConfig.scripts.Count -gt 0)

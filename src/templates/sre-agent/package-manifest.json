@@ -1,0 +1,21 @@
+{
+  "deployment": {
+    "Files": [
+      {
+        "sourceFolder": ".",
+        "source": "azuredeploy.json",
+        "destination": "azuredeploy.json"
+      },
+      {
+        "sourceFolder": ".",
+        "source": "createUiDefinition.json",
+        "destination": "createUiDefinition.json"
+      },
+      {
+        "sourceFolder": "assets",
+        "source": "sre-agent-recipe.zip",
+        "destination": "sre-agent-recipe.zip"
+      }
+    ]
+  }
+}

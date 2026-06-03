@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 05/19/2026
+ms.date: 06/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -25,54 +25,48 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
--->
-
-<br><a name="latest"></a>
-
-## v15
-
-_Released June 2026_
-
-### [Implementing FinOps guide](../implementing-finops-guide.md) v15
-
-- **Fixed**
-  - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` in the [data dictionary](help/data-dictionary.md) to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
-
-### Claude Code plugin v15
+### Claude Code plugin v15.0.0
 
 - **Added**
   - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management ([#2043](https://github.com/microsoft/finops-toolkit/pull/2043)).
   - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
   - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md) v15
+### Bicep Registry module pending updates
 
-- **Changed**
-  - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
+- Cost Management export modules for subscriptions and resource groups.
 
 ### [Data dictionary](help/data-dictionary.md) updates
 
 - **Fixed**
   - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
-
-### [Optimization engine](optimization-engine/overview.md) updates
-
-- **Fixed**
-  - Removed call to Azure Classic administrators endpoint (deprecated on May 1, 2026) from Azure RBAC assignments exports ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
-
 -->
-<!-- prettier-ignore-start -->
-> [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v15)
-> [!div class="nextstepaction"]
-> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v14...v15)
-<!-- prettier-ignore-end -->
 
-<br>
+<br><a name="latest"></a>
 
 ## v14
 
 _Released April 2026_
+
+### Claude Code plugin v13.0.0
+
+- **Added**
+  - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management.
+  - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
+  - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
+
+### [SRE agent](sre-agent/overview.md)
+
+- **Added**
+  - Added Azure SRE Agent template with a packaged Deploy to Azure path, `deploy.sh` local CLI automation, and Bicep infrastructure.
+  - Added 5 subagents (`finops-practitioner`, `azure-capacity-manager`, `chief-financial-officer`, `ftk-database-query`, `ftk-hubs-agent`), 3 skills, 50 tools, and 1 Kusto MCP connector.
+  - Added 19 scheduled tasks (daily, weekly, monthly, semiannual, and quarterly cadences) with Teams channel delivery.
+  - Added 6 knowledge documents for agent onboarding, artifact verification, Teams notification patterns, known issues, document index guidance, and FinOps Toolkit output style.
+  - Added FinOps toolkit SRE Agent documentation pages for Microsoft Learn.
+- **Changed**
+  - Set agent action mode to Autonomous so scheduled tasks can deliver reports without human approval.
+  - Switched scheduled task persistence from legacy CLI creation to manifest apply for idempotent re-runs.
+  - Replaced "save to knowledge base" instructions with `#remember` for operational notes across all scheduled tasks.
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 
