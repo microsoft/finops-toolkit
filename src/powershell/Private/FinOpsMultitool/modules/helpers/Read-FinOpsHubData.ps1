@@ -452,6 +452,172 @@ function ConvertTo-ResourceCostsFromHub {
     return @($resourceMap.Values | Sort-Object { $_.Actual } -Descending)
 }
 
+# Helper: pick the first present/non-empty property from a row.
+function Get-HubRowValue {
+    param(
+        [Parameter(Mandatory)][object]$Row,
+        [Parameter(Mandatory)][string[]]$Names,
+        [string[]]$Props
+    )
+    if (-not $Props) { $Props = $Row.PSObject.Properties.Name }
+    foreach ($n in $Names) {
+        if ($Props -contains $n -and $null -ne $Row.$n -and "$($Row.$n)".Trim() -ne '') {
+            return $Row.$n
+        }
+    }
+    return $null
+}
+
+# Helper: convert a billing unit string (e.g. "1K", "1M", "1,000",
+# "100 Tokens") into the number of tokens one unit of quantity represents.
+# Azure OpenAI token meters are billed per-1K tokens, so an unqualified
+# unit defaults to 1000 (flagged as approximate by the caller).
+function Get-TokenUnitMultiplier {
+    param([string]$Unit)
+    if (-not $Unit) { return @{ Multiplier = 1000.0; Known = $false } }
+    $u = $Unit.Trim()
+
+    # Pure number, e.g. "1000" or "1,000,000".
+    $numOnly = ($u -replace '[,\s]', '')
+    if ($numOnly -match '^\d+(\.\d+)?$') { return @{ Multiplier = [double]$numOnly; Known = $true } }
+
+    # Scaled, e.g. "1K", "10K", "1M".
+    $m = [regex]::Match($u, '(?i)([\d,\.]+)?\s*([KM])\b')
+    if ($m.Success) {
+        $n = if ($m.Groups[1].Value) { [double]($m.Groups[1].Value -replace ',', '') } else { 1.0 }
+        $scale = if ($m.Groups[2].Value -match '(?i)M') { 1e6 } else { 1e3 }
+        return @{ Multiplier = ($n * $scale); Known = $true }
+    }
+
+    # Plain "tokens" / "count" / "units" — quantity is already raw tokens.
+    if ($u -match '(?i)\b(token|tokens|count|units|unit)\b') { return @{ Multiplier = 1.0; Known = $true } }
+
+    # Unknown unit — assume the AOAI per-1K convention but flag it.
+    return @{ Multiplier = 1000.0; Known = $false }
+}
+
+# Helper: strip token-type and qualifier words from an Azure OpenAI meter
+# name to derive a model/deployment grouping key.
+function Get-AIModelKeyFromMeter {
+    param([string]$Meter)
+    if (-not $Meter) { return 'unknown' }
+    $k = $Meter -replace '(?i)\b(inp|input|prompt|outp|output|generated|completion|cached|cache|regional|global|glbl|reg|data|stored|tokens|token)\b', ''
+    $k = ($k -replace '\s+', ' ').Trim(' -')
+    if ([string]::IsNullOrWhiteSpace($k)) { return ([string]$Meter).Trim() }
+    return $k
+}
+
+function ConvertTo-AIHubAggregates {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [AllowEmptyCollection()]
+        [object[]]$HubData
+    )
+
+    # Aggregate Azure OpenAI / Cognitive Services spend and billed token
+    # volume straight from FOCUS export rows. Only cognitiveservices/accounts
+    # rows are priced (matching the live Cost Management filter). Request
+    # counts are not billed line items, so cost-per-request is unavailable
+    # on this path.
+    $modelTokens = @{}   # modelKey -> @{ Prompt; Generated; Total }
+    $acctTokens = @{}   # resourceId(lower) -> @{ Name; Tokens; Requests }
+    $costByAcct = @{}   # resourceId(lower) -> cost
+    $totalPrompt = 0.0
+    $totalGen = 0.0
+    $totalTokens = 0.0
+    $aiCost = 0.0
+    $currency = 'USD'
+    $tokenRows = 0
+    $approximate = $false
+
+    if (-not $HubData -or @($HubData).Count -eq 0) {
+        return [PSCustomObject]@{
+            RowCount = 0; TotalPrompt = 0; TotalGen = 0; TotalTokens = 0
+            AICost = 0; Currency = $currency; ModelTokens = $modelTokens
+            AcctTokens = $acctTokens; CostByAcct = $costByAcct
+            HasTokens = $false; HasCost = $false; Approximate = $false
+        }
+    }
+
+    $props = $HubData[0].PSObject.Properties.Name
+
+    foreach ($row in $HubData) {
+        $resType = Get-HubRowValue -Row $row -Props $props -Names @('ResourceType', 'x_ResourceType', 'ConsumedService')
+        if (-not $resType -or "$resType".ToLowerInvariant() -notmatch 'cognitiveservices') { continue }
+
+        $rid = Get-HubRowValue -Row $row -Props $props -Names @('ResourceId', 'x_ResourceId')
+        if (-not $rid) { continue }
+        $ridKey = "$rid".ToLowerInvariant()
+
+        $name = Get-HubRowValue -Row $row -Props $props -Names @('ResourceName')
+        if (-not $name) { $name = Split-Path "$rid" -Leaf }
+
+        $cost = Get-HubRowValue -Row $row -Props $props -Names @('CostInBillingCurrency', 'BilledCost', 'EffectiveCost')
+        $cost = if ($null -ne $cost) { [double]$cost } else { 0.0 }
+
+        $cur = Get-HubRowValue -Row $row -Props $props -Names @('BillingCurrency', 'BillingCurrencyCode')
+        if ($cur) { $currency = "$cur" }
+
+        if (-not $acctTokens.ContainsKey($ridKey)) {
+            $acctTokens[$ridKey] = @{ Name = "$name"; Tokens = 0.0; Requests = 0.0 }
+        }
+        if (-not $costByAcct.ContainsKey($ridKey)) { $costByAcct[$ridKey] = 0.0 }
+        $costByAcct[$ridKey] += $cost
+        $aiCost += $cost
+
+        # Token attribution from the meter name + billed quantity.
+        $meter = Get-HubRowValue -Row $row -Props $props -Names @('x_SkuMeterName', 'MeterName', 'SkuMeterName', 'x_SkuDescription')
+        if (-not $meter -or "$meter" -notmatch '(?i)token') { continue }
+
+        $qty = Get-HubRowValue -Row $row -Props $props -Names @('ConsumedQuantity', 'x_ConsumedQuantity', 'Quantity', 'UsageQuantity')
+        $qty = if ($null -ne $qty) { [double]$qty } else { 0.0 }
+        if ($qty -le 0) { continue }
+
+        $unit = Get-HubRowValue -Row $row -Props $props -Names @('ConsumedUnit', 'x_PricingUnitDescription', 'UnitOfMeasure', 'PricingUnit')
+        $mult = Get-TokenUnitMultiplier -Unit "$unit"
+        if (-not $mult.Known) { $approximate = $true }
+        $tokens = $qty * $mult.Multiplier
+
+        $modelKey = Get-AIModelKeyFromMeter -Meter "$meter"
+        if (-not $modelTokens.ContainsKey($modelKey)) {
+            $modelTokens[$modelKey] = @{ Prompt = 0.0; Generated = 0.0; Total = 0.0 }
+        }
+
+        if ("$meter" -match '(?i)\b(inp|input|prompt|cached|cache)\b') {
+            $modelTokens[$modelKey].Prompt += $tokens
+            $totalPrompt += $tokens
+            $acctTokens[$ridKey].Tokens += $tokens
+        }
+        elseif ("$meter" -match '(?i)\b(outp|output|generated|completion)\b') {
+            $modelTokens[$modelKey].Generated += $tokens
+            $totalGen += $tokens
+            $acctTokens[$ridKey].Tokens += $tokens
+        }
+        else {
+            $acctTokens[$ridKey].Tokens += $tokens
+        }
+        $modelTokens[$modelKey].Total += $tokens
+        $totalTokens += $tokens
+        $tokenRows++
+    }
+
+    return [PSCustomObject]@{
+        RowCount    = $tokenRows
+        TotalPrompt = $totalPrompt
+        TotalGen    = $totalGen
+        TotalTokens = $totalTokens
+        AICost      = $aiCost
+        Currency    = $currency
+        ModelTokens = $modelTokens
+        AcctTokens  = $acctTokens
+        CostByAcct  = $costByAcct
+        HasTokens   = ($totalTokens -gt 0)
+        HasCost     = ($aiCost -gt 0)
+        Approximate = $approximate
+    }
+}
+
 function ConvertTo-TagInventoryFromHub {
     [CmdletBinding()]
     param(

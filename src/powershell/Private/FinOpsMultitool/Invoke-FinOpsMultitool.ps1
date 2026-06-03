@@ -84,6 +84,8 @@ function Invoke-FinOpsMultitool {
         @{ Name = 'Cost by Tag'; Fn = 'Get-CostByTag'; Selected = $true; Category = 'Cost Analysis' }
         @{ Name = 'Cost Trend'; Fn = 'Get-CostTrend'; Selected = $true; Category = 'Cost Analysis' }
         @{ Name = 'Unit Economics'; Fn = 'Get-UnitEconomics'; Selected = $true; Category = 'Cost Analysis' }
+        # -- AI & ML (self-gating — only runs the deep scan when AI is present) --
+        @{ Name = 'AI Workload Metrics'; Fn = 'Get-AIWorkloadMetrics'; Selected = $true; Category = 'AI & ML' }
         # -- Commitments --
         @{ Name = 'Reservation Advice'; Fn = 'Get-ReservationAdvice'; Selected = $true; Category = 'Commitments' }
         @{ Name = 'Commitment Utilization'; Fn = 'Get-CommitmentUtilization'; Selected = $true; Category = 'Commitments' }
@@ -119,6 +121,7 @@ function Invoke-FinOpsMultitool {
         'Get-CostByTag'             = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action to query cost grouped by tag dimensions.' }
         'Get-CostTrend'             = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action to retrieve historical monthly cost data.' }
         'Get-UnitEconomics'         = @{ Role = 'Cost Management Reader + Reader'; Scope = 'Management Group'; API = 'Cost Management Query API + Azure Resource Graph'; Reason = 'Requires amortized cost (Cost Management) and capacity counts (Resource Graph) to compute $/vCPU and $/GB.' }
+        'Get-AIWorkloadMetrics'     = @{ Role = 'Cost Management Reader + Reader'; Scope = 'Management Group'; API = 'Azure Resource Graph + Monitor Metrics + Cost Management Query API'; Reason = 'Requires Reader to detect AI resources and read Azure OpenAI token metrics, plus Cost Management Reader to map token usage to spend. Skips the deep scan when no AI workloads are present.' }
         'Get-ReservationAdvice'     = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Consumption Reservation Recommendations API'; Reason = 'Requires Microsoft.Consumption/reservationRecommendations/read to retrieve reservation purchase advice.' }
         'Get-CommitmentUtilization' = @{ Role = 'Cost Management Reader or Reservation Reader'; Scope = 'Reservation Order or Subscription'; API = 'Consumption Reservation Summaries API'; Reason = 'Requires Microsoft.Consumption/reservationSummaries/read. If no reservations exist, this will be empty.' }
         'Get-SavingsRealized'       = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Benefit Utilization API'; Reason = 'Requires Microsoft.CostManagement/benefitUtilizationSummaries/read. Returns empty if no active reservations or savings plans.' }
@@ -817,6 +820,17 @@ function Invoke-FinOpsMultitool {
                         else { @{} }
                         $output = & $fn -TenantId $TenantId -ExistingTags $existingTags -Subscriptions $Subscriptions; break
                     }
+                    'Get-AIWorkloadMetrics' {
+                        # AI scan runs its own cheap ARG footprint gate; when the
+                        # Hub source is selected, hand it the pre-loaded export so
+                        # spend + token volume come from the export, not the
+                        # Monitor + Cost Management APIs.
+                        $aiParams = @{ TenantId = $TenantId; Subscriptions = $Subscriptions }
+                        if ($DataSource.Source -eq 'Hub' -and $hubRaw -and @($hubRaw).Count -gt 0) {
+                            $aiParams['HubData'] = $hubRaw
+                        }
+                        $output = & $fn @aiParams; break
+                    }
                     default {
                         # Build params — include TenantId if the function accepts it
                         $params = @{ Subscriptions = $Subscriptions }
@@ -1334,6 +1348,26 @@ function Invoke-FinOpsMultitool {
                     )
                     $cols = @('Metric', 'Value')
                 }
+                'Get-AIWorkloadMetrics' {
+                    if (-not $data.HasData) {
+                        Write-Host "    No AI workloads detected — AI KPIs skipped." -ForegroundColor Green
+                    }
+                    else {
+                        $fp = $data.AIFootprint
+                        Write-ColorizedLine -Text "    AI footprint — OpenAI/AIServices: $($fp.OpenAIAccounts + $fp.AIServices)  ML workspaces: $($fp.MLWorkspaces)  AI Search: $($fp.SearchServices)  GPU VMs: $($fp.GpuVmCount)" -DefaultColor 'White'
+                        Write-ColorizedLine -Text "    Tokens (MTD): $($data.TotalTokens) total ($($data.TotalPromptTokens) in / $($data.TotalGeneratedTokens) out) over $($data.TotalRequests) requests" -DefaultColor 'White'
+                        Write-ColorizedLine -Text "    AI spend (MTD): $($data.Currency) $($data.TotalAICost)  |  $($data.Currency) $($data.CostPer1KTokens)/1K tokens  |  $($data.Currency) $($data.CostPerRequest)/request" -DefaultColor 'White'
+                        if ($data.Note) { Write-Host "    $($data.Note)" -ForegroundColor DarkGray }
+                        if ($data.ByModel -and @($data.ByModel).Count -gt 0) {
+                            $rows = $data.ByModel
+                            $cols = @('Deployment', 'PromptTokens', 'GeneratedTokens', 'TotalTokens', 'PctOfTokens')
+                        }
+                        elseif ($data.ByAccount -and @($data.ByAccount).Count -gt 0) {
+                            $rows = $data.ByAccount
+                            $cols = @('Name', 'Tokens', 'Requests', 'Cost', 'CostPer1KTokens')
+                        }
+                    }
+                }
                 default {
                     # Fallback: try to display as-is with first 4 properties
                     $items = @($data)
@@ -1799,6 +1833,30 @@ function Invoke-FinOpsMultitool {
                         $guidanceItems = @(
                             @{ Severity = 'Yellow'; Message = "Top resource costs $("{0:C2}" -f $topCost). Focus optimization on the largest cost drivers." }
                             @{ Severity = 'Yellow'; Message = "FinOps Practice: The top 20% of resources typically drive 80% of spend. Optimize these first." }
+                        )
+                    }
+                }
+                'Get-AIWorkloadMetrics' {
+                    if (-not $data.HasData) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "No AI/LLM workloads detected. No AI-specific cost optimization needed right now." }
+                        )
+                    }
+                    elseif ($data.CostPer1KTokens -gt 0) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "Effective AI rate: $($data.Currency) $($data.CostPer1KTokens) per 1K tokens across $($data.TotalTokens) tokens (MTD). Track this as your core AI unit-economics KPI." }
+                            @{ Severity = 'Yellow'; Message = "Compare model deployments above — shift high-volume traffic to cheaper SKUs (e.g., gpt-4o-mini) and reserve premium models for tasks that need them." }
+                            @{ Severity = 'Yellow'; Message = "For steady, predictable token volume, evaluate Provisioned Throughput Units (PTUs) — they can beat pay-as-you-go at scale."; Docs = 'https://learn.microsoft.com/azure/ai-services/openai/concepts/provisioned-throughput' }
+                        )
+                    }
+                    elseif ($data.TotalTokens -gt 0) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "Token usage detected ($($data.TotalTokens) MTD) but cost could not be mapped. Grant Cost Management Reader to compute cost per 1K tokens." }
+                        )
+                    }
+                    else {
+                        $guidanceItems = @(
+                            @{ Severity = 'Green'; Message = "AI footprint present but no token-metered usage this month. Confirm whether idle AI resources can be deprovisioned to avoid baseline cost." }
                         )
                     }
                 }

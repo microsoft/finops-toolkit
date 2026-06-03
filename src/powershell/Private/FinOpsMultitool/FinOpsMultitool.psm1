@@ -77,5 +77,6 @@ $modulePath = Join-Path $PSScriptRoot 'modules'
 . (Join-Path $modulePath 'Get-IdleVMs.ps1')
 . (Join-Path $modulePath 'Get-LegacyResources.ps1')
 . (Join-Path $modulePath 'Get-UnitEconomics.ps1')
+. (Join-Path $modulePath 'Get-AIWorkloadMetrics.ps1')
 . (Join-Path $modulePath 'Get-CarbonMetrics.ps1')
 . (Join-Path $modulePath 'New-PowerBITemplate.ps1')

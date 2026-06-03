@@ -133,6 +133,12 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 | Cost Trend     | Month-over-month spend comparison        |
 | Unit Economics | Cost per vCPU, per VM, and per GB stored |
 
+### AI & ML
+
+| Scan                | What it finds                                                                                      |
+| ------------------- | -------------------------------------------------------------------------------------------------- |
+| AI Workload Metrics | Detects AI workloads, then token consumption by model, AI spend, cost per 1K tokens, cost per call |
+
 ### Commitments
 
 | Scan                   | What it finds                            |
@@ -199,6 +205,26 @@ Storage cost      $ 41,200      Provisioned: 84,600 GB
 ```
 
 Directly produces `Cost per GB Stored`; feeds `Hourly Cost per CPU Core` (÷ 730) and `Effective Avg Compute Cost per Core`.
+
+### Token Consumption / Cost per 1K Tokens / Cost per API Call → `scan_ai_workloads`
+
+> "What are my AI/LLM workloads costing per token and per request this month?"
+
+This scan is self-gating: a single Resource Graph query detects whether any AI workloads (Azure OpenAI, AI Services, Machine Learning, AI Search, GPU VMs) exist. Non-AI tenants skip the deep scan entirely, so the scan stays fast. When AI is present, it joins Azure Monitor token metrics to Cost Management spend over the same month-to-date window.
+
+```
+AI footprint — OpenAI/AIServices: 3   ML workspaces: 1   AI Search: 2   GPU VMs: 0
+Tokens (MTD): 412,800,000 total (288,100,000 in / 124,700,000 out) over 1,240,500 requests
+AI spend (MTD): USD 3,910.42  |  USD 0.0095 /1K tokens  |  USD 0.00315 /request
+
+Deployment        PromptTokens   GeneratedTokens   TotalTokens   PctOfTokens
+gpt-4o            210,400,000     98,200,000        308,600,000   74.8
+gpt-4o-mini        77,700,000     26,500,000        104,200,000   25.2
+```
+
+Produces `Token Consumption`, `Cost per 1K Tokens` (effective blended rate), and `Cost per API Call`; the per-model breakdown highlights where to shift traffic to cheaper SKUs or evaluate Provisioned Throughput Units (PTUs).
+
+Like the cost scans, this honors `dataSource` (`auto` / `hub` / `api`). When a readable FinOps Hub export covers the scope, AI spend and billed token volume are read straight from the export — no Azure Monitor or Cost Management calls. Cost per request is only available on the live API path, since request counts are not billed line items.
 
 ### Carbon per Unit of Spend / Carbon Efficiency → `scan_carbon`
 
@@ -275,7 +301,7 @@ $costByTag = ConvertTo-CostByTagFromHub -HubData $hubData -ExistingTags $tagInve
 
 ## MCP Server (AI Integration)
 
-The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 23 scan modules — plus a `run_full_scan` composite (24 tools total) — as AI-callable tools. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI and GUI.
+The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 24 scan modules — plus a `run_full_scan` composite (25 tools total) — as AI-callable tools. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI and GUI.
 
 ### Setup
 
@@ -311,32 +337,33 @@ For VS Code `settings.json`, nest the same under an `mcp` key:
 
 ### Available Tools
 
-| Tool                          | Description                                       |
-| ----------------------------- | ------------------------------------------------- |
-| `scan_orphaned_resources`     | Find unattached disks, NICs, public IPs, NSGs     |
-| `scan_idle_vms`               | Find VMs with <5% CPU over 14-30 days             |
-| `scan_storage_tier_advice`    | Storage accounts that could use cooler tiers      |
-| `scan_ahb_opportunities`      | VMs/SQL not using Azure Hybrid Benefit            |
-| `scan_tag_inventory`          | Tag coverage %, tag names, resource counts        |
-| `scan_tag_recommendations`    | Inconsistent casing, missing standard tags        |
-| `scan_policy_inventory`       | Policy assignments with compliance status         |
-| `scan_policy_recommendations` | Policy coverage gaps for cost governance          |
-| `scan_cost_data`              | Actual + forecasted cost per subscription         |
-| `scan_resource_costs`         | Top resources by cost (MTD)                       |
-| `scan_cost_by_tag`            | Spend breakdown by tag key/value                  |
-| `scan_cost_trend`             | Month-over-month spend comparison                 |
-| `scan_reservation_advice`     | RI purchase recommendations                       |
-| `scan_commitment_utilization` | RI and Savings Plan usage rates                   |
-| `scan_savings_realized`       | Actual savings from commitments                   |
-| `scan_budget_status`          | Budget consumption vs thresholds                  |
-| `scan_anomaly_alerts`         | Recent cost anomaly detections                    |
-| `scan_legacy_resources`       | Legacy/retiring SKUs needing modernization        |
-| `scan_unit_economics`         | Cost per vCPU, per VM, and per GB stored          |
-| `scan_carbon`                 | Cloud carbon emissions and month-over-month trend |
-| `scan_optimization_advice`    | Azure Advisor cost recommendations                |
-| `scan_billing_structure`      | Billing account hierarchy                         |
-| `scan_contract_info`          | Agreement type, offer, support plan               |
-| `run_full_scan`               | Run all modules — comprehensive assessment        |
+| Tool                          | Description                                        |
+| ----------------------------- | -------------------------------------------------- |
+| `scan_orphaned_resources`     | Find unattached disks, NICs, public IPs, NSGs      |
+| `scan_idle_vms`               | Find VMs with <5% CPU over 14-30 days              |
+| `scan_storage_tier_advice`    | Storage accounts that could use cooler tiers       |
+| `scan_ahb_opportunities`      | VMs/SQL not using Azure Hybrid Benefit             |
+| `scan_tag_inventory`          | Tag coverage %, tag names, resource counts         |
+| `scan_tag_recommendations`    | Inconsistent casing, missing standard tags         |
+| `scan_policy_inventory`       | Policy assignments with compliance status          |
+| `scan_policy_recommendations` | Policy coverage gaps for cost governance           |
+| `scan_cost_data`              | Actual + forecasted cost per subscription          |
+| `scan_resource_costs`         | Top resources by cost (MTD)                        |
+| `scan_cost_by_tag`            | Spend breakdown by tag key/value                   |
+| `scan_cost_trend`             | Month-over-month spend comparison                  |
+| `scan_reservation_advice`     | RI purchase recommendations                        |
+| `scan_commitment_utilization` | RI and Savings Plan usage rates                    |
+| `scan_savings_realized`       | Actual savings from commitments                    |
+| `scan_budget_status`          | Budget consumption vs thresholds                   |
+| `scan_anomaly_alerts`         | Recent cost anomaly detections                     |
+| `scan_legacy_resources`       | Legacy/retiring SKUs needing modernization         |
+| `scan_unit_economics`         | Cost per vCPU, per VM, and per GB stored           |
+| `scan_ai_workloads`           | AI token consumption, cost per 1K tokens, per call |
+| `scan_carbon`                 | Cloud carbon emissions and month-over-month trend  |
+| `scan_optimization_advice`    | Azure Advisor cost recommendations                 |
+| `scan_billing_structure`      | Billing account hierarchy                          |
+| `scan_contract_info`          | Agreement type, offer, support plan                |
+| `run_full_scan`               | Run all modules — comprehensive assessment         |
 
 ### Resources
 

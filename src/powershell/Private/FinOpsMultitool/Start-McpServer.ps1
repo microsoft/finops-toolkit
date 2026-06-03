@@ -338,6 +338,19 @@ $toolDefinitions = @(
         }
     }
     @{
+        name        = 'scan_ai_workloads'
+        description = 'Detect AI/LLM workloads (Azure OpenAI, AI Services, Machine Learning, AI Search, GPU VMs) and, only when present, compute AI unit-economics KPIs: month-to-date token consumption (input/output) by model deployment, total Azure OpenAI requests, AI spend, effective cost per 1K tokens, and cost per request. Self-gating - returns quickly when no AI workloads exist. Reads AI spend and billed token volume from the FinOps Hub export when available (no Monitor/Cost Management calls); cost per request is only available on the live API path.'
+        fn          = 'Get-AIWorkloadMetrics'
+        category    = 'AI & ML'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, scans all accessible subscriptions.' }
+                dataSource     = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read AI spend and token volume. 'auto' (default) uses the FinOps Hub export when it fully covers scope, else the live Monitor + Cost Management APIs. 'hub' forces the export (no cost-per-request). 'api' forces the live APIs." }
+            }
+        }
+    }
+    @{
         name        = 'scan_legacy_resources'
         description = 'Find legacy and retiring resources to modernize: first-generation (v1) VM families, unmanaged (VHD) disks, HDD managed disks, and Basic-SKU public IPs / load balancers (retiring Sep 2025).'
         fn          = 'Get-LegacyResources'
@@ -475,6 +488,7 @@ $permissionMap = @{
     'Get-CarbonMetrics'         = @{ role = 'Reader or Carbon Optimization Reader'; scope = 'Subscription'; api = 'Carbon Optimization API' }
     'Get-LegacyResources'       = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Resource Graph' }
     'Get-UnitEconomics'         = @{ role = 'Cost Management Reader + Reader'; scope = 'Management Group'; api = 'Cost Management Query API + Azure Resource Graph' }
+    'Get-AIWorkloadMetrics'     = @{ role = 'Cost Management Reader + Reader'; scope = 'Management Group'; api = 'Azure Resource Graph + Monitor Metrics + Cost Management Query API' }
     'Get-BillingStructure'      = @{ role = 'Billing Reader'; scope = 'Billing Account'; api = 'Billing API' }
     'Get-ContractInfo'          = @{ role = 'Billing Reader'; scope = 'Billing Account'; api = 'Billing API' }
     'Get-MaccCommitment'        = @{ role = 'Billing Reader or EA Reader'; scope = 'Billing Account'; api = 'Consumption Lots API' }
@@ -564,25 +578,25 @@ function ConvertTo-PbiScanData {
     if (-not $r) { $r = @{} }
 
     return @{
-        Auth         = @{
+        Auth          = @{
             TenantId      = (Get-AzContext).Tenant.Id
             Subscriptions = @($FullScan.subscriptions | ForEach-Object { @{ Name = $_.name; Id = $_.id } })
         }
-        Costs        = $r['scan_cost_data']
+        Costs         = $r['scan_cost_data']
         ResourceCosts = $r['scan_resource_costs']
-        Tags         = $r['scan_tag_inventory']
-        TagRecs      = $r['scan_tag_recommendations']
-        PolicyInv    = $r['scan_policy_inventory']
-        PolicyRecs   = $r['scan_policy_recommendations']
-        Budgets      = $r['scan_budget_status']
-        Orphans      = $r['scan_orphaned_resources']
-        CostByTag    = $r['scan_cost_by_tag']
-        CostTrend    = $r['scan_cost_trend']
-        Commitments  = $r['scan_commitment_utilization']
-        AHB          = $r['scan_ahb_opportunities']
-        Optimization = $r['scan_optimization_advice']
-        Reservations = $r['scan_reservation_advice']
-        Savings      = $r['scan_savings_realized']
+        Tags          = $r['scan_tag_inventory']
+        TagRecs       = $r['scan_tag_recommendations']
+        PolicyInv     = $r['scan_policy_inventory']
+        PolicyRecs    = $r['scan_policy_recommendations']
+        Budgets       = $r['scan_budget_status']
+        Orphans       = $r['scan_orphaned_resources']
+        CostByTag     = $r['scan_cost_by_tag']
+        CostTrend     = $r['scan_cost_trend']
+        Commitments   = $r['scan_commitment_utilization']
+        AHB           = $r['scan_ahb_opportunities']
+        Optimization  = $r['scan_optimization_advice']
+        Reservations  = $r['scan_reservation_advice']
+        Savings       = $r['scan_savings_realized']
     }
 }
 
@@ -610,37 +624,37 @@ function Get-HubPbiConnection {
     $storageUrl = "https://$acct.dfs.core.windows.net/ingestion"
 
     return @{
-        hubFound          = $true
-        readable          = $Decision.Readable
-        recommendation    = $Decision.Recommendation
-        coveragePct       = $Decision.CoveragePct
-        asOf              = $Decision.Freshness
-        hub               = @{
+        hubFound         = $true
+        readable         = $Decision.Readable
+        recommendation   = $Decision.Recommendation
+        coveragePct      = $Decision.CoveragePct
+        asOf             = $Decision.Freshness
+        hub              = @{
             storageAccount = $acct
             resourceGroup  = $Decision.Hub.ResourceGroup
             subscriptionId = $Decision.Hub.SubscriptionId
             location       = $Decision.Hub.Location
         }
-        reportParameters  = @{
+        reportParameters = @{
             # Storage-based reports (Cost summary, Rate optimization, etc.)
             storageUrlForPowerBI = $storageUrl
             ingestionContainer   = 'ingestion'
             # KQL/ADX-based reports (Data ingestion, etc.) — copy from hub Outputs
             clusterUri           = '<copy clusterUri from the hub deployment Outputs>'
         }
-        reports           = @(
-            @{ name = 'Cost summary';     dataSource = 'Storage'; download = 'https://aka.ms/finops/toolkit/CostSummary.pbix' }
+        reports          = @(
+            @{ name = 'Cost summary'; dataSource = 'Storage'; download = 'https://aka.ms/finops/toolkit/CostSummary.pbix' }
             @{ name = 'Rate optimization'; dataSource = 'Storage'; download = 'https://aka.ms/finops/toolkit/RateOptimization.pbix' }
-            @{ name = 'Data ingestion';   dataSource = 'KQL';     download = 'https://aka.ms/finops/toolkit/DataIngestion.pbix' }
+            @{ name = 'Data ingestion'; dataSource = 'KQL'; download = 'https://aka.ms/finops/toolkit/DataIngestion.pbix' }
         )
-        instructions      = @(
+        instructions     = @(
             "Download the FinOps Toolkit Power BI reports: https://aka.ms/finops/toolkit/reports",
             "Open a report in Power BI Desktop. When prompted, set 'Storage URL' to: $storageUrl",
             "For KQL reports, set 'Cluster URI' to the clusterUri value from the hub resource group's deployment Outputs.",
             "Authorize the storage source with an account that has Storage Blob Data Reader (or a SAS token).",
             "Leave 'Number of Months' empty to load all data, then Apply."
         )
-        message           = $Decision.Message
+        message          = $Decision.Message
     }
 }
 
@@ -704,18 +718,18 @@ function Invoke-McpTool {
         $built = New-PowerBITemplate -ScanData $pbiScanData -OutputDir $outDir -SkeletonPath $skel
 
         return @{
-            tool          = $ToolName
-            module        = 'New-PowerBITemplate'
-            category      = $toolDef.category
-            data          = @{
+            tool      = $ToolName
+            module    = 'New-PowerBITemplate'
+            category  = $toolDef.category
+            data      = @{
                 pbitPath       = $built.PbitPath
                 csvCount       = $built.CsvCount
                 outputDir      = $built.OutputDir
                 subscriptions  = $scan.subscriptions
                 costDataSource = $scan.costDataSource
             }
-            note          = "Open $($built.PbitPath) in Power BI Desktop. The CsvFolderPath parameter is pre-set to the exported folder; move the folder and the .pbit together or update the parameter."
-            timestamp     = (Get-Date -Format 'o')
+            note      = "Open $($built.PbitPath) in Power BI Desktop. The CsvFolderPath parameter is pre-set to the exported folder; move the folder and the .pbit together or update the parameter."
+            timestamp = (Get-Date -Format 'o')
         }
     }
 
@@ -801,6 +815,26 @@ function Invoke-McpTool {
     }
     if ($cmdInfo.Parameters.ContainsKey('TenantId') -and $tenantId) {
         $params['TenantId'] = $tenantId
+    }
+
+    # Hand the FinOps Hub export to functions that accept -HubData (e.g.
+    # Get-AIWorkloadMetrics). These run their own ARG gate, so they flow
+    # through the normal call path with the export injected rather than the
+    # cost-family hub switch above.
+    if ($cmdInfo.Parameters.ContainsKey('HubData')) {
+        $aiRequested = if ($Arguments.dataSource) { [string]$Arguments.dataSource } else { 'auto' }
+        if ($aiRequested -ne 'api') {
+            $aiHub = Get-McpHubData -Subs $subs -TenantId $tenantId
+            if ($aiHub -and $aiHub.Raw -and @($aiHub.Raw).Count -gt 0) {
+                $useAiHub = ($aiRequested -eq 'hub') -or ($aiRequested -eq 'auto' -and $aiHub.Decision.Recommendation -eq 'UseHub')
+                if ($useAiHub) { $params['HubData'] = $aiHub.Raw }
+            }
+            elseif ($aiRequested -eq 'hub') {
+                $d = if ($aiHub) { $aiHub.Decision } else { $null }
+                $reason = if ($d) { "$($d.ReadBlocker): $($d.ReadBlockerDetail)" } else { 'no hub found in scope' }
+                throw "Hub data requested but unavailable ($reason). $($d.RemediationHint)"
+            }
+        }
     }
 
     # Handle chained dependencies
