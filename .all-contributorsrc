@@ -43,7 +43,8 @@
         "leader",
         "code",
         "review",
-        "bug"
+        "bug",
+        "doc"
       ]
     },
     {
@@ -958,6 +959,15 @@
       "name": "Arthur Silvany",
       "avatar_url": "https://avatars.githubusercontent.com/u/31347467?v=4",
       "profile": "https://github.com/arthursilvany",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "Pasc104",
+      "name": "Pasc104",
+      "avatar_url": "https://avatars.githubusercontent.com/u/278708919?v=4",
+      "profile": "https://github.com/Pasc104",
       "contributions": [
         "bug"
       ]
