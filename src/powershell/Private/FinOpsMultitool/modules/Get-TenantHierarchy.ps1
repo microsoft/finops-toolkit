@@ -76,8 +76,16 @@ function Get-TenantHierarchy {
         }
     }
     catch {
-        Write-Warning "Failed to load management group hierarchy: $($_.Exception.Message)"
-        Write-Warning "Falling back to flat subscription list."
+        # Lacking Microsoft.Management read/register access is expected for many
+        # scopes — fall back to a flat subscription list quietly instead of
+        # dumping a wall of authorization noise to the console.
+        $errMsg = $_.Exception.Message
+        if ($errMsg -match 'does not have authorization|Authorization_RequestDenied|register/action|RBACAccessDenied|Forbidden|\(403\)') {
+            Write-Verbose "Management group hierarchy not accessible (insufficient permissions); using flat subscription list."
+        }
+        else {
+            Write-Verbose "Management group hierarchy unavailable; using flat subscription list. ($errMsg)"
+        }
 
         $subs = if ($Subscriptions) { @($Subscriptions) } else {
             @(Get-AzSubscription -ErrorAction SilentlyContinue | Where-Object { $_.State -eq 'Enabled' })
