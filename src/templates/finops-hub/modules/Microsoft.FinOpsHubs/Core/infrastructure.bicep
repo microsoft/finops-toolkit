@@ -183,9 +183,9 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
   name: hub.routing.networkName
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Storage/virtualNetworks')
-  dependsOn: [
+  dependsOn: hub.options.natGateway ? [
     natGateway
-  ]
+  ] : []
   properties: {
     addressSpace: {
       addressPrefixes: [hub.options.networkAddressPrefix]
@@ -215,7 +215,7 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (hub.options.natGateway) {
   name: natGatewayPipName
   location: hub.location
-  tags: getHubTags(hub, 'Microsoft.Storage/publicIPAddresses')
+  tags: getHubTags(hub, 'Microsoft.Network/publicIPAddresses')
   sku: {
     name: 'Standard'
   }
@@ -228,7 +228,7 @@ resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = i
 resource natGateway 'Microsoft.Network/natGateways@2023-11-01' = if (hub.options.natGateway) {
   name: natGatewayName
   location: hub.location
-  tags: getHubTags(hub, 'Microsoft.Storage/natGateways')
+  tags: getHubTags(hub, 'Microsoft.Network/natGateways')
   sku: {
     name: 'Standard'
   }
