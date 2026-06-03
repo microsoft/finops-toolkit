@@ -256,4 +256,3 @@ $recommendations |
 - [Cost recommendations](https://learn.microsoft.com/azure/advisor/advisor-cost-recommendations)
 - [Suppress recommendations](https://learn.microsoft.com/azure/advisor/view-recommendations#dismissing-and-postponing-recommendations)
 - [Advisor REST API](https://learn.microsoft.com/rest/api/advisor/)
-

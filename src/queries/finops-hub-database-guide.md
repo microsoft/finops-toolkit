@@ -94,10 +94,10 @@ The FinOps hubs database is designed to support advanced cost and usage analytic
 - **Prefer scenario-specific aggregate queries first:**
   Use the query catalog to find the narrowest query that answers the question. Use [`costs-enriched-base`](./catalog/costs-enriched-base.kql) when you need scoped row-level enrichment or repeated drill-downs.
 
-- **Use KQL (Kusto Query Language):**  
+- **Use KQL (Kusto Query Language):**
   All queries should be written in KQL for compatibility with Azure Data Explorer.
 
-- **Leverage Enrichment Columns:**  
+- **Leverage Enrichment Columns:**
   Columns prefixed with `x_` provide additional context and enrichment for FinOps analysis.
 
 ---
@@ -359,10 +359,10 @@ Costs()
 
 ## Table reference
 
-> **Note:**  
+> **Note:**
 > All columns prefixed with `x_` are toolkit enrichment columns, providing additional context for FinOps analysis.
 
-> **Numeric column types — live Hub behavior:**  
+> **Numeric column types — live Hub behavior:**
 > Columns documented below as `real` are exposed by the live Hub as `real` (a 64-bit floating-point type, equivalent to KQL `double` / .NET `System.Double`). Earlier versions of this guide listed numeric columns as `decimal`, but the deployed Hub schemas across `Costs()`, `Prices()`, and `Recommendations()` use `real`. When writing literal numeric defaults in KQL queries (for example the `false`-branch of an `iff(...)` aggregate), use `real(0)` — not `decimal(0)` — to avoid `SEM0019` arithmetic type-mismatch errors.
 
 Below are the column definitions for the main analytic tables in the FinOps hubs database. These definitions are based on Microsoft Learn, FinOps best practices, and common cloud cost management terminology.
@@ -593,7 +593,7 @@ The following table lists the columns produced in the `All available columns` qu
 
 ### Recommendations()
 
-> **Sparsely-populated columns:**  
+> **Sparsely-populated columns:**
 > The `Recommendations()` function is sourced from upstream optimization recommenders (for example, Azure Advisor reservation recommendations). Many string identifier columns below (`ResourceId`, `ResourceName`, `SubAccountId`, `SubAccountName`, `x_RecommendationId`, `x_RecommendationDescription`, `x_ResourceGroupName`) may be empty strings in practice if the source recommender does not surface them. Verify population with `Recommendations() | summarize count() by isnotempty(<column>)` before relying on a column as a join key or filter.
 
 | Column Name                  | Data Type | Description                                                                                                                                                                                                                                                                                                                                                                                                          |

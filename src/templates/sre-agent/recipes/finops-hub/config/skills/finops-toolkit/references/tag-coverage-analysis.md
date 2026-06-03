@@ -95,7 +95,7 @@ base
 | extend UntaggedCost = TotalCost - TaggedCost,
          TagCoverage = TaggedCost / TotalCost
 ```
- 
+
 Repeat the same pattern for any observed tag or field that matters to the business, such as `Tags['team']`, `Tags['application']`, `x_CostCenter`, or `x_Project`.
 
 If populated coverage is weak, say so directly. Blank values are an important finding.

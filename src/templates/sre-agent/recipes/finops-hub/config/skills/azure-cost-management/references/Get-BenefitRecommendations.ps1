@@ -28,17 +28,17 @@
 
 .EXAMPLE
     .\Get-BenefitRecommendations.ps1 -BillingScope "subscriptions/12345678-1234-1234-1234-123456789012"
-    
+
     Gets 3-year savings plan recommendations for a subscription based on last 7 days usage.
 
 .EXAMPLE
     .\Get-BenefitRecommendations.ps1 -BillingScope "providers/Microsoft.Billing/billingAccounts/12345678" -LookBackPeriod "Last30Days" -Term "P1Y"
-    
+
     Gets 1-year savings plan recommendations for a billing account based on last 30 days usage.
 
 .NOTES
     Requires Azure PowerShell module and Cost Management Reader permissions on the specified scope.
-    
+
     To find your billing account: Get-AzBillingAccount
     To find subscriptions: Get-AzSubscription
 #>
