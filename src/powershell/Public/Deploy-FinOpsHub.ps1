@@ -84,11 +84,11 @@
     .PARAMETER DataExplorerFinalRetentionInMonths
     Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.
 
-    .PARAMETER EnablePublicAccess
-    Optional. Enable public access to the data lake.  Default: true.
+    .PARAMETER NetworkMode
+    Optional. Network mode for the hub: 'public' (default), 'vnet' (private endpoints, default outbound), or 'private' (private endpoints + NAT Gateway, subnets locked down with defaultOutboundAccess=false - required when the 'Subnets should be private' policy is enforced).
 
-    .PARAMETER EnableNatGateway
-    Optional. Deploy a NAT Gateway for controlled outbound access when private routing is enabled (DisablePublicAccess). When set, subnets disable Azure default outbound access and route through the NAT Gateway. Ignored when DisablePublicAccess is not set. Default: false.
+    .PARAMETER DisablePublicAccess
+    Optional. Deprecated. Use -NetworkMode 'vnet' or -NetworkMode 'private' instead. When set without -NetworkMode, behaves as -NetworkMode 'vnet'. Ignored when -NetworkMode is supplied.
 
     .PARAMETER VirtualNetworkAddressPrefix
     Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".
@@ -191,12 +191,13 @@ function Deploy-FinOpsHub
         $DataExplorerFinalRetentionInMonths = 13,
 
         [Parameter()]
-        [switch]
-        $DisablePublicAccess,
+        [ValidateSet('public', 'vnet', 'private')]
+        [string]
+        $NetworkMode,
 
         [Parameter()]
         [switch]
-        $EnableNatGateway,
+        $DisablePublicAccess,
 
         [Parameter()]
         [string]
@@ -288,8 +289,11 @@ function Deploy-FinOpsHub
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerCapacity', $DataExplorerCapacity)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerRawRetentionInDays', $DataExplorerRawRetentionInDays)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerFinalRetentionInMonths', $DataExplorerFinalRetentionInMonths)
-                $parameterSplat.TemplateParameterObject.Add('enablePublicAccess', -not $DisablePublicAccess)
-                $parameterSplat.TemplateParameterObject.Add('enableNatGateway', $EnableNatGateway.IsPresent)
+                # Resolve network mode. -NetworkMode wins; -DisablePublicAccess (deprecated) maps to 'vnet'.
+                $effectiveNetworkMode = if ($NetworkMode) { $NetworkMode } elseif ($DisablePublicAccess) { 'vnet' } else { 'public' }
+                if (-not $NetworkMode -and $DisablePublicAccess) { Write-Warning "-DisablePublicAccess is deprecated; use -NetworkMode 'vnet' or -NetworkMode 'private'." }
+                $parameterSplat.TemplateParameterObject.Add('enablePublicAccess', ($effectiveNetworkMode -eq 'public'))
+                $parameterSplat.TemplateParameterObject.Add('enableNatGateway', ($effectiveNetworkMode -eq 'private'))
                 $parameterSplat.TemplateParameterObject.Add('virtualNetworkAddressPrefix', $VirtualNetworkAddressPrefix)
                 $parameterSplat.TemplateParameterObject.Add('exportRetentionInDays', $ExportRetentionInDays)
                 $parameterSplat.TemplateParameterObject.Add('ingestionRetentionInMonths', $IngestionRetentionInMonths)
