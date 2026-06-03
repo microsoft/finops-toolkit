@@ -3,12 +3,12 @@ title: FinOps toolkit Usage optimization report
 description: Learn about the Usage optimization report, which identifies opportunities for rightsizing and removing unused resources to enhance efficiency.
 author: flanakin
 ms.author: micflan
-ms.date: 05/25/2026
+ms.date: 06/03/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-# customer intent: As a As a FinOps user, I want to learn about the Usage optimization report so that I can identify and eliminate inefficiencies in my cloud resource usage.
+# customer intent: As a FinOps user, I want to learn about the Usage optimization report so that I can identify and eliminate inefficiencies in my cloud resource usage.
 ---
 
 <!-- cSpell:ignore nextstepaction -->

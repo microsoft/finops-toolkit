@@ -3,7 +3,7 @@ title: Usage optimization
 description: This article helps you understand the Usage optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 05/25/2026
+ms.date: 06/03/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -25,7 +25,7 @@ Review how services get used and ensure each is maximizing return on investment.
 
 Every cost should have direct or indirect traceability back to business value. Eliminate fully "optimized" resources that aren't contributing to business value.
 
-Review your resource usage patterns and determine if they can be scaled down or even shutdown (to stop billing) during off-peak hours. To reduce costs, consider cheaper alternatives. Avoid unnecessary usage and costs that don't contribute to the mission, which in turn increases return on investment and profitability.
+Review your resource usage patterns and determine if they can be scaled down or even shut down (to stop billing) during off-peak hours. To reduce costs, consider cheaper alternatives. Avoid unnecessary usage and costs that don't contribute to the mission, which in turn increases return on investment and profitability.
 
 <br>
 
