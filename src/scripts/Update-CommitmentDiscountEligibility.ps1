@@ -110,7 +110,11 @@ function Get-RetailPriceSegment
             }
             catch
             {
-                $statusCode = [int]$_.Exception.Response.StatusCode
+                # On network/DNS/timeout errors there is no HTTP response, so guard
+                # against a null .Response before reading status code / headers --
+                # otherwise indexing it throws here and bypasses the retry/backoff.
+                $errResponse = $_.Exception.Response
+                $statusCode = if ($errResponse) { [int]$errResponse.StatusCode } else { 0 }
                 if ($statusCode -and $statusCode -lt 500 -and $statusCode -ne 429)
                 {
                     throw "HTTP $statusCode`: $_"
@@ -122,9 +126,9 @@ function Get-RetailPriceSegment
                     throw "Failed after $maxRetries retries: $_"
                 }
 
-                $retryAfter = $_.Exception.Response.Headers['Retry-After']
+                $retryAfter = if ($errResponse) { $errResponse.Headers['Retry-After'] } else { $null }
                 $wait = if ($retryAfter) { [int]$retryAfter } else { [Math]::Pow(2, $retries) * 10 }
-                $reason = if ($statusCode -eq 429) { 'Rate limited' } else { "HTTP $statusCode" }
+                $reason = if ($statusCode -eq 429) { 'Rate limited' } elseif ($statusCode) { "HTTP $statusCode" } else { 'Network error' }
                 Write-Host "  $reason, retrying in ${wait}s (attempt $retries/$maxRetries)"
                 Start-Sleep -Seconds $wait
             }
