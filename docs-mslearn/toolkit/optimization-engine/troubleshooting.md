@@ -3,7 +3,7 @@ title: Troubleshoot Azure Optimization Engine issues
 description: This article helps you troubleshoot common issues with Azure Optimization Engine deployment and runtime.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/25/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -84,7 +84,7 @@ Related FinOps capabilities:
 - [Data ingestion](../../framework/understand/ingestion.md)
 - [Reporting and analytics](../../framework/understand/reporting.md)
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 

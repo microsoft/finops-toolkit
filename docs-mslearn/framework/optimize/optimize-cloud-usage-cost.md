@@ -3,7 +3,7 @@ title: Optimize usage and cost
 description: Learn about the FinOps capabilities that help you identify and implement the right mix of pricing models, services, and resources needed to meet business demands.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/25/2026
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -28,11 +28,11 @@ To learn more, see [Architecting for the cloud](./architecting.md).
 
 <br>
 
-## Workload optimization
+## Usage optimization
 
 Onboarding workloads refers to the process of bringing new and existing applications into the cloud based on their financial and technical feasibility. With this capability, you analyze cost, usage, and carbon emissions for cloud workloads to identify opportunities to maximize efficiency. This capability usually starts with recommendations and expands into more nuanced optimization efforts based on detailed resource utilization analysis. This capability can be time and effort intensive as each cloud service has its different optimization opportunities.
 
-To learn more, see [Workload optimization](./workloads.md).
+To learn more, see [Usage optimization](./workloads.md).
 
 <br>
 
@@ -82,7 +82,7 @@ If you're looking for something specific, vote for an existing or create a new i
 
 Related FinOps capabilities:
 
-- [Understand usage and cost](../understand/understand-cloud-usage-cost.md)
+- [Understand Usage & Cost](../understand/understand-cloud-usage-cost.md)
 - [Quantify business value](../quantify/quantify-business-value.md)
 - [Manage the FinOps practice](../manage/manage-finops.md)
 

@@ -1,25 +1,25 @@
 ---
-title: Workload optimization
-description: This article helps you understand the Workload optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+title: Usage optimization
+description: This article helps you understand the Usage optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
 ms.reviewer: kedelaro
-# customer intent: As a FinOps practitioner, I want to understand the workload optimization capability so that I can implement it in the Microsoft Cloud.
+# customer intent: As a FinOps practitioner, I want to understand the usage optimization capability so that I can implement it in the Microsoft Cloud.
 ---
 
-# Workload optimization
+# Usage optimization
 
-This article helps you understand the Workload optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+This article helps you understand the Usage optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 
 <br>
 
 ## Definition
 
-**Workload optimization refers to the process of ensuring cloud services are utilized and tuned to maximize business value and minimize wasteful usage and spending.**
+**Usage optimization refers to the process of ensuring cloud services are utilized and tuned to maximize business value and minimize wasteful usage and spending.**
 
 Review how services get used and ensure each is maximizing return on investment. Evaluate and implement best practices and recommendations.
 
@@ -90,7 +90,7 @@ At this point, you implemented all the basic cost optimization recommendations a
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Workload optimization capability](https://www.finops.org/framework/capabilities/workload-optimization/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Usage optimization capability](https://www.finops.org/framework/capabilities/usage-optimization/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
@@ -121,7 +121,7 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [Rate optimization](./rates.md)
-- [Policy and governance](../manage/governance.md)
+- [Governance, Policy & Risk](../manage/governance.md)
 
 Related products:
 

@@ -3,12 +3,12 @@ title: FinOps toolkit Optimization workbook
 description: The Azure Monitor workbook focuses on cost optimization, providing insights and recommendations for improving cost efficiency in your Azure environment.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: arclares
-#customer intent: As a FinOps user, I want to understand what the FinOps Optimization workbook is and how it can help me implement the Workload optimization and Rate optimization FinOps capabilities.
+#customer intent: As a FinOps user, I want to understand what the FinOps Optimization workbook is and how it can help me implement the Usage optimization and Rate optimization FinOps capabilities.
 ---
 
 # Optimization workbook
@@ -73,7 +73,7 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 
