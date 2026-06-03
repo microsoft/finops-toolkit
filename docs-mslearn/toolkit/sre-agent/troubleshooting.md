@@ -3,7 +3,7 @@ title: Troubleshoot Azure SRE Agent deployments from the FinOps toolkit
 description: Resolve common deployment, tenant, connector, data, and query issues for Azure SRE Agent deployments from the FinOps toolkit.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/02/2026
+ms.date: 06/03/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit

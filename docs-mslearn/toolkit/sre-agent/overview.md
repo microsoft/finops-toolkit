@@ -3,7 +3,7 @@ title: Azure SRE Agent in the FinOps toolkit
 description: Learn how the FinOps toolkit deploys Azure SRE Agent with FinOps and capacity management automation on top of FinOps hubs.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/02/2026
+ms.date: 06/03/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

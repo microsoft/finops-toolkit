@@ -3,7 +3,7 @@ title: Deploy Azure SRE Agent with the FinOps toolkit
 description: Deploy the FinOps toolkit Azure SRE Agent template from the Azure portal or CLI, connect it to a FinOps hub Data Explorer cluster, and validate the deployment.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/02/2026
+ms.date: 06/03/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit

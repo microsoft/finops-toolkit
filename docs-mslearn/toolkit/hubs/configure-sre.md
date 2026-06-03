@@ -3,7 +3,7 @@ title: Configure an SRE agent for FinOps hubs
 description: Learn how to configure an Azure SRE agent to connect to your FinOps hub for scheduled cost analysis, capacity monitoring, and reporting.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/02/2026
+ms.date: 06/03/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit

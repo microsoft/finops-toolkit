@@ -3,7 +3,7 @@ title: Kusto tools
 description: Review the FinOps hub Kusto tools the FinOps toolkit ships for Azure SRE Agent and learn when to use each tool for cost, commitment discount, anomaly, forecast, AI, and price analysis.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/01/2026
+ms.date: 06/03/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
