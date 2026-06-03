@@ -950,6 +950,14 @@
                   ]
                 },
                 "visible": "[equals(steps('advanced').networking.enablePublicAccess, false)]"
+              },
+              {
+                "name": "enableNatGateway",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Deploy NAT Gateway and disable default outbound access",
+                "toolTip": "Required by the September 2025 'Subnets should be private' policy. Adds a Standard NAT Gateway and Standard static Public IP attached to the script and Data Explorer subnets to provide controlled outbound internet access. Leave unchecked if you have your own egress path (UDR to firewall, peered hub with NAT, etc.).",
+                "defaultValue": false,
+                "visible": "[equals(steps('advanced').networking.enablePublicAccess, false)]"
               }
             ],
             "visible": true
@@ -993,6 +1001,7 @@
       "enableAHBRecommendations": "[steps('recommendations').optional.enableAHBRecommendations]",
       "enableSpotRecommendations": "[steps('recommendations').optional.enableSpotRecommendations]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
+      "enableNatGateway": "[steps('advanced').networking.enableNatGateway]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
       "exportRetentionInDays": "[steps('retention').storage.msexportsDays]",

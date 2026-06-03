@@ -87,6 +87,9 @@
     .PARAMETER EnablePublicAccess
     Optional. Enable public access to the data lake.  Default: true.
 
+    .PARAMETER EnableNatGateway
+    Optional. Deploy a NAT Gateway for controlled outbound access when private routing is enabled (DisablePublicAccess). When set, subnets disable Azure default outbound access and route through the NAT Gateway. Ignored when DisablePublicAccess is not set. Default: false.
+
     .PARAMETER VirtualNetworkAddressPrefix
     Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".
 
@@ -192,6 +195,10 @@ function Deploy-FinOpsHub
         $DisablePublicAccess,
 
         [Parameter()]
+        [switch]
+        $EnableNatGateway,
+
+        [Parameter()]
         [string]
         $VirtualNetworkAddressPrefix = '10.20.30.0/26',
 
@@ -282,6 +289,7 @@ function Deploy-FinOpsHub
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerRawRetentionInDays', $DataExplorerRawRetentionInDays)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerFinalRetentionInMonths', $DataExplorerFinalRetentionInMonths)
                 $parameterSplat.TemplateParameterObject.Add('enablePublicAccess', -not $DisablePublicAccess)
+                $parameterSplat.TemplateParameterObject.Add('enableNatGateway', $EnableNatGateway.IsPresent)
                 $parameterSplat.TemplateParameterObject.Add('virtualNetworkAddressPrefix', $VirtualNetworkAddressPrefix)
                 $parameterSplat.TemplateParameterObject.Add('exportRetentionInDays', $ExportRetentionInDays)
                 $parameterSplat.TemplateParameterObject.Add('ingestionRetentionInMonths', $IngestionRetentionInMonths)

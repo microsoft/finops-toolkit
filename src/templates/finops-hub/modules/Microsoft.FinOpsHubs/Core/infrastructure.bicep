@@ -30,7 +30,7 @@ var subnets = !hub.options.privateRouting ? [] : [
     name: finopsHubSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 0)
-      defaultOutboundAccess: false
+      defaultOutboundAccess: !hub.options.natGateway
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -45,10 +45,10 @@ var subnets = !hub.options.privateRouting ? [] : [
     name: scriptSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 1)
-      defaultOutboundAccess: false
-      natGateway: {
+      defaultOutboundAccess: !hub.options.natGateway
+      natGateway: hub.options.natGateway ? {
         id: resourceId('Microsoft.Network/natGateways', natGatewayName)
-      }
+      } : null
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -71,10 +71,10 @@ var subnets = !hub.options.privateRouting ? [] : [
     name: dataExplorerSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 27, 1)
-      defaultOutboundAccess: false
-      natGateway: {
+      defaultOutboundAccess: !hub.options.natGateway
+      natGateway: hub.options.natGateway ? {
         id: resourceId('Microsoft.Network/natGateways', natGatewayName)
-      }
+      } : null
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -212,7 +212,7 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 // policy and the September 2025 implicit-outbound retirement)
 //------------------------------------------------------------------------------
 
-resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (hub.options.privateRouting) {
+resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (hub.options.natGateway) {
   name: natGatewayPipName
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Storage/publicIPAddresses')
@@ -225,7 +225,7 @@ resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = i
   }
 }
 
-resource natGateway 'Microsoft.Network/natGateways@2023-11-01' = if (hub.options.privateRouting) {
+resource natGateway 'Microsoft.Network/natGateways@2023-11-01' = if (hub.options.natGateway) {
   name: natGatewayName
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Storage/natGateways')
