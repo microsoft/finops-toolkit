@@ -77,4 +77,3 @@ spec:
 
 
     Before delivery, ask the selected delivery specialist to generate charts for key findings using `PlotBarChart`, `PlotPieChart`, or `PlotAreaChartWithCorrelation` when those visualization tools fit the data. Use `ExecutePythonCode` or matplotlib/seaborn via the code interpreter only when the visualization tools are unavailable or cannot express the required chart. Include at minimum a suppression status chart and a stale suppression age chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message and attach or embed them in the Outlook email alongside the text tables.'
-

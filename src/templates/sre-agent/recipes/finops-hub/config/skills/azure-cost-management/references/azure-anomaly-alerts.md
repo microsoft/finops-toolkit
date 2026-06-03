@@ -289,4 +289,3 @@ if ($confirm -eq 'y') {
 
 - [Cost anomaly alerts](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges)
 - [Scheduled actions API](https://learn.microsoft.com/rest/api/cost-management/scheduled-actions)
-
