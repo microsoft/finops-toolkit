@@ -115,22 +115,23 @@ Describe 'SRE Agent deploy template' {
                 $realPython = (Get-Command python -ErrorAction Stop).Source
             }
             $realPython = ConvertTo-BashPath $realPython
+            $realPythonLiteral = ConvertTo-BashSingleQuoted $realPython
 
-            Set-BashStub -Path (Join-Path $BinDir 'python3') -Content @"
+            $stubContent = @'
 #!/usr/bin/env bash
 set -euo pipefail
-real_python='$realPython'
+real_python=__REAL_PYTHON__
 
-if [[ "`$\{1:-\}" == "-c" && "`$\{2:-\}" == "import yaml" ]]; then
+if [[ "${1:-}" == "-c" && "${2:-}" == "import yaml" ]]; then
   exit 0
 fi
 
-if [[ "`$\{1:-\}" == */build-extras.py ]]; then
+if [[ "${1:-}" == */build-extras.py ]]; then
   output=""
-  while [[ "`$#" -gt 0 ]]; do
-    case "`$1" in
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
       --output)
-        output="`$2"
+        output="$2"
         shift 2
         ;;
       *)
@@ -139,9 +140,9 @@ if [[ "`$\{1:-\}" == */build-extras.py ]]; then
     esac
   done
 
-  [[ -n "`$output" ]] || exit 2
-  mkdir -p "`$(dirname "`$output")"
-  cat > "`$output" <<'JSON'
+  [[ -n "$output" ]] || exit 2
+  mkdir -p "$(dirname "$output")"
+  cat > "$output" <<'JSON'
 {
   "connectors": [],
   "builtInTools": { "overrides": [] },
@@ -161,8 +162,12 @@ JSON
   exit 0
 fi
 
-exec "`$real_python" "`$@"
-"@
+exec "$real_python" "$@"
+'@
+            $stubContent = $stubContent.Replace('__REAL_PYTHON__', $realPythonLiteral)
+
+            Set-BashStub -Path (Join-Path $BinDir 'python3') -Content $stubContent
+            Set-BashStub -Path (Join-Path $BinDir 'python') -Content $stubContent
         }
     }
 
