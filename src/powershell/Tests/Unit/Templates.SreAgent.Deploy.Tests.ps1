@@ -96,7 +96,12 @@ Describe 'SRE Agent deploy template' {
 
             $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
             [System.IO.File]::WriteAllText($Path, ($Content -replace "`r`n", "`n"), $utf8NoBom)
-            & chmod +x $Path
+            $bashPath = ConvertTo-BashPath $Path
+            $quotedPath = ConvertTo-BashSingleQuoted $bashPath
+            & bash -c "chmod +x $quotedPath"
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to mark bash stub executable: $Path"
+            }
         }
     }
 
@@ -480,7 +485,7 @@ exit 0
             try {
                 $command = "SRE_AGENT_DEPLOY_DIR='$deployRoot' SRE_AGENT_APPLY_REQUEST_DELAY_SECONDS=0 SRE_AGENT_APPLY_RETRY_DELAY_SECONDS=0 bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://example.westus3.kusto.windows.net/Hub"
                 $result = Invoke-BashCommandWithPath $command $binDir
-                $result.ExitCode | Should -Be 0
+                $result.ExitCode | Should -Be 0 -Because $result.Output
                 $result.Output | Should -Match 'Resolving Kusto cluster resource ID from --cluster-uri'
                 $result.Output | Should -Match '/providers/Microsoft\.Kusto/clusters/example'
 
@@ -699,7 +704,7 @@ exit 0
                 $clusterId = '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-hub/providers/Microsoft.Kusto/clusters/privateadx'
                 $command = "SRE_AGENT_DEPLOY_DIR='$deployRoot' SRE_AGENT_APPLY_REQUEST_DELAY_SECONDS=0 SRE_AGENT_APPLY_RETRY_DELAY_SECONDS=0 bash '$script:DeployScript' --recipe '$script:RecipeDir' --subscription 00000000-0000-0000-0000-000000000000 -g rg-test-customer -n customer-sre-agent -l eastus2 --cluster-uri https://privateadx.westus.kusto.windows.net/Hub --cluster-resource-id $clusterId"
                 $result = Invoke-BashCommandWithPath $command $binDir
-                $result.ExitCode | Should -Be 0
+                $result.ExitCode | Should -Be 0 -Because $result.Output
                 $result.Output | Should -Match 'Warning: The Kusto cluster denies public query access'
                 $result.Output | Should -Match 'private endpoint ADX blocks direct KQL queries'
                 $result.Output | Should -Match 'https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations'
@@ -965,7 +970,7 @@ exit 0
             try {
                 $command = "AGENT_APPLY_LOG='$logPath' SRE_AGENT_APPLY_REQUEST_DELAY_SECONDS=0 SRE_AGENT_APPLY_RETRY_DELAY_SECONDS=0 bash '$script:PostProvisionScript' --endpoint https://example.azuresre.ai --subscription 00000000-0000-0000-0000-000000000000 --resource-group rg-test-customer --name customer-sre-agent --recipe '$script:RecipeDir' --build-dir '$buildDir'"
                 $result = Invoke-BashCommandWithPath $command $binDir
-                $result.ExitCode | Should -Be 0
+                $result.ExitCode | Should -Be 0 -Because $result.Output
 
                 $order = @(Get-Content -Path $logPath)
                 [array]::IndexOf($order, 'chief-financial-officer') | Should -BeLessThan ([array]::IndexOf($order, 'finops-practitioner'))
