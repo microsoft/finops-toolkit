@@ -21,7 +21,7 @@ Run these data collection steps in parallel where possible. Save intermediate re
 
 Detect unused resources generating waste with zero workload value.
 
-Use the queries from `references/azure-orphaned-resources.md` to scan for:
+Use the queries from `skills/azure-cost-management/references/azure-orphaned-resources.md` to scan for:
 - Unattached managed disks
 - Unused network interfaces
 - Orphaned public IP addresses
@@ -37,7 +37,7 @@ For each category, capture: count, estimated monthly cost, resource list.
 
 Query Azure Advisor for all cost recommendations.
 
-Use `references/azure-advisor.md` for query patterns:
+Use `skills/azure-cost-management/references/azure-advisor.md` for query patterns:
 
 ```bash
 az advisor recommendation list --category Cost --output json
@@ -51,13 +51,13 @@ Calculate total potential monthly savings from Advisor.
 
 Analyze current commitment discount coverage and opportunities.
 
-Use `references/azure-savings-plans.md` and `references/azure-reservations.md` for:
+Use `skills/azure-cost-management/references/azure-savings-plans.md` and `skills/azure-cost-management/references/azure-reservations.md` for:
 - Current savings plan coverage and utilization
 - Current reservation coverage and utilization
 - New purchase recommendations from the Benefit Recommendations API
 - Gap analysis: what percentage of eligible compute spend is covered
 
-Use `references/azure-commitment-discount-decision.md` for the decision framework when recommending new purchases.
+Use `skills/azure-cost-management/references/azure-commitment-discount-decision.md` for the decision framework when recommending new purchases.
 
 ### 2d: FinOps hubs data (if available)
 
@@ -65,7 +65,7 @@ If a FinOps hub is connected (from Phase 1), query for additional context:
 
 ```kusto
 // Cost trend - last 3 months
-Costs
+Costs()
 | where ChargePeriodStart >= ago(90d)
 | summarize TotalCost = sum(EffectiveCost) by Month = startofmonth(ChargePeriodStart), ServiceName
 | order by Month desc, TotalCost desc
@@ -73,7 +73,7 @@ Costs
 
 ```kusto
 // Top cost growth services
-Costs
+Costs()
 | where ChargePeriodStart >= ago(60d)
 | extend Month = startofmonth(ChargePeriodStart)
 | summarize MonthlyCost = sum(EffectiveCost) by Month, ServiceName
@@ -88,13 +88,13 @@ Look for cost anomalies and trends that inform optimization priorities.
 
 For the top 5 Advisor right-size VM recommendations (by savings amount), validate with the Retail Prices API.
 
-Use `references/azure-retail-prices.md` to look up current and target SKU prices. Compare Advisor's estimated savings against actual retail price deltas.
+Use `skills/azure-cost-management/references/azure-retail-prices.md` to look up current and target SKU prices. Compare Advisor's estimated savings against actual retail price deltas.
 
 ### 3b: VM utilization deep dive (if VM Insights available)
 
 For the top rightsizing candidates, check actual utilization metrics if VM Insights is enabled.
 
-Use `references/azure-vm-rightsizing.md` for:
+Use `skills/azure-cost-management/references/azure-vm-rightsizing.md` for:
 - 14-day CPU P95 analysis
 - Memory utilization (if VM Insights agent deployed)
 - Burst pattern detection (P99 check)

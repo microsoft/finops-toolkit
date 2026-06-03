@@ -95,7 +95,7 @@ environments:
 ---
 ```
 
-See `references/settings-format.md` for the complete file format documentation.
+See `skills/finops-toolkit/references/settings-format.md` for the complete file format documentation.
 
 ## Step 6: Run a health check
 

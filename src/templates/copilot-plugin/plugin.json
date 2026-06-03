@@ -10,9 +10,9 @@
   "repository": "https://github.com/microsoft/finops-toolkit",
   "license": "MIT",
   "keywords": ["finops", "cost-management", "reservations", "savings-plans", "cloud-optimization", "commitments", "credits", "macc"],
-  "commands": "./src/templates/copilot-plugin/commands/",
-  "agents": "./src/templates/copilot-plugin/agents/",
-  "skills": "./src/templates/copilot-plugin/skills/",
+  "commands": "./commands/",
+  "agents": "./agents/",
+  "skills": "./skills/",
   "mcpServers": {
     "azure-mcp-server": {
       "command": "npx",

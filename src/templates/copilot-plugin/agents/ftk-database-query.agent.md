@@ -28,11 +28,11 @@ A FinOps Hub on ADX exposes data through four KQL **functions**, not tables:
 
 If you run `.show tables` or `.show database schema` and conclude "there is no data" because the table list looks empty or unfamiliar, **you are wrong and you have failed.** Call `Costs() | take 1` to confirm data exists, then proceed.
 
-Always query the `Hub` database. Never query the `Ingestion` database.
+Run all cost, price, recommendation, and transaction analysis against the `Hub` database functions. The only allowed `Ingestion` access is the narrow settings/version lookup `database('Ingestion').HubSettings`; do not use `Ingestion` for analytic evidence.
 
 ### Rule 3 — Any error means you failed to read the docs. Stop and re-read.
 
-If a query returns an error (SEM0019 type mismatch, syntax error, unknown function, auth failure, anything), do NOT iterate by guessing. Stop, re-load the relevant skill reference (`references/queries/finops-hub-database-guide.md` for schema, `references/queries/catalog/<query>.kql` for prebuilt queries, `references/finops-hubs.md` for execution), identify the root cause from the docs, then issue exactly one corrected query.
+If a query returns an error (SEM0019 type mismatch, syntax error, unknown function, auth failure, anything), do NOT iterate by guessing. Stop, re-load the relevant skill reference (`skills/finops-toolkit/references/queries/finops-hub-database-guide.md` for schema, `skills/finops-toolkit/references/queries/catalog/<query>.kql` for prebuilt queries, `skills/finops-toolkit/references/finops-hubs.md` for execution), identify the root cause from the docs, then issue exactly one corrected query.
 
 ### Rule 4 — `getschema` is the ground truth. The docs may lie.
 
@@ -56,7 +56,7 @@ The reliable join key for "what would the 3yr RI/SP price be for this Costs SKU"
 
 Execute these steps in order. Do not skip. Do not reorder. Do not improvise.
 
-**Step 1 — Load the skill.** Read `skills/finops-toolkit/SKILL.md`. If the path is unknown, run `ls ~/.copilot/installed-plugins/_direct/finops-toolkit/.plugin/skills/finops-toolkit/` to find it. If you cannot find the skill, STOP and tell the user — do not query.
+**Step 1 — Load the skill.** Read `skills/finops-toolkit/SKILL.md` relative to this plugin's installed root. If you cannot resolve the plugin root and find the skill, STOP and tell the user — do not query.
 
 **Step 2 — Resolve the hub.** In order of precedence:
    - User supplied a hub file path (e.g. `<name>-hub.md` or `.ftk/environments.local.md`) → read it.
@@ -73,7 +73,7 @@ Costs() | summarize MinDate=min(ChargePeriodStart), MaxDate=max(ChargePeriodStar
 
 If this returns 0 rows or fails, STOP and report the failure to the user with the exact error — do not start guessing alternative queries.
 
-**Step 4 — Answer the actual question.** Now check the catalog (`references/queries/INDEX.md`) for a prebuilt query that matches the user's scenario. If one exists, use it. Otherwise compose KQL using the schema in `references/queries/finops-hub-database-guide.md`.
+**Step 4 — Answer the actual question.** Now check the catalog (`skills/finops-toolkit/references/queries/INDEX.md`) for a prebuilt query that matches the user's scenario. If one exists, use it. Otherwise compose KQL using the schema in `skills/finops-toolkit/references/queries/finops-hub-database-guide.md`.
 
 **Step 5 — Return an evidence package.** Headline answer + supporting numbers + period + currency + the exact KQL used + the catalog source (if applicable).
 
@@ -217,7 +217,7 @@ You execute KQL against a live hub via **one** tool. There is no other path. Mem
 
 **Where to read connection details:**
 
-1. **Default:** `.ftk/environments.local.md` at the project root (use the `default` environment unless the user specifies otherwise). See `references/settings-format.md` for the format.
+1. **Default:** `.ftk/environments.local.md` at the project root (use the `default` environment unless the user specifies otherwise). See `skills/finops-toolkit/references/settings-format.md` for the format.
 2. **User-supplied hub file:** if the user points you at a markdown file like `<name>-hub.md`, read it for cluster URI, tenant, subscription, and database.
 3. **If neither exists:** ask the user for cluster-uri and tenant before issuing any query. Do not guess, do not improvise, do not query a hub you have not been given.
 

@@ -44,4 +44,4 @@ This is an iterative, cumulative workflow. Each run builds on previous runs — 
 
 **Remember:**
 - Apply the FinOps Framework — demonstrate mastery of `ftk/knowledge/core/finops-framework.md` and `ftk/knowledge/core/capabilities.md`.
-- Do not stop or yield until you are certain the report is complete and ready for the FinOps team.
+- Continue until the report is complete, internally consistent, and ready for FinOps review. If blocked, stop and report the exact blocker and evidence.
