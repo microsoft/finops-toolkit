@@ -15,6 +15,17 @@ function Get-OptionalEnv($Name) {
     return [Environment]::GetEnvironmentVariable($Name)
 }
 
+function Get-TempRoot() {
+    $tempRoot = [System.IO.Path]::GetTempPath()
+    if ([string]::IsNullOrWhiteSpace($tempRoot)) {
+        $tempRoot = Get-OptionalEnv 'AZ_SCRIPTS_PATH_OUTPUT_DIRECTORY'
+    }
+    if ([string]::IsNullOrWhiteSpace($tempRoot)) {
+        $tempRoot = (Get-Location).Path
+    }
+    return $tempRoot.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+}
+
 function ConvertTo-BodyJson($Value) {
     return ($Value | ConvertTo-Json -Depth 100 -Compress)
 }
@@ -117,8 +128,9 @@ Write-Output 'Connecting with deployment script managed identity...'
 Connect-AzAccount -Identity | Out-Null
 Set-AzContext -Subscription $subscriptionId | Out-Null
 
-$workRoot = Join-Path $env:TEMP 'sre-agent-recipe'
-$zipPath = Join-Path $env:TEMP 'sre-agent-recipe.zip'
+$tempRoot = Get-TempRoot
+$workRoot = Join-Path $tempRoot 'sre-agent-recipe'
+$zipPath = Join-Path $tempRoot 'sre-agent-recipe.zip'
 Remove-Item $workRoot -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -Path $workRoot -ItemType Directory -Force | Out-Null
 
