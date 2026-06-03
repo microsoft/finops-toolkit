@@ -1,7 +1,7 @@
 {
-  "name": "finops-toolkit",
+  "name": "microsoft-finops-toolkit",
   "version": "13.0.0",
-  "description": "Claude plugin for FinOps Toolkit, providing tools and integrations for FinOps practitioners.",
+  "description": "GitHub Copilot CLI plugin for FinOps Toolkit, providing tools and integrations for FinOps practitioners.",
   "author": {
     "name": "FinOps Toolkit Team",
     "url": "https://github.com/microsoft"
@@ -10,14 +10,13 @@
   "repository": "https://github.com/microsoft/finops-toolkit",
   "license": "MIT",
   "keywords": ["finops", "cost-management", "reservations", "savings-plans", "cloud-optimization", "commitments", "credits", "macc"],
-  "commands": "./commands/",
-  "agents": ["./agents/azure-capacity-manager.md", "./agents/chief-financial-officer.md", "./agents/finops-practitioner.md", "./agents/ftk-database-query.md", "./agents/ftk-hubs-agent.md"],
-  "skills": "./skills/",
+  "commands": "./src/templates/copilot-plugin/commands/",
+  "agents": "./src/templates/copilot-plugin/agents/",
+  "skills": "./src/templates/copilot-plugin/skills/",
   "mcpServers": {
     "azure-mcp-server": {
       "command": "npx",
       "args": ["-y", "@azure/mcp@latest", "server", "start", "--namespace", "kusto", "--read-only"]
     }
-  },
-  "outputStyles": "./output-styles/"
+  }
 }

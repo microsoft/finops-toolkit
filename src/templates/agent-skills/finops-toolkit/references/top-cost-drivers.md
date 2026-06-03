@@ -22,7 +22,7 @@ Use FinOps hubs data to identify the largest contributors to cost, measure how c
 ## Prerequisites
 - Confirm the hub connection and reporting window before starting.
 - Use `references/queries/finops-hub-database-guide.md` to verify available FinOps hubs fields and enrichment columns.
-- Start with `costs-enriched-base.kql` if you need a custom ranking or want one reusable base for several drill-downs.
+- Use `references/queries/INDEX.md` to select the closest aggregate ranking query. Use `costs-enriched-base.kql` only for a scoped row-level drill-down after the aggregate ranking is known.
 
 ## Recommended ranking dimensions
 Choose the first grouping that best matches the question:
@@ -72,8 +72,8 @@ Costs()
 ```
 
 **Top resource groups**
-- Use `costs-enriched-base.kql` as the foundation for custom ranking by `x_ResourceGroupName`.
-- This is the preferred fallback when the catalog query you need is close but not exact.
+- Use `top-resource-groups-by-cost.kql` when ranking by `x_ResourceGroupName`.
+- If the catalog query is close but not exact, adapt the aggregate pattern before falling back to row-level samples.
 
 ```kusto
 let startDate = startofmonth(ago(30d));

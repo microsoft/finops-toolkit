@@ -23,7 +23,7 @@ Use FinOps hubs data to compare cost across two or more periods or groups, quant
 - Confirm the hub connection, reporting window, and any required filters.
 - Use `references/queries/finops-hub-database-guide.md` to verify available FinOps hubs fields and enrichment columns.
 - Use `references/queries/INDEX.md` to select the closest starting query.
-- Start with `costs-enriched-base.kql` when you need a reusable filtered dataset for several comparison views.
+- Prefer scenario-specific aggregate queries first. Use `costs-enriched-base.kql` only for scoped row-level drill-downs after aggregate queries do not answer the question.
 
 ## Recommended comparison dimensions
 Choose the first grouping that best matches the question:
@@ -41,10 +41,10 @@ If tags are missing, blank, or tag coverage is incomplete, fall back to `Service
 Treat blank tag values as incomplete metadata, not as a reliable business grouping.
 
 ## Recommended query assets
-- `costs-enriched-base.kql` for custom side-by-side comparisons and repeated drill-downs
 - `monthly-cost-change-percentage.kql` for month-over-month change analysis
 - `cost-by-region-trend.kql` for region-led comparisons and trend context
 - `cost-by-financial-hierarchy.kql` for billing profile and invoice section comparisons
+- `costs-enriched-base.kql` only for scoped row-level drill-downs when the aggregate catalog queries do not provide enough detail
 
 ## Analysis workflow
 

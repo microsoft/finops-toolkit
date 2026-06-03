@@ -86,12 +86,7 @@ if ($update -or $Version)
     {
         $newLabel = $Label.ToLower() -replace '[^a-z]', ''
         Write-Verbose "Using label '$newLabel'."
-        # Read directly from package.json here (rather than calling Get-Version) because $ver isn't set yet.
-        # Get-Version runs after this block (line 95) and reads the same file.
-        # This intentionally replaces any prerelease counter npm just wrote — only -Major/-Minor with a label is supported.
-        $bumpedVer = (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version
-        $baseVer = $bumpedVer -replace '-.*$', ''
-        $null = npm --no-git-tag-version version "$baseVer-$newLabel.0"
+        $null = npm --no-git-tag-version --preid $newLabel version preminor
     }
 }
 
@@ -121,7 +116,7 @@ if ($update -or $Version)
     # Update version in plugin.json files
     Write-Verbose "Updating plugin.json files..."
     Get-ChildItem $repoRoot -Include "plugin.json" -Recurse -Force `
-    | Where-Object { $_.FullName -like "*claude-plugin*" } `
+    | Where-Object { $_.FullName -like "*claude-plugin*" -or $_.FullName -like "*copilot-plugin*" } `
     | ForEach-Object {
         Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         $json = Get-Content $_ -Raw | ConvertFrom-Json
@@ -132,7 +127,10 @@ if ($update -or $Version)
     # Update version in marketplace.json plugin entries
     Write-Verbose "Updating marketplace.json files..."
     Get-ChildItem $repoRoot -Include "marketplace.json" -Recurse -Force `
-    | Where-Object { $_.Directory.Name -eq '.claude-plugin' }`
+    | Where-Object {
+        $_.Directory.Name -eq '.claude-plugin' -or
+        ($_.Directory.Name -eq 'plugin' -and $_.Directory.Parent.Name -eq '.github')
+    } `
     | ForEach-Object {
         Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         $json = Get-Content $_ -Raw | ConvertFrom-Json

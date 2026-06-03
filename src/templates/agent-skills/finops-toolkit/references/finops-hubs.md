@@ -56,11 +56,11 @@ All KQL queries are located in `references/queries/`:
 
 ## Query Catalog Summary
 
-> **Tip:** Read `references/queries/INDEX.md` for the full catalog. Start with `costs-enriched-base.kql` for custom analytics.
+> **Tip:** Read `references/queries/INDEX.md` for the full catalog. Prefer a scenario-specific aggregate query first; use `costs-enriched-base.kql` when scoped row-level enrichment is required.
 
 | FinOps Task | Query File | Key Parameters |
 |-------------|------------|----------------|
-| Foundation for custom analysis | `costs-enriched-base.kql` | `startDate`, `endDate` |
+| Foundation for scoped custom drill-downs | `costs-enriched-base.kql` | `startDate`, `endDate` |
 | Monthly cost trends | `monthly-cost-trend.kql` | `startDate`, `endDate` |
 | Top resource groups | `top-resource-groups-by-cost.kql` | `N`, `startDate`, `endDate` |
 | Top services | `top-services-by-cost.kql` | `N`, `startDate`, `endDate` |
@@ -68,6 +68,7 @@ All KQL queries are located in `references/queries/`:
 | Commitment utilization | `commitment-discount-utilization.kql` | `startDate`, `endDate` |
 | Savings summary (ESR) | `savings-summary-report.kql` | `startDate`, `endDate` |
 | Cost forecasting | `cost-forecasting-model.kql` | `forecastPeriods`, `interval` |
+| AI workload unit economics | `ai-token-usage-breakdown.kql`, `ai-model-cost-comparison.kql`, `ai-daily-trend.kql`, `ai-cost-by-application.kql` | `startDate`, `endDate` |
 | Reservation recommendations | `reservation-recommendation-breakdown.kql` | Filter by service/region |
 
 **Catalog Protocol:**
@@ -123,7 +124,7 @@ All KQL queries are located in `references/queries/`:
 
 ## References
 
-- [FinOps Framework (Microsoft Learn)](https://learn.microsoft.com/cloud-computing/finops/framework/finops-framework)
+- [FinOps Framework (FinOps Foundation)](https://www.finops.org/framework/)
 - [FinOps Hubs Overview](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview)
 - [KQL Documentation](https://learn.microsoft.com/azure/data-explorer/kusto/query/)
 - [FinOps Foundation](https://www.finops.org/framework/)

@@ -1,22 +1,65 @@
-# FinOps Toolkit plugin for Claude Code
+# FinOps Toolkit plugin for GitHub Copilot CLI
 
-A Claude Code plugin that provides AI-powered cloud financial management using the [FinOps Toolkit](https://github.com/microsoft/finops-toolkit) and [Azure Cost Management](https://learn.microsoft.com/azure/cost-management-billing/).
+A [GitHub Copilot CLI](https://docs.github.com/en/copilot/concepts/agents/copilot-cli/about-copilot-cli) plugin that provides AI-powered cloud financial management using the [FinOps Toolkit](https://github.com/microsoft/finops-toolkit) and [Azure Cost Management](https://learn.microsoft.com/azure/cost-management-billing/).
 
 ## Prerequisites
 
+- [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli) installed and authenticated
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) authenticated (`az login`)
 - Appropriate Azure RBAC permissions for Cost Management APIs
 - For queries: Database Viewer access to a [FinOps hubs](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview) ADX cluster
+- Node.js (for the bundled Azure MCP server, which runs via `npx`)
 
 ## Installation
 
-Add the plugin to your Claude Code project:
+Install from the repository root (uses the `.plugin/` discovery convention — recommended):
 
 ```bash
-claude plugin add /path/to/plugin-finops-toolkit
+copilot plugin install microsoft/finops-toolkit
+```
+
+Or install from a specific repository subdirectory (does not rely on symlinks):
+
+```bash
+copilot plugin install microsoft/finops-toolkit:src/templates/copilot-plugin
+```
+
+Or install from a local checkout:
+
+```bash
+copilot plugin install ./src/templates/copilot-plugin
+```
+
+Or install via the bundled marketplace, which also exposes the Microsoft Learn MCP plugin:
+
+```bash
+copilot plugin marketplace add microsoft/finops-toolkit
+copilot plugin install microsoft-finops-toolkit@finops-toolkit
+```
+
+Verify the plugin loaded successfully:
+
+```bash
+copilot plugin list
+```
+
+Or, from an interactive session:
+
+```
+/plugin list
+/agent
+/skills list
+/mcp
 ```
 
 The plugin registers an [Azure MCP Server](https://github.com/Azure/azure-mcp) with the Kusto namespace in read-only mode for executing KQL queries against Azure Data Explorer.
+
+> [!IMPORTANT]
+> When you install a plugin its components are cached and the CLI reads from the cache for subsequent sessions. To pick up changes made to a local plugin, install it again:
+>
+> ```bash
+> copilot plugin install ./src/templates/copilot-plugin
+> ```
 
 ## What's included
 
@@ -29,13 +72,13 @@ The plugin registers an [Azure MCP Server](https://github.com/Azure/azure-mcp) w
 
 ### Agents
 
-| Agent | Color | Description |
-|-------|-------|-------------|
-| **azure-capacity-manager** | Orange | Azure capacity evidence specialist for quota, capacity reservation groups, SKU availability, region and zone access, AKS readiness, non-compute quotas, and capacity-to-rate coordination. |
-| **chief-financial-officer** | Blue | Consultative finance and leadership persona. Frames budget, forecast, commitment, risk, and investment tradeoffs from evidence packages; does not collect raw telemetry. |
-| **finops-practitioner** | Green | FinOps operating-rhythm owner grounded in the six FinOps principles and the Crawl-Walk-Run maturity model. Orchestrates database, capacity, finance, and hub specialists. |
-| **ftk-database-query** | Cyan | KQL specialist for the FinOps hubs database. Owns all `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` evidence. Uses the uploaded query catalog before writing custom KQL. |
-| **ftk-hubs-agent** | Red | Azure infrastructure engineer for FinOps hubs deployment, upgrades, and troubleshooting. Handles Bicep templates, Cost Management exports, and post-deployment validation with platform-aware CLI guidance. |
+| Agent | Description |
+|-------|-------------|
+| **azure-capacity-manager** | Azure capacity evidence specialist for quota, capacity reservation groups, SKU availability, region and zone access, AKS readiness, non-compute quotas, and capacity-to-rate coordination. |
+| **chief-financial-officer** | Consultative finance and leadership persona. Frames budget, forecast, commitment, risk, and investment tradeoffs from evidence packages; does not collect raw telemetry. |
+| **finops-practitioner** | FinOps operating-rhythm owner grounded in the six FinOps principles and the Crawl-Walk-Run maturity model. Orchestrates database, capacity, finance, and hub specialists. |
+| **ftk-database-query** | KQL specialist for the FinOps hubs database. Owns all `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` evidence. Uses the uploaded query catalog before writing custom KQL. |
+| **ftk-hubs-agent** | Azure infrastructure engineer for FinOps hubs deployment, upgrades, and troubleshooting. Handles Bicep templates, Cost Management exports, and post-deployment validation with platform-aware CLI guidance. |
 
 ### Commands
 
@@ -49,11 +92,15 @@ The plugin registers an [Azure MCP Server](https://github.com/Azure/azure-mcp) w
 
 ### Output style
 
-**ftk-output-style** -- Enforces fact-grounded financial analysis formatting: evidence-backed claims, proper currency formatting (`$1,234,567.89`), percentage conventions, period-over-period tables with variance columns, confidence levels (Confirmed/Estimated/Assumed), and FinOps Framework terminology (FOCUS specification, Crawl/Walk/Run maturity).
+The Copilot CLI plugin schema does not include an `outputStyles` field (unlike Claude Code). The FinOps Toolkit Claude plugin's `ftk-output-style` is reproduced as repository-level guidance instead. To apply the same output conventions (currency formatting, evidence-backed claims, period-over-period tables, confidence levels, FinOps Framework terminology), add the guidance to one of the instruction files Copilot CLI loads automatically — for example:
+
+- `AGENTS.md` at the git root or current working directory
+- `.github/copilot-instructions.md`
+- `.github/instructions/finops-output-style.instructions.md`
 
 ### Query catalog
 
-The core KQL query catalog for common FinOps scenarios is located in `skills/finops-toolkit/references/queries/catalog/`. The SRE Agent recipe exposes these Kusto-backed queries through `ftk-database-query`.
+21 pre-built KQL queries for common FinOps scenarios, located in `skills/finops-toolkit/references/queries/catalog/`:
 
 | Query | Purpose |
 |-------|---------|
