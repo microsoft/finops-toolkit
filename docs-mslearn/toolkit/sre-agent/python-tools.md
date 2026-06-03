@@ -500,7 +500,7 @@ Related FinOps capabilities:
 
 Related products:
 
-- [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview)
+- [Azure SRE Agent](/azure/sre-agent/overview)
 - [Azure Resource Graph](/azure/governance/resource-graph/)
 - [Microsoft Cost Management](/azure/cost-management-billing/costs/)
 - [Azure Advisor](/azure/advisor/)

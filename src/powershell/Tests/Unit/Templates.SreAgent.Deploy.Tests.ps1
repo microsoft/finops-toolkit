@@ -47,7 +47,7 @@ Describe 'SRE Agent deploy template' {
             Push-Location $script:RepoRoot
             try {
                 $originalPath = $env:PATH
-                $env:PATH = "${PathPrefix}:$originalPath"
+                $env:PATH = "${PathPrefix}$([System.IO.Path]::PathSeparator)$originalPath"
                 $output = & bash -c $Command 2>&1
                 [pscustomobject]@{
                     ExitCode = $LASTEXITCODE

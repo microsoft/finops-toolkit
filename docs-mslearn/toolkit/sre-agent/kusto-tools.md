@@ -484,8 +484,8 @@ Related FinOps capabilities:
 
 Related products:
 
-- [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview)
-- [Azure Data Explorer](https://learn.microsoft.com/azure/data-explorer/)
+- [Azure SRE Agent](/azure/sre-agent/overview)
+- [Azure Data Explorer](/azure/data-explorer/)
 - [Microsoft Cost Management](/azure/cost-management-billing/costs/)
 
 Related solutions:

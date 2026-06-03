@@ -13,7 +13,7 @@ ms.reviewer: micflan
 
 # Configure an SRE agent for FinOps hubs
 
-[Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview) supports agent-based operational workflows. This article shows how to connect Azure SRE Agent to a [FinOps hub](finops-hubs-overview.md), configure scheduled cost analysis and capacity checks from the [SRE agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent), and send results to Teams with the [Teams notification connector](https://learn.microsoft.com/azure/sre-agent/send-notifications).
+[Azure SRE Agent](/azure/sre-agent/overview) supports agent-based operational workflows. This article shows how to connect Azure SRE Agent to a [FinOps hub](finops-hubs-overview.md), configure scheduled cost analysis and capacity checks from the [SRE agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent), and send results to Teams with the [Teams notification connector](/azure/sre-agent/send-notifications).
 
 <br>
 
@@ -22,8 +22,8 @@ ms.reviewer: micflan
 - [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub) with Data Explorer.
 - [Configured scopes](configure-scopes.md) and ingested data successfully.
 - Permissions to create deployed resources, such as **Contributor** on the subscription when the template creates the agent resource group. You also need permissions to assign roles at subscription, target resource group, and agent scopes, such as **Role Based Access Control Administrator**, **User Access Administrator**, or **Owner** on those scopes. [Learn more](/azure/role-based-access-control/built-in-roles).
-- The `Microsoft.App` resource provider [registered](https://learn.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) on the subscription.
-- For local CLI deployments only: [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) 2.60 or later, `curl`, `jq`, `python3`, and `bash` available locally for the [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent).
+- The `Microsoft.App` resource provider [registered](/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) on the subscription.
+- For local CLI deployments only: [Azure CLI](/cli/azure/install-azure-cli) 2.60 or later, `curl`, `jq`, `python3`, and `bash` available locally for the [deployment script](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent).
 
 <br>
 
@@ -33,7 +33,7 @@ The [SRE agent template](https://github.com/microsoft/finops-toolkit/tree/main/s
 
 | Component | Count | Description |
 |-----------|-------|-------------|
-| SRE agent | 1 | Stable [`Microsoft.App/agents`](https://learn.microsoft.com/azure/sre-agent/overview) resource in [autonomous mode](https://learn.microsoft.com/azure/sre-agent/run-modes) |
+| SRE agent | 1 | Stable [`Microsoft.App/agents`](/azure/sre-agent/overview) resource in [autonomous mode](/azure/sre-agent/run-modes) |
 | Managed identities | 1-2 | System-assigned managed identity for the agent; portal deployments also create a user-assigned identity for the deployment script |
 | Log Analytics | 1 | Workspace for agent telemetry |
 | Application Insights | 1 | Linked to Log Analytics for monitoring |
@@ -132,7 +132,7 @@ After `bin/deploy.sh` completes, use the template's [post-deployment verificatio
 
 ## Configure Teams notifications
 
-Scheduled tasks can send reports to a Teams channel through the [Teams notification connector](https://learn.microsoft.com/azure/sre-agent/send-notifications). The connector requires interactive OAuth setup in the portal.
+Scheduled tasks can send reports to a Teams channel through the [Teams notification connector](/azure/sre-agent/send-notifications). The connector requires interactive OAuth setup in the portal.
 
 1. Open [sre.azure.com](https://sre.azure.com), open your agent, then go to **Builder** > **Connectors**.
 2. Select **Add connector** > **Send notification (Microsoft Teams)**.
@@ -142,7 +142,7 @@ Scheduled tasks can send reports to a Teams channel through the [Teams notificat
 
 Use the built-in `PostTeamsMessage` tool from the [Teams notification guidance](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/recipes/finops-hub/knowledge/teams-notification-guide.md). Don't call the Microsoft Graph API or the connection's `dynamicInvoke` endpoint directly because that path returns a 403 error for this connector configuration.
 
-For Outlook notifications, follow the same pattern with the **Outlook Tools (Office 365 Outlook)** connector. See [Send notifications](https://learn.microsoft.com/azure/sre-agent/send-notifications) for details.
+For Outlook notifications, follow the same pattern with the **Outlook Tools (Office 365 Outlook)** connector. See [Send notifications](/azure/sre-agent/send-notifications) for details.
 
 <br>
 
@@ -172,7 +172,7 @@ The template deploys 19 scheduled tasks from the [`recipes/finops-hub/automation
 | Semiannual | finops-practitioner | January 5 and July 5 at 9:00 AM | Semiannual year-over-year finance analysis with forecast and CFO consultation |
 | CapacityQuarterlyStrategy | finops-practitioner | Quarterly 9:00 AM | FinOps capability maturity, commitment alignment, and architecture review |
 
-Each scheduled task reads the uploaded knowledge documents before it starts and applies `ftk-output-style.md` for evidence, formatting, FinOps capability mapping, confidence, and caveat conventions. Send financial results to Teams through the configured [notification connector](https://learn.microsoft.com/azure/sre-agent/send-notifications). Save only operational notes, such as tool errors, workarounds, and patterns, to agent [memory](https://learn.microsoft.com/azure/sre-agent/memory) with `#remember`; don't save financial data.
+Each scheduled task reads the uploaded knowledge documents before it starts and applies `ftk-output-style.md` for evidence, formatting, FinOps capability mapping, confidence, and caveat conventions. Send financial results to Teams through the configured [notification connector](/azure/sre-agent/send-notifications). Save only operational notes, such as tool errors, workarounds, and patterns, to agent [memory](/azure/sre-agent/memory) with `#remember`; don't save financial data.
 
 <br>
 
@@ -194,10 +194,10 @@ Browser success with CLI failure indicates that the CLI token was issued for the
 
 Azure SRE Agent includes platform capabilities that are on by default in this template:
 
-- **Workspace tools**: Azure SRE Agent can run file, terminal, and Python operations in a sandboxed environment for data analysis, chart generation, and report formatting. The [Bicep template](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/infra/modules/sre-agent.bicep) deploys the stable agent API and sets `experimentalSettings.EnableSandboxGroup` and `experimentalSettings.EnableWorkspaceTools`. See [Deep context](https://learn.microsoft.com/azure/sre-agent/workspace-tools).
-- **DocsGuide**: DocsGuide provides Azure documentation grounding for agent responses. See [Use DocsGuide](https://learn.microsoft.com/azure/sre-agent/use-docsguide).
-- **Visualization**: Built-in chart and table rendering for investigation results. See [Tools](https://learn.microsoft.com/azure/sre-agent/tools).
-- **Memory**: Memory stores operational knowledge across sessions. See [Memory and knowledge](https://learn.microsoft.com/azure/sre-agent/memory).
+- **Workspace tools**: Azure SRE Agent can run file, terminal, and Python operations in a sandboxed environment for data analysis, chart generation, and report formatting. The [Bicep template](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/infra/modules/sre-agent.bicep) deploys the stable agent API and sets `experimentalSettings.EnableSandboxGroup` and `experimentalSettings.EnableWorkspaceTools`. See [Deep context](/azure/sre-agent/workspace-tools).
+- **DocsGuide**: DocsGuide provides Azure documentation grounding for agent responses. See [Use DocsGuide](/azure/sre-agent/use-docsguide).
+- **Visualization**: Built-in chart and table rendering for investigation results. See [Tools](/azure/sre-agent/tools).
+- **Memory**: Memory stores operational knowledge across sessions. See [Memory and knowledge](/azure/sre-agent/memory).
 
 The analytical subagents include `execute_python` where they need calculations, charts, tables, and downloadable artifacts. `finops-practitioner` orchestrates scheduled analysis, `ftk-database-query` owns Kusto evidence, `azure-capacity-manager` owns Azure capacity evidence, and `chief-financial-officer` provides finance and leadership consultation.
 
@@ -237,8 +237,8 @@ Related FinOps capabilities:
 
 Related products:
 
-- [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview)
-- [Azure Data Explorer](https://learn.microsoft.com/azure/data-explorer/)
+- [Azure SRE Agent](/azure/sre-agent/overview)
+- [Azure Data Explorer](/azure/data-explorer/)
 
 Related solutions:
 

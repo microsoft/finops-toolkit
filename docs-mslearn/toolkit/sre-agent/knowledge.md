@@ -159,9 +159,9 @@ Related FinOps capabilities:
 
 Related products:
 
-- [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview)
-- [Azure Data Explorer](https://learn.microsoft.com/azure/data-explorer/)
-- [Microsoft Teams](https://learn.microsoft.com/microsoftteams/)
+- [Azure SRE Agent](/azure/sre-agent/overview)
+- [Azure Data Explorer](/azure/data-explorer/)
+- [Microsoft Teams](/microsoftteams/)
 
 Related solutions:
 

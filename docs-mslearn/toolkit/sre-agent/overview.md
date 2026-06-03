@@ -13,7 +13,7 @@ ms.reviewer: brettwil
 
 # Azure SRE Agent in the FinOps toolkit
 
-The FinOps toolkit ships a Deploy to Azure template and a local Azure CLI + Bicep wrapper that deploy [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview) and configure it for FinOps and capacity management workflows on top of [FinOps hubs](../hubs/finops-hubs-overview.md). The deployment includes specialist subagents, FOCUS-aligned Kusto and Python tools, scheduled tasks, and grounded knowledge so the agent can investigate cost changes, monitor quota and capacity signals, prepare executive summaries, and deliver scheduled updates. The deployment focuses on three core design principles:
+The FinOps toolkit ships a Deploy to Azure template and a local Azure CLI + Bicep wrapper that deploy [Azure SRE Agent](/azure/sre-agent/overview) and configure it for FinOps and capacity management workflows on top of [FinOps hubs](../hubs/finops-hubs-overview.md). The deployment includes specialist subagents, FOCUS-aligned Kusto and Python tools, scheduled tasks, and grounded knowledge so the agent can investigate cost changes, monitor quota and capacity signals, prepare executive summaries, and deliver scheduled updates. The deployment focuses on three core design principles:
 
 - **Automate the rhythm**<br>_Run daily, weekly, monthly, and quarterly FinOps workflows without waiting for manual report requests._
 - **Ground every answer**<br>_Use FinOps hub data, FOCUS-aligned Kusto tools, and Azure platform context to keep recommendations tied to evidence._
@@ -138,8 +138,8 @@ Related FinOps capabilities:
 
 Related products:
 
-- [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview)
-- [Azure Data Explorer](https://learn.microsoft.com/azure/data-explorer/)
+- [Azure SRE Agent](/azure/sre-agent/overview)
+- [Azure Data Explorer](/azure/data-explorer/)
 - [Azure Monitor](/azure/azure-monitor/)
 
 Related solutions:
