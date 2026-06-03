@@ -1124,6 +1124,32 @@ if ("Y", "y" -contains $continueInput)
         #endregion
     }
 
+    #region Ensuring Data Collection Endpoint was created (in case of partial upgrade)
+    $dceName = "$automationAccountName-dce"
+    $dce = Get-AzDataCollectionEndpoint -ResourceGroupName $ResourceGroupName -Name $dceName -ErrorAction SilentlyContinue
+    if ($null -eq $dce)
+    {
+        Write-Host "Creating Data Collection Endpoint $dceName..." -ForegroundColor Green
+        $dce = New-AzDataCollectionEndpoint -ResourceGroupName $ResourceGroupName -Name $dceName -Location $targetLocation `
+            -Tag $resourceTags -NetworkAclsPublicNetworkAccess Enabled
+    }
+    if ($null -ne $dce.LogIngestionEndpoint)
+    {
+        $dceIngestionEndpointVariableName = "AzureOptimization_DCEIngestionEndpoint"
+        $dceIngestionEndpointVariable = Get-AzAutomationVariable -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Name $dceIngestionEndpointVariableName -ErrorAction SilentlyContinue
+        if ($null -eq $dceIngestionEndpointVariable)
+        {
+            Write-Host "Creating Automation Variable with Data Collection Endpoint ingestion endpoint..." -ForegroundColor Green
+            New-AzAutomationVariable -Name $dceIngestionEndpointVariableName -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Value $dce.LogIngestionEndpoint -Encrypted $false | Out-Null
+        }
+    }
+    else
+    {
+        throw "Data Collection Endpoint $dceName does not have a log ingestion endpoint yet. Please, check it was created successfully."
+    }
+    #endregion
+
+
     #region Schedules reset
     if ($upgradingSchedules)
     {
@@ -1168,7 +1194,7 @@ if ("Y", "y" -contains $continueInput)
         $deploymentDate = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd")
         Write-Host "Setting initial deployment date ($deploymentDate)..." -ForegroundColor Green
         New-AzAutomationVariable -Name $deploymentDateVariableName -Description "The date of the initial engine deployment" `
-            -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Value $deploymentDate -Encrypted $false
+            -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Value $deploymentDate -Encrypted $false | Out-Null
     }
     #endregion
 

@@ -257,7 +257,7 @@ var csvExportsSchedules = [
   {
     exportSchedule: priceExportsScheduleName
     exportDescription: 'Weekly Pricesheet and Reservation Prices exports'
-    exportTimeOffset: 'PT1H35M'
+    exportTimeOffset: 'PT1H05M'
     exportFrequency: 'Week'
   }
   {
@@ -562,7 +562,7 @@ var csvExports = [
     variableDescription: 'The Storage Account container where Pricesheet exports are dumped to'
     ingestSchedule: 'AzureOptimization_IngestPricesheetWeekly'
     ingestDescription: 'Weekly Pricesheet ingests'
-    ingestTimeOffset: 'PT2H'
+    ingestTimeOffset: 'PT1H35M'
     ingestFrequency: 'Week'
     ingestJobId: pricesheetIngestJobId
     exportSchedule: priceExportsScheduleName
@@ -576,7 +576,7 @@ var csvExports = [
     variableDescription: 'The Storage Account container where Reservations Prices exports are dumped to'
     ingestSchedule: 'AzureOptimization_IngestReservationsPriceWeekly'
     ingestDescription: 'Weekly Reservations Prices ingests'
-    ingestTimeOffset: 'PT2H'
+    ingestTimeOffset: 'PT1H35M'
     ingestFrequency: 'Week'
     ingestJobId: reservationPricesIngestJobId
     exportSchedule: priceExportsScheduleName

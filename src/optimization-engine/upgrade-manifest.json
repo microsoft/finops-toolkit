@@ -266,17 +266,17 @@
         },
         {
             "name": "AzureOptimization_ExportPricesWeekly",
-            "offset": "PT1H35M",
+            "offset": "PT1H05M",
             "frequency": "Week"
         },
         {
             "name": "AzureOptimization_IngestPricesheetWeekly",
-            "offset": "PT2H10M",
+            "offset": "PT1H35M",
             "frequency": "Week"
         },
         {
             "name": "AzureOptimization_IngestReservationsPriceWeekly",
-            "offset": "PT2H10M",
+            "offset": "PT1H35M",
             "frequency": "Week"
         },
         {
