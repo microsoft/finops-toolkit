@@ -949,7 +949,7 @@ var runbooks = [
   }
   {
     name: consumptionExportsRunbookName
-    version: '2.1.1.0'
+    version: '2.1.2.0'
     description: 'Exports Azure Consumption events to Blob Storage using Azure Consumption API'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${consumptionExportsRunbookName}.ps1')
@@ -1075,7 +1075,7 @@ var runbooks = [
   }
   {
     name: csvIngestRunbookName
-    version: '1.6.2.0'
+    version: '2.0.0.0'
     description: 'Ingests CSV blobs as custom logs to Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${csvIngestRunbookName}.ps1')
@@ -1187,21 +1187,21 @@ var runbooks = [
   }
   {
     name: recommendationsIngestRunbookName
-    version: '1.7.1.0'
+    version: '1.7.2.0'
     description: 'Ingests JSON-based recommendations into an Azure SQL Database'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${recommendationsIngestRunbookName}.ps1')
   }
   {
     name: recommendationsLogAnalyticsIngestRunbookName
-    version: '1.1.1.0'
+    version: '2.0.0.0'
     description: 'Ingests JSON-based recommendations into Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${recommendationsLogAnalyticsIngestRunbookName}.ps1')
   }
   {
     name: suppressionsLogAnalyticsIngestRunbookName
-    version: '1.1.0.0'
+    version: '2.0.0.0'
     description: 'Ingests suppressions into Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${suppressionsLogAnalyticsIngestRunbookName}.ps1')

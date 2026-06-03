@@ -311,7 +311,7 @@
         {
             "runbook": {
                 "name": "runbooks/recommendations/Ingest-RecommendationsToSQLServer.ps1",
-                "version": "1.7.1.0"
+                "version": "1.7.2.0"
             },
             "source": "recommendations",
             "schedule": "AzureOptimization_IngestRecommendationsWeekly"
@@ -521,7 +521,7 @@
         {
             "runbook": {
                 "name": "runbooks/data-collection/Export-ConsumptionToBlobStorage.ps1",
-                "version": "2.1.1.0"
+                "version": "2.1.2.0"
             },
             "container": "consumptionexports",
             "requiredVariables": [
