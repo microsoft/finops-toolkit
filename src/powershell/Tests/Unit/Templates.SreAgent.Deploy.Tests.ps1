@@ -47,8 +47,9 @@ Describe 'SRE Agent deploy template' {
             Push-Location $script:RepoRoot
             try {
                 $originalPath = $env:PATH
-                $env:PATH = "${PathPrefix}$([System.IO.Path]::PathSeparator)$originalPath"
-                $output = & bash -c $Command 2>&1
+                $bashPathPrefix = ConvertTo-BashPath $PathPrefix
+                $quotedPathPrefix = ConvertTo-BashSingleQuoted $bashPathPrefix
+                $output = & bash -c "PATH=${quotedPathPrefix}:`$PATH $Command" 2>&1
                 [pscustomobject]@{
                     ExitCode = $LASTEXITCODE
                     Output   = ($output -join "`n")
@@ -58,6 +59,30 @@ Describe 'SRE Agent deploy template' {
                 $env:PATH = $originalPath
                 Pop-Location
             }
+        }
+
+        function ConvertTo-BashPath {
+            param(
+                [Parameter(Mandatory)]
+                [string] $Path
+            )
+
+            $quotedPath = ConvertTo-BashSingleQuoted $Path
+            $converted = & bash -lc "command -v cygpath >/dev/null 2>&1 && cygpath -u $quotedPath" 2>$null
+            if ($LASTEXITCODE -eq 0 -and $converted) {
+                return ($converted -join '')
+            }
+
+            return $Path
+        }
+
+        function ConvertTo-BashSingleQuoted {
+            param(
+                [Parameter(Mandatory)]
+                [string] $Value
+            )
+
+            return "'" + ($Value -replace "'", "'\''") + "'"
         }
 
         function Set-BashStub {
