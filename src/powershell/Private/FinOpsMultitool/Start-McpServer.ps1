@@ -326,6 +326,42 @@ $toolDefinitions = @(
         }
     }
     @{
+        name        = 'scan_unit_economics'
+        description = 'Compute unit-economics KPIs: cost per vCPU (compute) and cost per GB (storage) by dividing month-to-date amortized cost by provisioned capacity. vCPU counts are approximated from VM size names.'
+        fn          = 'Get-UnitEconomics'
+        category    = 'Cost Analysis'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, scans all accessible subscriptions.' }
+            }
+        }
+    }
+    @{
+        name        = 'scan_legacy_resources'
+        description = 'Find legacy and retiring resources to modernize: first-generation (v1) VM families, unmanaged (VHD) disks, HDD managed disks, and Basic-SKU public IPs / load balancers (retiring Sep 2025).'
+        fn          = 'Get-LegacyResources'
+        category    = 'Optimization'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, scans all accessible subscriptions.' }
+            }
+        }
+    }
+    @{
+        name        = 'scan_carbon'
+        description = 'Get Azure carbon emissions (kgCO2e) from the Carbon Optimization service: latest-month total, month-over-month change, a 12-month trend, and a per-subscription breakdown. Emissions publish ~2 months in arrears.'
+        fn          = 'Get-CarbonMetrics'
+        category    = 'Sustainability'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, scans all accessible subscriptions.' }
+            }
+        }
+    }
+    @{
         name        = 'scan_billing_structure'
         description = 'Get billing account hierarchy and enrollment details (EA, MCA, CSP).'
         fn          = 'Get-BillingStructure'
@@ -436,6 +472,9 @@ $permissionMap = @{
     'Get-BudgetHistory'         = @{ role = 'Cost Management Reader'; scope = 'Subscription'; api = 'Cost Management Query API' }
     'Get-AnomalyAlerts'         = @{ role = 'Cost Management Reader'; scope = 'Subscription'; api = 'Cost Management Alerts API' }
     'Get-OptimizationAdvice'    = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Advisor API' }
+    'Get-CarbonMetrics'         = @{ role = 'Reader or Carbon Optimization Reader'; scope = 'Subscription'; api = 'Carbon Optimization API' }
+    'Get-LegacyResources'       = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Resource Graph' }
+    'Get-UnitEconomics'         = @{ role = 'Cost Management Reader + Reader'; scope = 'Management Group'; api = 'Cost Management Query API + Azure Resource Graph' }
     'Get-BillingStructure'      = @{ role = 'Billing Reader'; scope = 'Billing Account'; api = 'Billing API' }
     'Get-ContractInfo'          = @{ role = 'Billing Reader'; scope = 'Billing Account'; api = 'Billing API' }
     'Get-MaccCommitment'        = @{ role = 'Billing Reader or EA Reader'; scope = 'Billing Account'; api = 'Consumption Lots API' }

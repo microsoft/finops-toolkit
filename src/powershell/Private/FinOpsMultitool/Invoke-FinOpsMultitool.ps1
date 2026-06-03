@@ -71,6 +71,7 @@ function Invoke-FinOpsMultitool {
         @{ Name = 'Orphaned Resources'; Fn = 'Get-OrphanedResources'; Selected = $true; Category = 'Optimization' }
         @{ Name = 'Idle VMs'; Fn = 'Get-IdleVMs'; Selected = $true; Category = 'Optimization' }
         @{ Name = 'Storage Tier Advice'; Fn = 'Get-StorageTierAdvice'; Selected = $true; Category = 'Optimization' }
+        @{ Name = 'Legacy Resources'; Fn = 'Get-LegacyResources'; Selected = $true; Category = 'Optimization' }
         @{ Name = 'AHB Opportunities'; Fn = 'Get-AHBOpportunities'; Selected = $true; Category = 'Optimization' }
         # -- Governance (run early — other modules depend on these) --
         @{ Name = 'Tag Inventory'; Fn = 'Get-TagInventory'; Selected = $true; Category = 'Governance' }
@@ -82,6 +83,7 @@ function Invoke-FinOpsMultitool {
         @{ Name = 'Resource Costs'; Fn = 'Get-ResourceCosts'; Selected = $true; Category = 'Cost Analysis' }
         @{ Name = 'Cost by Tag'; Fn = 'Get-CostByTag'; Selected = $true; Category = 'Cost Analysis' }
         @{ Name = 'Cost Trend'; Fn = 'Get-CostTrend'; Selected = $true; Category = 'Cost Analysis' }
+        @{ Name = 'Unit Economics'; Fn = 'Get-UnitEconomics'; Selected = $true; Category = 'Cost Analysis' }
         # -- Commitments --
         @{ Name = 'Reservation Advice'; Fn = 'Get-ReservationAdvice'; Selected = $true; Category = 'Commitments' }
         @{ Name = 'Commitment Utilization'; Fn = 'Get-CommitmentUtilization'; Selected = $true; Category = 'Commitments' }
@@ -92,6 +94,8 @@ function Invoke-FinOpsMultitool {
         @{ Name = 'Anomaly Alerts'; Fn = 'Get-AnomalyAlerts'; Selected = $true; Category = 'Monitoring' }
         # -- Advisor --
         @{ Name = 'Optimization Advice'; Fn = 'Get-OptimizationAdvice'; Selected = $true; Category = 'Advisor' }
+        # -- Sustainability --
+        @{ Name = 'Carbon Emissions'; Fn = 'Get-CarbonMetrics'; Selected = $true; Category = 'Sustainability' }
         # -- Account --
         @{ Name = 'Billing Structure'; Fn = 'Get-BillingStructure'; Selected = $false; Category = 'Account' }
         @{ Name = 'Contract Info'; Fn = 'Get-ContractInfo'; Selected = $true; Category = 'Account' }
@@ -104,6 +108,7 @@ function Invoke-FinOpsMultitool {
         'Get-OrphanedResources'     = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph'; Reason = 'Requires read access to query resource metadata via Azure Resource Graph.' }
         'Get-IdleVMs'               = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph + Monitor Metrics'; Reason = 'Requires Reader to query VM metadata and Monitor metrics for CPU/network utilization.' }
         'Get-StorageTierAdvice'     = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph'; Reason = 'Requires read access to query storage account configurations.' }
+        'Get-LegacyResources'       = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph'; Reason = 'Requires Reader to query VM/disk/network SKUs for legacy and retiring resources.' }
         'Get-AHBOpportunities'      = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph'; Reason = 'Requires read access to query VM license types.' }
         'Get-TagInventory'          = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph'; Reason = 'Requires read access to inventory resource tags via Resource Graph.' }
         'Get-TagRecommendations'    = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Resource Graph'; Reason = 'Requires read access to analyze existing tags and suggest improvements.' }
@@ -113,6 +118,7 @@ function Invoke-FinOpsMultitool {
         'Get-ResourceCosts'         = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action. Assign Cost Management Reader or Reader at the subscription or MG scope.' }
         'Get-CostByTag'             = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action to query cost grouped by tag dimensions.' }
         'Get-CostTrend'             = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action to retrieve historical monthly cost data.' }
+        'Get-UnitEconomics'         = @{ Role = 'Cost Management Reader + Reader'; Scope = 'Management Group'; API = 'Cost Management Query API + Azure Resource Graph'; Reason = 'Requires amortized cost (Cost Management) and capacity counts (Resource Graph) to compute $/vCPU and $/GB.' }
         'Get-ReservationAdvice'     = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Consumption Reservation Recommendations API'; Reason = 'Requires Microsoft.Consumption/reservationRecommendations/read to retrieve reservation purchase advice.' }
         'Get-CommitmentUtilization' = @{ Role = 'Cost Management Reader or Reservation Reader'; Scope = 'Reservation Order or Subscription'; API = 'Consumption Reservation Summaries API'; Reason = 'Requires Microsoft.Consumption/reservationSummaries/read. If no reservations exist, this will be empty.' }
         'Get-SavingsRealized'       = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Benefit Utilization API'; Reason = 'Requires Microsoft.CostManagement/benefitUtilizationSummaries/read. Returns empty if no active reservations or savings plans.' }
@@ -120,6 +126,7 @@ function Invoke-FinOpsMultitool {
         'Get-BudgetHistory'         = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action to retrieve monthly actuals per budget. Runs only when Budget Status returns budgets.' }
         'Get-AnomalyAlerts'         = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Alerts API'; Reason = 'Requires Microsoft.CostManagement/alerts/read. Returns empty if no cost anomalies were detected.' }
         'Get-OptimizationAdvice'    = @{ Role = 'Reader'; Scope = 'Subscription'; API = 'Azure Advisor API'; Reason = 'Requires Microsoft.Advisor/recommendations/read to retrieve cost optimization recommendations.' }
+        'Get-CarbonMetrics'         = @{ Role = 'Reader or Carbon Optimization Reader'; Scope = 'Subscription'; API = 'Carbon Optimization API'; Reason = 'Requires Microsoft.Carbon read access to query emissions. Emissions publish ~2 months in arrears; returns empty if no published months.' }
         'Get-BillingStructure'      = @{ Role = 'Billing Reader or EA Reader'; Scope = 'Billing Account'; API = 'Billing API'; Reason = 'Requires Microsoft.Billing/*/read. This is a billing-scope role, not a subscription role. Contact your billing admin.' }
         'Get-ContractInfo'          = @{ Role = 'Billing Reader'; Scope = 'Billing Account'; API = 'Billing API'; Reason = 'Requires Microsoft.Billing/billingProperty/read. May require billing account access beyond subscription Reader.' }
         'Get-MaccCommitment'        = @{ Role = 'Billing Reader or EA Reader'; Scope = 'Billing Account'; API = 'Consumption Lots API'; Reason = 'Requires a billing role on an EA/MCA billing account to read consumption commitment (MACC) lots. Not applicable to PAYGO/CSP/MSDN.' }
@@ -1293,6 +1300,39 @@ function Invoke-FinOpsMultitool {
                     if ($data.TotalCount -gt 15) {
                         Write-Host "    (showing top 15 of $($data.TotalCount) by savings)" -ForegroundColor DarkGray
                     }
+                }
+                'Get-CarbonMetrics' {
+                    $arrow = if ($data.ChangeValueKg -gt 0) { 'up' } elseif ($data.ChangeValueKg -lt 0) { 'down' } else { 'flat' }
+                    Write-ColorizedLine -Text "    Latest month ($($data.LatestMonth)): $($data.TotalEmissionsKg) $($data.Unit)  |  MoM $arrow $($data.ChangeRatio)%" -DefaultColor 'White'
+                    $rows = $data.BySubscription | Select-Object -First 15 | ForEach-Object {
+                        [PSCustomObject]@{
+                            Subscription = $_.Subscription
+                            Emissions    = "$($_.EmissionsKg) kg"
+                        }
+                    }
+                    $cols = @('Subscription', 'Emissions')
+                }
+                'Get-LegacyResources' {
+                    Write-ColorizedLine -Text "    $($data.TotalCount) legacy/retiring resources found" -DefaultColor 'White'
+                    $rows = $data.LegacyResources | Select-Object -First 20 | ForEach-Object {
+                        [PSCustomObject]@{
+                            Category = $_.Category
+                            Resource = $_.ResourceName
+                            Detail   = ($_.Detail -replace '(.{55}).+', '$1...')
+                            Impact   = $_.Impact
+                        }
+                    }
+                    $cols = @('Category', 'Resource', 'Detail', 'Impact')
+                }
+                'Get-UnitEconomics' {
+                    Write-ColorizedLine -Text "    Compute: $($data.Currency) $($data.ComputeCost) over $($data.VmCount) VMs / ~$($data.TotalVCpu) vCPU" -DefaultColor 'White'
+                    Write-ColorizedLine -Text "    Storage: $($data.Currency) $($data.StorageCost) over $($data.TotalStorageGb) GB" -DefaultColor 'White'
+                    $rows = @(
+                        [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = "$($data.Currency) $($data.CostPerVCpu)" }
+                        [PSCustomObject]@{ Metric = 'Cost per VM'; Value = "$($data.Currency) $($data.CostPerVm)" }
+                        [PSCustomObject]@{ Metric = 'Cost per GB'; Value = "$($data.Currency) $($data.CostPerGb)" }
+                    )
+                    $cols = @('Metric', 'Value')
                 }
                 default {
                     # Fallback: try to display as-is with first 4 properties

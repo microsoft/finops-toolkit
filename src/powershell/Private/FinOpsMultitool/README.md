@@ -112,6 +112,7 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 | Idle VMs            | VMs with <5% CPU over 30 days                  |
 | Storage Tier Advice | Blob storage that could move to cooler tiers   |
 | AHB Opportunities   | Windows/SQL VMs not using Azure Hybrid Benefit |
+| Legacy Resources    | Legacy/retiring SKUs (v1 VM families, unmanaged disks, Basic IPs/LBs) |
 
 ### Governance
 
@@ -130,6 +131,7 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 | Resource Costs | Top resources by cost             |
 | Cost by Tag    | Spend breakdown by tag key/value  |
 | Cost Trend     | Month-over-month spend comparison |
+| Unit Economics | Cost per vCPU, per VM, and per GB stored |
 
 ### Commitments
 
@@ -146,6 +148,12 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 | Budget Status  | Budget consumption vs. thresholds |
 | Anomaly Alerts | Recent cost anomaly detections    |
 
+### Sustainability
+
+| Scan            | What it finds                                            |
+| --------------- | -------------------------------------------------------- |
+| Carbon Metrics  | Cloud carbon emissions, month-over-month change, 12-month trend, per-subscription breakdown |
+
 ### Advisor & Account
 
 | Scan                | What it finds                            |
@@ -153,6 +161,89 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 | Optimization Advice | Azure Advisor cost recommendations       |
 | Billing Structure   | Account hierarchy and enrollment details |
 | Contract Info       | Agreement type, offer, support plan      |
+
+## FinOps KPI Coverage
+
+The scan modules map directly to [FinOps Foundation KPIs](https://www.finops.org/finops-kpis/). When using the MCP server, you ask in natural language and the agent calls the matching tool. A few examples of prompt → output:
+
+### Percentage of Legacy Resource → `scan_legacy_resources`
+
+> "Which of my resources are running on legacy or retiring SKUs?"
+
+```
+Legacy / Retiring Resources — 47 found across 156 subscriptions
+
+By category:
+  Legacy v1 VM families        18   (Basic_A / Standard_A0-A7 / D / DS / G)
+  Unmanaged VHD disks           9   (migrate to managed disks)
+  HDD Standard_LRS ≥128GB      11   (upgrade to Premium SSD)
+  Basic SKU Public IPs          6   (retiring Sep 2025 → Standard)
+  Basic SKU Load Balancers      3   (retiring Sep 2025 → Standard)
+```
+
+Legacy % = 47 ÷ total resources in scope.
+
+### Cost per Gigabyte Stored / Hourly Cost per CPU Core → `scan_unit_economics`
+
+> "What's my cost per vCPU and per GB of storage this month?"
+
+```
+Unit Economics — Month to Date (USD)
+
+Compute cost      $128,400      VMs: 312     Total vCPU: 1,840
+Storage cost      $ 41,200      Provisioned: 84,600 GB
+
+  Cost per vCPU     $69.78 / month
+  Cost per VM       $411.54 / month
+  Cost per GB       $0.487 / month
+```
+
+Directly produces `Cost per GB Stored`; feeds `Hourly Cost per CPU Core` (÷ 730) and `Effective Avg Compute Cost per Core`.
+
+### Carbon per Unit of Spend / Carbon Efficiency → `scan_carbon`
+
+> "Show my cloud carbon footprint and how it changed month over month."
+
+```
+Carbon Emissions — latest available month: 2026-04 (data lags ~2 mo)
+
+Total emissions      18,420 kgCO2e
+Previous month       20,110 kgCO2e
+Change               -1,690 kgCO2e  (-8.4%)   ↓ improving
+
+Top emitting subscriptions:
+  Production-East   2693c348…   7,910 kgCO2e
+  Data-Platform     a1b2c3d4…   4,330 kgCO2e
+```
+
+Combined with `scan_cost_data`, `Carbon per Unit of Spend` = total emissions ÷ monthly spend.
+
+### Commitment Utilization Score / % Discount Waste → `scan_commitment_utilization`
+
+> "How well are my reservations and savings plans being used?"
+
+```
+Commitment Utilization — trailing 30 days
+
+Reserved Instances    94.2% utilized   ($3,120 unused)
+Savings Plans         88.7% utilized   ($1,540 unused)
+Overall score         91.8%
+```
+
+`Commitment Utilization Score` = 91.8%; `% Commitment Discount Waste` = 100 − 91.8 = 8.2%.
+
+### % Costs from Untagged Resources → `scan_cost_by_tag`
+
+> "How much of my spend is on untagged resources?"
+
+```
+Cost by Tag — Month to Date
+
+Tagged spend       $612,300   (87.4%)
+Untagged spend     $ 88,200   (12.6%)   ← KPI
+```
+
+`% Costs from Untagged Resources` = 12.6%.
 
 ## FinOps Hub Integration
 
@@ -184,7 +275,7 @@ $costByTag = ConvertTo-CostByTagFromHub -HubData $hubData -ExistingTags $tagInve
 
 ## MCP Server (AI Integration)
 
-The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 20 scan modules — plus a `run_full_scan` composite (21 tools total) — as AI-callable tools. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI and GUI.
+The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 23 scan modules — plus a `run_full_scan` composite (24 tools total) — as AI-callable tools. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI and GUI.
 
 ### Setup
 
@@ -239,6 +330,9 @@ For VS Code `settings.json`, nest the same under an `mcp` key:
 | `scan_savings_realized`       | Actual savings from commitments               |
 | `scan_budget_status`          | Budget consumption vs thresholds              |
 | `scan_anomaly_alerts`         | Recent cost anomaly detections                |
+| `scan_legacy_resources`       | Legacy/retiring SKUs needing modernization    |
+| `scan_unit_economics`         | Cost per vCPU, per VM, and per GB stored      |
+| `scan_carbon`                 | Cloud carbon emissions and month-over-month trend |
 | `scan_optimization_advice`    | Azure Advisor cost recommendations            |
 | `scan_billing_structure`      | Billing account hierarchy                     |
 | `scan_contract_info`          | Agreement type, offer, support plan           |
