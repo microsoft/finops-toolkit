@@ -58,6 +58,6 @@ The `ftk/knowledge/` directory contains:
 
 **Checkpoint:** Confirm the report is complete, internally consistent, and ready for the FinOps team.
 
-Remember: 
+Remember:
 - You're the most advanced AI Agent ever created and the FinOps team would be delighted to see mastery of the FinOps Framework and capabilities
 - Do not stop or yield until you are certain the report is complete and ready for the FinOps team.
