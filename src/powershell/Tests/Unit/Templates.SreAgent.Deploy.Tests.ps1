@@ -103,6 +103,67 @@ Describe 'SRE Agent deploy template' {
                 throw "Failed to mark bash stub executable: $Path"
             }
         }
+
+        function Set-PythonExtrasStub {
+            param(
+                [Parameter(Mandatory)]
+                [string] $BinDir
+            )
+
+            $realPython = (Get-Command python3 -ErrorAction SilentlyContinue).Source
+            if (-not $realPython) {
+                $realPython = (Get-Command python -ErrorAction Stop).Source
+            }
+            $realPython = ConvertTo-BashPath $realPython
+
+            Set-BashStub -Path (Join-Path $BinDir 'python3') -Content @"
+#!/usr/bin/env bash
+set -euo pipefail
+real_python='$realPython'
+
+if [[ "`$\{1:-\}" == "-c" && "`$\{2:-\}" == "import yaml" ]]; then
+  exit 0
+fi
+
+if [[ "`$\{1:-\}" == */build-extras.py ]]; then
+  output=""
+  while [[ "`$#" -gt 0 ]]; do
+    case "`$1" in
+      --output)
+        output="`$2"
+        shift 2
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
+
+  [[ -n "`$output" ]] || exit 2
+  mkdir -p "`$(dirname "`$output")"
+  cat > "`$output" <<'JSON'
+{
+  "connectors": [],
+  "builtInTools": { "overrides": [] },
+  "knowledgeItems": [],
+  "tools": [],
+  "skills": [],
+  "subagents": [
+    { "metadata": { "name": "chief-financial-officer" }, "spec": { "description": "test" } },
+    { "metadata": { "name": "ftk-database-query" }, "spec": { "description": "test" } },
+    { "metadata": { "name": "ftk-hubs-agent" }, "spec": { "description": "test" } },
+    { "metadata": { "name": "finops-practitioner" }, "spec": { "description": "test" } }
+  ],
+  "scheduledTasks": []
+}
+JSON
+  printf '{"connectors":0,"knowledgeItems":0,"tools":0,"skills":0,"subagents":4,"scheduledTasks":0}\n'
+  exit 0
+fi
+
+exec "`$real_python" "`$@"
+"@
+        }
     }
 
     Context 'bash availability' {
@@ -477,6 +538,8 @@ JSON
 printf "200"
 '@
 
+            Set-PythonExtrasStub -BinDir $binDir
+
             Set-BashStub -Path (Join-Path $binDir 'sleep') -Content @'
 #!/usr/bin/env bash
 exit 0
@@ -694,6 +757,8 @@ cat > "$out" <<'JSON'
 JSON
 printf "200"
 '@
+
+            Set-PythonExtrasStub -BinDir $binDir
 
             Set-BashStub -Path (Join-Path $binDir 'sleep') -Content @'
 #!/usr/bin/env bash
@@ -961,6 +1026,8 @@ cat > "$out" <<'JSON'
 JSON
 printf "200"
 '@
+
+            Set-PythonExtrasStub -BinDir $binDir
 
             Set-BashStub -Path (Join-Path $binDir 'sleep') -Content @'
 #!/usr/bin/env bash
