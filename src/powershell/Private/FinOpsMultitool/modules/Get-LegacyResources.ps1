@@ -33,24 +33,25 @@ function Get-LegacyResources {
 resources
 | where type =~ 'microsoft.compute/virtualmachines'
 | extend vmSize = tostring(properties.hardwareProfile.vmSize)
-| where vmSize matches regex '(?i)^(Basic_A[0-9]+|Standard_A[0-7]|Standard_D[0-9]+|Standard_DS[0-9]+|Standard_F[0-9]+|Standard_G[0-9]+|Standard_GS[0-9]+)\$'
+| where vmSize matches regex @'(?i)^(Basic_A[0-9]+|Standard_A[0-7]|Standard_D[0-9]+|Standard_DS[0-9]+|Standard_F[0-9]+|Standard_G[0-9]+|Standard_GS[0-9]+)$'
 | project name, resourceGroup, subscriptionId, location, vmSize
 "@
         $result = Search-AzGraphSafe -Query $vmQuery -Subscription $subIds -First 1000
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allLegacy.Add([PSCustomObject]@{
-                Category       = 'Legacy VM Family'
-                ResourceName   = $r.name
-                ResourceGroup  = $r.resourceGroup
-                SubscriptionId = $r.subscriptionId
-                Location       = $r.location
-                Detail         = "$($r.vmSize) (v1 - upgrade to current generation)"
-                Impact         = 'High'
-            })
+                    Category       = 'Legacy VM Family'
+                    ResourceName   = $r.name
+                    ResourceGroup  = $r.resourceGroup
+                    SubscriptionId = $r.subscriptionId
+                    Location       = $r.location
+                    Detail         = "$($r.vmSize) (v1 - upgrade to current generation)"
+                    Impact         = 'High'
+                })
         }
         Write-Host "    Legacy VM families: $($rows.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Legacy VM query failed: $($_.Exception.Message)"
     }
 
@@ -67,17 +68,18 @@ resources
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allLegacy.Add([PSCustomObject]@{
-                Category       = 'Unmanaged Disk'
-                ResourceName   = $r.name
-                ResourceGroup  = $r.resourceGroup
-                SubscriptionId = $r.subscriptionId
-                Location       = $r.location
-                Detail         = 'VM uses unmanaged (VHD) OS disk - migrate to managed disks'
-                Impact         = 'High'
-            })
+                    Category       = 'Unmanaged Disk'
+                    ResourceName   = $r.name
+                    ResourceGroup  = $r.resourceGroup
+                    SubscriptionId = $r.subscriptionId
+                    Location       = $r.location
+                    Detail         = 'VM uses unmanaged (VHD) OS disk - migrate to managed disks'
+                    Impact         = 'High'
+                })
         }
         Write-Host "    Unmanaged-disk VMs: $($rows.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Unmanaged disk query failed: $($_.Exception.Message)"
     }
 
@@ -95,17 +97,18 @@ resources
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allLegacy.Add([PSCustomObject]@{
-                Category       = 'HDD Managed Disk'
-                ResourceName   = $r.name
-                ResourceGroup  = $r.resourceGroup
-                SubscriptionId = $r.subscriptionId
-                Location       = $r.location
-                Detail         = "$($r.diskSizeGb) GB HDD (Standard_LRS) - consider Standard/Premium SSD"
-                Impact         = 'Low'
-            })
+                    Category       = 'HDD Managed Disk'
+                    ResourceName   = $r.name
+                    ResourceGroup  = $r.resourceGroup
+                    SubscriptionId = $r.subscriptionId
+                    Location       = $r.location
+                    Detail         = "$($r.diskSizeGb) GB HDD (Standard_LRS) - consider Standard/Premium SSD"
+                    Impact         = 'Low'
+                })
         }
         Write-Host "    HDD managed disks: $($rows.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  HDD disk query failed: $($_.Exception.Message)"
     }
 
@@ -121,17 +124,18 @@ resources
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allLegacy.Add([PSCustomObject]@{
-                Category       = 'Basic Public IP'
-                ResourceName   = $r.name
-                ResourceGroup  = $r.resourceGroup
-                SubscriptionId = $r.subscriptionId
-                Location       = $r.location
-                Detail         = 'Basic-SKU public IP (retires Sep 2025) - migrate to Standard'
-                Impact         = 'High'
-            })
+                    Category       = 'Basic Public IP'
+                    ResourceName   = $r.name
+                    ResourceGroup  = $r.resourceGroup
+                    SubscriptionId = $r.subscriptionId
+                    Location       = $r.location
+                    Detail         = 'Basic-SKU public IP (retires Sep 2025) - migrate to Standard'
+                    Impact         = 'High'
+                })
         }
         Write-Host "    Basic public IPs: $($rows.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Basic public IP query failed: $($_.Exception.Message)"
     }
 
@@ -147,17 +151,18 @@ resources
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allLegacy.Add([PSCustomObject]@{
-                Category       = 'Basic Load Balancer'
-                ResourceName   = $r.name
-                ResourceGroup  = $r.resourceGroup
-                SubscriptionId = $r.subscriptionId
-                Location       = $r.location
-                Detail         = 'Basic-SKU load balancer (retires Sep 2025) - migrate to Standard'
-                Impact         = 'High'
-            })
+                    Category       = 'Basic Load Balancer'
+                    ResourceName   = $r.name
+                    ResourceGroup  = $r.resourceGroup
+                    SubscriptionId = $r.subscriptionId
+                    Location       = $r.location
+                    Detail         = 'Basic-SKU load balancer (retires Sep 2025) - migrate to Standard'
+                    Impact         = 'High'
+                })
         }
         Write-Host "    Basic load balancers: $($rows.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Basic load balancer query failed: $($_.Exception.Message)"
     }
 
@@ -168,10 +173,10 @@ resources
     )
 
     return [PSCustomObject]@{
-        HasData        = ($allLegacy.Count -gt 0)
-        TotalCount     = $allLegacy.Count
+        HasData         = ($allLegacy.Count -gt 0)
+        TotalCount      = $allLegacy.Count
         LegacyResources = @($allLegacy | Sort-Object @{ Expression = 'Impact'; Descending = $true }, Category)
-        ByCategory     = $byCategory
-        ScannedSubs    = $Subscriptions.Count
+        ByCategory      = $byCategory
+        ScannedSubs     = $Subscriptions.Count
     }
 }

@@ -106,12 +106,12 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 
 ### Optimization (Resource Graph)
 
-| Scan                | What it finds                                  |
-| ------------------- | ---------------------------------------------- |
-| Orphaned Resources  | Unattached disks, NICs, public IPs, NSGs       |
-| Idle VMs            | VMs with <5% CPU over 30 days                  |
-| Storage Tier Advice | Blob storage that could move to cooler tiers   |
-| AHB Opportunities   | Windows/SQL VMs not using Azure Hybrid Benefit |
+| Scan                | What it finds                                                         |
+| ------------------- | --------------------------------------------------------------------- |
+| Orphaned Resources  | Unattached disks, NICs, public IPs, NSGs                              |
+| Idle VMs            | VMs with <5% CPU over 30 days                                         |
+| Storage Tier Advice | Blob storage that could move to cooler tiers                          |
+| AHB Opportunities   | Windows/SQL VMs not using Azure Hybrid Benefit                        |
 | Legacy Resources    | Legacy/retiring SKUs (v1 VM families, unmanaged disks, Basic IPs/LBs) |
 
 ### Governance
@@ -125,12 +125,12 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 
 ### Cost Analysis
 
-| Scan           | What it finds                     |
-| -------------- | --------------------------------- |
-| Cost Data      | Monthly spend per subscription    |
-| Resource Costs | Top resources by cost             |
-| Cost by Tag    | Spend breakdown by tag key/value  |
-| Cost Trend     | Month-over-month spend comparison |
+| Scan           | What it finds                            |
+| -------------- | ---------------------------------------- |
+| Cost Data      | Monthly spend per subscription           |
+| Resource Costs | Top resources by cost                    |
+| Cost by Tag    | Spend breakdown by tag key/value         |
+| Cost Trend     | Month-over-month spend comparison        |
 | Unit Economics | Cost per vCPU, per VM, and per GB stored |
 
 ### Commitments
@@ -150,9 +150,9 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 
 ### Sustainability
 
-| Scan            | What it finds                                            |
-| --------------- | -------------------------------------------------------- |
-| Carbon Metrics  | Cloud carbon emissions, month-over-month change, 12-month trend, per-subscription breakdown |
+| Scan           | What it finds                                                                               |
+| -------------- | ------------------------------------------------------------------------------------------- |
+| Carbon Metrics | Cloud carbon emissions, month-over-month change, 12-month trend, per-subscription breakdown |
 
 ### Advisor & Account
 
@@ -311,32 +311,32 @@ For VS Code `settings.json`, nest the same under an `mcp` key:
 
 ### Available Tools
 
-| Tool                          | Description                                   |
-| ----------------------------- | --------------------------------------------- |
-| `scan_orphaned_resources`     | Find unattached disks, NICs, public IPs, NSGs |
-| `scan_idle_vms`               | Find VMs with <5% CPU over 14-30 days         |
-| `scan_storage_tier_advice`    | Storage accounts that could use cooler tiers  |
-| `scan_ahb_opportunities`      | VMs/SQL not using Azure Hybrid Benefit        |
-| `scan_tag_inventory`          | Tag coverage %, tag names, resource counts    |
-| `scan_tag_recommendations`    | Inconsistent casing, missing standard tags    |
-| `scan_policy_inventory`       | Policy assignments with compliance status     |
-| `scan_policy_recommendations` | Policy coverage gaps for cost governance      |
-| `scan_cost_data`              | Actual + forecasted cost per subscription     |
-| `scan_resource_costs`         | Top resources by cost (MTD)                   |
-| `scan_cost_by_tag`            | Spend breakdown by tag key/value              |
-| `scan_cost_trend`             | Month-over-month spend comparison             |
-| `scan_reservation_advice`     | RI purchase recommendations                   |
-| `scan_commitment_utilization` | RI and Savings Plan usage rates               |
-| `scan_savings_realized`       | Actual savings from commitments               |
-| `scan_budget_status`          | Budget consumption vs thresholds              |
-| `scan_anomaly_alerts`         | Recent cost anomaly detections                |
-| `scan_legacy_resources`       | Legacy/retiring SKUs needing modernization    |
-| `scan_unit_economics`         | Cost per vCPU, per VM, and per GB stored      |
+| Tool                          | Description                                       |
+| ----------------------------- | ------------------------------------------------- |
+| `scan_orphaned_resources`     | Find unattached disks, NICs, public IPs, NSGs     |
+| `scan_idle_vms`               | Find VMs with <5% CPU over 14-30 days             |
+| `scan_storage_tier_advice`    | Storage accounts that could use cooler tiers      |
+| `scan_ahb_opportunities`      | VMs/SQL not using Azure Hybrid Benefit            |
+| `scan_tag_inventory`          | Tag coverage %, tag names, resource counts        |
+| `scan_tag_recommendations`    | Inconsistent casing, missing standard tags        |
+| `scan_policy_inventory`       | Policy assignments with compliance status         |
+| `scan_policy_recommendations` | Policy coverage gaps for cost governance          |
+| `scan_cost_data`              | Actual + forecasted cost per subscription         |
+| `scan_resource_costs`         | Top resources by cost (MTD)                       |
+| `scan_cost_by_tag`            | Spend breakdown by tag key/value                  |
+| `scan_cost_trend`             | Month-over-month spend comparison                 |
+| `scan_reservation_advice`     | RI purchase recommendations                       |
+| `scan_commitment_utilization` | RI and Savings Plan usage rates                   |
+| `scan_savings_realized`       | Actual savings from commitments                   |
+| `scan_budget_status`          | Budget consumption vs thresholds                  |
+| `scan_anomaly_alerts`         | Recent cost anomaly detections                    |
+| `scan_legacy_resources`       | Legacy/retiring SKUs needing modernization        |
+| `scan_unit_economics`         | Cost per vCPU, per VM, and per GB stored          |
 | `scan_carbon`                 | Cloud carbon emissions and month-over-month trend |
-| `scan_optimization_advice`    | Azure Advisor cost recommendations            |
-| `scan_billing_structure`      | Billing account hierarchy                     |
-| `scan_contract_info`          | Agreement type, offer, support plan           |
-| `run_full_scan`               | Run all modules — comprehensive assessment    |
+| `scan_optimization_advice`    | Azure Advisor cost recommendations                |
+| `scan_billing_structure`      | Billing account hierarchy                         |
+| `scan_contract_info`          | Agreement type, offer, support plan               |
+| `run_full_scan`               | Run all modules — comprehensive assessment        |
 
 ### Resources
 
