@@ -1,0 +1,33 @@
+// ============================================================================
+// Query: Azure OpenAI Cost by Application
+// Description:
+//   Breaks down Azure OpenAI costs by application, cost center, team, and environment tags.
+//   Useful for AI workload showback, chargeback, and unit economics analysis.
+// Author: FinOps Toolkit Team
+// Parameters:
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(30d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
+// Output:
+//   Each row represents a tagged Azure OpenAI cost grouping with token count and cost metrics.
+// Usage:
+//   Use this query to allocate Azure OpenAI usage and cost to applications, teams, and environments.
+// Last Updated: 2026-05-26
+// ============================================================================
+
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| where x_SkuMeterSubcategory has "OpenAI"
+| extend parsedTags = parse_json(Tags)
+| extend Application = tostring(parsedTags["application"])
+| extend CostCenter = tostring(parsedTags["CostCenter"])
+| extend Environment = tostring(parsedTags["environment"])
+| extend Team = tostring(parsedTags["team"])
+| summarize
+    TokenCount = sum(ConsumedQuantity),
+    EffectiveCost = sum(EffectiveCost),
+    BilledCost = sum(BilledCost)
+    by Application, CostCenter, Team, Environment, ResourceName, x_SkuMeterSubcategory
+| extend CostPer1KTokens = iff(TokenCount == 0, 0.0, EffectiveCost / TokenCount * 1000)
+| order by EffectiveCost desc

@@ -1,0 +1,67 @@
+// ============================================================================
+// Query: Commitment Utilization Score
+// Description:
+//   Computes commitment utilization by commitment discount ID over the reporting window.
+//   Returns per-commitment and per-currency grand-total utilization amount, potential, and score.
+// KPI: Commitment Utilization Score
+// Formula: Commitment Utilization Score = (Used Commitment / Total Commitment) x 100
+// Author: FinOps toolkit
+// Parameters:
+//   startDate: datetime; start date for the reporting period (default: startofmonth(ago(30d)))
+//   endDate: datetime; end date for the reporting period (default: startofmonth(now()))
+// Output:
+//   Each row represents one commitment or a per-currency grand total with BillingCurrency,
+//   CommitmentDiscountId, CommitmentDiscountName, CommitmentDiscountCategory,
+//   CommitmentDiscountType, UtilizationAmount, UtilizationPotential, and UtilizationScore.
+// Usage:
+//   Use this query to monitor how fully Azure commitment discounts were utilized during the reporting window.
+// Scope Notes:
+//   Microsoft Azure commitments only; score is window-based, grand totals are per BillingCurrency,
+//   and Usage-category quantities remain ConsumedUnit-dependent but valid as a ratio within each commitment.
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS_SCHEMA_WITH_DATA_GAP — query executed and returned expected columns; the hub has 0 commitment-discount rows in the test window, so value semantics require re-UAT on a commitment-active hub.
+// =========================================================================
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
+let commitmentRows = materialize(
+    Costs()
+    | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+    | where isnotempty(CommitmentDiscountId)
+    | extend x_CommitmentDiscountUtilizationPotential = case(
+        ChargeCategory == 'Purchase', toreal(0),
+        ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), toreal(EffectiveCost),
+        CommitmentDiscountCategory == 'Usage', toreal(ConsumedQuantity),
+        CommitmentDiscountCategory == 'Spend', toreal(EffectiveCost),
+        toreal(0))
+    | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, toreal(0))
+);
+let commitmentSummary =
+    commitmentRows
+    | summarize
+        UtilizationAmount = todouble(sum(x_CommitmentDiscountUtilizationAmount)),
+        UtilizationPotential = todouble(sum(x_CommitmentDiscountUtilizationPotential))
+        by BillingCurrency, CommitmentDiscountId, CommitmentDiscountName, CommitmentDiscountCategory, CommitmentDiscountType
+    | extend UtilizationScore = iff(UtilizationPotential > 0, todouble(UtilizationAmount / UtilizationPotential) * 100.0, todouble(0));
+union
+    commitmentSummary,
+    (
+        commitmentSummary
+        | summarize
+            UtilizationAmount = todouble(sum(UtilizationAmount)),
+            UtilizationPotential = todouble(sum(UtilizationPotential))
+            by BillingCurrency
+        | extend
+            CommitmentDiscountId = '(All)',
+            CommitmentDiscountName = '(Grand Total)',
+            CommitmentDiscountCategory = '',
+            CommitmentDiscountType = '',
+            UtilizationScore = iff(UtilizationPotential > 0, todouble(UtilizationAmount / UtilizationPotential) * 100.0, todouble(0))
+    )
+| project
+    BillingCurrency,
+    CommitmentDiscountId,
+    CommitmentDiscountName,
+    CommitmentDiscountCategory,
+    CommitmentDiscountType,
+    UtilizationAmount,
+    UtilizationPotential,
+    UtilizationScore

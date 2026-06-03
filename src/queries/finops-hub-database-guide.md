@@ -91,8 +91,8 @@ The FinOps hubs database is designed to support advanced cost and usage analytic
 
 ## Query Best Practices
 
-- **Start with the [`costs-enriched-base`](./catalog/costs-enriched-base.kql) query:**
-  Use this query as your base for any cost or usage analytics. It provides the full enrichment and savings logic for all cost columns and is the recommended foundation for custom analytics and reporting.
+- **Prefer scenario-specific aggregate queries first:**
+  Use the query catalog to find the narrowest query that answers the question. Use [`costs-enriched-base`](./catalog/costs-enriched-base.kql) when you need scoped row-level enrichment or repeated drill-downs.
 
 - **Use KQL (Kusto Query Language):**  
   All queries should be written in KQL for compatibility with Azure Data Explorer.
@@ -362,6 +362,9 @@ Costs()
 > **Note:**  
 > All columns prefixed with `x_` are toolkit enrichment columns, providing additional context for FinOps analysis.
 
+> **Numeric column types — live Hub behavior:**  
+> Columns documented below as `real` are exposed by the live Hub as `real` (a 64-bit floating-point type, equivalent to KQL `double` / .NET `System.Double`). Earlier versions of this guide listed numeric columns as `decimal`, but the deployed Hub schemas across `Costs()`, `Prices()`, and `Recommendations()` use `real`. When writing literal numeric defaults in KQL queries (for example the `false`-branch of an `iff(...)` aggregate), use `real(0)` — not `decimal(0)` — to avoid `SEM0019` arithmetic type-mismatch errors.
+
 Below are the column definitions for the main analytic tables in the FinOps hubs database. These definitions are based on Microsoft Learn, FinOps best practices, and common cloud cost management terminology.
 
 ---
@@ -373,7 +376,7 @@ The following table lists the columns produced in the `All available columns` qu
 | Column Name                              | Data Type | Description                                                                       |
 | ---------------------------------------- | --------- | --------------------------------------------------------------------------------- |
 | AvailabilityZone                         | string    | Availability zone of the resource, if applicable.                                 |
-| BilledCost                               | decimal   | The cost billed for the resource or usage.                                        |
+| BilledCost                               | real      | The cost billed for the resource or usage.                                        |
 | BillingAccountId                         | string    | Unique identifier for the billing account.                                        |
 | BillingAccountName                       | string    | Name of the billing account.                                                      |
 | BillingAccountType                       | string    | Type of billing account (e.g., EA, MCA).                                          |
@@ -391,16 +394,16 @@ The following table lists the columns produced in the `All available columns` qu
 | CommitmentDiscountName                   | string    | Name of the commitment discount.                                                  |
 | CommitmentDiscountStatus                 | string    | Status of the commitment discount (e.g., Used, Unused).                           |
 | CommitmentDiscountType                   | string    | The specific type of discount (e.g., RI, SP).                                     |
-| ConsumedQuantity                         | decimal   | Amount of resource usage consumed.                                                |
+| ConsumedQuantity                         | real      | Amount of resource usage consumed.                                                |
 | ConsumedUnit                             | string    | Unit of measure for consumed quantity.                                            |
-| ContractedCost                           | decimal   | Negotiated cost for the resource or usage.                                        |
-| ContractedUnitPrice                      | decimal   | Negotiated unit price for the resource.                                           |
-| EffectiveCost                            | decimal   | Actual cost after all discounts and credits.                                      |
+| ContractedCost                           | real      | Negotiated cost for the resource or usage.                                        |
+| ContractedUnitPrice                      | real      | Negotiated unit price for the resource.                                           |
+| EffectiveCost                            | real      | Actual cost after all discounts and credits.                                      |
 | InvoiceIssuerName                        | string    | Name of the invoice issuer.                                                       |
-| ListCost                                 | decimal   | List (retail) cost for the resource or usage.                                     |
-| ListUnitPrice                            | decimal   | List (retail) unit price for the resource.                                        |
+| ListCost                                 | real      | List (retail) cost for the resource or usage.                                     |
+| ListUnitPrice                            | real      | List (retail) unit price for the resource.                                        |
 | PricingCategory                          | string    | Category of pricing (e.g., Standard, Spot).                                       |
-| PricingQuantity                          | decimal   | Quantity used for pricing.                                                        |
+| PricingQuantity                          | real      | Quantity used for pricing.                                                        |
 | PricingUnit                              | string    | Unit of measure for pricing.                                                      |
 | ProviderName                             | string    | Name of the cloud provider.                                                       |
 | PublisherName                            | string    | Name of the publisher.                                                            |
@@ -420,40 +423,40 @@ The following table lists the columns produced in the `All available columns` qu
 | x_AccountId                              | string    | Enriched account identifier.                                                      |
 | x_AccountName                            | string    | Enriched account name.                                                            |
 | x_AccountOwnerId                         | string    | Owner ID for the account.                                                         |
-| x_BilledCostInUsd                        | decimal   | Billed cost converted to USD.                                                     |
-| x_BilledUnitPrice                        | decimal   | Billed unit price.                                                                |
+| x_BilledCostInUsd                        | real      | Billed cost converted to USD.                                                     |
+| x_BilledUnitPrice                        | real      | Billed unit price.                                                                |
 | x_BillingAccountAgreement                | string    | Billing agreement reference.                                                      |
 | x_BillingAccountId                       | string    | Enriched billing account ID.                                                      |
 | x_BillingAccountName                     | string    | Enriched billing account name.                                                    |
-| x_BillingExchangeRate                    | decimal   | Exchange rate used for billing.                                                   |
+| x_BillingExchangeRate                    | real      | Exchange rate used for billing.                                                   |
 | x_BillingExchangeRateDate                | datetime  | Date of the exchange rate.                                                        |
 | x_BillingProfileId                       | string    | Billing profile identifier.                                                       |
 | x_BillingProfileName                     | string    | Name of the billing profile.                                                      |
 | x_ChargeId                               | string    | Unique identifier for the charge.                                                 |
-| x_ContractedCostInUsd                    | decimal   | Contracted cost converted to USD.                                                 |
+| x_ContractedCostInUsd                    | real      | Contracted cost converted to USD.                                                 |
 | x_CostAllocationRuleName                 | string    | Name of the cost allocation rule.                                                 |
 | x_CostCategories                         | dynamic   | Cost categories as a dynamic object.                                              |
 | x_CostCenter                             | string    | Cost center for the transaction.                                                  |
 | x_Credits                                | dynamic   | Credits applied as a dynamic object.                                              |
 | x_CostType                               | string    | Type of cost (e.g., Amortized, Principal).                                        |
-| x_CurrencyConversionRate                 | decimal   | Currency conversion rate used.                                                    |
+| x_CurrencyConversionRate                 | real      | Currency conversion rate used.                                                    |
 | x_CustomerId                             | string    | Customer identifier.                                                              |
 | x_CustomerName                           | string    | Name of the customer.                                                             |
 | x_Discount                               | dynamic   | Discount details as a dynamic object.                                             |
-| x_EffectiveCostInUsd                     | decimal   | Effective cost converted to USD.                                                  |
-| x_EffectiveUnitPrice                     | decimal   | Final unit price after all discounts.                                             |
+| x_EffectiveCostInUsd                     | real      | Effective cost converted to USD.                                                  |
+| x_EffectiveUnitPrice                     | real      | Final unit price after all discounts.                                             |
 | x_ExportTime                             | datetime  | Time the record was exported.                                                     |
 | x_IngestionTime                          | datetime  | Timestamp when the record was ingested.                                           |
 | x_InvoiceId                              | string    | Invoice identifier.                                                               |
 | x_InvoiceIssuerId                        | string    | Invoice issuer identifier.                                                        |
 | x_InvoiceSectionId                       | string    | Invoice section identifier.                                                       |
 | x_InvoiceSectionName                     | string    | Invoice section name.                                                             |
-| x_ListCostInUsd                          | decimal   | List cost converted to USD.                                                       |
+| x_ListCostInUsd                          | real      | List cost converted to USD.                                                       |
 | x_Location                               | string    | Location of the resource.                                                         |
 | x_Operation                              | string    | Operation performed.                                                              |
 | x_PartnerCreditApplied                   | string    | Whether partner credit was applied.                                               |
 | x_PartnerCreditRate                      | string    | Partner credit rate.                                                              |
-| x_PricingBlockSize                       | decimal   | Block size for pricing.                                                           |
+| x_PricingBlockSize                       | real      | Block size for pricing.                                                           |
 | x_PricingCurrency                        | string    | Currency for pricing.                                                             |
 | x_PricingSubcategory                     | string    | Subcategory for pricing.                                                          |
 | x_PricingUnitDescription                 | string    | Description of the pricing unit.                                                  |
@@ -495,23 +498,23 @@ The following table lists the columns produced in the `All available columns` qu
 | x_SkuUsageType                           | string    | Usage type for the SKU.                                                           |
 | x_SkuImageType                           | string    | Image type for the SKU.                                                           |
 | x_SkuType                                | string    | Service type for the SKU.                                                         |
-| x_ConsumedCoreHours                      | decimal   | Total core hours consumed.                                                        |
+| x_ConsumedCoreHours                      | real      | Total core hours consumed.                                                        |
 | x_SkuLicenseStatus                       | string    | License status for the SKU.                                                       |
 | x_SkuLicenseType                         | string    | License type for the SKU.                                                         |
 | x_SkuLicenseQuantity                     | long      | License quantity for the SKU.                                                     |
 | x_SkuLicenseUnit                         | string    | License unit for the SKU.                                                         |
 | x_SkuLicenseUnusedQuantity               | long      | Unused license quantity for the SKU.                                              |
 | x_CommitmentDiscountKey                  | string    | Key for commitment discount utilization.                                          |
-| x_CommitmentDiscountUtilizationPotential | decimal   | Potential utilization for commitment discount.                                    |
-| x_CommitmentDiscountUtilizationAmount    | decimal   | Actual utilization amount for commitment discount.                                |
+| x_CommitmentDiscountUtilizationPotential | real      | Potential utilization for commitment discount.                                    |
+| x_CommitmentDiscountUtilizationAmount    | real      | Actual utilization amount for commitment discount.                                |
 | x_SkuTermLabel                           | string    | Human-readable label for SKU term.                                                |
 | x_AmortizationCategory                   | string    | Amortization category (e.g., Principal, Amortized Charge).                        |
-| x_CommitmentDiscountSavings              | decimal   | Realized savings from commitment discounts (actual savings applied to your bill). |
-| x_NegotiatedDiscountSavings              | decimal   | Realized savings from negotiated discounts (actual savings applied to your bill). |
-| x_TotalSavings                           | decimal   | Realized total savings (negotiated + commitment, as actually applied).            |
-| x_CommitmentDiscountPercent              | decimal   | Percent savings from commitment discount.                                         |
-| x_NegotiatedDiscountPercent              | decimal   | Percent savings from negotiated discount.                                         |
-| x_TotalDiscountPercent                   | decimal   | Total percent savings.                                                            |
+| x_CommitmentDiscountSavings              | real      | Realized savings from commitment discounts (actual savings applied to your bill). |
+| x_NegotiatedDiscountSavings              | real      | Realized savings from negotiated discounts (actual savings applied to your bill). |
+| x_TotalSavings                           | real      | Realized total savings (negotiated + commitment, as actually applied).            |
+| x_CommitmentDiscountPercent              | real      | Percent savings from commitment discount.                                         |
+| x_NegotiatedDiscountPercent              | real      | Percent savings from negotiated discount.                                         |
+| x_TotalDiscountPercent                   | real      | Total percent savings.                                                            |
 | x_ToolkitTool                            | string    | Toolkit tool name.                                                                |
 | x_ToolkitVersion                         | string    | Toolkit version.                                                                  |
 | x_ResourceParentId                       | string    | Resource parent identifier.                                                       |
@@ -538,34 +541,34 @@ The following table lists the columns produced in the `All available columns` qu
 | ChargeCategory                       | string    | Category of the charge (e.g., Usage, Purchase). |
 | CommitmentDiscountCategory           | string    | Type of commitment discount.                    |
 | CommitmentDiscountType               | string    | Specific type of discount.                      |
-| ContractedUnitPrice                  | decimal   | Negotiated unit price for the resource.         |
-| ListUnitPrice                        | decimal   | List (retail) unit price for the resource.      |
+| ContractedUnitPrice                  | real      | Negotiated unit price for the resource.         |
+| ListUnitPrice                        | real      | List (retail) unit price for the resource.      |
 | PricingCategory                      | string    | Category of pricing (e.g., Standard, Spot).     |
 | PricingUnit                          | string    | Unit of measure for pricing (e.g., hours, GB).  |
 | SkuId                                | string    | Unique identifier for the SKU.                  |
 | SkuPriceId                           | string    | Unique identifier for the SKU price.            |
 | SkuPriceIdv2                         | string    | Alternate identifier for the SKU price.         |
-| x_BaseUnitPrice                      | decimal   | Base unit price before discounts.               |
+| x_BaseUnitPrice                      | real      | Base unit price before discounts.               |
 | x_BillingAccountAgreement            | string    | Billing agreement reference.                    |
 | x_BillingAccountId                   | string    | Enriched billing account ID.                    |
 | x_BillingProfileId                   | string    | Billing profile identifier.                     |
 | x_CommitmentDiscountSpendEligibility | string    | Eligibility for spend-based discounts.          |
 | x_CommitmentDiscountUsageEligibility | string    | Eligibility for usage-based discounts.          |
-| x_ContractedUnitPriceDiscount        | decimal   | Discount amount from contracted price.          |
-| x_ContractedUnitPriceDiscountPercent | decimal   | Discount percent from contracted price.         |
+| x_ContractedUnitPriceDiscount        | real      | Discount amount from contracted price.          |
+| x_ContractedUnitPriceDiscountPercent | real      | Discount percent from contracted price.         |
 | x_EffectivePeriodEnd                 | datetime  | End of the effective pricing period.            |
 | x_EffectivePeriodStart               | datetime  | Start of the effective pricing period.          |
-| x_EffectiveUnitPrice                 | decimal   | Final unit price after all discounts.           |
-| x_EffectiveUnitPriceDiscount         | decimal   | Discount amount from effective price.           |
-| x_EffectiveUnitPriceDiscountPercent  | decimal   | Discount percent from effective price.          |
+| x_EffectiveUnitPrice                 | real      | Final unit price after all discounts.           |
+| x_EffectiveUnitPriceDiscount         | real      | Discount amount from effective price.           |
+| x_EffectiveUnitPriceDiscountPercent  | real      | Discount percent from effective price.          |
 | x_IngestionTime                      | datetime  | Timestamp when the record was ingested.         |
-| x_PricingBlockSize                   | decimal   | Block size for pricing (e.g., 1000 units).      |
+| x_PricingBlockSize                   | real      | Block size for pricing (e.g., 1000 units).      |
 | x_PricingCurrency                    | string    | Currency for pricing.                           |
 | x_PricingSubcategory                 | string    | Subcategory for pricing.                        |
 | x_PricingUnitDescription             | string    | Description of the pricing unit.                |
 | x_SkuDescription                     | string    | Description of the SKU.                         |
 | x_SkuId                              | string    | Enriched SKU ID.                                |
-| x_SkuIncludedQuantity                | decimal   | Quantity included at no extra cost.             |
+| x_SkuIncludedQuantity                | real      | Quantity included at no extra cost.             |
 | x_SkuMeterCategory                   | string    | Meter category for the SKU.                     |
 | x_SkuMeterId                         | string    | Meter ID for the SKU.                           |
 | x_SkuMeterName                       | string    | Meter name for the SKU.                         |
@@ -578,32 +581,43 @@ The following table lists the columns produced in the `All available columns` qu
 | x_SkuOfferId                         | string    | Offer ID for the SKU.                           |
 | x_SkuPartNumber                      | string    | Part number for the SKU.                        |
 | x_SkuTerm                            | int       | Term length for the SKU (months).               |
-| x_SkuTier                            | decimal   | Tier for the SKU (e.g., Standard, Premium).     |
+| x_SkuTier                            | real      | Tier for the SKU (e.g., Standard, Premium).     |
 | x_SourceName                         | string    | Name of the data source.                        |
 | x_SourceProvider                     | string    | Provider of the data source.                    |
 | x_SourceType                         | string    | Type of data source.                            |
 | x_SourceVersion                      | string    | Version of the data source.                     |
-| x_TotalUnitPriceDiscount             | decimal   | Total discount amount.                          |
-| x_TotalUnitPriceDiscountPercent      | decimal   | Total discount percent.                         |
+| x_TotalUnitPriceDiscount             | real      | Total discount amount.                          |
+| x_TotalUnitPriceDiscountPercent      | real      | Total discount percent.                         |
 
 ---
 
 ### Recommendations()
 
-| Column Name             | Data Type | Description                                       |
-| ----------------------- | --------- | ------------------------------------------------- |
-| ProviderName            | string    | Name of the cloud provider.                       |
-| SubAccountId            | string    | Identifier for the sub-account or subscription.   |
-| x_IngestionTime         | datetime  | Timestamp when the record was ingested.           |
-| x_EffectiveCostAfter    | decimal   | Projected cost after applying the recommendation. |
-| x_EffectiveCostBefore   | decimal   | Cost before applying the recommendation.          |
-| x_EffectiveCostSavings  | decimal   | Estimated cost savings from the recommendation.   |
-| x_RecommendationDate    | datetime  | Date the recommendation was generated.            |
-| x_RecommendationDetails | dynamic   | Details of the recommendation (dynamic object).   |
-| x_SourceName            | string    | Name of the data source.                          |
-| x_SourceProvider        | string    | Provider of the data source.                      |
-| x_SourceType            | string    | Type of data source.                              |
-| x_SourceVersion         | string    | Version of the data source.                       |
+> **Sparsely-populated columns:**  
+> The `Recommendations()` function is sourced from upstream optimization recommenders (for example, Azure Advisor reservation recommendations). Many string identifier columns below (`ResourceId`, `ResourceName`, `SubAccountId`, `SubAccountName`, `x_RecommendationId`, `x_RecommendationDescription`, `x_ResourceGroupName`) may be empty strings in practice if the source recommender does not surface them. Verify population with `Recommendations() | summarize count() by isnotempty(<column>)` before relying on a column as a join key or filter.
+
+| Column Name                  | Data Type | Description                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ---------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ProviderName                 | string    | Name of the cloud provider.                                                                                                                                                                                                                                                                                                                                                                                          |
+| ResourceId                   | string    | Unique identifier for the resource the recommendation applies to.                                                                                                                                                                                                                                                                                                                                                    |
+| ResourceName                 | string    | Display name of the resource.                                                                                                                                                                                                                                                                                                                                                                                        |
+| ResourceType                 | string    | Type of the resource (e.g., `virtualmachines`).                                                                                                                                                                                                                                                                                                                                                                      |
+| SubAccountId                 | string    | Identifier for the sub-account or subscription.                                                                                                                                                                                                                                                                                                                                                                      |
+| SubAccountName               | string    | Display name of the sub-account or subscription.                                                                                                                                                                                                                                                                                                                                                                     |
+| x_EffectiveCostAfter         | real      | Projected cost after applying the recommendation.                                                                                                                                                                                                                                                                                                                                                                    |
+| x_EffectiveCostBefore        | real      | Cost before applying the recommendation.                                                                                                                                                                                                                                                                                                                                                                             |
+| x_EffectiveCostSavings       | real      | Estimated cost savings from the recommendation.                                                                                                                                                                                                                                                                                                                                                                      |
+| x_IngestionTime              | datetime  | Timestamp when the record was ingested. Always populated.                                                                                                                                                                                                                                                                                                                                                            |
+| x_RecommendationCategory     | string    | Category of the recommendation (e.g., `ReservationRecommendations`, `SavingsPlanRecommendations`).                                                                                                                                                                                                                                                                                                                   |
+| x_RecommendationDate         | datetime  | Date the recommendation was generated by the source recommender. **Commonly null in live Hubs** — the upstream recommender may not stamp this field. Do not filter `Recommendations()` by `x_RecommendationDate` with a date-window predicate (e.g., `where x_RecommendationDate >= startDate`) — KQL `null >= datetime(…)` evaluates false, silently dropping every row. Use `x_IngestionTime` as the time anchor. |
+| x_RecommendationDescription  | string    | Human-readable description of the recommendation.                                                                                                                                                                                                                                                                                                                                                                    |
+| x_RecommendationDetails      | dynamic   | Structured details of the recommendation (dynamic object — shape varies by category).                                                                                                                                                                                                                                                                                                                                |
+| x_RecommendationId           | string    | Unique identifier for the recommendation.                                                                                                                                                                                                                                                                                                                                                                            |
+| x_ResourceGroupName          | string    | Resource group containing the resource (Azure only).                                                                                                                                                                                                                                                                                                                                                                 |
+| x_SourceName                 | string    | Name of the data source.                                                                                                                                                                                                                                                                                                                                                                                             |
+| x_SourceProvider             | string    | Provider of the data source.                                                                                                                                                                                                                                                                                                                                                                                         |
+| x_SourceType                 | string    | Type of data source.                                                                                                                                                                                                                                                                                                                                                                                                 |
+| x_SourceVersion              | string    | Version of the data source.                                                                                                                                                                                                                                                                                                                                                                                          |
 
 ---
 
@@ -675,10 +689,11 @@ The following table lists the columns produced in the `All available columns` qu
 
 ## Change log
 
-| Date       | Version | Author              | Notes                                 |
-| ---------- | ------- | ------------------- | ------------------------------------- |
-| 2025-05-16 | 1.0     | FinOps Toolkit Team | Initial documentation                 |
-| 2025-05-16 | 1.1     | FinOps Toolkit Team | Expanded schema, glossary, references |
+| Date       | Version | Author              | Notes                                                                                                                                                                                                                                                                                                                                                                                              |
+| ---------- | ------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2025-05-16 | 1.0     | FinOps Toolkit Team | Initial documentation                                                                                                                                                                                                                                                                                                                                                                              |
+| 2025-05-16 | 1.1     | FinOps Toolkit Team | Expanded schema, glossary, references                                                                                                                                                                                                                                                                                                                                                              |
+| 2026-05-28 | 1.2     | Sprint 3000 UAT     | Live-Hub schema audit (msbwftktreyhub): `Costs()`, `Prices()`, `Recommendations()` numeric columns retyped from `decimal` to `real` to match deployed Hub schema (cause of SEM0019 errors). `Recommendations()` table expanded from 12 to 20 columns to add the 8 columns present in the live schema. `x_RecommendationDate` documented as commonly-null in live Hubs (root cause of T-3000.13). |
 
 ---
 

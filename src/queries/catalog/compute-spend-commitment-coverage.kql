@@ -1,0 +1,32 @@
+// ============================================================================
+// Query: Percent of Compute Spend Covered by Commitment Discounts
+// Description:
+//   Computes the share of compute spend covered by commitment discounts over a selected reporting window.
+//   Uses effective cost for commitment-backed compute spend and contracted cost for the compute baseline.
+// KPI: Percent of Compute Spend Covered by Commitment Discounts
+// Formula: Compute Cost after Commitment Discount / On-Demand Compute Cost
+// Author: FinOps toolkit
+// Parameters:
+//   startDate: datetime; start of the reporting period (default: startofmonth(ago(30d)))
+//   endDate: datetime; end of the reporting period, exclusive (default: startofmonth(now()))
+// Output:
+//   One row per BillingCurrency with BillingCurrency, CommittedComputeEffectiveCost, TotalComputeContractedCost, and CoveragePercent.
+// Usage:
+//   Use this query to measure how much compute spend is covered by commitment discounts without mixing currencies.
+// Scope Notes:
+//   Denominator uses ContractedCost as the post-negotiated, pre-commitment baseline rather than public retail pricing.
+//   Scope is limited to ServiceCategory == 'Compute', excludes commitment purchase rows, and groups results by BillingCurrency.
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (CoveragePercent=0; expected given commitment data gap)
+// =========================================================================
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+| where ServiceCategory == 'Compute'
+| summarize
+    CommittedComputeEffectiveCost = todouble(sumif(EffectiveCost, isnotempty(CommitmentDiscountCategory))),
+    TotalComputeContractedCost = todouble(sum(ContractedCost))
+    by BillingCurrency
+| extend CoveragePercent = todouble(iff(TotalComputeContractedCost == 0.0, 0.0, 100.0 * CommittedComputeEffectiveCost / TotalComputeContractedCost))
+| project BillingCurrency, CommittedComputeEffectiveCost, TotalComputeContractedCost, CoveragePercent

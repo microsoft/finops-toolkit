@@ -1,0 +1,42 @@
+// ============================================================================
+// Query: Percentage of Unallocated Costs
+// Description:
+//   Computes the share of EffectiveCost with no allocation evidence in Costs() using a
+//   heuristic: no cost allocation rule, no cost center, and no ownership tag key match.
+// KPI: Percentage of Costs Associated with Unallocated CSP Cloud Resources
+// Formula: (Total Effective Costs Associated with Unallocated CSP Cloud Resources During a Period of Time / Total CSP Cloud Costs During a Period of Time)
+// Author: FinOps toolkit
+// Parameters:
+//   startDate: datetime; start of the reporting period (default: startofmonth(ago(30d)))
+//   endDate: datetime; end of the reporting period (default: startofmonth(now()))
+//   allocationEvidenceTagKeys: dynamic; tag keys that count as allocation evidence
+//     (default: dynamic(['cost-center','team','owner','application','product']))
+// Output:
+//   BillingCurrency: billing currency for the summarized row.
+//   UnallocatedEffectiveCost: total EffectiveCost for rows classified as unallocated.
+//   TotalEffectiveCost: total EffectiveCost for all rows after commitment-purchase exclusion.
+//   UnallocatedPercent: unallocated share on a 0-100 scale.
+// Usage:
+//   Use this query to estimate how much spend remains unallocated by billing currency.
+// Scope Notes:
+//   Heuristic-based; the canonical 'allocated/unallocated' classification depends on each
+//   organization's allocation rules. Parameterize allocationEvidenceTagKeys to match local
+//   convention. ResourceId is intentionally not used because the spec did not define whether
+//   non-resource charges should be excluded from the KPI denominator.
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (SEM0019 fixed: decimal(0)→real(0))
+// =========================================================================
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
+let allocationEvidenceTagKeys = dynamic(['cost-center','team','owner','application','product']);
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+| extend tmp_TagKeys = coalesce(bag_keys(Tags), dynamic([]))
+| extend tmp_HasAllocationEvidenceTag = array_length(set_intersect(tmp_TagKeys, allocationEvidenceTagKeys)) > 0
+| extend tmp_IsUnallocated = isempty(x_CostAllocationRuleName) and isempty(x_CostCenter) and not(tmp_HasAllocationEvidenceTag)
+| summarize
+    UnallocatedEffectiveCost = todouble(sum(iff(tmp_IsUnallocated, EffectiveCost, real(0)))),
+    TotalEffectiveCost = todouble(sum(EffectiveCost))
+    by BillingCurrency
+| extend UnallocatedPercent = todouble(iff(TotalEffectiveCost == 0.0, 0.0, UnallocatedEffectiveCost / TotalEffectiveCost * 100.0))
+| project BillingCurrency, UnallocatedEffectiveCost, TotalEffectiveCost, UnallocatedPercent

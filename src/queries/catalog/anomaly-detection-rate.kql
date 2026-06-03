@@ -1,0 +1,53 @@
+// ============================================================================
+// Query: Anomaly Detection Rate
+// Description:
+//   Calculates the percentage of effective spend attributable to anomaly-flagged days.
+//   Builds daily cost series per service category and billing currency, then applies time-series anomaly detection.
+// KPI: Anomaly Detection Rate
+// Formula: Total Cost of Anomaly Spikes / Total Spend = Anomaly Cost %
+// Author: FinOps toolkit
+// Parameters:
+//   startDate: datetime; Start date for the reporting period (default: startofmonth(ago(30d)))
+//   endDate: datetime; End date for the reporting period (default: startofmonth(now()))
+//   sensitivity: real; Anomaly detection sensitivity for series_decompose_anomalies() (default: 1.5)
+// Output:
+//   Each row returns a BillingCurrency and ServiceCategory pair (plus an Overall rollup row) with AnomalyCost, TotalCost, and AnomalyRatePercent as double values.
+// Usage:
+//   Use this query to quantify how much effective spend falls on anomaly-flagged days by service category and by billing currency.
+// Scope Notes:
+//   Treats both positive spikes and negative drops as anomalies (AnomalyFlags != 0); the Overall row is per BillingCurrency only.
+//   Missing days are zero-filled via make-series default=0.0, and commitment purchase rows are excluded to avoid amortization double-counting.
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 13 rows returned (per service category)
+// =========================================================================
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
+let sensitivity = 1.5;
+let expanded = materialize(
+    Costs()
+    | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+    | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+    | summarize DailyCost = sum(todouble(EffectiveCost))
+        by bin(ChargePeriodStart, 1d), ServiceCategory, BillingCurrency
+    | make-series CostSeries = sum(DailyCost) default=0.0
+        on ChargePeriodStart from startDate to endDate step 1d
+        by ServiceCategory, BillingCurrency
+    | extend AnomalyFlags = series_decompose_anomalies(CostSeries, sensitivity)
+    | mv-expand CostSeries to typeof(double), AnomalyFlags to typeof(int)
+);
+let perCategory =
+    expanded
+    | summarize
+        AnomalyCost = todouble(sumif(CostSeries, AnomalyFlags != 0)),
+        TotalCost = todouble(sum(CostSeries))
+        by BillingCurrency, ServiceCategory
+    | extend AnomalyRatePercent = todouble(iff(TotalCost == 0.0, 0.0, AnomalyCost / TotalCost * 100.0));
+let overall =
+    expanded
+    | summarize
+        AnomalyCost = todouble(sumif(CostSeries, AnomalyFlags != 0)),
+        TotalCost = todouble(sum(CostSeries))
+        by BillingCurrency
+    | extend ServiceCategory = 'Overall'
+    | extend AnomalyRatePercent = todouble(iff(TotalCost == 0.0, 0.0, AnomalyCost / TotalCost * 100.0));
+union perCategory, overall
+| project BillingCurrency, ServiceCategory, AnomalyCost, TotalCost, AnomalyRatePercent
