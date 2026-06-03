@@ -320,6 +320,8 @@ $tableSchemas = @{
         @{ name = "TimeGenerated"; type = "datetime" }
         @{ name = "Timestamp_s"; type = "string" }
         @{ name = "AdditionalInfo_s"; type = "string" }
+        @{ name = "benefitId_s"; type = "string" }
+        @{ name = "benefitName_s"; type = "string" }
         @{ name = "BillingAccountId_s"; type = "string" }
         @{ name = "BillingAccountName_s"; type = "string" }
         @{ name = "BillingCurrencyCode_s"; type = "string" }
@@ -716,7 +718,7 @@ $tableSchemas = @{
         @{ name = "DisplayName_s"; type = "string" }
         @{ name = "SKUName_s"; type = "string" }
         @{ name = "Location_s"; type = "string" }
-        @{ name = "ResourceType_s"; type = "string" }
+        @{ name = "ResourceType"; type = "string" }
         @{ name = "AppliedScopeType_s"; type = "string" }
         @{ name = "Term_s"; type = "string" }
         @{ name = "ProvisioningState_s"; type = "string" }
