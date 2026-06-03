@@ -72,7 +72,7 @@ function Search-AzGraphSafe {
 
         # 429 retry wait
         $retryAfter = [math]::Min(10 * [math]::Pow(2, $attempt), 30)
-        $friendly = if (Get-Command Get-NextThrottleMessage -ErrorAction SilentlyContinue) { Get-NextThrottleMessage } else { 'Crunching numbers......' }
+        $friendly = if (Get-Command Get-NextThrottleMessage -ErrorAction SilentlyContinue) { Get-NextThrottleMessage } else { 'Fetching numbers......' }
         Write-Host "  $friendly" -ForegroundColor Yellow
         if (Get-Command Update-ScanStatus -ErrorAction SilentlyContinue) {
             Update-ScanStatus $friendly

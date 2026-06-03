@@ -9,15 +9,11 @@ if (-not $script:RunspacePool -or $script:RunspacePool.RunspacePoolStateInfo.Sta
     $script:RunspacePool.Open()
 }
 
-# -- Friendly throttle messages --------------------------------------------
-# While waiting out a 429 rate limit, show a rotating, friendly status
-# instead of a technical "throttled" notice. Shared by all retry paths.
-if ($null -eq $script:ThrottleMsgIndex) { $script:ThrottleMsgIndex = 0 }
+# -- Friendly throttle message ---------------------------------------------
+# While waiting out a 429 rate limit, show a single friendly status instead
+# of a technical "throttled" notice. Shared by all retry paths.
 function Get-NextThrottleMessage {
-    $msgs = @('Crunching numbers......', 'Fetching numbers......', 'Organizing costs......')
-    $msg = $msgs[$script:ThrottleMsgIndex % $msgs.Count]
-    $script:ThrottleMsgIndex++
-    return $msg
+    return 'Fetching numbers......'
 }
 
 # -- WPF Detection ---------------------------------------------------------
