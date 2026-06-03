@@ -1,5 +1,19 @@
 # Agent Instructions
 
+## P0 Git Safety Rule
+
+AI agents must never directly mutate `main` or `dev` in this repository or in any submodule. This includes direct commits, pushes, merges, reverts, cherry-picks, resets, branch updates, or any refspec that targets `main` or `dev`.
+
+AI agents must never run `git push origin HEAD:main`, `git push origin HEAD:dev`, `git push origin <anything>:main`, `git push origin <anything>:dev`, or equivalent commands against any remote.
+
+AI agents must never use privileged credentials, maintainer permissions, administrator permissions, branch-protection bypass permissions, ruleset bypass permissions, or GitHub's "bypass rule violations" path to update a protected branch.
+
+If GitHub reports that a push would "bypass rule violations" or that "changes must be made through a pull request", the agent must stop immediately and report a P0 policy violation. Do not continue with the push, and do not attempt a workaround.
+
+The only allowed path for changes intended for `main` or `dev` is: create or update a feature branch, push only that feature branch after explicit approval, and open a pull request. Humans and required repository automation own protected-branch integration.
+
+Reverting, remediating, or "cleaning up" an unauthorized protected-branch change is also a protected-branch mutation. AI agents must not do it without explicit user approval for the exact branch, commit, and command.
+
 This file provides guidance to AI Agents when working with code in this repository.
 
 ## Repository Overview
@@ -169,10 +183,12 @@ The PowerShell-based build system:
 
 This repository supports production infrastructure managing significant revenue. All git operations must be non-destructive and preserve full commit history.
 
+The P0 Git Safety Rule at the top of this file is authoritative and overrides every permitted operation listed below.
+
 **Permitted operations:**
 
-- `git add`, `git commit`, `git push` (standard push only)
-- `git merge` (merge commits to integrate branches — the only permitted way to sync with `dev` or resolve conflicts)
+- `git add`, `git commit`, `git push` on non-protected feature branches only (standard push only, after explicit approval)
+- `git merge` into non-protected feature branches only (merge commits to integrate from `dev` — the only permitted way to sync with `dev` or resolve conflicts, after explicit approval)
 - `git checkout`, `git switch`, `git branch` (branch creation and switching)
 - `git worktree add`, `git worktree remove`, `git worktree prune` (worktree lifecycle)
 - `git fetch`, `git pull` (with merge, not rebase)
@@ -181,6 +197,9 @@ This repository supports production infrastructure managing significant revenue.
 
 **Prohibited operations:**
 
+- Any direct mutation of `main` or `dev`, including direct pushes, commits, merges, reverts, or branch ref updates.
+- Any use of protected branch, ruleset, or administrator bypass capabilities to update `main` or `dev`.
+- Any attempt to land changes on `main` or `dev` without a pull request.
 - `git rebase` — rewrites commit history. Never permitted on shared branches. Not permitted as a conflict resolution strategy.
 - `git push --force` / `git push --force-with-lease` — destructive remote update. Never permitted.
 - `git reset --hard` to a state behind the remote (discarding pushed commits)
@@ -196,7 +215,7 @@ This repository supports production infrastructure managing significant revenue.
 - **`src/scripts/Update-Version.ps1`** — This script has multiple independent version-update blocks (PowerShell, Bicep, plugin.json, survey IDs, etc.). When both sides add new blocks, keep both — they operate on different file sets and do not conflict logically.
 - **`docs-mslearn/toolkit/changelog.md`** — Both sides may add entries under the same version heading. Keep entries from both sides in logical order (plugin entries, then component entries).
 
-**AI agents must ask for explicit approval** before executing any git write operation (`commit`, `push`, `merge`). Read-only git commands (`status`, `log`, `diff`, `branch --list`, `worktree list`) do not require approval.
+**AI agents must ask for explicit approval** before executing any git write operation (`commit`, `push`, `merge`, `revert`, `cherry-pick`, branch deletion, tag creation, or worktree state mutation). Read-only git commands (`status`, `log`, `diff`, `show`, `branch --list`, `worktree list`, `ls-remote`, `fetch`) do not require approval. Approval to perform a task, deploy, unblock a test, or fix an incident is not approval to write to git; approval must name the git action.
 
 ### File Organization
 
