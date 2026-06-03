@@ -1,0 +1,40 @@
+{
+  "overrides": [
+    {
+      "name": "QueryLogAnalyticsByWorkspaceId",
+      "enabled": true
+    },
+    {
+      "name": "QueryAppInsightsByAppId",
+      "enabled": true
+    },
+    {
+      "name": "QueryAppInsightsByResourceId",
+      "enabled": true
+    },
+    {
+      "name": "QueryLogAnalyticsByResourceId",
+      "enabled": true
+    },
+    {
+      "name": "PlotScatter",
+      "enabled": true
+    },
+    {
+      "name": "PlotHeatmap",
+      "enabled": true
+    },
+    {
+      "name": "PlotBarChart",
+      "enabled": true
+    },
+    {
+      "name": "PlotPieChart",
+      "enabled": true
+    },
+    {
+      "name": "PlotAreaChartWithCorrelation",
+      "enabled": true
+    }
+  ]
+}

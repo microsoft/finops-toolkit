@@ -1,0 +1,13 @@
+{
+  "toggles": {},
+  "connectors": [
+    {
+      "name": "finops-hub-kusto",
+      "properties": {
+        "dataConnectorType": "Kusto",
+        "dataSource": "${FINOPS_HUB_CLUSTER_URI}",
+        "identity": "system"
+      }
+    }
+  ]
+}

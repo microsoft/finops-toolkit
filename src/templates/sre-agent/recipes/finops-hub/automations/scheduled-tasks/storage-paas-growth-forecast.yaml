@@ -1,0 +1,87 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: StoragePaasGrowthForecast
+spec:
+  name: StoragePaasGrowthForecast
+  description: Monthly storage and PaaS quota growth forecast across active subscriptions
+  cron_expression: 0 8 1 * *
+  agent_mode: autonomous
+  agent: finops-practitioner
+  agent_prompt: '# Storage and PaaS Growth Forecast
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting, read all documents in the knowledge base. Pay special attention to prior non-compute quota notes, known service limit assumptions, and subscription scope guidance.
+
+    Output style: Apply `ftk-output-style.md` from the knowledge base to every report, Teams message, and Outlook email message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
+
+    Tool routing and delivery guard: This scheduled task is owned by `finops-practitioner`, which has KB-only SearchMemory and no operational tools. Use subagent handoffs for all tool work and pass the full task scope, evidence already collected, open questions, and desired output shape with each handoff. Use `ftk-database-query` for FinOps Hub Kusto, cost, pricing, recommendation, and transaction query tools. Use `azure-capacity-manager` for capacity, quota, capacity reservation group, SKU availability, database service quota, and benefit recommendation Python tools. Use `ftk-hubs-agent` for FinOps Hub infrastructure health, Resource Graph inventory, data freshness, deployment, remediation, alert and budget deployment, and Advisor suppression operations. Use `chief-financial-officer` only for executive finance framing. Use a tool-bearing specialist (`ftk-database-query`, `azure-capacity-manager`, or `ftk-hubs-agent`) for visualization and Teams/Outlook delivery after the final evidence package is assembled. Ask that delivery specialist to check available visualization and delivery tools exactly once per run and remember whether `PostTeamsMessage`, `SendOutlookEmail`, `PlotBarChart`, `PlotPieChart`, `PlotAreaChartWithCorrelation`, and `ExecutePythonCode` are present. Do not call notification, email, connector, Microsoft Graph, `dynamicInvoke`, raw webhook, or connector APIs just to test availability. Use visualization tools first for charts when available, with `ExecutePythonCode` or code-interpreter chart generation only as a fallback. Complete the report before delivery. When a Teams connector/channel is configured, ask the delivery specialist to make one final `PostTeamsMessage` attempt to the configured Teams channel. When an Outlook connector/recipient is configured, ask the delivery specialist to make one final `SendOutlookEmail` attempt with the same final report and any generated chart artifacts. If a configured delivery path fails, mark the task/run failed instead of degrading to local output or probing alternate paths. If neither Teams nor Outlook delivery is configured or available, render the completed report in the run output and explicitly state which delivery paths were skipped.
+
+
+
+    Orchestration rule: This scheduled task is owned by `finops-practitioner`. Delegate storage and PaaS quota evidence collection and specialist analysis to `azure-capacity-manager`; do not try to run capacity tools directly from the practitioner. When the specialist returns evidence, assemble the final FinOps report, apply `ftk-output-style.md`, generate supported visualizations, and deliver the completed output through configured connectors.
+
+    Ask `azure-capacity-manager` to load its capacity-management guidance and use the agent system-managed identity for Python tool authentication.
+
+
+    ## Specialist tools to request from `azure-capacity-manager`
+
+
+    Ask `azure-capacity-manager` to use Python tools with DefaultAzureCredential and the agent system-managed identity.
+
+
+    - `ftk-hubs-agent`: Run `resource-graph-query` with `query` and optional `subscription_ids` to inventory storage accounts, network resources, App Service plans, SQL servers, Service Bus namespaces, Key Vaults, and other PaaS resources.
+
+    - `non-compute-quotas`: Run with `subscription_id` and optional `location` to retrieve storage, network, and estimated PaaS quota utilization.
+
+    - `ftk-database-query`: Run `storage-tier-distribution` and `cost-per-gb-stored` when FinOps Hub Kusto is connected to add storage unit-economics KPI evidence to the quota forecast.
+
+
+    ## 1. Establish scope
+
+
+    Ask `ftk-hubs-agent` to use `resource-graph-query` to list active subscriptions and count current storage and PaaS resources by type, region, and subscription. Identify resource types with meaningful month-over-month growth or high operational importance.
+
+
+    ## 2. Collect current non-compute quotas
+
+
+    For each active subscription, ask `azure-capacity-manager` to run `non-compute-quotas` with `subscription_id`, optional `location`. Use the tool''s normalized `quotas` array for tables and charts. If only legacy `services` records are available, normalize them with safe accessors before reporting: accept `service_name` or `service`, `quota_name` or `name`, `current_count` or `currentValue` or `current`, and default missing `location` to `subscription`. Capture API-reported limits separately from estimated limits and preserve limit source notes.
+
+
+    ## 3. Forecast growth
+
+
+    Compare current resource counts and quota utilization against prior #remember findings or prior monthly reports. Forecast expected utilization for the next 30, 60, and 90 days using observed growth where prior data exists.
+
+    Ask `ftk-database-query` to run `storage-tier-distribution` and `cost-per-gb-stored` for the same reporting window. Use storage tier mix and cost-per-GB trends to explain whether growth is also creating avoidable storage unit-cost risk.
+
+
+    ## 4. Flag subscriptions approaching limits
+
+
+    Flag subscriptions where storage, network, or PaaS quota utilization is at or above 80%, where estimated limits are uncertain, or where growth trends indicate a likely limit breach before the next monthly cycle.
+
+
+    ## Report format
+
+
+    Produce a markdown report with an executive summary, a quota risk table by subscription and service, a growth forecast table, explicit API-reported versus estimated limit notes, and recommended owner actions.
+
+
+    ## Persistence
+
+
+    **Teams and Outlook (results only):** Post the final report to our Teams channel. Do not post intermediate results. Ask the selected delivery specialist to use `PostTeamsMessage` and `SendOutlookEmail` only when the delivery guard found each tool available once per run. If neither Teams nor Outlook delivery is configured or available, return the completed report in the run output with a note naming the skipped delivery paths. If any configured Teams or Outlook final delivery attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
+
+
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, cost amounts, or customer financial data to git or the knowledge base. Financial detail goes to configured Teams and Outlook delivery only.
+
+
+    ## Visualizations
+
+
+    Before delivery, ask the selected delivery specialist to generate charts for key findings using `PlotBarChart`, `PlotPieChart`, or `PlotAreaChartWithCorrelation` when those visualization tools fit the data. Use `ExecutePythonCode` or matplotlib/seaborn via the code interpreter only when the visualization tools are unavailable or cannot express the required chart. Build chart data from normalized quota rows and use `.get()`/safe-access patterns instead of indexing fields like `location` directly, because subscription-scoped non-compute quota rows may not be regional. Include at minimum a 90-day forecast chart and a quota utilization comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message and attach or embed them in the Outlook email alongside the text tables.'

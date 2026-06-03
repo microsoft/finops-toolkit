@@ -1,0 +1,84 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: BenefitRecommendationReview
+spec:
+  name: BenefitRecommendationReview
+  description: Weekly executive review of reservation and savings plan recommendations
+  cron_expression: 0 8 * * 5
+  agent_mode: autonomous
+  agent: finops-practitioner
+  agent_prompt: '# Benefit Recommendation Review
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting, read all documents in the knowledge base. Pay special attention to commitment discount strategy, reservation governance, savings plan policy, and prior recommendation review notes.
+
+    Output style: Apply `ftk-output-style.md` from the knowledge base to every report, Teams message, and Outlook email message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
+
+    Tool routing and delivery guard: This scheduled task is owned by `finops-practitioner`, which has KB-only SearchMemory and no operational tools. Use subagent handoffs for all tool work and pass the full task scope, evidence already collected, open questions, and desired output shape with each handoff. Use `ftk-database-query` for FinOps Hub Kusto, cost, pricing, recommendation, and transaction query tools. Use `azure-capacity-manager` for capacity, quota, capacity reservation group, SKU availability, database service quota, and benefit recommendation Python tools. Use `ftk-hubs-agent` for FinOps Hub infrastructure health, Resource Graph inventory, data freshness, deployment, remediation, alert and budget deployment, and Advisor suppression operations. Use `chief-financial-officer` only for executive finance framing. Use a tool-bearing specialist (`ftk-database-query`, `azure-capacity-manager`, or `ftk-hubs-agent`) for visualization and Teams/Outlook delivery after the final evidence package is assembled. Ask that delivery specialist to check available visualization and delivery tools exactly once per run and remember whether `PostTeamsMessage`, `SendOutlookEmail`, `PlotBarChart`, `PlotPieChart`, `PlotAreaChartWithCorrelation`, and `ExecutePythonCode` are present. Do not call notification, email, connector, Microsoft Graph, `dynamicInvoke`, raw webhook, or connector APIs just to test availability. Use visualization tools first for charts when available, with `ExecutePythonCode` or code-interpreter chart generation only as a fallback. Complete the report before delivery. When a Teams connector/channel is configured, ask the delivery specialist to make one final `PostTeamsMessage` attempt to the configured Teams channel. When an Outlook connector/recipient is configured, ask the delivery specialist to make one final `SendOutlookEmail` attempt with the same final report and any generated chart artifacts. If a configured delivery path fails, mark the task/run failed instead of degrading to local output or probing alternate paths. If neither Teams nor Outlook delivery is configured or available, render the completed report in the run output and explicitly state which delivery paths were skipped.
+
+
+
+    Load the FinOps toolkit and Azure Cost Management skills. Lead this as the FinOps practitioner. Ask `azure-capacity-manager` to run `benefit-recommendations` for current Cost Management recommendations, delegate any Kusto-backed recommendation, utilization, transaction, or savings evidence to `ftk-database-query`, and consult `chief-financial-officer` for approval framing, commitment risk, and executive decision language.
+
+
+    ## Specialist tools to request
+
+
+    Specialist tools use their configured authentication and the agent system-managed identity where required.
+
+
+    - `azure-capacity-manager`: Run `benefit-recommendations` with `billing_scope`, optional `lookback_period`, optional `term` to retrieve reservation and savings plan recommendations.
+
+    - `ftk-database-query`: Run `reservation-recommendation-breakdown`, `commitment-utilization-score`, `commitment-discount-waste`, `compute-spend-commitment-coverage`, `macc-consumption-vs-commitment`, and `savings-summary-report` for Kusto-backed Rate Optimization and commitment KPI evidence.
+
+
+    ## 1. Establish billing scope
+
+
+    Identify the billing scope or subscription scope from knowledge base guidance. If multiple scopes are documented, run the review for each and keep results separated by scope.
+
+
+    ## 2. Retrieve latest recommendations
+
+
+    Ask `azure-capacity-manager` to run `benefit-recommendations` with `billing_scope`, `lookback_period`, `term`. Review both reservation and savings plan recommendation types where available.
+
+
+    ## 3. Summarize savings opportunity
+
+
+    Summarize estimated savings, recommended cost, term, break-even information, and recommendation count. Separate recommendations by type and highlight assumptions or missing fields in the source payload.
+
+    Ask `ftk-database-query` to run `reservation-recommendation-breakdown`, `commitment-utilization-score`, `commitment-discount-waste`, `compute-spend-commitment-coverage`, `macc-consumption-vs-commitment`, and `savings-summary-report`. Use these outputs to reconcile external benefit recommendations against realized commitment utilization, commitment waste, compute coverage, MACC drawdown, and effective savings rate.
+
+
+    ## 4. Consult finance and recommend executive actions
+
+
+    Consult `chief-financial-officer` for the financial decision frame, then recommend which opportunities need purchase approval, deeper workload validation, commitment adjustment, or no action. Highlight governance risks such as over-commitment, insufficient utilization history, or missing owner accountability.
+
+
+    ## Report format
+
+
+    Produce a markdown report with an executive summary, a reservation recommendation table, a savings plan recommendation table, total potential savings summary, key risks, and recommended executive decisions.
+
+
+    ## Persistence
+
+
+    **Teams and Outlook (results only):** Post the final report to our Teams channel. Do not post intermediate results. Ask the selected delivery specialist to use `PostTeamsMessage` and `SendOutlookEmail` only when the delivery guard found each tool available once per run. If neither Teams nor Outlook delivery is configured or available, return the completed report in the run output with a note naming the skipped delivery paths. If any configured Teams or Outlook final delivery attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
+
+
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, savings amounts, cost amounts, or customer financial data to git or the knowledge base. Financial detail goes to configured Teams and Outlook delivery only.
+
+
+    ## Visualizations
+
+
+    Before delivery, ask the selected delivery specialist to generate charts for key findings using `PlotBarChart`, `PlotPieChart`, or `PlotAreaChartWithCorrelation` when those visualization tools fit the data. Use `ExecutePythonCode` or matplotlib/seaborn via the code interpreter only when the visualization tools are unavailable or cannot express the required chart. Include at minimum a savings by recommendation type chart and a cost versus savings chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message and attach or embed them in the Outlook email alongside the text tables.'
+

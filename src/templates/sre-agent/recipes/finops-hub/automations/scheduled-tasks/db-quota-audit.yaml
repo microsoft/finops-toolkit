@@ -1,0 +1,60 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: DbQuotaAudit
+spec:
+  name: DbQuotaAudit
+  description: Weekly audit of database (SQL DB, SQL MI, Cosmos DB, PostgreSQL Flex, MySQL Flex) quota and region/AZ access risks
+  cron_expression: 0 7 * * 3
+  agent_mode: autonomous
+  agent: finops-practitioner
+  agent_prompt: |-
+    # Database Service Quota Audit
+
+    ## Phase 0: Preparation
+
+    Before starting, read all documents in the knowledge base. Pay special attention to prior database quota findings, service limit assumptions, regional access restrictions, and availability-zone access caveats.
+
+    Output style: Apply `ftk-output-style.md` from the knowledge base to every report, Teams message, and Outlook email message. Use its evidence labels, source/derivation rules, exact scope and time-period statements, FinOps capability sections, risk thresholds, confidence/caveat language, and disclaimer requirements.
+
+    Tool routing and delivery guard: This scheduled task is owned by `finops-practitioner`, which has KB-only SearchMemory and no operational tools. Use subagent handoffs for all tool work and pass the full task scope, evidence already collected, open questions, and desired output shape with each handoff. Use `ftk-database-query` for FinOps Hub Kusto, cost, pricing, recommendation, and transaction query tools. Use `azure-capacity-manager` for capacity, quota, capacity reservation group, SKU availability, database service quota, and benefit recommendation Python tools. Use `ftk-hubs-agent` for FinOps Hub infrastructure health, Resource Graph inventory, data freshness, deployment, remediation, alert and budget deployment, and Advisor suppression operations. Use `chief-financial-officer` only for executive finance framing. Use a tool-bearing specialist (`ftk-database-query`, `azure-capacity-manager`, or `ftk-hubs-agent`) for visualization and Teams/Outlook delivery after the final evidence package is assembled. Ask that delivery specialist to check available visualization and delivery tools exactly once per run and remember whether `PostTeamsMessage`, `SendOutlookEmail`, `PlotBarChart`, `PlotPieChart`, `PlotAreaChartWithCorrelation`, and `ExecutePythonCode` are present. Do not call notification, email, connector, Microsoft Graph, `dynamicInvoke`, raw webhook, or connector APIs just to test availability. Use visualization tools first for charts when available, with `ExecutePythonCode` or code-interpreter chart generation only as a fallback. Complete the report before delivery. When a Teams connector/channel is configured, ask the delivery specialist to make one final `PostTeamsMessage` attempt to the configured Teams channel. When an Outlook connector/recipient is configured, ask the delivery specialist to make one final `SendOutlookEmail` attempt with the same final report and any generated chart artifacts. If a configured delivery path fails, mark the task/run failed instead of degrading to local output or probing alternate paths. If neither Teams nor Outlook delivery is configured or available, render the completed report in the run output and explicitly state which delivery paths were skipped.
+
+    Orchestration rule: This scheduled task is owned by `finops-practitioner`. Delegate database quota evidence collection and specialist analysis to `azure-capacity-manager`; do not try to run capacity tools directly from the practitioner. When the specialist returns evidence, assemble the final FinOps report, apply `ftk-output-style.md`, generate supported visualizations, and deliver the completed output through configured connectors.
+
+    Ask `azure-capacity-manager` to load its capacity-management guidance and use the agent system-managed identity for Python tool authentication.
+
+    ## Specialist tools to request from `azure-capacity-manager`
+
+    Ask `azure-capacity-manager` to use Python tools with DefaultAzureCredential and the agent system-managed identity.
+
+    - `db-service-quotas`: Run with `subscription_id`, optional `location`, optional `services`, optional `include_capabilities` to retrieve SQL DB, SQL MI, Cosmos DB, PostgreSQL Flex, and MySQL Flex quotas plus region/AZ access status.
+
+    ## 1. Establish subscription scope
+
+    Use documented active subscription scope from the knowledge base and prior reports. If scope is missing, clearly state the subscriptions that were available to the tool at runtime and any access gaps.
+
+    ## 2. Collect database quota and access usage
+
+    For each active subscription, ask `azure-capacity-manager` to run `db-service-quotas` with `subscription_id`, optional `location`. Use the tool's normalized `quotas` and `region_access` arrays for tables and charts. Capture service name, scope, metric, current value, limit, available capacity, utilization percentage, unit, location, at-risk flags, source endpoint, access status, and any suppressed or unsuppressed errors.
+
+    ## 3. Separate API-reported and default soft limits
+
+    Separate API-reported quota limits from default soft limits. Treat Cosmos DB's default soft subscription account limit of 50 separately from provider-reported limits and label it clearly as a default soft limit.
+
+    ## 4. Flag quota and access risk
+
+    Flag database quotas at or above 80% utilization, highlight critical items above 95%, surface region access blocks where `access_allowed_for_region == false`, and surface AZ blocks separately from regular region access blocks. Group findings by service in the report so SQL DB, SQL MI, Cosmos DB, PostgreSQL Flex, and MySQL Flex risks are easy to triage.
+
+    ## Report format
+
+    Produce a markdown report with an executive summary, a database quota risk table grouped by service, an API-reported versus default soft limits table, a region access blocks table, an AZ access blocks table, errors and access gaps, and recommended mitigation actions.
+
+    ## Persistence
+
+    **Teams and Outlook (results only):** Post the final report to our Teams channel. Do not post intermediate results. Ask the selected delivery specialist to use `PostTeamsMessage` and `SendOutlookEmail` only when the delivery guard found each tool available once per run. If neither Teams nor Outlook delivery is configured or available, return the completed report in the run output with a note naming the skipped delivery paths. If any configured Teams or Outlook final delivery attempt fails, do not retry or probe alternate delivery paths; mark the task/run failed.
+
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, cost amounts, or customer financial data to git or the knowledge base. Financial detail goes to configured Teams and Outlook delivery only.
+
+    ## Visualizations
+
+    Before delivery, ask the selected delivery specialist to generate charts for key findings using `PlotBarChart`, `PlotPieChart`, or `PlotAreaChartWithCorrelation` when those visualization tools fit the data. Use `ExecutePythonCode` or matplotlib/seaborn via the code interpreter only when the visualization tools are unavailable or cannot express the required chart. Build chart data from normalized quota rows and use `.get()`/safe-access patterns instead of indexing fields like `location` directly, because subscription-scoped database quota rows may not be regional. Include at minimum a quota utilization by service chart and an at-risk quota count by subscription chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message and attach or embed them in the Outlook email alongside the text tables.
