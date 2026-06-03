@@ -60,4 +60,3 @@ This catalog contains 37 scenario-specific FinOps Hub KQL queries used by the Fi
 - [Implementing FinOps Guide (Microsoft Learn)](https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide)
 - [Adopt FinOps on Azure (Microsoft Learn)](https://learn.microsoft.com/training/modules/adopt-finops-on-azure/)
 - [FinOps hub Database Documentation](./finops-hub-database-guide.md)
-- [FinOps Foundation](https://www.finops.org/framework/)
