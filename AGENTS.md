@@ -8,7 +8,19 @@ AI agents must never run `git push origin HEAD:main`, `git push origin HEAD:dev`
 
 AI agents must never use privileged credentials, maintainer permissions, administrator permissions, branch-protection bypass permissions, ruleset bypass permissions, or GitHub's "bypass rule violations" path to update a protected branch.
 
-If GitHub reports that a push would "bypass rule violations" or that "changes must be made through a pull request", the agent must stop immediately and report a P0 policy violation. Do not continue with the push, and do not attempt a workaround.
+If GitHub reports that a push would "bypass rule violations" or that "changes must be made through a pull request", the agent must stop immediately and report a P0 policy violation unless the known PR branch rule false positive below applies. Do not attempt a workaround.
+
+### Known PR branch rule false positive
+
+This repository currently has misconfigured branch rules that can report "Bypassed rule violations" and "Changes must be made through a pull request" during a standard push to an existing PR feature branch. Treat that warning as a false positive only when all of these conditions are verified:
+
+- The target ref is the current PR branch under `refs/heads/features/`.
+- The branch has an open pull request targeting `dev`.
+- The command is a standard non-force push to that same feature branch.
+- No refspec targets `main`, `dev`, or any other protected branch.
+- No privileged credentials, administrator bypass, branch-protection bypass, or ruleset-bypass path is being used.
+
+If any condition is not verified, stop immediately and report a P0 policy violation.
 
 The only allowed path for changes intended for `main` or `dev` is: create or update a feature branch, push only that feature branch after explicit approval, and open a pull request. Humans and required repository automation own protected-branch integration.
 
@@ -189,9 +201,9 @@ The P0 Git Safety Rule at the top of this file is authoritative and overrides ev
 
 - `git add`, `git commit`, `git push` on non-protected feature branches only (standard push only, after explicit approval)
 - `git merge` into non-protected feature branches only (merge commits to integrate from `dev` — the only permitted way to sync with `dev` or resolve conflicts, after explicit approval)
-- `git checkout`, `git switch`, `git branch` (branch creation and switching)
+- `git checkout`, `git switch`, `git branch` (branch creation and switching; do not switch to `main` or `dev` for mutable agent work)
 - `git worktree add`, `git worktree remove`, `git worktree prune` (worktree lifecycle)
-- `git fetch`, `git pull` (with merge, not rebase)
+- `git fetch`, `git pull` on non-protected feature branches only (with merge, not rebase)
 - `git stash`, `git stash pop` (temporary local state management)
 - `git status`, `git log`, `git diff`, `git show` (read-only inspection)
 
