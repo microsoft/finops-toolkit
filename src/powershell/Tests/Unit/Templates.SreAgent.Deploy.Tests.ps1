@@ -24,7 +24,7 @@ Describe 'SRE Agent deploy template' {
 
             Push-Location $script:RepoRoot
             try {
-                $output = & bash -lc $Command 2>&1
+                $output = & bash -lc "MSYS2_ARG_CONV_EXCL='/subscriptions;/providers' $Command" 2>&1
                 [pscustomobject]@{
                     ExitCode = $LASTEXITCODE
                     Output   = ($output -join "`n")
@@ -49,7 +49,7 @@ Describe 'SRE Agent deploy template' {
                 $originalPath = $env:PATH
                 $bashPathPrefix = ConvertTo-BashPath $PathPrefix
                 $quotedPathPrefix = ConvertTo-BashSingleQuoted $bashPathPrefix
-                $output = & bash -c "PATH=${quotedPathPrefix}:`$PATH $Command" 2>&1
+                $output = & bash -c "MSYS2_ARG_CONV_EXCL='/subscriptions;/providers' PATH=${quotedPathPrefix}:`$PATH $Command" 2>&1
                 [pscustomobject]@{
                     ExitCode = $LASTEXITCODE
                     Output   = ($output -join "`n")
