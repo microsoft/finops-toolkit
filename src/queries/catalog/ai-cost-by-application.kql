@@ -19,15 +19,17 @@ let endDate = startofmonth(now());
 Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | where x_SkuMeterSubcategory has "OpenAI"
-| extend parsedTags = parse_json(Tags)
-| extend Application = tostring(parsedTags["application"])
-| extend CostCenter = tostring(parsedTags["CostCenter"])
-| extend Environment = tostring(parsedTags["environment"])
-| extend Team = tostring(parsedTags["team"])
+| extend Application = tostring(Tags["application"])
+| extend CostCenter = case(
+    isnotempty(tostring(Tags["cost-center"])), tostring(Tags["cost-center"]),
+    isnotempty(tostring(Tags["CostCenter"])), tostring(Tags["CostCenter"]),
+    "")
+| extend Environment = tostring(Tags["environment"])
+| extend Team = tostring(Tags["team"])
 | summarize
     TokenCount = sum(ConsumedQuantity),
     EffectiveCost = sum(EffectiveCost),
     BilledCost = sum(BilledCost)
-    by Application, CostCenter, Team, Environment, ResourceName, x_SkuMeterSubcategory
+    by BillingCurrency, Application, CostCenter, Team, Environment, ResourceName, x_SkuMeterSubcategory
 | extend CostPer1KTokens = iff(TokenCount == 0, 0.0, EffectiveCost / TokenCount * 1000)
 | order by EffectiveCost desc

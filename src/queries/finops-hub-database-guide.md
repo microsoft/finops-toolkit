@@ -192,8 +192,8 @@ Recommendations()
     x_EffectiveCostBefore,
     x_LookbackPeriodLabel = replace_regex(tostring(x_RecommendationDetails.LookbackPeriodDuration), 'P([0-9]+)D', @'\1 days'),
     x_RecommendationDate,
-    x_RecommendedQuantity           = todecimal(x_RecommendationDetails.RecommendedQuantity),
-    x_RecommendedQuantityNormalized = todecimal(x_RecommendationDetails.RecommendedQuantityNormalized),
+    x_RecommendedQuantity           = toreal(x_RecommendationDetails.RecommendedQuantity),
+    x_RecommendedQuantityNormalized = toreal(x_RecommendationDetails.RecommendedQuantityNormalized),
     x_SkuMeterId,
     x_SkuTerm,
     x_SkuTermLabel = case(x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))
@@ -235,10 +235,10 @@ let numberOfMonths = 1;
 let base = Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, ''))
-| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''));
-let total = base | summarize Total=todecimal(sum(x_ConsumedCoreHours));
+| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, toreal(''));
+let total = base | summarize Total=toreal(sum(x_ConsumedCoreHours));
 base
-| summarize TotalConsumedCoreHours = todecimal(sum(x_ConsumedCoreHours)) by CommitmentDiscountType
+| summarize TotalConsumedCoreHours = toreal(sum(x_ConsumedCoreHours)) by CommitmentDiscountType
 | extend CommitmentDiscountType = iff(isempty(CommitmentDiscountType), 'On Demand', CommitmentDiscountType)
 | extend PercentOfTotal = 100.0 * TotalConsumedCoreHours / toscalar(total)
 | project CommitmentDiscountType, TotalConsumedCoreHours=todouble(TotalConsumedCoreHours), PercentOfTotal=todouble(PercentOfTotal)
@@ -269,7 +269,7 @@ Costs()
 | extend x_SkuUsageType = tostring(x_SkuDetails.UsageType)
 | extend x_SkuImageType = tostring(x_SkuDetails.ImageType)
 | extend x_SkuType      = tostring(x_SkuDetails.ServiceType)
-| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''))
+| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, toreal(''))
 | extend x_SkuLicenseStatus = case(
     ChargeCategory != 'Usage', '',
     (x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and x_SkuMeterSubcategory contains 'Windows') or tmp_SQLAHB == 'false', 'Not Enabled',
@@ -295,13 +295,13 @@ Costs()
 //
 | extend x_CommitmentDiscountKey = iff(tmp_IsVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')
 | extend x_CommitmentDiscountUtilizationPotential = case(
-    ChargeCategory == 'Purchase', decimal(0),
+    ChargeCategory == 'Purchase', real(0),
     ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,
     CommitmentDiscountCategory == 'Usage', ConsumedQuantity,
     CommitmentDiscountCategory == 'Spend', EffectiveCost,
-    decimal(0)
+    real(0)
 )
-| extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, decimal(0))
+| extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, real(0))
 | extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))
 //
 // CSP partners
@@ -314,12 +314,12 @@ Costs()
     isnotempty(CommitmentDiscountCategory), 'Amortized Charge',
     ''
 )
-| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      decimal(0), ContractedCost - EffectiveCost)
-| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            decimal(0), ListCost - ContractedCost)
-| extend x_TotalSavings              = iff(ListCost == 0,            decimal(0), ListCost - EffectiveCost)
-| extend x_CommitmentDiscountPercent = iff(ContractedUnitPrice == 0, decimal(0), (ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice)
-| extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice)
-| extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice)
+| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      real(0), ContractedCost - EffectiveCost)
+| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            real(0), ListCost - ContractedCost)
+| extend x_TotalSavings              = iff(ListCost == 0,            real(0), ListCost - EffectiveCost)
+| extend x_CommitmentDiscountPercent = iff(ContractedUnitPrice == 0, real(0), (ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice)
+| extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,       real(0), (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice)
+| extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,       real(0), (ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice)
 //
 // Toolkit
 | extend x_ToolkitTool = tostring(Tags['ftk-tool'])

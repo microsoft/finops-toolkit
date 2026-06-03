@@ -22,6 +22,6 @@ Costs()
 | summarize
     DailyTokens = sum(ConsumedQuantity),
     DailyCost = sum(EffectiveCost)
-    by bin(ChargePeriodStart, 1d)
+    by Day = bin(ChargePeriodStart, 1d), BillingCurrency
 | extend CostPer1KTokens = iff(DailyTokens == 0, 0.0, DailyCost / DailyTokens * 1000)
-| order by ChargePeriodStart asc
+| order by Day asc, BillingCurrency asc

@@ -29,7 +29,7 @@ Costs()
     EffectiveCost = sum(EffectiveCost),
     BilledCost = sum(BilledCost),
     ListCost = sum(ListCost)
-    by Model, Direction, x_SkuDescription
+    by BillingCurrency, Model, Direction
 | extend UnitCostPerToken = iff(TokenCount == 0, 0.0, EffectiveCost / TokenCount)
 | extend CostPer1KTokens = UnitCostPerToken * 1000
 | order by EffectiveCost desc

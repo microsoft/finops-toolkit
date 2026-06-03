@@ -23,7 +23,7 @@
 //   organization's allocation rules. Parameterize allocationEvidenceTagKeys to match local
 //   convention. ResourceId is intentionally not used because the spec did not define whether
 //   non-resource charges should be excluded from the KPI denominator.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (SEM0019 fixed: decimal(0)→real(0))
+// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (SEM0019 fixed with real literal defaults)
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

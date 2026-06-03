@@ -19,19 +19,15 @@
 // Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
 // =========================================================================
 Costs()
+| where isnotnull(x_IngestionTime)
+| summarize by BillingAccountId, x_IngestionTime
+| sort by BillingAccountId asc, x_IngestionTime asc
+| serialize
+| extend prev_account = prev(BillingAccountId), prev_t = prev(x_IngestionTime)
+| extend interval_hours = iff(BillingAccountId == prev_account, todouble((x_IngestionTime - prev_t) / 1h), real(null))
 | summarize
     LastUpdate = max(x_IngestionTime),
-    UpdateCount = dcount(x_IngestionTime),
-    ingestion_times = make_set(x_IngestionTime)
-    by BillingAccountId
-| mv-expand ingestion_time = ingestion_times to typeof(datetime)
-| sort by BillingAccountId asc, ingestion_time asc
-| serialize
-| extend prev_account = prev(BillingAccountId), prev_t = prev(ingestion_time)
-| extend interval_hours = iff(BillingAccountId == prev_account, todouble((ingestion_time - prev_t) / 1h), real(null))
-| summarize
-    LastUpdate = max(LastUpdate),
-    UpdateCount = max(UpdateCount),
+    UpdateCount = count(),
     MedianIntervalHours = todouble(percentile(interval_hours, 50)),
     P90IntervalHours = todouble(percentile(interval_hours, 90)),
     MaxIntervalHours = todouble(max(interval_hours))
