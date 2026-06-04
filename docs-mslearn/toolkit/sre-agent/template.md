@@ -3,7 +3,7 @@ title: Azure SRE Agent template reference (FinOps toolkit)
 description: Review the FinOps toolkit's Azure SRE Agent deployment template, parameters, outputs, script flags, and Bicep module structure.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/03/2026
+ms.date: 06/04/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

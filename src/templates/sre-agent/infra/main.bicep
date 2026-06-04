@@ -57,7 +57,7 @@ param finopsHubKustoClusterResourceId string = ''
 @description('Assign Reader on the deployment subscription to the agent managed identity.')
 param enableSubscriptionReaderRole bool = true
 
-var targetRgs = empty(targetResourceGroups) ? [resourceGroupName] : targetResourceGroups
+var targetRgs = union([resourceGroupName], targetResourceGroups)
 var agentResourceGroupId = subscriptionResourceId('Microsoft.Resources/resourceGroups', resourceGroupName)
 var targetRgIds = [for rgName in targetRgs: subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)]
 var namingSeed = toLower('${subscription().subscriptionId}|${agentResourceGroupId}|${agentName}')

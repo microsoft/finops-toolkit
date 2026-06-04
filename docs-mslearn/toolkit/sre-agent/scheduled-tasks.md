@@ -3,7 +3,7 @@ title: Scheduled tasks (Azure SRE Agent in the FinOps toolkit)
 description: Learn how the FinOps toolkit's scheduled tasks automate daily, weekly, monthly, and quarterly FinOps operating rhythms on Azure SRE Agent.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/03/2026
+ms.date: 06/04/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -23,10 +23,12 @@ The template deploys 19 scheduled tasks from `src/templates/sre-agent/recipes/fi
 
 Daily tasks run every morning to validate FinOps hub health and monitor Azure capacity signals that feed Planning & Estimating, Architecting & Workload Placement, Usage Optimization, Governance, Policy & Risk, and Automation, Tools & Services. They keep cost and capacity surprises visible before each business day.
 
+The `Agent` column lists the owning agent that runs each task. Some prompts delegate to specialist agents (for example, `ftk-hubs-agent` or `azure-capacity-manager`) for portions of the work; that delegation happens inside the task prompt.
+
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
-| `HubsHealthCheck` | `ftk-hubs-agent` | Daily at 6:00 AM<br>`0 6 * * *` | FinOps hub version and data freshness validation |
-| `CapacityDailyMonitor` | `azure-capacity-manager` | Daily at 6:30 AM<br>`30 6 * * *` | Daily capacity health check — quota usage, CRG utilization, zone capacity |
+| `HubsHealthCheck` | `finops-practitioner` | Daily at 6:00 AM<br>`0 6 * * *` | FinOps hub version and data freshness validation |
+| `CapacityDailyMonitor` | `finops-practitioner` | Daily at 6:30 AM<br>`30 6 * * *` | Daily capacity health check — quota usage, CRG utilization, zone capacity |
 
 <br>
 
@@ -36,13 +38,13 @@ Weekly tasks summarize cost optimization, Azure capacity evidence, and benefit r
 
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
-| `ComputeUtilizationTrend` | `azure-capacity-manager` | Weekly on Monday at 7:00 AM<br>`0 7 * * 1` | Weekly VM quota utilization trend review across subscriptions and regions |
+| `ComputeUtilizationTrend` | `finops-practitioner` | Weekly on Monday at 7:00 AM<br>`0 7 * * 1` | Weekly VM quota utilization trend review across subscriptions and regions |
 | `CostOptimization` | `finops-practitioner` | Weekly on Monday at 8:00 AM<br>`0 8 * * 1` | Comprehensive cost optimization report with orphaned resources, rightsizing, and commitment analysis |
-| `CapacityWeeklySupplyReview` | `azure-capacity-manager` | Weekly on Monday at 8:00 AM<br>`0 8 * * 1` | Weekly capacity evidence review — quota headroom, CRG cost optimization, SKU availability, benefit recommendations |
-| `NonComputeQuotaAudit` | `azure-capacity-manager` | Weekly on Tuesday at 7:00 AM<br>`0 7 * * 2` | Weekly audit of storage, network, and non-compute quota usage at risk |
-| `DbQuotaAudit` | `azure-capacity-manager` | Weekly on Wednesday at 7:00 AM<br>`0 7 * * 3` | Weekly audit of database quota and region or zone access risks |
-| `SkuAvailabilityAudit` | `azure-capacity-manager` | Weekly on Wednesday at 7:30 AM<br>`30 7 * * 3` | Weekly audit of regional SKU availability and restrictions that could block deployments |
-| `MonitoringScopeValidation` | `ftk-hubs-agent` | Weekly on Thursday at 9:00 AM<br>`0 9 * * 4` | Weekly validation that FinOps hub monitoring covers all active subscriptions |
+| `CapacityWeeklySupplyReview` | `finops-practitioner` | Weekly on Monday at 8:00 AM<br>`0 8 * * 1` | Weekly capacity evidence review — quota headroom, CRG cost optimization, SKU availability, benefit recommendations |
+| `NonComputeQuotaAudit` | `finops-practitioner` | Weekly on Tuesday at 7:00 AM<br>`0 7 * * 2` | Weekly audit of storage, network, and non-compute quota usage at risk |
+| `DbQuotaAudit` | `finops-practitioner` | Weekly on Wednesday at 7:00 AM<br>`0 7 * * 3` | Weekly audit of database quota and region or zone access risks |
+| `SkuAvailabilityAudit` | `finops-practitioner` | Weekly on Wednesday at 7:30 AM<br>`30 7 * * 3` | Weekly audit of regional SKU availability and restrictions that could block deployments |
+| `MonitoringScopeValidation` | `finops-practitioner` | Weekly on Thursday at 9:00 AM<br>`0 9 * * 4` | Weekly validation that FinOps hub monitoring covers all active subscriptions |
 | `BenefitRecommendationReview` | `finops-practitioner` | Weekly on Friday at 8:00 AM<br>`0 8 * * 5` | Weekly review of reservation and savings plan recommendations, with CFO consultation for decision framing |
 
 <br>
@@ -53,9 +55,9 @@ Monthly tasks run after billing data finalizes to produce year-to-date analysis,
 
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
-| `StoragePaasGrowthForecast` | `azure-capacity-manager` | Monthly on the 1st at 8:00 AM<br>`0 8 1 * *` | Monthly storage and PaaS quota growth forecast across active subscriptions |
+| `StoragePaasGrowthForecast` | `finops-practitioner` | Monthly on the 1st at 8:00 AM<br>`0 8 1 * *` | Monthly storage and PaaS quota growth forecast across active subscriptions |
 | `AdvisorSuppressionReview` | `finops-practitioner` | Monthly on the 1st at 9:00 AM<br>`0 9 1 * *` | Monthly review of active Advisor recommendation suppressions for stale or expired decisions |
-| `CapacityMonthlyPlanning` | `azure-capacity-manager` | Monthly on the 1st at 9:00 AM<br>`0 9 1 * *` | Monthly capacity planning cycle — demand forecast, capacity request pipeline, governance review |
+| `CapacityMonthlyPlanning` | `finops-practitioner` | Monthly on the 1st at 9:00 AM<br>`0 9 1 * *` | Monthly capacity planning cycle — demand forecast, capacity request pipeline, governance review |
 | `Monthly` | `finops-practitioner` | Monthly on the 5th at 5:15 PM<br>`15 17 5 * *` | Autonomous month-over-month cost analysis with FinOps hub tools |
 | `AIWorkloadCostAnalysis` | `finops-practitioner` | Monthly on the 1st at 10:00 AM<br>`0 10 1 * *` | Monthly AI workload cost analysis — token economics, model efficiency, and cost allocation for Azure OpenAI |
 | `Semiannual` | `finops-practitioner` | January 5 and July 5 at 9:00 AM<br>`0 9 5 1,7 *` | Semiannual year-over-year finance analysis with forecast and CFO consultation |
@@ -70,7 +72,7 @@ Quarterly tasks run at the start of each calendar quarter to summarize capacity-
 
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
-| `CapacityQuarterlyStrategy` | `azure-capacity-manager` | Quarterly on January 1, April 1, July 1, and October 1 at 9:00 AM<br>`0 9 1 1,4,7,10 *` | Quarterly capacity strategy review — FinOps capability maturity, commitment alignment, architecture evolution |
+| `CapacityQuarterlyStrategy` | `finops-practitioner` | Quarterly on January 1, April 1, July 1, and October 1 at 9:00 AM<br>`0 9 1 1,4,7,10 *` | Quarterly capacity strategy review — FinOps capability maturity, commitment alignment, architecture evolution |
 
 <br>
 

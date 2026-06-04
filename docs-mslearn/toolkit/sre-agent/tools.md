@@ -3,7 +3,7 @@ title: Tools shipped for Azure SRE Agent in the FinOps toolkit
 description: Review the Kusto and Python tools the FinOps toolkit ships for Azure SRE Agent for cost analysis, anomaly detection, rate optimization, capacity management, and operations.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/03/2026
+ms.date: 06/04/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -58,7 +58,7 @@ Cost analysis and reporting tools summarize FinOps hub cost data by service, reg
 
 ## FinOps KPI scorecard
 
-FinOps KPI scorecard tools are generated from [`src/queries/catalog`](../../../src/queries/catalog/) and map directly to query links in [`src/queries/KPI.md`](../../../src/queries/KPI.md). Scheduled monthly, semiannual, health, anomaly, capacity, storage, monitoring, and benefit-review tasks request these tools through `ftk-database-query`.
+FinOps KPI scorecard tools are generated from [`src/queries/catalog`](https://github.com/microsoft/finops-toolkit/tree/main/src/queries/catalog/) and map directly to query links in [`src/queries/KPI.md`](https://github.com/microsoft/finops-toolkit/tree/main/src/queries/KPI.md). Scheduled monthly, semiannual, health, anomaly, capacity, storage, monitoring, and benefit-review tasks request these tools through `ftk-database-query`.
 
 | Tool | Type | Description | Agents |
 |------|------|-------------|--------|

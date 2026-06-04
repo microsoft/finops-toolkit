@@ -3,7 +3,7 @@ title: Security and permissions for Azure SRE Agent in the FinOps toolkit
 description: Review the permissions, identities, run modes, and data flows the FinOps toolkit configures on Azure SRE Agent before you deploy it in your environment.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/03/2026
+ms.date: 06/04/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
