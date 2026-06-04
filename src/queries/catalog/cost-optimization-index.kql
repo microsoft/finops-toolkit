@@ -31,7 +31,7 @@
 //   recommendations are point-in-time optimization snapshots, not dated events, so we aggregate the entire current
 //   recommendation set and compare against the windowed Cost amortization. Filtering Recommendations() by a date
 //   column would silently drop all unstamped rows (false COIN=100). Cost denominator remains windowed.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (COIN≈97.66 with $18,976.30 reservation-recommendation savings opportunity captured after time-grain fix)
+// Last Tested: 2026-05-28 against a FinOps Hub ADX cluster (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned (COIN≈97.66 with 18,976.30 reservation-recommendation savings opportunity in the hub billing currency, captured after time-grain fix)
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

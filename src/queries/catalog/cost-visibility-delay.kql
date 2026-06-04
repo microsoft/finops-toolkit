@@ -27,13 +27,14 @@
 //   BillingCurrency is listed in the spec inputs but omitted from the required output grouping, so results aggregate by BillingAccountId and ReportingMonth only.
 //   Negative delays are retained to surface anomalies where ingestion precedes ChargePeriodEnd, and legacy hubs with NULL x_IngestionTime return no rows after filtering.
 //   This KPI is satisfied entirely from Costs() with no cross-table joins and no commitment-purchase exclusion.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS_WITH_NOTE — 1 row returned; 11 cols returned (7 spec-required + 4 documented *DelayDays extras per Output header)
+// Last Tested: 2026-05-28 against a FinOps Hub ADX cluster (1,366,763 cost rows in 2026-04 window). UAT result: PASS_WITH_NOTE — 1 row returned; 11 cols returned (7 spec-required + 4 documented *DelayDays extras per Output header)
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());
 Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | where isnotnull(x_IngestionTime)
+| extend BillingAccountId = tolower(BillingAccountId)
 | extend ReportingMonth = startofmonth(ChargePeriodStart)
 | extend DelayHours = todouble((x_IngestionTime - ChargePeriodEnd) / 1h)
 | summarize

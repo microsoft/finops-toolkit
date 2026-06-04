@@ -14,7 +14,7 @@
 // Usage:
 //   Use this query to measure the average amortized storage cost rate per GB-month over a reporting period.
 // Scope Notes: ConsumedQuantity for storage represents GB-months over the billed period (time-weighted average), not point-in-time GB at rest. CostPerGBMonth is a period-average rate.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
+// Last Tested: 2026-05-28 against a FinOps Hub ADX cluster (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

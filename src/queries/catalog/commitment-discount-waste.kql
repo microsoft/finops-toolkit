@@ -33,7 +33,7 @@
 //     the let bindings for rolling windows.
 //   - KPI limitation vs canonical definition: This implementation uses
 //     EffectiveCost as the cost basis for commitment-discount waste analytics.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS_SCHEMA_WITH_DATA_GAP — query executed and returned expected columns; the hub has 0 commitment-discount rows in the test window, so value semantics require re-UAT on a commitment-active hub.
+// Last Tested: 2026-05-28 against a FinOps Hub ADX cluster (1,366,763 cost rows in 2026-04 window). UAT result: PASS_SCHEMA_WITH_DATA_GAP — query executed and returned expected columns; the hub has 0 commitment-discount rows in the test window, so value semantics require re-UAT on a commitment-active hub.
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

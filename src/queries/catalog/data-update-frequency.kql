@@ -16,10 +16,11 @@
 // Scope Notes:
 //   Measures Hub ingestion cadence from x_IngestionTime, not the timing of underlying charges.
 //   Accounts with only one distinct ingestion timestamp return null interval statistics.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
+// Last Tested: 2026-05-28 against a FinOps Hub ADX cluster (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
 // =========================================================================
 Costs()
 | where isnotnull(x_IngestionTime)
+| extend BillingAccountId = tolower(BillingAccountId)
 | summarize by BillingAccountId, x_IngestionTime
 | sort by BillingAccountId asc, x_IngestionTime asc
 | serialize
