@@ -892,6 +892,24 @@ function Invoke-FinOpsMultitool {
         }
         Write-Host ""
     }
+    function Show-PermissionReadout {
+        param(
+            [string]$Fn,
+            [hashtable]$PermissionInfo,
+            [string]$Activity
+        )
+        $pInfo = if ($PermissionInfo -and $PermissionInfo.ContainsKey($Fn)) { $PermissionInfo[$Fn] } else { $null }
+        $what = if ($Activity) { " reading $Activity" } else { '' }
+        Write-Host "    [!] ACCESS DENIED$what (the API returned access denied, not empty results)." -ForegroundColor Red
+        if ($pInfo) {
+            Write-Host "    Required role:  $($pInfo.Role)" -ForegroundColor Yellow
+            Write-Host "    Scope:          $($pInfo.Scope)" -ForegroundColor Yellow
+            Write-Host "    API:            $($pInfo.API)" -ForegroundColor DarkGray
+            Write-Host "    $($pInfo.Reason)" -ForegroundColor DarkGray
+            Write-Host "    Ask a billing or subscription admin to assign the matching role, then re-scan." -ForegroundColor DarkGray
+        }
+    }
+
     function Show-ResultsSummary {
         param(
             [hashtable]$Results,
@@ -1032,6 +1050,10 @@ function Invoke-FinOpsMultitool {
                     $cols = @('Type', 'Name', 'ResourceGroup', 'Size', 'License')
                 }
                 'Get-ReservationAdvice' {
+                    if ($data.AccessDenied) {
+                        Show-PermissionReadout -Fn 'Get-ReservationAdvice' -PermissionInfo $permissionInfo -Activity 'Advisor / reservation recommendations'
+                    }
+                    else {
                     $rows = $data.AdvisorRecommendations | ForEach-Object {
                         $resLabel = if ($_.Subscription -and $_.Subscription -ne $_.SubscriptionId) { $_.Subscription }
                         elseif ($_.Solution) { $_.Solution.Substring(0, [math]::Min(50, $_.Solution.Length)) }
@@ -1048,6 +1070,7 @@ function Invoke-FinOpsMultitool {
                     if ($data.EstimatedAnnualSavings) {
                         Write-ColorizedLine -Text "    Est. annual savings: $($data.EstimatedAnnualSavings.ToString('C0'))" -DefaultColor 'White'
                     }
+                    }
                 }
                 'Get-CommitmentUtilization' {
                     if ($data.HasData) {
@@ -1056,6 +1079,9 @@ function Invoke-FinOpsMultitool {
                             [PSCustomObject]@{ SKU = $_.SkuName; Kind = $_.Kind; AvgUtil = "$($_.AvgUtilization)%"; MinUtil = "$($_.MinUtilization)%" }
                         }
                         $cols = @('SKU', 'Kind', 'AvgUtil', 'MinUtil')
+                    }
+                    elseif ($data.AccessDenied) {
+                        Show-PermissionReadout -Fn 'Get-CommitmentUtilization' -PermissionInfo $permissionInfo -Activity 'reservation / savings plan utilization'
                     }
                     else {
                         Write-Host "    No active reservations or savings plans found." -ForegroundColor DarkGray
@@ -1646,9 +1672,17 @@ function Invoke-FinOpsMultitool {
                         }
                     }
                     else {
-                        $guidanceItems = @(
-                            @{ Severity = 'Green'; Message = "No reservation recommendations. Current commitment coverage appears sufficient." }
-                        )
+                        if ($data.AccessDenied) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Red'; Message = "Access denied reading Advisor / reservation recommendations — results are blocked, not empty." }
+                                @{ Severity = 'Yellow'; Message = "Required role: $($permissionInfo['Get-ReservationAdvice'].Role) at $($permissionInfo['Get-ReservationAdvice'].Scope) scope. Ask a billing/subscription admin to assign it, then re-scan."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations' }
+                            )
+                        }
+                        else {
+                            $guidanceItems = @(
+                                @{ Severity = 'Green'; Message = "No reservation recommendations. Current commitment coverage appears sufficient." }
+                            )
+                        }
                     }
                 }
                 'Get-CommitmentUtilization' {
@@ -1675,6 +1709,12 @@ function Invoke-FinOpsMultitool {
                                 @{ Severity = 'Green'; Message = "Commitment utilization is excellent (RI: $($data.RIAvgUtilization)%, SP: $($data.SPAvgUtilization)%). Maximum discount realized." }
                             )
                         }
+                    }
+                    elseif ($data.AccessDenied) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Red'; Message = "Access denied reading reservation / savings plan utilization — results are blocked, not empty." }
+                            @{ Severity = 'Yellow'; Message = "Required role: $($permissionInfo['Get-CommitmentUtilization'].Role) at $($permissionInfo['Get-CommitmentUtilization'].Scope) scope. Ask a billing/subscription admin to assign it, then re-scan."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/manage-reserved-vm-instance' }
+                        )
                     }
                 }
                 'Get-SavingsRealized' {

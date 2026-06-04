@@ -20,6 +20,10 @@ function Get-ReservationAdvice {
 
     $allRecommendations = [System.Collections.Generic.List[PSCustomObject]]::new()
 
+    # Set to $true if an Advisor or reservation-recommendation query is
+    # forbidden (401/403) rather than simply returning no recommendations.
+    $accessDenied = $false
+
     # Build subscription ID list and name lookup
     $subIds = @($Subscriptions | ForEach-Object { $_.Id })
     $subNameMap = @{}
@@ -84,7 +88,10 @@ advisorresources
             try {
                 $advPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Advisor/recommendations?api-version=2023-01-01&`$filter=Category eq 'Cost'"
                 $advResp = Invoke-AzRestMethodWithRetry -Path $advPath -Method GET
-                if ($advResp.StatusCode -ne 200) { continue }
+                if ($advResp.StatusCode -ne 200) {
+                    if ($advResp.StatusCode -in @(401, 403)) { $accessDenied = $true }
+                    continue
+                }
                 $advResult = ($advResp.Content | ConvertFrom-Json)
 
                 $riRecs = $advResult.value | Where-Object {
@@ -112,6 +119,7 @@ advisorresources
                     })
                 }
             } catch {
+                if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
                 Write-Warning "  Advisor query failed for $($sub.Name): $($_.Exception.Message)"
             }
         }
@@ -122,6 +130,7 @@ advisorresources
     try {
         $rrPath = "/providers/Microsoft.Consumption/reservationRecommendations?api-version=2023-05-01&`$filter=properties/scope eq 'Shared' and properties/lookBackPeriod eq 'Last30Days'"
         $rrResp = Invoke-AzRestMethodWithRetry -Path $rrPath -Method GET
+        if ($rrResp -and $rrResp.StatusCode -in @(401, 403)) { $accessDenied = $true }
         if (-not $rrResp -or -not $rrResp.Content) { throw "Reservation recommendation API returned no content (HTTP $($rrResp.StatusCode))" }
         $rrResult = ($rrResp.Content | ConvertFrom-Json)
 
@@ -143,6 +152,7 @@ advisorresources
             }
         }
     } catch {
+        if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
         Write-Warning "Reservation recommendation API query failed (non-critical): $($_.Exception.Message)"
     }
 
@@ -150,12 +160,15 @@ advisorresources
     $totalAnnualSavings = ($allRecommendations | Where-Object { $_.AnnualSavings } |
         Measure-Object -Property AnnualSavings -Sum).Sum
 
+    $denied = ($accessDenied -and $allRecommendations.Count -eq 0 -and $reservationRecs.Count -eq 0)
+
     return [PSCustomObject]@{
         AdvisorRecommendations    = $allRecommendations
         ReservationRecommendations = $reservationRecs
         TotalAdvisorCount         = $allRecommendations.Count
         TotalReservationCount     = $reservationRecs.Count
         EstimatedAnnualSavings    = [math]::Round($totalAnnualSavings, 2)
+        AccessDenied              = $denied
         Summary                   = "$($allRecommendations.Count) Advisor + $($reservationRecs.Count) reservation recommendations"
     }
 }

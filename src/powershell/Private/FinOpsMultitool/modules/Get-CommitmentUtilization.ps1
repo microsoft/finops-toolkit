@@ -23,6 +23,10 @@ function Get-CommitmentUtilization {
     $savingsPlans = @()
     $subIds = $Subscriptions | ForEach-Object { $_.Id }
 
+    # Set to $true if a reservation/savings-plan query is forbidden (401/403)
+    # rather than simply returning no commitments.
+    $accessDenied = $false
+
     # -- Step 0 (MCA/MPA): Resolve billing profiles for this tenant -----
     # Under MCA, reservations and savings plans are scoped to the billing
     # profile, NOT the subscription.  Subscription-level Consumption API
@@ -105,7 +109,9 @@ function Get-CommitmentUtilization {
                         }
                     }
                 }
+                elseif ($resp.StatusCode -in @(401, 403)) { $accessDenied = $true }
             } catch {
+                if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
                 Write-Warning "  Reservation query at billing profile scope failed: $($_.Exception.Message)"
             }
         }
@@ -137,7 +143,9 @@ function Get-CommitmentUtilization {
                     break  # Got data from one sub, don't repeat
                 }
             }
+            elseif ($resp.StatusCode -in @(401, 403)) { $accessDenied = $true }
         } catch {
+            if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
             Write-Warning "  Reservation summaries query failed: $($_.Exception.Message)"
         }
     }
@@ -183,7 +191,9 @@ function Get-CommitmentUtilization {
                     }
                 }
             }
+            elseif ($resp.StatusCode -in @(401, 403)) { $accessDenied = $true }
         } catch {
+            if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
             Write-Warning "  Reservation orders query failed: $($_.Exception.Message)"
         }
     }
@@ -211,7 +221,9 @@ function Get-CommitmentUtilization {
                         }
                     }
                 }
+                elseif ($spResp.StatusCode -in @(401, 403)) { $accessDenied = $true }
             } catch {
+                if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
                 Write-Warning "  Savings plan query at billing profile scope failed: $($_.Exception.Message)"
             }
         }
@@ -240,8 +252,10 @@ function Get-CommitmentUtilization {
                     if ($savingsPlans.Count -gt 0) { break }
                 }
             }
+            elseif ($spResp.StatusCode -in @(401, 403)) { $accessDenied = $true }
             }
         } catch {
+            if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
             Write-Warning "  Savings plan utilization query failed: $($_.Exception.Message)"
         }
     }
@@ -270,5 +284,6 @@ function Get-CommitmentUtilization {
         SPAvgUtilization  = $spAvgUtil
         UnderutilizedRIs  = $underutilized
         HasData           = ($riCount -gt 0 -or $spCount -gt 0)
+        AccessDenied      = ($accessDenied -and $riCount -eq 0 -and $spCount -eq 0)
     }
 }
