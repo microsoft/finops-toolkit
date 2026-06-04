@@ -38,11 +38,21 @@ jobs:
           echo "Updating ms.date to: $CURRENT_DATE"
           echo "Comparing article body changes against: $BASE_SHA"
 
+          # Strip YAML frontmatter and tooling-only ignore directives so they
+          # are not counted as article body changes. Keep this aligned with
+          # Get-DocsArticleBody in src/scripts/Publish-Toolkit.ps1.
           strip_frontmatter() {
             awk '
               NR == 1 && $0 == "---" { in_frontmatter = 1; next }
               in_frontmatter && $0 == "---" { in_frontmatter = 0; next }
-              !in_frontmatter { print }
+              !in_frontmatter {
+                trimmed = $0
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", trimmed)
+                if (trimmed == "<!-- markdownlint-disable-next-line MD025 -->" ||
+                    trimmed == "<!-- prettier-ignore-start -->" ||
+                    trimmed == "<!-- prettier-ignore-end -->") next
+                print
+              }
             '
           }
 

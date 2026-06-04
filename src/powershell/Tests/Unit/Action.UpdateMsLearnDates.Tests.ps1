@@ -89,6 +89,12 @@ Describe 'update-mslearn-dates GitHub Action' {
             $workflowContent | Should -Match 'No article body changes found, skipping'
         }
 
+        It 'Should ignore markdownlint and prettier directives in body comparison' {
+            $workflowContent | Should -Match 'markdownlint-disable-next-line MD025'
+            $workflowContent | Should -Match 'prettier-ignore-start'
+            $workflowContent | Should -Match 'prettier-ignore-end'
+        }
+
         It 'Should compare article body content before updating ms.date' {
             $workflowContent | Should -Match 'cmp -s'
             $workflowContent | Should -Match 'has_content_changes "\$file"'

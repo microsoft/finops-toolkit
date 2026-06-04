@@ -226,6 +226,11 @@ function Get-DocsArticleBody([string]$content)
         }
     }
 
+    if ($start -ge $lines.Count)
+    {
+        return ""
+    }
+
     $ignoreLines = @(
         "<!-- markdownlint-disable-next-line MD025 -->",
         "<!-- prettier-ignore-start -->",
@@ -242,29 +247,35 @@ function Get-DocsArticleBody([string]$content)
 function Remove-DocsMetadataOnlyChanges([string]$docsPath)
 {
     Push-Location
-    Set-Location $docsPath
-    $repoRoot = git rev-parse --show-toplevel
-    Set-Location $repoRoot
+    try
+    {
+        Set-Location $docsPath
+        $repoRoot = git rev-parse --show-toplevel
+        Set-Location $repoRoot
 
-    Get-ChildItem $docsPath -Recurse -Filter "*.md" | ForEach-Object {
-        $repoFile = [System.IO.Path]::GetRelativePath($repoRoot, $_.FullName).Replace("\", "/")
-        git cat-file -e "HEAD:$repoFile" 2>$null
+        Get-ChildItem $docsPath -Recurse -Filter "*.md" | ForEach-Object {
+            $repoFile = [System.IO.Path]::GetRelativePath($repoRoot, $_.FullName).Replace("\", "/")
+            git cat-file -e "HEAD:$repoFile" 2>$null
 
-        if ($LASTEXITCODE -ne 0)
-        {
-            return
-        }
+            # return in ForEach-Object skips the current pipeline item (per-iteration), not the enclosing function.
+            if ($LASTEXITCODE -ne 0)
+            {
+                return
+            }
 
-        $previousContent = [string]::Join("`n", (git show "HEAD:$repoFile"))
-        $currentContent = Get-Content $_.FullName -Raw
+            $previousContent = [string]::Join("`n", (git show "HEAD:$repoFile"))
+            $currentContent = Get-Content $_.FullName -Raw
 
-        if ((Get-DocsArticleBody $previousContent) -eq (Get-DocsArticleBody $currentContent))
-        {
-            git restore --source HEAD -- $repoFile
+            if ((Get-DocsArticleBody $previousContent) -eq (Get-DocsArticleBody $currentContent))
+            {
+                git restore --source HEAD -- $repoFile
+            }
         }
     }
-
-    Pop-Location
+    finally
+    {
+        Pop-Location
+    }
 }
 
 # Get version for branch name and commit message
