@@ -2,11 +2,11 @@
 
 ## P0 Git Safety Rule
 
-AI agents must never directly mutate `main` or `dev` in this repository or in any submodule. This includes direct commits, pushes, merges, reverts, cherry-picks, resets, branch updates, or any refspec that targets `main` or `dev`.
+AI agents must never directly mutate `main`, `dev`, or any other protected ref in this repository or in any submodule. Protected refs include protected branches, protected tags, and any ref covered by a branch protection rule or ruleset. This includes direct commits, pushes, merges, reverts, cherry-picks, resets, branch updates, tag creation, tag deletion, tag force-updates, or any refspec that targets a protected ref.
 
-AI agents must never run `git push origin HEAD:main`, `git push origin HEAD:dev`, `git push origin <anything>:main`, `git push origin <anything>:dev`, or equivalent commands against any remote.
+AI agents must never run `git push origin HEAD:main`, `git push origin HEAD:dev`, `git push origin <anything>:main`, `git push origin <anything>:dev`, `git push --tags`, `git push --follow-tags`, `git push --all`, `git push --mirror`, or equivalent commands against any remote.
 
-AI agents must never use privileged credentials, maintainer permissions, administrator permissions, branch-protection bypass permissions, ruleset bypass permissions, or GitHub's "bypass rule violations" path to update a protected branch.
+AI agents must never use privileged credentials, maintainer permissions, administrator permissions, branch-protection bypass permissions, ruleset bypass permissions, or GitHub's "bypass rule violations" path to update a protected ref.
 
 If GitHub reports that a push would "bypass rule violations" or that "changes must be made through a pull request", the agent must stop immediately and report a P0 policy violation unless the known PR branch rule false positive below applies. Do not attempt a workaround.
 
@@ -17,14 +17,20 @@ This repository currently has misconfigured branch rules that can report "Bypass
 - The target ref is the current PR branch under `refs/heads/features/`.
 - The branch has an open pull request targeting `dev`.
 - The command is a standard non-force push to that same feature branch.
-- No refspec targets `main`, `dev`, or any other protected branch.
+- The push updates exactly one remote ref: `refs/heads/features/<current-pr-branch>`. The command must not include `--all`, `--mirror`, `--tags`, `--follow-tags`, delete refspecs, wildcard refspecs, or any additional refspec.
+- No refspec targets `main`, `dev`, or any other protected ref.
+- The commits being pushed originated on this feature branch or were authored via a normal merge from `dev`. Cherry-picks from `main` or any other protected ref are not permitted under this carve-out.
 - No privileged credentials, administrator bypass, branch-protection bypass, or ruleset-bypass path is being used.
 
 If any condition is not verified, stop immediately and report a P0 policy violation.
 
-The only allowed path for changes intended for `main` or `dev` is: create or update a feature branch, push only that feature branch after explicit approval, and open a pull request. Humans and required repository automation own protected-branch integration.
+The only allowed path for changes intended for `main` or `dev` is: create or update a feature branch, push only that feature branch after explicit approval, and open a pull request. Humans and required repository automation own protected-ref integration.
 
-Reverting, remediating, or "cleaning up" an unauthorized protected-branch change is also a protected-branch mutation. AI agents must not do it without explicit user approval for the exact branch, commit, and command.
+Reverting, remediating, or "cleaning up" an unauthorized protected-ref change is itself a protected-ref mutation. AI agents must not perform it directly, even with user approval. The agent must stop and ask a human maintainer to remediate via the repository's protected-branch process or an approved pull request.
+
+### Indirect protected-ref mutation
+
+AI agents must not create or modify repository automation, GitHub Actions workflows, workflow permissions, `CODEOWNERS`, branch or ruleset configuration, release scripts, deploy keys, or credential handling in ways that could enable automated writes to protected refs without explicit user approval that names those files and the intended protected-ref behavior. This applies to changes made on feature branches as well, because such changes take effect on protected refs after merge.
 
 This file provides guidance to AI Agents when working with code in this repository.
 
@@ -195,13 +201,13 @@ The PowerShell-based build system:
 
 This repository supports production infrastructure managing significant revenue. All git operations must be non-destructive and preserve full commit history.
 
-The P0 Git Safety Rule at the top of this file is authoritative and overrides every permitted operation listed below.
+The P0 Git Safety Rule at the top of this file is authoritative and overrides every permitted operation listed below. Every permitted git write operation below still requires explicit approval that names the specific git action, per the approval rule at the end of this section.
 
 **Permitted operations:**
 
 - `git add`, `git commit`, `git push` on non-protected feature branches only (standard push only, after explicit approval)
 - `git merge` into non-protected feature branches only (merge commits to integrate from `dev` — the only permitted way to sync with `dev` or resolve conflicts, after explicit approval)
-- `git checkout`, `git switch`, `git branch` (branch creation and switching; do not switch to `main` or `dev` for mutable agent work)
+- `git checkout`, `git switch`, `git branch` (branch creation and switching; do not check out or switch to `main` or `dev` except for read-only inspection — while on `main` or `dev`, agents may run only read-only git commands and must not run commands that modify the worktree, index, commits, refs, generated files, or submodules)
 - `git worktree add`, `git worktree remove`, `git worktree prune` (worktree lifecycle)
 - `git fetch`, `git pull` on non-protected feature branches only (with merge, not rebase)
 - `git stash`, `git stash pop` (temporary local state management)
@@ -209,9 +215,10 @@ The P0 Git Safety Rule at the top of this file is authoritative and overrides ev
 
 **Prohibited operations:**
 
-- Any direct mutation of `main` or `dev`, including direct pushes, commits, merges, reverts, or branch ref updates.
-- Any use of protected branch, ruleset, or administrator bypass capabilities to update `main` or `dev`.
+- Any direct mutation of `main`, `dev`, or any other protected ref, including direct pushes, commits, merges, reverts, branch ref updates, tag creation, tag deletion, or tag force-updates.
+- Any use of protected branch, ruleset, or administrator bypass capabilities to update a protected ref.
 - Any attempt to land changes on `main` or `dev` without a pull request.
+- `git push --tags`, `git push --follow-tags`, `git push --all`, `git push --mirror`, multi-ref push commands, or any push refspec other than a single non-protected feature branch.
 - `git rebase` — rewrites commit history. Never permitted on shared branches. Not permitted as a conflict resolution strategy.
 - `git push --force` / `git push --force-with-lease` — destructive remote update. Never permitted.
 - `git reset --hard` to a state behind the remote (discarding pushed commits)
