@@ -33,7 +33,7 @@ This is an iterative, cumulative workflow. Each run builds on previous runs — 
 11. Use autonomous batch processing to handle large datasets efficiently.
 12. Save your work as you go to `ftk/results/[environment-name]-report-[date].md` to avoid lost work.
 13. Investigate suspicious workload patterns using `ftk/knowledge/analysis/finops-hubs.md` and the relevant `ftk/knowledge/azure/` references for anomaly, budget, and optimization context.
-14. Leave no stone unturned. Explore the data. Look for more than just the usual suspects.
+14. Explore material patterns beyond the obvious cost drivers, then summarize findings and stop when the report is complete or blocked.
 
 **Checkpoint:** Update the report and summarize key findings so far before moving to reflection.
 

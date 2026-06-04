@@ -79,17 +79,32 @@ if ($update -or $Version)
 {
     # Update version in NPM
     Write-Verbose "Updating NPM version..."
-    $null = npm --no-git-tag-version version $update
-
-    # Update label, if needed
-    if ($Label)
+    $packageJsonPath = Join-Path $PSScriptRoot '../../package.json'
+    if ($Label -and ($update -in @('major', 'minor', 'patch')))
     {
+        $packageJson = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
+        $baseVersion = $packageJson.version -replace '-.*$', ''
+        $null = npm --no-git-tag-version --allow-same-version version $baseVersion
+        $null = npm --no-git-tag-version version $update
         $newLabel = $Label.ToLower() -replace '[^a-z]', ''
         Write-Verbose "Using label '$newLabel'."
-        $packageJsonPath = Join-Path $PSScriptRoot '../../package.json'
         $packageJson = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
         $baseVersion = $packageJson.version -replace '-.*$', ''
         $null = npm --no-git-tag-version version "$baseVersion-$newLabel.0"
+    }
+    else
+    {
+        $null = npm --no-git-tag-version version $update
+
+        # Update label, if needed
+        if ($Label)
+        {
+            $newLabel = $Label.ToLower() -replace '[^a-z]', ''
+            Write-Verbose "Using label '$newLabel'."
+            $packageJson = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
+            $baseVersion = $packageJson.version -replace '-.*$', ''
+            $null = npm --no-git-tag-version version "$baseVersion-$newLabel.0"
+        }
     }
 }
 

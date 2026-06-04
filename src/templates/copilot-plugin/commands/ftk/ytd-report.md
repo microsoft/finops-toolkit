@@ -47,7 +47,7 @@ The `ftk/knowledge/` directory contains:
 12. Use autonomous batch processing to handle large datasets efficiently.
 13. Save your work opportunistically to `ftk/results/[environment-name]-report-[date].md` to avoid lost work.
 14. Investigate suspicious workload patterns using guidance from `ftk/knowledge/analysis/` and the relevant `ftk/knowledge/azure/` references for anomaly, governance, and optimization signals.
-15. Leave no stone unturned. Explore the data. Look for more than just the usual suspects.
+15. Explore material patterns beyond the obvious cost drivers, then summarize findings and stop when the report is complete or blocked.
 
 **Checkpoint:** Update the report with year-to-date findings, forecast drivers, and unresolved questions before reflection.
 
