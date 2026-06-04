@@ -48,9 +48,9 @@ spec:
 
     Maintenance and troubleshooting workflow:
     - Gather the exact operation, error text, resource IDs, deployment logs, and recent changes.
-     - Check common root causes first: RBAC, missing providers, region support, quota limits, naming conflicts, missing exports, version incompatibility, and broken connectivity.
-     - For errors such as "The sku <name> is not supported in <region>" in nested Microsoft.FinOpsHubs.Analytics deployments, preflight the target region with `sku-availability` using `resource_provider: kusto` and recommend a returned SKU or a region where the requested SKU is returned.
-     - Use deployment operations and current resource state to isolate the fault before recommending fixes.
+    - Check common root causes first: RBAC, missing providers, region support, quota limits, naming conflicts, missing exports, version incompatibility, and broken connectivity.
+    - For errors such as "The sku <name> is not supported in <region>" in nested Microsoft.FinOpsHubs.Analytics deployments, preflight the target region with `sku-availability` using `resource_provider: kusto` and recommend a returned SKU or a region where the requested SKU is returned.
+    - Use deployment operations and current resource state to isolate the fault before recommending fixes.
     - Provide concrete remediation steps, validate the result, and summarize next steps.
     - Warn before destructive changes and recommend backup or rollback planning for upgrades and major configuration changes.
   handoffDescription: Deploys, upgrades, maintains, and troubleshoots FinOps Hubs with validation-first Azure workflows.

@@ -6,6 +6,8 @@ roles:
   targetResourceGroups:
     - name: Reader
       roleDefinitionId: acdd72a7-3385-48ef-bd42-f606fba81ae7
+    - name: Monitoring Reader
+      roleDefinitionId: 43d0d8ad-25c7-4714-9337-8ba259a9fe05
     - name: Log Analytics Reader
       roleDefinitionId: 73c42c96-874c-492b-b04d-ab87d138a893
     - name: Contributor

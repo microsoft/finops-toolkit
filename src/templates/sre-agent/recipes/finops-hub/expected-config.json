@@ -1,7 +1,7 @@
 {
   "agent": {
     "accessLevel": "High",
-    "actionMode": "autonomous",
+    "actionMode": "Autonomous",
     "upgradeChannel": "Preview",
     "defaultModelProvider": "MicrosoftFoundry",
     "experimentalSettings": [

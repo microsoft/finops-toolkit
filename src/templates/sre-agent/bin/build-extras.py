@@ -208,6 +208,20 @@ def catalog_kpi_tool_names(recipe_dir: pathlib.Path) -> set[str]:
 
 
 def validate_tool_and_task_coverage(recipe_dir: pathlib.Path, extras: JsonObject) -> None:
+    expected_config = load_json(recipe_dir / "expected-config.json", {})
+    if not isinstance(expected_config, dict):
+        raise SystemExit(f"Expected config must be an object: {recipe_dir / 'expected-config.json'}")
+
+    expected_skills = sorted(str(name) for name in expected_config.get("skills") or [])
+    if expected_skills:
+        skill_names = {metadata_name(skill) for skill in extras.get("skills") or []}
+        missing_skills = [name for name in expected_skills if name not in skill_names]
+        if missing_skills:
+            raise SystemExit(
+                "Expected skill directory missing SKILL.md or has a broken symlink: "
+                + ", ".join(missing_skills)
+            )
+
     catalog_dir = (recipe_dir / "../../../../queries/catalog").resolve()
     catalog_names = {path.stem for path in catalog_dir.glob("*.kql")}
     tools = extras.get("tools") or []
