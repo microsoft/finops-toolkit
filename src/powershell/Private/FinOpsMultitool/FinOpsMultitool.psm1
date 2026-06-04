@@ -43,6 +43,7 @@ $helpersPath = Join-Path $PSScriptRoot 'modules\helpers'
 . (Join-Path $helpersPath 'Search-AzGraphSafe.ps1')
 . (Join-Path $helpersPath 'MgCostScope.ps1')
 . (Join-Path $helpersPath 'Read-FinOpsHubData.ps1')
+. (Join-Path $helpersPath 'Get-CostExport.ps1')
 . (Join-Path $helpersPath 'Resolve-CostDataSource.ps1')
 
 # -- Set script-scope root (some modules reference $script:ScriptRootDir) -
@@ -77,6 +78,11 @@ $modulePath = Join-Path $PSScriptRoot 'modules'
 . (Join-Path $modulePath 'Get-IdleVMs.ps1')
 . (Join-Path $modulePath 'Get-LegacyResources.ps1')
 . (Join-Path $modulePath 'Get-UnitEconomics.ps1')
+. (Join-Path $modulePath 'Get-VmCostBreakdown.ps1')
+. (Join-Path $modulePath 'Get-SharedCostAllocation.ps1')
+. (Join-Path $modulePath 'Set-CostAllocationRule.ps1')
+. (Join-Path $modulePath 'Get-BillingAccount.ps1')
+. (Join-Path $modulePath 'Get-UsageProportionalAllocation.ps1')
 . (Join-Path $modulePath 'Get-AIWorkloadMetrics.ps1')
 . (Join-Path $modulePath 'Get-CarbonMetrics.ps1')
 . (Join-Path $modulePath 'New-PowerBITemplate.ps1')

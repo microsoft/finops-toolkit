@@ -194,7 +194,7 @@ $toolDefinitions = @(
             properties = @{
                 subscriptionId  = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
                 subscriptionIds = @{ type = 'array'; items = @{ type = 'string' }; description = 'Subset of subscription IDs to scan (for chunked progress). Overrides subscriptionId when provided.' }
-                dataSource      = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read cost data. 'auto' (default) uses the hub export when it fully covers scope, else the live API. 'hub' forces the export. 'api' forces the live Cost Management API." }
+                dataSource      = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read cost data. 'auto' (default) uses a FinOps Hub or Cost Management export when it covers scope, else the live API. 'hub' forces the export fast path. 'api' forces the live Cost Management API." }
             }
         }
     }
@@ -208,7 +208,7 @@ $toolDefinitions = @(
             properties = @{
                 subscriptionId  = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
                 subscriptionIds = @{ type = 'array'; items = @{ type = 'string' }; description = 'Subset of subscription IDs to scan (for chunked progress). Overrides subscriptionId when provided.' }
-                dataSource      = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read cost data. 'auto' (default) uses the hub export when it fully covers scope, else the live API. 'hub' forces the export. 'api' forces the live Cost Management API." }
+                dataSource      = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read cost data. 'auto' (default) uses a FinOps Hub or Cost Management export when it covers scope, else the live API. 'hub' forces the export fast path. 'api' forces the live Cost Management API." }
             }
         }
     }
@@ -223,7 +223,7 @@ $toolDefinitions = @(
             properties = @{
                 subscriptionId  = @{ type = 'string'; description = 'Target subscription ID. If omitted, queries all accessible subscriptions.' }
                 subscriptionIds = @{ type = 'array'; items = @{ type = 'string' }; description = 'Subset of subscription IDs to scan (for chunked progress). Overrides subscriptionId when provided.' }
-                dataSource      = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read cost data. 'auto' (default) uses the hub export when it fully covers scope, else the live API. 'hub' forces the export. 'api' forces the live Cost Management API." }
+                dataSource      = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read cost data. 'auto' (default) uses a FinOps Hub or Cost Management export when it covers scope, else the live API. 'hub' forces the export fast path. 'api' forces the live Cost Management API." }
             }
         }
     }
@@ -338,6 +338,99 @@ $toolDefinitions = @(
         }
     }
     @{
+        name        = 'scan_vm_cost_breakdown'
+        description = "Decompose ONE virtual machine's full solution cost (month-to-date) into meter components - compute, OS/data disks, network egress, network infra (public IP/NIC), backup/recovery, security (Defender), monitoring/extension agents, and licensing - instead of a single rolled-up number. Resolves the VM and its associated billable resources from Azure Resource Graph, then attributes cost per meter. Uses the FinOps Hub export when available (exact egress GB); otherwise the live Cost Management API. Provide vmName (optionally resourceGroup) or a full resourceId."
+        fn          = 'Get-VmCostBreakdown'
+        category    = 'Cost Analysis'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                vmName         = @{ type = 'string'; description = 'Name of the virtual machine to decompose. Use with resourceGroup if the name is not unique.' }
+                resourceId     = @{ type = 'string'; description = 'Full Azure resource ID of the VM. Takes precedence over vmName when supplied.' }
+                resourceGroup  = @{ type = 'string'; description = 'Resource group of the VM (disambiguates a non-unique vmName).' }
+                subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, searches all accessible subscriptions.' }
+                dataSource     = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read cost. 'auto' (default) uses the FinOps Hub export when it covers scope (exact egress GB), else the live Cost Management API. 'hub' forces the export. 'api' forces the live API." }
+            }
+        }
+    }
+    @{
+        name        = 'scan_allocate_shared_cost'
+        description = "Allocate the billed cost of SHARED hub resources (ExpressRoute gateway/circuit, VPN gateway, Azure Firewall, shared bandwidth) across the spoke subscriptions that use them, and report each spoke's full solution cost (its own resources + its allocated share). Use this for hub-and-spoke showback. The cost math lives here; the GB/TB transfer split key is supplied as input - an agent can fetch per-spoke transfer from Azure Monitor / Traffic Analytics (e.g. via the Azure MCP server) and pass it as weightingValues, or fall back to a proxy (resourceCount/equal). Each shared pool is split into a fixed part (shared evenly) and a variable part (by transfer weight). Provide sharedResourceIds or sharedResourceGroup, plus the spoke subscription IDs."
+        fn          = 'Get-SharedCostAllocation'
+        category    = 'Cost Analysis'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                sharedResourceIds   = @{ type = 'array'; items = @{ type = 'string' }; description = 'Full resource IDs of the shared hub resources to allocate (e.g. the ExpressRoute gateway, firewall). Either this or sharedResourceGroup is required.' }
+                sharedResourceGroup = @{ type = 'string'; description = 'Resource group holding the shared resources. Used when sharedResourceIds is not supplied.' }
+                spokes              = @{ type = 'array'; items = @{ type = 'string' }; description = 'Subscription IDs of the spokes that share the hub resources. Required.' }
+                weightingMethod     = @{ type = 'string'; enum = @('inline', 'trafficAnalytics', 'equal', 'resourceCount'); description = "How to weight the variable split. 'inline' (default) uses weightingValues (exact GB/TB per spoke). 'trafficAnalytics' queries a Log Analytics workspace (workspaceId) for measured GB per spoke - exact, end-to-end, no manual feed. 'equal' splits evenly. 'resourceCount' uses billable resource count per spoke as a proxy estimate." }
+                weightingValues     = @{ type = 'object'; description = "Map of spoke subscription id -> transfer amount (e.g. GB). Used when weightingMethod is 'inline'. Typically sourced from Traffic Analytics / Azure Monitor." }
+                workspaceId         = @{ type = 'string'; description = "Log Analytics workspace GUID (customer id). Required when weightingMethod is 'trafficAnalytics'. The workspace must have Traffic Analytics / VNet flow logs." }
+                lookbackDays        = @{ type = 'number'; description = "Days of transfer history to read for 'trafficAnalytics' weighting. Default 30." }
+                fixedRatio          = @{ type = 'number'; description = 'Fraction of each shared pool treated as fixed (split evenly) vs variable (split by weight). 0 = all variable, 1 = all fixed. Default 0.5.' }
+                subscriptionId      = @{ type = 'string'; description = 'Optional scope hint for resolving shared resources. If omitted, the spokes and shared resource scope are searched.' }
+                dataSource          = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read cost. 'auto' (default) uses the FinOps Hub export when it covers scope, else the live Cost Management API. 'hub' forces the export. 'api' forces the live API." }
+            }
+        }
+    }
+    @{
+        name        = 'set_cost_allocation_rule'
+        description = "WRITE/MUTATING. Create or update a NATIVE Azure Cost Management cost allocation rule so chargeback reflects a shared-cost split (typically the output of scan_allocate_shared_cost). This CHANGES how cost is charged back across subscriptions and can affect internal billing. It is DRY-RUN by default: without apply=true it returns a preview (the exact PUT URI and request body) and writes NOTHING. ALWAYS show the user the preview and obtain explicit confirmation, THEN call again with apply=true to actually write. Requires an EA enrollment or MCA billing account id and Cost Management Contributor on it. Source is one hub resource group (sourceResourceGroup) or subscription (sourceSubscriptionId); targets are the spoke subscriptions with percentages (auto-normalized to sum 100)."
+        fn          = 'Set-CostAllocationRule'
+        category    = 'Cost Analysis'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                billingAccountId     = @{ type = 'string'; description = 'EA enrollment id or MCA billing account id that scopes the rule. Required.' }
+                ruleName             = @{ type = 'string'; description = "Cost allocation rule name. Letters, digits, '_' and '-' only (max 260 chars). Required." }
+                sourceResourceGroup  = @{ type = 'array'; items = @{ type = 'string' }; description = 'Resource group name(s) holding the shared cost to reallocate (the hub). Provide this OR sourceSubscriptionId.' }
+                sourceSubscriptionId = @{ type = 'array'; items = @{ type = 'string' }; description = 'Subscription id(s) holding the shared cost to reallocate (the hub). Provide this OR sourceResourceGroup.' }
+                targets              = @{ type = 'array'; items = @{ type = 'object' }; description = "Spoke targets. Each item: { subscriptionId, percentage } or { spoke, allocatedShared }. You can pass the Allocations array from scan_allocate_shared_cost (it has Spoke + AllocatedShared) and percentages are derived and normalized to sum 100. Required." }
+                targetDimension      = @{ type = 'string'; enum = @('SubscriptionId', 'ResourceGroupName'); description = "Dimension the targets are keyed by. Default 'SubscriptionId'." }
+                status               = @{ type = 'string'; enum = @('Active', 'NotActive'); description = "Rule status. 'Active' (default) impacts cost allocation; 'NotActive' saves it without applying." }
+                description          = @{ type = 'string'; description = 'Optional rule description.' }
+                apply                = @{ type = 'boolean'; description = 'SAFETY GATE. Default false = dry-run preview (writes nothing). Set true ONLY after the user has reviewed the preview and explicitly approved, to create/update the rule in Azure.' }
+            }
+            required   = @('billingAccountId', 'ruleName', 'targets')
+        }
+    }
+    @{
+        name        = 'scan_billing_account'
+        description = "READ-ONLY. List the Azure billing accounts your identity can see and report, for each, the billing account id (the value set_cost_allocation_rule needs), the agreement type (EA / MCA / CSP / pay-as-you-go), whether it is ELIGIBLE for cost allocation rules (only EA and MCA are), and - by default - whether you can reach the cost allocation rules endpoint there (a 403 means you lack Cost Management Contributor at that scope). Run this before set_cost_allocation_rule to find the right billingAccountId and confirm access. Never writes anything."
+        fn          = 'Get-BillingAccount'
+        category    = 'Cost Analysis'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                billingAccountId = @{ type = 'string'; description = 'Optional. Return only this billing account id instead of all visible ones.' }
+                probeAccess      = @{ type = 'boolean'; description = 'When true (default), probe the cost allocation rules endpoint per eligible account to report read access (a 403 signals missing Cost Management Contributor). Set false to skip the extra calls.' }
+            }
+        }
+    }
+    @{
+        name        = 'scan_usage_allocation'
+        description = "SHOWBACK. Split the billed cost of a SHARED PLATFORM across sub-resource consumers that have NO Azure billing dimension - Kubernetes namespaces (AKS), APIM products/subscriptions (token spend), or Azure OpenAI deployments - by a usage signal read from a Log Analytics workspace. This is the answer to 'we can't get to AKS/APIM token spend easily': there is no native billing line per namespace/token, so it must be telemetry-driven. Pick a preset (aksNamespace = Container Insights CPU/mem; apimTokens = App Insights token metrics; openAiTokens = Azure Monitor Cognitive Services token metrics) or pass a custom weightingQuery returning Consumer + Weight. SHOWBACK ONLY: results are Mode=Showback with empty RuleTargets and CANNOT be written via set_cost_allocation_rule (those consumers are not EA/MCA billing dimensions). Provide the pool via sharedResourceIds/sharedResourceGroup (cost resolved) or poolAmount, plus the workspaceId."
+        fn          = 'Get-UsageProportionalAllocation'
+        category    = 'Cost Analysis'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                preset              = @{ type = 'string'; enum = @('aksNamespace', 'apimTokens', 'openAiTokens', 'custom'); description = "Which shared-platform usage key to use. 'aksNamespace' splits by namespace CPU+memory (Container Insights). 'apimTokens' splits by tokens per APIM consumer (workspace-based App Insights). 'openAiTokens' splits by tokens per Azure OpenAI resource (Azure Monitor metrics). 'custom' requires weightingQuery." }
+                workspaceId         = @{ type = 'string'; description = 'Log Analytics workspace GUID holding the telemetry (Container Insights workspace for AKS; the workspace backing Application Insights for APIM/OpenAI). Required.' }
+                sharedResourceIds   = @{ type = 'array'; items = @{ type = 'string' }; description = 'Resource IDs whose billed cost forms the pool to split (e.g. the AKS cluster / its node pools, the APIM instance, the AOAI resource). Either this or sharedResourceGroup or poolAmount.' }
+                sharedResourceGroup = @{ type = 'string'; description = 'Resource group holding the shared platform; its billed cost forms the pool.' }
+                poolAmount          = @{ type = 'number'; description = 'Explicit pool cost to split instead of resolving resources (e.g. a known PTU monthly cost).' }
+                lookbackDays        = @{ type = 'number'; description = 'Telemetry window in days. Default 30.' }
+                dimensionName       = @{ type = 'string'; description = "Override the consumer dimension. apimTokens defaults to 'Subscription Id'; set e.g. 'API ID' or 'Product Id' to charge by API or product." }
+                weightingQuery      = @{ type = 'string'; description = 'Full KQL override. Must return two columns: Consumer (string) and Weight (number). Required when preset is custom.' }
+                subscriptionId      = @{ type = 'string'; description = 'Optional scope hint for resolving the shared platform resources.' }
+                dataSource          = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = "Where to read the pool cost. 'auto' (default) uses the FinOps Hub export when it covers scope, else the live Cost Management API." }
+            }
+            required   = @('preset', 'workspaceId')
+        }
+    }
+    @{
         name        = 'scan_ai_workloads'
         description = 'Detect AI/LLM workloads (Azure OpenAI, AI Services, Machine Learning, AI Search, GPU VMs) and, only when present, compute AI unit-economics KPIs: month-to-date token consumption (input/output) by model deployment, total Azure OpenAI requests, AI spend, effective cost per 1K tokens, and cost per request. Self-gating - returns quickly when no AI workloads exist. Reads AI spend and billed token volume from the FinOps Hub export when available (no Monitor/Cost Management calls); cost per request is only available on the live API path.'
         fn          = 'Get-AIWorkloadMetrics'
@@ -412,7 +505,7 @@ $toolDefinitions = @(
     }
     @{
         name        = 'detect_cost_data_source'
-        description = 'Decide how cost scans should run BEFORE invoking any cost tool. Detects a FinOps Hub / cost export in scope, checks whether it is readable (with a specific blocker reason if not), reports which subscriptions it covers and how fresh the data is, and estimates how long the live Cost Management API path would take. Call this first for any cost question so the fast export path can be used, or so the user can be warned and asked before a slow API scan.'
+        description = 'Decide how cost scans should run BEFORE invoking any cost tool. Detects a FinOps Hub or any readable Cost Management (CSV) export in scope, checks whether it is readable (with a specific blocker reason if not), reports which subscriptions it covers and how fresh the data is, and estimates how long the live Cost Management API path would take. Call this first for any cost question so the fast export path can be used, or so the user can be warned and asked before a slow API scan.'
         fn          = '_detect_cost_source'
         category    = 'Cost Analysis'
         inputSchema = @{
@@ -432,7 +525,7 @@ $toolDefinitions = @(
             properties = @{
                 subscriptionId = @{ type = 'string'; description = 'Target subscription ID. If omitted, scans all accessible subscriptions.' }
                 modules        = @{ type = 'array'; items = @{ type = 'string' }; description = 'Optional list of module names to include. Omit to run all.' }
-                dataSource     = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = 'Cost-family data source. auto (default) uses the FinOps Hub export only when it fully covers the scope, else the live Cost Management API; hub forces the export; api skips the export. Governance and optimization modules always use live APIs.' }
+                dataSource     = @{ type = 'string'; enum = @('auto', 'hub', 'api'); description = 'Cost-family data source. auto (default) uses a FinOps Hub or Cost Management export when it covers the scope, else the live Cost Management API; hub forces the export fast path; api skips the export. Governance and optimization modules always use live APIs.' }
             }
         }
     }
@@ -560,7 +653,23 @@ function Get-McpHubData {
         }
     }
 
-    $entry = @{ Decision = $decision; Raw = $raw }
+    # No readable hub, but the resolver found a generic Cost Management
+    # export covering the scope — read its CSV data (newest run per sub,
+    # overlapping subs deduped) so the cost tools can serve from it.
+    $exportData = $null
+    if ((-not $raw -or @($raw).Count -eq 0) -and
+        $decision.ExportFound -and
+        $decision.Recommendation -in @('UseExport', 'UseExportPartial') -and
+        (Get-Command Get-MergedCostExportData -ErrorAction SilentlyContinue)) {
+        try {
+            $exportData = Get-MergedCostExportData -Exports $decision.Exports
+        }
+        catch {
+            $exportData = $null
+        }
+    }
+
+    $entry = @{ Decision = $decision; Raw = $raw; ExportData = $exportData }
     $script:McpHubCache[$key] = $entry
     return $entry
 }
@@ -774,10 +883,20 @@ function Invoke-McpTool {
             elseif ($requested -eq 'auto' -and $hubInfo.Decision.Recommendation -eq 'UseHub') { $useHub = $true }
         }
 
-        if ($requested -eq 'hub' -and -not $useHub) {
+        # Generic Cost Management export fast path: no hub, but a readable
+        # CSV export covers the scope. Same data contract as the hub path,
+        # so dataSource=hub also accepts it (it is the materialized fast path).
+        $useExport = $false
+        if (-not $useHub -and $hubInfo -and $hubInfo.ExportData -and @($hubInfo.ExportData.Rows).Count -gt 0) {
+            $rec = $hubInfo.Decision.Recommendation
+            if ($requested -eq 'hub') { $useExport = $true }
+            elseif ($requested -eq 'auto' -and $rec -in @('UseExport', 'UseExportPartial')) { $useExport = $true }
+        }
+
+        if ($requested -eq 'hub' -and -not $useHub -and -not $useExport) {
             $d = if ($hubInfo) { $hubInfo.Decision } else { $null }
-            $reason = if ($d) { "$($d.ReadBlocker): $($d.ReadBlockerDetail)" } else { 'no hub found in scope' }
-            throw "Hub data requested but unavailable ($reason). $($d.RemediationHint)"
+            $reason = if ($d) { "$($d.ReadBlocker): $($d.ReadBlockerDetail)" } else { 'no hub or export found in scope' }
+            throw "Export data requested but unavailable ($reason). $($d.RemediationHint)"
         }
 
         if ($useHub) {
@@ -803,6 +922,27 @@ function Invoke-McpTool {
                 timestamp   = (Get-Date -Format 'o')
             }
         }
+
+        if ($useExport) {
+            $exp = $hubInfo.ExportData
+            $exportResult = switch ($fn) {
+                'Get-CostData' { ConvertTo-CostDataFromExport -ExportData $exp -Subscriptions $subs }
+                'Get-ResourceCosts' { ConvertTo-ResourceCostsFromExport -ExportData $exp -Subscriptions $subs }
+                'Get-CostByTag' { ConvertTo-CostByTagFromExport -ExportData $exp }
+            }
+            return @{
+                tool        = $ToolName
+                module      = $fn
+                category    = $toolDef.category
+                data        = $exportResult
+                source      = 'CostManagementExport'
+                asOf        = $hubInfo.Decision.Freshness
+                coveragePct = $hubInfo.Decision.CoveragePct
+                note        = 'Served from a Cost Management export (billed actuals, CSV). Forecast is a linear month-to-date projection; call with dataSource=api for live forecast.'
+                permission  = if ($permissionMap.ContainsKey($fn)) { $permissionMap[$fn] } else { $null }
+                timestamp   = (Get-Date -Format 'o')
+            }
+        }
         # otherwise fall through to the live Cost Management API path below
     }
 
@@ -815,6 +955,90 @@ function Invoke-McpTool {
     }
     if ($cmdInfo.Parameters.ContainsKey('TenantId') -and $tenantId) {
         $params['TenantId'] = $tenantId
+    }
+
+    # VM cost breakdown target args (scan_vm_cost_breakdown)
+    if ($cmdInfo.Parameters.ContainsKey('VmName') -and $Arguments.vmName) {
+        $params['VmName'] = [string]$Arguments.vmName
+    }
+    if ($cmdInfo.Parameters.ContainsKey('ResourceId') -and $Arguments.resourceId) {
+        $params['ResourceId'] = [string]$Arguments.resourceId
+    }
+    if ($cmdInfo.Parameters.ContainsKey('ResourceGroup') -and $Arguments.resourceGroup) {
+        $params['ResourceGroup'] = [string]$Arguments.resourceGroup
+    }
+
+    # Shared cost allocation args (scan_allocate_shared_cost)
+    if ($cmdInfo.Parameters.ContainsKey('SharedResourceIds') -and $Arguments.sharedResourceIds) {
+        $params['SharedResourceIds'] = @($Arguments.sharedResourceIds | ForEach-Object { [string]$_ })
+    }
+    if ($cmdInfo.Parameters.ContainsKey('SharedResourceGroup') -and $Arguments.sharedResourceGroup) {
+        $params['SharedResourceGroup'] = [string]$Arguments.sharedResourceGroup
+    }
+    if ($cmdInfo.Parameters.ContainsKey('Spokes') -and $Arguments.spokes) {
+        $params['Spokes'] = @($Arguments.spokes | ForEach-Object { [string]$_ })
+    }
+    if ($cmdInfo.Parameters.ContainsKey('WeightingMethod') -and $Arguments.weightingMethod) {
+        $params['WeightingMethod'] = [string]$Arguments.weightingMethod
+    }
+    if ($cmdInfo.Parameters.ContainsKey('WeightingValues') -and $null -ne $Arguments.weightingValues) {
+        $params['WeightingValues'] = $Arguments.weightingValues
+    }
+    if ($cmdInfo.Parameters.ContainsKey('WorkspaceId') -and $Arguments.workspaceId) {
+        $params['WorkspaceId'] = [string]$Arguments.workspaceId
+    }
+    if ($cmdInfo.Parameters.ContainsKey('LookbackDays') -and $null -ne $Arguments.lookbackDays) {
+        $params['LookbackDays'] = [int]$Arguments.lookbackDays
+    }
+    if ($cmdInfo.Parameters.ContainsKey('FixedRatio') -and $null -ne $Arguments.fixedRatio) {
+        $params['FixedRatio'] = [double]$Arguments.fixedRatio
+    }
+
+    # Cost allocation rule write-back args (set_cost_allocation_rule).
+    # apply defaults to false (dry-run) - never write unless explicitly true.
+    if ($cmdInfo.Parameters.ContainsKey('BillingAccountId') -and $Arguments.billingAccountId) {
+        $params['BillingAccountId'] = [string]$Arguments.billingAccountId
+    }
+    if ($cmdInfo.Parameters.ContainsKey('RuleName') -and $Arguments.ruleName) {
+        $params['RuleName'] = [string]$Arguments.ruleName
+    }
+    if ($cmdInfo.Parameters.ContainsKey('SourceResourceGroup') -and $Arguments.sourceResourceGroup) {
+        $params['SourceResourceGroup'] = @($Arguments.sourceResourceGroup | ForEach-Object { [string]$_ })
+    }
+    if ($cmdInfo.Parameters.ContainsKey('SourceSubscriptionId') -and $Arguments.sourceSubscriptionId) {
+        $params['SourceSubscriptionId'] = @($Arguments.sourceSubscriptionId | ForEach-Object { [string]$_ })
+    }
+    if ($cmdInfo.Parameters.ContainsKey('Targets') -and $Arguments.targets) {
+        $params['Targets'] = @($Arguments.targets)
+    }
+    if ($cmdInfo.Parameters.ContainsKey('TargetDimension') -and $Arguments.targetDimension) {
+        $params['TargetDimension'] = [string]$Arguments.targetDimension
+    }
+    if ($cmdInfo.Parameters.ContainsKey('Status') -and $Arguments.status) {
+        $params['Status'] = [string]$Arguments.status
+    }
+    if ($cmdInfo.Parameters.ContainsKey('Description') -and $Arguments.description) {
+        $params['Description'] = [string]$Arguments.description
+    }
+    if ($cmdInfo.Parameters.ContainsKey('Apply') -and $Arguments.apply -eq $true) {
+        $params['Apply'] = $true
+    }
+    if ($cmdInfo.Parameters.ContainsKey('ProbeAccess') -and $null -ne $Arguments.probeAccess) {
+        $params['ProbeAccess'] = [bool]$Arguments.probeAccess
+    }
+
+    # Usage-proportional showback args (scan_usage_allocation)
+    if ($cmdInfo.Parameters.ContainsKey('Preset') -and $Arguments.preset) {
+        $params['Preset'] = [string]$Arguments.preset
+    }
+    if ($cmdInfo.Parameters.ContainsKey('PoolAmount') -and $null -ne $Arguments.poolAmount) {
+        $params['PoolAmount'] = [double]$Arguments.poolAmount
+    }
+    if ($cmdInfo.Parameters.ContainsKey('DimensionName') -and $Arguments.dimensionName) {
+        $params['DimensionName'] = [string]$Arguments.dimensionName
+    }
+    if ($cmdInfo.Parameters.ContainsKey('WeightingQuery') -and $Arguments.weightingQuery) {
+        $params['WeightingQuery'] = [string]$Arguments.weightingQuery
     }
 
     # Hand the FinOps Hub export to functions that accept -HubData (e.g.
@@ -931,6 +1155,14 @@ function Invoke-FullScan {
             elseif ($DataSource -eq 'auto' -and $hubInfo.Decision.Recommendation -eq 'UseHub') { $hubUsable = $true }
         }
     }
+
+    # Generic Cost Management export fast path (no hub, readable CSV export).
+    $exportUsable = $false
+    if (-not $hubUsable -and $DataSource -ne 'api' -and $hubInfo -and $hubInfo.ExportData -and @($hubInfo.ExportData.Rows).Count -gt 0) {
+        $rec = $hubInfo.Decision.Recommendation
+        if ($DataSource -eq 'hub') { $exportUsable = $true }
+        elseif ($DataSource -eq 'auto' -and $rec -in @('UseExport', 'UseExportPartial')) { $exportUsable = $true }
+    }
     $hubServed = @{}
 
     # Run Tag Inventory first (other modules depend on it)
@@ -979,6 +1211,18 @@ function Invoke-FullScan {
                 continue
             }
 
+            # Export-first: serve cost-family modules from a generic CSV export
+            if ($exportUsable -and $fn -in $costFns) {
+                $exp = $hubInfo.ExportData
+                $results[$tool.name] = switch ($fn) {
+                    'Get-CostData' { ConvertTo-CostDataFromExport -ExportData $exp -Subscriptions $subs }
+                    'Get-ResourceCosts' { ConvertTo-ResourceCostsFromExport -ExportData $exp -Subscriptions $subs }
+                    'Get-CostByTag' { ConvertTo-CostByTagFromExport -ExportData $exp }
+                }
+                $hubServed[$tool.name] = $true
+                continue
+            }
+
             $cmdInfo = Get-Command $fn -ErrorAction Stop
             $params = @{}
 
@@ -1021,9 +1265,9 @@ function Invoke-FullScan {
         results          = $results
         errors           = $errors
         modulesRun       = $modulesToRun.Count
-        costDataSource   = if ($hubUsable) { 'FinOpsHub' } else { 'LiveApi' }
-        hubAsOf          = if ($hubUsable) { $hubInfo.Decision.Freshness } else { $null }
-        hubCoveragePct   = if ($hubUsable) { $hubInfo.Decision.CoveragePct } else { $null }
+        costDataSource   = if ($hubUsable) { 'FinOpsHub' } elseif ($exportUsable) { 'CostManagementExport' } else { 'LiveApi' }
+        hubAsOf          = if ($hubUsable -or $exportUsable) { $hubInfo.Decision.Freshness } else { $null }
+        hubCoveragePct   = if ($hubUsable -or $exportUsable) { $hubInfo.Decision.CoveragePct } else { $null }
         hubServedModules = @($hubServed.Keys)
         timestamp        = (Get-Date -Format 'o')
     }

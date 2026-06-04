@@ -19,7 +19,10 @@
 # 3. Determines which subscriptions the export covers vs. those requested
 # 4. Reports export freshness (latest data date)
 # 5. Estimates how long the live API path would take (resource-count based)
-# 6. Emits a recommendation: UseHub | UseHubPartial | FixAccessThenHub | UseApi
+# 6. Emits a recommendation:
+#      UseHub | UseHubPartial | FixAccessThenHub      (FinOps Hub fast path)
+#      UseExport | UseExportPartial                   (generic CSV export)
+#      UseApi                                         (live Cost Management API)
 #
 # ── Parameters ──────────────────────────────────────────────
 # RequestedSubscriptionIds   Subscription IDs the caller intends to scan
@@ -57,6 +60,8 @@ function Resolve-CostDataSource {
         Freshness           = $null
         EstimatedApiSeconds = 0
         Recommendation      = 'UseApi'
+        ExportFound         = $false
+        Exports             = @()
         Message             = $null
     }
 
@@ -98,7 +103,23 @@ Resources
     }
 
     if (-not $hub) {
-        $result.Message = "No FinOps Hub found in scope. Cost scans will use the Cost Management API (~$([math]::Round($result.EstimatedApiSeconds / 60.0, 1)) min for $subCount subscription(s))."
+        # No FinOps Hub in scope — fall back to detecting any Cost Management
+        # export the caller can read (the generic CSV export fast path).
+        $exp = Resolve-GenericExportSource -RequestedSubscriptionIds $requested
+        if ($exp.ExportFound) {
+            $result.ExportFound = $true
+            $result.Exports = $exp.Exports
+            $result.CoverageSubs = $exp.CoverageSubs
+            $result.Freshness = $exp.Freshness
+            $result.CoveragePct = $exp.CoveragePct
+            $result.Recommendation = $exp.Recommendation
+            $result.Message = $exp.Message
+            return [pscustomobject]$result
+        }
+
+        $apiMin = [math]::Round($result.EstimatedApiSeconds / 60.0, 1)
+        $extra = if ($exp.Message) { " $($exp.Message)" } else { '' }
+        $result.Message = "No FinOps Hub found in scope. Cost scans will use the Cost Management API (~$apiMin min for $subCount subscription(s)).$extra"
         return [pscustomobject]$result
     }
 
@@ -304,6 +325,90 @@ function Get-HubCoverage {
     }
     catch {
         # Coverage stays empty (unknown) on any failure.
+    }
+
+    return $out
+}
+
+# -- Generic Cost Management export fallback ------------------------------
+# When no FinOps Hub is present, look for any Cost Management export the
+# caller can read (classic or FOCUS, CSV). Picks the newest-run CSV export
+# per subscription (deduping overlapping exports so cost is not double
+# counted), and reports coverage + freshness so the MCP server can take the
+# export fast path the same way it does for a hub. CSV only — Parquet
+# exports are detected and reported but not read in PowerShell.
+function Resolve-GenericExportSource {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string[]]$RequestedSubscriptionIds)
+
+    $out = @{
+        ExportFound    = $false
+        Exports        = @()
+        CoverageSubs   = @()
+        CoveragePct    = 0
+        Freshness      = $null
+        Recommendation = 'UseApi'
+        Message        = $null
+    }
+
+    # Export module not loaded — nothing to do.
+    if (-not (Get-Command Find-CostExport -ErrorAction SilentlyContinue)) { return $out }
+
+    $requested = @($RequestedSubscriptionIds | Where-Object { $_ } | Select-Object -Unique)
+    if ($requested.Count -eq 0) { return $out }
+    $subCount = $requested.Count
+
+    # Find-CostExport needs subscription objects (Id + Name). The resolver
+    # only has IDs; names are not needed for detection (the MCP dispatch
+    # supplies the real sub objects to the converters).
+    $subObjs = $requested | ForEach-Object { [pscustomobject]@{ Id = $_; Name = $_ } }
+
+    $exports = @()
+    try { $exports = @(Find-CostExport -Subscriptions $subObjs) } catch { return $out }
+    if ($exports.Count -eq 0) { return $out }
+
+    $csv = @($exports | Where-Object { $_.Format -match 'csv' })
+    if ($csv.Count -eq 0) {
+        $out.Message = 'Found Cost Management export(s), but they write Parquet, which is not read in PowerShell. Recreate the export with CSV format to enable the export fast path.'
+        return $out
+    }
+
+    # Dedupe by subscription: keep the newest-run CSV export per SubId so two
+    # exports covering the same subscription do not double-count.
+    $bestBySub = @{}
+    foreach ($e in $csv) {
+        $sid = "$($e.SubId)"
+        if ([string]::IsNullOrWhiteSpace($sid)) { continue }
+        $existing = $bestBySub[$sid]
+        if (-not $existing) { $bestBySub[$sid] = $e; continue }
+        $a = if ($e.LastRunDate) { [datetime]$e.LastRunDate } else { [datetime]::MinValue }
+        $b = if ($existing.LastRunDate) { [datetime]$existing.LastRunDate } else { [datetime]::MinValue }
+        if ($a -gt $b) { $bestBySub[$sid] = $e }
+    }
+    $chosen = @($bestBySub.Values)
+    if ($chosen.Count -eq 0) { $chosen = $csv }
+
+    $coverageSubs = @($chosen | ForEach-Object { "$($_.SubId)" } | Where-Object { $_ } | Select-Object -Unique)
+    $coveredRequested = @($requested | Where-Object { $coverageSubs -contains $_ })
+
+    $dates = @($chosen | ForEach-Object { $_.LastRunDate } | Where-Object { $_ } | Sort-Object -Descending)
+    $freshness = if ($dates.Count -gt 0) { ([datetime]$dates[0]).ToString('yyyy-MM-dd') } else { $null }
+
+    $out.ExportFound = $true
+    $out.Exports = $chosen
+    $out.CoverageSubs = $coverageSubs
+    $out.Freshness = $freshness
+    $out.CoveragePct = if ($subCount -gt 0) { [int][math]::Round((($coveredRequested.Count / [double]$subCount) * 100)) } else { 0 }
+
+    $asOf = if ($freshness) { " as of $freshness" } else { '' }
+    $names = (($chosen | ForEach-Object { $_.Name } | Select-Object -Unique) -join ', ')
+    if ($coveredRequested.Count -ge $subCount) {
+        $out.Recommendation = 'UseExport'
+        $out.Message = "Cost Management export(s) [$names] cover all $subCount requested subscription(s)$asOf. Using export data (fast)."
+    }
+    else {
+        $out.Recommendation = 'UseExportPartial'
+        $out.Message = "Cost Management export(s) [$names] cover $($coveredRequested.Count) of $subCount subscription(s)$asOf. The remaining subscriptions need the live Cost Management API."
     }
 
     return $out
