@@ -3,7 +3,7 @@ title: FinOps alerts overview
 description: FinOps alerts accelerate cost optimization efforts with scheduled notifications that continuously monitor your cloud environment.
 author: flanakin
 ms.author: micflan
-ms.date: 06/04/2026
+ms.date: 06/05/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
