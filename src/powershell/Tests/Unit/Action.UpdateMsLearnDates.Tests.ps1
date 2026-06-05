@@ -85,7 +85,7 @@ Describe 'update-mslearn-dates GitHub Action' {
 
         It 'Should ignore frontmatter when checking for article body changes' {
             $workflowContent | Should -Match 'strip_frontmatter\(\)'
-            $workflowContent | Should -Match 'in_frontmatter'
+            $workflowContent | Should -Match 't == "---"'
             $workflowContent | Should -Match 'No article body changes found, skipping'
         }
 

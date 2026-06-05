@@ -211,14 +211,36 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
 
 function Get-DocsArticleBody([string]$content)
 {
+    # Body normalization rules. Keep this aligned with strip_frontmatter() in
+    # .github/workflows/update-mslearn-dates.yml so both code paths classify the
+    # same edits as metadata-only:
+    #   1. Split on \r?\n (CRLF tolerance).
+    #   2. Whitespace-tolerant --- fence detection. If line 1 trims to ---,
+    #      drop everything through the next line that trims to ---. If no
+    #      closing fence is found, treat the entire file as body (errs safe
+    #      for malformed frontmatter; any byte change registers as a body
+    #      change instead of silently being masked).
+    #   3. Drop markdownlint-disable-next-line MD025 and prettier-ignore
+    #      directive lines (whitespace-tolerant trim equality).
+    #   4. Trim trailing whitespace from each remaining line.
+    #   5. Collapse runs of two or more consecutive blank lines down to one.
+    #   6. Strip leading and trailing blank lines.
+    #
+    # Whitespace contract: PowerShell .Trim()/.TrimEnd() treat all Unicode
+    # whitespace as trimmable; awk's [[:space:]] is ASCII-only. Microsoft
+    # docs-mslearn files use ASCII whitespace in YAML frontmatter and HTML
+    # comments by convention (enforced by markdownlint), so this only matters
+    # if a non-breaking space ever appears in a fence or ignore-directive
+    # line.
+
     $lines = $content -split "`r?`n"
     $start = 0
 
-    if ($lines.Count -gt 0 -and $lines[0] -eq "---")
+    if ($lines.Count -gt 0 -and $lines[0].Trim() -eq "---")
     {
         for ($i = 1; $i -lt $lines.Count; $i++)
         {
-            if ($lines[$i] -eq "---")
+            if ($lines[$i].Trim() -eq "---")
             {
                 $start = $i + 1
                 break
@@ -237,11 +259,53 @@ function Get-DocsArticleBody([string]$content)
         "<!-- prettier-ignore-end -->"
     )
 
-    $body = $lines[$start..($lines.Count - 1)] `
-    | Where-Object { $ignoreLines -notcontains $_.Trim() } `
-    | ForEach-Object { $_.TrimEnd() }
+    $body = New-Object 'System.Collections.Generic.List[string]'
+    for ($i = $start; $i -lt $lines.Count; $i++)
+    {
+        $line = $lines[$i]
+        if ($ignoreLines -contains $line.Trim())
+        {
+            continue
+        }
+        $null = $body.Add($line.TrimEnd())
+    }
 
-    return (($body -join "`n") -replace "`n{3,}", "`n`n").Trim()
+    $collapsed = New-Object 'System.Collections.Generic.List[string]'
+    $blank = 0
+    foreach ($line in $body)
+    {
+        if ($line -eq "")
+        {
+            $blank++
+            if ($blank -le 1)
+            {
+                $null = $collapsed.Add("")
+            }
+        }
+        else
+        {
+            $blank = 0
+            $null = $collapsed.Add($line)
+        }
+    }
+
+    $s = 0
+    while ($s -lt $collapsed.Count -and $collapsed[$s] -eq "")
+    {
+        $s++
+    }
+    $e = $collapsed.Count - 1
+    while ($e -ge $s -and $collapsed[$e] -eq "")
+    {
+        $e--
+    }
+
+    if ($s -gt $e)
+    {
+        return ""
+    }
+
+    return ($collapsed[$s..$e] -join "`n")
 }
 
 function Remove-DocsMetadataOnlyChanges([string]$docsPath)
