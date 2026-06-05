@@ -9,7 +9,7 @@
 #          FinOps Multitool scan modules without a GUI dependency.
 #
 # Usage:   Invoke-FinOpsMultitool
-#          Invoke-FinOpsMultitool -SubscriptionId '2693c348-...'
+#          Invoke-FinOpsMultitool -SubscriptionId '00000000-0000-0000-0000-000000000000'
 #          Invoke-FinOpsMultitool -OutputPath './results'
 #
 # Requirements:

@@ -13,7 +13,7 @@ Invoke-FinOpsMultitool
 Or target a specific subscription:
 
 ```powershell
-Invoke-FinOpsMultitool -SubscriptionId '2693c348-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+Invoke-FinOpsMultitool -SubscriptionId '00000000-0000-0000-0000-000000000000'
 ```
 
 ## Requirements
@@ -238,7 +238,7 @@ Previous month       20,110 kgCO2e
 Change               -1,690 kgCO2e  (-8.4%)   ↓ improving
 
 Top emitting subscriptions:
-  Production-East   2693c348…   7,910 kgCO2e
+  Production-East   00000000…   7,910 kgCO2e
   Data-Platform     a1b2c3d4…   4,330 kgCO2e
 ```
 

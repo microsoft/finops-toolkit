@@ -364,7 +364,33 @@ function Resolve-GenericExportSource {
     $subObjs = $requested | ForEach-Object { [pscustomobject]@{ Id = $_; Name = $_ } }
 
     $exports = @()
-    try { $exports = @(Find-CostExport -Subscriptions $subObjs) } catch { return $out }
+    try { $exports = @(Find-CostExport -Subscriptions $subObjs) } catch { $exports = @() }
+
+    # Storage-first discovery: some exports can't be found via Cost Management
+    # at all from this tenant - e.g. a hub export defined at a customer's
+    # management group (in the customer's tenant) and delivered cross-tenant
+    # via Azure Lighthouse, which only delegates subscription scope. The
+    # definition is invisible, but the blobs land in a storage account we can
+    # read. Reconstruct those from the blob layout and merge (deduped).
+    #
+    # Only runs as a FALLBACK when control plane found nothing - that's the
+    # cross-tenant/orphaned signature. In the normal single-tenant case this is
+    # skipped, so we don't pay the per-sub storage-enumeration cost on every
+    # scan for a rare capability.
+    if ($exports.Count -eq 0 -and (Get-Command Find-CostExportFromStorage -ErrorAction SilentlyContinue)) {
+        try {
+            $knownKeys = @{}
+            foreach ($e in $exports) {
+                if ($e.StorageResourceId -and $e.Container -and $e.Name) {
+                    $knownKeys[("$($e.StorageResourceId)|$($e.Container)|$($e.Name)").ToLowerInvariant()] = $true
+                }
+            }
+            $storageExports = @(Find-CostExportFromStorage -Subscriptions $subObjs -KnownKeys $knownKeys)
+            if ($storageExports.Count -gt 0) { $exports = @($exports) + $storageExports }
+        }
+        catch { }
+    }
+
     if ($exports.Count -eq 0) { return $out }
 
     $csv = @($exports | Where-Object { $_.Format -match 'csv' })
