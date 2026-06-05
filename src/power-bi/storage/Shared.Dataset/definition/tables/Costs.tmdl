@@ -1518,7 +1518,7 @@ table Costs
 							// {"x_PartnerCreditApplied",  type logical}
 						}
 					),
-					OptionalFixes = if PerformDeprecatedOptimizations = false then Fixes else Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
+					OptionalFixes = if PerformDeprecatedOptimizations = false then Fixes else Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
 						// Track all the changes we're about to make before we make them for transparency
 						Table.AddColumn(
 										Fixes,
@@ -1530,16 +1530,26 @@ table Costs
 									if ([ListCost] = null            or [ListCost] = 0)            and ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        then "MissingListCost"                  else null,
 									if ([ListUnitPrice] = null       or [ListUnitPrice] = 0)       and ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) then "MissingListUnitPrice"             else null,
 									if [PricingCategory] = "Standard" and [CommitmentDiscountId] <> null and [ChargeCategory] = "Usage"                            then "PricingCategoryShouldBeCommitted" else null,
-									if [x_SkuTerm] = "1Year" or [x_SkuTerm] = "3Years" or [x_SkuTerm] = "5Years"                                                   then "SkuTermShouldBeAnInteger"         else null
+									// Detect legacy string-based x_SkuTerm values AND ISO 8601 duration format (P1Y, P3Y, P5Y, P10Y)
+									if [x_SkuTerm] = "1Year" or [x_SkuTerm] = "3Years" or [x_SkuTerm] = "5Years"
+										or [x_SkuTerm] = "P1Y" or [x_SkuTerm] = "P3Y" or [x_SkuTerm] = "P5Y" or [x_SkuTerm] = "P10Y"
+										then "SkuTermShouldBeAnInteger"         else null
 								}), ","),
 								output = if _isBlank(value) then null else value
 							in
 								output
 						),
-						// Fix inconsistent Microsoft x_SkuTerm values
+						// Fix inconsistent Microsoft x_SkuTerm values -- legacy string format
 						"1Year",  12, Replacer.ReplaceValue, {"x_SkuTerm"}),
 						"3Years", 36, Replacer.ReplaceValue, {"x_SkuTerm"}),
 						"5Years", 60, Replacer.ReplaceValue, {"x_SkuTerm"}),
+						// Fix x_SkuTerm ISO 8601 duration format introduced in FOCUS exports circa June 2026
+						"P1Y",   12, Replacer.ReplaceValue, {"x_SkuTerm"}),
+						"P3Y",   36, Replacer.ReplaceValue, {"x_SkuTerm"}),
+						"P5Y",   60, Replacer.ReplaceValue, {"x_SkuTerm"}),
+						"P10Y", 120, Replacer.ReplaceValue, {"x_SkuTerm"}),
+						// Coerce empty string to null -- must be last x_SkuTerm replacement to avoid interfering with string matches above
+						"",    null, Replacer.ReplaceValue, {"x_SkuTerm"}),
 				
 					// Split CostDetails by what needs prices and what doesn't
 					PopulateMissingPrices = 
