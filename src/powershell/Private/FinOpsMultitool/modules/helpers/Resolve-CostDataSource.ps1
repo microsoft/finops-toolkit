@@ -373,11 +373,12 @@ function Resolve-GenericExportSource {
     # definition is invisible, but the blobs land in a storage account we can
     # read. Reconstruct those from the blob layout and merge (deduped).
     #
-    # Only runs as a FALLBACK when control plane found nothing - that's the
-    # cross-tenant/orphaned signature. In the normal single-tenant case this is
-    # skipped, so we don't pay the per-sub storage-enumeration cost on every
-    # scan for a rare capability.
-    if ($exports.Count -eq 0 -and (Get-Command Find-CostExportFromStorage -ErrorAction SilentlyContinue)) {
+    # Always runs (not just when control plane is empty): the common
+    # cross-tenant case is MIXED - control plane surfaces some subs' exports
+    # while the MG-scoped hub export stays invisible. The tax is modest
+    # (~1 ARM call/sub + 1 container-list/storage-acct; blob-listing only on
+    # accounts that actually have an export-named container).
+    if (Get-Command Find-CostExportFromStorage -ErrorAction SilentlyContinue) {
         try {
             $knownKeys = @{}
             foreach ($e in $exports) {
