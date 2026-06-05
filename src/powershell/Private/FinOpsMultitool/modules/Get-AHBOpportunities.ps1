@@ -31,7 +31,7 @@ function Get-AHBOpportunities {
 resources
 | where type == 'microsoft.compute/virtualmachines'
 | where properties.storageProfile.osDisk.osType =~ 'Windows'
-| where isempty(properties.licenseType) or properties.licenseType !~ 'Windows_Server'
+| where isempty(properties.licenseType) or (properties.licenseType !~ 'Windows_Server' and properties.licenseType !~ 'Windows_Client')
 | project name, resourceGroup, subscriptionId, location,
           vmSize = properties.hardwareProfile.vmSize,
           currentLicense = coalesce(tostring(properties.licenseType), 'None'),
