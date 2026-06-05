@@ -119,34 +119,36 @@ function Get-CommitmentUtilization {
 
     # For EA / fallback: query at subscription scope
     if ($reservations.Count -eq 0) {
-        try {
-            $summaryPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Consumption/reservationSummaries?grain=monthly&api-version=2023-05-01&`$filter=properties/usageDate ge '$(((Get-Date).AddDays(-30)).ToString('yyyy-MM-dd'))'"
-            $resp = Invoke-AzRestMethodWithRetry -Path $summaryPath -Method GET
-            if ($resp.StatusCode -eq 200) {
-                $data = ($resp.Content | ConvertFrom-Json)
-                if ($data.value) {
-                    foreach ($item in $data.value) {
-                        $p = $item.properties
-                        $reservations += [PSCustomObject]@{
-                            ReservationOrderId = $p.reservationOrderId
-                            ReservationId      = $p.reservationId
-                            SkuName            = $p.skuName
-                            Kind               = $p.kind
-                            AvgUtilization     = [math]::Round([double]$p.avgUtilizationPercentage, 1)
-                            MinUtilization     = [math]::Round([double]$p.minUtilizationPercentage, 1)
-                            MaxUtilization     = [math]::Round([double]$p.maxUtilizationPercentage, 1)
-                            ReservedHours      = $p.reservedHours
-                            UsedHours          = $p.usedHours
-                            UsageDate          = $p.usageDate
+        foreach ($sub in $Subscriptions | Select-Object -First 10) {
+            try {
+                $summaryPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Consumption/reservationSummaries?grain=monthly&api-version=2023-05-01&`$filter=properties/usageDate ge '$(((Get-Date).AddDays(-30)).ToString('yyyy-MM-dd'))'"
+                $resp = Invoke-AzRestMethodWithRetry -Path $summaryPath -Method GET
+                if ($resp.StatusCode -eq 200) {
+                    $data = ($resp.Content | ConvertFrom-Json)
+                    if ($data.value) {
+                        foreach ($item in $data.value) {
+                            $p = $item.properties
+                            $reservations += [PSCustomObject]@{
+                                ReservationOrderId = $p.reservationOrderId
+                                ReservationId      = $p.reservationId
+                                SkuName            = $p.skuName
+                                Kind               = $p.kind
+                                AvgUtilization     = [math]::Round([double]$p.avgUtilizationPercentage, 1)
+                                MinUtilization     = [math]::Round([double]$p.minUtilizationPercentage, 1)
+                                MaxUtilization     = [math]::Round([double]$p.maxUtilizationPercentage, 1)
+                                ReservedHours      = $p.reservedHours
+                                UsedHours          = $p.usedHours
+                                UsageDate          = $p.usageDate
+                            }
                         }
+                        break  # Got data from one sub, don't repeat
                     }
-                    break  # Got data from one sub, don't repeat
                 }
+                elseif ($resp.StatusCode -in @(401, 403)) { $accessDenied = $true }
+            } catch {
+                if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
+                Write-Warning "  Reservation summaries query failed for $($sub.Name): $($_.Exception.Message)"
             }
-            elseif ($resp.StatusCode -in @(401, 403)) { $accessDenied = $true }
-        } catch {
-            if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
-            Write-Warning "  Reservation summaries query failed: $($_.Exception.Message)"
         }
     }
 
