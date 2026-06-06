@@ -371,11 +371,11 @@ For VS Code `settings.json`, nest the same under an `mcp` key:
 
 These tools **change Azure resources**. They are dry-run by default and route through the [write-safety policy](#write-safety-remediation-tools) below. Each acts on a single resource ID returned by the matching read scan.
 
-| Tool                                  | Action                                                    | Reversible            |
-| ------------------------------------- | --------------------------------------------------------- | --------------------- |
-| `remediate_enable_hybrid_benefit`     | Enable Azure Hybrid Benefit on a VM (from `scan_ahb_opportunities`) | Yes (set back to None) |
-| `remediate_deallocate_vm`             | Deallocate an idle VM (from `scan_idle_vms`)              | Yes (start the VM)    |
-| `remediate_delete_orphaned_resource`  | Delete an orphaned disk / NIC / public IP / snapshot (from `scan_orphaned_resources`) | No (delete)           |
+| Tool                                 | Action                                                                                | Reversible             |
+| ------------------------------------ | ------------------------------------------------------------------------------------- | ---------------------- |
+| `remediate_enable_hybrid_benefit`    | Enable Azure Hybrid Benefit on a VM (from `scan_ahb_opportunities`)                   | Yes (set back to None) |
+| `remediate_deallocate_vm`            | Deallocate an idle VM (from `scan_idle_vms`)                                          | Yes (start the VM)     |
+| `remediate_delete_orphaned_resource` | Delete an orphaned disk / NIC / public IP / snapshot (from `scan_orphaned_resources`) | No (delete)            |
 
 Each write tool takes `resourceId` (required), `apply` (default `false` = preview), and `confirmationToken` (required only in Enforced mode). The delete tool only accepts an allow-list of safe-to-delete types and re-verifies the resource is still orphaned before acting.
 
@@ -408,11 +408,11 @@ The remediation tools are designed for two audiences at once — a person chatti
 
 ### Modes — `FINOPS_WRITE_MODE`
 
-| Mode          | Behavior                                                                                                           | Use for                                            |
-| ------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| `Interactive` | **Default.** `apply=true` runs the change directly. A preview/token is offered but not required. The client (human or AI) is the gate. | Platform-agnostic AI chat — low friction, any client |
-| `Enforced`    | `apply=true` is **rejected** unless it carries the exact single-use token from that change's own dry-run preview (bound to a SHA-256 fingerprint, expires in 5 min). | Autonomous / unattended agents — server is the gate |
-| `ReadOnly`    | All write tools are blocked. Read scans still work.                                                               | Locked-down or audit-only deployments              |
+| Mode          | Behavior                                                                                                                                                             | Use for                                              |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `Interactive` | **Default.** `apply=true` runs the change directly. A preview/token is offered but not required. The client (human or AI) is the gate.                               | Platform-agnostic AI chat — low friction, any client |
+| `Enforced`    | `apply=true` is **rejected** unless it carries the exact single-use token from that change's own dry-run preview (bound to a SHA-256 fingerprint, expires in 5 min). | Autonomous / unattended agents — server is the gate  |
+| `ReadOnly`    | All write tools are blocked. Read scans still work.                                                                                                                  | Locked-down or audit-only deployments                |
 
 Every write previews first: call the tool without `apply` to get the exact REST call, the resource evidence, and (in Enforced mode) a `confirmationToken` to pass back with `apply=true`.
 
@@ -420,15 +420,15 @@ Every write previews first: call the tool without `apply` to get the exact REST 
 
 These never depend on a well-behaved client. Configure via environment variables:
 
-| Variable                     | Effect                                                                                  | Default                                            |
-| ---------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| `FINOPS_PROTECTED_TAGS`      | Resources carrying any of these tag keys are never written to                            | `do-not-delete`, `DoNotDelete`, `lock`, `protected` |
-| `FINOPS_PROTECTED_RGS`       | Resource groups (supports `*` wildcards) that are off-limits                              | none                                               |
-| `FINOPS_PROTECTED_SUBS`      | Subscriptions that are off-limits                                                        | none                                               |
-| `FINOPS_WRITE_MAX_IMPACT`    | Block any single write whose estimated monthly $ impact exceeds this cap (`0` = no cap)   | `0`                                                |
-| `FINOPS_WRITE_MAX_PER_WINDOW`| Max writes allowed per rolling window (blast-radius limit)                                | unlimited                                          |
-| `FINOPS_WRITE_WINDOW_MIN`    | Length of that window in minutes                                                          | `60`                                               |
-| `FINOPS_AUDIT_LOG`           | Path for the append-only audit log (every preview / apply / block is recorded as JSON)    | `%TEMP%\finops-multitool-audit.log`                |
+| Variable                      | Effect                                                                                  | Default                                             |
+| ----------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `FINOPS_PROTECTED_TAGS`       | Resources carrying any of these tag keys are never written to                           | `do-not-delete`, `DoNotDelete`, `lock`, `protected` |
+| `FINOPS_PROTECTED_RGS`        | Resource groups (supports `*` wildcards) that are off-limits                            | none                                                |
+| `FINOPS_PROTECTED_SUBS`       | Subscriptions that are off-limits                                                       | none                                                |
+| `FINOPS_WRITE_MAX_IMPACT`     | Block any single write whose estimated monthly $ impact exceeds this cap (`0` = no cap) | `0`                                                 |
+| `FINOPS_WRITE_MAX_PER_WINDOW` | Max writes allowed per rolling window (blast-radius limit)                              | unlimited                                           |
+| `FINOPS_WRITE_WINDOW_MIN`     | Length of that window in minutes                                                        | `60`                                                |
+| `FINOPS_AUDIT_LOG`            | Path for the append-only audit log (every preview / apply / block is recorded as JSON)  | `%TEMP%\finops-multitool-audit.log`                 |
 
 ### Example — autonomous, locked-down server
 
