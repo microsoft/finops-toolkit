@@ -33,7 +33,10 @@ function Remove-OrphanedResource {
         [string]$ResourceId,
 
         [Parameter()]
-        [switch]$Apply
+        [switch]$Apply,
+
+        [Parameter()]
+        [string]$ConfirmationToken
     )
 
     # -----------------------------------------------------------------
@@ -172,26 +175,63 @@ function Remove-OrphanedResource {
         'Deletion is IRREVERSIBLE. The orphaned resource and any data on it are permanently removed.'
     }
 
-    # ---- DRY RUN (default): preview the DELETE, mutate nothing ----
-    if (-not $Apply) {
+    # ---- Route through the configurable write-safety gate ----
+    $subId = if ($ResourceId -match '/subscriptions/([^/]+)/') { $Matches[1] } else { $null }
+    $rg = if ($ResourceId -match '/resourceGroups/([^/]+)/') { $Matches[1] } else { $null }
+    $tagHash = @{}
+    if ($resObj -and $resObj.tags) {
+        foreach ($t in $resObj.tags.PSObject.Properties) { $tagHash[$t.Name] = $t.Value }
+    }
+    $estImpact = 0
+    if ($evidence['estMonthlySavings']) { $estImpact = [double]$evidence['estMonthlySavings'] }
+
+    $decision = Resolve-WriteDecision -ToolName 'remediate_delete_orphaned_resource' -Operation 'Delete' `
+        -ResourceId $ResourceId -SubscriptionId $subId -ResourceGroup $rg -Tags $tagHash `
+        -EstimatedMonthlyImpact $estImpact -Reversible $false -Apply:$Apply -ConfirmationToken $ConfirmationToken
+
+    # ---- BLOCKED by mode/guardrails/enforcement ----
+    if ($decision.Decision -eq 'Blocked') {
         return [PSCustomObject]@{
-            HasData      = $true
-            Mode         = 'DryRun'
-            Applied      = $false
-            Warning      = "PREVIEW ONLY - nothing was deleted. $irreversible Show this preview to the user and get explicit approval, then re-run with apply=true to delete."
-            Method       = 'DELETE'
-            Uri          = "https://management.azure.com$path"
-            ResourceId   = $ResourceId
-            ResourceName = $resName
-            ResourceType = $fullType
-            TypeLabel    = $cfg.label
-            Location     = $location
-            OrphanEvidence = [PSCustomObject]$evidence
-            NextStep     = 'Re-run remediate_delete_orphaned_resource with apply=true (after user confirmation) to delete this resource.'
+            HasData             = $false
+            Mode                = 'Blocked'
+            Applied             = $false
+            Error               = $decision.Reason
+            GuardrailViolations = @($decision.GuardrailViolations)
+            WriteMode           = $decision.Mode
+            ResourceId          = $ResourceId
+            ResourceName        = $resName
+            ResourceType        = $fullType
         }
     }
 
-    # ---- APPLY: perform the DELETE ----
+    # ---- DRY RUN (default): preview the DELETE, mutate nothing ----
+    if ($decision.Decision -eq 'Preview') {
+        return [PSCustomObject]@{
+            HasData           = $true
+            Mode              = 'DryRun'
+            Applied           = $false
+            WriteMode         = $decision.Mode
+            Warning           = "PREVIEW ONLY - nothing was deleted. $irreversible $($decision.Reason)"
+            Method            = 'DELETE'
+            Uri               = "https://management.azure.com$path"
+            ResourceId        = $ResourceId
+            ResourceName      = $resName
+            ResourceType      = $fullType
+            TypeLabel         = $cfg.label
+            Location          = $location
+            OrphanEvidence    = [PSCustomObject]$evidence
+            ConfirmationToken = $decision.ConfirmationToken
+            RequiresToken     = $decision.RequiresToken
+            NextStep          = if ($decision.RequiresToken) {
+                'Enforced mode: re-run remediate_delete_orphaned_resource with apply=true AND confirmationToken=<the ConfirmationToken above>, after user confirmation.'
+            }
+            else {
+                'Re-run remediate_delete_orphaned_resource with apply=true (after user confirmation) to delete this resource.'
+            }
+        }
+    }
+
+    # ---- APPLY (decision = Proceed): perform the DELETE ----
     Write-Host "  Deleting orphaned $($cfg.label) '$resName'..." -ForegroundColor Yellow
     $delResp = Invoke-AzRestMethodWithRetry -Path $path -Method 'DELETE'
     $delStatus = if ($delResp) { [int]$delResp.StatusCode } else { 0 }
@@ -214,6 +254,7 @@ function Remove-OrphanedResource {
         HasData      = $true
         Mode         = 'Apply'
         Applied      = $ok
+        WriteMode    = $decision.Mode
         StatusCode   = $delStatus
         Warning      = if ($ok) { 'Resource deleted. This is irreversible.' } else { $null }
         Error        = $errMsg

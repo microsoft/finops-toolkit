@@ -301,7 +301,9 @@ $costByTag = ConvertTo-CostByTagFromHub -HubData $hubData -ExistingTags $tagInve
 
 ## MCP Server (AI Integration)
 
-The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 24 scan modules — plus a `run_full_scan` composite (25 tools total) — as AI-callable tools. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI and GUI.
+The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 24 scan modules — plus a `run_full_scan` composite — as AI-callable tools, along with a set of **remediation (write) tools** that act on the findings. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI and GUI.
+
+Read scans are always safe. The write tools are gated by a configurable [write-safety policy](#write-safety-remediation-tools) so neither a person nor an autonomous agent can make a costly mistake — every write previews first (dry-run) and, in autonomous mode, requires a single-use confirmation token bound to the exact change.
 
 ### Setup
 
@@ -365,6 +367,18 @@ For VS Code `settings.json`, nest the same under an `mcp` key:
 | `scan_contract_info`          | Agreement type, offer, support plan                |
 | `run_full_scan`               | Run all modules — comprehensive assessment         |
 
+### Remediation Tools (write actions)
+
+These tools **change Azure resources**. They are dry-run by default and route through the [write-safety policy](#write-safety-remediation-tools) below. Each acts on a single resource ID returned by the matching read scan.
+
+| Tool                                  | Action                                                    | Reversible            |
+| ------------------------------------- | --------------------------------------------------------- | --------------------- |
+| `remediate_enable_hybrid_benefit`     | Enable Azure Hybrid Benefit on a VM (from `scan_ahb_opportunities`) | Yes (set back to None) |
+| `remediate_deallocate_vm`             | Deallocate an idle VM (from `scan_idle_vms`)              | Yes (start the VM)    |
+| `remediate_delete_orphaned_resource`  | Delete an orphaned disk / NIC / public IP / snapshot (from `scan_orphaned_resources`) | No (delete)           |
+
+Each write tool takes `resourceId` (required), `apply` (default `false` = preview), and `confirmationToken` (required only in Enforced mode). The delete tool only accepts an allow-list of safe-to-delete types and re-verifies the resource is still orphaned before acting.
+
 ### Resources
 
 | URI                    | Description                         |
@@ -381,11 +395,61 @@ AI Agent (Copilot / Claude / SRE Agent)
 Start-McpServer.ps1
     │ Imports FinOpsMultitool.psm1
     ▼
-Get-CostData, Get-TagInventory, etc.
+Get-CostData, Get-TagInventory, etc.   ◄── read scans
+Remove-OrphanedResource, Stop-IdleVm…   ◄── write tools → Resolve-WriteDecision (safety gate)
     │ Same functions used by TUI and GUI
     ▼
 Azure APIs (Cost Management, Resource Graph, Advisor, etc.)
 ```
+
+## Write Safety (Remediation Tools)
+
+The remediation tools are designed for two audiences at once — a person chatting through an AI client, **and** an autonomous agent running unattended — without forcing the safety burden on the interactive experience. Behavior is controlled by environment variables, so the same server is friendly in a chat and locked-down in production.
+
+### Modes — `FINOPS_WRITE_MODE`
+
+| Mode          | Behavior                                                                                                           | Use for                                            |
+| ------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `Interactive` | **Default.** `apply=true` runs the change directly. A preview/token is offered but not required. The client (human or AI) is the gate. | Platform-agnostic AI chat — low friction, any client |
+| `Enforced`    | `apply=true` is **rejected** unless it carries the exact single-use token from that change's own dry-run preview (bound to a SHA-256 fingerprint, expires in 5 min). | Autonomous / unattended agents — server is the gate |
+| `ReadOnly`    | All write tools are blocked. Read scans still work.                                                               | Locked-down or audit-only deployments              |
+
+Every write previews first: call the tool without `apply` to get the exact REST call, the resource evidence, and (in Enforced mode) a `confirmationToken` to pass back with `apply=true`.
+
+### Guardrails (enforced in every mode)
+
+These never depend on a well-behaved client. Configure via environment variables:
+
+| Variable                     | Effect                                                                                  | Default                                            |
+| ---------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `FINOPS_PROTECTED_TAGS`      | Resources carrying any of these tag keys are never written to                            | `do-not-delete`, `DoNotDelete`, `lock`, `protected` |
+| `FINOPS_PROTECTED_RGS`       | Resource groups (supports `*` wildcards) that are off-limits                              | none                                               |
+| `FINOPS_PROTECTED_SUBS`      | Subscriptions that are off-limits                                                        | none                                               |
+| `FINOPS_WRITE_MAX_IMPACT`    | Block any single write whose estimated monthly $ impact exceeds this cap (`0` = no cap)   | `0`                                                |
+| `FINOPS_WRITE_MAX_PER_WINDOW`| Max writes allowed per rolling window (blast-radius limit)                                | unlimited                                          |
+| `FINOPS_WRITE_WINDOW_MIN`    | Length of that window in minutes                                                          | `60`                                               |
+| `FINOPS_AUDIT_LOG`           | Path for the append-only audit log (every preview / apply / block is recorded as JSON)    | `%TEMP%\finops-multitool-audit.log`                |
+
+### Example — autonomous, locked-down server
+
+```json
+{
+  "servers": {
+    "finops-multitool": {
+      "type": "stdio",
+      "command": "pwsh",
+      "args": ["-NoProfile", "-File", "path/to/Start-McpServer.ps1"],
+      "env": {
+        "FINOPS_WRITE_MODE": "Enforced",
+        "FINOPS_PROTECTED_RGS": "rg-prod-*,rg-shared",
+        "FINOPS_WRITE_MAX_PER_WINDOW": "5"
+      }
+    }
+  }
+}
+```
+
+In this configuration an agent must preview each change, pass the matching token back, stay out of protected resource groups, and is capped at five writes per hour — all enforced by the server, not the client.
 
 ## File Structure
 
@@ -402,6 +466,7 @@ FinOpsMultitool/
 │   │   ├── Get-PlainAccessToken.ps1        # Token helper
 │   │   ├── Invoke-AzRestMethodWithRetry.ps1 # REST retry logic
 │   │   ├── Search-AzGraphSafe.ps1          # ARG query wrapper
+│   │   ├── Confirm-WriteAction.ps1         # Write-safety policy gate (modes, guardrails, audit)
 │   │   └── MgCostScope.ps1                 # Management group scope state
 │   ├── Initialize-Scanner.ps1
 │   ├── Get-CostData.ps1
@@ -409,6 +474,9 @@ FinOpsMultitool/
 │   ├── Get-TagInventory.ps1
 │   ├── Get-CostByTag.ps1
 │   ├── Get-OrphanedResources.ps1
+│   ├── Remove-OrphanedResource.ps1         # Write: delete orphaned resource (gated)
+│   ├── Enable-HybridBenefit.ps1            # Write: enable Azure Hybrid Benefit (gated)
+│   ├── Stop-IdleVm.ps1                     # Write: deallocate idle VM (gated)
 │   ├── Get-IdleVMs.ps1
 │   └── ...                    # One file per scan module
 └── gui/                       # WPF/XAML assets for GUI mode

@@ -106,8 +106,40 @@ $toolDefinitions = @(
         inputSchema = @{
             type       = 'object'
             properties = @{
-                resourceId = @{ type = 'string'; description = 'Full ARM resource ID of the orphan to delete (e.g. /subscriptions/{guid}/resourceGroups/{rg}/providers/Microsoft.Compute/disks/{name}). Take this from scan_orphaned_resources output. Required.' }
-                apply      = @{ type = 'boolean'; description = 'SAFETY GATE. Default false = dry-run preview (deletes nothing). Set true ONLY after the user has reviewed the preview and explicitly approved deleting this specific resource. Deletion is irreversible.' }
+                resourceId        = @{ type = 'string'; description = 'Full ARM resource ID of the orphan to delete (e.g. /subscriptions/{guid}/resourceGroups/{rg}/providers/Microsoft.Compute/disks/{name}). Take this from scan_orphaned_resources output. Required.' }
+                apply             = @{ type = 'boolean'; description = 'SAFETY GATE. Default false = dry-run preview (deletes nothing). Set true ONLY after the user has reviewed the preview and explicitly approved deleting this specific resource. Deletion is irreversible.' }
+                confirmationToken = @{ type = 'string'; description = 'The token returned by the dry-run preview. OPTIONAL in Interactive mode; REQUIRED in Enforced (autonomous-safe) mode, where apply=true is rejected without the exact token from the matching preview. Single-use and short-lived.' }
+            }
+            required   = @('resourceId')
+        }
+    }
+    @{
+        name        = 'remediate_enable_hybrid_benefit'
+        description = "WRITE/MUTATING (REVERSIBLE, savings-only). Enable Azure Hybrid Benefit on ONE VM found by scan_ahb_opportunities, applying existing Windows Server / SQL licenses to cut compute licensing cost up to ~85%. This is reversible (set licenseType back to None) and only reduces cost. Windows VMs are auto-detected (licenseType Windows_Server); for Linux you must pass an explicit RHEL_BYOS/SLES_BYOS licenseType. No-ops if AHB is already on. DRY-RUN by default: without apply=true it previews the PATCH and changes nothing. In Interactive mode apply=true works directly; in Enforced mode it also requires the confirmationToken from the preview."
+        fn          = 'Enable-HybridBenefit'
+        category    = 'Optimization'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                resourceId        = @{ type = 'string'; description = 'Full ARM resource ID of the VM (Microsoft.Compute/virtualMachines). From scan_ahb_opportunities. Required.' }
+                licenseType       = @{ type = 'string'; enum = @('Windows_Server', 'Windows_Client', 'RHEL_BYOS', 'SLES_BYOS'); description = 'Optional override. Auto-detected as Windows_Server for Windows VMs; required for Linux (RHEL_BYOS/SLES_BYOS).' }
+                apply             = @{ type = 'boolean'; description = 'SAFETY GATE. Default false = dry-run preview. Set true to enable AHB. Reversible, savings-only.' }
+                confirmationToken = @{ type = 'string'; description = 'Token from the dry-run preview. Optional in Interactive mode; required in Enforced mode.' }
+            }
+            required   = @('resourceId')
+        }
+    }
+    @{
+        name        = 'remediate_deallocate_vm'
+        description = "WRITE/MUTATING (REVERSIBLE). Deallocate (stop) ONE idle VM found by scan_idle_vms so it stops billing for compute. Deallocate is reversible - the VM can be started again and keeps its disks and configuration; it is NOT deleted. No-ops if the VM is already deallocated. DRY-RUN by default: without apply=true it previews the deallocate and changes nothing. In Interactive mode apply=true works directly; in Enforced mode it also requires the confirmationToken from the preview."
+        fn          = 'Stop-IdleVm'
+        category    = 'Optimization'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                resourceId        = @{ type = 'string'; description = 'Full ARM resource ID of the VM (Microsoft.Compute/virtualMachines). From scan_idle_vms. Required.' }
+                apply             = @{ type = 'boolean'; description = 'SAFETY GATE. Default false = dry-run preview. Set true to deallocate. Reversible (start the VM to undo).' }
+                confirmationToken = @{ type = 'string'; description = 'Token from the dry-run preview. Optional in Interactive mode; required in Enforced mode.' }
             }
             required   = @('resourceId')
         }
@@ -575,6 +607,8 @@ $toolDefinitions = @(
 $permissionMap = @{
     'Get-OrphanedResources'     = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Resource Graph' }
     'Remove-OrphanedResource'   = @{ role = 'Contributor (delete)'; scope = 'Resource'; api = 'Azure Resource Manager (DELETE)' }
+    'Enable-HybridBenefit'      = @{ role = 'Virtual Machine Contributor'; scope = 'Resource'; api = 'Azure Resource Manager (PATCH)' }
+    'Stop-IdleVm'               = @{ role = 'Virtual Machine Contributor'; scope = 'Resource'; api = 'Azure Resource Manager (deallocate)' }
     'Get-IdleVMs'               = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Resource Graph + Monitor Metrics' }
     'Get-StorageTierAdvice'     = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Resource Graph' }
     'Get-AHBOpportunities'      = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Resource Graph' }
@@ -800,7 +834,8 @@ function Invoke-McpTool {
         $rid = [string]$Arguments.resourceId
         if (-not $rid) { throw 'resourceId is required for remediate_delete_orphaned_resource.' }
         $doApply = ($Arguments.apply -eq $true)
-        $remResult = Remove-OrphanedResource -ResourceId $rid -Apply:$doApply
+        $confToken = if ($Arguments.confirmationToken) { [string]$Arguments.confirmationToken } else { $null }
+        $remResult = Remove-OrphanedResource -ResourceId $rid -Apply:$doApply -ConfirmationToken $confToken
         return @{
             tool       = $ToolName
             module     = 'Remove-OrphanedResource'
@@ -808,6 +843,32 @@ function Invoke-McpTool {
             data       = $remResult
             source     = 'LiveApi'
             permission = if ($permissionMap.ContainsKey('Remove-OrphanedResource')) { $permissionMap['Remove-OrphanedResource'] } else { $null }
+            timestamp  = (Get-Date -Format 'o')
+        }
+    }
+
+    # Targeted reversible remediation (enable AHB / deallocate VM) - one
+    # resource id, no subscription enumeration, routed through the gate.
+    if ($toolDef.fn -in @('Enable-HybridBenefit', 'Stop-IdleVm')) {
+        $rid = [string]$Arguments.resourceId
+        if (-not $rid) { throw "resourceId is required for $ToolName." }
+        $doApply = ($Arguments.apply -eq $true)
+        $confToken = if ($Arguments.confirmationToken) { [string]$Arguments.confirmationToken } else { $null }
+        $remResult = if ($toolDef.fn -eq 'Enable-HybridBenefit') {
+            $lt = if ($Arguments.licenseType) { [string]$Arguments.licenseType } else { $null }
+            if ($lt) { Enable-HybridBenefit -ResourceId $rid -LicenseType $lt -Apply:$doApply -ConfirmationToken $confToken }
+            else { Enable-HybridBenefit -ResourceId $rid -Apply:$doApply -ConfirmationToken $confToken }
+        }
+        else {
+            Stop-IdleVm -ResourceId $rid -Apply:$doApply -ConfirmationToken $confToken
+        }
+        return @{
+            tool       = $ToolName
+            module     = $toolDef.fn
+            category   = $toolDef.category
+            data       = $remResult
+            source     = 'LiveApi'
+            permission = if ($permissionMap.ContainsKey($toolDef.fn)) { $permissionMap[$toolDef.fn] } else { $null }
             timestamp  = (Get-Date -Format 'o')
         }
     }
