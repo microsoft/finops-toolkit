@@ -44,6 +44,16 @@ resources
         Write-Warning "Windows VM AHB scan failed: $($_.Exception.Message)"
     }
 
+    # -- Estimate per-VM AHB monthly savings (per-SKU Windows license premium) --
+    if ($windowsVMs.Count -gt 0 -and (Get-Command Get-AhbVmRates -ErrorAction SilentlyContinue)) {
+        foreach ($vm in $windowsVMs) {
+            $est = $null
+            $rates = Get-AhbVmRates -VmSize $vm.vmSize -Region $vm.location
+            if ($rates) { $est = [math]::Round($rates.HourlyPremium * 730, 2) }
+            $vm | Add-Member -NotePropertyName estMonthlySavings -NotePropertyValue $est -Force
+        }
+    }
+
     # -- SQL Server VMs without AHB -------------------------------------
     $sqlVMs = @()
     try {
@@ -86,12 +96,15 @@ resources
 
     # -- Summary --------------------------------------------------------
     $totalOpportunities = $windowsVMs.Count + $sqlVMs.Count + $sqlDBs.Count
+    $ahbVMSavings = ($windowsVMs | Where-Object { $_.estMonthlySavings } | Measure-Object -Property estMonthlySavings -Sum).Sum
+    if (-not $ahbVMSavings) { $ahbVMSavings = 0 }
 
     return [PSCustomObject]@{
         WindowsVMs          = $windowsVMs
         SQLVMs              = $sqlVMs
         SQLDatabases        = $sqlDBs
         TotalOpportunities  = $totalOpportunities
+        EstMonthlyVMSavings = [math]::Round($ahbVMSavings, 2)
         Summary             = "Found $($windowsVMs.Count) Windows VMs, $($sqlVMs.Count) SQL VMs, $($sqlDBs.Count) SQL DBs eligible for AHB"
     }
 }

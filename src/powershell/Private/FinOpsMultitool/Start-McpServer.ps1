@@ -99,6 +99,20 @@ $toolDefinitions = @(
         }
     }
     @{
+        name        = 'remediate_delete_orphaned_resource'
+        description = "WRITE/MUTATING. Delete ONE orphaned resource found by scan_orphaned_resources. Only orphan-eligible types can ever be deleted: unattached managed disks (Microsoft.Compute/disks), dangling public IPs (Microsoft.Network/publicIPAddresses), unattached NICs (Microsoft.Network/networkInterfaces), and disk snapshots (Microsoft.Compute/snapshots) - any other type is refused. It re-reads the resource and re-verifies it is still orphaned before acting (it REFUSES if the resource is now in use). DRY-RUN by default: without apply=true it returns a preview (the exact DELETE URI plus orphan evidence) and deletes NOTHING. Deletion is IRREVERSIBLE. ALWAYS show the user the preview and obtain explicit confirmation, THEN call again with apply=true to actually delete. Requires a delete-capable role (e.g. Contributor) on the resource scope."
+        fn          = 'Remove-OrphanedResource'
+        category    = 'Optimization'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                resourceId = @{ type = 'string'; description = 'Full ARM resource ID of the orphan to delete (e.g. /subscriptions/{guid}/resourceGroups/{rg}/providers/Microsoft.Compute/disks/{name}). Take this from scan_orphaned_resources output. Required.' }
+                apply      = @{ type = 'boolean'; description = 'SAFETY GATE. Default false = dry-run preview (deletes nothing). Set true ONLY after the user has reviewed the preview and explicitly approved deleting this specific resource. Deletion is irreversible.' }
+            }
+            required   = @('resourceId')
+        }
+    }
+    @{
         name        = 'scan_idle_vms'
         description = 'Find idle or underutilized VMs (less than 5% average CPU over 14-30 days) with cost impact classification.'
         fn          = 'Get-IdleVMs'
@@ -560,6 +574,7 @@ $toolDefinitions = @(
 # Permission requirements per tool (same as TUI)
 $permissionMap = @{
     'Get-OrphanedResources'     = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Resource Graph' }
+    'Remove-OrphanedResource'   = @{ role = 'Contributor (delete)'; scope = 'Resource'; api = 'Azure Resource Manager (DELETE)' }
     'Get-IdleVMs'               = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Resource Graph + Monitor Metrics' }
     'Get-StorageTierAdvice'     = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Resource Graph' }
     'Get-AHBOpportunities'      = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Resource Graph' }
@@ -778,6 +793,24 @@ function Invoke-McpTool {
 
     $toolDef = $toolDefinitions | Where-Object { $_.name -eq $ToolName }
     if (-not $toolDef) { throw "Unknown tool: $ToolName" }
+
+    # Targeted remediation acts on ONE resource id - it does not enumerate
+    # subscriptions. Safe-by-default: dry-run unless apply=true is explicit.
+    if ($toolDef.fn -eq 'Remove-OrphanedResource') {
+        $rid = [string]$Arguments.resourceId
+        if (-not $rid) { throw 'resourceId is required for remediate_delete_orphaned_resource.' }
+        $doApply = ($Arguments.apply -eq $true)
+        $remResult = Remove-OrphanedResource -ResourceId $rid -Apply:$doApply
+        return @{
+            tool       = $ToolName
+            module     = 'Remove-OrphanedResource'
+            category   = $toolDef.category
+            data       = $remResult
+            source     = 'LiveApi'
+            permission = if ($permissionMap.ContainsKey('Remove-OrphanedResource')) { $permissionMap['Remove-OrphanedResource'] } else { $null }
+            timestamp  = (Get-Date -Format 'o')
+        }
+    }
 
     $subId = if ($Arguments.subscriptionId) { $Arguments.subscriptionId } else { $null }
     $subIdSubset = if ($Arguments.subscriptionIds) { @($Arguments.subscriptionIds) } else { $null }

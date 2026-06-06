@@ -1034,20 +1034,21 @@ function Invoke-FinOpsMultitool {
                     $rows = @()
                     if ($data.WindowsVMs) {
                         $rows += @($data.WindowsVMs) | ForEach-Object {
-                            [PSCustomObject]@{ Type = 'Windows VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.vmSize; License = $_.currentLicense }
+                            $est = if ($_.estMonthlySavings) { '$' + ('{0:N0}' -f $_.estMonthlySavings) + '/mo' } else { 'n/a' }
+                            [PSCustomObject]@{ Type = 'Windows VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.vmSize; License = $_.currentLicense; 'Est Savings' = $est }
                         }
                     }
                     if ($data.SQLVMs) {
                         $rows += @($data.SQLVMs) | ForEach-Object {
-                            [PSCustomObject]@{ Type = 'SQL VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sqlEdition; License = $_.currentLicense }
+                            [PSCustomObject]@{ Type = 'SQL VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sqlEdition; License = $_.currentLicense; 'Est Savings' = '-' }
                         }
                     }
                     if ($data.SQLDatabases) {
                         $rows += @($data.SQLDatabases) | ForEach-Object {
-                            [PSCustomObject]@{ Type = 'SQL DB'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sku; License = $_.currentLicense }
+                            [PSCustomObject]@{ Type = 'SQL DB'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sku; License = $_.currentLicense; 'Est Savings' = '-' }
                         }
                     }
-                    $cols = @('Type', 'Name', 'ResourceGroup', 'Size', 'License')
+                    $cols = @('Type', 'Name', 'ResourceGroup', 'Size', 'License', 'Est Savings')
                 }
                 'Get-ReservationAdvice' {
                     if ($data.AccessDenied) {
@@ -2063,11 +2064,11 @@ tr:hover { background: #161b22; }
                     }
                     'Get-AHBOpportunities' {
                         $ahbRows = @()
-                        if ($data.WindowsVMs) { $ahbRows += @($data.WindowsVMs) | ForEach-Object { [PSCustomObject]@{ Type = 'Windows VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.vmSize; License = $_.currentLicense } } }
-                        if ($data.SQLVMs) { $ahbRows += @($data.SQLVMs) | ForEach-Object { [PSCustomObject]@{ Type = 'SQL VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sqlEdition; License = $_.currentLicense } } }
-                        if ($data.SQLDatabases) { $ahbRows += @($data.SQLDatabases) | ForEach-Object { [PSCustomObject]@{ Type = 'SQL DB'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sku; License = $_.currentLicense } } }
+                        if ($data.WindowsVMs) { $ahbRows += @($data.WindowsVMs) | ForEach-Object { $est = if ($_.estMonthlySavings) { '$' + ('{0:N0}' -f $_.estMonthlySavings) + '/mo' } else { 'n/a' }; [PSCustomObject]@{ Type = 'Windows VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.vmSize; License = $_.currentLicense; 'Est Savings' = $est } } }
+                        if ($data.SQLVMs) { $ahbRows += @($data.SQLVMs) | ForEach-Object { [PSCustomObject]@{ Type = 'SQL VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sqlEdition; License = $_.currentLicense; 'Est Savings' = '-' } } }
+                        if ($data.SQLDatabases) { $ahbRows += @($data.SQLDatabases) | ForEach-Object { [PSCustomObject]@{ Type = 'SQL DB'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sku; License = $_.currentLicense; 'Est Savings' = '-' } } }
                         $htmlRows = $ahbRows
-                        $htmlCols = @('Type', 'Name', 'ResourceGroup', 'Size', 'License')
+                        $htmlCols = @('Type', 'Name', 'ResourceGroup', 'Size', 'License', 'Est Savings')
                     }
                     'Get-TagInventory' {
                         [void]$htmlSb.Append("<p>Coverage: $($data.TagCoverage)% &nbsp;|&nbsp; $($data.TaggedCount) tagged / $($data.UntaggedCount) untagged &nbsp;|&nbsp; $($data.TagCount) unique tags</p>")

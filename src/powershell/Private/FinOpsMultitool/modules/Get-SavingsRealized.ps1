@@ -290,29 +290,37 @@ function Get-SavingsRealized {
     }
     } # end per-sub fallback
 
-    # -- Step 2: AHB savings estimate from Resource Graph -----------------
+    # -- Step 2: AHB realized savings (per-SKU Windows license premium) ---
     try {
         $ahbQuery = @"
 resources
 | where type =~ 'microsoft.compute/virtualmachines'
 | where properties.licenseType == 'Windows_Server'
-| summarize AHBVMs = count()
+| project vmSize = tostring(properties.hardwareProfile.vmSize), location
 "@
         $subIds = $Subscriptions | ForEach-Object { $_.Id }
         $ahbResult = Search-AzGraphSafe -Query $ahbQuery -Subscription $subIds
-        if ($ahbResult.Data -and $ahbResult.Data.Count -gt 0) {
-            $ahbVMCount = $ahbResult.Data[0].AHBVMs
-            # Average D2s v3 Windows license cost is ~$100/mo; AHB saves ~$50/mo per VM
-            $ahbSavings = $ahbVMCount * 50  # Conservative monthly estimate
+        $ahbVMs = if ($ahbResult.Data) { @($ahbResult.Data) } else { @() }
+        if ($ahbVMs.Count -gt 0) {
+            $ahbSavings = 0
+            $haveRates = Get-Command Get-AhbVmRates -ErrorAction SilentlyContinue
+            foreach ($vm in $ahbVMs) {
+                $perVm = 50  # fallback monthly estimate per VM when live rates are unavailable
+                if ($haveRates) {
+                    $rates = Get-AhbVmRates -VmSize $vm.vmSize -Region $vm.location
+                    if ($rates) { $perVm = [math]::Round($rates.HourlyPremium * 730, 2) }
+                }
+                $ahbSavings += $perVm
+            }
             [void]$details.Add([PSCustomObject]@{
                 Subscription = 'All'
                 Category     = 'Azure Hybrid Benefit (VMs)'
-                Amount       = $ahbSavings
+                Amount       = [math]::Round($ahbSavings, 2)
                 Type         = 'AHB'
             })
         }
     } catch {
-        Write-Warning "  AHB count query failed: $($_.Exception.Message)"
+        Write-Warning "  AHB savings query failed: $($_.Exception.Message)"
     }
 
     $totalMonthly = [math]::Round($riSavings + $spSavings + $ahbSavings, 2)
