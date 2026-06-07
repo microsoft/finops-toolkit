@@ -340,33 +340,34 @@ For VS Code `settings.json`, nest the same under an `mcp` key:
 
 ### Available Tools
 
-| Tool                          | Description                                        |
-| ----------------------------- | -------------------------------------------------- |
-| `scan_orphaned_resources`     | Find unattached disks, NICs, public IPs, NSGs      |
-| `scan_idle_vms`               | Find VMs with <5% CPU over 14-30 days              |
-| `scan_storage_tier_advice`    | Storage accounts that could use cooler tiers       |
-| `scan_ahb_opportunities`      | VMs/SQL not using Azure Hybrid Benefit             |
-| `scan_tag_inventory`          | Tag coverage %, tag names, resource counts         |
-| `scan_tag_recommendations`    | Inconsistent casing, missing standard tags         |
-| `scan_policy_inventory`       | Policy assignments with compliance status          |
-| `scan_policy_recommendations` | Policy coverage gaps for cost governance           |
-| `scan_cost_data`              | Actual + forecasted cost per subscription          |
-| `scan_resource_costs`         | Top resources by cost (MTD)                        |
-| `scan_cost_by_tag`            | Spend breakdown by tag key/value                   |
-| `scan_cost_trend`             | Month-over-month spend comparison                  |
-| `scan_reservation_advice`     | RI purchase recommendations                        |
-| `scan_commitment_utilization` | RI and Savings Plan usage rates                    |
-| `scan_savings_realized`       | Actual savings from commitments                    |
-| `scan_budget_status`          | Budget consumption vs thresholds                   |
-| `scan_anomaly_alerts`         | Recent cost anomaly detections                     |
-| `scan_legacy_resources`       | Legacy/retiring SKUs needing modernization         |
-| `scan_unit_economics`         | Cost per vCPU, per VM, and per GB stored           |
-| `scan_ai_workloads`           | AI token consumption, cost per 1K tokens, per call |
-| `scan_carbon`                 | Cloud carbon emissions and month-over-month trend  |
-| `scan_optimization_advice`    | Azure Advisor cost recommendations                 |
-| `scan_billing_structure`      | Billing account hierarchy                          |
-| `scan_contract_info`          | Agreement type, offer, support plan                |
-| `run_full_scan`               | Run all modules — comprehensive assessment         |
+| Tool                          | Description                                           |
+| ----------------------------- | ----------------------------------------------------- |
+| `scan_orphaned_resources`     | Find unattached disks, NICs, public IPs, NSGs         |
+| `scan_idle_vms`               | Find VMs with <5% CPU over 14-30 days                 |
+| `scan_storage_tier_advice`    | Storage accounts that could use cooler tiers          |
+| `scan_ahb_opportunities`      | VMs/SQL not using Azure Hybrid Benefit                |
+| `scan_tag_inventory`          | Tag coverage %, tag names, resource counts            |
+| `scan_tag_recommendations`    | Inconsistent casing, missing standard tags            |
+| `scan_policy_inventory`       | Policy assignments with compliance status             |
+| `scan_policy_recommendations` | Policy coverage gaps for cost governance              |
+| `scan_cost_data`              | Actual + forecasted cost per subscription             |
+| `scan_resource_costs`         | Top resources by cost (MTD)                           |
+| `scan_cost_by_tag`            | Spend breakdown by tag key/value                      |
+| `scan_cost_trend`             | Month-over-month spend comparison                     |
+| `scan_reservation_advice`     | RI purchase recommendations                           |
+| `scan_commitment_utilization` | RI and Savings Plan usage rates                       |
+| `scan_savings_realized`       | Actual savings from commitments                       |
+| `scan_budget_status`          | Budget consumption vs thresholds                      |
+| `scan_anomaly_alerts`         | Recent cost anomaly detections                        |
+| `scan_legacy_resources`       | Legacy/retiring SKUs needing modernization            |
+| `scan_unit_economics`         | Cost per vCPU, per VM, and per GB stored              |
+| `scan_ai_workloads`           | AI token consumption, cost per 1K tokens, per call    |
+| `scan_carbon`                 | Cloud carbon emissions and month-over-month trend     |
+| `scan_optimization_advice`    | Azure Advisor cost recommendations                    |
+| `scan_billing_structure`      | Billing account hierarchy                             |
+| `scan_contract_info`          | Agreement type, offer, support plan                   |
+| `explore_finops_kpis`         | Browse the FinOps Foundation KPIs this server informs |
+| `run_full_scan`               | Run all modules — comprehensive assessment            |
 
 ### Remediation Tools (write actions)
 
@@ -379,6 +380,22 @@ These tools **change Azure resources**. They are dry-run by default and route th
 | `remediate_delete_orphaned_resource` | Delete an orphaned disk / NIC / public IP / snapshot (from `scan_orphaned_resources`) | No (delete)            |
 
 Each write tool takes `resourceId` (required), `apply` (default `false` = preview), and `confirmationToken` (required only in Enforced mode). The delete tool only accepts an allow-list of safe-to-delete types and re-verifies the resource is still orphaned before acting.
+
+### FinOps KPI Insights
+
+Most users do not know the [FinOps Foundation KPI catalog](https://www.finops.org/finops-kpis/) by name, so the server surfaces it for them. Every scan automatically attaches a `kpiInsights` block that maps the result to the industry KPIs it informs, with a computed value where the data allows:
+
+```json
+"kpiInsights": [
+  { "kpiId": "cost-per-gb-stored", "kpiName": "Cost per Gigabyte Stored",
+    "domain": "Quantify", "status": "computed", "yourValue": "USD 0.0108 per GB / month",
+    "plainLanguage": "What you pay for each GB of stored data this month.",
+    "exploreHint": "Run scan_storage_tier_advice to see if cooler tiers lower this.",
+    "learnMore": "https://www.finops.org/finops-kpis/" }
+]
+```
+
+`status` is `computed` when a real value was derived from the scan, or `informational` when the scan relates to the KPI but the value needs another scan or external input — the server never fabricates a number. Call `explore_finops_kpis` (no arguments) to list the informable KPIs grouped by FinOps domain, or pass a `kpiId` for a single KPI's definition and which tool produces it. This first release covers ~27 KPIs across Understand, Quantify, Optimize, and Manage.
 
 ### Resources
 

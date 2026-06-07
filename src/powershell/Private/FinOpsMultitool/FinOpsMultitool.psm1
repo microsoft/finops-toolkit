@@ -44,6 +44,7 @@ $helpersPath = Join-Path $PSScriptRoot 'modules\helpers'
 . (Join-Path $helpersPath 'Read-FinOpsHubData.ps1')
 . (Join-Path $helpersPath 'Get-CostExport.ps1')
 . (Join-Path $helpersPath 'Resolve-CostDataSource.ps1')
+. (Join-Path $helpersPath 'Get-KpiInsights.ps1')
 
 # -- Set script-scope root (some modules reference $script:ScriptRootDir) -
 $script:ScriptRootDir = $PSScriptRoot

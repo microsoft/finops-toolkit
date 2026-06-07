@@ -77,7 +77,7 @@ Import-Module $psm1Path -Force -DisableNameChecking
 # =====================================================================
 $MCP_VERSION = '2024-11-05'
 $SERVER_NAME = 'finops-multitool'
-$SERVER_VERSION = '1.1.0'
+$SERVER_VERSION = '1.2.0'
 
 # =====================================================================
 #  TOOL DEFINITIONS
@@ -601,6 +601,18 @@ $toolDefinitions = @(
             }
         }
     }
+    @{
+        name        = 'explore_finops_kpis'
+        description = 'Browse the FinOps Foundation KPIs (https://www.finops.org/finops-kpis/) that this server can inform, and learn which scan produces each one. Call with no arguments to list KPIs grouped by FinOps domain (Understand/Quantify/Optimize/Manage) with a Computable-now vs Informational flag. Call with a kpiId to get that KPI''s definition, the tool that informs it, and a plain-language explanation. Use this when a user wants to understand FinOps KPIs or map their tenant data to industry metrics. Most scan tools also attach a kpiInsights block to their own output automatically.'
+        fn          = '_explore_kpis'
+        category    = 'Guidance'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{
+                kpiId = @{ type = 'string'; description = 'Optional KPI id (from the list) to get full detail. Omit to list all informable KPIs grouped by domain.' }
+            }
+        }
+    }
 )
 
 # Permission requirements per tool (same as TUI)
@@ -887,6 +899,18 @@ function Invoke-McpTool {
     if ($toolDef.fn -eq '_full_scan') {
         $ds = if ($Arguments.dataSource) { [string]$Arguments.dataSource } else { 'auto' }
         return Invoke-FullScan -SubscriptionId $subId -ModuleFilter $Arguments.modules -DataSource $ds
+    }
+
+    # KPI catalog exploration is a static guidance helper, not a scan
+    if ($toolDef.fn -eq '_explore_kpis') {
+        $kpiId = if ($Arguments.kpiId) { [string]$Arguments.kpiId } else { $null }
+        return @{
+            tool      = $ToolName
+            module    = 'Get-KpiExploration'
+            category  = $toolDef.category
+            data      = (Get-KpiExploration -KpiId $kpiId)
+            timestamp = (Get-Date -Format 'o')
+        }
     }
 
     # Cost data source detection is a routing helper, not a scan
@@ -1424,6 +1448,8 @@ function Handle-ToolsCall {
         # $null so nothing from module execution leaks onto stdout. The
         # function's return value (stream 1) still flows into $result.
         $result = Invoke-McpTool -ToolName $toolName -Arguments $arguments 3>$null 4>$null 5>$null 6>$null
+        # Attach FinOps KPI correlations (additive; no-op for tools with no mapping)
+        try { $result = Add-KpiInsights -Result $result } catch { }
         $json = $result | ConvertTo-Json -Depth 20 -Compress
         Send-Result -Id $Id -Result @{
             content = @(
