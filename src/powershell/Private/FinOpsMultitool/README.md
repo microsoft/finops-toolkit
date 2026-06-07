@@ -125,13 +125,13 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 
 ### Cost Analysis
 
-| Scan           | What it finds                            |
-| -------------- | ---------------------------------------- |
-| Cost Data      | Monthly spend per subscription           |
-| Resource Costs | Top resources by cost                    |
-| Cost by Tag    | Spend breakdown by tag key/value         |
-| Cost Trend     | Month-over-month spend comparison        |
-| Unit Economics | Cost per vCPU, per VM, and per GB stored |
+| Scan           | What it finds                                                                                       |
+| -------------- | --------------------------------------------------------------------------------------------------- |
+| Cost Data      | Monthly spend per subscription                                                                      |
+| Resource Costs | Top resources by cost                                                                               |
+| Cost by Tag    | Spend breakdown by tag key/value                                                                    |
+| Cost Trend     | Month-over-month spend comparison                                                                   |
+| Unit Economics | Cost per vCPU, per GB RAM, per VM, and per GB stored (disk + blob/file, with compute/storage split) |
 
 ### AI & ML
 
@@ -196,15 +196,16 @@ Legacy % = 47 ÷ total resources in scope.
 ```
 Unit Economics — Month to Date (USD)
 
-Compute cost      $128,400      VMs: 312     Total vCPU: 1,840
-Storage cost      $ 41,200      Provisioned: 84,600 GB
+Compute  $128,400 (75.7%)   312 VMs / 1,840 vCPU / 7,360 GB RAM
+Storage  $ 41,200 (24.3%)   126,400 GB (84,600 GB disk + 41,800 GB blob/file)
 
-  Cost per vCPU     $69.78 / month
-  Cost per VM       $411.54 / month
-  Cost per GB       $0.487 / month
+  Cost per vCPU      $69.78 / month
+  Cost per GB RAM    $17.45 / month
+  Cost per VM        $411.54 / month
+  Cost per GB stored $0.326 / month
 ```
 
-Directly produces `Cost per GB Stored`; feeds `Hourly Cost per CPU Core` (÷ 730) and `Effective Avg Compute Cost per Core`.
+vCPU and RAM are exact (read from Compute SKU capabilities). Storage GB combines provisioned managed disks with Storage-account used capacity (Azure Monitor `UsedCapacity`). Cost is scoped to the selected subscriptions and falls back to per-subscription queries when the management-group scope is not accessible, so the section is never silently $0. Directly produces `Cost per GB Stored`; feeds `Hourly Cost per CPU Core` (÷ 730) and `Effective Avg Compute Cost per Core`.
 
 ### Token Consumption / Cost per 1K Tokens / Cost per API Call → `scan_ai_workloads`
 

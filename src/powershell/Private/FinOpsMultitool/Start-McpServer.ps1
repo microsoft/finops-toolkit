@@ -77,7 +77,7 @@ Import-Module $psm1Path -Force -DisableNameChecking
 # =====================================================================
 $MCP_VERSION = '2024-11-05'
 $SERVER_NAME = 'finops-multitool'
-$SERVER_VERSION = '1.0.0'
+$SERVER_VERSION = '1.1.0'
 
 # =====================================================================
 #  TOOL DEFINITIONS
@@ -373,7 +373,7 @@ $toolDefinitions = @(
     }
     @{
         name        = 'scan_unit_economics'
-        description = 'Compute unit-economics KPIs: cost per vCPU (compute) and cost per GB (storage) by dividing month-to-date amortized cost by provisioned capacity. vCPU counts are approximated from VM size names.'
+        description = 'Compute unit-economics KPIs: cost per vCPU, per GB RAM, per VM (compute) and per GB stored (storage), plus the compute/storage cost split, by dividing month-to-date amortized cost by provisioned capacity. vCPU and RAM are exact (from Compute SKU capabilities); storage GB combines managed disks with Storage-account used capacity (Azure Monitor); cost is scoped to the selected subscriptions with a per-subscription fallback.'
         fn          = 'Get-UnitEconomics'
         category    = 'Cost Analysis'
         inputSchema = @{
@@ -629,7 +629,7 @@ $permissionMap = @{
     'Get-OptimizationAdvice'    = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Advisor API' }
     'Get-CarbonMetrics'         = @{ role = 'Reader or Carbon Optimization Reader'; scope = 'Subscription'; api = 'Carbon Optimization API' }
     'Get-LegacyResources'       = @{ role = 'Reader'; scope = 'Subscription'; api = 'Azure Resource Graph' }
-    'Get-UnitEconomics'         = @{ role = 'Cost Management Reader + Reader'; scope = 'Management Group'; api = 'Cost Management Query API + Azure Resource Graph' }
+    'Get-UnitEconomics'         = @{ role = 'Cost Management Reader + Reader'; scope = 'Management Group'; api = 'Cost Management Query API + Azure Resource Graph + Azure Monitor metrics' }
     'Get-AIWorkloadMetrics'     = @{ role = 'Cost Management Reader + Reader'; scope = 'Management Group'; api = 'Azure Resource Graph + Monitor Metrics + Cost Management Query API' }
     'Get-BillingStructure'      = @{ role = 'Billing Reader'; scope = 'Billing Account'; api = 'Billing API' }
     'Get-ContractInfo'          = @{ role = 'Billing Reader'; scope = 'Billing Account'; api = 'Billing API' }

@@ -120,7 +120,7 @@ function Invoke-FinOpsMultitool {
         'Get-ResourceCosts'         = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action. Assign Cost Management Reader or Reader at the subscription or MG scope.' }
         'Get-CostByTag'             = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action to query cost grouped by tag dimensions.' }
         'Get-CostTrend'             = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action to retrieve historical monthly cost data.' }
-        'Get-UnitEconomics'         = @{ Role = 'Cost Management Reader + Reader'; Scope = 'Management Group'; API = 'Cost Management Query API + Azure Resource Graph'; Reason = 'Requires amortized cost (Cost Management) and capacity counts (Resource Graph) to compute $/vCPU and $/GB.' }
+        'Get-UnitEconomics'         = @{ Role = 'Cost Management Reader + Reader'; Scope = 'Management Group'; API = 'Cost Management Query API + Azure Resource Graph + Azure Monitor metrics'; Reason = 'Requires amortized cost (Cost Management), capacity counts (Resource Graph), and storage-account used capacity (Monitor UsedCapacity metric) to compute $/vCPU, $/GB RAM and $/GB stored.' }
         'Get-AIWorkloadMetrics'     = @{ Role = 'Cost Management Reader + Reader'; Scope = 'Management Group'; API = 'Azure Resource Graph + Monitor Metrics + Cost Management Query API'; Reason = 'Requires Reader to detect AI resources and read Azure OpenAI token metrics, plus Cost Management Reader to map token usage to spend. Skips the deep scan when no AI workloads are present.' }
         'Get-ReservationAdvice'     = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Consumption Reservation Recommendations API'; Reason = 'Requires Microsoft.Consumption/reservationRecommendations/read to retrieve reservation purchase advice.' }
         'Get-CommitmentUtilization' = @{ Role = 'Cost Management Reader or Reservation Reader'; Scope = 'Reservation Order or Subscription'; API = 'Consumption Reservation Summaries API'; Reason = 'Requires Microsoft.Consumption/reservationSummaries/read. If no reservations exist, this will be empty.' }
@@ -1055,22 +1055,22 @@ function Invoke-FinOpsMultitool {
                         Show-PermissionReadout -Fn 'Get-ReservationAdvice' -PermissionInfo $permissionInfo -Activity 'Advisor / reservation recommendations'
                     }
                     else {
-                    $rows = $data.AdvisorRecommendations | ForEach-Object {
-                        $resLabel = if ($_.Subscription -and $_.Subscription -ne $_.SubscriptionId) { $_.Subscription }
-                        elseif ($_.Solution) { $_.Solution.Substring(0, [math]::Min(50, $_.Solution.Length)) }
-                        else { ($_.ResourceName -split '/')[-1] }
-                        [PSCustomObject]@{
-                            Resource = $resLabel
-                            Type     = ($_.ResourceType -split '/')[-1]
-                            Term     = $_.Term
-                            Savings  = '{0:C0}' -f [double]$_.AnnualSavings
-                            Impact   = $_.Impact
+                        $rows = $data.AdvisorRecommendations | ForEach-Object {
+                            $resLabel = if ($_.Subscription -and $_.Subscription -ne $_.SubscriptionId) { $_.Subscription }
+                            elseif ($_.Solution) { $_.Solution.Substring(0, [math]::Min(50, $_.Solution.Length)) }
+                            else { ($_.ResourceName -split '/')[-1] }
+                            [PSCustomObject]@{
+                                Resource = $resLabel
+                                Type     = ($_.ResourceType -split '/')[-1]
+                                Term     = $_.Term
+                                Savings  = '{0:C0}' -f [double]$_.AnnualSavings
+                                Impact   = $_.Impact
+                            }
                         }
-                    }
-                    $cols = @('Resource', 'Type', 'Term', 'Savings', 'Impact')
-                    if ($data.EstimatedAnnualSavings) {
-                        Write-ColorizedLine -Text "    Est. annual savings: $($data.EstimatedAnnualSavings.ToString('C0'))" -DefaultColor 'White'
-                    }
+                        $cols = @('Resource', 'Type', 'Term', 'Savings', 'Impact')
+                        if ($data.EstimatedAnnualSavings) {
+                            Write-ColorizedLine -Text "    Est. annual savings: $($data.EstimatedAnnualSavings.ToString('C0'))" -DefaultColor 'White'
+                        }
                     }
                 }
                 'Get-CommitmentUtilization' {
@@ -1366,12 +1366,14 @@ function Invoke-FinOpsMultitool {
                     $cols = @('Category', 'Resource', 'Detail', 'Impact')
                 }
                 'Get-UnitEconomics' {
-                    Write-ColorizedLine -Text "    Compute: $($data.Currency) $($data.ComputeCost) over $($data.VmCount) VMs / ~$($data.TotalVCpu) vCPU" -DefaultColor 'White'
-                    Write-ColorizedLine -Text "    Storage: $($data.Currency) $($data.StorageCost) over $($data.TotalStorageGb) GB" -DefaultColor 'White'
+                    Write-ColorizedLine -Text "    Compute: $($data.Currency) $($data.ComputeCost) ($($data.ComputeSharePct)%) over $($data.VmCount) VMs / $($data.TotalVCpu) vCPU / $($data.TotalMemoryGb) GB RAM" -DefaultColor 'White'
+                    Write-ColorizedLine -Text "    Storage: $($data.Currency) $($data.StorageCost) ($($data.StorageSharePct)%) over $($data.TotalStorageGb) GB ($($data.DiskGb) GB disk + $($data.BlobFileGb) GB blob/file)" -DefaultColor 'White'
+                    if ($data.Note) { Write-Host "    $($data.Note)" -ForegroundColor DarkGray }
                     $rows = @(
                         [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = "$($data.Currency) $($data.CostPerVCpu)" }
+                        [PSCustomObject]@{ Metric = 'Cost per GB RAM'; Value = "$($data.Currency) $($data.CostPerGbRam)" }
                         [PSCustomObject]@{ Metric = 'Cost per VM'; Value = "$($data.Currency) $($data.CostPerVm)" }
-                        [PSCustomObject]@{ Metric = 'Cost per GB'; Value = "$($data.Currency) $($data.CostPerGb)" }
+                        [PSCustomObject]@{ Metric = 'Cost per GB stored'; Value = "$($data.Currency) $($data.CostPerGb)" }
                     )
                     $cols = @('Metric', 'Value')
                 }
