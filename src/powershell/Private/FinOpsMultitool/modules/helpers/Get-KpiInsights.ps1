@@ -92,25 +92,38 @@ function Get-KpiComputedValue {
             }
         }
         { $_ -in @('pct-costs-untagged', 'pct-costs-unallocated', 'tagging-policy-compliant') } {
-            # Derive from CostByTag: pick the allocation tag with the best
-            # coverage to represent untagged vs tagged spend.
+            # Derive from CostByTag. These KPIs measure ALLOCATION coverage, so
+            # only consider recognized CAF allocation dimensions - not identity
+            # tags (e.g. tag1/tag2) that blanket every resource and would give a
+            # misleading 0% untagged. CostByTag may be a hashtable (hub/export)
+            # or a PSCustomObject (live path).
             $cbt = Get-ScanField $Data 'CostByTag'
             if (-not $cbt) { return $null }
+            $allocTags = @('CostCenter', 'Customer', 'Project', 'Environment', 'Application',
+                'Owner', 'BusinessUnit', 'Department', 'Team', 'Service', 'WorkloadName')
+            $tagPairs = @()
+            if ($cbt -is [System.Collections.IDictionary]) {
+                foreach ($k in $cbt.Keys) { $tagPairs += [PSCustomObject]@{ Name = $k; Value = $cbt[$k] } }
+            }
+            else {
+                foreach ($prop in $cbt.PSObject.Properties) { $tagPairs += [PSCustomObject]@{ Name = $prop.Name; Value = $prop.Value } }
+            }
             $best = $null
-            foreach ($prop in $cbt.PSObject.Properties) {
-                $rows = @($prop.Value)
+            foreach ($tp in $tagPairs) {
+                if ($allocTags -notcontains $tp.Name) { continue }   # allocation tags only
+                $rows = @($tp.Value)
                 $total = ($rows | Measure-Object -Property Cost -Sum).Sum
                 if (-not $total -or $total -le 0) { continue }
                 $untag = ($rows | Where-Object { $_.TagValue -eq '(untagged)' } | Measure-Object -Property Cost -Sum).Sum
                 if ($null -eq $untag) { $untag = 0 }
                 $pctUntag = [math]::Round(100 * $untag / $total, 1)
                 if ($null -eq $best -or $pctUntag -lt $best.PctUntag) {
-                    $best = [PSCustomObject]@{ Tag = $prop.Name; PctUntag = $pctUntag }
+                    $best = [PSCustomObject]@{ Tag = $tp.Name; PctUntag = $pctUntag }
                 }
             }
-            if ($null -eq $best) { return $null }
+            if ($null -eq $best) { return $null }   # no allocation tags -> stays informational
             switch ($KpiId) {
-                'pct-costs-untagged' { return "$($best.PctUntag)% (best tag: $($best.Tag))" }
+                'pct-costs-untagged' { return "$($best.PctUntag)% untagged (by allocation tag '$($best.Tag)')" }
                 'pct-costs-unallocated' { return "$($best.PctUntag)% unallocated (by '$($best.Tag)')" }
                 'tagging-policy-compliant' { return "$([math]::Round(100 - $best.PctUntag, 1))% compliant (by '$($best.Tag)')" }
             }
