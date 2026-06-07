@@ -3,16 +3,14 @@
 
 ###########################################################################
 # FINOPSMULTITOOL.PSM1
-# MODULE LOADER FOR STANDALONE (NON-GUI) USE
+# MODULE LOADER
 ###########################################################################
 # Purpose: Dot-sources all helpers and analysis modules so they can be
-#          imported via Import-Module without launching the WPF GUI.
+#          imported via Import-Module and used by the TUI or MCP server.
 #
 # Usage:
 #   Import-Module .\FinOpsMultitool.psm1
 #   $results = Get-OrphanedResources -Subscriptions $subs -TenantId $tid
-#
-# The GUI entry point remains Start-FinOpsMultitool.ps1 (unchanged).
 ###########################################################################
 
 # -- Ensure required Az modules are loaded ---------------------------------

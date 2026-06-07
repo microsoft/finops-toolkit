@@ -917,7 +917,7 @@ function Invoke-McpTool {
             Join-Path ([System.IO.Path]::GetTempPath()) "FinOps-PowerBI-$stamp"
         }
 
-        $skel = Join-Path (Join-Path $PSScriptRoot 'gui') 'skeleton.pbit'
+        $skel = Join-Path (Join-Path $PSScriptRoot 'assets') 'skeleton.pbit'
         $built = New-PowerBITemplate -ScanData $pbiScanData -OutputDir $outDir -SkeletonPath $skel
 
         return @{

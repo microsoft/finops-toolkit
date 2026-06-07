@@ -301,7 +301,7 @@ $costByTag = ConvertTo-CostByTagFromHub -HubData $hubData -ExistingTags $tagInve
 
 ## MCP Server (AI Integration)
 
-The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 24 scan modules — plus a `run_full_scan` composite — as AI-callable tools, along with a set of **remediation (write) tools** that act on the findings. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI and GUI.
+The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 24 scan modules — plus a `run_full_scan` composite — as AI-callable tools, along with a set of **remediation (write) tools** that act on the findings. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI.
 
 Read scans are always safe. The write tools are gated by a configurable [write-safety policy](#write-safety-remediation-tools) so neither a person nor an autonomous agent can make a costly mistake — every write previews first (dry-run) and, in autonomous mode, requires a single-use confirmation token bound to the exact change.
 
@@ -397,7 +397,7 @@ Start-McpServer.ps1
     ▼
 Get-CostData, Get-TagInventory, etc.   ◄── read scans
 Remove-OrphanedResource, Stop-IdleVm…   ◄── write tools → Resolve-WriteDecision (safety gate)
-    │ Same functions used by TUI and GUI
+    │ Same functions used by the TUI
     ▼
 Azure APIs (Cost Management, Resource Graph, Advisor, etc.)
 ```
@@ -458,7 +458,6 @@ FinOpsMultitool/
 ├── README.md                  # This file
 ├── FinOpsMultitool.psm1       # Module loader (dot-sources all scan modules)
 ├── Invoke-FinOpsMultitool.ps1 # TUI entry point
-├── Start-FinOpsMultitool.ps1  # GUI entry point (WPF/XAML, Windows only)
 ├── Start-McpServer.ps1        # MCP server (AI integration, stdio JSON-RPC)
 ├── modules/
 │   ├── helpers/
@@ -479,5 +478,4 @@ FinOpsMultitool/
 │   ├── Stop-IdleVm.ps1                     # Write: deallocate idle VM (gated)
 │   ├── Get-IdleVMs.ps1
 │   └── ...                    # One file per scan module
-└── gui/                       # WPF/XAML assets for GUI mode
 ```

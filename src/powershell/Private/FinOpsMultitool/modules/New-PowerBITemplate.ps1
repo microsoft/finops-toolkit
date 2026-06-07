@@ -7,17 +7,16 @@
 # Date:    Created for FinOps Toolkit integration
 #
 # Description:
-# Headless, dependency-free generator shared by the GUI and the MCP
-# server. Given a scan-data hashtable (the same shape the GUI keeps in
-# $script:scanData) it:
+# Headless, dependency-free generator used by the TUI and the MCP
+# server. Given a scan-data hashtable it:
 # 1. Writes one curated CSV per scan section into the output folder.
-# 2. Clones gui\skeleton.pbit and injects a generated DataModelSchema so
+# 2. Clones assets\skeleton.pbit and injects a generated DataModelSchema so
 #    the report's pages bind to the exported tables.
 # 3. Returns the full path to the generated FinOps-Report.pbit.
 #
 # This function performs NO UI work: no WPF, no MessageBox, no folder
 # dialogs. Errors are thrown so callers can surface them however they
-# like. The GUI wraps it with dialogs; the MCP server calls it directly.
+# like. The MCP server calls it directly.
 #
 # ── Parameters ──────────────────────────────────────────────────
 # ScanData       Hashtable of scan results (Auth, Costs, ResourceCosts,
@@ -25,13 +24,13 @@
 #                CostByTag, CostTrend, Commitments, AHB, Optimization,
 #                Reservations, Savings).
 # OutputDir      Folder to write CSVs and the .pbit into. Created if missing.
-# SkeletonPath   Optional path to skeleton.pbit. Defaults to the gui folder
-#                next to the module directory.
-# ScorecardRows  Optional pre-computed scorecard rows (GUI supplies these).
+# SkeletonPath   Optional path to skeleton.pbit. Defaults to the assets
+#                folder next to the module directory.
+# ScorecardRows  Optional pre-computed scorecard rows.
 #
 # Prerequisites:
 # - PowerShell 7+
-# - gui\skeleton.pbit present alongside the module folder
+# - assets\skeleton.pbit present alongside the module folder
 #
 # Usage: New-PowerBITemplate -ScanData $d -OutputDir 'C:\out\FinOps'
 ###########################################################################
@@ -431,7 +430,7 @@ function New-PowerBITemplate {
 
     # Resolve skeleton .pbit (default: gui folder next to this module dir)
     if (-not $SkeletonPath) {
-        $SkeletonPath = Join-Path (Join-Path (Split-Path $PSScriptRoot -Parent) 'gui') 'skeleton.pbit'
+        $SkeletonPath = Join-Path (Join-Path (Split-Path $PSScriptRoot -Parent) 'assets') 'skeleton.pbit'
     }
     if (-not (Test-Path $SkeletonPath)) {
         throw "skeleton.pbit not found at: $SkeletonPath"
@@ -460,8 +459,8 @@ function New-PowerBITemplate {
     }
 
     return [PSCustomObject]@{
-        PbitPath = $pbitPath
-        CsvCount = $csvFiles.Count
+        PbitPath  = $pbitPath
+        CsvCount  = $csvFiles.Count
         OutputDir = $OutputDir
     }
 }
