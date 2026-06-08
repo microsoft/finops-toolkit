@@ -712,15 +712,24 @@ function ConvertTo-ResourceCostsFromExport {
         $agg[$key].Cost += $cost
     }
 
+    # Linear month-to-date projection so the per-resource forecast matches the
+    # subscription-level export forecast (ConvertTo-CostDataFromExport). Without
+    # this, Forecast == Actual (MTD) and downstream views (e.g. AHB "With AHB
+    # (Mo.)") show a flat month-to-date number instead of a month-end projection.
+    $now      = Get-Date
+    $daysInMo = [DateTime]::DaysInMonth($now.Year, $now.Month)
+    $dayOfMo  = [math]::Max(1, $now.Day)
+
     foreach ($v in $agg.Values) {
         $c = [math]::Round($v.Cost, 2)
+        $fc = [math]::Round($c / $dayOfMo * $daysInMo, 2)
         [void]$out.Add([PSCustomObject]@{
                 Subscription  = $v.Subscription
                 ResourceGroup = $v.ResourceGroup
                 ResourceType  = $v.ResourceType
                 ResourcePath  = $v.ResourcePath
                 Actual        = $c
-                Forecast      = $c
+                Forecast      = $fc
                 Currency      = $ExportData.Currency
             })
     }

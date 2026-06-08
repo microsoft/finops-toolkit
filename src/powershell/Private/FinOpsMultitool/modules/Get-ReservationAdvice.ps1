@@ -45,6 +45,9 @@ advisorresources
     annualSavings   = tostring(properties.extendedProperties.annualSavingsAmount),
     savingsCurrency = tostring(properties.extendedProperties.savingsCurrency),
     term            = tostring(properties.extendedProperties.term),
+    displaySKU      = tostring(properties.extendedProperties.displaySKU),
+    region          = tostring(properties.extendedProperties.region),
+    displayQty      = tostring(properties.extendedProperties.displayQty),
     recName         = name
 "@
 
@@ -64,16 +67,33 @@ advisorresources
         foreach ($row in $allRows) {
             $subId = $row.subscriptionId
             $savings = if ($row.annualSavings) { [math]::Round([double]$row.annualSavings, 2) } else { $null }
+            $subName = if ($subNameMap.ContainsKey($subId)) { $subNameMap[$subId] } else { $subId }
+
+            # Savings Plans are subscription-scoped, flexible commitments: Advisor
+            # returns the subscription GUID as impactedValue and carries no
+            # SKU/region/qty. Resolve the GUID to the subscription name and label
+            # the flexible dimensions 'Any' so the row reads as a real scope-wide
+            # commitment rather than a bare ID with missing data. RIs keep their
+            # real SKU/region/qty. The savings come straight from Advisor.
+            $isSavingsPlan = ($row.shortDescriptionSolution -match '(?i)savings plan') -or ($row.shortDescriptionProblem -match '(?i)savings plan')
+            $isSubScope    = $row.impactedField -match '(?i)subscriptions/subscriptions'
+            $resName = if ($isSubScope) { "$subName (subscription-wide)" } else { $row.impactedValue }
+            $sku    = if ($row.displaySKU) { $row.displaySKU } elseif ($isSavingsPlan) { 'Any (flexible)' } else { '-' }
+            $region = if ($row.region)    { $row.region }    elseif ($isSavingsPlan) { 'Any' }            else { '-' }
+            $qty    = if ($row.displayQty) { $row.displayQty } elseif ($isSavingsPlan) { 'Commitment' }     else { '-' }
 
             [void]$allRecommendations.Add([PSCustomObject]@{
-                Subscription     = if ($subNameMap.ContainsKey($subId)) { $subNameMap[$subId] } else { $subId }
+                Subscription     = $subName
                 SubscriptionId   = $subId
                 Problem          = $row.shortDescriptionProblem
                 Solution         = $row.shortDescriptionSolution
                 Impact           = $row.impact
                 Category         = 'Reservation / Savings Plan'
                 ResourceType     = $row.impactedField
-                ResourceName     = $row.impactedValue
+                ResourceName     = $resName
+                SKU              = $sku
+                Region           = $region
+                Qty              = $qty
                 AnnualSavings    = $savings
                 Currency         = $row.savingsCurrency
                 Term             = $row.term
@@ -101,6 +121,12 @@ advisorresources
 
                 foreach ($item in $riRecs) {
                     $rec = $item.properties
+                    $isSavingsPlan = ($rec.shortDescription.solution -match '(?i)savings plan') -or ($rec.shortDescription.problem -match '(?i)savings plan')
+                    $isSubScope    = $rec.impactedField -match '(?i)subscriptions/subscriptions'
+                    $resName = if ($isSubScope) { "$($sub.Name) (subscription-wide)" } else { $rec.impactedValue }
+                    $sku    = if ($rec.extendedProperties.displaySKU) { $rec.extendedProperties.displaySKU } elseif ($isSavingsPlan) { 'Any (flexible)' } else { '-' }
+                    $region = if ($rec.extendedProperties.region)     { $rec.extendedProperties.region }     elseif ($isSavingsPlan) { 'Any' }            else { '-' }
+                    $qty    = if ($rec.extendedProperties.displayQty) { $rec.extendedProperties.displayQty } elseif ($isSavingsPlan) { 'Commitment' }     else { '-' }
                     [void]$allRecommendations.Add([PSCustomObject]@{
                         Subscription     = $sub.Name
                         SubscriptionId   = $sub.Id
@@ -109,7 +135,10 @@ advisorresources
                         Impact           = $rec.impact
                         Category         = 'Reservation / Savings Plan'
                         ResourceType     = $rec.impactedField
-                        ResourceName     = $rec.impactedValue
+                        ResourceName     = $resName
+                        SKU              = $sku
+                        Region           = $region
+                        Qty              = $qty
                         AnnualSavings    = if ($rec.extendedProperties.annualSavingsAmount) {
                                              [math]::Round([double]$rec.extendedProperties.annualSavingsAmount, 2)
                                            } else { $null }
