@@ -30,6 +30,15 @@ function Get-ResourceCosts {
 
     $allRows = [System.Collections.Generic.List[PSCustomObject]]::new()
 
+    # Linear month-to-date projection factor for per-resource forecasts. The
+    # per-resource Cost Management query only returns ActualCost (MTD), so a
+    # native forecast is not available. Project to month-end (Actual / dayOfMonth
+    # * daysInMonth) so Forecast is a real projection instead of equal to Actual.
+    $now          = Get-Date
+    $daysInMonth  = [DateTime]::DaysInMonth($now.Year, $now.Month)
+    $dayOfMonth   = [math]::Max(1, $now.Day)
+    $forecastMult = $daysInMonth / $dayOfMonth
+
     # Friendly resource type map
     $typeMap = @{
         'microsoft.compute/virtualmachines'             = 'Virtual Machine'
@@ -136,7 +145,7 @@ function Get-ResourceCosts {
                                 ResourceType  = $resType
                                 ResourcePath  = $resourceId
                                 Actual        = $cost
-                                Forecast      = $cost
+                                Forecast      = [math]::Round($cost * $forecastMult, 2)
                                 Currency      = $currency
                             })
                         }
@@ -263,7 +272,7 @@ function Get-ResourceCosts {
                                 ResourceType  = $resType
                                 ResourcePath  = $resourceId
                                 Actual        = $cost
-                                Forecast      = $cost
+                                Forecast      = [math]::Round($cost * $forecastMult, 2)
                                 Currency      = $currency
                             }
                         }
