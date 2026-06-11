@@ -1328,7 +1328,9 @@ function Invoke-McpTool {
     # percentages and risk levels are real.
     if ($fn -eq 'Get-BudgetStatus') {
         try {
-            $costMap = Get-CostData -Subscriptions $subs
+            $costParams = @{ Subscriptions = $subs }
+            if ($tenantId) { $costParams['TenantId'] = $tenantId }
+            $costMap = Get-CostData @costParams
             if ($costMap -is [hashtable]) { $params['CostData'] = $costMap }
         }
         catch {
