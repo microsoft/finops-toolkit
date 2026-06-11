@@ -20,31 +20,47 @@ function Get-IdleVMs {
     $results = [System.Collections.Generic.List[PSCustomObject]]::new()
 
     # -- 1: Find all running VMs ------------------------------------------
+    # Pull every VM with its power state so we can distinguish "no VMs at all"
+    # from "VMs exist but are all deallocated" (idle detection only applies to
+    # RUNNING VMs - a deallocated VM has no CPU to sample).
+    $totalVMs = 0
+    $deallocatedCount = 0
     try {
         $query = @"
 resources
 | where type =~ 'microsoft.compute/virtualmachines'
 | extend powerState = tostring(properties.extended.instanceView.powerState.code)
-| where powerState =~ 'PowerState/running'
 | project name, resourceGroup, subscriptionId, location,
           vmSize = properties.hardwareProfile.vmSize,
           osType = properties.storageProfile.osDisk.osType,
           powerState
 "@
         $result = Search-AzGraphSafe -Query $query -Subscription $subIds -First 1000
-        $runningVMs = if ($result) { @($result.Data) } else { @() }
-        Write-Host "    Running VMs found: $($runningVMs.Count)" -ForegroundColor Gray
+        $allVMs = if ($result) { @($result.Data) } else { @() }
+        $totalVMs = $allVMs.Count
+        $runningVMs = @($allVMs | Where-Object { $_.powerState -eq 'PowerState/running' })
+        $deallocatedCount = $totalVMs - $runningVMs.Count
+        Write-Host "    VMs found: $totalVMs ($($runningVMs.Count) running, $deallocatedCount stopped/deallocated)" -ForegroundColor Gray
     } catch {
         Write-Warning "  Running VM query failed: $($_.Exception.Message)"
         $runningVMs = @()
     }
 
     if ($runningVMs.Count -eq 0) {
+        $note = if ($totalVMs -gt 0) {
+            "$totalVMs VM(s) found but none are running ($deallocatedCount stopped/deallocated), so there is no CPU to sample for idle detection. Stopped/deallocated VMs still incur disk and IP cost - see scan_orphaned_resources."
+        }
+        else {
+            'No virtual machines found in scope.'
+        }
         return [PSCustomObject]@{
-            IdleVMs    = @()
-            Count      = 0
-            HasData    = $false
-            ScannedVMs = 0
+            IdleVMs          = @()
+            Count            = 0
+            HasData          = $false
+            ScannedVMs       = 0
+            TotalVMs         = $totalVMs
+            DeallocatedVMs   = $deallocatedCount
+            Note             = $note
         }
     }
 
@@ -135,9 +151,11 @@ resources
     Write-Host "    Idle/underutilized VMs: $($results.Count)" -ForegroundColor Gray
 
     [PSCustomObject]@{
-        IdleVMs    = @($results)
-        Count      = $results.Count
-        HasData    = ($results.Count -gt 0)
-        ScannedVMs = $runningVMs.Count
+        IdleVMs        = @($results)
+        Count          = $results.Count
+        HasData        = ($results.Count -gt 0)
+        ScannedVMs     = $runningVMs.Count
+        TotalVMs       = $totalVMs
+        DeallocatedVMs = $deallocatedCount
     }
 }

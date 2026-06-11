@@ -277,6 +277,20 @@ function Get-CommitmentUtilization {
 
     $underutilized = @($reservations | Where-Object { $_.AvgUtilization -lt 80 })
 
+    $denied = ($accessDenied -and $riCount -eq 0 -and $spCount -eq 0)
+
+    # Human-readable summary so the zeros below are never mistaken for
+    # "no commitments / all healthy" when the real cause is no access.
+    $note = if ($denied) {
+        'Access denied reading reservation/savings-plan utilization (needs Cost Management Reader / billing-scope access). The zero counts below reflect missing access, NOT confirmed absence of commitments.'
+    }
+    elseif ($riCount -eq 0 -and $spCount -eq 0) {
+        'No reservations or savings plans found in scope.'
+    }
+    else {
+        "$riCount reservation(s) avg $riAvgUtil% util; $spCount savings plan(s) avg $spAvgUtil% util."
+    }
+
     return [PSCustomObject]@{
         Reservations      = $reservations
         SavingsPlans      = $savingsPlans
@@ -286,6 +300,7 @@ function Get-CommitmentUtilization {
         SPAvgUtilization  = $spAvgUtil
         UnderutilizedRIs  = $underutilized
         HasData           = ($riCount -gt 0 -or $spCount -gt 0)
-        AccessDenied      = ($accessDenied -and $riCount -eq 0 -and $spCount -eq 0)
+        AccessDenied      = $denied
+        Note              = $note
     }
 }

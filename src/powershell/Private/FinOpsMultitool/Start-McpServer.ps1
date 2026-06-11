@@ -1322,6 +1322,21 @@ function Invoke-McpTool {
         if ($Arguments.monthsBack) { $params['MonthsBack'] = [int]$Arguments.monthsBack }
     }
 
+    # Budget status needs current spend to compute % used / risk. Without it
+    # every budget reports $0 actual and "On Track" regardless of real spend.
+    # Fetch per-subscription cost once and pass it in as -CostData so the
+    # percentages and risk levels are real.
+    if ($fn -eq 'Get-BudgetStatus') {
+        try {
+            $costMap = Get-CostData -Subscriptions $subs
+            if ($costMap -is [hashtable]) { $params['CostData'] = $costMap }
+        }
+        catch {
+            # Non-fatal: budgets still list. Get-BudgetStatus marks spend as
+            # Unknown rather than asserting On Track when CostData is absent.
+        }
+    }
+
     # Invoke
     $result = & $fn @params
 

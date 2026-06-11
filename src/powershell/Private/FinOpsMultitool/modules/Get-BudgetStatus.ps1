@@ -86,7 +86,8 @@ function Get-BudgetStatus {
                         # Current spend from our existing cost data
                         $actualSpend = 0
                         $forecast = 0
-                        if ($CostData -and $CostData.ContainsKey($sub.Id)) {
+                        $spendKnown = ($CostData -and $CostData.ContainsKey($sub.Id))
+                        if ($spendKnown) {
                             $actualSpend = [math]::Round($CostData[$sub.Id].Actual, 2)
                             $forecast = [math]::Round($CostData[$sub.Id].Forecast, 2)
                         }
@@ -96,10 +97,13 @@ function Get-BudgetStatus {
                         $pctForecast = if ($amount -gt 0) { [math]::Round(($forecast / $amount) * 100, 1) } else { 0 }
 
                         # Risk level
+                        # 'Unknown' means we could not read current spend for this
+                        # subscription, so we must NOT claim the budget is On Track.
                         # 'Over Budget' means actual spend has already exceeded the budget.
                         # 'Forecast Over' means actual is still within budget but the
                         # month-end forecast is projected to exceed it (early warning).
-                        $risk = if ($pctUsed -gt 100) { 'Over Budget' }
+                        $risk = if (-not $spendKnown) { 'Unknown' }
+                        elseif ($pctUsed -gt 100) { 'Over Budget' }
                         elseif ($pctForecast -gt 100) { 'Forecast Over' }
                         elseif ($pctForecast -gt 90) { 'At Risk' }
                         elseif ($pctForecast -gt 75) { 'Watch' }

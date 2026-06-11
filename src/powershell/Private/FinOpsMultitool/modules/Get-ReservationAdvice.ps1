@@ -185,6 +185,33 @@ advisorresources
         Write-Warning "Reservation recommendation API query failed (non-critical): $($_.Exception.Message)"
     }
 
+    # -- De-duplicate Advisor records -----------------------------------
+    # Azure Advisor frequently emits several identical recommendation
+    # records that differ only by recommendation GUID (overlapping
+    # generation cycles). Collapse them on the meaningful tuple
+    # (sub + resource type + term + SKU + region + qty + savings) so the
+    # grid shows one row per distinct buy. DuplicateCount records how
+    # many Advisor records were rolled into each row, and de-duping also
+    # prevents the estimated-savings total from being inflated 3x.
+    $deduped = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $seenKeys = @{}
+    foreach ($rec in $allRecommendations) {
+        $key = '{0}|{1}|{2}|{3}|{4}|{5}|{6}' -f `
+            $rec.SubscriptionId, $rec.ResourceType, $rec.Term, $rec.SKU, $rec.Region, $rec.Qty, $rec.AnnualSavings
+        if ($seenKeys.ContainsKey($key)) {
+            $seenKeys[$key].DuplicateCount++
+        }
+        else {
+            $rec | Add-Member -NotePropertyName DuplicateCount -NotePropertyValue 1 -Force
+            $seenKeys[$key] = $rec
+            [void]$deduped.Add($rec)
+        }
+    }
+    if ($allRecommendations.Count -ne $deduped.Count) {
+        Write-Host "  Collapsed $($allRecommendations.Count) Advisor records into $($deduped.Count) distinct recommendations." -ForegroundColor Cyan
+    }
+    $allRecommendations = $deduped
+
     # -- Aggregate savings ----------------------------------------------
     $totalAnnualSavings = ($allRecommendations | Where-Object { $_.AnnualSavings } |
         Measure-Object -Property AnnualSavings -Sum).Sum
