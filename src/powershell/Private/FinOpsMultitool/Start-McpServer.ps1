@@ -77,7 +77,7 @@ Import-Module $psm1Path -Force -DisableNameChecking
 # =====================================================================
 $MCP_VERSION = '2024-11-05'
 $SERVER_NAME = 'finops-multitool'
-$SERVER_VERSION = '1.2.0'
+$SERVER_VERSION = '1.3.0'
 
 # =====================================================================
 #  TOOL DEFINITIONS
@@ -550,6 +550,16 @@ $toolDefinitions = @(
         }
     }
     @{
+        name        = 'get_azure_context'
+        description = 'Show the ACTIVE Azure sign-in context this server will scan: account, tenant, current subscription, and every tenant/subscription the account can reach. ALWAYS call this first in a session (and any time the user is unsure) so the user can confirm they are pointed at the intended tenant BEFORE running any scan or remediation. Scans only ever touch the active context shown here. If it is wrong, the user must switch context (Set-AzContext / Connect-AzAccount -TenantId) and RESTART this MCP server — the server caches its Azure session at startup.'
+        fn          = '_get_context'
+        category    = 'Context'
+        inputSchema = @{
+            type       = 'object'
+            properties = @{}
+        }
+    }
+    @{
         name        = 'detect_cost_data_source'
         description = 'Decide how cost scans should run BEFORE invoking any cost tool. Detects a FinOps Hub or any readable Cost Management (CSV) export in scope, checks whether it is readable (with a specific blocker reason if not), reports which subscriptions it covers and how fresh the data is, and estimates how long the live Cost Management API path would take. Call this first for any cost question so the fast export path can be used, or so the user can be warned and asked before a slow API scan.'
         fn          = '_detect_cost_source'
@@ -681,6 +691,91 @@ function Resolve-Subscriptions {
     if ($subs.Count -eq 0) { throw 'No enabled subscriptions found. Run Connect-AzAccount first.' }
     return $subs
 }
+
+# =====================================================================
+#  HELPER: ACTIVE AZURE CONTEXT (TENANT SAFETY)
+# =====================================================================
+# Every cost/governance scan runs against whatever Az session this MCP
+# server process holds — which is NOT necessarily the tenant the user
+# thinks they're in (the server caches its context at startup, and an
+# account can span many tenants). To stop anyone acting on results from
+# the wrong tenant, Get-AzContextSummary returns a cheap, no-network
+# snapshot of the active account/tenant/subscription that is attached to
+# EVERY tool result. Get-AzContextDetail does the fuller, enumerating
+# version (accessible tenants + multi-tenant warning) for the dedicated
+# get_azure_context tool.
+$script:MultiTenantFlag = $null  # lazily computed once, then reused cheaply
+
+function Get-AzContextSummary {
+    # No network calls — just the in-memory Az context. Safe to call on
+    # every single tool invocation.
+    $ctx = Get-AzContext -ErrorAction SilentlyContinue
+    if (-not $ctx) {
+        return [ordered]@{
+            signedIn = $false
+            summary  = 'NO ACTIVE AZURE SESSION. Results below may be empty. Run Connect-AzAccount, then restart this MCP server.'
+            verify   = 'No tenant context is set. Do not trust scan results until signed in.'
+        }
+    }
+    $tenantId = $ctx.Tenant.Id
+    $multiHint = if ($null -ne $script:MultiTenantFlag -and $script:MultiTenantFlag) {
+        ' Your account can see MULTIPLE tenants — confirm this is the intended one.'
+    }
+    else { '' }
+    return [ordered]@{
+        signedIn         = $true
+        account          = $ctx.Account.Id
+        tenantId         = $tenantId
+        subscriptionName = $ctx.Subscription.Name
+        subscriptionId   = $ctx.Subscription.Id
+        environment      = $ctx.Environment.Name
+        summary          = "This scan ran as $($ctx.Account.Id) against tenant $tenantId, subscription '$($ctx.Subscription.Name)' ($($ctx.Subscription.Id))."
+        verify           = "Confirm this is the correct tenant/subscription BEFORE acting on these results.$multiHint Call get_azure_context for the full account/tenant picture."
+    }
+}
+
+function Get-AzContextDetail {
+    # Fuller view used by the get_azure_context tool. Enumerates the
+    # subscriptions/tenants the signed-in account can reach so the caller
+    # can spot a cross-tenant situation. Caches the multi-tenant flag so
+    # the cheap per-result summary can warn without re-enumerating.
+    $ctx = Get-AzContext -ErrorAction SilentlyContinue
+    if (-not $ctx) {
+        $script:MultiTenantFlag = $false
+        return [ordered]@{
+            signedIn = $false
+            message  = 'No active Azure session. Run Connect-AzAccount and restart this MCP server, then re-run.'
+        }
+    }
+
+    $allSubs = @()
+    try { $allSubs = @(Get-AzSubscription -ErrorAction SilentlyContinue) } catch { }
+    $tenants = @($allSubs | Select-Object -ExpandProperty TenantId -Unique | Where-Object { $_ })
+    $script:MultiTenantFlag = ($tenants.Count -gt 1)
+
+    $activeTenant = $ctx.Tenant.Id
+    $warning = if ($script:MultiTenantFlag) {
+        "Your account can access $($tenants.Count) tenants ($($tenants -join ', ')). " +
+        "Scans run ONLY against the ACTIVE context (tenant $activeTenant). If that is not the tenant you intend, " +
+        "switch with Set-AzContext (or Connect-AzAccount -TenantId <id>) and RESTART this MCP server before scanning."
+    }
+    else { $null }
+
+    return [ordered]@{
+        signedIn                    = $true
+        account                     = $ctx.Account.Id
+        activeTenantId              = $activeTenant
+        activeSubscriptionName      = $ctx.Subscription.Name
+        activeSubscriptionId        = $ctx.Subscription.Id
+        environment                 = $ctx.Environment.Name
+        accessibleTenants           = $tenants
+        accessibleSubscriptionCount = $allSubs.Count
+        multiTenant                 = $script:MultiTenantFlag
+        warning                     = $warning
+        summary                     = "Signed in as $($ctx.Account.Id). Active = tenant $activeTenant / subscription '$($ctx.Subscription.Name)' ($($ctx.Subscription.Id)). This is the ONLY scope scans will touch."
+    }
+}
+
 
 # =====================================================================
 #  HELPER: COST DATA SOURCE (HUB) CACHE
@@ -909,6 +1004,19 @@ function Invoke-McpTool {
             module    = 'Get-KpiExploration'
             category  = $toolDef.category
             data      = (Get-KpiExploration -KpiId $kpiId)
+            timestamp = (Get-Date -Format 'o')
+        }
+    }
+
+    # Active-context check is a tenant-safety helper, not a scan. It runs
+    # without resolving subscriptions so it works even when the wrong (or
+    # no) subscription is selected.
+    if ($toolDef.fn -eq '_get_context') {
+        return @{
+            tool      = $ToolName
+            module    = 'Get-AzContextDetail'
+            category  = $toolDef.category
+            data      = (Get-AzContextDetail)
             timestamp = (Get-Date -Format 'o')
         }
     }
@@ -1423,6 +1531,7 @@ function Handle-Initialize {
             name    = $SERVER_NAME
             version = $SERVER_VERSION
         }
+        instructions    = 'TENANT SAFETY: This server scans whatever Azure session it holds, which it caches at startup and which may differ from the tenant the user expects. ALWAYS call get_azure_context at the start of a session and surface the active account/tenant/subscription to the user before running any scan or remediation. Every tool result also carries an azureContext block — relay its tenant/subscription to the user. If the context is wrong, the user must switch (Set-AzContext / Connect-AzAccount -TenantId) and RESTART this server.'
     }
 }
 
@@ -1450,6 +1559,15 @@ function Handle-ToolsCall {
         $result = Invoke-McpTool -ToolName $toolName -Arguments $arguments 3>$null 4>$null 5>$null 6>$null
         # Attach FinOps KPI correlations (additive; no-op for tools with no mapping)
         try { $result = Add-KpiInsights -Result $result } catch { }
+        # Attach the active Azure context to EVERY result so the caller can
+        # always see which tenant/subscription the scan actually ran against
+        # and never acts on data from the wrong tenant by accident.
+        try {
+            if ($result -is [System.Collections.IDictionary]) {
+                $result['azureContext'] = Get-AzContextSummary
+            }
+        }
+        catch { }
         $json = $result | ConvertTo-Json -Depth 20 -Compress
         Send-Result -Id $Id -Result @{
             content = @(
