@@ -178,9 +178,9 @@
       "domain": "Manage",
       "definition": "Frequency and cost impact of detected spending anomalies.",
       "sourceTool": "scan_anomaly_alerts",
-      "compute": false,
+      "compute": true,
       "unit": "count",
-      "plainLanguage": "How often unusual cost spikes are being caught.",
+      "plainLanguage": "How often unusual cost spikes are being caught. Shown as a proxy: anomaly alerts triggered plus the number of detection rules configured (a true rate needs the count of anomalies that occurred, which Azure does not expose).",
       "exploreHint": "Configure anomaly alert rules so spikes are caught proactively."
     },
     {

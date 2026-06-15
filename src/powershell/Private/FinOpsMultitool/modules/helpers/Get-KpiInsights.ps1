@@ -92,6 +92,21 @@ function Get-KpiComputedValue {
                 return "$avg%"
             }
         }
+        'anomaly-detection-rate' {
+            # No true rate is possible (Azure does not expose how many anomalies
+            # actually occurred, only what it caught). Report an honest PROXY:
+            # anomaly alerts triggered + detection rules configured. Both are
+            # countable. Returns $null only when neither field is present.
+            $anom = Get-ScanField $Data 'AnomalyAlertCount'
+            $rules = Get-ScanField $Data 'ConfiguredRuleCount'
+            if ($null -ne $anom -or $null -ne $rules) {
+                $a = if ($null -ne $anom) { [int]$anom } else { 0 }
+                $r = if ($null -ne $rules) { [int]$rules } else { 0 }
+                $alertWord = if ($a -eq 1) { 'alert' } else { 'alerts' }
+                $ruleWord = if ($r -eq 1) { 'rule' } else { 'rules' }
+                return "$a anomaly $alertWord caught, $r detection $ruleWord configured (proxy)"
+            }
+        }
         'pct-commitment-discount-waste' {
             $ri = Get-ScanField $Data 'RIAvgUtilization'
             $sp = Get-ScanField $Data 'SPAvgUtilization'
