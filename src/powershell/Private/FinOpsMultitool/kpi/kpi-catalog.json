@@ -112,9 +112,9 @@
       "domain": "Optimize",
       "definition": "Measure of unused resources such as unattached disks, idle NICs, and orphaned public IPs.",
       "sourceTool": "scan_orphaned_resources",
-      "compute": false,
+      "compute": true,
       "unit": "count / cost",
-      "plainLanguage": "Resources you are paying for that nothing is using.",
+      "plainLanguage": "Resources you are paying for that nothing is using. Shown as the orphaned-resource count found by the scan.",
       "exploreHint": "Run remediate_delete_orphaned_resource (gated) to clean them up."
     },
     {
@@ -123,9 +123,9 @@
       "domain": "Optimize",
       "definition": "Spend that provided zero business utility, e.g. idle resources before suspension or over-provisioning.",
       "sourceTool": "scan_idle_vms",
-      "compute": false,
+      "compute": true,
       "unit": "count / cost",
-      "plainLanguage": "Compute you are running and paying for but barely using.",
+      "plainLanguage": "Compute you are running and paying for but barely using. Shown as the share of running VMs flagged idle or underutilized.",
       "exploreHint": "Run remediate_deallocate_vm (gated, reversible) on confirmed idle VMs."
     },
     {
@@ -156,9 +156,9 @@
       "domain": "Manage",
       "definition": "The rate at which an organization is consuming its allocated cloud budget.",
       "sourceTool": "scan_budget_status",
-      "compute": false,
+      "compute": true,
       "unit": "%",
-      "plainLanguage": "How fast you are spending against your budget this period.",
+      "plainLanguage": "How fast you are spending against your budget this period. Shown as the average percent of budget consumed across all budgets.",
       "exploreHint": "Risk levels in the scan flag budgets trending over. Adjust thresholds or spend."
     },
     {
@@ -167,9 +167,9 @@
       "domain": "Manage",
       "definition": "Difference between budgeted cost and actual cost incurred.",
       "sourceTool": "scan_budget_status",
-      "compute": false,
+      "compute": true,
       "unit": "%",
-      "plainLanguage": "How far your actual spend is from what you planned.",
+      "plainLanguage": "How far your actual spend is from what you planned. Shown as total actual vs total budgeted across all budgets.",
       "exploreHint": "Compare budget amount vs actual in the scan rows."
     },
     {
@@ -189,9 +189,9 @@
       "domain": "Quantify",
       "definition": "Return-on-investment metric across all commitment discounts and optimizations.",
       "sourceTool": "scan_savings_realized",
-      "compute": false,
+      "compute": true,
       "unit": "%",
-      "plainLanguage": "How much you are actually saving versus paying full on-demand rates.",
+      "plainLanguage": "How much you are actually saving versus paying full on-demand rates. Shown as realized monthly savings from RIs, Savings Plans and AHB (a true rate also needs total on-demand-equivalent spend).",
       "exploreHint": "Realized savings from RIs, Savings Plans and AHB appear in this scan."
     },
     {
@@ -222,7 +222,7 @@
       "domain": "Quantify",
       "definition": "Cost of token-based models based on input/output token usage.",
       "sourceTool": "scan_ai_workloads",
-      "compute": false,
+      "compute": true,
       "unit": "tokens / cost",
       "plainLanguage": "How many tokens your AI workloads burn and what they cost.",
       "exploreHint": "Prompt engineering and model choice move this number."
@@ -233,7 +233,7 @@
       "domain": "Quantify",
       "definition": "Average cost for each API call made to AI services.",
       "sourceTool": "scan_ai_workloads",
-      "compute": false,
+      "compute": true,
       "unit": "per call",
       "plainLanguage": "What each AI service request costs you on average.",
       "exploreHint": "High per-call cost can signal an inefficient model or call pattern."

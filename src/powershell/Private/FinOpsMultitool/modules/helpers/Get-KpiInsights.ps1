@@ -107,6 +107,76 @@ function Get-KpiComputedValue {
                 return "$a anomaly $alertWord caught, $r detection $ruleWord configured (proxy)"
             }
         }
+        'percent-unused-resources' {
+            # No per-orphan cost in the scan, so report the orphaned-resource
+            # count (still a concrete waste signal).
+            $n = Get-ScanField $Data 'TotalCount'
+            if ($null -ne $n) {
+                $word = if ([int]$n -eq 1) { 'orphaned resource' } else { 'orphaned resources' }
+                return "$([int]$n) $word"
+            }
+        }
+        'computational-waste' {
+            # Share of running VMs flagged idle/underutilized.
+            $idle = Get-ScanField $Data 'Count'
+            $scanned = Get-ScanField $Data 'ScannedVMs'
+            if ($null -ne $idle -and $null -ne $scanned -and [int]$scanned -gt 0) {
+                $pct = [math]::Round(100 * [int]$idle / [int]$scanned, 1)
+                return "$pct% of running VMs idle ($([int]$idle) of $([int]$scanned))"
+            }
+        }
+        'budget-burn-rate' {
+            # Average percent of budget consumed across all budgets.
+            $budgets = Get-ScanField $Data 'Budgets'
+            if ($budgets) {
+                $pcts = @($budgets | ForEach-Object { $_.PctUsed } | Where-Object { $null -ne $_ })
+                if ($pcts.Count -gt 0) {
+                    $avg = [math]::Round(($pcts | Measure-Object -Average).Average, 1)
+                    return "$avg% of budget consumed (avg across $($pcts.Count))"
+                }
+            }
+        }
+        'variance-budget-vs-actual' {
+            # Total actual vs total budgeted across all budgets.
+            $budgets = Get-ScanField $Data 'Budgets'
+            if ($budgets) {
+                $totBudget = ($budgets | Measure-Object -Property Amount -Sum).Sum
+                $totActual = ($budgets | Measure-Object -Property ActualSpend -Sum).Sum
+                if ($totBudget -and $totBudget -gt 0) {
+                    $variance = [math]::Round(100 * ($totActual - $totBudget) / $totBudget, 1)
+                    $sign = if ($variance -ge 0) { 'over' } else { 'under' }
+                    return "$([math]::Abs($variance))% $sign budget (actual vs planned)"
+                }
+            }
+        }
+        'effective-savings-rate' {
+            # Realized monthly savings from commitments + AHB (proxy: a true rate
+            # also needs total on-demand-equivalent spend, not in this scan).
+            $monthly = Get-ScanField $Data 'TotalMonthly'
+            $cur = Get-ScanField $Data 'Currency'
+            if (-not $cur) { $cur = 'USD' }
+            if ($null -ne $monthly -and [double]$monthly -gt 0) {
+                return "$cur $([math]::Round([double]$monthly, 2)) / month realized (proxy)"
+            }
+        }
+        'token-consumption-metrics' {
+            $tokens = Get-ScanField $Data 'TotalTokens'
+            $cost = Get-ScanField $Data 'TotalAICost'
+            $cur = Get-ScanField $Data 'Currency'
+            if (-not $cur) { $cur = 'USD' }
+            if ($null -ne $tokens -and [long]$tokens -gt 0) {
+                $costStr = if ($null -ne $cost -and [double]$cost -gt 0) { " for $cur $([math]::Round([double]$cost, 2)) (MTD)" } else { '' }
+                return "$('{0:N0}' -f [long]$tokens) tokens$costStr"
+            }
+        }
+        'cost-per-api-call' {
+            $cpr = Get-ScanField $Data 'CostPerRequest'
+            $cur = Get-ScanField $Data 'Currency'
+            if (-not $cur) { $cur = 'USD' }
+            if ($null -ne $cpr -and [double]$cpr -gt 0) {
+                return "$cur $([math]::Round([double]$cpr, 5)) per AI request"
+            }
+        }
         'pct-commitment-discount-waste' {
             $ri = Get-ScanField $Data 'RIAvgUtilization'
             $sp = Get-ScanField $Data 'SPAvgUtilization'
