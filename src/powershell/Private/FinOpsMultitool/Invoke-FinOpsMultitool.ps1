@@ -1465,6 +1465,30 @@ function Invoke-FinOpsMultitool {
                 Write-Host "    (no findings)" -ForegroundColor DarkGray
             }
 
+            # -- FinOps KPI Insights ---------------------------------------
+            # Map this scan's result to the FinOps Foundation KPIs it informs,
+            # with a computed value where the data allows. Reuses the same
+            # catalog + compute path as the MCP server (parity).
+            if (Get-Command Get-KpiInsightsForResult -ErrorAction SilentlyContinue) {
+                $kpiInsights = @()
+                try { $kpiInsights = @(Get-KpiInsightsForResult -FunctionName $mod.Fn -Output $data) } catch { $kpiInsights = @() }
+                if ($kpiInsights.Count -gt 0) {
+                    Write-Host ""
+                    Write-Host "    FinOps KPIs:" -ForegroundColor Cyan
+                    foreach ($kpi in $kpiInsights) {
+                        if ($kpi.status -eq 'computed' -and $kpi.yourValue) {
+                            Write-Host "    - $($kpi.kpiName): " -ForegroundColor White -NoNewline
+                            Write-Host "$($kpi.yourValue)" -ForegroundColor Green -NoNewline
+                            Write-Host "  [$($kpi.domain)]" -ForegroundColor DarkGray
+                        }
+                        else {
+                            Write-Host "    - $($kpi.kpiName) " -ForegroundColor DarkGray -NoNewline
+                            Write-Host "(informational, $($kpi.domain))" -ForegroundColor DarkGray
+                        }
+                    }
+                }
+            }
+
             # -- Contextual Guidance ---------------------------------------
             # Severity: Red = address immediately, Yellow = needs attention, Green = doing well
             $guidanceItems = @()

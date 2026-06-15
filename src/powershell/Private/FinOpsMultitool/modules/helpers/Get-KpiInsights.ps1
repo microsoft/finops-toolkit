@@ -173,6 +173,55 @@ function Add-KpiInsights {
     return $Result
 }
 
+# Map a raw scan function name (as used by the TUI/automated editions) to the
+# MCP tool name the KPI catalog keys off (sourceTool). Lets the TUI reuse the
+# exact same compute path as the MCP server, so KPI behavior stays in parity.
+function Get-KpiToolNameForFunction {
+    param([Parameter(Mandatory)][string]$FunctionName)
+    $map = @{
+        'Get-UnitEconomics'               = 'scan_unit_economics'
+        'Get-CostByTag'                   = 'scan_cost_by_tag'
+        'Get-CommitmentUtilization'       = 'scan_commitment_utilization'
+        'Get-ReservationAdvice'           = 'scan_reservation_advice'
+        'Get-OrphanedResources'           = 'scan_orphaned_resources'
+        'Get-IdleVMs'                     = 'scan_idle_vms'
+        'Get-StorageTierAdvice'           = 'scan_storage_tier_advice'
+        'Get-BudgetStatus'                = 'scan_budget_status'
+        'Get-AnomalyAlerts'               = 'scan_anomaly_alerts'
+        'Get-SavingsRealized'             = 'scan_savings_realized'
+        'Get-LegacyResources'             = 'scan_legacy_resources'
+        'Get-CarbonMetrics'               = 'scan_carbon'
+        'Get-AIWorkloadMetrics'           = 'scan_ai_workloads'
+        'Get-CostTrend'                   = 'scan_cost_trend'
+        'Get-ResourceCosts'               = 'scan_resource_costs'
+        'Get-VmCostBreakdown'             = 'scan_vm_cost_breakdown'
+        'Get-SharedCostAllocation'        = 'scan_allocate_shared_cost'
+        'Get-UsageProportionalAllocation' = 'scan_usage_allocation'
+    }
+    if ($map.ContainsKey($FunctionName)) { return $map[$FunctionName] }
+    return $null
+}
+
+# Compute the kpiInsights array for a raw scan output (where the result IS the
+# data, not an MCP { tool; data } envelope). Wraps the output in the same
+# envelope the MCP server uses so Add-KpiInsights/Get-KpiComputedValue run the
+# identical logic. Returns an array of insight objects (possibly empty).
+function Get-KpiInsightsForResult {
+    param(
+        [Parameter(Mandatory)][string]$FunctionName,
+        $Output
+    )
+    if ($null -eq $Output) { return @() }
+    $toolName = Get-KpiToolNameForFunction -FunctionName $FunctionName
+    if (-not $toolName) { return @() }
+    $envelope = @{ tool = $toolName; data = $Output }
+    $enriched = Add-KpiInsights -Result $envelope
+    if ($enriched -is [System.Collections.IDictionary] -and $enriched.Contains('kpiInsights')) {
+        return @($enriched['kpiInsights'])
+    }
+    return @()
+}
+
 # Browse the KPI catalog for the explore_finops_kpis tool.
 function Get-KpiExploration {
     param([string]$KpiId)
@@ -184,7 +233,7 @@ function Get-KpiExploration {
         $kpi = $catalog.kpis | Where-Object { $_.id -eq $KpiId } | Select-Object -First 1
         if (-not $kpi) { return @{ error = "Unknown KPI id '$KpiId'. Call explore_finops_kpis with no id to list all." } }
         return @{
-            kpi = [PSCustomObject]@{
+            kpi   = [PSCustomObject]@{
                 id            = $kpi.id
                 name          = $kpi.name
                 domain        = $kpi.domain
