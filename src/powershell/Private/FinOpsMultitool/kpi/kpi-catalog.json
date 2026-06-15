@@ -100,11 +100,11 @@
       "name": "Percent of Compute Spend Covered by Commitment Discounts",
       "domain": "Optimize",
       "definition": "Percentage of compute cost (excluding Spot) covered by commitment discounts.",
-      "sourceTool": "scan_reservation_advice",
-      "compute": false,
+      "sourceTool": "scan_savings_realized",
+      "compute": true,
       "unit": "%",
-      "plainLanguage": "How much of your compute is on discounted committed rates vs full on-demand.",
-      "exploreHint": "Combine scan_commitment_utilization with scan_cost_data to compute coverage."
+      "plainLanguage": "How much of your eligible spend rides on a discounted commitment (reservation or savings plan) versus full on-demand. Computed from amortized cost by pricing model, excluding Spot from the eligible base.",
+      "exploreHint": "Raise coverage by buying reservations or savings plans for steady-state workloads."
     },
     {
       "id": "percent-unused-resources",

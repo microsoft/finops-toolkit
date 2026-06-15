@@ -159,6 +159,24 @@ function Get-KpiComputedValue {
                 return "$cur $([math]::Round([double]$monthly, 2)) / month realized (proxy)"
             }
         }
+        'pct-compute-covered-by-commitment' {
+            # Commitment coverage = committed eligible spend / total eligible
+            # spend (excludes Spot). Computed in Get-SavingsRealized from
+            # amortized cost grouped by pricing model.
+            $cov = Get-ScanField $Data 'CommitmentCoveragePct'
+            $committed = Get-ScanField $Data 'CommittedAmortized'
+            $onDemand = Get-ScanField $Data 'OnDemandAmortized'
+            $cur = Get-ScanField $Data 'Currency'
+            if (-not $cur) { $cur = 'USD' }
+            if ($null -ne $cov) {
+                $detail = ''
+                if ($null -ne $committed -and $null -ne $onDemand) {
+                    $base = [double]$committed + [double]$onDemand
+                    $detail = " ($cur $([math]::Round([double]$committed, 0)) committed of $cur $([math]::Round($base, 0)) eligible)"
+                }
+                return "$cov% covered by commitments$detail"
+            }
+        }
         'token-consumption-metrics' {
             $tokens = Get-ScanField $Data 'TotalTokens'
             $cost = Get-ScanField $Data 'TotalAICost'

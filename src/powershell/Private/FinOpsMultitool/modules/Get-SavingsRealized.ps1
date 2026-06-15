@@ -25,6 +25,13 @@ function Get-SavingsRealized {
     $riSavings  = 0
     $spSavings  = 0
     $ahbSavings = 0
+    # Amortized cost split by pricing model, used for commitment COVERAGE
+    # (how much of eligible spend rides on a commitment) - distinct from the
+    # savings amounts above. Spot is excluded from the eligible base because it
+    # cannot be covered by a reservation or savings plan.
+    $committedAmort = 0.0
+    $onDemandAmort  = 0.0
+    $spotAmort      = 0.0
     $details    = [System.Collections.Generic.List[PSCustomObject]]::new()
 
     # -- Short-circuit: skip RI/SP queries if no commitments exist -------
@@ -102,6 +109,7 @@ function Get-SavingsRealized {
         param($Result)
         $rows = [System.Collections.Generic.List[PSCustomObject]]::new()
         $ri = 0.0; $sp = 0.0
+        $committed = 0.0; $onDemand = 0.0; $spot = 0.0
         if ($Result -and $Result.properties.rows) {
             $m = Get-SavingsColMap -Columns $Result.properties.columns
             foreach ($row in $Result.properties.rows) {
@@ -114,15 +122,19 @@ function Get-SavingsRealized {
                 }
                 if ($pm -match 'Reservation') {
                     $ri += $cost * 0.4
+                    $committed += $cost
                     $rows.Add([PSCustomObject]@{ Subscription = $sub; Category = 'Reservation Benefit'; Amount = $cost; Type = 'Commitment' })
                 }
                 elseif ($pm -match 'SavingsPlan') {
                     $sp += $cost * 0.25
+                    $committed += $cost
                     $rows.Add([PSCustomObject]@{ Subscription = $sub; Category = 'Savings Plan Benefit'; Amount = $cost; Type = 'Commitment' })
                 }
+                elseif ($pm -match 'Spot') { $spot += $cost }
+                elseif ($pm) { $onDemand += $cost }
             }
         }
-        return [PSCustomObject]@{ Rows = $rows; RI = $ri; SP = $sp }
+        return [PSCustomObject]@{ Rows = $rows; RI = $ri; SP = $sp; Committed = $committed; OnDemand = $onDemand; Spot = $spot }
     }
 
     if ($hasCommitments -and $subCount -eq 1) {
@@ -145,6 +157,9 @@ function Get-SavingsRealized {
                 foreach ($d in $parsed.Rows) { $d.Subscription = $only.Name; [void]$details.Add($d) }
                 $riSavings += $parsed.RI
                 $spSavings += $parsed.SP
+                $committedAmort += $parsed.Committed
+                $onDemandAmort  += $parsed.OnDemand
+                $spotAmort      += $parsed.Spot
             }
 
             $gotMgData = $true
@@ -176,6 +191,9 @@ function Get-SavingsRealized {
                     foreach ($d in $parsed.Rows) { [void]$details.Add($d) }
                     $riSavings += $parsed.RI
                     $spSavings += $parsed.SP
+                    $committedAmort += $parsed.Committed
+                    $onDemandAmort  += $parsed.OnDemand
+                    $spotAmort      += $parsed.Spot
                 }
 
                 $gotMgData = $true
@@ -265,6 +283,7 @@ function Get-SavingsRealized {
                         if ($pricingModel -match 'Reservation') {
                             # Amortized RI cost — the actual RI spend
                             $riSavings += $cost * 0.4  # Approximate: RIs typically save ~40% vs PAYG
+                            $committedAmort += $cost
                             [void]$details.Add([PSCustomObject]@{
                                 Subscription = $sub.Name
                                 Category     = 'Reservation Benefit'
@@ -274,6 +293,7 @@ function Get-SavingsRealized {
                         }
                         elseif ($pricingModel -match 'SavingsPlan') {
                             $spSavings += $cost * 0.25  # Approximate: SPs save ~25% on average
+                            $committedAmort += $cost
                             [void]$details.Add([PSCustomObject]@{
                                 Subscription = $sub.Name
                                 Category     = 'Savings Plan Benefit'
@@ -281,6 +301,8 @@ function Get-SavingsRealized {
                                 Type         = 'Commitment'
                             })
                         }
+                        elseif ($pricingModel -match 'Spot') { $spotAmort += $cost }
+                        elseif ($pricingModel) { $onDemandAmort += $cost }
                     }
                 }
             }
@@ -326,12 +348,24 @@ resources
     $totalMonthly = [math]::Round($riSavings + $spSavings + $ahbSavings, 2)
     $totalAnnual  = [math]::Round($totalMonthly * 12, 2)
 
+    # Commitment coverage = committed eligible spend / total eligible spend.
+    # Eligible = everything except Spot (Spot cannot be covered by a commitment).
+    $eligibleBase = $committedAmort + $onDemandAmort
+    $commitmentCoverage = if ($eligibleBase -gt 0) {
+        [math]::Round(100 * $committedAmort / $eligibleBase, 1)
+    }
+    else { $null }
+
     return [PSCustomObject]@{
         RISavingsMonthly   = [math]::Round($riSavings, 2)
         SPSavingsMonthly   = [math]::Round($spSavings, 2)
         AHBSavingsMonthly  = [math]::Round($ahbSavings, 2)
         TotalMonthly       = $totalMonthly
         TotalAnnual        = $totalAnnual
+        CommittedAmortized = [math]::Round($committedAmort, 2)
+        OnDemandAmortized  = [math]::Round($onDemandAmort, 2)
+        SpotAmortized      = [math]::Round($spotAmort, 2)
+        CommitmentCoveragePct = $commitmentCoverage
         Details            = @($details)
         HasData            = ($totalMonthly -gt 0 -or $details.Count -gt 0)
     }
