@@ -23,6 +23,16 @@
 
 $script:KpiCatalog = $null
 
+# Canonical CAF allocation (chargeback/showback) tag dimensions. Cost-allocation
+# coverage is measured ONLY against these - not identity/marker tags (FinOps,
+# cm-resource-parent, tag1, managedBy, CreatedByPolicy, ...) that blanket
+# resources and would give a misleading untagged figure. Single source of truth
+# shared by the KPI compute and the TUI cost-by-tag guidance so they agree.
+function Get-CafAllocationTag {
+    return @('CostCenter', 'Customer', 'Project', 'Environment', 'Application',
+        'Owner', 'BusinessUnit', 'Department', 'Team', 'Service', 'WorkloadName')
+}
+
 function Get-KpiCatalog {
     if ($script:KpiCatalog) { return $script:KpiCatalog }
     # kpi-catalog.json lives in ../kpi relative to modules/helpers
@@ -99,8 +109,7 @@ function Get-KpiComputedValue {
             # or a PSCustomObject (live path).
             $cbt = Get-ScanField $Data 'CostByTag'
             if (-not $cbt) { return $null }
-            $allocTags = @('CostCenter', 'Customer', 'Project', 'Environment', 'Application',
-                'Owner', 'BusinessUnit', 'Department', 'Team', 'Service', 'WorkloadName')
+            $allocTags = Get-CafAllocationTag
             $tagPairs = @()
             if ($cbt -is [System.Collections.IDictionary]) {
                 foreach ($k in $cbt.Keys) { $tagPairs += [PSCustomObject]@{ Name = $k; Value = $cbt[$k] } }

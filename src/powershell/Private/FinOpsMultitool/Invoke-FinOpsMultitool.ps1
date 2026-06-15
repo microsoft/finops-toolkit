@@ -1607,11 +1607,26 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-CostByTag' {
                     if ($data.CostByTag -and $data.CostByTag.Count -gt 0) {
-                        # Use the MAX untagged cost across any single tag to avoid double-counting
-                        # (the same resource appears as "(untagged)" under every tag it lacks)
+                        # Only measure untagged spend against CAF allocation tags
+                        # (CostCenter, Customer, Project, Environment, ...), not
+                        # identity/marker tags like FinOps or cm-resource-parent
+                        # that blanket resources and skew the figure. Same tag set
+                        # the FinOps KPI uses, so the guidance and the KPI agree.
+                        $allocTags = if (Get-Command Get-CafAllocationTag -ErrorAction SilentlyContinue) {
+                            Get-CafAllocationTag
+                        }
+                        else {
+                            @('CostCenter', 'Customer', 'Project', 'Environment', 'Application',
+                                'Owner', 'BusinessUnit', 'Department', 'Team', 'Service', 'WorkloadName')
+                        }
+                        # Pick the allocation tag with the largest untagged cost
+                        # (the biggest allocation gap). Each resource appears as
+                        # "(untagged)" under every tag it lacks, so taking the max
+                        # across tags avoids summing the same resource repeatedly.
                         $maxUntaggedCost = 0
                         $maxUntaggedTag = ''
                         foreach ($tag in $data.CostByTag.GetEnumerator()) {
+                            if ($allocTags -notcontains $tag.Key) { continue }
                             foreach ($v in $tag.Value) {
                                 if ($v.TagValue -eq '(untagged)' -and [double]$v.Cost -gt $maxUntaggedCost) {
                                     $maxUntaggedCost = [double]$v.Cost
@@ -1619,21 +1634,27 @@ function Invoke-FinOpsMultitool {
                                 }
                             }
                         }
-                        if ($maxUntaggedCost -gt 1000) {
+                        if (-not $maxUntaggedTag) {
+                            # No CAF allocation tag present to measure against
                             $guidanceItems = @(
-                                @{ Severity = 'Red'; Message = "Untagged spend: $("{0:C0}" -f $maxUntaggedCost) (resources missing '$maxUntaggedTag'). This cost cannot be allocated to any team, project, or budget." }
+                                @{ Severity = 'Yellow'; Message = "No CAF allocation tag (CostCenter, Customer, Project, Environment, Owner, ...) is in use, so spend cannot be attributed. Add an allocation tag and deploy inheritance to make cost traceable." }
+                            )
+                        }
+                        elseif ($maxUntaggedCost -gt 1000) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Red'; Message = "Untagged spend: $("{0:C0}" -f $maxUntaggedCost) not allocated by '$maxUntaggedTag'. This cost cannot be attributed to any team, project, or budget." }
                                 @{ Severity = 'Red'; Message = "FinOps Impact: Untagged spend creates 'shadow IT' — no one owns it, no one optimizes it." }
-                                @{ Severity = 'Yellow'; Message = "Use Cost Management tag views to identify the highest-cost untagged resources and tag them first." }
+                                @{ Severity = 'Yellow'; Message = "Use Cost Management tag views to identify the highest-cost resources missing '$maxUntaggedTag' and tag them first." }
                             )
                         }
                         elseif ($maxUntaggedCost -gt 0) {
                             $guidanceItems = @(
-                                @{ Severity = 'Yellow'; Message = "Some untagged spend detected ($("{0:C0}" -f $maxUntaggedCost) missing '$maxUntaggedTag'). Tag remaining resources for full cost traceability." }
+                                @{ Severity = 'Yellow'; Message = "Some untagged spend detected: $("{0:C0}" -f $maxUntaggedCost) not allocated by '$maxUntaggedTag'. Tag remaining resources for full cost traceability." }
                             )
                         }
                         else {
                             $guidanceItems = @(
-                                @{ Severity = 'Green'; Message = "All scanned cost is tagged. Cost allocation is fully traceable — enables chargeback and showback." }
+                                @{ Severity = 'Green'; Message = "All scanned cost is tagged with allocation tags. Cost allocation is fully traceable — enables chargeback and showback." }
                             )
                         }
                     }
