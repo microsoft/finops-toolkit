@@ -168,10 +168,32 @@ function Get-FinOpsCostExport
         }
         $exportdetails = @()
         $content | ForEach-Object {
+            $export = $_
+
+            # The list endpoint truncates runHistory per export, so when -RunHistory is
+            # requested we re-fetch each export individually to get the full run history.
+            # https://github.com/microsoft/finops-toolkit/issues/2063
+            $runHistoryValue = $export.properties.runHistory.value
+            if ($RunHistory)
+            {
+                Write-Verbose -Message "fetching full run history for export $($export.name)"
+                $exportPath = "$($export.id.Trim('/'))?api-version=$ApiVersion&`$expand=runHistory"
+                $runResponse = Invoke-Rest -Method GET -Uri $exportPath -CommandName "Get-FinOpsCostExport"
+                if ($runResponse.Success)
+                {
+                    $runHistoryValue = $runResponse.Content.properties.runHistory.value
+                    Write-Verbose -Message "found $($runHistoryValue.count) runs for export $($export.name)"
+                }
+                else
+                {
+                    Write-Verbose -Message "individual GET failed for export $($export.name); falling back to run history from list response"
+                }
+            }
+
             # Extract run history before PSCustomObject creation to avoid nested
             # ForEach-Object $_ collision within the hashtable expression
             $runs = @()
-            foreach ($run in $_.properties.runHistory.value)
+            foreach ($run in $runHistoryValue)
             {
                 if ($null -eq $run) { continue }
                 $runs += [PSCustomObject]@{

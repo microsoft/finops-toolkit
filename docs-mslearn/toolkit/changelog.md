@@ -60,6 +60,11 @@ _Released June 2026_
 - **Fixed**
   - Removed call to Azure Classic administrators endpoint (deprecated on May 1, 2026) from Azure RBAC assignments exports ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
 
+### [PowerShell module](powershell/powershell-commands.md) v15
+
+- **Fixed**
+  - Fixed [Get-FinOpsCostExport](powershell/cost/get-finopscostexport.md) `-RunHistory` returning incomplete run history by querying each export's individual GET endpoint, which returns the full run history instead of the truncated history from the list endpoint ([#2063](https://github.com/microsoft/finops-toolkit/issues/2063)).
+
 -->
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
