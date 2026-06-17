@@ -46,9 +46,11 @@ var subnets = !hub.options.privateRouting ? [] : [
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 1)
       defaultOutboundAccess: !hub.options.natGateway
-      natGateway: hub.options.natGateway ? {
-        id: resourceId('Microsoft.Network/natGateways', natGatewayName)
-      } : null
+      ...(hub.options.natGateway ? {
+        natGateway: {
+          id: resourceId('Microsoft.Network/natGateways', natGatewayName)
+        }
+      } : {})
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -72,9 +74,11 @@ var subnets = !hub.options.privateRouting ? [] : [
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 27, 1)
       defaultOutboundAccess: !hub.options.natGateway
-      natGateway: hub.options.natGateway ? {
-        id: resourceId('Microsoft.Network/natGateways', natGatewayName)
-      } : null
+      ...(hub.options.natGateway ? {
+        natGateway: {
+          id: resourceId('Microsoft.Network/natGateways', natGatewayName)
+        }
+      } : {})
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -182,7 +186,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.opti
 resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.privateRouting) {
   name: hub.routing.networkName
   location: hub.location
-  tags: getHubTags(hub, 'Microsoft.Storage/virtualNetworks')
+  tags: getHubTags(hub, 'Microsoft.Network/virtualNetworks')
   dependsOn: hub.options.natGateway ? [
     natGateway
   ] : []

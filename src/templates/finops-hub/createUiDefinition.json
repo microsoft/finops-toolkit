@@ -981,6 +981,8 @@
               "Microsoft.Network/privateDnsZones",
               "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
               "Microsoft.Network/privateEndpoints",
+              "Microsoft.Network/publicIPAddresses",
+              "Microsoft.Network/natGateways",
               "Microsoft.Resources/deploymentScripts",
               "Microsoft.Storage/storageAccounts"
             ]
