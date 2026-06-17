@@ -222,9 +222,13 @@ function Get-FtkRepo {
         return $inRepoRoot
     }
     # Robust fallback for worktrees / unusual layouts: the git top-level.
-    $gitTop = (& git -C $script:RepoRoot rev-parse --show-toplevel 2>$null)
-    if ($gitTop -and (Test-Path (Join-Path $gitTop 'src/queries/catalog') -PathType Container)) {
-        return $gitTop
+    # Guard on git being present so a missing git degrades to the legacy fallback
+    # instead of throwing under $ErrorActionPreference = 'Stop'.
+    if (Get-Command git -ErrorAction SilentlyContinue) {
+        $gitTop = (& git -C $script:RepoRoot rev-parse --show-toplevel 2>$null)
+        if ($gitTop -and (Test-Path (Join-Path $gitTop 'src/queries/catalog') -PathType Container)) {
+            return $gitTop
+        }
     }
     # Last resort: legacy prototype layout where ftklocal sat beside a finops-toolkit clone.
     return (Resolve-Path (Join-Path (Split-Path -Parent $script:RepoRoot) 'finops-toolkit') -ErrorAction SilentlyContinue) `
