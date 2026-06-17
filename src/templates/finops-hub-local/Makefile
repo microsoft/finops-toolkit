@@ -5,15 +5,15 @@
 #   make down                Stop and remove the container (keeps the data volume).
 #   make nuke                Down + remove kustainer-data/ (destructive; full reset).
 #   make logs                Tail Kustainer logs.
-#   make kql QUERY='...'     Run a one-shot KQL query (default DB: Ingestion; override DB=Hub).
+#   make kql QUERY='...'     Run a one-shot KQL query (default DB: Hub; override e.g. KQL_DB=Ingestion).
 #
 # DB topology:
 #   Ingestion  raw tables (Costs_raw, Prices_raw), transform functions, final tables,
 #              open-data lookups, and Ingest_Manifest.
-#              Used by: ingest, ingest-status, checks 1–8 + 11, kql (default).
+#              Used by: ingest, ingest-status, checks 1–8 + 11, parity (base DB).
 #   Hub        view functions (Costs_v1_2, Prices_v1_2, Costs, Prices, etc.) that
 #              cross-reference database('Ingestion').*.
-#              Used by: ftk query/run/schema, parity checks 9–10.
+#              Used by: ftk query/run/schema, parity checks 9–10, kql (default).
 #
 # Notes:
 #   - The Kustainer HTTP endpoint is on host port $(HOST_PORT) (default 8082).
@@ -30,12 +30,16 @@ include .env
 export
 endif
 
-HOST_PORT ?= 8082
-# Default DB for ad-hoc kql queries: Ingestion (raw + final tables).
-# For Hub view functions use:  make kql DB=Hub QUERY='Costs_v1_2 | count'
-# For ftk catalog queries use: pwsh scripts/ftk.ps1 query "..." (targets Hub by default)
-DB        ?= Ingestion
-COMPOSE   ?= docker compose
+HOST_PORT  ?= 8082
+# KQL_DB: default database for ad-hoc `make kql` queries.
+# Defaults to Hub so view functions (Costs_v1_2, etc.) work without an override.
+# Override for raw-table inspection: make kql KQL_DB=Ingestion QUERY='Costs_raw | count'
+KQL_DB     ?= Hub
+# PARITY_DB: base database passed to run-parity-checks.ps1 --db.
+# Checks 1-8/11 run against PARITY_DB (Ingestion); the script internally forces
+# checks 9/10 to Hub regardless of this value.
+PARITY_DB  ?= Ingestion
+COMPOSE    ?= docker compose
 
 .PHONY: up down nuke logs kql ftk ftk-list wait-healthy load-ftk-kql ingest ingest-status chunked-prices-backfill parity help
 
@@ -45,7 +49,7 @@ help:
 	@echo "  down                      Stop the container (keeps data volume)."
 	@echo "  nuke                      Destructive full reset (drops kustainer-data/)."
 	@echo "  logs                      Tail Kustainer logs."
-	@echo "  kql QUERY='...'           One-shot KQL against $(DB)."
+	@echo "  kql QUERY='...'           One-shot KQL against Hub (override: KQL_DB=Ingestion)."
 	@echo "  load-ftk-kql              Load FTK analytics KQL + open-data lookups."
 	@echo "  ingest                    Bulk-ingest ALL parquet under export/."
 	@echo "  ingest SCOPE=<scope>      Ingest only one scope."
@@ -85,14 +89,15 @@ nuke:
 logs:
 	$(COMPOSE) logs -f kustainer
 
-# Run a one-shot KQL query against $(DB). Override QUERY on the command line:
+# Run a one-shot KQL query against $(KQL_DB) (default: Hub). Override on the command line:
 #   make kql QUERY='.show tables'
-#   make kql QUERY='Costs_raw | count'
+#   make kql QUERY='Costs_v1_2 | count'           (Hub — default)
+#   make kql KQL_DB=Ingestion QUERY='Costs_raw | count'
 kql:
 	@if [ -z "$(QUERY)" ]; then \
 	  echo "usage: make kql QUERY='<kql>'" >&2; exit 2; \
 	fi
-	@QUERY="$(QUERY)" DB="$(DB)" pwsh -NoProfile -Command '@{ db = $$env:DB; csl = $$env:QUERY } | ConvertTo-Json -Compress' | \
+	@QUERY="$(QUERY)" DB="$(KQL_DB)" pwsh -NoProfile -Command '@{ db = $$env:DB; csl = $$env:QUERY } | ConvertTo-Json -Compress' | \
 	  curl -sS --fail-with-body --max-time 60 \
 	    -H 'Content-Type: application/json' \
 	    -d @- \
@@ -132,16 +137,16 @@ ingest:
 	@pwsh scripts/ingest.ps1 $(INGEST_FILTERS)
 
 # Quick summary of Ingest_Manifest: files + rows per (scope, export_type).
-# Targets Ingestion DB (DB=Ingestion is the default).
+# Targets Ingestion DB explicitly (Ingest_Manifest lives there, not in Hub).
 ingest-status:
-	@$(MAKE) --no-print-directory kql \
+	@$(MAKE) --no-print-directory kql KQL_DB=Ingestion \
 	  QUERY="Ingest_Manifest | summarize files=count(), rows=sum(rows_ingested) by scope, export_type | order by scope asc, export_type asc"
 
 # Run the T-1.4 parity check suite. Reads tests/parity-checks.kql, executes
 # each numbered check against Kustainer's query endpoint, evaluates the EVAL
 # rule, and prints a pass/fail report. Exit code 0 only if all checks pass.
 parity:
-	@pwsh scripts/run-parity-checks.ps1 --endpoint http://localhost:$(HOST_PORT) --db $(DB)
+	@pwsh scripts/run-parity-checks.ps1 --endpoint http://localhost:$(HOST_PORT) --db $(PARITY_DB)
 
 # Recovery path for the Prices_transform_v1_2() backfill when the single-pass
 # .set-or-append OOMs. Processes Prices_raw one source extent at a time
