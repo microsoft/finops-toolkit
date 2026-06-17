@@ -1,0 +1,32 @@
+services:
+  kustainer:
+    image: mcr.microsoft.com/azuredataexplorer/kustainer-linux:latest
+    platform: linux/amd64
+    container_name: kustainer
+    ports:
+      # Host 8082 -> container 8080. Host port 8080 is reserved for maenifold.
+      - "${HOST_PORT:-8082}:8080"
+    environment:
+      ACCEPT_EULA: "Y"
+    volumes:
+      # Parquet exports — read-only, the engine only ingests from here.
+      - "${EXPORT_DIR:-./export}:/data/export:ro"
+      # Persistent engine state (databases, metadata, extents).
+      - ./kustainer-data:/kustodata
+    mem_limit: ${MEM_LIMIT:-8g}
+    restart: unless-stopped
+    healthcheck:
+      # Use the in-container curl to hit the internal mgmt endpoint.
+      # `.show version` is the cheapest mgmt command and proves the engine
+      # is actually answering, not just listening.
+      test:
+        - CMD-SHELL
+        - >-
+          curl -fsS --max-time 10
+          -H 'Content-Type: application/json'
+          -d '{"db":"NetDefaultDB","csl":".show version"}'
+          http://localhost:8080/v1/rest/mgmt > /dev/null || exit 1
+      interval: 10s
+      timeout: 15s
+      retries: 12
+      start_period: 30s
