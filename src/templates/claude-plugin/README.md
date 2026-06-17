@@ -44,7 +44,7 @@ The plugin registers an [Azure MCP Server](https://github.com/Azure/azure-mcp) w
 | `/ftk-hubs-connect` | Discover FinOps hub instances via Azure Resource Graph, connect to a cluster, validate the connection, and save environment settings to `.ftk/environments.local.md`. |
 | `/ftk-hubs-healthCheck` | Check deployed hub version against latest stable/dev releases and validate data freshness. |
 | `/ftk-mom-report` | Autonomous month-over-month cost analysis with anomaly detection, forecasting, and actionable recommendations. |
-| `/ftk-ytd-report` | Comprehensive fiscal year-to-date analysis with forecast through end of fiscal year (June 30). |
+| `/ftk-ytd-report` | Comprehensive fiscal year-to-date analysis with forecast through the organization's fiscal year end (July-June is a customizable example). |
 | `/ftk-cost-optimization` | Cost optimization report using Azure Advisor, orphaned resources, and rightsizing analysis. |
 
 ### Output style
@@ -53,7 +53,7 @@ The plugin registers an [Azure MCP Server](https://github.com/Azure/azure-mcp) w
 
 ### Query catalog
 
-The core KQL query catalog for common FinOps scenarios is located in `skills/finops-toolkit/references/queries/catalog/`. The SRE Agent recipe exposes these Kusto-backed queries through `ftk-database-query`.
+The core KQL query catalog includes 17 pre-built queries in `skills/finops-toolkit/references/queries/catalog/`. The SRE Agent recipe exposes these Kusto-backed queries through `ftk-database-query`.
 
 | Query | Purpose |
 |-------|---------|
@@ -66,10 +66,6 @@ The core KQL query catalog for common FinOps scenarios is located in `skills/fin
 | `quarterly-cost-by-resource-group.kql` | Effective cost by resource group for multi-month reporting. |
 | `cost-by-region-trend.kql` | Effective cost by Azure region. |
 | `cost-by-financial-hierarchy.kql` | Cost by billing profile, invoice section, team, product, app. |
-| `ai-cost-by-application.kql` | Azure OpenAI cost by application/team/environment. |
-| `ai-daily-trend.kql` | Daily Azure OpenAI cost and token trend. |
-| `ai-model-cost-comparison.kql` | Azure OpenAI model cost efficiency. |
-| `ai-token-usage-breakdown.kql` | Azure OpenAI tokens by model and direction. |
 | `cost-anomaly-detection.kql` | Statistical anomaly detection for cost spikes. |
 | `cost-forecasting-model.kql` | Projected future costs with configurable forecast horizon. |
 | `service-price-benchmarking.kql` | Compare list, contracted, effective, and commitment prices. |

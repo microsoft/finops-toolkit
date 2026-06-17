@@ -1,6 +1,6 @@
 # FinOps Toolkit skill
 
-KQL-based cost analysis and infrastructure deployment for [FinOps hubs](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview). Provides a query catalog of 37 pre-built KQL queries, database schema documentation, hub deployment workflows, and a structured think-execute framework for financial analysis.
+KQL-based cost analysis and infrastructure deployment for [FinOps hubs](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview). Provides a query catalog of 17 pre-built KQL queries, database schema documentation, hub deployment workflows, and a structured think-execute framework for financial analysis.
 
 ## When this skill activates
 
@@ -36,7 +36,7 @@ Columns prefixed with `x_` are toolkit enrichments added during ingestion (e.g.,
 
 ## Query catalog
 
-37 pre-built KQL queries in `references/queries/catalog/`. Always check the catalog before writing custom KQL.
+17 pre-built KQL queries in `references/queries/catalog/`. Always check the catalog before writing custom KQL.
 
 | Query | Purpose | Parameters |
 |-------|---------|------------|
@@ -49,10 +49,6 @@ Columns prefixed with `x_` are toolkit enrichments added during ingestion (e.g.,
 | `quarterly-cost-by-resource-group.kql` | Resource group costs by quarter | `N`, `startDate`, `endDate` |
 | `cost-by-region-trend.kql` | Effective cost by Azure region | `startDate`, `endDate` |
 | `cost-by-financial-hierarchy.kql` | Cost by billing profile, team, product, app | `N`, `startDate`, `endDate` |
-| `ai-cost-by-application.kql` | Azure OpenAI cost by application/team/environment | `startDate`, `endDate` |
-| `ai-daily-trend.kql` | Daily Azure OpenAI cost and token trend | `startDate`, `endDate` |
-| `ai-model-cost-comparison.kql` | Azure OpenAI model cost efficiency | `startDate`, `endDate` |
-| `ai-token-usage-breakdown.kql` | Azure OpenAI tokens by model and direction | `startDate`, `endDate` |
 | `cost-anomaly-detection.kql` | Statistical anomaly detection | `numberOfMonths`, `interval` |
 | `cost-forecasting-model.kql` | Future cost projections | `forecastPeriods`, `interval` |
 | `service-price-benchmarking.kql` | Price comparison across tiers | `startDate`, `endDate` |
@@ -84,7 +80,7 @@ See `references/finops-hubs-deployment.md` for deployment methods, scope configu
 | `references/finops-hubs.md` | Analysis guide: KQL execution, query catalog protocol, tool matrix, performance rules, quality checklist |
 | `references/finops-hubs-deployment.md` | Deployment: prerequisites, methods (portal/PowerShell/Bicep), exports, backfill, Fabric, dashboards |
 | `references/settings-format.md` | `.ftk/environments.local.md` format: named environments with cluster-uri, tenant, subscription |
-| `references/queries/INDEX.md` | Query-to-scenario matrix with parameters and usage guidance for all 37 pre-built KQL queries |
+| `references/queries/INDEX.md` | Query-to-scenario matrix with parameters and usage guidance for all 17 pre-built KQL queries |
 | `references/queries/finops-hub-database-guide.md` | Full database schema: all four functions, column definitions, enrichment columns, query best practices |
 | `references/workflows/ftk-hubs-connect.md` | Hub discovery via Resource Graph, connection validation, environment persistence |
 | `references/workflows/ftk-hubs-healthCheck.md` | Version comparison against stable/dev releases, data freshness check |

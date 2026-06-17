@@ -62,13 +62,16 @@ All KQL queries are located in `references/queries/`:
 |-------------|------------|----------------|
 | Foundation for scoped custom drill-downs | `costs-enriched-base.kql` | `startDate`, `endDate` |
 | Monthly cost trends | `monthly-cost-trend.kql` | `startDate`, `endDate` |
+| Month-over-month cost change percentage | `monthly-cost-change-percentage.kql` | `startDate`, `endDate` |
 | Top resource groups | `top-resource-groups-by-cost.kql` | `N`, `startDate`, `endDate` |
 | Top services | `top-services-by-cost.kql` | `N`, `startDate`, `endDate` |
+| Financial hierarchy allocation | `cost-by-financial-hierarchy.kql` | `N`, `startDate`, `endDate` |
+| Regional cost drivers | `cost-by-region-trend.kql` | `startDate`, `endDate` |
 | Anomaly detection | `cost-anomaly-detection.kql` | `numberOfMonths`, `interval` |
 | Commitment utilization | `commitment-discount-utilization.kql` | `startDate`, `endDate` |
 | Savings summary (ESR) | `savings-summary-report.kql` | `startDate`, `endDate` |
 | Cost forecasting | `cost-forecasting-model.kql` | `forecastPeriods`, `interval` |
-| AI workload unit economics | `ai-token-usage-breakdown.kql`, `ai-model-cost-comparison.kql`, `ai-daily-trend.kql`, `ai-cost-by-application.kql` | `startDate`, `endDate` |
+| Price benchmarking | `service-price-benchmarking.kql` | `startDate`, `endDate` |
 | Reservation recommendations | `reservation-recommendation-breakdown.kql` | Filter by service/region |
 
 **Catalog Protocol:**
