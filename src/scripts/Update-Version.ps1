@@ -152,6 +152,9 @@ if ($update -or $Version)
     | ForEach-Object {
         Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         $json = Get-Content $_ -Raw | ConvertFrom-Json
+        if ($json.PSObject.Properties['metadata'] -and $json.metadata.PSObject.Properties['version']) {
+            $json.metadata.version = $ver
+        }
         foreach ($plugin in $json.plugins) {
             if ($plugin.PSObject.Properties['version']) {
                 $plugin.version = $ver

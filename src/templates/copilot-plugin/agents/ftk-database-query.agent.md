@@ -209,10 +209,10 @@ You execute KQL against a live hub via **one** tool. There is no other path. Mem
 
 | Parameter | Source | Example |
 |---|---|---|
-| `cluster-uri` | environment file (see below) | `https://msbwftktreyhub.westus.kusto.windows.net` |
+| `cluster-uri` | environment file (see below) | `https://<cluster>.<region>.kusto.windows.net` |
 | `database` | always `Hub` | `Hub` |
-| `tenant` | environment file | `16b3c013-d300-468d-ac64-7eda0820b6d3` |
-| `subscription` | environment file | `cab7feeb-759d-478c-ade6-9326de0651ff` |
+| `tenant` | environment file | `<tenant-guid>` |
+| `subscription` | environment file | `<subscription-guid>` |
 | `query` | the KQL string | `Costs() | take 1` |
 
 **Where to read connection details:**

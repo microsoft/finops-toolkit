@@ -100,7 +100,7 @@ The Copilot CLI plugin schema does not include an `outputStyles` field (unlike C
 
 ### Query catalog
 
-21 pre-built KQL queries for common FinOps scenarios, located in `skills/finops-toolkit/references/queries/catalog/`:
+37 pre-built KQL queries for common FinOps scenarios, located in `skills/finops-toolkit/references/queries/catalog/`:
 
 | Query | Purpose |
 |-------|---------|

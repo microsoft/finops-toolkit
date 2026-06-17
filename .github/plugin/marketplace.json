@@ -6,12 +6,12 @@
     "name": "Microsoft"
   },
   "metadata": {
-    "version": "13.0.0"
+    "version": "15.0.0"
   },
   "plugins": [
     {
       "name": "microsoft-finops-toolkit",
-      "version": "13.0.0",
+      "version": "15.0.0",
       "source": "./src/templates/copilot-plugin",
       "description": "AI-powered cloud financial management for Azure. Analyze costs with KQL queries against FinOps hubs, get CFO-level reporting, and access Azure Cost Management insights.",
       "category": "finops",
