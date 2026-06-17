@@ -22,7 +22,7 @@
 //   reported separately and must not be summed across currencies without FX conversion. The default
 //   12-month window supports STL seasonality decomposition, and UnpredictedVarianceAbs is defined as
 //   abs(sum(actual - baseline)) rather than sum(abs(actual - baseline)).
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 13 rows returned (per service category)
+// Last Tested: 2026-05-28 against a FinOps Hub ADX cluster (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 13 rows returned (per service category)
 // =========================================================================
 let startDate = startofmonth(ago(12 * 30d));
 let endDate = now();

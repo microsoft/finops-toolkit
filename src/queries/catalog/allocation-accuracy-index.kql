@@ -16,7 +16,7 @@
 // Usage:
 //   Use this query to measure how much effective cost is directly attributable within FinOps Hub.
 // Scope Notes: Hub-only AAI. Does not include on-prem, SaaS, or other infrastructure outside Hub schema.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
+// Last Tested: 2026-05-28 against a FinOps Hub ADX cluster (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());
@@ -24,9 +24,10 @@ let allocationEvidenceTagKeys = dynamic(['cost-center','team','owner','applicati
 Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+| extend tmp_TagKeys = coalesce(bag_keys(Tags), dynamic([]))
 | extend tmp_IsAttributed = isnotempty(x_CostAllocationRuleName)
                           or isnotempty(x_CostCenter)
-                          or array_length(set_intersect(bag_keys(Tags), allocationEvidenceTagKeys)) > 0
+                          or array_length(set_intersect(tmp_TagKeys, allocationEvidenceTagKeys)) > 0
 | summarize
     DirectlyAttributedCost = todouble(sumif(EffectiveCost, tmp_IsAttributed)),
     TotalEffectiveCost = todouble(sum(EffectiveCost))

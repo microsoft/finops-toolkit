@@ -16,22 +16,19 @@
 // Scope Notes:
 //   Measures Hub ingestion cadence from x_IngestionTime, not the timing of underlying charges.
 //   Accounts with only one distinct ingestion timestamp return null interval statistics.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
+// Last Tested: 2026-05-28 against a FinOps Hub ADX cluster (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
 // =========================================================================
 Costs()
+| where isnotnull(x_IngestionTime)
+| extend BillingAccountId = tolower(BillingAccountId)
+| summarize by BillingAccountId, x_IngestionTime
+| sort by BillingAccountId asc, x_IngestionTime asc
+| serialize
+| extend prev_account = prev(BillingAccountId), prev_t = prev(x_IngestionTime)
+| extend interval_hours = iff(BillingAccountId == prev_account, todouble((x_IngestionTime - prev_t) / 1h), real(null))
 | summarize
     LastUpdate = max(x_IngestionTime),
-    UpdateCount = dcount(x_IngestionTime),
-    ingestion_times = make_set(x_IngestionTime)
-    by BillingAccountId
-| mv-expand ingestion_time = ingestion_times to typeof(datetime)
-| sort by BillingAccountId asc, ingestion_time asc
-| serialize
-| extend prev_account = prev(BillingAccountId), prev_t = prev(ingestion_time)
-| extend interval_hours = iff(BillingAccountId == prev_account, todouble((ingestion_time - prev_t) / 1h), real(null))
-| summarize
-    LastUpdate = max(LastUpdate),
-    UpdateCount = max(UpdateCount),
+    UpdateCount = count(),
     MedianIntervalHours = todouble(percentile(interval_hours, 50)),
     P90IntervalHours = todouble(percentile(interval_hours, 90)),
     MaxIntervalHours = todouble(max(interval_hours))

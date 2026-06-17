@@ -13,7 +13,7 @@
 //   Each row represents one BillingCurrency and returns UntaggedEffectiveCost, TotalEffectiveCost, and UntaggedPercent for the selected period.
 // Usage:
 //   Use this query to measure how much effective cloud spend is associated with untagged CSP resources.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
+// Last Tested: 2026-05-28 against a FinOps Hub ADX cluster (1,366,763 cost rows in 2026-04 window). UAT result: PASS — 1 row returned
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());

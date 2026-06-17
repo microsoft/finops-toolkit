@@ -24,7 +24,7 @@
 //   share of MACC drawdown. Wave-boundary fix (T-3000.15 cross-model review): opus-4.6 flagged BillingAccountId in
 //   output (spec deviation); gpt-5.5 flagged that naive broadcasting would duplicate commitment per profile. The
 //   allocation pattern below resolves both findings.
-// Last Tested: 2026-05-28 against msbwftktreyhub.westus.kusto.windows.net/Hub (1,366,763 cost rows in 2026-04 window). UAT result: PASS_SCHEMA_WITH_DATA_GAP — 1 row returned; test hub has 0 Transactions() rows and 0 x_MonetaryCommitment rows, so MACC value semantics require re-UAT on a MACC-active hub.
+// Last Tested: 2026-05-28 against a FinOps Hub ADX cluster (1,366,763 cost rows in 2026-04 window). UAT result: PASS_SCHEMA_WITH_DATA_GAP — 1 row returned; test hub has 0 Transactions() rows and 0 x_MonetaryCommitment rows, so MACC value semantics require re-UAT on a MACC-active hub.
 // =========================================================================
 let startDate = startofmonth(ago(30d));
 let endDate = startofmonth(now());
@@ -32,6 +32,7 @@ let profileConsumption =
     Costs()
     | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
     | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+    | extend BillingAccountId = tolower(BillingAccountId)
     | extend ReportingMonth = startofmonth(ChargePeriodStart)
     | summarize ProfileConsumption = todouble(sum(EffectiveCost)) by BillingCurrency, BillingAccountId, x_BillingProfileId, ReportingMonth;
 let accountCommitment =
@@ -39,6 +40,7 @@ let accountCommitment =
     | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
     | where x_TransactionType in ('MACC', 'MonetaryCommitment', 'Microsoft Azure Consumption Commitment')
         or isnotnull(x_MonetaryCommitment)
+    | extend BillingAccountId = tolower(BillingAccountId)
     | extend ReportingMonth = startofmonth(ChargePeriodStart)
     // VALIDATE on a MACC-active hub: sum(x_MonetaryCommitment) represents the total MACC obligation for the window.
     // If the Hub deployment records this repeatedly per billing period instead of once per purchase,
