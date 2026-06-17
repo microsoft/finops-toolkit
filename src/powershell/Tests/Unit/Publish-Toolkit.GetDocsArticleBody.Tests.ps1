@@ -98,7 +98,7 @@ Describe 'Get-DocsArticleBody' {
         Get-DocsArticleBody $content | Should -Be 'verbatim content'
     }
 
-    It 'Trims trailing whitespace from each line' {
+    It 'Preserves trailing whitespace on content lines' {
         $content = @(
             '---'
             'title: Sample'
@@ -111,7 +111,7 @@ Describe 'Get-DocsArticleBody' {
         Get-DocsArticleBody $content | Should -Be "# Heading   `nBody paragraph.    "
     }
 
-    It 'Collapses three or more blank lines to exactly two' {
+    It 'Preserves runs of three or more blank lines in the body' {
         $content = @(
             '---'
             'title: Sample'

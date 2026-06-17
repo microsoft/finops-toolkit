@@ -106,13 +106,15 @@ ms.date: 01/01/2025
 Body paragraph.
 <!-- prettier-ignore-end -->
 "@,
-            # Trailing whitespace per line and an extra blank line.
-            "---`ntitle: Sample`nms.date: 01/01/2025`n---`n# Heading   `n`n`nBody paragraph.   `n",
             # CRLF version of the same content.
             "---`r`ntitle: Sample`r`nms.date: 01/01/2025`r`n---`r`n# Heading`r`n`r`nBody paragraph.`r`n"
         )
 
-        'frontmatter-only file (and whitespace-only body)' = @(
+        'trailing whitespace and extra blank line are content changes' = @(
+            "---`ntitle: Sample`nms.date: 01/01/2025`n---`n# Heading   `n`n`nBody paragraph.   `n"
+        )
+
+        'frontmatter-only file' = @(
             @"
 ---
 title: Sample
@@ -125,9 +127,12 @@ title: Sample
 ms.date: 12/31/2099
 ---
 "@,
-            "---`ntitle: WSOnly`n---`n   `n`n   `n",
             "---`ntitle: WSOnly`n---`n",
             "---`ntitle: WSOnly`n---"
+        )
+
+        'whitespace-only body is a content change' = @(
+            "---`ntitle: WSOnly`n---`n   `n`n   `n"
         )
 
         'body text actually changed' = @(
