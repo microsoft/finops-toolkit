@@ -120,6 +120,7 @@ $resourceGroupName = Get-RequiredEnv 'resourceGroupName'
 $agentName = Get-RequiredEnv 'agentName'
 $agentEndpoint = (Get-RequiredEnv 'agentEndpoint').TrimEnd('/')
 $recipePackageUri = Get-RequiredEnv 'recipePackageUri'
+$recipePackageSha256 = Get-RequiredEnv 'recipePackageSha256'
 $kustoConnectorUri = Get-OptionalEnv 'kustoConnectorUri'
 $armApiVersion = '2025-05-01-preview'
 $armBase = "https://management.azure.com/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.App/agents/$agentName"
@@ -134,10 +135,33 @@ $zipPath = Join-Path $tempRoot 'sre-agent-recipe.zip'
 Remove-Item $workRoot -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -Path $workRoot -ItemType Directory -Force | Out-Null
 
+Write-Output "Validating SRE Agent recipe package URI: $recipePackageUri"
+[uri]$parsedUri = $recipePackageUri
+if ($parsedUri.Scheme -ne 'https') {
+    throw "Recipe package URI must use https scheme, got: $($parsedUri.Scheme)"
+}
+
+$allowedHosts = @(
+    'raw.githubusercontent.com',
+    'github.com',
+    'aka.ms'
+)
+
+if ($allowedHosts -notcontains $parsedUri.Host -and $parsedUri.Host -notlike '*.blob.core.windows.net') {
+    throw "Recipe package host '$($parsedUri.Host)' is not in the allowlist. Allowed: raw.githubusercontent.com, github.com, aka.ms, *.blob.core.windows.net"
+}
+
 Write-Output "Downloading SRE Agent recipe package: $recipePackageUri"
 Invoke-WithRetry -Label 'download recipe package' -Action {
     Invoke-WebRequest -Uri $recipePackageUri -OutFile $zipPath
 } | Out-Null
+
+Write-Output "Verifying recipe package integrity..."
+$actualHash = (Get-FileHash -Algorithm SHA256 -Path $zipPath).Hash
+if ($actualHash -ne $recipePackageSha256) {
+    throw "Recipe package hash mismatch: expected $recipePackageSha256 got $actualHash"
+}
+
 Expand-Archive -Path $zipPath -DestinationPath $workRoot -Force
 
 $extrasPath = Join-Path $workRoot 'extras.json'

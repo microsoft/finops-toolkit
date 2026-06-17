@@ -3,7 +3,7 @@ title: Deploy Azure SRE Agent with the FinOps toolkit
 description: Deploy the FinOps toolkit Azure SRE Agent template from the Azure portal or CLI, connect it to a FinOps hub Data Explorer cluster, and validate the deployment.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/04/2026
+ms.date: 06/17/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -79,8 +79,7 @@ bash bin/deploy.sh \
   [--cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>] \
   [--target-resource-group <target-rg> ...] \
   [--dry-run] \
-  [--force] \
-  [--no-telemetry]
+  [--force]
 ```
 
 `bin/deploy.sh --help` is the CLI contract:
@@ -100,11 +99,10 @@ Optional:
   --cluster-uri <uri>                 Kusto connector URI, including database name.
                                       Example: https://<cluster>.<region>.kusto.windows.net/Hub
   --cluster-resource-id <id>          Optional Kusto cluster ARM resource ID. Real deployments resolve this from --cluster-uri when possible; dry-run requires it.
-  --no-subscription-reader            Do not assign Reader at subscription scope. Default: assign Reader.
+  --no-subscription-reader            Do not assign Reader at subscription scope. Default: no subscription Reader (opt-in with --subscription-reader).
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
-  --no-telemetry                      Accepted for compatibility.
   -h, --help                          Show this help.
 ```
 
@@ -130,7 +128,7 @@ The recipe defaults the parent SRE Agent to Azure OpenAI provider-level routing 
 
 Resource names are deterministic for the subscription ID, agent resource group ID, and agent name. Use the same values to update an existing deployment. Post-provisioning deletes existing scheduled tasks with the recipe's task names before applying manifests so redeployments don't create duplicate automations. `--deploy-name` only changes the ARM deployment record and local build directory.
 
-The deployment assigns `Reader` at subscription scope by default so subscription inventory, Resource Graph, capacity, quota, and monitoring-coverage tools can inspect the deployment subscription. Pass `--no-subscription-reader` only when you grant equivalent read access another way.
+The agent defaults to Low (read-only) access level for reporting and analysis without modification risk. Subscription Reader is opt-in (`--subscription-reader`) and only required for subscription-wide ARM-backed reports; otherwise the agent scopes reads via target resource groups. This posture allows the 19 scheduled reports to run autonomously while eliminating write blast radius.
 
 If `--cluster-uri` points to an Azure Data Explorer cluster with `publicNetworkAccess` set to `Disabled`, the script still deploys all resources, assigns the agent identity `AllDatabasesViewer`, and creates the `finops-hub-kusto` connector. It also prints a warning with the SRE Agent known-limitations URL because private endpoint ADX blocks direct KQL queries from the hosted agent. The customer can decide whether to enable public query access for the connector after reviewing <https://sre.azure.com/docs/capabilities/azure-observability-vnet#known-limitations>.
 
@@ -185,14 +183,13 @@ The included GitHub Actions example passes the cluster URI as a deploy flag whil
 
 ## Migrating from env-var-driven deploys
 
-The old deploy flow used configuration inputs such as `FINOPS_HUB_CLUSTER_URI`, `FINOPS_HUB_CLUSTER_RESOURCE_ID`, `SRE_AGENT_NO_TELEMETRY`, and `connectors.secrets.env`. Those inputs are no longer supported for identity or config.
+The old deploy flow used configuration inputs such as `FINOPS_HUB_CLUSTER_URI`, `FINOPS_HUB_CLUSTER_RESOURCE_ID`, and `connectors.secrets.env`. Those inputs are no longer supported for identity or config.
 
 Before:
 
 ```bash
 export FINOPS_HUB_CLUSTER_URI="https://<your-cluster>.<your-region>.kusto.windows.net/hub"
 export FINOPS_HUB_CLUSTER_RESOURCE_ID="/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster>"
-export SRE_AGENT_NO_TELEMETRY=1
 bash bin/deploy.sh recipes/finops-hub
 ```
 
@@ -206,8 +203,7 @@ bash bin/deploy.sh \
   --name <your-agent-name> \
   --location <your-region> \
   --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
-  [--cluster-resource-id /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster>] \
-  --no-telemetry
+  [--cluster-resource-id /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster>]
 ```
 
 The only supported environment-variable inputs are secrets:

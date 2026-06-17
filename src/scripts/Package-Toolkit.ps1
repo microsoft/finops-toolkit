@@ -209,6 +209,23 @@ function Copy-TemplateFiles()
                 }
 
                 Copy-FlatDeploymentFiles
+
+                # Inject the recipe package SHA-256 into azuredeploy.json so the deployment
+                # script can verify package integrity before extraction. Runs only when a
+                # template ships both the compiled template and a recipe zip; no-op otherwise.
+                $deployJson = "$targetDir/azuredeploy.json"
+                $recipeZip = "$targetDir/sre-agent-recipe.zip"
+                if ((Test-Path $deployJson) -and (Test-Path $recipeZip))
+                {
+                    $deployContent = Get-Content $deployJson -Raw
+                    if ($deployContent -match 'PLACEHOLDER_RECIPE_PACKAGE_SHA256')
+                    {
+                        $recipeSha = (Get-FileHash -Algorithm SHA256 -Path $recipeZip).Hash.ToLower()
+                        $deployContent = $deployContent -replace 'PLACEHOLDER_RECIPE_PACKAGE_SHA256', $recipeSha
+                        Set-Content -Path $deployJson -Value $deployContent -NoNewline
+                        Write-Verbose "    Injected recipe package SHA-256 ($recipeSha) into $deployJson"
+                    }
+                }
             }
             else
             {

@@ -29,4 +29,5 @@ jobs:
           --location ${{ vars.SRE_AGENT_LOCATION }}
           --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           --cluster-uri "$CLUSTER_URI"
+          --deployer-principal-type ServicePrincipal
           --force

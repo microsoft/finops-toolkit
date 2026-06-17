@@ -25,9 +25,9 @@ param finopsHubKustoConnectorUri string = ''
 @description('Optional. FinOps Hub Azure Data Explorer cluster resource ID for Kusto viewer assignment.')
 param finopsHubKustoClusterResourceId string = ''
 
-@description('Agent access level.')
+@description('Agent access level. Low (read-only) is recommended for reporting and analysis without modification risk.')
 @allowed(['Low', 'High'])
-param accessLevel string = 'High'
+param accessLevel string = 'Low'
 
 @description('Agent action mode.')
 @allowed(['review', 'autonomous', 'readOnly'])
@@ -54,11 +54,14 @@ param experimentalSettings object = {
   EnableWorkspaceTools: true
 }
 
-@description('Assign Reader on the deployment subscription to the agent managed identity.')
-param enableSubscriptionReaderRole bool = true
+@description('Assign Reader on the deployment subscription to the agent managed identity. Optional — required only for subscription-wide ARM-backed reports; otherwise scope reads via target resource groups.')
+param enableSubscriptionReaderRole bool = false
 
 @description('Public URI for the generated SRE Agent recipe package. Deploy-to-Azure links derive this from the template URI.')
 param recipePackageUri string = uri(any(deployment()).properties.templateLink.uri, 'sre-agent-recipe.zip')
+
+@description('SHA256 hash of the recipe package for integrity verification.')
+param recipePackageSha256 string = 'PLACEHOLDER_RECIPE_PACKAGE_SHA256'
 
 @description('Forces the recipe deployment script to run when the template is redeployed.')
 param forceUpdateTag string = utcNow()
@@ -68,6 +71,10 @@ param tags object = {
   'finops-toolkit': 'sre-agent'
   source: 'microsoft-finops-toolkit'
 }
+
+@description('Principal type of the deployer.')
+@allowed(['User', 'ServicePrincipal'])
+param deployerPrincipalType string = 'User'
 
 var rawTargetResourceGroups = split(replace(targetResourceGroupNames, ' ', ''), ',')
 var parsedTargetResourceGroups = filter(rawTargetResourceGroups, rgName => !empty(rgName))
@@ -102,6 +109,7 @@ module resources 'infra/resources.bicep' = {
     defaultModelName: defaultModelName
     monthlyAgentUnitLimit: monthlyAgentUnitLimit
     experimentalSettings: experimentalSettings
+    deployerPrincipalType: deployerPrincipalType
     tags: tags
   }
 }
@@ -144,6 +152,7 @@ module applyExtras 'infra/modules/apply-extras.bicep' = {
     agentEndpoint: resources.outputs.agentEndpoint
     subscriptionId: subscription().subscriptionId
     recipePackageUri: recipePackageUri
+    recipePackageSha256: recipePackageSha256
     kustoConnectorUri: finopsHubKustoConnectorUri
     forceUpdateTag: forceUpdateTag
     tags: tags

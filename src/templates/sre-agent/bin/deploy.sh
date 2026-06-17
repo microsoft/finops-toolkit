@@ -38,10 +38,10 @@ Optional:
                                       Example: https://<cluster>.<region>.kusto.windows.net/Hub
   --cluster-resource-id <id>          Optional Kusto cluster ARM resource ID. Real deployments resolve this from --cluster-uri when possible; dry-run requires it.
   --no-subscription-reader            Do not assign Reader at subscription scope. Default: assign Reader.
+  --deployer-principal-type <type>    Principal type of the deployer (User or ServicePrincipal). Default: User.
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
-  --no-telemetry                      Accepted for compatibility.
   -h, --help                          Show this help.
 EOF
   exit "${1:-0}"
@@ -247,7 +247,8 @@ CLUSTER_URI=""
 CLUSTER_RESOURCE_ID=""
 DEPLOY_NAME=""
 DRY_RUN=""
-ENABLE_SUBSCRIPTION_READER="true"
+ENABLE_SUBSCRIPTION_READER="false"
+DEPLOYER_PRINCIPAL_TYPE="User"
 TARGET_RGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -300,6 +301,11 @@ while [[ $# -gt 0 ]]; do
       ENABLE_SUBSCRIPTION_READER="false"
       shift
       ;;
+    --deployer-principal-type)
+      require_value "--deployer-principal-type" "${2:-}"
+      DEPLOYER_PRINCIPAL_TYPE="$2"
+      shift 2
+      ;;
     --deploy-name)
       require_value "--deploy-name" "${2:-}"
       DEPLOY_NAME="$2"
@@ -309,7 +315,7 @@ while [[ $# -gt 0 ]]; do
       DRY_RUN="true"
       shift
       ;;
-    --force|--no-telemetry)
+    --force)
       shift
       ;;
     -h|--help)
@@ -414,6 +420,7 @@ jq -n \
   --argjson monthlyAgentUnitLimit "$MONTHLY_AGENT_UNIT_LIMIT" \
   --arg kustoClusterId "$CLUSTER_RESOURCE_ID" \
   --argjson enableSubscriptionReaderRole "$ENABLE_SUBSCRIPTION_READER" \
+  --arg deployerPrincipalType "$DEPLOYER_PRINCIPAL_TYPE" \
   --argjson targetResourceGroups "$TARGET_RGS_JSON" \
   --argjson experimentalSettings "$EXPERIMENTAL_SETTINGS" \
   --argjson tags "$TAGS" \
@@ -434,7 +441,8 @@ jq -n \
       "experimentalSettings": { "value": $experimentalSettings },
       "tags": { "value": $tags },
       "finopsHubKustoClusterResourceId": { "value": $kustoClusterId },
-      "enableSubscriptionReaderRole": { "value": $enableSubscriptionReaderRole }
+      "enableSubscriptionReaderRole": { "value": $enableSubscriptionReaderRole },
+      "deployerPrincipalType": { "value": $deployerPrincipalType }
     }
   }' > "$PARAMETERS_FILE"
 

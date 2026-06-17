@@ -15,6 +15,9 @@ param subscriptionId string
 @description('Public URI for the generated SRE Agent recipe package.')
 param recipePackageUri string
 
+@description('SHA256 hash of the recipe package for integrity verification.')
+param recipePackageSha256 string
+
 @description('Optional database-qualified Kusto connector URI.')
 param kustoConnectorUri string = ''
 
@@ -87,6 +90,10 @@ resource applyExtras 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
       {
         name: 'recipePackageUri'
         value: recipePackageUri
+      }
+      {
+        name: 'recipePackageSha256'
+        value: recipePackageSha256
       }
       {
         name: 'kustoConnectorUri'

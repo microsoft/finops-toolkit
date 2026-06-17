@@ -101,8 +101,8 @@
             "name": "accessLevel",
             "type": "Microsoft.Common.OptionsGroup",
             "label": "Access level",
-            "defaultValue": "High",
-            "toolTip": "High adds Contributor on target resource groups for autonomous remediation workflows. Low grants read-only monitoring roles.",
+            "defaultValue": "Low",
+            "toolTip": "Low grants read-only monitoring roles (recommended for reporting and analysis). High adds Contributor on target resource groups for autonomous remediation workflows.",
             "constraints": {
               "allowedValues": [
                 {
@@ -147,8 +147,8 @@
             "name": "enableSubscriptionReaderRole",
             "type": "Microsoft.Common.CheckBox",
             "label": "Grant subscription Reader to the agent",
-            "toolTip": "Recommended. Grants the agent managed identity Reader on the deployment subscription for inventory, Resource Graph, capacity, quota, and monitoring coverage workflows.",
-            "defaultValue": true,
+            "toolTip": "Optional — required only for subscription-wide ARM-backed reports; otherwise scope reads via target resource groups.",
+            "defaultValue": false,
             "visible": true
           }
         ]

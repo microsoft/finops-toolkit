@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "2403415415579441400"
+      "templateHash": "9242331632702473420"
     }
   },
   "parameters": {
@@ -67,13 +67,13 @@
     },
     "accessLevel": {
       "type": "string",
-      "defaultValue": "High",
+      "defaultValue": "Low",
       "allowedValues": [
         "Low",
         "High"
       ],
       "metadata": {
-        "description": "Agent access level."
+        "description": "Agent access level. Low (read-only) is recommended for reporting and analysis without modification risk."
       }
     },
     "actionMode": {
@@ -137,9 +137,9 @@
     },
     "enableSubscriptionReaderRole": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
-        "description": "Assign Reader on the deployment subscription to the agent managed identity."
+        "description": "Assign Reader on the deployment subscription to the agent managed identity. Optional — required only for subscription-wide ARM-backed reports; otherwise scope reads via target resource groups."
       }
     },
     "recipePackageUri": {
@@ -147,6 +147,13 @@
       "defaultValue": "[uri(deployment().properties.templateLink.uri, 'sre-agent-recipe.zip')]",
       "metadata": {
         "description": "Public URI for the generated SRE Agent recipe package. Deploy-to-Azure links derive this from the template URI."
+      }
+    },
+    "recipePackageSha256": {
+      "type": "string",
+      "defaultValue": "bc87901a7090d36feb7d80664d57fc9bfa09056eed316fbf5458855b9de97662",
+      "metadata": {
+        "description": "SHA256 hash of the recipe package for integrity verification."
       }
     },
     "forceUpdateTag": {
@@ -164,6 +171,17 @@
       },
       "metadata": {
         "description": "Azure resource tags."
+      }
+    },
+    "deployerPrincipalType": {
+      "type": "string",
+      "defaultValue": "User",
+      "allowedValues": [
+        "User",
+        "ServicePrincipal"
+      ],
+      "metadata": {
+        "description": "Principal type of the deployer."
       }
     }
   },
@@ -252,6 +270,9 @@
           "experimentalSettings": {
             "value": "[parameters('experimentalSettings')]"
           },
+          "deployerPrincipalType": {
+            "value": "[parameters('deployerPrincipalType')]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
           }
@@ -263,7 +284,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "11748842726639098374"
+              "templateHash": "400180081712866601"
             }
           },
           "parameters": {
@@ -331,6 +352,17 @@
               "type": "object",
               "metadata": {
                 "description": "Agent experimental settings."
+              }
+            },
+            "deployerPrincipalType": {
+              "type": "string",
+              "defaultValue": "User",
+              "allowedValues": [
+                "User",
+                "ServicePrincipal"
+              ],
+              "metadata": {
+                "description": "Principal type of the deployer."
               }
             },
             "tags": {
@@ -500,6 +532,9 @@
                   "experimentalSettings": {
                     "value": "[parameters('experimentalSettings')]"
                   },
+                  "deployerPrincipalType": {
+                    "value": "[parameters('deployerPrincipalType')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   }
@@ -511,7 +546,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "6562535881153200016"
+                      "templateHash": "2881433815087416423"
                     }
                   },
                   "parameters": {
@@ -599,6 +634,17 @@
                       "metadata": {
                         "description": "Azure resource tags."
                       }
+                    },
+                    "deployerPrincipalType": {
+                      "type": "string",
+                      "defaultValue": "User",
+                      "allowedValues": [
+                        "User",
+                        "ServicePrincipal"
+                      ],
+                      "metadata": {
+                        "description": "Principal type of the deployer."
+                      }
                     }
                   },
                   "variables": {
@@ -648,7 +694,7 @@
                       "properties": {
                         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('sreAgentAdminRoleId'))]",
                         "principalId": "[deployer().objectId]",
-                        "principalType": "User"
+                        "principalType": "[parameters('deployerPrincipalType')]"
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.App/agents', parameters('agentName'))]"
@@ -906,6 +952,9 @@
           "recipePackageUri": {
             "value": "[parameters('recipePackageUri')]"
           },
+          "recipePackageSha256": {
+            "value": "[parameters('recipePackageSha256')]"
+          },
           "kustoConnectorUri": {
             "value": "[parameters('finopsHubKustoConnectorUri')]"
           },
@@ -923,7 +972,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "5168893811325309322"
+              "templateHash": "5025769957758856658"
             }
           },
           "parameters": {
@@ -957,6 +1006,12 @@
                 "description": "Public URI for the generated SRE Agent recipe package."
               }
             },
+            "recipePackageSha256": {
+              "type": "string",
+              "metadata": {
+                "description": "SHA256 hash of the recipe package for integrity verification."
+              }
+            },
             "kustoConnectorUri": {
               "type": "string",
               "defaultValue": "",
@@ -979,7 +1034,7 @@
             }
           },
           "variables": {
-            "$fxv#0": "# Copyright (c) Microsoft Corporation.\n# Licensed under the MIT License.\n\n$ErrorActionPreference = 'Stop'\n\nfunction Get-RequiredEnv($Name) {\n    $value = [Environment]::GetEnvironmentVariable($Name)\n    if ([string]::IsNullOrWhiteSpace($value)) {\n        throw \"Missing required environment variable: $Name\"\n    }\n    return $value\n}\n\nfunction Get-OptionalEnv($Name) {\n    return [Environment]::GetEnvironmentVariable($Name)\n}\n\nfunction ConvertTo-BodyJson($Value) {\n    return ($Value | ConvertTo-Json -Depth 100 -Compress)\n}\n\nfunction Get-PropertyValue($Object, [string[]]$Names, $Default = '') {\n    foreach ($name in $Names) {\n        if ($null -ne $Object -and $Object.PSObject.Properties[$name] -and $null -ne $Object.$name) {\n            return $Object.$name\n        }\n    }\n    return $Default\n}\n\nfunction Get-HttpStatusCode($Exception) {\n    if ($Exception.Response -and $Exception.Response.StatusCode) {\n        return [int]$Exception.Response.StatusCode\n    }\n    return $null\n}\n\nfunction Invoke-WithRetry([scriptblock]$Action, [string]$Label, [int]$MaxAttempts = 5, [int]$DelaySeconds = 15) {\n    for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {\n        try {\n            return & $Action\n        }\n        catch {\n            $statusCode = Get-HttpStatusCode $_.Exception\n            if ($statusCode -and $statusCode -notin @(401, 403, 408, 429, 500, 502, 503, 504)) {\n                throw\n            }\n            if ($attempt -eq $MaxAttempts) {\n                throw\n            }\n            Write-Output \"$Label attempt $attempt/$MaxAttempts failed: $($_.Exception.Message)\"\n            Start-Sleep -Seconds $DelaySeconds\n        }\n    }\n}\n\nfunction Invoke-JsonRest([string]$Method, [string]$Uri, [string]$Token, $Body = $null) {\n    $headers = @{\n        Authorization = \"Bearer $Token\"\n        'Content-Type' = 'application/json'\n    }\n    $parameters = @{\n        Method = $Method\n        Uri = $Uri\n        Headers = $headers\n    }\n    if ($null -ne $Body) {\n        $parameters.Body = ConvertTo-BodyJson $Body\n    }\n    return Invoke-RestMethod @parameters\n}\n\nfunction Get-KnowledgeSourceName([string]$FileName) {\n    $name = [IO.Path]::GetFileName($FileName).ToLowerInvariant() -replace '[^a-z0-9-]+', '-'\n    $name = $name -replace '-+', '-'\n    return $name.Trim('-')\n}\n\nfunction Get-Collection($Value) {\n    if ($null -eq $Value) {\n        return @()\n    }\n    return @($Value)\n}\n\nfunction Convert-TokenToString($Token) {\n    if ($Token -is [Security.SecureString]) {\n        $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($Token)\n        try {\n            return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)\n        }\n        finally {\n            [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)\n        }\n    }\n    return [string]$Token\n}\n\nfunction Get-ArmAccessTokenString() {\n    return Convert-TokenToString (Get-AzAccessToken -ResourceUrl 'https://management.azure.com/').Token\n}\n\nfunction Get-SreAccessTokenString() {\n    return Convert-TokenToString (Get-AzAccessToken -ResourceUrl 'https://azuresre.dev').Token\n}\n\n$subscriptionId = Get-RequiredEnv 'subscriptionId'\n$resourceGroupName = Get-RequiredEnv 'resourceGroupName'\n$agentName = Get-RequiredEnv 'agentName'\n$agentEndpoint = (Get-RequiredEnv 'agentEndpoint').TrimEnd('/')\n$recipePackageUri = Get-RequiredEnv 'recipePackageUri'\n$kustoConnectorUri = Get-OptionalEnv 'kustoConnectorUri'\n$armApiVersion = '2025-05-01-preview'\n$armBase = \"https://management.azure.com/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.App/agents/$agentName\"\n\nWrite-Output 'Connecting with deployment script managed identity...'\nConnect-AzAccount -Identity | Out-Null\nSet-AzContext -Subscription $subscriptionId | Out-Null\n\n$workRoot = Join-Path $env:TEMP 'sre-agent-recipe'\n$zipPath = Join-Path $env:TEMP 'sre-agent-recipe.zip'\nRemove-Item $workRoot -Recurse -Force -ErrorAction SilentlyContinue\nNew-Item -Path $workRoot -ItemType Directory -Force | Out-Null\n\nWrite-Output \"Downloading SRE Agent recipe package: $recipePackageUri\"\nInvoke-WithRetry -Label 'download recipe package' -Action {\n    Invoke-WebRequest -Uri $recipePackageUri -OutFile $zipPath\n} | Out-Null\nExpand-Archive -Path $zipPath -DestinationPath $workRoot -Force\n\n$extrasPath = Join-Path $workRoot 'extras.json'\nif (-not (Test-Path $extrasPath)) {\n    throw \"Recipe package did not contain extras.json\"\n}\n\n$extras = Get-Content $extrasPath -Raw | ConvertFrom-Json -Depth 100\nWrite-Output \"Loaded recipe package from $extrasPath\"\n\nif ([string]::IsNullOrWhiteSpace($kustoConnectorUri)) {\n    $extras.connectors = @(\n        Get-Collection $extras.connectors | Where-Object {\n            $type = Get-PropertyValue $_.properties @('dataConnectorType', 'type')\n            $type -ine 'Kusto'\n        }\n    )\n}\nelse {\n    foreach ($connector in Get-Collection $extras.connectors) {\n        $type = Get-PropertyValue $connector.properties @('dataConnectorType', 'type')\n        if ($type -ieq 'Kusto') {\n            $connector.properties.dataSource = $kustoConnectorUri\n            if (-not $connector.properties.PSObject.Properties['identity']) {\n                $connector.properties | Add-Member -MemberType NoteProperty -Name identity -Value 'system'\n            }\n        }\n    }\n}\n\nfunction Invoke-ArmPutConnector([string]$Name, $Body) {\n    $uri = \"$armBase/connectors/$Name`?api-version=$armApiVersion\"\n    Invoke-WithRetry -Label \"ARM PUT connector $Name\" -Action {\n        Invoke-JsonRest -Method PUT -Uri $uri -Token (Get-ArmAccessTokenString) -Body $Body\n    } | Out-Null\n    Write-Output \"  ARM PUT connectors/${Name}: ok\"\n}\n\nfunction Invoke-SreApi([string]$Method, [string]$Path, $Body = $null) {\n    $uri = \"$agentEndpoint$Path\"\n    return Invoke-WithRetry -Label \"$Method $Path\" -MaxAttempts 21 -DelaySeconds 30 -Action {\n        Invoke-JsonRest -Method $Method -Uri $uri -Token (Get-SreAccessTokenString) -Body $Body\n    }\n}\n\nfunction Invoke-ExtendedPut([string]$Kind, [string]$Name, [string]$Type, $Properties) {\n    $encodedName = [Uri]::EscapeDataString($Name)\n    $body = @{\n        name = $Name\n        type = $Type\n        tags = @()\n        properties = $Properties\n    }\n    Invoke-SreApi -Method PUT -Path \"/api/v2/extendedAgent/$Kind/$encodedName\" -Body $body | Out-Null\n    Write-Output \"  PUT $Kind/${Name}: ok\"\n}\n\nWrite-Output 'Step 1/7: Applying connectors...'\nforeach ($connector in Get-Collection $extras.connectors) {\n    $name = [string]$connector.name\n    $properties = $connector.properties\n    if (-not $properties.PSObject.Properties['identity']) {\n        $properties | Add-Member -MemberType NoteProperty -Name identity -Value 'system'\n    }\n    Invoke-ArmPutConnector -Name $name -Body @{ properties = $properties }\n}\n\nWrite-Output 'Step 2/7: Configuring built-in tools...'\n$overrides = Get-Collection $extras.builtInTools.overrides\nif ($overrides.Count -gt 0) {\n    $body = @{\n        overrides = @($overrides | ForEach-Object {\n            @{\n                name = $_.name\n                enabled = [bool]$_.enabled\n            }\n        })\n    }\n    Invoke-SreApi -Method POST -Path '/api/v2/agent/tools/configure' -Body $body | Out-Null\n    Write-Output \"  built-in tools configured: $($overrides.Count) overrides\"\n}\n\nWrite-Output 'Step 3/7: Uploading knowledge sources...'\nforeach ($item in Get-Collection $extras.knowledgeItems) {\n    $sourceName = Get-KnowledgeSourceName ([string]$item.name)\n    $bytes = [Text.Encoding]::UTF8.GetBytes([string]$item.content)\n    $body = @{\n        properties = @{\n            dataConnectorType = 'KnowledgeFile'\n            dataSource = $sourceName\n            extendedProperties = @{\n                displayName = [string]$item.name\n                fileName = [string]$item.name\n                fileContent = [Convert]::ToBase64String($bytes)\n                contentType = [string](Get-PropertyValue $item @('contentType') 'application/octet-stream')\n            }\n        }\n    }\n    Invoke-ArmPutConnector -Name $sourceName -Body $body\n    Start-Sleep -Seconds 5\n}\n\nWrite-Output 'Step 4/7: Applying tools...'\nforeach ($tool in Get-Collection $extras.tools) {\n    $name = [string]$tool.metadata.name\n    $properties = $tool.spec\n    if ($properties.type -eq 'PythonTool') {\n        $properties.type = 'PythonFunctionTool'\n    }\n    Invoke-ExtendedPut -Kind 'tools' -Name $name -Type 'ExtendedAgentTool' -Properties $properties\n}\n\nWrite-Output 'Step 5/7: Applying skills...'\nforeach ($skill in Get-Collection $extras.skills) {\n    $name = [string]$skill.metadata.name\n    $tools = @()\n    if ($skill.metadata.spec -and $skill.metadata.spec.tools) {\n        $tools = Get-Collection $skill.metadata.spec.tools\n    }\n    $properties = @{\n        name = $name\n        description = [string](Get-PropertyValue $skill.metadata @('description'))\n        tools = $tools\n        skillContent = [string](Get-PropertyValue $skill @('skillContent'))\n        additionalFiles = @()\n    }\n    Invoke-ExtendedPut -Kind 'skills' -Name $name -Type 'Skill' -Properties $properties\n}\n\nWrite-Output 'Step 6/7: Applying subagents...'\nforeach ($subagent in Get-Collection $extras.subagents) {\n    $name = [string]$subagent.metadata.name\n    Invoke-ExtendedPut -Kind 'agents' -Name $name -Type 'ExtendedAgent' -Properties $subagent.spec\n}\n\nWrite-Output 'Step 7/7: Applying scheduled tasks...'\n$scheduledTasks = Get-Collection $extras.scheduledTasks\nif ($scheduledTasks.Count -gt 0) {\n    $existing = Invoke-SreApi -Method GET -Path '/api/v1/scheduledtasks'\n    foreach ($task in $scheduledTasks) {\n        $name = [string]$task.metadata.name\n        foreach ($match in (Get-Collection $existing | Where-Object { $_.name -eq $name })) {\n            if ($match.id) {\n                Invoke-SreApi -Method DELETE -Path \"/api/v1/scheduledtasks/$($match.id)\" | Out-Null\n                Write-Output \"  deleted existing scheduledtasks/$name\"\n            }\n        }\n    }\n\n    foreach ($task in $scheduledTasks) {\n        $name = [string]$task.metadata.name\n        $spec = $task.spec\n        $properties = @{\n            name = [string](Get-PropertyValue $spec @('name') $name)\n            description = [string](Get-PropertyValue $spec @('description'))\n            cronExpression = [string](Get-PropertyValue $spec @('schedule', 'cronExpression', 'cron_expression'))\n            agentPrompt = [string](Get-PropertyValue $spec @('prompt', 'agentPrompt', 'agent_prompt'))\n            agentMode = [string](Get-PropertyValue $spec @('mode', 'agentMode', 'agent_mode') 'Review')\n            isEnabled = [bool](Get-PropertyValue $spec @('enabled') $true)\n            agent = [string](Get-PropertyValue $spec @('agent'))\n        }\n        Invoke-ExtendedPut -Kind 'scheduledtasks' -Name $name -Type 'ScheduledTask' -Properties $properties\n    }\n}\n\nWrite-Output 'SRE Agent extras complete.'\n",
+            "$fxv#0": "# Copyright (c) Microsoft Corporation.\r\n# Licensed under the MIT License.\r\n\r\n$ErrorActionPreference = 'Stop'\r\n\r\nfunction Get-RequiredEnv($Name) {\r\n    $value = [Environment]::GetEnvironmentVariable($Name)\r\n    if ([string]::IsNullOrWhiteSpace($value)) {\r\n        throw \"Missing required environment variable: $Name\"\r\n    }\r\n    return $value\r\n}\r\n\r\nfunction Get-OptionalEnv($Name) {\r\n    return [Environment]::GetEnvironmentVariable($Name)\r\n}\r\n\r\nfunction Get-TempRoot() {\r\n    $tempRoot = [System.IO.Path]::GetTempPath()\r\n    if ([string]::IsNullOrWhiteSpace($tempRoot)) {\r\n        $tempRoot = Get-OptionalEnv 'AZ_SCRIPTS_PATH_OUTPUT_DIRECTORY'\r\n    }\r\n    if ([string]::IsNullOrWhiteSpace($tempRoot)) {\r\n        $tempRoot = (Get-Location).Path\r\n    }\r\n    return $tempRoot.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)\r\n}\r\n\r\nfunction ConvertTo-BodyJson($Value) {\r\n    return ($Value | ConvertTo-Json -Depth 100 -Compress)\r\n}\r\n\r\nfunction Get-PropertyValue($Object, [string[]]$Names, $Default = '') {\r\n    foreach ($name in $Names) {\r\n        if ($null -ne $Object -and $Object.PSObject.Properties[$name] -and $null -ne $Object.$name) {\r\n            return $Object.$name\r\n        }\r\n    }\r\n    return $Default\r\n}\r\n\r\nfunction Get-HttpStatusCode($Exception) {\r\n    if ($Exception.Response -and $Exception.Response.StatusCode) {\r\n        return [int]$Exception.Response.StatusCode\r\n    }\r\n    return $null\r\n}\r\n\r\nfunction Invoke-WithRetry([scriptblock]$Action, [string]$Label, [int]$MaxAttempts = 5, [int]$DelaySeconds = 15) {\r\n    for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {\r\n        try {\r\n            return & $Action\r\n        }\r\n        catch {\r\n            $statusCode = Get-HttpStatusCode $_.Exception\r\n            if ($statusCode -and $statusCode -notin @(401, 403, 408, 429, 500, 502, 503, 504)) {\r\n                throw\r\n            }\r\n            if ($attempt -eq $MaxAttempts) {\r\n                throw\r\n            }\r\n            Write-Output \"$Label attempt $attempt/$MaxAttempts failed: $($_.Exception.Message)\"\r\n            Start-Sleep -Seconds $DelaySeconds\r\n        }\r\n    }\r\n}\r\n\r\nfunction Invoke-JsonRest([string]$Method, [string]$Uri, [string]$Token, $Body = $null) {\r\n    $headers = @{\r\n        Authorization = \"Bearer $Token\"\r\n        'Content-Type' = 'application/json'\r\n    }\r\n    $parameters = @{\r\n        Method = $Method\r\n        Uri = $Uri\r\n        Headers = $headers\r\n    }\r\n    if ($null -ne $Body) {\r\n        $parameters.Body = ConvertTo-BodyJson $Body\r\n    }\r\n    return Invoke-RestMethod @parameters\r\n}\r\n\r\nfunction Get-KnowledgeSourceName([string]$FileName) {\r\n    $name = [IO.Path]::GetFileName($FileName).ToLowerInvariant() -replace '[^a-z0-9-]+', '-'\r\n    $name = $name -replace '-+', '-'\r\n    return $name.Trim('-')\r\n}\r\n\r\nfunction Get-Collection($Value) {\r\n    if ($null -eq $Value) {\r\n        return @()\r\n    }\r\n    return @($Value)\r\n}\r\n\r\nfunction Convert-TokenToString($Token) {\r\n    if ($Token -is [Security.SecureString]) {\r\n        $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($Token)\r\n        try {\r\n            return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)\r\n        }\r\n        finally {\r\n            [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)\r\n        }\r\n    }\r\n    return [string]$Token\r\n}\r\n\r\nfunction Get-ArmAccessTokenString() {\r\n    return Convert-TokenToString (Get-AzAccessToken -ResourceUrl 'https://management.azure.com/').Token\r\n}\r\n\r\nfunction Get-SreAccessTokenString() {\r\n    return Convert-TokenToString (Get-AzAccessToken -ResourceUrl 'https://azuresre.dev').Token\r\n}\r\n\r\n$subscriptionId = Get-RequiredEnv 'subscriptionId'\r\n$resourceGroupName = Get-RequiredEnv 'resourceGroupName'\r\n$agentName = Get-RequiredEnv 'agentName'\r\n$agentEndpoint = (Get-RequiredEnv 'agentEndpoint').TrimEnd('/')\r\n$recipePackageUri = Get-RequiredEnv 'recipePackageUri'\r\n$recipePackageSha256 = Get-RequiredEnv 'recipePackageSha256'\r\n$kustoConnectorUri = Get-OptionalEnv 'kustoConnectorUri'\r\n$armApiVersion = '2025-05-01-preview'\r\n$armBase = \"https://management.azure.com/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.App/agents/$agentName\"\r\n\r\nWrite-Output 'Connecting with deployment script managed identity...'\r\nConnect-AzAccount -Identity | Out-Null\r\nSet-AzContext -Subscription $subscriptionId | Out-Null\r\n\r\n$tempRoot = Get-TempRoot\r\n$workRoot = Join-Path $tempRoot 'sre-agent-recipe'\r\n$zipPath = Join-Path $tempRoot 'sre-agent-recipe.zip'\r\nRemove-Item $workRoot -Recurse -Force -ErrorAction SilentlyContinue\r\nNew-Item -Path $workRoot -ItemType Directory -Force | Out-Null\r\n\r\nWrite-Output \"Validating SRE Agent recipe package URI: $recipePackageUri\"\r\n[uri]$parsedUri = $recipePackageUri\r\nif ($parsedUri.Scheme -ne 'https') {\r\n    throw \"Recipe package URI must use https scheme, got: $($parsedUri.Scheme)\"\r\n}\r\n\r\n$allowedHosts = @(\r\n    'raw.githubusercontent.com',\r\n    'github.com',\r\n    'aka.ms'\r\n)\r\n\r\nif ($allowedHosts -notcontains $parsedUri.Host -and $parsedUri.Host -notlike '*.blob.core.windows.net') {\r\n    throw \"Recipe package host '$($parsedUri.Host)' is not in the allowlist. Allowed: raw.githubusercontent.com, github.com, aka.ms, *.blob.core.windows.net\"\r\n}\r\n\r\nWrite-Output \"Downloading SRE Agent recipe package: $recipePackageUri\"\r\nInvoke-WithRetry -Label 'download recipe package' -Action {\r\n    Invoke-WebRequest -Uri $recipePackageUri -OutFile $zipPath\r\n} | Out-Null\r\n\r\nWrite-Output \"Verifying recipe package integrity...\"\r\n$actualHash = (Get-FileHash -Algorithm SHA256 -Path $zipPath).Hash\r\nif ($actualHash -ne $recipePackageSha256) {\r\n    throw \"Recipe package hash mismatch: expected $recipePackageSha256 got $actualHash\"\r\n}\r\n\r\nExpand-Archive -Path $zipPath -DestinationPath $workRoot -Force\r\n\r\n$extrasPath = Join-Path $workRoot 'extras.json'\r\nif (-not (Test-Path $extrasPath)) {\r\n    throw \"Recipe package did not contain extras.json\"\r\n}\r\n\r\n$extras = Get-Content $extrasPath -Raw | ConvertFrom-Json -Depth 100\r\nWrite-Output \"Loaded recipe package from $extrasPath\"\r\n\r\nif ([string]::IsNullOrWhiteSpace($kustoConnectorUri)) {\r\n    $extras.connectors = @(\r\n        Get-Collection $extras.connectors | Where-Object {\r\n            $type = Get-PropertyValue $_.properties @('dataConnectorType', 'type')\r\n            $type -ine 'Kusto'\r\n        }\r\n    )\r\n}\r\nelse {\r\n    foreach ($connector in Get-Collection $extras.connectors) {\r\n        $type = Get-PropertyValue $connector.properties @('dataConnectorType', 'type')\r\n        if ($type -ieq 'Kusto') {\r\n            $connector.properties.dataSource = $kustoConnectorUri\r\n            if (-not $connector.properties.PSObject.Properties['identity']) {\r\n                $connector.properties | Add-Member -MemberType NoteProperty -Name identity -Value 'system'\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\nfunction Invoke-ArmPutConnector([string]$Name, $Body) {\r\n    $uri = \"$armBase/connectors/$Name`?api-version=$armApiVersion\"\r\n    Invoke-WithRetry -Label \"ARM PUT connector $Name\" -Action {\r\n        Invoke-JsonRest -Method PUT -Uri $uri -Token (Get-ArmAccessTokenString) -Body $Body\r\n    } | Out-Null\r\n    Write-Output \"  ARM PUT connectors/${Name}: ok\"\r\n}\r\n\r\nfunction Invoke-SreApi([string]$Method, [string]$Path, $Body = $null) {\r\n    $uri = \"$agentEndpoint$Path\"\r\n    return Invoke-WithRetry -Label \"$Method $Path\" -MaxAttempts 21 -DelaySeconds 30 -Action {\r\n        Invoke-JsonRest -Method $Method -Uri $uri -Token (Get-SreAccessTokenString) -Body $Body\r\n    }\r\n}\r\n\r\nfunction Invoke-ExtendedPut([string]$Kind, [string]$Name, [string]$Type, $Properties) {\r\n    $encodedName = [Uri]::EscapeDataString($Name)\r\n    $body = @{\r\n        name = $Name\r\n        type = $Type\r\n        tags = @()\r\n        properties = $Properties\r\n    }\r\n    Invoke-SreApi -Method PUT -Path \"/api/v2/extendedAgent/$Kind/$encodedName\" -Body $body | Out-Null\r\n    Write-Output \"  PUT $Kind/${Name}: ok\"\r\n}\r\n\r\nWrite-Output 'Step 1/7: Applying connectors...'\r\nforeach ($connector in Get-Collection $extras.connectors) {\r\n    $name = [string]$connector.name\r\n    $properties = $connector.properties\r\n    if (-not $properties.PSObject.Properties['identity']) {\r\n        $properties | Add-Member -MemberType NoteProperty -Name identity -Value 'system'\r\n    }\r\n    Invoke-ArmPutConnector -Name $name -Body @{ properties = $properties }\r\n}\r\n\r\nWrite-Output 'Step 2/7: Configuring built-in tools...'\r\n$overrides = Get-Collection $extras.builtInTools.overrides\r\nif ($overrides.Count -gt 0) {\r\n    $body = @{\r\n        overrides = @($overrides | ForEach-Object {\r\n            @{\r\n                name = $_.name\r\n                enabled = [bool]$_.enabled\r\n            }\r\n        })\r\n    }\r\n    Invoke-SreApi -Method POST -Path '/api/v2/agent/tools/configure' -Body $body | Out-Null\r\n    Write-Output \"  built-in tools configured: $($overrides.Count) overrides\"\r\n}\r\n\r\nWrite-Output 'Step 3/7: Uploading knowledge sources...'\r\nforeach ($item in Get-Collection $extras.knowledgeItems) {\r\n    $sourceName = Get-KnowledgeSourceName ([string]$item.name)\r\n    $bytes = [Text.Encoding]::UTF8.GetBytes([string]$item.content)\r\n    $body = @{\r\n        properties = @{\r\n            dataConnectorType = 'KnowledgeFile'\r\n            dataSource = $sourceName\r\n            extendedProperties = @{\r\n                displayName = [string]$item.name\r\n                fileName = [string]$item.name\r\n                fileContent = [Convert]::ToBase64String($bytes)\r\n                contentType = [string](Get-PropertyValue $item @('contentType') 'application/octet-stream')\r\n            }\r\n        }\r\n    }\r\n    Invoke-ArmPutConnector -Name $sourceName -Body $body\r\n    Start-Sleep -Seconds 5\r\n}\r\n\r\nWrite-Output 'Step 4/7: Applying tools...'\r\nforeach ($tool in Get-Collection $extras.tools) {\r\n    $name = [string]$tool.metadata.name\r\n    $properties = $tool.spec\r\n    if ($properties.type -eq 'PythonTool') {\r\n        $properties.type = 'PythonFunctionTool'\r\n    }\r\n    Invoke-ExtendedPut -Kind 'tools' -Name $name -Type 'ExtendedAgentTool' -Properties $properties\r\n}\r\n\r\nWrite-Output 'Step 5/7: Applying skills...'\r\nforeach ($skill in Get-Collection $extras.skills) {\r\n    $name = [string]$skill.metadata.name\r\n    $tools = @()\r\n    if ($skill.metadata.spec -and $skill.metadata.spec.tools) {\r\n        $tools = Get-Collection $skill.metadata.spec.tools\r\n    }\r\n    $properties = @{\r\n        name = $name\r\n        description = [string](Get-PropertyValue $skill.metadata @('description'))\r\n        tools = $tools\r\n        skillContent = [string](Get-PropertyValue $skill @('skillContent'))\r\n        additionalFiles = @()\r\n    }\r\n    Invoke-ExtendedPut -Kind 'skills' -Name $name -Type 'Skill' -Properties $properties\r\n}\r\n\r\nWrite-Output 'Step 6/7: Applying subagents...'\r\nforeach ($subagent in Get-Collection $extras.subagents) {\r\n    $name = [string]$subagent.metadata.name\r\n    Invoke-ExtendedPut -Kind 'agents' -Name $name -Type 'ExtendedAgent' -Properties $subagent.spec\r\n}\r\n\r\nWrite-Output 'Step 7/7: Applying scheduled tasks...'\r\n$scheduledTasks = Get-Collection $extras.scheduledTasks\r\nif ($scheduledTasks.Count -gt 0) {\r\n    $existing = Invoke-SreApi -Method GET -Path '/api/v1/scheduledtasks'\r\n    foreach ($task in $scheduledTasks) {\r\n        $name = [string]$task.metadata.name\r\n        foreach ($match in (Get-Collection $existing | Where-Object { $_.name -eq $name })) {\r\n            if ($match.id) {\r\n                Invoke-SreApi -Method DELETE -Path \"/api/v1/scheduledtasks/$($match.id)\" | Out-Null\r\n                Write-Output \"  deleted existing scheduledtasks/$name\"\r\n            }\r\n        }\r\n    }\r\n\r\n    foreach ($task in $scheduledTasks) {\r\n        $name = [string]$task.metadata.name\r\n        $spec = $task.spec\r\n        $properties = @{\r\n            name = [string](Get-PropertyValue $spec @('name') $name)\r\n            description = [string](Get-PropertyValue $spec @('description'))\r\n            cronExpression = [string](Get-PropertyValue $spec @('schedule', 'cronExpression', 'cron_expression'))\r\n            agentPrompt = [string](Get-PropertyValue $spec @('prompt', 'agentPrompt', 'agent_prompt'))\r\n            agentMode = [string](Get-PropertyValue $spec @('mode', 'agentMode', 'agent_mode') 'Review')\r\n            isEnabled = [bool](Get-PropertyValue $spec @('enabled') $true)\r\n            agent = [string](Get-PropertyValue $spec @('agent'))\r\n        }\r\n        Invoke-ExtendedPut -Kind 'scheduledtasks' -Name $name -Type 'ScheduledTask' -Properties $properties\r\n    }\r\n}\r\n\r\nWrite-Output 'SRE Agent extras complete.'\r\n",
             "identityName": "[format('id-sre-apply-{0}', uniqueString(resourceGroup().id, parameters('agentName')))]",
             "scriptName": "[format('apply-sre-{0}', uniqueString(resourceGroup().id, parameters('agentName')))]",
             "sreAgentAdminRoleId": "e79298df-d852-4c6d-84f9-5d13249d1e55"
@@ -1046,6 +1101,10 @@
                   {
                     "name": "recipePackageUri",
                     "value": "[parameters('recipePackageUri')]"
+                  },
+                  {
+                    "name": "recipePackageSha256",
+                    "value": "[parameters('recipePackageSha256')]"
                   },
                   {
                     "name": "kustoConnectorUri",

@@ -25,7 +25,7 @@ param accessLevel string = 'Low'
 
 @description('Agent action mode.')
 @allowed(['review', 'autonomous', 'readOnly'])
-param actionMode string = 'review'
+param actionMode string = 'autonomous'
 
 @description('Agent upgrade channel.')
 @allowed(['Stable', 'Preview'])
@@ -54,10 +54,14 @@ param tags object = {}
 @description('Optional. FinOps Hub Azure Data Explorer cluster resource ID for Kusto viewer assignment.')
 param finopsHubKustoClusterResourceId string = ''
 
-@description('Assign Reader on the deployment subscription to the agent managed identity.')
-param enableSubscriptionReaderRole bool = true
+@description('Assign Reader on the deployment subscription to the agent managed identity. Optional — required only for subscription-wide ARM-backed reports; otherwise scope reads via target resource groups.')
+param enableSubscriptionReaderRole bool = false
 
-var targetRgs = empty(targetResourceGroups) ? [resourceGroupName] : targetResourceGroups
+@description('Principal type of the deployer.')
+@allowed(['User', 'ServicePrincipal'])
+param deployerPrincipalType string = 'User'
+
+var targetRgs = union([resourceGroupName], targetResourceGroups)
 var agentResourceGroupId = subscriptionResourceId('Microsoft.Resources/resourceGroups', resourceGroupName)
 var targetRgIds = [for rgName in targetRgs: subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)]
 var namingSeed = toLower('${subscription().subscriptionId}|${agentResourceGroupId}|${agentName}')
@@ -84,6 +88,7 @@ module resources 'resources.bicep' = {
     defaultModelName: defaultModelName
     monthlyAgentUnitLimit: monthlyAgentUnitLimit
     experimentalSettings: experimentalSettings
+    deployerPrincipalType: deployerPrincipalType
     tags: tags
   }
 }
