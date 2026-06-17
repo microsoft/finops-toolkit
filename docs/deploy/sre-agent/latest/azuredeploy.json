@@ -78,7 +78,7 @@
     },
     "actionMode": {
       "type": "string",
-      "defaultValue": "autonomous",
+      "defaultValue": "review",
       "allowedValues": [
         "review",
         "autonomous",

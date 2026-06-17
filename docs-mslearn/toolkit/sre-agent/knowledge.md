@@ -3,7 +3,7 @@ title: Manage knowledge and memory (Azure SRE Agent in the FinOps toolkit)
 description: Learn how knowledge grounds the FinOps toolkit's Azure SRE Agent in your team's context and how memory keeps operational learnings available across sessions and redeployments.
 author: msbrett
 ms.author: brettwil
-ms.date: 06/04/2026
+ms.date: 06/17/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

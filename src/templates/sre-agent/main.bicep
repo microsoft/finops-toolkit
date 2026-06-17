@@ -31,7 +31,7 @@ param accessLevel string = 'Low'
 
 @description('Agent action mode.')
 @allowed(['review', 'autonomous', 'readOnly'])
-param actionMode string = 'autonomous'
+param actionMode string = 'review'
 
 @description('Agent upgrade channel.')
 @allowed(['Stable', 'Preview'])

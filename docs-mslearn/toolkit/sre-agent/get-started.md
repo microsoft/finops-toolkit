@@ -3,7 +3,7 @@ title: Get started with the FinOps toolkit on Azure SRE Agent
 description: Learn what to do after deploying Azure SRE Agent with the FinOps toolkit — first queries, scheduled tasks, and specialized subagents.
 author: flanakin
 ms.author: micflan
-ms.date: 06/04/2026
+ms.date: 06/17/2026
 ms.topic: quickstart
 ms.service: finops
 ms.subservice: finops-toolkit

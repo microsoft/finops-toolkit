@@ -122,7 +122,7 @@
             "name": "actionMode",
             "type": "Microsoft.Common.OptionsGroup",
             "label": "Action mode",
-            "defaultValue": "autonomous",
+            "defaultValue": "review",
             "toolTip": "Review requires approval before write actions. Autonomous lets the agent run enabled actions within its assigned access.",
             "constraints": {
               "allowedValues": [
