@@ -215,6 +215,18 @@ $script:LibraryQueries = @('costs-enriched-base')
 
 function Get-FtkRepo {
     if ($env:FTK_REPO) { return $env:FTK_REPO }
+    # ftklocal lives in-repo at <root>/src/templates/finops-hub-local, so the toolkit
+    # root (which holds src/queries/catalog) is three directories up from $RepoRoot.
+    $inRepoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $script:RepoRoot))
+    if ($inRepoRoot -and (Test-Path (Join-Path $inRepoRoot 'src/queries/catalog') -PathType Container)) {
+        return $inRepoRoot
+    }
+    # Robust fallback for worktrees / unusual layouts: the git top-level.
+    $gitTop = (& git -C $script:RepoRoot rev-parse --show-toplevel 2>$null)
+    if ($gitTop -and (Test-Path (Join-Path $gitTop 'src/queries/catalog') -PathType Container)) {
+        return $gitTop
+    }
+    # Last resort: legacy prototype layout where ftklocal sat beside a finops-toolkit clone.
     return (Resolve-Path (Join-Path (Split-Path -Parent $script:RepoRoot) 'finops-toolkit') -ErrorAction SilentlyContinue) `
         ?? (Join-Path (Split-Path -Parent $script:RepoRoot) 'finops-toolkit')
 }
