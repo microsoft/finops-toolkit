@@ -1,0 +1,19 @@
+# Ephemeral state and secrets — never commit.
+.gate/
+kustainer-data/
+*.duckdb
+.env
+.DS_Store
+*.log
+__pycache__/
+*.pyc
+
+# Customer data — never commit. The raw FOCUS exports are customer-confidential,
+# and so is any analysis derived from them.
+export/
+notes/figures/
+notes/*refund*
+notes/*sp-*
+notes/*savings*
+notes/*misalloc*
+notes/*unused*

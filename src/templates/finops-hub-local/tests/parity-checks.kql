@@ -1,0 +1,142 @@
+// ============================================================================
+// FTK-Local Parity Checks — two-DB topology (Ingestion + Hub)
+// ============================================================================
+// Validates that data flowing Costs_raw → Costs_transform_v1_2 → Costs_final_v1_2
+// matches FTK ADX semantics. Each numbered check has an EXPECTED rule documented
+// in the comment header. scripts/run-parity-checks.ps1 reads this file, executes
+// each check against the appropriate database (Ingestion or Hub), evaluates the
+// EVAL rule, and produces a pass/fail report.
+//
+// ROUTING (enforced by run-parity-checks.ps1 per-check DB assignment):
+//   Checks 1–8, 11  → Ingestion  (raw tables, final tables)
+//   Checks  9, 10   → Hub        (view functions cross-referencing Ingestion)
+//
+// CONVENTIONS
+// - Each check is a block: // CHECK <N>: <name>, // EXPECT: <rule>, then the KQL.
+// - The runner splits checks on the `// CHECK ` boundary.
+// - Each block must end with a single tabular result; no multi-statement KQL.
+// ============================================================================
+
+// CHECK 1: row count parity
+// EXPECT: final_count within 5% of raw_count (some rows may be filtered by transform).
+// EVAL: abs(final_count - raw_count) / raw_count <= 0.05
+let raw_count = toscalar(Costs_raw | count);
+let final_count = toscalar(Costs_final_v1_2 | count);
+print
+    raw_count = raw_count,
+    final_count = final_count,
+    delta_pct = todouble(final_count - raw_count) / todouble(raw_count) * 100.0
+
+// CHECK 2: BilledCost preservation
+// EXPECT: sum(BilledCost) in final equals sum(BilledCost) in raw (no silent drops).
+// EVAL: abs(raw_sum - final_sum) / abs(raw_sum) < 0.001 (allow rounding noise)
+let raw_sum = toscalar(Costs_raw | summarize sum(BilledCost));
+let final_sum = toscalar(Costs_final_v1_2 | summarize sum(BilledCost));
+print
+    raw_sum_BilledCost = raw_sum,
+    final_sum_BilledCost = final_sum,
+    delta_abs = abs(raw_sum - final_sum)
+
+// CHECK 3: EffectiveCost zeroed for commitment-discount purchases
+// EXPECT: sum(EffectiveCost) == 0 for ChargeCategory='Purchase' AND isnotempty(CommitmentDiscountId).
+// This is an FTK bug-fix: Azure exports incorrectly set a non-zero EffectiveCost on
+// the purchase row of a reservation; amortization spreads cost across usage rows.
+// EVAL: result == 0
+Costs_final_v1_2
+| where ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId)
+| summarize sum_EffectiveCost = sum(EffectiveCost)
+
+// CHECK 4: data-quality flag dictionary populates
+// EXPECT: x_SourceChanges contains documented codes (MissingContractedCost,
+// InvalidChargeFrequency, etc.). Print top 10 codes by frequency.
+// EVAL: print only — surface what flags fired. Failure mode is "no flags at all"
+//       which would mean the dictionary wiring is broken.
+Costs_final_v1_2
+| where isnotempty(x_SourceChanges)
+| extend first_code = tostring(split(x_SourceChanges, ',')[0])
+| summarize Count = count() by first_code
+| order by Count desc
+| take 10
+
+// CHECK 5: AmortizationClass labels amortized usage
+// EXPECT: ZERO rows where ChargeCategory='Usage' AND isnotempty(CommitmentDiscountId)
+// AND x_AmortizationClass != 'Amortized Charge'. The transform should label every
+// reservation-covered usage row as Amortized Charge.
+// EVAL: result == 0
+Costs_final_v1_2
+| where ChargeCategory == 'Usage'
+    and isnotempty(CommitmentDiscountId)
+    and x_AmortizationClass != 'Amortized Charge'
+| count
+
+// CHECK 6: TotalSavings populated for services with reservations
+// EXPECT: sum(x_TotalSavings) > 0 for services that typically have RIs/SPs
+// (Virtual Machines, Storage Accounts). Top 10 by sum_TotalSavings.
+// EVAL: at least one row with sum > 0 for ServiceName in {Virtual Machines,
+//       Storage Accounts, Azure Reservations, Azure Savings Plan for Compute}.
+Costs_final_v1_2
+| summarize sum_TotalSavings = sum(x_TotalSavings) by ServiceName
+| order by sum_TotalSavings desc
+| take 10
+
+// CHECK 7: parse_resourceid populates x_ResourceGroupName when ARM path has one
+// EXPECT: ZERO rows where isempty(x_ResourceGroupName) AND isnotempty(ResourceId)
+// AND ResourceId contains '/resourcegroups/'. parse_resourceid is supposed to
+// extract the RG from any ARM path that contains one.
+// EVAL: result == 0
+Costs_final_v1_2
+| where isempty(x_ResourceGroupName)
+    and isnotempty(ResourceId)
+    and ResourceId contains '/resourcegroups/'
+| count
+
+// CHECK 8: PublisherName normalized (no 'Microsoft Corporation')
+// EXPECT: 'Microsoft Corporation' should be normalized to 'Microsoft' by the
+// transform; the raw string should never appear in the final table.
+// EVAL: result == 0
+Costs_final_v1_2
+| where PublisherName == 'Microsoft Corporation'
+| count
+
+// CHECK 9: Hub view function returns plausible totals
+// EXPECT: Costs_v1_2 | summarize sum(EffectiveCost) by ServiceCategory returns
+// non-empty result. The Hub view is what consumers query; verifies it's wired.
+// EVAL: at least one row with sum_EffectiveCost > 0.
+// DB: Hub
+Costs_v1_2
+| summarize sum_EffectiveCost = sum(EffectiveCost) by ServiceCategory
+| order by sum_EffectiveCost desc
+
+// CHECK 10: Costs_v1_2 vs Costs_final_v1_2 BilledCost reconciliation
+// EXPECT: sum(BilledCost) from Costs_v1_2 (Hub view) == sum from Costs_final_v1_2
+// (Ingestion table). The Hub view should not silently filter or duplicate.
+// EVAL: abs(view_sum - final_sum) / abs(final_sum) < 0.001
+// DB: Hub — uses database('Ingestion').Costs_final_v1_2 cross-DB reference
+let view_sum = toscalar(Costs_v1_2 | summarize sum(BilledCost));
+let final_sum_check10 = toscalar(database('Ingestion').Costs_final_v1_2 | summarize sum(BilledCost));
+print
+    view_sum_BilledCost = view_sum,
+    final_sum_BilledCost = final_sum_check10,
+    delta_abs = abs(view_sum - final_sum_check10)
+
+// CHECK 11: Prices row count parity per PriceType
+// EXPECT: Consumption + ReservedInstance counts in Prices_final match Prices_raw
+// exactly; SavingsPlan is allowed to drift by up to 2% per the documented FTK
+// upstream lookup-fanout (see notes/parity-gaps.md §"T-2.3 root cause analysis").
+// Failure mode is Consumption or RI drift, which would indicate a real defect.
+// EVAL: manual — print delta per PriceType; the runner flags it as MANUAL but
+// the human-readable PASS criterion is: Consumption delta=0, RI delta=0,
+// SP delta within +/-5% of SP raw count.
+let raw_by = Prices_raw | summarize raw_n=count() by PriceType;
+let final_by = Prices_final_v1_2 | summarize final_n=count() by PriceType=x_SkuPriceType;
+raw_by
+| join kind=fullouter final_by on PriceType
+| project
+    PriceType = coalesce(PriceType, PriceType1),
+    raw_n = coalesce(raw_n, 0),
+    final_n = coalesce(final_n, 0),
+    delta = coalesce(final_n, 0) - coalesce(raw_n, 0),
+    delta_pct = iff(coalesce(raw_n, 0) > 0,
+        round(todouble(coalesce(final_n, 0) - coalesce(raw_n, 0)) / todouble(coalesce(raw_n, 1)) * 100.0, 4),
+        0.0)
+| order by raw_n desc
