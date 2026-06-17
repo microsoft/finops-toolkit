@@ -79,8 +79,7 @@ Do not create custom logo lockups that combine "FinOps toolkit" with another Mic
 
 | Asset | Where it lives | When to use |
 |---|---|---|
-| Branded PowerPoint template | [`yaml-to-deck/assets/source-template.pptx`](https://github.com/microsoft/finops-toolkit/tree/main/.copilot/skills/yaml-to-deck/assets) | All training decks and customer-facing presentations |
-| Power BI theme | `src/power-bi/**/Microsoft_FinOps_light_theme*.json` | All Power BI reports shipped with the toolkit |
+| Power BI theme | `src/power-bi/FinOpsToolkitLight.json` | All Power BI reports shipped with the toolkit |
 
 If you need a layout the template doesn't have, extend it. Don't fork it into a new template.
 
@@ -110,7 +109,7 @@ Do not coin new product names by combining the FinOps toolkit name with another 
 
 | Don't write | Write instead |
 |---|---|
-| FinOps toolkit SRE Agent | Azure SRE Agent (when you mean the Microsoft product) — or describe the toolkit's role: "the FinOps toolkit deploys Azure SRE Agent…" |
+| FinOps toolkit \<Product> | \<Microsoft Product> (when you mean the Microsoft product) — or describe the toolkit's role: "the FinOps toolkit deploys \<Microsoft Product>…" |
 | FinOps toolkit Cost Management | Microsoft Cost Management (the product) — or "the FinOps toolkit's Cost Management exports configuration" |
 | FinOps toolkit Power BI service | Power BI service (the product) — or "FinOps toolkit Power BI reports" |
 
@@ -122,7 +121,7 @@ Use lowercase, hyphen-separated slugs for everything in the repo: `finops-hubs`,
 
 ### URLs and references
 
-When linking to a Microsoft product page, use the bare product name as the link text: `[Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview)`. When linking to FinOps toolkit pages about that product, include "FinOps toolkit" in the link text to disambiguate: `[Azure SRE Agent in the FinOps toolkit](https://learn.microsoft.com/cloud-computing/finops/toolkit/sre-agent/overview)`.
+When linking to a Microsoft product page, use the bare product name as the link text: `[Azure Data Explorer](https://learn.microsoft.com/azure/data-explorer/overview)`. When linking to FinOps toolkit pages about that product, include "FinOps toolkit" in the link text to disambiguate: `[Azure Data Explorer in the FinOps toolkit](https://learn.microsoft.com/cloud-computing/finops/toolkit/data-explorer/overview)`.
 
 Reusing identical link text for two different destinations confuses readers and screen readers. Always disambiguate.
 
@@ -132,14 +131,14 @@ Reusing identical link text for two different destinations confuses readers and 
 
 ### Subject framing — most important rule
 
-The FinOps toolkit is a configuration layer. The Microsoft products it deploys (Azure SRE Agent, Microsoft Cost Management, Azure Data Explorer, Power BI, etc.) are runtimes. **Keep the two distinct in every sentence.**
+The FinOps toolkit is a configuration layer. The Microsoft products it deploys (Microsoft Cost Management, Azure Data Explorer, Power BI, etc.) are runtimes. **Keep the two distinct in every sentence.**
 
 Use the toolkit, the deployment, or the template as the subject when describing toolkit-specific behavior:
 
 | Don't write (over-attributes to the Microsoft product) | Write instead (anchors to the toolkit) |
 |---|---|
-| "Azure SRE Agent includes 21 Kusto tools." | "The FinOps toolkit deployment configures Azure SRE Agent with 21 Kusto tools." |
-| "Azure SRE Agent uses scheduled tasks to run weekly cost reviews." | "The FinOps toolkit ships scheduled tasks that run weekly cost reviews on Azure SRE Agent." |
+| "\<Product> includes 21 Kusto tools." | "The FinOps toolkit deployment configures \<Product> with 21 Kusto tools." |
+| "\<Product> uses scheduled tasks to run weekly cost reviews." | "The FinOps toolkit ships scheduled tasks that run weekly cost reviews on \<Product>." |
 | "Microsoft Cost Management exports billing data to FinOps hubs." | "The FinOps toolkit configures Microsoft Cost Management exports and lands the data in FinOps hubs." |
 | "Power BI shows cost anomalies." | "FinOps toolkit Power BI reports show cost anomalies on top of the Power BI service." |
 
@@ -157,13 +156,13 @@ The toolkit follows the [Microsoft Style Guide](https://learn.microsoft.com/styl
 - **Use sentence-style capitalization** for headings, titles, slide titles, table headers, and bullet labels. Reserve title case for proper nouns.
 - **Lead with verbs.** Avoid "There is" / "There are" openers.
 - **Include the small words.** "Use the agent to deploy" reads better than "Use agent to deploy" — keep articles for clarity and machine-translation friendliness.
-- **Anaphora.** First mention spells out the full name; later references use a short form. After "Azure SRE Agent", subsequent references can use "the agent" if the antecedent is clear within the same paragraph or visible scope.
+- **Anaphora.** First mention spells out the full name; later references use a short form. After a product name like "Azure Data Explorer", subsequent references can use a shorter form like "the cluster" or "the service" if the antecedent is clear within the same paragraph or visible scope.
 - **One sentence, one idea.** Split semicolon run-ons.
-- **Don't prescribe action.** Say what something does, not what the reader must do. "The agent runs daily" is better than "You should run the agent daily."
+- **Don't prescribe action.** Say what something does, not what the reader must do. "The service runs daily" is better than "You should run the service daily."
 
 ### Forbidden phrases
 
-The lint pipeline at [`yaml-to-deck/scripts/lint.py`](https://github.com/microsoft/finops-toolkit/blob/main/.copilot/skills/yaml-to-deck/scripts/lint.py) flags these in any deck source:
+Avoid these in any documentation or customer-facing content:
 
 - Marketing fluff: "best-in-class", "world-class", "game-changer", "revolutionary"
 - Marketing absolutes: "this solves", "the entire answer"
@@ -181,16 +180,16 @@ This section covers the cases where a brand-aware reading would catch a problem 
 
 ### Page titles for product reference docs
 
-When a FinOps toolkit page documents a Microsoft product the toolkit deploys (Azure SRE Agent, Microsoft Cost Management, Azure Data Explorer), the H1 and frontmatter title MUST NOT duplicate the official Microsoft product page title on Microsoft Learn. Use one of these disambiguation patterns based on doc type:
+When a FinOps toolkit page documents a Microsoft product the toolkit deploys (Microsoft Cost Management, Azure Data Explorer, Power BI, etc.), the H1 and frontmatter title MUST NOT duplicate the official Microsoft product page title on Microsoft Learn. Use one of these disambiguation patterns based on doc type:
 
 | Doc type | Pattern | Example |
 |---|---|---|
-| Concept / overview | `<Product> in the FinOps toolkit` | `Azure SRE Agent in the FinOps toolkit` |
-| How-to / tutorial | `<Verb> <Product> with the FinOps toolkit` | `Deploy Azure SRE Agent with the FinOps toolkit` |
-| Quickstart / getting started | `Get started with the FinOps toolkit on <Product>` | `Get started with the FinOps toolkit on Azure SRE Agent` |
-| Reference (template, parameters) | `<Topic> reference (FinOps toolkit)` or `<Topic> (Azure SRE Agent in the FinOps toolkit)` | `Azure SRE Agent template reference (FinOps toolkit)` |
-| Troubleshooting | `Troubleshoot <Product> deployments from the FinOps toolkit` | `Troubleshoot Azure SRE Agent deployments from the FinOps toolkit` |
-| Subtopic of a product reference | `<Subtopic> (Azure SRE Agent in the FinOps toolkit)` | `Scheduled tasks (Azure SRE Agent in the FinOps toolkit)` |
+| Concept / overview | `<Product> in the FinOps toolkit` | `Azure Data Explorer in the FinOps toolkit` |
+| How-to / tutorial | `<Verb> <Product> with the FinOps toolkit` | `Deploy Azure Data Explorer with the FinOps toolkit` |
+| Quickstart / getting started | `Get started with the FinOps toolkit on <Product>` | `Get started with the FinOps toolkit on Azure Data Explorer` |
+| Reference (template, parameters) | `<Topic> reference (FinOps toolkit)` or `<Topic> (<Product> in the FinOps toolkit)` | `Template reference (FinOps toolkit)` |
+| Troubleshooting | `Troubleshoot <Product> deployments from the FinOps toolkit` | `Troubleshoot Azure Data Explorer deployments from the FinOps toolkit` |
+| Subtopic of a product reference | `<Subtopic> (<Product> in the FinOps toolkit)` | `Scheduled tasks (Azure Data Explorer in the FinOps toolkit)` |
 
 If the doc does not document a Microsoft product directly (e.g., generic Kusto or Python tool reference whose title is a class name), use the bare title and let the parent page disambiguate.
 
@@ -200,21 +199,21 @@ After the first body mention of a Microsoft product, subsequent references in th
 
 | First mention (full) | Short form (subsequent in same page) |
 |---|---|
-| Azure SRE Agent | the agent |
 | Microsoft Cost Management | Cost Management |
 | Azure Data Explorer | the cluster (when referring to the user's specific instance) or Azure Data Explorer |
+| Power BI service | Power BI |
 
-The short form must be unambiguous in scope. If two competing antecedents exist (e.g., the agent product vs a subagent), spell out the full name.
+The short form must be unambiguous in scope. If two competing antecedents exist (e.g., a product vs a component), spell out the full name.
 
 ### When the toolkit deploys a Microsoft product
 
-Pattern: the FinOps toolkit ships an `azd up`-able template plus configuration for a Microsoft Azure product (Azure SRE Agent, Azure Data Explorer, Microsoft Cost Management exports).
+Pattern: the FinOps toolkit ships an `azd up`-able template plus configuration for a Microsoft Azure product (Azure Data Explorer, Microsoft Cost Management exports, Power BI, etc.).
 
 Rules:
 
 1. The first mention of the Microsoft product on each page links to the official Microsoft Learn page for that product.
 2. The page title and H1 follow the disambiguation patterns above.
-3. When listing components the toolkit ships (subagents, scheduled tasks, knowledge files, Bicep modules, Kusto functions), the subject of the sentence is the toolkit or the template — not the Microsoft product.
+3. When listing components the toolkit ships (agents, scheduled tasks, knowledge files, Bicep modules, Kusto functions), the subject of the sentence is the toolkit or the template — not the Microsoft product.
 4. When listing platform capabilities the Microsoft product provides (managed identity, RBAC, scheduled task runtime, query engine), the subject is the Microsoft product.
 
 ### When the toolkit reads from or writes to a Microsoft product
@@ -238,7 +237,7 @@ Use Crawl/Walk/Run when discussing maturity. Use the official capability names (
 
 This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow [Microsoft's Trademark and Brand Guidelines](https://www.microsoft.com/legal/intellectualproperty/trademarks/). Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party's policies.
 
-External contributors: when in doubt, prefer descriptive language ("works with Azure SRE Agent") over derivative naming ("FinOps Azure SRE Agent"). The descriptive form is always brand-safe; the derivative form requires CELA review.
+External contributors: when in doubt, prefer descriptive language ("works with \<Product>") over derivative naming ("FinOps \<Product>"). The descriptive form is always brand-safe; the derivative form requires CELA review.
 
 ---
 

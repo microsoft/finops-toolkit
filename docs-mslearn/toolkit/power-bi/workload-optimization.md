@@ -3,7 +3,7 @@ title: FinOps toolkit Usage optimization report
 description: Learn about the Usage optimization report, which identifies opportunities for rightsizing and removing unused resources to enhance efficiency.
 author: flanakin
 ms.author: micflan
-ms.date: 06/05/2026
+ms.date: 06/17/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
