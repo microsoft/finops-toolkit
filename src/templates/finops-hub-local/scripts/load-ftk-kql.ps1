@@ -61,7 +61,20 @@ if ($RemainingArgs) {
 # Script lives at <repo>/src/templates/finops-hub-local/scripts/
 $script:FtkLocalHome         = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 $script:RepoRoot             = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $script:FtkLocalHome))
-$script:RawRetentionDays     = '3650'
+$script:RawRetentionDays     = '3650'  # default; overridden by settings.json retention.raw.days when > 0
+$settingsFile = Join-Path $script:FtkLocalHome 'settings.json'
+if (Test-Path $settingsFile) {
+    try {
+        $rawDays = (Get-Content -Raw -Path $settingsFile | ConvertFrom-Json).retention.raw.days
+        if ($null -ne $rawDays -and [int]$rawDays -gt 0) {
+            $script:RawRetentionDays = [string][int]$rawDays
+            if ([int]$rawDays -lt 90) {
+                Write-Warning "retention.raw.days=$rawDays (settings.json): local raw tables will soft-delete data older than $rawDays days. Re-ingest restores it. Consider setting raw.days >= 3650 for local analysis."
+            }
+        }
+    }
+    catch { <# silently fall back to the 3650 default above #> }
+}
 $script:TopLevelCommandRegex = [regex]'^\.[a-z]'
 $script:IdempotentOkTypes    = @('Kusto.Common.Svc.Exceptions.EntityNameAlreadyExistsException')
 

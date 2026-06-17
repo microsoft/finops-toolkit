@@ -3,6 +3,7 @@
 kustainer-data/
 *.duckdb
 .env
+settings.json
 .DS_Store
 *.log
 __pycache__/
