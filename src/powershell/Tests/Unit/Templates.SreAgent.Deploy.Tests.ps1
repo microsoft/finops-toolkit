@@ -959,7 +959,7 @@ exit 0
             $resourcesBicep | Should -Not -Match 'resourceGroup\(\)\.id|deployment\(\)\.name'
         }
 
-        It 'defaults to read-only identity with autonomous reporting' {
+        It 'defaults to read-only identity with review-mode portal and autonomous recipe reporting' {
             $portalMainBicep = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/main.bicep') -Raw
             $cliMainBicep = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/main.bicep') -Raw
             $createUiDef = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/createUiDefinition.json') -Raw | ConvertFrom-Json -Depth 100
@@ -969,7 +969,7 @@ exit 0
 
             $portalMainBicep | Should -Match "param accessLevel string = 'Low'"
             $portalMainBicep | Should -Match 'param enableSubscriptionReaderRole bool = false'
-            $portalMainBicep | Should -Match "param actionMode string = 'autonomous'"
+            $portalMainBicep | Should -Match "param actionMode string = 'review'"
 
             $cliMainBicep | Should -Match "param accessLevel string = 'Low'"
             $cliMainBicep | Should -Match 'param enableSubscriptionReaderRole bool = false'
@@ -991,7 +991,7 @@ exit 0
                 Where-Object { $_.name -eq 'configuration' } |
                 Select-Object -First 1 -ExpandProperty elements |
                 Where-Object { $_.name -eq 'actionMode' }
-            $actionModeControl.defaultValue | Should -Be 'autonomous'
+            $actionModeControl.defaultValue | Should -Be 'review'
 
             $deployScript | Should -Match 'ENABLE_SUBSCRIPTION_READER="false"'
 
