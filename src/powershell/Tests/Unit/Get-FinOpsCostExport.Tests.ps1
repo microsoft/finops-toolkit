@@ -256,6 +256,10 @@ InModuleScope 'FinOpsToolkit' {
                 $result = Get-FinOpsCostExport -Scope $scope -RunHistory
 
                 # Assert
+                # The per-export individual GET must be attempted before falling back
+                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Uri -match 'exports/test-export\?' -and $Uri -match '\$expand=runHistory'
+                }
                 $result | Should -Not -BeNullOrEmpty
                 $result.RunHistory | Should -HaveCount 1
                 $result.RunHistory[0].RunId | Should -Be 'run1'
