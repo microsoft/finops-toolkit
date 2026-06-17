@@ -3,7 +3,11 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
+<<<<<<< HEAD
 ms.date: 06/17/2026
+=======
+ms.date: 05/26/2026
+>>>>>>> origin/dev
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -52,6 +56,9 @@ _Released June 2026_
 
 - **Changed**
   - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
+- **Fixed**
+  - Fixed Data Factory ingestion memory pressure during emptiness filtering.
+    - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
 
 ### [Power BI reports](power-bi/reports.md) v15
 
