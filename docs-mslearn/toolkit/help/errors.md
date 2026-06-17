@@ -392,7 +392,7 @@ Exports weren't found in the specified storage path.
 
 This billing scope type is not supported by managed exports.
 
-**Mitigation**: Remove the unsupported billing scope from settings.json, confirm the billing scope is supported by FinOps hubs and manually create new Cost management exports for the billing scope.
+**Mitigation**: Remove the unsupported billing scope from settings.json, confirm the billing scope is supported by FinOps hubs and manually create new Cost Management exports for the billing scope.
 
 <br>
 

@@ -30,7 +30,7 @@ To learn more, see [Architecting for the cloud](./architecting.md).
 
 ## Usage optimization
 
-Onboarding workloads refers to the process of bringing new and existing applications into the cloud based on their financial and technical feasibility. With this capability, you analyze cost, usage, and carbon emissions for cloud workloads to identify opportunities to maximize efficiency. This capability usually starts with recommendations and expands into more nuanced optimization efforts based on detailed resource utilization analysis. This capability can be time and effort intensive as each cloud service has its different optimization opportunities.
+Usage optimization focuses on analyzing cost, usage, and carbon emissions across cloud workloads to identify opportunities to maximize efficiency. This capability usually starts with recommendations and expands into more nuanced optimization efforts based on detailed resource utilization analysis. This capability can be time and effort intensive because each cloud service has different optimization opportunities.
 
 To learn more, see [Usage optimization](./workloads.md).
 
