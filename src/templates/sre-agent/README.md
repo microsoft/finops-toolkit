@@ -110,8 +110,7 @@ bash bin/deploy.sh \
   [--cluster-resource-id /subscriptions/.../providers/Microsoft.Kusto/clusters/<name>] \
   [--target-resource-group <target-rg> ...] \
   [--dry-run] \
-  [--force] \
-  [--no-telemetry]
+  [--force]
 ```
 
 `bin/deploy.sh --help` is the CLI contract:
@@ -132,10 +131,10 @@ Optional:
                                       Example: https://<cluster>.<region>.kusto.windows.net/Hub
   --cluster-resource-id <id>          Optional Kusto cluster ARM resource ID. Real deployments resolve this from --cluster-uri when possible; dry-run requires it.
   --no-subscription-reader            Do not assign Reader at subscription scope. Default: assign Reader.
+  --deployer-principal-type <type>    Principal type of the deployer (User or ServicePrincipal). Default: User.
   --deploy-name <name>                Deployment name override. Defaults to a deterministic name.
   --dry-run                           Validate inputs and write parameters without Azure calls.
   --force                             Accepted for compatibility.
-  --no-telemetry                      Accepted for compatibility.
   -h, --help                          Show this help.
 ```
 
@@ -209,14 +208,13 @@ The GitHub Actions example passes the cluster URI as a script flag while keeping
 
 ## Migrating from env-var-driven deploys
 
-The old deploy path accepted config through environment variables such as `FINOPS_HUB_CLUSTER_URI`, `FINOPS_HUB_CLUSTER_RESOURCE_ID`, `SRE_AGENT_NO_TELEMETRY`, and `connectors.secrets.env`. Those inputs are no longer supported for config or identity.
+The old deploy path accepted config through environment variables such as `FINOPS_HUB_CLUSTER_URI`, `FINOPS_HUB_CLUSTER_RESOURCE_ID`, and `connectors.secrets.env`. Those inputs are no longer supported for config or identity.
 
 Before:
 
 ```bash
 export FINOPS_HUB_CLUSTER_URI="https://<your-cluster>.<your-region>.kusto.windows.net/hub"
 export FINOPS_HUB_CLUSTER_RESOURCE_ID="/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster>"
-export SRE_AGENT_NO_TELEMETRY=1
 bash bin/deploy.sh recipes/finops-hub
 ```
 
@@ -230,8 +228,7 @@ bash bin/deploy.sh \
   --name <your-agent-name> \
   --location <your-region> \
   --cluster-uri https://<your-cluster>.<your-region>.kusto.windows.net/Hub \
-  --cluster-resource-id /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster> \
-  --no-telemetry
+  --cluster-resource-id /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster>
 ```
 
 The only supported environment-variable inputs are secrets:

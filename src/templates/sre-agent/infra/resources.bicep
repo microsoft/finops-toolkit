@@ -34,6 +34,10 @@ param monthlyAgentUnitLimit int
 @description('Agent experimental settings.')
 param experimentalSettings object
 
+@description('Principal type of the deployer.')
+@allowed(['User', 'ServicePrincipal'])
+param deployerPrincipalType string = 'User'
+
 @description('Azure resource tags.')
 param tags object = {}
 
@@ -66,6 +70,7 @@ module sreAgent 'modules/sre-agent.bicep' = {
     defaultModelName: defaultModelName
     monthlyAgentUnitLimit: monthlyAgentUnitLimit
     experimentalSettings: experimentalSettings
+    deployerPrincipalType: deployerPrincipalType
     tags: tags
   }
 }

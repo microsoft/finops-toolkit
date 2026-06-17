@@ -44,6 +44,10 @@ param experimentalSettings object
 @description('Azure resource tags.')
 param tags object = {}
 
+@description('Principal type of the deployer.')
+@allowed(['User', 'ServicePrincipal'])
+param deployerPrincipalType string = 'User'
+
 var sreAgentAdminRoleId = 'e79298df-d852-4c6d-84f9-5d13249d1e55'
 
 #disable-next-line BCP081
@@ -91,7 +95,7 @@ resource sreAgentAdminRoleAssignment 'Microsoft.Authorization/roleAssignments@20
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', sreAgentAdminRoleId)
     principalId: deployer().objectId
-    principalType: 'User'
+    principalType: deployerPrincipalType
   }
 }
 

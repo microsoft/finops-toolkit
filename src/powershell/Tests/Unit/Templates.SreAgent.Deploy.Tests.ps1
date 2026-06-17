@@ -831,7 +831,7 @@ exit 0
 
         It 'limits legacy config env-var references to the allowlist' {
             if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
-            $result = Invoke-BashCommand "git grep -nE 'FINOPS_HUB_CLUSTER_URI|FINOPS_HUB_CLUSTER_RESOURCE_ID|SRE_AGENT_NO_TELEMETRY' -- docs-mslearn/toolkit/sre-agent/deploy.md src/templates/sre-agent"
+            $result = Invoke-BashCommand "git grep -nE 'FINOPS_HUB_CLUSTER_URI|FINOPS_HUB_CLUSTER_RESOURCE_ID' -- docs-mslearn/toolkit/sre-agent/deploy.md src/templates/sre-agent"
             $result.ExitCode | Should -Be 0
 
             $paths = $result.Output -split "`n" |
@@ -847,6 +847,59 @@ exit 0
             )
         }
 
+        It 'requires recipe package hash validation before extraction' {
+            $applyExtrasScriptPath = Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/scripts/Apply-SreAgentExtras.ps1'
+            $applyExtrasLines = Get-Content -Path $applyExtrasScriptPath
+            $applyExtrasScript = $applyExtrasLines -join "`n"
+
+            $applyExtrasScript | Should -Match "\$recipePackageSha256 = Get-RequiredEnv 'recipePackageSha256'"
+            $applyExtrasScript | Should -Match 'Get-FileHash\s+-Algorithm\s+SHA256'
+            $applyExtrasScript | Should -Match '(?s)recipePackageSha256.*throw'
+
+            $hashLine = for ($i = 0; $i -lt $applyExtrasLines.Count; $i++) {
+                if ($applyExtrasLines[$i] -match 'Get-FileHash' -and $applyExtrasLines[$i] -match 'SHA256') {
+                    $i + 1
+                    break
+                }
+            }
+            $throwLine = for ($i = 0; $i -lt $applyExtrasLines.Count; $i++) {
+                if ($applyExtrasLines[$i] -match 'throw' -and $applyExtrasLines[$i] -match 'hash|SHA256|recipePackageSha256') {
+                    $i + 1
+                    break
+                }
+            }
+            $expandArchiveLine = for ($i = 0; $i -lt $applyExtrasLines.Count; $i++) {
+                if ($applyExtrasLines[$i] -match 'Expand-Archive') {
+                    $i + 1
+                    break
+                }
+            }
+
+            $hashLine | Should -BeGreaterThan 0
+            $throwLine | Should -BeGreaterThan 0
+            $expandArchiveLine | Should -BeGreaterThan 0
+            $hashLine | Should -BeLessThan $expandArchiveLine
+            $throwLine | Should -BeLessThan $expandArchiveLine
+        }
+
+        It 'declares recipePackageSha256 in the compiled deploy templates' {
+            foreach ($compiledPath in @(
+                (Join-Path $script:RepoRoot 'docs/deploy/sre-agent/latest/azuredeploy.json'),
+                (Join-Path $script:RepoRoot 'docs/deploy/sre-agent/14.0/azuredeploy.json')
+            )) {
+                $compiledTemplate = Get-Content -Path $compiledPath -Raw | ConvertFrom-Json -Depth 100
+                $compiledTemplate.parameters.PSObject.Properties.Name | Should -Contain 'recipePackageSha256'
+            }
+        }
+
+        It 'requires an https allowlisted recipe package origin before download' {
+            $applyExtrasScript = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/scripts/Apply-SreAgentExtras.ps1') -Raw
+
+            $applyExtrasScript | Should -Match '(?is)\[uri\]\$[A-Za-z0-9_]+\s*=\s*\$recipePackageUri'
+            $applyExtrasScript | Should -Match "(?is)\.Scheme\s*-ne\s*'https'.*throw"
+            $applyExtrasScript | Should -Match '(?is)\.Host.*(-notcontains|-notin|-notmatch|-notlike).*(throw|fail)'
+        }
+
         It 'keeps connectors.secrets.env out of scripts' {
             if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
             $result = Invoke-BashCommand "git grep -nE 'connectors\.secrets\.env' -- src/templates/sre-agent/bin src/templates/sre-agent/infra"
@@ -856,6 +909,39 @@ exit 0
         It 'removes the legacy custom bicep deployment surface' {
             Test-Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bicep') | Should -BeFalse
             Test-Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/hydrate-extensions.sh') | Should -BeFalse
+        }
+
+        It 'removes dead telemetry scripts and source references from the SRE Agent template' {
+            Test-Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/telemetry.sh') | Should -BeFalse
+
+            if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
+            $result = Invoke-BashCommand "git grep -nE 'f10eff7f-b995-4c41-8347-90f0f55d5969|send_telemetry' -- src/templates/sre-agent"
+            $result.ExitCode | Should -Be 1 -Because $result.Output
+        }
+
+        It 'removes legacy telemetry flags and env vars from deploy surfaces' {
+            if ($script:SkipBash) { Set-ItResult -Skipped -Because 'bash is unavailable' }
+
+            $deployContent = Get-Content -Path $script:DeployScript -Raw
+            $deployContent | Should -Not -Match '--no-telemetry'
+
+            $result = Invoke-BashCommand "git grep -nE '\-\-no-telemetry|SRE_AGENT_NO_TELEMETRY' -- docs-mslearn/toolkit/sre-agent/deploy.md src/templates/sre-agent"
+            $result.ExitCode | Should -Be 1 -Because $result.Output
+        }
+
+        It 'parameterizes the deployer principal type in the SRE Agent module' {
+            $sreAgentBicep = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/modules/sre-agent.bicep') -Raw
+
+            $sreAgentBicep | Should -Match "(?s)@allowed\(\s*\[\s*'User'\s*,\s*'ServicePrincipal'\s*\]\s*\)\s*param\s+deployerPrincipalType\s+string"
+            $sreAgentBicep | Should -Match 'principalType:\s*deployerPrincipalType'
+            $sreAgentBicep | Should -Not -Match "principalType:\s*'User'"
+        }
+
+        It 'passes ServicePrincipal deployer principal type in the CI/CD example' {
+            $githubActionsDeploy = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/examples/ci-cd/github-actions-deploy.yml') -Raw
+
+            $githubActionsDeploy | Should -Match 'ServicePrincipal'
+            $githubActionsDeploy | Should -Match 'deployerPrincipalType|--deployer-principal-type'
         }
 
         It 'uses deterministic subscription and resource group identity for support resource names' {
@@ -871,6 +957,61 @@ exit 0
             $resourcesBicep | Should -Match 'param namingSeed string'
             $resourcesBicep | Should -Match 'uniqueSuffix = uniqueString\(namingSeed\)'
             $resourcesBicep | Should -Not -Match 'resourceGroup\(\)\.id|deployment\(\)\.name'
+        }
+
+        It 'defaults to read-only identity with autonomous reporting' {
+            $portalMainBicep = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/main.bicep') -Raw
+            $cliMainBicep = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/infra/main.bicep') -Raw
+            $createUiDef = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/createUiDefinition.json') -Raw | ConvertFrom-Json -Depth 100
+            $deployScript = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/bin/deploy.sh') -Raw
+            $recipeAgentJson = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/recipes/finops-hub/agent.json') -Raw | ConvertFrom-Json -Depth 100
+            $expectedConfigJson = Get-Content -Path (Join-Path $script:RepoRoot 'src/templates/sre-agent/recipes/finops-hub/expected-config.json') -Raw | ConvertFrom-Json -Depth 100
+
+            $portalMainBicep | Should -Match "param accessLevel string = 'Low'"
+            $portalMainBicep | Should -Match 'param enableSubscriptionReaderRole bool = false'
+            $portalMainBicep | Should -Match "param actionMode string = 'autonomous'"
+
+            $cliMainBicep | Should -Match "param accessLevel string = 'Low'"
+            $cliMainBicep | Should -Match 'param enableSubscriptionReaderRole bool = false'
+            $cliMainBicep | Should -Match "param actionMode string = 'autonomous'"
+
+            $accessLevelControl = $createUiDef.parameters.steps |
+                Where-Object { $_.name -eq 'configuration' } |
+                Select-Object -First 1 -ExpandProperty elements |
+                Where-Object { $_.name -eq 'accessLevel' }
+            $accessLevelControl.defaultValue | Should -Be 'Low'
+
+            $subscriptionReaderControl = $createUiDef.parameters.steps |
+                Where-Object { $_.name -eq 'configuration' } |
+                Select-Object -First 1 -ExpandProperty elements |
+                Where-Object { $_.name -eq 'enableSubscriptionReaderRole' }
+            $subscriptionReaderControl.defaultValue | Should -Be $false
+
+            $actionModeControl = $createUiDef.parameters.steps |
+                Where-Object { $_.name -eq 'configuration' } |
+                Select-Object -First 1 -ExpandProperty elements |
+                Where-Object { $_.name -eq 'actionMode' }
+            $actionModeControl.defaultValue | Should -Be 'autonomous'
+
+            $deployScript | Should -Match 'ENABLE_SUBSCRIPTION_READER="false"'
+
+            $recipeAgentJson.access.accessLevel | Should -Be 'Low'
+            $recipeAgentJson.access.actionMode | Should -Be 'autonomous'
+
+            $expectedConfigJson.agent.accessLevel | Should -Be 'Low'
+            $expectedConfigJson.agent.actionMode | Should -Be 'autonomous'
+            $expectedConfigJson.subscriptionRoleAssignments | Should -Be @()
+        }
+
+        It 'declares Low accessLevel and disabled subscription Reader in the compiled deploy templates' {
+            foreach ($compiledPath in @(
+                (Join-Path $script:RepoRoot 'docs/deploy/sre-agent/latest/azuredeploy.json'),
+                (Join-Path $script:RepoRoot 'docs/deploy/sre-agent/14.0/azuredeploy.json')
+            )) {
+                $compiledTemplate = Get-Content -Path $compiledPath -Raw | ConvertFrom-Json -Depth 100
+                $compiledTemplate.parameters.accessLevel.defaultValue | Should -Be 'Low'
+                $compiledTemplate.parameters.enableSubscriptionReaderRole.defaultValue | Should -Be $false
+            }
         }
 
         It 'applies subagents after their local handoff targets' {
