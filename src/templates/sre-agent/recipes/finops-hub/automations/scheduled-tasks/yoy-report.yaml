@@ -10,6 +10,19 @@ spec:
   agent: finops-practitioner
   agent_prompt: '# Semiannual Financial Analysis
 
+    ---
+    **FISCAL YEAR CONFIGURATION:**
+
+    This task is configured for a **July–June fiscal year** (the Microsoft fiscal calendar) as a worked example. If your organization uses a different fiscal year, customize the following elements to match your fiscal calendar:
+
+    1. **Cron schedule** (line 8): Adjust `0 9 5 1,7 *` to run at your mid-year and year-end close dates
+    2. **Fiscal period logic** (line 28): Update "July through June", "January 5 and July 5", and period-comparison statements
+    3. **Forecast targets** (lines 87, 145): Adjust "June 30" and checkpoint dates to align with your fiscal year end and mid-year close
+
+    The analysis logic below assumes July–June periods as the default example. Adapt month references and comparison windows to your fiscal calendar before deploying.
+
+    ---
+
 
     ## Phase 0: Preparation
 
@@ -25,7 +38,7 @@ spec:
     Load your finops-toolkit and azure-cost-management skills. Lead this as the FinOps practitioner. Delegate all FinOps Hub Kusto evidence collection to `ftk-database-query`, delegate capacity-risk evidence to `azure-capacity-manager`, and consult `chief-financial-officer` for fiscal planning, executive framing, and commitment-risk recommendations.
 
 
-    Our fiscal year runs July through June. This task runs on January 5 and July 5. On January 5, compare the completed July-December first-half period against the same period in the prior fiscal year and forecast through June 30. On July 5, compare the just-completed July-June fiscal year against the previous fiscal year and prepare the next fiscal year planning view.
+    **Fiscal period assumptions (default: July–June fiscal year):** This task runs at mid-year and year-end close checkpoints. For a July–June fiscal year, that means January 5 and July 5. On the January checkpoint, compare the completed first-half period (July–December) against the same period in the prior fiscal year and forecast through the fiscal year end (June 30). On the July checkpoint, compare the just-completed fiscal year (July–June) against the previous fiscal year and prepare the next fiscal year planning view. Adjust these month references if your organization uses a different fiscal calendar (see configuration note above).
 
     ## Specialist evidence requests for this task
 
@@ -84,7 +97,7 @@ spec:
 
     ### 1.9 Forecast
 
-    Ask `ftk-database-query` to run `cost-forecasting-model` using the current comparison period as actuals and enough historical data to project the next fiscal checkpoint. For January runs, forecast through June 30. For July runs, forecast the next fiscal year planning baseline.
+    Ask `ftk-database-query` to run `cost-forecasting-model` using the current comparison period as actuals and enough historical data to project the next fiscal checkpoint. For the mid-year checkpoint, forecast through fiscal year end (e.g., June 30 for a July–June fiscal year). For the year-end checkpoint, forecast the next fiscal year planning baseline.
 
 
     ### 1.10 Reservation Recommendations
@@ -142,7 +155,7 @@ spec:
 
     ### 2.2 Forecast
 
-    For January runs, project total fiscal year spend with Conservative/Expected/Optimistic scenarios and compare to annual budget. For July runs, create the next fiscal year planning baseline.
+    For mid-year checkpoint runs, project total fiscal year spend with Conservative/Expected/Optimistic scenarios and compare to annual budget. For year-end checkpoint runs, create the next fiscal year planning baseline.
 
 
     ### 2.3 Savings opportunities

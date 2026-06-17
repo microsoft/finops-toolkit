@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "budgetName": {
+            "value": "SubscriptionBudget"
+        },
+        "amount": {
+            "value": 10
+        },
+        "timeGrain": {
+            "value": "Monthly"
+        },
+        "startDate": {
+            "value": "2026-02-01"
+        },
+        "endDate": {
+            "value": "2027-02-01"
+        },
+        "firstThreshold": {
+            "value": 50
+        },
+        "secondThreshold": {
+            "value": 75
+        },
+        "thirdThreshold": {
+            "value": 90
+        },
+        "forecastedThreshold": {
+            "value": 100
+        },
+        "contactEmails": {
+            "value": [
+                "admin@company.com",
+                "finance@company.com"
+            ]
+        },
+        "contactRoles": {
+            "value": [
+                "Owner",
+                "Contributor"
+            ]
+        }
+    }
+}

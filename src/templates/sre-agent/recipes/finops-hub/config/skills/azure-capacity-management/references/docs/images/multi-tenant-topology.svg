@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 700" width="600" height="700">
+  <defs>
+    <linearGradient id="green-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#28a745;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#218838;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="light-green" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4edda;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c3e6cb;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="700" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="300" y="45" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="600" text-anchor="middle" fill="#28a745">
+    Multi-Tenant SaaS Architecture
+  </text>
+
+  <text x="300" y="75" font-family="Segoe UI, Arial, sans-serif" font-size="16" text-anchor="middle" fill="#666">
+    Shared Infrastructure with Application Isolation
+  </text>
+
+  <!-- Multi-Tenant SaaS Section -->
+  <g transform="translate(40, 120)">
+    <!-- Main container -->
+    <rect x="0" y="0" width="520" height="500" rx="10" fill="white" stroke="#28a745" stroke-width="2" filter="url(#shadow)"/>
+
+    <!-- Header -->
+    <rect x="0" y="0" width="520" height="50" rx="10" fill="url(#green-gradient)"/>
+    <text x="260" y="35" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="500" text-anchor="middle" fill="white">
+      Multi-Tenant SaaS (Shared Infrastructure)
+    </text>
+
+    <!-- Shared Platform -->
+    <rect x="30" y="70" width="460" height="320" rx="6" fill="#f0fff4" stroke="#28a745" stroke-width="2"/>
+    <text x="260" y="95" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" text-anchor="middle" fill="#155724">
+      ISV Shared Platform (Single/Few Subscriptions)
+    </text>
+
+    <!-- Control Plane -->
+    <rect x="50" y="110" width="420" height="50" rx="4" fill="#d4edda" stroke="#28a745" stroke-width="1"/>
+    <text x="260" y="140" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="500" text-anchor="middle" fill="#155724">
+      Control Plane (Authentication, Billing, Provisioning)
+    </text>
+
+    <!-- Application Tier -->
+    <rect x="50" y="175" width="420" height="70" rx="4" fill="white" stroke="#28a745" stroke-width="1"/>
+    <text x="260" y="195" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="500" text-anchor="middle" fill="#155724">
+      Application Tier
+    </text>
+    <!-- Customer boxes within app tier -->
+    <rect x="70" y="205" width="90" height="30" rx="3" fill="#e8f4fd" stroke="#0078d4" stroke-width="1"/>
+    <text x="115" y="225" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+      Customer A
+    </text>
+    <rect x="170" y="205" width="90" height="30" rx="3" fill="#e8f4fd" stroke="#0078d4" stroke-width="1"/>
+    <text x="215" y="225" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+      Customer B
+    </text>
+    <rect x="270" y="205" width="90" height="30" rx="3" fill="#e8f4fd" stroke="#0078d4" stroke-width="1"/>
+    <text x="315" y="225" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+      Customer C
+    </text>
+    <rect x="370" y="205" width="90" height="30" rx="3" fill="#e8f4fd" stroke="#0078d4" stroke-width="1"/>
+    <text x="415" y="225" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+      Customer D
+    </text>
+
+    <!-- Data Tier -->
+    <rect x="50" y="260" width="420" height="110" rx="4" fill="white" stroke="#28a745" stroke-width="1"/>
+    <text x="260" y="280" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="500" text-anchor="middle" fill="#155724">
+      Shared Database with Logical Isolation
+    </text>
+
+    <!-- Database representation -->
+    <rect x="160" y="295" width="200" height="60" rx="4" fill="#fff3cd" stroke="#856404" stroke-width="1"/>
+    <text x="260" y="315" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#856404">
+      Multi-Tenant Database
+    </text>
+    <line x1="170" y1="325" x2="350" y2="325" stroke="#856404" stroke-width="1"/>
+    <text x="260" y="340" font-family="Segoe UI, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#856404">
+      TenantID | Data | ...
+    </text>
+    <text x="260" y="350" font-family="Segoe UI, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#856404">
+      Row-Level Security
+    </text>
+
+    <!-- Key Characteristics -->
+    <text x="30" y="410" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="500" fill="#333">
+      Key Characteristics:
+    </text>
+    <text x="30" y="430" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#666">
+      • Shared infrastructure across all customers
+    </text>
+    <text x="30" y="448" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#666">
+      • Application-level tenant isolation
+    </text>
+    <text x="30" y="466" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#666">
+      • Efficient resource utilization
+    </text>
+    <text x="30" y="484" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#666">
+      • Lower per-customer operational cost
+    </text>
+  </g>
+
+  <!-- Bottom comparison -->
+  <g transform="translate(0, 640)">
+    <rect x="150" y="10" width="300" height="45" rx="6" fill="#f0fff4" stroke="#28a745" stroke-width="1"/>
+    <text x="300" y="30" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="500" fill="#333" text-anchor="middle">
+      Isolation Level: Application
+    </text>
+    <text x="300" y="48" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="500" fill="#333" text-anchor="middle">
+      Resource Model: N:1 (Customers:Platform)
+    </text>
+  </g>
+</svg>

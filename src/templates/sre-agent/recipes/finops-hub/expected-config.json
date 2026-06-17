@@ -1,7 +1,7 @@
 {
   "agent": {
-    "accessLevel": "High",
-    "actionMode": "Autonomous",
+    "accessLevel": "Low",
+    "actionMode": "autonomous",
     "upgradeChannel": "Preview",
     "defaultModelProvider": "MicrosoftFoundry",
     "experimentalSettings": [
@@ -9,9 +9,7 @@
       "EnableWorkspaceTools"
     ]
   },
-  "subscriptionRoleAssignments": [
-    "Reader"
-  ],
+  "subscriptionRoleAssignments": [],
   "builtInTools": {
     "enabled": [
       "PlotAreaChartWithCorrelation",

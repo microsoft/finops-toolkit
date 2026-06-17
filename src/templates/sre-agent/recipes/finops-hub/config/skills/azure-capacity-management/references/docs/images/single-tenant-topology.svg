@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 700" width="600" height="700">
+  <defs>
+    <linearGradient id="azure-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0078d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0066b8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="light-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8f4fd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d0e7f7;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="700" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="300" y="45" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="600" text-anchor="middle" fill="#0078d4">
+    Single-Tenant SaaS Architecture
+  </text>
+
+  <text x="300" y="75" font-family="Segoe UI, Arial, sans-serif" font-size="16" text-anchor="middle" fill="#666">
+    Subscription-Isolated Customer Deployments
+  </text>
+
+  <!-- Single-Tenant SaaS Section -->
+  <g transform="translate(40, 120)">
+    <!-- Main container -->
+    <rect x="0" y="0" width="520" height="500" rx="10" fill="white" stroke="#0078d4" stroke-width="2" filter="url(#shadow)"/>
+
+    <!-- Header -->
+    <rect x="0" y="0" width="520" height="50" rx="10" fill="url(#azure-blue)"/>
+    <text x="260" y="35" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="500" text-anchor="middle" fill="white">
+      Single-Tenant SaaS (Subscription Isolated)
+    </text>
+
+    <!-- ISV Control Plane -->
+    <rect x="30" y="70" width="460" height="60" rx="6" fill="#f0f8ff" stroke="#0078d4" stroke-width="1" stroke-dasharray="3,3"/>
+    <text x="260" y="95" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" text-anchor="middle" fill="#003d6a">
+      ISV Control Plane
+    </text>
+    <text x="260" y="115" font-family="Segoe UI, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">
+      Provisioning, Billing, Management
+    </text>
+
+    <!-- Customer Subscriptions -->
+    <text x="30" y="160" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" fill="#333">
+      Customer Azure Subscriptions:
+    </text>
+
+    <!-- Customer A -->
+    <g transform="translate(30, 175)">
+      <rect x="0" y="0" width="220" height="90" rx="6" fill="#e8f4fd" stroke="#0078d4" stroke-width="2"/>
+      <text x="110" y="25" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" text-anchor="middle" fill="#003d6a">
+        Customer A Subscription
+      </text>
+      <rect x="15" y="35" width="85" height="40" rx="4" fill="white" stroke="#0078d4" stroke-width="1"/>
+      <text x="57" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+        Resources
+      </text>
+      <rect x="110" y="35" width="85" height="40" rx="4" fill="white" stroke="#0078d4" stroke-width="1"/>
+      <text x="152" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+        Database
+      </text>
+    </g>
+
+    <!-- Customer B -->
+    <g transform="translate(270, 175)">
+      <rect x="0" y="0" width="220" height="90" rx="6" fill="#e8f4fd" stroke="#0078d4" stroke-width="2"/>
+      <text x="110" y="25" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" text-anchor="middle" fill="#003d6a">
+        Customer B Subscription
+      </text>
+      <rect x="15" y="35" width="85" height="40" rx="4" fill="white" stroke="#0078d4" stroke-width="1"/>
+      <text x="57" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+        Resources
+      </text>
+      <rect x="110" y="35" width="85" height="40" rx="4" fill="white" stroke="#0078d4" stroke-width="1"/>
+      <text x="152" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+        Database
+      </text>
+    </g>
+
+    <!-- Customer C -->
+    <g transform="translate(30, 280)">
+      <rect x="0" y="0" width="220" height="90" rx="6" fill="#e8f4fd" stroke="#0078d4" stroke-width="2"/>
+      <text x="110" y="25" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" text-anchor="middle" fill="#003d6a">
+        Customer C Subscription
+      </text>
+      <rect x="15" y="35" width="85" height="40" rx="4" fill="white" stroke="#0078d4" stroke-width="1"/>
+      <text x="57" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+        Resources
+      </text>
+      <rect x="110" y="35" width="85" height="40" rx="4" fill="white" stroke="#0078d4" stroke-width="1"/>
+      <text x="152" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+        Database
+      </text>
+    </g>
+
+    <!-- Customer D -->
+    <g transform="translate(270, 280)">
+      <rect x="0" y="0" width="220" height="90" rx="6" fill="#e8f4fd" stroke="#0078d4" stroke-width="2"/>
+      <text x="110" y="25" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" text-anchor="middle" fill="#003d6a">
+        Customer D Subscription
+      </text>
+      <rect x="15" y="35" width="85" height="40" rx="4" fill="white" stroke="#0078d4" stroke-width="1"/>
+      <text x="57" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+        Resources
+      </text>
+      <rect x="110" y="35" width="85" height="40" rx="4" fill="white" stroke="#0078d4" stroke-width="1"/>
+      <text x="152" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333">
+        Database
+      </text>
+    </g>
+
+    <!-- Key Characteristics -->
+    <text x="30" y="400" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="500" fill="#333">
+      Key Characteristics:
+    </text>
+    <text x="30" y="420" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#666">
+      • Full infrastructure isolation per customer
+    </text>
+    <text x="30" y="438" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#666">
+      • Independent scaling and deployment
+    </text>
+    <text x="30" y="456" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#666">
+      • Customer-specific compliance boundaries
+    </text>
+    <text x="30" y="474" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#666">
+      • Higher operational overhead
+    </text>
+  </g>
+
+  <!-- Bottom comparison -->
+  <g transform="translate(0, 640)">
+    <rect x="150" y="10" width="300" height="45" rx="6" fill="#f0f8ff" stroke="#0078d4" stroke-width="1"/>
+    <text x="300" y="30" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="500" fill="#333" text-anchor="middle">
+      Isolation Level: Infrastructure
+    </text>
+    <text x="300" y="48" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="500" fill="#333" text-anchor="middle">
+      Resource Model: 1:1 (Customer:Subscription)
+    </text>
+  </g>
+</svg>
