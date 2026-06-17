@@ -48,9 +48,12 @@ jobs:
           #      (errs safe for malformed frontmatter).
           #   3. Drop markdownlint-disable-next-line MD025 and prettier-ignore
           #      directive lines (whitespace-tolerant trim equality).
-          #   4. Trim trailing whitespace from each remaining line.
-          #   5. Collapse runs of two or more blank lines down to one.
-          #   6. Strip leading and trailing blank lines.
+          #   4. Strip leading and trailing blank lines from the body.
+          #
+          # Whitespace preservation: Trailing whitespace, blank line runs, and all
+          # content inside fenced/indented code blocks are preserved exactly. This
+          # ensures real content changes (e.g., hard line breaks, code block
+          # formatting) are not misclassified as metadata-only.
           strip_frontmatter() {
             awk '
               { sub(/\r$/, ""); raw[NR] = $0 }
@@ -77,27 +80,14 @@ jobs:
                   if (t == "<!-- markdownlint-disable-next-line MD025 -->" ||
                       t == "<!-- prettier-ignore-start -->" ||
                       t == "<!-- prettier-ignore-end -->") continue
-                  sub(/[[:space:]]+$/, "", line)
                   body[++n] = line
                 }
 
-                m = 0
-                blank = 0
-                for (i = 1; i <= n; i++) {
-                  if (body[i] == "") {
-                    blank++
-                    if (blank <= 1) { collapsed[++m] = "" }
-                  } else {
-                    blank = 0
-                    collapsed[++m] = body[i]
-                  }
-                }
-
                 s = 1
-                while (s <= m && collapsed[s] == "") { s++ }
-                e = m
-                while (e >= s && collapsed[e] == "") { e-- }
-                for (i = s; i <= e; i++) print collapsed[i]
+                while (s <= n && body[s] == "") { s++ }
+                e = n
+                while (e >= s && body[e] == "") { e-- }
+                for (i = s; i <= e; i++) print body[i]
               }
             '
           }

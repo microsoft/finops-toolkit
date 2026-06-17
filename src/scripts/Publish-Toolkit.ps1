@@ -222,16 +222,12 @@ function Get-DocsArticleBody([string]$content)
     #      change instead of silently being masked).
     #   3. Drop markdownlint-disable-next-line MD025 and prettier-ignore
     #      directive lines (whitespace-tolerant trim equality).
-    #   4. Trim trailing whitespace from each remaining line.
-    #   5. Collapse runs of two or more consecutive blank lines down to one.
-    #   6. Strip leading and trailing blank lines.
+    #   4. Strip leading and trailing blank lines from the body.
     #
-    # Whitespace contract: PowerShell .Trim()/.TrimEnd() treat all Unicode
-    # whitespace as trimmable; awk's [[:space:]] is ASCII-only. Microsoft
-    # docs-mslearn files use ASCII whitespace in YAML frontmatter and HTML
-    # comments by convention (enforced by markdownlint), so this only matters
-    # if a non-breaking space ever appears in a fence or ignore-directive
-    # line.
+    # Whitespace preservation: Trailing whitespace, blank line runs, and all
+    # content inside fenced/indented code blocks are preserved exactly. This
+    # ensures real content changes (e.g., hard line breaks, code block
+    # formatting) are not misclassified as metadata-only.
 
     $lines = $content -split "`r?`n"
     $start = 0
@@ -267,35 +263,16 @@ function Get-DocsArticleBody([string]$content)
         {
             continue
         }
-        $null = $body.Add($line.TrimEnd())
-    }
-
-    $collapsed = New-Object 'System.Collections.Generic.List[string]'
-    $blank = 0
-    foreach ($line in $body)
-    {
-        if ($line -eq "")
-        {
-            $blank++
-            if ($blank -le 1)
-            {
-                $null = $collapsed.Add("")
-            }
-        }
-        else
-        {
-            $blank = 0
-            $null = $collapsed.Add($line)
-        }
+        $null = $body.Add($line)
     }
 
     $s = 0
-    while ($s -lt $collapsed.Count -and $collapsed[$s] -eq "")
+    while ($s -lt $body.Count -and $body[$s] -eq "")
     {
         $s++
     }
-    $e = $collapsed.Count - 1
-    while ($e -ge $s -and $collapsed[$e] -eq "")
+    $e = $body.Count - 1
+    while ($e -ge $s -and $body[$e] -eq "")
     {
         $e--
     }
@@ -305,7 +282,7 @@ function Get-DocsArticleBody([string]$content)
         return ""
     }
 
-    return ($collapsed[$s..$e] -join "`n")
+    return ($body[$s..$e] -join "`n")
 }
 
 function Remove-DocsMetadataOnlyChanges([string]$docsPath)

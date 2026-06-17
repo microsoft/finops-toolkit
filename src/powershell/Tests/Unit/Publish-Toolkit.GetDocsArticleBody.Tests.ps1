@@ -107,7 +107,8 @@ Describe 'Get-DocsArticleBody' {
             'Body paragraph.    '
         ) -join "`n"
 
-        Get-DocsArticleBody $content | Should -Be "# Heading`nBody paragraph."
+        # Conservative normalization: trailing whitespace is now preserved
+        Get-DocsArticleBody $content | Should -Be "# Heading   `nBody paragraph.    "
     }
 
     It 'Collapses three or more blank lines to exactly two' {
@@ -123,7 +124,8 @@ Describe 'Get-DocsArticleBody' {
             'Body paragraph.'
         ) -join "`n"
 
-        Get-DocsArticleBody $content | Should -Be "# Heading`n`nBody paragraph."
+        # Conservative normalization: blank line runs are now preserved
+        Get-DocsArticleBody $content | Should -Be "# Heading`n`n`n`n`nBody paragraph."
     }
 
     It 'Handles CRLF line endings the same as LF' {
@@ -136,6 +138,77 @@ Describe 'Get-DocsArticleBody' {
     It 'Returns the same body when only frontmatter changes' {
         $before = @('---', 'ms.date: 01/01/2026', '---', '# Heading', 'Body.') -join "`n"
         $after = @('---', 'ms.date: 06/04/2026', '---', '# Heading', 'Body.') -join "`n"
+
+        Get-DocsArticleBody $before | Should -Be (Get-DocsArticleBody $after)
+    }
+
+    It 'Detects blank line count changes inside fenced code blocks as content changes' {
+        $oneBlank = @(
+            '---'
+            'title: Sample'
+            '---'
+            '```bash'
+            'echo "line1"'
+            ''
+            'echo "line2"'
+            '```'
+        ) -join "`n"
+
+        $twoBlank = @(
+            '---'
+            'title: Sample'
+            '---'
+            '```bash'
+            'echo "line1"'
+            ''
+            ''
+            'echo "line2"'
+            '```'
+        ) -join "`n"
+
+        Get-DocsArticleBody $oneBlank | Should -Not -Be (Get-DocsArticleBody $twoBlank)
+    }
+
+    It 'Detects removal of trailing hard-break spaces as a content change' {
+        $withHardBreak = @(
+            '---'
+            'title: Sample'
+            '---'
+            'Line with hard break  '
+            'Next line'
+        ) -join "`n"
+
+        $withoutHardBreak = @(
+            '---'
+            'title: Sample'
+            '---'
+            'Line with hard break'
+            'Next line'
+        ) -join "`n"
+
+        Get-DocsArticleBody $withHardBreak | Should -Not -Be (Get-DocsArticleBody $withoutHardBreak)
+    }
+
+    It 'Still treats pure metadata changes as identical (ms.author change only)' {
+        $before = @(
+            '---'
+            'title: Sample'
+            'ms.author: alice'
+            'ms.date: 01/01/2026'
+            '---'
+            '# Heading'
+            'Body.'
+        ) -join "`n"
+
+        $after = @(
+            '---'
+            'title: Sample'
+            'ms.author: bob'
+            'ms.date: 06/04/2026'
+            '---'
+            '# Heading'
+            'Body.'
+        ) -join "`n"
 
         Get-DocsArticleBody $before | Should -Be (Get-DocsArticleBody $after)
     }
