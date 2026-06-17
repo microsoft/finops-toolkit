@@ -3,11 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-<<<<<<< HEAD
 ms.date: 06/17/2026
-=======
-ms.date: 06/03/2026
->>>>>>> origin/dev
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
