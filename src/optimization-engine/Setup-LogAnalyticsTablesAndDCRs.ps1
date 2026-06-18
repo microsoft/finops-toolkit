@@ -158,9 +158,13 @@ $automationAccount = Get-AzAutomationAccount -ResourceGroupName $ResourceGroupNa
 $automationPrincipalId = $automationAccount.Identity.PrincipalId
 if ([string]::IsNullOrEmpty($automationPrincipalId))
 {
-    throw "Could not retrieve the managed identity principal ID for the Automation account $AutomationAccountName."
+    Write-Host "Could not retrieve the managed identity principal ID for the Automation account $AutomationAccountName." -ForegroundColor Yellow
+    Write-Host "Grant the Metrics Publisher role to the AOE's managed identity on the resource group containing the DCRs after this script completes." -ForegroundColor Yellow
 }
-Write-Host "Automation account managed identity: $automationPrincipalId" -ForegroundColor Cyan
+else
+{
+    Write-Host "Retrieved managed identity principal ID for Automation account: $automationPrincipalId" -ForegroundColor Cyan
+}
 #endregion
 
 #region Monitoring Metrics Publisher role definition ID
@@ -914,26 +918,33 @@ $dcrSuffixToImmutableId = @{}
 #region Assign Monitoring Metrics Publisher role at resource group scope
 Write-Host "Granting Monitoring Metrics Publisher on resource group to Automation MI..." -ForegroundColor Green
 
-# Role assignment must be created in the DCR subscription/resource group context
-if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
+if ($automationPrincipalId)
 {
-    Set-AzContext -SubscriptionId $currentSubscriptionId | Out-Null
-}
+    # Role assignment must be created in the DCR subscription/resource group context
+    if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
+    {
+        Set-AzContext -SubscriptionId $currentSubscriptionId | Out-Null
+    }
 
-$dcrResourceGroupScope = "/subscriptions/$currentSubscriptionId/resourceGroups/$ResourceGroupName"
-$existingAssignment = Get-AzRoleAssignment -ObjectId $automationPrincipalId `
-    -RoleDefinitionId $monitoringMetricsPublisherRoleId `
-    -Scope $dcrResourceGroupScope -ErrorAction SilentlyContinue
-if ($null -eq $existingAssignment)
-{
-    New-AzRoleAssignment -ObjectId $automationPrincipalId `
+    $dcrResourceGroupScope = "/subscriptions/$currentSubscriptionId/resourceGroups/$ResourceGroupName"
+    $existingAssignment = Get-AzRoleAssignment -ObjectId $automationPrincipalId `
         -RoleDefinitionId $monitoringMetricsPublisherRoleId `
-        -Scope $dcrResourceGroupScope | Out-Null
-    Write-Host "  Role assigned on resource group scope." -ForegroundColor Gray
+        -Scope $dcrResourceGroupScope -ErrorAction SilentlyContinue
+    if ($null -eq $existingAssignment)
+    {
+        New-AzRoleAssignment -ObjectId $automationPrincipalId `
+            -RoleDefinitionId $monitoringMetricsPublisherRoleId `
+            -Scope $dcrResourceGroupScope | Out-Null
+        Write-Host "  Role assigned on resource group scope." -ForegroundColor Gray
+    }
+    else
+    {
+        Write-Host "  Role already assigned on resource group scope." -ForegroundColor Gray
+    }
 }
 else
 {
-    Write-Host "  Role already assigned on resource group scope." -ForegroundColor Gray
+    Write-Host "  Automation MI not found; skipping role assignment." -ForegroundColor Yellow
 }
 
 # Restore workspace subscription context for table operations
