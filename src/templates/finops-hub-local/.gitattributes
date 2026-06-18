@@ -11,6 +11,7 @@
 *.sh    text eol=lf
 *.kql   text eol=lf
 *.json  text eol=lf
+*.md    text eol=lf
 Makefile text eol=lf
 *.yml   text eol=lf
 *.yaml  text eol=lf
