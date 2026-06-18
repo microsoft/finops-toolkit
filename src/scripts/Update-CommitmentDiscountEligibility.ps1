@@ -73,9 +73,11 @@ function Get-RetailPriceSegment
         invoking a callback per item. No client-side $skip or $orderby.
 
         .DESCRIPTION
-        Returns the number of items walked. Retries 429/5xx with backoff (honoring
-        Retry-After) and throws on terminal 4xx. NextPageLink already carries
-        api-version, $filter, $skip, and meterRegion, so it is followed verbatim.
+        Returns @{ Items = <count walked>; Pages = <responses fetched> }. Retries
+        429/5xx with backoff (honoring Retry-After) and throws on terminal 4xx.
+        NextPageLink already carries api-version, $filter, $skip, and meterRegion,
+        so it is followed verbatim. Pages lets the caller detect "fit in one page"
+        without assuming a fixed server page size.
     #>
     param(
         [string]$Filter,
@@ -85,12 +87,13 @@ function Get-RetailPriceSegment
 
     # Do NOT send $top: the API's NextPageLink generator decrements $top by the page
     # size each page (1000 -> 0 -> -1000 -> ...), and a negative $top returns HTTP 400.
-    # Omitting it lets the server default to 1000/page and only advance $skip.
+    # Omitting it lets the server default its page size and only advance $skip.
     $url = $apiBase
     if ($Filter) { $url += "&`$filter=$Filter" }
     if ($MeterRegion) { $url += "&meterRegion='$MeterRegion'" }
 
     $totalItems = 0
+    $pageCount = 0
     while ($url)
     {
         $retries = 0
@@ -134,6 +137,7 @@ function Get-RetailPriceSegment
             }
         }
 
+        $pageCount++
         foreach ($item in $response.Items)
         {
             & $OnItem $item
@@ -144,7 +148,7 @@ function Get-RetailPriceSegment
         $url = $response.NextPageLink
     }
 
-    return $totalItems
+    return @{ Items = $totalItems; Pages = $pageCount }
 }
 
 function Invoke-ShardedUnion
@@ -156,10 +160,13 @@ function Invoke-ShardedUnion
 
         .DESCRIPTION
         Returns a hashtable: Keys = @{ meterId -> $true } for all collected meters;
-        NonConverged = list of shards that hit the pass cap while still adding keys.
+        NonConverged = list of shards that hit the pass cap while still adding keys;
+        ShardCounts = @{ shard -> collected key count } for the per-shard guard.
         $CollectKey receives an item and returns the meterId to record, or $null to
         skip it (used to gate Savings Plan eligibility on a non-empty savingsPlan).
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'CollectKey',
+        Justification = 'Invoked inside the -OnItem closure passed to Get-RetailPriceSegment, which PSScriptAnalyzer cannot trace.')]
     param(
         [string]$BaseFilter,
         [string[]]$Shards,
@@ -170,6 +177,7 @@ function Invoke-ShardedUnion
 
     $union = @{}
     $nonConverged = @()
+    $shardCounts = @{}
     $shardNum = 0
 
     foreach ($shard in $Shards)
@@ -186,16 +194,19 @@ function Invoke-ShardedUnion
         {
             $pass++
             $before = $shardKeys.Count
-            $itemsLastPass = Get-RetailPriceSegment -Filter $shardFilter -MeterRegion $MeterRegion -OnItem {
+            $segment = Get-RetailPriceSegment -Filter $shardFilter -MeterRegion $MeterRegion -OnItem {
                 param($item)
                 $key = & $CollectKey $item
                 if ($key) { $shardKeys[$key.ToLowerInvariant()] = $true }
             }
+            $itemsLastPass = $segment.Items
 
-            # A shard that fit in a single page (no pagination) returned its complete,
-            # deterministic set -- repeating cannot add anything, so stop. Only
-            # paginated shards are exposed to the unstable-order drop and need repeats.
-            if ($itemsLastPass -le 1000) { $singlePage = $true; break }
+            # A shard that fit in a single response (the API returned no NextPageLink)
+            # delivered its complete, deterministic set -- repeating cannot add anything,
+            # so stop. Only paginated shards are exposed to the unstable-order drop and
+            # need repeats. Keyed off the page count rather than a hardcoded page size,
+            # so a change to the server's default page size cannot mask a real miss.
+            if ($segment.Pages -le 1) { $singlePage = $true; break }
 
             $added = $shardKeys.Count - $before
             if ($added -eq 0) { $stable++ } else { $stable = 0 }
@@ -205,6 +216,7 @@ function Invoke-ShardedUnion
         }
 
         foreach ($k in $shardKeys.Keys) { $union[$k] = $true }
+        $shardCounts[$shard] = $shardKeys.Count
 
         if (-not $singlePage -and $stable -lt $StablePasses)
         {
@@ -215,7 +227,44 @@ function Invoke-ShardedUnion
     }
 
     Write-Progress -Activity $ActivityName -Completed
-    return @{ Keys = $union; NonConverged = $nonConverged }
+    return @{ Keys = $union; NonConverged = $nonConverged; ShardCounts = $shardCounts }
+}
+
+# Per-shard baseline (sidecar alongside the CSV). The published CSV carries only
+# MeterId + the two flags -- no serviceFamily -- so per-shard counts from the last
+# good run are persisted here to let the completeness guard catch a single shard
+# that systematically under-fetches (which an aggregate-only check could miss when
+# growth elsewhere masks it). Committed/pushed beside the CSV so it survives the
+# fresh checkout of each scheduled CI run.
+$ShardCountPath = [System.IO.Path]::ChangeExtension($OutputPath, 'shardcounts.json')
+
+function Get-ShardShortfall
+{
+    <#
+        .SYNOPSIS
+        Returns per-shard guard violations: shards whose collected count fell more
+        than $MaxShrinkFraction below the baseline. Empty when the baseline is
+        absent (first run) or every shard is within tolerance.
+    #>
+    param(
+        [string]$Section,
+        [hashtable]$Current,
+        [hashtable]$Baseline
+    )
+
+    $violations = @()
+    if (-not $Baseline) { return $violations }
+    foreach ($shard in $Current.Keys)
+    {
+        $prev = $Baseline[$shard]
+        if (-not $prev) { continue }   # new/previously-empty shard: nothing to compare
+        $floor = [Math]::Floor($prev * (1 - $MaxShrinkFraction))
+        if ($Current[$shard] -lt $floor)
+        {
+            $violations += "$Section/$shard $($Current[$shard]) (baseline $prev, floor $floor)"
+        }
+    }
+    return $violations
 }
 
 # -----------------------------------------------------------------------
@@ -237,6 +286,13 @@ if (Test-Path $OutputPath)
     }
     $cachedTotal = $existing.Count
     Write-Host "  Previous CSV: $cachedTotal meters"
+}
+
+$cachedShardCounts = $null
+if (Test-Path $ShardCountPath)
+{
+    $cachedShardCounts = Get-Content -Path $ShardCountPath -Raw | ConvertFrom-Json -AsHashtable
+    Write-Verbose "  Loaded per-shard baseline from $ShardCountPath"
 }
 
 # -----------------------------------------------------------------------
@@ -287,6 +343,17 @@ if ($cachedTotal -gt 0)
         throw "Aborting before write: fetched $seenTotal meters, below the floor of $floor (cached $cachedTotal, max shrink $([Math]::Round($MaxShrinkFraction * 100))%). Run is likely incomplete; refusing to overwrite published data."
     }
 }
+
+# Per-shard guard: a single family that systematically under-fetches can be hidden
+# from the aggregate check by growth elsewhere, so compare each shard against its
+# own baseline (when one exists from a prior run).
+$shardShortfall = @()
+$shardShortfall += Get-ShardShortfall -Section 'Reservation' -Current $riResult.ShardCounts -Baseline $cachedShardCounts.Reservation
+$shardShortfall += Get-ShardShortfall -Section 'Consumption' -Current $spResult.ShardCounts -Baseline $cachedShardCounts.Consumption
+if ($shardShortfall.Count -gt 0)
+{
+    throw "Aborting before write: shard(s) fell more than $([Math]::Round($MaxShrinkFraction * 100))% below baseline: $($shardShortfall -join '; '). A family likely under-fetched; refusing to overwrite published data. Raise -MaxShrinkFraction for a deliberate large change."
+}
 Write-Host "Completeness check passed: $seenTotal meters seen this run (cached $cachedTotal)."
 
 # -----------------------------------------------------------------------
@@ -333,3 +400,11 @@ $writeStart = [DateTime]::UtcNow
 $rows | Export-Csv -Path $OutputPath -UseQuotes Always -NoTypeInformation -Encoding utf8
 Write-Verbose "  CSV write completed in $([Math]::Round(([DateTime]::UtcNow - $writeStart).TotalSeconds, 1))s"
 Write-Host "Wrote $($rows.Count) meters to $OutputPath"
+
+# Persist this run's per-shard counts as the baseline for the next run's guard.
+$newShardCounts = [ordered]@{
+    Reservation = $riResult.ShardCounts
+    Consumption = $spResult.ShardCounts
+}
+$newShardCounts | ConvertTo-Json -Depth 4 | Set-Content -Path $ShardCountPath -Encoding utf8 -NoNewline
+Write-Host "Wrote per-shard baseline to $ShardCountPath"

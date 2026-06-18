@@ -37,7 +37,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
-          git add src/open-data/CommitmentDiscountEligibility.csv
+          git add src/open-data/CommitmentDiscountEligibility.csv src/open-data/CommitmentDiscountEligibility.shardcounts.json
           git commit -m "chore: Update commitment discount eligibility data"
           git push origin "$BRANCH"
 
