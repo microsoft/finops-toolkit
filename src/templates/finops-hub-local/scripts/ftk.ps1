@@ -375,12 +375,7 @@ function Convert-CatalogQuery {
     $out = $out -replace '\btodecimal\s*\(', 'toreal('
     $out = $out -replace '\bdecimal\s*\(', 'real('
 
-    # 3. cross-db reference strip — catalog queries that explicitly name database('Ingestion').
-    #    are stripped when running against Hub, which already resolves these via its view
-    #    functions.  This is a no-op for standard catalog queries that call Costs_v1_2() etc.
-    $out = $out -replace "database\(\s*'Ingestion'\s*\)\.", ''
-
-    # 4. project-away tolerance: drop columns the local schema doesn't expose
+    # 3. project-away tolerance: drop columns the local schema doesn't expose
     $out = Invoke-ProjectAwayTolerance -Kql $out -Endpoint $Endpoint -Database $Database
 
     return $out
