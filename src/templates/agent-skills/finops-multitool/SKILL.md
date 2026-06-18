@@ -2,17 +2,17 @@
 name: finops-multitool
 description: This skill should be used when the user asks to "scan for cost savings", "find orphaned resources", "find idle VMs", "check Azure Hybrid Benefit", "review tags", "tag coverage", "tag recommendations", "policy coverage", "cost by tag", "cost trend", "top resources by cost", "reservation recommendations", "commitment utilization", "realized savings", "budget status", "cost anomaly alerts", "Advisor cost recommendations", "billing structure", "contract info", or run a "FinOps assessment", "FinOps scan", or "cost optimization scan" using the FinOps Multitool MCP server. Also use it proactively whenever the conversation turns to Azure cost, waste, savings, governance, or FinOps health and a live read-only scan would answer the question.
 license: MIT
-compatibility: Requires the finops-multitool MCP server to be running (see .vscode/mcp.json) and an authenticated Azure session (Connect-AzAccount) with at least Reader access. All tools are read-only.
+compatibility: Requires the finops-multitool MCP server to be running (see .vscode/mcp.json) and an authenticated Azure session (Connect-AzAccount) with at least Reader access. The scan tools are read-only; four write/remediation tools are dry-run by default, gated by a write-safety policy, and disabled unless FINOPS_WRITE_MODE is set (the server defaults to ReadOnly).
 metadata:
   author: microsoft
-  version: "1.0"
+  version: '1.0'
 ---
 
 # FinOps Multitool
 
-The FinOps Multitool MCP server exposes 22 read-only tools that scan a live Azure environment for cost savings, governance gaps, and FinOps health. Use it to ground answers about waste, savings, tags, policy, budgets, and commitments in the customer's actual resource state instead of guessing.
+The FinOps Multitool MCP server exposes 40 tools that scan a live Azure environment for cost savings, governance gaps, and FinOps health. Thirty-six are read-only analysis tools; four are write/remediation tools - delete an orphaned resource, deallocate an idle VM, enable Azure Hybrid Benefit, and set a cost allocation rule - that are dry-run by default and gated by a configurable write-safety policy. Use it to ground answers about waste, savings, tags, policy, budgets, and commitments in the customer's actual resource state instead of guessing.
 
-All tools query Azure Resource Graph, Cost Management, and Azure Advisor with **Reader** scope. They never modify resources. Be proactive: when a user raises a cost, waste, savings, or governance topic, offer to run the matching scan rather than answering abstractly.
+The analysis tools query Azure Resource Graph, Cost Management, and Azure Advisor with **Reader** scope and never modify resources. The four write tools (`remediate_delete_orphaned_resource`, `remediate_deallocate_vm`, `remediate_enable_hybrid_benefit`, and `set_cost_allocation_rule`) are the only ones that can change Azure, and only when explicitly applied: they preview by default (`apply=false`), route through a write-safety gate (protected-tag / resource-group / subscription guardrails, estimated-impact and blast-radius caps, and an append-only audit log), and are disabled entirely unless an operator sets `FINOPS_WRITE_MODE` - the server defaults to `ReadOnly`, which blocks all writes. Be proactive: when a user raises a cost, waste, savings, or governance topic, offer to run the matching scan rather than answering abstractly.
 
 ## When to use the server
 
@@ -30,30 +30,48 @@ If the user is only asking a conceptual question ("what is Azure Hybrid Benefit?
 
 Pick the narrowest tool that answers the question. Use `run_full_scan` only for a broad assessment.
 
-| Intent | Tool | Category |
-|--------|------|----------|
-| Orphaned disks, NICs, public IPs, NSGs, deallocated VMs | `scan_orphaned_resources` | Optimization |
-| Idle / underutilized VMs (<5% CPU) | `scan_idle_vms` | Optimization |
-| Storage tier optimization (Hot→Cool/Cold/Archive) | `scan_storage_tier_advice` | Optimization |
-| Windows/SQL not using Azure Hybrid Benefit | `scan_ahb_opportunities` | Optimization |
-| Tag coverage, tag names, untagged resources | `scan_tag_inventory` | Governance |
-| Tag quality fixes (CAF gaps, casing, duplicates) | `scan_tag_recommendations` | Governance |
-| Azure Policy assignments + compliance | `scan_policy_inventory` | Governance |
-| Policy coverage gaps + recommended guardrails | `scan_policy_recommendations` | Governance |
-| Decide hub export vs live API before a cost scan | `detect_cost_data_source` | Cost Analysis |
-| Current month actual + forecast spend | `scan_cost_data` | Cost Analysis |
-| Top resources by cost | `scan_resource_costs` | Cost Analysis |
-| Cost broken down by tag key/value | `scan_cost_by_tag` | Cost Analysis |
-| Month-over-month cost trend | `scan_cost_trend` | Cost Analysis |
-| Reservation purchase recommendations | `scan_reservation_advice` | Commitments |
-| Reservation / savings plan utilization | `scan_commitment_utilization` | Commitments |
-| Realized savings (RI, SP, AHB) | `scan_savings_realized` | Commitments |
-| Budget consumption vs thresholds | `scan_budget_status` | Monitoring |
-| Cost anomaly alerts + detection rules | `scan_anomaly_alerts` | Monitoring |
-| Advisor cost recommendations | `scan_optimization_advice` | Advisor |
-| Billing account hierarchy (EA/MCA/CSP) | `scan_billing_structure` | Account |
-| Agreement, offer, currency, support plan | `scan_contract_info` | Account |
-| Full FinOps assessment across all modules | `run_full_scan` | Assessment |
+| Intent                                                  | Tool                          | Category      |
+| ------------------------------------------------------- | ----------------------------- | ------------- |
+| Orphaned disks, NICs, public IPs, NSGs, deallocated VMs | `scan_orphaned_resources`     | Optimization  |
+| Idle / underutilized VMs (<5% CPU)                      | `scan_idle_vms`               | Optimization  |
+| Storage tier optimization (Hot→Cool/Cold/Archive)       | `scan_storage_tier_advice`    | Optimization  |
+| Windows/SQL not using Azure Hybrid Benefit              | `scan_ahb_opportunities`      | Optimization  |
+| Tag coverage, tag names, untagged resources             | `scan_tag_inventory`          | Governance    |
+| Tag quality fixes (CAF gaps, casing, duplicates)        | `scan_tag_recommendations`    | Governance    |
+| Azure Policy assignments + compliance                   | `scan_policy_inventory`       | Governance    |
+| Policy coverage gaps + recommended guardrails           | `scan_policy_recommendations` | Governance    |
+| Decide hub export vs live API before a cost scan        | `detect_cost_data_source`     | Cost Analysis |
+| Current month actual + forecast spend                   | `scan_cost_data`              | Cost Analysis |
+| Top resources by cost                                   | `scan_resource_costs`         | Cost Analysis |
+| Cost broken down by tag key/value                       | `scan_cost_by_tag`            | Cost Analysis |
+| Month-over-month cost trend                             | `scan_cost_trend`             | Cost Analysis |
+| Reservation purchase recommendations                    | `scan_reservation_advice`     | Commitments   |
+| Reservation / savings plan utilization                  | `scan_commitment_utilization` | Commitments   |
+| Realized savings (RI, SP, AHB)                          | `scan_savings_realized`       | Commitments   |
+| Budget consumption vs thresholds                        | `scan_budget_status`          | Monitoring    |
+| Cost anomaly alerts + detection rules                   | `scan_anomaly_alerts`         | Monitoring    |
+| Advisor cost recommendations                            | `scan_optimization_advice`    | Advisor       |
+| Billing account hierarchy (EA/MCA/CSP)                  | `scan_billing_structure`      | Account       |
+| Agreement, offer, currency, support plan                | `scan_contract_info`          | Account       |
+| Full FinOps assessment across all modules               | `run_full_scan`               | Assessment    |
+
+## Write / remediation tools
+
+Four tools can change Azure. They are **not** part of `run_full_scan` and never run implicitly. Each is **dry-run by default** and routes through the write-safety gate. Treat them as opt-in actions a user explicitly approves, not scans.
+
+| Action                                                        | Tool                                 | Reversible?                      |
+| ------------------------------------------------------------- | ------------------------------------ | -------------------------------- |
+| Delete one orphaned resource (disk, NIC, public IP, snapshot) | `remediate_delete_orphaned_resource` | No - irreversible                |
+| Deallocate one idle VM                                        | `remediate_deallocate_vm`            | Yes - start the VM to undo       |
+| Enable Azure Hybrid Benefit on one VM                         | `remediate_enable_hybrid_benefit`    | Yes - savings-only               |
+| Create/update a native cost allocation rule (chargeback)      | `set_cost_allocation_rule`           | Yes - update/deactivate the rule |
+
+How to drive them safely:
+
+1. **Always preview first.** Call with `apply=false` (the default). The result shows the exact change and a `ConfirmationToken`.
+2. **Show the user the preview and get explicit approval.** Never set `apply=true` on your own initiative.
+3. **Then apply.** Call again with `apply=true`. In `Enforced` mode you must also pass the `confirmationToken` from the matching preview.
+4. **Writes are opt-in.** If `FINOPS_WRITE_MODE` is unset or `ReadOnly` (the default), every write is blocked - the tool returns a `Blocked` result explaining how to enable writes. Do not tell the user a change was applied unless the result has `Applied = true`.
 
 ## Scope: subscriptionId
 
@@ -68,10 +86,10 @@ Always confirm scope before a broad scan if the tenant is large. If the user say
 
 Three tools depend on inventory data being gathered first. When calling them individually, run the prerequisite first:
 
-| Tool | Run first |
-|------|-----------|
-| `scan_cost_by_tag` | `scan_tag_inventory` |
-| `scan_tag_recommendations` | `scan_tag_inventory` |
+| Tool                          | Run first               |
+| ----------------------------- | ----------------------- |
+| `scan_cost_by_tag`            | `scan_tag_inventory`    |
+| `scan_tag_recommendations`    | `scan_tag_inventory`    |
 | `scan_policy_recommendations` | `scan_policy_inventory` |
 
 `run_full_scan` handles this chaining automatically — it gathers inventory before the dependent modules, so you don't need to sequence calls yourself when running the full assessment.
@@ -107,22 +125,22 @@ When summarizing for the user:
 
 The multitool is the data engine. Once a scan surfaces a finding, hand off to the skill that turns it into a decision, a design, or an artifact. Treat this as the routing hub for the wider FinOps practice:
 
-| After this scan / question | Hand off to | For |
-|----------------------------|-------------|-----|
-| Any spend question (`scan_cost_data`, `scan_resource_costs`, `scan_cost_by_tag`) | `cost-data-source` | Choose the fast hub export vs the live API, warn before slow scans, chunk large tenants |
-| `scan_tag_inventory`, `scan_cost_by_tag` | `cost-allocation` | Showback/chargeback model, shared-cost splitting, tag strategy |
-| `scan_tag_recommendations`, `scan_policy_recommendations` | `azure-policy-governance` | Enforce tags/regions/SKUs via Azure Policy (Bicep/ARM) |
-| `scan_policy_inventory` results | `azure-workbooks-finops` | Live in-portal Governance/Optimization workbooks |
-| `scan_cost_trend`, `scan_resource_costs` | `power-bi-finops` | Dashboards and visuals on cost data |
-| `scan_savings_realized`, `scan_commitment_utilization` | `unit-economics` | ESR, cost-per-unit, coverage/utilization KPIs |
-| `scan_reservation_advice`, `scan_ahb_opportunities` | `rate-optimization-portfolio` | RI/SP/AHB portfolio mix and purchase planning |
-| `scan_budget_status`, `scan_cost_data` | `forecasting-budgeting` | Forecasts, budget design, variance analysis |
-| `scan_anomaly_alerts` | `anomaly-investigation` | Root-cause a spike down to the resource/change |
-| `scan_orphaned_resources`, `scan_idle_vms` | `sustainability-carbon` | Carbon co-benefit of removing waste |
-| Any deep KQL / FinOps hub query | `finops-toolkit` | Kusto analytics on the Hub database |
-| Single-instrument commitment mechanics | `azure-cost-management` | Reservations, savings plans, budgets, exports detail |
-| Cost data looks wrong/incomplete | `focus-data-quality` | FOCUS conformance, completeness, mapping |
-| Any finding the user wants written up | `finops-reporting` | Exec summaries, QBRs, variance narratives |
+| After this scan / question                                                       | Hand off to                   | For                                                                                     |
+| -------------------------------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------- |
+| Any spend question (`scan_cost_data`, `scan_resource_costs`, `scan_cost_by_tag`) | `cost-data-source`            | Choose the fast hub export vs the live API, warn before slow scans, chunk large tenants |
+| `scan_tag_inventory`, `scan_cost_by_tag`                                         | `cost-allocation`             | Showback/chargeback model, shared-cost splitting, tag strategy                          |
+| `scan_tag_recommendations`, `scan_policy_recommendations`                        | `azure-policy-governance`     | Enforce tags/regions/SKUs via Azure Policy (Bicep/ARM)                                  |
+| `scan_policy_inventory` results                                                  | `azure-workbooks-finops`      | Live in-portal Governance/Optimization workbooks                                        |
+| `scan_cost_trend`, `scan_resource_costs`                                         | `power-bi-finops`             | Dashboards and visuals on cost data                                                     |
+| `scan_savings_realized`, `scan_commitment_utilization`                           | `unit-economics`              | ESR, cost-per-unit, coverage/utilization KPIs                                           |
+| `scan_reservation_advice`, `scan_ahb_opportunities`                              | `rate-optimization-portfolio` | RI/SP/AHB portfolio mix and purchase planning                                           |
+| `scan_budget_status`, `scan_cost_data`                                           | `forecasting-budgeting`       | Forecasts, budget design, variance analysis                                             |
+| `scan_anomaly_alerts`                                                            | `anomaly-investigation`       | Root-cause a spike down to the resource/change                                          |
+| `scan_orphaned_resources`, `scan_idle_vms`                                       | `sustainability-carbon`       | Carbon co-benefit of removing waste                                                     |
+| Any deep KQL / FinOps hub query                                                  | `finops-toolkit`              | Kusto analytics on the Hub database                                                     |
+| Single-instrument commitment mechanics                                           | `azure-cost-management`       | Reservations, savings plans, budgets, exports detail                                    |
+| Cost data looks wrong/incomplete                                                 | `focus-data-quality`          | FOCUS conformance, completeness, mapping                                                |
+| Any finding the user wants written up                                            | `finops-reporting`            | Exec summaries, QBRs, variance narratives                                               |
 
 Run the scan first to ground the numbers, then route to the matching skill — don't answer governance, allocation, or reporting questions abstractly when a scan can provide the real state.
 
@@ -130,4 +148,4 @@ Run the scan first to ground the numbers, then route to the matching skill — d
 
 - The `finops-multitool` MCP server must be running. It's defined in `.vscode/mcp.json` and started via the MCP server list in VS Code.
 - An authenticated Azure session is required (`Connect-AzAccount`). Tools fail or hang without it.
-- Access is read-only (Reader). The skill never deploys, modifies, or deletes anything — recommendations are advisory.
+- The scan tools are read-only (Reader) and advisory. Four write/remediation tools can modify Azure, but only when an operator opts in via `FINOPS_WRITE_MODE` (default `ReadOnly` blocks all writes) and only after an explicit `apply=true` on the specific previewed change.

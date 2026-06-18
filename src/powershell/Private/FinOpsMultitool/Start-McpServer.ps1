@@ -102,6 +102,7 @@ $toolDefinitions = @(
         name        = 'remediate_delete_orphaned_resource'
         description = "WRITE/MUTATING. Delete ONE orphaned resource found by scan_orphaned_resources. Only orphan-eligible types can ever be deleted: unattached managed disks (Microsoft.Compute/disks), dangling public IPs (Microsoft.Network/publicIPAddresses), unattached NICs (Microsoft.Network/networkInterfaces), and disk snapshots (Microsoft.Compute/snapshots) - any other type is refused. It re-reads the resource and re-verifies it is still orphaned before acting (it REFUSES if the resource is now in use). DRY-RUN by default: without apply=true it returns a preview (the exact DELETE URI plus orphan evidence) and deletes NOTHING. Deletion is IRREVERSIBLE. ALWAYS show the user the preview and obtain explicit confirmation, THEN call again with apply=true to actually delete. Requires a delete-capable role (e.g. Contributor) on the resource scope."
         fn          = 'Remove-OrphanedResource'
+        isWrite     = $true
         category    = 'Optimization'
         inputSchema = @{
             type       = 'object'
@@ -117,6 +118,7 @@ $toolDefinitions = @(
         name        = 'remediate_enable_hybrid_benefit'
         description = "WRITE/MUTATING (REVERSIBLE, savings-only). Enable Azure Hybrid Benefit on ONE VM found by scan_ahb_opportunities, applying existing Windows Server / SQL licenses to cut compute licensing cost up to ~85%. This is reversible (set licenseType back to None) and only reduces cost. Windows VMs are auto-detected (licenseType Windows_Server); for Linux you must pass an explicit RHEL_BYOS/SLES_BYOS licenseType. No-ops if AHB is already on. DRY-RUN by default: without apply=true it previews the PATCH and changes nothing. In Interactive mode apply=true works directly; in Enforced mode it also requires the confirmationToken from the preview."
         fn          = 'Enable-HybridBenefit'
+        isWrite     = $true
         category    = 'Optimization'
         inputSchema = @{
             type       = 'object'
@@ -133,6 +135,7 @@ $toolDefinitions = @(
         name        = 'remediate_deallocate_vm'
         description = "WRITE/MUTATING (REVERSIBLE). Deallocate (stop) ONE idle VM found by scan_idle_vms so it stops billing for compute. Deallocate is reversible - the VM can be started again and keeps its disks and configuration; it is NOT deleted. No-ops if the VM is already deallocated. DRY-RUN by default: without apply=true it previews the deallocate and changes nothing. In Interactive mode apply=true works directly; in Enforced mode it also requires the confirmationToken from the preview."
         fn          = 'Stop-IdleVm'
+        isWrite     = $true
         category    = 'Optimization'
         inputSchema = @{
             type       = 'object'
@@ -424,6 +427,7 @@ $toolDefinitions = @(
         name        = 'set_cost_allocation_rule'
         description = "WRITE/MUTATING. Create or update a NATIVE Azure Cost Management cost allocation rule so chargeback reflects a shared-cost split (typically the output of scan_allocate_shared_cost). This CHANGES how cost is charged back across subscriptions and can affect internal billing. It is DRY-RUN by default: without apply=true it returns a preview (the exact PUT URI and request body) and writes NOTHING. ALWAYS show the user the preview and obtain explicit confirmation, THEN call again with apply=true to actually write. Requires an EA enrollment or MCA billing account id and Cost Management Contributor on it. Source is one hub resource group (sourceResourceGroup) or subscription (sourceSubscriptionId); targets are the spoke subscriptions with percentages (auto-normalized to sum 100)."
         fn          = 'Set-CostAllocationRule'
+        isWrite     = $true
         category    = 'Cost Analysis'
         inputSchema = @{
             type       = 'object'
@@ -437,6 +441,7 @@ $toolDefinitions = @(
                 status               = @{ type = 'string'; enum = @('Active', 'NotActive'); description = "Rule status. 'Active' (default) impacts cost allocation; 'NotActive' saves it without applying." }
                 description          = @{ type = 'string'; description = 'Optional rule description.' }
                 apply                = @{ type = 'boolean'; description = 'SAFETY GATE. Default false = dry-run preview (writes nothing). Set true ONLY after the user has reviewed the preview and explicitly approved, to create/update the rule in Azure.' }
+                confirmationToken    = @{ type = 'string'; description = 'Token returned by the dry-run preview. OPTIONAL in Interactive mode; REQUIRED in Enforced (autonomous-safe) mode, where apply=true is rejected without the exact token from the matching preview. Single-use and short-lived.' }
             }
             required   = @('billingAccountId', 'ruleName', 'targets')
         }
@@ -1249,6 +1254,12 @@ function Invoke-McpTool {
     if ($cmdInfo.Parameters.ContainsKey('Apply') -and $Arguments.apply -eq $true) {
         $params['Apply'] = $true
     }
+    # Confirmation token for gated write tools that flow through the generic
+    # path (e.g. Set-CostAllocationRule). Required in Enforced mode; the
+    # write-safety gate validates it against the previewed change.
+    if ($cmdInfo.Parameters.ContainsKey('ConfirmationToken') -and $Arguments.confirmationToken) {
+        $params['ConfirmationToken'] = [string]$Arguments.confirmationToken
+    }
     if ($cmdInfo.Parameters.ContainsKey('ProbeAccess') -and $null -ne $Arguments.probeAccess) {
         $params['ProbeAccess'] = [bool]$Arguments.probeAccess
     }
@@ -1369,8 +1380,12 @@ function Invoke-FullScan {
     $subs = Resolve-Subscriptions -SubscriptionId $SubscriptionId
     $tenantId = (Get-AzContext).Tenant.Id
 
-    # Determine which modules to run
-    $modulesToRun = $toolDefinitions | Where-Object { $_.fn -ne '_full_scan' }
+    # Determine which modules to run. A full scan is a READ-ONLY assessment:
+    # exclude the write/remediation tools (isWrite) and the non-scan meta
+    # helpers (underscore-prefixed fns like _full_scan, _get_context,
+    # _generate_powerbi) so the loop only runs diagnostic scan modules and
+    # never invokes remediation or cost-allocation writes.
+    $modulesToRun = $toolDefinitions | Where-Object { $_.fn -notlike '_*' -and -not $_.isWrite }
     if ($ModuleFilter -and $ModuleFilter.Count -gt 0) {
         $modulesToRun = $modulesToRun | Where-Object { $_.name -in $ModuleFilter }
     }
@@ -1527,17 +1542,17 @@ function Send-JsonRpc {
 }
 
 function Send-Result {
-    param([int]$Id, [object]$Result)
+    param([object]$Id, [object]$Result)
     Send-JsonRpc @{ jsonrpc = '2.0'; id = $Id; result = $Result }
 }
 
 function Send-Error {
-    param([int]$Id, [int]$Code, [string]$Message)
+    param([object]$Id, [int]$Code, [string]$Message)
     Send-JsonRpc @{ jsonrpc = '2.0'; id = $Id; error = @{ code = $Code; message = $Message } }
 }
 
 function Handle-Initialize {
-    param([int]$Id)
+    param([object]$Id)
     Send-Result -Id $Id -Result @{
         protocolVersion = $MCP_VERSION
         capabilities    = @{
@@ -1553,7 +1568,7 @@ function Handle-Initialize {
 }
 
 function Handle-ToolsList {
-    param([int]$Id)
+    param([object]$Id)
     $tools = $toolDefinitions | ForEach-Object {
         @{
             name        = $_.name
@@ -1565,7 +1580,7 @@ function Handle-ToolsList {
 }
 
 function Handle-ToolsCall {
-    param([int]$Id, [hashtable]$Params)
+    param([object]$Id, [hashtable]$Params)
     $toolName = $Params.name
     $arguments = if ($Params.arguments) { $Params.arguments } else { @{} }
 
@@ -1610,7 +1625,7 @@ function Handle-ToolsCall {
 }
 
 function Handle-ResourcesList {
-    param([int]$Id)
+    param([object]$Id)
     $resources = $resourceDefinitions | ForEach-Object {
         @{
             uri         = $_.uri
@@ -1623,7 +1638,7 @@ function Handle-ResourcesList {
 }
 
 function Handle-ResourcesRead {
-    param([int]$Id, [hashtable]$Params)
+    param([object]$Id, [hashtable]$Params)
     $uri = $Params.uri
 
     switch ($uri) {
@@ -1681,19 +1696,32 @@ try {
         $id = $msg.id
         $params = if ($msg.params) { $msg.params } else { @{} }
 
-        switch ($method) {
-            'initialize' { Handle-Initialize -Id $id }
-            'initialized' { <# notification, no response #> }
-            'tools/list' { Handle-ToolsList -Id $id }
-            'tools/call' { Handle-ToolsCall -Id $id -Params $params }
-            'resources/list' { Handle-ResourcesList -Id $id }
-            'resources/read' { Handle-ResourcesRead -Id $id -Params $params }
-            'notifications/initialized' { <# notification, no response #> }
-            'ping' { Send-Result -Id $id -Result @{} }
-            default {
-                if ($null -ne $id) {
-                    Send-Error -Id $id -Code -32601 -Message "Method not found: $method"
+        # Dispatch inside its own try/catch so a single bad request (e.g. a
+        # handler throwing) can NEVER abandon the read loop and exit the
+        # process. Requests (id present) get a JSON-RPC internal error;
+        # notifications (no id) are swallowed.
+        try {
+            switch ($method) {
+                'initialize' { Handle-Initialize -Id $id }
+                'initialized' { <# notification, no response #> }
+                'tools/list' { Handle-ToolsList -Id $id }
+                'tools/call' { Handle-ToolsCall -Id $id -Params $params }
+                'resources/list' { Handle-ResourcesList -Id $id }
+                'resources/read' { Handle-ResourcesRead -Id $id -Params $params }
+                'notifications/initialized' { <# notification, no response #> }
+                'ping' { Send-Result -Id $id -Result @{} }
+                default {
+                    if ($null -ne $id) {
+                        Send-Error -Id $id -Code -32601 -Message "Method not found: $method"
+                    }
                 }
+            }
+        }
+        catch {
+            [Console]::Error.WriteLine("Handler error for method '$method': $($_.Exception.Message)")
+            if ($null -ne $id) {
+                try { Send-Error -Id $id -Code -32603 -Message "Internal error handling '$method': $($_.Exception.Message)" }
+                catch { [Console]::Error.WriteLine("Failed to send error response: $($_.Exception.Message)") }
             }
         }
     }

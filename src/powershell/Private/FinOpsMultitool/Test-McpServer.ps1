@@ -136,7 +136,7 @@ try {
     # -----------------------------------------------------------------
     $r = Invoke-Rpc -Proc $proc -Json '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
     $toolCount = @($r.result.tools).Count
-    Write-TestResult "tools/list returns 21 tools" ($toolCount -eq 21) "got: $toolCount"
+    Write-TestResult "tools/list returns 40 tools" ($toolCount -eq 40) "got: $toolCount"
     $hasSchema = @($r.result.tools | Where-Object { $_.inputSchema.type -eq 'object' }).Count -eq $toolCount
     Write-TestResult 'every tool has an object inputSchema' $hasSchema
 
@@ -174,6 +174,13 @@ try {
     Invoke-Rpc -Proc $proc -Json '{ this is not valid json' -NoResponse | Out-Null
     $r = Invoke-Rpc -Proc $proc -Json '{"jsonrpc":"2.0","id":9,"method":"ping"}'
     Write-TestResult 'server survives malformed JSON and answers ping' ($null -ne $r.result)
+
+    # spec-legal STRING id must be echoed back verbatim (not coerced to int) and
+    # must not crash the read loop. Regression guard for the [int]$Id id bug.
+    $r = Invoke-Rpc -Proc $proc -Json '{"jsonrpc":"2.0","id":"abc-123","method":"ping"}'
+    Write-TestResult 'string JSON-RPC id is echoed back verbatim' ($r.id -eq 'abc-123') "got: $($r.id)"
+    $r = Invoke-Rpc -Proc $proc -Json '{"jsonrpc":"2.0","id":11,"method":"ping"}'
+    Write-TestResult 'server survives a string-id request and answers the next ping' ($null -ne $r.result)
 
     # -----------------------------------------------------------------
     # 5. live tool call (requires Azure)

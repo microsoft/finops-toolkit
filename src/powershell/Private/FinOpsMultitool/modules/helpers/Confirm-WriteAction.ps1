@@ -7,15 +7,18 @@
 #          autonomous agent is acting unattended.
 #
 # Description:
-# Safety is OPTIONAL and configurable via FINOPS_WRITE_MODE:
-#   Interactive (default) - platform-agnostic AI chat. apply=true is
+# Safety is OPTIONAL and configurable via FINOPS_WRITE_MODE. Writes are
+# OPT-IN: the server is read-only out of the box and a mutating tool only
+# acts after an operator deliberately enables a write mode.
+#   ReadOnly (default)    - all writes blocked. Set FINOPS_WRITE_MODE to
+#       Interactive or Enforced to enable remediation.
+#   Interactive           - platform-agnostic AI chat. apply=true is
 #       honored directly (the human/AI client showed the preview). A
 #       confirmation token is still issued, but NOT required. Low friction.
 #   Enforced              - autonomous-safe. apply=true is REJECTED unless
 #       it carries the exact confirmation token returned by the matching
 #       dry-run. An agent cannot skip the preview or apply a different /
 #       larger change than was previewed.
-#   ReadOnly              - all writes blocked.
 #
 # Guardrails (apply in BOTH Interactive and Enforced, all configurable):
 #   - Protected tag keys/values (e.g. do-not-delete) - never mutate
@@ -41,6 +44,25 @@
 $script:FinOpsPendingConfirmations = @{}
 $script:FinOpsWriteHistory = New-Object System.Collections.ArrayList
 
+function Get-FinOpsDefaultAuditLogPath {
+    # Durable, per-user audit location that survives reboots - unlike %TEMP%,
+    # which the user (or OS cleanup) can clear, weakening an append-only trail.
+    # Falls back to the temp dir only if the profile path cannot be resolved or
+    # created. Override entirely with FINOPS_AUDIT_LOG.
+    $base = [Environment]::GetFolderPath('LocalApplicationData')
+    if ([string]::IsNullOrWhiteSpace($base)) { $base = [System.IO.Path]::GetTempPath() }
+    $dir = Join-Path $base 'FinOpsMultitool'
+    try {
+        if (-not (Test-Path -LiteralPath $dir)) {
+            New-Item -ItemType Directory -Path $dir -Force -ErrorAction Stop | Out-Null
+        }
+    }
+    catch {
+        $dir = [System.IO.Path]::GetTempPath()
+    }
+    return (Join-Path $dir 'finops-multitool-audit.log')
+}
+
 function Initialize-FinOpsWritePolicy {
     $envList = {
         param($v)
@@ -49,18 +71,18 @@ function Initialize-FinOpsWritePolicy {
     }
 
     $mode = $env:FINOPS_WRITE_MODE
-    if ($mode -notin @('Interactive', 'Enforced', 'ReadOnly')) { $mode = 'Interactive' }
+    if ($mode -notin @('Interactive', 'Enforced', 'ReadOnly')) { $mode = 'ReadOnly' }
 
     $script:FinOpsWritePolicy = [ordered]@{
-        Mode                  = $mode
-        MaxEstimatedImpact    = [double]($env:FINOPS_WRITE_MAX_IMPACT    | ForEach-Object { if ($_) { $_ } else { 0 } })
-        MaxWritesPerWindow    = [int](   $env:FINOPS_WRITE_MAX_PER_WINDOW | ForEach-Object { if ($_) { $_ } else { 0 } })
-        WindowMinutes         = [int](   $env:FINOPS_WRITE_WINDOW_MIN     | ForEach-Object { if ($_) { $_ } else { 60 } })
-        ProtectedTagKeys      = & $envList ($env:FINOPS_PROTECTED_TAGS)
+        Mode                    = $mode
+        MaxEstimatedImpact      = [double]($env:FINOPS_WRITE_MAX_IMPACT    | ForEach-Object { if ($_) { $_ } else { 0 } })
+        MaxWritesPerWindow      = [int](   $env:FINOPS_WRITE_MAX_PER_WINDOW | ForEach-Object { if ($_) { $_ } else { 0 } })
+        WindowMinutes           = [int](   $env:FINOPS_WRITE_WINDOW_MIN     | ForEach-Object { if ($_) { $_ } else { 60 } })
+        ProtectedTagKeys        = & $envList ($env:FINOPS_PROTECTED_TAGS)
         ProtectedResourceGroups = & $envList ($env:FINOPS_PROTECTED_RGS)
         ProtectedSubscriptions  = & $envList ($env:FINOPS_PROTECTED_SUBS)
-        TokenTtlSeconds       = 300
-        AuditLogPath          = if ($env:FINOPS_AUDIT_LOG) { $env:FINOPS_AUDIT_LOG } else { Join-Path ([System.IO.Path]::GetTempPath()) 'finops-multitool-audit.log' }
+        TokenTtlSeconds         = 300
+        AuditLogPath            = if ($env:FINOPS_AUDIT_LOG) { $env:FINOPS_AUDIT_LOG } else { Get-FinOpsDefaultAuditLogPath }
     }
     # Built-in safety defaults so a fresh deploy is never wide open on the
     # most dangerous classes even before an operator tunes the env vars.
@@ -77,6 +99,7 @@ function Get-FinOpsWritePolicy {
 
 function Set-FinOpsWritePolicy {
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Updates only the in-process write-policy hashtable; it does not change system or Azure state.')]
     param([hashtable]$Settings)
     if (-not $script:FinOpsWritePolicy) { Initialize-FinOpsWritePolicy | Out-Null }
     foreach ($k in $Settings.Keys) {
@@ -107,6 +130,7 @@ function Get-WriteFingerprint {
 
 function New-WriteConfirmation {
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Issues an in-process, short-lived confirmation token; it does not change system or Azure state.')]
     param([Parameter(Mandatory)][string]$Fingerprint)
     $policy = Get-FinOpsWritePolicy
     $token = [guid]::NewGuid().ToString('N')
@@ -226,7 +250,7 @@ function Resolve-WriteDecision {
     # Read-only server: nothing writes, ever.
     if ($policy.Mode -eq 'ReadOnly') {
         $result.Decision = 'Blocked'
-        $result.Reason = 'Server is in ReadOnly write mode (FINOPS_WRITE_MODE=ReadOnly). No mutations are permitted.'
+        $result.Reason = 'Server is in ReadOnly write mode (FINOPS_WRITE_MODE=ReadOnly, the default). No mutations are permitted. To enable remediation, set FINOPS_WRITE_MODE=Interactive (human-in-the-loop) or =Enforced (autonomous-safe; apply=true also requires the confirmation token from a dry-run).'
         Write-FinOpsAudit -Entry @{ event = 'blocked'; tool = $ToolName; operation = $Operation; resourceId = $ResourceId; reason = $result.Reason }
         return [PSCustomObject]$result
     }

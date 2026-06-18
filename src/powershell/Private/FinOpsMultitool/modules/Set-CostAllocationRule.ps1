@@ -109,6 +109,8 @@ function ConvertTo-AllocationPercentages {
 }
 
 function Set-CostAllocationRule {
+    [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Writes are gated by the explicit -Apply switch and routed through Resolve-WriteDecision (dry-run by default, mode/guardrail/confirmation-token enforcement, and audit logging).')]
     param(
         [Parameter(Mandatory)]
         [string]$BillingAccountId,
@@ -137,7 +139,10 @@ function Set-CostAllocationRule {
         [string]$Description,
 
         [Parameter()]
-        [switch]$Apply
+        [switch]$Apply,
+
+        [Parameter()]
+        [string]$ConfirmationToken
     )
 
     $apiVersion = '2025-03-01'
@@ -213,27 +218,66 @@ function Set-CostAllocationRule {
             [PSCustomObject]@{ Name = $_.name; Percentage = $_.percentage }
         })
 
-    # ---- DRY RUN (default): show what WOULD be written, mutate nothing ----
-    if (-not $Apply) {
+    # ---- Route through the configurable write-safety gate ----
+    # A cost allocation rule lives at billing-account scope (no sub/RG). The
+    # fingerprint binds the EXACT rule body so Enforced mode cannot apply a
+    # different source/target split than was previewed. Reallocating cost is
+    # reversible (update/deactivate/delete the rule) so impact is left at 0.
+    $ruleResourceId = "/providers/Microsoft.Billing/billingAccounts/$BillingAccountId/providers/Microsoft.CostManagement/costAllocationRules/$RuleName"
+    $fpExtra = @{
+        billingAccountId = $BillingAccountId
+        status           = $Status
+        source           = ($source.name + ':' + ((@($source.values) | Sort-Object) -join ','))
+        targetDimension  = $TargetDimension
+        targets          = ((@($targetValues | ForEach-Object { "$($_.name)=$($_.percentage)" }) | Sort-Object) -join ';')
+    }
+    $decision = Resolve-WriteDecision -ToolName 'set_cost_allocation_rule' -Operation 'CreateUpdateCostAllocationRule' `
+        -ResourceId $ruleResourceId -EstimatedMonthlyImpact 0 -Reversible $true `
+        -Apply:$Apply -ConfirmationToken $ConfirmationToken -FingerprintExtra $fpExtra
+
+    # ---- BLOCKED by mode/guardrails/enforcement ----
+    if ($decision.Decision -eq 'Blocked') {
         return [PSCustomObject]@{
-            HasData          = $true
-            Mode             = 'DryRun'
-            Applied          = $false
-            Warning          = 'PREVIEW ONLY - nothing was written to Azure. This rule changes chargeback/cost allocation. Show this preview to the user and get explicit approval, then re-run with apply=true to write it.'
-            Method           = 'PUT'
-            Uri              = "https://management.azure.com$path"
-            BillingAccountId = $BillingAccountId
-            RuleName         = $RuleName
-            Status           = $Status
-            Source           = [PSCustomObject]@{ Dimension = $source.name; Values = @($source.values) }
-            Targets          = $previewTargets
-            PercentageTotal  = $pctTotal
-            RequestBody      = $bodyObj
-            NextStep         = 'Re-run set_cost_allocation_rule with apply=true (after user confirmation) to create/update this rule.'
+            HasData             = $false
+            Mode                = 'Blocked'
+            Applied             = $false
+            Error               = $decision.Reason
+            GuardrailViolations = @($decision.GuardrailViolations)
+            WriteMode           = $decision.Mode
+            BillingAccountId    = $BillingAccountId
+            RuleName            = $RuleName
         }
     }
 
-    # ---- APPLY: actually create/update the rule ----
+    # ---- DRY RUN (default): show what WOULD be written, mutate nothing ----
+    if ($decision.Decision -eq 'Preview') {
+        return [PSCustomObject]@{
+            HasData           = $true
+            Mode              = 'DryRun'
+            Applied           = $false
+            WriteMode         = $decision.Mode
+            Warning           = "PREVIEW ONLY - nothing was written to Azure. This rule changes chargeback/cost allocation. Show this preview to the user and get explicit approval, then re-run with apply=true to write it. $($decision.Reason)"
+            Method            = 'PUT'
+            Uri               = "https://management.azure.com$path"
+            BillingAccountId  = $BillingAccountId
+            RuleName          = $RuleName
+            Status            = $Status
+            Source            = [PSCustomObject]@{ Dimension = $source.name; Values = @($source.values) }
+            Targets           = $previewTargets
+            PercentageTotal   = $pctTotal
+            RequestBody       = $bodyObj
+            ConfirmationToken = $decision.ConfirmationToken
+            RequiresToken     = $decision.RequiresToken
+            NextStep          = if ($decision.RequiresToken) {
+                'Enforced mode: re-run set_cost_allocation_rule with apply=true AND confirmationToken=<the ConfirmationToken above>, after user confirmation.'
+            }
+            else {
+                'Re-run set_cost_allocation_rule with apply=true (after user confirmation) to create/update this rule.'
+            }
+        }
+    }
+
+    # ---- APPLY (decision = Proceed): actually create/update the rule ----
     Write-Host "  Writing cost allocation rule '$RuleName' on billing account '$BillingAccountId'..." -ForegroundColor Yellow
     $resp = Invoke-AzRestMethodWithRetry -Path $path -Method 'PUT' -Payload $bodyJson
 
@@ -256,6 +300,7 @@ function Set-CostAllocationRule {
         HasData          = $true
         Mode             = 'Apply'
         Applied          = $ok
+        WriteMode        = $decision.Mode
         StatusCode       = $status
         Warning          = if ($ok) { 'Cost allocation rule written. It changes how shared cost is charged back; allow time for Cost Management to reprocess.' } else { $null }
         Error            = $errMsg

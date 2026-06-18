@@ -19,14 +19,14 @@ InModuleScope 'FinOpsToolkit' {
         }
 
         Context 'File dependencies' {
-            It 'Should have Multitool implementation files' {
-                $privatePath = Join-Path -Path $PSScriptRoot -ChildPath '../../Private/FinOpsMultitool/Start-FinOpsMultitool.ps1'
-                Test-Path -Path $privatePath | Should -BeTrue
+            It 'Should have the Multitool TUI launcher' {
+                $tuiPath = Join-Path -Path $PSScriptRoot -ChildPath '../../Private/FinOpsMultitool/Invoke-FinOpsMultitool.ps1'
+                Test-Path -Path $tuiPath | Should -BeTrue
             }
 
-            It 'Should have GUI XAML file' {
-                $xamlPath = Join-Path -Path $PSScriptRoot -ChildPath '../../Private/FinOpsMultitool/gui/MainWindow.xaml'
-                Test-Path -Path $xamlPath | Should -BeTrue
+            It 'Should have the Multitool module loader' {
+                $psm1Path = Join-Path -Path $PSScriptRoot -ChildPath '../../Private/FinOpsMultitool/FinOpsMultitool.psm1'
+                Test-Path -Path $psm1Path | Should -BeTrue
             }
 
             It 'Should have all scanner module files' {
@@ -36,17 +36,15 @@ InModuleScope 'FinOpsToolkit' {
             }
         }
 
-        Context 'Non-Windows behavior' {
-            It 'Should write an error on non-Windows platforms' {
-                # Simulate non-Windows by mocking the platform check
-                if ($IsWindows -eq $false -or $PSVersionTable.PSEdition -ne 'Core')
-                {
-                    Set-ItResult -Skipped -Because 'Test only applicable on non-Windows PowerShell Core'
-                    return
-                }
+        Context 'Parameters' {
+            It 'Should expose an optional SubscriptionId parameter' {
+                $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
+                $cmd.Parameters.ContainsKey('SubscriptionId') | Should -BeTrue
+            }
 
-                # On actual non-Windows, the command should emit an error
-                { Start-FinOpsMultitool -ErrorAction Stop } | Should -Throw '*requires Windows*'
+            It 'Should expose an optional OutputPath parameter' {
+                $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
+                $cmd.Parameters.ContainsKey('OutputPath') | Should -BeTrue
             }
         }
     }

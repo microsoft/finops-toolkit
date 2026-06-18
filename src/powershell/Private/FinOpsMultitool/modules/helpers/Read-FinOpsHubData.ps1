@@ -70,6 +70,23 @@ function Install-ParquetReader {
         if (-not (Test-Path $nugetExe)) {
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
             Invoke-WebRequest -Uri 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe' -OutFile $nugetExe -UseBasicParsing
+
+            # Verify the downloaded nuget.exe is Authenticode-signed by Microsoft
+            # and the signature is Valid BEFORE executing it. The download URL is
+            # mutable ('/latest/'), so a tampered or unsigned binary (hijacked
+            # endpoint, MITM past TLS, cache poisoning) is deleted and refused
+            # rather than run. On non-Windows, Authenticode is not applicable and
+            # nuget.exe is not executed, so the check is skipped.
+            $isWin = if ($null -ne $IsWindows) { $IsWindows } else { $true }
+            if ($isWin) {
+                $sig = Get-AuthenticodeSignature -FilePath $nugetExe
+                $signerSubject = if ($sig.SignerCertificate) { $sig.SignerCertificate.Subject } else { '<unsigned>' }
+                $signerOk = $sig.SignerCertificate -and ($signerSubject -match 'O=Microsoft Corporation')
+                if ($sig.Status -ne 'Valid' -or -not $signerOk) {
+                    Remove-Item $nugetExe -Force -ErrorAction SilentlyContinue
+                    throw "Downloaded nuget.exe failed Authenticode validation (status: $($sig.Status); signer: $signerSubject). Refusing to execute it."
+                }
+            }
         }
 
         # Use nuget.exe to resolve ALL transitive dependencies

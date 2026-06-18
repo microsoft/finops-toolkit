@@ -24,6 +24,7 @@
 
 function Stop-IdleVm {
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Writes are gated by the explicit -Apply switch and routed through Resolve-WriteDecision (dry-run by default, mode/guardrail/confirmation-token enforcement, and audit logging).')]
     param(
         [Parameter(Mandatory)]
         [string]$ResourceId,
