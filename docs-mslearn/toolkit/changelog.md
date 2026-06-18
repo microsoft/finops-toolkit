@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 05/26/2026
+ms.date: 06/18/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -47,6 +47,8 @@ _Released June 2026_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v15
 
+- **Added**
+  - Added a [Run hubs locally](hubs/run-hubs-locally.md) guide to stand up a FinOps hub in a local Kusto emulator container and ingest cost data using the same KQL, transforms, and open data as a deployed hub.
 - **Changed**
   - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
 - **Fixed**

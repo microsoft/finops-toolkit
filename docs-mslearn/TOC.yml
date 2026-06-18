@@ -128,6 +128,8 @@
           href: toolkit/hubs/finops-hubs-overview.md
         - name: Create or upgrade hubs
           href: toolkit/hubs/deploy.md
+        - name: Run hubs locally
+          href: toolkit/hubs/run-hubs-locally.md
         - name: Configure private networking
           href: toolkit/hubs/private-networking.md
         - name: Configure scopes
