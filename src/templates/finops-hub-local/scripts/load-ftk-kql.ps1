@@ -76,7 +76,6 @@ if (Test-Path $settingsFile) {
     }
     catch { <# silently fall back to the 3650 default above #> }
 }
-$script:TopLevelCommandRegex = [regex]'^\.[a-z]'
 $script:IdempotentOkTypes    = @('Kusto.Common.Svc.Exceptions.EntityNameAlreadyExistsException')
 
 # --------------------------------------------------------------------------- #
@@ -140,46 +139,6 @@ function Build-KqlBundle {
 function Invoke-SubstMacros {
     param([Parameter(Mandatory)] [string] $Text)
     return $Text.Replace('$$rawRetentionInDays$$', $script:RawRetentionDays)
-}
-
-# --------------------------------------------------------------------------- #
-# KQL command splitter
-# --------------------------------------------------------------------------- #
-function Split-KqlCommands {
-    param([Parameter(Mandatory)] [string] $ScriptText)
-    $lines = $ScriptText -split "(?<=`n)", 0
-    if ($lines.Count -gt 0 -and $lines[-1] -eq '') { $lines = $lines[0..($lines.Count - 2)] }
-
-    $blocks = [System.Collections.Generic.List[object]]::new()
-    $current = [System.Collections.Generic.List[string]]::new()
-    foreach ($line in $lines) {
-        if ($script:TopLevelCommandRegex.IsMatch($line)) {
-            if ($current.Count -gt 0) { [void]$blocks.Add([string[]]$current.ToArray()) }
-            $current = [System.Collections.Generic.List[string]]::new()
-            [void]$current.Add($line)
-        }
-        else { [void]$current.Add($line) }
-    }
-    if ($current.Count -gt 0) { [void]$blocks.Add([string[]]$current.ToArray()) }
-
-    $cleaned = [System.Collections.Generic.List[string]]::new()
-    foreach ($blockObject in $blocks) {
-        $block = [System.Collections.Generic.List[string]]::new()
-        foreach ($entry in [string[]]$blockObject) { [void]$block.Add($entry) }
-        $hasCommand = $false
-        foreach ($entry in $block) {
-            if ($script:TopLevelCommandRegex.IsMatch($entry)) { $hasCommand = $true; break }
-        }
-        if (-not $hasCommand) { continue }
-        while ($block.Count -gt 0) {
-            $last = $block[$block.Count - 1]
-            if ($last.Trim() -eq '' -or $last.TrimStart().StartsWith('//')) { $block.RemoveAt($block.Count - 1) }
-            else { break }
-        }
-        $text = ([string]::Concat([string[]]$block.ToArray())).TrimEnd()
-        if ($text) { [void]$cleaned.Add($text) }
-    }
-    return [string[]]$cleaned.ToArray()
 }
 
 # --------------------------------------------------------------------------- #
@@ -255,16 +214,6 @@ function New-StepReport {
     }
 }
 
-function Get-FirstCommandLine {
-    param([Parameter(Mandatory)] [string] $CommandText)
-    foreach ($line in ($CommandText -split "`n")) {
-        if ($script:TopLevelCommandRegex.IsMatch($line)) { return $line.Trim() }
-    }
-    $lines = $CommandText -split "`n"
-    if ($lines.Count -gt 0) { return $lines[0] }
-    return ''
-}
-
 function Invoke-BundleLoad {
     param(
         [Parameter(Mandatory)] [string] $Label,
@@ -272,38 +221,41 @@ function Invoke-BundleLoad {
         [Parameter(Mandatory)] [string] $DatabaseName,
         [bool] $IsDryRun = $false
     )
-    $report   = New-StepReport -Label $Label
-    $commands = @(Split-KqlCommands -ScriptText $BundleText)
-    $report.Total = $commands.Count
+    $report = New-StepReport -Label $Label
     Write-Host ""
-    Write-Host "=== $Label [$DatabaseName] ($($report.Total) commands) ==="
-    for ($i = 0; $i -lt $commands.Count; $i++) {
-        $commandText = $commands[$i]
-        $firstLine   = Get-FirstCommandLine -CommandText $commandText
-        $preview     = if ($firstLine.Length -gt 110) { $firstLine.Substring(0, 110) } else { $firstLine }
-        if ($IsDryRun) {
-            Write-Host ('  [{0,3}] dry   {1}' -f ($i + 1), $preview)
-            continue
-        }
-        $result = Post-Kql -Csl $commandText -DatabaseName $DatabaseName
-        if ($result.Status -ge 200 -and $result.Status -lt 300) {
+    Write-Host "=== $Label [$DatabaseName] ==="
+    if ($IsDryRun) {
+        Write-Host "  dry   would submit the bundle as one '.execute database script' command"
+        return $report
+    }
+    # The whole bundle is submitted as a single database script. ContinueOnErrors=true
+    # makes the engine attempt every statement and return a per-statement result table
+    # (OperationId, CommandType, CommandText, Result, Reason) -- so we keep per-statement
+    # diagnostics without splitting the bundle ourselves.
+    $databaseScript = ".execute database script with (ContinueOnErrors=true)`n<|`n$BundleText"
+    $result = Post-Kql -Csl $databaseScript -DatabaseName $DatabaseName
+    if ($result.Status -lt 200 -or $result.Status -ge 300) {
+        $parsed = Parse-KustoError -Body $result.Body
+        $report.Total = 1
+        [void]$report.Failed.Add([pscustomobject]@{ Command = $Label; Error = "HTTP $($result.Status): [$($parsed[0])] $($parsed[1])" })
+        Write-Host "  FAIL  batch submission failed: HTTP $($result.Status) [$($parsed[0])] $($parsed[1])"
+        return $report
+    }
+    $rows = @()
+    try { $rows = @((ConvertFrom-Json $result.Body).Tables[0].Rows) } catch { }
+    $report.Total = $rows.Count
+    foreach ($row in $rows) {
+        if ($row[3] -eq 'Completed') {
             $report.Ok++
-            Write-Host ('  [{0,3}] OK    {1}' -f ($i + 1), $preview)
-        }
-        elseif (Test-IdempotentSuccess -Body $result.Body) {
-            $report.IdempotentOk++
-            $parsed = Parse-KustoError -Body $result.Body
-            Write-Host ('  [{0,3}] OK*   {1}  -- {2}' -f ($i + 1), $preview, $parsed[1])
         }
         else {
-            $parsed = Parse-KustoError -Body $result.Body
-            $short  = "[$($parsed[0])] $($parsed[1])"
-            if ($short.Length -gt 400) { $short = $short.Substring(0, 400) }
-            [void]$report.Failed.Add([pscustomobject]@{ Command = $preview; Error = "HTTP $($result.Status): $short" })
-            Write-Host ('  [{0,3}] FAIL  {1}' -f ($i + 1), $preview)
-            Write-Host "        HTTP $($result.Status): $short"
+            $commandText = if ($row[2]) { ($row[2] -split "`n" | Where-Object { $_.Trim() } | Select-Object -First 1) } else { $row[1] }
+            if ($commandText.Length -gt 110) { $commandText = $commandText.Substring(0, 110) }
+            [void]$report.Failed.Add([pscustomobject]@{ Command = $commandText; Error = $row[4] })
         }
     }
+    Write-Host "  loaded $($report.Total) statements: $($report.Ok) completed, $($report.Failed.Count) failed"
+    foreach ($failure in $report.Failed) { Write-Host "  FAIL  $($failure.Command) -- $($failure.Error)" }
     return $report
 }
 
