@@ -260,4 +260,4 @@ See `references/azure-vm-rightsizing.md` for the full rightsizing workflow that 
 - [Azure Retail Prices API overview](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices)
 - [Retail Prices OData query examples](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices#api-examples)
 - [Azure pricing calculator](https://azure.microsoft.com/pricing/calculator/)
-- [Rate optimization (FinOps Framework)](https://www.finops.org/framework/capabilities/rate-optimization/)
+- [Rate optimization](https://learn.microsoft.com/cloud-computing/finops/framework/optimize/rates)

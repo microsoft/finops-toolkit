@@ -99,4 +99,4 @@ See `skills/finops-toolkit/references/settings-format.md` for the complete file 
 
 ## Step 6: Run a health check
 
-After connecting to the FinOps hub instance, inform the user they can use the `/ftk-hubs-healthCheck` prompt to run a health check.
+After connecting to the FinOps hub instance, inform the user they can use the `/ftk/hubs-healthCheck` prompt to run a health check.

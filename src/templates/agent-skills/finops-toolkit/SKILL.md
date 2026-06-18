@@ -74,7 +74,7 @@ Environment settings are read from `.ftk/environments.local.md` at the project r
 
 ## Query catalog
 
-Check the catalog of 17 shipped queries before writing custom KQL. Read the `.kql` file, substitute parameters, then execute. See `references/queries/INDEX.md` for the full scenario-to-query matrix.
+Check the shipped query catalog before writing custom KQL. Read the `.kql` file, substitute parameters, then execute. See `references/queries/INDEX.md` for the full scenario-to-query matrix.
 
 | Query | Description |
 |-------|-------------|
@@ -113,7 +113,7 @@ For detailed documentation: `references/finops-hubs-deployment.md`
 | [references/finops-hubs.md](references/finops-hubs.md) | Analysis guide: KQL execution, query catalog protocol, tool matrix, performance rules. **Read before any cost query.** |
 | [references/finops-hubs-deployment.md](references/finops-hubs-deployment.md) | Deployment and configuration: ADX clusters, Fabric, Data Factory, exports, Key Vault, Power BI dashboards. |
 | [references/settings-format.md](references/settings-format.md) | Format specification for `.ftk/environments.local.md` — named environments with cluster-uri, tenant, subscription, and resource-group. |
-| [references/queries/INDEX.md](references/queries/INDEX.md) | Query catalog with scenario-to-query matrix, parameter docs, and usage guidance for all 17 pre-built KQL queries. |
+| [references/queries/INDEX.md](references/queries/INDEX.md) | Query catalog with scenario-to-query matrix, parameter docs, and usage guidance for the shipped pre-built KQL queries. |
 | [references/queries/finops-hub-database-guide.md](references/queries/finops-hub-database-guide.md) | Hub database schema: all four functions, column definitions, enrichment columns, and query best practices. **Read before writing custom KQL.** |
 | [references/workflows/ftk-hubs-connect.md](references/workflows/ftk-hubs-connect.md) | Workflow to discover FinOps hub instances via Resource Graph, connect, and save environment config. |
 | [references/workflows/ftk-hubs-healthCheck.md](references/workflows/ftk-hubs-healthCheck.md) | Health check workflow: version comparison against stable/dev releases, upgrade guidance, and diagnostic steps. |

@@ -79,32 +79,19 @@ if ($update -or $Version)
 {
     # Update version in NPM
     Write-Verbose "Updating NPM version..."
-    $packageJsonPath = Join-Path $PSScriptRoot '../../package.json'
-    if ($Label -and ($update -in @('major', 'minor', 'patch')))
+    $null = npm --no-git-tag-version version $update
+
+    # Update label, if needed
+    if ($Label)
     {
-        $packageJson = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
-        $baseVersion = $packageJson.version -replace '-.*$', ''
-        $null = npm --no-git-tag-version --allow-same-version version $baseVersion
-        $null = npm --no-git-tag-version version $update
         $newLabel = $Label.ToLower() -replace '[^a-z]', ''
         Write-Verbose "Using label '$newLabel'."
-        $packageJson = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
-        $baseVersion = $packageJson.version -replace '-.*$', ''
-        $null = npm --no-git-tag-version version "$baseVersion-$newLabel.0"
-    }
-    else
-    {
-        $null = npm --no-git-tag-version version $update
-
-        # Update label, if needed
-        if ($Label)
-        {
-            $newLabel = $Label.ToLower() -replace '[^a-z]', ''
-            Write-Verbose "Using label '$newLabel'."
-            $packageJson = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
-            $baseVersion = $packageJson.version -replace '-.*$', ''
-            $null = npm --no-git-tag-version version "$baseVersion-$newLabel.0"
-        }
+        # Read directly from package.json here (rather than calling Get-Version) because $ver isn't set yet.
+        # Get-Version runs after this block and reads the same file.
+        # This intentionally replaces any prerelease counter npm just wrote — only -Major/-Minor with a label is supported.
+        $bumpedVer = (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version
+        $baseVer = $bumpedVer -replace '-.*$', ''
+        $null = npm --no-git-tag-version version "$baseVer-$newLabel.0"
     }
 }
 
@@ -134,33 +121,37 @@ if ($update -or $Version)
     # Update version in plugin.json files
     Write-Verbose "Updating plugin.json files..."
     Get-ChildItem $repoRoot -Include "plugin.json" -Recurse -Force `
-    | Where-Object { $_.FullName -like "*claude-plugin*" -or $_.FullName -like "*copilot-plugin*" } `
     | ForEach-Object {
-        Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         $json = Get-Content $_ -Raw | ConvertFrom-Json
-        $json.version = $ver
-        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
+        if ($json.PSObject.Properties['name'] -and $json.PSObject.Properties['version'])
+        {
+            Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
+            $json.version = $ver
+            $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
+        }
     }
 
     # Update version in marketplace.json plugin entries
     Write-Verbose "Updating marketplace.json files..."
     Get-ChildItem $repoRoot -Include "marketplace.json" -Recurse -Force `
-    | Where-Object {
-        $_.Directory.Name -eq '.claude-plugin' -or
-        ($_.Directory.Name -eq 'plugin' -and $_.Directory.Parent.Name -eq '.github')
-    } `
     | ForEach-Object {
-        Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         $json = Get-Content $_ -Raw | ConvertFrom-Json
-        if ($json.PSObject.Properties['metadata'] -and $json.metadata.PSObject.Properties['version']) {
-            $json.metadata.version = $ver
-        }
-        foreach ($plugin in $json.plugins) {
-            if ($plugin.PSObject.Properties['version']) {
-                $plugin.version = $ver
+        if ($json.PSObject.Properties['plugins'])
+        {
+            Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
+            if ($json.PSObject.Properties['metadata'] -and $json.metadata.PSObject.Properties['version'])
+            {
+                $json.metadata.version = $ver
             }
+            foreach ($plugin in $json.plugins)
+            {
+                if ($plugin.PSObject.Properties['version'])
+                {
+                    $plugin.version = $ver
+                }
+            }
+            $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
         }
-        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
     }
 
     # Update FTK survey IDs in feedback links (e.g., surveyId/FTK0.11 -> surveyId/FTK14.0)

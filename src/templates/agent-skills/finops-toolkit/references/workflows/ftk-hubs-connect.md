@@ -95,4 +95,4 @@ See `references/settings-format.md` for the complete file format documentation.
 
 ## Step 6: Run a health check
 
-After connecting to the FinOps hub instance, inform the user they can use the `/ftk-hubs-healthCheck` prompt to run a health check.
+After connecting to the FinOps hub instance, inform the user they can use the `/ftk/hubs-healthCheck` prompt to run a health check.

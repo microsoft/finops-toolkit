@@ -164,7 +164,7 @@ Generate a markdown report with the following structure:
 {Reference azure-commitment-discount-decision.md framework for purchase guidance}
 
 ## Cost trends (FinOps hubs)
-{Include if FinOps hubs connected, otherwise note: "Connect FinOps hubs for trend analysis — run /ftk-hubs-connect"}
+{Include if FinOps hubs connected, otherwise note: "Connect FinOps hubs for trend analysis — run /ftk/hubs-connect"}
 
 ## Next steps
 
@@ -188,5 +188,5 @@ Generate a markdown report with the following structure:
 - Format all currency values with the appropriate billing currency
 - Include resource IDs or names for actionable items
 - Flag any data gaps (e.g., "Memory metrics unavailable — VM Insights not deployed")
-- If FinOps hubs are not connected, recommend `/ftk-hubs-connect` for deeper analysis
+- If FinOps hubs are not connected, recommend `/ftk/hubs-connect` for deeper analysis
 - Save the report to `ftk/results/cost-optimization-{date}.md`

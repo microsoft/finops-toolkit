@@ -193,7 +193,7 @@ $templates | ForEach-Object {
     # Create target directory
     $destDir = "$outdir/$templateName"
     Write-Verbose "  Creating target directory: $destDir"
-    Remove-Item $destDir -Recurse -ErrorAction SilentlyContinue
+    Remove-Item $destDir -Recurse -Force -ErrorAction SilentlyContinue
     & "$PSScriptRoot/New-Directory.ps1" $destDir
 
     # Copy required files

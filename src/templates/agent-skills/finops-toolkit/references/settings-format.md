@@ -49,7 +49,7 @@ To read settings from `.ftk/environments.local.md`:
 
 ## Writing settings
 
-The `/ftk-hubs-connect` command discovers FinOps hub instances and writes their configuration to this file. When writing:
+The `/ftk/hubs-connect` command discovers FinOps hub instances and writes their configuration to this file. When writing:
 
 1. Read the existing file if it exists to preserve other environments
 2. Add or update the environment entry with the discovered values

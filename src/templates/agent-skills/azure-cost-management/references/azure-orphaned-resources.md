@@ -326,4 +326,4 @@ if ($orphanedDisks.Count -gt 0) {
 - [Azure Resource Graph query samples](https://learn.microsoft.com/azure/governance/resource-graph/samples/starter)
 - [Azure Policy built-in definitions](https://learn.microsoft.com/azure/governance/policy/samples/built-in-policies)
 - [Manage unattached disks](https://learn.microsoft.com/azure/virtual-machines/windows/find-unattached-disks)
-- [Usage optimization (FinOps Framework)](https://www.finops.org/framework/capabilities/usage-optimization/)
+- [Workload optimization](https://learn.microsoft.com/cloud-computing/finops/framework/optimize/workloads)

@@ -421,4 +421,4 @@ $jsonResult.value.properties.allRecommendationDetails.value | Format-Table
 - [Choose commitment amount](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/choose-commitment-amount)
 - [How saving plan discount is applied](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/discount-application)
 - [Decide between a savings plan and a reservation](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/decide-between-savings-plan-reservation)
-- [Rate optimization (FinOps Framework)](https://www.finops.org/framework/capabilities/rate-optimization/)
+- [Rate optimization](https://learn.microsoft.com/cloud-computing/finops/framework/optimize/rates)
