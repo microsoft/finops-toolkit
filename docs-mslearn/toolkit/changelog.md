@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 05/26/2026
+ms.date: 06/18/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -62,6 +62,11 @@ _Released June 2026_
 
 - **Fixed**
   - Removed call to Azure Classic administrators endpoint (deprecated on May 1, 2026) from Azure RBAC assignments exports ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
+
+### [PowerShell module](powershell/powershell-commands.md) v15
+
+- **Fixed**
+  - Bumped the `Az.Accounts` required-module minimum to 2.17.0 so dependency resolution can't land on a version missing the `Get-AzAccessToken -AsSecureString` parameter that `Invoke-Rest` relies on ([#2185](https://github.com/microsoft/finops-toolkit/issues/2185)).
 
 -->
 <!-- prettier-ignore-start -->
