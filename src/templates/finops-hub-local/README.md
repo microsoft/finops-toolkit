@@ -235,13 +235,16 @@ open-data lookups. Your results vary by `MEM_LIMIT` and dataset size.
 
 | Metric | Measured value |
 |--------|----------------|
-| Full ingest wall-clock (~28 M total rows) | ~7.4 min (443 s) |
-| Idle working set after full ingest | ~12.4 GiB (~78% of 16 GiB) |
-| Chunked backfill peak (Prices, per-extent) | ~14.3–14.7 GiB (~89–92% of 16 GiB) |
-| Single-pass Prices transform (~12.7 M rows) | OOMs at 16 GiB — this is why auto-chunking triggers above 2 M rows |
-| Single-pass Costs transform (~1.35 M rows) | Completes comfortably within 16 GiB |
+| Raw file ingest wall-clock (31 parts, ~991 MB) | 419.6 s (7.0 min) |
+| Full `ingest.ps1` wall-clock (raw + all backfill) | 841.6 s (14.0 min) |
+| **Cold loaded** — post-restart, data on disk, extents not yet materialized (anon) | **1.12 GiB (7.0% of 16 GiB)** — this is the floor |
+| **Hot post-ingest** — immediately after transform pipeline; extents in memory (anon) | **13.99 GiB (≈87% of 16 GiB)** — sustained until restart |
+| Chunked backfill memory.peak (cumulative HWM, Prices per-extent) | **15.03 GiB (93.9% of 16 GiB)** |
+| Single-pass Prices transform (~12.7 M rows) | anon ~14.74 GiB / memory.peak **15.12 GiB** → engine crash |
+| Single-pass Costs transform (~1.35 M rows) | Completes in 53 s; peak 6.89 GiB (43% of 16 GiB) |
 
-A fuller row-count → memory curve will be published when T-5000.6 is complete.
+See [notes/performance.md](notes/performance.md) for the full row-count → memory curve,
+per-stage cgroup v2 measurements, and OOM ceiling analysis.
 
 ---
 
