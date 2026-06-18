@@ -23,7 +23,7 @@ A local hub is useful to explore the FinOps hub data model, validate cost data, 
 
 ## Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/), to run the Kusto emulator container, with at least 16 GB of memory available to the container.
+- [Docker](https://docs.docker.com/get-docker/), to run the Kusto emulator container, with at least 16 GB of memory available to the container. Start Docker before you run the commands and verify `docker info` works in the same PowerShell session.
 - [PowerShell 7](/powershell/scripting/install/installing-powershell) — every command in this article is PowerShell.
 - [Azure PowerShell](/powershell/azure/install-azure-powershell) (the `Az` modules) — only needed to download cost data from a storage account.
 - FOCUS cost exports as Parquet, either from a [FinOps hub storage account](configure-scopes.md) or [Cost Management exports](/cost-management-billing/costs/tutorial-improved-exports).
@@ -31,7 +31,7 @@ A local hub is useful to explore the FinOps hub data model, validate cost data, 
 For background on the emulator and its platform requirements, see the [Kusto emulator overview](/azure/data-explorer/kusto-emulator-overview) and [installation guide](/azure/data-explorer/kusto-emulator-install).
 
 > [!NOTE]
-> This article assumes you're already signed in to Azure with `Connect-AzAccount` and have selected the subscription that holds your cost data. It never runs a sign-in command. If you aren't downloading data from a storage account, you can skip Azure sign-in entirely.
+> This article assumes you're already signed in to Azure with `Connect-AzAccount` and have selected the subscription that holds your cost data. It never runs a sign-in command. If you aren't downloading data from a storage account, you can skip Azure sign-in entirely. If you download from Azure Storage with `-UseConnectedAccount`, your signed-in identity also needs storage data-plane access, such as **Storage Blob Data Reader**, on the storage account or container.
 
 <br>
 
@@ -84,7 +84,7 @@ foreach ($db in 'Ingestion', 'Hub') {
 
 ## Load the schema
 
-Download the hub's setup scripts from the latest toolkit release and load each into its database. These are the same `finops-hub-fabric-setup-*.kql` files used to set up a [Microsoft Fabric hub](deploy.md#set-up-microsoft-fabric) — each is a single `.execute database script` that creates every table, mapping, transform function, and update policy.
+Download the hub's setup scripts from the latest toolkit release and load each into its database. These are the same `finops-hub-fabric-setup-*.kql` files used to set up a [Microsoft Fabric hub](deploy.md#optional-set-up-microsoft-fabric) — each is a single `.execute database script` that creates every table, mapping, transform function, and update policy.
 
 The Ingestion script has one placeholder, `$$rawRetentionInDays$$` (how long to keep raw data). Replace it with a number of days before loading.
 
