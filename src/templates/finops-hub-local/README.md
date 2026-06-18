@@ -24,11 +24,9 @@ variants), the same open data, and the same query catalog.
 
 - **Docker Desktop ≥ 4.0** — Compose v2 is required (`docker compose`, not the legacy
   `docker-compose`).
-- **Apple Silicon (M-series) users:** enable **Rosetta** for x86/amd64 emulation. The
-  Kustainer image is `linux/amd64` only. Docker Desktop → Settings → General → "Use
-  Rosetta for x86_64/amd64 emulation on Apple Silicon".
 - **PowerShell 7+** (`pwsh`) — all tooling is PowerShell; there are no Python
-  dependencies.
+  dependencies. On Windows this is **PowerShell 7**, not the built-in Windows PowerShell
+  5.1 (`winget install Microsoft.PowerShell`).
 - **FOCUS cost exports as Parquet** — staged under `export/`. See
   [notes/staging-contract.md](notes/staging-contract.md) for the folder layout.
 - Roughly **16 GiB of RAM** available for the container (the default `MEM_LIMIT` in
@@ -36,24 +34,40 @@ variants), the same open data, and the same query catalog.
   Prices transform. See [Limits](#limits).
 - Host port **8082** free (configurable via `HOST_PORT` in `.env`).
 
+**Per-platform install guides** (prerequisites, memory tuning, troubleshooting):
+
+- 🪟 **[Windows](notes/install-windows.md)** — primary platform; the `linux/amd64` engine
+  runs natively (no emulation). Covers Docker Desktop + WSL 2, PowerShell 7, and WSL memory
+  tuning.
+- 🍎 **[macOS](notes/install-mac.md)** — secondary; Apple Silicon runs the engine under
+  Rosetta emulation. Covers Rosetta and Docker Desktop memory.
+
 ---
 
 ## Quickstart
 
+The commands below work on **Windows, macOS, and Linux** (PowerShell 7 + Docker Compose v2).
+`make` targets are an optional convenience on macOS/Linux — see the
+[macOS guide](notes/install-mac.md).
+
 ```bash
 # From src/templates/finops-hub-local/
 
-cp .env.example .env         # 1. review tunables (HOST_PORT, MEM_LIMIT, EXPORT_DIR)
-make up                      # 2. start the emulator; blocks until healthcheck passes (~30 s)
-make load-ftk-kql            # 3. create Ingestion + Hub DBs, load FTK KQL + open data (idempotent)
-make ingest                  # 4. bulk-ingest all Parquet exports under export/
+cp .env.example .env            # 1. review tunables (HOST_PORT, MEM_LIMIT, EXPORT_DIR)
+                                #    (Windows: Copy-Item .env.example .env)
+docker compose up -d --wait     # 2. start the emulator; blocks until the healthcheck passes
+pwsh scripts/load-ftk-kql.ps1   # 3. create Ingestion + Hub DBs, load FTK KQL + open data (idempotent)
+pwsh scripts/ingest.ps1         # 4. bulk-ingest all Parquet exports under export/
 
 # 5. query your FOCUS data
 pwsh scripts/ftk.ps1 query "Costs() | summarize TotalCost = sum(EffectiveCost) by ServiceName | top 10 by TotalCost"
 ```
 
-After step 4 completes, the Hub database holds the same view functions a deployed hub
-exposes. `make ingest-status` shows a summary of what was ingested.
+`docker compose up -d --wait` is the cross-platform equivalent of `make up` — it uses the
+container's healthcheck and returns only once the engine is answering. After step 4
+completes, the Hub database holds the same view functions a deployed hub exposes;
+`pwsh scripts/ingest.ps1 -DryRun` previews ingest and `make ingest-status` (macOS/Linux)
+summarizes what was loaded.
 
 ---
 

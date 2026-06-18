@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+#Requires -Version 7.0
 <#
 .SYNOPSIS
     ftk - a tiny CLI for the local FinOps Toolkit (Kustainer) stack.

@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+#Requires -Version 7.0
 <#
 .SYNOPSIS
     Bulk-ingest FOCUS Cost + Price Sheet parquet exports into local Kustainer raw tables.

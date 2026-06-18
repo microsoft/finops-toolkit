@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+#Requires -Version 7.0
 <#
 .SYNOPSIS
     Load the FinOps Toolkit analytics KQL into local Kustainer (two-DB topology).

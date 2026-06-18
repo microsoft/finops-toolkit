@@ -1,0 +1,17 @@
+# ftklocal line-ending policy.
+#
+# Keep LF on files that break or behave inconsistently under CRLF, so a Windows
+# checkout (where git may otherwise convert to CRLF) stays correct:
+#   - the Makefile + shell recipes require LF (bash chokes on CRLF),
+#   - PowerShell tolerates either but LF keeps diffs clean across platforms,
+#   - KQL/JSON are submitted verbatim to the engine.
+*.ps1   text eol=lf
+*.psm1  text eol=lf
+*.psd1  text eol=lf
+*.sh    text eol=lf
+*.kql   text eol=lf
+*.json  text eol=lf
+Makefile text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+.env.example text eol=lf
