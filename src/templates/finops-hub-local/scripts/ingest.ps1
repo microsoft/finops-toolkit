@@ -65,6 +65,16 @@ $script:RawToFinalPolicy = @{
     'Prices_raw' = [pscustomobject]@{ FinalTable = 'Prices_final_v1_2'; TransformFn = 'Prices_transform_v1_2' }
 }
 
+# Proactive chunked-backfill threshold (rows).
+# Measured baseline: MEM_LIMIT=16g, amd64-Rosetta; idle-loaded engine ~12.4 GiB working
+# set (78% of 16g), ~3.5 GiB headroom. Costs 1.35M rows → single-pass OK; Prices 12.7M
+# rows → single-pass OOMs (>16 GiB). Default 2,000,000 is safely above the largest known
+# single-pass success (1.35M) and well below the smallest known OOM point (12.7M).
+# OOM risk is row-driven, not extent-driven — use the reactive fallback below as the safety
+# net for any table whose single-pass headroom is unknown.
+# Override at runtime: BACKFILL_CHUNK_ROW_THRESHOLD=5000000 pwsh scripts/ingest.ps1
+$script:BackfillChunkRowThreshold = if ($env:BACKFILL_CHUNK_ROW_THRESHOLD) { [int64]$env:BACKFILL_CHUNK_ROW_THRESHOLD } else { [int64]2000000 }
+
 function Get-HostPort {
     if ($env:HOST_PORT) { return $env:HOST_PORT }
     $envFilePath = Join-Path $script:RepoRoot '.env'
@@ -132,9 +142,12 @@ function Invoke-KustoPost {
                 $bodyText = (New-Object IO.StreamReader($stream)).ReadToEnd()
             } catch { }
         }
-        if ($_.Exception.Response -and $bodyText) {
-            try { return (New-PostResult -StatusCode ([int]$_.Exception.Response.StatusCode) -BodyText $bodyText) } catch { }
-        }
+        # Guard against strict-mode PropertyNotFoundException when the exception has no .Response property.
+        try {
+            if ($_.Exception.Response -and $bodyText) {
+                try { return (New-PostResult -StatusCode ([int]$_.Exception.Response.StatusCode) -BodyText $bodyText) } catch { }
+            }
+        } catch { }
         $messageText = "Connection error: $($_.Exception.GetType().Name): $($_.Exception.Message)"
         if ($_.Exception.GetType().Name -match 'WebException|HttpRequestException|IOException') {
             return (New-PostResult -StatusCode 599 -BodyText $messageText)
@@ -557,6 +570,20 @@ function Invoke-BackfillFinalsPerPeriod {
             $appended[$policyInfo.FinalTable] = 0
             continue
         }
+        $extentCount = (Get-TableExtents -TableName $rawTableName).Count
+        # Proactive chunking: skip single-pass entirely when row count exceeds the
+        # measured-headroom threshold. OOM is row-driven; extent count is informational only.
+        if ([int64]$rawCount -gt $script:BackfillChunkRowThreshold) {
+            Write-InfoLine ("  $($policyInfo.FinalTable): {0:N0} rows > threshold {1:N0} ({2} extents) — proactively using per-extent chunked backfill (skipping single-pass)" -f [int64]$rawCount, $script:BackfillChunkRowThreshold, $extentCount)
+            $chunked = Invoke-ChunkedBackfillFinalTable -RawTableName $rawTableName -FinalTableName $policyInfo.FinalTable -TransformFunctionName $policyInfo.TransformFn -ExtentsPerBatch 1
+            $appended[$policyInfo.FinalTable] = if ($chunked.Ok) { $chunked.Rows } else { -1 }
+            if (-not $chunked.Ok) { [Console]::Error.WriteLine("  ERROR: $($policyInfo.FinalTable) still incomplete after chunked backfill; manual intervention required.") }
+            continue
+        }
+        # Below threshold: try single-pass (fast), fall back to chunked as a safety net.
+        # The reactive fallback also covers any future table added to RawToFinalPolicy whose
+        # single-pass headroom has not been measured yet.
+        Write-InfoLine ("  $($policyInfo.FinalTable): {0:N0} rows ≤ threshold {1:N0} ({2} extents) — using single-pass backfill" -f [int64]$rawCount, $script:BackfillChunkRowThreshold, $extentCount)
         $result = Invoke-BackfillFinalTable -FinalTableName $policyInfo.FinalTable -TransformFunctionName $policyInfo.TransformFn
         if ($result.Ok) { $appended[$policyInfo.FinalTable] = $result.Rows; continue }
         [Console]::Error.WriteLine("  $($policyInfo.FinalTable): single-pass backfill failed, falling back to per-extent chunked backfill...")
@@ -746,6 +773,17 @@ function Invoke-RunIngest {
                 Write-InfoLine ("[{0,3}/{1}] SKIP {2}/{3}/{4}/{5}  ({6} KB, {7:N0} rows) already in Ingest_Manifest with matching checksum" -f $displayIndex, $totalFiles, $plan.Scope, $plan.ExportType, $plan.Period, $unit.HostPath.Name, [Math]::Floor($sizeBytes / 1024), [int64]$unit.ExpectedRows)
                 $bucket.rows_ingested += [int64]($prior.rows_ingested ?? 0)
                 continue
+            }
+            elseif ($prior) {
+                # Same composite key (scope/type/period/run-uuid/filename) exists in
+                # Ingest_Manifest but with a DIFFERENT checksum. Proceeding would silently
+                # append a second copy of the data and corrupt cost totals (parity check 1's
+                # 5% tolerance would mask the duplication).
+                throw ("File '$($unit.HostPath.Name)' under run-uuid '$($plan.RunUuid)' for " +
+                       "($($plan.Scope)/$($plan.ExportType)/$($plan.Period)) changed since last " +
+                       "ingest (checksum mismatch: manifest=$($prior.checksum_sha256), file=$sha). " +
+                       "Re-ingesting under the same run-uuid duplicates rows. " +
+                       "Stage corrected data under a NEW run-uuid for the same (scope,type,period) to replace it (supersede).")
             }
             $progressPrefix = ("[{0,3}/{1}] ingesting {2}/{3}/{4}/{5} ({6} KB, {7:N0} rows expected)" -f $displayIndex, $totalFiles, $plan.Scope, $plan.ExportType, $plan.Period, $unit.HostPath.Name, [Math]::Floor($sizeBytes / 1024), [int64]$unit.ExpectedRows)
             Write-Host -NoNewline ($progressPrefix + ' ... ')

@@ -8,8 +8,8 @@
 // EVAL rule, and produces a pass/fail report.
 //
 // ROUTING (enforced by run-parity-checks.ps1 per-check DB assignment):
-//   Checks 1–8, 11  → Ingestion  (raw tables, final tables)
-//   Checks  9, 10   → Hub        (view functions cross-referencing Ingestion)
+//   Checks 1–8, 11–13  → Ingestion  (raw tables, final tables)
+//   Checks    9, 10    → Hub        (view functions cross-referencing Ingestion)
 //
 // CONVENTIONS
 // - Each check is a block: // CHECK <N>: <name>, // EXPECT: <rule>, then the KQL.
@@ -140,3 +140,25 @@ raw_by
         round(todouble(coalesce(final_n, 0) - coalesce(raw_n, 0)) / todouble(coalesce(raw_n, 1)) * 100.0, 4),
         0.0)
 | order by raw_n desc
+
+// CHECK 13: Prices value parity — UnitPrice/ContractedUnitPrice (Consumption + RI)
+// EXPECT: sum(UnitPrice) in Prices_raw equals sum(ContractedUnitPrice) in Prices_final_v1_2
+// for Consumption and ReservedInstance PriceTypes. These columns pass through the
+// Prices transform unchanged. SavingsPlan is excluded — the transform enriches SP prices
+// via cross-row lookups, so raw ≠ final for SP by design.
+// Guards: (1) raw_n > 0 — rows for these types actually exist; (2) final_n == raw_n —
+// no rows were lost or duplicated. If either guard fails, delta_pct is set to a large
+// sentinel (9999) so the check FAILS rather than passing vacuously.
+// EVAL: abs(raw_sum - final_sum) / abs(raw_sum) < 0.001
+let raw_n   = toscalar(Prices_raw        | where PriceType      in ('Consumption', 'ReservedInstance') | count);
+let final_n = toscalar(Prices_final_v1_2 | where x_SkuPriceType in ('Consumption', 'ReservedInstance') | count);
+let raw_sum   = toscalar(Prices_raw        | where PriceType      in ('Consumption', 'ReservedInstance') | summarize sum(UnitPrice));
+let final_sum = toscalar(Prices_final_v1_2 | where x_SkuPriceType in ('Consumption', 'ReservedInstance') | summarize sum(ContractedUnitPrice));
+print
+    raw_n   = raw_n,
+    final_n = final_n,
+    raw_sum_UnitPrice             = raw_sum,
+    final_sum_ContractedUnitPrice = final_sum,
+    delta_pct = iff(raw_n == 0 or final_n != raw_n,
+                    9999.0,
+                    todouble(abs(raw_sum - final_sum)) / todouble(abs(raw_sum)) * 100.0)
