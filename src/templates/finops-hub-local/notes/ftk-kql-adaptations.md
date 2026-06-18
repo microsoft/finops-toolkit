@@ -3,10 +3,10 @@
 There are **two distinct adaptation layers** in the local stack. This document covers
 both.
 
-| Layer | Where it runs | Purpose |
-|-------|--------------|---------|
-| **Load-time** | `scripts/load-ftk-kql.ps1` | Loads upstream FTK KQL into the emulator at setup time (idempotent). |
-| **On-read** | `scripts/ftk.ps1` `Convert-CatalogQuery` (lines 341–382) | Adapts catalog `.kql` files at query time before posting to the emulator. |
+| Layer         | Where it runs                                            | Purpose                                                                   |
+| ------------- | -------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Load-time** | `scripts/load-ftk-kql.ps1`                               | Loads upstream FTK KQL into the emulator at setup time (idempotent).      |
+| **On-read**   | `scripts/ftk.ps1` `Convert-CatalogQuery` (lines 341–382) | Adapts catalog `.kql` files at query time before posting to the emulator. |
 
 The upstream KQL scripts live in
 `src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts/`.
@@ -25,10 +25,11 @@ as a gap — not patched locally.
 ## Topology note
 
 FTK deploys to ADX as a **two-database** system: an `Ingestion` database (raw + transform
-+ final tables) and a `Hub` database (view functions). The local stack preserves this
-topology exactly — the emulator runs both `Ingestion` and `Hub` databases, and
-`database('Ingestion').*` cross-references inside Hub view functions resolve in the
-emulator the same way they do in ADX.
+
+- final tables) and a `Hub` database (view functions). The local stack preserves this
+  topology exactly — the emulator runs both `Ingestion` and `Hub` databases, and
+  `database('Ingestion').*` cross-references inside Hub view functions resolve in the
+  emulator the same way they do in ADX.
 
 Earlier prototype notes described collapsing these into a single local `FtkLocal` database.
 That design was superseded. The current stack uses the two-database topology throughout.
@@ -75,6 +76,7 @@ mappings. The resulting tables are empty and serve only to satisfy the eager-com
 check.
 
 Tables created (empty stubs):
+
 - `Costs_final_v1_0`
 - `Prices_final_v1_0`
 - `CommitmentDiscountUsage_final_v1_0`
@@ -127,19 +129,19 @@ script.
 
 The loader applies the same rename at load time. Key mappings:
 
-| Table | CSV column | Table column |
-|-------|-----------|--------------|
-| `PricingUnits` | `UnitOfMeasure` | `x_PricingUnitDescription` |
-| `PricingUnits` | `PricingBlockSize` | `x_PricingBlockSize` |
-| `PricingUnits` | `DistinctUnits` | `PricingUnit` |
-| `Regions` | `OriginalValue` | `ResourceLocation` |
-| `ResourceTypes` | `ResourceType` | `x_ResourceType` |
-| `ResourceTypes` | `Icon` | `IconUri` |
-| `Services` | `ConsumedService` | `x_ConsumedService` |
-| `Services` | `ResourceType` | `x_ResourceType` |
-| `Services` | `PublisherType` | `x_PublisherCategory` |
-| `Services` | `Environment` | `x_Environment` |
-| `Services` | `ServiceModel` | `x_ServiceModel` |
+| Table           | CSV column         | Table column               |
+| --------------- | ------------------ | -------------------------- |
+| `PricingUnits`  | `UnitOfMeasure`    | `x_PricingUnitDescription` |
+| `PricingUnits`  | `PricingBlockSize` | `x_PricingBlockSize`       |
+| `PricingUnits`  | `DistinctUnits`    | `PricingUnit`              |
+| `Regions`       | `OriginalValue`    | `ResourceLocation`         |
+| `ResourceTypes` | `ResourceType`     | `x_ResourceType`           |
+| `ResourceTypes` | `Icon`             | `IconUri`                  |
+| `Services`      | `ConsumedService`  | `x_ConsumedService`        |
+| `Services`      | `ResourceType`     | `x_ResourceType`           |
+| `Services`      | `PublisherType`    | `x_PublisherCategory`      |
+| `Services`      | `Environment`      | `x_Environment`            |
+| `Services`      | `ServiceModel`     | `x_ServiceModel`           |
 
 The loader reads each CSV, projects to the target column order, clears the destination
 table (idempotency), and ingests inline into the FTK-declared table schema.

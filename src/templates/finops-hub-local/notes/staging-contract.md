@@ -11,8 +11,8 @@ into the Kusto emulator (Part 2).
 ### Honest design constraint
 
 Cost Management exports are **Azure-only**. `New-FinOpsCostExport` writes parquet to an
-Azure Storage account; there is no local export mode. Export *configuration* lives in Azure;
-ftklocal *consumes* the parquet that configuration produces. No Azure export was created as
+Azure Storage account; there is no local export mode. Export _configuration_ lives in Azure;
+ftklocal _consumes_ the parquet that configuration produces. No Azure export was created as
 part of authoring this document.
 
 ### Relevant PowerShell cmdlets
@@ -28,24 +28,24 @@ All three cmdlets are part of the FinOps Toolkit PowerShell module under
 
 Creates a Cost Management export that writes FOCUS parquet to Azure Storage.
 
-| Parameter | Required | Notes |
-|-----------|----------|-------|
-| `-Name` | Yes | Unique name within the scope. |
-| `-Scope` | Yes | Azure resource ID of the billing scope (subscription, billing account, etc.). |
-| `-Dataset` | No | Default: `FocusCost`. Use `FocusCost` for cost data or `PriceSheet` for prices. |
-| `-DatasetVersion` | No | Default: `1.2-preview` (FocusCost). Use `1.2-preview` to get the latest FOCUS schema. |
-| `-Format` | No | Default: `Csv`. **Set to `Parquet`** for ftklocal (ingest.ps1 expects parquet). |
-| `-CompressionMode` | No | Default: `None`. `Snappy` is also accepted but adds a decompression step not tested with ftklocal. |
-| `-StorageAccountId` | Yes | Resource ID of the target Azure Storage account. |
-| `-StorageContainer` | No | Default: `cost-management`. Use `msexports` to match hub conventions, or any container for ftklocal staging. |
-| `-StoragePath` | No | Subfolder path prefix within the container. Defaults to the scope ID. |
-| `-DoNotPartition` | No | Omit this flag (leave partitioning **enabled**). Partitioning is recommended for reliability. |
-| `-DoNotOverwrite` | No | Default: overwrite enabled. For ftklocal, overwrite is acceptable; for FinOps hubs, use `-DoNotOverwrite` to simplify troubleshooting. |
-| `-Monthly` | No | Monthly cadence (mutually exclusive with `-OneTime`). |
-| `-OneTime` | No | Single run over an explicit date range. |
-| `-StartDate` / `-EndDate` | No | Date range for the export. Defaults for scheduled and one-time differ; see cmdlet help. |
-| `-Backfill` | No | Number of prior months to export immediately at creation time (scheduled exports only). |
-| `-Execute` | No | Run the export once immediately after creation. |
+| Parameter                 | Required | Notes                                                                                                                                  |
+| ------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `-Name`                   | Yes      | Unique name within the scope.                                                                                                          |
+| `-Scope`                  | Yes      | Azure resource ID of the billing scope (subscription, billing account, etc.).                                                          |
+| `-Dataset`                | No       | Default: `FocusCost`. Use `FocusCost` for cost data or `PriceSheet` for prices.                                                        |
+| `-DatasetVersion`         | No       | Default: `1.2-preview` (FocusCost). Use `1.2-preview` to get the latest FOCUS schema.                                                  |
+| `-Format`                 | No       | Default: `Csv`. **Set to `Parquet`** for ftklocal (ingest.ps1 expects parquet).                                                        |
+| `-CompressionMode`        | No       | Default: `None`. `Snappy` is also accepted but adds a decompression step not tested with ftklocal.                                     |
+| `-StorageAccountId`       | Yes      | Resource ID of the target Azure Storage account.                                                                                       |
+| `-StorageContainer`       | No       | Default: `cost-management`. Use `msexports` to match hub conventions, or any container for ftklocal staging.                           |
+| `-StoragePath`            | No       | Subfolder path prefix within the container. Defaults to the scope ID.                                                                  |
+| `-DoNotPartition`         | No       | Omit this flag (leave partitioning **enabled**). Partitioning is recommended for reliability.                                          |
+| `-DoNotOverwrite`         | No       | Default: overwrite enabled. For ftklocal, overwrite is acceptable; for FinOps hubs, use `-DoNotOverwrite` to simplify troubleshooting. |
+| `-Monthly`                | No       | Monthly cadence (mutually exclusive with `-OneTime`).                                                                                  |
+| `-OneTime`                | No       | Single run over an explicit date range.                                                                                                |
+| `-StartDate` / `-EndDate` | No       | Date range for the export. Defaults for scheduled and one-time differ; see cmdlet help.                                                |
+| `-Backfill`               | No       | Number of prior months to export immediately at creation time (scheduled exports only).                                                |
+| `-Execute`                | No       | Run the export once immediately after creation.                                                                                        |
 
 **Minimal FOCUS/Parquet example:**
 
@@ -69,15 +69,15 @@ New-FinOpsCostExport `
 
 Lists or filters existing Cost Management exports for a scope.
 
-| Parameter | Notes |
-|-----------|-------|
-| `-Scope` | Azure resource ID of the scope. Defaults to current Az context subscription. |
-| `-Name` | Filter by export name. Supports wildcards. |
-| `-Dataset` | Filter by dataset type (e.g., `FocusCost`, `PriceSheet`). |
-| `-DatasetVersion` | Filter by schema version. |
-| `-StorageAccountId` | Filter by destination storage account. |
-| `-StorageContainer` | Filter by container name. Supports wildcards. |
-| `-RunHistory` | Switch. When present, the API response is expanded to include run history for each export. This is the enumeration primitive a future auto-download bridge (T-5000.9) would use to discover available runs and their storage paths. |
+| Parameter           | Notes                                                                                                                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-Scope`            | Azure resource ID of the scope. Defaults to current Az context subscription.                                                                                                                                                        |
+| `-Name`             | Filter by export name. Supports wildcards.                                                                                                                                                                                          |
+| `-Dataset`          | Filter by dataset type (e.g., `FocusCost`, `PriceSheet`).                                                                                                                                                                           |
+| `-DatasetVersion`   | Filter by schema version.                                                                                                                                                                                                           |
+| `-StorageAccountId` | Filter by destination storage account.                                                                                                                                                                                              |
+| `-StorageContainer` | Filter by container name. Supports wildcards.                                                                                                                                                                                       |
+| `-RunHistory`       | Switch. When present, the API response is expanded to include run history for each export. This is the enumeration primitive a future auto-download bridge (T-5000.9) would use to discover available runs and their storage paths. |
 
 **Enumerate run history (future auto-bridge use):**
 
@@ -93,12 +93,12 @@ Get-FinOpsCostExport -Scope '/subscriptions/<subscriptionId>' -Dataset FocusCost
 
 Triggers an on-demand run of an existing export using the Cost Management Run API.
 
-| Parameter | Notes |
-|-----------|-------|
-| `-Name` | Required. Name of the export to run. |
-| `-Scope` | Azure resource ID. Defaults to current Az context subscription. |
-| `-StartDate` / `-EndDate` | Optional date range override. |
-| `-Backfill` | Number of prior months to run in sequence. |
+| Parameter                 | Notes                                                           |
+| ------------------------- | --------------------------------------------------------------- |
+| `-Name`                   | Required. Name of the export to run.                            |
+| `-Scope`                  | Azure resource ID. Defaults to current Az context subscription. |
+| `-StartDate` / `-EndDate` | Optional date range override.                                   |
+| `-Backfill`               | Number of prior months to run in sequence.                      |
 
 ---
 
@@ -151,10 +151,10 @@ export/
 
 Defined in `$script:DatasetTableMap` at `ingest.ps1` lines 59–62:
 
-| Token | Raw table | Ingestion mapping | Cost Management dataset |
-|-------|-----------|------------------|------------------------|
-| `ms--focus-cost` | `Costs_raw` | `Costs_raw_mapping` | `FocusCost` |
-| `ms--pricesheet` | `Prices_raw` | `Prices_raw_mapping` | `PriceSheet` |
+| Token            | Raw table    | Ingestion mapping    | Cost Management dataset |
+| ---------------- | ------------ | -------------------- | ----------------------- |
+| `ms--focus-cost` | `Costs_raw`  | `Costs_raw_mapping`  | `FocusCost`             |
+| `ms--pricesheet` | `Prices_raw` | `Prices_raw_mapping` | `PriceSheet`            |
 
 Any directory name under `<scope>/` that is not one of these tokens is silently skipped
 with a warning (`ingest.ps1`, lines 248–252).
@@ -165,13 +165,13 @@ Each `<run-uuid>/` directory must contain a `manifest.json` file. The script rea
 this file in `Read-RunManifest` (`ingest.ps1`, lines 209–215) to obtain sort and
 row-count metadata. Fields consumed by `ingest.ps1`:
 
-| JSON path | Required | Purpose |
-|-----------|----------|---------|
-| `runInfo.submittedTime` | Recommended | Primary sort key for latest-run selection. ISO 8601 string. |
-| `runInfo.createdDate` | Fallback | Used when `submittedTime` is absent. |
-| `dataRowCount` | Recommended | Total expected row count for the run (shown in the plan summary). |
-| `blobs[].blobName` | Recommended | Matched by filename suffix to resolve per-file row counts. |
-| `blobs[].dataRowCount` | Recommended | Expected rows for each parquet file (used in verify summary). |
+| JSON path               | Required    | Purpose                                                           |
+| ----------------------- | ----------- | ----------------------------------------------------------------- |
+| `runInfo.submittedTime` | Recommended | Primary sort key for latest-run selection. ISO 8601 string.       |
+| `runInfo.createdDate`   | Fallback    | Used when `submittedTime` is absent.                              |
+| `dataRowCount`          | Recommended | Total expected row count for the run (shown in the plan summary). |
+| `blobs[].blobName`      | Recommended | Matched by filename suffix to resolve per-file row counts.        |
+| `blobs[].dataRowCount`  | Recommended | Expected rows for each parquet file (used in verify summary).     |
 
 **Minimum viable manifest for manual staging:**
 
@@ -223,29 +223,29 @@ file, the file is skipped. (`ingest.ps1`, lines 741–748.)
 
 `Ingest_Manifest` schema:
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `scope` | string | Matches `<scope>` folder name. |
-| `export_type` | string | Matches `<type>` folder name. |
-| `period` | string | Matches `<period>` folder name. |
-| `run_uuid` | string | Matches `<run-uuid>` folder name. |
-| `file_name` | string | Parquet file name (base name only). |
-| `file_size` | long | File size in bytes at ingest time. |
-| `rows_ingested` | long | Expected rows (from manifest, or 0 if not available). |
-| `checksum_sha256` | string | SHA-256 hex of the parquet file. |
-| `ingested_at` | datetime | UTC timestamp of ingest. |
+| Column            | Type     | Notes                                                 |
+| ----------------- | -------- | ----------------------------------------------------- |
+| `scope`           | string   | Matches `<scope>` folder name.                        |
+| `export_type`     | string   | Matches `<type>` folder name.                         |
+| `period`          | string   | Matches `<period>` folder name.                       |
+| `run_uuid`        | string   | Matches `<run-uuid>` folder name.                     |
+| `file_name`       | string   | Parquet file name (base name only).                   |
+| `file_size`       | long     | File size in bytes at ingest time.                    |
+| `rows_ingested`   | long     | Expected rows (from manifest, or 0 if not available). |
+| `checksum_sha256` | string   | SHA-256 hex of the parquet file.                      |
+| `ingested_at`     | datetime | UTC timestamp of ingest.                              |
 
 Defined at `ingest.ps1`, `Initialize-IngestManifestTable` / `Insert-ManifestRow`
 (lines 299–351).
 
 ### Overwrite semantics summary
 
-| Condition | Behavior |
-|-----------|----------|
-| Same `(scope, type, period, run-uuid)`, same file checksum | **Skip.** File is already in `Ingest_Manifest` with a matching SHA-256; no ingest, no new row. (`ingest.ps1` lines 744–748.) |
+| Condition                                                           | Behavior                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Same `(scope, type, period, run-uuid)`, same file checksum          | **Skip.** File is already in `Ingest_Manifest` with a matching SHA-256; no ingest, no new row. (`ingest.ps1` lines 744–748.)                                                                                                                                                                     |
 | Same `(scope, type, period, run-uuid)`, **different** file checksum | **Double-ingest — do not do this.** The old `Ingest_Manifest` row is not deleted and the prior extents are not dropped; a second ingest call is issued and a second `Ingest_Manifest` row is appended for the same key. The raw table will contain duplicate data. (`ingest.ps1` lines 744–776.) |
-| Same `(scope, type, period)`, **new** `run-uuid` | **Safe replace.** `Drop-SupersededExtents` drops extents tagged with older run-uuids from the raw table and deletes their `Ingest_Manifest` rows before the new run is ingested. (`ingest.ps1` lines 571–613.) |
-| Different `(scope, type, period)` | **Independent.** No interaction with other tuples. |
+| Same `(scope, type, period)`, **new** `run-uuid`                    | **Safe replace.** `Drop-SupersededExtents` drops extents tagged with older run-uuids from the raw table and deletes their `Ingest_Manifest` rows before the new run is ingested. (`ingest.ps1` lines 571–613.)                                                                                   |
+| Different `(scope, type, period)`                                   | **Independent.** No interaction with other tuples.                                                                                                                                                                                                                                               |
 
 > **How to correct or replace data:** stage the replacement parquet under a **new `<run-uuid>`**
 > directory for the same `(scope, type, period)`. Give it a `manifest.json` with a later
@@ -279,6 +279,7 @@ All fields that `ingest.ps1` consumes are present.
 4. Run `make ingest` (or `pwsh scripts/ingest.ps1`).
 
 **Notes:**
+
 - If the export was configured with `-Format Csv` (the default), the data is CSV, not
   parquet, and cannot be ingested directly. **Always configure `-Format Parquet`.**
 - The dataset type token (`ms--focus-cost`) corresponds to the `FocusCost` export type.
@@ -347,6 +348,7 @@ export/
 ```
 
 In this tree, `ingest.ps1` ingests four runs:
+
 - `ea / ms--focus-cost / 20260501-20260531` → one run, ingested into `Costs_raw`.
 - `ea / ms--pricesheet / 20260501-20260531` → one run, ingested into `Prices_raw`.
 - `sub-prod / ms--focus-cost / 20260501-20260531` → two runs; the `_004` run is latest,

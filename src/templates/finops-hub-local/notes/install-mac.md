@@ -13,15 +13,15 @@ identically and are the cross-platform reference.
 
 ## Prerequisites
 
-| Requirement | Notes |
-|-------------|-------|
-| **Docker Desktop ≥ 4.0** | Compose v2 is required (`docker compose`, not legacy `docker-compose`). |
-| **Apple Silicon: enable Rosetta** | Docker Desktop → Settings → General → "Use Rosetta for x86_64/amd64 emulation on Apple Silicon". The Kustainer image is `linux/amd64` only. Intel Macs need nothing extra. |
-| **PowerShell 7+** (`pwsh`) | `brew install --cask powershell`. All tooling is PowerShell; there are no Python dependencies. |
-| **Git** | To clone the repository (`brew install git`, or use the Xcode command-line tools). |
-| **~16 GiB RAM available to Docker** | Docker Desktop → Settings → Resources → Memory. The full Prices transform needs it; Costs-only datasets work at 8 GiB. See [Limits](performance.md). |
-| **Host port 8082 free** | Configurable via `HOST_PORT` in `.env`. |
-| **FOCUS cost exports as Parquet** | Staged under `export/`. See [staging-contract.md](staging-contract.md). |
+| Requirement                         | Notes                                                                                                                                                                      |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Docker Desktop ≥ 4.0**            | Compose v2 is required (`docker compose`, not legacy `docker-compose`).                                                                                                    |
+| **Apple Silicon: enable Rosetta**   | Docker Desktop → Settings → General → "Use Rosetta for x86_64/amd64 emulation on Apple Silicon". The Kustainer image is `linux/amd64` only. Intel Macs need nothing extra. |
+| **PowerShell 7+** (`pwsh`)          | `brew install --cask powershell`. All tooling is PowerShell; there are no Python dependencies.                                                                             |
+| **Git**                             | To clone the repository (`brew install git`, or use the Xcode command-line tools).                                                                                         |
+| **~16 GiB RAM available to Docker** | Docker Desktop → Settings → Resources → Memory. The full Prices transform needs it; Costs-only datasets work at 8 GiB. See [Limits](performance.md).                       |
+| **Host port 8082 free**             | Configurable via `HOST_PORT` in `.env`.                                                                                                                                    |
+| **FOCUS cost exports as Parquet**   | Staged under `export/`. See [staging-contract.md](staging-contract.md).                                                                                                    |
 
 ---
 
@@ -92,13 +92,13 @@ git pull && docker compose up -d --wait && pwsh scripts/load-ftk-kql.ps1   # upd
 
 ## Troubleshooting (macOS-specific)
 
-| Symptom | Fix |
-|---------|-----|
+| Symptom                                       | Fix                                                                                                                                                |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Very slow ingest / transform on Apple Silicon | Expected — `linux/amd64` runs under emulation. Confirm Rosetta is enabled (above). See [performance.md](performance.md) for the measured envelope. |
-| Container exits under the Prices transform | Raise Docker Desktop's memory (Settings → Resources) to ≥ 16 GiB. The ingest already chunks large tables. |
-| `pwsh: command not found` | `brew install --cask powershell`. |
-| Rare SIGSEGV crashes under heavy load | A known Rosetta emulation issue; the container restarts automatically. See the main [README](../README.md) troubleshooting section. |
-| Port 8082 already in use | Set a different `HOST_PORT` in `.env`, then bring the stack back up. |
+| Container exits under the Prices transform    | Raise Docker Desktop's memory (Settings → Resources) to ≥ 16 GiB. The ingest already chunks large tables.                                          |
+| `pwsh: command not found`                     | `brew install --cask powershell`.                                                                                                                  |
+| Rare SIGSEGV crashes under heavy load         | A known Rosetta emulation issue; the container restarts automatically. See the main [README](../README.md) troubleshooting section.                |
+| Port 8082 already in use                      | Set a different `HOST_PORT` in `.env`, then bring the stack back up.                                                                               |
 
 For the ADX web-UI dashboard, see [dashboard.md](dashboard.md). Use Edge or Chrome; Safari
 is stricter about local connections.

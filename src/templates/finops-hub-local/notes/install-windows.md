@@ -14,18 +14,18 @@ whole surface.
 
 ## Prerequisites
 
-| Requirement | Notes |
-|-------------|-------|
-| **Docker Desktop ≥ 4.0** with the **WSL 2 backend** | Settings → General → "Use the WSL 2 based engine". Compose v2 ships with it (`docker compose`, not legacy `docker-compose`). |
-| **PowerShell 7+** (`pwsh`) | **Windows PowerShell 5.1 will not work** — the scripts use 7-only syntax. Install with `winget install Microsoft.PowerShell`, then use the `pwsh` command (not `powershell`). |
-| **Git** | `winget install Git.Git`, to clone the repository. |
-| **~16 GiB RAM available to Docker** | The full Prices transform needs it. Costs-only datasets work at 8 GiB. See [memory tuning](#tune-wsl-2-memory) below — on Windows the limit is governed by both the container `MEM_LIMIT` **and** WSL 2's own memory cap. |
-| **Host port 8082 free** | Configurable via `HOST_PORT` in `.env`. |
-| **FOCUS cost exports as Parquet** | Staged under `export/`. See [staging-contract.md](staging-contract.md). |
+| Requirement                                         | Notes                                                                                                                                                                                                                     |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Docker Desktop ≥ 4.0** with the **WSL 2 backend** | Settings → General → "Use the WSL 2 based engine". Compose v2 ships with it (`docker compose`, not legacy `docker-compose`).                                                                                              |
+| **PowerShell 7+** (`pwsh`)                          | **Windows PowerShell 5.1 will not work** — the scripts use 7-only syntax. Install with `winget install Microsoft.PowerShell`, then use the `pwsh` command (not `powershell`).                                             |
+| **Git**                                             | `winget install Git.Git`, to clone the repository.                                                                                                                                                                        |
+| **~16 GiB RAM available to Docker**                 | The full Prices transform needs it. Costs-only datasets work at 8 GiB. See [memory tuning](#tune-wsl-2-memory) below — on Windows the limit is governed by both the container `MEM_LIMIT` **and** WSL 2's own memory cap. |
+| **Host port 8082 free**                             | Configurable via `HOST_PORT` in `.env`.                                                                                                                                                                                   |
+| **FOCUS cost exports as Parquet**                   | Staged under `export/`. See [staging-contract.md](staging-contract.md).                                                                                                                                                   |
 
-> **Why PowerShell 7, not the built-in PowerShell?** Windows ships *Windows PowerShell 5.1*
+> **Why PowerShell 7, not the built-in PowerShell?** Windows ships _Windows PowerShell 5.1_
 > (`powershell.exe`). ftklocal's scripts use null-coalescing (`??`) and ternary operators
-> that only exist in *PowerShell 7+* (`pwsh.exe`). Running them under 5.1 fails with parser
+> that only exist in _PowerShell 7+_ (`pwsh.exe`). Running them under 5.1 fails with parser
 > errors. Always invoke them with `pwsh`.
 
 ---
@@ -135,16 +135,16 @@ pwsh scripts\load-ftk-kql.ps1                    # re-applies schema (idempotent
 
 ## Troubleshooting (Windows-specific)
 
-| Symptom | Fix |
-|---------|-----|
-| `pwsh : The term 'pwsh' is not recognized` | PowerShell 7 isn't installed or isn't on `PATH`. `winget install Microsoft.PowerShell`, then open a new terminal. |
-| Parser errors like `Unexpected token '??'` | You're running under Windows PowerShell 5.1. Use `pwsh`, not `powershell`. |
-| `running scripts is disabled on this system` | Invoking as `pwsh scripts\x.ps1 <args>` normally bypasses this. If you dot-source instead, set `Set-ExecutionPolicy -Scope Process RemoteSigned` for the session. |
-| `docker compose` not found | Update Docker Desktop (Compose v2 is bundled). Don't use the legacy `docker-compose`. |
-| Container exits / killed under the Prices transform | WSL 2 memory cap too low — see [Tune WSL 2 memory](#tune-wsl-2-memory). The ingest already chunks large tables; raising the VM cap removes the ceiling. |
-| Port 8082 already in use | Set a different `HOST_PORT` in `.env`, then `docker compose up -d --wait`. |
-| `Ingestion`/`Hub` DB missing after start | Run `pwsh scripts\load-ftk-kql.ps1`. If it persists, full-reset (above) and reload. |
-| Tiles/queries return 0 rows | You haven't ingested yet — run `pwsh scripts\ingest.ps1`. |
+| Symptom                                             | Fix                                                                                                                                                               |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pwsh : The term 'pwsh' is not recognized`          | PowerShell 7 isn't installed or isn't on `PATH`. `winget install Microsoft.PowerShell`, then open a new terminal.                                                 |
+| Parser errors like `Unexpected token '??'`          | You're running under Windows PowerShell 5.1. Use `pwsh`, not `powershell`.                                                                                        |
+| `running scripts is disabled on this system`        | Invoking as `pwsh scripts\x.ps1 <args>` normally bypasses this. If you dot-source instead, set `Set-ExecutionPolicy -Scope Process RemoteSigned` for the session. |
+| `docker compose` not found                          | Update Docker Desktop (Compose v2 is bundled). Don't use the legacy `docker-compose`.                                                                             |
+| Container exits / killed under the Prices transform | WSL 2 memory cap too low — see [Tune WSL 2 memory](#tune-wsl-2-memory). The ingest already chunks large tables; raising the VM cap removes the ceiling.           |
+| Port 8082 already in use                            | Set a different `HOST_PORT` in `.env`, then `docker compose up -d --wait`.                                                                                        |
+| `Ingestion`/`Hub` DB missing after start            | Run `pwsh scripts\load-ftk-kql.ps1`. If it persists, full-reset (above) and reload.                                                                               |
+| Tiles/queries return 0 rows                         | You haven't ingested yet — run `pwsh scripts\ingest.ps1`.                                                                                                         |
 
 For the ADX web-UI dashboard on Windows, see [dashboard.md](dashboard.md) — Edge and Chrome
 are the supported browsers and will prompt once for **Local Network Access** (click

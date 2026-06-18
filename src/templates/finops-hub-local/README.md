@@ -10,13 +10,13 @@ variants), the same open data, and the same query catalog.
 
 ## When to use this vs deploying a real hub
 
-| Situation | Use |
-|-----------|-----|
-| Offline analysis, air-gapped network, or no Azure subscription | **ftklocal** |
-| Developing or testing KQL changes before deploying | **ftklocal** |
-| Working with FOCUS parquet already on disk | **ftklocal** |
-| Production analytics for an organization | [Deploy a FinOps hub](../finops-hub/README.md) |
-| Querying a live Azure Data Explorer or Fabric cluster | [FinOps hub](../finops-hub/README.md) |
+| Situation                                                      | Use                                            |
+| -------------------------------------------------------------- | ---------------------------------------------- |
+| Offline analysis, air-gapped network, or no Azure subscription | **ftklocal**                                   |
+| Developing or testing KQL changes before deploying             | **ftklocal**                                   |
+| Working with FOCUS parquet already on disk                     | **ftklocal**                                   |
+| Production analytics for an organization                       | [Deploy a FinOps hub](../finops-hub/README.md) |
+| Querying a live Azure Data Explorer or Fabric cluster          | [FinOps hub](../finops-hub/README.md)          |
 
 ---
 
@@ -75,12 +75,12 @@ summarizes what was loaded.
 
 All tunables live in `.env` (gitignored). `.env.example` documents them:
 
-| Variable | Default | Meaning |
-|----------|---------|---------|
-| `HOST_PORT` | `8082` | Host port mapped to the Kustainer container's HTTP endpoint. |
-| `MEM_LIMIT` | `16g` | Memory ceiling for the Kustainer container. |
-| `EXPORT_DIR` | `./export` | Host directory with Parquet exports (read-only mount). |
-| `BACKFILL_CHUNK_ROW_THRESHOLD` | `2000000` | Row count above which `ingest.ps1` uses proactive chunked backfill. See [Chunked backfill](#automatic-chunked-backfill). |
+| Variable                       | Default    | Meaning                                                                                                                  |
+| ------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `HOST_PORT`                    | `8082`     | Host port mapped to the Kustainer container's HTTP endpoint.                                                             |
+| `MEM_LIMIT`                    | `16g`      | Memory ceiling for the Kustainer container.                                                                              |
+| `EXPORT_DIR`                   | `./export` | Host directory with Parquet exports (read-only mount).                                                                   |
+| `BACKFILL_CHUNK_ROW_THRESHOLD` | `2000000`  | Row count above which `ingest.ps1` uses proactive chunked backfill. See [Chunked backfill](#automatic-chunked-backfill). |
 
 ---
 
@@ -90,24 +90,24 @@ All tunables live in `.env` (gitignored). `.env.example` documents them:
 
 The local stack mirrors the real hub's **two-database** layout:
 
-| Database | Holds | You query it for |
-|----------|-------|------------------|
+| Database        | Holds                                                                                                                                                                    | You query it for                                        |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------- |
 | **`Ingestion`** | Raw tables (`Costs_raw`, `Prices_raw`), `*_transform_v1_2()` functions, final tables (`Costs_final_v1_2`, `Prices_final_v1_2`), open-data lookups, and `Ingest_Manifest` | Ingestion internals, parity checks, transform debugging |
-| **`Hub`** | Hub view functions (`Costs`, `Prices`, `Transactions`, `Costs_v1_2`, `Prices_v1_2`, …) that read `database('Ingestion').*` | All analytics — this is the default query database |
+| **`Hub`**       | Hub view functions (`Costs`, `Prices`, `Transactions`, `Costs_v1_2`, `Prices_v1_2`, …) that read `database('Ingestion').*`                                               | All analytics — this is the default query database      |
 
 The `Hub` database is the default for `make kql` and `ftk.ps1`. To inspect raw tables,
 override: `make kql KQL_DB=Ingestion QUERY='Costs_raw | count'`.
 
 ### How it maps to a real hub
 
-| Real hub component | Local equivalent |
-|--------------------|-----------------|
-| Azure Data Explorer (ADX) cluster | Kusto emulator (Docker, `http://localhost:8082`) |
-| `Ingestion` ADX database | `Ingestion` database in the emulator |
-| `Hub` ADX database | `Hub` database in the emulator |
-| Data Factory pipeline (ADF) | `scripts/ingest.ps1` |
-| Azure Storage (`msexports/` or `ingestion/` container) | `export/` directory on disk |
-| Bicep/ARM deployment | `make load-ftk-kql` (idempotent KQL loader) |
+| Real hub component                                     | Local equivalent                                 |
+| ------------------------------------------------------ | ------------------------------------------------ |
+| Azure Data Explorer (ADX) cluster                      | Kusto emulator (Docker, `http://localhost:8082`) |
+| `Ingestion` ADX database                               | `Ingestion` database in the emulator             |
+| `Hub` ADX database                                     | `Hub` database in the emulator                   |
+| Data Factory pipeline (ADF)                            | `scripts/ingest.ps1`                             |
+| Azure Storage (`msexports/` or `ingestion/` container) | `export/` directory on disk                      |
+| Bicep/ARM deployment                                   | `make load-ftk-kql` (idempotent KQL loader)      |
 
 The KQL itself — `IngestionSetup_RawTables.kql`, `IngestionSetup_v1_2.kql`,
 `HubSetup_v1_2.kql`, `HubSetup_OpenData.kql` — is loaded verbatim from the upstream
@@ -152,11 +152,11 @@ ingest` on an unchanged export directory is safe — already-ingested files are 
 
 ### Overwrite semantics
 
-| Situation | Behavior |
-|-----------|----------|
-| Same run-uuid, same file checksum | Skip (already ingested) |
-| Same `(scope, type, period)`, **new** run-uuid | Safe replace — old extents are dropped, new data is ingested |
-| Same run-uuid, **changed** file checksum | **Fail-fast double-ingest guard** — the script detects the checksum mismatch and refuses. Stage the replacement files under a **new run-uuid** instead. |
+| Situation                                      | Behavior                                                                                                                                                |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Same run-uuid, same file checksum              | Skip (already ingested)                                                                                                                                 |
+| Same `(scope, type, period)`, **new** run-uuid | Safe replace — old extents are dropped, new data is ingested                                                                                            |
+| Same run-uuid, **changed** file checksum       | **Fail-fast double-ingest guard** — the script detects the checksum mismatch and refuses. Stage the replacement files under a **new run-uuid** instead. |
 
 > **How to replace data:** stage replacement parquet under a new `<run-uuid>` directory
 > with a `manifest.json` whose `runInfo.submittedTime` is later than the existing run.
@@ -175,6 +175,7 @@ backfill automatically:
   first; if it OOMs the engine, `ingest.ps1` falls back to chunked automatically.
 
 The threshold is sized so that at `MEM_LIMIT=16g`:
+
 - Costs (~1.35 M rows) → single-pass (safely below threshold).
 - Prices (~12.7 M rows) → proactive chunked (safely above threshold).
 
@@ -247,15 +248,15 @@ These numbers were measured on `MEM_LIMIT=16g`, amd64-on-Rosetta (Apple Silicon)
 with a dataset of approximately 1,350,561 Cost rows and 12,735,587 Price rows plus
 open-data lookups. Your results vary by `MEM_LIMIT` and dataset size.
 
-| Metric | Measured value |
-|--------|----------------|
-| Raw file ingest wall-clock (31 parts, ~991 MB) | 419.6 s (7.0 min) |
-| Full `ingest.ps1` wall-clock (raw + all backfill) | 841.6 s (14.0 min) |
-| **Cold loaded** — post-restart, data on disk, extents not yet materialized (anon) | **1.12 GiB (7.0% of 16 GiB)** — this is the floor |
-| **Hot post-ingest** — immediately after transform pipeline; extents in memory (anon) | **13.99 GiB (≈87% of 16 GiB)** — sustained until restart |
-| Chunked backfill memory.peak (cumulative HWM, Prices per-extent) | **15.03 GiB (93.9% of 16 GiB)** |
-| Single-pass Prices transform (~12.7 M rows) | anon ~14.74 GiB / memory.peak **15.12 GiB** → engine crash |
-| Single-pass Costs transform (~1.35 M rows) | Completes in 53 s; peak 6.89 GiB (43% of 16 GiB) |
+| Metric                                                                               | Measured value                                             |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| Raw file ingest wall-clock (31 parts, ~991 MB)                                       | 419.6 s (7.0 min)                                          |
+| Full `ingest.ps1` wall-clock (raw + all backfill)                                    | 841.6 s (14.0 min)                                         |
+| **Cold loaded** — post-restart, data on disk, extents not yet materialized (anon)    | **1.12 GiB (7.0% of 16 GiB)** — this is the floor          |
+| **Hot post-ingest** — immediately after transform pipeline; extents in memory (anon) | **13.99 GiB (≈87% of 16 GiB)** — sustained until restart   |
+| Chunked backfill memory.peak (cumulative HWM, Prices per-extent)                     | **15.03 GiB (93.9% of 16 GiB)**                            |
+| Single-pass Prices transform (~12.7 M rows)                                          | anon ~14.74 GiB / memory.peak **15.12 GiB** → engine crash |
+| Single-pass Costs transform (~1.35 M rows)                                           | Completes in 53 s; peak 6.89 GiB (43% of 16 GiB)           |
 
 See [notes/performance.md](notes/performance.md) for the full row-count → memory curve,
 per-stage cgroup v2 measurements, and OOM ceiling analysis.
@@ -276,7 +277,7 @@ Set `HOST_PORT=<other-port>` in `.env` and re-run `make up`. Do not use port 808
 
 - **Apple Silicon:** ensure Rosetta is enabled (Docker Desktop → Settings → General).
 - **Logs:** `make logs` — look for `Database NetDefaultDB has been created and is
-  answering queries`.
+answering queries`.
 - **Memory:** `docker stats --no-stream kustainer` — raise `MEM_LIMIT` in `.env` if
   near the ceiling. After editing `.env`, always use `make down && make up` (never
   `--force-recreate`; see below).
@@ -358,18 +359,18 @@ make parity
 
 ## Makefile reference
 
-| Target | What it does |
-|--------|--------------|
-| `make up` | Bring Kustainer up and block until the healthcheck passes. |
-| `make down` | Stop the container (data volume preserved). |
-| `make nuke` | Destructive full reset — removes the `kustainer-data/` volume. |
-| `make logs` | Tail Kustainer container logs. |
-| `make kql QUERY='...'` | One-shot KQL against Hub (override: `KQL_DB=Ingestion`). |
-| `make load-ftk-kql` | Load FTK KQL + open data into Ingestion + Hub (idempotent). |
-| `make ingest` | Bulk-ingest all Parquet exports under `export/`. |
-| `make ingest SCOPE=<s>` | Ingest one scope only. |
-| `make ingest SCOPE=<s> PERIOD=<p>` | Ingest one scope + period. |
-| `make ingest-status` | Show `Ingest_Manifest` summary (files + rows per scope/type). |
-| `make parity` | Run the parity check suite (exit 0 iff all checks pass). |
-| `make chunked-prices-backfill` | Manual per-extent Prices backfill (auto-triggered by threshold). |
-| `make help` | Print all targets. |
+| Target                             | What it does                                                     |
+| ---------------------------------- | ---------------------------------------------------------------- |
+| `make up`                          | Bring Kustainer up and block until the healthcheck passes.       |
+| `make down`                        | Stop the container (data volume preserved).                      |
+| `make nuke`                        | Destructive full reset — removes the `kustainer-data/` volume.   |
+| `make logs`                        | Tail Kustainer container logs.                                   |
+| `make kql QUERY='...'`             | One-shot KQL against Hub (override: `KQL_DB=Ingestion`).         |
+| `make load-ftk-kql`                | Load FTK KQL + open data into Ingestion + Hub (idempotent).      |
+| `make ingest`                      | Bulk-ingest all Parquet exports under `export/`.                 |
+| `make ingest SCOPE=<s>`            | Ingest one scope only.                                           |
+| `make ingest SCOPE=<s> PERIOD=<p>` | Ingest one scope + period.                                       |
+| `make ingest-status`               | Show `Ingest_Manifest` summary (files + rows per scope/type).    |
+| `make parity`                      | Run the parity check suite (exit 0 iff all checks pass).         |
+| `make chunked-prices-backfill`     | Manual per-extent Prices backfill (auto-triggered by threshold). |
+| `make help`                        | Print all targets.                                               |

@@ -34,19 +34,20 @@ started just before the OOM attempt.
 
 ## Measurement table
 
-| Stage | Total rows in engine | anon (GiB) | anon % of 16 g | memory.peak (GiB) | OOM events |
-|-------|---------------------|-----------|----------------|------------------|------------|
-| 1. Empty engine (just started, no data) | 0 | 0.49 | 3.1 % | 0.51 | — |
-| 2. Schema + open-data loaded (`load-ftk-kql`) | 3,293 | 0.66 | 4.1 % | 0.68 | — |
-| 3a. After Costs_raw ingested (15 parts) | 1,353,854 | 1.51 ¹ | 9.5 % | 2.13 ¹ | — |
-| 3b. After all raw ingested, no finals yet | 14,089,441 | 1.99 ¹ | 12.4 % | 3.98 ¹ | — |
-| 3c. After Costs_final_v1_2 backfill (single-pass) | 15,440,002 | 3.88 ¹ | 24.2 % | 6.89 ¹ | — |
-| 3d. After full ingest — **hot** working set | 28,175,589 | **13.99** | **87.4 %** | **15.03** | 0 |
-| 4. After representative query workload | 28,175,589 | 13.95 | 87.2 % | 15.03 | 0 |
-| 5. Single-pass OOM attempt (Prices, 12.7 M rows) | 28,175,589 | 14.74 ¹ | 92.1 % | **15.12 ¹** | **crash** |
-| 6. Cold loaded — post-restart, data on disk ² | 28,175,589 | **1.12** | **7.0 %** | 1.58 ² | 0 |
+| Stage                                             | Total rows in engine | anon (GiB) | anon % of 16 g | memory.peak (GiB) | OOM events |
+| ------------------------------------------------- | -------------------- | ---------- | -------------- | ----------------- | ---------- |
+| 1. Empty engine (just started, no data)           | 0                    | 0.49       | 3.1 %          | 0.51              | —          |
+| 2. Schema + open-data loaded (`load-ftk-kql`)     | 3,293                | 0.66       | 4.1 %          | 0.68              | —          |
+| 3a. After Costs_raw ingested (15 parts)           | 1,353,854            | 1.51 ¹     | 9.5 %          | 2.13 ¹            | —          |
+| 3b. After all raw ingested, no finals yet         | 14,089,441           | 1.99 ¹     | 12.4 %         | 3.98 ¹            | —          |
+| 3c. After Costs_final_v1_2 backfill (single-pass) | 15,440,002           | 3.88 ¹     | 24.2 %         | 6.89 ¹            | —          |
+| 3d. After full ingest — **hot** working set       | 28,175,589           | **13.99**  | **87.4 %**     | **15.03**         | 0          |
+| 4. After representative query workload            | 28,175,589           | 13.95      | 87.2 %         | 15.03             | 0          |
+| 5. Single-pass OOM attempt (Prices, 12.7 M rows)  | 28,175,589           | 14.74 ¹    | 92.1 %         | **15.12 ¹**       | **crash**  |
+| 6. Cold loaded — post-restart, data on disk ²     | 28,175,589           | **1.12**   | **7.0 %**      | 1.58 ²            | 0          |
 
 **Notes:**
+
 - Stages 1, 2, 3d, 4 are exact point-in-time measurements. Stages 3a–3c and 5 are read
   from the 2–3 s poll loop and should be treated as approximate (±0.1 GiB).
 - memory.peak is cumulative (not per-stage); the value in each row is the cumulative
@@ -105,12 +106,12 @@ Key observations:
 
 ## Ingest wall-clock
 
-| Phase | Duration |
-|-------|----------|
-| Raw file ingest (31 parquet parts, 991 MB) | 419.6 s (7.0 min) |
-| Costs_final_v1_2 single-pass backfill (1.35 M rows) | 53.2 s |
-| Prices_final_v1_2 chunked backfill (12.7 M rows, 21 extents × 1) | ~340 s (~5.7 min) |
-| **Full `ingest.ps1` wall-clock (raw + backfill)** | **841.6 s (14.0 min)** |
+| Phase                                                            | Duration               |
+| ---------------------------------------------------------------- | ---------------------- |
+| Raw file ingest (31 parquet parts, 991 MB)                       | 419.6 s (7.0 min)      |
+| Costs_final_v1_2 single-pass backfill (1.35 M rows)              | 53.2 s                 |
+| Prices_final_v1_2 chunked backfill (12.7 M rows, 21 extents × 1) | ~340 s (~5.7 min)      |
+| **Full `ingest.ps1` wall-clock (raw + backfill)**                | **841.6 s (14.0 min)** |
 
 The raw file ingest time is dominated by the 16 price sheet parts (247 s total, ~15 s each
 for the large monthly files). The 15 cost parts take only 76.5 s.
@@ -123,10 +124,10 @@ for the large monthly files). The 15 cost parts take only 76.5 s.
 
 The 2,000,000-row threshold in `BACKFILL_CHUNK_ROW_THRESHOLD` separates two regimes:
 
-| Mode | Prices (12.7 M rows) | Peak anon | memory.peak | Outcome |
-|------|---------------------|-----------|-------------|---------|
-| **Chunked (default, ≤ 1 extent/batch)** | 21 chunks × ~600 K avg rows | **14.71 GiB** | **15.03 GiB** | ✅ completes |
-| **Single-pass** (threshold raised to bypass) | all 12.7 M rows at once | **14.74 GiB at crash** | **15.12 GiB** | ❌ OOM crash |
+| Mode                                         | Prices (12.7 M rows)        | Peak anon              | memory.peak   | Outcome      |
+| -------------------------------------------- | --------------------------- | ---------------------- | ------------- | ------------ |
+| **Chunked (default, ≤ 1 extent/batch)**      | 21 chunks × ~600 K avg rows | **14.71 GiB**          | **15.03 GiB** | ✅ completes |
+| **Single-pass** (threshold raised to bypass) | all 12.7 M rows at once     | **14.74 GiB at crash** | **15.12 GiB** | ❌ OOM crash |
 
 ### Chunked-backfill peak detail
 
@@ -136,6 +137,7 @@ memory.peak reached 15.03 GiB (93.9 % of 16 g) during this phase.
 
 The individual chunks do NOT add up linearly in memory because the engine releases
 completed-extent memory between chunks. Each chunk's peak is dominated by:
+
 - the pre-existing working set (~13–14 GiB from previously loaded extents), plus
 - the in-flight transform output for the current chunk (~0.5–1 GiB per ~1 M row chunk).
 
@@ -172,12 +174,12 @@ that persists until the engine restarts or memory is reclaimed.
 All tiers are calibrated to `MEM_LIMIT=16g` and this specific dataset. They scale with
 both `MEM_LIMIT` and dataset size. Each cell identifies the metric and source stage.
 
-| State | Condition | Metric (source stage) | % of MEM_LIMIT | Notes |
-|-------|-----------|----------------------|----------------|-------|
-| **Cold loaded** | Post-restart or fresh `make up`, before heavy queries | anon: **1.12 GiB** (stage 6) | 7.0 % | Floor; extents on disk, not yet materialized. Data intact and queryable. |
-| **Hot post-ingest** | Immediately after `make ingest` completes; extents fully materialized by transform | anon: **13.99 GiB** (stage 3d) | 87.4 % | Sustained until restart or OS reclaim; this is NOT the steady-state floor |
-| **Degraded** | Prices chunked-backfill high-water (during `make ingest`) | memory.peak: **15.03 GiB** (stage 3d cumulative HWM) | 93.9 % | Within 0.09 GiB of single-pass crash; system completes but headroom is minimal |
-| **Ceiling** | Single-pass Prices transform attempt | anon: ~14.74 GiB / memory.peak: **15.12 GiB** → crash (stage 5) | 92.1 % anon / 94.5 % peak → crash | Kusto self-terminates (SIGKILL); container restarts automatically |
+| State               | Condition                                                                          | Metric (source stage)                                           | % of MEM_LIMIT                    | Notes                                                                          |
+| ------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------ |
+| **Cold loaded**     | Post-restart or fresh `make up`, before heavy queries                              | anon: **1.12 GiB** (stage 6)                                    | 7.0 %                             | Floor; extents on disk, not yet materialized. Data intact and queryable.       |
+| **Hot post-ingest** | Immediately after `make ingest` completes; extents fully materialized by transform | anon: **13.99 GiB** (stage 3d)                                  | 87.4 %                            | Sustained until restart or OS reclaim; this is NOT the steady-state floor      |
+| **Degraded**        | Prices chunked-backfill high-water (during `make ingest`)                          | memory.peak: **15.03 GiB** (stage 3d cumulative HWM)            | 93.9 %                            | Within 0.09 GiB of single-pass crash; system completes but headroom is minimal |
+| **Ceiling**         | Single-pass Prices transform attempt                                               | anon: ~14.74 GiB / memory.peak: **15.12 GiB** → crash (stage 5) | 92.1 % anon / 94.5 % peak → crash | Kusto self-terminates (SIGKILL); container restarts automatically              |
 
 ### When to raise MEM_LIMIT
 
@@ -194,18 +196,18 @@ both `MEM_LIMIT` and dataset size. Each cell identifies the metric and source st
 
 ## Environment
 
-| Setting | Value |
-|---------|-------|
-| MEM_LIMIT | 16g (17,179,869,184 bytes; confirmed via `memory.max`) |
-| Kustainer image | `mcr.microsoft.com/azuredataexplorer/kustainer-linux:latest` |
-| Kustainer build | `1.0.9656.17219` (2026-06-09) |
-| Platform | linux/amd64 on Rosetta (Apple Silicon, Docker Desktop) |
-| Host OS | macOS (Apple Silicon, M-series) |
-| cgroup version | v2 (confirmed) |
-| memory.peak reset | Not possible — kernel rejected write (read-only filesystem) |
-| memory.peak semantics | Cumulative since container start; NOT resettable between stages |
-| Poll interval (ingest) | 3 s |
-| Poll interval (OOM) | 2 s |
+| Setting                | Value                                                           |
+| ---------------------- | --------------------------------------------------------------- |
+| MEM_LIMIT              | 16g (17,179,869,184 bytes; confirmed via `memory.max`)          |
+| Kustainer image        | `mcr.microsoft.com/azuredataexplorer/kustainer-linux:latest`    |
+| Kustainer build        | `1.0.9656.17219` (2026-06-09)                                   |
+| Platform               | linux/amd64 on Rosetta (Apple Silicon, Docker Desktop)          |
+| Host OS                | macOS (Apple Silicon, M-series)                                 |
+| cgroup version         | v2 (confirmed)                                                  |
+| memory.peak reset      | Not possible — kernel rejected write (read-only filesystem)     |
+| memory.peak semantics  | Cumulative since container start; NOT resettable between stages |
+| Poll interval (ingest) | 3 s                                                             |
+| Poll interval (OOM)    | 2 s                                                             |
 
 ---
 
