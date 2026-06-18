@@ -1,7 +1,9 @@
 # Using the local ADX dashboard
 
 This dashboard (`../dashboard.json`) is the upstream FinOps hub dashboard localized to the
-ftklocal Kusto emulator. The only change from the upstream file is:
+ftklocal Kusto emulator. The only behaviorally significant change from the upstream file is
+`clusterUri` (the `title`, `id`, and `eTag` metadata fields also differ, but they do not
+affect tiles or queries):
 
 | Field                       | Upstream value                                        | Local value             |
 | --------------------------- | ----------------------------------------------------- | ----------------------- |
@@ -25,15 +27,15 @@ view functions as a deployed hub: `Costs_v1_2`, `Prices_v1_2`, `Transactions_v1_
 ## Proven path: query via the CLI
 
 The emulator's KQL REST API is plain HTTP with no authentication — you can query it directly
-from the terminal today without a browser. Use `ftk query` (or `ftk run`) against the `Hub`
-database:
+from the terminal today without a browser. Use `ftk.ps1 query` (or `ftk.ps1 run`) against the
+`Hub` database:
 
 ```bash
 # Smoke-test: confirm view functions are populated
-ftk query --db Hub "Costs_v1_2 | take 10"
+pwsh scripts/ftk.ps1 query --database Hub "Costs_v1_2 | take 10"
 
 # Run any KQL query interactively
-ftk run --db Hub
+pwsh scripts/ftk.ps1 run --database Hub
 ```
 
 This is the correct first validation step on Mac. It does not depend on any browser
@@ -167,7 +169,7 @@ dashboard data source to match.
 | `dataSources[0].database` = `Hub`                                             | ✅ Verified in file                                                                                                                                                                                                                               |
 | Hub DB has `Costs_v1_2`, `Prices_v1_2`, etc.                                  | ✅ Verified via `.show functions` on running emulator                                                                                                                                                                                             |
 | No upstream cluster names, billing IDs, or absolute paths in dashboard        | ✅ Verified                                                                                                                                                                                                                                       |
-| `ftk query` / `ftk run` against Hub DB                                        | ✅ Works (HTTP REST, no browser)                                                                                                                                                                                                                  |
+| `ftk.ps1 query` / `ftk.ps1 run` against Hub DB                                | ✅ Works (HTTP REST, no browser)                                                                                                                                                                                                                  |
 | Browser can add `http://localhost:8082` from `https://dataexplorer.azure.com` | ✅ **CORS allowed** (emulator returns `Access-Control-Allow-Origin: https://dataexplorer.azure.com`); `localhost` is exempt from mixed-content blocking. Edge 143+/Chrome 142+ show a one-time **Local Network Access** prompt — click **Allow**. |
 | Dashboard tiles render data after import                                      | ⚠️ **Visual render pending** — protocol path proven (tile queries return data via CORS); requires the interactive browser import + AAD sign-in + the LNA **Allow** click to confirm on screen                                                     |
 

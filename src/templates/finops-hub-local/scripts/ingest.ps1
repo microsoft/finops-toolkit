@@ -571,7 +571,7 @@ function Invoke-BackfillFinalsPerPeriod {
             $appended[$policyInfo.FinalTable] = 0
             continue
         }
-        $extentCount = (Get-TableExtents -TableName $rawTableName).Count
+        $extentCount = @(Get-TableExtents -TableName $rawTableName).Count
         # Proactive chunking: skip single-pass entirely when row count exceeds the
         # measured-headroom threshold. OOM is row-driven; extent count is informational only.
         if ([int64]$rawCount -gt $script:BackfillChunkRowThreshold) {
@@ -919,7 +919,7 @@ function Invoke-IngestMain {
     catch { [Console]::Error.WriteLine("error: $($_.Exception.Message)"); return 2 }
     if ($opts.ContainsKey('Help') -and $opts.Help) { Show-IngestUsage; return 0 }
     try {
-        $plans = Build-Plan -ExportRootPath $script:ExportDirHost -ScopeFilter $opts.Scope -PeriodFilter $opts.Period
+        $plans = @(Build-Plan -ExportRootPath $script:ExportDirHost -ScopeFilter $opts.Scope -PeriodFilter $opts.Period)
         if ($plans.Count -eq 0) { Write-InfoLine 'no (scope,type,period) tuples matched filters; nothing to do'; return 0 }
         $stats = Invoke-RunIngest -Plans $plans -DryRun ([bool]$opts.DryRun) -ForcePolicyRecapture ([bool]$opts.ForcePolicyRecapture)
         if ($opts.DryRun) { Write-InfoLine "`n(dry-run; no actual ingest occurred)"; return 0 }

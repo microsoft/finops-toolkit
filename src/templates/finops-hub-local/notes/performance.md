@@ -38,7 +38,7 @@ started just before the OOM attempt.
 | ------------------------------------------------- | -------------------- | ---------- | -------------- | ----------------- | ---------- |
 | 1. Empty engine (just started, no data)           | 0                    | 0.49       | 3.1 %          | 0.51              | —          |
 | 2. Schema + open-data loaded (`load-ftk-kql`)     | 3,293                | 0.66       | 4.1 %          | 0.68              | —          |
-| 3a. After Costs_raw ingested (15 parts)           | 1,353,854            | 1.51 ¹     | 9.5 %          | 2.13 ¹            | —          |
+| 3a. After Costs_raw ingested (15 parts)           | 1,353,854            | 1.51 ¹     | 9.4 %          | 2.13 ¹            | —          |
 | 3b. After all raw ingested, no finals yet         | 14,089,441           | 1.99 ¹     | 12.4 %         | 3.98 ¹            | —          |
 | 3c. After Costs_final_v1_2 backfill (single-pass) | 15,440,002           | 3.88 ¹     | 24.2 %         | 6.89 ¹            | —          |
 | 3d. After full ingest — **hot** working set       | 28,175,589           | **13.99**  | **87.4 %**     | **15.03**         | 0          |

@@ -136,29 +136,34 @@ Prices_final_v1_2 | count
 The update policy is `IsTransactional`, so it transforms every ingested batch inline. That
 is ideal for incremental exports, but a one-shot bulk load of tens of millions of rows
 makes each batch's transform slow and memory-heavy, and a whole-table transform can exceed
-the container's `MEM_LIMIT`. For a large historical load, turn the policy off, ingest, then
-run the transform once — in chunks bounded by source extent:
+the container's `MEM_LIMIT`. In practice `Prices_final_v1_2` (~12.7M rows) is the table that
+OOMs at 16g, while `Costs_final_v1_2` (~1.35M rows) transforms single-pass without trouble —
+so the table below uses `Prices` as the worked example. For a large historical load, turn the
+policy off, ingest, then run the transform once — in chunks bounded by source extent:
 
 ````kusto
 // db: Ingestion
 // 1. disable the update policy so ingest doesn't transform inline
-.alter table Costs_final_v1_2 policy update ```[{"IsEnabled":false,"Source":"Costs_raw","Query":"Costs_transform_v1_2()","IsTransactional":true,"PropagateIngestionProperties":true}]```
+.alter table Prices_final_v1_2 policy update ```[{"IsEnabled":false,"Source":"Prices_raw","Query":"Prices_transform_v1_2()","IsTransactional":true,"PropagateIngestionProperties":true}]```
 
 // 2. ingest all the raw data (as in step 4)
 
 // 3. run the transform once, one extent group at a time so each pass is bounded
-.set-or-append Costs_final_v1_2 <|
-    let Costs_raw = __table("Costs_raw", 'All', 'AllButRowStore')
+.set-or-append Prices_final_v1_2 <|
+    let Prices_raw = __table("Prices_raw", 'All', 'AllButRowStore')
       | where extent_id() in (<guid1>, <guid2>);
-    Costs_transform_v1_2()
+    Prices_transform_v1_2()
 
 // 4. re-enable the update policy (set IsEnabled back to true)
 ````
 
-The [`ingest.ps1`](../scripts/ingest.ps1) helper does exactly this — disable, bulk-ingest,
-chunked backfill, re-enable — so you don't have to manage the policy or the extent GUIDs by
-hand. See [performance.md](performance.md) for the memory measurements that set the chunk
-threshold. **For large data, use the helper; this section is what it does under the hood.**
+`Costs_final_v1_2` needs the same treatment only if its row count grows past the single-pass
+headroom — swap `Costs_raw` / `Costs_transform_v1_2()` / `Costs_final_v1_2` into the commands
+above. The [`ingest.ps1`](../scripts/ingest.ps1) helper does exactly this for both tables —
+disable, bulk-ingest, chunked backfill, re-enable — so you don't have to manage the policy or
+the extent GUIDs by hand. See [performance.md](performance.md) for the memory measurements
+that set the chunk threshold. **For large data, use the helper; this section is what it does
+under the hood.**
 
 ## 6. Query
 

@@ -3,10 +3,10 @@
 There are **two distinct adaptation layers** in the local stack. This document covers
 both.
 
-| Layer         | Where it runs                                            | Purpose                                                                   |
-| ------------- | -------------------------------------------------------- | ------------------------------------------------------------------------- |
-| **Load-time** | `scripts/load-ftk-kql.ps1`                               | Loads upstream FTK KQL into the emulator at setup time (idempotent).      |
-| **On-read**   | `scripts/ftk.ps1` `Convert-CatalogQuery` (lines 341–382) | Adapts catalog `.kql` files at query time before posting to the emulator. |
+| Layer         | Where it runs                            | Purpose                                                                   |
+| ------------- | ---------------------------------------- | ------------------------------------------------------------------------- |
+| **Load-time** | `scripts/load-ftk-kql.ps1`               | Loads upstream FTK KQL into the emulator at setup time (idempotent).      |
+| **On-read**   | `scripts/ftk.ps1` `Convert-CatalogQuery` | Adapts catalog `.kql` files at query time before posting to the emulator. |
 
 The upstream KQL scripts live in
 `src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts/`.
@@ -158,27 +158,27 @@ in the seven scripts the loader processes.
 
 ---
 
-## On-read adapter — `ftk.ps1 run` (`Convert-CatalogQuery`, lines 341–382)
+## On-read adapter — `ftk.ps1 run` (`Convert-CatalogQuery`)
 
 `ftk.ps1 run` adapts catalog `.kql` files at query time before posting them to the
 emulator. This is a separate layer from the load-time adaptations above. The function
 `Convert-CatalogQuery` applies the following rules in order:
 
-### Rule 1 — Date-window retarget (lines 352–359)
+### Rule 1 — Date-window retarget (step `# 1. Date window`)
 
 Rewrites `let startDate = ...;` and `let endDate = ...;` bindings in catalog queries
 to match the `--start` / `--end` CLI arguments (or the last complete month when no
 range is supplied). This lets time-bounded catalog queries work locally without
 editing the `.kql` files.
 
-### Rule 1b — `--param` typed-literal override (lines 361–371)
+### Rule 1b — `--param` typed-literal override (step `# 1b.`)
 
 Rewrites any top-level `let <name> = ...;` binding when `--param name=value` is
 supplied on the CLI. Values are serialised to KQL typed literals (datetime, timespan,
 bool, int, real, or string). Throws if `name` does not match a top-level `let` in the
 query (no silent no-ops).
 
-### Rule 2 — `decimal`→`real` normalisation (lines 373–376)
+### Rule 2 — `decimal`→`real` normalisation (step `# 2.`)
 
 ```
 todecimal('') → real(null)
@@ -190,7 +190,7 @@ Kustainer's free image does not support the `decimal` scalar type. The FTK query
 catalog uses `decimal()` for monetary columns in some queries. This substitution is
 lossless for the numeric range involved and is the verified compatibility fix.
 
-### Rule 3 — Project-away tolerance (lines 378–379)
+### Rule 3 — Project-away tolerance (step `# 3.`)
 
 If a catalog query contains a `project-away` clause and calls a hub view function
 (`Costs()`, `Prices()`, `Recommendations()`, or `Transactions()`), the adapter

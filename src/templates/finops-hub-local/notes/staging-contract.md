@@ -135,12 +135,12 @@ export/
 
 - **`export/`** — root staging directory. Default: `export/` relative to the ftklocal
   checkout root. Override via the `EXPORT_DIR` environment variable or `.env` file.
-  (`ingest.ps1`, `Get-ExportDir`, lines 41–51.)
+  (`ingest.ps1`, `Get-ExportDir`.)
 - **`<scope>`** — a short, user-defined label for the billing scope (e.g., `ea`,
   `sub-prod`, `mca-<billingAccountId>`). This becomes the `scope` column in
   `Ingest_Manifest`.
 - **`<type>`** — dataset type token. Must be a key in `$script:DatasetTableMap`
-  (`ingest.ps1`, lines 59–62). See [Dataset type tokens](#dataset-type-tokens) below.
+  (`ingest.ps1`). See [Dataset type tokens](#dataset-type-tokens) below.
 - **`<period>`** — export billing period in `YYYYMMDD-YYYYMMDD` format
   (e.g., `20260501-20260531`). Must match this format; it becomes the `period` column.
 - **`<run-uuid>`** — a UUID that identifies one export run. Multiple run directories
@@ -149,7 +149,7 @@ export/
 
 ### Dataset type tokens
 
-Defined in `$script:DatasetTableMap` at `ingest.ps1` lines 59–62:
+Defined in `$script:DatasetTableMap` in `ingest.ps1`:
 
 | Token            | Raw table    | Ingestion mapping    | Cost Management dataset |
 | ---------------- | ------------ | -------------------- | ----------------------- |
@@ -157,12 +157,12 @@ Defined in `$script:DatasetTableMap` at `ingest.ps1` lines 59–62:
 | `ms--pricesheet` | `Prices_raw` | `Prices_raw_mapping` | `PriceSheet`            |
 
 Any directory name under `<scope>/` that is not one of these tokens is silently skipped
-with a warning (`ingest.ps1`, lines 248–252).
+with a warning (`ingest.ps1`, `Build-Plan`).
 
 ### `manifest.json` per run
 
 Each `<run-uuid>/` directory must contain a `manifest.json` file. The script reads
-this file in `Read-RunManifest` (`ingest.ps1`, lines 209–215) to obtain sort and
+this file in `Read-RunManifest` (`ingest.ps1`) to obtain sort and
 row-count metadata. Fields consumed by `ingest.ps1`:
 
 | JSON path               | Required    | Purpose                                                           |
@@ -200,26 +200,26 @@ One or more `.parquet` files in the run directory. File names must match the `bl
 suffix pattern in `manifest.json` for per-file row counts to resolve correctly, though
 mismatches are tolerated (the per-file count defaults to 0; the run is still ingested).
 Files are sorted lexicographically by name before ingest (`ingest.ps1`,
-`Sort-ByNameOrdinal`, lines 102–107 and 273).
+`Sort-ByNameOrdinal`).
 
 ### Latest-run selection
 
 For each `(scope, type, period)` triple, `ingest.ps1` collects all run directories that
 contain a valid `manifest.json`, then picks the **one latest run** using a three-key sort
 (ascending): `submittedTime` → `LastWriteTimeUtc` → directory name ordinal. The last entry
-after sorting is the winner. (`ingest.ps1`, `Build-Plan`, lines 269–272.)
+after sorting is the winner. (`ingest.ps1`, `Build-Plan`.)
 
 All other runs in the same `(scope, type, period)` are **superseded**. Their previously
 ingested extents are dropped from the raw table and their rows are removed from
 `Ingest_Manifest` before the winning run is ingested. (`ingest.ps1`,
-`Drop-SupersededExtents`, lines 571–613.)
+`Drop-SupersededExtents`.)
 
 ### Idempotency via `Ingest_Manifest`
 
 Ingest is idempotent at the file level. Before ingesting a parquet file, `ingest.ps1`
 looks up the composite key `(scope, export_type, period, run_uuid, file_name)` in the
 `Ingest_Manifest` table. If the key exists and the stored SHA-256 checksum matches the
-file, the file is skipped. (`ingest.ps1`, lines 741–748.)
+file, the file is skipped. (`ingest.ps1`, `Invoke-RunIngest`.)
 
 `Ingest_Manifest` schema:
 
@@ -235,24 +235,24 @@ file, the file is skipped. (`ingest.ps1`, lines 741–748.)
 | `checksum_sha256` | string   | SHA-256 hex of the parquet file.                      |
 | `ingested_at`     | datetime | UTC timestamp of ingest.                              |
 
-Defined at `ingest.ps1`, `Initialize-IngestManifestTable` / `Insert-ManifestRow`
-(lines 299–351).
+Defined at `ingest.ps1`, `Initialize-IngestManifestTable` / `Insert-ManifestRow`.
 
 ### Overwrite semantics summary
 
-| Condition                                                           | Behavior                                                                                                                                                                                                                                                                                         |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Same `(scope, type, period, run-uuid)`, same file checksum          | **Skip.** File is already in `Ingest_Manifest` with a matching SHA-256; no ingest, no new row. (`ingest.ps1` lines 744–748.)                                                                                                                                                                     |
-| Same `(scope, type, period, run-uuid)`, **different** file checksum | **Double-ingest — do not do this.** The old `Ingest_Manifest` row is not deleted and the prior extents are not dropped; a second ingest call is issued and a second `Ingest_Manifest` row is appended for the same key. The raw table will contain duplicate data. (`ingest.ps1` lines 744–776.) |
-| Same `(scope, type, period)`, **new** `run-uuid`                    | **Safe replace.** `Drop-SupersededExtents` drops extents tagged with older run-uuids from the raw table and deletes their `Ingest_Manifest` rows before the new run is ingested. (`ingest.ps1` lines 571–613.)                                                                                   |
-| Different `(scope, type, period)`                                   | **Independent.** No interaction with other tuples.                                                                                                                                                                                                                                               |
+| Condition                                                           | Behavior                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Same `(scope, type, period, run-uuid)`, same file checksum          | **Skip.** File is already in `Ingest_Manifest` with a matching SHA-256; no ingest, no new row. (`ingest.ps1`, `Invoke-RunIngest`.)                                                                                                                                                                                                                                                                                           |
+| Same `(scope, type, period, run-uuid)`, **different** file checksum | **Hard error (fail-fast).** `Invoke-RunIngest` detects the prior `Ingest_Manifest` row for the same composite key with a different SHA-256 and **throws** rather than ingest — re-ingesting under the same run-uuid would duplicate rows and silently corrupt cost totals. Stage corrected data under a **new** run-uuid for the same `(scope, type, period)` to replace it (supersede). (`ingest.ps1`, `Invoke-RunIngest`.) |
+| Same `(scope, type, period)`, **new** `run-uuid`                    | **Safe replace.** `Drop-SupersededExtents` drops extents tagged with older run-uuids from the raw table and deletes their `Ingest_Manifest` rows before the new run is ingested. (`ingest.ps1`, `Drop-SupersededExtents`.)                                                                                                                                                                                                   |
+| Different `(scope, type, period)`                                   | **Independent.** No interaction with other tuples.                                                                                                                                                                                                                                                                                                                                                                           |
 
 > **How to correct or replace data:** stage the replacement parquet under a **new `<run-uuid>`**
 > directory for the same `(scope, type, period)`. Give it a `manifest.json` with a later
 > `runInfo.submittedTime` than the run being replaced. `ingest.ps1` will then select it as
 > the latest run, drop the old run's extents and manifest rows, and ingest the new files
-> cleanly. Never mutate files in an already-ingested run directory — that path has no safe
-> overwrite; it only appends a duplicate.
+> cleanly. Never mutate files in an already-ingested run directory — `ingest.ps1` detects the
+> checksum change and **fails fast with a hard error** rather than silently duplicating data;
+> the safe overwrite path is always a new run-uuid.
 
 ---
 
@@ -347,7 +347,8 @@ export/
                 └── focus_v2.parquet
 ```
 
-In this tree, `ingest.ps1` ingests four runs:
+In this tree, `ingest.ps1` ingests three runs (the latest of each
+`(scope, type, period)` tuple):
 
 - `ea / ms--focus-cost / 20260501-20260531` → one run, ingested into `Costs_raw`.
 - `ea / ms--pricesheet / 20260501-20260531` → one run, ingested into `Prices_raw`.
