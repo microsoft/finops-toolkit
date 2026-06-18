@@ -153,7 +153,7 @@ parity:
 # (bounded memory). Use after `make ingest` if Prices_final_v1_2 ends up
 # partially populated or empty. Wall-clock ~15 min on Apple Silicon.
 # NOTE: ingest.ps1 now auto-chunks proactively when row count > BACKFILL_CHUNK_ROW_THRESHOLD
-# (default 3,000,000). This target is the manual fallback / override path.
+# (default 2,000,000). This target is the manual fallback / override path.
 chunked-prices-backfill:
 	@pwsh scripts/chunked-prices-backfill.ps1
 
