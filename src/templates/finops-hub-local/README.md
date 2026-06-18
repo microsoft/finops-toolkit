@@ -42,6 +42,11 @@ variants), the same open data, and the same query catalog.
 - 🍎 **[macOS](notes/install-mac.md)** — secondary; Apple Silicon runs the engine under
   Rosetta emulation. Covers Rosetta and Docker Desktop memory.
 
+**Want to understand what the helpers do?** [Build a local FinOps hub by hand](notes/build-by-hand.md)
+walks the whole setup as a dozen raw commands — start the emulator, create the two
+databases, load the schema, ingest, build the final tables, query. The helper scripts
+below automate exactly those steps.
+
 ---
 
 ## Quickstart
