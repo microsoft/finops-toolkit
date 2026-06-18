@@ -44,8 +44,8 @@ variants), the same open data, and the same query catalog.
 
 **Want to understand what the helpers do?** [Build a local FinOps hub by hand](notes/build-by-hand.md)
 walks the whole setup as a dozen raw commands — start the emulator, create the two
-databases, load the schema, ingest, build the final tables, query. The helper scripts
-below automate exactly those steps.
+databases, load the schema, ingest (the final tables transform themselves via an update
+policy), and query. The helper scripts below automate exactly those steps.
 
 ---
 
