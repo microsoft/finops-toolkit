@@ -216,7 +216,36 @@ function Invoke-FinOpsMultitool {
                 Write-Host "  Select [1/2/3]: " -ForegroundColor White -NoNewline
                 $choice = Read-Host
                 switch ($choice.Trim()) {
-                    '1' { return @{ Source = 'Hub'; HubStorage = $hubStorage } }
+                    '1' {
+                        # Large-hub heads-up: the [1] Hub choice uses the scalable
+                        # Kusto engine when the hub has an ADX/Fabric cluster (auto-
+                        # discovered) or FINOPS_HUB_KUSTO_URI is set (ftklocal). If
+                        # neither exists, cost scans fall back to the STORAGE READER,
+                        # which loads cost rows into PowerShell - slow / memory-heavy
+                        # on large hubs. Warn and let the user switch to the live API.
+                        $hubSubIds = @($Subscriptions | ForEach-Object { $_.Id })
+                        $prov = $null
+                        try { $prov = Resolve-FOHubProvider -Subscriptions $hubSubIds } catch { }
+                        if ($prov -and $prov.Found) {
+                            # A scalable Kusto path exists - no warning needed.
+                            return @{ Source = 'Hub'; HubStorage = $hubStorage }
+                        }
+                        Write-Host ""
+                        Write-Host "  Note: this FinOps Hub has no Azure Data Explorer (Kusto) cluster." -ForegroundColor Yellow
+                        Write-Host "  Cost scans will use the storage reader, which loads cost rows into" -ForegroundColor DarkGray
+                        Write-Host "  memory. On a large hub (tens of GB) this can be slow or run out of" -ForegroundColor DarkGray
+                        Write-Host "  memory before completing." -ForegroundColor DarkGray
+                        Write-Host "  For the scalable engine path: deploy ADX/Fabric on the hub, or set" -ForegroundColor DarkGray
+                        Write-Host "  FINOPS_HUB_KUSTO_URI to a local ftklocal emulator, then re-run." -ForegroundColor DarkGray
+                        Write-Host ""
+                        Write-Host "  Switch to the live Cost Management API instead? " -ForegroundColor White -NoNewline
+                        Write-Host "(N = continue with the storage reader)" -ForegroundColor DarkGray
+                        $useApi = Read-Host "  Select [Y/N]"
+                        if ($useApi.Trim() -match '^(y|yes)$') {
+                            return @{ Source = 'API'; HubStorage = $hubStorage }
+                        }
+                        return @{ Source = 'Hub'; HubStorage = $hubStorage }
+                    }
                     '2' { return @{ Source = 'API'; HubStorage = $hubStorage } }
                     '3' { return @{ Source = 'GraphOnly'; HubStorage = $hubStorage } }
                     default { Write-Host "  Invalid choice." -ForegroundColor Red }
