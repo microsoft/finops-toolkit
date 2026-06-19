@@ -14,13 +14,21 @@
     requests, so a single NextPageLink/$skip traversal of a large result set silently
     drops a scattered fraction of rows and is not reproducible run-to-run. To work
     around this, the script:
-      1. Shards each query by serviceFamily so individual traversals stay short
-         (short traversals are far less exposed to the ordering instability), and
-      2. Repeats each shard, unioning results by meterId, until the collected set
+      1. Discovers the serviceFamily values actually present in the API (one scan per
+         price type) and shards by those, so the shard list is self-correcting: a
+         newly added family (or a rename) is fetched automatically instead of being
+         silently excluded by a hardcoded allowlist. A discovery scan is itself a long
+         traversal and so is exposed to the ordering drop, but that only loses
+         scattered individual rows, never an entire family (each family has many
+         meters), so the family SET it returns is reliable even when the row set is not.
+      2. Shards each query by those serviceFamily values so individual traversals stay
+         short (short traversals are far less exposed to the ordering instability), and
+      3. Repeats each shard, unioning results by meterId, until the collected set
          stops growing (misses are random per pass, so the union converges).
     A completeness guard aborts before writing if the fetched total falls materially
-    below the previously published total, so an incomplete run can never overwrite
-    good open-data with missing eligibility.
+    below the previously published total -- in aggregate and per family, so a family
+    that vanishes or under-fetches is caught even if growth elsewhere masks it -- so an
+    incomplete run can never overwrite good open-data with missing eligibility.
 
     Pagination follows the documented NextPageLink verbatim; no undocumented $orderby
     is used (a multi-field $orderby is now rejected by the API with HTTP 400).
@@ -49,16 +57,12 @@ $ErrorActionPreference = 'Stop'
 
 $apiBase = 'https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview'
 
-# serviceFamily values to shard by (documented list; "subject to change"). A newly
-# added family missing from this list is caught by the completeness guard below.
-$ShardList = @(
-    'Analytics', 'Azure Arc', 'Azure Communication Services', 'Azure Security',
-    'Azure Stack', 'Compute', 'Containers', 'Data', 'Databases', 'Developer Tools',
-    'Dynamics', 'Gaming', 'Integration', 'Internet of Things',
-    'Management and Governance', 'Microsoft Syntex', 'Mixed Reality', 'Networking',
-    'Other', 'Power Platform', 'Quantum Computing', 'Security', 'Storage',
-    'Telecommunications', 'Web', 'Windows Virtual Desktop'
-)
+# The serviceFamily values to shard by are discovered at runtime per price type (see
+# Get-ServiceFamily), not hardcoded: a positive `serviceFamily eq` allowlist would
+# silently drop any family it omits (e.g. a newly added or renamed family), and the
+# completeness guard's aggregate floor is too coarse to catch a small family. Discovery
+# makes the shard set self-correcting; the per-family guard catches any family that
+# disappears between runs.
 
 # Repeat each shard until its unioned key set stops growing for $StablePasses
 # consecutive passes, or $MaxPassesPerShard is reached (treated as non-convergence).
@@ -149,6 +153,36 @@ function Get-RetailPriceSegment
     }
 
     return @{ Items = $totalItems; Pages = $pageCount }
+}
+
+function Get-ServiceFamily
+{
+    <#
+        .SYNOPSIS
+        Scans a query to completion and returns the distinct serviceFamily values
+        present, used to build the shard list dynamically instead of hardcoding it.
+
+        .DESCRIPTION
+        A single full traversal is exposed to the API's unstable paging order, but
+        that only drops scattered individual rows -- never an entire family, since
+        each family has many meters -- so the distinct family SET it collects is
+        reliable even though the row set is not. The per-family data fetch in
+        Invoke-ShardedUnion still repeats and unions to recover the dropped rows.
+    #>
+    param(
+        [string]$Filter,
+        [string]$MeterRegion,
+        [string]$ActivityName
+    )
+
+    $families = @{}
+    Write-Progress -Activity $ActivityName -Status 'Discovering serviceFamily values...'
+    $null = Get-RetailPriceSegment -Filter $Filter -MeterRegion $MeterRegion -OnItem {
+        param($item)
+        if ($item.serviceFamily) { $families[$item.serviceFamily] = $true }
+    }
+    Write-Progress -Activity $ActivityName -Completed
+    return [string[]]($families.Keys | Sort-Object)
 }
 
 function Invoke-ShardedUnion
@@ -242,9 +276,16 @@ function Get-ShardShortfall
 {
     <#
         .SYNOPSIS
-        Returns per-shard guard violations: shards whose collected count fell more
+        Returns per-shard guard violations: families whose collected count fell more
         than $MaxShrinkFraction below the baseline. Empty when the baseline is
-        absent (first run) or every shard is within tolerance.
+        absent (first run) or every family is within tolerance.
+
+        .DESCRIPTION
+        Iterates the BASELINE families, not the current run's, so a family that
+        disappears entirely this run (e.g. discovery missed it, or a rename) is caught
+        as a 100% shortfall against its baseline -- iterating the current set would
+        skip a vanished family and let the silent drop through. New families (present
+        now, absent from the baseline) need no check and are simply not iterated.
     #>
     param(
         [string]$Section,
@@ -254,14 +295,15 @@ function Get-ShardShortfall
 
     $violations = @()
     if (-not $Baseline) { return $violations }
-    foreach ($shard in $Current.Keys)
+    foreach ($shard in $Baseline.Keys)
     {
         $prev = $Baseline[$shard]
-        if (-not $prev) { continue }   # new/previously-empty shard: nothing to compare
+        if (-not $prev) { continue }   # previously-empty shard: nothing to compare
         $floor = [Math]::Floor($prev * (1 - $MaxShrinkFraction))
-        if ($Current[$shard] -lt $floor)
+        $cur = if ($Current.ContainsKey($shard)) { $Current[$shard] } else { 0 }
+        if ($cur -lt $floor)
         {
-            $violations += "$Section/$shard $($Current[$shard]) (baseline $prev, floor $floor)"
+            $violations += "$Section/$shard $cur (baseline $prev, floor $floor)"
         }
     }
     return $violations
@@ -298,8 +340,11 @@ if (Test-Path $ShardCountPath)
 # -----------------------------------------------------------------------
 # Step 2: Reservation-eligible meters (sharded by serviceFamily, union to stable)
 # -----------------------------------------------------------------------
+Write-Host "Discovering Reservation serviceFamily values..."
+$riShards = Get-ServiceFamily -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -ActivityName 'Discovering Reservation families'
+Write-Host "  Found $($riShards.Count) serviceFamily values: $($riShards -join ', ')"
 Write-Host "Fetching Reservation prices (sharded by serviceFamily)..."
-$riResult = Invoke-ShardedUnion -BaseFilter "priceType eq 'Reservation'" -Shards $ShardList -MeterRegion 'primary' -ActivityName 'Fetching Reservation prices' -CollectKey {
+$riResult = Invoke-ShardedUnion -BaseFilter "priceType eq 'Reservation'" -Shards $riShards -MeterRegion 'primary' -ActivityName 'Fetching Reservation prices' -CollectKey {
     param($item)
     $item.meterId
 }
@@ -311,8 +356,11 @@ Write-Host "  RI-eligible meters: $($riMeters.Count)"
 # The savingsPlan array is embedded in Consumption items, so we page through
 # primary Consumption meters and record those with a non-empty savingsPlan.
 # -----------------------------------------------------------------------
+Write-Host "Discovering Consumption serviceFamily values..."
+$spShards = Get-ServiceFamily -Filter "priceType eq 'Consumption'" -MeterRegion 'primary' -ActivityName 'Discovering Consumption families'
+Write-Host "  Found $($spShards.Count) serviceFamily values: $($spShards -join ', ')"
 Write-Host "Fetching Consumption prices (sharded by serviceFamily; checking for Savings Plan eligibility)..."
-$spResult = Invoke-ShardedUnion -BaseFilter "priceType eq 'Consumption'" -Shards $ShardList -MeterRegion 'primary' -ActivityName 'Fetching Consumption prices' -CollectKey {
+$spResult = Invoke-ShardedUnion -BaseFilter "priceType eq 'Consumption'" -Shards $spShards -MeterRegion 'primary' -ActivityName 'Fetching Consumption prices' -CollectKey {
     param($item)
     if ($item.savingsPlan -and $item.savingsPlan.Count -gt 0) { $item.meterId } else { $null }
 }
