@@ -62,6 +62,12 @@ function Resolve-CostDataSource {
         Recommendation      = 'UseApi'
         ExportFound         = $false
         Exports             = @()
+        # Online scalable path: the hub's Azure Data Explorer (Kusto) cluster,
+        # discovered via Resource Graph. When present, cost scans push
+        # aggregation into the engine instead of reading rows.
+        KustoClusterUri     = $null
+        KustoDatabase       = $null
+        HubVersion          = $null
         Message             = $null
     }
 
@@ -131,6 +137,19 @@ Resources
         Location       = $hub.location
     }
 
+    # -- Discover the hub's Azure Data Explorer (Kusto) cluster -----------
+    # The scalable ONLINE path. The toolkit deploys the cluster alongside the
+    # hub storage (same resource group) and tags it ftk-tool == 'FinOps hubs'.
+    # This is the same discovery the toolkit's own ftk-hubs-connect flow uses.
+    # Attached here so it flows through every return path below and the MCP
+    # detect tool can advertise it without a second Resource Graph call.
+    $cluster = Get-HubKustoCluster -RequestedSubscriptionIds $requested -HubResourceGroup $hub.resourceGroup
+    if ($cluster -and $cluster.ClusterUri) {
+        $result.KustoClusterUri = $cluster.ClusterUri
+        $result.KustoDatabase = 'Hub'
+        $result.HubVersion = $cluster.HubVersion
+    }
+
     # -- Step 3: verify the hub storage is readable -----------------------
     $access = Test-HubStorageAccess -StorageAccountName $hub.name -ResourceGroupName $hub.resourceGroup
     $result.Readable = $access.Readable
@@ -139,8 +158,15 @@ Resources
     $result.RemediationHint = $access.Remediation
 
     if (-not $access.Readable) {
-        $result.Recommendation = 'FixAccessThenHub'
         $apiMin = [math]::Round($result.EstimatedApiSeconds / 60.0, 1)
+        if ($result.KustoClusterUri) {
+            # Storage isn't readable, but the hub's Kusto cluster is the
+            # scalable path anyway - prefer it. Storage access is not required.
+            $result.Recommendation = 'UseHub'
+            $result.Message = "FinOps Hub '$($hub.name)' storage is not directly readable ($($access.Detail)), but its Kusto cluster ($($result.KustoClusterUri)) was found. Cost scans query the cluster directly (aggregation pushed into the engine). If you also need storage reads, $($access.Remediation)"
+            return [pscustomobject]$result
+        }
+        $result.Recommendation = 'FixAccessThenHub'
         $result.Message = "FinOps Hub '$($hub.name)' found but not readable: $($access.Detail) $($access.Remediation) Otherwise fall back to the Cost Management API (~$apiMin min)."
         return [pscustomobject]$result
     }
@@ -156,24 +182,80 @@ Resources
         # flag it so the agent can mention the uncertainty.
         $result.CoveragePct = 100
         $result.Recommendation = 'UseHub'
-        $result.Message = "FinOps Hub '$($hub.name)' is readable. Coverage could not be confirmed from export metadata; proceeding with hub data (verify the 'as of' date in results)."
+        $kustoNote0 = if ($result.KustoClusterUri) {
+            " A FinOps Hub Kusto cluster was found ($($result.KustoClusterUri)); cost scans query it directly and push aggregation into the engine (scales to large datasets)."
+        }
+        else {
+            ' Cost scans use the FinOps Hub storage reader (small-dataset convenience path). For large hubs, use a Kusto database (Azure Data Explorer / Fabric, or set FINOPS_HUB_KUSTO_URI for a local ftklocal emulator).'
+        }
+        $result.Message = "FinOps Hub '$($hub.name)' is readable. Coverage could not be confirmed from export metadata; proceeding with hub data (verify the 'as of' date in results).$kustoNote0"
         return [pscustomobject]$result
     }
 
     $result.CoveragePct = [int][math]::Round((($coveredRequested.Count / [double]$subCount) * 100))
 
     $asOf = if ($coverage.Freshness) { " as of $($coverage.Freshness)" } else { '' }
+    $kustoNote = if ($result.KustoClusterUri) {
+        " A FinOps Hub Kusto cluster was found ($($result.KustoClusterUri)); cost scans query it directly and push aggregation into the engine (scales to large datasets)."
+    }
+    else {
+        ' Cost scans use the FinOps Hub storage reader (rows aggregated in PowerShell) - the small-dataset convenience path. For large hubs, use a Kusto database: an Azure Data Explorer / Fabric cluster, or set FINOPS_HUB_KUSTO_URI to a local ftklocal emulator.'
+    }
     if ($coveredRequested.Count -eq $subCount) {
         $result.Recommendation = 'UseHub'
-        $result.Message = "FinOps Hub '$($hub.name)' covers all $subCount requested subscription(s)$asOf. Using export data (fast)."
+        $result.Message = "FinOps Hub '$($hub.name)' covers all $subCount requested subscription(s)$asOf.$kustoNote"
     }
     else {
         $result.Recommendation = 'UseHubPartial'
         $apiMin = [math]::Round($result.EstimatedApiSeconds / 60.0, 1)
-        $result.Message = "FinOps Hub '$($hub.name)' covers $($coveredRequested.Count) of $subCount subscription(s)$asOf. Choose: hub-only (fast, partial), full API (~$apiMin min), or hybrid (hub where covered, API for the rest)."
+        $result.Message = "FinOps Hub '$($hub.name)' covers $($coveredRequested.Count) of $subCount subscription(s)$asOf. Choose: hub-only (partial), full API (~$apiMin min), or hybrid (hub where covered, API for the rest).$kustoNote"
     }
 
     return [pscustomobject]$result
+}
+
+function Get-HubKustoCluster {
+    # Discover the FinOps Hub's Azure Data Explorer (Kusto) cluster via Resource
+    # Graph. Mirrors the toolkit's own ftk-hubs-connect query: the cluster is
+    # tagged ftk-tool == 'FinOps hubs' and (for toolkit deployments) lives in the
+    # hub's resource group. Returns @{ ClusterUri; HubVersion; ResourceGroup }
+    # or $null. Read-only; failures degrade to no cluster (storage path is used).
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string[]]$RequestedSubscriptionIds,
+        [string]$HubResourceGroup
+    )
+    try {
+        $query = @"
+resources
+| where type =~ 'microsoft.kusto/clusters'
+| where tags['ftk-tool'] == 'FinOps hubs'
+| extend hubVersion = tostring(tags['ftk-version'])
+| project clusterUri = tostring(properties['uri']), hubVersion, resourceGroup, subscriptionId
+"@
+        $res = Search-AzGraphSafe -Query $query -Subscription $RequestedSubscriptionIds -First 10
+        if (-not $res -or -not $res.Data -or @($res.Data).Count -eq 0) { return $null }
+
+        $rows = @($res.Data | Where-Object { $_.clusterUri })
+        if ($rows.Count -eq 0) { return $null }
+
+        # Prefer the cluster in the same resource group as the hub storage
+        # (toolkit co-locates them); otherwise take the first FinOps hub cluster.
+        $match = $null
+        if ($HubResourceGroup) {
+            $match = $rows | Where-Object { $_.resourceGroup -eq $HubResourceGroup } | Select-Object -First 1
+        }
+        if (-not $match) { $match = $rows[0] }
+
+        return @{
+            ClusterUri    = [string]$match.clusterUri
+            HubVersion    = if ($match.hubVersion) { [string]$match.hubVersion } else { $null }
+            ResourceGroup = [string]$match.resourceGroup
+        }
+    }
+    catch {
+        return $null
+    }
 }
 
 function Test-HubStorageAccess {

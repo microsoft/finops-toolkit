@@ -43,9 +43,11 @@ If a FinOps Hub is detected in any of your subscriptions, you'll be asked to cho
 
 | Source                  | Description                                                                                                              |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **FinOps Hub**          | Reads pre-exported FOCUS cost data from Hub storage. Faster, no API throttling. Tag and cost-by-tag scans are instant.   |
+| **FinOps Hub**          | Reads cost data from the FinOps Hub. Faster, no API throttling. Tag and cost-by-tag scans are instant.                   |
 | **Cost Management API** | Queries the Cost Management REST API in real-time. Slower but always current. Hub tag data is still used when available. |
 | **Resource Graph only** | Skips all cost APIs. Only runs scans that use Azure Resource Graph (orphaned resources, idle VMs, etc).                  |
+
+When the **FinOps Hub** source is chosen, the tool prefers the hub's **Kusto database** (Azure Data Explorer / Fabric, or a local ftklocal emulator) and pushes aggregation into the engine, returning only summarized results. This is the scalable path for large customer datasets — it never loads the raw cost rows into PowerShell. See [FinOps Hub data paths](#finops-hub-data-paths) below. The storage-export reader remains as a small-dataset fallback.
 
 ### 3. Scan Selection
 
@@ -274,13 +276,32 @@ Untagged spend     $ 88,200   (12.6%)   ← KPI
 
 ## FinOps Hub Integration
 
-When a Hub is detected, the TUI automatically loads FOCUS cost data from the Hub's storage account. This enables:
+When a Hub is detected, the tool reads FinOps Hub cost data. This enables:
 
-- **Instant tag scans** — Tag Inventory and Cost by Tag read directly from Hub CSV/parquet data instead of querying the Cost Management API
-- **No API throttling** — Hub data is read from Azure Storage, avoiding Cost Management API rate limits
-- **Richer tag data** — Hub exports contain the full Tags JSON per cost record, enabling accurate per-resource tag parsing
-- **Forecast enrichment** — Hub data contains actuals only, so the TUI calls the Cost Management Forecast API to project full-month costs and adds them to Hub actuals
+- **Instant tag scans** — Tag Inventory and Cost by Tag are answered from Hub data instead of querying the Cost Management API
+- **No API throttling** — avoids Cost Management API rate limits
+- **Richer tag data** — Hub data contains the full Tags per cost record, enabling accurate per-resource tag parsing
+- **Forecast enrichment** — Hub data contains actuals only, so the TUI calls the Cost Management Forecast API to project full-month costs and adds them to Hub actuals (storage path)
 - **Accurate tag coverage** — Hub only sees resources with cost data. The TUI queries Azure Resource Graph for the true total/untagged resource count and overrides the Hub-derived coverage percentage
+
+### FinOps Hub data paths
+
+The cost-family scans (Cost Data, Resource Costs, Cost by Tag) read from a FinOps Hub three ways, in priority order. The first two push aggregation **into the engine** and bring back only summarized results — they never load the raw cost rows into PowerShell, so they scale to large customer datasets (tens of GB / hundreds of millions of rows):
+
+| Path                           | When                                                                                                                                                              | How                                                                                                                                                                                                    |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Kusto — online**             | A deployed hub with an Azure Data Explorer / Fabric cluster                                                                                                       | The cluster is discovered via Azure Resource Graph (`microsoft.kusto/clusters` tagged `ftk-tool == 'FinOps hubs'`), queried with a bearer token. Aggregation runs in KQL against the `Costs` function. |
+| **Kusto — offline (ftklocal)** | Your own hardware / air-gapped: an [ftklocal](https://github.com/microsoft/finops-toolkit) Kusto emulator with the exports loaded into the local **Hub** database | Set `FINOPS_HUB_KUSTO_URI` (and optionally `FINOPS_HUB_KUSTO_DB`, default `Hub`). The local emulator is queried anonymously — same KQL, no auth.                                                       |
+| **Storage export reader**      | Small datasets, or when no Kusto cluster is available                                                                                                             | Reads the hub's `ingestion` parquet / `msexports` CSV and aggregates in PowerShell. A convenience fallback, **not** the scalable path.                                                                 |
+
+Selection is automatic: `FINOPS_HUB_KUSTO_URI` (if set) wins, else a discovered cluster, else the storage reader. To force the live Cost Management API instead, choose the **Cost Management API** source (TUI) or pass `dataSource=api` (MCP).
+
+#### Environment variables
+
+| Variable               | Effect                                                                                                                                      | Default               |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| `FINOPS_HUB_KUSTO_URI` | Kusto cluster query URI. An `https://...kusto.windows.net` cluster (token auth) or `http://localhost:<port>` ftklocal emulator (anonymous). | unset (auto-discover) |
+| `FINOPS_HUB_KUSTO_DB`  | Hub database name.                                                                                                                          | `Hub`                 |
 
 Hub data is loaded once at startup and reused across all scans that need it.
 
@@ -302,7 +323,7 @@ $costByTag = ConvertTo-CostByTagFromHub -HubData $hubData -ExistingTags $tagInve
 
 ## MCP Server (AI Integration)
 
-The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 24 scan modules — plus a `run_full_scan` composite — as AI-callable tools, along with a set of **remediation (write) tools** that act on the findings. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI.
+The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 30 scan modules — plus a `run_full_scan` composite — as AI-callable tools, along with a set of **remediation (write) tools** that act on the findings. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI.
 
 Read scans are always safe. The write tools are gated by a configurable [write-safety policy](#write-safety-remediation-tools) so neither a person nor an autonomous agent can make a costly mistake — every write previews first (dry-run) and, in autonomous mode, requires a single-use confirmation token bound to the exact change.
 
@@ -479,7 +500,9 @@ FinOpsMultitool/
 ├── Start-McpServer.ps1        # MCP server (AI integration, stdio JSON-RPC)
 ├── modules/
 │   ├── helpers/
-│   │   ├── Read-FinOpsHubData.ps1          # Hub storage reader + converters
+│   │   ├── Read-FinOpsHubData.ps1          # Hub storage reader + converters (small-dataset path)
+│   │   ├── Invoke-FOHubKustoQuery.ps1      # Hub Kusto REST transport (ADX/Fabric/ftklocal)
+│   │   ├── Get-FOHubProvider.ps1           # Scalable hub provider (discovery + engine-side cost intents)
 │   │   ├── Get-PlainAccessToken.ps1        # Token helper
 │   │   ├── Invoke-AzRestMethodWithRetry.ps1 # REST retry logic
 │   │   ├── Search-AzGraphSafe.ps1          # ARG query wrapper

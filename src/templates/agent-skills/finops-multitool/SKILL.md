@@ -40,7 +40,7 @@ Pick the narrowest tool that answers the question. Use `run_full_scan` only for 
 | Tag quality fixes (CAF gaps, casing, duplicates)        | `scan_tag_recommendations`    | Governance    |
 | Azure Policy assignments + compliance                   | `scan_policy_inventory`       | Governance    |
 | Policy coverage gaps + recommended guardrails           | `scan_policy_recommendations` | Governance    |
-| Decide hub export vs live API before a cost scan        | `detect_cost_data_source`     | Cost Analysis |
+| Decide hub vs live API before a cost scan               | `detect_cost_data_source`     | Cost Analysis |
 | Current month actual + forecast spend                   | `scan_cost_data`              | Cost Analysis |
 | Top resources by cost                                   | `scan_resource_costs`         | Cost Analysis |
 | Cost broken down by tag key/value                       | `scan_cost_by_tag`            | Cost Analysis |
@@ -72,6 +72,18 @@ How to drive them safely:
 2. **Show the user the preview and get explicit approval.** Never set `apply=true` on your own initiative.
 3. **Then apply.** Call again with `apply=true`. In `Enforced` mode you must also pass the `confirmationToken` from the matching preview.
 4. **Writes are opt-in.** If `FINOPS_WRITE_MODE` is unset or `ReadOnly` (the default), every write is blocked - the tool returns a `Blocked` result explaining how to enable writes. Do not tell the user a change was applied unless the result has `Applied = true`.
+
+## FinOps Hub data paths (cost scans)
+
+The cost-family scans (`scan_cost_data`, `scan_resource_costs`, `scan_cost_by_tag`) read from a FinOps Hub when one is available, choosing a path automatically. Call `detect_cost_data_source` first to see which path covers the scope and how fresh it is. Two of the three paths push aggregation **into the Kusto engine** and return only summarized results, so they scale to large customer datasets (tens of GB / hundreds of millions of rows) — the raw rows are never loaded into PowerShell:
+
+| Path                           | When                                                        | Notes                                                                                                  |
+| ------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Kusto — online**             | A deployed hub with an Azure Data Explorer / Fabric cluster | Cluster discovered via Resource Graph; aggregation runs in KQL against the `Costs` function. Scalable. |
+| **Kusto — offline (ftklocal)** | The exports loaded into a local ftklocal Kusto emulator     | Set `FINOPS_HUB_KUSTO_URI` (anonymous local query). Scalable.                                          |
+| **Storage export reader**      | Small datasets, or no Kusto cluster present                 | Reads hub parquet/CSV and aggregates in PowerShell. Convenience fallback, not the scalable path.       |
+
+When a result's `source` is `FinOpsHubKusto`, it came from the engine (summaries only). Forecast is not included on the hub fast paths — call with `dataSource=api` for a live forecast. The `dataSource` argument (`auto` default / `hub` / `api`) lets you force the hub path or the live Cost Management API.
 
 ## Scope: subscriptionId
 
@@ -125,22 +137,22 @@ When summarizing for the user:
 
 The multitool is the data engine. Once a scan surfaces a finding, hand off to the skill that turns it into a decision, a design, or an artifact. Treat this as the routing hub for the wider FinOps practice:
 
-| After this scan / question                                                       | Hand off to                   | For                                                                                     |
-| -------------------------------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------- |
-| Any spend question (`scan_cost_data`, `scan_resource_costs`, `scan_cost_by_tag`) | `cost-data-source`            | Choose the fast hub export vs the live API, warn before slow scans, chunk large tenants |
-| `scan_tag_inventory`, `scan_cost_by_tag`                                         | `cost-allocation`             | Showback/chargeback model, shared-cost splitting, tag strategy                          |
-| `scan_tag_recommendations`, `scan_policy_recommendations`                        | `azure-policy-governance`     | Enforce tags/regions/SKUs via Azure Policy (Bicep/ARM)                                  |
-| `scan_policy_inventory` results                                                  | `azure-workbooks-finops`      | Live in-portal Governance/Optimization workbooks                                        |
-| `scan_cost_trend`, `scan_resource_costs`                                         | `power-bi-finops`             | Dashboards and visuals on cost data                                                     |
-| `scan_savings_realized`, `scan_commitment_utilization`                           | `unit-economics`              | ESR, cost-per-unit, coverage/utilization KPIs                                           |
-| `scan_reservation_advice`, `scan_ahb_opportunities`                              | `rate-optimization-portfolio` | RI/SP/AHB portfolio mix and purchase planning                                           |
-| `scan_budget_status`, `scan_cost_data`                                           | `forecasting-budgeting`       | Forecasts, budget design, variance analysis                                             |
-| `scan_anomaly_alerts`                                                            | `anomaly-investigation`       | Root-cause a spike down to the resource/change                                          |
-| `scan_orphaned_resources`, `scan_idle_vms`                                       | `sustainability-carbon`       | Carbon co-benefit of removing waste                                                     |
-| Any deep KQL / FinOps hub query                                                  | `finops-toolkit`              | Kusto analytics on the Hub database                                                     |
-| Single-instrument commitment mechanics                                           | `azure-cost-management`       | Reservations, savings plans, budgets, exports detail                                    |
-| Cost data looks wrong/incomplete                                                 | `focus-data-quality`          | FOCUS conformance, completeness, mapping                                                |
-| Any finding the user wants written up                                            | `finops-reporting`            | Exec summaries, QBRs, variance narratives                                               |
+| After this scan / question                                                       | Hand off to                   | For                                                                                                          |
+| -------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Any spend question (`scan_cost_data`, `scan_resource_costs`, `scan_cost_by_tag`) | `cost-data-source`            | Choose the scalable hub (Kusto) or storage path vs the live API, warn before slow scans, chunk large tenants |
+| `scan_tag_inventory`, `scan_cost_by_tag`                                         | `cost-allocation`             | Showback/chargeback model, shared-cost splitting, tag strategy                                               |
+| `scan_tag_recommendations`, `scan_policy_recommendations`                        | `azure-policy-governance`     | Enforce tags/regions/SKUs via Azure Policy (Bicep/ARM)                                                       |
+| `scan_policy_inventory` results                                                  | `azure-workbooks-finops`      | Live in-portal Governance/Optimization workbooks                                                             |
+| `scan_cost_trend`, `scan_resource_costs`                                         | `power-bi-finops`             | Dashboards and visuals on cost data                                                                          |
+| `scan_savings_realized`, `scan_commitment_utilization`                           | `unit-economics`              | ESR, cost-per-unit, coverage/utilization KPIs                                                                |
+| `scan_reservation_advice`, `scan_ahb_opportunities`                              | `rate-optimization-portfolio` | RI/SP/AHB portfolio mix and purchase planning                                                                |
+| `scan_budget_status`, `scan_cost_data`                                           | `forecasting-budgeting`       | Forecasts, budget design, variance analysis                                                                  |
+| `scan_anomaly_alerts`                                                            | `anomaly-investigation`       | Root-cause a spike down to the resource/change                                                               |
+| `scan_orphaned_resources`, `scan_idle_vms`                                       | `sustainability-carbon`       | Carbon co-benefit of removing waste                                                                          |
+| Any deep KQL / FinOps hub query                                                  | `finops-toolkit`              | Kusto analytics on the Hub database                                                                          |
+| Single-instrument commitment mechanics                                           | `azure-cost-management`       | Reservations, savings plans, budgets, exports detail                                                         |
+| Cost data looks wrong/incomplete                                                 | `focus-data-quality`          | FOCUS conformance, completeness, mapping                                                                     |
+| Any finding the user wants written up                                            | `finops-reporting`            | Exec summaries, QBRs, variance narratives                                                                    |
 
 Run the scan first to ground the numbers, then route to the matching skill — don't answer governance, allocation, or reporting questions abstractly when a scan can provide the real state.
 

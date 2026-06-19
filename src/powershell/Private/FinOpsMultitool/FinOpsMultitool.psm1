@@ -42,6 +42,8 @@ $helpersPath = Join-Path $PSScriptRoot 'modules\helpers'
 . (Join-Path $helpersPath 'Confirm-WriteAction.ps1')
 . (Join-Path $helpersPath 'MgCostScope.ps1')
 . (Join-Path $helpersPath 'Read-FinOpsHubData.ps1')
+. (Join-Path $helpersPath 'Invoke-FOHubKustoQuery.ps1')
+. (Join-Path $helpersPath 'Get-FOHubProvider.ps1')
 . (Join-Path $helpersPath 'Get-CostExport.ps1')
 . (Join-Path $helpersPath 'Resolve-CostDataSource.ps1')
 . (Join-Path $helpersPath 'Get-KpiInsights.ps1')

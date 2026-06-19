@@ -544,12 +544,40 @@ function Invoke-FinOpsMultitool {
         $hubResourceCosts = $null
         $hubRaw = $null
         $hubTagInventory = $null
-        if ($DataSource.HubStorage) {
-            # Always load Hub data when available — used for instant tag/cost-by-tag
+        $hubCostByTag = $null
+
+        # Scalable Kusto path: when a FinOps Hub Kusto database is reachable
+        # (a FINOPS_HUB_KUSTO_URI override for an ftklocal emulator or a pinned
+        # cluster, or a discovered ADX/Fabric cluster), push aggregation into
+        # the engine and return only summaries - never load raw rows. This is
+        # what lets the tool scale to large hub datasets. Falls back to the
+        # storage reader below when no cluster is available.
+        $kustoProvider = $null
+        if ($DataSource.Source -eq 'Hub' -or $env:FINOPS_HUB_KUSTO_URI) {
+            $subIdsForDisco = @($Subscriptions | ForEach-Object { $_.Id })
+            $kp = Resolve-FOHubProvider -Subscriptions $subIdsForDisco
+            if ($kp -and $kp.Found) { $kustoProvider = $kp }
+        }
+
+        if ($kustoProvider) {
+            Write-Host ""
+            Write-Host "  Querying FinOps Hub Kusto database ($($kustoProvider.Mode))..." -ForegroundColor Green
+            $cs = Get-FOHubCostSummary -Provider $kustoProvider
+            if (-not ($cs -is [System.Collections.IDictionary] -and $cs.Contains('Error') -and $cs.Error)) { $hubCostData = $cs }
+            $rc = Get-FOHubResourceCosts -Provider $kustoProvider
+            if (-not ($rc -is [System.Collections.IDictionary] -and $rc.Contains('Error') -and $rc.Error)) { $hubResourceCosts = $rc }
+            $ct = Get-FOHubCostByTag -Provider $kustoProvider
+            if (-not ($ct -is [System.Collections.IDictionary] -and $ct.Contains('Error') -and $ct.Error)) { $hubCostByTag = $ct }
+            Write-Host "  Hub data summarized in-engine (no rows loaded). Forecast is not included; choose API source for live forecast." -ForegroundColor DarkGray
+        }
+        elseif ($DataSource.HubStorage) {
+            # Storage reader: small-dataset convenience path (rows loaded into
+            # PowerShell). For large hubs, the Kusto path above is preferred.
             $hub = $DataSource.HubStorage
             if ($DataSource.Source -eq 'Hub') {
                 Write-Host ""
-                Write-Host "  Loading cost data from FinOps Hub..." -ForegroundColor Green
+                Write-Host "  Loading cost data from FinOps Hub storage (small-dataset reader)..." -ForegroundColor Green
+                Write-Host "  For large hubs, query the Kusto database instead (ADX/Fabric, or set FINOPS_HUB_KUSTO_URI for ftklocal)." -ForegroundColor DarkGray
             }
             else {
                 Write-Host "  Loading Hub tag data for fast tag scans..." -ForegroundColor DarkGray
@@ -754,6 +782,10 @@ function Invoke-FinOpsMultitool {
                     }
                     { $_ -eq 'Get-TagInventory' -and $hubTagInventory } {
                         $output = $hubTagInventory; break
+                    }
+                    { $_ -eq 'Get-CostByTag' -and $hubCostByTag } {
+                        # Scalable Kusto path: cost-by-tag summarized in-engine.
+                        $output = $hubCostByTag; break
                     }
                     { $_ -eq 'Get-CostByTag' -and $hubRaw } {
                         # Build cost-by-tag from Hub data — zero API calls

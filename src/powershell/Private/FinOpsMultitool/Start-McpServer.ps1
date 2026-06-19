@@ -804,8 +804,14 @@ function Get-McpHubData {
 
     $decision = Resolve-CostDataSource -RequestedSubscriptionIds @($Subs.Id) -TenantId $TenantId
 
+    # Scalable hub path: resolve a Kusto provider (ftklocal override, a
+    # discovered ADX/Fabric cluster, or none). When one is available we push
+    # aggregation into the engine and NEVER read raw rows into PowerShell -
+    # this is what lets the tool scale to large (tens of GB) hub datasets.
+    $provider = Resolve-FOHubProvider -Subscriptions @($Subs.Id) -Decision $decision
+
     $raw = $null
-    if ($decision.Readable -and $decision.Hub) {
+    if (-not $provider.Found -and $decision.Readable -and $decision.Hub) {
         try {
             $raw = Read-FinOpsHubData -StorageAccountName $decision.Hub.Name -ResourceGroupName $decision.Hub.ResourceGroup -Months 1
         }
@@ -818,7 +824,8 @@ function Get-McpHubData {
     # export covering the scope — read its CSV data (newest run per sub,
     # overlapping subs deduped) so the cost tools can serve from it.
     $exportData = $null
-    if ((-not $raw -or @($raw).Count -eq 0) -and
+    if (-not $provider.Found -and
+        (-not $raw -or @($raw).Count -eq 0) -and
         $decision.ExportFound -and
         $decision.Recommendation -in @('UseExport', 'UseExportPartial') -and
         (Get-Command Get-MergedCostExportData -ErrorAction SilentlyContinue)) {
@@ -830,7 +837,7 @@ function Get-McpHubData {
         }
     }
 
-    $entry = @{ Decision = $decision; Raw = $raw; ExportData = $exportData }
+    $entry = @{ Decision = $decision; Provider = $provider; Raw = $raw; ExportData = $exportData }
     $script:McpHubCache[$key] = $entry
     return $entry
 }
@@ -1108,6 +1115,35 @@ function Invoke-McpTool {
         $hubInfo = $null
         if ($requested -ne 'api') { $hubInfo = Get-McpHubData -Subs $subs -TenantId $tenantId }
 
+        # Scalable Kusto path (ADX / Fabric / ftklocal): aggregation is pushed
+        # into the engine and only summaries come back, so this is preferred
+        # over the row-reader whenever a cluster is available. On a provider
+        # error we fall through to the storage/export/API paths below.
+        if ($hubInfo -and $hubInfo.Provider -and $hubInfo.Provider.Found -and $requested -ne 'api') {
+            $prov = $hubInfo.Provider
+            # Match the storage path's scope: serve the whole hub (its coverage
+            # IS its scope). Per-subscription filtering is a follow-up.
+            $kustoResult = switch ($fn) {
+                'Get-CostData' { Get-FOHubCostSummary -Provider $prov }
+                'Get-ResourceCosts' { Get-FOHubResourceCosts -Provider $prov }
+                'Get-CostByTag' { Get-FOHubCostByTag -Provider $prov }
+            }
+            if (-not ($kustoResult -is [System.Collections.IDictionary] -and $kustoResult.Contains('Error') -and $kustoResult.Error)) {
+                return @{
+                    tool        = $ToolName
+                    module      = $fn
+                    category    = $toolDef.category
+                    data        = $kustoResult
+                    source      = 'FinOpsHubKusto'
+                    asOf        = $hubInfo.Decision.Freshness
+                    coveragePct = $hubInfo.Decision.CoveragePct
+                    note        = "Served from the FinOps Hub Kusto database ($($prov.Mode); aggregation pushed into the engine, summaries only). Forecast is not included; call with dataSource=api for live forecast."
+                    permission  = if ($permissionMap.ContainsKey($fn)) { $permissionMap[$fn] } else { $null }
+                    timestamp   = (Get-Date -Format 'o')
+                }
+            }
+        }
+
         $useHub = $false
         if ($hubInfo -and $hubInfo.Raw -and @($hubInfo.Raw).Count -gt 0) {
             if ($requested -eq 'hub') { $useHub = $true }
@@ -1126,6 +1162,11 @@ function Invoke-McpTool {
 
         if ($requested -eq 'hub' -and -not $useHub -and -not $useExport) {
             $d = if ($hubInfo) { $hubInfo.Decision } else { $null }
+            if ($hubInfo -and $hubInfo.Provider -and $hubInfo.Provider.Found) {
+                # A Kusto cluster was available but the query did not return
+                # usable data (it errored above and we fell through here).
+                throw "Hub data requested but the FinOps Hub Kusto query ($($hubInfo.Provider.Mode), $($hubInfo.Provider.ClusterUri)) did not return data. Re-run with dataSource=api to use the live Cost Management API."
+            }
             $reason = if ($d) { "$($d.ReadBlocker): $($d.ReadBlockerDetail)" } else { 'no hub or export found in scope' }
             throw "Export data requested but unavailable ($reason). $($d.RemediationHint)"
         }
@@ -1148,7 +1189,7 @@ function Invoke-McpTool {
                 source      = 'FinOpsHub'
                 asOf        = $hubInfo.Decision.Freshness
                 coveragePct = $hubInfo.Decision.CoveragePct
-                note        = 'Served from FinOps Hub export (billed actuals). Forecast is not included in the fast path; call with dataSource=api for live forecast.'
+                note        = 'Served by the FinOps Hub storage reader (billed actuals, rows aggregated in PowerShell). This is the small-dataset convenience path. For large hubs, deploy/point at a Kusto database (Azure Data Explorer / Fabric, or set FINOPS_HUB_KUSTO_URI for a local ftklocal emulator) so aggregation runs in the engine. Forecast is not included; call with dataSource=api for live forecast.'
                 permission  = if ($permissionMap.ContainsKey($fn)) { $permissionMap[$fn] } else { $null }
                 timestamp   = (Get-Date -Format 'o')
             }
@@ -1169,7 +1210,7 @@ function Invoke-McpTool {
                 source      = 'CostManagementExport'
                 asOf        = $hubInfo.Decision.Freshness
                 coveragePct = $hubInfo.Decision.CoveragePct
-                note        = 'Served from a Cost Management export (billed actuals, CSV). Forecast is a linear month-to-date projection; call with dataSource=api for live forecast.'
+                note        = 'Served by the Cost Management export reader (billed actuals, CSV aggregated in PowerShell). This is the small-dataset convenience path; for large datasets use a FinOps Hub Kusto database (engine-side aggregation). Forecast is a linear month-to-date projection; call with dataSource=api for live forecast.'
                 permission  = if ($permissionMap.ContainsKey($fn)) { $permissionMap[$fn] } else { $null }
                 timestamp   = (Get-Date -Format 'o')
             }
@@ -1414,9 +1455,17 @@ function Invoke-FullScan {
         }
     }
 
+    # Scalable Kusto provider (ADX / Fabric / ftklocal). Preferred over the
+    # row-reader: cost-family modules push aggregation into the engine and
+    # return only summaries, so a large hub never loads rows into PowerShell.
+    $kustoProvider = $null
+    if ($DataSource -ne 'api' -and $hubInfo -and $hubInfo.Provider -and $hubInfo.Provider.Found) {
+        $kustoProvider = $hubInfo.Provider
+    }
+
     # Generic Cost Management export fast path (no hub, readable CSV export).
     $exportUsable = $false
-    if (-not $hubUsable -and $DataSource -ne 'api' -and $hubInfo -and $hubInfo.ExportData -and @($hubInfo.ExportData.Rows).Count -gt 0) {
+    if (-not $hubUsable -and -not $kustoProvider -and $DataSource -ne 'api' -and $hubInfo -and $hubInfo.ExportData -and @($hubInfo.ExportData.Rows).Count -gt 0) {
         $rec = $hubInfo.Decision.Recommendation
         if ($DataSource -eq 'hub') { $exportUsable = $true }
         elseif ($DataSource -eq 'auto' -and $rec -in @('UseExport', 'UseExportPartial')) { $exportUsable = $true }
@@ -1453,6 +1502,22 @@ function Invoke-FullScan {
 
         try {
             $fn = $tool.fn
+
+            # Scalable Kusto path: serve cost-family modules from the engine
+            # (summaries only). Preferred over the row-reader; on a provider
+            # error, fall through to Raw / export / live API below.
+            if ($kustoProvider -and $fn -in $costFns) {
+                $kr = switch ($fn) {
+                    'Get-CostData' { Get-FOHubCostSummary -Provider $kustoProvider }
+                    'Get-ResourceCosts' { Get-FOHubResourceCosts -Provider $kustoProvider }
+                    'Get-CostByTag' { Get-FOHubCostByTag -Provider $kustoProvider }
+                }
+                if (-not ($kr -is [System.Collections.IDictionary] -and $kr.Contains('Error') -and $kr.Error)) {
+                    $results[$tool.name] = $kr
+                    $hubServed[$tool.name] = $true
+                    continue
+                }
+            }
 
             # Export-first: serve cost-family modules from the hub when usable
             if ($hubUsable -and $fn -in $costFns) {
@@ -1523,7 +1588,7 @@ function Invoke-FullScan {
         results          = $results
         errors           = $errors
         modulesRun       = $modulesToRun.Count
-        costDataSource   = if ($hubUsable) { 'FinOpsHub' } elseif ($exportUsable) { 'CostManagementExport' } else { 'LiveApi' }
+        costDataSource   = if ($kustoProvider) { 'FinOpsHubKusto' } elseif ($hubUsable) { 'FinOpsHub' } elseif ($exportUsable) { 'CostManagementExport' } else { 'LiveApi' }
         hubAsOf          = if ($hubUsable -or $exportUsable) { $hubInfo.Decision.Freshness } else { $null }
         hubCoveragePct   = if ($hubUsable -or $exportUsable) { $hubInfo.Decision.CoveragePct } else { $null }
         hubServedModules = @($hubServed.Keys)
