@@ -37,13 +37,15 @@ For background on the emulator and its platform requirements, see the [Kusto emu
 
 ## Start the emulator
 
-Create a working folder, then start the emulator. The `export` folder is mounted read-only into the container at `/data/export`; you'll download cost data into it later. For other ways to run the container, see [Install the Kusto emulator](/azure/data-explorer/kusto-emulator-install).
+Create a working folder outside the repository, then start the emulator. The export folder is mounted read-only into the container at `/data/export`; you'll download cost data into it later. For other ways to run the container, see [Install the Kusto emulator](/azure/data-explorer/kusto-emulator-install).
 
 ```powershell
-New-Item -ItemType Directory -Force -Path export | Out-Null
+$exportPath = '../exports/local-hub'
+
+New-Item -ItemType Directory -Force -Path $exportPath | Out-Null
 docker run -d --name finops-hub-local --platform linux/amd64 `
   -p 8082:8080 -m 16g -e ACCEPT_EULA=Y `
-  -v "$($PWD.Path)/export:/data/export:ro" `
+  -v "$((Resolve-Path $exportPath).Path):/data/export:ro" `
   mcr.microsoft.com/azuredataexplorer/kustainer-linux:latest
 ```
 
@@ -90,15 +92,16 @@ The Ingestion script has one placeholder, `$$rawRetentionInDays$$` (how long to 
 
 ```powershell
 $release = 'https://github.com/microsoft/finops-toolkit/releases/latest/download'
-Invoke-WebRequest "$release/finops-hub-fabric-setup-Ingestion.kql" -OutFile ./setup-Ingestion.kql
-Invoke-WebRequest "$release/finops-hub-fabric-setup-Hub.kql"        -OutFile ./setup-Hub.kql
+New-Item -ItemType Directory -Force -Path "$exportPath/setup" | Out-Null
+Invoke-WebRequest "$release/finops-hub-fabric-setup-Ingestion.kql" -OutFile "$exportPath/setup/setup-Ingestion.kql"
+Invoke-WebRequest "$release/finops-hub-fabric-setup-Hub.kql"        -OutFile "$exportPath/setup/setup-Hub.kql"
 
 # Ingestion: raw tables, transforms, final tables, update policies
-$ingestion = (Get-Content ./setup-Ingestion.kql -Raw) -replace '\$\$rawRetentionInDays\$\$', '90'
+$ingestion = (Get-Content "$exportPath/setup/setup-Ingestion.kql" -Raw) -replace '\$\$rawRetentionInDays\$\$', '90'
 Invoke-Kusto Ingestion $ingestion
 
 # Hub: the Costs/Prices/Transactions view functions
-Invoke-Kusto Hub (Get-Content ./setup-Hub.kql -Raw)
+Invoke-Kusto Hub (Get-Content "$exportPath/setup/setup-Hub.kql" -Raw)
 ```
 
 Each response is a table with one row per statement. The Hub functions reference `database('Ingestion').*`, which resolves because both databases exist.
@@ -110,9 +113,9 @@ Each response is a table with one row per statement. The Hub functions reference
 FinOps hubs enrich cost data with open-data reference tables (regions, services, resource types, and pricing units). Download the reference CSVs from the toolkit release, then load them with the same commands a deployed hub uses.
 
 ```powershell
-New-Item -ItemType Directory -Force -Path export/open-data | Out-Null
+New-Item -ItemType Directory -Force -Path "$exportPath/open-data" | Out-Null
 foreach ($f in 'PricingUnits', 'Regions', 'ResourceTypes', 'Services') {
-  Invoke-WebRequest "$release/$f.csv" -OutFile "export/open-data/$f.csv"
+  Invoke-WebRequest "$release/$f.csv" -OutFile "$exportPath/open-data/$f.csv"
 }
 
 $openData = @'
@@ -129,7 +132,7 @@ Invoke-Kusto Ingestion $openData
 
 ## Download your cost data
 
-Download FOCUS cost and price exports from your storage account into the `export` folder, using your existing Azure sign-in. This works against either the **msexports** or **ingestion** container of a FinOps hub, or any container holding Cost Management exports. Only the data files (`manifest.json` and `*.parquet`) are downloaded.
+Download FOCUS cost and price exports from your storage account into the export folder, using your existing Azure sign-in. This works against either the **msexports** or **ingestion** container of a FinOps hub, or any container holding Cost Management exports. Only the data files (`manifest.json` and `*.parquet`) are downloaded.
 
 Set these to match your storage account, then run the download:
 
@@ -143,7 +146,7 @@ Get-AzStorageBlob -Container $container -Context $ctx -Prefix $prefix |
   Where-Object { $_.Name -match '(manifest\.json|\.parquet)$' } |
   ForEach-Object {
     Get-AzStorageBlobContent -Container $container -Context $ctx -Blob $_.Name `
-      -Destination ./export -Force | Out-Null
+      -Destination $exportPath -Force | Out-Null
   }
 ```
 
@@ -156,24 +159,52 @@ Get-AzStorageBlob -Container $container -Context $ctx -Prefix $prefix |
 
 Ingest each Parquet file into the matching raw table. As rows land, the update policy created by the schema runs the FOCUS transform automatically and appends the result to the final table — the same mechanism a deployed hub uses. Cost exports go to `Costs_raw`; price sheets go to `Prices_raw`.
 
+For large exports, use a small amount of parallelism. Start with about one ingestion thread per 8 GB of emulator memory. For the 16 GB container below, use two threads; if you increase the container to 32 GB, four threads is a good starting point.
+
 ```powershell
+$ingestConcurrency = 2
+
 function Invoke-Ingest {
   param([string]$Table, [string]$Mapping, [string]$File)
-  $rel  = [IO.Path]::GetRelativePath((Resolve-Path ./export), $File) -replace '\\', '/'
+  $rel  = [IO.Path]::GetRelativePath((Resolve-Path $exportPath), $File) -replace '\\', '/'
   $path = "/data/export/$rel"
   Invoke-Kusto Ingestion ".ingest into table $Table (h@'$path') with (format='parquet', ingestionMappingReference='$Mapping')" | Out-Null
   Write-Host "  ingested $(Split-Path $File -Leaf)"
 }
 
 # Group exports by manifest type, then ingest each dataset's Parquet files
-Get-ChildItem ./export -Recurse -Filter manifest.json | ForEach-Object {
+$ingestJobs = Get-ChildItem $exportPath -Recurse -Filter manifest.json | ForEach-Object {
   $type = if ((Get-Content $_.FullName -Raw) -match '"type"\s*:\s*"(FocusCost|PriceSheet)"') { $Matches[1] } else { return }
   $target = if ($type -eq 'FocusCost') { 'Costs_raw', 'Costs_raw_mapping' } else { 'Prices_raw', 'Prices_raw_mapping' }
   Get-ChildItem $_.Directory -Filter *.parquet | ForEach-Object {
-    Invoke-Ingest $target[0] $target[1] $_.FullName
+    [PSCustomObject]@{
+      Table   = $target[0]
+      Mapping = $target[1]
+      File    = $_.FullName
+    }
   }
 }
+
+$ingestJobs | ForEach-Object -Parallel {
+  $hub = $using:hub
+  $exportPath = $using:exportPath
+  function Invoke-Kusto {
+    param([string]$Database, [string]$Command, [ValidateSet('mgmt','query')][string]$Endpoint = 'mgmt')
+    Invoke-RestMethod -Uri "$hub/$Endpoint" -Method Post -ContentType 'application/json' `
+      -Body (@{ db = $Database; csl = $Command } | ConvertTo-Json)
+  }
+  function Invoke-Ingest {
+    param([string]$Table, [string]$Mapping, [string]$File)
+    $rel  = [IO.Path]::GetRelativePath((Resolve-Path $exportPath), $File) -replace '\\', '/'
+    $path = "/data/export/$rel"
+    Invoke-Kusto Ingestion ".ingest into table $Table (h@'$path') with (format='parquet', ingestionMappingReference='$Mapping')" | Out-Null
+    Write-Host "  ingested $(Split-Path $File -Leaf)"
+  }
+  Invoke-Ingest $_.Table $_.Mapping $_.File
+} -ThrottleLimit $ingestConcurrency
 ```
+
+If the emulator exits with code 137, it ran out of memory. Reduce `$ingestConcurrency`, increase the container memory, or ingest one month at a time and restart the emulator between batches. For very large imports, keep a per-file log so you can retry failed files without restarting the entire load.
 
 Confirm the data landed and the final tables filled in:
 
