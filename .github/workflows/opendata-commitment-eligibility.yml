@@ -26,9 +26,11 @@ jobs:
       # maintainer to open. Opening the PR triggers Open Data CI and normal review.
       - name: Push branch and surface PR link if data changed
         run: |
-          # Check for changes (handles both new file and modified file)
-          if git diff --quiet --exit-code -- src/open-data/CommitmentDiscountEligibility.csv 2>/dev/null && \
-             ! git ls-files --others --exclude-standard | grep -q 'CommitmentDiscountEligibility.csv'; then
+          # Check for changes to the CSV or the per-shard baseline (handles both
+          # modified and newly-created/untracked files). The baseline is checked too
+          # so a counts-only update (no eligibility change) is still surfaced.
+          if git diff --quiet --exit-code -- src/open-data/CommitmentDiscountEligibility.csv src/open-data/CommitmentDiscountEligibility.shardcounts.json 2>/dev/null && \
+             ! git ls-files --others --exclude-standard -- src/open-data/ | grep -qE 'CommitmentDiscountEligibility\.(csv|shardcounts\.json)'; then
             echo "No changes detected"
             exit 0
           fi

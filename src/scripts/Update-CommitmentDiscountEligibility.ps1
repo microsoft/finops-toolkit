@@ -52,6 +52,9 @@ param(
     # Completeness guard: abort without writing if this run's meter total falls more
     # than this fraction below the previously published row count. Raise it for a
     # deliberate large change (e.g. an initial migration that sheds retired meters).
+    # Constrained to 0..1: a value >1 would make the floor negative and silently
+    # disable the guard.
+    [ValidateRange(0.0, 1.0)]
     [double]$MaxShrinkFraction = 0.15
 )
 
