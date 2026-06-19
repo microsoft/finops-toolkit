@@ -1,6 +1,6 @@
 ---
 title: Run FinOps hubs locally
-description: Stand up a FinOps hub on your machine in a local container and ingest cost data, using the same KQL and open data as a deployed hub.
+description: Stand up a FinOps hub on your own hardware in a local container and ingest cost data, using the same KQL and open data as a deployed hub.
 author: flanakin
 ms.author: micflan
 ms.date: 06/18/2026
@@ -15,9 +15,9 @@ ms.reviewer: micflan
 
 # Run FinOps hubs locally
 
-This article shows how to run a FinOps hub on your own machine using the [Kusto emulator](/azure/data-explorer/kusto-emulator-overview), a free local container. It uses the same analytics KQL, transforms, and open data as a deployed [FinOps hub](finops-hubs-overview.md) — only the host changes from Azure Data Explorer to a local container. Run the PowerShell blocks below in order; each is a step you (or an agent) can run one after another.
+This article shows how to run a FinOps hub on your own hardware using the [Kusto emulator](/azure/data-explorer/kusto-emulator-overview), a free local container. It uses the same analytics KQL, transforms, and open data as a deployed [FinOps hub](finops-hubs-overview.md) — only the host changes from Azure Data Explorer to a local container. Run the PowerShell blocks below in order; each is a step you (or an agent) can run one after another.
 
-A local hub is useful to explore the FinOps hub data model, validate cost data, or work offline. It isn't a replacement for a deployed hub — there's no scheduled ingestion, networking, or sharing.
+A local hub is useful when you need full hub analysis without managed daily refresh: exploring the data model, validating large customer datasets, supporting consulting deliveries, or working from on-premises, other-cloud, or disconnected environments where you can bring exported data to the machine. It isn't a replacement for a deployed hub — there's no scheduled ingestion, networking, security, or sharing.
 
 <br>
 
@@ -25,8 +25,8 @@ A local hub is useful to explore the FinOps hub data model, validate cost data, 
 
 - [Docker](https://docs.docker.com/get-docker/), to run the Kusto emulator container, with at least 16 GB of memory available to the container. Start Docker before you run the commands and verify `docker info` works in the same PowerShell session.
 - [PowerShell 7](/powershell/scripting/install/installing-powershell) — every command in this article is PowerShell.
-- [Azure PowerShell](/powershell/azure/install-azure-powershell) (the `Az` modules) — only needed to download cost data from a storage account.
-- FOCUS cost exports as Parquet, either from a [FinOps hub storage account](configure-scopes.md) or [Cost Management exports](/cost-management-billing/costs/tutorial-improved-exports).
+- [Azure PowerShell](/powershell/azure/install-azure-powershell) (the `Az` modules) — only needed to download cost data from an Azure storage account.
+- FOCUS cost exports as Parquet, either from a [FinOps hub storage account](configure-scopes.md), [Cost Management exports](/cost-management-billing/costs/tutorial-improved-exports), or another source staged in the same local folder structure.
 
 For background on the emulator and its platform requirements, see the [Kusto emulator overview](/azure/data-explorer/kusto-emulator-overview) and [installation guide](/azure/data-explorer/kusto-emulator-install).
 
