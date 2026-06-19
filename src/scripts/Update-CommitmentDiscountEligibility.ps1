@@ -217,7 +217,12 @@ function Invoke-ShardedUnion
     foreach ($shard in $Shards)
     {
         $shardNum++
-        $shardFilter = "$BaseFilter and serviceFamily eq '$shard'"
+        # URL-encode the serviceFamily value. In a query string an unescaped '+' is
+        # decoded server-side to a space, so a family like 'AI + Machine Learning'
+        # would match nothing and be silently dropped (168 meters today). The server
+        # decodes the escape back to the literal value before OData parsing.
+        $encodedShard = [uri]::EscapeDataString($shard)
+        $shardFilter = "$BaseFilter and serviceFamily eq '$encodedShard'"
         $shardKeys = @{}
         $stable = 0
         $pass = 0
