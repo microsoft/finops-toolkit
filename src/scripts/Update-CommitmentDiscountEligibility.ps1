@@ -399,10 +399,12 @@ if ($cachedTotal -gt 0)
 
 # Per-shard guard: a single family that systematically under-fetches can be hidden
 # from the aggregate check by growth elsewhere, so compare each shard against its
-# own baseline (when one exists from a prior run).
+# own baseline (when one exists from a prior run). $cachedShardCounts is a hashtable
+# (ConvertFrom-Json -AsHashtable), so index its sections by key; null-safe when no
+# baseline file exists.
 $shardShortfall = @()
-$shardShortfall += Get-ShardShortfall -Section 'Reservation' -Current $riResult.ShardCounts -Baseline $cachedShardCounts.Reservation
-$shardShortfall += Get-ShardShortfall -Section 'Consumption' -Current $spResult.ShardCounts -Baseline $cachedShardCounts.Consumption
+$shardShortfall += Get-ShardShortfall -Section 'Reservation' -Current $riResult.ShardCounts -Baseline $cachedShardCounts['Reservation']
+$shardShortfall += Get-ShardShortfall -Section 'Consumption' -Current $spResult.ShardCounts -Baseline $cachedShardCounts['Consumption']
 if ($shardShortfall.Count -gt 0)
 {
     throw "Aborting before write: shard(s) fell more than $([Math]::Round($MaxShrinkFraction * 100))% below baseline: $($shardShortfall -join '; '). A family likely under-fetched; refusing to overwrite published data. Raise -MaxShrinkFraction for a deliberate large change."
