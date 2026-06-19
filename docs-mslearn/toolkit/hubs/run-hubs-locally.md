@@ -164,14 +164,6 @@ For large exports, use a small amount of parallelism. Start with about one inges
 ```powershell
 $ingestConcurrency = 2
 
-function Invoke-Ingest {
-  param([string]$Table, [string]$Mapping, [string]$File)
-  $rel  = [IO.Path]::GetRelativePath((Resolve-Path $exportPath), $File) -replace '\\', '/'
-  $path = "/data/export/$rel"
-  Invoke-Kusto Ingestion ".ingest into table $Table (h@'$path') with (format='parquet', ingestionMappingReference='$Mapping')" | Out-Null
-  Write-Host "  ingested $(Split-Path $File -Leaf)"
-}
-
 # Group exports by manifest type, then ingest each dataset's Parquet files
 $ingestJobs = Get-ChildItem $exportPath -Recurse -Filter manifest.json | ForEach-Object {
   $type = if ((Get-Content $_.FullName -Raw) -match '"type"\s*:\s*"(FocusCost|PriceSheet)"') { $Matches[1] } else { return }
