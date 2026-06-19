@@ -199,8 +199,8 @@ function Invoke-ShardedUnion
         $CollectKey receives an item and returns the meterId to record, or $null to
         skip it (used to gate Savings Plan eligibility on a non-empty savingsPlan).
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'CollectKey',
-        Justification = 'Invoked inside the -OnItem closure passed to Get-RetailPriceSegment, which PSScriptAnalyzer cannot trace.')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '',
+        Justification = 'CollectKey is invoked inside the nested -OnItem closure passed to Get-RetailPriceSegment, which the analyzer cannot trace. Target must be empty to suppress on PSScriptAnalyzer 1.x.')]
     param(
         [string]$BaseFilter,
         [string[]]$Shards,
