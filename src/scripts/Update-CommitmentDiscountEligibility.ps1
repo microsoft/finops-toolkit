@@ -18,9 +18,11 @@
          price type) and shards by those, so the shard list is self-correcting: a
          newly added family (or a rename) is fetched automatically instead of being
          silently excluded by a hardcoded allowlist. A discovery scan is itself a long
-         traversal and so is exposed to the ordering drop, but that only loses
-         scattered individual rows, never an entire family (each family has many
-         meters), so the family SET it returns is reliable even when the row set is not.
+         traversal and so is exposed to the ordering drop; for most families the drop
+         can only lose scattered rows (never all of them), but a tiny family with 1-2
+         meters could be missed entirely, so the discovered set is unioned with the
+         prior run's families (Add-BaselineShard) -- a previously-seen family is always
+         queried and can never be silently dropped.
       2. Shards each query by those serviceFamily values so individual traversals stay
          short (short traversals are far less exposed to the ordering instability), and
       3. Repeats each shard, unioning results by meterId, until the collected set
@@ -163,11 +165,12 @@ function Get-ServiceFamily
         present, used to build the shard list dynamically instead of hardcoding it.
 
         .DESCRIPTION
-        A single full traversal is exposed to the API's unstable paging order, but
-        that only drops scattered individual rows -- never an entire family, since
-        each family has many meters -- so the distinct family SET it collects is
-        reliable even though the row set is not. The per-family data fetch in
-        Invoke-ShardedUnion still repeats and unions to recover the dropped rows.
+        A single full traversal is exposed to the API's unstable paging order. For
+        families with many meters the drop can only lose scattered rows, so they are
+        always discovered; a tiny family (1-2 meters) could in principle be missed,
+        which the caller backstops by unioning with the prior baseline (Add-BaselineShard).
+        The per-family data fetch in Invoke-ShardedUnion still repeats and unions to
+        recover the dropped rows.
     #>
     param(
         [string]$Filter,
@@ -183,6 +186,30 @@ function Get-ServiceFamily
     }
     Write-Progress -Activity $ActivityName -Completed
     return [string[]]($families.Keys | Sort-Object)
+}
+
+function Add-BaselineShard
+{
+    <#
+        .SYNOPSIS
+        Unions discovered families with the families seen in the prior run's baseline.
+
+        .DESCRIPTION
+        A discovery scan is a single traversal and so is exposed to the ordering drop.
+        Most families have many meters (so the drop can't lose all of them), but some
+        have only 1-2, where a single miss could drop the family's only row and omit it
+        from the shard list. Re-including every family from the prior baseline
+        guarantees a previously-seen family is always queried -- it can never be
+        silently dropped by a discovery miss -- while discovery still surfaces new
+        families. The per-shard guard then catches any known family that genuinely
+        shrank. Returns the sorted, de-duplicated union.
+    #>
+    param(
+        [string[]]$Discovered,
+        [hashtable]$BaselineSection
+    )
+    if (-not $BaselineSection) { return [string[]](@($Discovered) | Sort-Object -Unique) }
+    return [string[]](@($Discovered) + @($BaselineSection.Keys) | Sort-Object -Unique)
 }
 
 function Invoke-ShardedUnion
@@ -295,7 +322,8 @@ function Get-ShardShortfall
     param(
         [string]$Section,
         [hashtable]$Current,
-        [hashtable]$Baseline
+        [hashtable]$Baseline,
+        [double]$MaxShrinkFraction
     )
 
     $violations = @()
@@ -304,7 +332,11 @@ function Get-ShardShortfall
     {
         $prev = $Baseline[$shard]
         if (-not $prev) { continue }   # previously-empty shard: nothing to compare
-        $floor = [Math]::Floor($prev * (1 - $MaxShrinkFraction))
+        # Ceiling, not Floor: Floor rounds the bound down, allowing up to ~1 extra row
+        # of shrink -- and for a baseline of 1 it floors to 0, so a drop to 0 (the
+        # family vanishing) would pass. Ceiling preserves the fractional bound and
+        # flags small-baseline regressions.
+        $floor = [Math]::Ceiling($prev * (1 - $MaxShrinkFraction))
         $cur = if ($Current.ContainsKey($shard)) { $Current[$shard] } else { 0 }
         if ($cur -lt $floor)
         {
@@ -347,6 +379,7 @@ if (Test-Path $ShardCountPath)
 # -----------------------------------------------------------------------
 Write-Host "Discovering Reservation serviceFamily values..."
 $riShards = Get-ServiceFamily -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -ActivityName 'Discovering Reservation families'
+$riShards = Add-BaselineShard -Discovered $riShards -BaselineSection $cachedShardCounts['Reservation']
 Write-Host "  Found $($riShards.Count) serviceFamily values: $($riShards -join ', ')"
 Write-Host "Fetching Reservation prices (sharded by serviceFamily)..."
 $riResult = Invoke-ShardedUnion -BaseFilter "priceType eq 'Reservation'" -Shards $riShards -MeterRegion 'primary' -ActivityName 'Fetching Reservation prices' -CollectKey {
@@ -363,6 +396,7 @@ Write-Host "  RI-eligible meters: $($riMeters.Count)"
 # -----------------------------------------------------------------------
 Write-Host "Discovering Consumption serviceFamily values..."
 $spShards = Get-ServiceFamily -Filter "priceType eq 'Consumption'" -MeterRegion 'primary' -ActivityName 'Discovering Consumption families'
+$spShards = Add-BaselineShard -Discovered $spShards -BaselineSection $cachedShardCounts['Consumption']
 Write-Host "  Found $($spShards.Count) serviceFamily values: $($spShards -join ', ')"
 Write-Host "Fetching Consumption prices (sharded by serviceFamily; checking for Savings Plan eligibility)..."
 $spResult = Invoke-ShardedUnion -BaseFilter "priceType eq 'Consumption'" -Shards $spShards -MeterRegion 'primary' -ActivityName 'Fetching Consumption prices' -CollectKey {
@@ -390,7 +424,7 @@ if ($nonConverged.Count -gt 0)
 
 if ($cachedTotal -gt 0)
 {
-    $floor = [Math]::Floor($cachedTotal * (1 - $MaxShrinkFraction))
+    $floor = [Math]::Ceiling($cachedTotal * (1 - $MaxShrinkFraction))
     if ($seenTotal -lt $floor)
     {
         throw "Aborting before write: fetched $seenTotal meters, below the floor of $floor (cached $cachedTotal, max shrink $([Math]::Round($MaxShrinkFraction * 100))%). Run is likely incomplete; refusing to overwrite published data."
@@ -403,8 +437,8 @@ if ($cachedTotal -gt 0)
 # (ConvertFrom-Json -AsHashtable), so index its sections by key; null-safe when no
 # baseline file exists.
 $shardShortfall = @()
-$shardShortfall += Get-ShardShortfall -Section 'Reservation' -Current $riResult.ShardCounts -Baseline $cachedShardCounts['Reservation']
-$shardShortfall += Get-ShardShortfall -Section 'Consumption' -Current $spResult.ShardCounts -Baseline $cachedShardCounts['Consumption']
+$shardShortfall += Get-ShardShortfall -Section 'Reservation' -Current $riResult.ShardCounts -Baseline $cachedShardCounts['Reservation'] -MaxShrinkFraction $MaxShrinkFraction
+$shardShortfall += Get-ShardShortfall -Section 'Consumption' -Current $spResult.ShardCounts -Baseline $cachedShardCounts['Consumption'] -MaxShrinkFraction $MaxShrinkFraction
 if ($shardShortfall.Count -gt 0)
 {
     throw "Aborting before write: shard(s) fell more than $([Math]::Round($MaxShrinkFraction * 100))% below baseline: $($shardShortfall -join '; '). A family likely under-fetched; refusing to overwrite published data. Raise -MaxShrinkFraction for a deliberate large change."
