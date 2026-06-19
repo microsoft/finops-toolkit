@@ -68,7 +68,6 @@ _Released June 2026_
 - **Fixed**
   - Bumped the `Az.Accounts` required-module minimum to 2.17.0 so dependency resolution can't land on a version missing the `Get-AzAccessToken -AsSecureString` parameter that `Invoke-Rest` relies on ([#2185](https://github.com/microsoft/finops-toolkit/issues/2185)).
 
--->
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v15)
