@@ -53,6 +53,11 @@ _Released June 2026_
   - Fixed Data Factory ingestion memory pressure during emptiness filtering.
     - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
 
+### [Power BI reports](power-bi/reports.md) v15
+
+- **Fixed**
+  - Fixed Power BI storage report refresh errors caused by ISO 8601 duration `x_SkuTerm` values (like `P3Y`) and empty strings in cost exports ([#2174](https://github.com/microsoft/finops-toolkit/issues/2174)).
+
 ### [Data dictionary](help/data-dictionary.md) updates
 
 - **Fixed**
