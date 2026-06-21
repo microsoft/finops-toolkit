@@ -3,7 +3,7 @@ title: Setup options
 description: This article describes advance scenarios for setting up or upgrading Azure optimization engine (AOE).
 author: flanakin
 ms.author: micflan
-ms.date: 06/17/2026
+ms.date: 06/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
