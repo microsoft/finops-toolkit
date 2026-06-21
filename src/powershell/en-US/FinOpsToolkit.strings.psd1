@@ -16,6 +16,9 @@ ConvertFrom-StringData -StringData @'
     Hub_Remove_Failed = FinOps hub could not be deleted. {0}.
     Hub_Remove_NotFound = FinOps hub '{0}' not found.
 
+    HubLocal_Initialize_NotReachable = Could not reach the Kusto emulator at '{0}'. Start the local hub container before running this command. See https://aka.ms/finops/hubs/local.
+    HubLocal_Initialize_OpenDataEmpty = Open data tables were still empty after {0} attempts: {1}. The emulator's first external data read after setup can return no rows; rerun the command to retry.
+
     HubProviders_Register_AlreadyRegistered =  Resource provider {0} is already registered.
     HubProviders_Register_Register =  Registering resource provider {0}.
     HubProviders_Register_RegisterError =  Error registering resource provider: {0}.

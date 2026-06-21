@@ -248,6 +248,8 @@
               href: toolkit/powershell/hubs/deploy-finopshub.md
             - name: Initialize-FinOpsHubDeployment
               href: toolkit/powershell/hubs/initialize-finopshubdeployment.md
+            - name: Initialize-FinOpsHubLocal
+              href: toolkit/powershell/hubs/initialize-finopshublocal.md
             - name: Register-FinOpsHubProviders
               href: toolkit/powershell/hubs/register-finopshubproviders.md
             - name: Remove-FinOpsHub

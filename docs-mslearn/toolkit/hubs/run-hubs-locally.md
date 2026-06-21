@@ -1,13 +1,13 @@
 ---
 title: Run FinOps hubs locally
 description: Stand up a FinOps hub on your own hardware in a local container and ingest cost data, using the same KQL and open data as a deployed hub.
-author: flanakin
-ms.author: micflan
-ms.date: 06/19/2026
+author: MSBrett
+ms.author: brettwil
+ms.date: 06/21/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
-ms.reviewer: micflan
+ms.reviewer: brettwil
 #customer intent: As a FinOps user, I want to run a FinOps hub locally so I can explore my cost data without deploying Azure resources.
 ---
 
@@ -25,13 +25,10 @@ A local hub is useful when you need full hub analysis without managed daily refr
 
 - [Docker](https://docs.docker.com/get-docker/), to run the Kusto emulator container, with at least 16 GB of memory available to the container. Start Docker before you run the commands and verify `docker info` works in the same PowerShell session.
 - [PowerShell 7](/powershell/scripting/install/installing-powershell) — every command in this article is PowerShell.
-- [Azure PowerShell](/powershell/azure/install-azure-powershell) (the `Az` modules) — only needed to download cost data from an Azure storage account.
-- FOCUS cost exports as Parquet, either from a [FinOps hub storage account](configure-scopes.md), [Cost Management exports](/cost-management-billing/costs/tutorial-improved-exports), or another source staged in the same local folder structure.
+- [Azure PowerShell](/powershell/azure/install-azure-powershell) (the `Az` modules), only needed to download cost data from an Azure storage account. Sign in first with `Connect-AzAccount` and select the subscription that holds your cost data — this article never runs a sign-in command. With `-UseConnectedAccount`, your identity also needs storage data-plane access, such as **Storage Blob Data Reader**, on the account or container.
+- FOCUS cost exports as Parquet, available on the local machine. The emulator reads cost data from a local folder, so the files must be on disk — but you can download them from a [FinOps hub storage account](configure-scopes.md) or [Cost Management exports](/cost-management-billing/costs/tutorial-improved-exports) (shown below), or copy them from any other source into the same folder structure.
 
 For background on the emulator and its platform requirements, see the [Kusto emulator overview](/azure/data-explorer/kusto-emulator-overview) and [installation guide](/azure/data-explorer/kusto-emulator-install).
-
-> [!NOTE]
-> This article assumes you're already signed in to Azure with `Connect-AzAccount` and have selected the subscription that holds your cost data. It never runs a sign-in command. If you aren't downloading data from a storage account, you can skip Azure sign-in entirely. If you download from Azure Storage with `-UseConnectedAccount`, your signed-in identity also needs storage data-plane access, such as **Storage Blob Data Reader**, on the storage account or container.
 
 <br>
 
@@ -69,6 +66,28 @@ do {
 } until ($ready)
 Write-Host 'emulator ready'
 ```
+
+<br>
+
+## Set up the hub
+
+Set up the databases, schema, and open data in one step with the [FinOps toolkit PowerShell module](../powershell/powershell-commands.md), or follow the next three sections to do it by hand. Both run the same released scripts and produce the same result.
+
+To use the module, stage the open data CSVs in the mounted folder first (the emulator reads them from there), then run one command:
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$exportPath/open-data" | Out-Null
+foreach ($f in 'PricingUnits', 'Regions', 'ResourceTypes', 'Services') {
+  Invoke-WebRequest "https://github.com/microsoft/finops-toolkit/releases/latest/download/$f.csv" -OutFile "$exportPath/open-data/$f.csv"
+}
+
+Install-Module -Name FinOpsToolkit -Scope CurrentUser
+Initialize-FinOpsHubLocal -ClusterUri 'http://localhost:8082' -RawRetentionInDays 90
+```
+
+`Initialize-FinOpsHubLocal` creates the `Ingestion` and `Hub` databases, applies the released setup scripts, and loads open data from `/data/export/open-data`. It doesn't manage the container or ingest cost data — start the emulator first and ingest your exports later. Add `-SkipOpenData` to skip open data. When it finishes, skip ahead to [Download your cost data](#download-your-cost-data).
+
+To set everything up by hand instead, continue with the steps below.
 
 <br>
 
@@ -110,22 +129,30 @@ Each response is a table with one row per statement. The Hub functions reference
 
 ## Load the open data
 
-FinOps hubs enrich cost data with open-data reference tables (regions, services, resource types, and pricing units). Download the reference CSVs from the toolkit release, then load them with the same commands a deployed hub uses.
+FinOps hubs enrich cost data with open-data reference tables (regions, services, resource types, and pricing units). Download the reference CSVs and the matching load script from the toolkit release, then run the script. The load script (`finops-hub-local-opendata.kql`) is generated by the toolkit build from the same open data a deployed hub uses, so its schema always matches the published CSVs.
+
+The emulator's first external-data read right after setup sometimes returns no rows without raising an error, so load the open data, check the tables filled, and retry if they didn't:
 
 ```powershell
 New-Item -ItemType Directory -Force -Path "$exportPath/open-data" | Out-Null
 foreach ($f in 'PricingUnits', 'Regions', 'ResourceTypes', 'Services') {
   Invoke-WebRequest "$release/$f.csv" -OutFile "$exportPath/open-data/$f.csv"
 }
+Invoke-WebRequest "$release/finops-hub-local-opendata.kql" -OutFile "$exportPath/setup/load-open-data.kql"
 
-$openData = @'
-.execute database script with (ContinueOnErrors=true) <|
-.set-or-replace PricingUnits <| externaldata(x_PricingUnitDescription: string, AccountTypes: string, x_PricingBlockSize: real, PricingUnit: string)[@'/data/export/open-data/PricingUnits.csv'] with (format='csv', ignoreFirstRecord=true) | project-away AccountTypes
-.set-or-replace Regions <| externaldata(ResourceLocation: string, RegionId: string, RegionName: string)[@'/data/export/open-data/Regions.csv'] with (format='csv', ignoreFirstRecord=true)
-.set-or-replace ResourceTypes <| externaldata(x_ResourceType: string, SingularDisplayName: string, PluralDisplayName: string, LowerSingularDisplayName: string, LowerPluralDisplayName: string, IsPreview: bool, Description: string, IconUri: string, Links: string)[@'/data/export/open-data/ResourceTypes.csv'] with (format='csv', ignoreFirstRecord=true) | project-away Links
-.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string)[@'/data/export/open-data/Services.csv'] with (format='csv', ignoreFirstRecord=true)
-'@
-Invoke-Kusto Ingestion $openData
+# Point the load script at the mounted open-data folder.
+$openData = (Get-Content "$exportPath/setup/load-open-data.kql" -Raw) -replace '\$\$openDataPath\$\$', '/data/export/open-data'
+
+# Load, verify the tables filled, and retry if the first read came back empty.
+foreach ($attempt in 1..5) {
+  Invoke-Kusto Ingestion $openData | Out-Null
+  $empty = 'PricingUnits', 'Regions', 'ResourceTypes', 'Services' | Where-Object {
+    (Invoke-Kusto Ingestion "$_ | count" -Endpoint query).Tables[0].Rows[0][0] -eq 0
+  }
+  if (-not $empty) { Write-Host 'open data loaded'; break }
+  if ($attempt -eq 5) { throw "Open data tables still empty: $($empty -join ', ')" }
+  Start-Sleep -Seconds 2
+}
 ```
 
 <br>
@@ -135,6 +162,9 @@ Invoke-Kusto Ingestion $openData
 Download FOCUS cost and price exports from your storage account into the export folder, using your existing Azure sign-in. This works against either the **msexports** or **ingestion** container of a FinOps hub, or any container holding Cost Management exports. Only the data files (`manifest.json` and `*.parquet`) are downloaded.
 
 Set these to match your storage account, then run the download:
+
+> [!NOTE]
+> This download step is specific to Azure Storage. The local hub uses the same FOCUS transforms as a deployed hub, which are aligned to [FOCUS](../../focus/what-is-focus.md) and validated against Microsoft Cost Management cost data. If your FOCUS exports already live elsewhere, copy each dataset's `manifest.json` and `*.parquet` files into `$exportPath` and skip to [Ingest the data](#ingest-the-data).
 
 ```powershell
 $account   = '<your-storage-account>'
@@ -161,39 +191,48 @@ Ingest each Parquet file into the matching raw table. As rows land, the update p
 
 For large exports, use a small amount of parallelism. Start with about one ingestion thread per 8 GB of emulator memory. For the 16 GB container below, use two threads; if you increase the container to 32 GB, four threads is a good starting point.
 
+Ingest price sheets before cost data. The cost transform enriches rows with missing prices from `Prices_final_v1_2`, and the update policy runs as each file lands, so any prices must already be in place when costs are ingested.
+
 ```powershell
 $ingestConcurrency = 2
 
 # Group exports by manifest type, then ingest each dataset's Parquet files
 $ingestJobs = Get-ChildItem $exportPath -Recurse -Filter manifest.json | ForEach-Object {
-  $type = if ((Get-Content $_.FullName -Raw) -match '"type"\s*:\s*"(FocusCost|PriceSheet)"') { $Matches[1] } else { return }
-  $target = if ($type -eq 'FocusCost') { 'Costs_raw', 'Costs_raw_mapping' } else { 'Prices_raw', 'Prices_raw_mapping' }
+  # Default to FocusCost; treat as PriceSheet only when the manifest type or path says so.
+  $manifest = Get-Content $_.FullName -Raw
+  $isPrice  = $manifest -match '"type"\s*:\s*"PriceSheet"' -or $_.FullName -match '(?i)price'
+  $target   = if ($isPrice) { 'Prices_raw', 'Prices_raw_mapping' } else { 'Costs_raw', 'Costs_raw_mapping' }
   Get-ChildItem $_.Directory -Filter *.parquet | ForEach-Object {
     [PSCustomObject]@{
       Table   = $target[0]
       Mapping = $target[1]
       File    = $_.FullName
+      # Prices first (0) then costs (1): the cost transform enriches from Prices_final_v1_2.
+      Phase   = if ($isPrice) { 0 } else { 1 }
     }
   }
 }
 
-$ingestJobs | ForEach-Object -Parallel {
-  $hub = $using:hub
-  $exportPath = $using:exportPath
-  function Invoke-Kusto {
-    param([string]$Database, [string]$Command, [ValidateSet('mgmt','query')][string]$Endpoint = 'mgmt')
-    Invoke-RestMethod -Uri "$hub/$Endpoint" -Method Post -ContentType 'application/json' `
-      -Body (@{ db = $Database; csl = $Command } | ConvertTo-Json)
-  }
-  function Invoke-Ingest {
-    param([string]$Table, [string]$Mapping, [string]$File)
-    $rel  = [IO.Path]::GetRelativePath((Resolve-Path $exportPath), $File) -replace '\\', '/'
-    $path = "/data/export/$rel"
-    Invoke-Kusto Ingestion ".ingest into table $Table (h@'$path') with (format='parquet', ingestionMappingReference='$Mapping')" | Out-Null
-    Write-Host "  ingested $(Split-Path $File -Leaf)"
-  }
-  Invoke-Ingest $_.Table $_.Mapping $_.File
-} -ThrottleLimit $ingestConcurrency
+# Ingest prices, then costs. Each phase finishes before the next starts.
+foreach ($phase in $ingestJobs | Group-Object Phase | Sort-Object Name) {
+  $phase.Group | ForEach-Object -Parallel {
+    $hub = $using:hub
+    $exportPath = $using:exportPath
+    function Invoke-Kusto {
+      param([string]$Database, [string]$Command, [ValidateSet('mgmt','query')][string]$Endpoint = 'mgmt')
+      Invoke-RestMethod -Uri "$hub/$Endpoint" -Method Post -ContentType 'application/json' `
+        -Body (@{ db = $Database; csl = $Command } | ConvertTo-Json)
+    }
+    function Invoke-Ingest {
+      param([string]$Table, [string]$Mapping, [string]$File)
+      $rel  = [IO.Path]::GetRelativePath((Resolve-Path $exportPath), $File) -replace '\\', '/'
+      $path = "/data/export/$rel"
+      Invoke-Kusto Ingestion ".ingest into table $Table (h@'$path') with (format='parquet', ingestionMappingReference='$Mapping')" | Out-Null
+      Write-Host "  ingested $(Split-Path $File -Leaf)"
+    }
+    Invoke-Ingest $_.Table $_.Mapping $_.File
+  } -ThrottleLimit $ingestConcurrency
+}
 ```
 
 If the emulator exits with code 137, it ran out of memory. Reduce `$ingestConcurrency`, increase the container memory, or ingest one month at a time and restart the emulator between batches. For very large imports, keep a per-file log so you can retry failed files without restarting the entire load.
@@ -227,7 +266,7 @@ You now have a working local FinOps hub. To explore it visually, connect the [Az
 
 ## Clean up
 
-Stop and remove the container when you're done. Your downloaded data stays in the `export` folder.
+Remove the container when you're done. Your downloaded data stays in the export folder you created (`$exportPath`), but removing the container deletes its databases — re-creating it means re-loading the schema and open data and re-ingesting. To keep the loaded data between sessions, use `docker stop finops-hub-local` instead and restart it later with `docker start finops-hub-local`.
 
 ```powershell
 docker rm -f finops-hub-local
