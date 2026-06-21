@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 05/19/2026
+ms.date: 06/21/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -44,6 +44,15 @@ _Released June 2026_
   - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management ([#2043](https://github.com/microsoft/finops-toolkit/pull/2043)).
   - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
   - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
+
+### GitHub Copilot CLI plugin v15
+
+- **Added**
+  - Added a GitHub Copilot CLI plugin with skills for FinOps hubs and Azure Cost Management, 5 agents, 5 commands (`/ftk/hubs-connect`, `/ftk/hubs-healthCheck`, `/ftk/mom-report`, `/ftk/ytd-report`, and `/ftk/cost-optimization`), and a read-only Azure MCP server for running KQL against FinOps hubs ([#2167](https://github.com/microsoft/finops-toolkit/pull/2167)).
+  - Published a plugin marketplace and repo-level discovery so the plugin installs with `copilot plugin install microsoft/finops-toolkit`.
+- **Changed**
+  - Moved agent skills to a single shared source so the Claude Code and Copilot CLI plugins use identical content.
+  - Added an `azure-capacity-manager` agent and restructured the CFO, FinOps practitioner, and database query agents around evidence delegation across both plugins.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v15
 
