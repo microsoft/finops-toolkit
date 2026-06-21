@@ -41,6 +41,7 @@ The advisory council consists of the following representative seats:
 - Each Microsoft product family in the FinOps space:
   - Azure Advisor
   - Azure Carbon Optimization
+  - Azure Data Explorer
   - Azure Monitor
   - Azure Resource Manager (including Management groups, Tags, Policy, Resource Graph, etc.)
   - Commerce (including Benefits, Cost Management, Pricing, etc.)
@@ -60,6 +61,7 @@ This currently includes the following people:
 
 | Seat                                 | Member                |
 | ------------------------------------ | --------------------- |
+| Azure Data Explorer                  | Brad Watts            |
 | Azure Optimization Engine            | Helder Pinto          |
 | Bicep Registry                       | Vacant                |
 | FinOps alerts                        | Robel Mamecha         |

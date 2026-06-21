@@ -408,7 +408,7 @@ Costs_transform_v1_0()
         and (ListUnitPrice == 0 or ContractedUnitPrice == 0)
         and x_EffectiveUnitPrice != 0
         and not(CommitmentDiscountCategory == 'Spend' and CommitmentDiscountStatus == 'Unused')
-        and isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))
+        and isnotempty(x_SkuMeterId) and isnotempty(x_SkuOfferId)
     | as allCosts
     | where tmp_MissingPrices
     | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(ChargePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
