@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 05/14/2026
+ms.date: 06/19/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -25,21 +25,38 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### Claude Code plugin v15.0.0
+-->
+
+<br><a name="latest"></a>
+
+## v15
+
+_Released June 2026_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v15
+
+- **Fixed**
+  - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` in the [data dictionary](help/data-dictionary.md) to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
+
+### Claude Code plugin v15
 
 - **Added**
   - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management ([#2043](https://github.com/microsoft/finops-toolkit/pull/2043)).
   - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
   - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
 
-### Bicep Registry module pending updates
-
-- Cost Management export modules for subscriptions and resource groups.
-
-### [Configure scopes](hubs/configure-scopes.md) updates
+### [FinOps hubs](hubs/finops-hubs-overview.md) v15
 
 - **Changed**
   - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
+- **Fixed**
+  - Fixed Data Factory ingestion memory pressure during emptiness filtering.
+    - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
+
+### [Power BI reports](power-bi/reports.md) v15
+
+- **Fixed**
+  - Fixed Power BI storage report refresh errors caused by ISO 8601 duration `x_SkuTerm` values (like `P3Y`) and empty strings in cost exports ([#2174](https://github.com/microsoft/finops-toolkit/issues/2174)).
 
 ### [Data dictionary](help/data-dictionary.md) updates
 
@@ -52,9 +69,26 @@ The following section lists features and enhancements that are currently in deve
 
 - **Fixed**
   - Fixed the commitment discount eligibility dataset refresh so it is reproducible and complete; retired meters now age out and previously missed meters are included ([#2164](https://github.com/microsoft/finops-toolkit/pull/2164)).
--->
 
-<br><a name="latest"></a>
+### [Optimization engine](optimization-engine/overview.md) updates
+
+- **Fixed**
+  - Removed call to Azure Classic administrators endpoint (deprecated on May 1, 2026) from Azure RBAC assignments exports ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
+
+### [PowerShell module](powershell/powershell-commands.md) v15
+
+- **Fixed**
+  - Fixed [Get-FinOpsCostExport](powershell/cost/get-finopscostexport.md) `-RunHistory` to return the complete run history ([#2063](https://github.com/microsoft/finops-toolkit/issues/2063)).
+  - Bumped the `Az.Accounts` required-module minimum to 2.17.0 so dependency resolution can't land on a version missing the `Get-AzAccessToken -AsSecureString` parameter that `Invoke-Rest` relies on ([#2185](https://github.com/microsoft/finops-toolkit/issues/2185)).
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v15)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v14...v15)
+<!-- prettier-ignore-end -->
+
+<br>
 
 ## v14
 
