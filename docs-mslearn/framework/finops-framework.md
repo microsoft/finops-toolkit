@@ -3,7 +3,7 @@ title: FinOps Framework overview
 description: 'Learn about what the FinOps Framework is and how you can use it to accelerate your cost management and optimization goals.'
 author: flanakin
 ms.author: micflan
-ms.date: 06/17/2026
+ms.date: 06/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -115,7 +115,7 @@ The FinOps Framework defines a simple lifecycle with three phases:
 
 The FinOps Framework includes capabilities that cover everything you need to perform FinOps tasks and manage a FinOps practice. Capabilities are organized into a set of related domains based on the goals of the capabilities. Each capability defines a functional area of activity and a set of tasks to support your FinOps practice.
 
-- Understand Usage & Cost
+- Understand usage and cost
 
   - [Data ingestion](./understand/ingestion.md)
   - [Allocation](./understand/allocation.md)
@@ -143,7 +143,7 @@ The FinOps Framework includes capabilities that cover everything you need to per
   - [FinOps education and enablement](./manage/education.md)
   - [FinOps practice operations](./manage/operations.md)
   - [Onboarding workloads](./manage/onboarding.md)
-  - [Governance, Policy & Risk](./manage/governance.md)
+  - [Governance, policy, and risk](./manage/governance.md)
   - [Invoicing and chargeback](./manage/invoicing-chargeback.md)
   - [FinOps assessment](./manage/assessment.md)
   - [FinOps tools and services](./manage/tools-services.md)

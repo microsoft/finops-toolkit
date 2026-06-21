@@ -1,9 +1,9 @@
 ---
-title: Governance, Policy & Risk
+title: Governance, policy, and risk
 description: This article helps you understand the governance, policy, and risk capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 06/17/2026
+ms.date: 06/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -11,7 +11,7 @@ ms.reviewer: kedelaro
 # customer intent: As a FinOps practitioner, I want to understand the governance, policy, and risk capability so that I can implement it in the Microsoft Cloud.
 ---
 
-# Governance, Policy & Risk
+# Governance, policy, and risk
 
 This article helps you understand the governance, policy, and risk capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 
@@ -19,13 +19,13 @@ This article helps you understand the governance, policy, and risk capability wi
 
 ## Definition
 
-**Governance, Policy & Risk refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts.**
+**Governance, policy, and risk refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts.**
 
 Define your governance goals and success metrics. Review and document how existing policies are updated to account for FinOps efforts. Review with all stakeholders to get buy-in and endorsement.
 
 Establish a rollout plan that starts with audit rules and slowly (and safely) expands coverage to drive compliance without negatively impacting engineering efforts.
 
-Implementing a governance, policy, and risk strategy enables organizations to sustainably implement FinOps at scale. Governance, Policy & Risk can act as a multiplier to FinOps efforts by building them natively into day-to-day operations.
+Implementing a governance, policy, and risk strategy enables organizations to sustainably implement FinOps at scale. Governance, policy, and risk can act as a multiplier to FinOps efforts by building them natively into day-to-day operations.
 
 <br>
 
@@ -66,7 +66,7 @@ At this point, you have a basic set of policies in place that are being managed 
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Governance, Policy & Risk capability](https://www.finops.org/framework/capabilities/governance-policy-risk/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Governance, policy, and risk capability](https://www.finops.org/framework/capabilities/governance-policy-risk/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 

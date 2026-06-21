@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 06/17/2026
+ms.date: 06/21/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -36,7 +36,7 @@ _Released June 2026_
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v15
 
 - **Changed**
-  - Aligned FinOps Framework capability names and links across guidance to current FinOps Framework terminology, including Usage optimization and Governance, Policy & Risk ([#2170](https://github.com/microsoft/finops-toolkit/pull/2170)).
+  - Aligned FinOps Framework capability names and links across guidance to current FinOps Framework terminology, including Usage optimization and Governance, policy, and risk ([#2170](https://github.com/microsoft/finops-toolkit/pull/2170)).
 
 - **Fixed**
   - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` in the [data dictionary](help/data-dictionary.md) to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
@@ -59,12 +59,12 @@ _Released June 2026_
 ### [Power BI reports](power-bi/reports.md) v15
 
 - **Changed**
-  - Updated report labels and documentation to use current FinOps Framework capability names, including Usage optimization and Governance, Policy & Risk ([#2170](https://github.com/microsoft/finops-toolkit/pull/2170)).
+  - Updated report labels and documentation to use current FinOps Framework capability names, including Usage optimization and Governance, policy, and risk ([#2170](https://github.com/microsoft/finops-toolkit/pull/2170)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v15
 
 - **Changed**
-  - Updated workbook labels and documentation to use current FinOps Framework capability names, including Usage optimization and Governance, Policy & Risk ([#2170](https://github.com/microsoft/finops-toolkit/pull/2170)).
+  - Updated workbook labels and documentation to use current FinOps Framework capability names, including Usage optimization and Governance, policy, and risk ([#2170](https://github.com/microsoft/finops-toolkit/pull/2170)).
 
 ### [Data dictionary](help/data-dictionary.md) updates
 

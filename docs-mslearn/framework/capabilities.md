@@ -3,7 +3,7 @@ title: FinOps capabilities
 description: Learn about what the fundamental building blocks of the FinOps Framework that enable you to maximize business value through the cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 06/17/2026
+ms.date: 06/21/2026
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -16,9 +16,9 @@ The FinOps Framework includes capabilities that cover everything you need to per
 
 <br>
 
-## Understand Usage & Cost
+## Understand usage and cost
 
-The **Understand Usage & Cost** domain is focused on data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption. This domain is all about observability and business intelligence. It brings the data that stakeholders need together (ingestion) into a meaningful breakdown for the organization (allocation). Then it can be reported on (reporting) and monitored to proactively identify and react to issues (anomalies).
+The **Understand usage and cost** domain is focused on data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption. This domain is all about observability and business intelligence. It brings the data that stakeholders need together (ingestion) into a meaningful breakdown for the organization (allocation). Then it can be reported on (reporting) and monitored to proactively identify and react to issues (anomalies).
 
 - [Data ingestion](./understand/ingestion.md)
 - [Allocation](./understand/allocation.md)
@@ -58,7 +58,7 @@ The **Manage the FinOps practice** domain is focused on establishing a clear and
 - [FinOps education and enablement](./manage/education.md)
 - [FinOps practice operations](./manage/operations.md)
 - [Onboarding workloads](./manage/onboarding.md)
-- [Governance, Policy & Risk](./manage/governance.md)
+- [Governance, policy, and risk](./manage/governance.md)
 - [Invoicing and chargeback](./manage/invoicing-chargeback.md)
 - [FinOps assessment](./manage/assessment.md)
 - [FinOps tools and services](./manage/tools-services.md)

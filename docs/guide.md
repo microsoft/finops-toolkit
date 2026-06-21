@@ -63,7 +63,7 @@ Next, learn about the FinOps Framework and build a plan to implement FinOps capa
     <div class="ftk-tile">
         <div>🏗️ FinOps Framework</div>
         <div>Principles and practices to manage, optimize, and quantify value in the Microsoft Cloud.</div>
-        <a target="_blank" href="https://www.finops.org/framework/">Explore the framework</a>
+        <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/framework/finops-framework">Explore the framework</a>
     </div>
 </div>
 

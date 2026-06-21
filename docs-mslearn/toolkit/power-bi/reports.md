@@ -3,7 +3,7 @@ title: FinOps toolkit Power BI reports
 description: Learn about the Power BI reports in the FinOps toolkit to customize and enhance your FinOps reporting and connect to Cost Management exports or FinOps hubs.
 author: flanakin
 ms.author: micflan
-ms.date: 06/17/2026
+ms.date: 06/21/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -29,7 +29,7 @@ The FinOps toolkit includes reports that connect to different data sources. We r
 - [Rate optimization](rate-optimization.md) – Summarizes existing and potential savings from commitment discounts.
 - [Invoicing and chargeback](invoicing.md) – Summarizes billed cost trends and facilitates invoice reconciliation and chargeback.
 - [Usage optimization](workload-optimization.md) – Summarizes opportunities to achieve resource cost and usage efficiencies.
-- [Governance, Policy & Risk](governance.md) – Summarizes the governance posture including areas like compliance, security, operations, and resource management.
+- [Governance, policy, and risk](governance.md) – Summarizes the governance posture including areas like compliance, security, operations, and resource management.
 - [Data ingestion](data-ingestion.md) – Provides insights into your data ingestion layer.
 
 If you need to monitor more than $1 million in spend, we generally recommend using Kusto Query Language (KQL) reports that connect to [FinOps hubs](../hubs/finops-hubs-overview.md) with Azure Data Explorer or Microsoft Fabric. Organizations who need other reports can continue to connect to the underlying hub storage account.

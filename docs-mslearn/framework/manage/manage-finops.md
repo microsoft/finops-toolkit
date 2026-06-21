@@ -3,7 +3,7 @@ title: Manage the FinOps practice
 description: Learn about the FinOps capabilities that help you establish your FinOps practice and drive organizational accountability.
 author: flanakin
 ms.author: micflan
-ms.date: 06/17/2026
+ms.date: 06/21/2026
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -20,7 +20,7 @@ This domain is focused on establishing a clear and consistent vision of FinOps a
 
 ## FinOps education and enablement
 
-FinOps education and enablement involve refers to the process of providing training, resources, and support to help individuals and teams within an organization adopt FinOps practices. This capability ensures that stakeholders across the organization have the resources they need to:
+FinOps education and enablement refers to the process of providing training, resources, and support to help individuals and teams within an organization adopt FinOps practices. This capability ensures that stakeholders across the organization have the resources they need to:
 
 - Understand FinOps
 - Understand how it can help them achieve their goals
@@ -56,15 +56,15 @@ To learn more, see [Onboarding workloads](./onboarding.md).
 
 <br>
 
-## Governance, Policy & Risk
+## Governance, policy, and risk
 
-Governance, Policy & Risk refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:
+Governance, policy, and risk refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:
 
 - Specific SKUs
 - Resource configurations
 - Other practices that might affect cost, usage, and carbon growth
 
-To learn more, see [Governance, Policy & Risk](./governance.md).
+To learn more, see [Governance, policy, and risk](./governance.md).
 
 <br>
 
@@ -122,7 +122,7 @@ If you're looking for something specific, vote for an existing or create a new i
 
 Related FinOps capabilities:
 
-- [Understand Usage & Cost](../understand/understand-cloud-usage-cost.md)
+- [Understand usage and cost](../understand/understand-cloud-usage-cost.md)
 - [Quantify business value](../quantify/quantify-business-value.md)
 - [Optimize usage and cost](../optimize/optimize-cloud-usage-cost.md)
 

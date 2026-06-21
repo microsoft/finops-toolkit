@@ -3,7 +3,7 @@ title: Usage optimization
 description: This article helps you understand the Usage optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 06/17/2026
+ms.date: 06/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -121,7 +121,7 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [Rate optimization](./rates.md)
-- [Governance, Policy & Risk](../manage/governance.md)
+- [Governance, policy, and risk](../manage/governance.md)
 
 Related products:
 

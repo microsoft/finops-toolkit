@@ -3,7 +3,7 @@ title: FinOps toolkit data dictionary
 description: This article describes the column names found in FinOps toolkit solutions, including columns from Cost Management and FOCUS.
 author: flanakin
 ms.author: micflan
-ms.date: 06/17/2026
+ms.date: 06/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -281,7 +281,7 @@ Related FinOps capabilities:
 - [Reporting and analytics](../../framework/understand/reporting.md)
 - [Rate optimization](../../framework/optimize/rates.md)
 - [Usage optimization](../../framework/optimize/workloads.md)
-- [Governance, Policy & Risk](../../framework/manage/governance.md)
+- [Governance, policy, and risk](../../framework/manage/governance.md)
 
 Related products:
 

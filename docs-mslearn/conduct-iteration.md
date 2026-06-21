@@ -3,7 +3,7 @@ title: Tutorial - Conduct an iteration
 description: This tutorial helps you learn how to take an iterative approach to FinOps adoption.
 author: flanakin
 ms.author: micflan
-ms.date: 06/17/2026
+ms.date: 06/21/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -73,7 +73,7 @@ Use the following information as a guide to select the right FinOps capabilities
    3. Rate optimization
    4. Licensing and SaaS
    5. Cloud sustainability
-   6. Governance, Policy & Risk
+   6. Governance, policy, and risk
 7. If your team has a solid understanding of the basics and needs to map cloud investments back to business value, consider:
    1. Unit economics
    2. Allocation
