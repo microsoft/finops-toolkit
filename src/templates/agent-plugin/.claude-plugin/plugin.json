@@ -1,5 +1,5 @@
 {
-  "name": "finops-toolkit",
+  "name": "microsoft-finops-toolkit",
   "version": "15.0.0",
   "description": "Claude plugin for FinOps Toolkit, providing tools and integrations for FinOps practitioners.",
   "author": {
@@ -11,7 +11,7 @@
   "license": "MIT",
   "keywords": ["finops", "cost-management", "reservations", "savings-plans", "cloud-optimization", "commitments", "credits", "macc"],
   "commands": "./commands/",
-  "agents": ["./agents/azure-capacity-manager.md", "./agents/chief-financial-officer.md", "./agents/finops-practitioner.md", "./agents/ftk-database-query.md", "./agents/ftk-hubs-agent.md"],
+  "agents": "./agents/",
   "skills": "./skills/",
   "mcpServers": {
     "azure-mcp-server": {

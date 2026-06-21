@@ -16,18 +16,6 @@ if (-not (Test-Path $skillsDir))
     return
 }
 
-Get-ChildItem $skillsDir -Force | ForEach-Object {
-    $skillName = $_.Name
-    $sourceSkill = Join-Path $repoRoot "src/templates/agent-skills/$skillName"
-    if (-not (Test-Path $sourceSkill))
-    {
-        throw "Cannot resolve shared skill '$skillName' at $sourceSkill"
-    }
-
-    Remove-Item $_.FullName -Recurse -Force
-    Copy-Item $sourceSkill -Destination $skillsDir -Recurse -Force
-}
-
 $finopsSkill = Join-Path $skillsDir 'finops-toolkit'
 if (Test-Path $finopsSkill)
 {
