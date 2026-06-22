@@ -60,17 +60,23 @@ Columns prefixed with `x_` are toolkit enrichments added during ingestion (e.g.,
 - Uses **KQL (Kusto)**, not SQL
 - Default analysis window: 30 days
 - Always include `tenant` — cross-tenant (B2B) scenarios fail without it
+- Always include `subscription` — required by the MCP tool contract
 
 Environment settings are read from `.ftk/environments.local.md` at the project root. Use the `default` environment unless the user specifies one. See `references/settings-format.md` for the file format.
+
+Use the `azure-mcp-server` tool with command `kusto_query` for all live Hub queries.
 
 ```json
 {
   "cluster-uri": "<cluster-uri from .ftk/environments.local.md>",
   "database": "Hub",
   "tenant": "<tenant from .ftk/environments.local.md>",
+  "subscription": "<subscription from .ftk/environments.local.md>",
   "query": "<KQL query>"
 }
 ```
+
+Required parameters for `kusto_query`: `cluster-uri`, `database`, `tenant`, `subscription`, and `query`.
 
 ## Query catalog
 

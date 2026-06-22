@@ -87,13 +87,17 @@ See `references/finops-hubs-deployment.md` for deployment methods, scope configu
 
 ## Query execution
 
+Use `azure-mcp-server` with command `kusto_query`.
+
 ```json
 {
   "cluster-uri": "<from .ftk/environments.local.md>",
   "database": "Hub",
   "tenant": "<from .ftk/environments.local.md>",
+  "subscription": "<from .ftk/environments.local.md>",
   "query": "<KQL query>"
 }
 ```
 
-Always use the "Hub" database (never "Ingestion"). Always include `tenant` for cross-tenant scenarios.
+Required parameters for `kusto_query`: `cluster-uri`, `database`, `tenant`, `subscription`, and `query`.
+Always use the "Hub" database (never "Ingestion"). Always include `tenant` and `subscription`.

@@ -11,6 +11,8 @@
   "license": "MIT",
   "keywords": ["finops", "cost-management", "reservations", "savings-plans", "cloud-optimization", "commitments", "credits", "macc"],
   "commands": "./commands/",
-  "skills": "./skills/",
+  "skills": [
+    "./skills/"
+  ],
   "outputStyles": "./output-styles/"
 }

@@ -201,40 +201,21 @@ Costs()
 
 ## MCP tool invocation — exact contract
 
-You execute KQL against a live hub via **one** tool. There is no other path. Memorize this.
+The source of truth for tool invocation is `skills/finops-toolkit/SKILL.md` (`## Query execution`).
+Do not redefine or diverge from that contract in this file.
+
+Required contract summary:
 
 - **Tool name:** `azure-mcp-server` (namespace `kusto`)
 - **Command:** `kusto_query`
-- **Required parameters (all five — do not omit any):**
+- **Required parameters:** `cluster-uri`, `database`, `tenant`, `subscription`, `query`
+- **Default database:** `Hub`
 
-| Parameter | Source | Example |
-|---|---|---|
-| `cluster-uri` | environment file (see below) | `https://<cluster>.<region>.kusto.windows.net` |
-| `database` | always `Hub` | `Hub` |
-| `tenant` | environment file | `<tenant-guid>` |
-| `subscription` | environment file | `<subscription-guid>` |
-| `query` | the KQL string | `Costs() | take 1` |
-
-**Where to read connection details:**
+Connection details resolution order:
 
 1. **Default:** `.ftk/environments.local.md` at the project root (use the `default` environment unless the user specifies otherwise). See `skills/finops-toolkit/references/settings-format.md` for the format.
 2. **User-supplied hub file:** if the user points you at a markdown file like `<name>-hub.md`, read it for cluster URI, tenant, subscription, and database.
 3. **If neither exists:** ask the user for cluster-uri and tenant before issuing any query. Do not guess, do not improvise, do not query a hub you have not been given.
-
-**Example call (copy this shape exactly):**
-
-```json
-{
-  "command": "kusto_query",
-  "parameters": {
-    "cluster-uri": "https://<cluster>.<region>.kusto.windows.net",
-    "database": "Hub",
-    "tenant": "<tenant-guid>",
-    "subscription": "<subscription-guid>",
-    "query": "Costs() | where ChargePeriodStart >= startofmonth(ago(30d)) | summarize sum(EffectiveCost) by BillingCurrency"
-  }
-}
-```
 
 Auth uses the Azure CLI / managed-identity credential chain by default. No interactive prompt is needed if `az login` has been done against the right tenant. If you get an auth error, surface it — do not retry blindly.
 

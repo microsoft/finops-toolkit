@@ -4,7 +4,7 @@
 BeforeAll {
     $script:RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../../..')).Path
     $script:Plugin = Join-Path $script:RepoRoot 'src/templates/agent-plugin'
-    $script:PluginSource = './src/templates/agent-plugin'
+    $script:PluginSource = './plugins/microsoft-finops-toolkit'
 }
 
 Describe 'Agent plugin manifest' {
@@ -36,6 +36,15 @@ Describe 'Agent plugin manifest' {
         $claude.agents | Should -BeNullOrEmpty
         Join-Path $script:Plugin '.mcp.json' | Should -Exist
     }
+
+    It 'Pins Azure MCP package version in .mcp.json' {
+        $mcp = Get-Content (Join-Path $script:Plugin '.mcp.json') -Raw | ConvertFrom-Json
+        $args = $mcp.mcpServers.'azure-mcp-server'.args
+        $packageArg = $args | Where-Object { $_ -like '@azure/mcp@*' } | Select-Object -First 1
+
+        $packageArg | Should -Not -BeNullOrEmpty
+        $packageArg | Should -Not -Be '@azure/mcp@latest'
+    }
 }
 
 Describe 'Agent plugin components' {
@@ -58,6 +67,20 @@ Describe 'Agent plugin components' {
 
     It 'Ships the finops-toolkit skill' {
         Join-Path $script:Plugin 'skills/finops-toolkit/SKILL.md' | Should -Exist
+    }
+
+    It 'Documents required kusto_query parameters in skill docs' {
+        foreach ($doc in @('skills/finops-toolkit/SKILL.md', 'skills/finops-toolkit/README.md'))
+        {
+            $content = Get-Content (Join-Path $script:Plugin $doc) -Raw
+            $content | Should -Match 'azure-mcp-server'
+            $content | Should -Match 'kusto_query'
+            $content | Should -Match '"subscription"\s*:'
+        }
+    }
+
+    It 'Ships plugin root README for marketplace onboarding' {
+        Join-Path $script:Plugin 'README.md' | Should -Exist
     }
 }
 
