@@ -37,13 +37,13 @@ Describe 'Agent plugin manifest' {
         Join-Path $script:Plugin '.mcp.json' | Should -Exist
     }
 
-    It 'Pins Azure MCP package version in .mcp.json' {
+    It 'Uses unpinned Azure MCP latest package in .mcp.json' {
         $mcp = Get-Content (Join-Path $script:Plugin '.mcp.json') -Raw | ConvertFrom-Json
         $args = $mcp.mcpServers.'azure-mcp-server'.args
         $packageArg = $args | Where-Object { $_ -like '@azure/mcp@*' } | Select-Object -First 1
 
         $packageArg | Should -Not -BeNullOrEmpty
-        $packageArg | Should -Not -Be '@azure/mcp@latest'
+        $packageArg | Should -Be '@azure/mcp@latest'
     }
 }
 
