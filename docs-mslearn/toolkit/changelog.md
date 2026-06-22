@@ -52,6 +52,7 @@ _Released June 2026_
 - **Fixed**
   - Fixed Data Factory ingestion memory pressure during emptiness filtering.
     - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
+  - Fixed underreported commitment discount savings caused by `min()` selecting an anomalously low price when duplicate on-demand price rows collapse under one lookup key (for example, MCA price sheets that emit a blank `x_SkuOfferId`) ([#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
 
 ### [Power BI reports](power-bi/reports.md) v15
 
