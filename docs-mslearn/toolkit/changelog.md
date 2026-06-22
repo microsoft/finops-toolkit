@@ -44,14 +44,20 @@ _Released June 2026_
   - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management ([#2043](https://github.com/microsoft/finops-toolkit/pull/2043)).
   - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
   - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
+- **Changed**
+  - Consolidated Claude Code and GitHub Copilot CLI plugin assets into a shared `agent-plugin` template to keep manifests, agents, commands, and skills in sync ([#2167](https://github.com/microsoft/finops-toolkit/pull/2167)).
+  - Deprecated the `azure-cost-management` skill because those capabilities moved upstream to the Azure MCP server.
+  - Removed the `/ftk/cost-optimization` command from the shared command set.
 
 ### GitHub Copilot CLI plugin v15
 
 - **Added**
-  - Added a GitHub Copilot CLI plugin with skills for FinOps hubs and Azure Cost Management, 5 agents, 5 commands (`/ftk/hubs-connect`, `/ftk/hubs-healthCheck`, `/ftk/mom-report`, `/ftk/ytd-report`, and `/ftk/cost-optimization`), and a read-only Azure MCP server for running KQL against FinOps hubs ([#2167](https://github.com/microsoft/finops-toolkit/pull/2167)).
+  - Added a GitHub Copilot CLI plugin with the shared FinOps Toolkit skill, 5 agents, 4 commands (`/ftk/hubs-connect`, `/ftk/hubs-healthCheck`, `/ftk/mom-report`, and `/ftk/ytd-report`), and a read-only Azure MCP server for running KQL against FinOps hubs ([#2167](https://github.com/microsoft/finops-toolkit/pull/2167)).
   - Published a plugin marketplace and repo-level discovery so the plugin installs with `copilot plugin install microsoft/finops-toolkit`.
 - **Changed**
-  - Moved agent skills to a single shared source so the Claude Code and Copilot CLI plugins use identical content.
+  - Moved plugin assets to a single shared source (`src/templates/agent-plugin`) so Claude Code and Copilot CLI use identical content.
+  - Deprecated the `azure-cost-management` skill because those capabilities moved upstream to the Azure MCP server.
+  - Removed the `/ftk/cost-optimization` command from the shared command set.
   - Added an `azure-capacity-manager` agent and restructured the CFO, FinOps practitioner, and database query agents around evidence delegation across both plugins.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v15

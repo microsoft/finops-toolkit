@@ -26,6 +26,16 @@ Describe 'Agent plugin manifest' {
         $root = Get-Content (Join-Path $script:Plugin 'plugin.json') -Raw | ConvertFrom-Json
         Join-Path $script:Plugin ($root.agents -replace '^\./', '') | Should -Exist
     }
+
+    It 'Loads MCP servers from .mcp.json in the plugin root' {
+        $root = Get-Content (Join-Path $script:Plugin 'plugin.json') -Raw | ConvertFrom-Json
+        $claude = Get-Content (Join-Path $script:Plugin '.claude-plugin/plugin.json') -Raw | ConvertFrom-Json
+
+        $root.mcpServers | Should -Be '.mcp.json'
+        $claude.mcpServers | Should -BeNullOrEmpty
+        $claude.agents | Should -BeNullOrEmpty
+        Join-Path $script:Plugin '.mcp.json' | Should -Exist
+    }
 }
 
 Describe 'Agent plugin components' {

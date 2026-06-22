@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json.schemastore.org/github-copilot-cli-marketplace.json",
   "name": "finops-toolkit",
   "owner": {
     "name": "Microsoft"
