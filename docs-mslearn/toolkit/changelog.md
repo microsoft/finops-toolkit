@@ -30,6 +30,11 @@ The following section lists features and enhancements that are currently in deve
   - Added ability to ingest recommendations from Azure Advisor and custom Azure Resource Graph queries.
     - Custom recommendations include stopped VMs, unattached disks, underutilized resources, and more.
 
+### [Optimization engine](optimization-engine/overview.md) updates
+
+- **Changed**
+  - Migrated Log Analytics ingestion from the Data Collection API (to be deprecated in September 2026) to a Data Collection Rule, Ingestion API-based solution.
+
 <!--
 ### Bicep Registry module pending updates
 
