@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 06/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -736,7 +736,8 @@ Columns in the **Recommendations** managed dataset include:
 | x_EffectiveCostBefore       | Real     | Source: Microsoft EA+MCA 2023-05-01.                          |
 | x_EffectiveCostSavings      | Real     | Source: Microsoft EA+MCA 2023-05-01.                          |
 | x_IngestionTime             | Datetime | Source: Hubs add-on.                                          |
-| x_RecommendationCategory    | String   | Source: Hubs recommendations.                                 |
+| x_RecommendationCategory    | String   | Source: Hubs recommendations. Normalized to the hub taxonomy. |
+| x_RecommendationSubcategory | String   | Source: Hubs add-on. Normalized to the hub taxonomy.          |
 | x_RecommendationDate        | Datetime | Source: Microsoft EA+MCA 2023-05-01.                          |
 | x_RecommendationDescription | String   | Source: Hubs add-on.                                          |
 | x_RecommendationDetails     | Dynamic  | Contains source-specific metadata. See notes below the table. |
@@ -748,6 +749,56 @@ Columns in the **Recommendations** managed dataset include:
 | x_SourceVersion             | String   | Source: Hubs add-on.                                          |
 
 The **x_RecommendationDetails** column is a dynamic object that contains source-specific metadata. For Cost Management reservation recommendations, it includes commitment discount details like scope, term, SKU, and region. For hubs recommendations, it includes the recommendation provider, solution, type ID, resource type, and any additional properties from the query.
+
+The **x_RecommendationCategory** and **x_RecommendationSubcategory** columns classify each recommendation against a fixed hub taxonomy so reports can group across providers consistently. Source data is normalized on ingestion: source category values (for example, Azure Advisor's `HighAvailability` → `Reliability`) are mapped to the allowed values below. Unmapped category values become an empty string and unmapped subcategory values become `Other`.
+
+Allowed **x_RecommendationCategory** values: `Cost`, `Operational Excellence`, `Performance`, `Reliability`, `Security`.
+
+Allowed **x_RecommendationSubcategory** values, grouped by parent category:
+
+- Cost
+  - Autoscaling
+  - Commitment Discount Coverage
+  - Commitment Discount Utilization
+  - Idle Resources (includes unused capacity and orphaned resources)
+  - Low Utilization
+  - Negotiated Discount Enablement
+  - Region Placement
+  - Right-Sizing
+  - Scheduling
+  - Service Selection and Architecture
+  - SKU Modernization
+  - Spot Eligibility
+- Operational Excellence
+  - Automation and Process
+  - Best Practices
+  - Governance and Policy
+  - Observability
+  - Operational Hygiene
+  - Quotas and Limits
+  - Resource Consistency
+- Performance
+  - Performance Tuning
+  - Resource Configuration
+  - Resource Sizing
+  - Scaling and Capacity
+  - Throughput and Latency
+  - Workload Placement
+- Reliability
+  - Backup Configuration
+  - Capacity
+  - Disaster Recovery
+  - High Availability
+  - Service Retirement
+  - Zone Resiliency
+- Security
+  - Compliance Alignment
+  - Data Protection
+  - Identity & Access
+  - Network Security
+  - Threat Detection
+  - Vulnerability Exposure
+- Other (fallback when no specific subcategory applies)
 
 <br>
 

@@ -2084,6 +2084,57 @@ Recommendations_transform_v1_4()
     // Set ResourceType display name from x_ResourceType code
     | extend ResourceType = coalesce(ResourceType, tostring(resource_type(tmp_ResourceType).SingularDisplayName), tmp_ResourceType)
     //
+    // Normalize x_RecommendationCategory into the hub taxonomy (Cost, Operational Excellence, Performance, Reliability, Security)
+    // Source: Azure Advisor Category values are PascalCase (Cost, HighAvailability, OperationalExcellence, Performance, Security).
+    // Reservation recommendations from Cost Management have no category set; default to Cost.
+    | extend x_RecommendationCategory = tostring(case(
+        // Empty / null: default reservation recommendations to Cost; leave others empty for unknown
+        isempty(x_RecommendationCategory), iff(x_SourceType == 'ReservationRecommendations', 'Cost', ''),
+        // Already normalized values pass through
+        x_RecommendationCategory in ('Cost', 'Operational Excellence', 'Performance', 'Reliability', 'Security'), x_RecommendationCategory,
+        // Azure Advisor PascalCase values
+        x_RecommendationCategory =~ 'Cost', 'Cost',
+        x_RecommendationCategory =~ 'HighAvailability', 'Reliability',
+        x_RecommendationCategory =~ 'OperationalExcellence', 'Operational Excellence',
+        x_RecommendationCategory =~ 'Performance', 'Performance',
+        x_RecommendationCategory =~ 'Security', 'Security',
+        // Unknown source value: leave empty
+        ''
+    ))
+    //
+    // Derive x_RecommendationSubcategory from the hub taxonomy. Default to 'Other' so every row has a value.
+    // Reservation recommendations always map to 'Commitment Discount Coverage'. For other sources without a
+    // deterministic mapping we fall back to 'Other'. Source value (if present) comes from x_RecommendationDetails.
+    | extend tmp_Subcategory = tostring(x_RecommendationDetails.x_RecommendationSubcategory)
+    | extend x_RecommendationSubcategory = tostring(case(
+        // Already a documented subcategory value passes through
+        tmp_Subcategory in (
+            // Cost
+            'Commitment Discount Coverage', 'Negotiated Discount Enablement', 'Spot Eligibility',
+            'Region Placement', 'Service Selection and Architecture', 'Right-Sizing',
+            'SKU Modernization', 'Autoscaling', 'Commitment Discount Utilization', 'Scheduling',
+            'Low Utilization', 'Idle Resources',
+            // Operational Excellence
+            'Automation and Process', 'Best Practices', 'Governance and Policy', 'Observability',
+            'Operational Hygiene', 'Quotas and Limits', 'Resource Consistency',
+            // Performance
+            'Performance Tuning', 'Resource Configuration', 'Resource Sizing',
+            'Scaling and Capacity', 'Throughput and Latency', 'Workload Placement',
+            // Reliability
+            'Backup Configuration', 'Capacity', 'Disaster Recovery', 'High Availability',
+            'Service Retirement', 'Zone Resiliency',
+            // Security
+            'Compliance Alignment', 'Data Protection', 'Identity & Access', 'Network Security',
+            'Threat Detection', 'Vulnerability Exposure',
+            // Fallback
+            'Other'
+        ), tmp_Subcategory,
+        // Reservation recommendations are always commitment discount coverage
+        x_SourceType == 'ReservationRecommendations', 'Commitment Discount Coverage',
+        // No deterministic mapping yet for Advisor / custom recommendations
+        'Other'
+    ))
+    //
     | project
         ProviderName,
         ResourceId = tolower(ResourceId),      // Force lowercase for consistent grouping/filtering
@@ -2095,7 +2146,8 @@ Recommendations_transform_v1_4()
         x_EffectiveCostBefore = coalesce(x_EffectiveCostBefore, CostWithNoReservedInstances),
         x_EffectiveCostSavings = coalesce(x_EffectiveCostSavings, NetSavings, toreal(x_RecommendationDetails.x_SavingsAmount), toreal(x_RecommendationDetails.x_AnnualSavingsAmount) / 12),
         x_IngestionTime,
-        x_RecommendationCategory,  // TODO: Set for reservation recommendations
+        x_RecommendationCategory,
+        x_RecommendationSubcategory,
         x_RecommendationDate,
         x_RecommendationDescription = coalesce(x_RecommendationDescription, tostring(x_RecommendationDetails.x_RecommendationSolution), tostring(x_RecommendationDetails.x_RecommendationSubCategory)),
         x_RecommendationDetails,
@@ -2120,6 +2172,7 @@ Recommendations_transform_v1_4()
     x_EffectiveCostSavings:      real,
     x_IngestionTime:             datetime,
     x_RecommendationCategory:    string,
+    x_RecommendationSubcategory: string,
     x_RecommendationDate:        datetime,
     x_RecommendationDescription: string,
     x_RecommendationDetails:     dynamic,

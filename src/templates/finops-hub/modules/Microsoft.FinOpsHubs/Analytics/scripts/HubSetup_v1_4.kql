@@ -582,6 +582,7 @@ Recommendations_v1_4()
         x_EffectiveCostSavings,
         x_IngestionTime,
         x_RecommendationCategory,
+        x_RecommendationSubcategory,
         x_RecommendationDate,
         x_RecommendationDescription,
         x_RecommendationDetails,

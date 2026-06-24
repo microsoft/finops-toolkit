@@ -229,6 +229,56 @@ Describe 'HubsFocusSchemas' {
         ) {
             $hubFiles.v1_4 | Should -Match "database\('Ingestion'\)\.$_"
         }
+
+        It 'Recommendations_v1_4 projects <_>' -ForEach @(
+            'x_RecommendationCategory', 'x_RecommendationSubcategory'
+        ) {
+            $script:recommendationsV14Block = if ($hubFiles.v1_4 -match '(?ms)Recommendations_v1_4\(\)\s*\{(.*?)\n\}') { $Matches[1] } else { '' }
+            $recommendationsV14Block | Should -Match "(?m)^\s+$_\s*,?\s*$"
+        }
+    }
+
+    Context 'Recommendations enrichment in IngestionSetup_v1_4.kql' {
+
+        BeforeAll {
+            $script:recommendationsTransformV14 = if ($ingestionFiles.v1_4 -match '(?ms)Recommendations_transform_v1_4\(\)\s*\{(.*?)\n\}') { $Matches[1] } else { '' }
+            $script:recommendationsFinalV14Block = if ($ingestionFiles.v1_4 -match '(?ms)\.create-merge table Recommendations_final_v1_4 \(\r?\n(.*?)\r?\n\)') { $Matches[1] } else { '' }
+        }
+
+        It 'Recommendations_transform_v1_4 block was extracted' {
+            $recommendationsTransformV14 | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Recommendations_final_v1_4 block was extracted' {
+            $recommendationsFinalV14Block | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Recommendations_final_v1_4 includes column <_>' -ForEach @(
+            'x_RecommendationCategory', 'x_RecommendationSubcategory'
+        ) {
+            $recommendationsFinalV14Block | Should -Match "(?m)^\s+$_\s*:"
+        }
+
+        It 'Recommendations_transform_v1_4 projects <_>' -ForEach @(
+            'x_RecommendationCategory', 'x_RecommendationSubcategory'
+        ) {
+            $recommendationsTransformV14 | Should -Match "(?m)^\s+$_\s*,?\s*(//.*)?$"
+        }
+
+        It 'Recommendations_transform_v1_4 normalizes category to <_>' -ForEach @(
+            "'Cost'", "'Operational Excellence'", "'Performance'", "'Reliability'", "'Security'"
+        ) {
+            $recommendationsTransformV14 | Should -Match ([regex]::Escape($_))
+        }
+
+        It 'Recommendations_transform_v1_4 maps Advisor HighAvailability to Reliability' {
+            $recommendationsTransformV14 | Should -Match "HighAvailability"
+            $recommendationsTransformV14 | Should -Match "'Reliability'"
+        }
+
+        It 'Recommendations_transform_v1_4 falls back subcategory to Other' {
+            $recommendationsTransformV14 | Should -Match "'Other'"
+        }
     }
 
     Context 'HubSetup_Latest.kql aliases' {

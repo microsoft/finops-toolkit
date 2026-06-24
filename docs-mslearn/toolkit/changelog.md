@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 05/27/2026
+ms.date: 06/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -39,6 +39,7 @@ The following section lists features and enhancements that are currently in deve
 - **Added**
   - Added FOCUS 1.4 hub schema (`v1_4`). New cost and usage columns: `AllocatedMethodId`, `AllocatedMethodDetails`, `AllocatedResourceId`, `AllocatedResourceName`, `AllocatedTags`, `ContractApplied`, `ServiceProviderName`, `HostProviderName`, `CommitmentProgramEligibilityDetails`, `InvoiceDetailId`, and 12 `ContractCommitment*` per-row columns (`ContractCommitmentBenefitCategory`, `ContractCommitmentCreated`, `ContractCommitmentDiscountPercentage`, `ContractCommitmentDurationType`, `ContractCommitmentFulfillmentInterval`, `ContractCommitmentLastUpdated`, `ContractCommitmentLifecycleStatus`, `ContractCommitmentModel`, `ContractCommitmentOfferCategory`, `ContractCommitmentPaymentInterval`, `ContractCommitmentPaymentModel`, `ContractCommitmentPaymentUpfrontPercentage`). Removes deprecated `ProviderName` and `PublisherName` from the schema (raw tables keep them for back compat). Three new supplemental datasets: `ContractCommitments` (28 columns), `BillingPeriods` (6 columns), and `InvoiceDetails` (22 columns) ([#2120](https://github.com/microsoft/finops-toolkit/issues/2120)).
   - Added unversioned `ContractCommitments()`, `BillingPeriods()`, and `InvoiceDetails()` functions aliasing to their `_v1_4` counterparts.
+  - Added `x_RecommendationCategory` and `x_RecommendationSubcategory` enrichment columns to the `Recommendations` dataset, normalized to a fixed hub taxonomy (Cost, Operational Excellence, Performance, Reliability, Security). See [data model](hubs/data-model.md#recommendations-managed-dataset) for the allowed values.
 - **Changed**
   - Retargeted unversioned `Costs()`, `Prices()`, `CommitmentDiscountUsage()`, `Recommendations()`, and `Transactions()` aliases to their `_v1_4` counterparts.
   - Refreshed the canonical "add a new FOCUS version" procedure in [src/templates/finops-hub/docs/README.md](https://github.com/microsoft/finops-toolkit/tree/dev/src/templates/finops-hub/docs/README.md) with multi-version-cycle, plugin, and changelog steps.
