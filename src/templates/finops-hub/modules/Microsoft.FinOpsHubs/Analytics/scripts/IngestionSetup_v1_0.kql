@@ -417,7 +417,8 @@ Costs_transform_v1_0()
         Prices_final_v1_0
         | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(x_EffectivePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
         | where x_SkuPriceType == 'Consumption' and tmp_ReservationPriceLookupKey in ((costsWithMissingPrices | summarize by tmp_ReservationPriceLookupKey))
-        | summarize ListUnitPrice = min(ListUnitPrice), ContractedUnitPrice = min(ContractedUnitPrice) by tmp_ReservationPriceLookupKey, x_PricingBlockSize, PricingUnit
+        // When duplicate price rows collapse under one lookup key, use the highest on-demand price as the savings baseline; min() can pick an anomalously low row and underreport savings
+        | summarize ListUnitPrice = max(ListUnitPrice), ContractedUnitPrice = max(ContractedUnitPrice) by tmp_ReservationPriceLookupKey, x_PricingBlockSize, PricingUnit
     ) on tmp_ReservationPriceLookupKey
     //
     // Select the best price to use for each row
