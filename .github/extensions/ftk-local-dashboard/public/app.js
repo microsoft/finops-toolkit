@@ -443,9 +443,8 @@ function buildTriageTile(title, count, cue, tabId) {
 function renderTriageStrip(d) {
   // Anomalies: reuse anomaly tab cache when loaded
   const anomPayload = state.cache["anomaly"]?.[state.preset];
-  const anomCount = anomPayload?.data?.daily !== undefined
-    ? anomPayload.data.daily.filter((r) => r.Flag !== 0).length
-    : null;
+  const daily = anomPayload?.data?.daily || [];
+  const anomCount = anomPayload ? daily.filter((r) => r.Flag !== 0).length : null;
   const anomCue = anomCount === null ? "Visit Anomalies & forecast tab to load"
     : anomCount === 0 ? "No anomalies detected"
     : "Review flagged cost days";
@@ -464,16 +463,15 @@ function renderTriageStrip(d) {
 
   // Savings opportunities: underutilized commitments from rate tab cache when loaded
   const ratePayload = state.cache["rate"]?.[state.preset];
-  const savingsCount = ratePayload?.data?.byCommitment !== undefined
-    ? ratePayload.data.byCommitment.filter((r) => (r.Unused || 0) > 0).length
-    : null;
+  const byCommitment = ratePayload?.data?.byCommitment || [];
+  const savingsCount = ratePayload ? byCommitment.filter((r) => (r.Unused || 0) > 0).length : null;
   const savingsCue = savingsCount === null ? "Visit Rate optimization tab to load"
     : savingsCount === 0 ? "Commitments fully utilized"
     : "Underutilized commitments found";
 
   return `<div class="triage-strip">
     ${buildTriageTile("Anomalies", anomCount, anomCue, "anomaly")}
-    ${buildTriageTile("Overspend", overspendCount, overspendCue, "anomaly")}
+    ${buildTriageTile("Overspend", overspendCount, overspendCue, "usage")}
     ${buildTriageTile("Savings Opportunities", savingsCount, savingsCue, "rate")}
   </div>`;
 }
