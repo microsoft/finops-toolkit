@@ -164,12 +164,11 @@ body {
 /* ---------- KPI hierarchy (primary vs reference) ---------- */
 .kpi--primary {
   box-shadow: inset 0 4px 0 var(--kpi-accent, var(--accent));
-  font-size: 1.05em;
   font-weight: 600;
 }
 .kpi--reference {
   opacity: 0.75;
-  --kpi-accent: var(--border-muted);
+  box-shadow: inset 0 3px 0 var(--border-muted);
 }
 
 /* ---------- KPI threshold badges ---------- */
