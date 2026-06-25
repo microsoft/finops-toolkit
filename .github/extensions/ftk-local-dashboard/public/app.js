@@ -632,7 +632,7 @@ function kpiCard(label, value, meta, accent, thresholdClass) {
   const classArray = [thresholdClass, hierarchyClass].filter(Boolean);
   const cls = classArray.length > 0 ? ` ${classArray.join(" ")}` : "";
   
-  return `<div class="kpi${cls}" style="--kpi-accent:${accent}">
+  return `<div class="kpi${cls}">
     <div class="label">${esc(label)}</div>
     <div class="value">${value}</div>
     <div class="meta">${meta}</div>
@@ -1253,8 +1253,18 @@ function renderError(p) {
   el("content").innerHTML = `<div class="error">
     <h2>Can’t reach the FinOps hub</h2>
     <p>The dashboard queried <code>${esc(p.clusterUri || "")}</code> (database <code>${esc(p.database || "Hub")}</code>) but the request failed.</p>
-    <p class="muted">Start the Kusto emulator and run <code>Initialize-FinOpsHubLocal</code>, then refresh.</p>
-    <pre>${esc(p.error)}</pre>
+    <div class="error-action">
+      <p class="muted">Start the Kusto emulator, then run:</p>
+      <div class="error-cmd">
+        <code>Initialize-FinOpsHubLocal</code>
+        <button class="btn btn-ghost" type="button" onclick="navigator.clipboard.writeText('Initialize-FinOpsHubLocal').then(()=>{this.textContent='Copied!';setTimeout(()=>{this.textContent='Copy'},1500)})">Copy</button>
+      </div>
+      <p class="muted">Then refresh this dashboard.</p>
+    </div>
+    <details class="error-detail">
+      <summary class="muted" style="cursor:pointer;font-size:12px;">Show error detail</summary>
+      <pre>${esc(p.error)}</pre>
+    </details>
   </div>`;
 }
 
@@ -1290,7 +1300,13 @@ async function load() {
   state.cache[tab] = state.cache[tab] || {};
   state.loading = true;
   setRefreshSpinning(true);
-  el("content").innerHTML = `<div class="loading">Loading ${tab} data…</div>`;
+  el("content").innerHTML = `
+    <div class="skeleton-kpi-grid">
+      ${'<div class="skeleton-card"></div>'.repeat(6)}
+    </div>
+    <div class="skeleton-card skeleton-panel-lg"></div>
+    <div class="skeleton-card skeleton-panel-sm"></div>
+  `;
   try {
     const res = await fetch(`${ENDPOINT[tab]}&preset=${encodeURIComponent(state.preset)}${filterParam()}`);
     state.cache[tab][key] = await res.json();
