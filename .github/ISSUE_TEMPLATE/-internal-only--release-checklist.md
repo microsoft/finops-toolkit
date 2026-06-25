@@ -59,38 +59,40 @@ Status icons:
 
 ## 🔜 Core features
 
-- [ ] Review issues and PRs assigned to the [target milestone](https://github.com/microsoft/finops-toolkit/milestones).
-  - [ ] Create a new milestone for the next monthly release.
-  - [ ] Move issues that cannot be resolved in time to a new milestone.
-  - [ ] Submit PRs for issues that can be resolved.
-  - [ ] Complete [open PRs](https://github.com/microsoft/finops-toolkit/pulls) that are ready to be resolved.
-- [ ] Confirm there are no pending changes in dev.
-
-  ```powershell
-  cd "<root>"
-  git checkout dev
-  git status
-  ```
-
+- [ ] <!-- release:core --> Run the `/release` command in Claude Code (or run `Start-Release.ps1` and complete the following manually).
+  - Create or find the release tracking issue.
+  - Bump the version number (strip prerelease label): `Update-Version.ps1 -Version {x.y.z}`
+  - Update commitment discount eligibility data: `Update-CommitmentDiscountEligibility.ps1`
+  - Update Bicep CLI: `az bicep upgrade`
+  - Create milestones for next 2 releases if they don't exist.
+  - Create a release prep branch from `origin/dev`.
+  - Build templates: `Build-Toolkit.ps1`
+  - Run tests: `Test-PowerShell.ps1 -Unit -Lint -Integration`
+  - Triage milestone issues/PRs and PRs without a milestone (keep, push, or skip).
+  - Triage untriaged issues (items with "Needs: Triage 🔍" label).
+  - Review changelog against coding guidelines and fix issues.
+  - If adding a new tool:
+    - Update the [marketing site landing page](https://github.com/microsoft/finops-toolkit/tree/dev/docs/README.md).
+    - Add a new page the [marketing site](https://github.com/microsoft/finops-toolkit/tree/dev/docs).
+    - Add an overview page in [MS Learn documentation](https://github.com/microsoft/finops-toolkit/tree/dev/docs-mslearn/toolkit).
+    - Update the [MS Learn menu to add new page(s)](https://github.com/microsoft/finops-toolkit/tree/dev/docs-mslearn/TOC.yml).
+    - Add the new tool's tech lead to the [Advisor council doc](https://github.com/microsoft/finops-toolkit/tree/dev/docs-wiki/Advisory-council.md).
+  - Update what's new blurbs in `/docs/` marketing pages.
+  - Update FTK survey IDs: handled by `Update-Version.ps1`.
+  - Review and update FinOps hubs documentation (upgrade guide, data model, data processing, compatibility).
+  - Commit and push changes to the prep branch.
+- [ ] Submit PRs for issues that can be resolved.
+- [ ] Complete [open PRs](https://github.com/microsoft/finops-toolkit/pulls) that are ready to be resolved.
+- [ ] Review remaining [milestone](https://github.com/microsoft/finops-toolkit/milestones) issues and PRs. Move any stragglers that won't make the release.
 - [ ] Update feature branches and confirm if they're ready for release.
+  - [ ] Confirm there are no pending changes in `dev`: `cd "<root>" && git checkout dev && git status`
   - [ ] Auto-merge feature branch with `dev`: `<root>/src/scripts/Merge-DevBranch.ps1 *`
   - ❌ Manually update remaining feature branches: `<root>/src/scripts/Merge-DevBranch.ps1 features/<name>`
 - [ ] Build and deploy templates: `<root>/src/scripts/Build-Toolkit.ps1`.
 - [ ] Confirm all tests pass: `<root>/src/scripts/Test-PowerShell.ps1 -Unit -Integration`.
 - [ ] Confirm if all features are code complete and not missing any functionality required for release.
   > _Once in `dev`, the feature is considered part of the next release and can be pushed out at any time. Any broken features will be reverted._
-- [ ] Confirm new or updated functionality is documented in the [changelog](https://github.com/microsoft/finops-toolkit/blob/dev/docs/changelog.md).
-  > _See the changelog for details about changelog requirements._
-- [ ] Confirm new or updated functionality must be documented in the [documentation](https://github.com/microsoft/finops-toolkit/blob/dev/docs).
-- [ ] Summarize the monthly changes in the "what's new" section of the marketing pages for each tool.
-- [ ] Update the FinOps hubs compatibility guide and upgrade guide.
-- [ ] Do a global search and replace for "FTKx.x" for the previous version to replace it with the new version number.
-- [ ] If adding a new tool:
-  - [ ] Update the [marketing site landing page](https://github.com/microsoft/finops-toolkit/tree/dev/docs/README.md).
-  - [ ] Add a new page the [marketing site](https://github.com/microsoft/finops-toolkit/tree/dev/docs).
-  - [ ] Add an overview page in [MS Learn documentation](https://github.com/microsoft/finops-toolkit/tree/dev/docs-mslearn/toolkit).
-  - [ ] Update the [MS Learn menu to add new page(s)](https://github.com/microsoft/finops-toolkit/tree/dev/docs-mslearn/TOC.yml).
-  - [ ] Add the new tool's tech lead to the [Advisor council doc](https://github.com/microsoft/finops-toolkit/tree/dev/docs-wiki/Advisory-council.md).
+- [ ] Confirm new or updated functionality is documented in the [marketing site](https://github.com/microsoft/finops-toolkit/blob/dev/docs) and [MS Learn documentation](https://github.com/microsoft/finops-toolkit/tree/dev/docs-mslearn/toolkit).
 - [ ] Merge any feature branches that are ready to `dev`.
   - Create a PR to merge the feature branch into `dev`.
   - Follow the normal PR process to merge the PR.
@@ -99,15 +101,17 @@ Status icons:
 
 ## 🔜 Finalize release
 
-- [ ] Review the [changelog](../docs/_resources/changelog.md) to ensure it encapsulates all changes.
-  - Move all released changes to an official numbered version section.
-  - If there are committed changes in a feature branch that you want to mention, add them to an "Unreleased" section.
-- [ ] Update the version: `<root>/src/scripts/Update-Version.ps1 [-Major|Minor|Patch]`
-- [ ] Build all toolkit templates and resolve any issues: `<root>/src/scripts/Build-Toolkit`
-  > _This step is optional, but can catch issues earlier. You can also add the `-Build` parameter to the publish command in the next step._
-- [ ] Ensure all tests pass: `<root>/src/scripts/Test-PowerShell -Unit -Integration`
-- [ ] Package all release files
-  - [ ] Run `Package-Toolkit.ps1 -Build -CopyFiles -OpenPBI` script.
+- [ ] <!-- release:finalize --> Run the `/release` command again in Claude Code (or complete the following manually).
+  - Review the [changelog](../docs/_resources/changelog.md) to ensure it encapsulates all changes.
+    - Move all released changes to an official numbered version section.
+    - If there are committed changes in a feature branch that you want to mention, add them to an "Unreleased" section.
+  - Update the version: `<root>/src/scripts/Update-Version.ps1 [-Major|Minor|Patch]`
+  - Build all toolkit templates and resolve any issues: `<root>/src/scripts/Build-Toolkit`
+    > _This step is optional, but can catch issues earlier. You can also add the `-Build` parameter to the publish command in the next step._
+  - Ensure all tests pass: `<root>/src/scripts/Test-PowerShell -Unit -Integration`
+- [ ] <!-- release:package --> Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
+- [ ] Package Power BI files
+  - [ ] Run `Package-Toolkit.ps1 -OpenPBI` script.
   - [ ] Save and close each Power BI project:
     - Select the `<root>/release/pbix` folder.
     - Change the file extension to PBIX.
@@ -235,34 +239,13 @@ Status icons:
 
 ## 🔜 Post-release clean-up
 
-- [ ] Update the `Toolkit / Should return all known releases` PowerShell integration test based on the latest version.
-  > _See `src/powershell/Tests/Integration/Toolkit.Tests.ps1` > `Get-FinOpsToolkitVersion` > `Should return all known releases`_
-  - Add the latest public version to the `$expected` variable.
-  - Update the file checks to include/exclude any new/removed files.
-- [ ] Update the minor version and add the "dev" label: `<root>/src/scripts/Update-Version.ps1 -Minor -Label dev`
-- [ ] Create a placeholder in the changelog for the new release.
-
-  ```markdown
-  ## vX.Y
-
-  _Released Mmm yyyy_
-
-  > [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/vX.Y) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/vX.Y...vX.Y)
-
-  <br>
-  ```
-
-- [ ] Update remaining branches that were not merged with dev
-  - [ ] TODO: Add branches
-  - [ ] features/anomaly
-  - [ ] features/finley
-  - [ ] features/recs
-  - [ ] features/ux
-  - [ ] features/xcloud
+- [ ] <!-- update-version:post --> Run the `/update-version` command in Claude Code (or complete the following manually):
+  - Bump version to next major with dev label: `<root>/src/scripts/Update-Version.ps1 -Major -Label dev`
+  - Update integration test: add released version to `$expected`, bump `$plannedRelease` in `src/powershell/Tests/Integration/Toolkit.Tests.ps1`.
+  - Add changelog placeholder for the next release in `docs-mslearn/toolkit/changelog.md`.
+  - Merge dev into all feature branches: `<root>/src/scripts/Merge-DevBranch.ps1 *`
 - [ ] Copy any additional code from the following branches and delete them:
   - [ ] features/hack24
   - [ ] features/hourly
-- [ ] Delete the following branches:
-  - [ ] features/alerts
 
 <br>

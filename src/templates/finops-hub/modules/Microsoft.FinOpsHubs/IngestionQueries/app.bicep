@@ -9,7 +9,7 @@ metadata hubApp = {
   id: 'Microsoft.FinOpsHubs.IngestionQueries'
   version: '$$ftkver$$'
   dependencies: ['Microsoft.FinOpsHubs.Core']
-  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/$$ftkver$$/Microsoft.FinOpsHubs/IngestionQueries/metadata.bicep'
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/finops-hub/$$ftkver$$/Microsoft.FinOpsHubs/IngestionQueries/metadata.bicep'
 }
 
 

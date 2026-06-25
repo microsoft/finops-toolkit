@@ -86,7 +86,12 @@ if ($update -or $Version)
     {
         $newLabel = $Label.ToLower() -replace '[^a-z]', ''
         Write-Verbose "Using label '$newLabel'."
-        $null = npm --no-git-tag-version --preid $newLabel version preminor
+        # Read directly from package.json here (rather than calling Get-Version) because $ver isn't set yet.
+        # Get-Version runs after this block (line 95) and reads the same file.
+        # This intentionally replaces any prerelease counter npm just wrote — only -Major/-Minor with a label is supported.
+        $bumpedVer = (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version
+        $baseVer = $bumpedVer -replace '-.*$', ''
+        $null = npm --no-git-tag-version version "$baseVer-$newLabel.0"
     }
 }
 
@@ -110,6 +115,46 @@ if ($update -or $Version)
         | ForEach-Object {
             Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
             $entry.Value | Out-File $_ -NoNewline
+        }
+    }
+
+    # Update version in plugin.json files
+    Write-Verbose "Updating plugin.json files..."
+    Get-ChildItem $repoRoot -Include "plugin.json" -Recurse -Force `
+    | Where-Object { $_.FullName -like "*claude-plugin*" } `
+    | ForEach-Object {
+        Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
+        $json = Get-Content $_ -Raw | ConvertFrom-Json
+        $json.version = $ver
+        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
+    }
+
+    # Update version in marketplace.json plugin entries
+    Write-Verbose "Updating marketplace.json files..."
+    Get-ChildItem $repoRoot -Include "marketplace.json" -Recurse -Force `
+    | Where-Object { $_.Directory.Name -eq '.claude-plugin' }`
+    | ForEach-Object {
+        Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
+        $json = Get-Content $_ -Raw | ConvertFrom-Json
+        foreach ($plugin in $json.plugins) {
+            if ($plugin.PSObject.Properties['version']) {
+                $plugin.version = $ver
+            }
+        }
+        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
+    }
+
+    # Update FTK survey IDs in feedback links (e.g., surveyId/FTK0.11 -> surveyId/FTK14.0)
+    Write-Verbose "Updating FTK survey IDs..."
+    Get-ChildItem $repoRoot -Include '*.md' -Recurse -Force `
+    | Select-String -Pattern 'surveyId/FTK[\d.]+' -List `
+    | ForEach-Object {
+        $content = Get-Content $_.Path -Raw
+        $updated = $content -replace 'surveyId/FTK[\d.]+', "surveyId/FTK$ver"
+        if ($content -ne $updated)
+        {
+            $updated | Out-File $_.Path -NoNewline -Encoding utf8
+            Write-Verbose "- $($_.Path.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         }
     }
 

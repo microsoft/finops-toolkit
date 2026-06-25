@@ -78,8 +78,8 @@ Describe 'Start-FinOpsCostExport' {
         $params = @{
             Name      = $exportName
             Scope     = $scope
-            StartDate = (Get-Date).AddDays(-7)
-            EndDate   = (Get-Date).AddDays(-2)
+            StartDate = Get-Date -Year 2024 -Month 6 -Day 10 -Hour 0 -Minute 0 -Second 0 -Millisecond 0
+            EndDate   = Get-Date -Year 2024 -Month 6 -Day 20 -Hour 0 -Minute 0 -Second 0 -Millisecond 0
         }
 
         # Act

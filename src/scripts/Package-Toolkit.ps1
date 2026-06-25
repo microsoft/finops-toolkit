@@ -85,17 +85,20 @@ function Copy-TemplateFiles()
 {
     Write-Host "Packaging $(if ($Template -ne "*") { "$Template $version template" } else { "$version templates" })..."
 
-    Write-Verbose "Removing existing ZIP files..."
-    Remove-Item "$relDir/*.zip" -Force
+    if ($Template -eq "*")
+    {
+        Write-Verbose "Removing existing ZIP files..."
+        Remove-Item "$relDir/*.zip" -Force
+    }
 
     return Get-ChildItem "$relDir/$Template*" -Directory `
     | Where-Object { @('pbit', 'pbix', 'FinOpsToolkit') -notcontains $_.Name } `
     | ForEach-Object {
-        Write-Verbose ("Packaging $_" -replace (Get-Item $relDir).FullName, '.')
+        Write-Verbose ("Packaging $_" -replace [regex]::Escape((Get-Item $relDir).FullName), '.')
         $srcPath = $_
         $templateName = $srcPath.Name
         $versionSubFolder = (Join-Path $srcPath $version)
-        
+
         # Check if template should use an unversioned ZIP filename
         $buildConfigPath = Join-Path $PSScriptRoot ".." "templates" $templateName ".build.config"
         $unversionedZip = $false
@@ -111,7 +114,7 @@ function Copy-TemplateFiles()
                 Write-Warning "Failed to read .build.config for $templateName : $_"
             }
         }
-        
+
         $zip = if ($unversionedZip)
         {
             Join-Path (Get-Item $relDir) "$templateName.zip"
@@ -144,6 +147,16 @@ function Copy-TemplateFiles()
 
         function Copy-DeploymentFiles($suffix)
         {
+            function Copy-FlatDeploymentFiles()
+            {
+                if (Test-Path "$srcPath/azuredeploy.json")
+                {
+                    # Copy azuredeploy.json to docs/deploy folder
+                    Copy-Item "$srcPath/azuredeploy.json" "$deployDir/$templateName-$suffix.json"
+                    Copy-Item "$srcPath/createUiDefinition.json" "$deployDir/$templateName-$suffix.ui.json"
+                }
+            }
+
             $packageManifestPath = "$srcPath/package-manifest.json"
             if (Test-Path $packageManifestPath)
             {
@@ -162,7 +175,10 @@ function Copy-TemplateFiles()
                     {
                         throw "Package manifest references source folder '$($_.sourceFolder)' that does not exist: $srcFolder"
                     }
-                    Get-ChildItem "$srcFolder/*" -Include $_.source -Recurse:$_.recurse | ForEach-Object {
+                    $filesToCopy = @(Get-ChildItem "$srcFolder/*" -Include $_.source -Recurse:$_.recurse)
+                    Write-Debug "Found $($filesToCopy.Count) files matching '$($_.source)' in $srcFolder"
+                    $filesToCopy | ForEach-Object {
+                        Write-Debug "Copying file: $($_.Name)"
                         if ($destPath -eq '*')
                         {
                             $normalizedSrc = $srcFolder.Replace('\', '/')
@@ -178,16 +194,25 @@ function Copy-TemplateFiles()
                         }
                     }
                 }
-                $packageManifest.deployment.Directories | ForEach-Object {
-                    & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
-                    Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
+                if ($packageManifest.deployment.Directories)
+                {
+                    Write-Debug "Processing $($packageManifest.deployment.Directories.Count) directory entries"
+                    $packageManifest.deployment.Directories | ForEach-Object {
+                        Write-Debug "Copying directory: $($_.source) -> $($_.destination)"
+                        & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
+                        Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
+                    }
                 }
+                else
+                {
+                    Write-Debug "No directory entries in manifest"
+                }
+
+                Copy-FlatDeploymentFiles
             }
-            elseif (Test-Path "$srcPath/azuredeploy.json")
+            else
             {
-                # Copy azuredeploy.json to docs/deploy folder
-                Copy-Item "$srcPath/azuredeploy.json" "$deployDir/$templateName-$suffix.json"
-                Copy-Item "$srcPath/createUiDefinition.json" "$deployDir/$templateName-$suffix.ui.json"
+                Copy-FlatDeploymentFiles
             }
         }
 
@@ -201,8 +226,9 @@ function Copy-TemplateFiles()
             Copy-DeploymentFiles "latest"
         }
 
-        Write-Verbose ("Compressing $srcPath to $zip" -replace (Get-Item $relDir).FullName, '.')
-        Compress-Archive -Path "$srcPath/*" -DestinationPath $zip
+        Write-Verbose ("Compressing $srcPath to $zip" -replace [regex]::Escape((Get-Item $relDir).FullName), '.')
+        Remove-Item $zip -Force -ErrorAction SilentlyContinue
+        Get-ChildItem $srcPath -Force | Compress-Archive -DestinationPath $zip
         return $zip
     }
 }
