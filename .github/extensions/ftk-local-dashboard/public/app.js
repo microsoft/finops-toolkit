@@ -416,6 +416,68 @@ function kpiThreshold(pct, greenMax, amberMax) {
   return "threshold-red";
 }
 
+function switchTab(tabId) {
+  if (state.loading || tabId === state.tab) return;
+  state.tab = tabId;
+  [...el("tabs").querySelectorAll("button")].forEach((b) => {
+    b.classList.toggle("active", b.dataset.tab === tabId);
+    b.setAttribute("aria-selected", b.dataset.tab === tabId ? "true" : "false");
+  });
+  load();
+}
+
+/* --------------------------------------------------------- triage strip */
+
+function buildTriageTile(title, count, cue, tabId) {
+  const cls = count === null ? "" : count === 0 ? "threshold-green" : count <= 4 ? "threshold-amber" : "threshold-red";
+  const badge = count === null ? "Unknown" : count === 0 ? "Good" : count <= 4 ? "Review" : "Urgent";
+  const display = count === null ? "—" : count === 0 ? "None" : fmtInt(count);
+  return `<button class="triage-tile${cls ? ` ${cls}` : ""}" onclick="switchTab('${tabId}')" type="button">
+    <div class="triage-title">${esc(title)}</div>
+    <div class="triage-count">${display}</div>
+    <div class="triage-badge">${badge}</div>
+    <div class="triage-cue">${esc(cue)}</div>
+  </button>`;
+}
+
+function renderTriageStrip(d) {
+  // Anomalies: reuse anomaly tab cache when loaded
+  const anomPayload = state.cache["anomaly"]?.[state.preset];
+  const anomCount = anomPayload?.data?.daily !== undefined
+    ? anomPayload.data.daily.filter((r) => r.Flag !== 0).length
+    : null;
+  const anomCue = anomCount === null ? "Visit Anomalies & forecast tab to load"
+    : anomCount === 0 ? "No anomalies detected"
+    : "Review flagged cost days";
+
+  // Overspend: months in trend where effective cost rose >20% vs prior month
+  const trend = d.trend || [];
+  let overspendCount = 0;
+  for (let i = 1; i < trend.length; i++) {
+    const prev = trend[i - 1].Effective || 0;
+    const curr = trend[i].Effective || 0;
+    if (prev > 0 && curr > prev * 1.20) overspendCount++;
+  }
+  const overspendCue = overspendCount === 0
+    ? "Spend within expected range"
+    : `${overspendCount} month${overspendCount === 1 ? "" : "s"} with >20% spike`;
+
+  // Savings opportunities: underutilized commitments from rate tab cache when loaded
+  const ratePayload = state.cache["rate"]?.[state.preset];
+  const savingsCount = ratePayload?.data?.byCommitment !== undefined
+    ? ratePayload.data.byCommitment.filter((r) => (r.Unused || 0) > 0).length
+    : null;
+  const savingsCue = savingsCount === null ? "Visit Rate optimization tab to load"
+    : savingsCount === 0 ? "Commitments fully utilized"
+    : "Underutilized commitments found";
+
+  return `<div class="triage-strip">
+    ${buildTriageTile("Anomalies", anomCount, anomCue, "anomaly")}
+    ${buildTriageTile("Overspend", overspendCount, overspendCue, "anomaly")}
+    ${buildTriageTile("Savings Opportunities", savingsCount, savingsCue, "rate")}
+  </div>`;
+}
+
 function isPartialMonth() {
   const now = new Date();
   return now.getDate() < new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
@@ -464,6 +526,7 @@ function renderOverview(p) {
 
   const d = p.data;
   const html = `
+    ${renderTriageStrip(d)}
     <div class="kpi-grid">${kpis}</div>
 
     <div class="section-title"><h2>Understand usage &amp; cost</h2><span class="domain">FinOps Framework</span></div>
@@ -1064,13 +1127,7 @@ function wireControls() {
   });
   el("tabs").addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-tab]");
-    if (!btn || state.loading || btn.dataset.tab === state.tab) return;
-    state.tab = btn.dataset.tab;
-    [...el("tabs").querySelectorAll("button")].forEach((b) => {
-      b.classList.toggle("active", b === btn);
-      b.setAttribute("aria-selected", b === btn ? "true" : "false");
-    });
-    load();
+    if (btn) switchTab(btn.dataset.tab);
   });
   el("refresh").addEventListener("click", () => {
     if (state.loading) return;

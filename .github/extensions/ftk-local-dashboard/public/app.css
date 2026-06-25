@@ -165,6 +165,74 @@ body {
 .threshold-amber { border-color: var(--warn); }
 .threshold-red   { border-color: var(--neg); }
 
+/* ---------- triage strip ---------- */
+.triage-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
+  margin-bottom: 22px;
+}
+.triage-tile {
+  appearance: none;
+  background: var(--card-bg);
+  border: 2px solid var(--grid);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: opacity 0.15s;
+  color: var(--text-color-default, #1f2328);
+}
+.triage-tile:hover { opacity: 0.82; }
+.triage-tile:active { transform: translateY(1px); }
+.triage-title {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.triage-count {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.triage-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 650;
+  padding: 2px 9px;
+  border-radius: 20px;
+  width: fit-content;
+  background: color-mix(in srgb, var(--muted) 12%, transparent);
+  color: var(--muted);
+}
+.triage-tile.threshold-green .triage-badge {
+  background: color-mix(in srgb, var(--pos) 15%, transparent);
+  color: var(--pos);
+}
+.triage-tile.threshold-amber .triage-badge {
+  background: color-mix(in srgb, var(--warn) 15%, transparent);
+  color: var(--warn);
+}
+.triage-tile.threshold-red .triage-badge {
+  background: color-mix(in srgb, var(--neg) 15%, transparent);
+  color: var(--neg);
+}
+.triage-cue {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+@media (max-width: 640px) {
+  .triage-strip { grid-template-columns: 1fr; }
+}
+
 /* ---------- sections & panels ---------- */
 .section-title {
   display: flex;
