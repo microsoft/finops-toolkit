@@ -41,7 +41,7 @@ function sendJson(res, status, obj) {
 }
 
 function logError(context, err) {
-  console.error(`[ftk-local-dashboard] ${context}`, err);
+  console.error("[ftk-local-dashboard]", context, err);
 }
 
 function sendQueryError(res, entry, viewName, err) {
