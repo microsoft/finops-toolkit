@@ -8,6 +8,7 @@
   --card-bg: var(--background-color-default, #ffffff);
   --radius: 12px;
   --gap: 16px;
+  --border-muted: var(--border-color-muted, rgba(128, 128, 128, 0.3));
 }
 
 * { box-sizing: border-box; }
@@ -161,8 +162,15 @@ body {
 .kpi .meta .warn { color: var(--warn); font-weight: 650; }
 
 /* ---------- KPI hierarchy (primary vs reference) ---------- */
-.kpi--primary { grid-column: span 2; border-top: 3px solid var(--accent); }
-.kpi--reference { opacity: 0.85; border-top: 1px solid var(--border-muted); }
+.kpi--primary {
+  box-shadow: inset 0 4px 0 var(--kpi-accent, var(--accent));
+  font-size: 1.05em;
+  font-weight: 600;
+}
+.kpi--reference {
+  opacity: 0.75;
+  --kpi-accent: var(--border-muted);
+}
 
 /* ---------- KPI threshold badges ---------- */
 .threshold-green { border-color: var(--pos); }

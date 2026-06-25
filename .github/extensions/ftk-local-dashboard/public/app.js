@@ -637,14 +637,18 @@ function renderOverview(p) {
   const partialHtml = isPartialMonth() ? ` · <span class="warn">partial month</span>` : "";
 
   const kpis = [
-    kpiCard("Effective cost", fmtMoney(k.eff), `Billed ${fmtMoney(k.billed)}`, PALETTE[0]),
-    kpiCard("Total savings", fmtMoney(k.savings),
-      `<span class="pos">${fmtPct(k.esr)}</span> effective savings rate`, PALETTE[1]),
+    // primary KPIs first
     kpiCard("Untagged cost", fmtPct(k.untaggedPct),
       `${fmtMoney(k.untagged)} on untagged resources`, PALETTE[3],
       kpiThreshold(k.untaggedPct, 0.10, 0.25)),
+    // supporting KPIs
+    kpiCard("Effective cost", fmtMoney(k.eff), `Billed ${fmtMoney(k.billed)}`, PALETTE[0]),
+    kpiCard("Total savings", fmtMoney(k.savings),
+      `<span class="pos">${fmtPct(k.esr)}</span> effective savings rate`, PALETTE[1]),
+    // reference KPIs
     kpiCard("Commitment coverage", fmtPct(k.coverage),
       `${fmtMoney(k.committed)} of compute spend`, PALETTE[5]),
+    // supporting KPIs
     kpiCard("Tracked resources", fmtInt(k.resources),
       `${fmtInt(k.services)} services · ${fmtInt(k.subscriptions)} subs · ${fmtInt(k.regions)} regions`, PALETTE[2]),
     kpiCard("Latest month", k.lastMonthVal == null ? "—" : fmtMoney(k.lastMonthVal),
@@ -742,8 +746,10 @@ function renderTokenomics(p) {
   }));
 
   const kpis = [
-    kpiCard("AI token cost", fmtMoney(k.eff), `${fmtPct(k.aiShare, 2)} of all cloud cost`, PALETTE[2]),
+    // reference KPIs first (no primaries in this tab)
     kpiCard("Total tokens", fmtTokens(k.tokens), `across ${fmtInt(k.models)} model SKUs`, PALETTE[0]),
+    // supporting KPIs
+    kpiCard("AI token cost", fmtMoney(k.eff), `${fmtPct(k.aiShare, 2)} of all cloud cost`, PALETTE[2]),
     kpiCard("Blended rate", fmtPerM(k.blendedPer1K), `per 1M tokens (effective)`, PALETTE[5]),
     kpiCard("Cached input", fmtPct(k.cachedShare),
       `<span class="pos">${fmtPct(k.cachedShare)}</span> of input tokens cached`, PALETTE[1]),
@@ -826,12 +832,14 @@ function renderAnomaly(p) {
   const p50Days = fr.P50 != null ? fr.P50 / 24 : null;
 
   const kpis = [
+    // reference KPIs first (no primaries in this tab)
+    kpiCard("Anomaly days", fmtInt(anomDays.length),
+      `${fmtMoney(anomCost)} on flagged days`, PALETTE[5]),
+    // supporting KPIs
     kpiCard("Anomaly detection rate", fmtPct(rate, 2),
       `${anomDays.length} flagged of ${daily.length} days`, PALETTE[4]),
     kpiCard("Unpredicted variance", fmtMoney(variance),
       `net spend vs baseline on anomaly days`, PALETTE[3]),
-    kpiCard("Anomaly days", fmtInt(anomDays.length),
-      `${fmtMoney(anomCost)} on flagged days`, PALETTE[5]),
     kpiCard("Last month change", lastMc ? `${lastMc.EffChangePct > 0 ? "+" : ""}${lastMc.EffChangePct.toFixed(1)}%` : "—",
       lastMc ? `effective cost · ${esc(fmtMonth(lastMc.Month))}` : "", PALETTE[lastMc && lastMc.EffChangePct > 0 ? 4 : 1]),
     kpiCard("Forecast next month", nextFc ? fmtMoney(nextFc.Forecast) : "—",
@@ -946,17 +954,21 @@ function renderRate(p) {
   const coreShare = coreTotal > 0 ? committedCore / coreTotal : 0;
 
   const kpis = [
+    // primary KPIs first
     kpiCard("Effective savings rate", fmtPct(esr),
       `<span class="pos">${fmtMoney(s.Total)}</span> total savings · vs. list price`, PALETTE[1]),
+    kpiCard("Commitment waste", fmtPct(waste),
+      `<span class="${waste > 0.1 ? "warn" : "pos"}">${fmtMoney(cm.Unused)}</span> unused · of commitment spend`, PALETTE[3],
+      kpiThreshold(waste, 0.10, 0.20)),
+    // supporting KPIs
     kpiCard("Total savings", fmtMoney(s.Total),
       `of ${fmtMoney(s.List)} list cost`, PALETTE[2]),
     kpiCard("Commitment utilization", fmtPct(util),
       `${fmtMoney(cmTotal - (cm.Unused || 0))} of ${fmtMoney(cmTotal)} used`, PALETTE[0]),
-    kpiCard("Commitment waste", fmtPct(waste),
-      `<span class="${waste > 0.1 ? "warn" : "pos"}">${fmtMoney(cm.Unused)}</span> unused · of commitment spend`, PALETTE[3],
-      kpiThreshold(waste, 0.10, 0.20)),
+    // reference KPIs
     kpiCard("Compute coverage", fmtPct(coverage),
       `compute spend on commitments`, PALETTE[5]),
+    // supporting KPIs
     kpiCard("Committed core-hours", fmtPct(coreShare),
       `RI + savings plan vs on-demand`, PALETTE[8]),
   ].join("");
@@ -1023,11 +1035,13 @@ function renderAllocation(p) {
   const compliancePct = total > 0 ? c.Compliant / total : 0;
 
   const kpis = [
-    kpiCard("Allocation accuracy", fmtPct(aai),
-      `<span class="pos">directly attributed</span> effective cost`, PALETTE[1]),
+    // primary KPIs first
     kpiCard("Untagged cost", fmtPct(untaggedPct),
       `${fmtMoney(c.Untagged)} with no tags`, PALETTE[3],
       kpiThreshold(untaggedPct, 0.10, 0.25)),
+    // supporting KPIs
+    kpiCard("Allocation accuracy", fmtPct(aai),
+      `<span class="pos">directly attributed</span> effective cost`, PALETTE[1]),
     kpiCard("Unallocated cost", fmtPct(unallocPct),
       `${fmtMoney(total - c.Attributed)} lacks allocation evidence`, PALETTE[4]),
     kpiCard("Tag policy compliance", fmtPct(compliancePct),
