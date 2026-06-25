@@ -9,8 +9,19 @@ const PALETTE = [
   "#ec4899", "#84cc16", "#f97316", "#6366f1", "#14b8a6", "#a855f7",
 ];
 
-const state = { preset: "all", tab: "overview", loading: false, cache: {} };
+const state = { preset: "all", tab: "overview", loading: false, cache: {}, filters: {} };
 const queryState = { rows: 0, health: "ok", refreshedAt: null, dataset: "Hub database" };
+
+/** Human-readable labels for filter dimensions (used in chips). */
+const FILTER_LABELS = {
+  ServiceName: "Service",
+  ServiceCategory: "Category",
+  RegionId: "Region",
+  x_ResourceGroupName: "Resource group",
+  SubAccountName: "Subscription",
+  CommitmentDiscountName: "Commitment",
+  x_SkuMeterSubcategory: "Meter",
+};
 
 /* ----------------------------------------------------------------- KQL templates */
 
@@ -50,6 +61,69 @@ const PANEL_KQL = {
 /* eslint-enable max-len */
 
 let _kqlPanelId = null;
+
+/* ------------------------------------------------------------------ filter management */
+
+function filterKey() {
+  const entries = Object.entries(state.filters)
+    .filter(([, arr]) => arr && arr.length > 0)
+    .sort(([a], [b]) => a.localeCompare(b));
+  return entries.length > 0 ? "|" + JSON.stringify(entries) : "";
+}
+
+function cacheKey() {
+  return state.preset + filterKey();
+}
+
+function filterParam() {
+  const entries = Object.entries(state.filters)
+    .filter(([, arr]) => arr && arr.length > 0);
+  if (entries.length === 0) return "";
+  return "&filters=" + encodeURIComponent(JSON.stringify(Object.fromEntries(entries)));
+}
+
+function toggleFilter(dim, val) {
+  const arr = state.filters[dim] || [];
+  const idx = arr.indexOf(val);
+  if (idx >= 0) {
+    const next = arr.filter((v) => v !== val);
+    if (next.length === 0) delete state.filters[dim];
+    else state.filters[dim] = next;
+  } else {
+    state.filters[dim] = [...arr, val];
+  }
+  renderFilterBar();
+  load();
+}
+
+function clearFilters() {
+  state.filters = {};
+  renderFilterBar();
+  load();
+}
+
+function renderFilterBar() {
+  const bar = document.getElementById("filter-bar");
+  const chips = document.getElementById("filter-chips");
+  if (!bar || !chips) return;
+  const entries = Object.entries(state.filters).filter(([, arr]) => arr && arr.length > 0);
+  if (entries.length === 0) {
+    bar.hidden = true;
+    chips.innerHTML = "";
+    return;
+  }
+  bar.hidden = false;
+  chips.innerHTML = entries.flatMap(([dim, vals]) =>
+    vals.map((val) => {
+      const label = FILTER_LABELS[dim] || dim;
+      return `<span class="filter-chip" data-dim="${esc(dim)}" data-val="${esc(val)}">` +
+        `<span class="chip-label"><strong>${esc(label)}</strong> ${esc(val)}</span>` +
+        `<button class="chip-remove" data-dim="${esc(dim)}" data-val="${esc(val)}" ` +
+        `aria-label="Remove filter ${esc(label)}: ${esc(val)}" type="button">×</button>` +
+        `</span>`;
+    })
+  ).join("");
+}
 
 /* ------------------------------------------------------------------ utils */
 
@@ -179,6 +253,10 @@ function hbar(rows, nameKey, valKey, opts = {}) {
   const rowH = 30, padR = 64, nameW = opts.nameW ?? 142;
   const W = 540, H = data.length * rowH + 6;
   const barX = nameW + 8, barW = W - barX - padR;
+  // filterDim: by default use nameKey; pass null to opt-out of filtering
+  const filterDim = "filterDim" in opts ? opts.filterDim : nameKey;
+  const activeVals = filterDim && state.filters[filterDim];
+  const hasFilter = activeVals && activeVals.length > 0;
   let g = "";
   data.forEach((d, i) => {
     const yy = i * rowH + 4;
@@ -186,7 +264,14 @@ function hbar(rows, nameKey, valKey, opts = {}) {
     const w = Math.max(2, (d.val / max) * barW);
     const color = opts.color || PALETTE[i % PALETTE.length];
     const pct = total > 0 ? (d.val / total) : 0;
-    g += `<g class="hbar-row">`;
+    const isSelected = hasFilter && activeVals.includes(d.name);
+    const isDimmed = hasFilter && !isSelected;
+    let cls = "hbar-row";
+    if (filterDim) cls += " hbar-filterable";
+    if (isSelected) cls += " hbar-selected";
+    if (isDimmed) cls += " hbar-dimmed";
+    const dimAttr = filterDim ? ` data-filter-dim="${esc(filterDim)}" data-filter-val="${esc(d.name)}"` : "";
+    g += `<g class="${cls}"${dimAttr}>`;
     g += `<text class="name" x="0" y="${cy + 4}">${esc(trunc(d.name, 20))}<title>${esc(d.name)}</title></text>`;
     g += `<rect class="hbar" x="${barX}" y="${cy - 9}" width="${w}" height="18" rx="4" fill="${color}"><title>${esc(d.name)}\n${fmtMoneyFull(d.val)} · ${fmtPct(pct)}</title></rect>`;
     g += `<text class="val" x="${W}" y="${cy + 4}" text-anchor="end">${fmtMoney(d.val)}</text>`;
@@ -491,8 +576,8 @@ function buildTriageTile(title, count, cue, tabId) {
 }
 
 function renderTriageStrip(d) {
-  // Anomalies: reuse anomaly tab cache when loaded
-  const anomPayload = state.cache["anomaly"]?.[state.preset];
+  // Anomalies: reuse anomaly tab cache when loaded (use same cache key for consistency)
+  const anomPayload = state.cache["anomaly"]?.[cacheKey()];
   const daily = anomPayload?.data?.daily || [];
   const anomCount = anomPayload ? daily.filter((r) => r.Flag !== 0).length : null;
   const anomCue = anomCount === null ? "Visit Anomalies & forecast tab to load"
@@ -512,7 +597,7 @@ function renderTriageStrip(d) {
     : `${overspendCount} month${overspendCount === 1 ? "" : "s"} with >20% spike`;
 
   // Savings opportunities: underutilized commitments from rate tab cache when loaded
-  const ratePayload = state.cache["rate"]?.[state.preset];
+  const ratePayload = state.cache["rate"]?.[cacheKey()];
   const byCommitment = ratePayload?.data?.byCommitment || [];
   const savingsCount = ratePayload ? byCommitment.filter((r) => (r.Unused || 0) > 0).length : null;
   const savingsCue = savingsCount === null ? "Visit Rate optimization tab to load"
@@ -1158,7 +1243,7 @@ function renderAllocation(p) {
           { label: "Tagged", value: total - c.Untagged, color: PALETTE[1] },
           { label: "Untagged", value: c.Untagged, color: PALETTE[3] },
         ], { centerBig: fmtPct(1 - untaggedPct), centerSmall: "tagged" }))}
-      ${panelHtml("alloc-tag-keys", 6, "Cost by tag key", "Effective cost touched by each governance tag.", hbar(d.tagKeys, "k", "Cost"))}
+      ${panelHtml("alloc-tag-keys", 6, "Cost by tag key", "Effective cost touched by each governance tag.", hbar(d.tagKeys, "k", "Cost", { filterDim: null }))}
       ${panelHtml("alloc-by-subscription", 6, "Cost by subscription", "Spend per billing scope for showback.", hbar(d.bySubscription, "SubAccountName", "Cost"))}
     </div>
   `;
@@ -1185,7 +1270,7 @@ const ENDPOINT = {
 };
 
 function currentPayload() {
-  return state.cache[state.tab]?.[state.preset];
+  return state.cache[state.tab]?.[cacheKey()];
 }
 
 function render() {
@@ -1200,18 +1285,18 @@ function render() {
 }
 
 async function load() {
-  const tab = state.tab, preset = state.preset;
-  if (state.cache[tab]?.[preset]) { updateChrome(); render(); return; }
+  const tab = state.tab, key = cacheKey();
+  if (state.cache[tab]?.[key]) { updateChrome(); render(); return; }
   state.cache[tab] = state.cache[tab] || {};
   state.loading = true;
   setRefreshSpinning(true);
   el("content").innerHTML = `<div class="loading">Loading ${tab} data…</div>`;
   try {
-    const res = await fetch(`${ENDPOINT[tab]}&preset=${encodeURIComponent(preset)}`);
-    state.cache[tab][preset] = await res.json();
+    const res = await fetch(`${ENDPOINT[tab]}&preset=${encodeURIComponent(state.preset)}${filterParam()}`);
+    state.cache[tab][key] = await res.json();
   } catch (err) {
     console.error("[ftk-dashboard] fetch failed:", err);
-    state.cache[tab][preset] = { error: "Could not load data. Check that the Kusto emulator is running." };
+    state.cache[tab][key] = { error: "Could not load data. Check that the Kusto emulator is running." };
   }
   state.loading = false;
   setRefreshSpinning(false);
@@ -1279,7 +1364,7 @@ function wireControls() {
   });
   el("refresh").addEventListener("click", () => {
     if (state.loading) return;
-    if (state.cache[state.tab]) delete state.cache[state.tab][state.preset]; // force re-query
+    if (state.cache[state.tab]) delete state.cache[state.tab][cacheKey()]; // force re-query
     load();
   });
 
@@ -1292,6 +1377,22 @@ function wireControls() {
   document.addEventListener("click", (e) => {
     const btn = e.target.closest(".kql-btn[data-panel-id]");
     if (btn) openKqlDialog(btn.dataset.panelId);
+    // hbar click-to-filter
+    const hbarRow = e.target.closest(".hbar-filterable[data-filter-dim]");
+    if (hbarRow) {
+      const dim = hbarRow.dataset.filterDim;
+      const val = hbarRow.dataset.filterVal;
+      if (dim && val) toggleFilter(dim, val);
+    }
+    // chip remove
+    const chipRemove = e.target.closest(".chip-remove[data-dim]");
+    if (chipRemove) {
+      const dim = chipRemove.dataset.dim;
+      const val = chipRemove.dataset.val;
+      if (dim && val) toggleFilter(dim, val);
+    }
+    // reset all
+    if (e.target.closest("#filter-reset")) clearFilters();
   });
 
   let t;

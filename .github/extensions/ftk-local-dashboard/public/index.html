@@ -32,6 +32,12 @@
       <button data-tab="tokenomics" role="tab" aria-selected="false" aria-controls="content">Tokenomics</button>
     </nav>
 
+    <div id="filter-bar" class="filter-bar" hidden aria-label="Active filters" role="region">
+      <span class="filter-label">Filtered by</span>
+      <div id="filter-chips" class="filter-chips"></div>
+      <button id="filter-reset" class="filter-reset" type="button" aria-label="Clear all filters">Reset all</button>
+    </div>
+
     <main id="content" role="tabpanel" aria-label="Dashboard content">
       <div class="loading" id="loading">Loading cost data…</div>
     </main>

@@ -100,19 +100,35 @@ export async function resolveWindow(clusterUri, database, preset) {
     };
 }
 
-// --- dashboard data -----------------------------------------------------------
+/**
+ * Build a KQL `| where` clause from a filters object `{ ColumnName: ["val1","val2"] }`.
+ * Returns an empty string when there are no filters.
+ */
+function buildFilterWhere(filters) {
+    if (!filters || typeof filters !== "object") return "";
+    const clauses = Object.entries(filters)
+        .filter(([, vals]) => Array.isArray(vals) && vals.length > 0)
+        .map(([col, vals]) => {
+            const quoted = vals.map((v) => `'${String(v).replace(/'/g, "''")}'`).join(", ");
+            return `| where ${col} in (${quoted})`;
+        });
+    return clauses.length > 0 ? "\n" + clauses.join("\n") : "";
+}
+
+
 
 /**
  * Run all dashboard queries in parallel for the resolved window and shape the
  * result into a single payload the renderer consumes.
  */
-export async function getDashboard(clusterUri, database, preset = "all") {
+export async function getDashboard(clusterUri, database, preset = "all", filters = {}) {
     const win = await resolveWindow(clusterUri, database, preset);
     if (win.empty) {
         return { window: win, empty: true, generatedAt: new Date().toISOString() };
     }
 
-    const period = `| where ChargePeriodStart >= datetime(${win.start}) and ChargePeriodStart < datetime(${win.end})`;
+    const filterWhere = buildFilterWhere(filters);
+    const period = `| where ChargePeriodStart >= datetime(${win.start}) and ChargePeriodStart < datetime(${win.end})${filterWhere}`;
 
     const queries = {
         // KPI totals — Understand Usage & Cost + Quantify Business Value
@@ -181,12 +197,13 @@ const MODEL_FAMILY = `extend Model = x_SkuDescription
 | extend Model = replace_regex(Model, @'(?i)[\\s-]+(cached[\\s-]+)?(inp|inpt|outp|out|chat|media)([\\s-].*)?$', '')
 | extend Model = replace_regex(trim(@'[\\s-]+', Model), @'(?i)^gpt', 'GPT')`;
 
-export async function getTokenomics(clusterUri, database, preset = "all") {
+export async function getTokenomics(clusterUri, database, preset = "all", filters = {}) {
     const win = await resolveWindow(clusterUri, database, preset);
     if (win.empty) {
         return { window: win, empty: true, generatedAt: new Date().toISOString() };
     }
-    const period = `| where ChargePeriodStart >= datetime(${win.start}) and ChargePeriodStart < datetime(${win.end})`;
+    const filterWhere = buildFilterWhere(filters);
+    const period = `| where ChargePeriodStart >= datetime(${win.start}) and ChargePeriodStart < datetime(${win.end})${filterWhere}`;
 
     const queries = {
         // Token KPI totals — Token Consumption Metrics
@@ -226,10 +243,11 @@ export async function getTokenomics(clusterUri, database, preset = "all") {
 // --- shared page runner -------------------------------------------------------
 // Resolves the window, builds a named map of KQL queries from the period clause,
 // runs them in parallel, and returns { window, empty, data, generatedAt }.
-async function runPage(clusterUri, database, preset, buildQueries) {
+async function runPage(clusterUri, database, preset, buildQueries, filters = {}) {
     const win = await resolveWindow(clusterUri, database, preset);
     if (win.empty) return { window: win, empty: true, generatedAt: new Date().toISOString() };
-    const period = `| where ChargePeriodStart >= datetime(${win.start}) and ChargePeriodStart < datetime(${win.end})`;
+    const filterWhere = buildFilterWhere(filters);
+    const period = `| where ChargePeriodStart >= datetime(${win.start}) and ChargePeriodStart < datetime(${win.end})${filterWhere}`;
     const queries = buildQueries(period, win);
     const entries = Object.entries(queries);
     const results = await Promise.all(entries.map(([, csl]) => runQuery(clusterUri, database, csl)));
@@ -245,7 +263,7 @@ async function runPage(clusterUri, database, preset, buildQueries) {
 // the enriched x_CostCenter / x_CostAllocationRuleName columns.
 const NON_PURCHASE = `| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))`;
 
-export async function getAllocation(clusterUri, database, preset = "all") {
+export async function getAllocation(clusterUri, database, preset = "all", filters = {}) {
     return runPage(clusterUri, database, preset, (period) => ({
         // Single-pass core: total, untagged, attributed (AAI), compliant
         core: `let req=dynamic(['CostCenter','env','org']);
@@ -269,7 +287,7 @@ Costs() ${period} ${NON_PURCHASE}
 | top 12 by Cost desc`,
         // Cost by subscription (SubAccountName)
         bySubscription: `Costs() ${period} | where isnotempty(SubAccountName) | summarize Cost=sum(EffectiveCost) by SubAccountName | top 10 by Cost desc`,
-    }));
+    }), filters);
 }
 
 // --- Rate optimization page ---------------------------------------------------
@@ -279,7 +297,7 @@ Costs() ${period} ${NON_PURCHASE}
 // depends on Recommendations(), which is empty in this estate, so it would always read 100.)
 // Commitment utilization is derived as the effective-cost complement of waste, the cleanest
 // single-basis definition for a grand-total KPI.
-export async function getRate(clusterUri, database, preset = "all") {
+export async function getRate(clusterUri, database, preset = "all", filters = {}) {
     return runPage(clusterUri, database, preset, (period) => ({
         // savings-summary-report — ESR + negotiated/commitment/total savings
         savings: `Costs() ${period} ${NON_PURCHASE}
@@ -317,13 +335,13 @@ union byCommit, (byCommit | summarize Amount=sum(Amount), Potential=sum(Potentia
 | summarize BilledCost=sum(BilledCost), EffectiveCost=sum(EffectiveCost)
     by CommitmentDiscountName, CommitmentDiscountType, CommitmentDiscountCategory
 | top 10 by BilledCost desc`,
-    }));
+    }), filters);
 }
 
 // --- Usage & unit economics page ----------------------------------------------
 // FinOps "Usage Optimization" + "Unit Economics". Grounded in catalog queries:
 // compute-cost-per-core, cost-per-gb-stored, storage-tier-distribution, top-resource-types-by-cost.
-export async function getUsage(clusterUri, database, preset = "all") {
+export async function getUsage(clusterUri, database, preset = "all", filters = {}) {
     return runPage(clusterUri, database, preset, (period) => ({
         // compute-cost-per-core
         compute: `Costs() ${period} ${NON_PURCHASE}
@@ -355,7 +373,7 @@ export async function getUsage(clusterUri, database, preset = "all") {
 | where CH > 100 | extend PerCore=Eff/CH | top 10 by Eff desc`,
         // grand total for share-of-cost on the resource-type table
         total: `Costs() ${period} | summarize Total=sum(EffectiveCost)`,
-    }));
+    }), filters);
 }
 
 // --- Anomalies & forecast page ------------------------------------------------
@@ -364,7 +382,7 @@ export async function getUsage(clusterUri, database, preset = "all") {
 // anomaly-variance-total, monthly-cost-change-percentage, cost-forecasting-model,
 // data-update-frequency, cost-visibility-delay. Time-series array outputs are
 // flattened with mv-expand so the renderer can chart them.
-export async function getAnomaly(clusterUri, database, preset = "all") {
+export async function getAnomaly(clusterUri, database, preset = "all", filters = {}) {
     return runPage(clusterUri, database, preset, (period, win) => {
         // forecast uses full history for accuracy; horizon = 4 months past the last data month
         const dmax = new Date(win.dataMax);
@@ -398,5 +416,5 @@ Costs() | where ChargePeriodStart>=s and ChargePeriodStart<e ${NON_PURCHASE}
             freshness: `Costs() ${period} | where isnotnull(x_IngestionTime)
 | summarize LastUpdate=max(x_IngestionTime), Rows=count(), P50=percentile(todouble((x_IngestionTime-ChargePeriodEnd)/1h),50), P90=percentile(todouble((x_IngestionTime-ChargePeriodEnd)/1h),90)`,
         };
-    });
+    }, filters);
 }

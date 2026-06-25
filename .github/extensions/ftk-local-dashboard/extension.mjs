@@ -34,6 +34,17 @@ const STATIC = {
 // instanceId -> { server, url, clusterUri, database }
 const servers = new Map();
 
+/** Parse `?filters=<JSON>` from a URL search params; returns plain object (column->array). */
+function parseFilters(url) {
+  const raw = url.searchParams.get("filters");
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed;
+  } catch { /* ignore malformed */ }
+  return {};
+}
+
 function sendJson(res, status, obj) {
   const body = JSON.stringify(obj);
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
@@ -78,8 +89,9 @@ async function handleRequest(entry, req, res) {
 
   if (path === "/api/dashboard") {
     const preset = url.searchParams.get("preset") || "all";
+    const filters = parseFilters(url);
     try {
-      const payload = await getDashboard(entry.clusterUri, entry.database, preset);
+      const payload = await getDashboard(entry.clusterUri, entry.database, preset, filters);
       sendJson(res, 200, payload);
     } catch (err) {
       sendQueryError(res, entry, "overview", err);
@@ -89,8 +101,9 @@ async function handleRequest(entry, req, res) {
 
   if (path === "/api/tokenomics") {
     const preset = url.searchParams.get("preset") || "all";
+    const filters = parseFilters(url);
     try {
-      const payload = await getTokenomics(entry.clusterUri, entry.database, preset);
+      const payload = await getTokenomics(entry.clusterUri, entry.database, preset, filters);
       sendJson(res, 200, payload);
     } catch (err) {
       sendQueryError(res, entry, "tokenomics", err);
@@ -101,10 +114,11 @@ async function handleRequest(entry, req, res) {
   if (path === "/api/view") {
     const name = url.searchParams.get("name") || "overview";
     const preset = url.searchParams.get("preset") || "all";
+    const filters = parseFilters(url);
     const getter = GETTERS[name];
     if (!getter) { sendJson(res, 200, { error: `Unknown view '${name}'` }); return; }
     try {
-      const payload = await getter(entry.clusterUri, entry.database, preset);
+      const payload = await getter(entry.clusterUri, entry.database, preset, filters);
       sendJson(res, 200, payload);
     } catch (err) {
       sendQueryError(res, entry, name, err);
