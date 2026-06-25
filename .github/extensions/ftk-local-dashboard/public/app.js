@@ -652,7 +652,7 @@ function renderOverview(p) {
     kpiCard("Tracked resources", fmtInt(k.resources),
       `${fmtInt(k.services)} services · ${fmtInt(k.subscriptions)} subs · ${fmtInt(k.regions)} regions`, PALETTE[2]),
     kpiCard("Latest month", k.lastMonthVal == null ? "—" : fmtMoney(k.lastMonthVal),
-      k.mom == null ? `${esc(k.lastMonthLabel || "")}${partialHtml}` : `<span class="${momClass}">${momTxt}</span> vs prior · ${esc(k.lastMonthLabel)}${partialHtml}`, PALETTE[4]),
+      k.mom == null ? (k.lastMonthLabel ? `${esc(k.lastMonthLabel)}${partialHtml}` : (isPartialMonth() ? `<span class="warn">partial month</span>` : "")) : `<span class="${momClass}">${momTxt}</span> vs prior · ${esc(k.lastMonthLabel)}${partialHtml}`, PALETTE[4]),
   ].join("");
 
   const d = p.data;
@@ -1174,6 +1174,7 @@ function updateChrome() {
   } else if (p && p.error) {
     el("source-line").textContent = "Connection failed — see panel below.";
     el("footer-meta").textContent = "";
+    queryState.rows = 0;
     queryState.health = "error";
     queryState.refreshedAt = new Date();
     queryState.dataset = "Hub database";
