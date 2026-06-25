@@ -43,9 +43,6 @@ The name of the AOE SQL database.
 .PARAMETER CloudEnvironment
 The Azure cloud environment. Default is AzureCloud. Supported: AzureCloud, AzureChinaCloud, AzureUSGovernment.
 
-.PARAMETER AzureEnvironment
-Alias for CloudEnvironment, for compatibility with the main deploy script.
-
 .EXAMPLE
 .\Setup-LogAnalyticsTablesAndDCRs.ps1 `
     -ResourceGroupName "rg-aoe" `
@@ -84,12 +81,6 @@ param (
 )
 
 $ErrorActionPreference = "Stop"
-
-# AzureEnvironment is an alias for CloudEnvironment
-if (-not [string]::IsNullOrEmpty($AzureEnvironment))
-{
-    $CloudEnvironment = $AzureEnvironment
-}
 
 if ([string]::IsNullOrEmpty($WorkspaceResourceGroupName))
 {
@@ -1152,7 +1143,7 @@ $cloudDetails = Get-AzEnvironment -Name $CloudEnvironment
 $azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
 $sqlToken = (Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/" -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText
 
-$sqlConnectionString = "Server=tcp:$SqlServerName,1433;Database=$SqlDatabaseName;Encrypt=True;Connection Timeout=$SqlTimeout;"
+$sqlConnectionString = "Server=tcp:$SqlServerName,1433;Database=$SqlDatabaseName;Encrypt=True;Connection Timeout=120;"
 
 try
 {
