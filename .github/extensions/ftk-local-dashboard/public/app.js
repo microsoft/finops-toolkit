@@ -532,7 +532,21 @@ function isPartialMonth() {
 }
 
 function kpiCard(label, value, meta, accent, thresholdClass) {
-  const cls = thresholdClass ? ` ${thresholdClass}` : "";
+  // Determine hierarchy class based on label
+  const primaryLabels = ["Untagged cost", "Commitment waste", "Effective savings rate"];
+  const referenceLabels = ["Commitment coverage", "Compute coverage", "Total tokens", "Anomaly days"];
+  
+  let hierarchyClass = "";
+  if (primaryLabels.includes(label)) {
+    hierarchyClass = "kpi--primary";
+  } else if (referenceLabels.includes(label)) {
+    hierarchyClass = "kpi--reference";
+  }
+  
+  // Combine threshold and hierarchy classes
+  const classArray = [thresholdClass, hierarchyClass].filter(Boolean);
+  const cls = classArray.length > 0 ? ` ${classArray.join(" ")}` : "";
+  
   return `<div class="kpi${cls}" style="--kpi-accent:${accent}">
     <div class="label">${esc(label)}</div>
     <div class="value">${value}</div>

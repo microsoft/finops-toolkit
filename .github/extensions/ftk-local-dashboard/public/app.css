@@ -160,6 +160,10 @@ body {
 .kpi .meta .neg { color: var(--neg); font-weight: 650; }
 .kpi .meta .warn { color: var(--warn); font-weight: 650; }
 
+/* ---------- KPI hierarchy (primary vs reference) ---------- */
+.kpi--primary { grid-column: span 2; border-top: 3px solid var(--accent); }
+.kpi--reference { opacity: 0.85; border-top: 1px solid var(--border-muted); }
+
 /* ---------- KPI threshold badges ---------- */
 .threshold-green { border-color: var(--pos); }
 .threshold-amber { border-color: var(--warn); }
