@@ -635,6 +635,7 @@ function renderOverview(p) {
   const momTxt = k.mom == null ? "—" : `${k.mom > 0 ? "▲" : "▼"} ${fmtPct(Math.abs(k.mom))}`;
 
   const partialHtml = isPartialMonth() ? ` · <span class="warn">partial month</span>` : "";
+  const maccRow = p.data.macc?.[0] || { ConsumptionAmount: 0, CommitmentAmount: 0, CommitmentBurnPercent: 0 };
 
   const kpis = [
     // primary KPIs first
@@ -653,6 +654,13 @@ function renderOverview(p) {
       `${fmtInt(k.services)} services · ${fmtInt(k.subscriptions)} subs · ${fmtInt(k.regions)} regions`, PALETTE[2]),
     kpiCard("Latest month", k.lastMonthVal == null ? "—" : fmtMoney(k.lastMonthVal),
       k.mom == null ? (k.lastMonthLabel ? `${esc(k.lastMonthLabel)}${partialHtml}` : (isPartialMonth() ? `<span class="warn">partial month</span>` : "")) : `<span class="${momClass}">${momTxt}</span> vs prior · ${esc(k.lastMonthLabel)}${partialHtml}`, PALETTE[4]),
+    // macc-consumption-vs-commitment — MACC burn rate
+    kpiCard("MACC burn rate",
+      maccRow.CommitmentAmount > 0 ? fmtPct(maccRow.CommitmentBurnPercent / 100) : "N/A",
+      maccRow.CommitmentAmount > 0
+        ? `${fmtMoney(maccRow.ConsumptionAmount)} of ${fmtMoney(maccRow.CommitmentAmount)} committed`
+        : "No Microsoft Azure Consumption Commitment data",
+      PALETTE[7]),
   ].join("");
 
   const d = p.data;
@@ -776,6 +784,11 @@ function renderTokenomics(p) {
     <div class="panel-grid">
       ${panelHtml("token-model-table", 12, "Cost per 1M tokens by model", "Unit economics for model selection — sorted by effective cost.", tokenModelTable(d.models, k.eff))}
     </div>
+
+    <div class="section-title"><h2>AI cost allocation</h2><span class="domain">Showback &amp; chargeback · ai-cost-by-application</span></div>
+    <div class="panel-grid">
+      ${panelHtml("token-by-app", 12, "AI cost by application", "Azure OpenAI effective cost and token volume by application, team, environment, and cost center.", aiByAppTable(d.byApplication))}
+    </div>
   `;
 }
 
@@ -798,6 +811,29 @@ function tokenModelTable(models, totalCost) {
   return `<table class="dtable">
     <thead><tr><th>Model</th><th>Tokens</th><th>Effective cost</th><th>$ / 1M tokens</th><th>% of AI cost</th></tr></thead>
     <tbody>${body}</tbody>
+  </table>`;
+}
+
+function aiByAppTable(rows) {
+  const data = (rows || []).filter((r) => (r.EffectiveCost || 0) > 0);
+  if (data.length === 0) return `<p class="muted" style="font-size:12px">No tagged AI cost data. Tag Azure OpenAI resources with <code>application</code>, <code>team</code>, or <code>environment</code> tags.</p>`;
+  const totalCost = data.reduce((a, r) => a + (r.EffectiveCost || 0), 0);
+  return `<table class="dtable">
+    <thead><tr><th>Application</th><th>Team</th><th>Environment</th><th>Cost center</th><th>Tokens</th><th>Effective cost</th><th>$/1M tokens</th><th>% of AI</th></tr></thead>
+    <tbody>${data.map((r, i) => {
+      const share = totalCost > 0 ? (r.EffectiveCost || 0) / totalCost : 0;
+      const color = PALETTE[i % PALETTE.length];
+      return `<tr>
+        <td><span class="swatch" style="background:${color}"></span>${esc(r.Application || "(untagged)")}</td>
+        <td class="muted">${esc(r.Team || "—")}</td>
+        <td class="muted">${esc(r.Environment || "—")}</td>
+        <td class="muted">${esc(r.CostCenter || "—")}</td>
+        <td>${fmtTokens(r.TokenCount)}</td>
+        <td>${fmtMoney(r.EffectiveCost)}</td>
+        <td>${fmtPerM(r.CostPer1KTokens)}</td>
+        <td>${fmtPct(share)}</td>
+      </tr>`;
+    }).join("")}</tbody>
   </table>`;
 }
 
@@ -963,8 +999,15 @@ function renderRate(p) {
     // supporting KPIs
     kpiCard("Total savings", fmtMoney(s.Total),
       `of ${fmtMoney(s.List)} list cost`, PALETTE[2]),
-    kpiCard("Commitment utilization", fmtPct(util),
-      `${fmtMoney(cmTotal - (cm.Unused || 0))} of ${fmtMoney(cmTotal)} used`, PALETTE[0]),
+    (() => {
+      const cusRow = (d.commitmentUtilScore || []).find((r) => r.CommitmentDiscountName === '(Grand Total)');
+      const cusScore = cusRow ? cusRow.Score / 100 : util;
+      return kpiCard("Commitment utilization", fmtPct(cusScore),
+        cusRow
+          ? `${fmtMoney(cusRow.Amount)} utilized of ${fmtMoney(cusRow.Potential)} potential`
+          : `${fmtMoney(cmTotal - (cm.Unused || 0))} of ${fmtMoney(cmTotal)} used`,
+        PALETTE[0]);
+    })(),
     // reference KPIs
     kpiCard("Compute coverage", fmtPct(coverage),
       `compute spend on commitments`, PALETTE[5]),
@@ -1006,6 +1049,12 @@ function renderRate(p) {
       ${panelHtml("rate-underutil", 6, "Underutilized commitments", "Reservations &amp; plans with the most unused cost.",
         hbar(d.byCommitment, "CommitmentDiscountName", "Unused"))}
     </div>
+
+    <div class="section-title"><h2>Commitment transactions</h2><span class="domain">Rate optimization · Commitment purchasing</span></div>
+    <div class="panel-grid">
+      ${panelHtml("rate-commit-score", 6, "Commitment utilization score", "Per-commitment utilization (used vs potential) from the formal CUS KPI.", commitUtilTable(d.commitmentUtilScore))}
+      ${panelHtml("rate-top-txns", 6, "Top commitment transactions", "Largest RI and savings plan purchases by billed cost.", topCommitTxnTable(d.topCommitmentTxns))}
+    </div>
   `;
 }
 
@@ -1014,6 +1063,40 @@ function rateRow(label, val, accent) {
     <span style="display:inline-flex;align-items:center;gap:8px">${
       accent ? `<span class="swatch" style="width:9px;height:9px;border-radius:3px;display:inline-block;background:${accent}"></span>` : ""}${esc(label)}</span>
     <strong>${fmtMoney(val)}</strong></div>`;
+}
+
+function commitUtilTable(rows) {
+  const data = (rows || []).filter((r) => r.CommitmentDiscountName !== '(Grand Total)' && (r.Potential || 0) > 0);
+  if (data.length === 0) return `<p class="muted" style="font-size:12px">No commitment data in range.</p>`;
+  return `<table class="dtable">
+    <thead><tr><th>Commitment</th><th>Type</th><th>Score</th><th>Utilized</th><th>Potential</th></tr></thead>
+    <tbody>${data.map((r) => {
+      const score = r.Score || 0;
+      const cls = score < 70 ? "neg" : score < 90 ? "warn" : "pos";
+      const barW = Math.max(2, (score / 100) * 90);
+      return `<tr>
+        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.CommitmentDiscountName)}</td>
+        <td class="muted">${esc(r.CommitmentDiscountType || r.CommitmentDiscountCategory || "")}</td>
+        <td class="barcell"><span class="${cls}">${fmtPct(score / 100)}</span><span class="minibar" style="width:${barW}px;background:${score < 70 ? "var(--neg)" : score < 90 ? "var(--warn)" : "var(--pos)"}"></span></td>
+        <td>${fmtMoney(r.Amount)}</td>
+        <td>${fmtMoney(r.Potential)}</td>
+      </tr>`;
+    }).join("")}</tbody>
+  </table>`;
+}
+
+function topCommitTxnTable(rows) {
+  const data = rows || [];
+  if (data.length === 0) return `<p class="muted" style="font-size:12px">No commitment transactions in range.</p>`;
+  return `<table class="dtable">
+    <thead><tr><th>Commitment</th><th>Type</th><th>Billed cost</th><th>Effective cost</th></tr></thead>
+    <tbody>${data.map((r) => `<tr>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.CommitmentDiscountName || "(unknown)")}</td>
+      <td class="muted">${esc(r.CommitmentDiscountType || "")}</td>
+      <td>${fmtMoney(r.BilledCost)}</td>
+      <td>${fmtMoney(r.EffectiveCost)}</td>
+    </tr>`).join("")}</tbody>
+  </table>`;
 }
 
 /* ----------------------------------------------------- allocation render */

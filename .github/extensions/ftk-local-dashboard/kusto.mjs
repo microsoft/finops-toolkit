@@ -133,6 +133,11 @@ export async function getDashboard(clusterUri, database, preset = "all") {
         topRegions: `Costs() ${period} | where isnotempty(RegionId) | summarize Cost=sum(EffectiveCost) by RegionId | top 12 by Cost desc`,
         // Charge category mix (Usage / Purchase / Adjustment)
         chargeCategory: `Costs() ${period} | summarize Cost=sum(EffectiveCost) by ChargeCategory | where Cost != 0 | order by Cost desc`,
+        // macc-consumption-vs-commitment — MACC burn rate (graceful: returns CommitmentAmount=0 if no MACC data)
+        macc: `let con = toscalar(Costs() ${period} | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory)) | summarize sum(EffectiveCost));
+let com = toscalar(Transactions() | where isnotnull(x_MonetaryCommitment) | summarize sum(x_MonetaryCommitment));
+let com0 = coalesce(todouble(com), 0.0);
+print ConsumptionAmount=con, CommitmentAmount=com0, CommitmentBurnPercent=iff(com0 > 0, con / com0 * 100.0, 0.0)`,
     };
 
     const entries = Object.entries(queries);
@@ -194,6 +199,15 @@ export async function getTokenomics(clusterUri, database, preset = "all") {
         models: `Costs() ${period} ${AI_SCOPE} | ${MODEL_FAMILY} | summarize Tokens=sum(ConsumedQuantity), Cost=sum(EffectiveCost), List=sum(ListCost) by Model | extend CostPer1K=iff(Tokens==0, 0.0, Cost/Tokens*1000) | top 12 by Cost desc`,
         // ai-daily-trend (monthly variant) — token volume + AI cost over time
         trend: `Costs() ${period} ${AI_SCOPE} | summarize Tokens=sum(ConsumedQuantity), Cost=sum(EffectiveCost) by Month=format_datetime(startofmonth(ChargePeriodStart),'yyyy-MM') | order by Month asc`,
+        // ai-cost-by-application — AI cost showback by app/team/env/cost-center
+        byApplication: `Costs() ${period} ${AI_SCOPE}
+| extend Application = tostring(Tags['application']), Team = tostring(Tags['team'])
+| extend CostCenter = coalesce(tostring(Tags['cost-center']), tostring(Tags['CostCenter']), '')
+| extend Environment = tostring(Tags['environment'])
+| summarize TokenCount=sum(ConsumedQuantity), EffectiveCost=sum(EffectiveCost)
+    by Application, Team, CostCenter, Environment
+| extend CostPer1KTokens = iff(TokenCount == 0, 0.0, EffectiveCost / TokenCount * 1000)
+| top 12 by EffectiveCost desc`,
     };
 
     const entries = Object.entries(queries);
@@ -289,6 +303,20 @@ export async function getRate(clusterUri, database, preset = "all") {
         byCommitment: `Costs() ${period} | where isnotempty(CommitmentDiscountName) ${NON_PURCHASE}
 | summarize Unused=sumif(EffectiveCost,CommitmentDiscountStatus=='Unused'), Total=sum(EffectiveCost) by CommitmentDiscountName
 | where Unused > 0 | top 10 by Unused desc`,
+        // commitment-utilization-score (formal KPI) — per-commitment and grand-total utilization score
+        commitmentUtilScore: `let rows = materialize(Costs() ${period} | where isnotempty(CommitmentDiscountId)
+| extend Potential = case(ChargeCategory == 'Purchase', toreal(0), isnotempty(CommitmentDiscountCategory), toreal(EffectiveCost), toreal(0))
+| extend Amount = iff(CommitmentDiscountStatus == 'Used', Potential, toreal(0)));
+let byCommit = rows | summarize Amount=sum(Amount), Potential=sum(Potential) by CommitmentDiscountName, CommitmentDiscountCategory, CommitmentDiscountType
+| extend Score = iff(Potential > 0, Amount / Potential * 100.0, 0.0);
+union byCommit, (byCommit | summarize Amount=sum(Amount), Potential=sum(Potential)
+| extend CommitmentDiscountName='(Grand Total)', CommitmentDiscountCategory='', CommitmentDiscountType='', Score=iff(Potential>0, Amount/Potential*100.0, 0.0))
+| project CommitmentDiscountName, CommitmentDiscountCategory, CommitmentDiscountType, Amount, Potential, Score | order by Potential desc`,
+        // top-commitment-transactions — largest RI/SP purchases
+        topCommitmentTxns: `Costs() ${period} | where ChargeCategory != 'Usage' and isnotempty(CommitmentDiscountType) and BilledCost > 0
+| summarize BilledCost=sum(BilledCost), EffectiveCost=sum(EffectiveCost)
+    by CommitmentDiscountName, CommitmentDiscountType, CommitmentDiscountCategory
+| top 10 by BilledCost desc`,
     }));
 }
 
