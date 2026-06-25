@@ -61,6 +61,7 @@ const PANEL_KQL = {
 /* eslint-enable max-len */
 
 let _kqlPanelId = null;
+let _loadAbort = null;
 
 /* ------------------------------------------------------------------ filter management */
 
@@ -161,13 +162,17 @@ function fmtPerM(costPer1K) {
 }
 function fmtMonth(ym) {
   // "2025-04" -> "Apr ’25"
+  if (!ym || typeof ym !== "string") return String(ym ?? "—");
   const [y, m] = ym.split("-");
+  if (!y || !m) return ym;
   const names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  return `${names[+m - 1]} ’${y.slice(2)}`;
+  return `${names[+m - 1] || m} '${y.slice(2)}`;
 }
 function fmtDayRange(min, max) {
+  if (!min || !max) return "—";
   const f = (s) => {
     const d = new Date(s);
+    if (isNaN(d)) return String(s);
     return d.toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
   };
   return `${f(min)} – ${f(max)}`;
@@ -190,8 +195,9 @@ function fmtRelativeTime(date) {
   if (abs < 86400) return rtf.format(Math.round(diffSec / 3600), "hour");
   return rtf.format(Math.round(diffSec / 86400), "day");
 }
-function svgEl(w, h, body) {
-  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" role="img">${body}</svg>`;
+function svgEl(w, h, body, label = "") {
+  const ariaAttr = label ? ` aria-label="${esc(label)}"` : "";
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" role="img"${ariaAttr}>${body}</svg>`;
 }
 
 /* ----------------------------------------------------------------- charts */
@@ -271,7 +277,8 @@ function hbar(rows, nameKey, valKey, opts = {}) {
     if (isSelected) cls += " hbar-selected";
     if (isDimmed) cls += " hbar-dimmed";
     const dimAttr = filterDim ? ` data-filter-dim="${esc(filterDim)}" data-filter-val="${esc(d.name)}"` : "";
-    g += `<g class="${cls}"${dimAttr}>`;
+    const interactiveAttrs = filterDim ? ` tabindex="0" role="button" aria-label="Filter by ${esc(d.name)}, ${fmtMoney(d.val)}"` : "";
+    g += `<g class="${cls}"${dimAttr}${interactiveAttrs}>`;
     g += `<text class="name" x="0" y="${cy + 4}">${esc(trunc(d.name, 20))}<title>${esc(d.name)}</title></text>`;
     g += `<rect class="hbar" x="${barX}" y="${cy - 9}" width="${w}" height="18" rx="4" fill="${color}"><title>${esc(d.name)}\n${fmtMoneyFull(d.val)} · ${fmtPct(pct)}</title></rect>`;
     g += `<text class="val" x="${W}" y="${cy + 4}" text-anchor="end">${fmtMoney(d.val)}</text>`;
@@ -1286,21 +1293,34 @@ function currentPayload() {
 function render() {
   const p = currentPayload();
   if (!p) return;
-  if (state.tab === "tokenomics") renderTokenomics(p);
-  else if (state.tab === "allocation") renderAllocation(p);
-  else if (state.tab === "rate") renderRate(p);
-  else if (state.tab === "usage") renderUsage(p);
-  else if (state.tab === "anomaly") renderAnomaly(p);
-  else renderOverview(p);
+  try {
+    if (state.tab === "tokenomics") renderTokenomics(p);
+    else if (state.tab === "allocation") renderAllocation(p);
+    else if (state.tab === "rate") renderRate(p);
+    else if (state.tab === "usage") renderUsage(p);
+    else if (state.tab === "anomaly") renderAnomaly(p);
+    else renderOverview(p);
+  } catch (err) {
+    console.error("[ftk-dashboard] render error:", err);
+    renderError({ error: `Render error in ${state.tab}: ${err.message}` });
+  }
 }
 
 async function load() {
   const tab = state.tab, key = cacheKey();
   if (state.cache[tab]?.[key]) { updateChrome(); render(); return; }
+
+  // Cancel any in-flight request for a superseded tab/preset
+  if (_loadAbort) _loadAbort.abort();
+  _loadAbort = new AbortController();
+  const { signal } = _loadAbort;
+
   state.cache[tab] = state.cache[tab] || {};
   state.loading = true;
   setRefreshSpinning(true);
-  el("content").innerHTML = `
+  const contentEl = el("content");
+  contentEl.setAttribute("aria-busy", "true");
+  contentEl.innerHTML = `
     <div class="skeleton-kpi-grid">
       ${'<div class="skeleton-card"></div>'.repeat(6)}
     </div>
@@ -1308,14 +1328,17 @@ async function load() {
     <div class="skeleton-card skeleton-panel-sm"></div>
   `;
   try {
-    const res = await fetch(`${ENDPOINT[tab]}&preset=${encodeURIComponent(state.preset)}${filterParam()}`);
+    const res = await fetch(`${ENDPOINT[tab]}&preset=${encodeURIComponent(state.preset)}${filterParam()}`, { signal });
     state.cache[tab][key] = await res.json();
   } catch (err) {
+    if (err.name === "AbortError") return; // superseded by a newer load(); discard silently
     console.error("[ftk-dashboard] fetch failed:", err);
     state.cache[tab][key] = { error: "Could not load data. Check that the Kusto emulator is running." };
+  } finally {
+    state.loading = false;
+    setRefreshSpinning(false);
+    el("content")?.setAttribute("aria-busy", "false");
   }
-  state.loading = false;
-  setRefreshSpinning(false);
   updateChrome();
   render();
 }
@@ -1386,7 +1409,12 @@ function wireControls() {
 
   // KQL dialog controls
   el("kql-close").addEventListener("click", () => el("kql-dialog").close());
-  el("kql-copy").addEventListener("click", () => navigator.clipboard.writeText(el("kql-text").value));
+  el("kql-copy").addEventListener("click", () => {
+    const btn = el("kql-copy");
+    navigator.clipboard.writeText(el("kql-text").value)
+      .then(() => { btn.textContent = "Copied!"; setTimeout(() => { btn.textContent = "Copy"; }, 1500); })
+      .catch(() => { btn.textContent = "Failed"; setTimeout(() => { btn.textContent = "Copy"; }, 1500); });
+  });
   el("kql-run").addEventListener("click", executeKql);
 
   // KQL escape-hatch buttons (event delegation — buttons injected by panelHtml)
@@ -1409,6 +1437,18 @@ function wireControls() {
     }
     // reset all
     if (e.target.closest("#filter-reset")) clearFilters();
+  });
+
+  // Keyboard activation for filterable hbar rows (Enter / Space)
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const hbarRow = e.target.closest(".hbar-filterable[data-filter-dim]");
+    if (hbarRow) {
+      e.preventDefault();
+      const dim = hbarRow.dataset.filterDim;
+      const val = hbarRow.dataset.filterVal;
+      if (dim && val) toggleFilter(dim, val);
+    }
   });
 
   let t;
