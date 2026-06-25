@@ -348,6 +348,26 @@ svg { display: block; width: 100%; overflow: visible; }
   margin-top: 14px;
 }
 
+/* ---------- diagnostic rail ---------- */
+.diagnostic-rail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+  max-height: 24px;
+  overflow: hidden;
+  font-size: 11.5px;
+  color: var(--muted);
+  padding: 0 2px;
+  margin-top: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.rail-sep { opacity: 0.45; user-select: none; }
+.rail-health--ok { color: var(--pos); }
+.rail-health--warn { color: var(--warn); }
+.rail-health--error { color: var(--neg); }
+.rail-time { cursor: default; text-decoration: underline; text-decoration-style: dotted; }
+
 /* ---------- footer ---------- */
 .app-footer {
   display: flex;

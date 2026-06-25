@@ -10,6 +10,7 @@ const PALETTE = [
 ];
 
 const state = { preset: "all", tab: "overview", loading: false, cache: {} };
+const queryState = { rows: 0, health: "ok", refreshedAt: null, dataset: "Hub database" };
 
 /* ------------------------------------------------------------------ utils */
 
@@ -66,6 +67,16 @@ function trunc(s, n) {
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
 }
 function el(id) { return document.getElementById(id); }
+function fmtRelativeTime(date) {
+  if (!date) return "—";
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  const diffSec = (date - Date.now()) / 1000;
+  const abs = Math.abs(diffSec);
+  if (abs < 60) return rtf.format(Math.round(diffSec), "second");
+  if (abs < 3600) return rtf.format(Math.round(diffSec / 60), "minute");
+  if (abs < 86400) return rtf.format(Math.round(diffSec / 3600), "hour");
+  return rtf.format(Math.round(diffSec / 86400), "day");
+}
 function svgEl(w, h, body) {
   return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" role="img">${body}</svg>`;
 }
@@ -1094,24 +1105,43 @@ function setRefreshSpinning(on) {
   if (b) b.innerHTML = on ? `<span class="spin">↻</span> Refresh` : `↻ Refresh`;
 }
 
+function renderDiagnosticRail() {
+  const railEl = el("diagnostic-rail");
+  if (!railEl) return;
+  const { rows, health, refreshedAt, dataset } = queryState;
+  const relTime = fmtRelativeTime(refreshedAt);
+  const absTime = refreshedAt ? refreshedAt.toLocaleString() : "";
+  const rowTxt = `${fmtInt(rows)} rows`;
+  const healthLabel = health === "error" ? "● error" : health === "warn" ? "● warn" : "● ok";
+  railEl.innerHTML =
+    `<span class="rail-dataset">${esc(dataset)}</span>` +
+    `<span class="rail-sep" aria-hidden="true">·</span>` +
+    `<span class="rail-rows">${rowTxt}</span>` +
+    `<span class="rail-sep" aria-hidden="true">·</span>` +
+    `<span class="rail-health rail-health--${health}">${healthLabel}</span>` +
+    `<span class="rail-sep" aria-hidden="true">·</span>` +
+    `<span class="rail-time" title="${esc(absTime)}">${esc(relTime)}</span>`;
+}
+
 function updateChrome() {
   const p = currentPayload();
   const w = p && p.window;
   if (w && w.dataMin) {
     el("source-line").innerHTML =
-      `Hub database · <code>${esc(window.__cfg?.clusterUri || "localhost:8082")}</code> · ${esc(fmtDayRange(w.dataMin, w.dataMax))}`;
-    let meta;
-    if (state.tab === "tokenomics" && p.data) {
-      const s = p.data.summary?.[0] || {};
-      meta = `${fmtTokens(s.Tokens)} tokens · ${fmtMoney(s.Effective)} AI cost`;
-    } else {
-      meta = `${fmtInt(w.rows)} rows in range`;
-    }
-    el("footer-meta").textContent =
-      `${meta} · window ${w.start} → ${w.end} · refreshed ${new Date(p.generatedAt).toLocaleTimeString()}`;
+      `Hub database · <code>${esc(window.__cfg?.clusterUri || "localhost:8082")}</code>`;
+    queryState.dataset = `Hub database · ${fmtDayRange(w.dataMin, w.dataMax)}`;
+    queryState.rows = w.rows || 0;
+    queryState.health = queryState.rows === 0 ? "warn" : "ok";
+    queryState.refreshedAt = p.generatedAt ? new Date(p.generatedAt) : new Date();
+    el("footer-meta").textContent = `window ${w.start} → ${w.end}`;
+    renderDiagnosticRail();
   } else if (p && p.error) {
     el("source-line").textContent = "Connection failed — see panel below.";
     el("footer-meta").textContent = "";
+    queryState.health = "error";
+    queryState.refreshedAt = new Date();
+    queryState.dataset = "Hub database";
+    renderDiagnosticRail();
   }
 }
 

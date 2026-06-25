@@ -24,17 +24,19 @@
     </header>
 
     <nav class="tabs" id="tabs" role="tablist" aria-label="Dashboard views">
-      <button data-tab="overview" class="active" role="tab">Cost overview</button>
-      <button data-tab="allocation" role="tab">Allocation</button>
-      <button data-tab="rate" role="tab">Rate optimization</button>
-      <button data-tab="usage" role="tab">Usage &amp; unit economics</button>
-      <button data-tab="anomaly" role="tab">Anomalies &amp; forecast</button>
-      <button data-tab="tokenomics" role="tab">Tokenomics</button>
+      <button data-tab="overview" class="active" role="tab" aria-selected="true" aria-controls="content">Cost overview</button>
+      <button data-tab="allocation" role="tab" aria-selected="false" aria-controls="content">Allocation</button>
+      <button data-tab="rate" role="tab" aria-selected="false" aria-controls="content">Rate optimization</button>
+      <button data-tab="usage" role="tab" aria-selected="false" aria-controls="content">Usage &amp; unit economics</button>
+      <button data-tab="anomaly" role="tab" aria-selected="false" aria-controls="content">Anomalies &amp; forecast</button>
+      <button data-tab="tokenomics" role="tab" aria-selected="false" aria-controls="content">Tokenomics</button>
     </nav>
 
-    <main id="content">
+    <main id="content" role="tabpanel" aria-label="Dashboard content">
       <div class="loading" id="loading">Loading cost data…</div>
     </main>
+
+    <div id="diagnostic-rail" class="diagnostic-rail" aria-label="Query diagnostic information"></div>
 
     <footer class="app-footer">
       <span id="footer-meta"></span>
