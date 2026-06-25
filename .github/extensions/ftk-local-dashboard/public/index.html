@@ -43,6 +43,21 @@
       <span class="muted">Grounded in the FinOps Framework domains &amp; the FinOps toolkit query catalog.</span>
     </footer>
 
+    <dialog id="kql-dialog" aria-modal="true" aria-label="KQL query">
+      <div class="kql-dialog-inner">
+        <div class="kql-dialog-header">
+          <h3>KQL query</h3>
+          <button id="kql-close" class="btn" type="button" aria-label="Close dialog">✕</button>
+        </div>
+        <textarea id="kql-text" rows="14" spellcheck="false" autocomplete="off" aria-label="KQL query text"></textarea>
+        <p id="kql-error" class="kql-dialog-error" role="alert"></p>
+        <div class="kql-dialog-footer">
+          <button id="kql-copy" class="btn" type="button">Copy</button>
+          <button id="kql-run" class="btn btn-primary" type="button">Run</button>
+        </div>
+      </div>
+    </dialog>
+
     <script src="/app.js"></script>
   </body>
 </html>

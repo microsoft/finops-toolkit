@@ -12,6 +12,45 @@ const PALETTE = [
 const state = { preset: "all", tab: "overview", loading: false, cache: {} };
 const queryState = { rows: 0, health: "ok", refreshedAt: null, dataset: "Hub database" };
 
+/* ----------------------------------------------------------------- KQL templates */
+
+const PERIOD = "| where ChargePeriodStart >= datetime({start}) and ChargePeriodStart < datetime({end})";
+const NON_PURCH = "| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))";
+const AI_SCOPE = "| where x_SkuMeterSubcategory has 'OpenAI' and x_SkuDescription contains 'Token'";
+
+/* eslint-disable max-len */
+const PANEL_KQL = {
+  "overview-trend": ["Costs()", PERIOD, "| summarize Billed=sum(BilledCost), Effective=sum(EffectiveCost)", "    by Month=format_datetime(startofmonth(ChargePeriodStart),'yyyy-MM')", "| order by Month asc"].join("\n"),
+  "overview-top-services": ["Costs()", PERIOD, "| summarize Cost=sum(EffectiveCost) by ServiceName", "| top 10 by Cost desc"].join("\n"),
+  "overview-service-category": ["Costs()", PERIOD, "| summarize Cost=sum(EffectiveCost) by ServiceCategory", "| where Cost > 0 | order by Cost desc"].join("\n"),
+  "overview-top-rgs": ["Costs()", PERIOD, "| where isnotempty(x_ResourceGroupName)", "| summarize Cost=sum(EffectiveCost) by x_ResourceGroupName", "| top 10 by Cost desc"].join("\n"),
+  "overview-top-regions": ["Costs()", PERIOD, "| where isnotempty(RegionId)", "| summarize Cost=sum(EffectiveCost) by RegionId", "| top 12 by Cost desc"].join("\n"),
+  "overview-rate-coverage": ["Costs()", PERIOD, "| summarize Cost=sum(EffectiveCost) by PricingCategory"].join("\n"),
+  "overview-savings": ["Costs()", PERIOD, NON_PURCH, "| extend neg=iff(ListCost<ContractedCost,real(0),ListCost-ContractedCost)", "| extend com=iff(ContractedCost<EffectiveCost,real(0),ContractedCost-EffectiveCost)", "| summarize List=sum(ListCost), Effective=sum(EffectiveCost), Negotiated=sum(neg), Commitment=sum(com)"].join("\n"),
+  "overview-cost-allocation": ["Costs()", PERIOD, "| extend _t=iff(isnull(Tags) or array_length(bag_keys(Tags))==0,'Untagged','Tagged')", "| summarize Cost=sum(EffectiveCost) by _t"].join("\n"),
+  "token-trend": ["Costs()", PERIOD, AI_SCOPE, "| summarize Tokens=sum(ConsumedQuantity), Cost=sum(EffectiveCost)", "    by Month=format_datetime(startofmonth(ChargePeriodStart),'yyyy-MM')", "| order by Month asc"].join("\n"),
+  "token-by-model": ["Costs()", PERIOD, AI_SCOPE, "| extend Model=replace_regex(x_SkuDescription,@'^Azure OpenAI[^-]+-\\s*','')", "| extend Model=replace_regex(Model,@'(?i)[\\s-]+(inp|outp|chat|media).*$','')", "| summarize Tokens=sum(ConsumedQuantity), Cost=sum(EffectiveCost) by Model", "| top 12 by Cost desc"].join("\n"),
+  "token-direction": ["Costs()", PERIOD, AI_SCOPE, "| extend Direction=case(x_SkuDescription has 'Outp','Output',x_SkuDescription contains 'cached','Cached input',x_SkuDescription has 'Inp','Input','Other')", "| summarize Tokens=sum(ConsumedQuantity), Cost=sum(EffectiveCost) by Direction"].join("\n"),
+  "token-model-table": ["Costs()", PERIOD, AI_SCOPE, "| extend Model=replace_regex(x_SkuDescription,@'^Azure OpenAI[^-]+-\\s*','')", "| extend Model=replace_regex(Model,@'(?i)[\\s-]+(inp|outp|chat|media).*$','')", "| summarize Tokens=sum(ConsumedQuantity), Cost=sum(EffectiveCost) by Model", "| extend CostPer1K=iff(Tokens==0,0.0,Cost/Tokens*1000)", "| top 12 by Cost desc"].join("\n"),
+  "anomaly-daily": ["let s=datetime({start}); let e=datetime({end});", "Costs()", "| where ChargePeriodStart>=s and ChargePeriodStart<e", "| summarize DC=sum(EffectiveCost) by bin(ChargePeriodStart,1d)", "| make-series Cost=sum(DC) default=0.0 on ChargePeriodStart from s to e step 1d", "| extend (flag,score,baseline)=series_decompose_anomalies(Cost,1.5)", "| mv-expand Day=ChargePeriodStart to typeof(datetime), Cost to typeof(real), flag to typeof(real), baseline to typeof(real)", "| project Day, Cost=toreal(Cost), Flag=toint(flag), Baseline=toreal(baseline)"].join("\n"),
+  "anomaly-mom": ["Costs()", PERIOD, "| summarize Eff=sum(EffectiveCost) by M=startofmonth(ChargePeriodStart)", "| order by M asc | extend PrevEff=prev(Eff)", "| project Month=format_datetime(M,'yyyy-MM'), EffChangePct=iff(isempty(PrevEff),0.0,(Eff-PrevEff)*100.0/PrevEff), Eff"].join("\n"),
+  "anomaly-forecast": ["Costs()", PERIOD, "| summarize Eff=sum(EffectiveCost) by bin(ChargePeriodStart,1d)", "| make-series Actual=sum(Eff) default=0.0 on ChargePeriodStart step 1d", "| extend Fc=series_decompose_forecast(Actual,90)", "| mv-expand Day=ChargePeriodStart to typeof(datetime), Actual to typeof(real), Fc to typeof(real)", "| summarize Actual=sum(toreal(Actual)), Forecast=sum(toreal(Fc)) by M=startofmonth(Day)", "| order by M asc | project Month=format_datetime(M,'yyyy-MM'), Actual, Forecast"].join("\n"),
+  "usage-top-types": ["Costs()", PERIOD, "| where isnotempty(ResourceType)", "| summarize Count=count(), Cost=sum(EffectiveCost) by ResourceType", "| top 10 by Cost desc"].join("\n"),
+  "usage-per-core-series": ["Costs()", PERIOD, "| where x_SkuMeterCategory in ('Virtual Machines','Virtual Machine Licenses') and ChargeCategory=='Usage'", "| extend cores=toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores))", "| extend ch=iff(isnotempty(cores), toreal(cores*ConsumedQuantity), toreal(''))", "| summarize Eff=sum(EffectiveCost), CH=sum(ch) by x_SkuMeterSubcategory", "| where CH > 100 | extend PerCore=Eff/CH | top 10 by Eff desc"].join("\n"),
+  "usage-storage-tiers": ["Costs()", PERIOD, "| where ServiceCategory=='Storage' and ChargeCategory=='Usage'", "| extend Tier=case(x_SkuTier has_any('Hot','Standard','Premium'),'Frequent',x_SkuTier has_any('Cool','Cold','Archive'),'Infrequent','Unclassified')", "| summarize Cost=sum(EffectiveCost) by Tier", "| where Cost > 0 | order by Cost desc"].join("\n"),
+  "rate-savings": ["Costs()", PERIOD, NON_PURCH, "| extend neg=iff(ListCost<ContractedCost,real(0),ListCost-ContractedCost)", "| extend com=iff(ContractedCost<EffectiveCost,real(0),ContractedCost-EffectiveCost)", "| extend tot=iff(ListCost<EffectiveCost,real(0),ListCost-EffectiveCost)", "| summarize List=sum(ListCost), Effective=sum(EffectiveCost), Negotiated=sum(neg), Commitment=sum(com), Total=sum(tot)"].join("\n"),
+  "rate-commit-util": ["Costs()", PERIOD, "| where isnotempty(CommitmentDiscountId)", NON_PURCH, "| summarize Unused=sumif(EffectiveCost,CommitmentDiscountStatus=='Unused'), Total=sum(EffectiveCost)"].join("\n"),
+  "rate-core-hours": ["Costs()", PERIOD, "| extend cores=toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, 0))", "| extend ch=iff(cores>0, cores*ConsumedQuantity, toreal(''))", "| extend t=iff(isempty(CommitmentDiscountType),'On Demand',CommitmentDiscountType)", "| summarize CoreHours=sum(ch) by t", "| where CoreHours > 0 | order by CoreHours desc"].join("\n"),
+  "rate-underutil": ["Costs()", PERIOD, "| where isnotempty(CommitmentDiscountName)", NON_PURCH, "| summarize Unused=sumif(EffectiveCost,CommitmentDiscountStatus=='Unused'), Total=sum(EffectiveCost) by CommitmentDiscountName", "| where Unused > 0 | top 10 by Unused desc"].join("\n"),
+  "alloc-hierarchy": ["Costs()", PERIOD, "| extend Org=tostring(Tags['org']), Project=tostring(Tags['Project']), Env=tostring(Tags['env'])", "| summarize Cost=sum(EffectiveCost) by Org, Project, Env", "| where Cost > 0 | top 12 by Cost desc"].join("\n"),
+  "alloc-tagging": ["Costs()", PERIOD, "| extend _t=iff(isnull(Tags) or array_length(bag_keys(Tags))==0,'Untagged','Tagged')", "| summarize Cost=sum(EffectiveCost) by _t"].join("\n"),
+  "alloc-tag-keys": ["Costs()", PERIOD, "| mv-expand k=bag_keys(Tags) to typeof(string)", "| where isnotempty(k) and k !in ('ftk-tool','ftk-version','cm-resource-parent','costanalysis-parent')", "| summarize Cost=sum(EffectiveCost) by k", "| top 12 by Cost desc"].join("\n"),
+  "alloc-by-subscription": ["Costs()", PERIOD, "| where isnotempty(SubAccountName)", "| summarize Cost=sum(EffectiveCost) by SubAccountName", "| top 10 by Cost desc"].join("\n"),
+};
+/* eslint-enable max-len */
+
+let _kqlPanelId = null;
+
 /* ------------------------------------------------------------------ utils */
 
 function fmtMoney(n) {
@@ -503,6 +542,67 @@ function kpiCard(label, value, meta, accent, thresholdClass) {
 
 /* ---------------------------------------------------------------- render */
 
+function panelHtml(id, span, title, sub, body) {
+  const subHtml = sub ? `<p class="panel-sub">${sub}</p>` : "";
+  return `<div class="panel col-${span}" data-panel-id="${esc(id)}">
+    <div class="panel-header"><div><h3>${title}</h3>${subHtml}</div><button class="kql-btn" type="button" title="View KQL query" aria-label="View KQL query" data-panel-id="${esc(id)}">&lt;/&gt;</button></div>
+    <div class="panel-body">${body}</div>
+  </div>`;
+}
+
+function openKqlDialog(panelId) {
+  _kqlPanelId = panelId;
+  el("kql-text").value = PANEL_KQL[panelId] || "";
+  el("kql-error").textContent = "";
+  const prev = document.getElementById("kql-result");
+  if (prev) prev.remove();
+  el("kql-dialog").showModal();
+}
+
+async function executeKql() {
+  const kql = el("kql-text").value.trim();
+  const errEl = el("kql-error");
+  const runBtn = el("kql-run");
+  if (!kql) return;
+  errEl.textContent = "";
+  const prev = document.getElementById("kql-result");
+  if (prev) prev.remove();
+  runBtn.disabled = true;
+  runBtn.textContent = "Running…";
+  try {
+    const res = await fetch("/api/kql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kql }),
+    });
+    const data = await res.json();
+    if (data.error) {
+      errEl.textContent = data.error;
+    } else {
+      showKqlResult(data.rows || []);
+    }
+  } catch (err) {
+    errEl.textContent = "Request failed: " + err.message;
+  } finally {
+    runBtn.disabled = false;
+    runBtn.textContent = "Run";
+  }
+}
+
+function showKqlResult(rows) {
+  if (!rows.length) { el("kql-error").textContent = "Query returned no rows."; return; }
+  const cols = Object.keys(rows[0]);
+  const head = cols.map((c) => `<th>${esc(c)}</th>`).join("");
+  const body = rows.slice(0, 200).map((r) =>
+    `<tr>${cols.map((c) => `<td>${esc(String(r[c] ?? ""))}</td>`).join("")}</tr>`
+  ).join("");
+  const div = document.createElement("div");
+  div.id = "kql-result";
+  div.className = "kql-result";
+  div.innerHTML = `<p class="kql-result-meta">${rows.length} rows${rows.length > 200 ? " (showing first 200)" : ""}</p><div class="kql-result-scroll"><table class="dtable"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+  el("kql-dialog").querySelector(".kql-dialog-footer").before(div);
+}
+
 function renderOverview(p) {
   const content = el("content");
   if (!p) return;
@@ -540,60 +640,28 @@ function renderOverview(p) {
 
     <div class="section-title"><h2>Understand usage &amp; cost</h2><span class="domain">FinOps Framework</span></div>
     <div class="panel-grid">
-      <div class="panel col-12">
-        <h3>Monthly cost trend</h3>
-        <p class="panel-sub">Billed vs effective cost by month — executive run-rate view.</p>
-        ${lineChart(d.trend)}
-      </div>
-      <div class="panel col-6">
-        <h3>Top services by cost</h3>
-        <p class="panel-sub">Effective cost by Azure service.</p>
-        ${hbar(d.topServices, "ServiceName", "Cost")}
-      </div>
-      <div class="panel col-6">
-        <h3>Cost by service category</h3>
-        <p class="panel-sub">Where spend concentrates across categories.</p>
-        ${hbar(d.serviceCategory, "ServiceCategory", "Cost")}
-      </div>
+      ${panelHtml("overview-trend", 12, "Monthly cost trend", "Billed vs effective cost by month — executive run-rate view.", lineChart(d.trend))}
+      ${panelHtml("overview-top-services", 6, "Top services by cost", "Effective cost by Azure service.", hbar(d.topServices, "ServiceName", "Cost"))}
+      ${panelHtml("overview-service-category", 6, "Cost by service category", "Where spend concentrates across categories.", hbar(d.serviceCategory, "ServiceCategory", "Cost"))}
     </div>
 
     <div class="section-title"><h2>Optimize usage &amp; cost</h2><span class="domain">FinOps Framework</span></div>
     <div class="panel-grid">
-      <div class="panel col-6">
-        <h3>Top resource groups</h3>
-        <p class="panel-sub">Largest cost owners for allocation &amp; accountability.</p>
-        ${hbar(d.topResourceGroups, "x_ResourceGroupName", "Cost")}
-      </div>
-      <div class="panel col-6">
-        <h3>Cost by region</h3>
-        <p class="panel-sub">Regional spend for placement &amp; sustainability review.</p>
-        ${hbar(d.topRegions, "RegionId", "Cost")}
-      </div>
+      ${panelHtml("overview-top-rgs", 6, "Top resource groups", "Largest cost owners for allocation &amp; accountability.", hbar(d.topResourceGroups, "x_ResourceGroupName", "Cost"))}
+      ${panelHtml("overview-top-regions", 6, "Cost by region", "Regional spend for placement &amp; sustainability review.", hbar(d.topRegions, "RegionId", "Cost"))}
     </div>
 
     <div class="section-title"><h2>Quantify business value</h2><span class="domain">FinOps Framework</span></div>
     <div class="panel-grid">
-      <div class="panel col-4">
-        <h3>Rate coverage</h3>
-        <p class="panel-sub">Committed vs on-demand (standard) effective cost.</p>
-        ${donut([
-          { label: "Committed", value: k.committed, color: PALETTE[1] },
-          { label: "On-demand", value: Math.max(0, k.eff - k.committed), color: PALETTE[0] },
-        ], { centerBig: fmtPct(k.coverage), centerSmall: "covered" })}
-      </div>
-      <div class="panel col-4">
-        <h3>Savings breakdown</h3>
-        <p class="panel-sub">List → effective, by discount type.</p>
-        ${savingsTable(k)}
-      </div>
-      <div class="panel col-4">
-        <h3>Cost allocation</h3>
-        <p class="panel-sub">Tagged vs untagged effective cost.</p>
-        ${donut([
-          { label: "Tagged", value: k.tagged, color: PALETTE[1] },
-          { label: "Untagged", value: k.untagged, color: PALETTE[3] },
-        ], { centerBig: fmtPct(1 - k.untaggedPct), centerSmall: "tagged" })}
-      </div>
+      ${panelHtml("overview-rate-coverage", 4, "Rate coverage", "Committed vs on-demand (standard) effective cost.", donut([
+        { label: "Committed", value: k.committed, color: PALETTE[1] },
+        { label: "On-demand", value: Math.max(0, k.eff - k.committed), color: PALETTE[0] },
+      ], { centerBig: fmtPct(k.coverage), centerSmall: "covered" }))}
+      ${panelHtml("overview-savings", 4, "Savings breakdown", "List → effective, by discount type.", savingsTable(k))}
+      ${panelHtml("overview-cost-allocation", 4, "Cost allocation", "Tagged vs untagged effective cost.", donut([
+        { label: "Tagged", value: k.tagged, color: PALETTE[1] },
+        { label: "Untagged", value: k.untagged, color: PALETTE[3] },
+      ], { centerBig: fmtPct(1 - k.untaggedPct), centerSmall: "tagged" }))}
     </div>
   `;
   content.innerHTML = html;
@@ -670,33 +738,19 @@ function renderTokenomics(p) {
 
     <div class="section-title"><h2>AI token economics</h2><span class="domain">Token Consumption Metrics KPI</span></div>
     <div class="panel-grid">
-      <div class="panel col-12">
-        <h3>Token volume &amp; AI cost trend</h3>
-        <p class="panel-sub">Monthly token consumption (bars) and effective AI cost (line).</p>
-        ${tokenTrendChart(d.trend)}
-      </div>
-      <div class="panel col-6">
-        <h3>AI cost by model</h3>
-        <p class="panel-sub">Effective cost per model family.</p>
-        ${hbar((d.models || []).map((m) => ({ Model: m.Model, Cost: m.Cost })), "Model", "Cost")}
-      </div>
-      <div class="panel col-6">
-        <h3>Token direction mix</h3>
-        <p class="panel-sub">Input vs cached input vs output — by token volume.</p>
-        ${donut(dirSlices, {
+      ${panelHtml("token-trend", 12, "Token volume &amp; AI cost trend", "Monthly token consumption (bars) and effective AI cost (line).", tokenTrendChart(d.trend))}
+      ${panelHtml("token-by-model", 6, "AI cost by model", "Effective cost per model family.",
+        hbar((d.models || []).map((m) => ({ Model: m.Model, Cost: m.Cost })), "Model", "Cost"))}
+      ${panelHtml("token-direction", 6, "Token direction mix", "Input vs cached input vs output — by token volume.",
+        donut(dirSlices, {
           centerBig: fmtTokens(k.tokens), centerSmall: "tokens",
           valueFmt: (s) => `${fmtTokens(s.value)} · ${fmtMoney(s.cost)}`,
-        })}
-      </div>
+        }))}
     </div>
 
     <div class="section-title"><h2>Model efficiency</h2><span class="domain">Rate &amp; usage optimization</span></div>
     <div class="panel-grid">
-      <div class="panel col-12">
-        <h3>Cost per 1M tokens by model</h3>
-        <p class="panel-sub">Unit economics for model selection — sorted by effective cost.</p>
-        ${tokenModelTable(d.models, k.eff)}
-      </div>
+      ${panelHtml("token-model-table", 12, "Cost per 1M tokens by model", "Unit economics for model selection — sorted by effective cost.", tokenModelTable(d.models, k.eff))}
     </div>
   `;
 }
@@ -773,25 +827,13 @@ function renderAnomaly(p) {
 
     <div class="section-title"><h2>Cost anomalies</h2><span class="domain">Anomaly Management capability</span></div>
     <div class="panel-grid">
-      <div class="panel col-12">
-        <h3>Daily cost &amp; detected anomalies</h3>
-        <p class="panel-sub">Daily effective cost vs the expected baseline (STL decomposition); markers flag spikes &amp; drops.</p>
-        ${anomalyChart(daily)}
-      </div>
+      ${panelHtml("anomaly-daily", 12, "Daily cost &amp; detected anomalies", "Daily effective cost vs the expected baseline (STL decomposition); markers flag spikes &amp; drops.", anomalyChart(daily))}
     </div>
 
     <div class="section-title"><h2>Trend &amp; forecast</h2><span class="domain">Forecasting · Data freshness</span></div>
     <div class="panel-grid">
-      <div class="panel col-6">
-        <h3>Month-over-month change</h3>
-        <p class="panel-sub">Effective cost % change vs prior month (red = increase).</p>
-        ${momBars(mc)}
-      </div>
-      <div class="panel col-6">
-        <h3>Cost forecast</h3>
-        <p class="panel-sub">Monthly effective cost, actual vs forecast (next 3 months).</p>
-        ${forecastChart(fc, dataMaxMonth)}
-      </div>
+      ${panelHtml("anomaly-mom", 6, "Month-over-month change", "Effective cost % change vs prior month (red = increase).", momBars(mc))}
+      ${panelHtml("anomaly-forecast", 6, "Cost forecast", "Monthly effective cost, actual vs forecast (next 3 months).", forecastChart(fc, dataMaxMonth))}
     </div>
   `;
 }
@@ -855,21 +897,11 @@ function renderUsage(p) {
 
     <div class="section-title"><h2>Usage &amp; unit economics</h2><span class="domain">Usage Optimization · Unit Economics</span></div>
     <div class="panel-grid">
-      <div class="panel col-12">
-        <h3>Top resource types by cost</h3>
-        <p class="panel-sub">Resource count and effective spend per resource type.</p>
-        ${typeTable}
-      </div>
-      <div class="panel col-6">
-        <h3>Compute cost per core by VM series</h3>
-        <p class="panel-sub">Effective cost per vCPU-hour — highlights expensive (e.g. GPU) cores.</p>
-        ${hbar(d.perCoreSeries, "x_SkuMeterSubcategory", "PerCore")}
-      </div>
-      <div class="panel col-6">
-        <h3>Storage tier distribution</h3>
-        <p class="panel-sub">Effective storage cost by access tier (${fmtPct(freqShare)} classified frequent).</p>
-        ${donut(tierSlices, { centerBig: fmtMoney(s.Cost), centerSmall: "storage" })}
-      </div>
+      ${panelHtml("usage-top-types", 12, "Top resource types by cost", "Resource count and effective spend per resource type.", typeTable)}
+      ${panelHtml("usage-per-core-series", 6, "Compute cost per core by VM series", "Effective cost per vCPU-hour — highlights expensive (e.g. GPU) cores.",
+        hbar(d.perCoreSeries, "x_SkuMeterSubcategory", "PerCore"))}
+      ${panelHtml("usage-storage-tiers", 6, `Storage tier distribution`, `Effective storage cost by access tier (${fmtPct(freqShare)} classified frequent).`,
+        donut(tierSlices, { centerBig: fmtMoney(s.Cost), centerSmall: "storage" }))}
     </div>
   `;
 }
@@ -930,32 +962,19 @@ function renderRate(p) {
 
     <div class="section-title"><h2>Rate optimization</h2><span class="domain">Rate Optimization capability</span></div>
     <div class="panel-grid">
-      <div class="panel col-7">
-        <h3>Savings breakdown</h3>
-        <p class="panel-sub">List → effective cost by discount type (effective savings rate).</p>
-        ${savingsBreak}
-      </div>
-      <div class="panel col-5">
-        <h3>Commitment utilization</h3>
-        <p class="panel-sub">Used vs unused commitment effective cost.</p>
-        ${donut([
+      ${panelHtml("rate-savings", 7, "Savings breakdown", "List → effective cost by discount type (effective savings rate).", savingsBreak)}
+      ${panelHtml("rate-commit-util", 5, "Commitment utilization", "Used vs unused commitment effective cost.",
+        donut([
           { label: "Used", value: cmTotal - (cm.Unused || 0), color: PALETTE[1] },
           { label: "Unused (waste)", value: cm.Unused || 0, color: PALETTE[3] },
-        ], { centerBig: fmtPct(util), centerSmall: "utilized" })}
-      </div>
-      <div class="panel col-6">
-        <h3>Core-hour coverage</h3>
-        <p class="panel-sub">Consumed core-hours by commitment type.</p>
-        ${donut(coreSlices, {
+        ], { centerBig: fmtPct(util), centerSmall: "utilized" }))}
+      ${panelHtml("rate-core-hours", 6, "Core-hour coverage", "Consumed core-hours by commitment type.",
+        donut(coreSlices, {
           centerBig: fmtPct(coreShare), centerSmall: "committed",
           valueFmt: (s) => `${fmtTokens(s.value)} core-hrs`,
-        })}
-      </div>
-      <div class="panel col-6">
-        <h3>Underutilized commitments</h3>
-        <p class="panel-sub">Reservations &amp; plans with the most unused cost.</p>
-        ${hbar(d.byCommitment, "CommitmentDiscountName", "Unused")}
-      </div>
+        }))}
+      ${panelHtml("rate-underutil", 6, "Underutilized commitments", "Reservations &amp; plans with the most unused cost.",
+        hbar(d.byCommitment, "CommitmentDiscountName", "Unused"))}
     </div>
   `;
 }
@@ -1018,29 +1037,14 @@ function renderAllocation(p) {
 
     <div class="section-title"><h2>Cost allocation</h2><span class="domain">Allocation capability</span></div>
     <div class="panel-grid">
-      <div class="panel col-8">
-        <h3>Cost by financial hierarchy</h3>
-        <p class="panel-sub">Org → project → environment (from resource tags), with share of total.</p>
-        ${hierTable}
-      </div>
-      <div class="panel col-4">
-        <h3>Tagging coverage</h3>
-        <p class="panel-sub">Tagged vs untagged effective cost.</p>
-        ${donut([
+      ${panelHtml("alloc-hierarchy", 8, "Cost by financial hierarchy", "Org → project → environment (from resource tags), with share of total.", hierTable)}
+      ${panelHtml("alloc-tagging", 4, "Tagging coverage", "Tagged vs untagged effective cost.",
+        donut([
           { label: "Tagged", value: total - c.Untagged, color: PALETTE[1] },
           { label: "Untagged", value: c.Untagged, color: PALETTE[3] },
-        ], { centerBig: fmtPct(1 - untaggedPct), centerSmall: "tagged" })}
-      </div>
-      <div class="panel col-6">
-        <h3>Cost by tag key</h3>
-        <p class="panel-sub">Effective cost touched by each governance tag.</p>
-        ${hbar(d.tagKeys, "k", "Cost")}
-      </div>
-      <div class="panel col-6">
-        <h3>Cost by subscription</h3>
-        <p class="panel-sub">Spend per billing scope for showback.</p>
-        ${hbar(d.bySubscription, "SubAccountName", "Cost")}
-      </div>
+        ], { centerBig: fmtPct(1 - untaggedPct), centerSmall: "tagged" }))}
+      ${panelHtml("alloc-tag-keys", 6, "Cost by tag key", "Effective cost touched by each governance tag.", hbar(d.tagKeys, "k", "Cost"))}
+      ${panelHtml("alloc-by-subscription", 6, "Cost by subscription", "Spend per billing scope for showback.", hbar(d.bySubscription, "SubAccountName", "Cost"))}
     </div>
   `;
 }
@@ -1162,6 +1166,18 @@ function wireControls() {
     if (state.cache[state.tab]) delete state.cache[state.tab][state.preset]; // force re-query
     load();
   });
+
+  // KQL dialog controls
+  el("kql-close").addEventListener("click", () => el("kql-dialog").close());
+  el("kql-copy").addEventListener("click", () => navigator.clipboard.writeText(el("kql-text").value));
+  el("kql-run").addEventListener("click", executeKql);
+
+  // KQL escape-hatch buttons (event delegation — buttons injected by panelHtml)
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".kql-btn[data-panel-id]");
+    if (btn) openKqlDialog(btn.dataset.panelId);
+  });
+
   let t;
   window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(render, 180); });
 }
