@@ -9,7 +9,7 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { joinSession, createCanvas, CanvasError } from "@github/copilot-sdk/extension";
-import { getDashboard, getTokenomics, getAllocation, getRate, getUsage, getAnomaly } from "./kusto.mjs";
+import { runQuery, getDashboard, getTokenomics, getAllocation, getRate, getUsage, getAnomaly } from "./kusto.mjs";
 
 const GETTERS = {
   overview: getDashboard,
@@ -40,6 +40,19 @@ function sendJson(res, status, obj) {
   res.end(body);
 }
 
+function logError(context, err) {
+  console.error(`[ftk-local-dashboard] ${context}`, err);
+}
+
+function sendQueryError(res, entry, viewName, err) {
+  logError(`Could not query ${viewName} for ${entry.clusterUri}/${entry.database}`, err);
+  sendJson(res, 200, {
+    error: "Could not query the local FinOps hub. Check the extension logs for details.",
+    clusterUri: entry.clusterUri,
+    database: entry.database,
+  });
+}
+
 async function handleRequest(entry, req, res) {
   const url = new URL(req.url, "http://127.0.0.1");
   const path = url.pathname;
@@ -51,8 +64,9 @@ async function handleRequest(entry, req, res) {
       res.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store" });
       res.end(buf);
     } catch (err) {
+      logError(`Could not serve asset ${file}`, err);
       res.writeHead(500, { "Content-Type": "text/plain" });
-      res.end(`Asset error: ${err.message}`);
+      res.end("Asset error");
     }
     return;
   }
@@ -68,7 +82,7 @@ async function handleRequest(entry, req, res) {
       const payload = await getDashboard(entry.clusterUri, entry.database, preset);
       sendJson(res, 200, payload);
     } catch (err) {
-      sendJson(res, 200, { error: String(err?.message ?? err), clusterUri: entry.clusterUri, database: entry.database });
+      sendQueryError(res, entry, "overview", err);
     }
     return;
   }
@@ -79,7 +93,7 @@ async function handleRequest(entry, req, res) {
       const payload = await getTokenomics(entry.clusterUri, entry.database, preset);
       sendJson(res, 200, payload);
     } catch (err) {
-      sendJson(res, 200, { error: String(err?.message ?? err), clusterUri: entry.clusterUri, database: entry.database });
+      sendQueryError(res, entry, "tokenomics", err);
     }
     return;
   }
@@ -93,7 +107,23 @@ async function handleRequest(entry, req, res) {
       const payload = await getter(entry.clusterUri, entry.database, preset);
       sendJson(res, 200, payload);
     } catch (err) {
-      sendJson(res, 200, { error: String(err?.message ?? err), clusterUri: entry.clusterUri, database: entry.database });
+      sendQueryError(res, entry, name, err);
+    }
+    return;
+  }
+
+  if (path === "/api/kql" && req.method === "POST") {
+    let body = "";
+    for await (const chunk of req) body += chunk;
+    let kql, database;
+    try { ({ kql, database } = JSON.parse(body)); } catch { sendJson(res, 400, { error: "Invalid JSON" }); return; }
+    if (!kql) { sendJson(res, 400, { error: "Missing kql" }); return; }
+    try {
+      const rows = await runQuery(entry.clusterUri, database || entry.database, kql);
+      sendJson(res, 200, { rows });
+    } catch (err) {
+      logError("Custom KQL error", err);
+      sendJson(res, 200, { error: err.message || "Query failed" });
     }
     return;
   }
@@ -105,7 +135,12 @@ async function handleRequest(entry, req, res) {
 async function startServer(entry) {
   const server = createServer((req, res) => {
     handleRequest(entry, req, res).catch((err) => {
-      try { sendJson(res, 500, { error: String(err?.message ?? err) }); } catch { /* noop */ }
+      logError("Unhandled dashboard request failure", err);
+      if (res.headersSent) {
+        res.destroy();
+      } else {
+        sendJson(res, 500, { error: "Unexpected dashboard server error" });
+      }
     });
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -204,7 +239,8 @@ await joinSession({
               const payload = await getDashboard(clusterUri, database, preset);
               return headline(payload);
             } catch (err) {
-              throw new CanvasError("query_failed", `Could not query ${clusterUri}/${database}: ${err?.message ?? err}`);
+              logError(`Could not query summary for ${clusterUri}/${database}`, err);
+              throw new CanvasError("query_failed", "Could not query the local FinOps hub. Check the extension logs for details.");
             }
           },
         },
@@ -226,7 +262,8 @@ await joinSession({
               const payload = await getTokenomics(clusterUri, database, preset);
               return tokenHeadline(payload);
             } catch (err) {
-              throw new CanvasError("query_failed", `Could not query ${clusterUri}/${database}: ${err?.message ?? err}`);
+              logError(`Could not query tokenomics for ${clusterUri}/${database}`, err);
+              throw new CanvasError("query_failed", "Could not query the local FinOps hub. Check the extension logs for details.");
             }
           },
         },
