@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FinOps hub — local dashboard</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="title-block">
+        <h1>FinOps hub <span class="muted">·</span> local</h1>
+        <p class="sub" id="source-line">Connecting to the Kusto emulator…</p>
+      </div>
+      <div class="controls">
+        <div class="seg" id="preset" role="group" aria-label="Time range">
+          <button data-preset="3m">3M</button>
+          <button data-preset="6m">6M</button>
+          <button data-preset="12m">12M</button>
+          <button data-preset="all" class="active">All</button>
+        </div>
+        <button id="refresh" class="btn" title="Re-run queries">↻ Refresh</button>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Dashboard views">
+      <button data-tab="overview" class="active" role="tab">Cost overview</button>
+      <button data-tab="allocation" role="tab">Allocation</button>
+      <button data-tab="rate" role="tab">Rate optimization</button>
+      <button data-tab="usage" role="tab">Usage &amp; unit economics</button>
+      <button data-tab="anomaly" role="tab">Anomalies &amp; forecast</button>
+      <button data-tab="tokenomics" role="tab">Tokenomics</button>
+    </nav>
+
+    <main id="content">
+      <div class="loading" id="loading">Loading cost data…</div>
+    </main>
+
+    <footer class="app-footer">
+      <span id="footer-meta"></span>
+      <span class="muted">Grounded in the FinOps Framework domains &amp; the FinOps toolkit query catalog.</span>
+    </footer>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
