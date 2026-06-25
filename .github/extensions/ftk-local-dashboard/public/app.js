@@ -575,11 +575,18 @@ async function executeKql() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ kql }),
     });
+    if (!res.ok) { errEl.textContent = `Server error ${res.status}`; return; }
     const data = await res.json();
     if (data.error) {
       errEl.textContent = data.error;
     } else {
-      showKqlResult(data.rows || []);
+      const rows = data.rows || [];
+      if (!rows.length) {
+        errEl.textContent = "Query returned no rows.";
+      } else {
+        el("kql-dialog").close();
+        renderKqlResultInPanel(_kqlPanelId, rows);
+      }
     }
   } catch (err) {
     errEl.textContent = "Request failed: " + err.message;
@@ -589,18 +596,15 @@ async function executeKql() {
   }
 }
 
-function showKqlResult(rows) {
-  if (!rows.length) { el("kql-error").textContent = "Query returned no rows."; return; }
+function renderKqlResultInPanel(panelId, rows) {
+  const panelBody = document.querySelector(`[data-panel-id="${panelId}"] .panel-body`);
+  if (!panelBody) return;
   const cols = Object.keys(rows[0]);
   const head = cols.map((c) => `<th>${esc(c)}</th>`).join("");
   const body = rows.slice(0, 200).map((r) =>
     `<tr>${cols.map((c) => `<td>${esc(String(r[c] ?? ""))}</td>`).join("")}</tr>`
   ).join("");
-  const div = document.createElement("div");
-  div.id = "kql-result";
-  div.className = "kql-result";
-  div.innerHTML = `<p class="kql-result-meta">${rows.length} rows${rows.length > 200 ? " (showing first 200)" : ""}</p><div class="kql-result-scroll"><table class="dtable"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
-  el("kql-dialog").querySelector(".kql-dialog-footer").before(div);
+  panelBody.innerHTML = `<p class="kql-result-meta">${rows.length} rows${rows.length > 200 ? " (showing first 200)" : ""}</p><div class="kql-result-scroll"><table class="dtable"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
 function renderOverview(p) {
