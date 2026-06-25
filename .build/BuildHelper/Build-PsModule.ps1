@@ -58,7 +58,7 @@ function Build-PsModule
         RequiredModules   = @(
             @{
                 ModuleName    = 'Az.Accounts'
-                ModuleVersion = '2.11.1'
+                ModuleVersion = '2.17.0'
             },
             @{
                 ModuleName    = 'Az.Resources'

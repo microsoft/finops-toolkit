@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 06/03/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -157,7 +157,7 @@ The core engine for FinOps hubs is deployed via an Azure Resource Manager deploy
    - We don't recommend changing either setting for your initial deployment.
    - If using Data Explorer, the storage account is a temporary data store and shouldn't need geo-redundancy.
    - Most deployments doesn't require a larger Data Explorer SKU. We recommend starting with the dev/test cluster and monitoring performance before scaling up or out.
-   - For details about scaling Data Explorer, see [Select a SKU for your cluster](/azure/data-explorer/manage-cluster-choose-sku).
+   - Not all Data Explorer SKUs are available in every region. If you change the SKU, confirm it's available in your target region first. See [Select a SKU for your cluster](/azure/data-explorer/manage-cluster-choose-sku) for guidance and [common errors](../help/errors.md#the-sku-skuname-is-not-supported-in-region) if deployment fails.
 8. Select the **Next** button at the bottom of the form.
 9. Set the desired data retention periods.
    - Raw data retention refers to data added to Data Explorer, but not normalized into the final tables. Use 0 unless you need to troubleshoot ingestion issues. This number indicates retention in days.
@@ -354,9 +354,30 @@ To ingest data from other data providers that support FOCUS, such as Amazon Web 
      - `{scope}` represents a logical, consistent identifier for the dataset. This value can be any valid path using one or more nested folders.
    - If the provider generates nonoverlapping deltas in each dataset, add an extra folder for the day and/or hour (`dd` or `dd/hh`) between the month and scope folders.
      - The goal is to ensure that overriding datasets should consistently land in the same folder path so they're overwritten each time. Nonoverlapping datasets should be pushed to a new folder path.
-3. Create an empty `manifest.json` file in the same folder.
-   - Data Explorer ingestion is triggered when manifest.json files are added or updated.
-4. If there are any columns not covered in the current ingestion process, update the **Costs_raw** and **Costs_final_v1_0** tables, and **Costs_transform_v1_0**, **Costs_v1_0**, and **Costs** functions accordingly.
+   - Name every parquet file using the pattern `<ingestionId>__<originalFileName>.parquet` (two underscores separating the two parts).
+     - `ingestionId` identifies a single logical ingestion run and must be identical on all files produced by that run (for example a timestamp or GUID).
+     - `originalFileName` is any identifier unique within that run (for example a shard or partition number).
+     - The pipeline derives the ingestion ID by splitting the file name on `__`. Every file that shares the same `ingestionId` is treated as part of the same run; extents from previous runs in the same folder are dropped once the new run succeeds.
+   <!-- prettier-ignore-start -->
+   > [!IMPORTANT]
+   > **Each run must replace the full contents of its folder path**
+   >
+   > When re-ingesting into a folder that already contains data, you must both (1) include the complete dataset for the period in the new run (not just incremental rows), and (2) delete all `.parquet` files from previous runs before uploading the new ones. Otherwise, the pipeline processes old and new files together and each file's pre-ingest cleanup drops extents tagged with a different `ingestionId` — only the files sharing the last `ingestionId` processed survive in Data Explorer.
+   >
+   > If a provider emits nonoverlapping deltas, give each delta its own folder path using a `dd` or `dd/hh` subfolder as described above. Each folder is then independently replaced on its next run instead of being merged.
+   >
+   > The managed Cost Management export pipeline handles this cleanup automatically, but custom ingestion workflows must implement it themselves.
+   <!-- prettier-ignore-end -->
+   <!-- prettier-ignore-start -->
+   > [!TIP]
+   > **Filter out empty parquet shards before upload**
+   >
+   > Tools that produce partitioned parquet output (for example BigQuery `EXPORT DATA` or Spark `write.parquet`) often emit header-only empty shards. Data Explorer rejects these with `BadRequest_NoRecordsOrWrongFormat`, and each failure is retried three times at 120-second intervals, adding several minutes of delay per empty file. Filter out shards that contain no rows before copying them to the **ingestion** container.
+   <!-- prettier-ignore-end -->
+3. Upload the `manifest.json` file **after** all parquet files have finished uploading. The file must contain at least `{}` — a zero-byte file is ignored by the storage event trigger (`ignoreEmptyBlobs: true`) and won't start ingestion.
+   - Data Explorer ingestion is triggered when manifest.json files are added or updated. The pipeline waits 60 seconds and then enumerates the folder; any parquet files that arrive after that enumeration are skipped by the current run.
+   - The pipeline doesn't parse the manifest content, so any valid JSON is accepted. You can embed audit metadata such as the `ingestionId` or an export timestamp if useful.
+4. If there are any columns not covered in the current ingestion process, update the **Costs_raw** and **Costs_final_v1_2** tables, and **Costs_transform_v1_2**, **Costs_v1_2**, and **Costs** functions accordingly.
    - Submit a [feature request](https://aka.ms/ftk/ideas) to add new columns to the default ingestion code to ensure customizations don't block future upgrades.
 
 <br>
@@ -539,7 +560,7 @@ For more information, see [Configure Data Explorer dashboards](configure-dashboa
    - **Azure Data Explorer (Kusto)** &ndash; Use an account that has at least viewer access to the Hub and Ingestion databases.
    - **Azure Resource Graph** &ndash; Use an account that has direct access to any subscriptions you would like to report on.
    - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access.
-   - **<https://ccmstorageprod>...** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
+   - **<https://ccmstorageprod.blob.core.windows.net/costmanagementconnector-data/AutofitComboMeterData.csv>** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
    - **<https://github.com/>...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
 
 For more information, see [Set up Power BI reports](../power-bi/setup.md).

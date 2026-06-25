@@ -7,7 +7,8 @@
 
     .DESCRIPTION
     The Start-Release command determines the current release state and performs the next steps that can be automated.
-    Steps include: ensuring a release tracking issue exists, updating the Bicep CLI, and querying milestone data.
+    Steps include: ensuring a release tracking issue exists, bumping the version, updating commitment discount
+    eligibility data, updating the Bicep CLI, and querying milestone data.
 
     .PARAMETER DaysUntilRelease
     Optional. Number of days until the expected release date. Used to determine the release month when running
@@ -175,7 +176,32 @@ else
     }
 }
 
-# --- Step 2: Update Bicep CLI ---
+# --- Step 2: Update version ---
+
+# Strip prerelease label to get the release version (e.g., "14.0-dev" -> "14.0.0")
+$releaseVersion = ($version -replace '-.*$', '')
+if ($releaseVersion -notmatch '^\d+\.\d+\.\d+$')
+{
+    # Ensure 3-part version (e.g., "14.0" -> "14.0.0")
+    $parts = $releaseVersion -split '\.'
+    while ($parts.Count -lt 3) { $parts += '0' }
+    $releaseVersion = $parts[0..2] -join '.'
+}
+
+Write-Host "Updating version to $releaseVersion..." -ForegroundColor Cyan
+& (Join-Path $PSScriptRoot 'Update-Version.ps1') -Version $releaseVersion -Verbose
+$version = & (Join-Path $PSScriptRoot 'Get-Version.ps1')
+$versionTag = & (Join-Path $PSScriptRoot 'Get-Version.ps1') -AsTag
+Write-Host "Version updated to $version ($versionTag)" -ForegroundColor Green
+
+# --- Step 3: Update commitment discount eligibility ---
+
+Write-Host ""
+Write-Host "Updating commitment discount eligibility data..." -ForegroundColor Cyan
+& (Join-Path $PSScriptRoot 'Update-CommitmentDiscountEligibility.ps1')
+Write-Host "Commitment discount eligibility updated." -ForegroundColor Green
+
+# --- Step 4: Update Bicep CLI ---
 
 Write-Host ""
 Write-Host "Updating Bicep CLI..." -ForegroundColor Cyan
@@ -189,7 +215,7 @@ else
     Write-Host "Bicep CLI updated." -ForegroundColor Green
 }
 
-# --- Step 3: Query milestone issues and PRs ---
+# --- Step 5: Query milestone issues and PRs ---
 
 Write-Host ""
 Write-Host "Querying milestone data..." -ForegroundColor Cyan
@@ -254,7 +280,7 @@ if ($milestone)
     Write-Host "  Issues: $($milestoneIssues.Count)  PRs: $($milestonePRs.Count)" -ForegroundColor Gray
 }
 
-# --- Step 4: Query untriaged issues ---
+# --- Step 6: Query untriaged issues ---
 
 Write-Host ""
 Write-Host "Querying untriaged issues..." -ForegroundColor Cyan
