@@ -170,6 +170,30 @@ body {
 .kpi--primary .value { font-size: 28px; }
 .kpi--reference { opacity: 0.75; }
 
+/* ---------- KPI threshold tooltip ---------- */
+.kpi-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: 600 9px/1 var(--font-sans, -apple-system, sans-serif);
+  padding: 0;
+  margin-left: 4px;
+  vertical-align: middle;
+  transition: color 0.15s, border-color 0.15s;
+}
+.kpi-tip:hover, .kpi-tip:focus-visible {
+  color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 /* ---------- KPI threshold state: value text carries the signal ---------- */
 .threshold-green { border-color: var(--pos); }
 .threshold-amber { border-color: var(--warn); }
@@ -177,6 +201,22 @@ body {
 .threshold-green .value { color: var(--pos); }
 .threshold-amber .value { color: var(--warn); }
 .threshold-red   .value { color: var(--neg); }
+
+/* ---------- triage arrival context banner ---------- */
+.triage-callout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: color-mix(in srgb, var(--warn) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--warn) 75%, #000);
+  margin-bottom: 16px;
+}
+.triage-callout-icon { font-size: 15px; flex-shrink: 0; line-height: 1; }
 
 /* ---------- triage strip ---------- */
 .triage-strip {
@@ -441,7 +481,7 @@ svg { display: block; width: 100%; overflow: visible; }
   cursor: pointer;
   font: 600 10px/1 ui-monospace, monospace;
   padding: 4px 7px;
-  opacity: 0.7;
+  opacity: 0.85;
   transition: opacity 0.15s, background 0.15s, color 0.15s;
 }
 .kql-btn:hover {

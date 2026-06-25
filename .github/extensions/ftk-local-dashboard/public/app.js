@@ -277,7 +277,7 @@ function hbar(rows, nameKey, valKey, opts = {}) {
     if (isSelected) cls += " hbar-selected";
     if (isDimmed) cls += " hbar-dimmed";
     const dimAttr = filterDim ? ` data-filter-dim="${esc(filterDim)}" data-filter-val="${esc(d.name)}"` : "";
-    const interactiveAttrs = filterDim ? ` tabindex="0" role="button" aria-label="Filter by ${esc(d.name)}, ${fmtMoney(d.val)}"` : "";
+    const interactiveAttrs = filterDim ? ` tabindex="0" role="button" aria-pressed="${isSelected ? 'true' : 'false'}" aria-label="Filter by ${esc(d.name)}, ${fmtMoney(d.val)}"` : "";
     g += `<g class="${cls}"${dimAttr}${interactiveAttrs}>`;
     g += `<text class="name" x="0" y="${cy + 4}">${esc(trunc(d.name, 20))}<title>${esc(d.name)}</title></text>`;
     g += `<rect class="hbar" x="${barX}" y="${cy - 9}" width="${w}" height="18" rx="4" fill="${color}"><title>${esc(d.name)}\n${fmtMoneyFull(d.val)} · ${fmtPct(pct)}</title></rect>`;
@@ -623,24 +623,37 @@ function isPartialMonth() {
   return now.getDate() < new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 }
 
+const KPI_TIPS = {
+  "Untagged cost": "% of spend on resources missing tags. Target: <10% · Review: <25% · Urgent: ≥25%. Tagging enables accurate showback and chargeback.",
+  "Commitment waste": "% of RI/savings-plan spend on unused capacity. Target: <5% · Review: <10% · Urgent: ≥10%. Idle commitments erode net savings.",
+  "Effective savings rate": "Negotiated + commitment savings as % of list price. Higher = better. Enterprise customers typically target ≥15–20%.",
+  "Commitment coverage": "Compute spend covered by RIs or savings plans. Target: ≥60% for steady workloads. Higher coverage → lower effective rate.",
+  "Compute coverage": "On-demand core-hours offset by commitments. Target: ≥60%. Tracks whether savings plan scope is sufficient.",
+  "MACC burn rate": "Microsoft Azure Consumption Commitment utilization. Target: ≥90% to avoid forfeiting unused balance at term end.",
+  "Anomaly days": "Days where daily cost deviated significantly from the expected baseline (STL decomposition). Review flagged dates for unexpected spend.",
+};
+
 function kpiCard(label, value, meta, accent, thresholdClass) {
   // Determine hierarchy class based on label
   const primaryLabels = ["Untagged cost", "Commitment waste", "Effective savings rate"];
   const referenceLabels = ["Commitment coverage", "Compute coverage", "Total tokens", "Anomaly days"];
-  
+
   let hierarchyClass = "";
   if (primaryLabels.includes(label)) {
     hierarchyClass = "kpi--primary";
   } else if (referenceLabels.includes(label)) {
     hierarchyClass = "kpi--reference";
   }
-  
+
   // Combine threshold and hierarchy classes
   const classArray = [thresholdClass, hierarchyClass].filter(Boolean);
   const cls = classArray.length > 0 ? ` ${classArray.join(" ")}` : "";
-  
+
+  const tip = KPI_TIPS[label];
+  const tipHtml = tip ? ` <button class="kpi-tip" type="button" tabindex="0" title="${esc(tip)}" aria-label="Threshold guidance: ${esc(label)}">?</button>` : "";
+
   return `<div class="kpi${cls}">
-    <div class="label">${esc(label)}</div>
+    <div class="label">${esc(label)}${tipHtml}</div>
     <div class="value">${value}</div>
     <div class="meta">${meta}</div>
   </div>`;
@@ -651,7 +664,7 @@ function kpiCard(label, value, meta, accent, thresholdClass) {
 function panelHtml(id, span, title, sub, body) {
   const subHtml = sub ? `<p class="panel-sub">${sub}</p>` : "";
   return `<div class="panel col-${span}" data-panel-id="${esc(id)}">
-    <div class="panel-header"><div><h3>${title}</h3>${subHtml}</div><button class="kql-btn" type="button" title="View KQL query" aria-label="View KQL query" data-panel-id="${esc(id)}">&lt;/&gt;</button></div>
+    <div class="panel-header"><div><h3>${title}</h3>${subHtml}</div><button class="kql-btn" type="button" title="View KQL query" aria-label="View KQL query" data-panel-id="${esc(id)}">KQL</button></div>
     <div class="panel-body">${body}</div>
   </div>`;
 }
@@ -976,7 +989,12 @@ function renderAnomaly(p) {
       `median ingestion lag (P50)`, PALETTE[2]),
   ].join("");
 
+  const triageCallout = anomDays.length > 0
+    ? `<div class="triage-callout" role="status"><span class="triage-callout-icon" aria-hidden="true">⚠</span>${fmtInt(anomDays.length)} anomal${anomDays.length === 1 ? "y day" : "y days"} detected — ${fmtMoney(anomCost)} in flagged spend. Review the chart below.</div>`
+    : "";
+
   content.innerHTML = `
+    ${triageCallout}
     <div class="kpi-grid">${kpis}</div>
 
     <div class="section-title"><h2>Cost anomalies</h2><span class="domain">Anomaly Management capability</span></div>
@@ -1122,7 +1140,13 @@ function renderRate(p) {
   const coreColors = { "On Demand": PALETTE[0], "Reservation": PALETTE[1], "Savings Plan": PALETTE[4] };
   const coreSlices = (d.coreHours || []).map((r) => ({ label: r.t, value: r.CoreHours || 0, color: coreColors[r.t] || PALETTE[6] }));
 
+  const underutilCount = (d.byCommitment || []).filter((r) => (r.Unused || 0) > 0).length;
+  const rateCallout = underutilCount > 0
+    ? `<div class="triage-callout" role="status"><span class="triage-callout-icon" aria-hidden="true">⚠</span>${fmtInt(underutilCount)} underutilized commitment${underutilCount === 1 ? "" : "s"} found — ${fmtMoney(cm.Unused)} in unused spend. See the commitments panel below.</div>`
+    : "";
+
   content.innerHTML = `
+    ${rateCallout}
     <div class="kpi-grid">${kpis}</div>
 
     <div class="section-title"><h2>Rate optimization</h2><span class="domain">Rate Optimization capability</span></div>
