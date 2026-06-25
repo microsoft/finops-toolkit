@@ -70,7 +70,8 @@ body {
   border: 0;
   background: transparent;
   color: var(--text-color-default, #1f2328);
-  padding: 6px 13px;
+  padding: 10px 13px;
+  min-height: 44px;
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
@@ -85,7 +86,8 @@ body {
   border: 1px solid var(--grid);
   background: var(--card-bg);
   color: var(--text-color-default, #1f2328);
-  padding: 6px 13px;
+  padding: 10px 13px;
+  min-height: 44px;
   border-radius: 9px;
   font-size: 12.5px;
   font-weight: 600;
@@ -108,7 +110,8 @@ body {
   color: var(--muted);
   font-size: 13.5px;
   font-weight: 620;
-  padding: 9px 14px 11px;
+  padding: 12px 14px 14px;
+  min-height: 44px;
   cursor: pointer;
   position: relative;
   border-radius: 8px 8px 0 0;
@@ -135,21 +138,13 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--grid);
   border-radius: var(--radius);
+  box-shadow: inset 0 3px 0 var(--kpi-accent, var(--accent));
   padding: 15px 16px 14px;
   position: relative;
   overflow: hidden;
 }
-.kpi::before {
-  content: "";
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--kpi-accent, var(--accent));
-}
 .kpi .label {
   font-size: 11.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
   color: var(--muted);
   font-weight: 600;
 }
@@ -164,6 +159,11 @@ body {
 .kpi .meta .pos { color: var(--pos); font-weight: 650; }
 .kpi .meta .neg { color: var(--neg); font-weight: 650; }
 .kpi .meta .warn { color: var(--warn); font-weight: 650; }
+
+/* ---------- KPI threshold badges ---------- */
+.threshold-green { border-color: var(--pos); }
+.threshold-amber { border-color: var(--warn); }
+.threshold-red   { border-color: var(--neg); }
 
 /* ---------- sections & panels ---------- */
 .section-title {
@@ -181,8 +181,6 @@ body {
 .section-title .domain {
   font-size: 11px;
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .panel-grid {
@@ -244,7 +242,7 @@ svg { display: block; width: 100%; overflow: visible; }
 .dtable { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .dtable th, .dtable td { padding: 9px 10px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
 .dtable th:first-child, .dtable td:first-child { text-align: left; }
-.dtable thead th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+.dtable thead th { color: var(--muted); font-weight: 600; font-size: 11px; }
 .dtable tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .dtable .model { display: inline-flex; align-items: center; gap: 7px; font-weight: 580; }
 .dtable .swatch { width: 9px; height: 9px; border-radius: 3px; flex: none; }
@@ -298,3 +296,14 @@ svg { display: block; width: 100%; overflow: visible; }
 
 .spin { animation: spin 0.8s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- accessibility ---------- */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin { animation: none; }
+}

@@ -410,8 +410,20 @@ function deriveKpis(d) {
   };
 }
 
-function kpiCard(label, value, meta, accent) {
-  return `<div class="kpi" style="--kpi-accent:${accent}">
+function kpiThreshold(pct, greenMax, amberMax) {
+  if (pct < greenMax) return "threshold-green";
+  if (pct < amberMax) return "threshold-amber";
+  return "threshold-red";
+}
+
+function isPartialMonth() {
+  const now = new Date();
+  return now.getDate() < new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+}
+
+function kpiCard(label, value, meta, accent, thresholdClass) {
+  const cls = thresholdClass ? ` ${thresholdClass}` : "";
+  return `<div class="kpi${cls}" style="--kpi-accent:${accent}">
     <div class="label">${esc(label)}</div>
     <div class="value">${value}</div>
     <div class="meta">${meta}</div>
@@ -433,18 +445,21 @@ function renderOverview(p) {
   const momClass = k.mom == null ? "" : k.mom > 0 ? "neg" : "pos"; // cost up = bad
   const momTxt = k.mom == null ? "—" : `${k.mom > 0 ? "▲" : "▼"} ${fmtPct(Math.abs(k.mom))}`;
 
+  const partialHtml = isPartialMonth() ? ` · <span class="warn">partial month</span>` : "";
+
   const kpis = [
     kpiCard("Effective cost", fmtMoney(k.eff), `Billed ${fmtMoney(k.billed)}`, PALETTE[0]),
     kpiCard("Total savings", fmtMoney(k.savings),
       `<span class="pos">${fmtPct(k.esr)}</span> effective savings rate`, PALETTE[1]),
     kpiCard("Untagged cost", fmtPct(k.untaggedPct),
-      `${fmtMoney(k.untagged)} on untagged resources`, PALETTE[3]),
+      `${fmtMoney(k.untagged)} on untagged resources`, PALETTE[3],
+      kpiThreshold(k.untaggedPct, 0.10, 0.25)),
     kpiCard("Commitment coverage", fmtPct(k.coverage),
-      `${fmtMoney(k.committed)} on committed rates`, PALETTE[5]),
+      `${fmtMoney(k.committed)} of compute spend`, PALETTE[5]),
     kpiCard("Tracked resources", fmtInt(k.resources),
       `${fmtInt(k.services)} services · ${fmtInt(k.subscriptions)} subs · ${fmtInt(k.regions)} regions`, PALETTE[2]),
     kpiCard("Latest month", k.lastMonthVal == null ? "—" : fmtMoney(k.lastMonthVal),
-      k.mom == null ? esc(k.lastMonthLabel || "") : `<span class="${momClass}">${momTxt}</span> vs prior · ${esc(k.lastMonthLabel)}`, PALETTE[4]),
+      k.mom == null ? `${esc(k.lastMonthLabel || "")}${partialHtml}` : `<span class="${momClass}">${momTxt}</span> vs prior · ${esc(k.lastMonthLabel)}${partialHtml}`, PALETTE[4]),
   ].join("");
 
   const d = p.data;
@@ -810,13 +825,14 @@ function renderRate(p) {
 
   const kpis = [
     kpiCard("Effective savings rate", fmtPct(esr),
-      `<span class="pos">${fmtMoney(s.Total)}</span> total savings`, PALETTE[1]),
+      `<span class="pos">${fmtMoney(s.Total)}</span> total savings · vs. list price`, PALETTE[1]),
     kpiCard("Total savings", fmtMoney(s.Total),
       `of ${fmtMoney(s.List)} list cost`, PALETTE[2]),
     kpiCard("Commitment utilization", fmtPct(util),
       `${fmtMoney(cmTotal - (cm.Unused || 0))} of ${fmtMoney(cmTotal)} used`, PALETTE[0]),
     kpiCard("Commitment waste", fmtPct(waste),
-      `<span class="${waste > 0.1 ? "warn" : "pos"}">${fmtMoney(cm.Unused)}</span> unused`, PALETTE[3]),
+      `<span class="${waste > 0.1 ? "warn" : "pos"}">${fmtMoney(cm.Unused)}</span> unused · of commitment spend`, PALETTE[3],
+      kpiThreshold(waste, 0.10, 0.20)),
     kpiCard("Compute coverage", fmtPct(coverage),
       `compute spend on commitments`, PALETTE[5]),
     kpiCard("Committed core-hours", fmtPct(coreShare),
@@ -901,7 +917,8 @@ function renderAllocation(p) {
     kpiCard("Allocation accuracy", fmtPct(aai),
       `<span class="pos">directly attributed</span> effective cost`, PALETTE[1]),
     kpiCard("Untagged cost", fmtPct(untaggedPct),
-      `${fmtMoney(c.Untagged)} with no tags`, PALETTE[3]),
+      `${fmtMoney(c.Untagged)} with no tags`, PALETTE[3],
+      kpiThreshold(untaggedPct, 0.10, 0.25)),
     kpiCard("Unallocated cost", fmtPct(unallocPct),
       `${fmtMoney(total - c.Attributed)} lacks allocation evidence`, PALETTE[4]),
     kpiCard("Tag policy compliance", fmtPct(compliancePct),
@@ -1002,7 +1019,8 @@ async function load() {
     const res = await fetch(`${ENDPOINT[tab]}&preset=${encodeURIComponent(preset)}`);
     state.cache[tab][preset] = await res.json();
   } catch (err) {
-    state.cache[tab][preset] = { error: String(err && err.message ? err.message : err) };
+    console.error("[ftk-dashboard] fetch failed:", err);
+    state.cache[tab][preset] = { error: "Could not load data. Check that the Kusto emulator is running." };
   }
   state.loading = false;
   setRefreshSpinning(false);
@@ -1048,7 +1066,10 @@ function wireControls() {
     const btn = e.target.closest("button[data-tab]");
     if (!btn || state.loading || btn.dataset.tab === state.tab) return;
     state.tab = btn.dataset.tab;
-    [...el("tabs").querySelectorAll("button")].forEach((b) => b.classList.toggle("active", b === btn));
+    [...el("tabs").querySelectorAll("button")].forEach((b) => {
+      b.classList.toggle("active", b === btn);
+      b.setAttribute("aria-selected", b === btn ? "true" : "false");
+    });
     load();
   });
   el("refresh").addEventListener("click", () => {
