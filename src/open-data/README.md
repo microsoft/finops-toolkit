@@ -45,6 +45,8 @@ The [InstanceSizeFlexibility.csv](./InstanceSizeFlexibility.csv) file maps each 
 
 This dataset replaces two deprecated static CSVs that were hosted on `ccmstorageprod.blob.core.windows.net` (`AutofitComboMeterData.csv` and `isfratioblob.csv` / `aka.ms/isf`), which Microsoft is retiring (no updates after 9 May 2026, removed 30 Aug 2026).
 
+The file uses the canonical three-column Catalogs API schema: `InstanceSizeFlexibilityGroup`, `ArmSkuName`, `Ratio`. This is a 1:1 match for the deprecated `isfratioblob.csv`. The deprecated `AutofitComboMeterData.csv` also carried Cost Management connector columns (`ResourceLocation`, meter IDs, composite key, normalized SKU) that are not part of the Catalogs API and aren't reproducible from it; consumers that relied on them (e.g. the Power BI model's join key) should join on `ArmSkuName` instead.
+
 The Catalogs API is authenticated and requires the `Microsoft.Capacity/catalogs/read` permission, so this script must run with an active Azure context. Downstream tools consume the resulting public CSV and need no Azure credentials.
 
 To update manually:

@@ -122,12 +122,14 @@ function Invoke-CatalogsApi
         $retries = 0
         $maxRetries = 5
 
+        # Retry transient failures (network exceptions and 429/5xx) on the SAME page, without
+        # advancing the paging loop, so $page counts and the retry cap stay correct.
+        $response = $null
         while ($true)
         {
             try
             {
                 $response = Invoke-AzRestMethod -Uri $uri -Method GET
-                break
             }
             catch
             {
@@ -136,21 +138,24 @@ function Invoke-CatalogsApi
                 $wait = [Math]::Pow(2, $retries) * 5
                 Write-Host "  Error on $ResourceType/$Region page $page, retrying in ${wait}s (attempt $retries/$maxRetries)"
                 Start-Sleep -Seconds $wait
+                continue
             }
-        }
 
-        if ($response.StatusCode -eq 429 -or $response.StatusCode -ge 500)
-        {
-            $retries++
-            if ($retries -gt $maxRetries) { throw "Failed after $maxRetries retries on $ResourceType/$Region page $page (HTTP $($response.StatusCode))" }
-            $wait = [Math]::Pow(2, $retries) * 5
-            Write-Host "  HTTP $($response.StatusCode) on $ResourceType/$Region page $page, retrying in ${wait}s"
-            Start-Sleep -Seconds $wait
-            continue
-        }
-        elseif ($response.StatusCode -ge 400)
-        {
-            throw "HTTP $($response.StatusCode) on $ResourceType/$Region page $page`: $($response.Content)"
+            if ($response.StatusCode -eq 429 -or $response.StatusCode -ge 500)
+            {
+                $retries++
+                if ($retries -gt $maxRetries) { throw "Failed after $maxRetries retries on $ResourceType/$Region page $page (HTTP $($response.StatusCode))" }
+                $wait = [Math]::Pow(2, $retries) * 5
+                Write-Host "  HTTP $($response.StatusCode) on $ResourceType/$Region page $page, retrying in ${wait}s (attempt $retries/$maxRetries)"
+                Start-Sleep -Seconds $wait
+                continue
+            }
+            if ($response.StatusCode -ge 400)
+            {
+                throw "HTTP $($response.StatusCode) on $ResourceType/$Region page $page`: $($response.Content)"
+            }
+
+            break
         }
 
         $json = $response.Content | ConvertFrom-Json -Depth 100
@@ -201,6 +206,10 @@ function Get-IsfRecords
 
         # ArmSkuName is exposed as armSkuName on newer API versions, otherwise the catalog name.
         $armSkuName = if ($item.PSObject.Properties.Name -contains 'armSkuName' -and $item.armSkuName) { $item.armSkuName } else { $item.name }
+
+        # Preview/unreleased SKUs can come back with a placeholder name (e.g.
+        # 'arm_sku_name_placeholder'); skip them so they don't leak into the public CSV.
+        if ($armSkuName -like '*placeholder*') { continue }
 
         if ($flexGroup -and $ratio -and $armSkuName)
         {
