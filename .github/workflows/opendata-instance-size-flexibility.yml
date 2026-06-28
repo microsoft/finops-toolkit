@@ -5,10 +5,11 @@ on:
     - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
   workflow_dispatch:
 
-# NOTE: Unlike the other open data workflows, the Catalogs API is authenticated and requires
-# Microsoft.Capacity/catalogs/read. Maintainers must configure an OIDC service principal and
-# set the AZURE_CLIENT_ID, AZURE_TENANT_ID, and AZURE_SUBSCRIPTION_ID repository secrets before
-# this workflow can run. See https://github.com/Azure/login#configure-a-federated-credential.
+# Unlike the other open data workflows, the Catalogs API is authenticated and requires
+# Microsoft.Capacity/catalogs/read. This reuses the existing OIDC service principal from the
+# aoe-prod environment (same one the AOE deployment workflows use) via federated credentials,
+# so no client secret is stored. The principal's subscription must have the Microsoft.Capacity
+# resource provider registered.
 permissions:
   contents: write
   pull-requests: write
@@ -16,6 +17,7 @@ permissions:
 
 jobs:
   update:
+    environment: aoe-prod
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -23,8 +25,14 @@ jobs:
         with:
           ref: dev
 
-      - name: Azure login (OIDC)
-        uses: azure/login@v2
+      - name: Install Az.Accounts
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
+
+      - name: Login via Az module
+        uses: azure/login@hf_447_release
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -32,10 +40,8 @@ jobs:
           enable-AzPSSession: true
 
       - name: Fetch ISF ratios from Azure Catalogs API
-        uses: azure/powershell@v2
-        with:
-          azPSVersion: latest
-          inlineScript: src/scripts/Update-InstanceSizeFlexibility.ps1
+        shell: pwsh
+        run: src/scripts/Update-InstanceSizeFlexibility.ps1
 
       - name: Create PR if data changed
         env:
