@@ -5,6 +5,7 @@ Our open data solutions are pretty straightforward. Nothing to deploy. Just use 
 On this page:
 
 - [💰 Commitment discount eligibility](#-commitment-discount-eligibility)
+- [📐 Instance size flexibility](#-instance-size-flexibility)
 - [📏 Pricing units](#-pricing-units)
 - [🗺️ Regions](#️-regions)
 - [🗺️ Resource types](#️-resource-types)
@@ -27,6 +28,30 @@ To update manually:
 
 ```powershell
 ./src/scripts/Update-CommitmentDiscountEligibility.ps1
+```
+
+<br>
+
+## 📐 Instance size flexibility
+
+<sup>
+    📅 Updated: Jun 28, 2026<br>
+    ➡️ Source: Azure Reservations Catalogs API<br>
+</sup>
+
+<br>
+
+The [InstanceSizeFlexibility.csv](./InstanceSizeFlexibility.csv) file maps each ARM SKU to its instance size flexibility (ISF) group and ratio. ISF lets a reservation apply across multiple SKUs in the same flexibility group; the ratio is the relative weight of each SKU within its group. It covers the reserved resource types that expose ISF ratios — Virtual Machines, Block Blob storage, Redis Cache, and Dedicated Host — unioned across a broad set of regions (compute groups are region-stable, but storage groups are region-specific). The raw Microsoft ratios are kept as-is (they don't always start at `1` for the smallest SKU) for drop-in parity with the deprecated files; pass `-Normalize $true` to rescale each group so its smallest SKU is `1`. This data is updated weekly by the [Update Instance Size Flexibility](../../.github/workflows/opendata-instance-size-flexibility.yml) workflow, which queries the [Azure Reservations Catalogs API](https://learn.microsoft.com/azure/cost-management-billing/reservations/instance-size-flexibility#extract-instance-size-flexibility-ratios-using-azure-catalogs-api).
+
+This dataset replaces two deprecated static CSVs that were hosted on `ccmstorageprod.blob.core.windows.net` (`AutofitComboMeterData.csv` and `isfratioblob.csv` / `aka.ms/isf`), which Microsoft is retiring (no updates after 9 May 2026, removed 30 Aug 2026).
+
+The Catalogs API is authenticated and requires the `Microsoft.Capacity/catalogs/read` permission, so this script must run with an active Azure context. Downstream tools consume the resulting public CSV and need no Azure credentials.
+
+To update manually:
+
+```powershell
+Connect-AzAccount
+./src/scripts/Update-InstanceSizeFlexibility.ps1
 ```
 
 <br>
