@@ -3,7 +3,7 @@ title: Run FinOps hubs locally
 description: Stand up a FinOps hub on your own hardware in a local container and ingest cost data, using the same KQL and open data as a deployed hub.
 author: MSBrett
 ms.author: brettwil
-ms.date: 06/21/2026
+ms.date: 06/29/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -34,17 +34,22 @@ For background on the emulator and its platform requirements, see the [Kusto emu
 
 ## Start the emulator
 
-Create a working folder outside the repository, then start the emulator. The export folder is mounted read-only into the container at `/data/export`; you'll download cost data into it later. For other ways to run the container, see [Install the Kusto emulator](/azure/data-explorer/kusto-emulator-install).
+Create a working folder outside the repository, then start the emulator. Two folders are mounted into the container: exports (read-only at `/data/export`) and a data folder where the engine persists its databases. Mounting the data folder means your databases survive container restarts and removals. For other ways to run the container, see [Install the Kusto emulator](/azure/data-explorer/kusto-emulator-install).
 
 ```powershell
 $exportPath = '../exports/local-hub'
+$dataPath   = '../exports/local-hub-data'
 
 New-Item -ItemType Directory -Force -Path $exportPath | Out-Null
+New-Item -ItemType Directory -Force -Path $dataPath   | Out-Null
 docker run -d --name finops-hub-local --platform linux/amd64 `
   -p 8082:8080 -m 16g -e ACCEPT_EULA=Y `
   -v "$((Resolve-Path $exportPath).Path):/data/export:ro" `
+  -v "$((Resolve-Path $dataPath).Path):/kustodata" `
   mcr.microsoft.com/azuredataexplorer/kustainer-linux:latest
 ```
+
+To restart after stopping the container, run `docker start finops-hub-local`. Your databases reload automatically from the data folder — no need to repeat the setup steps.
 
 All later steps talk to the emulator's HTTP endpoint, so define a small helper to send a command. Management commands (those starting with `.`) go to `/v1/rest/mgmt`; queries go to `/v1/rest/query`. The endpoint has no authentication.
 
