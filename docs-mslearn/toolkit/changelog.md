@@ -18,14 +18,18 @@ ms.reviewer: brettwil
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
-<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
--->
+### [Open data](open-data.md) updates
+
+**[Instance size flexibility](open-data.md#instance-size-flexibility)**
+
+- **Added**
+  - Added a new [Instance size flexibility](open-data.md#instance-size-flexibility) dataset that maps each ARM SKU to its instance size flexibility group and ratio, sourced from the Azure Reservations Catalogs API. It replaces the deprecated ISF ratio files hosted on `ccmstorageprod.blob.core.windows.net` ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 
 <br><a name="latest"></a>
 

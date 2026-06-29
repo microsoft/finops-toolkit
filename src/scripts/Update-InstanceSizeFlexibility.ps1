@@ -44,8 +44,8 @@
 
     .PARAMETER Normalize
     Normalize ratios so the smallest SKU in each flexibility group has a ratio of 1. The raw API
-    ratios don't always start at 1 (e.g. BS Series starts at 0.25). Default = false, which keeps
-    the raw Microsoft ratios for drop-in parity with the deprecated isfratioblob.csv /
+    ratios don't always start at 1 (e.g. BS Series starts at 0.25). When omitted, the raw Microsoft
+    ratios are kept for drop-in parity with the deprecated isfratioblob.csv /
     AutofitComboMeterData.csv files that downstream tools (Power BI, Optimization Engine) expect.
 
     .EXAMPLE
@@ -76,7 +76,7 @@ param(
 
     [string]$ApiVersion = '2022-03-01',
 
-    [bool]$Normalize = $false
+    [switch]$Normalize
 )
 
 $ErrorActionPreference = 'Stop'

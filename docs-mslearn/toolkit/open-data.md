@@ -179,6 +179,31 @@ A few important notes about the data:
 
 <br>
 
+## Instance size flexibility
+
+Instance size flexibility (ISF) lets a reservation apply across multiple SKUs in the same flexibility group, weighted by a ratio. The instance size flexibility file maps each ARM SKU to its flexibility group and ratio, sourced from the [Azure Reservations Catalogs API](/azure/cost-management-billing/reservations/instance-size-flexibility#extract-instance-size-flexibility-ratios-using-azure-catalogs-api). It replaces the static ISF ratio files that were previously hosted on `ccmstorageprod.blob.core.windows.net`, which Microsoft is retiring.
+
+Sample data:
+
+| InstanceSizeFlexibilityGroup | ArmSkuName     | Ratio |
+| ---------------------------- | -------------- | ----- |
+| Av2 Series                   | Standard_A1_v2 | 1     |
+| Av2 Series                   | Standard_A2_v2 | 2.1   |
+| Av2 Series                   | Standard_A4_v2 | 4.44  |
+
+A few important notes about the data:
+
+- It covers the reserved resource types that expose ISF ratios: Virtual Machines, Block Blob storage, Redis Cache, and Dedicated Host.
+- Ratios are the raw Microsoft values within each group (the smallest SKU isn't always `1`).
+- Data is updated weekly via a GitHub Actions workflow.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/InstanceSizeFlexibility.csv)
+<!-- prettier-ignore-end -->
+
+<br>
+
 ## Dataset examples
 
 The following files are examples of what you see when you export data from Microsoft Cost Management. These files are provided to help you understand the data structure and format. They are from an Enterprise Agreement (EA) demo account and aren't intended to be used for ingestion or reporting.
