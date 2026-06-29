@@ -237,7 +237,10 @@ function Copy-OpenDataFiles()
 {
     Write-Verbose "Copying open data files..."
     Copy-Item "$PSScriptRoot/../open-data/*.csv" $relDir
-    Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir
+    # Exclude *.shardcounts.json: these are internal operational baselines for the
+    # eligibility completeness guard (not reference data), so they must not ship in
+    # the public release package alongside legitimate open data.
+    Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir -Exclude '*.shardcounts.json'
 }
 
 function Copy-OpenDataFolders()
