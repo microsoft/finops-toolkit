@@ -60,8 +60,19 @@ function Send-LogIngestionData($accessToken, $dceEndpoint, $dcrImmutableId, $str
         "Authorization" = "Bearer $accessToken"
         "Content-Type"  = "application/json"
     }
-    $response = Invoke-WebRequest -Uri $uri -Method POST -Headers $headers -Body $body -UseBasicParsing -TimeoutSec 1000
-    return $response.StatusCode
+    try
+    {
+        $response = Invoke-WebRequest -Uri $uri -Method POST -Headers $headers -Body $body -UseBasicParsing -TimeoutSec 1000 -ErrorAction Stop
+        return $response.StatusCode
+    }
+    catch
+    {
+        if ($_.Exception.Response -and $_.Exception.Response.StatusCode)
+        {
+            return [int]$_.Exception.Response.StatusCode
+        }
+        throw
+    }
 }
 
 function Close-SqlConnection()

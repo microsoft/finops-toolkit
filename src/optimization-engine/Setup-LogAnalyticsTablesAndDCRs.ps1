@@ -857,8 +857,14 @@ $containerSuffixMap = @{
 }
 #endregion
 
+$lognamePrefix = Get-AzAutomationVariable -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName `
+    -Name "AzureOptimization_LogAnalyticsLogPrefix" -ErrorAction SilentlyContinue
+if ([string]::IsNullOrEmpty($lognamePrefix))
+{
+    $lognamePrefix = "AzureOptimization"
+}
+
 $dcrApiVersion = "2022-06-01"
-$lognamePrefix = "AzureOptimization"
 $tableSchemaApiVersion = "2023-01-01-preview"   # Tables API (GET/PUT schema)
 $tableMigrateApiVersion = "2021-12-01-preview"  # Tables migrate endpoint
 
