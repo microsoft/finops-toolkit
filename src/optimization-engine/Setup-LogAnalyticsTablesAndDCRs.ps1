@@ -100,7 +100,7 @@ if (-not ($SqlServerName -like "*.*"))
     switch ($CloudEnvironment)
     {
         "AzureChinaCloud" { $SqlServerName = "$SqlServerName.database.chinacloudapi.cn" }
-        "AzureUSGovernment" { $SqlServerName = "$SqlServerName.database.usgovcloudapis.net" }
+        "AzureUSGovernment" { $SqlServerName = "$SqlServerName.database.usgovcloudapi.net" }
         default { $SqlServerName = "$SqlServerName.database.windows.net" }
     }
 }
@@ -1120,8 +1120,12 @@ if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
 #region Update LogAnalyticsIngestControl SQL table with DCR immutable IDs
 Write-Host "Updating SQL LogAnalyticsIngestControl with DCR immutable IDs..." -ForegroundColor Green
 
-$cloudDetails = Get-AzEnvironment -Name $CloudEnvironment
-$azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
+switch ($CloudEnvironment)
+{
+    "AzureChinaCloud" { $azureSqlDomain = "database.chinacloudapi.cn" }
+    "AzureUSGovernment" { $azureSqlDomain = "database.usgovcloudapi.net" }
+    default { $azureSqlDomain = "database.windows.net" }
+}
 $sqlToken = (Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/" -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText
 
 $sqlConnectionString = "Server=tcp:$SqlServerName,1433;Database=$SqlDatabaseName;Encrypt=True;Connection Timeout=120;"
