@@ -859,9 +859,13 @@ $containerSuffixMap = @{
 
 $lognamePrefix = Get-AzAutomationVariable -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName `
     -Name "AzureOptimization_LogAnalyticsLogPrefix" -ErrorAction SilentlyContinue
-if ([string]::IsNullOrEmpty($lognamePrefix))
+if (($null -eq $lognamePrefix -or [string]::IsNullOrEmpty($lognamePrefix.Value)))
 {
     $lognamePrefix = "AzureOptimization"
+}
+else
+{
+    $lognamePrefix = $lognamePrefix.Value
 }
 
 $dcrApiVersion = "2022-06-01"
