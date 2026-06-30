@@ -10,9 +10,7 @@ on both new and existing AOE installations. On existing installations, it also m
 control table to store the DCR immutable IDs.
 
 The script:
-- Creates a Data Collection Endpoint (DCE) if one is not yet referenced in the DCEIngestionEndpoint
-  automation variable (the DCE itself is expected to already be deployed via the Bicep template).
-- Creates or updates each custom Log Analytics table schema.
+- Reads the Data Collection Endpoint (DCE) logs ingestion endpoint from the AzureOptimization_DCEIngestionEndpoint automation variable (the DCE and variable are expected to be deployed via the Bicep template).- Creates or updates each custom Log Analytics table schema.
 - Creates or updates one DCR per table.
 - Assigns the Monitoring Metrics Publisher role on the resource group containing the DCRs to the Automation account managed identity.
 - Writes the DCR immutable ID for each table into the SQL LogAnalyticsIngestControl table.
@@ -177,7 +175,6 @@ $tableSchemas = @{
 
     "VMsV1"                = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -212,7 +209,6 @@ $tableSchemas = @{
 
     "DisksV1"              = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -239,7 +235,6 @@ $tableSchemas = @{
 
     "VhdDisksV1"           = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -258,7 +253,6 @@ $tableSchemas = @{
 
     "AvailSetsV1"          = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -277,7 +271,6 @@ $tableSchemas = @{
 
     "AdvisorV1"            = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "Category"; type = "string" }
         @{ name = "Impact_s"; type = "string" }
@@ -297,7 +290,6 @@ $tableSchemas = @{
 
     "RemediationV1"        = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -313,7 +305,6 @@ $tableSchemas = @{
 
     "ConsumptionV1"        = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "AdditionalInfo_s"; type = "string" }
         @{ name = "benefitId_s"; type = "string" }
         @{ name = "benefitName_s"; type = "string" }
@@ -365,7 +356,6 @@ $tableSchemas = @{
 
     "AADObjectsV1"         = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "ObjectId_g"; type = "string" }
@@ -383,7 +373,6 @@ $tableSchemas = @{
 
     "LoadBalancersV1"      = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -409,7 +398,6 @@ $tableSchemas = @{
 
     "AppGatewaysV1"        = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -441,7 +429,6 @@ $tableSchemas = @{
 
     "ResourceContainersV1" = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -458,7 +445,6 @@ $tableSchemas = @{
 
     "RBACAssignmentsV1"    = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "Model_s"; type = "string" }
@@ -470,7 +456,6 @@ $tableSchemas = @{
 
     "VNetsV1"              = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -495,7 +480,6 @@ $tableSchemas = @{
 
     "NICsV1"               = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -529,7 +513,6 @@ $tableSchemas = @{
 
     "NSGsV1"               = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -554,7 +537,6 @@ $tableSchemas = @{
 
     "PublicIPsV1"          = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -578,7 +560,6 @@ $tableSchemas = @{
 
     "VMSSV1"               = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -616,7 +597,6 @@ $tableSchemas = @{
 
     "SqlDbV1"              = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -639,7 +619,6 @@ $tableSchemas = @{
 
     "MonitorMetricsV1"     = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -656,7 +635,6 @@ $tableSchemas = @{
 
     "PolicyStatesV1"       = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -681,7 +659,6 @@ $tableSchemas = @{
 
     "RecommendationsV1"    = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "Category"; type = "string" }
         @{ name = "ImpactedArea_s"; type = "string" }
@@ -706,7 +683,6 @@ $tableSchemas = @{
 
     "ReservationsUsageV1"  = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "ReservationResourceId_s"; type = "string" }
         @{ name = "ReservationOrderId_s"; type = "string" }
         @{ name = "ReservationId_g"; type = "string" }
@@ -744,7 +720,6 @@ $tableSchemas = @{
 
     "AppServicePlansV1"    = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "SubscriptionGuid_g"; type = "string" }
@@ -771,7 +746,6 @@ $tableSchemas = @{
 
     "PricesheetV1"         = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "MeterID_g"; type = "string" }
         @{ name = "MeterName_s"; type = "string" }
         @{ name = "MeterCategory_s"; type = "string" }
@@ -789,7 +763,6 @@ $tableSchemas = @{
 
     "ReservationsPriceV1"  = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "productName_s"; type = "string" }
         @{ name = "serviceName_s"; type = "string" }
         @{ name = "skuName_s"; type = "string" }
@@ -809,7 +782,6 @@ $tableSchemas = @{
 
     "SavingsPlansUsageV1"  = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "SavingsPlanResourceId_s"; type = "string" }
         @{ name = "SavingsPlanOrderId_s"; type = "string" }
         @{ name = "SavingsPlanId_g"; type = "string" }
@@ -842,7 +814,6 @@ $tableSchemas = @{
 
     "SuppressionsV1"       = @(
         @{ name = "TimeGenerated"; type = "datetime" }
-        @{ name = "Timestamp_s"; type = "string" }
         @{ name = "FilterId_g"; type = "string" }
         @{ name = "RecommendationSubTypeId_g"; type = "string" }
         @{ name = "FilterType_s"; type = "string" }
