@@ -332,4 +332,6 @@ foreach ($blob in $unprocessedBlobs)
     Remove-Item -Path $blob.Name -Force
 }
 
+Close-SqlConnection
+
 Write-Output "DONE"
