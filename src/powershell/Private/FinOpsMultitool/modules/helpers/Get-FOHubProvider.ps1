@@ -181,7 +181,7 @@ $window
 $scope
 | extend _sub = extract('([0-9a-fA-F-]{36})', 1, tolower(SubAccountId))
 | extend _cost = $($script:FOHubCostExpr)
-| summarize Actual = sum(_cost), Currency = take_any(BillingCurrency) by _sub
+| summarize Actual = sum(_cost), Currency = take_any(BillingCurrency), Name = take_any(SubAccountName) by _sub
 "@
     $r = Invoke-FOHubProviderQuery -Provider $Provider -Query $query
     if (-not $r.Ok) { return @{ Error = $r.Error; Source = 'Kusto' } }
@@ -190,10 +190,15 @@ $scope
     foreach ($row in $r.Rows) {
         $subId = if ($row._sub) { [string]$row._sub } else { 'unknown' }
         $currency = if ($row.Currency) { [string]$row.Currency } else { 'USD' }
+        # Carry the subscription's display name from the FOCUS data so the UI can
+        # show a friendly name even for subscriptions that aren't in the caller's
+        # selected list (a hub commonly covers more subs than are being scanned).
+        $subName = if ($row.Name) { [string]$row.Name } else { '' }
         $costMap[$subId] = @{
             Actual   = [math]::Round([double]$row.Actual, 2)
             Forecast = 0.0
             Currency = $currency
+            Name     = $subName
         }
     }
     return $costMap

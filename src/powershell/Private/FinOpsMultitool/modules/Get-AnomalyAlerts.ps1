@@ -51,6 +51,21 @@ function Get-AnomalyAlerts {
                         $currentSpend = if ($det.currentSpend) { [math]::Round([double]$det.currentSpend, 2) } else { 0 }
                         $unit        = if ($det.unit)         { $det.unit }                                   else { 'USD' }
 
+                        # Cost Management names alerts with a GUID. Derive a human
+                        # label: prefer the alert description, then the related
+                        # budget/scope leaf (costEntityId), then a Category/Type
+                        # composite, and only fall back to the GUID as a last resort.
+                        $description  = if ($p.description)  { [string]$p.description }  else { '' }
+                        $costEntityId = if ($p.costEntityId) { [string]$p.costEntityId } else { '' }
+                        $relatedTo    = if ($costEntityId) { ($costEntityId -split '/')[-1] } else { '' }
+                        $alertLabel =
+                            if ($description) { $description }
+                            elseif ($relatedTo) { "$relatedTo ($alertType)" }
+                            else {
+                                $composite = (@($category, $alertType) | Where-Object { $_ -and $_ -ne 'Unknown' }) -join ' '
+                                if ($composite) { $composite } else { $alert.name }
+                            }
+
                         $contacts = @()
                         if ($det.contactEmails) { $contacts += @($det.contactEmails) }
                         if ($det.contactRoles)  { $contacts += @($det.contactRoles) }
@@ -64,6 +79,9 @@ function Get-AnomalyAlerts {
                             Subscription   = $sub.Name
                             SubscriptionId = $sub.Id
                             AlertName      = $alert.name
+                            AlertLabel     = $alertLabel
+                            RelatedTo      = $relatedTo
+                            Description    = $description
                             AlertType      = $alertType
                             Category       = $category
                             Criteria       = $criteria

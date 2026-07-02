@@ -1157,7 +1157,12 @@ function Invoke-FinOpsMultitool {
                     # CostData is a hashtable keyed by subscription ID
                     if ($data -is [hashtable]) {
                         $rows = $data.GetEnumerator() | ForEach-Object {
-                            $subLabel = if ($subNameLookup.ContainsKey($_.Key)) { $subNameLookup[$_.Key] } else { $_.Key.Substring(0, [Math]::Min(36, $_.Key.Length)) }
+                            # Prefer the name carried in the cost data itself (hub
+                            # FOCUS data), then the selected-subscription lookup,
+                            # then a truncated ID as a last resort.
+                            $subLabel = if ($_.Value.Name) { $_.Value.Name }
+                            elseif ($subNameLookup.ContainsKey($_.Key)) { $subNameLookup[$_.Key] }
+                            else { $_.Key.Substring(0, [Math]::Min(36, $_.Key.Length)) }
                             [PSCustomObject]@{
                                 Subscription = $subLabel
                                 Actual       = '{0:C0}' -f [double]$_.Value.Actual
@@ -1169,16 +1174,18 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-ResourceCosts' {
-                    $rows = @($data) | Sort-Object { [double]$_.Actual } -Descending | Select-Object -First 20 | ForEach-Object {
+                    $rows = @($data) | Sort-Object { [double]$_.Actual } -Descending | Select-Object -First 50 | ForEach-Object {
+                        $resName = if ($_.ResourcePath) { ($_.ResourcePath -split '/')[-1] } else { '-' }
                         [PSCustomObject]@{
+                            Resource      = $resName
                             ResourceGroup = $_.ResourceGroup
                             ResourceType  = ($_.ResourceType -split '/')[-1]
                             Cost          = '{0:C2}' -f [double]$_.Actual
                         }
                     }
-                    $cols = @('ResourceGroup', 'ResourceType', 'Cost')
-                    if (@($data).Count -gt 20) {
-                        Write-Host "    (showing top 20 of $(@($data).Count) resources by cost)" -ForegroundColor DarkGray
+                    $cols = @('Resource', 'ResourceGroup', 'ResourceType', 'Cost')
+                    if (@($data).Count -gt 50) {
+                        Write-Host "    (showing top 50 of $(@($data).Count) resources by cost)" -ForegroundColor DarkGray
                     }
                 }
                 'Get-CostByTag' {
@@ -1345,7 +1352,9 @@ function Invoke-FinOpsMultitool {
                 'Get-AnomalyAlerts' {
                     Write-Host "    Alerts: $($data.TotalAlerts)  |  Anomaly: $($data.AnomalyAlertCount)  |  Active: $($data.ActiveAlertCount)  |  Rules: $($data.ConfiguredRuleCount)" -ForegroundColor White
                     $rows = $data.TriggeredAlerts | Select-Object -First 10 | ForEach-Object {
-                        [PSCustomObject]@{ Alert = $_.AlertName; Type = $_.AlertType; Status = $_.Status; Subscription = $_.Subscription }
+                        $label = if ($_.AlertLabel) { $_.AlertLabel } else { $_.AlertName }
+                        if ($label.Length -gt 45) { $label = $label.Substring(0, 42) + '...' }
+                        [PSCustomObject]@{ Alert = $label; Type = $_.AlertType; Status = $_.Status; Subscription = $_.Subscription }
                     }
                     $cols = @('Alert', 'Type', 'Status', 'Subscription')
                 }
@@ -2244,7 +2253,8 @@ tr:hover { background: #161b22; }
                     'Get-AnomalyAlerts' {
                         [void]$htmlSb.Append("<p>Total: $($data.TotalAlerts) &nbsp;|&nbsp; Anomaly: $($data.AnomalyAlertCount) &nbsp;|&nbsp; Active: $($data.ActiveAlertCount)</p>")
                         $htmlRows = $data.TriggeredAlerts | Select-Object -First 10 | ForEach-Object {
-                            [PSCustomObject]@{ Alert = $_.AlertName; Type = $_.AlertType; Status = $_.Status; Subscription = $_.Subscription }
+                            $label = if ($_.AlertLabel) { $_.AlertLabel } else { $_.AlertName }
+                            [PSCustomObject]@{ Alert = $label; Type = $_.AlertType; Status = $_.Status; Subscription = $_.Subscription }
                         }
                         $htmlCols = @('Alert', 'Type', 'Status', 'Subscription')
                     }

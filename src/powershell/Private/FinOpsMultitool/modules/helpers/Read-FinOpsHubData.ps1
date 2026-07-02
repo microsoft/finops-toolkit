@@ -393,6 +393,11 @@ function ConvertTo-CostDataFromHub {
             $subId = $Matches[0]
         }
 
+        # Display name from the FOCUS data so the UI can label by name, not GUID.
+        $subName = if ($props -contains 'SubAccountName' -and $row.SubAccountName) { [string]$row.SubAccountName }
+        elseif ($props -contains 'SubscriptionName' -and $row.SubscriptionName) { [string]$row.SubscriptionName }
+        else { '' }
+
         $cost = if ($props -contains 'CostInBillingCurrency' -and $row.CostInBillingCurrency) { [double]$row.CostInBillingCurrency }
         elseif ($props -contains 'BilledCost' -and $row.BilledCost) { [double]$row.BilledCost }
         elseif ($props -contains 'EffectiveCost' -and $row.EffectiveCost) { [double]$row.EffectiveCost }
@@ -403,7 +408,7 @@ function ConvertTo-CostDataFromHub {
         else { 'USD' }
 
         if (-not $costMap.ContainsKey($subId)) {
-            $costMap[$subId] = @{ Actual = 0.0; Forecast = 0.0; Currency = $currency }
+            $costMap[$subId] = @{ Actual = 0.0; Forecast = 0.0; Currency = $currency; Name = $subName }
         }
         $costMap[$subId].Actual += $cost
     }
