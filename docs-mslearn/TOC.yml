@@ -238,6 +238,12 @@
               href: toolkit/powershell/cost/remove-finopscostexport.md
             - name: Start-FinOpsCostExport
               href: toolkit/powershell/cost/start-finopscostexport.md
+        - name: FinOps Multitool
+          items:
+            - name: FinOps Multitool commands
+              href: toolkit/powershell/multitool/finops-multitool-commands.md
+            - name: Start-FinOpsMultitool
+              href: toolkit/powershell/multitool/start-finopsmultitool.md
         - name: FinOps hubs
           items:
             - name: FinOps hubs commands

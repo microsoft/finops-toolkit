@@ -3,7 +3,7 @@ title: FinOps toolkit PowerShell module
 description: Automate and scale your FinOps efforts using the FinOps toolkit PowerShell module, which includes commands to manage FinOps solutions.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 07/02/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -19,7 +19,7 @@ The FinOps toolkit PowerShell module is a collection of commands to automate and
 
 ## Install the module
 
-The FinOps toolkit module requires PowerShell 7, which is built into [Azure Cloud Shell](https://portal.azure.com/#cloudshell) and supported on all major operating systems. 
+The FinOps toolkit module requires PowerShell 7, which is built into [Azure Cloud Shell](https://portal.azure.com/#cloudshell) and supported on all major operating systems.
 
 Azure Cloud Shell comes with PowerShell 7 and Azure PowerShell preinstalled. If you aren't using Azure Cloud Shell, you need to [Install PowerShell](/powershell/scripting/install/installing-powershell) first and then run the following commands to install Azure PowerShell:
 
@@ -58,6 +58,10 @@ The FinOps toolkit PowerShell module includes commands to manage FinOps solution
 - [New-FinOpsCostExport](cost/New-FinOpsCostExport.md) – Create a new Cost Management export.
 - [Remove-FinOpsCostExport](cost/Remove-FinOpsCostExport.md) – Delete a Cost Management export and optionally data associated with the export.
 - [Start-FinOpsCostExport](cost/Start-FinOpsCostExport.md) – Initiates a Cost Management export run for the most recent period.
+
+### FinOps Multitool commands
+
+- [Start-FinOpsMultitool](multitool/start-finopsmultitool.md) – Launch the interactive FinOps Multitool terminal UI to scan for cost, governance, and optimization insights.
 
 ### FinOps hubs commands
 
