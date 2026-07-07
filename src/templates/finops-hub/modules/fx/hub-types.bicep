@@ -72,7 +72,6 @@ type HubRoutingProperties = {
     keyVaultSku: 'KeyVault SKU. Allowed values: "standard", "premium".'
     keyVaultEnablePurgeProtection: 'Indicates whether purge protection is enabled for the Key Vault. When enabled, deleted Key Vault and its secrets cannot be permanently deleted until the retention period expires, which is required for compliance in some environments.'
     networkAddressPrefix: 'Address prefix for the FinOps hub isolated virtual network, if private network routing is enabled.'
-    natGateway: 'Indicates whether a NAT Gateway should be deployed for controlled outbound internet access. When enabled, subnets disable Azure default outbound access and route through the NAT Gateway.'
     privateRouting: 'Indicates whether private network routing is enabled.'
     publisherIsolation: 'Indicates whether FinOps hub resources should be separated by publisher for advanced security.'
     storageInfrastructureEncryption: 'Indicates whether infrastructure encryption is enabled for the storage account.'
@@ -97,7 +96,6 @@ type HubProperties = {
     keyVaultSku: string
     keyVaultEnablePurgeProtection: bool
     networkAddressPrefix: string
-    natGateway: bool
     privateRouting: bool
     publisherIsolation: bool
     storageInfrastructureEncryption: bool
@@ -194,7 +192,6 @@ func newHubInternal(
   keyVaultEnablePurgeProtection bool,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
-  enableNatGateway bool,
   networkName string,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
@@ -214,7 +211,6 @@ func newHubInternal(
     keyVaultSku: keyVaultSku
     keyVaultEnablePurgeProtection: keyVaultEnablePurgeProtection
     networkAddressPrefix: networkAddressPrefix
-    natGateway: !enablePublicAccess && enableNatGateway
     privateRouting: !enablePublicAccess
     publisherIsolation: false  // TODO: Expose publisher isolation option
     storageInfrastructureEncryption: enableInfrastructureEncryption
@@ -255,7 +251,6 @@ func newHub(
   keyVaultEnablePurgeProtection bool,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
-  enableNatGateway bool,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
 ) HubProperties => newHubInternal(
@@ -270,7 +265,6 @@ func newHub(
   keyVaultEnablePurgeProtection,
   enableInfrastructureEncryption,
   enablePublicAccess,
-  enableNatGateway,
   '${safeStorageName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
   networkAddressPrefix,
   isTelemetryEnabled ?? true

@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 07/07/2026
+ms.date: 06/22/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -24,11 +24,6 @@ This article summarizes the features and enhancements in each release of the Fin
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
-
-### [FinOps hubs](hubs/finops-hubs-overview.md)
-
-- **Added**
-  - Added VNet and private network modes, including opt-in NAT Gateway support for private mode; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
 
 -->
 

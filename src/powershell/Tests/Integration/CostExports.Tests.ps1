@@ -337,7 +337,7 @@ Describe 'CostExports' {
                 -Backfill 12
 
             # Assert
-            Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Write-Progress' -Times 4
+            Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Write-Progress' -Times 4
             $success | Should -Be $true
             ((Get-Date) - $testStartTime).TotalSeconds | Should -BeGreaterThan 60
         }

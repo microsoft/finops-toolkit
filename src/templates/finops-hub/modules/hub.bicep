@@ -170,9 +170,6 @@ param dataExplorerFinalRetentionInMonths int = 13
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
 
-@description('Optional. Deploy a NAT Gateway for controlled outbound access when private routing is enabled. When true, subnets disable Azure default outbound access and route through the NAT Gateway. Ignored when enablePublicAccess is true. Default: false.')
-param enableNatGateway bool = false
-
 @description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
@@ -197,7 +194,6 @@ var hub = newHub(
   enablePurgeProtection,
   enableInfrastructureEncryption,
   enablePublicAccess,
-  enableNatGateway,
   virtualNetworkAddressPrefix,
   enableDefaultTelemetry
 )

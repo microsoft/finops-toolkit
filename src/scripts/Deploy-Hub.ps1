@@ -89,10 +89,7 @@
     Optional. Use managed exports instead of manual exports. Requires -Scope. Grants the hub managed identity the required roles on the scope and passes scopesToMonitor to the template.
 
     .PARAMETER Private
-    Optional. Deploy with private networking (VNet and private endpoints, default outbound access). Equivalent to -NetworkMode vnet. Kept for back-compat. Default: false.
-
-    .PARAMETER NetworkMode
-    Optional. Network mode: 'public' (default), 'vnet' (private endpoints, default outbound), or 'private' (private endpoints + NAT Gateway, subnets locked down — required when the 'Subnets should be private' policy is enforced).
+    Optional. Deploy with private networking (VNet and private endpoints). Default: false.
 
     .PARAMETER VirtualNetworkAddressPrefix
     Optional. Virtual network address prefix for private networking. Requires a /26 CIDR block. When set, also sets -Private. Default: "10.20.30.0/26".
@@ -120,8 +117,6 @@ param(
     [string]$Scope,
     [switch]$ManagedExports,
     [switch]$Private,
-    [ValidateSet('public', 'vnet', 'private')]
-    [string]$NetworkMode,
     [string]$VirtualNetworkAddressPrefix,
     [string]$Location,
     [switch]$Build,
@@ -288,17 +283,16 @@ else
     $params.enableManagedExports = $false
 }
 
-# Network mode — -NetworkMode wins; -Private (back-compat) and -VirtualNetworkAddressPrefix imply 'vnet'.
-if (-not $NetworkMode -and ($Private -or $VirtualNetworkAddressPrefix)) { $NetworkMode = 'vnet' }
-if ($NetworkMode -and $NetworkMode -ne 'public')
+# Private networking (infer from VNet prefix if provided)
+if ($VirtualNetworkAddressPrefix) { $Private = $true }
+if ($Private)
 {
     $params.enablePublicAccess = $false
-    $params.enableNatGateway = ($NetworkMode -eq 'private')
     if ($VirtualNetworkAddressPrefix)
     {
         $params.virtualNetworkAddressPrefix = $VirtualNetworkAddressPrefix
     }
-    Write-Host "  Network mode: $NetworkMode (VNet $($VirtualNetworkAddressPrefix ?? '10.20.30.0/26'))"
+    Write-Host "  Private networking: enabled (VNet $($VirtualNetworkAddressPrefix ?? '10.20.30.0/26'))"
 }
 
 # Resource group
