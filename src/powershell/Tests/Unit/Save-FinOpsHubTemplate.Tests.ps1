@@ -39,8 +39,8 @@ InModuleScope FinOpsToolkit {
                 Save-FinOpsHubTemplate
 
                 # Assert
-                Assert-MockCalled -CommandName 'Get-FinOpsToolkitVersion' -Times 1
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 0
+                Should -Invoke -CommandName 'Get-FinOpsToolkitVersion' -Times 1
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 0
             }
         }
 
@@ -59,8 +59,8 @@ InModuleScope FinOpsToolkit {
                 Save-FinOpsHubTemplate
 
                 # Assert
-                Assert-MockCalled -CommandName 'Get-FinOpsToolkitVersion' -Times 1
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1
+                Should -Invoke -CommandName 'Get-FinOpsToolkitVersion' -Times 1
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 1
             }
         }
 
@@ -75,9 +75,9 @@ InModuleScope FinOpsToolkit {
                 Save-FinOpsHubTemplate -Version $downloadVersion
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1 -ParameterFilter { $Uri -eq $downloadUrl }
-                Assert-MockCalled -CommandName 'Expand-Archive' -Times 1
-                Assert-MockCalled -CommandName 'Remove-Item' -Times 1
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 1 -ParameterFilter { $Uri -eq $downloadUrl }
+                Should -Invoke -CommandName 'Expand-Archive' -Times 1
+                Should -Invoke -CommandName 'Remove-Item' -Times 1
             }
         }
 
@@ -88,7 +88,7 @@ InModuleScope FinOpsToolkit {
 
             It 'Should throw' {
                 { Save-FinOpsHubTemplate } | Should -Throw
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 0
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 0
             }
         }
 
@@ -102,7 +102,7 @@ InModuleScope FinOpsToolkit {
                 Save-FinOpsHubTemplate -Version '0.2'
 
                 # Assert
-                Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.3.zip') }
+                Should -Invoke -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.3.zip') }
             }
     
             It 'Should not redirect 0.2 to 0.1.1 for Azure Gov' {
@@ -114,7 +114,7 @@ InModuleScope FinOpsToolkit {
                 Save-FinOpsHubTemplate -Version '0.3'
 
                 # Assert
-                Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.3.zip') }
+                Should -Invoke -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.3.zip') }
             }
 
             It 'Should not redirect 0.2 to 0.1.1 for Azure China' {
@@ -126,7 +126,7 @@ InModuleScope FinOpsToolkit {
                 Save-FinOpsHubTemplate -Version '0.3'
 
                 # Assert
-                Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.3.zip') }
+                Should -Invoke -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.3.zip') }
             }
     
             It 'Should support 0.3 for Azure Gov' {
@@ -138,7 +138,7 @@ InModuleScope FinOpsToolkit {
                 Save-FinOpsHubTemplate -Version '0.3'
     
                 # Assert
-                Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.3.zip') }
+                Should -Invoke -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.3.zip') }
             }
     
             It 'Should support 0.3 for Azure China' {
@@ -150,7 +150,7 @@ InModuleScope FinOpsToolkit {
                 Save-FinOpsHubTemplate -Version '0.3'
     
                 # Assert
-                Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.3.zip') }
+                Should -Invoke -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.3.zip') }
             }
         }
     }
