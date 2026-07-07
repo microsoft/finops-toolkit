@@ -12,7 +12,7 @@ jobs:
       - name: Install and cache PowerShell modules
         uses: potatoqualitee/psmodulecache@v6.2.1
         with:
-          modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester, Az.Accounts, Az.Resources
+          modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester:5.7.1, Az.Accounts, Az.Resources
           shell: pwsh
       - uses: actions/checkout@v3
       - name: Run Tests

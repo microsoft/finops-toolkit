@@ -202,5 +202,71 @@ InModuleScope 'FinOpsToolkit' {
                 }
             }
         }
+
+        Context 'Network mode' {
+            BeforeAll {
+                Mock -CommandName 'Get-AzResourceGroup' -MockWith { return @{ ResourceGroupName = $rgName } }
+                Mock -CommandName 'New-AzResourceGroup'
+                Mock -CommandName 'Save-FinOpsHubTemplate'
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
+                $templateFile = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOps/finops-hub-v1.0.0/main.bicep'
+                Mock -CommandName 'Get-ChildItem' -MockWith { return @{ FullName = $templateFile } }
+                Mock -CommandName 'New-AzResourceGroupDeployment'
+            }
+
+            It 'Should default to public access without a NAT Gateway' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
+                Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.enablePublicAccess -eq $true -and -not $TemplateParameterObject.ContainsKey('enableNatGateway')
+                } -Times 1
+            }
+
+            It "Should map -NetworkMode 'public' to enablePublicAccess and no NAT Gateway" {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'public' -Version 'latest' } | Should -Not -Throw
+                Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.enablePublicAccess -eq $true -and -not $TemplateParameterObject.ContainsKey('enableNatGateway')
+                } -Times 1
+            }
+
+            It "Should map -NetworkMode 'vnet' to private access without a NAT Gateway" {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'vnet' -Version 'latest' } | Should -Not -Throw
+                Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.enablePublicAccess -eq $false -and -not $TemplateParameterObject.ContainsKey('enableNatGateway')
+                } -Times 1
+            }
+
+            It "Should map -NetworkMode 'private' to private access with a NAT Gateway" {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version 'latest' } | Should -Not -Throw
+                Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.enablePublicAccess -eq $false -and $TemplateParameterObject.enableNatGateway -eq $true
+                } -Times 1
+            }
+
+            It 'Should map deprecated -DisablePublicAccess to vnet (no NAT Gateway)' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -DisablePublicAccess -Version 'latest' -WarningAction 'SilentlyContinue' } | Should -Not -Throw
+                Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.enablePublicAccess -eq $false -and -not $TemplateParameterObject.ContainsKey('enableNatGateway')
+                } -Times 1
+            }
+
+            It 'Should let -NetworkMode win over deprecated -DisablePublicAccess' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -DisablePublicAccess -Version 'latest' } | Should -Not -Throw
+                Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.enablePublicAccess -eq $false -and $TemplateParameterObject.enableNatGateway -eq $true
+                } -Times 1
+            }
+
+            It 'Should throw when private mode targets a version older than 15.0' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '14.0' } | Should -Throw
+                Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -Times 0
+            }
+
+            It 'Should pass enableNatGateway when private mode targets version 15.0 or later' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '15.0' } | Should -Not -Throw
+                Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.enableNatGateway -eq $true
+                } -Times 1
+            }
+        }
     }
 }
