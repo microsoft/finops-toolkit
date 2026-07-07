@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 06/21/2026
+ms.date: 07/07/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -28,7 +28,7 @@ The following section lists features and enhancements that are currently in deve
 ### [FinOps hubs](hubs/finops-hubs-overview.md)
 
 - **Added**
-  - Added opt-in NAT Gateway support for private and vNet network modes; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
+  - Added VNet and private network modes, including opt-in NAT Gateway support for private mode; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
 
 -->
 
@@ -57,6 +57,7 @@ _Released June 2026_
 - **Fixed**
   - Fixed Data Factory ingestion memory pressure during emptiness filtering.
     - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
+  - Hardened the reservation price backfill to select the highest on-demand price (`max()` instead of `min()`) when duplicate price rows collapse under a single reservation price lookup key, preventing understated commitment discount savings ([#2189](https://github.com/microsoft/finops-toolkit/pull/2189)).
 
 ### [Power BI reports](power-bi/reports.md) v15
 
