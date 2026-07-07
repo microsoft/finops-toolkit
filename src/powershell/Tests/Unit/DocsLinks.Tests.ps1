@@ -286,30 +286,56 @@ Describe 'Documentation links' {
     }
 
     Context 'docs-mslearn: No learn.microsoft.com URLs' {
-
-        It 'Should not contain https://learn.microsoft.com links: <SourceRel>:<LineNumber>' -ForEach ($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com' }) {
-            $Url | Should -Not -Match 'learn\.microsoft\.com' -Because "links in docs-mslearn should use root-relative paths (e.g., /azure/...) instead of full URLs since docs are deployed to learn.microsoft.com (${SourceRel}:${LineNumber})"
+        $learnMicrosoftLinks = @($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com' })
+        if ($learnMicrosoftLinks.Count -gt 0) {
+            It 'Should not contain https://learn.microsoft.com links: <SourceRel>:<LineNumber>' -ForEach $learnMicrosoftLinks {
+                $Url | Should -Not -Match 'learn\.microsoft\.com' -Because "links in docs-mslearn should use root-relative paths (e.g., /azure/...) instead of full URLs since docs are deployed to learn.microsoft.com (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain https://learn.microsoft.com links' {
+                $learnMicrosoftLinks | Should -BeNullOrEmpty -Because 'docs-mslearn should not contain fully qualified learn.microsoft.com URLs'
+            }
         }
     }
 
     Context 'docs-mslearn: No language locale in MS Learn links' {
-
-        It 'Should not contain language locale in URL: <SourceRel>:<LineNumber> <Url>' -ForEach ($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' }) {
-            $Url | Should -Not -Match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' -Because "MS Learn links should not include language locale segments like /en-us/ (${SourceRel}:${LineNumber})"
+        $localizedMsLearnLinks = @($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' })
+        if ($localizedMsLearnLinks.Count -gt 0) {
+            It 'Should not contain language locale in URL: <SourceRel>:<LineNumber> <Url>' -ForEach $localizedMsLearnLinks {
+                $Url | Should -Not -Match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' -Because "MS Learn links should not include language locale segments like /en-us/ (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain language locale in MS Learn links' {
+                $localizedMsLearnLinks | Should -BeNullOrEmpty -Because 'MS Learn links should not include language locale segments like /en-us/'
+            }
         }
     }
 
     Context 'docs-mslearn: No known broken external URLs' {
-
-        It 'Should not contain known broken external URL: <SourceRel>:<LineNumber> <Url>' -ForEach $knownBrokenExternalUrlMatches {
-            $Url | Should -Not -Match $Pattern -Because "known broken external URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
+        if ($knownBrokenExternalUrlMatches.Count -gt 0) {
+            It 'Should not contain known broken external URL: <SourceRel>:<LineNumber> <Url>' -ForEach $knownBrokenExternalUrlMatches {
+                $Url | Should -Not -Match $Pattern -Because "known broken external URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain known broken external URLs' {
+                $knownBrokenExternalUrlMatches | Should -BeNullOrEmpty -Because 'docs-mslearn should not contain any known broken external URLs'
+            }
         }
     }
 
     Context 'docs-mslearn: No incomplete placeholder external URLs' {
-
-        It 'Should not contain incomplete placeholder URL: <SourceRel>:<LineNumber> <Url>' -ForEach $incompleteExternalUrlMatches {
-            $Url | Should -Not -Match $Pattern -Because "incomplete placeholder URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
+        if ($incompleteExternalUrlMatches.Count -gt 0) {
+            It 'Should not contain incomplete placeholder URL: <SourceRel>:<LineNumber> <Url>' -ForEach $incompleteExternalUrlMatches {
+                $Url | Should -Not -Match $Pattern -Because "incomplete placeholder URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain incomplete placeholder external URLs' {
+                $incompleteExternalUrlMatches | Should -BeNullOrEmpty -Because 'docs-mslearn should not contain placeholder external URLs'
+            }
         }
     }
 
