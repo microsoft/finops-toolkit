@@ -206,8 +206,11 @@ export async function getTokenomics(clusterUri, database, preset = "all", filter
     const period = `| where ChargePeriodStart >= datetime(${win.start}) and ChargePeriodStart < datetime(${win.end})${filterWhere}`;
 
     const queries = {
-        // Token KPI totals — Token Consumption Metrics
-        summary: `Costs() ${period} ${AI_SCOPE} | summarize Tokens=sum(ConsumedQuantity), Effective=sum(EffectiveCost), List=sum(ListCost), Models=dcount(x_SkuDescription), Resources=dcount(ResourceId), Rows=count()`,
+        // Token KPI totals — Token Consumption Metrics. Models is collapsed
+        // through the same MODEL_FAMILY normalization as the "models" query
+        // below, so "Models in use" counts distinct model families, not raw
+        // (and often duplicated) billing-SKU description strings.
+        summary: `Costs() ${period} ${AI_SCOPE} | ${MODEL_FAMILY} | summarize Tokens=sum(ConsumedQuantity), Effective=sum(EffectiveCost), List=sum(ListCost), Models=dcount(Model), Resources=dcount(ResourceId), Rows=count()`,
         // Total cloud effective cost in the window — for AI share-of-spend
         totalCloud: `Costs() ${period} | summarize Effective=sum(EffectiveCost)`,
         // ai-token-usage-breakdown — direction mix (input/cached/output)
@@ -279,10 +282,12 @@ Costs() ${period} ${NON_PURCHASE}
 | extend Org=tostring(Tags['org']), Project=tostring(Tags['Project']), Env=tostring(Tags['env'])
 | summarize Cost=sum(EffectiveCost) by Org, Project, Env
 | where Cost > 0 | top 12 by Cost desc`,
-        // Tag-key coverage — cost touched by each tag key
+        // Tag-key coverage — cost touched by each tag key. Excludes Azure/FTK
+        // auto-injected tags (ftk-*, cm-*, costanalysis-parent, aks-managed-*)
+        // so governance-relevant keys aren't crowded out by system noise.
         tagKeys: `Costs() ${period}
 | mv-expand k=bag_keys(Tags) to typeof(string)
-| where isnotempty(k) and k !in ('ftk-tool','ftk-version','cm-resource-parent','costanalysis-parent')
+| where isnotempty(k) and k !in ('ftk-tool','ftk-version','cm-resource-parent','costanalysis-parent') and not(k startswith 'aks-managed-')
 | summarize Cost=sum(EffectiveCost) by k
 | top 12 by Cost desc`,
         // Cost by subscription (SubAccountName)
@@ -363,8 +368,10 @@ export async function getUsage(clusterUri, database, preset = "all", filters = {
     x_SkuMeterSubcategory has_any ('Cool','Cold','Archive'), 'Infrequent',
     'Unclassified')
 | summarize Cost=sum(EffectiveCost) by Tier | where Cost > 0 | order by Cost desc`,
-        // top-resource-types-by-cost
-        topResourceTypes: `Costs() ${period} | where isnotempty(ResourceType) | summarize Count=count(), Cost=sum(EffectiveCost) by ResourceType | top 10 by Cost desc`,
+        // top-resource-types-by-cost — Resources is a distinct-resource count
+        // (dcount(ResourceId)), matching the same "Resources" label semantics
+        // used by the Overview summary KPI, not a row count.
+        topResourceTypes: `Costs() ${period} | where isnotempty(ResourceType) | summarize Resources=dcount(ResourceId), Cost=sum(EffectiveCost) by ResourceType | top 10 by Cost desc`,
         // compute-cost-per-core grouped by VM series — where the expensive cores are
         perCoreSeries: `Costs() ${period} | where x_SkuMeterCategory in ('Virtual Machines','Virtual Machine Licenses') and ChargeCategory=='Usage'
 | extend cores=toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores))

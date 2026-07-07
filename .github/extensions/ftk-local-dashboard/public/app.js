@@ -9,6 +9,11 @@ const PALETTE = [
   "#ec4899", "#84cc16", "#f97316", "#6366f1", "#14b8a6", "#a855f7",
 ];
 
+// Shared "missing data" color: muted, never a rotating palette hue, so
+// Untagged/Unclassified/blank slices read as "no data" consistently across
+// every tab instead of looking like an ordinary category.
+const UNKNOWN_COLOR = "var(--muted)";
+
 const state = { preset: "all", tab: "overview", loading: false, cache: {}, filters: {} };
 const queryState = { rows: 0, health: "ok", refreshedAt: null, dataset: "Hub database" };
 
@@ -46,7 +51,7 @@ const PANEL_KQL = {
   "anomaly-daily": ["let s=datetime({start}); let e=datetime({end});", "Costs()", "| where ChargePeriodStart>=s and ChargePeriodStart<e", "| summarize DC=sum(EffectiveCost) by bin(ChargePeriodStart,1d)", "| make-series Cost=sum(DC) default=0.0 on ChargePeriodStart from s to e step 1d", "| extend (flag,score,baseline)=series_decompose_anomalies(Cost,1.5)", "| mv-expand Day=ChargePeriodStart to typeof(datetime), Cost to typeof(real), flag to typeof(real), baseline to typeof(real)", "| project Day, Cost=toreal(Cost), Flag=toint(flag), Baseline=toreal(baseline)"].join("\n"),
   "anomaly-mom": ["Costs()", PERIOD, "| summarize Eff=sum(EffectiveCost) by M=startofmonth(ChargePeriodStart)", "| order by M asc | extend PrevEff=prev(Eff)", "| project Month=format_datetime(M,'yyyy-MM'), EffChangePct=iff(isempty(PrevEff),0.0,(Eff-PrevEff)*100.0/PrevEff), Eff"].join("\n"),
   "anomaly-forecast": ["Costs()", PERIOD, "| summarize Eff=sum(EffectiveCost) by bin(ChargePeriodStart,1d)", "| make-series Actual=sum(Eff) default=0.0 on ChargePeriodStart step 1d", "| extend Fc=series_decompose_forecast(Actual,90)", "| mv-expand Day=ChargePeriodStart to typeof(datetime), Actual to typeof(real), Fc to typeof(real)", "| summarize Actual=sum(toreal(Actual)), Forecast=sum(toreal(Fc)) by M=startofmonth(Day)", "| order by M asc | project Month=format_datetime(M,'yyyy-MM'), Actual, Forecast"].join("\n"),
-  "usage-top-types": ["Costs()", PERIOD, "| where isnotempty(ResourceType)", "| summarize Count=count(), Cost=sum(EffectiveCost) by ResourceType", "| top 10 by Cost desc"].join("\n"),
+  "usage-top-types": ["Costs()", PERIOD, "| where isnotempty(ResourceType)", "| summarize Resources=dcount(ResourceId), Cost=sum(EffectiveCost) by ResourceType", "| top 10 by Cost desc"].join("\n"),
   "usage-per-core-series": ["Costs()", PERIOD, "| where x_SkuMeterCategory in ('Virtual Machines','Virtual Machine Licenses') and ChargeCategory=='Usage'", "| extend cores=toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores))", "| extend ch=iff(isnotempty(cores), toreal(cores*ConsumedQuantity), toreal(''))", "| summarize Eff=sum(EffectiveCost), CH=sum(ch) by x_SkuMeterSubcategory", "| where CH > 100 | extend PerCore=Eff/CH | top 10 by Eff desc"].join("\n"),
   "usage-storage-tiers": ["Costs()", PERIOD, "| where ServiceCategory=='Storage' and ChargeCategory=='Usage'", "| extend Tier=case(x_SkuTier has_any('Hot','Standard','Premium'),'Frequent',x_SkuTier has_any('Cool','Cold','Archive'),'Infrequent','Unclassified')", "| summarize Cost=sum(EffectiveCost) by Tier", "| where Cost > 0 | order by Cost desc"].join("\n"),
   "rate-savings": ["Costs()", PERIOD, NON_PURCH, "| extend neg=iff(ListCost<ContractedCost,real(0),ListCost-ContractedCost)", "| extend com=iff(ContractedCost<EffectiveCost,real(0),ContractedCost-EffectiveCost)", "| extend tot=iff(ListCost<EffectiveCost,real(0),ListCost-EffectiveCost)", "| summarize List=sum(ListCost), Effective=sum(EffectiveCost), Negotiated=sum(neg), Commitment=sum(com), Total=sum(tot)"].join("\n"),
@@ -55,7 +60,7 @@ const PANEL_KQL = {
   "rate-underutil": ["Costs()", PERIOD, "| where isnotempty(CommitmentDiscountName)", NON_PURCH, "| summarize Unused=sumif(EffectiveCost,CommitmentDiscountStatus=='Unused'), Total=sum(EffectiveCost) by CommitmentDiscountName", "| where Unused > 0 | top 10 by Unused desc"].join("\n"),
   "alloc-hierarchy": ["Costs()", PERIOD, "| extend Org=tostring(Tags['org']), Project=tostring(Tags['Project']), Env=tostring(Tags['env'])", "| summarize Cost=sum(EffectiveCost) by Org, Project, Env", "| where Cost > 0 | top 12 by Cost desc"].join("\n"),
   "alloc-tagging": ["Costs()", PERIOD, "| extend _t=iff(isnull(Tags) or array_length(bag_keys(Tags))==0,'Untagged','Tagged')", "| summarize Cost=sum(EffectiveCost) by _t"].join("\n"),
-  "alloc-tag-keys": ["Costs()", PERIOD, "| mv-expand k=bag_keys(Tags) to typeof(string)", "| where isnotempty(k) and k !in ('ftk-tool','ftk-version','cm-resource-parent','costanalysis-parent')", "| summarize Cost=sum(EffectiveCost) by k", "| top 12 by Cost desc"].join("\n"),
+  "alloc-tag-keys": ["Costs()", PERIOD, "| mv-expand k=bag_keys(Tags) to typeof(string)", "| where isnotempty(k) and k !in ('ftk-tool','ftk-version','cm-resource-parent','costanalysis-parent') and not(k startswith 'aks-managed-')", "| summarize Cost=sum(EffectiveCost) by k", "| top 12 by Cost desc"].join("\n"),
   "alloc-by-subscription": ["Costs()", PERIOD, "| where isnotempty(SubAccountName)", "| summarize Cost=sum(EffectiveCost) by SubAccountName", "| top 10 by Cost desc"].join("\n"),
 };
 /* eslint-enable max-len */
@@ -182,7 +187,13 @@ function esc(s) {
 }
 function trunc(s, n) {
   s = String(s ?? "");
-  return s.length > n ? s.slice(0, n - 1) + "…" : s;
+  if (s.length <= n) return s;
+  // Middle-ellipsis: keep a short tail visible so structurally similar long
+  // identifiers (e.g. two reservation IDs differing only in their suffix)
+  // don't collide into the same truncated string.
+  const keepEnd = Math.min(8, Math.floor(n * 0.35));
+  const keepStart = Math.max(1, n - keepEnd - 1);
+  return `${s.slice(0, keepStart)}…${s.slice(-keepEnd)}`;
 }
 function el(id) { return document.getElementById(id); }
 function fmtRelativeTime(date) {
@@ -202,12 +213,46 @@ function svgEl(w, h, body, label = "") {
 
 /* ----------------------------------------------------------------- charts */
 
+// Shared single-left-axis gridline + y-tick-label renderer, used by every
+// chart with one money-scaled y-axis (lineChart, anomalyChart, forecastChart).
+// tokenTrendChart keeps its own dual-axis (token + cost) tick renderer — a
+// different concept (two scales, two tick labels per line), not merged here.
+function yAxisGrid(m, W, ih, yMax, ticks, valFmt) {
+  let g = "";
+  for (let t = 0; t <= ticks; t++) {
+    const val = (yMax / ticks) * t;
+    const yy = m.t + ih - (ih / ticks) * t;
+    g += `<line class="grid-line" x1="${m.l}" y1="${yy}" x2="${W - m.r}" y2="${yy}"/>`;
+    g += `<text class="tick" x="${m.l - 8}" y="${yy + 4}" text-anchor="end">${valFmt(val)}</text>`;
+  }
+  return g;
+}
+
+// Shared index-thinned x-axis month-label renderer: shows a label at evenly
+// spaced indices (max ~12) plus always the last row, for any chart whose rows
+// run left-to-right one-per-month. anomalyChart uses a different, month-
+// change-detection variant over daily rows and keeps its own logic.
+function xAxisMonthLabels(rows, xFn, H, monthField = "Month") {
+  let g = "";
+  const n = rows.length;
+  const step = Math.ceil(n / 12);
+  rows.forEach((r, i) => {
+    if (i % step === 0 || i === n - 1) {
+      g += `<text class="tick" x="${xFn(i)}" y="${H - 12}" text-anchor="middle">${esc(fmtMonth(r[monthField]))}</text>`;
+    }
+  });
+  return g;
+}
+
 function lineChart(rows) {
   // rows: [{Month, Billed, Effective}]
-  const W = 760, H = 280;
+  // Flatter aspect ratio (vs. 280 previously): a ~15-point monthly line has
+  // low vertical information density, so a wide-but-short viewBox avoids the
+  // chart dominating the tab when rendered at panel width.
+  const W = 760, H = 200;
   const m = { l: 56, r: 18, t: 16, b: 34 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  if (!rows || rows.length === 0) return emptyChart(W, H);
+  if (!rows || rows.length === 0) return emptyChart(W, H, "Monthly cost trend — no data");
   const max = Math.max(...rows.map((r) => Math.max(r.Billed || 0, r.Effective || 0)), 1);
   const yMax = max * 1.12;
   const n = rows.length;
@@ -216,20 +261,9 @@ function lineChart(rows) {
 
   let g = "";
   // gridlines + y ticks
-  const ticks = 4;
-  for (let t = 0; t <= ticks; t++) {
-    const val = (yMax / ticks) * t;
-    const yy = y(val);
-    g += `<line class="grid-line" x1="${m.l}" y1="${yy}" x2="${W - m.r}" y2="${yy}"/>`;
-    g += `<text class="tick" x="${m.l - 8}" y="${yy + 4}" text-anchor="end">${fmtMoney(val)}</text>`;
-  }
+  g += yAxisGrid(m, W, ih, yMax, 4, fmtMoney);
   // x labels (thin out if crowded)
-  const step = Math.ceil(n / 12);
-  rows.forEach((r, i) => {
-    if (i % step === 0 || i === n - 1) {
-      g += `<text class="tick" x="${x(i)}" y="${H - 12}" text-anchor="middle">${esc(fmtMonth(r.Month))}</text>`;
-    }
-  });
+  g += xAxisMonthLabels(rows, x, H);
   // area under effective
   const ptsE = rows.map((r, i) => `${x(i)},${y(r.Effective || 0)}`);
   const area = `M${m.l},${y(0)} L${ptsE.join(" L")} L${x(n - 1)},${y(0)} Z`;
@@ -241,13 +275,13 @@ function lineChart(rows) {
   g += `<path d="M${ptsE.join(" L")}" fill="none" stroke="${PALETTE[0]}" stroke-width="2.5"/>`;
   // dots + hover titles
   rows.forEach((r, i) => {
-    g += `<circle class="bar" cx="${x(i)}" cy="${y(r.Effective || 0)}" r="3.2" fill="${PALETTE[0]}"><title>${esc(fmtMonth(r.Month))}\nEffective ${fmtMoneyFull(r.Effective)}\nBilled ${fmtMoneyFull(r.Billed)}</title></circle>`;
+    g += `<circle class="bar" tabindex="0" cx="${x(i)}" cy="${y(r.Effective || 0)}" r="3.2" fill="${PALETTE[0]}"><title>${esc(fmtMonth(r.Month))}\nEffective ${fmtMoneyFull(r.Effective)}\nBilled ${fmtMoneyFull(r.Billed)}</title></circle>`;
   });
   const legend = legendHtml([
     { label: "Effective cost", color: PALETTE[0] },
     { label: "Billed cost", color: "var(--muted)" },
   ]);
-  return svgEl(W, H, g) + legend;
+  return svgEl(W, H, g, "Monthly cost trend — billed vs effective cost") + legend;
 }
 
 function hbar(rows, nameKey, valKey, opts = {}) {
@@ -259,6 +293,7 @@ function hbar(rows, nameKey, valKey, opts = {}) {
   const rowH = 30, padR = 64, nameW = opts.nameW ?? 142;
   const W = 540, H = data.length * rowH + 6;
   const barX = nameW + 8, barW = W - barX - padR;
+  const valFmt = opts.valFmt || fmtMoney;
   // filterDim: by default use nameKey; pass null to opt-out of filtering
   const filterDim = "filterDim" in opts ? opts.filterDim : nameKey;
   const activeVals = filterDim && state.filters[filterDim];
@@ -276,15 +311,18 @@ function hbar(rows, nameKey, valKey, opts = {}) {
     if (filterDim) cls += " hbar-filterable";
     if (isSelected) cls += " hbar-selected";
     if (isDimmed) cls += " hbar-dimmed";
+    const isTruncated = d.name.length > 20;
     const dimAttr = filterDim ? ` data-filter-dim="${esc(filterDim)}" data-filter-val="${esc(d.name)}"` : "";
-    const interactiveAttrs = filterDim ? ` tabindex="0" role="button" aria-pressed="${isSelected ? 'true' : 'false'}" aria-label="Filter by ${esc(d.name)}, ${fmtMoney(d.val)}"` : "";
+    const interactiveAttrs = filterDim
+      ? ` tabindex="0" role="button" aria-pressed="${isSelected ? 'true' : 'false'}" aria-label="Filter by ${esc(d.name)}, ${valFmt(d.val)}"`
+      : ` tabindex="0" aria-label="${esc(d.name)}, ${valFmt(d.val)}"`;
     g += `<g class="${cls}"${dimAttr}${interactiveAttrs}>`;
-    g += `<text class="name" x="0" y="${cy + 4}">${esc(trunc(d.name, 20))}<title>${esc(d.name)}</title></text>`;
+    g += `<text class="name${isTruncated ? " name--truncated" : ""}" x="0" y="${cy + 4}">${esc(trunc(d.name, 20))}<title>${esc(d.name)}</title></text>`;
     g += `<rect class="hbar" x="${barX}" y="${cy - 9}" width="${w}" height="18" rx="4" fill="${color}"><title>${esc(d.name)}\n${fmtMoneyFull(d.val)} · ${fmtPct(pct)}</title></rect>`;
-    g += `<text class="val" x="${W}" y="${cy + 4}" text-anchor="end">${fmtMoney(d.val)}</text>`;
+    g += `<text class="val" x="${W}" y="${cy + 4}" text-anchor="end">${valFmt(d.val)}</text>`;
     g += `</g>`;
   });
-  return svgEl(W, H, g);
+  return svgEl(W, H, g, opts.label || "");
 }
 
 function donut(slices, opts = {}) {
@@ -294,12 +332,27 @@ function donut(slices, opts = {}) {
   const size = 180, cx = size / 2, cy = size / 2, R = 80, r = 50;
   let a0 = 0, g = "";
   if (data.length === 1) {
-    g += `<circle class="arc" cx="${cx}" cy="${cy}" r="${(R + r) / 2}" fill="none" stroke="${data[0].color}" stroke-width="${R - r}"><title>${esc(data[0].label)}\n${fmtMoneyFull(data[0].value)} · 100%</title></circle>`;
+    g += `<circle class="arc" tabindex="0" cx="${cx}" cy="${cy}" r="${(R + r) / 2}" fill="none" stroke="${data[0].color}" stroke-width="${R - r}"><title>${esc(data[0].label)}\n${fmtMoneyFull(data[0].value)} · 100%</title></circle>`;
   } else {
-    data.forEach((d) => {
+    // Give near-zero slices a minimum visible arc so they aren't rendered as
+    // an invisible sliver, mirroring hbar()'s Math.max(2, ...) width floor.
+    // The angle deficit is subtracted from the single largest slice so the
+    // total stays exactly 360°.
+    const minAngle = 4;
+    const angles = data.map((d) => (d.value / total) * 360);
+    let deficit = 0;
+    const boosted = angles.map((a) => {
+      if (a < minAngle) { deficit += minAngle - a; return minAngle; }
+      return a;
+    });
+    if (deficit > 0) {
+      const maxIdx = boosted.reduce((best, a, i) => (a > boosted[best] ? i : best), 0);
+      boosted[maxIdx] = Math.max(minAngle, boosted[maxIdx] - deficit);
+    }
+    data.forEach((d, i) => {
       const frac = d.value / total;
-      const a1 = a0 + frac * 360;
-      g += `<path class="arc" d="${donutSeg(cx, cy, R, r, a0, a1)}" fill="${d.color}"><title>${esc(d.label)}\n${fmtMoneyFull(d.value)} · ${fmtPct(frac)}</title></path>`;
+      const a1 = a0 + boosted[i];
+      g += `<path class="arc" tabindex="0" d="${donutSeg(cx, cy, R, r, a0, a1)}" fill="${d.color}"><title>${esc(d.label)}\n${fmtMoneyFull(d.value)} · ${fmtPct(frac)}</title></path>`;
       a0 = a1;
     });
   }
@@ -308,10 +361,10 @@ function donut(slices, opts = {}) {
   g += `<text class="donut-center" x="${cx}" y="${cy - 2}" text-anchor="middle"><tspan class="big" x="${cx}">${esc(centerBig)}</tspan></text>`;
   g += `<text x="${cx}" y="${cy + 16}" text-anchor="middle" class="small">${esc(centerSmall)}</text>`;
   const legend = legendHtml(data.map((d) => ({
-    label: d.label, color: d.color,
+    label: d.label, color: d.color, isUnknown: d.isUnknown,
     value: opts.valueFmt ? opts.valueFmt(d) : `${fmtMoney(d.value)} · ${fmtPct(d.value / total)}`,
   })));
-  return `<div class="donut-wrap">${svgEl(size, size, g)}<div style="flex:1;min-width:140px">${legend}</div></div>`;
+  return `<div class="donut-wrap">${svgEl(size, size, g, opts.label || "")}<div style="flex:1;min-width:140px">${legend}</div></div>`;
 }
 
 function donutSeg(cx, cy, R, r, a0, a1) {
@@ -327,28 +380,60 @@ function donutSeg(cx, cy, R, r, a0, a1) {
 
 function legendHtml(items) {
   return `<div class="legend">${items.map((it) =>
-    `<span class="item"><span class="swatch" style="background:${it.color}"></span>${esc(it.label)}${
+    `<span class="item"><span class="swatch${it.isUnknown ? " swatch--unknown" : ""}" style="background:${it.isUnknown ? "transparent" : it.color}"></span>${esc(it.label)}${
       it.value ? `<span class="lv">${esc(it.value)}</span>` : ""}</span>`).join("")}</div>`;
+}
+
+// Inline swatch for raw table cells (outside donut/hbar). isUnknown renders
+// the shared dashed/muted "no data" treatment instead of a rotating palette
+// color, matching legendHtml's isUnknown handling.
+function swatchHtml(color, isUnknown = false) {
+  return `<span class="swatch${isUnknown ? " swatch--unknown" : ""}" style="background:${isUnknown ? "transparent" : color}"></span>`;
 }
 
 // Generic data table. cols: [{label, align?, get:(row,i)=>htmlString}]. rows: any[].
 function tableHtml(cols, rows, emptyMsg = "No data in range.") {
   if (!rows || rows.length === 0) return `<p class="muted" style="font-size:12px">${esc(emptyMsg)}</p>`;
-  const head = cols.map((c) => `<th${c.align === "left" ? ' style="text-align:left"' : ""}>${esc(c.label)}</th>`).join("");
+  const head = cols.map((c) => `<th scope="col"${c.align === "left" ? ' style="text-align:left"' : ""}>${esc(c.label)}</th>`).join("");
   const body = rows.map((r, i) => `<tr>${cols.map((c) => `<td${c.align === "left" ? ' style="text-align:left"' : ""}>${c.get(r, i)}</td>`).join("")}</tr>`).join("");
   return `<table class="dtable"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
 }
 
-function emptyChart(W, H) {
-  return svgEl(W, H, `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" class="muted">No data</text>`);
+// Shared "cost breakdown" list row: an optional color swatch, a label, and a
+// money value. Used by the Overview and Rate tabs' savings-breakdown panels —
+// same concept, same markup, previously implemented twice independently.
+function costBreakdownRow(label, val, accent) {
+  return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--grid);font-variant-numeric:tabular-nums">
+    <span style="display:inline-flex;align-items:center;gap:8px">${
+      accent ? `<span class="swatch" style="width:9px;height:9px;border-radius:3px;display:inline-block;background:${accent}"></span>` : ""}${esc(label)}</span>
+    <strong>${fmtMoney(val)}</strong></div>`;
 }
+
+// rows: [{label, val, accent?}]. footerLabel/footerValue render an optional
+// trailing summary stat (e.g. "Effective savings rate — 42%") below the rows.
+function costBreakdownTable(rows, footerLabel, footerValue) {
+  const footer = footerLabel
+    ? `<div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:4px">
+      <span class="muted" style="font-size:12px">${esc(footerLabel)}</span>
+      <strong style="color:var(--pos)">${footerValue}</strong>
+    </div>`
+    : "";
+  return `<div>${rows.map((r) => costBreakdownRow(r.label, r.val, r.accent)).join("")}${footer}</div>`;
+}
+
+function emptyChart(W, H, label = "No data") {
+  return svgEl(W, H, `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" class="muted">No data</text>`, label);
+}
+
 
 function tokenTrendChart(rows) {
   // rows: [{Month, Tokens, Cost}] — bars = token volume (left axis), line = AI cost (right axis)
-  const W = 760, H = 280;
+  // Flatter aspect ratio (vs. 280 previously) — same rationale as lineChart:
+  // ~15 monthly points don't need 280 units of vertical resolution.
+  const W = 760, H = 200;
   const m = { l: 56, r: 58, t: 16, b: 34 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  if (!rows || rows.length === 0) return emptyChart(W, H);
+  if (!rows || rows.length === 0) return emptyChart(W, H, "AI token volume and cost trend — no data");
   const tokMax = Math.max(...rows.map((r) => r.Tokens || 0), 1) * 1.14;
   const costMax = Math.max(...rows.map((r) => r.Cost || 0), 1) * 1.14;
   const n = rows.length;
@@ -375,39 +460,33 @@ function tokenTrendChart(rows) {
   const pts = rows.map((r, i) => `${cx(i)},${yCost(r.Cost || 0)}`);
   g += `<path d="M${pts.join(" L")}" fill="none" stroke="${PALETTE[3]}" stroke-width="2.5"/>`;
   rows.forEach((r, i) => {
-    g += `<circle cx="${cx(i)}" cy="${yCost(r.Cost || 0)}" r="3" fill="${PALETTE[3]}"><title>${esc(fmtMonth(r.Month))}\n${fmtMoneyFull(r.Cost)}</title></circle>`;
+    g += `<circle tabindex="0" cx="${cx(i)}" cy="${yCost(r.Cost || 0)}" r="3" fill="${PALETTE[3]}"><title>${esc(fmtMonth(r.Month))}\n${fmtMoneyFull(r.Cost)}</title></circle>`;
   });
   // x labels
-  const step = Math.ceil(n / 12);
-  rows.forEach((r, i) => {
-    if (i % step === 0 || i === n - 1) {
-      g += `<text class="tick" x="${cx(i)}" y="${H - 12}" text-anchor="middle">${esc(fmtMonth(r.Month))}</text>`;
-    }
-  });
+  g += xAxisMonthLabels(rows, cx, H);
   const legend = legendHtml([
     { label: "Token volume", color: PALETTE[2] },
     { label: "AI effective cost", color: PALETTE[3] },
   ]);
-  return svgEl(W, H, g) + legend;
+  return svgEl(W, H, g, "AI token volume and cost trend") + legend;
 }
 
 function anomalyChart(rows) {
   // rows: [{Day, Cost, Flag, Baseline}]
-  const W = 760, H = 280;
+  // Flattened to match lineChart/tokenTrendChart's aspect ratio (was 280) so
+  // this full-width daily chart doesn't read as taller/heavier than the other
+  // trend charts across tabs — daily granularity needs horizontal, not
+  // vertical, resolution.
+  const W = 760, H = 200;
   const m = { l: 56, r: 18, t: 16, b: 34 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  if (!rows || rows.length === 0) return emptyChart(W, H);
+  if (!rows || rows.length === 0) return emptyChart(W, H, "Daily anomaly detection — no data");
   const max = Math.max(...rows.map((r) => Math.max(r.Cost || 0, r.Baseline || 0)), 1) * 1.12;
   const n = rows.length;
   const x = (i) => m.l + (n === 1 ? iw / 2 : (i / (n - 1)) * iw);
   const y = (v) => m.t + ih - (v / max) * ih;
   let g = "";
-  const ticks = 4;
-  for (let t = 0; t <= ticks; t++) {
-    const yy = m.t + ih - (ih / ticks) * t;
-    g += `<line class="grid-line" x1="${m.l}" y1="${yy}" x2="${W - m.r}" y2="${yy}"/>`;
-    g += `<text class="tick" x="${m.l - 8}" y="${yy + 4}" text-anchor="end">${fmtMoney((max / ticks) * t)}</text>`;
-  }
+  g += yAxisGrid(m, W, ih, max, 4, fmtMoney);
   // month x labels
   let lastMonth = "";
   rows.forEach((r, i) => {
@@ -426,16 +505,16 @@ function anomalyChart(rows) {
   rows.forEach((r, i) => {
     if (r.Flag !== 0) {
       const up = r.Flag > 0;
-      g += `<circle cx="${x(i)}" cy="${y(r.Cost || 0)}" r="4" fill="${up ? PALETTE[4] : PALETTE[5]}" stroke="var(--card-bg)" stroke-width="1"><title>${esc(String(r.Day).slice(0, 10))}\n${fmtMoneyFull(r.Cost)} (${up ? "spike" : "drop"})\nbaseline ${fmtMoneyFull(r.Baseline)}</title></circle>`;
+      g += `<circle tabindex="0" cx="${x(i)}" cy="${y(r.Cost || 0)}" r="4" fill="${up ? PALETTE[4] : PALETTE[1]}" stroke="var(--card-bg)" stroke-width="1"><title>${esc(String(r.Day).slice(0, 10))}\n${fmtMoneyFull(r.Cost)} (${up ? "spike" : "drop"})\nbaseline ${fmtMoneyFull(r.Baseline)}</title></circle>`;
     }
   });
   const legend = legendHtml([
     { label: "Daily effective cost", color: PALETTE[0] },
     { label: "Expected baseline", color: "var(--muted)" },
     { label: "Spike", color: PALETTE[4] },
-    { label: "Drop", color: PALETTE[5] },
+    { label: "Drop", color: PALETTE[1] },
   ]);
-  return svgEl(W, H, g) + legend;
+  return svgEl(W, H, g, "Daily anomaly detection — cost vs expected baseline") + legend;
 }
 
 function momBars(rows) {
@@ -444,7 +523,7 @@ function momBars(rows) {
   const m = { l: 44, r: 14, t: 14, b: 34 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const data = (rows || []).filter((r) => isFinite(r.EffChangePct));
-  if (data.length === 0) return emptyChart(W, H);
+  if (data.length === 0) return emptyChart(W, H, "Month-over-month effective cost change — no data");
   const maxAbs = Math.max(...data.map((r) => Math.abs(r.EffChangePct)), 5);
   const n = data.length;
   const y0 = m.t + ih / 2; // zero line
@@ -457,13 +536,10 @@ function momBars(rows) {
     const h = Math.abs(yScale(v));
     const yTop = v >= 0 ? y0 - h : y0;
     const color = v > 0 ? PALETTE[4] : PALETTE[1];
-    g += `<rect class="bar" x="${cx(i) - bw / 2}" y="${yTop}" width="${bw}" height="${Math.max(1, h)}" rx="2" fill="${color}"><title>${esc(fmtMonth(r.Month))}\n${v > 0 ? "+" : ""}${v.toFixed(1)}%</title></rect>`;
-    const step = Math.ceil(n / 12);
-    if (i % step === 0 || i === n - 1) {
-      g += `<text class="tick" x="${cx(i)}" y="${H - 12}" text-anchor="middle">${esc(fmtMonth(r.Month))}</text>`;
-    }
+    g += `<rect class="bar" tabindex="0" x="${cx(i) - bw / 2}" y="${yTop}" width="${bw}" height="${Math.max(1, h)}" rx="2" fill="${color}"><title>${esc(fmtMonth(r.Month))}\n${v > 0 ? "+" : ""}${v.toFixed(1)}%</title></rect>`;
   });
-  return svgEl(W, H, g);
+  g += xAxisMonthLabels(data, cx, H);
+  return svgEl(W, H, g, "Month-over-month effective cost change");
 }
 
 function forecastChart(rows, splitMonth) {
@@ -471,18 +547,13 @@ function forecastChart(rows, splitMonth) {
   const W = 760, H = 280;
   const m = { l: 56, r: 18, t: 16, b: 34 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  if (!rows || rows.length === 0) return emptyChart(W, H);
+  if (!rows || rows.length === 0) return emptyChart(W, H, "Cost forecast — no data");
   const max = Math.max(...rows.map((r) => Math.max(r.Actual || 0, r.Forecast || 0)), 1) * 1.12;
   const n = rows.length;
   const x = (i) => m.l + (n === 1 ? iw / 2 : (i / (n - 1)) * iw);
   const y = (v) => m.t + ih - (v / max) * ih;
   let g = "";
-  const ticks = 4;
-  for (let t = 0; t <= ticks; t++) {
-    const yy = m.t + ih - (ih / ticks) * t;
-    g += `<line class="grid-line" x1="${m.l}" y1="${yy}" x2="${W - m.r}" y2="${yy}"/>`;
-    g += `<text class="tick" x="${m.l - 8}" y="${yy + 4}" text-anchor="end">${fmtMoney((max / ticks) * t)}</text>`;
-  }
+  g += yAxisGrid(m, W, ih, max, 4, fmtMoney);
   const splitIdx = rows.findIndex((r) => r.Month >= splitMonth);
   const sIdx = splitIdx < 0 ? n - 1 : splitIdx;
   // shaded forecast region
@@ -494,21 +565,16 @@ function forecastChart(rows, splitMonth) {
   const fcPts = rows.slice(sIdx).map((r, i) => `${x(sIdx + i)},${y(r.Forecast || 0)}`);
   if (fcPts.length > 1) g += `<path d="M${fcPts.join(" L")}" fill="none" stroke="${PALETTE[3]}" stroke-width="2.5" stroke-dasharray="5 4"/>`;
   // x labels
-  const step = Math.ceil(n / 12);
-  rows.forEach((r, i) => {
-    if (i % step === 0 || i === n - 1) {
-      g += `<text class="tick" x="${x(i)}" y="${H - 12}" text-anchor="middle">${esc(fmtMonth(r.Month))}</text>`;
-    }
-  });
+  g += xAxisMonthLabels(rows, x, H);
   rows.forEach((r, i) => {
     const isFc = i >= sIdx;
-    g += `<circle cx="${x(i)}" cy="${y(isFc ? (r.Forecast || 0) : (r.Actual || 0))}" r="2.6" fill="${isFc ? PALETTE[3] : PALETTE[0]}"><title>${esc(fmtMonth(r.Month))}\n${isFc ? "forecast " + fmtMoneyFull(r.Forecast) : "actual " + fmtMoneyFull(r.Actual)}</title></circle>`;
+    g += `<circle tabindex="0" cx="${x(i)}" cy="${y(isFc ? (r.Forecast || 0) : (r.Actual || 0))}" r="2.6" fill="${isFc ? PALETTE[3] : PALETTE[0]}"><title>${esc(fmtMonth(r.Month))}\n${isFc ? "forecast " + fmtMoneyFull(r.Forecast) : "actual " + fmtMoneyFull(r.Actual)}</title></circle>`;
   });
   const legend = legendHtml([
     { label: "Actual", color: PALETTE[0] },
     { label: "Forecast", color: PALETTE[3] },
   ]);
-  return svgEl(W, H, g) + legend;
+  return svgEl(W, H, g, "Cost forecast — actual vs projected") + legend;
 }
 
 /* --------------------------------------------------------------- KPI calc */
@@ -558,22 +624,35 @@ function kpiThreshold(pct, greenMax, amberMax) {
   return "threshold-red";
 }
 
-function switchTab(tabId) {
+const VALID_TABS = ["overview", "allocation", "rate", "usage", "anomaly", "tokenomics"];
+
+function switchTab(tabId, opts = {}) {
   if (state.loading || tabId === state.tab) return;
   state.tab = tabId;
   [...el("tabs").querySelectorAll("button")].forEach((b) => {
     b.classList.toggle("active", b.dataset.tab === tabId);
     b.setAttribute("aria-selected", b.dataset.tab === tabId ? "true" : "false");
   });
+  if (!opts.skipHash) {
+    const url = new URL(location.href);
+    url.hash = `tab=${tabId}`;
+    history.pushState({ tab: tabId }, "", url);
+  }
   load();
+}
+
+function tabFromHash() {
+  const m = /tab=([a-z]+)/.exec(location.hash);
+  return m && VALID_TABS.includes(m[1]) ? m[1] : null;
 }
 
 /* --------------------------------------------------------- triage strip */
 
 function buildTriageTile(title, count, cue, tabId) {
-  const cls = count === null ? "" : count === 0 ? "threshold-green" : count <= 4 ? "threshold-amber" : "threshold-red";
-  const badge = count === null ? "Unknown" : count === 0 ? "Good" : count <= 4 ? "Review" : "Urgent";
-  const display = count === null ? "—" : count === 0 ? "None" : fmtInt(count);
+  const isTeaser = count === null;
+  const cls = isTeaser ? "is-teaser" : count === 0 ? "threshold-green" : count <= 4 ? "threshold-amber" : "threshold-red";
+  const badge = isTeaser ? "Not loaded" : count === 0 ? "Good" : count <= 4 ? "Review" : "Urgent";
+  const display = isTeaser ? "—" : count === 0 ? "None" : fmtInt(count);
   return `<button class="triage-tile${cls ? ` ${cls}` : ""}" onclick="switchTab('${tabId}')" type="button">
     <div class="triage-title">${esc(title)}</div>
     <div class="triage-count">${display}</div>
@@ -625,25 +704,30 @@ function isPartialMonth() {
 
 const KPI_TIPS = {
   "Untagged cost": "% of spend on resources missing tags. Target: <10% · Review: <25% · Urgent: ≥25%. Tagging enables accurate showback and chargeback.",
-  "Commitment waste": "% of RI/savings-plan spend on unused capacity. Target: <5% · Review: <10% · Urgent: ≥10%. Idle commitments erode net savings.",
+  "Commitment waste": "% of RI/savings-plan spend on unused capacity. Target: <10% · Review: <20% · Urgent: ≥20%. Idle commitments erode net savings.",
   "Effective savings rate": "Negotiated + commitment savings as % of list price. Higher = better. Enterprise customers typically target ≥15–20%.",
   "Commitment coverage": "Compute spend covered by RIs or savings plans. Target: ≥60% for steady workloads. Higher coverage → lower effective rate.",
   "Compute coverage": "On-demand core-hours offset by commitments. Target: ≥60%. Tracks whether savings plan scope is sufficient.",
   "MACC burn rate": "Microsoft Azure Consumption Commitment utilization. Target: ≥90% to avoid forfeiting unused balance at term end.",
   "Anomaly days": "Days where daily cost deviated significantly from the expected baseline (STL decomposition). Review flagged dates for unexpected spend.",
+  "Hourly cost / core": "Compute effective cost per core-hour actually consumed this period — the real, paid-for unit rate.",
+  "Effective cost / core": "Compute effective cost per core-hour, including unused commitment waste spread across usage — the fully-loaded unit cost if that waste is charged back.",
+  "Unpredicted variance": "Net effective cost variance between actual spend and the anomaly baseline on flagged days (FinOps KPI: Total Unpredicted Variance of Spend). Positive = spent more than expected.",
+  "Anomaly detection rate": "Effective cost on anomaly-flagged days as % of total effective spend (FinOps KPI: Anomaly Cost %). The day-count ratio shown alongside is a separate reference stat, not the derivation of this percentage.",
+  "Last month change": "Month-over-month % change in effective cost vs. the prior month. Watch for spikes or drops that don't match expected seasonality.",
+  "Forecast next month": "Projected effective cost for next month using time-series decomposition (FinOps KPI: Cost Forecasting). Based on historical trend + seasonality, not a guarantee.",
+  "Visibility delay": "Median (P50) delay between when cost was incurred and when it appeared in the FinOps hub (FinOps KPI: Cost Visibility Delay). On local/demo data without a live Cost Management connector, a large delay is expected.",
+  "Tag policy compliance": "% of effective cost on resources with all required tag keys present and non-empty (FinOps KPI: Tagging Policy Compliance).",
+  "Subscriptions": "Distinct subscriptions (billing accounts) with cost activity in the selected period.",
+  "Allocated cost": "Effective cost with allocation evidence — a cost center, owner, or ownership tag — the complement of Unallocated cost.",
 };
 
-function kpiCard(label, value, meta, accent, thresholdClass) {
-  // Determine hierarchy class based on label
-  const primaryLabels = ["Untagged cost", "Commitment waste", "Effective savings rate"];
-  const referenceLabels = ["Commitment coverage", "Compute coverage", "Total tokens", "Anomaly days"];
-
-  let hierarchyClass = "";
-  if (primaryLabels.includes(label)) {
-    hierarchyClass = "kpi--primary";
-  } else if (referenceLabels.includes(label)) {
-    hierarchyClass = "kpi--reference";
-  }
+function kpiCard(label, value, meta, accent, thresholdClass, tier) {
+  // Hierarchy tier is now explicitly assigned by each tab's render*() call
+  // site (via the 6th `tier` argument) rather than an incomplete global
+  // label allow-list, so every tab consciously designates its own hero
+  // metric. `accent` is kept for call-site compatibility but unused.
+  const hierarchyClass = tier === "primary" ? "kpi--primary" : tier === "reference" ? "kpi--reference" : "";
 
   // Combine threshold and hierarchy classes
   const classArray = [thresholdClass, hierarchyClass].filter(Boolean);
@@ -719,7 +803,7 @@ function renderKqlResultInPanel(panelId, rows) {
   const panelBody = document.querySelector(`[data-panel-id="${panelId}"] .panel-body`);
   if (!panelBody) return;
   const cols = Object.keys(rows[0]);
-  const head = cols.map((c) => `<th>${esc(c)}</th>`).join("");
+  const head = cols.map((c) => `<th scope="col">${esc(c)}</th>`).join("");
   const body = rows.slice(0, 200).map((r) =>
     `<tr>${cols.map((c) => `<td>${esc(String(r[c] ?? ""))}</td>`).join("")}</tr>`
   ).join("");
@@ -746,26 +830,28 @@ function renderOverview(p) {
     // primary KPIs first
     kpiCard("Untagged cost", fmtPct(k.untaggedPct),
       `${fmtMoney(k.untagged)} on untagged resources`, PALETTE[3],
-      kpiThreshold(k.untaggedPct, 0.10, 0.25)),
+      kpiThreshold(k.untaggedPct, 0.10, 0.25), "primary"),
     // supporting KPIs
     kpiCard("Effective cost", fmtMoney(k.eff), `Billed ${fmtMoney(k.billed)}`, PALETTE[0]),
     kpiCard("Total savings", fmtMoney(k.savings),
       `<span class="pos">${fmtPct(k.esr)}</span> effective savings rate`, PALETTE[1]),
     // reference KPIs
     kpiCard("Commitment coverage", fmtPct(k.coverage),
-      `${fmtMoney(k.committed)} of compute spend`, PALETTE[5]),
+      `${fmtMoney(k.committed)} of compute spend`, PALETTE[5], undefined, "reference"),
     // supporting KPIs
     kpiCard("Tracked resources", fmtInt(k.resources),
       `${fmtInt(k.services)} services · ${fmtInt(k.subscriptions)} subs · ${fmtInt(k.regions)} regions`, PALETTE[2]),
     kpiCard("Latest month", k.lastMonthVal == null ? "—" : fmtMoney(k.lastMonthVal),
       k.mom == null ? (k.lastMonthLabel ? `${esc(k.lastMonthLabel)}${partialHtml}` : (isPartialMonth() ? `<span class="warn">partial month</span>` : "")) : `<span class="${momClass}">${momTxt}</span> vs prior · ${esc(k.lastMonthLabel)}${partialHtml}`, PALETTE[4]),
-    // macc-consumption-vs-commitment — MACC burn rate
+    // macc-consumption-vs-commitment — MACC burn rate. Demote to reference
+    // tier when unconfigured (N/A) so an empty card doesn't take full
+    // primary-grid visual weight.
     kpiCard("MACC burn rate",
       maccRow.CommitmentAmount > 0 ? fmtPct(maccRow.CommitmentBurnPercent / 100) : "N/A",
       maccRow.CommitmentAmount > 0
         ? `${fmtMoney(maccRow.ConsumptionAmount)} of ${fmtMoney(maccRow.CommitmentAmount)} committed`
         : "No Microsoft Azure Consumption Commitment data",
-      PALETTE[7]),
+      PALETTE[7], undefined, maccRow.CommitmentAmount > 0 ? undefined : "reference"),
   ].join("");
 
   const d = p.data;
@@ -776,14 +862,14 @@ function renderOverview(p) {
     <div class="section-title"><h2>Understand usage &amp; cost</h2><span class="domain">FinOps Framework</span></div>
     <div class="panel-grid">
       ${panelHtml("overview-trend", 12, "Monthly cost trend", "Billed vs effective cost by month — executive run-rate view.", lineChart(d.trend))}
-      ${panelHtml("overview-top-services", 6, "Top services by cost", "Effective cost by Azure service.", hbar(d.topServices, "ServiceName", "Cost"))}
-      ${panelHtml("overview-service-category", 6, "Cost by service category", "Where spend concentrates across categories.", hbar(d.serviceCategory, "ServiceCategory", "Cost"))}
+      ${panelHtml("overview-top-services", 6, "Top services by cost", "Effective cost by Azure service.", hbar(d.topServices, "ServiceName", "Cost", { label: "Top services by cost" }))}
+      ${panelHtml("overview-service-category", 6, "Cost by service category", "Where spend concentrates across categories.", hbar(d.serviceCategory, "ServiceCategory", "Cost", { label: "Cost by service category" }))}
     </div>
 
     <div class="section-title"><h2>Optimize usage &amp; cost</h2><span class="domain">FinOps Framework</span></div>
     <div class="panel-grid">
-      ${panelHtml("overview-top-rgs", 6, "Top resource groups", "Largest cost owners for allocation &amp; accountability.", hbar(d.topResourceGroups, "x_ResourceGroupName", "Cost"))}
-      ${panelHtml("overview-top-regions", 6, "Cost by region", "Regional spend for placement &amp; sustainability review.", hbar(d.topRegions, "RegionId", "Cost"))}
+      ${panelHtml("overview-top-rgs", 6, "Top resource groups", "Largest cost owners for allocation &amp; accountability.", hbar(d.topResourceGroups, "x_ResourceGroupName", "Cost", { label: "Top resource groups" }))}
+      ${panelHtml("overview-top-regions", 6, "Cost by region", "Regional spend for placement &amp; sustainability review.", hbar(d.topRegions, "RegionId", "Cost", { label: "Cost by region" }))}
     </div>
 
     <div class="section-title"><h2>Quantify business value</h2><span class="domain">FinOps Framework</span></div>
@@ -791,33 +877,24 @@ function renderOverview(p) {
       ${panelHtml("overview-rate-coverage", 4, "Rate coverage", "Committed vs on-demand (standard) effective cost.", donut([
         { label: "Committed", value: k.committed, color: PALETTE[1] },
         { label: "On-demand", value: Math.max(0, k.eff - k.committed), color: PALETTE[0] },
-      ], { centerBig: fmtPct(k.coverage), centerSmall: "covered" }))}
+      ], { centerBig: fmtPct(k.coverage), centerSmall: "covered", label: "Rate coverage" }))}
       ${panelHtml("overview-savings", 4, "Savings breakdown", "List → effective, by discount type.", savingsTable(k))}
       ${panelHtml("overview-cost-allocation", 4, "Cost allocation", "Tagged vs untagged effective cost.", donut([
         { label: "Tagged", value: k.tagged, color: PALETTE[1] },
-        { label: "Untagged", value: k.untagged, color: PALETTE[3] },
-      ], { centerBig: fmtPct(1 - k.untaggedPct), centerSmall: "tagged" }))}
+        { label: "Untagged", value: k.untagged, color: UNKNOWN_COLOR, isUnknown: true },
+      ], { centerBig: fmtPct(1 - k.untaggedPct), centerSmall: "tagged", label: "Cost allocation" }))}
     </div>
   `;
   content.innerHTML = html;
 }
 
 function savingsTable(k) {
-  const row = (label, val, accent) =>
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--grid);font-variant-numeric:tabular-nums">
-      <span style="display:inline-flex;align-items:center;gap:8px">${
-        accent ? `<span class="swatch" style="width:9px;height:9px;border-radius:3px;display:inline-block;background:${accent}"></span>` : ""}${esc(label)}</span>
-      <strong>${fmtMoney(val)}</strong></div>`;
-  return `<div>
-    ${row("List cost", k.list, "var(--muted)")}
-    ${row("Negotiated savings", k.negotiated, PALETTE[8])}
-    ${row("Commitment savings", k.commitment, PALETTE[1])}
-    ${row("Effective cost", k.eff, PALETTE[0])}
-    <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:4px">
-      <span class="muted" style="font-size:12px">Effective savings rate</span>
-      <strong style="color:var(--pos)">${fmtPct(k.esr)}</strong>
-    </div>
-  </div>`;
+  return costBreakdownTable([
+    { label: "List cost", val: k.list, accent: "var(--muted)" },
+    { label: "Negotiated savings", val: k.negotiated, accent: PALETTE[8] },
+    { label: "Commitment savings", val: k.commitment, accent: PALETTE[1] },
+    { label: "Effective cost", val: k.eff, accent: PALETTE[0] },
+  ], "Effective savings rate", fmtPct(k.esr));
 }
 
 /* ----------------------------------------------------- tokenomics render */
@@ -860,14 +937,14 @@ function renderTokenomics(p) {
 
   const kpis = [
     // reference KPIs first (no primaries in this tab)
-    kpiCard("Total tokens", fmtTokens(k.tokens), `across ${fmtInt(k.models)} model SKUs`, PALETTE[0]),
+    kpiCard("Total tokens", fmtTokens(k.tokens), `across ${fmtInt(k.models)} model families`, PALETTE[0], undefined, "reference"),
     // supporting KPIs
-    kpiCard("AI token cost", fmtMoney(k.eff), `${fmtPct(k.aiShare, 2)} of all cloud cost`, PALETTE[2]),
+    kpiCard("AI token cost", fmtMoney(k.eff), `${fmtPct(k.aiShare, 2)} of all cloud cost`, PALETTE[2], undefined, "primary"),
     kpiCard("Blended rate", fmtPerM(k.blendedPer1K), `per 1M tokens (effective)`, PALETTE[5]),
     kpiCard("Cached input", fmtPct(k.cachedShare),
       `<span class="pos">${fmtPct(k.cachedShare)}</span> of input tokens cached`, PALETTE[1]),
     kpiCard("AI resources", fmtInt(k.resources), `Azure OpenAI deployments`, PALETTE[4]),
-    kpiCard("Models in use", fmtInt(k.models), `distinct token SKUs`, PALETTE[8]),
+    kpiCard("Models in use", fmtInt(k.models), `distinct model families`, PALETTE[8]),
   ].join("");
 
   content.innerHTML = `
@@ -877,11 +954,12 @@ function renderTokenomics(p) {
     <div class="panel-grid">
       ${panelHtml("token-trend", 12, "Token volume &amp; AI cost trend", "Monthly token consumption (bars) and effective AI cost (line).", tokenTrendChart(d.trend))}
       ${panelHtml("token-by-model", 6, "AI cost by model", "Effective cost per model family.",
-        hbar((d.models || []).map((m) => ({ Model: m.Model, Cost: m.Cost })), "Model", "Cost"))}
+        hbar((d.models || []).map((m) => ({ Model: m.Model, Cost: m.Cost })), "Model", "Cost", { label: "AI cost by model" }))}
       ${panelHtml("token-direction", 6, "Token direction mix", "Input vs cached input vs output — by token volume.",
         donut(dirSlices, {
           centerBig: fmtTokens(k.tokens), centerSmall: "tokens",
           valueFmt: (s) => `${fmtTokens(s.value)} · ${fmtMoney(s.cost)}`,
+          label: "Token direction mix",
         }))}
     </div>
 
@@ -890,7 +968,7 @@ function renderTokenomics(p) {
       ${panelHtml("token-model-table", 12, "Cost per 1M tokens by model", "Unit economics for model selection — sorted by effective cost.", tokenModelTable(d.models, k.eff))}
     </div>
 
-    <div class="section-title"><h2>AI cost allocation</h2><span class="domain">Showback &amp; chargeback · ai-cost-by-application</span></div>
+    <div class="section-title"><h2>AI cost allocation</h2><span class="domain">Showback &amp; chargeback</span></div>
     <div class="panel-grid">
       ${panelHtml("token-by-app", 12, "AI cost by application", "Azure OpenAI effective cost and token volume by application, team, environment, and cost center.", aiByAppTable(d.byApplication))}
     </div>
@@ -906,7 +984,7 @@ function tokenModelTable(models, totalCost) {
     const share = totalCost > 0 ? (m.Cost || 0) / totalCost : 0;
     const barW = Math.max(2, ((m.CostPer1K || 0) / maxPer1K) * 90);
     return `<tr>
-      <td><span class="model"><span class="swatch" style="background:${color}"></span>${esc(m.Model)}</span></td>
+      <td><span class="model">${swatchHtml(color)}${esc(m.Model)}</span></td>
       <td>${fmtTokens(m.Tokens)}</td>
       <td>${fmtMoneyFull(m.Cost)}</td>
       <td class="barcell">${fmtPerM(m.CostPer1K)}<span class="minibar" style="width:${barW}px;background:${color}"></span></td>
@@ -914,7 +992,7 @@ function tokenModelTable(models, totalCost) {
     </tr>`;
   }).join("");
   return `<table class="dtable">
-    <thead><tr><th>Model</th><th>Tokens</th><th>Effective cost</th><th>$ / 1M tokens</th><th>% of AI cost</th></tr></thead>
+    <thead><tr><th scope="col">Model</th><th scope="col">Tokens</th><th scope="col">Effective cost</th><th scope="col">$ / 1M tokens</th><th scope="col">% of AI cost</th></tr></thead>
     <tbody>${body}</tbody>
   </table>`;
 }
@@ -923,13 +1001,18 @@ function aiByAppTable(rows) {
   const data = (rows || []).filter((r) => (r.EffectiveCost || 0) > 0);
   if (data.length === 0) return `<p class="muted" style="font-size:12px">No tagged AI cost data. Tag Azure OpenAI resources with <code>application</code>, <code>team</code>, or <code>environment</code> tags.</p>`;
   const totalCost = data.reduce((a, r) => a + (r.EffectiveCost || 0), 0);
-  return `<table class="dtable">
-    <thead><tr><th>Application</th><th>Team</th><th>Environment</th><th>Cost center</th><th>Tokens</th><th>Effective cost</th><th>$/1M tokens</th><th>% of AI</th></tr></thead>
+  const untaggedCount = data.filter((r) => !r.Application).length;
+  const callout = untaggedCount === data.length
+    ? `<div class="triage-callout" role="status"><span class="triage-callout-icon" aria-hidden="true">⚠</span>100% of AI cost (${fmtMoney(totalCost)}) is untagged — no application-level chargeback is currently possible. Tag Azure OpenAI resources with an <code>application</code> tag to enable it.</div>`
+    : "";
+  return callout + `<table class="dtable">
+    <thead><tr><th scope="col">Application</th><th scope="col">Team</th><th scope="col">Environment</th><th scope="col">Cost center</th><th scope="col">Tokens</th><th scope="col">Effective cost</th><th scope="col">$/1M tokens</th><th scope="col">% of AI</th></tr></thead>
     <tbody>${data.map((r, i) => {
       const share = totalCost > 0 ? (r.EffectiveCost || 0) / totalCost : 0;
+      const isUnknown = !r.Application;
       const color = PALETTE[i % PALETTE.length];
       return `<tr>
-        <td><span class="swatch" style="background:${color}"></span>${esc(r.Application || "(untagged)")}</td>
+        <td>${swatchHtml(color, isUnknown)}${esc(r.Application || "(untagged)")}</td>
         <td class="muted">${esc(r.Team || "—")}</td>
         <td class="muted">${esc(r.Environment || "—")}</td>
         <td class="muted">${esc(r.CostCenter || "—")}</td>
@@ -972,21 +1055,25 @@ function renderAnomaly(p) {
   const fr = d.freshness?.[0] || {};
   const p50Days = fr.P50 != null ? fr.P50 / 24 : null;
 
+  const mcClass = lastMc == null ? "" : lastMc.EffChangePct > 0 ? "neg" : "pos"; // cost up = bad
+  const mcArrow = lastMc == null ? "" : lastMc.EffChangePct > 0 ? "▲" : "▼";
+  const mcValue = lastMc == null ? "—" : `<span class="${mcClass}">${mcArrow} ${fmtPct(Math.abs(lastMc.EffChangePct) / 100)}</span>`;
+
   const kpis = [
     // reference KPIs first (no primaries in this tab)
     kpiCard("Anomaly days", fmtInt(anomDays.length),
-      `${fmtMoney(anomCost)} on flagged days`, PALETTE[5]),
+      `${fmtMoney(anomCost)} on flagged days`, undefined, undefined, "reference"),
     // supporting KPIs
     kpiCard("Anomaly detection rate", fmtPct(rate, 2),
-      `${anomDays.length} flagged of ${daily.length} days`, PALETTE[4]),
+      `% of effective spend on flagged days · ${fmtInt(anomDays.length)} of ${fmtInt(daily.length)} days flagged`, undefined),
     kpiCard("Unpredicted variance", fmtMoney(variance),
-      `net spend vs baseline on anomaly days`, PALETTE[3]),
-    kpiCard("Last month change", lastMc ? `${lastMc.EffChangePct > 0 ? "+" : ""}${lastMc.EffChangePct.toFixed(1)}%` : "—",
-      lastMc ? `effective cost · ${esc(fmtMonth(lastMc.Month))}` : "", PALETTE[lastMc && lastMc.EffChangePct > 0 ? 4 : 1]),
+      `net spend vs baseline on anomaly days`, undefined),
+    kpiCard("Last month change", mcValue,
+      lastMc ? `effective cost · ${esc(fmtMonth(lastMc.Month))}` : "", undefined),
     kpiCard("Forecast next month", nextFc ? fmtMoney(nextFc.Forecast) : "—",
-      nextFc ? `projected · ${esc(fmtMonth(nextFc.Month))}` : "", PALETTE[0]),
+      nextFc ? `projected · ${esc(fmtMonth(nextFc.Month))}` : "", undefined),
     kpiCard("Visibility delay", p50Days != null ? `${p50Days.toFixed(0)}d` : "—",
-      `median ingestion lag (P50)`, PALETTE[2]),
+      `median ingestion lag (P50)`, undefined),
   ].join("");
 
   const triageCallout = anomDays.length > 0
@@ -997,7 +1084,7 @@ function renderAnomaly(p) {
     ${triageCallout}
     <div class="kpi-grid">${kpis}</div>
 
-    <div class="section-title"><h2>Cost anomalies</h2><span class="domain">Anomaly Management capability</span></div>
+    <div class="section-title"><h2>Cost anomalies</h2><span class="domain">Anomaly management capability</span></div>
     <div class="panel-grid">
       ${panelHtml("anomaly-daily", 12, "Daily cost &amp; detected anomalies", "Daily effective cost vs the expected baseline (STL decomposition); markers flag spikes &amp; drops.", anomalyChart(daily))}
     </div>
@@ -1032,9 +1119,9 @@ function renderUsage(p) {
 
   const kpis = [
     kpiCard("Hourly cost / core", `$${hourlyPerCore.toFixed(3)}`,
-      `per consumed vCPU-hour`, PALETTE[0]),
+      `per consumed vCPU-hour`, PALETTE[0], undefined, "primary"),
     kpiCard("Effective cost / core", `$${effPerCore.toFixed(3)}`,
-      `incl. unused commitment`, PALETTE[2]),
+      `incl. unused commitment`, PALETTE[2], undefined, "reference"),
     kpiCard("Compute core-hours", fmtTokens(coreHours),
       `${fmtMoney(c.ComputeEff)} VM usage`, PALETTE[1]),
     kpiCard("Storage rate", `$${(perGB * 1024).toFixed(3)}`,
@@ -1046,18 +1133,18 @@ function renderUsage(p) {
   ].join("");
 
   const typeRows = (d.topResourceTypes || []).map((r) => ({
-    type: r.ResourceType, count: r.Count || 0, cost: r.Cost || 0,
+    type: r.ResourceType, count: r.Resources || 0, cost: r.Cost || 0,
     pct: total > 0 ? (r.Cost || 0) / total : 0,
   }));
   const typeTable = tableHtml([
-    { label: "Resource type", align: "left", get: (r, i) => `<span class="model"><span class="swatch" style="background:${PALETTE[i % PALETTE.length]}"></span>${esc(r.type)}</span>` },
+    { label: "Resource type", align: "left", get: (r, i) => `<span class="model">${swatchHtml(PALETTE[i % PALETTE.length])}${esc(r.type)}</span>` },
     { label: "Resources", get: (r) => fmtInt(r.count) },
     { label: "Effective cost", get: (r) => fmtMoneyFull(r.cost) },
     { label: "% of total", get: (r) => fmtPct(r.pct) },
   ], typeRows);
 
-  const tierColors = { "Frequent": PALETTE[1], "Infrequent": PALETTE[5], "Unclassified": PALETTE[6] };
-  const tierSlices = (d.storageTiers || []).map((r) => ({ label: r.Tier, value: r.Cost || 0, color: tierColors[r.Tier] || PALETTE[6] }));
+  const tierColors = { "Frequent": PALETTE[1], "Infrequent": PALETTE[5], "Unclassified": UNKNOWN_COLOR };
+  const tierSlices = (d.storageTiers || []).map((r) => ({ label: r.Tier, value: r.Cost || 0, color: tierColors[r.Tier] || PALETTE[6], isUnknown: r.Tier === "Unclassified" }));
   const freqShare = (() => {
     const t = tierSlices.reduce((a, x) => a + x.value, 0);
     const f = (d.storageTiers || []).find((r) => r.Tier === "Frequent");
@@ -1067,13 +1154,13 @@ function renderUsage(p) {
   content.innerHTML = `
     <div class="kpi-grid">${kpis}</div>
 
-    <div class="section-title"><h2>Usage &amp; unit economics</h2><span class="domain">Usage Optimization · Unit Economics</span></div>
+    <div class="section-title"><h2>Usage &amp; unit economics</h2><span class="domain">Usage optimization · Unit economics</span></div>
     <div class="panel-grid">
       ${panelHtml("usage-top-types", 12, "Top resource types by cost", "Resource count and effective spend per resource type.", typeTable)}
       ${panelHtml("usage-per-core-series", 6, "Compute cost per core by VM series", "Effective cost per vCPU-hour — highlights expensive (e.g. GPU) cores.",
-        hbar(d.perCoreSeries, "x_SkuMeterSubcategory", "PerCore"))}
+        hbar(d.perCoreSeries, "x_SkuMeterSubcategory", "PerCore", { valFmt: (v) => `$${v.toFixed(3)}`, label: "Compute cost per core by VM series" }))}
       ${panelHtml("usage-storage-tiers", 6, `Storage tier distribution`, `Effective storage cost by access tier (${fmtPct(freqShare)} classified frequent).`,
-        donut(tierSlices, { centerBig: fmtMoney(s.Cost), centerSmall: "storage" }))}
+        donut(tierSlices, { centerBig: fmtMoney(s.Cost), centerSmall: "storage", label: "Storage tier distribution" }))}
     </div>
   `;
 }
@@ -1098,14 +1185,19 @@ function renderRate(p) {
   const coreTotal = (d.coreHours || []).reduce((a, r) => a + (r.CoreHours || 0), 0);
   const committedCore = (d.coreHours || []).filter((r) => r.t !== "On Demand").reduce((a, r) => a + (r.CoreHours || 0), 0);
   const coreShare = coreTotal > 0 ? committedCore / coreTotal : 0;
+  // Single source of truth for "Commitment waste" coloring: derive the meta
+  // text color from the same threshold the card border uses, instead of a
+  // separately hardcoded 0.1 cutoff that could silently drift out of sync.
+  const wasteThreshold = kpiThreshold(waste, 0.10, 0.20);
+  const wasteMetaCls = wasteThreshold === "threshold-red" ? "neg" : wasteThreshold === "threshold-amber" ? "warn" : "pos";
 
   const kpis = [
     // primary KPIs first
     kpiCard("Effective savings rate", fmtPct(esr),
-      `<span class="pos">${fmtMoney(s.Total)}</span> total savings · vs. list price`, PALETTE[1]),
+      `<span class="pos">${fmtMoney(s.Total)}</span> total savings · vs. list price`, PALETTE[1], undefined, "primary"),
     kpiCard("Commitment waste", fmtPct(waste),
-      `<span class="${waste > 0.1 ? "warn" : "pos"}">${fmtMoney(cm.Unused)}</span> unused · of commitment spend`, PALETTE[3],
-      kpiThreshold(waste, 0.10, 0.20)),
+      `<span class="${wasteMetaCls}">${fmtMoney(cm.Unused)}</span> unused · of commitment spend`, PALETTE[3],
+      wasteThreshold, "primary"),
     // supporting KPIs
     kpiCard("Total savings", fmtMoney(s.Total),
       `of ${fmtMoney(s.List)} list cost`, PALETTE[2]),
@@ -1120,22 +1212,18 @@ function renderRate(p) {
     })(),
     // reference KPIs
     kpiCard("Compute coverage", fmtPct(coverage),
-      `compute spend on commitments`, PALETTE[5]),
+      `compute spend on commitments`, PALETTE[5], undefined, "reference"),
     // supporting KPIs
     kpiCard("Committed core-hours", fmtPct(coreShare),
-      `RI + savings plan vs on-demand`, PALETTE[8]),
+      `RI + savings plan vs on-demand`, PALETTE[8], undefined, "reference"),
   ].join("");
 
-  const savingsBreak = `<div>
-    ${rateRow("List cost", s.List, "var(--muted)")}
-    ${rateRow("Negotiated savings", s.Negotiated, PALETTE[8])}
-    ${rateRow("Commitment savings", s.Commitment, PALETTE[1])}
-    ${rateRow("Effective cost", s.Effective, PALETTE[0])}
-    <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:4px">
-      <span class="muted" style="font-size:12px">Effective savings rate</span>
-      <strong style="color:var(--pos)">${fmtPct(esr)}</strong>
-    </div>
-  </div>`;
+  const savingsBreak = costBreakdownTable([
+    { label: "List cost (excl. commitment purchases)", val: s.List, accent: "var(--muted)" },
+    { label: "Negotiated savings", val: s.Negotiated, accent: PALETTE[8] },
+    { label: "Commitment savings", val: s.Commitment, accent: PALETTE[1] },
+    { label: "Effective cost", val: s.Effective, accent: PALETTE[0] },
+  ], "Effective savings rate", fmtPct(esr));
 
   const coreColors = { "On Demand": PALETTE[0], "Reservation": PALETTE[1], "Savings Plan": PALETTE[4] };
   const coreSlices = (d.coreHours || []).map((r) => ({ label: r.t, value: r.CoreHours || 0, color: coreColors[r.t] || PALETTE[6] }));
@@ -1149,49 +1237,43 @@ function renderRate(p) {
     ${rateCallout}
     <div class="kpi-grid">${kpis}</div>
 
-    <div class="section-title"><h2>Rate optimization</h2><span class="domain">Rate Optimization capability</span></div>
+    <div class="section-title"><h2>Rate optimization</h2><span class="domain">Rate optimization capability</span></div>
     <div class="panel-grid">
-      ${panelHtml("rate-savings", 7, "Savings breakdown", "List → effective cost by discount type (effective savings rate).", savingsBreak)}
-      ${panelHtml("rate-commit-util", 5, "Commitment utilization", "Used vs unused commitment effective cost.",
+      ${panelHtml("rate-savings", 6, "Savings breakdown", "List → effective cost by discount type (effective savings rate).", savingsBreak)}
+      ${panelHtml("rate-commit-util", 6, "Commitment utilization", "Used vs unused commitment effective cost.",
         donut([
           { label: "Used", value: cmTotal - (cm.Unused || 0), color: PALETTE[1] },
           { label: "Unused (waste)", value: cm.Unused || 0, color: PALETTE[3] },
-        ], { centerBig: fmtPct(util), centerSmall: "utilized" }))}
+        ], { centerBig: fmtPct(util), centerSmall: "utilized", label: "Commitment utilization" }))}
       ${panelHtml("rate-core-hours", 6, "Core-hour coverage", "Consumed core-hours by commitment type.",
         donut(coreSlices, {
           centerBig: fmtPct(coreShare), centerSmall: "committed",
           valueFmt: (s) => `${fmtTokens(s.value)} core-hrs`,
+          label: "Core-hour coverage",
         }))}
       ${panelHtml("rate-underutil", 6, "Underutilized commitments", "Reservations &amp; plans with the most unused cost.",
-        hbar(d.byCommitment, "CommitmentDiscountName", "Unused"))}
+        hbar(d.byCommitment, "CommitmentDiscountName", "Unused", { label: "Underutilized commitments" }))}
     </div>
 
     <div class="section-title"><h2>Commitment transactions</h2><span class="domain">Rate optimization · Commitment purchasing</span></div>
     <div class="panel-grid">
       ${panelHtml("rate-commit-score", 6, "Commitment utilization score", "Per-commitment utilization (used vs potential) from the formal CUS KPI.", commitUtilTable(d.commitmentUtilScore))}
-      ${panelHtml("rate-top-txns", 6, "Top commitment transactions", "Largest RI and savings plan purchases by billed cost.", topCommitTxnTable(d.topCommitmentTxns))}
+      ${panelHtml("rate-top-txns", 6, "Top commitment transactions", "Largest RI and savings plan purchases by billed cost. Effective cost is $0 by design — amortization credits the cost to the months the commitment is consumed, not the purchase month.", topCommitTxnTable(d.topCommitmentTxns))}
     </div>
   `;
-}
-
-function rateRow(label, val, accent) {
-  return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--grid);font-variant-numeric:tabular-nums">
-    <span style="display:inline-flex;align-items:center;gap:8px">${
-      accent ? `<span class="swatch" style="width:9px;height:9px;border-radius:3px;display:inline-block;background:${accent}"></span>` : ""}${esc(label)}</span>
-    <strong>${fmtMoney(val)}</strong></div>`;
 }
 
 function commitUtilTable(rows) {
   const data = (rows || []).filter((r) => r.CommitmentDiscountName !== '(Grand Total)' && (r.Potential || 0) > 0);
   if (data.length === 0) return `<p class="muted" style="font-size:12px">No commitment data in range.</p>`;
   return `<table class="dtable">
-    <thead><tr><th>Commitment</th><th>Type</th><th>Score</th><th>Utilized</th><th>Potential</th></tr></thead>
+    <thead><tr><th scope="col">Commitment</th><th scope="col">Type</th><th scope="col">Score</th><th scope="col">Utilized</th><th scope="col">Potential</th></tr></thead>
     <tbody>${data.map((r) => {
       const score = r.Score || 0;
       const cls = score < 70 ? "neg" : score < 90 ? "warn" : "pos";
       const barW = Math.max(2, (score / 100) * 90);
       return `<tr>
-        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.CommitmentDiscountName)}</td>
+        <td class="truncate-hint" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.CommitmentDiscountName)}">${esc(r.CommitmentDiscountName)}</td>
         <td class="muted">${esc(r.CommitmentDiscountType || r.CommitmentDiscountCategory || "")}</td>
         <td class="barcell"><span class="${cls}">${fmtPct(score / 100)}</span><span class="minibar" style="width:${barW}px;background:${score < 70 ? "var(--neg)" : score < 90 ? "var(--warn)" : "var(--pos)"}"></span></td>
         <td>${fmtMoney(r.Amount)}</td>
@@ -1205,9 +1287,9 @@ function topCommitTxnTable(rows) {
   const data = rows || [];
   if (data.length === 0) return `<p class="muted" style="font-size:12px">No commitment transactions in range.</p>`;
   return `<table class="dtable">
-    <thead><tr><th>Commitment</th><th>Type</th><th>Billed cost</th><th>Effective cost</th></tr></thead>
+    <thead><tr><th scope="col">Commitment</th><th scope="col">Type</th><th scope="col">Billed cost</th><th scope="col">Effective cost</th></tr></thead>
     <tbody>${data.map((r) => `<tr>
-      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.CommitmentDiscountName || "(unknown)")}</td>
+      <td class="truncate-hint" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.CommitmentDiscountName || "(unknown)")}">${esc(r.CommitmentDiscountName || "(unknown)")}</td>
       <td class="muted">${esc(r.CommitmentDiscountType || "")}</td>
       <td>${fmtMoney(r.BilledCost)}</td>
       <td>${fmtMoney(r.EffectiveCost)}</td>
@@ -1237,7 +1319,7 @@ function renderAllocation(p) {
     // primary KPIs first
     kpiCard("Untagged cost", fmtPct(untaggedPct),
       `${fmtMoney(c.Untagged)} with no tags`, PALETTE[3],
-      kpiThreshold(untaggedPct, 0.10, 0.25)),
+      kpiThreshold(untaggedPct, 0.10, 0.25), "primary"),
     // supporting KPIs
     kpiCard("Allocation accuracy", fmtPct(aai),
       `<span class="pos">directly attributed</span> effective cost`, PALETTE[1]),
@@ -1256,12 +1338,28 @@ function renderAllocation(p) {
     pct: total > 0 ? (r.Cost || 0) / total : 0,
   }));
   const hierTable = tableHtml([
-    { label: "Org", align: "left", get: (r, i) => `<span class="model"><span class="swatch" style="background:${PALETTE[i % PALETTE.length]}"></span>${esc(r.org)}</span>` },
+    {
+      label: "Org", align: "left", get: (r, i) => {
+        const isUnknown = r.org === "—" && r.project === "—" && r.env === "—";
+        return `<span class="model">${swatchHtml(PALETTE[i % PALETTE.length], isUnknown)}${esc(r.org)}</span>`;
+      },
+    },
     { label: "Project", align: "left", get: (r) => esc(r.project) },
     { label: "Environment", align: "left", get: (r) => esc(r.env) },
     { label: "Effective cost", get: (r) => fmtMoneyFull(r.cost) },
     { label: "% of total", get: (r) => fmtPct(r.pct) },
   ], hierRows);
+
+  // Flag case-variant duplicate tag keys (e.g. "CostCenter" vs "costcenter")
+  // so the governance issue is called out, not hidden by treating them as
+  // separate keys.
+  const tagKeyRows = d.tagKeys || [];
+  const lowerCounts = {};
+  tagKeyRows.forEach((r) => { const lk = String(r.k).toLowerCase(); lowerCounts[lk] = (lowerCounts[lk] || 0) + 1; });
+  const dupKeys = tagKeyRows.filter((r) => lowerCounts[String(r.k).toLowerCase()] > 1).map((r) => r.k);
+  const tagKeyNote = dupKeys.length > 0
+    ? ` <strong>Note:</strong> ${dupKeys.map((k) => `<code>${esc(k)}</code>`).join(" vs ")} are case-variant duplicates of the same governance key — likely inconsistent tagging, not distinct keys.`
+    : "";
 
   content.innerHTML = `
     <div class="kpi-grid">${kpis}</div>
@@ -1272,10 +1370,10 @@ function renderAllocation(p) {
       ${panelHtml("alloc-tagging", 4, "Tagging coverage", "Tagged vs untagged effective cost.",
         donut([
           { label: "Tagged", value: total - c.Untagged, color: PALETTE[1] },
-          { label: "Untagged", value: c.Untagged, color: PALETTE[3] },
-        ], { centerBig: fmtPct(1 - untaggedPct), centerSmall: "tagged" }))}
-      ${panelHtml("alloc-tag-keys", 6, "Cost by tag key", "Effective cost touched by each governance tag.", hbar(d.tagKeys, "k", "Cost", { filterDim: null }))}
-      ${panelHtml("alloc-by-subscription", 6, "Cost by subscription", "Spend per billing scope for showback.", hbar(d.bySubscription, "SubAccountName", "Cost"))}
+          { label: "Untagged", value: c.Untagged, color: UNKNOWN_COLOR, isUnknown: true },
+        ], { centerBig: fmtPct(1 - untaggedPct), centerSmall: "tagged", label: "Tagging coverage" }))}
+      ${panelHtml("alloc-tag-keys", 6, "Cost by tag key", `Effective cost touched by each governance tag.${tagKeyNote}`, hbar(d.tagKeys, "k", "Cost", { filterDim: null, label: "Cost by tag key" }))}
+      ${panelHtml("alloc-by-subscription", 6, "Cost by subscription", "Spend per billing scope for showback.", hbar(d.bySubscription, "SubAccountName", "Cost", { label: "Cost by subscription" }))}
     </div>
   `;
 }
@@ -1485,7 +1583,23 @@ async function init() {
     window.__cfg = cfg;
   } catch { window.__cfg = {}; }
   wireControls();
-  load();
+
+  // Restore tab from URL hash (bookmarking / back-forward support), or
+  // normalize the hash to reflect the default tab so the URL is always
+  // shareable.
+  const initialTab = tabFromHash();
+  if (initialTab && initialTab !== state.tab) {
+    switchTab(initialTab, { skipHash: true });
+    history.replaceState({ tab: initialTab }, "", `#tab=${initialTab}`);
+  } else {
+    history.replaceState({ tab: state.tab }, "", `#tab=${state.tab}`);
+    load();
+  }
+
+  window.addEventListener("popstate", () => {
+    const tab = tabFromHash() || "overview";
+    if (tab !== state.tab) switchTab(tab, { skipHash: true });
+  });
 }
 
 init();

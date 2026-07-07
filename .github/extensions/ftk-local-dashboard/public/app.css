@@ -162,9 +162,12 @@ body {
   font-variant-numeric: tabular-nums;
 }
 .kpi .meta { margin-top: 5px; font-size: 12px; color: var(--muted); }
-.kpi .meta .pos { color: var(--pos); font-weight: 600; }
-.kpi .meta .neg { color: var(--neg); font-weight: 600; }
-.kpi .meta .warn { color: var(--warn); font-weight: 600; }
+/* .kpi .pos/.neg/.warn (not scoped to .meta) so KPIs that color the value
+   itself — e.g. Anomaly's "Last month change" — get the same semantics as
+   the meta-text convention. */
+.kpi .pos { color: var(--pos); font-weight: 600; }
+.kpi .neg { color: var(--neg); font-weight: 600; }
+.kpi .warn { color: var(--warn); font-weight: 600; }
 
 /* ---------- KPI hierarchy (primary vs reference) ---------- */
 .kpi--primary .value { font-size: 28px; }
@@ -272,6 +275,18 @@ body {
   background: color-mix(in srgb, var(--neg) 15%, transparent);
   color: var(--neg);
 }
+/* Teaser state: this tile's data hasn't loaded yet (visit the tab to
+   populate it), distinct from a real "no anomalies found" result. */
+.triage-tile.is-teaser {
+  border-style: dashed;
+  border-color: var(--grid);
+}
+.triage-tile.is-teaser .triage-count { color: var(--muted); }
+.triage-tile.is-teaser .triage-badge {
+  background: transparent;
+  border: 1px dashed var(--muted);
+  color: var(--muted);
+}
 .triage-cue {
   font-size: 12px;
   color: var(--muted);
@@ -303,6 +318,11 @@ body {
   display: grid;
   gap: var(--gap);
   grid-template-columns: repeat(12, 1fr);
+  /* Paired panels in a row share one height (grid default: stretch), so a
+     2-col layout reads as symmetric rather than a jagged row of mismatched
+     card heights. Short, fixed-size content (a capped donut — see
+     .panel-body:has below) centers vertically to use the shared height
+     instead of leaving dead space pinned to the top. */
 }
 .panel {
   background: var(--card-bg);
@@ -310,7 +330,15 @@ body {
   border-radius: var(--radius);
   padding: 16px;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
+.panel-body { flex: 1; display: flex; flex-direction: column; }
+/* A donut is a small, fixed-size (200x200) chart — it never grows to fill a
+   tall sibling's height. When the row stretches this panel to match, center
+   the donut in the extra space so it reads as balanced padding, not an
+   empty gap under a chart pinned to the top. */
+.panel-body:has(> .donut-wrap) { justify-content: center; }
 .panel.col-12 { grid-column: span 12; }
 .panel.col-9  { grid-column: span 9; }
 .panel.col-8  { grid-column: span 8; }
@@ -345,7 +373,21 @@ svg { display: block; width: 100%; overflow: visible; }
 .legend .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
 .legend .lv { color: var(--muted); font-variant-numeric: tabular-nums; }
 
+/* ---------- "missing data" convention (untagged / unclassified / blank) ---------- */
+/* Shared muted/dashed treatment so a placeholder never looks like a real
+   category rendered in a rotating palette color (donut legends, hbar
+   legends, and inline table swatches all route through this class). */
+.swatch--unknown {
+  border: 1.5px dashed var(--muted);
+  background: transparent !important;
+}
+
 .donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+/* donut()'s viewBox is a fixed 1:1 square (180x180) — without a cap, the
+   generic `svg { width: 100% }` rule scales it to fill the whole panel
+   width, producing an oversized ring and (via grid row-stretch) dragging
+   sibling panels in the same row up to match its inflated height. */
+.donut-wrap svg { width: 200px; height: 200px; max-width: 100%; flex: none; }
 .donut-center .big { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
 .donut-center .small { font-size: 11px; fill: var(--muted); }
 
@@ -353,6 +395,10 @@ svg { display: block; width: 100%; overflow: visible; }
 .hbar-row .name { fill: var(--text-color-default, #1f2328); font-size: 12px; }
 .hbar-row .val { fill: var(--muted); font-size: 11.5px; }
 .bar:hover, .arc:hover { opacity: 0.82; cursor: default; }
+/* Truncated labels: dotted underline hints there's more text on hover
+   (the <title> tooltip already carries the full value). */
+.name--truncated { text-decoration: underline dotted; text-decoration-color: var(--muted); text-underline-offset: 2px; }
+td.truncate-hint { text-decoration: underline dotted; text-decoration-color: var(--muted); text-underline-offset: 2px; cursor: help; }
 
 /* ---------- data table ---------- */
 .dtable { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
