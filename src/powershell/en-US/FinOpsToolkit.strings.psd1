@@ -16,6 +16,8 @@ ConvertFrom-StringData -StringData @'
     Hub_Remove_Failed = FinOps hub could not be deleted. {0}.
     Hub_Remove_NotFound = FinOps hub '{0}' not found.
 
+    HubLocal_Initialize_AssetEmpty = Downloaded asset '{0}' from '{1}' was empty. The release may be incomplete or the URI may not point to a valid FinOps toolkit release.
+    HubLocal_Initialize_DownloadFailed = Could not download asset '{0}' from '{1}'. Check the release URI and network connectivity.
     HubLocal_Initialize_NotReachable = Could not reach the Kusto emulator at '{0}'. Start the local hub container before running this command. See https://aka.ms/finops/hubs/local.
     HubLocal_Initialize_OpenDataEmpty = Open data tables were still empty after {0} attempts: {1}. The emulator's first external data read after setup can return no rows; rerun the command to retry.
 

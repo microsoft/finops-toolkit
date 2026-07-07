@@ -19,31 +19,65 @@
 
     .PARAMETER Endpoint
     Optional. The REST endpoint to use: 'mgmt' for management commands (default) or 'query' for queries.
+
+    .PARAMETER TimeoutSec
+    Optional. Maximum number of seconds to wait for a response. Default = 0 (wait indefinitely).
 #>
 function Invoke-FinOpsHubLocalCommand
 {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingEmptyCatchBlock", "", Justification="Not all failures have a JSON error body (for example, a connection failure); ignore parse errors and fall through to rethrow the original exception.")]
     [CmdletBinding()]
     param
     (
         [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [string]
         $ClusterUri,
 
         [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [string]
         $Database,
 
         [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [string]
         $Command,
 
         [Parameter()]
         [ValidateSet('mgmt', 'query')]
         [string]
-        $Endpoint = 'mgmt'
+        $Endpoint = 'mgmt',
+
+        [Parameter()]
+        [ValidateRange(0, [int]::MaxValue)]
+        [int]
+        $TimeoutSec = 0
     )
 
     $uri = '{0}/v1/rest/{1}' -f $ClusterUri.TrimEnd('/'), $Endpoint
     $body = @{ db = $Database; csl = $Command } | ConvertTo-Json -Compress
-    return Invoke-RestMethod -Uri $uri -Method 'Post' -ContentType 'application/json' -Body $body
+
+    try
+    {
+        return Invoke-RestMethod -Uri $uri -Method 'Post' -ContentType 'application/json' -Body $body -TimeoutSec $TimeoutSec -ErrorAction 'Stop'
+    }
+    catch
+    {
+        # Kusto returns a structured JSON error body. Surface its message/code when present;
+        # otherwise rethrow the original exception (for example, a connection failure) as-is.
+        $content = $null
+        try
+        {
+            $content = $_.ErrorDetails.Message | ConvertFrom-Json -Depth 10
+        }
+        catch {}
+
+        if ($content.error)
+        {
+            throw ($script:LocalizedData.Common_ErrorResponse -f $content.error.message, $content.error.code)
+        }
+
+        throw
+    }
 }

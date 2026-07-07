@@ -28,6 +28,9 @@
     .PARAMETER Destination
     Optional. Local folder used to download the setup scripts. Default = temp folder.
 
+    .PARAMETER TimeoutSec
+    Optional. Maximum number of seconds to wait for each emulator request or asset download. Default = 0 (wait indefinitely).
+
     .EXAMPLE
     Initialize-FinOpsHubLocal
 
@@ -47,10 +50,12 @@ function Initialize-FinOpsHubLocal
     param
     (
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]
         $ClusterUri = 'http://localhost:8082',
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]
         $ReleaseUri = 'https://github.com/microsoft/finops-toolkit/releases/latest/download',
 
@@ -60,6 +65,7 @@ function Initialize-FinOpsHubLocal
         $RawRetentionInDays = 90,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]
         $OpenDataPath = '/data/export/open-data',
 
@@ -68,8 +74,14 @@ function Initialize-FinOpsHubLocal
         $SkipOpenData,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]
-        $Destination = [System.IO.Path]::GetTempPath()
+        $Destination = [System.IO.Path]::GetTempPath(),
+
+        [Parameter()]
+        [ValidateRange(0, [int]::MaxValue)]
+        [int]
+        $TimeoutSec = 0
     )
 
     $progress = $ProgressPreference
@@ -80,7 +92,7 @@ function Initialize-FinOpsHubLocal
         # Verify the emulator is reachable. This command does not start the container.
         try
         {
-            $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'NetDefaultDB' -Command '.show version'
+            $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'NetDefaultDB' -Command '.show version' -TimeoutSec $TimeoutSec
         }
         catch
         {
@@ -99,8 +111,20 @@ function Initialize-FinOpsHubLocal
         foreach ($assetName in $assetNames)
         {
             $filePath = Join-Path -Path $Destination -ChildPath $assetName
-            $null = Invoke-WebRequest -Uri "$($ReleaseUri.TrimEnd('/'))/$assetName" -OutFile $filePath -Verbose:$false
+            try
+            {
+                $null = Invoke-WebRequest -Uri "$($ReleaseUri.TrimEnd('/'))/$assetName" -OutFile $filePath -TimeoutSec $TimeoutSec -Verbose:$false -ErrorAction 'Stop'
+            }
+            catch
+            {
+                throw ($script:LocalizedData.HubLocal_Initialize_DownloadFailed -f $assetName, $ReleaseUri)
+            }
+
             $scripts[$assetName] = Get-Content -Path $filePath -Raw
+            if ([string]::IsNullOrWhiteSpace($scripts[$assetName]))
+            {
+                throw ($script:LocalizedData.HubLocal_Initialize_AssetEmpty -f $assetName, $ReleaseUri)
+            }
         }
 
         # Create the Ingestion and Hub databases
@@ -109,7 +133,7 @@ function Initialize-FinOpsHubLocal
             $createCommand = '.create database {0} persist (@"/kustodata/dbs/{0}/md", @"/kustodata/dbs/{0}/data")' -f $database
             if ($PSCmdlet.ShouldProcess($database, 'Create database'))
             {
-                $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'NetDefaultDB' -Command $createCommand
+                $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'NetDefaultDB' -Command $createCommand -TimeoutSec $TimeoutSec
             }
         }
 
@@ -117,13 +141,13 @@ function Initialize-FinOpsHubLocal
         $ingestionScript = $scripts['finops-hub-fabric-setup-Ingestion.kql'] -replace '\$\$rawRetentionInDays\$\$', $RawRetentionInDays
         if ($PSCmdlet.ShouldProcess('Ingestion', 'Apply setup script'))
         {
-            $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'Ingestion' -Command $ingestionScript
+            $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'Ingestion' -Command $ingestionScript -TimeoutSec $TimeoutSec
         }
 
         # Apply the Hub setup
         if ($PSCmdlet.ShouldProcess('Hub', 'Apply setup script'))
         {
-            $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'Hub' -Command $scripts['finops-hub-fabric-setup-Hub.kql']
+            $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'Hub' -Command $scripts['finops-hub-fabric-setup-Hub.kql'] -TimeoutSec $TimeoutSec
         }
 
         # Load the open data reference tables
@@ -138,9 +162,9 @@ function Initialize-FinOpsHubLocal
                 $maxAttempts = 5
                 for ($attempt = 1; $attempt -le $maxAttempts; $attempt++)
                 {
-                    $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'Ingestion' -Command $openDataScript
+                    $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'Ingestion' -Command $openDataScript -TimeoutSec $TimeoutSec
                     $empty = @($openDataTables | Where-Object {
-                            [int64](Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'Ingestion' -Command "$_ | count" -Endpoint 'query').Tables[0].Rows[0][0] -eq 0
+                            [int64](Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'Ingestion' -Command "$_ | count" -Endpoint 'query' -TimeoutSec $TimeoutSec).Tables[0].Rows[0][0] -eq 0
                         })
 
                     if ($empty.Count -eq 0)
@@ -157,10 +181,6 @@ function Initialize-FinOpsHubLocal
                 }
             }
         }
-    }
-    catch
-    {
-        throw $_.Exception.Message
     }
     finally
     {
