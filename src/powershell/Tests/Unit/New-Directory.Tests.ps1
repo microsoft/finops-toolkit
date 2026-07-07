@@ -105,8 +105,8 @@ InModuleScope 'FinOpsToolkit' {
             New-Directory -Path $path
 
             # Assert
-            Should -Invoke -CommandName 'Test-Path'
-            Should -Invoke -CommandName 'New-Item' -Times 0
+            Assert-MockCalled -CommandName 'Test-Path'
+            Assert-MockCalled -CommandName 'New-Item' -Times 0
         }
 
         It 'Should create a directory if it does not exist' {
@@ -117,8 +117,8 @@ InModuleScope 'FinOpsToolkit' {
             New-Directory -Path $path
 
             # Assert
-            Should -Invoke -CommandName 'Test-Path'
-            Should -Invoke -CommandName 'New-Item' -Times 1
+            Assert-MockCalled -CommandName 'Test-Path'
+            Assert-MockCalled -CommandName 'New-Item' -Times 1
         }
     }
 }

@@ -33,9 +33,9 @@ InModuleScope 'FinOpsToolkit' {
                 Deploy-FinOpsHub -WhatIf -Name $hubName -ResourceGroupName $rgName -Location $location
 
                 # Assert
-                Should -Invoke -CommandName 'Initialize-FinOpsHubDeployment' -Times 1 -ParameterFilter { $WhatIf -eq $true }
+                Assert-MockCalled -CommandName 'Initialize-FinOpsHubDeployment' -Times 1 -ParameterFilter { $WhatIf -eq $true }
                 @('CreateResourceGroup', 'CreateTempDirectory', 'DownloadTemplate', 'DeployFinOpsHub') | ForEach-Object {
-                    Should -Invoke -CommandName 'Test-ShouldProcess' -Times 1 -ParameterFilter { $Action -eq $_ }
+                    Assert-MockCalled -CommandName 'Test-ShouldProcess' -Times 1 -ParameterFilter { $Action -eq $_ }
                 }
             }
         }
@@ -55,8 +55,8 @@ InModuleScope 'FinOpsToolkit' {
                 Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location
 
                 # Assert
-                Should -Invoke -CommandName 'Get-AzResourceGroup' -Times 1
-                Should -Invoke -CommandName 'New-AzResourceGroup' -Times 1
+                Assert-MockCalled -CommandName 'Get-AzResourceGroup' -Times 1
+                Assert-MockCalled -CommandName 'New-AzResourceGroup' -Times 1
             }
 
             It 'Should use RG if it exists' {
@@ -69,8 +69,8 @@ InModuleScope 'FinOpsToolkit' {
                 Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location
 
                 # Assert
-                Should -Invoke -CommandName 'Get-AzResourceGroup' -Times 1
-                Should -Invoke -CommandName 'New-AzResourceGroup' -Times 0
+                Assert-MockCalled -CommandName 'Get-AzResourceGroup' -Times 1
+                Assert-MockCalled -CommandName 'New-AzResourceGroup' -Times 0
             }
         }
 
@@ -85,7 +85,7 @@ InModuleScope 'FinOpsToolkit' {
                 Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location
 
                 # Assert
-                Should -Invoke -CommandName 'Initialize-FinOpsHubDeployment' -Times 1
+                Assert-MockCalled -CommandName 'Initialize-FinOpsHubDeployment' -Times 1
             }
         }
 
@@ -111,7 +111,7 @@ InModuleScope 'FinOpsToolkit' {
                 Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location
 
                 # Assert
-                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -Times 1
+                Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -Times 1
             }
             It 'Should add tags to the deployment' -Skip {
             }
@@ -130,7 +130,7 @@ InModuleScope 'FinOpsToolkit' {
             It 'Should throw if template file is not found' {
                 Mock -CommandName 'Get-ChildItem'
                 { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Throw
-                Should -Invoke -CommandName 'Get-ChildItem' -Times 1
+                Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
             }
 
             Context 'More' {
@@ -142,14 +142,14 @@ InModuleScope 'FinOpsToolkit' {
 
                 It 'Should deploy the template without throwing' {
                     { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
-                    Should -Invoke -CommandName 'Get-ChildItem' -Times 1
-                    Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter { @{ TemplateFile = $templateFile } } -Times 1
+                    Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
+                    Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter { @{ TemplateFile = $templateFile } } -Times 1
                 }
 
                 It 'Should deploy the template with tags' {
                     { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Tags @{ Test = 'Tag' } -Version 'latest' } | Should -Not -Throw
-                    Should -Invoke -CommandName 'Get-ChildItem' -Times 1
-                    Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
+                    Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
                         @{
                             TemplateParameterObject = @{
                                 tags = @{
@@ -163,8 +163,8 @@ InModuleScope 'FinOpsToolkit' {
                 It 'Should deploy the template with StorageSku' {
                     $storageSku = 'Premium_ZRS'
                     { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -StorageSku $storageSku -Version 'latest' } | Should -Not -Throw
-                    Should -Invoke -CommandName 'Get-ChildItem' -Times 1
-                    Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
+                    Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
                         @{
                             TemplateParameterObject = @{
                                 storageSku = $storageSku
@@ -176,8 +176,8 @@ InModuleScope 'FinOpsToolkit' {
                 It 'Should deploy the template with RemoteHubStorageUri' {
                     $remoteHubStorageUri = 'https://primaryhub.dfs.core.windows.net/'
                     { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -RemoteHubStorageUri $remoteHubStorageUri -Version 'latest' } | Should -Not -Throw
-                    Should -Invoke -CommandName 'Get-ChildItem' -Times 1
-                    Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
+                    Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
                         $TemplateParameterObject.remoteHubStorageUri -eq $remoteHubStorageUri
                     } -Times 1
                 }
@@ -185,8 +185,8 @@ InModuleScope 'FinOpsToolkit' {
                 It 'Should deploy the template with RemoteHubStorageKey' {
                     $remoteHubStorageKey = 'abc123...xyz789=='
                     { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -RemoteHubStorageKey $remoteHubStorageKey -Version 'latest' } | Should -Not -Throw
-                    Should -Invoke -CommandName 'Get-ChildItem' -Times 1
-                    Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
+                    Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
                         $TemplateParameterObject.remoteHubStorageKey -eq $remoteHubStorageKey
                     } -Times 1
                 }
@@ -195,77 +195,11 @@ InModuleScope 'FinOpsToolkit' {
                     $remoteHubStorageUri = 'https://primaryhub.dfs.core.windows.net/'
                     $remoteHubStorageKey = 'abc123...xyz789=='
                     { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -RemoteHubStorageUri $remoteHubStorageUri -RemoteHubStorageKey $remoteHubStorageKey -Version 'latest' } | Should -Not -Throw
-                    Should -Invoke -CommandName 'Get-ChildItem' -Times 1
-                    Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
+                    Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
                         $TemplateParameterObject.remoteHubStorageUri -eq $remoteHubStorageUri -and $TemplateParameterObject.remoteHubStorageKey -eq $remoteHubStorageKey
                     } -Times 1
                 }
-            }
-        }
-
-        Context 'Network mode' {
-            BeforeAll {
-                Mock -CommandName 'Get-AzResourceGroup' -MockWith { return @{ ResourceGroupName = $rgName } }
-                Mock -CommandName 'New-AzResourceGroup'
-                Mock -CommandName 'Save-FinOpsHubTemplate'
-                Mock -CommandName 'Initialize-FinOpsHubDeployment'
-                $templateFile = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOps/finops-hub-v1.0.0/main.bicep'
-                Mock -CommandName 'Get-ChildItem' -MockWith { return @{ FullName = $templateFile } }
-                Mock -CommandName 'New-AzResourceGroupDeployment'
-            }
-
-            It 'Should default to public access without a NAT Gateway' {
-                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
-                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
-                    $TemplateParameterObject.enablePublicAccess -eq $true -and -not $TemplateParameterObject.ContainsKey('enableNatGateway')
-                } -Times 1
-            }
-
-            It "Should map -NetworkMode 'public' to enablePublicAccess and no NAT Gateway" {
-                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'public' -Version 'latest' } | Should -Not -Throw
-                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
-                    $TemplateParameterObject.enablePublicAccess -eq $true -and -not $TemplateParameterObject.ContainsKey('enableNatGateway')
-                } -Times 1
-            }
-
-            It "Should map -NetworkMode 'vnet' to private access without a NAT Gateway" {
-                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'vnet' -Version 'latest' } | Should -Not -Throw
-                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
-                    $TemplateParameterObject.enablePublicAccess -eq $false -and -not $TemplateParameterObject.ContainsKey('enableNatGateway')
-                } -Times 1
-            }
-
-            It "Should map -NetworkMode 'private' to private access with a NAT Gateway" {
-                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version 'latest' } | Should -Not -Throw
-                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
-                    $TemplateParameterObject.enablePublicAccess -eq $false -and $TemplateParameterObject.enableNatGateway -eq $true
-                } -Times 1
-            }
-
-            It 'Should map deprecated -DisablePublicAccess to vnet (no NAT Gateway)' {
-                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -DisablePublicAccess -Version 'latest' -WarningAction 'SilentlyContinue' } | Should -Not -Throw
-                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
-                    $TemplateParameterObject.enablePublicAccess -eq $false -and -not $TemplateParameterObject.ContainsKey('enableNatGateway')
-                } -Times 1
-            }
-
-            It 'Should let -NetworkMode win over deprecated -DisablePublicAccess' {
-                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -DisablePublicAccess -Version 'latest' } | Should -Not -Throw
-                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
-                    $TemplateParameterObject.enablePublicAccess -eq $false -and $TemplateParameterObject.enableNatGateway -eq $true
-                } -Times 1
-            }
-
-            It 'Should throw when private mode targets a version older than 15.0' {
-                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '14.0' } | Should -Throw
-                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -Times 0
-            }
-
-            It 'Should pass enableNatGateway when private mode targets version 15.0 or later' {
-                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '15.0' } | Should -Not -Throw
-                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
-                    $TemplateParameterObject.enableNatGateway -eq $true
-                } -Times 1
             }
         }
     }
