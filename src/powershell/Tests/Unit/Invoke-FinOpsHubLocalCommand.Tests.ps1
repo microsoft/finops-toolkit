@@ -28,7 +28,7 @@ InModuleScope FinOpsToolkit {
 
                 # Assert
                 $result | Should -Not -BeNullOrEmpty
-                Assert-MockCalled -CommandName 'Invoke-RestMethod' -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-RestMethod' -Times 1 -ParameterFilter {
                     $Uri -eq 'http://localhost:8082/v1/rest/mgmt' -and
                     $Method -eq 'Post' -and
                     $TimeoutSec -eq 0
@@ -43,7 +43,7 @@ InModuleScope FinOpsToolkit {
                 Invoke-FinOpsHubLocalCommand -ClusterUri 'http://localhost:8082' -Database 'Hub' -Command 'Costs_v1_2 | count' -Endpoint 'query'
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-RestMethod' -Times 1 -ParameterFilter { $Uri -eq 'http://localhost:8082/v1/rest/query' }
+                Should -Invoke -CommandName 'Invoke-RestMethod' -Times 1 -ParameterFilter { $Uri -eq 'http://localhost:8082/v1/rest/query' }
             }
 
             It 'Should trim a trailing slash from the cluster URI' {
@@ -54,7 +54,7 @@ InModuleScope FinOpsToolkit {
                 Invoke-FinOpsHubLocalCommand -ClusterUri 'http://localhost:8082/' -Database 'Hub' -Command '.show version'
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-RestMethod' -Times 1 -ParameterFilter { $Uri -eq 'http://localhost:8082/v1/rest/mgmt' }
+                Should -Invoke -CommandName 'Invoke-RestMethod' -Times 1 -ParameterFilter { $Uri -eq 'http://localhost:8082/v1/rest/mgmt' }
             }
 
             It 'Should pass the requested timeout through to Invoke-RestMethod' {
@@ -65,7 +65,7 @@ InModuleScope FinOpsToolkit {
                 Invoke-FinOpsHubLocalCommand -ClusterUri 'http://localhost:8082' -Database 'Hub' -Command '.show version' -TimeoutSec 45
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-RestMethod' -Times 1 -ParameterFilter { $TimeoutSec -eq 45 }
+                Should -Invoke -CommandName 'Invoke-RestMethod' -Times 1 -ParameterFilter { $TimeoutSec -eq 45 }
             }
         }
 

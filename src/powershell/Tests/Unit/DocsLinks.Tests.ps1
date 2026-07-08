@@ -345,31 +345,38 @@ Describe 'Documentation links' {
 
     Context 'docs: Internal relative links' {
 
-        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach $jekyllInternalLinks {
-            $sourceDir = Split-Path $SourceFile -Parent
+        if ($jekyllInternalLinks.Count -gt 0) {
+            It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach $jekyllInternalLinks {
+                $sourceDir = Split-Path $SourceFile -Parent
 
-            if ([string]::IsNullOrEmpty($PathPart))
-            {
-                Set-ItResult -Skipped -Because 'anchor-only link'
-                return
+                if ([string]::IsNullOrEmpty($PathPart))
+                {
+                    Set-ItResult -Skipped -Because 'anchor-only link'
+                    return
+                }
+
+                $resolvedPath = Join-Path $sourceDir $PathPart | Resolve-Path -ErrorAction SilentlyContinue
+                $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
             }
 
-            $resolvedPath = Join-Path $sourceDir $PathPart | Resolve-Path -ErrorAction SilentlyContinue
-            $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
+            It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach ($jekyllInternalLinks | Where-Object { $_.AnchorPart }) {
+                $sourceDir = Split-Path $SourceFile -Parent
+                $resolvedPath = Join-Path $sourceDir $PathPart
+
+                if (-not (Test-Path $resolvedPath))
+                {
+                    Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
+                    return
+                }
+
+                $anchors = Get-FileAnchors $resolvedPath
+                $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
+            }
         }
-
-        It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach ($jekyllInternalLinks | Where-Object { $_.AnchorPart }) {
-            $sourceDir = Split-Path $SourceFile -Parent
-            $resolvedPath = Join-Path $sourceDir $PathPart
-
-            if (-not (Test-Path $resolvedPath))
-            {
-                Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
-                return
+        else {
+            It 'Should not contain internal relative links to validate' {
+                $jekyllInternalLinks | Should -BeNullOrEmpty -Because 'the Jekyll docs site currently has no internal .md-to-.md relative links (navigation uses root-relative permalinks)'
             }
-
-            $anchors = Get-FileAnchors $resolvedPath
-            $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
         }
     }
 
@@ -431,18 +438,27 @@ Describe 'Documentation links' {
             $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
         }
 
-        It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach ($rootInternalLinks | Where-Object { $_.AnchorPart }) {
-            $sourceDir = Split-Path $SourceFile -Parent
-            $resolvedPath = Join-Path $sourceDir $PathPart
+        $rootInternalLinksWithAnchor = @($rootInternalLinks | Where-Object { $_.AnchorPart })
 
-            if (-not (Test-Path $resolvedPath))
-            {
-                Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
-                return
+        if ($rootInternalLinksWithAnchor.Count -gt 0) {
+            It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach $rootInternalLinksWithAnchor {
+                $sourceDir = Split-Path $SourceFile -Parent
+                $resolvedPath = Join-Path $sourceDir $PathPart
+
+                if (-not (Test-Path $resolvedPath))
+                {
+                    Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
+                    return
+                }
+
+                $anchors = Get-FileAnchors $resolvedPath
+                $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
             }
-
-            $anchors = Get-FileAnchors $resolvedPath
-            $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
+        }
+        else {
+            It 'Should not contain internal links with anchors to validate' {
+                $rootInternalLinksWithAnchor | Should -BeNullOrEmpty -Because 'no internal root markdown links currently include an anchor fragment'
+            }
         }
     }
 

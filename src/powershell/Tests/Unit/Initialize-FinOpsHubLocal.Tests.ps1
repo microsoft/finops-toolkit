@@ -54,13 +54,13 @@ InModuleScope 'FinOpsToolkit' {
                 Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -Scope 'It' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
                     $Database -eq 'NetDefaultDB' -and $Command -eq '.show version'
                 }
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -Scope 'It' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
                     $Database -eq 'NetDefaultDB' -and $Command -like '*create database Ingestion*'
                 }
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -Scope 'It' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
                     $Database -eq 'NetDefaultDB' -and $Command -like '*create database Hub*'
                 }
             }
@@ -70,10 +70,10 @@ InModuleScope 'FinOpsToolkit' {
                 Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -Scope 'It' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
                     $Database -eq 'Ingestion' -and $Command -like '*ingestion script*'
                 }
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -Scope 'It' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
                     $Database -eq 'Hub' -and $Command -eq 'hub script content'
                 }
             }
@@ -83,10 +83,10 @@ InModuleScope 'FinOpsToolkit' {
                 Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 3 -Scope 'It'
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1 -Scope 'It' -ParameterFilter { $Uri -like '*finops-hub-fabric-setup-Ingestion.kql' }
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1 -Scope 'It' -ParameterFilter { $Uri -like '*finops-hub-fabric-setup-Hub.kql' }
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1 -Scope 'It' -ParameterFilter { $Uri -like '*finops-hub-local-opendata.kql' }
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 3
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 1 -ParameterFilter { $Uri -like '*finops-hub-fabric-setup-Ingestion.kql' }
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 1 -ParameterFilter { $Uri -like '*finops-hub-fabric-setup-Hub.kql' }
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 1 -ParameterFilter { $Uri -like '*finops-hub-local-opendata.kql' }
             }
 
             It 'Should replace the raw retention placeholder before applying the Ingestion setup script' {
@@ -94,7 +94,7 @@ InModuleScope 'FinOpsToolkit' {
                 Initialize-FinOpsHubLocal -ClusterUri $clusterUri -RawRetentionInDays 30 -Destination $destination
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -Scope 'It' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
                     $Database -eq 'Ingestion' -and $Command -eq 'ingestion script 30 days'
                 }
             }
@@ -104,7 +104,7 @@ InModuleScope 'FinOpsToolkit' {
                 Initialize-FinOpsHubLocal -ClusterUri $clusterUri -OpenDataPath '/custom/path' -Destination $destination
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -Scope 'It' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
                     $Database -eq 'Ingestion' -and $Command -eq 'opendata script /custom/path'
                 }
             }
@@ -114,8 +114,8 @@ InModuleScope 'FinOpsToolkit' {
                 Initialize-FinOpsHubLocal -ClusterUri $clusterUri -TimeoutSec 45 -Destination $destination
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 0 -Scope 'It' -ParameterFilter { $TimeoutSec -ne 45 }
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 0 -Scope 'It' -ParameterFilter { $TimeoutSec -ne 45 }
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 0 -ParameterFilter { $TimeoutSec -ne 45 }
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 0 -ParameterFilter { $TimeoutSec -ne 45 }
             }
 
             It 'Should skip downloading and loading open data when requested' {
@@ -123,9 +123,9 @@ InModuleScope 'FinOpsToolkit' {
                 Initialize-FinOpsHubLocal -ClusterUri $clusterUri -SkipOpenData -Destination $destination
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 0 -Scope 'It' -ParameterFilter { $Uri -like '*opendata*' }
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 0 -Scope 'It' -ParameterFilter { $Endpoint -eq 'query' }
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 0 -Scope 'It' -ParameterFilter { $Command -like '*opendata script*' }
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 0 -ParameterFilter { $Uri -like '*opendata*' }
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 0 -ParameterFilter { $Endpoint -eq 'query' }
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 0 -ParameterFilter { $Command -like '*opendata script*' }
             }
         }
 
@@ -139,7 +139,7 @@ InModuleScope 'FinOpsToolkit' {
                 # Act / Assert
                 { Initialize-FinOpsHubLocal -ClusterUri 'http://localhost:1' -Destination $destination } |
                     Should -Throw "*Could not reach the Kusto emulator at 'http://localhost:1'*"
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 0 -Scope 'It'
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 0
             }
         }
 
@@ -186,10 +186,10 @@ InModuleScope 'FinOpsToolkit' {
                 Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination
 
                 # Assert
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 2 -Scope 'It' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 2 -ParameterFilter {
                     $Database -eq 'Ingestion' -and $Command -like '*opendata script*'
                 }
-                Assert-MockCalled -CommandName 'Start-Sleep' -Times 1 -Scope 'It'
+                Should -Invoke -CommandName 'Start-Sleep' -Times 1
             }
 
             It 'Should throw after the maximum number of attempts if the tables remain empty' {
@@ -201,7 +201,7 @@ InModuleScope 'FinOpsToolkit' {
                 # Act / Assert
                 { Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination } |
                     Should -Throw '*Open data tables were still empty after 5 attempts*'
-                Assert-MockCalled -CommandName 'Start-Sleep' -Times 4 -Scope 'It'
+                Should -Invoke -CommandName 'Start-Sleep' -Times 4
             }
         }
 
@@ -211,8 +211,8 @@ InModuleScope 'FinOpsToolkit' {
                 Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination -WhatIf
 
                 # Assert -- only the reachability check runs; every ShouldProcess-gated call is skipped.
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -Scope 'It'
-                Assert-MockCalled -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -Scope 'It' -ParameterFilter { $Command -eq '.show version' }
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter { $Command -eq '.show version' }
             }
         }
 
