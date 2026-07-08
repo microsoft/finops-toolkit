@@ -3,7 +3,7 @@ title: Run FinOps hubs locally
 description: Stand up a FinOps hub on your own hardware in a local container and ingest cost data, using the same KQL and open data as a deployed hub.
 author: MSBrett
 ms.author: brettwil
-ms.date: 06/29/2026
+ms.date: 07/08/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit

@@ -3,7 +3,7 @@ title: Initialize-FinOpsHubLocal command
 description: Set up a local FinOps hub in a running Kusto emulator using the Initialize-FinOpsHubLocal command in the FinOpsToolkit module.
 author: MSBrett
 ms.author: brettwil
-ms.date: 06/21/2026
+ms.date: 07/08/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
