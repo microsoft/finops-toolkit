@@ -24,6 +24,9 @@
     .PARAMETER Repository
     Optional. GitHub repo in "owner/repo" format. Default: "microsoft/finops-toolkit".
 
+    .PARAMETER ReviewerId
+    Optional. GitHub user IDs to set as required reviewers on the "ftk-pr" environment. This gate is the only control preventing a labeled fork PR from deploying untrusted templates with CI credentials. Strongly recommended before enabling fork deployments.
+
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md
 #>
@@ -32,7 +35,12 @@ param(
     [Parameter(Mandatory)]
     [string]$SubscriptionId,
 
-    [string]$Repository = "microsoft/finops-toolkit"
+    [string]$Repository = "microsoft/finops-toolkit",
+
+    # GitHub user IDs to set as required reviewers on the 'ftk-pr' environment.
+    # This gate is the only control preventing a labeled fork PR from deploying
+    # untrusted templates with CI credentials -- strongly recommended.
+    [int[]]$ReviewerId
 )
 
 $ErrorActionPreference = "Stop"
@@ -94,7 +102,15 @@ Write-Host ""
 Write-Host "Step 2: Adding federated credential for GitHub Actions..."
 
 $credName = "github-$environmentName"
-$subject = "repo:${Repository}:environment:${environmentName}"
+
+# GitHub presents environment-scoped OIDC tokens with an ID-based subject
+# (repository_owner_id:...:repository_id:...:environment:...), not the name-based
+# "repo:owner/repo:environment:..." form. The federated credential subject must
+# match the presented assertion or Azure login fails with AADSTS700213.
+$repoIds = gh api "repos/$Repository" --jq '"\(.owner.id):\(.id)"'
+if ($LASTEXITCODE -ne 0 -or -not $repoIds) { throw "Failed to look up owner/repo IDs for '$Repository' via gh." }
+$ownerId, $repoId = $repoIds -split ':'
+$subject = "repository_owner_id:${ownerId}:repository_id:${repoId}:environment:${environmentName}"
 
 if ($app)
 {
@@ -172,8 +188,19 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue))
 
 if ($PSCmdlet.ShouldProcess("$environmentName in $Repository", 'Create GitHub environment'))
 {
-    # Create environment
-    gh api "repos/$Repository/environments/$environmentName" -X PUT --silent
+    # Create environment. Required reviewers gate fork PR deployments -- without
+    # them, a labeled fork PR can deploy untrusted templates with CI credentials.
+    if ($ReviewerId)
+    {
+        $reviewers = @($ReviewerId | ForEach-Object { @{ type = 'User'; id = $_ } })
+        $body = @{ reviewers = $reviewers; prevent_self_review = $true } | ConvertTo-Json -Depth 5 -Compress
+        $body | gh api "repos/$Repository/environments/$environmentName" -X PUT --input - --silent
+    }
+    else
+    {
+        Write-Warning "No -ReviewerId supplied: the '$environmentName' environment will have NO required reviewers. Fork PRs with the 'Needs: Deployment' label could deploy untrusted templates using CI credentials. Configure reviewers before enabling fork deployments."
+        gh api "repos/$Repository/environments/$environmentName" -X PUT --silent
+    }
     if ($LASTEXITCODE -ne 0) { throw "Failed to create GitHub environment '$environmentName'." }
     Write-Host "  Created environment '$environmentName'."
 
