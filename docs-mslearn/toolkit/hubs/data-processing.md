@@ -3,7 +3,7 @@ title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 07/15/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -50,16 +50,16 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
    2. The **ingestion_ETL_dataExplorer** pipeline ingests data into the `{dataset}_raw` table in the Data Explorer.
       - The dataset name is the first folder in the **ingestion** container.
       - All raw tables are in the **Ingestion** database in Data Explorer.
-   3. When data is ingested into raw tables in Data Explorer, an update policy copies the data into the corresponding `{dataset}_final_v1_0` table using the `{dataset}_transform_v1_0()` function to normalize all data to align to FOCUS 1.0.
+   3. When data is ingested into raw tables in Data Explorer, an update policy copies the data into the corresponding `{dataset}_final_v1_4` table using the `{dataset}_transform_v1_4()` function to normalize all data to align to FOCUS 1.4.
    4. After ingestion, the **ingestion_ETL_dataExplorer** pipeline performs some cleanup, including purging data in the final table that is past the data retention period.
       - As of 0.7, Data Explorer applies data retention in raw tables while data retention in final tables is applied by the ingestion pipeline. If data ingestion stops, historical data isn't purged.
       - Data retention can be configured during the template deployment or manually in the **config/settings.json** file in storage.
 6. (Optional) The **queries_DailySchedule** trigger runs the **queries_ExecuteETL** pipeline once per day to query Azure Resource Graph for additional recommendations and saves results to the **ingestion/Recommendations** folder. [Learn more](#azure-resource-graph-recommendations).
 7. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
    - Data in Data Explorer can be read from the **Hub** database.
-     - Use the `{dataset}()` function to use the latest schema.
+     - Use the `{dataset}()` function to use the latest schema (`v1_4` as of FinOps hubs v15).
        - This function is useful for quick exploration, but may introduce breaking changes as the FinOps hub instance is updated.
-     - Use the `{dataset}_v1_0()` function to use the FOCUS 1.0 schema.
+     - Use the versioned functions, like `{dataset}_v1_0()`, `{dataset}_v1_2()`, or `{dataset}_v1_4()`, to use a specific FOCUS schema version.
        - Versioned function schemas shouldn't change over time but values may change if the data source changes those values.
      - Avoid using the **Ingestion** database for queries. While not explicitly prohibited, the **Ingestion** database should be considered an internal area for staging and data preparation.
    - Data in storage can be read from `ingestion/<dataset>/<year>/<month>/<scope-path>`.
@@ -78,7 +78,7 @@ The following diagram depicts the HubsRecommendations data flow:
 1. The **queries_DailySchedule** trigger runs once per day.
 2. The **queries_ExecuteETL** pipeline iterates through all query files in the **config/queries** storage folder.
 3. The **queries_ETL_ingestion** pipeline executes each query against Azure Resource Graph, deduplicates results, and saves data as parquet in the **ingestion/Recommendations** folder.
-4. (If using Azure Data Explorer) Data is ingested into the `Recommendations_raw` table and transformed using the `Recommendations_transform_v1_2()` function.
+4. (If using Azure Data Explorer) Data is ingested into the `Recommendations_raw` table and transformed using the `Recommendations_transform_v1_4()` function.
 
 HubsRecommendations includes the following query types:
 
@@ -100,7 +100,7 @@ HubsRecommendations includes the following query types:
 
 ## About Data Explorer ingestion
 
-When data is ingested into Data Explorer, the `{dataset}_transform_v1_0()` functions apply transform rules in the **Ingestion** database. Each dataset has a different set of transform rules covered in the following sections.
+When data is ingested into Data Explorer, the `{dataset}_transform_v1_4()` functions apply transform rules in the **Ingestion** database. Each dataset has a different set of transform rules covered in the following sections.
 
 For a list of requested changes, ideas under consideration, and open questions about the underlying Cost Management datasets, see [issue #1111](https://github.com/microsoft/finops-toolkit/issues/1111). Leave comments on that issue if you find opportunities to address any concerns or to voice your support for any of the specific issues.
 
@@ -183,6 +183,54 @@ Transforms:
     - `x_CommitmentDiscountPercent`
     - `x_TotalDiscountPercent`
   - Added `x_SourceValues` to track data changes during ingestion.
+- v15+:
+  - Convert FOCUS 1.0-preview, 1.0, and 1.2 data to FOCUS 1.4.
+    - Replaced `ProviderName` and `PublisherName` with the FOCUS 1.3 columns `HostProviderName` and `ServiceProviderName`.
+      - `HostProviderName` falls back to `ProviderName` when not provided.
+      - `ServiceProviderName` falls back to `PublisherName` (the Marketplace publisher), then `ProviderName`, then "Microsoft" to meet the FOCUS non-null requirement.
+      - The `{dataset}_v1_0()` and `{dataset}_v1_2()` functions still return `ProviderName` and `PublisherName` by down-converting from the new columns.
+  - Added the FOCUS 1.3 cost allocation columns: `AllocatedMethodDetails`, `AllocatedMethodId`, `AllocatedResourceId`, `AllocatedResourceName`, `AllocatedTags`, and `ContractApplied`.
+  - Added the FOCUS 1.4 columns `CommitmentProgramEligibilityDetails`, `InvoiceDetailId`, and 12 `ContractCommitment*` columns.
+    - These columns are passed through from the export when present and remain empty until Cost Management supports exporting FOCUS 1.4 data.
+
+### Billing period data transforms
+
+Supported datasets:
+
+- FOCUS 1.4 BillingPeriod (no Cost Management export available yet)
+
+Transforms:
+
+- v15+:
+  - Align columns to FOCUS 1.4.
+  - Add `x_IngestionTime` to indicate when the row was last updated.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+
+### Contract commitment data transforms
+
+Supported datasets:
+
+- FOCUS 1.4 ContractCommitment (no Cost Management export available yet)
+
+Transforms:
+
+- v15+:
+  - Align columns to FOCUS 1.4.
+  - Add `x_IngestionTime` to indicate when the row was last updated.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+
+### Invoice detail data transforms
+
+Supported datasets:
+
+- FOCUS 1.4 InvoiceDetail (no Cost Management export available yet)
+
+Transforms:
+
+- v15+:
+  - Align columns to FOCUS 1.4.
+  - Add `x_IngestionTime` to indicate when the row was last updated.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
 
 ### Price data transforms
 
@@ -279,8 +327,11 @@ ingestion/{dataset}/{date-folder-path}/{scope-id-path}/{ingestion-id}__{original
 
 - `ingestion` is the container where the data pipeline saves data.
 - `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, the **Ingestion** database must have a matching, case-sensitive "\_raw" table (for example, "Costs_raw"). FinOps hubs support the following datasets in this release:
+  - **BillingPeriods** - FOCUS 1.4 billing period data. No Cost Management export available yet.
   - **CommitmentDiscountUsage** - Cost Management reservation details export.
+  - **ContractCommitments** - FOCUS 1.4 contract commitment data. No Cost Management export available yet.
   - **Costs** - FOCUS cost and usage data.
+  - **InvoiceDetails** - FOCUS 1.4 invoice detail data. No Cost Management export available yet.
   - **Prices** - Cost Management price sheet export.
   - **Recommendations** - Cost Management reservation recommendations export.
   - **Transactions** - Cost Management reservation transactions export.
