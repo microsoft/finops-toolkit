@@ -1,0 +1,669 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+//======================================================================================================================
+// Ingestion database
+// See known issues @ https://github.com/microsoft/finops-toolkit/issues/1111
+//======================================================================================================================
+
+// For allowed commands, see https://learn.microsoft.com/azure/data-explorer/database-script
+
+// NOTE: FOCUS 1.4 ingestion setup is split into IngestionSetup_v1_4.kql (Prices + Costs) and IngestionSetup_v1_4_Datasets.kql
+// (other datasets) to stay under the Bicep loadTextContent() 131,072-character limit. Scripts within a deployment batch
+// are not guaranteed to run in order, so each file must remain self-contained (no cross-file references).
+
+//===| BillingPeriods |=================================================================================================
+// Supported versions:
+// - FOCUS 1.4+ (no Cost Management export shipped yet; defines the schema in advance for forward compat)
+//======================================================================================================================
+
+// BillingPeriods_transform_v1_4 function
+.create-or-alter function
+with (docstring='All billing periods aligned to FOCUS 1.4.', folder='BillingPeriods')
+BillingPeriods_transform_v1_4()
+{
+    BillingPeriods_raw
+    | project
+        BillingPeriodCreated     = column_ifexists('BillingPeriodCreated', datetime(null)),     // FOCUS 1.4+
+        BillingPeriodEnd,
+        BillingPeriodLastUpdated = column_ifexists('BillingPeriodLastUpdated', datetime(null)), // FOCUS 1.4+
+        BillingPeriodStart,
+        BillingPeriodStatus      = column_ifexists('BillingPeriodStatus', ''),                  // FOCUS 1.4+
+        InvoiceIssuerName,
+        x_IngestionTime  = ingestion_time(),
+        x_SourceName     = coalesce(x_SourceName, ''),
+        x_SourceProvider = coalesce(x_SourceProvider, ''),
+        x_SourceType     = coalesce(x_SourceType, ''),
+        x_SourceVersion  = coalesce(x_SourceVersion, '')
+}
+
+// BillingPeriods_final_v1_4 table
+.create-merge table BillingPeriods_final_v1_4 (
+    BillingPeriodCreated:     datetime,  // FOCUS 1.4+
+    BillingPeriodEnd:         datetime,  // FOCUS 1.4+
+    BillingPeriodLastUpdated: datetime,  // FOCUS 1.4+
+    BillingPeriodStart:       datetime,  // FOCUS 1.4+
+    BillingPeriodStatus:      string,    // FOCUS 1.4+
+    InvoiceIssuerName:        string,    // FOCUS 1.4+
+    x_IngestionTime:          datetime,  // Hubs add-on
+    x_SourceName:             string,    // Hubs add-on
+    x_SourceProvider:         string,    // Hubs add-on
+    x_SourceType:             string,    // Hubs add-on
+    x_SourceVersion:          string     // Hubs add-on
+)
+
+// Update policy for BillingPeriods_raw -> BillingPeriods_final_v1_4 table
+.alter table BillingPeriods_final_v1_4 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "BillingPeriods_raw",
+    "Query": "BillingPeriods_transform_v1_4()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
+
+
+//===| CommitmentDiscountUsage |========================================================================================
+// Supported versions:
+// - MS EA reservation details: 2023-03-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-ea
+// - MS MCA reservation details: 2023-03-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-mca
+//======================================================================================================================
+
+// CommitmentDiscountUsage_transform_v1_4 function
+.create-or-alter function
+with (docstring='All commitment discount usage transformed to FOCUS 1.4. This includes reservationdeatils_raw.', folder='Commitment discounts')
+CommitmentDiscountUsage_transform_v1_4()
+{
+    // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
+    CommitmentDiscountUsage_raw
+    //
+    // Set ProviderName
+    | extend ProviderName = 'Microsoft'
+    //
+    // Handle resource columns
+    | extend ResourceId = tolower(InstanceId)
+    | extend tmp_ResourceDetails = parse_resourceid(ResourceId)
+    | extend ResourceName        = tostring(tmp_ResourceDetails.ResourceName)
+    | extend SubAccountId        = tostring(tmp_ResourceDetails.SubAccountId)
+    | extend x_ResourceGroupName = tostring(tmp_ResourceDetails.x_ResourceGroupName)
+    | extend x_ResourceType      = tostring(tmp_ResourceDetails.x_ResourceType)
+    | lookup kind=leftouter (ResourceTypes | distinct x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
+    | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceName, ServiceCategory, ServiceSubcategory, x_ServiceModel) on x_ResourceType
+    //
+    // Sort columns and apply final transforms
+    | project
+        ChargePeriodEnd                     = UsageDate + 1d,
+        ChargePeriodStart                   = UsageDate,
+        CommitmentDiscountCategory          = 'Usage',
+        CommitmentDiscountId                = tolower(strcat('/providers/microsoft.capacity/reservationorders/', ReservationOrderId, '/reservations/', ReservationId)),
+        CommitmentDiscountQuantity          = UsedHours * InstanceFlexibilityRatio,
+        CommitmentDiscountType              = 'Reservation',
+        CommitmentDiscountUnit              = case(
+            InstanceFlexibilityRatio == 1, 'Hours',
+            InstanceFlexibilityRatio != 1, 'Normalized Hours',
+            ''
+        ),
+        ConsumedQuantity                    = UsedHours,
+        ProviderName,
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        ServiceCategory,
+        ServiceName,
+        ServiceSubcategory,
+        SubAccountId,
+        x_CommitmentDiscountCommittedCount  = TotalReservedQuantity,
+        x_CommitmentDiscountCommittedAmount = ReservedHours,
+        // TODO: Is this needed? -- x_CommitmentDiscountKind            = Kind,
+        x_CommitmentDiscountNormalizedGroup = iff(InstanceFlexibilityGroup == 'NA', '', InstanceFlexibilityGroup),
+        x_CommitmentDiscountNormalizedRatio = InstanceFlexibilityRatio,
+        x_IngestionTime                     = ingestion_time(),
+        x_ResourceGroupName,
+        x_ResourceType,
+        // x_RowId = hash_sha256(strcat(
+        //     // DO NOT CHANGE COLUMNS OR COLUMN ORDER
+        //     CommitmentDiscountId,
+        //     ResourceId,
+        //     ChargePeriodStart
+        // )),
+        x_ServiceModel,
+        x_SkuOrderId                        = ReservationOrderId,
+        x_SkuSize                           = iff(SkuName == 'NA', '', SkuName),
+        x_SourceName                        = coalesce(x_SourceName, iff(ProviderName == 'Microsoft', 'Cost Management', ProviderName)),
+        x_SourceProvider                    = coalesce(x_SourceProvider, ProviderName),
+        x_SourceType                        = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationDetails', '')),
+        x_SourceVersion                     = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2024-03-01', ''))
+}
+
+// CommitmentDiscountUsage_final_v1_4 table
+.create-merge table CommitmentDiscountUsage_final_v1_4 (
+    ChargePeriodEnd:                     datetime,  // Hubs add-on
+    ChargePeriodStart:                   datetime,  // MS 2023-03-01
+    CommitmentDiscountCategory:          string,    // Hubs add-on
+    CommitmentDiscountId:                string,    // MS 2023-03-01
+    CommitmentDiscountQuantity:          real,      // MS 2023-03-01
+    CommitmentDiscountType:              string,    // Hubs add-on
+    CommitmentDiscountUnit:              string,    // Hubs add-on
+    ConsumedQuantity:                    real,      // MS 2023-03-01
+    ProviderName:                        string,    // Hubs add-on
+    ResourceId:                          string,    // MS 2023-03-01
+    ResourceName:                        string,    // Hubs add-on
+    ResourceType:                        string,    // Hubs add-on
+    ServiceCategory:                     string,    // Hubs add-on
+    ServiceName:                         string,    // Hubs add-on
+    ServiceSubcategory:                  string,    // Hubs add-on
+    SubAccountId:                        string,    // Hubs add-on
+    x_CommitmentDiscountCommittedCount:  real,      // MS 2023-03-01
+    x_CommitmentDiscountCommittedAmount: real,      // MS 2023-03-01
+    x_CommitmentDiscountNormalizedGroup: string,    // MS 2023-03-01
+    x_CommitmentDiscountNormalizedRatio: real,      // MS 2023-03-01
+    x_IngestionTime:                     datetime,  // Hubs add-on
+    x_ResourceGroupName:                 string,    // Hubs add-on
+    x_ResourceType:                      string,    // Hubs add-on
+    x_ServiceModel:                      string,    // Hubs add-on
+    x_SkuOrderId:                        string,    // MS 2023-03-01
+    x_SkuSize:                           string,    // MS 2023-03-01
+    x_SourceName:                        string,    // Hubs add-on
+    x_SourceProvider:                    string,    // Hubs add-on
+    x_SourceType:                        string,    // Hubs add-on
+    x_SourceVersion:                     string     // Hubs add-on
+)
+
+// Update policy for CommitmentDiscountUsage_raw -> CommitmentDiscountUsage_final_v1_4 table
+.alter table CommitmentDiscountUsage_final_v1_4 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "CommitmentDiscountUsage_raw",
+    "Query": "CommitmentDiscountUsage_transform_v1_4()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
+
+
+//===| Contract commitments |===========================================================================================
+// Supported versions:
+// - FOCUS 1.4+ (no Cost Management export shipped yet; defines the schema in advance for forward compat)
+//======================================================================================================================
+
+// ContractCommitments_transform_v1_4 function
+.create-or-alter function
+with (docstring='All contract commitments aligned to FOCUS 1.4.', folder='Contract commitments')
+ContractCommitments_transform_v1_4()
+{
+    ContractCommitments_raw
+    | project
+        BenefitCategory                       = column_ifexists('BenefitCategory', ''),                            // FOCUS 1.4+
+        BillingCurrency,
+        ContractCommitmentApplicability       = parse_json(column_ifexists('ContractCommitmentApplicability', '')),// FOCUS 1.4+
+        ContractCommitmentCategory,
+        ContractCommitmentCost,
+        ContractCommitmentId,
+        ContractCommitmentPeriodEnd,
+        ContractCommitmentPeriodStart,
+        ContractCommitmentQuantity,
+        ContractCommitmentType,
+        ContractCommitmentUnit,
+        ContractId,
+        ContractPeriodEnd,
+        ContractPeriodStart,
+        Created                               = column_ifexists('Created', datetime(null)),                       // FOCUS 1.4+
+        DiscountPercentage                    = column_ifexists('DiscountPercentage', real(null)),                // FOCUS 1.4+
+        DurationType                          = column_ifexists('DurationType', ''),                              // FOCUS 1.4+
+        FulfillmentInterval                   = column_ifexists('FulfillmentInterval', ''),                       // FOCUS 1.4+
+        InvoiceIssuerName,
+        LastUpdated                           = column_ifexists('LastUpdated', datetime(null)),                   // FOCUS 1.4+
+        LifecycleStatus                       = column_ifexists('LifecycleStatus', ''),                           // FOCUS 1.4+
+        Model                                 = column_ifexists('Model', ''),                                     // FOCUS 1.4+
+        OfferCategory                         = column_ifexists('OfferCategory', ''),                             // FOCUS 1.4+
+        PaymentInterval                       = column_ifexists('PaymentInterval', ''),                           // FOCUS 1.4+
+        PaymentModel                          = column_ifexists('PaymentModel', ''),                              // FOCUS 1.4+
+        PaymentUpfrontPercentage              = column_ifexists('PaymentUpfrontPercentage', real(null)),          // FOCUS 1.4+
+        PricingCurrency,
+        PricingCurrencyContractCommitmentCost = column_ifexists('PricingCurrencyContractCommitmentCost', real(null)),  // FOCUS 1.4+
+        x_IngestionTime  = ingestion_time(),
+        x_SourceName     = coalesce(x_SourceName, ''),
+        x_SourceProvider = coalesce(x_SourceProvider, ''),
+        x_SourceType     = coalesce(x_SourceType, ''),
+        x_SourceVersion  = coalesce(x_SourceVersion, '')
+}
+
+// ContractCommitments_final_v1_4 table
+.create-merge table ContractCommitments_final_v1_4 (
+    BenefitCategory:                       string,    // FOCUS 1.4+
+    BillingCurrency:                       string,    // FOCUS 1.3+
+    ContractCommitmentApplicability:       dynamic,   // FOCUS 1.4+ (JSON)
+    ContractCommitmentCategory:            string,    // FOCUS 1.3+
+    ContractCommitmentCost:                real,      // FOCUS 1.3+
+    ContractCommitmentId:                  string,    // FOCUS 1.3+
+    ContractCommitmentPeriodEnd:           datetime,  // FOCUS 1.3+
+    ContractCommitmentPeriodStart:         datetime,  // FOCUS 1.3+
+    ContractCommitmentQuantity:            real,      // FOCUS 1.3+
+    ContractCommitmentType:                string,    // FOCUS 1.3+
+    ContractCommitmentUnit:                string,    // FOCUS 1.3+
+    ContractId:                            string,    // FOCUS 1.3+
+    ContractPeriodEnd:                     datetime,  // FOCUS 1.3+
+    ContractPeriodStart:                   datetime,  // FOCUS 1.3+
+    Created:                               datetime,  // FOCUS 1.4+
+    DiscountPercentage:                    real,      // FOCUS 1.4+
+    DurationType:                          string,    // FOCUS 1.4+
+    FulfillmentInterval:                   string,    // FOCUS 1.4+
+    InvoiceIssuerName:                     string,    // FOCUS 1.3+
+    LastUpdated:                           datetime,  // FOCUS 1.4+
+    LifecycleStatus:                       string,    // FOCUS 1.4+
+    Model:                                 string,    // FOCUS 1.4+
+    OfferCategory:                         string,    // FOCUS 1.4+
+    PaymentInterval:                       string,    // FOCUS 1.4+
+    PaymentModel:                          string,    // FOCUS 1.4+
+    PaymentUpfrontPercentage:              real,      // FOCUS 1.4+
+    PricingCurrency:                       string,    // FOCUS 1.3+
+    PricingCurrencyContractCommitmentCost: real,      // FOCUS 1.4+
+    x_IngestionTime:                       datetime,  // Hubs add-on
+    x_SourceName:                          string,    // Hubs add-on
+    x_SourceProvider:                      string,    // Hubs add-on
+    x_SourceType:                          string,    // Hubs add-on
+    x_SourceVersion:                       string     // Hubs add-on
+)
+
+// Update policy for ContractCommitments_raw -> ContractCommitments_final_v1_4 table
+.alter table ContractCommitments_final_v1_4 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "ContractCommitments_raw",
+    "Query": "ContractCommitments_transform_v1_4()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
+
+
+//===| InvoiceDetails |=================================================================================================
+// Supported versions:
+// - FOCUS 1.4+ (no Cost Management export shipped yet; defines the schema in advance for forward compat)
+//======================================================================================================================
+
+// InvoiceDetails_transform_v1_4 function
+.create-or-alter function
+with (docstring='All invoice details aligned to FOCUS 1.4.', folder='InvoiceDetails')
+InvoiceDetails_transform_v1_4()
+{
+    InvoiceDetails_raw
+    | project
+        BilledCost,
+        BillingAccountId,
+        BillingCurrency,
+        BillingPeriodEnd,
+        BillingPeriodStart,
+        ChargeCategory,
+        InvoiceDetailCreated           = column_ifexists('InvoiceDetailCreated', datetime(null)),     // FOCUS 1.4+
+        InvoiceDetailDescription       = column_ifexists('InvoiceDetailDescription', ''),             // FOCUS 1.4+
+        InvoiceDetailGrain             = column_ifexists('InvoiceDetailGrain', ''),                   // FOCUS 1.4+
+        InvoiceDetailId,
+        InvoiceDetailLastUpdated       = column_ifexists('InvoiceDetailLastUpdated', datetime(null)), // FOCUS 1.4+
+        InvoiceId,
+        InvoiceIssueDate               = column_ifexists('InvoiceIssueDate', datetime(null)),         // FOCUS 1.4+
+        InvoiceIssueStatus             = column_ifexists('InvoiceIssueStatus', ''),                   // FOCUS 1.4+
+        InvoiceIssuerName,
+        PaymentCurrency                = column_ifexists('PaymentCurrency', ''),                      // FOCUS 1.4+
+        PaymentCurrencyBilledCost      = column_ifexists('PaymentCurrencyBilledCost', real(null)),    // FOCUS 1.4+
+        PaymentCurrencyInvoiceDetailId = column_ifexists('PaymentCurrencyInvoiceDetailId', ''),       // FOCUS 1.4+
+        PaymentDueDate                 = column_ifexists('PaymentDueDate', datetime(null)),           // FOCUS 1.4+
+        PaymentTerms                   = column_ifexists('PaymentTerms', ''),                         // FOCUS 1.4+
+        PurchaseOrderNumber            = column_ifexists('PurchaseOrderNumber', ''),                  // FOCUS 1.4+
+        ReferenceInvoiceId             = column_ifexists('ReferenceInvoiceId', ''),                   // FOCUS 1.4+
+        x_IngestionTime  = ingestion_time(),
+        x_SourceName     = coalesce(x_SourceName, ''),
+        x_SourceProvider = coalesce(x_SourceProvider, ''),
+        x_SourceType     = coalesce(x_SourceType, ''),
+        x_SourceVersion  = coalesce(x_SourceVersion, '')
+}
+
+// InvoiceDetails_final_v1_4 table
+.create-merge table InvoiceDetails_final_v1_4 (
+    BilledCost:                     real,      // FOCUS 1.4+
+    BillingAccountId:               string,    // FOCUS 1.4+
+    BillingCurrency:                string,    // FOCUS 1.4+
+    BillingPeriodEnd:               datetime,  // FOCUS 1.4+
+    BillingPeriodStart:             datetime,  // FOCUS 1.4+
+    ChargeCategory:                 string,    // FOCUS 1.4+
+    InvoiceDetailCreated:           datetime,  // FOCUS 1.4+
+    InvoiceDetailDescription:       string,    // FOCUS 1.4+
+    InvoiceDetailGrain:             string,    // FOCUS 1.4+
+    InvoiceDetailId:                string,    // FOCUS 1.4+
+    InvoiceDetailLastUpdated:       datetime,  // FOCUS 1.4+
+    InvoiceId:                      string,    // FOCUS 1.4+
+    InvoiceIssueDate:               datetime,  // FOCUS 1.4+
+    InvoiceIssueStatus:             string,    // FOCUS 1.4+
+    InvoiceIssuerName:              string,    // FOCUS 1.4+
+    PaymentCurrency:                string,    // FOCUS 1.4+
+    PaymentCurrencyBilledCost:      real,      // FOCUS 1.4+
+    PaymentCurrencyInvoiceDetailId: string,    // FOCUS 1.4+
+    PaymentDueDate:                 datetime,  // FOCUS 1.4+
+    PaymentTerms:                   string,    // FOCUS 1.4+
+    PurchaseOrderNumber:            string,    // FOCUS 1.4+
+    ReferenceInvoiceId:             string,    // FOCUS 1.4+
+    x_IngestionTime:                datetime,  // Hubs add-on
+    x_SourceName:                   string,    // Hubs add-on
+    x_SourceProvider:               string,    // Hubs add-on
+    x_SourceType:                   string,    // Hubs add-on
+    x_SourceVersion:                string     // Hubs add-on
+)
+
+// Update policy for InvoiceDetails_raw -> InvoiceDetails_final_v1_4 table
+.alter table InvoiceDetails_final_v1_4 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "InvoiceDetails_raw",
+    "Query": "InvoiceDetails_transform_v1_4()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
+
+
+//===| Recommendations |================================================================================================
+// Supported datasets/versions:
+// - MS CM EA reservation recommendations: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-ea
+// - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
+//======================================================================================================================
+
+// Recommendations_transform_v1_4 function
+.create-or-alter function
+with (docstring='All recommendations transformed to FOCUS 1.4.', folder='Recommendations')
+Recommendations_transform_v1_4()
+{
+    // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
+    let isoMonths = (duration: string) {
+        let number = toint(replace_regex(duration, @'[PMY]', ''));
+        toint(case(
+            duration == '', int(null),
+            duration endswith "Y", number * 12,
+            duration endswith "M", number,
+            -1
+        ))
+    };
+    Recommendations_raw
+    | extend x_IngestionTime = ingestion_time()
+    //
+    // Set ProviderName
+    | extend ProviderName = 'Microsoft'
+    //
+    // Set source columns
+    | extend x_SourceName     = coalesce(x_SourceName, iff(ProviderName == 'Microsoft', 'Cost Management', ProviderName))
+    | extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
+    | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', ''))
+    | extend x_SourceVersion  = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2023-05-01', ''))
+    //
+    // Convert JSON cost columns to real
+    | extend CostWithNoReservedInstances    = case(isnotempty(CostWithNoReservedInstances),    CostWithNoReservedInstances,    isnotempty(CostWithNoReservedInstancesJson),    toreal(extract(@'"value":([0-9\.]+)', 1, CostWithNoReservedInstancesJson)),    CostWithNoReservedInstances)
+    | extend NetSavings                     = case(isnotempty(NetSavings),                     NetSavings,                     isnotempty(NetSavingsJson),                     toreal(extract(@'"value":([0-9\.]+)', 1, NetSavingsJson)),                     NetSavings)
+    | extend TotalCostWithReservedInstances = case(isnotempty(TotalCostWithReservedInstances), TotalCostWithReservedInstances, isnotempty(TotalCostWithReservedInstancesJson), toreal(extract(@'"value":([0-9\.]+)', 1, TotalCostWithReservedInstancesJson)), TotalCostWithReservedInstances)
+    //
+    // Parse x_RecommendationDetails from JSON string (ARG queries serialize to string for Parquet compatibility)
+    | extend x_RecommendationDetails = iff(gettype(x_RecommendationDetails) == 'string', parse_json(tostring(x_RecommendationDetails)), x_RecommendationDetails)
+    //
+    // Normalize x_RecommendationDetails keys to x_PascalCase (Advisor extendedProperties use camelCase)
+    // Guard: inject a placeholder key so mv-apply doesn't drop rows with null/empty bags
+    | extend x_RecommendationDetails = bag_merge(coalesce(x_RecommendationDetails, dynamic({})), bag_pack('__placeholder', ''))
+    | mv-apply k = bag_keys(x_RecommendationDetails) on (
+        where isnotempty(tostring(k)) and tostring(k) != '__placeholder'
+        | extend newKey = iff(tostring(k) startswith 'x_', tostring(k), strcat('x_', toupper(substring(tostring(k), 0, 1)), substring(tostring(k), 1)))
+        | summarize x_RecommendationDetails = make_bag(bag_pack(newKey, x_RecommendationDetails[tostring(k)]))
+    )
+    //
+    // Build recommendation details
+    | lookup kind=leftouter (Regions | summarize RegionName = make_set(RegionName)[0] by Location = RegionId) on Location
+    | extend x_RecommendationDetails = case(
+        // Use incoming x_RecommendationDetails first
+        isnotempty(x_RecommendationDetails), x_RecommendationDetails,
+        // Create one for reservation recommendations if needed
+        x_SourceType == 'ReservationRecommendations', bag_pack(
+            'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
+            'CommitmentDiscountNormalizedRatio', InstanceFlexibilityRatio,
+            'CommitmentDiscountNormalizedSize', NormalizedSize,
+            'CommitmentDiscountResourceType', ResourceType,
+            'CommitmentDiscountScope', Scope,
+            'LookbackPeriodDuration', case(
+                LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
+                LookBackPeriod matches regex @'^[0-9]+$',           strcat('P', LookBackPeriod, 'D'),
+                ''
+            ),
+            'LookbackPeriodStart', FirstUsageDate,
+            'RecommendedQuantity', RecommendedQuantity,
+            'RecommendedQuantityNormalized', RecommendedQuantityNormalized,
+            'RegionId', Location,
+            'RegionName', RegionName,
+            'SkuMeterId', MeterId,
+            'SkuPriceDetails', SkuProperties,
+            'SkuSize', coalesce(SKU, SkuName),
+            'SkuTerm', isoMonths(Term)
+        ),
+        dynamic({})
+    )
+    //
+    // Prefer specified date, then fall back to generating a date based on reservation recommendation lookback period, then validate to ensure it's not in the future
+    | extend x_RecommendationDate = coalesce(x_RecommendationDate, FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d))
+    | extend x_RecommendationDate = iff(x_RecommendationDate > now(), startofday(now()), x_RecommendationDate)
+    //
+    // Derive x_ResourceType from ResourceId
+    | extend tmp_ResourceType = tostring(parse_resourceid(ResourceId).x_ResourceType)
+    | extend x_RecommendationDetails = iff(isnotempty(tmp_ResourceType), bag_merge(bag_pack('x_ResourceType', tmp_ResourceType), x_RecommendationDetails), x_RecommendationDetails)
+    //
+    // Set ResourceType display name from x_ResourceType code
+    | extend ResourceType = coalesce(ResourceType, tostring(resource_type(tmp_ResourceType).SingularDisplayName), tmp_ResourceType)
+    //
+    | project
+        ProviderName,
+        ResourceId = tolower(ResourceId),      // Force lowercase for consistent grouping/filtering
+        ResourceName = tolower(iff(tmp_ResourceType =~ 'microsoft.resources/subscriptions', coalesce(SubAccountName, ResourceName), ResourceName)),  // Use subscription name for subscription-level recommendations
+        ResourceType,
+        SubAccountId = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
+        SubAccountName,
+        x_EffectiveCostAfter = coalesce(x_EffectiveCostAfter, TotalCostWithReservedInstances),
+        x_EffectiveCostBefore = coalesce(x_EffectiveCostBefore, CostWithNoReservedInstances),
+        x_EffectiveCostSavings = coalesce(x_EffectiveCostSavings, NetSavings, toreal(x_RecommendationDetails.x_SavingsAmount), toreal(x_RecommendationDetails.x_AnnualSavingsAmount) / 12),
+        x_IngestionTime,
+        x_RecommendationCategory,  // TODO: Set for reservation recommendations
+        x_RecommendationDate,
+        x_RecommendationDescription = coalesce(x_RecommendationDescription, tostring(x_RecommendationDetails.x_RecommendationSolution), tostring(x_RecommendationDetails.x_RecommendationSubCategory)),
+        x_RecommendationDetails,
+        x_RecommendationId = tolower(x_RecommendationId),    // TODO: Set for reservation recommendations; force lowercase for consistent grouping/filtering
+        x_ResourceGroupName = tolower(x_ResourceGroupName),  // Force lowercase for consistent grouping/filtering
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion
+}
+
+// Recommendations_final_v1_4 table
+.create-merge table Recommendations_final_v1_4 (
+    ProviderName:                string,
+    ResourceId:                  string,
+    ResourceName:                string,
+    ResourceType:                string,
+    SubAccountId:                string,
+    SubAccountName:              string,
+    x_EffectiveCostAfter:        real,
+    x_EffectiveCostBefore:       real,
+    x_EffectiveCostSavings:      real,
+    x_IngestionTime:             datetime,
+    x_RecommendationCategory:    string,
+    x_RecommendationDate:        datetime,
+    x_RecommendationDescription: string,
+    x_RecommendationDetails:     dynamic,
+    x_RecommendationId:          string,
+    x_ResourceGroupName:         string,
+    x_SourceName:                string,
+    x_SourceProvider:            string,
+    x_SourceType:                string,
+    x_SourceVersion:             string
+)
+
+// Update policy for Recommendations_raw -> Recommendations_final_v1_4 table
+.alter table Recommendations_final_v1_4 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "Recommendations_raw",
+    "Query": "Recommendations_transform_v1_4()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
+
+
+//===| Transactions |===================================================================================================
+// Supported versions:
+// - MS CM EA reservation transactions: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-ea
+// - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
+//======================================================================================================================
+
+// Transactions_transform_v1_4 function
+.create-or-alter function
+with (docstring='All transactions transformed to FOCUS 1.4.', folder='Transactions')
+Transactions_transform_v1_4()
+{
+    // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
+    let isoMonths = (duration: string) {
+        let number = toint(replace_regex(duration, @'[PMY]', ''));
+        toint(case(
+            duration == '', int(null),
+            duration endswith "Y", number * 12,
+            duration endswith "M", number,
+            -1
+        ))
+    };
+    Transactions_raw
+    //
+    // Set ProviderName
+    | extend ProviderName = 'Microsoft'
+    //
+    // Set source columns
+    | extend x_SourceName     = coalesce(x_SourceName, iff(ProviderName == 'Microsoft', 'Cost Management', ProviderName))
+    | extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
+    | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationTransactions', ''))
+    | extend x_SourceVersion  = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2023-05-01', ''))
+    //
+    // Handle BillingPeriodStart/End
+    | extend BillingMonth = tostring(BillingMonth)
+    | extend BillingPeriodStart = iff(isempty(BillingMonth), datetime(null), todatetime(strcat(substring(BillingMonth, 0, 4), "-", substring(BillingMonth, 4, 2), "-", substring(BillingMonth, 6, 2))))
+    | extend BillingPeriodEnd = iff(isempty(BillingMonth), datetime(null), startofmonth(endofmonth(BillingPeriodStart) + 1d))
+    //
+    // Sort columns and apply final transforms
+    | project
+        BilledCost = Amount,
+        BillingAccountId = case(
+            BillingProfileId startswith '/', BillingProfileId,
+            isnotempty(CurrentEnrollmentId), strcat('/providers/Microsoft.Billing/billingAccounts/', CurrentEnrollmentId),
+            isnotempty(BillingProfileId), strcat('/providers/Microsoft.Billing/billingProfiles/', BillingProfileId),
+            ''
+        ),
+        BillingAccountName = coalesce(BillingProfileName, CurrentEnrollmentId),
+        BillingCurrency = Currency,
+        BillingPeriodEnd,
+        BillingPeriodStart,
+        ChargeCategory = case(
+            EventType in ('Cancel', 'Purchase', 'Refund'), 'Purchase',
+            'Adjustment'
+        ),
+        ChargeClass = case(
+            EventType == 'Cancel', 'Cancel',  // FOCUS does not handle this scenario
+            EventType == 'Refund', 'Correction',
+            ''
+        ),
+        ChargeDescription = Description,
+        ChargeFrequency   = case(
+            BillingFrequency == 'OneTime', 'One-Time',
+            BillingFrequency == 'Recurring', 'Recurring',
+            BillingFrequency
+        ),
+        ChargePeriodStart    = EventDate,
+        InvoiceId,
+        PricingQuantity      = Quantity,
+        PricingUnit          = 'Reservations',
+        ProviderName,
+        RegionId             = Region,
+        RegionName           = Region,
+        SubAccountId         = iff(isempty(PurchasingSubscriptionGuid), '', strcat('/subscriptions/', PurchasingSubscriptionGuid)),
+        SubAccountName       = iff(isempty(PurchasingSubscriptionGuid), '', PurchasingSubscriptionName),
+        x_AccountName        = AccountName,
+        x_AccountOwnerId     = AccountOwnerEmail,
+        x_CostCenter         = CostCenter,
+        x_InvoiceNumber      = Invoice,
+        x_InvoiceSectionId   = InvoiceSectionId,
+        x_InvoiceSectionName = coalesce(InvoiceSectionName, DepartmentName),
+        x_IngestionTime      = ingestion_time(),
+        x_MonetaryCommitment = MonetaryCommitment,
+        x_Overage            = Overage,
+        x_PurchasingBillingAccountId = PurchasingEnrollment,
+        x_SkuOrderId         = ReservationOrderId,
+        x_SkuOrderName       = ReservationOrderName,
+        x_SkuSize            = ArmSkuName,
+        x_SkuTerm            = isoMonths(Term),
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion,
+        x_SubscriptionId  = PurchasingSubscriptionGuid,
+        x_TransactionType = EventType
+}
+
+// Transactions_final_v1_4 table
+.create-merge table Transactions_final_v1_4 (
+    BilledCost:                   real,      // MS CM EA+MCA 2023-05-01
+    BillingAccountId:             string,    // MS CM EA+MCA 2023-05-01
+    BillingAccountName:           string,    // MS CM EA+MCA 2023-05-01
+    BillingCurrency:              string,    // MS CM EA+MCA 2023-05-01
+    BillingPeriodEnd:             datetime,  // MS CM EA+MCA 2023-05-01
+    BillingPeriodStart:           datetime,  // MS CM EA+MCA 2023-05-01
+    ChargeCategory:               string,    // Hubs add-on
+    ChargeClass:                  string,    // Hubs add-on
+    ChargeDescription:            string,    // MS CM EA+MCA 2023-05-01
+    ChargeFrequency:              string,    // MS CM EA+MCA 2023-05-01
+    ChargePeriodStart:            datetime,  // MS CM EA+MCA 2023-05-01
+    InvoiceId:                    string,    // MS CM MCA 2023-05-01
+    PricingQuantity:              real,      // MS CM EA+MCA 2023-05-01
+    PricingUnit:                  string,    // Hubs add-on
+    ProviderName:                 string,    // Hubs add-on
+    RegionId:                     string,    // MS CM EA+MCA 2023-05-01
+    RegionName:                   string,    // MS CM EA+MCA 2023-05-01
+    SubAccountId:                 string,    // MS CM EA+MCA 2023-05-01
+    SubAccountName:               string,    // MS CM EA+MCA 2023-05-01
+    x_AccountName:                string,    // MS CM EA 2023-05-01
+    x_AccountOwnerId:             string,    // MS CM EA 2023-05-01
+    x_CostCenter:                 string,    // MS CM EA 2023-05-01
+    x_InvoiceNumber:              string,    // MS CM MCA 2023-05-01
+    x_InvoiceSectionId:           string,    // MS CM MCA 2023-05-01
+    x_InvoiceSectionName:         string,    // MS CM MCA 2023-05-01
+    x_IngestionTime:              datetime,  // Hubs add-on
+    x_MonetaryCommitment:         real,      // MS CM EA 2023-05-01
+    x_Overage:                    real,      // MS CM EA 2023-05-01
+    x_PurchasingBillingAccountId: string,    // MS CM EA 2023-05-01
+    x_SkuOrderId:                 string,    // MS CM EA+MCA 2023-05-01
+    x_SkuOrderName:               string,    // MS CM EA+MCA 2023-05-01
+    x_SkuSize:                    string,    // MS CM EA+MCA 2023-05-01
+    x_SkuTerm:                    int,       // MS CM EA+MCA 2023-05-01
+    x_SourceName:                 string,    // Hubs add-on
+    x_SourceProvider:             string,    // Hubs add-on
+    x_SourceType:                 string,    // Hubs add-on
+    x_SourceVersion:              string,    // Hubs add-on
+    x_SubscriptionId:             string,    // MS CM EA+MCA 2023-05-01
+    x_TransactionType:            string     // MS CM EA+MCA 2023-05-01
+)
+
+// Update policy for Transactions_raw -> Transactions_final_v1_4 table
+.alter table Transactions_final_v1_4 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "Transactions_raw",
+    "Query": "Transactions_transform_v1_4()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
