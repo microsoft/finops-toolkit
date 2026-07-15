@@ -133,7 +133,7 @@ Every recommendation must include:
 ## FinOps domain conventions
 
 - Reference FinOps Framework capabilities by their official names (e.g., "Managing commitment-based discounts", not "reservation management")
-- Use FOCUS specification terminology when discussing cost data fields (e.g., BilledCost, EffectiveCost, ListCost, ContractedCost). Prefer FOCUS 1.4 names: `ServiceProviderName` (replaces removed `ProviderName`) and `HostProviderName` (replaces removed `PublisherName`); `ContractApplied` plus the `ContractCommitments()`, `BillingPeriods()`, and `InvoiceDetails()` datasets for contract commitment, billing-period, and invoice tracking.
+- Use FOCUS specification terminology when discussing cost data fields (e.g., BilledCost, EffectiveCost, ListCost, ContractedCost). Prefer current FOCUS names: `ServiceProviderName` (vendor that makes the service available; replaces the removed `PublisherName` and `ProviderName`) and `HostProviderName` (infrastructure provider that hosts the resource); `ContractApplied` plus the `ContractCommitments()`, `BillingPeriods()`, and `InvoiceDetails()` datasets for contract commitment, billing-period, and invoice tracking (these return no data until Microsoft Cost Management ships a FOCUS 1.4 export, not yet available).
 - Reference maturity levels as Crawl/Walk/Run when discussing FinOps practice maturity
 - Cite the six FinOps principles when they are relevant to a recommendation
 - For Azure-specific guidance, reference the official Microsoft documentation URL

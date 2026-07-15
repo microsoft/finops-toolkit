@@ -9,12 +9,22 @@
 // For allowed commands, see https://learn.microsoft.com/azure/data-explorer/database-script
 
 
+// BillingPeriods_final_v1_4
+.create-or-alter function
+with (docstring = 'Gets all billing periods aligned to FOCUS 1.4.', folder = 'BillingPeriods')
+BillingPeriods_v1_4()
+{
+    database('Ingestion').BillingPeriods_final_v1_4
+}
+
+
 // CommitmentDiscountUsage_final_v1_4
 .create-or-alter function
 with (docstring = 'Gets all commitment discount usage records aligned to FOCUS 1.4.', folder = 'CommitmentDiscountUsage')
 CommitmentDiscountUsage_v1_4()
 {
     database('Ingestion').CommitmentDiscountUsage_final_v1_4
+    | union (database('Ingestion').CommitmentDiscountUsage_final_v1_2)
     | union (
         database('Ingestion').CommitmentDiscountUsage_final_v1_0
         // Convert decimal to real
@@ -24,7 +34,7 @@ CommitmentDiscountUsage_v1_4()
             x_CommitmentDiscountCommittedAmount = toreal(x_CommitmentDiscountCommittedAmount),
             x_CommitmentDiscountNormalizedRatio = toreal(x_CommitmentDiscountNormalizedRatio)
         // Add new columns
-        | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceSubcategory) on x_ResourceType
+        | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceSubcategory) by x_ResourceType) on x_ResourceType
         | extend CommitmentDiscountQuantity = ConsumedQuantity * x_CommitmentDiscountNormalizedRatio
         | extend CommitmentDiscountUnit = case(
             x_CommitmentDiscountNormalizedRatio == 1, 'Hours',
@@ -66,43 +76,12 @@ CommitmentDiscountUsage_v1_4()
 }
 
 
-<<<<<<<< HEAD:src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts/HubSetup_v1_3.kql
-// ContractCommitment_final_v1_3
-.create-or-alter function
-with (docstring = 'Gets all contract commitments aligned to FOCUS 1.3.', folder = 'ContractCommitment')
-ContractCommitment_v1_3()
-{
-    database('Ingestion').ContractCommitment_final_v1_3
-}
-
-
-// Costs_final_v1_3
-========
 // ContractCommitments_final_v1_4
->>>>>>>> flanakin/focus14-phase2-hubs-1.3:src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts/HubSetup_v1_4.kql
 .create-or-alter function
 with (docstring = 'Gets all contract commitments aligned to FOCUS 1.4.', folder = 'ContractCommitments')
 ContractCommitments_v1_4()
 {
     database('Ingestion').ContractCommitments_final_v1_4
-}
-
-
-// BillingPeriods_final_v1_4
-.create-or-alter function
-with (docstring = 'Gets all billing periods aligned to FOCUS 1.4.', folder = 'BillingPeriods')
-BillingPeriods_v1_4()
-{
-    database('Ingestion').BillingPeriods_final_v1_4
-}
-
-
-// InvoiceDetails_final_v1_4
-.create-or-alter function
-with (docstring = 'Gets all invoice details aligned to FOCUS 1.4.', folder = 'InvoiceDetails')
-InvoiceDetails_v1_4()
-{
-    database('Ingestion').InvoiceDetails_final_v1_4
 }
 
 
@@ -258,9 +237,16 @@ Costs_v1_4()
         | extend ContractCommitmentPaymentInterval             = ''
         | extend ContractCommitmentPaymentModel                = ''
         | extend ContractCommitmentPaymentUpfrontPercentage    = real(null)
-        | extend HostProviderName                              = PublisherName
+        | extend HostProviderName                              = ProviderName
         | extend InvoiceDetailId                               = ''
-        | extend ServiceProviderName                           = ProviderName
+        | extend ServiceProviderName                           = case(
+            // Use the Marketplace publisher when available (normalized to the cloud provider for non-Marketplace charges)
+            isnotempty(PublisherName), PublisherName,
+            // Fall back to the deprecated ProviderName when PublisherName could not be resolved
+            isnotempty(ProviderName), ProviderName,
+            // Must not be null per FOCUS; Cost Management data is always Microsoft
+            'Microsoft'
+        )
     )
     | union (
         database('Ingestion').Costs_final_v1_2
@@ -284,9 +270,16 @@ Costs_v1_4()
         | extend ContractCommitmentPaymentInterval             = ''
         | extend ContractCommitmentPaymentModel                = ''
         | extend ContractCommitmentPaymentUpfrontPercentage    = real(null)
-        | extend HostProviderName                              = PublisherName
+        | extend HostProviderName                              = ProviderName
         | extend InvoiceDetailId                               = ''
-        | extend ServiceProviderName                           = ProviderName
+        | extend ServiceProviderName                           = case(
+            // Use the Marketplace publisher when available (normalized to the cloud provider for non-Marketplace charges)
+            isnotempty(PublisherName), PublisherName,
+            // Fall back to the deprecated ProviderName when PublisherName could not be resolved
+            isnotempty(ProviderName), ProviderName,
+            // Must not be null per FOCUS; Cost Management data is always Microsoft
+            'Microsoft'
+        )
     )
     | extend SkuPriceDetails = iff(isnotempty(SkuPriceDetails), SkuPriceDetails, parse_json(replace_regex(tostring(x_SkuDetails), @'([\{,])"', @'\1"x_')))
     | project
@@ -347,7 +340,6 @@ Costs_v1_4()
         PricingCurrency,
         PricingQuantity,
         PricingUnit,
-        // ProviderName and PublisherName removed in FOCUS 1.4. Use ServiceProviderName / HostProviderName.
         RegionId,
         RegionName,
         ResourceId,
@@ -469,12 +461,22 @@ Costs_v1_4()
 }
 
 
+// InvoiceDetails_final_v1_4
+.create-or-alter function
+with (docstring = 'Gets all invoice details aligned to FOCUS 1.4.', folder = 'InvoiceDetails')
+InvoiceDetails_v1_4()
+{
+    database('Ingestion').InvoiceDetails_final_v1_4
+}
+
+
 // Prices_final_v1_4
 .create-or-alter function
 with (docstring = 'Gets all prices aligned to FOCUS 1.4.', folder = 'Prices')
 Prices_v1_4()
 {
     database('Ingestion').Prices_final_v1_4
+    | union (database('Ingestion').Prices_final_v1_2)
     | union (
         database('Ingestion').Prices_final_v1_0
         // Convert decimal to real
@@ -491,7 +493,7 @@ Prices_v1_4()
             x_SkuIncludedQuantity                = toreal(x_SkuIncludedQuantity),
             x_SkuTier                            = toreal(x_SkuTier),
             x_TotalUnitPriceDiscount             = toreal(x_TotalUnitPriceDiscount),
-            x_TotalUnitPriceDiscountPercent      = toreal(x_TotalUnitPriceDiscountPercent) 
+            x_TotalUnitPriceDiscountPercent      = toreal(x_TotalUnitPriceDiscountPercent)
         // Rename columns
         | project-rename
             PricingCurrency = x_PricingCurrency,
@@ -562,6 +564,7 @@ with (docstring = 'Gets all recommendations aligned to FOCUS 1.4.', folder = 'Re
 Recommendations_v1_4()
 {
     database('Ingestion').Recommendations_final_v1_4
+    | union (database('Ingestion').Recommendations_final_v1_2)
     | union (
         database('Ingestion').Recommendations_final_v1_0
         // Convert decimal to real
@@ -601,6 +604,7 @@ with (docstring = 'Gets all transactions aligned to FOCUS 1.4.', folder = 'Trans
 Transactions_v1_4()
 {
     database('Ingestion').Transactions_final_v1_4
+    | union (database('Ingestion').Transactions_final_v1_2)
     | union (
         database('Ingestion').Transactions_final_v1_0
         // Convert decimal to real
@@ -653,48 +657,4 @@ Transactions_v1_4()
         x_SourceVersion,
         x_SubscriptionId,
         x_TransactionType
-}
-
-
-//======================================================================================================================
-// Latest FOCUS version
-//======================================================================================================================
-
-.create-or-alter function
-with (docstring = 'Gets all commitment discount usage records with the latest supported version of the FOCUS schema.', folder = 'CommitmentDiscountUsage')
-CommitmentDiscountUsage()
-{
-    CommitmentDiscountUsage_v1_4()
-}
-
-
-.create-or-alter function
-with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Costs')
-Costs()
-{
-    Costs_v1_4()
-}
-
-
-.create-or-alter function
-with (docstring = 'Gets all prices with the latest supported version of the FOCUS schema.', folder = 'Prices')
-Prices()
-{
-    Prices_v1_4()
-}
-
-
-.create-or-alter function
-with (docstring = 'Gets all recommendations with the latest supported version of the FOCUS schema.', folder = 'Recommendations')
-Recommendations()
-{
-    Recommendations_v1_4()
-}
-
-
-.create-or-alter function
-with (docstring = 'Gets all transactions with the latest supported version of the FOCUS schema.', folder = 'Transactions')
-Transactions()
-{
-    Transactions_v1_4()
 }
