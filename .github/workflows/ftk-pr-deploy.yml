@@ -94,15 +94,16 @@ jobs:
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
+          # Writes "<name>=true|false" to GITHUB_OUTPUT. Always returns 0 — an
+          # unchecked box is a normal state, not an error, so it must not abort
+          # the step under `set -e`.
           parse_checkbox() {
             local pattern="$1"
             local output_name="$2"
             if echo "$PR_BODY" | grep -qE "\- \[x\] $pattern"; then
               echo "$output_name=true" >> "$GITHUB_OUTPUT"
-              return 0
             else
               echo "$output_name=false" >> "$GITHUB_OUTPUT"
-              return 1
             fi
           }
 
