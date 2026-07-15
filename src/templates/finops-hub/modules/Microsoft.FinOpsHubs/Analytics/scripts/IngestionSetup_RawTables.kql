@@ -565,9 +565,9 @@
     PricingCurrency:            string,    // FOCUS 1.2+
     PricingQuantity:            real,      // FOCUS 1.0-preview+
     PricingUnit:                string,    // FOCUS 1.0-preview+
-    ProviderName:               string,    // FOCUS 0.5-1.3 (removed in 1.4; kept for back compat)
-    PublisherName:              string,    // FOCUS 0.5-1.3 (removed in 1.4; kept for back compat)
-    Region:                     string,    // FOCUS 0.5-1.0-preview (removed; kept for back compat)
+    ProviderName:               string,    // FOCUS 0.5-1.3 (removed; keep for back-compat)
+    PublisherName:              string,    // FOCUS 0.5-1.3 (removed; keep for back-compat)
+    Region:                     string,    // FOCUS 0.5-1.0-preview (removed; keep for back-compat)
     RegionId:                   string,    // FOCUS 1.0+
     RegionName:                 string,    // FOCUS 1.0+
     ResourceId:                 string,    // FOCUS 0.5+
