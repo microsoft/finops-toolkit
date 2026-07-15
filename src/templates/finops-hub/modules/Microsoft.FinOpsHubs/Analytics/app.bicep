@@ -379,6 +379,7 @@ module ingestion_VersionedScripts '../../fx/hub-database.bicep' = if (useAzure) 
       v1_0: loadTextContent('scripts/IngestionSetup_v1_0.kql')
       v1_2: loadTextContent('scripts/IngestionSetup_v1_2.kql')
       v1_4: loadTextContent('scripts/IngestionSetup_v1_4.kql')
+      v1_4_datasets: loadTextContent('scripts/IngestionSetup_v1_4_Datasets.kql')
     }
     continueOnErrors: continueOnErrors
     forceUpdateTag: forceUpdateTag
