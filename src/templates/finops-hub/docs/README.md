@@ -20,7 +20,7 @@
 To add a new FOCUS version:
 
 0. Confirm dependencies
-   1. Ensure the FOCUS specification has been ratified for the target version. Support for working draft FOCUS versions should not be shipped before official ratification to prevent customer churn sinc FOCUS working drafts may change without notice.
+   1. Ensure the FOCUS specification has been ratified for the target version. Support for working draft FOCUS versions should not be shipped before official ratification to prevent customer churn since FOCUS working drafts may change without notice.
    2. Check whether Microsoft Cost Management has shipped a matching FOCUS export dataset version. The hub depends on a `focuscost_X.Y.json` schema mapping file in [Microsoft.CostManagement/Exports/schemas](../modules/Microsoft.CostManagement/Exports/schemas/) when ingesting from Cost Management. If the export is not yet available, the hub schema can still ship as GA. Note the gap in the changelog so adopters know what additional setup will be required.
 1. Add schema mapping file
    1. Create new schema mapping file for the Cost Management export dataset version in the schemas folder
@@ -45,8 +45,8 @@ To add a new FOCUS version:
    3. Update the ADX dashboard to use the new versioned functions
    4. Update the FOCUS queries in the best practices library to use the new versioned functions
 5. Update open-data metadata
-   1. Create a `FocusCost_<version>.json` file into [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/) for each Cost Management cost export version.
-   2. Create a `FinOpsHubs_<dataset>_<schema-version>.json` file into [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/) for each FinOps hub managed dataset schema version.
+   1. Create a `FocusCost_<version>.json` file in [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/) for each Cost Management cost export version.
+   2. Create a `FinOpsHubs_<dataset>_<schema-version>.json` file in [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/) for each FinOps hub managed dataset schema version.
    3. Mirror the schema details (columns, types, descriptions) from the matching Cost Management export or FinOps hubs schema so downstream consumers see consistent metadata.
 6. Update plugin skill files
    1. Refresh the FOCUS schema and function references in the following files so plugin guidance does not go stale:

@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 05/17/2026
+ms.date: 07/15/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -56,7 +56,7 @@ One of the goals of the FinOps hubs data model is to guarantee backwards compati
 
 Data is transformed to the latest supported FOCUS version during ingestion. For instance, if you ingested FOCUS 1.0 data into the `v1_4` schema, it would be converted to FOCUS 1.4 during ingestion. Older data remains in its originally ingested format. For instance, if you previously ingested FOCUS 1.0 data into the `v1_2` schema, it would remain in the `v1_2` format even after upgrading to a newer schema version.
 
-The functions in the `Hub` database pull from all tables and transform it into a specific version. For instance, `Costs_v1_0` will convert `v1_4` and `v1_2` data back to the `v1_0` format, ensuring backwards compatibility despite upgrading to newer versions. When you're ready to upgrade, you can selectively upgrade each report or integration to use `Costs_v1_2` or `Costs_v1_4` without breaking others. However, if you want a quick, convenience function that always returns the latest version, you can use the unversioned functions, like `Costs` and `Prices`. Unversioned functions are recommended for ad hoc use while versioned functions are recommended for integration points that require a consistent format after upgrades.
+The functions in the `Hub` database pull from all tables and transform them into a specific version. For instance, `Costs_v1_0` will convert `v1_4` and `v1_2` data back to the `v1_0` format, ensuring backwards compatibility despite upgrading to newer versions. When you're ready to upgrade, you can selectively upgrade each report or integration to use `Costs_v1_2` or `Costs_v1_4` without breaking others. However, if you want a quick, convenience function that always returns the latest version, you can use the unversioned functions, like `Costs` and `Prices`. Unversioned functions are recommended for ad hoc use while versioned functions are recommended for integration points that require a consistent format after upgrades.
 
 The following table indicates the schema version for each FinOps hub release and which FOCUS version they align to.
 
