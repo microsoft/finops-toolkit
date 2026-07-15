@@ -7,7 +7,7 @@
 
     .DESCRIPTION
     Reads all .kql files from src/queries/catalog, includes the full file content
-    (comments and query), replaces Costs() with Costs_v1_2(), and writes a combined
+    (comments and query), replaces Costs() with Costs_v1_4(), and writes a combined
     markdown file to the Copilot Studio knowledge folder.
 
     .EXAMPLE
@@ -46,7 +46,7 @@ $output = @"
 
 This document contains ready-to-use KQL query patterns for common FinOps analysis tasks. Use these as templates when answering cost questions. Always execute queries via the Kusto MCP tool — never answer from this document alone.
 
-All queries use the ``Costs_v1_2()`` function unless noted otherwise.
+All queries use the ``Costs_v1_4()`` function unless noted otherwise.
 "@
 
 # Process each KQL file
@@ -69,8 +69,8 @@ foreach ($file in $kqlFiles)
     $title = ($file.BaseName -replace '-', ' ')
     $title = $title.Substring(0, 1).ToUpper() + $title.Substring(1)
 
-    # Replace Costs() with Costs_v1_2()
-    $content = $content -replace '\bCosts\(\)', 'Costs_v1_2()'
+    # Replace Costs() with Costs_v1_4()
+    $content = $content -replace '\bCosts\(\)', 'Costs_v1_4()'
 
     # Guard against triple backticks in KQL content breaking the markdown code fence
     if ($content -match '``````')
