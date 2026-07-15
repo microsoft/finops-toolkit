@@ -159,6 +159,7 @@ Stack order (nothing merged yet; phases 3–5 were closed/superseded): **#2126 (
 1. ~~Q1 (D4)~~ Resolved: new datasets in scope per owner review comments on #2126 (see D4).
 2. ~~Q2 (D3)~~ Resolved: derivation confirmed by owner review comments 3309129381/3309175754 on #2126; both PRs currently implement it swapped — fix in W2/W3.
 3. **Q3**: Target release for `flanakin/focus14` → `dev` (v14 shipped 2026-07; assume next release). Changelog entries land under "Unreleased" (stack currently uses "FinOps hubs v15.0.0" inside the commented Unreleased block — consistent).
+4. **Q4 (NEW — needs owner decision)**: `ContractCommitments_final_v1_4` uses unprefixed column names (`BenefitCategory`, `Created`, `Model`, …) that don't match the FOCUS 1.4 spec column IDs (`ContractCommitmentBenefitCategory`, …) and omits spec columns `ContractCommitmentDescription` and `ServiceProviderName` (hubs: 28; spec: 30). Verified against the spec `v1.4` tag by two independent checks. If strict FOCUS conformance is the goal, the table/function/tests/docs should be reconciled — cheap now while the table is empty. Deliberately NOT changed pending your call, since the current shape follows the existing branch content.
 
 ## 8. Progress
 
@@ -169,12 +170,19 @@ Stack order (nothing merged yet; phases 3–5 were closed/superseded): **#2126 (
 - [x] Review 6 existing PRs; dispositions recorded in §6
 - [x] W2: Ingestion v1_4 — #2126 fixed (`30f926d3`: provider mapping, C360 retrofit, v1_2 policies disabled, 1.4 detection, D9 file split; build green) — **awaiting review**
 - [x] W3: Hub functions v1_4 — #2128 fixed (`cd2873b7`+`7181c9aa`: v1_2 union arms, v1_0/v1_2 down-convert arms, mapping consistency, tails removed, dashboard repoint; build green; base retargeted to phase1) — **awaiting review**
-- [ ] W4: KQL test harness (#2136 rework)
-- [ ] W5: Power BI
-- [ ] W6: Core docs — W6a #2123 fixed (`463c2735`, awaiting review); W6b column tables pending
-- [ ] W7: Conformance + open data
-- [ ] W8: AI/agent surfaces
-- [ ] W9: Recommendations enrichment (#2194)
-- [ ] Manual ADX validation pass (all export versions, cardinality reconciliation)
+- [x] W4: KQL test harness — #2136 reworked (`778080f2`+`9eb79cad`: 207 static tests, D6 checks 1-4, all red-green validated; full suite 2047/0) — **awaiting review**
+- [x] W5: Power BI — new [#2209](https://github.com/microsoft/finops-toolkit/pull/2209) (kql repoint + 22 model columns, storage `Has14` normalization, ProviderName/PublisherName kept as derived columns to protect visuals/DAX; 2 `.pbix` binaries flagged for release-time regen) — **awaiting review**
+- [x] W6: Core docs — W6a #2123 fixed (`463c2735`); W6b new [#2211](https://github.com/microsoft/finops-toolkit/pull/2211) (upgrade/compatibility/data-processing/data-dictionary; 111/0 column cross-check) — **awaiting review**
+- [x] W7: Conformance — new [#2208](https://github.com/microsoft/finops-toolkit/pull/2208) (`Build-FocusConformance.ps1` fixed for 1.3+ spec layout + curation preservation; 1,021 new 1.3/1.4 requirements marked Not Evaluated, no invented claims) — **awaiting review**
+- [x] W8: AI/agent surfaces — #2135 reworked (`968207f4`+`0824600c`: conflict markers removed, provider semantics fixed, no-data caveats); W8b new [#2210](https://github.com/microsoft/finops-toolkit/pull/2210) (copilot-studio knowledge 175/175 column check, query catalog + removed-column migration) — **awaiting review**
+- [x] W9: Recommendations enrichment — #2194 fixed (`503d3a63`+`a6c91087`+`47b406ed`: 22/23 queries mapped to real subcategories, taxonomy coherence datatable + tests, symmetric defaults; suite 2093/0) — **awaiting review**
+- [ ] Manual ADX validation pass (all export versions, cardinality reconciliation) — requires an Azure deployment (`Deploy-Toolkit -Build -Test`); needs owner to run or authorize
 - [ ] Remove this plan file; mark umbrella PR ready
 - [ ] *Blocked*: W10 export-side registration (awaiting Cost Management FOCUS 1.4 export)
+
+### Recommended review/merge order
+
+1. [#2123](https://github.com/microsoft/finops-toolkit/pull/2123) (independent process docs)
+2. Stack, in order: [#2126](https://github.com/microsoft/finops-toolkit/pull/2126) → [#2128](https://github.com/microsoft/finops-toolkit/pull/2128) → [#2135](https://github.com/microsoft/finops-toolkit/pull/2135) → [#2136](https://github.com/microsoft/finops-toolkit/pull/2136) → [#2194](https://github.com/microsoft/finops-toolkit/pull/2194) (bases auto-retarget as parents merge)
+3. Stacked on phase7: [#2209](https://github.com/microsoft/finops-toolkit/pull/2209) (Power BI), [#2210](https://github.com/microsoft/finops-toolkit/pull/2210) (copilot-studio/queries), [#2211](https://github.com/microsoft/finops-toolkit/pull/2211) (schema docs). Note: #2194, #2209 all append to `changelog.md` from the same base — merge conflicts there are additive; keep both sides per repo convention.
+4. [#2208](https://github.com/microsoft/finops-toolkit/pull/2208) (conformance, independent)
