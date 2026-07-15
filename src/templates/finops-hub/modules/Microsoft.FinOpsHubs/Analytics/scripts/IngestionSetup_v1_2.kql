@@ -1315,7 +1315,7 @@ ActualCosts_transform_v1_2()
 
 // AmortizedCosts_transform_v1_2 function
 .create-or-alter function
-with (docstring='ActualCost exports transformed to FOCUS 1.2.', folder='Costs')
+with (docstring='AmortizedCost exports transformed to FOCUS 1.2.', folder='Costs')
 AmortizedCosts_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111

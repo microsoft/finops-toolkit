@@ -94,3 +94,20 @@ jobs:
           # Try to assign the PR author; ignore failure for external contributors
           issue_number=$(echo "$issue_url" | grep -oE '[0-9]+$')
           gh issue edit "$issue_number" --repo "${{ github.repository }}" --add-assignee "$author" || true
+
+      - name: Create issue if cleanup job failed
+        # Catches hard failures (login, Get-AzResourceGroup) that abort before
+        # the delete step can report per-group results — otherwise pr-*-* groups
+        # would linger with no notification.
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr=${{ github.event.pull_request.number }}
+          author=${{ github.event.pull_request.user.login }}
+          issue_url=$(gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "Cleanup failed for PR #$pr" \
+            --body "Automated cleanup for PR #$pr failed before it could delete resource groups. Check for lingering \`pr-$pr-*\` resource groups and delete them manually. [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).")
+          issue_number=$(echo "$issue_url" | grep -oE '[0-9]+$')
+          gh issue edit "$issue_number" --repo "${{ github.repository }}" --add-assignee "$author" || true

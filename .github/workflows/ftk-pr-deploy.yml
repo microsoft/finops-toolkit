@@ -1,6 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+# SECURITY PRECONDITION: The 'ftk-pr' GitHub environment MUST have required
+# reviewers configured. The deploy jobs below run azure/login with Contributor +
+# User Access Administrator on the subscription and build+deploy the PR's own
+# code. For fork PRs (pull_request_target + 'Needs: Deployment' label) that code
+# is untrusted, so the environment reviewer gate is the only control preventing a
+# labeled fork from deploying malicious templates with CI credentials. This is
+# configured by Initialize-CI.ps1; verify reviewers are set before enabling fork
+# deployments. See src/scripts/README.md (Initialize-CI).
+
 name: 'PR Deploy'
 
 on:
@@ -80,20 +89,6 @@ jobs:
             exit 1
           fi
 
-      - name: Install Az modules
-        shell: pwsh
-        run: |
-          Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module -Name Az.Accounts -RequiredVersion $env:AZ_ACCOUNTS_VERSION -Force
-          Install-Module -Name Az.Resources -RequiredVersion $env:AZ_RESOURCES_VERSION -Force
-          Install-Module -Name Az.Storage -RequiredVersion $env:AZ_STORAGE_VERSION -Force
-
-      - name: Cache Az modules
-        uses: actions/cache/save@v4
-        with:
-          path: /home/runner/.local/share/powershell/Modules
-          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
-
       - name: Parse deployment checkboxes
         id: parse
         env:
@@ -125,9 +120,8 @@ jobs:
   #----------------------------------------------------------------------------
   # Hub deployments
   #----------------------------------------------------------------------------
-  # NOTE: The ftk-pr environment MUST have required reviewers configured in GitHub
-  # settings to gate fork PR deployments. Without this, fork PRs could deploy
-  # malicious ARM templates using CI credentials.
+  # All deploy jobs use the ftk-pr environment, which MUST have required reviewers
+  # configured — see the SECURITY PRECONDITION note at the top of this file.
   deploy-adx:
     name: 'Hubs + ADX (managed)'
     needs: check-options
@@ -137,11 +131,20 @@ jobs:
     environment: ftk-pr
     steps:
       - name: Restore Az modules
-        uses: actions/cache/restore@v4
+        id: az-cache
+        uses: actions/cache@v4
         with:
           path: /home/runner/.local/share/powershell/Modules
           key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
-          fail-on-cache-miss: true
+
+      - name: Install Az modules
+        if: steps.az-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion $env:AZ_ACCOUNTS_VERSION -Force
+          Install-Module -Name Az.Resources -RequiredVersion $env:AZ_RESOURCES_VERSION -Force
+          Install-Module -Name Az.Storage -RequiredVersion $env:AZ_STORAGE_VERSION -Force
 
       - uses: actions/checkout@v4
         with:
@@ -193,11 +196,20 @@ jobs:
           fi
 
       - name: Restore Az modules
-        uses: actions/cache/restore@v4
+        id: az-cache
+        uses: actions/cache@v4
         with:
           path: /home/runner/.local/share/powershell/Modules
           key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
-          fail-on-cache-miss: true
+
+      - name: Install Az modules
+        if: steps.az-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion $env:AZ_ACCOUNTS_VERSION -Force
+          Install-Module -Name Az.Resources -RequiredVersion $env:AZ_RESOURCES_VERSION -Force
+          Install-Module -Name Az.Storage -RequiredVersion $env:AZ_STORAGE_VERSION -Force
 
       - uses: actions/checkout@v4
         with:
@@ -243,11 +255,20 @@ jobs:
     environment: ftk-pr
     steps:
       - name: Restore Az modules
-        uses: actions/cache/restore@v4
+        id: az-cache
+        uses: actions/cache@v4
         with:
           path: /home/runner/.local/share/powershell/Modules
           key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
-          fail-on-cache-miss: true
+
+      - name: Install Az modules
+        if: steps.az-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion $env:AZ_ACCOUNTS_VERSION -Force
+          Install-Module -Name Az.Resources -RequiredVersion $env:AZ_RESOURCES_VERSION -Force
+          Install-Module -Name Az.Storage -RequiredVersion $env:AZ_STORAGE_VERSION -Force
 
       - uses: actions/checkout@v4
         with:
@@ -290,11 +311,20 @@ jobs:
     environment: ftk-pr
     steps:
       - name: Restore Az modules
-        uses: actions/cache/restore@v4
+        id: az-cache
+        uses: actions/cache@v4
         with:
           path: /home/runner/.local/share/powershell/Modules
           key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
-          fail-on-cache-miss: true
+
+      - name: Install Az modules
+        if: steps.az-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion $env:AZ_ACCOUNTS_VERSION -Force
+          Install-Module -Name Az.Resources -RequiredVersion $env:AZ_RESOURCES_VERSION -Force
+          Install-Module -Name Az.Storage -RequiredVersion $env:AZ_STORAGE_VERSION -Force
 
       - uses: actions/checkout@v4
         with:
@@ -340,11 +370,20 @@ jobs:
     environment: ftk-pr
     steps:
       - name: Restore Az modules
-        uses: actions/cache/restore@v4
+        id: az-cache
+        uses: actions/cache@v4
         with:
           path: /home/runner/.local/share/powershell/Modules
           key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
-          fail-on-cache-miss: true
+
+      - name: Install Az modules
+        if: steps.az-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion $env:AZ_ACCOUNTS_VERSION -Force
+          Install-Module -Name Az.Resources -RequiredVersion $env:AZ_RESOURCES_VERSION -Force
+          Install-Module -Name Az.Storage -RequiredVersion $env:AZ_STORAGE_VERSION -Force
 
       - uses: actions/checkout@v4
         with:
@@ -387,11 +426,20 @@ jobs:
     environment: ftk-pr
     steps:
       - name: Restore Az modules
-        uses: actions/cache/restore@v4
+        id: az-cache
+        uses: actions/cache@v4
         with:
           path: /home/runner/.local/share/powershell/Modules
           key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
-          fail-on-cache-miss: true
+
+      - name: Install Az modules
+        if: steps.az-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion $env:AZ_ACCOUNTS_VERSION -Force
+          Install-Module -Name Az.Resources -RequiredVersion $env:AZ_RESOURCES_VERSION -Force
+          Install-Module -Name Az.Storage -RequiredVersion $env:AZ_STORAGE_VERSION -Force
 
       - uses: actions/checkout@v4
         with:
