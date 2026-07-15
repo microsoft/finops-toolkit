@@ -228,7 +228,9 @@ if ($PSCmdlet.ShouldProcess("$($environments -join ', ') in $Repository", 'Creat
         }
         else
         {
-            gh api "repos/$Repository/environments/$env" -X PUT --silent
+            # Explicitly clear reviewers so a re-run always leaves the internal
+            # environment ungated, even if it previously had reviewers.
+            '{"reviewers":[]}' | gh api "repos/$Repository/environments/$env" -X PUT --input - --silent
         }
         if ($LASTEXITCODE -ne 0) { throw "Failed to create GitHub environment '$env'." }
         Write-Host "  Created environment '$env'."
