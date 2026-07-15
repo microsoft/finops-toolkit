@@ -129,7 +129,7 @@ jobs:
     if: needs.check-options.outputs.deploy-adx == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ftk-pr
+    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
     steps:
       - name: Restore Az modules
         id: az-cache
@@ -185,7 +185,7 @@ jobs:
     if: needs.check-options.outputs.deploy-fabric == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ftk-pr
+    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
     steps:
       - name: Validate Fabric URI
         env:
@@ -253,7 +253,7 @@ jobs:
     if: needs.check-options.outputs.deploy-manual == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ftk-pr
+    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
     steps:
       - name: Restore Az modules
         id: az-cache
@@ -309,7 +309,7 @@ jobs:
     if: needs.check-options.outputs.deploy-nodata == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ftk-pr
+    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
     steps:
       - name: Restore Az modules
         id: az-cache
@@ -368,7 +368,7 @@ jobs:
     if: needs.check-options.outputs.deploy-workbooks == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ftk-pr
+    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
     steps:
       - name: Restore Az modules
         id: az-cache
@@ -424,7 +424,7 @@ jobs:
     if: needs.check-options.outputs.deploy-alerts == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ftk-pr
+    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
     steps:
       - name: Restore Az modules
         id: az-cache

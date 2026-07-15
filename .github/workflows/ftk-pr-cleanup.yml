@@ -17,7 +17,7 @@ jobs:
   cleanup:
     name: Clean up PR resources
     runs-on: ubuntu-latest
-    environment: ftk-pr
+    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
     steps:
       - name: Install Az modules
         shell: pwsh
