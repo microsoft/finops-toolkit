@@ -1,0 +1,27 @@
+// ============================================================================
+// Query: Azure OpenAI Daily Cost and Token Trend
+// Description:
+//   Returns daily Azure OpenAI token consumption and effective cost.
+//   Useful for AI workload anomaly detection, forecasting, and trend reporting.
+// Author: FinOps Toolkit Team
+// Parameters:
+//   startDate: Start date for the reporting period (e.g., ago(30d))
+//   endDate: End date for the reporting period (e.g., now())
+// Output:
+//   Each row represents one day with token count, cost, and cost per 1K tokens.
+// Usage:
+//   Use this query to monitor AI workload consumption trends and detect daily cost spikes.
+// Last Updated: 2026-05-26
+// ============================================================================
+
+let startDate = ago(30d);
+let endDate = now();
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| where x_SkuMeterSubcategory has "OpenAI"
+| summarize
+    DailyTokens = sum(ConsumedQuantity),
+    DailyCost = sum(EffectiveCost)
+    by Day = bin(ChargePeriodStart, 1d), BillingCurrency
+| extend CostPer1KTokens = iff(DailyTokens == 0, 0.0, DailyCost / DailyTokens * 1000)
+| order by Day asc, BillingCurrency asc
