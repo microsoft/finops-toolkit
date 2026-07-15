@@ -326,7 +326,11 @@ expression ftk_Storage = ```
 				"x_SourceType", each data),
 				"x_SourceVersion",
 				// TODO: Extract from the manifest
-				each if data = "focuscost"                  then (if Table.HasColumns(FilterRowsByDate, {"ChargeSubcategory"}) and [ChargeSubcategory] <> null then "1.0-preview(v1)" else "1.0")
+				each if data = "focuscost"                  then (
+						if Table.HasColumns(FilterRowsByDate, {"ServiceProviderName"}) and [ServiceProviderName] <> null then "1.4"
+						else if Table.HasColumns(FilterRowsByDate, {"ChargeSubcategory"}) and [ChargeSubcategory] <> null then "1.0-preview(v1)"
+						else if Table.HasColumns(FilterRowsByDate, {"InvoiceId"}) and [InvoiceId] <> null then "1.2"
+						else "1.0")
 					else if data = "pricesheet"                 then "2023-05-01"
 					else if data = "reservationdetails"         then "2023-03-01"
 					else if data = "reservationtransactions"    then "2023-05-01"

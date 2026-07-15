@@ -54,6 +54,16 @@ The following section lists features and enhancements that are currently in deve
 - **Removed**
   - Removed deprecated `ProviderName` and `PublisherName` columns from the `v1_4` schema in favor of the FOCUS 1.3 replacements, `HostProviderName` and `ServiceProviderName`. The `v1_0` and `v1_2` functions still return both columns by down-converting from the new columns, and raw tables keep them for back compat.
 
+### Power BI reports v15.0.0
+
+- **Added**
+  - Added the new FOCUS 1.3 and 1.4 columns to the Costs table in KQL and storage reports: `AllocatedMethodDetails`, `AllocatedMethodId`, `AllocatedResourceId`, `AllocatedResourceName`, `AllocatedTags`, `CommitmentProgramEligibilityDetails`, `ContractApplied`, the 12 `ContractCommitment*` columns, `HostProviderName`, `InvoiceDetailId`, and `ServiceProviderName` ([#2120](https://github.com/microsoft/finops-toolkit/issues/2120)).
+- **Changed**
+  - Updated KQL reports to use the FinOps hubs `v1_4` schema (`Costs_v1_4()` and `Recommendations_v1_4()`) for FOCUS 1.4 ([#2120](https://github.com/microsoft/finops-toolkit/issues/2120)).
+  - Updated storage reports to align FOCUS 1.0-1.4 exports to the FOCUS 1.4 schema and to detect FOCUS 1.4 data when identifying the source version.
+- **Deprecated**
+  - Deprecated the `ProviderName` and `PublisherName` columns in the Costs table. Both columns are retained for backward compatibility and are populated from the FOCUS 1.3 replacements, `HostProviderName` and `ServiceProviderName`, when not available in the source data.
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
