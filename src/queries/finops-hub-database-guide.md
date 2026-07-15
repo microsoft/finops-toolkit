@@ -296,7 +296,8 @@ Costs()
 | extend x_CommitmentDiscountKey = iff(tmp_IsVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')
 | extend x_CommitmentDiscountUtilizationPotential = case(
     ChargeCategory == 'Purchase', decimal(0),
-    ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,
+    // HostProviderName (FOCUS 1.4) = infrastructure provider; replaces the removed ProviderName for "is this Microsoft-billed data" checks
+    HostProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,
     CommitmentDiscountCategory == 'Usage', ConsumedQuantity,
     CommitmentDiscountCategory == 'Spend', EffectiveCost,
     decimal(0)
@@ -396,14 +397,13 @@ The following table lists the columns produced in the `All available columns` qu
 | ContractedCost                           | decimal   | Negotiated cost for the resource or usage.                                        |
 | ContractedUnitPrice                      | decimal   | Negotiated unit price for the resource.                                           |
 | EffectiveCost                            | decimal   | Actual cost after all discounts and credits.                                      |
+| HostProviderName                         | string    | Infrastructure provider that hosts the resource; always "Microsoft" for Cost Management data. Replaces the removed `ProviderName` (FOCUS 1.4). |
 | InvoiceIssuerName                        | string    | Name of the invoice issuer.                                                       |
 | ListCost                                 | decimal   | List (retail) cost for the resource or usage.                                     |
 | ListUnitPrice                            | decimal   | List (retail) unit price for the resource.                                        |
 | PricingCategory                          | string    | Category of pricing (e.g., Standard, Spot).                                       |
 | PricingQuantity                          | decimal   | Quantity used for pricing.                                                        |
 | PricingUnit                              | string    | Unit of measure for pricing.                                                      |
-| ProviderName                             | string    | Name of the cloud provider.                                                       |
-| PublisherName                            | string    | Name of the publisher.                                                            |
 | RegionId                                 | string    | Identifier for the region.                                                        |
 | RegionName                               | string    | Name of the region.                                                               |
 | ResourceId                               | string    | Unique identifier for the resource.                                               |
@@ -411,6 +411,7 @@ The following table lists the columns produced in the `All available columns` qu
 | ResourceType                             | string    | Type of resource (e.g., Virtual Machine, SQL Database).                           |
 | ServiceCategory                          | string    | High-level service category (e.g., Compute, Storage).                             |
 | ServiceName                              | string    | Name of the Azure service.                                                        |
+| ServiceProviderName                      | string    | Vendor that makes the service available (Marketplace publisher or Microsoft); never null. Replaces the removed `PublisherName` and `ProviderName` (FOCUS 1.4). |
 | SkuId                                    | string    | Unique identifier for the SKU.                                                    |
 | SkuPriceId                               | string    | Unique identifier for the SKU price.                                              |
 | SubAccountId                             | string    | Identifier for the sub-account or subscription.                                   |
