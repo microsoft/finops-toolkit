@@ -69,11 +69,13 @@ The spec migration guide (lines 197–230) defines a context-dependent mapping, 
 - **HostProviderName** = `'Microsoft'` (Microsoft operates the hosting infrastructure for all charges in CM exports). Nullable per spec, but always populated for our data.
 - **ServiceProviderName** = `PublisherName` for Marketplace charges; `'Microsoft'` otherwise. (For native services PublisherName is already Microsoft, so `coalesce`-style logic collapses cleanly.)
 
-Down-conversion (v1_2/v1_0 views over `_final_v1_4` rows): `ProviderName = HostProviderName`, `PublisherName = ServiceProviderName`. This round-trips correctly for both native and Marketplace charges. Original values preserved via the existing `x_SourceValues` mechanism (#1767 precedent) when changed.
+Down-conversion (v1_2/v1_0 views over `_final_v1_4` rows): `ProviderName = HostProviderName`, `PublisherName = ServiceProviderName`. This round-trips correctly for both native and Marketplace charges. Original values preserved via the existing `x_SourceValues` mechanism (#1767 precedent) — for removed columns, follow the removed-column convention (`checkString(..., old_X, '')`) so originals are always captured.
 
-### D4. New FOCUS datasets deferred (recommended; open question Q1)
+> ⚠️ Note: a plain `ServiceProviderName = PublisherName` fallback is insufficient — the existing PublisherName fix-up can yield `''` (e.g., `x_PublisherCategory == 'Cloud Provider'` branch), violating the non-null mandate. Use the Marketplace-conditional mapping with a `'Microsoft'` fallback. Both #2126 and #2128 currently have this mapping **swapped** (Host↔Service inverted); fix must be coordinated across ingestion + hub + plugin docs.
 
-ContractCommitment, BillingPeriod, and InvoiceDetail have no Cost Management export and no hub data source. Creating empty tables/functions adds deployment surface and doc burden with no consumer value, and the eventual CM shape may differ. **Decision: do not create hub tables for them in this effort.** Document the position in `data-model.md`. Revisit when a data source exists.
+### D4. New FOCUS datasets in scope (revised after PR review)
+
+Original recommendation was to defer ContractCommitment, BillingPeriod, and InvoiceDetail (no Cost Management source). **Superseded by explicit owner direction** in PR #2126 review comments 3277231717/3277243626, which requested the tables — and the work already exists across the PR stack (raw tables, transforms, `_final_v1_4` tables, `{ds}_v1_4()` functions, unversioned aliases). **Decision: keep them in scope.** They remain empty until a data source ships; all docs/agent surfaces describing them must carry an explicit "no data until Cost Management ships an export" caveat.
 
 ### D5. Export-side registration staged behind Cost Management
 
@@ -125,6 +127,10 @@ Small PRs targeting `flanakin/focus14`; stacked where a hard dependency exists. 
 
 Execution order: W2 → W3 → W4 (stacked); W5–W8 parallel after W3; W9 anytime; W10 blocked.
 
+### D9. KQL file-size limit (added after PR review)
+
+Bicep `loadTextContent()` caps embedded files at **131,072 characters**. `IngestionSetup_v1_4.kql` on the PR stack is ~128 K before enrichments; PR #2194's +55 lines already broke CI (`Error BCP184`). **Decision: split `IngestionSetup_v1_4.kql` into two scripts** (e.g., core managed datasets vs. supplemental FOCUS datasets), following the existing `OpenDataFunctions_*.kql` split precedent, registered in both `app.bicep` and `.build.config`. The W4 registration-completeness test must cover both files.
+
 ## 5. Risks and lessons applied (from the v1_2 rollout)
 
 | Regression (v1_2) | Mitigation here |
@@ -135,32 +141,32 @@ Execution order: W2 → W3 → W4 (stacked); W5–W8 parallel after W3; W9 anyti
 | #e036c2cd — stale cross-version references in paired KQL files | W4 version-string consistency test |
 | Power BI docs lagged release by months | D7: docs in-band per PR |
 
-## 6. Existing PR alignment (pending review)
+## 6. Existing PR dispositions (reviewed 2026-07-15)
 
-The 6 draft PRs were built earlier (some initially targeting FOCUS 1.3) and have unaddressed review feedback. Each gets a full review against this plan and the spec delta before rework:
+Stack order (nothing merged yet; phases 3–5 were closed/superseded): **#2126 (phase1) → #2128 (phase2) → #2135 (phase6) → #2136 (phase7) → #2194 (phase9)**. #2123 (phase0) is independent. Later PRs' diffs currently include all upstream content; retarget each PR's base to its parent branch to shrink review surface.
 
-- [ ] #2123 (phase0-docs — upgrade procedure) → W6
-- [ ] #2126 (phase1 — IngestionSetup_v1_4.kql) → W2
-- [ ] #2128 (phase2 — HubSetup_v1_4.kql) → W3
-- [ ] #2135 (phase6 — claude plugin) → W8
-- [ ] #2136 (phase7 — tests + changelog) → W4
-- [ ] #2194 (phase9 — recommendation categories) → W9
-
-Disposition per PR (keep/rework/supersede) recorded here after review.
+| PR | Disposition | Blocking fixes |
+|---|---|---|
+| #2123 → W6a | **Keep + fix** | 5 unaddressed 2026-06-29 comments (`sinc` typo, "into"→"in" ×2, "it"→"them", PR body GA/steps mismatch); decide forward-dated `v1_4` Learn content gating; **rescope as "upgrade procedure process docs"** — column-change tables for `upgrade.md`/`compatibility.md` etc. move to a new W6b docs PR |
+| #2126 → W2 | **Keep + fix** | C1 Host/ServiceProviderName fallbacks swapped (L765/783); C2 C360 transforms (`ActualCosts`/`AmortizedCosts`) don't project the 22 new `Costs_raw` columns → transactional update policy breaks C360 ingestion (retrofit v1_0/v1_2 too, per repo convention); C3 v1_2 update policies not disabled + no deprecation docstrings; H1 no native-1.4 `x_SourceVersion` detection; M1 removed columns not always preserved in `x_SourceValues`; 12 unaddressed round-2 comments; D9 file split |
+| #2128 → W3 | **Keep + fix** | F1 `Prices/Recommendations/Transactions/CommitmentDiscountUsage_v1_4()` missing `_final_v1_2` union arm (near-total data loss for existing hubs); F2 `HubSetup_v1_0/v1_2.kql` down-convert arms never added; F3 same provider-name swap in both up-convert arms; F4 remove duplicated unversioned tails (v1_4 L644-686 **and** stale v1_2 tail L552-588 — `HubSetup_Latest.kql` is single owner); F5 `dashboard.json` still `Costs_v1_2`; F7 opportunistic `take_any` on CDU Services lookup; 11 unaddressed comments; retarget base to phase1 |
+| #2135 → W8 | **Rework** | C1 unresolved merge-conflict markers committed in `HubSetup_v1_4.kql` (~L283-296, from merge `676da5e8` — fix the merge resolution); C2 Service/HostProviderName descriptions swapped in `ftk-database-query.md` (other two files correct); M1 `// FOCUS 1.3+` comments on columns landing in v1_4 schema; M2 "no data yet" caveats for new dataset functions; copilot-studio knowledge files NOT covered — track separately in W8; retarget base to phase2 |
+| #2136 → W4 | **Rework** | Missing D6 checks 2 (version-string consistency + allowlist — would have caught the conflict markers) and 3 (exactly-one-enabled-policy-version — would have caught C3); hardcoded v1_4 filenames → glob discovery; tighten substring-match tests (`_v1_0()` alias check, occurrence counts); D3 round-trip mapping untested; red-green validate new checks against current broken state |
+| #2194 → W9 | **Keep + fix** | Bicep 131 K size break (CI-verified, → D9 split); 22 of ~23 hub-native recommendation queries silently fall to subcategory `Other` (map them); category/subcategory coherence rule + test; 6 open review comments; PR body test claims contradict CI (2006 passed / 1 failed) |
 
 ## 7. Open questions (non-blocking; recommendations applied unless overridden)
 
-1. **Q1 (D4)**: Create empty `v1_4` tables/functions for ContractCommitment / BillingPeriod / InvoiceDetail now, or defer until a data source exists? **Recommendation: defer** (applied).
-2. **Q2 (D3)**: Confirm `ServiceProviderName`/`HostProviderName` derivation for Microsoft data (Marketplace → publisher; else Microsoft). **Recommendation as stated** (applied).
-3. **Q3**: Target release for `flanakin/focus14` → `dev` (v14 shipped 2026-07; assume next release). Changelog entries land under "Unreleased".
+1. ~~Q1 (D4)~~ Resolved: new datasets in scope per owner review comments on #2126 (see D4).
+2. ~~Q2 (D3)~~ Resolved: derivation confirmed by owner review comments 3309129381/3309175754 on #2126; both PRs currently implement it swapped — fix in W2/W3.
+3. **Q3**: Target release for `flanakin/focus14` → `dev` (v14 shipped 2026-07; assume next release). Changelog entries land under "Unreleased" (stack currently uses "FinOps hubs v15.0.0" inside the commented Unreleased block — consistent).
 
 ## 8. Progress
 
 - [x] Research: FOCUS 1.2→1.4 spec delta (tags, changelog, errata, migration guides)
 - [x] Research: FTK FOCUS-version surface inventory
 - [x] Research: v1_0→v1_2 precedent + post-release regressions
-- [x] W1: Plan committed; umbrella draft PR opened
-- [ ] Review 6 existing PRs; record dispositions in §6
+- [x] W1: Plan committed; umbrella draft PR opened ([#2207](https://github.com/microsoft/finops-toolkit/pull/2207))
+- [x] Review 6 existing PRs; dispositions recorded in §6
 - [ ] W2: Ingestion v1_4
 - [ ] W3: Hub functions v1_4
 - [ ] W4: KQL test harness
