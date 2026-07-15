@@ -479,20 +479,82 @@ Describe 'HubsFocusSchemas' {
             $content | Should -Not -Match '(?<![\w.])HostProviderName\s*=\s*PublisherName\b'
             $content | Should -Not -Match '(?<![\w.])ServiceProviderName\s*=\s*ProviderName\b'
         }
-
-        It 'Recommendations_v1_4 projects <_>' -ForEach @(
-            'x_RecommendationCategory', 'x_RecommendationSubcategory'
-        ) {
-            $script:recommendationsV14Block = if ($hubFiles.v1_4 -match '(?ms)Recommendations_v1_4\(\)\s*\{(.*?)\n\}') { $Matches[1] } else { '' }
-            $recommendationsV14Block | Should -Match "(?m)^\s+$_\s*,?\s*$"
-        }
     }
 
-    Context 'Recommendations enrichment in IngestionSetup_v1_4.kql' {
+    Context 'Recommendations taxonomy (W9)' {
+
+        BeforeDiscovery {
+            $repoRoot = (Resolve-Path "$PSScriptRoot/../../../..").Path
+            $recommendationQueriesPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Recommendations/queries'
+            # AdvisorCost passes Azure Advisor's per-row category through and has no single subcategory;
+            # every other hub-native query targets one recommendation type and must declare one.
+            $recommendationQueryFiles = @(Get-ChildItem -Path $recommendationQueriesPath -Filter 'Recommendations-*.json' |
+                    Where-Object { $_.Name -ne 'Recommendations-Microsoft-AdvisorCost.json' } |
+                    ForEach-Object { @{ Name = $_.Name; FullName = $_.FullName } })
+        }
 
         BeforeAll {
             $script:recommendationsTransformV14 = if ($ingestionFiles.v1_4 -match '(?ms)Recommendations_transform_v1_4\(\)\s*\{(.*?)\n\}') { $Matches[1] } else { '' }
             $script:recommendationsFinalV14Block = if ($ingestionFiles.v1_4 -match '(?ms)\.create-merge table Recommendations_final_v1_4 \(\r?\n(.*?)\r?\n\)') { $Matches[1] } else { '' }
+
+            # Canonical (subcategory -> parent category) taxonomy. This is the test's source of truth;
+            # the KQL datatable and the data-model.md docs are both validated against it.
+            $script:canonicalTaxonomy = [ordered]@{
+                # Cost
+                'Autoscaling'                        = 'Cost'
+                'Commitment Discount Coverage'       = 'Cost'
+                'Commitment Discount Utilization'    = 'Cost'
+                'Idle Resources'                     = 'Cost'
+                'License Optimization'               = 'Cost'
+                'Low Utilization'                    = 'Cost'
+                'Negotiated Discounts'               = 'Cost'
+                'Region Placement'                   = 'Cost'
+                'Right-Sizing'                       = 'Cost'
+                'Scheduling'                         = 'Cost'
+                'Service Selection and Architecture' = 'Cost'
+                'SKU Modernization'                  = 'Cost'
+                'Spot Eligibility'                   = 'Cost'
+                'Storage Tiering'                    = 'Cost'
+                # Operational Excellence
+                'Automation and Process'             = 'Operational Excellence'
+                'Best Practices'                     = 'Operational Excellence'
+                'Governance and Policy'              = 'Operational Excellence'
+                'Observability'                      = 'Operational Excellence'
+                'Operational Hygiene'                = 'Operational Excellence'
+                'Quotas and Limits'                  = 'Operational Excellence'
+                'Resource Consistency'               = 'Operational Excellence'
+                # Performance
+                'Performance Tuning'                 = 'Performance'
+                'Resource Configuration'             = 'Performance'
+                'Resource Sizing'                    = 'Performance'
+                'Scaling and Capacity'               = 'Performance'
+                'Throughput and Latency'             = 'Performance'
+                'Workload Placement'                 = 'Performance'
+                # Reliability
+                'Backup Configuration'               = 'Reliability'
+                'Capacity'                           = 'Reliability'
+                'Disaster Recovery'                  = 'Reliability'
+                'High Availability'                  = 'Reliability'
+                'Service Retirement'                 = 'Reliability'
+                'Zone Resiliency'                    = 'Reliability'
+                # Security
+                'Compliance Alignment'               = 'Security'
+                'Data Protection'                    = 'Security'
+                'Identity and Access'                = 'Security'
+                'Network Security'                   = 'Security'
+                'Threat Detection'                   = 'Security'
+                'Vulnerability Exposure'             = 'Security'
+            }
+
+            # Parse the (subcategory, parent) pairs out of the SubcategoryTaxonomy datatable in the transform.
+            $script:kqlTaxonomy = [ordered]@{}
+            $datatableBlock = if ($recommendationsTransformV14 -match "(?ms)let SubcategoryTaxonomy = datatable[^\[]+\[(.*?)\];") { $Matches[1] } else { '' }
+            foreach ($pair in [regex]::Matches($datatableBlock, "(?m)^\s*'([^']+)',\s*'([^']+)',?\s*$"))
+            {
+                $kqlTaxonomy[$pair.Groups[1].Value] = $pair.Groups[2].Value
+            }
+
+            $script:dataModelContent = Get-Content -Path (Join-Path $repoRoot 'docs-mslearn/toolkit/hubs/data-model.md') -Raw
         }
 
         It 'Recommendations_transform_v1_4 block was extracted' {
@@ -515,6 +577,13 @@ Describe 'HubsFocusSchemas' {
             $recommendationsTransformV14 | Should -Match "(?m)^\s+$_\s*,?\s*(//.*)?$"
         }
 
+        It 'Recommendations_v1_4 hub function projects <_>' -ForEach @(
+            'x_RecommendationCategory', 'x_RecommendationSubcategory'
+        ) {
+            $recommendationsV14Block = if ($hubFiles.v1_4 -match '(?ms)Recommendations_v1_4\(\)\s*\{(.*?)\n\}') { $Matches[1] } else { '' }
+            $recommendationsV14Block | Should -Match "(?m)^\s+$_\s*,?\s*$"
+        }
+
         It 'Recommendations_transform_v1_4 normalizes category to <_>' -ForEach @(
             "'Cost'", "'Operational Excellence'", "'Performance'", "'Reliability'", "'Security'"
         ) {
@@ -522,12 +591,51 @@ Describe 'HubsFocusSchemas' {
         }
 
         It 'Recommendations_transform_v1_4 maps Advisor HighAvailability to Reliability' {
-            $recommendationsTransformV14 | Should -Match "HighAvailability"
-            $recommendationsTransformV14 | Should -Match "'Reliability'"
+            $recommendationsTransformV14 | Should -Match "x_RecommendationCategory =~ 'HighAvailability', 'Reliability'"
         }
 
-        It 'Recommendations_transform_v1_4 falls back subcategory to Other' {
-            $recommendationsTransformV14 | Should -Match "'Other'"
+        It 'SubcategoryTaxonomy datatable matches the canonical taxonomy exactly' {
+            $kqlTaxonomy.Count | Should -Be $canonicalTaxonomy.Count -Because 'the KQL datatable and the canonical taxonomy must not drift'
+            foreach ($subcategory in $canonicalTaxonomy.Keys)
+            {
+                $kqlTaxonomy[$subcategory] | Should -Be $canonicalTaxonomy[$subcategory] -Because "subcategory '$subcategory' must map to '$($canonicalTaxonomy[$subcategory])' in the SubcategoryTaxonomy datatable"
+            }
+        }
+
+        It 'data-model.md documents every canonical subcategory' {
+            foreach ($subcategory in $canonicalTaxonomy.Keys)
+            {
+                $dataModelContent | Should -Match ([regex]::Escape($subcategory)) -Because "docs must list canonical subcategory '$subcategory'"
+            }
+        }
+
+        It 'Backfills an unknown category from the subcategory parent (coherence rule)' {
+            # An empty category with a valid subcategory must resolve to the subcategory's parent so a
+            # specific subcategory can never pair with an unclassified category.
+            $recommendationsTransformV14 | Should -Match "(?m)^\s*isnotempty\(tmp_SubcategoryParent\),\s*tmp_SubcategoryParent,"
+        }
+
+        It 'Only passes a subcategory through when its parent matches the resolved category (coherence rule)' {
+            $recommendationsTransformV14 | Should -Match ([regex]::Escape("tmp_SubcategoryParent == x_RecommendationCategory"))
+        }
+
+        It 'Defaults both columns to Other when unmapped' {
+            # Category fallback: the backfill case ends with 'Other'.
+            $recommendationsTransformV14 | Should -Match "(?ms)x_RecommendationCategory = case\((?:(?!\)\r?\n).)*'Other'\r?\n\s*\)"
+            # Subcategory fallback: the subcategory case ends with 'Other'.
+            $recommendationsTransformV14 | Should -Match "(?ms)x_RecommendationSubcategory = case\((?:(?!\)\r?\n).)*'Other'\r?\n\s*\)"
+        }
+
+        It 'Defaults reservation recommendations to Commitment Discount Coverage' {
+            $recommendationsTransformV14 | Should -Match ([regex]::Escape("x_SourceType == 'ReservationRecommendations', 'Commitment Discount Coverage'"))
+        }
+
+        It '<Name> declares a canonical Cost subcategory' -ForEach $recommendationQueryFiles {
+            $query = (Get-Content -Path $FullName -Raw | ConvertFrom-Json).query
+            $query -match "'x_RecommendationSubcategory',\s*'([^']+)'" | Should -BeTrue -Because 'every hub-native recommendation query must declare a subcategory in x_RecommendationDetails'
+            $subcategory = $Matches[1]
+            $canonicalTaxonomy.Keys | Should -Contain $subcategory -Because "subcategory '$subcategory' in '$Name' must be a canonical taxonomy value"
+            $canonicalTaxonomy[$subcategory] | Should -Be 'Cost' -Because "hub-native queries hardcode x_RecommendationCategory='Cost', so the declared subcategory must be a Cost subcategory or ingestion will coerce it to 'Other'"
         }
     }
 

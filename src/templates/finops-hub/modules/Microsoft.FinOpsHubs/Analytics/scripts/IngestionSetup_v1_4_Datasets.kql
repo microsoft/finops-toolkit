@@ -387,6 +387,56 @@ Recommendations_transform_v1_4()
             -1
         ))
     };
+    // Canonical hub recommendation taxonomy: every subcategory and its parent category.
+    // Keep in sync with docs-mslearn/toolkit/hubs/data-model.md#recommendations-managed-dataset and the
+    // taxonomy tests in src/powershell/Tests/Unit/HubsFocusSchemas.Tests.ps1. New values require a docs
+    // and test update; renames/removals require a schema version bump.
+    let SubcategoryTaxonomy = datatable(tmp_Subcategory: string, tmp_SubcategoryParent: string) [
+        // Cost
+        'Autoscaling',                        'Cost',
+        'Commitment Discount Coverage',       'Cost',
+        'Commitment Discount Utilization',    'Cost',
+        'Idle Resources',                     'Cost',
+        'License Optimization',               'Cost',
+        'Low Utilization',                    'Cost',
+        'Negotiated Discounts',               'Cost',
+        'Region Placement',                   'Cost',
+        'Right-Sizing',                       'Cost',
+        'Scheduling',                         'Cost',
+        'Service Selection and Architecture', 'Cost',
+        'SKU Modernization',                  'Cost',
+        'Spot Eligibility',                   'Cost',
+        'Storage Tiering',                    'Cost',
+        // Operational Excellence
+        'Automation and Process',             'Operational Excellence',
+        'Best Practices',                     'Operational Excellence',
+        'Governance and Policy',              'Operational Excellence',
+        'Observability',                      'Operational Excellence',
+        'Operational Hygiene',                'Operational Excellence',
+        'Quotas and Limits',                  'Operational Excellence',
+        'Resource Consistency',               'Operational Excellence',
+        // Performance
+        'Performance Tuning',                 'Performance',
+        'Resource Configuration',             'Performance',
+        'Resource Sizing',                    'Performance',
+        'Scaling and Capacity',               'Performance',
+        'Throughput and Latency',             'Performance',
+        'Workload Placement',                 'Performance',
+        // Reliability
+        'Backup Configuration',               'Reliability',
+        'Capacity',                           'Reliability',
+        'Disaster Recovery',                  'Reliability',
+        'High Availability',                  'Reliability',
+        'Service Retirement',                 'Reliability',
+        'Zone Resiliency',                    'Reliability',
+        // Security
+        'Compliance Alignment',               'Security',
+        'Data Protection',                    'Security',
+        'Identity and Access',                'Security',
+        'Network Security',                   'Security',
+        'Threat Detection',                   'Security',
+        'Vulnerability Exposure',             'Security'
+    ];
     Recommendations_raw
     | extend x_IngestionTime = ingestion_time()
     //
@@ -457,12 +507,18 @@ Recommendations_transform_v1_4()
     // Set ResourceType display name from x_ResourceType code
     | extend ResourceType = coalesce(ResourceType, tostring(resource_type(tmp_ResourceType).SingularDisplayName), tmp_ResourceType)
     //
-    // Normalize x_RecommendationCategory into the hub taxonomy (Cost, Operational Excellence, Performance, Reliability, Security)
-    // Source: Azure Advisor Category values are PascalCase (Cost, HighAvailability, OperationalExcellence, Performance, Security).
-    // Reservation recommendations from Cost Management have no category set; default to Cost.
+    // Classify against the hub recommendation taxonomy (see data-model.md#recommendations-managed-dataset):
+    // 1. Normalize the source category to Cost, Operational Excellence, Performance, Reliability, or Security.
+    //    Azure Advisor reports PascalCase values (Cost, HighAvailability, OperationalExcellence, Performance,
+    //    Security); =~ hardens against unexpected casing from custom sources. Reservation recommendations from
+    //    Cost Management never set a category and are always cost recommendations.
+    // 2. Read the source subcategory from x_RecommendationDetails.x_RecommendationSubcategory (hub-native
+    //    Resource Graph queries and custom queries declare it there) and resolve its parent category.
+    // 3. Enforce coherence: an unknown category is backfilled from a valid subcategory's parent; a subcategory
+    //    only passes through when its parent matches the resolved category (a mismatched pair is a source
+    //    defect, so the subcategory falls back to 'Other' rather than contradicting the category).
+    // 4. Both columns always have a value: anything still unresolved becomes 'Other'.
     | extend x_RecommendationCategory = tostring(case(
-        // Empty / null: default reservation recommendations to Cost; leave others empty for unknown
-        isempty(x_RecommendationCategory), iff(x_SourceType == 'ReservationRecommendations', 'Cost', ''),
         // Already normalized values pass through
         x_RecommendationCategory in ('Cost', 'Operational Excellence', 'Performance', 'Reliability', 'Security'), x_RecommendationCategory,
         // Azure Advisor PascalCase values
@@ -470,43 +526,28 @@ Recommendations_transform_v1_4()
         x_RecommendationCategory =~ 'HighAvailability', 'Reliability',
         x_RecommendationCategory =~ 'OperationalExcellence', 'Operational Excellence',
         x_RecommendationCategory =~ 'Performance', 'Performance',
+        x_RecommendationCategory =~ 'Reliability', 'Reliability',
         x_RecommendationCategory =~ 'Security', 'Security',
-        // Unknown source value: leave empty
+        // Reservation recommendations never set a category and are always cost recommendations
+        isempty(x_RecommendationCategory) and x_SourceType == 'ReservationRecommendations', 'Cost',
+        // Unknown source value; may be backfilled from the subcategory below
         ''
     ))
-    //
-    // Derive x_RecommendationSubcategory from the hub taxonomy. Default to 'Other' so every row has a value.
-    // Reservation recommendations always map to 'Commitment Discount Coverage'. For other sources without a
-    // deterministic mapping we fall back to 'Other'. Source value (if present) comes from x_RecommendationDetails.
     | extend tmp_Subcategory = tostring(x_RecommendationDetails.x_RecommendationSubcategory)
-    | extend x_RecommendationSubcategory = tostring(case(
-        // Already a documented subcategory value passes through
-        tmp_Subcategory in (
-            // Cost
-            'Commitment Discount Coverage', 'Negotiated Discount Enablement', 'Spot Eligibility',
-            'Region Placement', 'Service Selection and Architecture', 'Right-Sizing',
-            'SKU Modernization', 'Autoscaling', 'Commitment Discount Utilization', 'Scheduling',
-            'Low Utilization', 'Idle Resources',
-            // Operational Excellence
-            'Automation and Process', 'Best Practices', 'Governance and Policy', 'Observability',
-            'Operational Hygiene', 'Quotas and Limits', 'Resource Consistency',
-            // Performance
-            'Performance Tuning', 'Resource Configuration', 'Resource Sizing',
-            'Scaling and Capacity', 'Throughput and Latency', 'Workload Placement',
-            // Reliability
-            'Backup Configuration', 'Capacity', 'Disaster Recovery', 'High Availability',
-            'Service Retirement', 'Zone Resiliency',
-            // Security
-            'Compliance Alignment', 'Data Protection', 'Identity & Access', 'Network Security',
-            'Threat Detection', 'Vulnerability Exposure',
-            // Fallback
-            'Other'
-        ), tmp_Subcategory,
-        // Reservation recommendations are always commitment discount coverage
-        x_SourceType == 'ReservationRecommendations', 'Commitment Discount Coverage',
-        // No deterministic mapping yet for Advisor / custom recommendations
+    | lookup kind=leftouter SubcategoryTaxonomy on tmp_Subcategory
+    // Backfill an unknown category from the subcategory's parent; anything still unknown becomes 'Other'
+    | extend x_RecommendationCategory = case(
+        isnotempty(x_RecommendationCategory), x_RecommendationCategory,
+        isnotempty(tmp_SubcategoryParent), tmp_SubcategoryParent,
         'Other'
-    ))
+    )
+    // Subcategory precedence: valid source value that belongs to the resolved category > reservation
+    // recommendation default ('Commitment Discount Coverage') > 'Other'
+    | extend x_RecommendationSubcategory = case(
+        isnotempty(tmp_Subcategory) and tmp_SubcategoryParent == x_RecommendationCategory, tmp_Subcategory,
+        x_SourceType == 'ReservationRecommendations', 'Commitment Discount Coverage',
+        'Other'
+    )
     //
     | project
         ProviderName,

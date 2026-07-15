@@ -3,7 +3,7 @@ title: Configure FinOps hubs recommendations
 description: Learn about the recommendations available in FinOps hubs and how to add custom recommendations.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 07/15/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -159,10 +159,10 @@ Your query must return the following columns:
 | `ResourceName`                | Resource name (lowercase).                                                                                                                                                                                              |
 | `SubAccountId`                | Subscription ID.                                                                                                                                                                                                        |
 | `SubAccountName`              | Subscription name. Join with `resourcecontainers` to populate this.                                                                                                                                                     |
-| `x_RecommendationCategory`    | Recommendation category. Use `"Cost"`, `"HighAvailability"`, `"OperationalExcellence"`, `"Performance"`, or `"Security"`.                                                                                               |
+| `x_RecommendationCategory`    | Recommendation category. Use `"Cost"`, `"HighAvailability"`, `"OperationalExcellence"`, `"Performance"`, or `"Security"`. Values are normalized to the [hub recommendation taxonomy](data-model.md#recommendations-managed-dataset) on ingestion. |
 | `x_RecommendationDate`        | Recommendation date (use `now()` for point-in-time queries).                                                                                                                                                            |
 | `x_RecommendationDescription` | Short description of the issue.                                                                                                                                                                                         |
-| `x_RecommendationDetails`     | JSON string with additional properties. Include `x_RecommendationProvider`, `x_RecommendationSolution`, `x_RecommendationTypeId`, and `x_ResourceType` along with any custom properties specific to the recommendation. |
+| `x_RecommendationDetails`     | JSON string with additional properties. Include `x_RecommendationProvider`, `x_RecommendationSolution`, `x_RecommendationSubcategory` (an allowed value from the [hub recommendation taxonomy](data-model.md#recommendations-managed-dataset); unmapped values become `Other`), `x_RecommendationTypeId`, and `x_ResourceType` along with any custom properties specific to the recommendation. |
 | `x_RecommendationId`          | Unique identifier for the recommendation (for example, resource ID + suffix).                                                                                                                                           |
 | `x_ResourceGroupName`         | Resource group name (lowercase).                                                                                                                                                                                        |
 
