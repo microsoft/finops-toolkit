@@ -167,11 +167,11 @@ Stack order (nothing merged yet; phases 3–5 were closed/superseded): **#2126 (
 - [x] Research: v1_0→v1_2 precedent + post-release regressions
 - [x] W1: Plan committed; umbrella draft PR opened ([#2207](https://github.com/microsoft/finops-toolkit/pull/2207))
 - [x] Review 6 existing PRs; dispositions recorded in §6
-- [ ] W2: Ingestion v1_4
-- [ ] W3: Hub functions v1_4
-- [ ] W4: KQL test harness
+- [x] W2: Ingestion v1_4 — #2126 fixed (`30f926d3`: provider mapping, C360 retrofit, v1_2 policies disabled, 1.4 detection, D9 file split; build green) — **awaiting review**
+- [x] W3: Hub functions v1_4 — #2128 fixed (`cd2873b7`+`7181c9aa`: v1_2 union arms, v1_0/v1_2 down-convert arms, mapping consistency, tails removed, dashboard repoint; build green; base retargeted to phase1) — **awaiting review**
+- [ ] W4: KQL test harness (#2136 rework)
 - [ ] W5: Power BI
-- [ ] W6: Core docs
+- [ ] W6: Core docs — W6a #2123 fixed (`463c2735`, awaiting review); W6b column tables pending
 - [ ] W7: Conformance + open data
 - [ ] W8: AI/agent surfaces
 - [ ] W9: Recommendations enrichment (#2194)
