@@ -172,6 +172,10 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
     }
     ./New-Directory $repo.path
     Get-ChildItem $sourceDir -Exclude .buildignore | Copy-Item -Destination $repo.path -Recurse
+    if ($Template -eq "docs")
+    {
+        Remove-DocsMetadataOnlyChanges $repo.path
+    }
 
     # Commit changes
     if ($Branch)
@@ -203,6 +207,116 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
 
     Write-Host '  Done!'
     Write-Host ''
+}
+
+function Get-DocsArticleBody([string]$content)
+{
+    # Body normalization rules. Keep this aligned with strip_frontmatter() in
+    # .github/workflows/update-mslearn-dates.yml so both code paths classify the
+    # same edits as metadata-only:
+    #   1. Split on \r?\n (CRLF tolerance).
+    #   2. Whitespace-tolerant --- fence detection. If line 1 trims to ---,
+    #      drop everything through the next line that trims to ---. If no
+    #      closing fence is found, treat the entire file as body (errs safe
+    #      for malformed frontmatter; any byte change registers as a body
+    #      change instead of silently being masked).
+    #   3. Drop markdownlint-disable-next-line MD025 and prettier-ignore
+    #      directive lines (whitespace-tolerant trim equality).
+    #   4. Strip leading and trailing blank lines from the body.
+    #
+    # Whitespace preservation: Trailing whitespace, blank line runs, and all
+    # content inside fenced/indented code blocks are preserved exactly. This
+    # ensures real content changes (e.g., hard line breaks, code block
+    # formatting) are not misclassified as metadata-only.
+
+    $lines = $content -split "`r?`n"
+    $start = 0
+
+    if ($lines.Count -gt 0 -and $lines[0].Trim() -eq "---")
+    {
+        for ($i = 1; $i -lt $lines.Count; $i++)
+        {
+            if ($lines[$i].Trim() -eq "---")
+            {
+                $start = $i + 1
+                break
+            }
+        }
+    }
+
+    if ($start -ge $lines.Count)
+    {
+        return ""
+    }
+
+    $ignoreLines = @(
+        "<!-- markdownlint-disable-next-line MD025 -->",
+        "<!-- prettier-ignore-start -->",
+        "<!-- prettier-ignore-end -->"
+    )
+
+    $body = New-Object 'System.Collections.Generic.List[string]'
+    for ($i = $start; $i -lt $lines.Count; $i++)
+    {
+        $line = $lines[$i]
+        if ($ignoreLines -contains $line.Trim())
+        {
+            continue
+        }
+        $null = $body.Add($line)
+    }
+
+    $s = 0
+    while ($s -lt $body.Count -and $body[$s] -eq "")
+    {
+        $s++
+    }
+    $e = $body.Count - 1
+    while ($e -ge $s -and $body[$e] -eq "")
+    {
+        $e--
+    }
+
+    if ($s -gt $e)
+    {
+        return ""
+    }
+
+    return ($body[$s..$e] -join "`n")
+}
+
+function Remove-DocsMetadataOnlyChanges([string]$docsPath)
+{
+    Push-Location
+    try
+    {
+        Set-Location $docsPath
+        $repoRoot = git rev-parse --show-toplevel
+        Set-Location $repoRoot
+
+        Get-ChildItem $docsPath -Recurse -Filter "*.md" | ForEach-Object {
+            $repoFile = [System.IO.Path]::GetRelativePath($repoRoot, $_.FullName).Replace("\", "/")
+            git cat-file -e "HEAD:$repoFile" 2>$null
+
+            # return in ForEach-Object skips the current pipeline item (per-iteration), not the enclosing function.
+            if ($LASTEXITCODE -ne 0)
+            {
+                return
+            }
+
+            $previousContent = [string]::Join("`n", (git show "HEAD:$repoFile"))
+            $currentContent = Get-Content $_.FullName -Raw
+
+            if ((Get-DocsArticleBody $previousContent) -eq (Get-DocsArticleBody $currentContent))
+            {
+                git restore --source HEAD -- $repoFile
+            }
+        }
+    }
+    finally
+    {
+        Pop-Location
+    }
 }
 
 # Get version for branch name and commit message
