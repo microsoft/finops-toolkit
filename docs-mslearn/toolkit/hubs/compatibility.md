@@ -3,7 +3,7 @@ title: Compatibility guide
 description: Learn which Power BI report versions are compatible with each FinOps hubs version to ensure seamless upgrades and data integrity.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 07/16/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -33,7 +33,8 @@ The Power BI version refers to the Power BI reports made available within that s
 
 | Cost Management exports                   | FinOps hubs | Storage path                       | Power BI      | Notes                                                                                                                                         |
 | ----------------------------------------- | ----------- | ---------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| FOCUS costs, prices, reservation datasets | 12+       | {dataset}/{yyyy}/{MM}/{scope}      | 12+²        | KQL reports use the FinOps hubs v1_2 schema for FOCUS 1.2                                                                                     |
+| FOCUS costs, prices, reservation datasets | 15+       | {dataset}/{yyyy}/{MM}/{scope}      | 15+²        | KQL reports use the FinOps hubs v1_4 schema for FOCUS 1.4                                                                                     |
+| FOCUS costs, prices, reservation datasets | 12+       | {dataset}/{yyyy}/{MM}/{scope}      | 12-14²      | KQL reports use the FinOps hubs v1_2 schema for FOCUS 1.2                                                                                     |
 | FOCUS costs, prices, reservation datasets | 0.8+        | {dataset}/{yyyy}/{MM}/{scope}      | 0.7-0.11²     |                                                                                                                                               |
 | FOCUS costs, prices, reservation datasets | 0.7         | {dataset}/{yyyy}/{MM}/{scope}¹     | 0.7+²         | Storage path updated to new dataset names that support joining multiple related datasets together                                             |
 | FOCUS costs, prices, reservation datasets | 0.6         | {export-type}/{yyyy}/{MM}/{scope}  | 0.6+          | Reservation recommendations pulled from hub storage                                                                                           |

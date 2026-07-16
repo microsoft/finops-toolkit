@@ -1390,6 +1390,188 @@ table Costs
 
 		annotation SummarizationSetBy = Automatic
 
+	column AllocatedMethodDetails
+		dataType: string
+		lineageTag: 9402c4c8-c505-464e-931e-751668d3ba83
+		summarizeBy: none
+		sourceColumn: AllocatedMethodDetails
+
+		annotation SummarizationSetBy = Automatic
+
+	column AllocatedMethodId
+		dataType: string
+		lineageTag: 26e34a2c-3d0d-47cf-a116-4c861bc62286
+		summarizeBy: none
+		sourceColumn: AllocatedMethodId
+
+		annotation SummarizationSetBy = Automatic
+
+	column AllocatedResourceId
+		dataType: string
+		lineageTag: 55d64b52-5560-47f1-9f2b-eb5a04ae0a2e
+		summarizeBy: none
+		sourceColumn: AllocatedResourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column AllocatedResourceName
+		dataType: string
+		lineageTag: c9863af0-538a-44cd-b03f-53a4004b9a4e
+		summarizeBy: none
+		sourceColumn: AllocatedResourceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column AllocatedTags
+		dataType: string
+		lineageTag: 1e7ec40d-2d57-4c62-ab98-a4c9eb577ada
+		summarizeBy: none
+		sourceColumn: AllocatedTags
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentProgramEligibilityDetails
+		dataType: string
+		lineageTag: 52986e67-2e71-4413-bca2-1e37333d5908
+		summarizeBy: none
+		sourceColumn: CommitmentProgramEligibilityDetails
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractApplied
+		dataType: string
+		lineageTag: f12cd4d2-2ede-4553-9814-57fa0757112c
+		summarizeBy: none
+		sourceColumn: ContractApplied
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentBenefitCategory
+		dataType: string
+		lineageTag: ae3d4177-9814-4879-9bb7-9c84f0b127d2
+		summarizeBy: none
+		sourceColumn: ContractCommitmentBenefitCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentCreated
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 6aaa2b8d-7950-4b5f-8e7d-fdbff15a60e2
+		summarizeBy: none
+		sourceColumn: ContractCommitmentCreated
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentDiscountPercentage
+		dataType: double
+		lineageTag: 251a216b-4954-4f84-a972-2c9bd9593573
+		summarizeBy: none
+		sourceColumn: ContractCommitmentDiscountPercentage
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ContractCommitmentDurationType
+		dataType: string
+		lineageTag: f246de01-ff20-4373-b3b5-58e8c6705543
+		summarizeBy: none
+		sourceColumn: ContractCommitmentDurationType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentFulfillmentInterval
+		dataType: string
+		lineageTag: 08022da8-18a2-4d1a-884f-a03615f90b29
+		summarizeBy: none
+		sourceColumn: ContractCommitmentFulfillmentInterval
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentLastUpdated
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: ed6b0f99-e25f-4861-885f-b1becb81e17d
+		summarizeBy: none
+		sourceColumn: ContractCommitmentLastUpdated
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentLifecycleStatus
+		dataType: string
+		lineageTag: 1abe7929-75b4-4ccd-abdc-7980ea71132a
+		summarizeBy: none
+		sourceColumn: ContractCommitmentLifecycleStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentModel
+		dataType: string
+		lineageTag: abb04100-9b6a-491f-90af-9a4d06b760e0
+		summarizeBy: none
+		sourceColumn: ContractCommitmentModel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentOfferCategory
+		dataType: string
+		lineageTag: 94666530-e96d-47b0-8af0-6472b3f97e2b
+		summarizeBy: none
+		sourceColumn: ContractCommitmentOfferCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentPaymentInterval
+		dataType: string
+		lineageTag: 5850c014-27a3-4b6f-8499-4263ac860da4
+		summarizeBy: none
+		sourceColumn: ContractCommitmentPaymentInterval
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentPaymentModel
+		dataType: string
+		lineageTag: 0f9d97a4-b773-47b8-8190-b25d9c4545c8
+		summarizeBy: none
+		sourceColumn: ContractCommitmentPaymentModel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentPaymentUpfrontPercentage
+		dataType: double
+		lineageTag: 0e58352c-4239-4152-9e5d-4296d4fc3e1c
+		summarizeBy: none
+		sourceColumn: ContractCommitmentPaymentUpfrontPercentage
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column HostProviderName
+		dataType: string
+		lineageTag: 4ed42b42-c9bc-4566-b586-50b914d500d6
+		summarizeBy: none
+		sourceColumn: HostProviderName
+
+		annotation SummarizationSetBy = Automatic
+
+	column InvoiceDetailId
+		dataType: string
+		lineageTag: 5d3f426f-21d9-4e8b-bd21-187dc5f16dbb
+		summarizeBy: none
+		sourceColumn: InvoiceDetailId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceProviderName
+		dataType: string
+		lineageTag: 357cda7a-59a0-4992-aa90-39422f7a6764
+		summarizeBy: none
+		sourceColumn: ServiceProviderName
+
+		annotation SummarizationSetBy = Automatic
+
 	hierarchy 'Service Hierarchy'
 		lineageTag: 039a7b6d-f19d-4a79-91b3-a05fbc778704
 
@@ -1432,6 +1614,7 @@ table Costs
 					HasPreview = Table.HasColumns(RawData, {"ChargeSubcategory"}),
 					Has10      = Table.HasColumns(RawData, {"ChargeClass"}),
 					Has12      = Table.HasColumns(RawData, {"InvoiceId"}),
+					Has14      = Table.HasColumns(RawData, {"ServiceProviderName"}),
 					HandlePeview = if HasPreview = false then RawData
 						else if PerformDeprecatedOptimizations = false then error "LegacyFocusVersion: Please enable the 'Perform Extra Query Optimizations' parameter"
 						else (
@@ -1477,11 +1660,26 @@ table Costs
 						null, each [PricingCurrency],   Replacer.ReplaceValue, {"x_PricingCurrency"}),
 						null, each [SkuMeter],          Replacer.ReplaceValue, {"x_SkuMeterName"}),
 				
+					// Handle columns added in FOCUS 1.3/1.4 gracefully -- Create missing columns so all FOCUS versions expose the same schema
+					Ensure14Cols = List.Accumulate(
+						{"AllocatedMethodDetails", "AllocatedMethodId", "AllocatedResourceId", "AllocatedResourceName", "AllocatedTags", "CommitmentProgramEligibilityDetails", "ContractApplied", "ContractCommitmentBenefitCategory", "ContractCommitmentCreated", "ContractCommitmentDiscountPercentage", "ContractCommitmentDurationType", "ContractCommitmentFulfillmentInterval", "ContractCommitmentLastUpdated", "ContractCommitmentLifecycleStatus", "ContractCommitmentModel", "ContractCommitmentOfferCategory", "ContractCommitmentPaymentInterval", "ContractCommitmentPaymentModel", "ContractCommitmentPaymentUpfrontPercentage", "HostProviderName", "InvoiceDetailId", "ServiceProviderName", "ProviderName", "PublisherName"},
+						Align12,
+						(t, col) => if Table.HasColumns(t, col) then t else Table.AddColumn(t, col, each null)
+					),
+					// Backfill the FOCUS 1.3 provider columns from the deprecated ProviderName/PublisherName columns (removed in FOCUS 1.3) for older data
+					AlignNewProviders = Table.ReplaceValue(Table.ReplaceValue(Ensure14Cols,
+						null, each [ProviderName],                                                       Replacer.ReplaceValue, {"HostProviderName"}),
+						null, each if [PublisherName] <> null then [PublisherName] else [ProviderName], Replacer.ReplaceValue, {"ServiceProviderName"}),
+					// Backfill the deprecated ProviderName/PublisherName columns from the FOCUS 1.3 replacements for backward compatibility
+					Align14 = if Has14 = false then AlignNewProviders else Table.ReplaceValue(Table.ReplaceValue(AlignNewProviders,
+						null, each [HostProviderName],    Replacer.ReplaceValue, {"ProviderName"}),
+						null, each [ServiceProviderName], Replacer.ReplaceValue, {"PublisherName"}),
+				
 					// Fix known bugs and set data types
 					Fixes = Table.TransformColumnTypes(
 						Table.ReplaceValue(Table.ReplaceValue(
 							// Create AvailabilityZone column if missing to support non-Microsoft clouds
-							if Table.HasColumns(Align12, {"AvailabilityZone"}) then Align12 else Table.AddColumn(Align12, "AvailabilityZone", each null),
+							if Table.HasColumns(Align14, {"AvailabilityZone"}) then Align14 else Table.AddColumn(Align14, "AvailabilityZone", each null),
 							// Fix savings plan purchases -- Cost Management fix pending as of Dec 8, 2024
 							each [EffectiveCost], each if [ChargeCategory] = "Purchase" and [CommitmentDiscountId] <> "" and [CommitmentDiscountId] <> null then 0.0 else [EffectiveCost], Replacer.ReplaceValue, {"EffectiveCost"}),
 							// Fix PricingCategory values -- Remove after Oct 1, 2025
@@ -1492,6 +1690,8 @@ table Costs
 							{"BillingPeriodStart",        type datetimezone},
 							{"ChargePeriodEnd",           type datetimezone},
 							{"ChargePeriodStart",         type datetimezone},
+							{"ContractCommitmentCreated",     type datetimezone},
+							{"ContractCommitmentLastUpdated", type datetimezone},
 							{"x_BillingExchangeRateDate", type datetimezone},
 							{"x_ServicePeriodStart",      type datetimezone},
 							{"x_ServicePeriodEnd",        type datetimezone},
@@ -1509,6 +1709,8 @@ table Costs
 							{"x_EffectiveUnitPrice",      type number},
 							// Other columns
 							{"ConsumedQuantity",          type number},
+							{"ContractCommitmentDiscountPercentage",       type number},
+							{"ContractCommitmentPaymentUpfrontPercentage", type number},
 							{"PricingQuantity",           type number},
 							{"x_BillingExchangeRate",     type number},
 							{"x_PartnerCreditRate",       type number},
