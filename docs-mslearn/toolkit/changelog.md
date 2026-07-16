@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 07/07/2026
+ms.date: 07/16/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -49,6 +49,28 @@ _Released June 2026_
   - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management ([#2043](https://github.com/microsoft/finops-toolkit/pull/2043)).
   - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
   - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
+- **Changed**
+  - Updated plugin skill files to reflect FOCUS 1.4 hub schema, the new `ContractCommitments()`, `BillingPeriods()`, and `InvoiceDetails()` functions, and the removal of `ProviderName` / `PublisherName` ([#2120](https://github.com/microsoft/finops-toolkit/issues/2120)).
+
+### FinOps hubs v15.0.0
+
+- **Added**
+  - Added full support for FOCUS 1.4 (`v1_4` schema) in Azure Data Explorer and Microsoft Fabric across all managed datasets ([#2120](https://github.com/microsoft/finops-toolkit/issues/2120)).
+    - When FOCUS 1.0 or 1.2 data is ingested, it's converted to FOCUS 1.4. Historical data remains in the `*_final_v1_0` and `*_final_v1_2` tables.
+    - New versioned Hub database functions, like `Costs_v1_4()`, were added based on the FOCUS 1.4 schema changes.
+    - Make sure you use versioned functions, like `Costs_v1_2()`, to avoid breaking changes between FOCUS versions.
+  - Added new columns to the Costs managed dataset: `AllocatedMethodId`, `AllocatedMethodDetails`, `AllocatedResourceId`, `AllocatedResourceName`, `AllocatedTags`, `ContractApplied`, `ServiceProviderName`, `HostProviderName`, `CommitmentProgramEligibilityDetails`, `InvoiceDetailId`, and 12 `ContractCommitment*` per-row columns (`ContractCommitmentBenefitCategory`, `ContractCommitmentCreated`, `ContractCommitmentDiscountPercentage`, `ContractCommitmentDurationType`, `ContractCommitmentFulfillmentInterval`, `ContractCommitmentLastUpdated`, `ContractCommitmentLifecycleStatus`, `ContractCommitmentModel`, `ContractCommitmentOfferCategory`, `ContractCommitmentPaymentInterval`, `ContractCommitmentPaymentModel`, `ContractCommitmentPaymentUpfrontPercentage`).
+  - Added three new FOCUS 1.4 datasets: `ContractCommitments` (30 columns, using FOCUS 1.4 specification column IDs like `ContractCommitmentBenefitCategory` and `ContractCommitmentLifecycleStatus`), `BillingPeriods` (6 columns), and `InvoiceDetails` (22 columns), each with tables and versioned and unversioned functions (for example, `ContractCommitments()` and `ContractCommitments_v1_4()`).
+    - These datasets remain empty until Cost Management supports exporting FOCUS 1.4 data.
+  - Added a static test harness for the hub database setup scripts that verifies build registration, schema version consistency, and update policy state to catch regressions before release.
+- **Changed**
+  - Retargeted unversioned `Costs()`, `Prices()`, `CommitmentDiscountUsage()`, `Recommendations()`, and `Transactions()` aliases to their `_v1_4` counterparts.
+    - This is **not** a breaking change if you are following the prescribed guidance of using versioned functions.
+  - Updated the Data Explorer dashboard to use the `v1_4` schema.
+- **Deprecated**
+  - Deprecated the FOCUS 1.2 transform functions and disabled the `v1_2` update policies. New data is transformed to FOCUS 1.4; data ingested under older versions remains available through versioned functions like `Costs_v1_2()`.
+- **Removed**
+  - Removed deprecated `ProviderName` and `PublisherName` columns from the `v1_4` schema in favor of the FOCUS 1.3 replacements, `HostProviderName` and `ServiceProviderName`. The `v1_0` and `v1_2` functions still return both columns by down-converting from the new columns, and raw tables keep them for back compat.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v15
 
