@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 04/21/2026
+ms.date: 06/03/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -157,7 +157,7 @@ The core engine for FinOps hubs is deployed via an Azure Resource Manager deploy
    - We don't recommend changing either setting for your initial deployment.
    - If using Data Explorer, the storage account is a temporary data store and shouldn't need geo-redundancy.
    - Most deployments doesn't require a larger Data Explorer SKU. We recommend starting with the dev/test cluster and monitoring performance before scaling up or out.
-   - For details about scaling Data Explorer, see [Select a SKU for your cluster](/azure/data-explorer/manage-cluster-choose-sku).
+   - Not all Data Explorer SKUs are available in every region. If you change the SKU, confirm it's available in your target region first. See [Select a SKU for your cluster](/azure/data-explorer/manage-cluster-choose-sku) for guidance and [common errors](../help/errors.md#the-sku-skuname-is-not-supported-in-region) if deployment fails.
 8. Select the **Next** button at the bottom of the form.
 9. Set the desired data retention periods.
    - Raw data retention refers to data added to Data Explorer, but not normalized into the final tables. Use 0 unless you need to troubleshoot ingestion issues. This number indicates retention in days.
@@ -560,7 +560,7 @@ For more information, see [Configure Data Explorer dashboards](configure-dashboa
    - **Azure Data Explorer (Kusto)** &ndash; Use an account that has at least viewer access to the Hub and Ingestion databases.
    - **Azure Resource Graph** &ndash; Use an account that has direct access to any subscriptions you would like to report on.
    - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access.
-   - **<https://ccmstorageprod>...** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
+   - **<https://ccmstorageprod.blob.core.windows.net/costmanagementconnector-data/AutofitComboMeterData.csv>** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
    - **<https://github.com/>...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
 
 For more information, see [Set up Power BI reports](../power-bi/setup.md).
