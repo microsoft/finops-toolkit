@@ -3,7 +3,7 @@ title: Compatibility guide
 description: Learn which Power BI report versions are compatible with each FinOps hubs version to ensure seamless upgrades and data integrity.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 07/16/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -31,19 +31,20 @@ The storage path is important for any client that's utilizing the same datasets.
 
 The Power BI version refers to the Power BI reports made available within that specific version of the FinOps toolkit. If you customized an older version of the reports, make note of the version you started with, as that is what is useful here.
 
-| Cost Management exports                   | FinOps hubs | Storage path                       | Power BI      | Notes                                                                                                                                         |
-| ----------------------------------------- | ----------- | ---------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| FOCUS costs, prices, reservation datasets | 12+       | {dataset}/{yyyy}/{MM}/{scope}      | 12+²        | KQL reports use the FinOps hubs v1_2 schema for FOCUS 1.2                                                                                     |
-| FOCUS costs, prices, reservation datasets | 0.8+        | {dataset}/{yyyy}/{MM}/{scope}      | 0.7-0.11²     |                                                                                                                                               |
-| FOCUS costs, prices, reservation datasets | 0.7         | {dataset}/{yyyy}/{MM}/{scope}¹     | 0.7+²         | Storage path updated to new dataset names that support joining multiple related datasets together                                             |
-| FOCUS costs, prices, reservation datasets | 0.6         | {export-type}/{yyyy}/{MM}/{scope}  | 0.6+          | Reservation recommendations pulled from hub storage                                                                                           |
-| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.6         | {export-type}/{yyyy}/{MM}/{scope}¹ | 0.6+²         | Storage path updated; Reservation recommendations pulled from a separate, non-hub storage URL (or excluded from report)                       |
-| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.5         | {scope}/{yyyyMM}/{export-type}     | 0.4+²         | Reservation recommendations pulled from a separate, non-hub storage URL (or excluded from report)                                             |
-| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.4         | {scope}/{yyyyMM}/{export-type}     | 0.4+²         | Supports a mix of FOCUS 1.0 and 1.0-preview(v1) data; Reservation recommendations pulled from the Cost Management connector for Power BI      |
-| FOCUS 1.0-preview(v1) only                | 0.4         | {scope}/{yyyyMM}/{export-type}¹    | 0.2+          | Storage path updated                                                                                                                          |
-| FOCUS 1.0-preview(v1) only                | 0.2 - 0.3   | {path}/{yyyyMM}/{export-type}      | 0.2+²         | Switched to FOCUS data only                                                                                                                   |
-| Actual or Amortized costs (not both)      | 0.1 - 0.1.1 | {path}/{yyyyMM}/{export-type}      | 0.0.1 - 0.1.1 | EA and MCA                                                                                                                                    |
-| Actual or Amortized costs (not both)      | 0.0.1       | {path}/{yyyyMM}/{export-type}      | 0.0.1 - 0.1.1 | EA only                                                                                                                                       |
+| Cost Management exports                   | FinOps hubs | Storage path                       | Power BI      | Notes                                                                                                                                                 |
+| ----------------------------------------- | ----------- | ---------------------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FOCUS costs, prices, reservation datasets | 15+         | {dataset}/{yyyy}/{MM}/{scope}      | 15+²          | KQL reports use the FinOps hubs v1_4 schema for FOCUS 1.4; Cost Management exports up to FOCUS 1.2, which hubs converts to FOCUS 1.4 during ingestion |
+| FOCUS costs, prices, reservation datasets | 12-14       | {dataset}/{yyyy}/{MM}/{scope}      | 12+²          | KQL reports use the FinOps hubs v1_2 schema for FOCUS 1.2                                                                                             |
+| FOCUS costs, prices, reservation datasets | 0.8+        | {dataset}/{yyyy}/{MM}/{scope}      | 0.7-0.11²     |                                                                                                                                                       |
+| FOCUS costs, prices, reservation datasets | 0.7         | {dataset}/{yyyy}/{MM}/{scope}¹     | 0.7+²         | Storage path updated to new dataset names that support joining multiple related datasets together                                                     |
+| FOCUS costs, prices, reservation datasets | 0.6         | {export-type}/{yyyy}/{MM}/{scope}  | 0.6+          | Reservation recommendations pulled from hub storage                                                                                                   |
+| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.6         | {export-type}/{yyyy}/{MM}/{scope}¹ | 0.6+²         | Storage path updated; Reservation recommendations pulled from a separate, non-hub storage URL (or excluded from report)                               |
+| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.5         | {scope}/{yyyyMM}/{export-type}     | 0.4+²         | Reservation recommendations pulled from a separate, non-hub storage URL (or excluded from report)                                                     |
+| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.4         | {scope}/{yyyyMM}/{export-type}     | 0.4+²         | Supports a mix of FOCUS 1.0 and 1.0-preview(v1) data; Reservation recommendations pulled from the Cost Management connector for Power BI              |
+| FOCUS 1.0-preview(v1) only                | 0.4         | {scope}/{yyyyMM}/{export-type}¹    | 0.2+          | Storage path updated                                                                                                                                  |
+| FOCUS 1.0-preview(v1) only                | 0.2 - 0.3   | {path}/{yyyyMM}/{export-type}      | 0.2+²         | Switched to FOCUS data only                                                                                                                           |
+| Actual or Amortized costs (not both)      | 0.1 - 0.1.1 | {path}/{yyyyMM}/{export-type}      | 0.0.1 - 0.1.1 | EA and MCA                                                                                                                                            |
+| Actual or Amortized costs (not both)      | 0.0.1       | {path}/{yyyyMM}/{export-type}      | 0.0.1 - 0.1.1 | EA only                                                                                                                                               |
 
 ¹ When storage paths update, there's a risk that re-exported data lands in a new place and might cause duplicate data. To resolve, remove the old folders in the **ingestion** container.<br>
 

@@ -3,7 +3,7 @@ title: Upgrade your FinOps hubs
 description: Learn how to upgrade your existing FinOps hub instance to the latest version, including necessary steps and considerations.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 07/16/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -130,11 +130,12 @@ For more information, see [Set up Power BI reports](../power-bi/setup.md).
 
 The Data Explorer dashboard was introduced with Data Explorer support in 0.7 and also works with Microsoft Fabric since 0.10. Generally, the dashboard does not need to be updated once deployed unless you want to take advantage of new features. To upgrade the dashboard, replace the existing dashboard with the latest dashboard template.
 
-Each version of the dashboard is configured to work with a specific FinOps hub schema version (v1_0 or v1_2). Schema versions ensure backwards compatibility across FOCUS dataset versions from different providers. Older dashboard versions will continue to work after upgrading to the latest version of FinOps hubs, but newer dashboard versions may not work with older FinOps hub versions. The following table outlines the supported combinations.
+Each version of the dashboard is configured to work with a specific FinOps hub schema version (v1_0, v1_2, or v1_4). Schema versions ensure backwards compatibility across FOCUS dataset versions from different providers. Older dashboard versions will continue to work after upgrading to the latest version of FinOps hubs, but newer dashboard versions may not work with older FinOps hub versions. The following table outlines the supported combinations.
 
 | Dashboard version | FinOps hubs schema | FinOps hubs version |
 | ----------------- | ------------------ | ------------------- |
-| 12+               | v1_2               | 12+                 |
+| 15+               | v1_4               | 15+                 |
+| 12-14             | v1_2               | 12+                 |
 | 0.7-0.11          | v1_0               | 0.7+                |
 
 <!-- prettier-ignore-start -->
@@ -152,6 +153,8 @@ Replace the use of deprecated columns and functions:
 
 | Introduced | Retired | Deprecated                                  | Replacement                                         |
 | ---------- | ------- | ------------------------------------------- | --------------------------------------------------- |
+| 0.7        | 15      | `Costs().ProviderName`                      | `Costs().HostProviderName`                          |
+| 0.7        | 15      | `Costs().PublisherName`                     | `Costs().ServiceProviderName`                       |
 | 0.7        | 12      | `Costs().x_InvoiceId`                       | `Costs().InvoiceId`                                 |
 | 0.7        | 12      | `Costs().x_PricingCurrency`                 | `Costs().PricingCurrency`                           |
 | 0.7        | 12      | `Costs().x_SkuMeterName`                    | `Costs().SkuMeter`                                  |
@@ -166,34 +169,74 @@ If using unversioned functions or updating from the `v1_0` schema version, revie
 
 If updating queries to use a newer schema version, use the following table to understand the changes introduced in each schema version for each managed dataset.
 
-| Dataset                 | Schema | Column                                | Notes                                           |
-| ----------------------- | ------ | ------------------------------------- | ----------------------------------------------- |
-| (All)                   | v1_2   | All `decimal` columns                 | Changed to `real`                               |
-| CommitmentDiscountUsage | v1_2   | `CommitmentDiscountQuantity`          | New custom column                               |
-| CommitmentDiscountUsage | v1_2   | `CommitmentDiscountUnit`              | New custom column                               |
-| CommitmentDiscountUsage | v1_2   | `ServiceSubcategory`                  | New custom column                               |
-| Costs                   | v1_2   | `CapacityReservationId`               | New with FOCUS 1.2                              |
-| Costs                   | v1_2   | `CapacityReservationStatus`           | New with FOCUS 1.2                              |
-| Costs                   | v1_2   | `CommitmentDiscountQuantity`          | New with FOCUS 1.2                              |
-| Costs                   | v1_2   | `CommitmentDiscountUnit`              | New with FOCUS 1.2                              |
-| Cost                    | v1_2   | `ServiceSubcategory`                  | New with FOCUS 1.2                              |
-| Cost                    | v1_2   | `SkuPriceDetails`                     | New with FOCUS 1.2; derived from `x_SkuDetails` |
-| Costs                   | v1_2   | `x_AmortizationClass`                 | New with Cost Management FOCUS 1.2-preview      |
-| Costs                   | v1_2   | `x_CommitmentDiscountNormalizedRatio` | New with Cost Management FOCUS 1.2-preview      |
-| Costs                   | v1_2   | `x_InvoiceId`                         | Renamed to `InvoiceId`                          |
-| Costs                   | v1_2   | `x_PricingCurrency`                   | Renamed to `PricingCurrency`                    |
-| Costs                   | v1_2   | `x_ServiceModel`                      | New custom column                               |
-| Costs                   | v1_2   | `x_SkuMeterName`                      | Renamed to `SkuMeter`                           |
-| Prices                  | v1_2   | `CommitmentDiscountUnit`              | New custom column                               |
-| Prices                  | v1_2   | `x_PricingCurrency`                   | Renamed to `PricingCurrency`                    |
-| Prices                  | v1_2   | `x_SkuMeterName`                      | Renamed to `SkuMeter`                           |
-| Recommendations         | v1_2   | `ResourceId`                          | New custom column                               |
-| Recommendations         | v1_2   | `ResourceName`                        | New custom column                               |
-| Recommendations         | v1_2   | `ResourceType`                        | New custom column                               |
-| Recommendations         | v1_2   | `SubAccountName`                      | New custom column                               |
-| Recommendations         | v1_2   | `x_RecommendationDetails`             | New custom column                               |
-| Recommendations         | v1_2   | `x_ResourceGroupName`                 | New custom column                               |
-| Transactions            | v1_2   | `x_InvoiceId`                         | Renamed to `InvoiceId`                          |
+| Dataset                 | Schema | Column                                       | Notes                                              |
+| ----------------------- | ------ | -------------------------------------------- | -------------------------------------------------- |
+| (All)                   | v1_2   | All `decimal` columns                        | Changed to `real`                                  |
+| CommitmentDiscountUsage | v1_2   | `CommitmentDiscountQuantity`                 | New custom column                                  |
+| CommitmentDiscountUsage | v1_2   | `CommitmentDiscountUnit`                     | New custom column                                  |
+| CommitmentDiscountUsage | v1_2   | `ServiceSubcategory`                         | New custom column                                  |
+| Costs                   | v1_2   | `CapacityReservationId`                      | New with FOCUS 1.2                                 |
+| Costs                   | v1_2   | `CapacityReservationStatus`                  | New with FOCUS 1.2                                 |
+| Costs                   | v1_2   | `CommitmentDiscountQuantity`                 | New with FOCUS 1.2                                 |
+| Costs                   | v1_2   | `CommitmentDiscountUnit`                     | New with FOCUS 1.2                                 |
+| Costs                   | v1_2   | `ServiceSubcategory`                         | New with FOCUS 1.2                                 |
+| Costs                   | v1_2   | `SkuPriceDetails`                            | New with FOCUS 1.2; derived from `x_SkuDetails`    |
+| Costs                   | v1_2   | `x_AmortizationClass`                        | New with Cost Management FOCUS 1.2-preview         |
+| Costs                   | v1_2   | `x_CommitmentDiscountNormalizedRatio`        | New with Cost Management FOCUS 1.2-preview         |
+| Costs                   | v1_2   | `x_InvoiceId`                                | Renamed to `InvoiceId`                             |
+| Costs                   | v1_2   | `x_PricingCurrency`                          | Renamed to `PricingCurrency`                       |
+| Costs                   | v1_2   | `x_ServiceModel`                             | New custom column                                  |
+| Costs                   | v1_2   | `x_SkuMeterName`                             | Renamed to `SkuMeter`                              |
+| Costs                   | v1_4   | `AllocatedMethodDetails`                     | New with FOCUS 1.3                                 |
+| Costs                   | v1_4   | `AllocatedMethodId`                          | New with FOCUS 1.3                                 |
+| Costs                   | v1_4   | `AllocatedResourceId`                        | New with FOCUS 1.3                                 |
+| Costs                   | v1_4   | `AllocatedResourceName`                      | New with FOCUS 1.3                                 |
+| Costs                   | v1_4   | `AllocatedTags`                              | New with FOCUS 1.3                                 |
+| Costs                   | v1_4   | `CommitmentProgramEligibilityDetails`        | New with FOCUS 1.4                                 |
+| Costs                   | v1_4   | `ContractApplied`                            | New with FOCUS 1.3                                 |
+| Costs                   | v1_4   | `ContractCommitmentBenefitCategory`          | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `ContractCommitmentCreated`                  | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `ContractCommitmentDiscountPercentage`       | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `ContractCommitmentDurationType`             | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `ContractCommitmentFulfillmentInterval`      | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `ContractCommitmentLastUpdated`              | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `ContractCommitmentLifecycleStatus`          | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `ContractCommitmentModel`                    | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `ContractCommitmentOfferCategory`            | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `ContractCommitmentPaymentInterval`          | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `ContractCommitmentPaymentModel`             | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `ContractCommitmentPaymentUpfrontPercentage` | New with FOCUS 1.4¹                                |
+| Costs                   | v1_4   | `HostProviderName`                           | New with FOCUS 1.3; replaces `ProviderName`        |
+| Costs                   | v1_4   | `InvoiceDetailId`                            | New with FOCUS 1.4                                 |
+| Costs                   | v1_4   | `ProviderName`                               | Removed with FOCUS 1.4; use `HostProviderName`²    |
+| Costs                   | v1_4   | `PublisherName`                              | Removed with FOCUS 1.4; use `ServiceProviderName`² |
+| Costs                   | v1_4   | `ServiceProviderName`                        | New with FOCUS 1.3; replaces `PublisherName`       |
+| Prices                  | v1_2   | `CommitmentDiscountUnit`                     | New custom column                                  |
+| Prices                  | v1_2   | `x_PricingCurrency`                          | Renamed to `PricingCurrency`                       |
+| Prices                  | v1_2   | `x_SkuMeterName`                             | Renamed to `SkuMeter`                              |
+| Recommendations         | v1_2   | `ResourceId`                                 | New custom column                                  |
+| Recommendations         | v1_2   | `ResourceName`                               | New custom column                                  |
+| Recommendations         | v1_2   | `ResourceType`                               | New custom column                                  |
+| Recommendations         | v1_2   | `SubAccountName`                             | New custom column                                  |
+| Recommendations         | v1_2   | `x_RecommendationDetails`                    | New custom column                                  |
+| Recommendations         | v1_2   | `x_ResourceGroupName`                        | New custom column                                  |
+| Transactions            | v1_2   | `x_InvoiceId`                                | Renamed to `InvoiceId`                             |
+
+¹ The `ContractCommitment*` columns are defined in the FOCUS 1.4 ContractCommitment dataset and included in the Costs dataset to provide per-charge contract commitment context. They remain empty until Cost Management supports exporting FOCUS 1.4 data.<br>
+
+² The `{dataset}_v1_0()` and `{dataset}_v1_2()` functions still return `ProviderName` and `PublisherName` for FOCUS 1.4 data by down-converting from `HostProviderName` and `ServiceProviderName`.<br>
+
+The Prices, Recommendations, Transactions, and CommitmentDiscountUsage datasets didn't change between the `v1_2` and `v1_4` schema versions.
+
+The `v1_4` schema also introduced three new managed datasets defined by FOCUS 1.4. These datasets remain empty until Cost Management supports exporting FOCUS 1.4 data:
+
+- **BillingPeriods** includes 6 FOCUS columns: `BillingPeriodCreated`, `BillingPeriodEnd`, `BillingPeriodLastUpdated`, `BillingPeriodStart`, `BillingPeriodStatus`, and `InvoiceIssuerName`.
+- **ContractCommitments** includes 30 FOCUS columns: `BillingCurrency`, `ContractCommitmentApplicability`, `ContractCommitmentBenefitCategory`, `ContractCommitmentCategory`, `ContractCommitmentCost`, `ContractCommitmentCreated`, `ContractCommitmentDescription`, `ContractCommitmentDiscountPercentage`, `ContractCommitmentDurationType`, `ContractCommitmentFulfillmentInterval`, `ContractCommitmentId`, `ContractCommitmentLastUpdated`, `ContractCommitmentLifecycleStatus`, `ContractCommitmentModel`, `ContractCommitmentOfferCategory`, `ContractCommitmentPaymentInterval`, `ContractCommitmentPaymentModel`, `ContractCommitmentPaymentUpfrontPercentage`, `ContractCommitmentPeriodEnd`, `ContractCommitmentPeriodStart`, `ContractCommitmentQuantity`, `ContractCommitmentType`, `ContractCommitmentUnit`, `ContractId`, `ContractPeriodEnd`, `ContractPeriodStart`, `InvoiceIssuerName`, `PricingCurrency`, `PricingCurrencyContractCommitmentCost`, and `ServiceProviderName`.
+- **InvoiceDetails** includes 22 FOCUS columns: `BilledCost`, `BillingAccountId`, `BillingCurrency`, `BillingPeriodEnd`, `BillingPeriodStart`, `ChargeCategory`, `InvoiceDetailCreated`, `InvoiceDetailDescription`, `InvoiceDetailGrain`, `InvoiceDetailId`, `InvoiceDetailLastUpdated`, `InvoiceId`, `InvoiceIssueDate`, `InvoiceIssueStatus`, `InvoiceIssuerName`, `PaymentCurrency`, `PaymentCurrencyBilledCost`, `PaymentCurrencyInvoiceDetailId`, `PaymentDueDate`, `PaymentTerms`, `PurchaseOrderNumber`, and `ReferenceInvoiceId`.
+
+Each new dataset also includes 5 hub columns: `x_IngestionTime`, `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion`.
+
+As of FinOps hubs v15 (schema version `v1_4`), the FOCUS 1.2 transform functions are deprecated and the `v1_2` update policies are disabled. New data is transformed to FOCUS 1.4 and lands in the `{dataset}_final_v1_4` tables. Data ingested under older releases remains in the `{dataset}_final_v1_0` and `{dataset}_final_v1_2` tables and is still available through both versioned functions, like `Costs_v1_2()`, and unversioned functions, which up-convert older data to the latest schema.
 
 <br>
 
