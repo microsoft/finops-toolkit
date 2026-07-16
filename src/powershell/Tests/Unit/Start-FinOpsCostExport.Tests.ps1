@@ -31,7 +31,7 @@ Describe 'Start-FinOpsCostExport' {
         { Start-FinOpsCostExport @params } | Should -Throw
 
         # Assert
-        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -Times 1
+        Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -Times 1
     }
 
     It 'Should call /run with default dates' {
@@ -47,7 +47,7 @@ Describe 'Start-FinOpsCostExport' {
         $success = Start-FinOpsCostExport @params
 
         # Assert
-        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 `
+        Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 `
             -ParameterFilter { return $body -eq $null }
         $success | Should -Be $true
     }
@@ -66,7 +66,7 @@ Describe 'Start-FinOpsCostExport' {
         $success = Start-FinOpsCostExport @params
 
         # Assert
-        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 `
+        Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 `
             -ParameterFilter { $body.timePeriod.from -eq $params.StartDate.ToUniversalTime().ToString("yyyy-01-01'T'00:00:00'Z'") -and $body.timePeriod.to -eq $params.StartDate.ToUniversalTime().ToString("yyyy-01-31'T'00:00:00'Z'") }
         $success | Should -Be $true
     }
@@ -86,7 +86,7 @@ Describe 'Start-FinOpsCostExport' {
         $success = Start-FinOpsCostExport @params
 
         # Assert
-        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 `
+        Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 `
             -ParameterFilter { $body.timePeriod.from -eq $params.StartDate.ToUniversalTime().Date.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") -and $body.timePeriod.to -eq $params.EndDate.ToUniversalTime().Date.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") }
         $success | Should -Be $true
     }
@@ -107,15 +107,15 @@ Describe 'Start-FinOpsCostExport' {
         $success = Start-FinOpsCostExport @params
 
         # Assert
-        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times ($params.Backfill + 1)
-        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+        Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times ($params.Backfill + 1)
+        Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
             $startDate = $startOfMonth.ToUniversalTime().Date
             $body.timePeriod.from -eq $startDate.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") `
                 -and $body.timePeriod.to -eq $today.AddDays(-1).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
         }
         foreach ($i in 1..($params.Backfill))
         {
-            Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+            Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                 $startDate = $startOfMonth.AddMonths($i * -1).ToUniversalTime().Date
                 $body.timePeriod.from -eq $startDate.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") `
                     -and $body.timePeriod.to -eq $startDate.AddMonths(1).AddMilliseconds(-1).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -137,7 +137,7 @@ Describe 'Start-FinOpsCostExport' {
             -Backfill 3
 
         # Assert
-        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Write-Progress' -Times 4
+        Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Write-Progress' -Times 4
         $success | Should -Be $true
     }
 
@@ -166,7 +166,7 @@ Describe 'Start-FinOpsCostExport' {
             $success = Start-FinOpsCostExport @params
 
             # Assert
-            Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 `
+            Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 `
                 -ParameterFilter {
                 $body.timePeriod.from -eq $firstDayOfCurrentMonth.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") -and
                 $body.timePeriod.to -eq $today.AddDays(-1).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -213,8 +213,8 @@ Describe 'Start-FinOpsCostExport' {
         $success = Start-FinOpsCostExport @params
 
         # Assert
-        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 2
-        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Start-Sleep' -Times 1
+        Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 2
+        Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Start-Sleep' -Times 1
         $success | Should -Be $true
     }
 }

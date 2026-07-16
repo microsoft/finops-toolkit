@@ -43,7 +43,8 @@
         "leader",
         "code",
         "review",
-        "bug"
+        "bug",
+        "doc"
       ]
     },
     {
@@ -63,6 +64,15 @@
       "contributions": [
         "leader",
         "promotion"
+      ]
+    },
+    {
+      "login": "kk09v",
+      "name": "Karl Kraft",
+      "avatar_url": "https://avatars.githubusercontent.com/u/133434112?v=4",
+      "profile": "https://github.com/kk09v",
+      "contributions": [
+        "leader"
       ]
     },
     {
@@ -104,7 +114,7 @@
     },
     {
       "login": "ro100e",
-      "name": "Robel",
+      "name": "Robel Mamecha",
       "avatar_url": "https://avatars.githubusercontent.com/u/59753782?v=4",
       "profile": "https://github.com/ro100e",
       "contributions": [
@@ -235,7 +245,7 @@
     },
     {
       "login": "bwatts64",
-      "name": "bwatts64",
+      "name": "Brad Watts",
       "avatar_url": "https://avatars.githubusercontent.com/u/32721128?v=4",
       "profile": "https://github.com/bwatts64",
       "contributions": [
@@ -958,6 +968,15 @@
       "name": "Arthur Silvany",
       "avatar_url": "https://avatars.githubusercontent.com/u/31347467?v=4",
       "profile": "https://github.com/arthursilvany",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "Pasc104",
+      "name": "Pasc104",
+      "avatar_url": "https://avatars.githubusercontent.com/u/278708919?v=4",
+      "profile": "https://github.com/Pasc104",
       "contributions": [
         "bug"
       ]

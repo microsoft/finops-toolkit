@@ -3,7 +3,7 @@ title: FinOps best practices for Storage
 description: This article outlines proven FinOps practices for storage services, focusing on cost optimization, efficiency improvements, and resource insights.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/12/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -76,7 +76,6 @@ Azure managed disks are block-level storage volumes that are managed by Azure an
 
 Related resources:
 
-- [Managed disks product page](https://azure.microsoft.com/products/managed-disks)
 - [Managed disks pricing](https://azure.microsoft.com/pricing/details/managed-disks)
 - [Managed disks documentation](/azure/virtual-machines/managed-disks-overview)
 
