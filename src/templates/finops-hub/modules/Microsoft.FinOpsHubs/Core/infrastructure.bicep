@@ -17,6 +17,8 @@ param hub HubProperties
 //==============================================================================
 
 var nsgName = '${hub.routing.networkName}-nsg'
+var natGatewayName = '${hub.routing.networkName}-natgw'
+var natGatewayPipName = '${hub.routing.networkName}-natgw-pip'
 
 // Workaround https://github.com/Azure/bicep/issues/1853
 var finopsHubSubnetName = 'private-endpoint-subnet'
@@ -28,6 +30,7 @@ var subnets = !hub.options.privateRouting ? [] : [
     name: finopsHubSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 0)
+      defaultOutboundAccess: !hub.options.natGateway
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -42,6 +45,12 @@ var subnets = !hub.options.privateRouting ? [] : [
     name: scriptSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 1)
+      defaultOutboundAccess: !hub.options.natGateway
+      ...(hub.options.natGateway ? {
+        natGateway: {
+          id: resourceId('Microsoft.Network/natGateways', natGatewayName)
+        }
+      } : {})
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -64,6 +73,12 @@ var subnets = !hub.options.privateRouting ? [] : [
     name: dataExplorerSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 27, 1)
+      defaultOutboundAccess: !hub.options.natGateway
+      ...(hub.options.natGateway ? {
+        natGateway: {
+          id: resourceId('Microsoft.Network/natGateways', natGatewayName)
+        }
+      } : {})
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -171,7 +186,10 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.opti
 resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.privateRouting) {
   name: hub.routing.networkName
   location: hub.location
-  tags: getHubTags(hub, 'Microsoft.Storage/virtualNetworks')
+  tags: getHubTags(hub, 'Microsoft.Network/virtualNetworks')
+  dependsOn: hub.options.natGateway ? [
+    natGateway
+  ] : []
   properties: {
     addressSpace: {
       addressPrefixes: [hub.options.networkAddressPrefix]
@@ -189,6 +207,42 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 
   resource dataExplorerSubnet 'subnets' existing = {
     name: dataExplorerSubnetName
+  }
+}
+
+//------------------------------------------------------------------------------
+// NAT Gateway (provides outbound for script-subnet + dataExplorer-subnet when
+// defaultOutboundAccess is disabled; required by the 'Subnets should be private'
+// policy and the September 2025 implicit-outbound retirement)
+//------------------------------------------------------------------------------
+
+resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (hub.options.natGateway) {
+  name: natGatewayPipName
+  location: hub.location
+  tags: getHubTags(hub, 'Microsoft.Network/publicIPAddresses')
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Static'
+    publicIPAddressVersion: 'IPv4'
+  }
+}
+
+resource natGateway 'Microsoft.Network/natGateways@2023-11-01' = if (hub.options.natGateway) {
+  name: natGatewayName
+  location: hub.location
+  tags: getHubTags(hub, 'Microsoft.Network/natGateways')
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    idleTimeoutInMinutes: 4
+    publicIpAddresses: [
+      {
+        id: natGatewayPublicIp.id
+      }
+    ]
   }
 }
 
