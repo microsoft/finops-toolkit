@@ -159,7 +159,7 @@ Stack order (nothing merged yet; phases 3–5 were closed/superseded): **#2126 (
 1. ~~Q1 (D4)~~ Resolved: new datasets in scope per owner review comments on #2126 (see D4).
 2. ~~Q2 (D3)~~ Resolved: derivation confirmed by owner review comments 3309129381/3309175754 on #2126; both PRs currently implement it swapped — fix in W2/W3.
 3. **Q3**: Target release for `flanakin/focus14` → `dev` (v14 shipped 2026-07; assume next release). Changelog entries land under "Unreleased" (stack currently uses "FinOps hubs v15.0.0" inside the commented Unreleased block — consistent).
-4. **Q4 (NEW — needs owner decision)**: `ContractCommitments_final_v1_4` uses unprefixed column names (`BenefitCategory`, `Created`, `Model`, …) that don't match the FOCUS 1.4 spec column IDs (`ContractCommitmentBenefitCategory`, …) and omits spec columns `ContractCommitmentDescription` and `ServiceProviderName` (hubs: 28; spec: 30). Verified against the spec `v1.4` tag by two independent checks. If strict FOCUS conformance is the goal, the table/function/tests/docs should be reconciled — cheap now while the table is empty. Deliberately NOT changed pending your call, since the current shape follows the existing branch content.
+4. ~~Q4~~ Resolved (owner: "just do it", 2026-07-15): `ContractCommitments_raw`/`_final_v1_4` reconciled to the 30 FOCUS 1.4 spec column IDs (12 renames + `ContractCommitmentDescription` + `ServiceProviderName` added), verified against the spec `v1.4` tag; tests, changelog, plugin/copilot docs, and schema docs updated across the stack.
 
 ## 8. Progress
 
@@ -176,7 +176,8 @@ Stack order (nothing merged yet; phases 3–5 were closed/superseded): **#2126 (
 - [x] W7: Conformance — new [#2208](https://github.com/microsoft/finops-toolkit/pull/2208) (`Build-FocusConformance.ps1` fixed for 1.3+ spec layout + curation preservation; 1,021 new 1.3/1.4 requirements marked Not Evaluated, no invented claims) — **awaiting review**
 - [x] W8: AI/agent surfaces — #2135 reworked (`968207f4`+`0824600c`: conflict markers removed, provider semantics fixed, no-data caveats); W8b new [#2210](https://github.com/microsoft/finops-toolkit/pull/2210) (copilot-studio knowledge 175/175 column check, query catalog + removed-column migration) — **awaiting review**
 - [x] W9: Recommendations enrichment — #2194 fixed (`503d3a63`+`a6c91087`+`47b406ed`: 22/23 queries mapped to real subcategories, taxonomy coherence datatable + tests, symmetric defaults; suite 2093/0) — **awaiting review**
-- [ ] Manual ADX validation pass (all export versions, cardinality reconciliation) — requires an Azure deployment (`Deploy-Toolkit -Build -Test`); needs owner to run or authorize
+- [x] Dev sync: `origin/dev` merged through the entire stack (merge commits only) — brings PR-environment workflows (#2033) and dev's KQL/PBI fixes; dev's v1_2-era fixes (#2151 strcat OOM, #2189 price-lookup max()) ported into the v1_4 transforms with a version-normalized parity diff
+- [ ] ADX validation via **PR environments** (replaces the manual pass): "Hubs + ADX (managed)" checked on #2194 (full stack) and #2207 (umbrella); deploys queue for `ftk-pr` environment approval. Validate: ingest samples for all 5 export versions, row-count/cardinality reconciliation raw → final → hub functions
 - [ ] Remove this plan file; mark umbrella PR ready
 - [ ] *Blocked*: W10 export-side registration (awaiting Cost Management FOCUS 1.4 export)
 
