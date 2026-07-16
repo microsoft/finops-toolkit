@@ -25,7 +25,25 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### Claude Code plugin v15.0.0
+### [FinOps hubs](hubs/finops-hubs-overview.md)
+
+- **Added**
+  - Added VNet and private network modes, including opt-in NAT Gateway support for private mode; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
+
+-->
+
+<br><a name="latest"></a>
+
+## v15
+
+_Released June 2026_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v15
+
+- **Fixed**
+  - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` in the [data dictionary](help/data-dictionary.md) to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
+
+### Claude Code plugin v15
 
 - **Added**
   - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management ([#2043](https://github.com/microsoft/finops-toolkit/pull/2043)).
@@ -42,7 +60,7 @@ The following section lists features and enhancements that are currently in deve
     - New versioned Hub database functions, like `Costs_v1_4()`, were added based on the FOCUS 1.4 schema changes.
     - Make sure you use versioned functions, like `Costs_v1_2()`, to avoid breaking changes between FOCUS versions.
   - Added new columns to the Costs managed dataset: `AllocatedMethodId`, `AllocatedMethodDetails`, `AllocatedResourceId`, `AllocatedResourceName`, `AllocatedTags`, `ContractApplied`, `ServiceProviderName`, `HostProviderName`, `CommitmentProgramEligibilityDetails`, `InvoiceDetailId`, and 12 `ContractCommitment*` per-row columns (`ContractCommitmentBenefitCategory`, `ContractCommitmentCreated`, `ContractCommitmentDiscountPercentage`, `ContractCommitmentDurationType`, `ContractCommitmentFulfillmentInterval`, `ContractCommitmentLastUpdated`, `ContractCommitmentLifecycleStatus`, `ContractCommitmentModel`, `ContractCommitmentOfferCategory`, `ContractCommitmentPaymentInterval`, `ContractCommitmentPaymentModel`, `ContractCommitmentPaymentUpfrontPercentage`).
-  - Added three new FOCUS 1.4 datasets: `ContractCommitments` (28 columns), `BillingPeriods` (6 columns), and `InvoiceDetails` (22 columns), each with tables and versioned and unversioned functions (for example, `ContractCommitments()` and `ContractCommitments_v1_4()`).
+  - Added three new FOCUS 1.4 datasets: `ContractCommitments` (30 columns, using FOCUS 1.4 specification column IDs like `ContractCommitmentBenefitCategory` and `ContractCommitmentLifecycleStatus`), `BillingPeriods` (6 columns), and `InvoiceDetails` (22 columns), each with tables and versioned and unversioned functions (for example, `ContractCommitments()` and `ContractCommitments_v1_4()`).
     - These datasets remain empty until Cost Management supports exporting FOCUS 1.4 data.
   - Added a static test harness for the hub database setup scripts that verifies build registration, schema version consistency, and update policy state to catch regressions before release.
   - Added `x_RecommendationCategory` and `x_RecommendationSubcategory` enrichment columns to the `Recommendations` dataset, normalized to a fixed hub taxonomy (Cost, Operational Excellence, Performance, Reliability, Security). Unused commitment capacity maps to `Commitment Discount Utilization`; idle and orphaned provisioned resources map to `Idle Resources`. See [data model](hubs/data-model.md#recommendations-managed-dataset) for the allowed values.
@@ -55,12 +73,44 @@ The following section lists features and enhancements that are currently in deve
 - **Removed**
   - Removed deprecated `ProviderName` and `PublisherName` columns from the `v1_4` schema in favor of the FOCUS 1.3 replacements, `HostProviderName` and `ServiceProviderName`. The `v1_0` and `v1_2` functions still return both columns by down-converting from the new columns, and raw tables keep them for back compat.
 
-### Bicep Registry module pending updates
+### [FinOps hubs](hubs/finops-hubs-overview.md) v15
 
-- Cost Management export modules for subscriptions and resource groups.
--->
+- **Changed**
+  - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
+- **Fixed**
+  - Fixed Data Factory ingestion memory pressure during emptiness filtering.
+    - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
+  - Hardened the reservation price backfill to select the highest on-demand price (`max()` instead of `min()`) when duplicate price rows collapse under a single reservation price lookup key, preventing understated commitment discount savings ([#2189](https://github.com/microsoft/finops-toolkit/pull/2189)).
 
-<br><a name="latest"></a>
+### [Power BI reports](power-bi/reports.md) v15
+
+- **Fixed**
+  - Fixed Power BI storage report refresh errors caused by ISO 8601 duration `x_SkuTerm` values (like `P3Y`) and empty strings in cost exports ([#2174](https://github.com/microsoft/finops-toolkit/issues/2174)).
+
+### [Data dictionary](help/data-dictionary.md) updates
+
+- **Fixed**
+  - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
+
+### [Optimization engine](optimization-engine/overview.md) updates
+
+- **Fixed**
+  - Removed call to Azure Classic administrators endpoint (deprecated on May 1, 2026) from Azure RBAC assignments exports ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
+
+### [PowerShell module](powershell/powershell-commands.md) v15
+
+- **Fixed**
+  - Fixed [Get-FinOpsCostExport](powershell/cost/get-finopscostexport.md) `-RunHistory` to return the complete run history ([#2063](https://github.com/microsoft/finops-toolkit/issues/2063)).
+  - Bumped the `Az.Accounts` required-module minimum to 2.17.0 so dependency resolution can't land on a version missing the `Get-AzAccessToken -AsSecureString` parameter that `Invoke-Rest` relies on ([#2185](https://github.com/microsoft/finops-toolkit/issues/2185)).
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v15)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v14...v15)
+<!-- prettier-ignore-end -->
+
+<br>
 
 ## v14
 
@@ -78,6 +128,7 @@ _Released April 2026_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v14
 
 - **Added**
+  - Added [Microsoft Sovereign Cloud](/azure/azure-sovereign-clouds/microsoft-sovereign-cloud) support with environment-aware DNS suffix handling for Azure Government, Azure China, and other sovereign environments ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
   - Added ability to ingest recommendations from Azure Advisor and custom Azure Resource Graph queries ([#2011](https://github.com/microsoft/finops-toolkit/issues/2011)).
     - Custom recommendations include stopped VMs, unattached disks, underutilized resources, and more.
   - Added [Copilot Studio agent template](hubs/configure-ai-copilot-studio.md) with instructions, schema reference, query catalog, and weekly report guide for creating a FinOps Hub Agent in Microsoft Copilot Studio using the Kusto Query MCP Server.
@@ -88,6 +139,10 @@ _Released April 2026_
     - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
   - Documented the `<ingestionId>__<originalFileName>.parquet` filename convention, full-folder replacement requirement, and manifest content rules for ingesting custom FOCUS datasets to prevent silent data loss ([#2096](https://github.com/microsoft/finops-toolkit/issues/2096)).
 - **Fixed**
+  - Fixed hardcoded Kusto DNS suffix to use an environment-aware lookup map with correct values for all supported clouds ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
+  - Fixed incorrect Azure China ADX DNS suffix (`kusto.chinacloudapi.cn` → `kusto.windows.cn`) ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
+  - Fixed `createUiDefinition.json` storage URL validation to accept sovereign cloud storage suffixes ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
+  - Fixed `gitapp.hub.com` typo in ADF linked service URL ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
   - Fixed `msexports_ExecuteETL` pipeline failing on empty export files by adding a row count check ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
   - Fixed Data Explorer dashboard cost and savings KPIs producing invalid sums in multi-billing-currency tenants by adding a Currency parameter that scopes tile queries to a single currency ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
@@ -1081,7 +1136,7 @@ _**Breaking change**_
     - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
     - Added param to specify subnet range of virtual network - minimum size = /26
   - Support for storage account infrastructure encryption.
-  - Published a [schema file](https://aka.ms/finops/hubs/settings-schema) for the hub settings.json file.
+  - Published a schema file for the hub settings.json file in this release.
 - **Changed**
   - Changed dataset names in the ingestion container to facilitate Azure Data Explorer ingestion.
     > [!IMPORTANT]

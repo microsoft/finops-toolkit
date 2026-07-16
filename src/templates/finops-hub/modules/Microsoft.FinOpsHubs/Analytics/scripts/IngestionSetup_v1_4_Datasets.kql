@@ -196,12 +196,24 @@ ContractCommitments_transform_v1_4()
 {
     ContractCommitments_raw
     | project
-        BenefitCategory                       = column_ifexists('BenefitCategory', ''),                            // FOCUS 1.4+
         BillingCurrency,
-        ContractCommitmentApplicability       = parse_json(column_ifexists('ContractCommitmentApplicability', '')),// FOCUS 1.4+
+        ContractCommitmentApplicability            = parse_json(column_ifexists('ContractCommitmentApplicability', '')),        // FOCUS 1.4+
+        ContractCommitmentBenefitCategory          = column_ifexists('ContractCommitmentBenefitCategory', ''),                  // FOCUS 1.4+
         ContractCommitmentCategory,
         ContractCommitmentCost,
+        ContractCommitmentCreated                  = column_ifexists('ContractCommitmentCreated', datetime(null)),              // FOCUS 1.4+
+        ContractCommitmentDescription              = column_ifexists('ContractCommitmentDescription', ''),                      // FOCUS 1.3+
+        ContractCommitmentDiscountPercentage       = column_ifexists('ContractCommitmentDiscountPercentage', real(null)),       // FOCUS 1.4+
+        ContractCommitmentDurationType             = column_ifexists('ContractCommitmentDurationType', ''),                     // FOCUS 1.4+
+        ContractCommitmentFulfillmentInterval      = column_ifexists('ContractCommitmentFulfillmentInterval', ''),              // FOCUS 1.4+
         ContractCommitmentId,
+        ContractCommitmentLastUpdated              = column_ifexists('ContractCommitmentLastUpdated', datetime(null)),          // FOCUS 1.4+
+        ContractCommitmentLifecycleStatus          = column_ifexists('ContractCommitmentLifecycleStatus', ''),                  // FOCUS 1.4+
+        ContractCommitmentModel                    = column_ifexists('ContractCommitmentModel', ''),                            // FOCUS 1.4+
+        ContractCommitmentOfferCategory            = column_ifexists('ContractCommitmentOfferCategory', ''),                    // FOCUS 1.4+
+        ContractCommitmentPaymentInterval          = column_ifexists('ContractCommitmentPaymentInterval', ''),                  // FOCUS 1.4+
+        ContractCommitmentPaymentModel             = column_ifexists('ContractCommitmentPaymentModel', ''),                     // FOCUS 1.4+
+        ContractCommitmentPaymentUpfrontPercentage = column_ifexists('ContractCommitmentPaymentUpfrontPercentage', real(null)), // FOCUS 1.4+
         ContractCommitmentPeriodEnd,
         ContractCommitmentPeriodStart,
         ContractCommitmentQuantity,
@@ -210,20 +222,10 @@ ContractCommitments_transform_v1_4()
         ContractId,
         ContractPeriodEnd,
         ContractPeriodStart,
-        Created                               = column_ifexists('Created', datetime(null)),                       // FOCUS 1.4+
-        DiscountPercentage                    = column_ifexists('DiscountPercentage', real(null)),                // FOCUS 1.4+
-        DurationType                          = column_ifexists('DurationType', ''),                              // FOCUS 1.4+
-        FulfillmentInterval                   = column_ifexists('FulfillmentInterval', ''),                       // FOCUS 1.4+
         InvoiceIssuerName,
-        LastUpdated                           = column_ifexists('LastUpdated', datetime(null)),                   // FOCUS 1.4+
-        LifecycleStatus                       = column_ifexists('LifecycleStatus', ''),                           // FOCUS 1.4+
-        Model                                 = column_ifexists('Model', ''),                                     // FOCUS 1.4+
-        OfferCategory                         = column_ifexists('OfferCategory', ''),                             // FOCUS 1.4+
-        PaymentInterval                       = column_ifexists('PaymentInterval', ''),                           // FOCUS 1.4+
-        PaymentModel                          = column_ifexists('PaymentModel', ''),                              // FOCUS 1.4+
-        PaymentUpfrontPercentage              = column_ifexists('PaymentUpfrontPercentage', real(null)),          // FOCUS 1.4+
         PricingCurrency,
-        PricingCurrencyContractCommitmentCost = column_ifexists('PricingCurrencyContractCommitmentCost', real(null)),  // FOCUS 1.4+
+        PricingCurrencyContractCommitmentCost      = column_ifexists('PricingCurrencyContractCommitmentCost', real(null)),      // FOCUS 1.4+
+        ServiceProviderName                        = column_ifexists('ServiceProviderName', ''),                                // FOCUS 1.4+
         x_IngestionTime  = ingestion_time(),
         x_SourceName     = coalesce(x_SourceName, ''),
         x_SourceProvider = coalesce(x_SourceProvider, ''),
@@ -233,39 +235,41 @@ ContractCommitments_transform_v1_4()
 
 // ContractCommitments_final_v1_4 table
 .create-merge table ContractCommitments_final_v1_4 (
-    BenefitCategory:                       string,    // FOCUS 1.4+
-    BillingCurrency:                       string,    // FOCUS 1.3+
-    ContractCommitmentApplicability:       dynamic,   // FOCUS 1.4+ (JSON)
-    ContractCommitmentCategory:            string,    // FOCUS 1.3+
-    ContractCommitmentCost:                real,      // FOCUS 1.3+
-    ContractCommitmentId:                  string,    // FOCUS 1.3+
-    ContractCommitmentPeriodEnd:           datetime,  // FOCUS 1.3+
-    ContractCommitmentPeriodStart:         datetime,  // FOCUS 1.3+
-    ContractCommitmentQuantity:            real,      // FOCUS 1.3+
-    ContractCommitmentType:                string,    // FOCUS 1.3+
-    ContractCommitmentUnit:                string,    // FOCUS 1.3+
-    ContractId:                            string,    // FOCUS 1.3+
-    ContractPeriodEnd:                     datetime,  // FOCUS 1.3+
-    ContractPeriodStart:                   datetime,  // FOCUS 1.3+
-    Created:                               datetime,  // FOCUS 1.4+
-    DiscountPercentage:                    real,      // FOCUS 1.4+
-    DurationType:                          string,    // FOCUS 1.4+
-    FulfillmentInterval:                   string,    // FOCUS 1.4+
-    InvoiceIssuerName:                     string,    // FOCUS 1.3+
-    LastUpdated:                           datetime,  // FOCUS 1.4+
-    LifecycleStatus:                       string,    // FOCUS 1.4+
-    Model:                                 string,    // FOCUS 1.4+
-    OfferCategory:                         string,    // FOCUS 1.4+
-    PaymentInterval:                       string,    // FOCUS 1.4+
-    PaymentModel:                          string,    // FOCUS 1.4+
-    PaymentUpfrontPercentage:              real,      // FOCUS 1.4+
-    PricingCurrency:                       string,    // FOCUS 1.3+
-    PricingCurrencyContractCommitmentCost: real,      // FOCUS 1.4+
-    x_IngestionTime:                       datetime,  // Hubs add-on
-    x_SourceName:                          string,    // Hubs add-on
-    x_SourceProvider:                      string,    // Hubs add-on
-    x_SourceType:                          string,    // Hubs add-on
-    x_SourceVersion:                       string     // Hubs add-on
+    BillingCurrency:                            string,    // FOCUS 1.3+
+    ContractCommitmentApplicability:            dynamic,   // FOCUS 1.4+ (JSON)
+    ContractCommitmentBenefitCategory:          string,    // FOCUS 1.4+
+    ContractCommitmentCategory:                 string,    // FOCUS 1.3+
+    ContractCommitmentCost:                     real,      // FOCUS 1.3+
+    ContractCommitmentCreated:                  datetime,  // FOCUS 1.4+
+    ContractCommitmentDescription:              string,    // FOCUS 1.3+
+    ContractCommitmentDiscountPercentage:       real,      // FOCUS 1.4+
+    ContractCommitmentDurationType:             string,    // FOCUS 1.4+
+    ContractCommitmentFulfillmentInterval:      string,    // FOCUS 1.4+
+    ContractCommitmentId:                       string,    // FOCUS 1.3+
+    ContractCommitmentLastUpdated:              datetime,  // FOCUS 1.4+
+    ContractCommitmentLifecycleStatus:          string,    // FOCUS 1.4+
+    ContractCommitmentModel:                    string,    // FOCUS 1.4+
+    ContractCommitmentOfferCategory:            string,    // FOCUS 1.4+
+    ContractCommitmentPaymentInterval:          string,    // FOCUS 1.4+
+    ContractCommitmentPaymentModel:             string,    // FOCUS 1.4+
+    ContractCommitmentPaymentUpfrontPercentage: real,      // FOCUS 1.4+
+    ContractCommitmentPeriodEnd:                datetime,  // FOCUS 1.3+
+    ContractCommitmentPeriodStart:              datetime,  // FOCUS 1.3+
+    ContractCommitmentQuantity:                 real,      // FOCUS 1.3+
+    ContractCommitmentType:                     string,    // FOCUS 1.3+
+    ContractCommitmentUnit:                     string,    // FOCUS 1.3+
+    ContractId:                                 string,    // FOCUS 1.3+
+    ContractPeriodEnd:                          datetime,  // FOCUS 1.3+
+    ContractPeriodStart:                        datetime,  // FOCUS 1.3+
+    InvoiceIssuerName:                          string,    // FOCUS 1.3+
+    PricingCurrency:                            string,    // FOCUS 1.3+
+    PricingCurrencyContractCommitmentCost:      real,      // FOCUS 1.4+
+    ServiceProviderName:                        string,    // FOCUS 1.4+
+    x_IngestionTime:                            datetime,  // Hubs add-on
+    x_SourceName:                               string,    // Hubs add-on
+    x_SourceProvider:                           string,    // Hubs add-on
+    x_SourceType:                               string,    // Hubs add-on
+    x_SourceVersion:                            string     // Hubs add-on
 )
 
 // Update policy for ContractCommitments_raw -> ContractCommitments_final_v1_4 table

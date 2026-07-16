@@ -3,6 +3,7 @@
 
 Remove-Module FinOpsToolkit -ErrorAction SilentlyContinue
 Import-Module -FullyQualifiedName "$PSScriptRoot/../FinOpsToolkit.psm1"
+Import-Module Pester -Global -ErrorAction Stop
 
 BeforeAll {
     # Bring the Monitor functions in to simplify debugging
