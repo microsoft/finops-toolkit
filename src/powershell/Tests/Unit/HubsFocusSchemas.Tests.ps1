@@ -306,21 +306,37 @@ Describe 'HubsFocusSchemas' {
 
         It 'Includes base column <_>' -ForEach @(
             'BillingCurrency', 'ContractCommitmentCategory', 'ContractCommitmentCost',
-            'ContractCommitmentId', 'ContractCommitmentPeriodEnd', 'ContractCommitmentPeriodStart',
-            'ContractCommitmentQuantity', 'ContractCommitmentType', 'ContractCommitmentUnit',
-            'ContractId', 'ContractPeriodEnd', 'ContractPeriodStart', 'InvoiceIssuerName',
-            'PricingCurrency'
+            'ContractCommitmentDescription', 'ContractCommitmentId', 'ContractCommitmentPeriodEnd',
+            'ContractCommitmentPeriodStart', 'ContractCommitmentQuantity', 'ContractCommitmentType',
+            'ContractCommitmentUnit', 'ContractId', 'ContractPeriodEnd', 'ContractPeriodStart',
+            'InvoiceIssuerName', 'PricingCurrency'
         ) {
             $contractCommitmentsRawBlock | Should -Match "(?m)^\s+$_\s*:"
         }
 
         It 'Includes FOCUS 1.4 column <_>' -ForEach @(
-            'BenefitCategory', 'ContractCommitmentApplicability', 'Created',
-            'DiscountPercentage', 'DurationType', 'FulfillmentInterval', 'LastUpdated',
-            'LifecycleStatus', 'Model', 'OfferCategory', 'PaymentInterval', 'PaymentModel',
-            'PaymentUpfrontPercentage', 'PricingCurrencyContractCommitmentCost'
+            'ContractCommitmentApplicability', 'ContractCommitmentBenefitCategory',
+            'ContractCommitmentCreated', 'ContractCommitmentDiscountPercentage',
+            'ContractCommitmentDurationType', 'ContractCommitmentFulfillmentInterval',
+            'ContractCommitmentLastUpdated', 'ContractCommitmentLifecycleStatus',
+            'ContractCommitmentModel', 'ContractCommitmentOfferCategory',
+            'ContractCommitmentPaymentInterval', 'ContractCommitmentPaymentModel',
+            'ContractCommitmentPaymentUpfrontPercentage', 'PricingCurrencyContractCommitmentCost',
+            'ServiceProviderName'
         ) {
             $contractCommitmentsRawBlock | Should -Match "(?m)^\s+$_\s*:"
+        }
+
+        It 'Does NOT include unprefixed column <_>' -ForEach @(
+            'BenefitCategory', 'Created', 'DiscountPercentage', 'DurationType',
+            'FulfillmentInterval', 'LastUpdated', 'LifecycleStatus', 'Model', 'OfferCategory',
+            'PaymentInterval', 'PaymentModel', 'PaymentUpfrontPercentage'
+        ) {
+            $contractCommitmentsRawBlock | Should -Not -Match "(?m)^\s+$_\s*:"
+        }
+
+        It 'Defines exactly 30 FOCUS columns' {
+            ([regex]::Matches($contractCommitmentsRawBlock, '(?m)^\s+(?!x_)\w+\s*:')).Count | Should -Be 30
         }
     }
 
@@ -412,12 +428,20 @@ Describe 'HubsFocusSchemas' {
         }
 
         It 'ContractCommitments_final_v1_4 includes FOCUS 1.4 column <_>' -ForEach @(
-            'BenefitCategory', 'ContractCommitmentApplicability', 'Created',
-            'DiscountPercentage', 'DurationType', 'FulfillmentInterval', 'LastUpdated',
-            'LifecycleStatus', 'Model', 'OfferCategory', 'PaymentInterval', 'PaymentModel',
-            'PaymentUpfrontPercentage', 'PricingCurrencyContractCommitmentCost'
+            'ContractCommitmentApplicability', 'ContractCommitmentBenefitCategory',
+            'ContractCommitmentCreated', 'ContractCommitmentDescription',
+            'ContractCommitmentDiscountPercentage', 'ContractCommitmentDurationType',
+            'ContractCommitmentFulfillmentInterval', 'ContractCommitmentLastUpdated',
+            'ContractCommitmentLifecycleStatus', 'ContractCommitmentModel',
+            'ContractCommitmentOfferCategory', 'ContractCommitmentPaymentInterval',
+            'ContractCommitmentPaymentModel', 'ContractCommitmentPaymentUpfrontPercentage',
+            'PricingCurrencyContractCommitmentCost', 'ServiceProviderName'
         ) {
             $contractCommitmentsFinalV14Block | Should -Match "(?m)^\s+$_\s*:"
+        }
+
+        It 'ContractCommitments_final_v1_4 defines exactly 30 FOCUS columns' {
+            ([regex]::Matches($contractCommitmentsFinalV14Block, '(?m)^\s+(?!x_)\w+\s*:')).Count | Should -Be 30
         }
     }
 
