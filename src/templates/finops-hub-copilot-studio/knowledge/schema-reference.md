@@ -1,10 +1,10 @@
-# KQL column reference for Costs_v1_2()
+# KQL column reference for Costs_v1_4()
 
-This document lists all columns available in the `Costs_v1_2()` function in the FinOps Hub database.
+This document lists all columns available in the `Costs_v1_4()` function in the FinOps Hub database.
 
 **IMPORTANT: This is a SCHEMA REFERENCE for constructing KQL queries. Do NOT use values from this document to answer questions. Always EXECUTE a KQL query to get actual data.**
 
-Based on FOCUS 1.2 (FinOps Open Cost and Usage Specification). Columns with `x_` prefix are Azure extensions.
+Based on FOCUS 1.4 (FinOps Open Cost and Usage Specification). Columns with `x_` prefix are Azure extensions.
 
 ## Time
 
@@ -46,6 +46,7 @@ Relationship: `ListCost >= ContractedCost >= EffectiveCost` for discounted usage
 | BillingCurrency | string | Currency code (e.g. CAD, USD, EUR). |
 | x_BillingAccountAgreement | string | Agreement type: "EA", "MCA", "MOSP". |
 | x_BillingAccountId | string | Numeric billing account ID. |
+| x_BillingAccountName | string | Numeric billing account display name (source value before FOCUS normalization). |
 | x_BillingProfileId | string | MCA billing profile ID. Not used for EA. |
 | x_BillingProfileName | string | MCA billing profile name. |
 | x_AccountId | string | EA enrollment account ID. |
@@ -61,6 +62,11 @@ Relationship: `ListCost >= ContractedCost >= EffectiveCost` for discounted usage
 | x_CostAllocationRuleName | string | Cost allocation rule name. |
 | x_CostCategories | dynamic | Cost categories from allocation rules. |
 | x_Project | string | Project label from allocation or tags. |
+| AllocatedResourceId | string | (FOCUS 1.3+) ARM path of the resource the cost was allocated to, if split-allocated. Null for hubs today (no Cost Management source). |
+| AllocatedResourceName | string | (FOCUS 1.3+) Display name of the allocated-to resource. Null for hubs today. |
+| AllocatedMethodId | string | (FOCUS 1.3+) Identifier of the allocation method/rule applied. Null for hubs today. |
+| AllocatedMethodDetails | dynamic | (FOCUS 1.3+) JSON metadata describing the allocation method. Null for hubs today. |
+| AllocatedTags | dynamic | (FOCUS 1.3+) Tags associated with the allocation target (JSON). Null for hubs today. |
 
 ## Resource
 
@@ -102,7 +108,7 @@ To handle in queries, use a synthetic category:
 
 ```kusto
 | extend Category = iif(isempty(x_SkuMeterCategory),
-    iif(x_PublisherCategory == "Vendor", strcat("Vendor: ", PublisherName),
+    iif(x_PublisherCategory == "Vendor", strcat("Vendor: ", ServiceProviderName),
     iif(CommitmentDiscountStatus == "Unused" and CommitmentDiscountType == "Savings Plan", "Savings Plan Unused",
     iif(isnotempty(ServiceName), ServiceName,
     "Uncategorized"))),
@@ -128,6 +134,27 @@ To handle in queries, use a synthetic category:
 | x_CommitmentDiscountUtilizationAmount | real | Utilized amount. |
 | x_CommitmentDiscountUtilizationPotential | real | Maximum potential utilization. |
 | x_AmortizationClass | string | "Amortized Charge" or "Principal". |
+| CommitmentProgramEligibilityDetails | dynamic | (FOCUS 1.4+) JSON metadata describing eligibility for provider commitment programs. Null for hubs today (no Cost Management source). |
+
+## Contracts
+
+| Column | Type | Usage |
+|--------|------|-------|
+| ContractApplied | dynamic | (FOCUS 1.3+) JSON array of contract commitments applied to this row. Null for hubs today (no Cost Management source). See `ContractCommitments()` for the referenced metadata — no data until a FOCUS 1.4 export ships. |
+| ContractCommitmentBenefitCategory | string | (FOCUS 1.4+) Category of benefit granted by the contract commitment. Null for hubs today. |
+| ContractCommitmentCreated | datetime | (FOCUS 1.4+) When the contract commitment was created. Null for hubs today. |
+| ContractCommitmentDiscountPercentage | real | (FOCUS 1.4+) Discount percentage granted by the contract commitment. Null for hubs today. |
+| ContractCommitmentDurationType | string | (FOCUS 1.4+) Duration type of the contract commitment (e.g. fixed, recurring). Null for hubs today. |
+| ContractCommitmentFulfillmentInterval | string | (FOCUS 1.4+) Interval over which the commitment is fulfilled. Null for hubs today. |
+| ContractCommitmentLastUpdated | datetime | (FOCUS 1.4+) When the contract commitment was last updated. Null for hubs today. |
+| ContractCommitmentLifecycleStatus | string | (FOCUS 1.4+) Lifecycle status of the contract commitment. Null for hubs today. |
+| ContractCommitmentModel | string | (FOCUS 1.4+) Commitment model (e.g. spend-based, usage-based). Null for hubs today. |
+| ContractCommitmentOfferCategory | string | (FOCUS 1.4+) Offer category for the contract commitment. Null for hubs today. |
+| ContractCommitmentPaymentInterval | string | (FOCUS 1.4+) Payment interval for the contract commitment. Null for hubs today. |
+| ContractCommitmentPaymentModel | string | (FOCUS 1.4+) Payment model for the contract commitment. Null for hubs today. |
+| ContractCommitmentPaymentUpfrontPercentage | real | (FOCUS 1.4+) Percentage of the contract commitment paid upfront. Null for hubs today. |
+
+> All `ContractCommitment*` columns above are null for hubs today (no Cost Management source) and are duplicated as row-level fields per FOCUS 1.4. For full contract commitment metadata, use `ContractCommitments()` — no data until Microsoft Cost Management ships a FOCUS 1.4 export (not yet available).
 
 ## Capacity reservation
 
@@ -162,15 +189,17 @@ To handle in queries, use a synthetic category:
 | x_PricingBlockSize | real | Block size for pricing. |
 | x_PricingUnitDescription | string | Original CM unit description with block size. |
 
-## Publisher
+## Provider
 
 | Column | Type | Usage |
 |--------|------|-------|
 | x_PublisherCategory | string | "Cloud Provider" (first-party) or "Vendor" (marketplace). |
-| PublisherName | string | Publisher name (e.g. "Microsoft"). |
+| ServiceProviderName | string | Vendor that makes the service available (Marketplace publisher or Microsoft). Never null. Replaces the removed `PublisherName`/`ProviderName`. |
+| HostProviderName | string | Infrastructure provider that hosts the resource. Always "Microsoft" for Cost Management data. Replaces the removed `ProviderName`. |
 | x_PublisherId | string | Publisher as billed by. |
-| ProviderName | string | Always "Microsoft" for Azure. |
 | InvoiceIssuerName | string | Entity that issued the invoice. |
+
+> **Removed in FOCUS 1.4**: `ProviderName` and `PublisherName` no longer exist in `Costs_v1_4()`. Use `ServiceProviderName` and `HostProviderName` instead — see above. Original source values are preserved in `x_SourceValues` for auditing.
 
 ## Geography
 
@@ -180,6 +209,7 @@ To handle in queries, use a synthetic category:
 | RegionName | string | e.g. "Canada Central". |
 | AvailabilityZone | string | Availability zone, if applicable. |
 | x_SkuRegion | string | SKU region from CM. Different format than RegionId. |
+| x_Location | string | Original location string (GCP source data). Blank for Azure. |
 
 ## Tags
 
@@ -218,6 +248,7 @@ To handle in queries, use a synthetic category:
 | Column | Type | Usage |
 |--------|------|-------|
 | InvoiceId | string | FOCUS invoice identifier. |
+| InvoiceDetailId | string | (FOCUS 1.4+) Identifier of the invoice line item associated with this row. Null for hubs today (no Cost Management source). Join to `InvoiceDetails()` — no data until a FOCUS 1.4 export ships. |
 | x_InvoiceIssuerId | string | Invoice issuer ID. |
 | x_InvoiceSectionId | string | MCA invoice section / EA department ID. |
 | x_InvoiceSectionName | string | MCA invoice section / EA department name. |
@@ -295,4 +326,4 @@ To handle in queries, use a synthetic category:
 | x_SourceType | string | Type of data source. |
 | x_SourceVersion | string | Schema version of source data. |
 | x_SourceChanges | string | Changes applied during ingestion. |
-| x_SourceValues | dynamic | Original source values before transformation (JSON). |
+| x_SourceValues | dynamic | Original source values before transformation (JSON), including removed columns like `ProviderName`/`PublisherName`. |

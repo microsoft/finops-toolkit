@@ -28,7 +28,8 @@ let commitmentRows = materialize(
     | where isnotempty(CommitmentDiscountId)
     | extend x_CommitmentDiscountUtilizationPotential = case(
         ChargeCategory == 'Purchase', toreal(0),
-        ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), toreal(EffectiveCost),
+        // HostProviderName (FOCUS 1.4) = infrastructure provider; replaces the removed ProviderName for "is this Microsoft-billed data" checks
+        HostProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), toreal(EffectiveCost),
         CommitmentDiscountCategory == 'Usage', toreal(ConsumedQuantity),
         CommitmentDiscountCategory == 'Spend', toreal(EffectiveCost),
         toreal(0))
