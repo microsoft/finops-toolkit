@@ -50,7 +50,7 @@ Reservation and savings plan utilization, joining commitment discounts to the re
 
 ### ContractCommitments()
 
-(FOCUS 1.4+) Provider-confirmed contract commitment metadata — the dataset behind the `ContractApplied` JSON arrays on each row in `Costs()`. Key columns include `ContractCommitmentId`, `ContractCommitmentCategory` (Spend / Usage), `ContractCommitmentCost`, `ContractCommitmentQuantity`, `ContractCommitmentPeriodStart`, `ContractCommitmentPeriodEnd`, `ContractId`, `BillingCurrency`, `InvoiceIssuerName`, `PaymentModel`, `PaymentInterval`, `LifecycleStatus`, `DurationType`. Note: returns no data until Microsoft Cost Management ships a FOCUS 1.4 export (not yet available).
+(FOCUS 1.4+) Provider-confirmed contract commitment metadata — the dataset behind the `ContractApplied` JSON arrays on each row in `Costs()`. Key columns include `ContractCommitmentId`, `ContractCommitmentCategory` (Spend / Usage), `ContractCommitmentCost`, `ContractCommitmentQuantity`, `ContractCommitmentPeriodStart`, `ContractCommitmentPeriodEnd`, `ContractId`, `BillingCurrency`, `InvoiceIssuerName`, `ContractCommitmentPaymentModel`, `ContractCommitmentPaymentInterval`, `ContractCommitmentLifecycleStatus`, `ContractCommitmentDurationType`. Note: returns no data until Microsoft Cost Management ships a FOCUS 1.4 export (not yet available).
 
 ### BillingPeriods()
 

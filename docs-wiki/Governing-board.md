@@ -72,12 +72,14 @@ The governing board consists of the following representative seats:
 | Engineering                   | Brett Wilson        | UTC-8     |
 | FinOps Certified Professional | Dirk Brinkmann      | UTC+1     |
 | Community                     | Sonia Cuff          | UTC+10    |
-| Product (External)            | Michael Flanakin    | UTC-8     |
-| Consulting (External)         | Roland Krummenacher | UTC+1     |
+| Product (external)            | Michael Flanakin    | UTC-8     |
+| Consulting (external)         | Roland Krummenacher | UTC+1     |
+| Finance (external)            | Karl Kraft          | UTC-6     |
 | Marketing                     | Vacant              |           |
-| External                      | Vacant              |           |
-| External                      | Vacant              |           |
-| External                      | Vacant              |           |
+| Leadership (exec)             | Vacant              |           |
+| Business                      | Vacant              |           |
+| Procurement                   | Vacant              |           |
+| Sustainability                | Vacant              |           |
 | Advisory Council              | Vacant              |           |
 
 Individuals must meet the following criteria in order to attain a board seat:

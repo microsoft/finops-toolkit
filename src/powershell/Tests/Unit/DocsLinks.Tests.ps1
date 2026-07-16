@@ -102,6 +102,46 @@ BeforeDiscovery {
     $mslearnFiles = Get-MarkdownFiles $mslearnRoot $mslearnRoot
     $mslearnInternalLinks = Get-InternalMdLinks $mslearnFiles
     $mslearnUrls = Get-MarkdownUrls $mslearnFiles
+    $knownBrokenExternalUrls = @(
+        'https://azure.microsoft.com/products/managed-disks',
+        'https://www.finops.org/framework/capabilities/onboarding-workloads/',
+        'https://www.finops.org/framework/capabilities/benchmarking',
+        'https://aka.ms/finops/hubs/settings-schema'
+    )
+    # Match incomplete ccmstorageprod URLs (no domain suffix), while allowing valid hosts like ccmstorageprod.blob.core.windows.net.
+    $incompletePlaceholderUrlPattern = 'https://ccmstorageprod(?!\.)'
+    $knownBrokenExternalUrlMatches = @()
+    $incompleteExternalUrlMatches = @()
+    foreach ($file in $mslearnFiles)
+    {
+        $cleanContent = Remove-HtmlComments $file.Content
+        foreach ($url in $knownBrokenExternalUrls)
+        {
+            $urlMatches = [regex]::Matches($cleanContent, [regex]::Escape($url))
+            foreach ($match in $urlMatches)
+            {
+                $knownBrokenExternalUrlMatches += @{
+                    SourceFile = $file.FullName
+                    SourceRel  = $file.RelativePath
+                    Url        = $url
+                    Pattern    = "^$([regex]::Escape($url))$"
+                    LineNumber = ($cleanContent.Substring(0, $match.Index) -split "`n").Count
+                }
+            }
+        }
+
+        $placeholderMatches = [regex]::Matches($cleanContent, $incompletePlaceholderUrlPattern)
+        foreach ($match in $placeholderMatches)
+        {
+            $incompleteExternalUrlMatches += @{
+                SourceFile = $file.FullName
+                SourceRel  = $file.RelativePath
+                Url        = $match.Value
+                Pattern    = $incompletePlaceholderUrlPattern
+                LineNumber = ($cleanContent.Substring(0, $match.Index) -split "`n").Count
+            }
+        }
+    }
     #endregion
 
     #region docs (Jekyll site)
@@ -246,16 +286,56 @@ Describe 'Documentation links' {
     }
 
     Context 'docs-mslearn: No learn.microsoft.com URLs' {
-
-        It 'Should not contain https://learn.microsoft.com links: <SourceRel>:<LineNumber>' -ForEach ($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com' }) {
-            $Url | Should -Not -Match 'learn\.microsoft\.com' -Because "links in docs-mslearn should use root-relative paths (e.g., /azure/...) instead of full URLs since docs are deployed to learn.microsoft.com (${SourceRel}:${LineNumber})"
+        $learnMicrosoftLinks = @($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com' })
+        if ($learnMicrosoftLinks.Count -gt 0) {
+            It 'Should not contain https://learn.microsoft.com links: <SourceRel>:<LineNumber>' -ForEach $learnMicrosoftLinks {
+                $Url | Should -Not -Match 'learn\.microsoft\.com' -Because "links in docs-mslearn should use root-relative paths (e.g., /azure/...) instead of full URLs since docs are deployed to learn.microsoft.com (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain https://learn.microsoft.com links' {
+                $learnMicrosoftLinks | Should -BeNullOrEmpty -Because 'docs-mslearn should not contain fully qualified learn.microsoft.com URLs'
+            }
         }
     }
 
     Context 'docs-mslearn: No language locale in MS Learn links' {
+        $localizedMsLearnLinks = @($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' })
+        if ($localizedMsLearnLinks.Count -gt 0) {
+            It 'Should not contain language locale in URL: <SourceRel>:<LineNumber> <Url>' -ForEach $localizedMsLearnLinks {
+                $Url | Should -Not -Match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' -Because "MS Learn links should not include language locale segments like /en-us/ (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain language locale in MS Learn links' {
+                $localizedMsLearnLinks | Should -BeNullOrEmpty -Because 'MS Learn links should not include language locale segments like /en-us/'
+            }
+        }
+    }
 
-        It 'Should not contain language locale in URL: <SourceRel>:<LineNumber> <Url>' -ForEach ($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' }) {
-            $Url | Should -Not -Match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' -Because "MS Learn links should not include language locale segments like /en-us/ (${SourceRel}:${LineNumber})"
+    Context 'docs-mslearn: No known broken external URLs' {
+        if ($knownBrokenExternalUrlMatches.Count -gt 0) {
+            It 'Should not contain known broken external URL: <SourceRel>:<LineNumber> <Url>' -ForEach $knownBrokenExternalUrlMatches {
+                $Url | Should -Not -Match $Pattern -Because "known broken external URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain known broken external URLs' {
+                $knownBrokenExternalUrlMatches | Should -BeNullOrEmpty -Because 'docs-mslearn should not contain any known broken external URLs'
+            }
+        }
+    }
+
+    Context 'docs-mslearn: No incomplete placeholder external URLs' {
+        if ($incompleteExternalUrlMatches.Count -gt 0) {
+            It 'Should not contain incomplete placeholder URL: <SourceRel>:<LineNumber> <Url>' -ForEach $incompleteExternalUrlMatches {
+                $Url | Should -Not -Match $Pattern -Because "incomplete placeholder URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain incomplete placeholder external URLs' {
+                $incompleteExternalUrlMatches | Should -BeNullOrEmpty -Because 'docs-mslearn should not contain placeholder external URLs'
+            }
         }
     }
 
