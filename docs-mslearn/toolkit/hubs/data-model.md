@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 07/16/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -736,7 +736,8 @@ Columns in the **Recommendations** managed dataset include:
 | x_EffectiveCostBefore       | Real     | Source: Microsoft EA+MCA 2023-05-01.                          |
 | x_EffectiveCostSavings      | Real     | Source: Microsoft EA+MCA 2023-05-01.                          |
 | x_IngestionTime             | Datetime | Source: Hubs add-on.                                          |
-| x_RecommendationCategory    | String   | Source: Hubs recommendations.                                 |
+| x_RecommendationCategory    | String   | Source: Hubs recommendations. Normalized to the hub taxonomy. |
+| x_RecommendationSubcategory | String   | Source: Hubs add-on. Normalized to the hub taxonomy.          |
 | x_RecommendationDate        | Datetime | Source: Microsoft EA+MCA 2023-05-01.                          |
 | x_RecommendationDescription | String   | Source: Hubs add-on.                                          |
 | x_RecommendationDetails     | Dynamic  | Contains source-specific metadata. See notes below the table. |
@@ -747,7 +748,80 @@ Columns in the **Recommendations** managed dataset include:
 | x_SourceType                | String   | Source: Hubs add-on.                                          |
 | x_SourceVersion             | String   | Source: Hubs add-on.                                          |
 
-The **x_RecommendationDetails** column is a dynamic object that contains source-specific metadata. For Cost Management reservation recommendations, it includes commitment discount details like scope, term, SKU, and region. For hubs recommendations, it includes the recommendation provider, solution, type ID, resource type, and any additional properties from the query.
+The **x_RecommendationDetails** column is a dynamic object that contains source-specific metadata. For Cost Management reservation recommendations, it includes commitment discount details like scope, term, SKU, and region. For hubs recommendations, it includes the recommendation provider, solution, subcategory, type ID, resource type, and any additional properties from the query.
+
+The **x_RecommendationCategory** and **x_RecommendationSubcategory** columns classify each recommendation against a fixed hub taxonomy so reports can group across providers consistently. The lists below are canonical for the FOCUS 1.4 hub schema: new values may be added in a future release, but existing values won't be renamed or removed without a schema version bump, so reports can safely hard-code filters and slicers against them.
+
+Both columns always have a value. Source data is normalized on ingestion using the following rules:
+
+- Source category values are mapped to the allowed values below (see the source mapping table). The comparison is case-insensitive, but the stored value always uses the exact casing below.
+- The source subcategory is read from the `x_RecommendationSubcategory` property of **x_RecommendationDetails** and only passes through when it's an allowed value that belongs to the resolved category. A subcategory that contradicts the category is treated as a source defect and becomes `Other`.
+- If the source category is unknown but the subcategory is a valid taxonomy value, the category is backfilled from the subcategory's parent.
+- Anything still unresolved becomes `Other` for both columns. A source that explicitly sets `Other` is indistinguishable from an unmapped value.
+
+Source category values map to the hub taxonomy as follows:
+
+| Source                | Source value               | x_RecommendationCategory |
+| --------------------- | -------------------------- | ------------------------ |
+| Azure Advisor         | Cost                       | Cost                     |
+| Azure Advisor         | HighAvailability           | Reliability              |
+| Azure Advisor         | OperationalExcellence      | Operational Excellence   |
+| Azure Advisor         | Performance                | Performance              |
+| Azure Advisor         | Security                   | Security                 |
+| Cost Management       | ReservationRecommendations | Cost                     |
+| FinOps hubs (queries) | Cost                       | Cost                     |
+
+Allowed **x_RecommendationCategory** values: `Cost`, `Operational Excellence`, `Performance`, `Reliability`, `Security`, and `Other` (fallback when the source category can't be mapped).
+
+Allowed **x_RecommendationSubcategory** values, grouped by parent category:
+
+- Cost
+  - Autoscaling
+  - Commitment Discount Coverage (which commitments to buy)
+  - Commitment Discount Utilization (paid-for commitment hours not being consumed)
+  - Idle Resources (resources doing no useful work, including stopped, unattached, and orphaned resources; remediation is stop, deallocate, or delete)
+  - License Optimization (bring-your-own-license benefits like Azure Hybrid Benefit)
+  - Low Utilization (running resources that are underused relative to their size; remediation is resize or consolidate)
+  - Negotiated Discounts
+  - Region Placement
+  - Right-Sizing (size down to reduce cost; sizing up to meet demand is Resource Sizing under Performance)
+  - Scheduling
+  - Service Selection and Architecture
+  - SKU Modernization (move off retired or legacy SKUs and service tiers)
+  - Spot Eligibility
+  - Storage Tiering (move data to a cheaper storage tier or SKU)
+- Operational Excellence
+  - Automation and Process
+  - Best Practices
+  - Governance and Policy
+  - Observability
+  - Operational Hygiene
+  - Quotas and Limits (quota recommendations always land here, even when quota exhaustion has reliability consequences)
+  - Resource Consistency
+- Performance
+  - Performance Tuning
+  - Resource Configuration
+  - Resource Sizing (size up to meet performance needs; sizing down for cost is Right-Sizing under Cost)
+  - Scaling and Capacity (scale out for throughput; scaling down to save is Autoscaling under Cost)
+  - Throughput and Latency
+  - Workload Placement
+- Reliability
+  - Backup Configuration (backup availability: RPO, retention, and geo-redundancy; backup confidentiality like encryption is Data Protection under Security)
+  - Capacity (capacity headroom for failover and demand spikes)
+  - Disaster Recovery
+  - High Availability
+  - Service Retirement
+  - Zone Resiliency
+- Security
+  - Compliance Alignment
+  - Data Protection
+  - Identity and Access
+  - Network Security
+  - Threat Detection
+  - Vulnerability Exposure
+- Other (fallback when no specific subcategory applies)
+
+Common recommendation types that don't have a dedicated subcategory yet (for example, data transfer and egress optimization, cost allocation and tagging hygiene, and marketplace optimization) intentionally fall back to `Other` today. They're candidates for future additions once a recommendation source in the toolkit produces them; suggest more in the [issue tracker](https://github.com/microsoft/finops-toolkit/issues).
 
 <br>
 

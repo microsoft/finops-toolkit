@@ -63,6 +63,7 @@ _Released June 2026_
   - Added three new FOCUS 1.4 datasets: `ContractCommitments` (30 columns, using FOCUS 1.4 specification column IDs like `ContractCommitmentBenefitCategory` and `ContractCommitmentLifecycleStatus`), `BillingPeriods` (6 columns), and `InvoiceDetails` (22 columns), each with tables and versioned and unversioned functions (for example, `ContractCommitments()` and `ContractCommitments_v1_4()`).
     - These datasets remain empty until Cost Management supports exporting FOCUS 1.4 data.
   - Added a static test harness for the hub database setup scripts that verifies build registration, schema version consistency, and update policy state to catch regressions before release.
+  - Added `x_RecommendationCategory` and `x_RecommendationSubcategory` enrichment columns to the `Recommendations` dataset, normalized to a fixed hub taxonomy (Cost, Operational Excellence, Performance, Reliability, Security). Unused commitment capacity maps to `Commitment Discount Utilization`; idle and orphaned provisioned resources map to `Idle Resources`. See [data model](hubs/data-model.md#recommendations-managed-dataset) for the allowed values.
 - **Changed**
   - Retargeted unversioned `Costs()`, `Prices()`, `CommitmentDiscountUsage()`, `Recommendations()`, and `Transactions()` aliases to their `_v1_4` counterparts.
     - This is **not** a breaking change if you are following the prescribed guidance of using versioned functions.
