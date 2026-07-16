@@ -3,7 +3,7 @@ title: Configure FinOps hubs recommendations
 description: Learn about the recommendations available in FinOps hubs and how to add custom recommendations.
 author: flanakin
 ms.author: micflan
-ms.date: 07/15/2026
+ms.date: 07/16/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
