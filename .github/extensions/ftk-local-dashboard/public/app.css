@@ -601,6 +601,32 @@ td.truncate-hint { text-decoration: underline dotted; text-decoration-color: var
   background: color-mix(in srgb, var(--accent) 85%, #000);
 }
 
+/* ---------- Settings dialog ---------- */
+#settings-dialog {
+  border: 1px solid var(--grid);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  color: inherit;
+  padding: 0;
+  width: min(440px, 96vw);
+}
+#settings-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+.settings-body { padding: 4px 18px 6px; display: flex; flex-direction: column; gap: 12px; }
+.settings-row { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.settings-row input {
+  border: 1px solid var(--grid);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: 13px/1.4 ui-monospace, Menlo, Consolas, monospace;
+  padding: 7px 9px;
+}
+.settings-row input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.settings-hint { margin: 0; font-size: 11.5px; color: var(--muted); }
+
 /* ---------- KQL result table ---------- */
 .kql-result {
   border-top: 1px solid var(--grid);

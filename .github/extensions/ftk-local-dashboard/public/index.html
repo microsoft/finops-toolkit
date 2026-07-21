@@ -20,6 +20,7 @@
           <button data-preset="all" class="active">All</button>
         </div>
         <button id="refresh" class="btn" title="Re-run queries">↻ Refresh</button>
+        <button id="settings-open" class="btn" title="Connection settings" aria-haspopup="dialog">⚙ Settings</button>
       </div>
     </header>
 
@@ -60,6 +61,30 @@
         <div class="kql-dialog-footer">
           <button id="kql-copy" class="btn" type="button">Copy</button>
           <button id="kql-run" class="btn btn-primary" type="button">Run</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="settings-dialog" aria-modal="true" aria-label="Connection settings">
+      <div class="kql-dialog-inner">
+        <div class="kql-dialog-header">
+          <h3>Connection settings</h3>
+          <button id="settings-close" class="btn" type="button" aria-label="Close dialog">✕</button>
+        </div>
+        <div class="settings-body">
+          <label class="settings-row" for="settings-cluster">
+            <span>Cluster URI</span>
+            <input id="settings-cluster" type="text" spellcheck="false" autocomplete="off" placeholder="http://localhost:8082" />
+          </label>
+          <label class="settings-row" for="settings-database">
+            <span>Database</span>
+            <input id="settings-database" type="text" spellcheck="false" autocomplete="off" placeholder="Hub" />
+          </label>
+          <p class="settings-hint">Matches the port you mapped when starting the emulator container (e.g. <code>docker run -p 8083:8080 …</code>). Remembered for future dashboard opens.</p>
+        </div>
+        <p id="settings-error" class="kql-dialog-error" role="alert"></p>
+        <div class="kql-dialog-footer">
+          <button id="settings-save" class="btn btn-primary" type="button">Save &amp; reconnect</button>
         </div>
       </div>
     </dialog>

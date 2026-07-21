@@ -7,7 +7,9 @@
 // layer (kusto.mjs) against the emulator's Hub database.
 
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, mkdir, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { joinSession, createCanvas, CanvasError } from "@github/copilot-sdk/extension";
 import { runQuery, getDashboard, getTokenomics, getAllocation, getRate, getUsage, getAnomaly } from "./kusto.mjs";
 
@@ -21,8 +23,44 @@ const GETTERS = {
 };
 
 const PUBLIC_DIR = new URL("./public/", import.meta.url);
-const DEFAULT_CLUSTER = "http://localhost:8082";
-const DEFAULT_DB = "Hub";
+const HARDCODED_CLUSTER = "http://localhost:8082";
+const HARDCODED_DB = "Hub";
+
+// Per-user preference file: the emulator's port/database is a local dev
+// choice (docker `-p <port>:8080`), not a repo-wide constant, so it's
+// remembered across sessions instead of hardcoded. See create-canvas skill's
+// "State model" — per-user preference, not per-session/instance.
+const CONFIG_DIR = join(process.env.COPILOT_HOME || join(homedir(), ".copilot"), "extensions", "ftk-local-dashboard", "artifacts");
+const CONFIG_FILE = join(CONFIG_DIR, "config.json");
+
+async function loadPersistedConfig() {
+  try {
+    const raw = await readFile(CONFIG_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    return {
+      clusterUri: typeof parsed.clusterUri === "string" ? parsed.clusterUri : undefined,
+      database: typeof parsed.database === "string" ? parsed.database : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+
+async function savePersistedConfig(clusterUri, database) {
+  try {
+    await mkdir(CONFIG_DIR, { recursive: true });
+    await writeFile(CONFIG_FILE, JSON.stringify({ clusterUri, database }, null, 2));
+  } catch (err) {
+    console.error("[ftk-local-dashboard]", "Could not persist config", err);
+  }
+}
+
+const persisted = await loadPersistedConfig();
+
+// Resolution order: explicit `open` input (highest) > remembered last choice
+// > FTK_LOCAL_CLUSTER_URI/FTK_LOCAL_DATABASE env vars > hardcoded fallback.
+const DEFAULT_CLUSTER = persisted.clusterUri || process.env.FTK_LOCAL_CLUSTER_URI || HARDCODED_CLUSTER;
+const DEFAULT_DB = persisted.database || process.env.FTK_LOCAL_DATABASE || HARDCODED_DB;
 
 const STATIC = {
   "/": ["index.html", "text/html; charset=utf-8"],
@@ -82,8 +120,31 @@ async function handleRequest(entry, req, res) {
     return;
   }
 
-  if (path === "/api/config") {
+  if (path === "/api/config" && req.method === "GET") {
     sendJson(res, 200, { clusterUri: entry.clusterUri, database: entry.database, instanceId: entry.instanceId });
+    return;
+  }
+
+  // User-driven reconnect from the Settings dialog: update this instance's
+  // live connection and remember it as the default for future opens.
+  if (path === "/api/config" && req.method === "POST") {
+    let body = "";
+    for await (const chunk of req) body += chunk;
+    let clusterUri, database;
+    try { ({ clusterUri, database } = JSON.parse(body)); } catch { sendJson(res, 400, { error: "Invalid JSON" }); return; }
+    clusterUri = typeof clusterUri === "string" ? clusterUri.trim() : "";
+    database = typeof database === "string" && database.trim() ? database.trim() : "Hub";
+    if (!clusterUri) { sendJson(res, 400, { error: "clusterUri is required" }); return; }
+    entry.clusterUri = clusterUri;
+    entry.database = database;
+    await savePersistedConfig(clusterUri, database);
+    sendJson(res, 200, { clusterUri, database, instanceId: entry.instanceId });
+    return;
+  }
+
+  if (path === "/api/config") {
+    res.writeHead(405, { "Content-Type": "text/plain" });
+    res.end("Method not allowed");
     return;
   }
 
@@ -230,7 +291,7 @@ await joinSession({
       inputSchema: {
         type: "object",
         properties: {
-          clusterUri: { type: "string", description: "Base URI of the Kusto emulator. Default http://localhost:8082." },
+          clusterUri: { type: "string", description: `Base URI of the Kusto emulator (e.g. http://localhost:8083 if your container maps that port). Remembered across sessions once set; otherwise falls back to FTK_LOCAL_CLUSTER_URI or ${HARDCODED_CLUSTER}.` },
           database: { type: "string", description: "Database name. Default Hub." },
         },
       },
@@ -294,6 +355,11 @@ await joinSession({
           // Reopen may carry updated connection input.
           entry.clusterUri = clusterUri;
           entry.database = database;
+        }
+        // An explicit clusterUri/database becomes the remembered default for
+        // future opens, so the port only needs to be set once per machine.
+        if (ctx.input?.clusterUri || ctx.input?.database) {
+          void savePersistedConfig(clusterUri, database);
         }
         return { title: "FinOps hub · local", url: entry.url, status: `${clusterUri} · ${database}` };
       },

@@ -1511,6 +1511,47 @@ function updateChrome() {
   }
 }
 
+/** Open the connection-settings dialog, prefilled from the current config. */
+function openSettingsDialog() {
+  el("settings-cluster").value = window.__cfg?.clusterUri || "";
+  el("settings-database").value = window.__cfg?.database || "";
+  el("settings-error").textContent = "";
+  el("settings-dialog").showModal();
+  el("settings-cluster").focus();
+}
+
+/** POST the edited connection settings, then reconnect and re-query. */
+async function saveSettings() {
+  const clusterUri = el("settings-cluster").value.trim();
+  const database = el("settings-database").value.trim();
+  if (!clusterUri) {
+    el("settings-error").textContent = "Cluster URI is required.";
+    return;
+  }
+  const btn = el("settings-save");
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Saving…";
+  try {
+    const res = await fetch("/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clusterUri, database: database || "Hub" }),
+    });
+    const body = await res.json();
+    if (!res.ok || body.error) throw new Error(body.error || "Save failed");
+    window.__cfg = body;
+    el("settings-dialog").close();
+    state.cache = {}; // stale data belongs to the old connection
+    load();
+  } catch (err) {
+    el("settings-error").textContent = err.message || "Could not save settings.";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
 function wireControls() {
   el("preset").addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-preset]");
@@ -1528,6 +1569,11 @@ function wireControls() {
     if (state.cache[state.tab]) delete state.cache[state.tab][cacheKey()]; // force re-query
     load();
   });
+
+  // Settings dialog controls
+  el("settings-open").addEventListener("click", openSettingsDialog);
+  el("settings-close").addEventListener("click", () => el("settings-dialog").close());
+  el("settings-save").addEventListener("click", saveSettings);
 
   // KQL dialog controls
   el("kql-close").addEventListener("click", () => el("kql-dialog").close());
