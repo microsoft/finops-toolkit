@@ -642,6 +642,7 @@ function switchTab(tabId, opts = {}) {
   const isTool = TOOL_TABS.has(tabId);
   el("preset").hidden = isTool;
   el("refresh").hidden = isTool;
+  el("app-footer").hidden = isTool;
   if (isTool) el("filter-bar").hidden = true;
   if (leavingMonaco && tabId !== "monaco") disposeMonacoEditor();
   if (!opts.skipHash) {
@@ -1555,25 +1556,15 @@ function renderAdxTab() {
   el("content").innerHTML = `
     <div class="tool-panel">
       <div class="tool-banner">
-        <strong>Experimental</strong> — the public
-        <a href="https://dataexplorer.azure.com" target="_blank" rel="noopener">Azure Data Explorer web UI</a>
+        <strong>Experimental</strong> — public
+        <a href="https://dataexplorer.azure.com" target="_blank" rel="noopener">ADX web UI</a>
         embedded per Microsoft's
-        <a href="https://learn.microsoft.com/en-us/kusto/api/monaco/host-web-ux-in-iframe" target="_blank" rel="noopener">iframe embedding guide ↗</a>.
-        That guide's auth handshake is built for authenticated Azure clusters — this dashboard
-        intentionally does <strong>not</strong> implement Entra ID/MSAL token exchange (this is a
-        local, unauthenticated emulator, and this extension never touches auth).
+        <a href="https://learn.microsoft.com/en-us/kusto/api/monaco/host-web-ux-in-iframe" target="_blank" rel="noopener">iframe guide ↗</a>
+        — no Entra ID auth wired up (<code>${esc(clusterHint)}</code> needs none), so use
+        <a href="https://dataexplorer.azure.com" target="_blank" rel="noopener">open in a new tab ↗</a>
+        if the frame below stays blank.
+        <span id="adx-status" class="tool-status-inline"></span>
       </div>
-      <p class="tool-hint">
-        Your local cluster (<code>${esc(clusterHint)}</code>) needs no token, so the simplest working
-        path is to
-        <a href="https://dataexplorer.azure.com" target="_blank" rel="noopener" class="btn btn-primary">open the ADX web UI in a new tab ↗</a>
-        and add a connection to <code>${esc(clusterHint)}</code> there directly.
-      </p>
-      <p class="tool-status" id="adx-status">Loading the embedded iframe below — note that
-        <code>f-IFrameAuth=true</code> is required for embedding and tells the web UI to
-        <strong>suppress its own sign-in redirect</strong> and instead wait for this page to answer
-        a <code>getToken</code> request. Since we don't implement that handshake, expect the frame
-        to stay in a connecting/blank state rather than show a normal sign-in screen.</p>
       <iframe id="adx-iframe" class="adx-iframe" src="${esc(iframeSrc)}" title="Azure Data Explorer web UI"></iframe>
     </div>
   `;
@@ -1584,9 +1575,7 @@ function renderAdxTab() {
       if (event.origin !== "https://dataexplorer.azure.com") return;
       if (event.data && event.data.type === "getToken") {
         const statusEl = el("adx-status");
-        if (statusEl) {
-          statusEl.textContent = `The embedded iframe just requested an auth token (scope: ${esc(String(event.data.scope || ""))}) — this experiment doesn't wire up Entra ID auth, so authenticated actions in the frame won't work. Use "Open in a new tab" above instead.`;
-        }
+        if (statusEl) statusEl.textContent = `· requested a token (scope: ${esc(String(event.data.scope || ""))}), unanswered`;
       }
     });
   }
