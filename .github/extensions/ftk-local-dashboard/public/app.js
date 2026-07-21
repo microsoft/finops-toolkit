@@ -1569,8 +1569,11 @@ function renderAdxTab() {
         <a href="https://dataexplorer.azure.com" target="_blank" rel="noopener" class="btn btn-primary">open the ADX web UI in a new tab ↗</a>
         and add a connection to <code>${esc(clusterHint)}</code> there directly.
       </p>
-      <p class="tool-status" id="adx-status">Loading the embedded iframe below (best-effort — it will
-        likely show its own sign-in/connect screen since no auth token is supplied here)…</p>
+      <p class="tool-status" id="adx-status">Loading the embedded iframe below — note that
+        <code>f-IFrameAuth=true</code> is required for embedding and tells the web UI to
+        <strong>suppress its own sign-in redirect</strong> and instead wait for this page to answer
+        a <code>getToken</code> request. Since we don't implement that handshake, expect the frame
+        to stay in a connecting/blank state rather than show a normal sign-in screen.</p>
       <iframe id="adx-iframe" class="adx-iframe" src="${esc(iframeSrc)}" title="Azure Data Explorer web UI"></iframe>
     </div>
   `;
