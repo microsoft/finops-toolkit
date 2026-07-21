@@ -624,15 +624,26 @@ function kpiThreshold(pct, greenMax, amberMax) {
   return "threshold-red";
 }
 
-const VALID_TABS = ["overview", "allocation", "rate", "usage", "anomaly", "tokenomics"];
+const VALID_TABS = ["overview", "allocation", "rate", "usage", "anomaly", "tokenomics", "monaco", "adx"];
+
+// "Tool" tabs are experiments that don't follow the KPI dashboard pipeline
+// (no preset/filter-driven queries, no response caching) — they render their
+// own surface and manage their own state.
+const TOOL_TABS = new Set(["monaco", "adx"]);
 
 function switchTab(tabId, opts = {}) {
   if (state.loading || tabId === state.tab) return;
+  const leavingMonaco = state.tab === "monaco";
   state.tab = tabId;
   [...el("tabs").querySelectorAll("button")].forEach((b) => {
     b.classList.toggle("active", b.dataset.tab === tabId);
     b.setAttribute("aria-selected", b.dataset.tab === tabId ? "true" : "false");
   });
+  const isTool = TOOL_TABS.has(tabId);
+  el("preset").hidden = isTool;
+  el("refresh").hidden = isTool;
+  if (isTool) el("filter-bar").hidden = true;
+  if (leavingMonaco && tabId !== "monaco") disposeMonacoEditor();
   if (!opts.skipHash) {
     const url = new URL(location.href);
     url.hash = `tab=${tabId}`;
@@ -1397,6 +1408,187 @@ function renderError(p) {
   </div>`;
 }
 
+/* ------------------------------------------------------- experimental tabs */
+
+const MONACO_VERSION = "0.55.0";
+const KUSTO_MONACO_VERSION = "15.0.0";
+
+let _monacoEditor = null;
+let _monacoApi = null;
+
+function disposeMonacoEditor() {
+  if (_monacoEditor) {
+    try { _monacoEditor.dispose(); } catch { /* best-effort cleanup */ }
+    _monacoEditor = null;
+  }
+}
+
+async function renderMonacoTab() {
+  const content = el("content");
+  content.innerHTML = `
+    <div class="tool-panel">
+      <div class="tool-banner">
+        <strong>Experimental</strong> — Monaco Editor with real KQL language support via
+        <code>@kusto/monaco-kusto</code>, loaded from a CDN with no build step. Autocomplete is
+        grounded in this Hub database's live schema.
+        <a href="https://learn.microsoft.com/en-us/kusto/api/monaco/monaco-kusto" target="_blank" rel="noopener">Docs ↗</a>
+      </div>
+      <div class="tool-toolbar">
+        <button id="monaco-run" class="btn btn-primary" type="button">▶ Run (Ctrl/Cmd+Enter)</button>
+        <span id="monaco-status" class="tool-status">Loading Monaco…</span>
+      </div>
+      <div id="monaco-host" class="monaco-host"></div>
+      <div id="monaco-result"></div>
+    </div>
+  `;
+
+  const statusEl = el("monaco-status");
+  const hostEl = el("monaco-host");
+
+  try {
+    if (!_monacoApi) {
+      statusEl.textContent = "Loading Monaco Editor + KQL language support from CDN…";
+      // Import monaco-editor via the same jsdelivr `+esm` alias that
+      // @kusto/monaco-kusto resolves its "monaco-editor" peer dependency to,
+      // so both packages share one module instance (required for
+      // monaco.languages.kusto to be registered on our editor API object).
+      _monacoApi = await import(`https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/+esm`);
+      self.MonacoEnvironment = {
+        getWorker(_moduleId, _label) {
+          return new Worker(
+            `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/esm/vs/editor/editor.worker.js`,
+            { type: "module" }
+          );
+        },
+      };
+      await import(`https://cdn.jsdelivr.net/npm/@kusto/monaco-kusto@${KUSTO_MONACO_VERSION}/+esm`);
+    }
+    const monaco = _monacoApi;
+
+    disposeMonacoEditor();
+    const model = monaco.editor.createModel("Costs\n| take 20", "kusto");
+    _monacoEditor = monaco.editor.create(hostEl, {
+      model,
+      theme: document.documentElement.getAttribute("data-color-mode") === "dark" ? "vs-dark" : "vs",
+      automaticLayout: true,
+      minimap: { enabled: false },
+      fontSize: 13,
+    });
+    _monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => runMonacoQuery());
+
+    statusEl.textContent = "Fetching database schema…";
+    try {
+      const cfg = window.__cfg || {};
+      const schemaRes = await fetch("/api/schema").then((r) => r.json());
+      const kustoLang = monaco.languages?.kusto;
+      if (schemaRes.schema && kustoLang?.getKustoWorker) {
+        const workerAccessor = await kustoLang.getKustoWorker();
+        const worker = await workerAccessor(model.uri);
+        await worker.setSchemaFromShowSchema(schemaRes.schema, cfg.clusterUri || "", cfg.database || "Hub");
+        statusEl.textContent = `Ready — schema loaded from ${esc(cfg.database || "Hub")}.`;
+      } else {
+        statusEl.textContent = schemaRes.error
+          ? `Ready — schema unavailable: ${esc(schemaRes.error)}`
+          : "Ready — KQL language service didn't register (autocomplete may be limited).";
+      }
+    } catch (schemaErr) {
+      statusEl.textContent = `Ready — schema load failed: ${esc(schemaErr.message || String(schemaErr))}`;
+    }
+  } catch (err) {
+    // Graceful fallback: never leave the tab blank if the CDN load fails
+    // (e.g. cross-origin module workers unsupported in this webview).
+    hostEl.innerHTML = `<textarea id="monaco-fallback" class="monaco-fallback" rows="14" spellcheck="false" placeholder="Costs | take 20"></textarea>`;
+    statusEl.textContent = `Monaco failed to load here (${esc(err.message || String(err))}) — using a plain text editor instead.`;
+  }
+  el("monaco-run").addEventListener("click", () => runMonacoQuery());
+}
+
+async function runMonacoQuery() {
+  const runBtn = el("monaco-run");
+  const statusEl = el("monaco-status");
+  const resultEl = el("monaco-result");
+  const kql = _monacoEditor ? _monacoEditor.getValue().trim() : (el("monaco-fallback")?.value || "").trim();
+  if (!kql) return;
+  runBtn.disabled = true;
+  const prevStatus = statusEl.textContent;
+  statusEl.textContent = "Running…";
+  try {
+    const res = await fetch("/api/kql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kql }),
+    });
+    const data = await res.json();
+    if (data.error) {
+      resultEl.innerHTML = `<p class="kql-dialog-error">${esc(data.error)}</p>`;
+    } else {
+      const rows = data.rows || [];
+      if (!rows.length) {
+        resultEl.innerHTML = `<p class="kql-result-meta">Query returned no rows.</p>`;
+      } else {
+        const cols = Object.keys(rows[0]);
+        const head = cols.map((c) => `<th scope="col">${esc(c)}</th>`).join("");
+        const body = rows.slice(0, 200).map((r) =>
+          `<tr>${cols.map((c) => `<td>${esc(String(r[c] ?? ""))}</td>`).join("")}</tr>`
+        ).join("");
+        const note = rows.length > 200 ? ` (showing first 200)` : "";
+        resultEl.innerHTML = `<p class="kql-result-meta">${rows.length} rows${note}</p><div class="kql-result-scroll"><table class="dtable"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+      }
+    }
+  } catch (err) {
+    resultEl.innerHTML = `<p class="kql-dialog-error">Request failed: ${esc(err.message)}</p>`;
+  } finally {
+    runBtn.disabled = false;
+    statusEl.textContent = prevStatus;
+  }
+}
+
+let _adxListenerAttached = false;
+let _adxWorkspaceId = null;
+
+function renderAdxTab() {
+  if (!_adxWorkspaceId) _adxWorkspaceId = crypto.randomUUID();
+  const cfg = window.__cfg || {};
+  const clusterHint = cfg.clusterUri || "http://localhost:8082";
+  const iframeSrc = `https://dataexplorer.azure.com/?f-IFrameAuth=true&f-UseMeControl=false&workspace=${_adxWorkspaceId}`;
+
+  el("content").innerHTML = `
+    <div class="tool-panel">
+      <div class="tool-banner">
+        <strong>Experimental</strong> — the public
+        <a href="https://dataexplorer.azure.com" target="_blank" rel="noopener">Azure Data Explorer web UI</a>
+        embedded per Microsoft's
+        <a href="https://learn.microsoft.com/en-us/kusto/api/monaco/host-web-ux-in-iframe" target="_blank" rel="noopener">iframe embedding guide ↗</a>.
+        That guide's auth handshake is built for authenticated Azure clusters — this dashboard
+        intentionally does <strong>not</strong> implement Entra ID/MSAL token exchange (this is a
+        local, unauthenticated emulator, and this extension never touches auth).
+      </div>
+      <p class="tool-hint">
+        Your local cluster (<code>${esc(clusterHint)}</code>) needs no token, so the simplest working
+        path is to
+        <a href="https://dataexplorer.azure.com" target="_blank" rel="noopener" class="btn btn-primary">open the ADX web UI in a new tab ↗</a>
+        and add a connection to <code>${esc(clusterHint)}</code> there directly.
+      </p>
+      <p class="tool-status" id="adx-status">Loading the embedded iframe below (best-effort — it will
+        likely show its own sign-in/connect screen since no auth token is supplied here)…</p>
+      <iframe id="adx-iframe" class="adx-iframe" src="${esc(iframeSrc)}" title="Azure Data Explorer web UI"></iframe>
+    </div>
+  `;
+
+  if (!_adxListenerAttached) {
+    _adxListenerAttached = true;
+    window.addEventListener("message", (event) => {
+      if (event.origin !== "https://dataexplorer.azure.com") return;
+      if (event.data && event.data.type === "getToken") {
+        const statusEl = el("adx-status");
+        if (statusEl) {
+          statusEl.textContent = `The embedded iframe just requested an auth token (scope: ${esc(String(event.data.scope || ""))}) — this experiment doesn't wire up Entra ID auth, so authenticated actions in the frame won't work. Use "Open in a new tab" above instead.`;
+        }
+      }
+    });
+  }
+}
+
 /* ----------------------------------------------------------------- driver */
 
 const ENDPOINT = {
@@ -1429,7 +1621,15 @@ function render() {
 }
 
 async function load() {
-  const tab = state.tab, key = cacheKey();
+  const tab = state.tab;
+  if (TOOL_TABS.has(tab)) {
+    el("source-line").textContent = "Experimental tab — not part of the FinOps KPI pipeline.";
+    el("footer-meta").textContent = "";
+    if (tab === "monaco") renderMonacoTab();
+    else renderAdxTab();
+    return;
+  }
+  const key = cacheKey();
   if (state.cache[tab]?.[key]) { updateChrome(); render(); return; }
 
   // Cancel any in-flight request for a superseded tab/preset

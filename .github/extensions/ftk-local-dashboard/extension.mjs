@@ -148,6 +148,21 @@ async function handleRequest(entry, req, res) {
     return;
   }
 
+  // Database schema for the experimental Monaco KQL tab's autocomplete
+  // (monaco-kusto's worker.setSchemaFromShowSchema expects the parsed
+  // `.show schema as json` object, not generic query rows).
+  if (path === "/api/schema") {
+    try {
+      const rows = await runQuery(entry.clusterUri, entry.database, ".show schema as json");
+      const cell = rows[0] ? Object.values(rows[0])[0] : null;
+      const schema = typeof cell === "string" ? JSON.parse(cell) : cell;
+      sendJson(res, 200, { schema, clusterUri: entry.clusterUri, database: entry.database });
+    } catch (err) {
+      sendQueryError(res, entry, "schema", err);
+    }
+    return;
+  }
+
   if (path === "/api/dashboard") {
     const preset = url.searchParams.get("preset") || "all";
     const filters = parseFilters(url);

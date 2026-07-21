@@ -81,6 +81,7 @@ body {
 .seg button:first-child { border-left: 0; }
 .seg button.active { background: var(--accent); color: #fff; }
 .seg button:not(.active):hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+#preset[hidden] { display: none; }
 
 .btn {
   appearance: none;
@@ -766,4 +767,48 @@ svg .hbar-selected text.name { font-weight: 700; fill: var(--accent); }
 .skeleton-panel-sm { height: 160px; margin-bottom: var(--gap); }
 @media (prefers-reduced-motion: reduce) {
   .skeleton-card { animation: none; }
+}
+
+/* ---------- experimental tool tabs (Monaco KQL / ADX Web UI) ---------- */
+.tool-panel { display: flex; flex-direction: column; gap: 12px; height: 100%; }
+.tool-banner {
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-color-default, inherit);
+}
+.tool-banner code { font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; }
+.tool-hint { margin: 0; font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tool-hint code { font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; }
+.tool-toolbar { display: flex; align-items: center; gap: 12px; }
+.tool-status { font-size: 12px; color: var(--muted); }
+.monaco-host {
+  height: 420px;
+  border: 1px solid var(--grid);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.monaco-fallback {
+  width: 100%;
+  height: 420px;
+  box-sizing: border-box;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12.5px;
+  border: 1px solid var(--grid);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  background: var(--card-bg);
+  color: inherit;
+  resize: vertical;
+}
+.adx-iframe {
+  flex: 1;
+  width: 100%;
+  min-height: 480px;
+  border: 1px solid var(--grid);
+  border-radius: var(--radius);
+  background: var(--card-bg);
 }
