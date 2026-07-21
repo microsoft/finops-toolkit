@@ -624,12 +624,12 @@ function kpiThreshold(pct, greenMax, amberMax) {
   return "threshold-red";
 }
 
-const VALID_TABS = ["overview", "allocation", "rate", "usage", "anomaly", "tokenomics", "monaco", "adx"];
+const VALID_TABS = ["overview", "allocation", "rate", "usage", "anomaly", "tokenomics", "monaco"];
 
 // "Tool" tabs are experiments that don't follow the KPI dashboard pipeline
 // (no preset/filter-driven queries, no response caching) — they render their
 // own surface and manage their own state.
-const TOOL_TABS = new Set(["monaco", "adx"]);
+const TOOL_TABS = new Set(["monaco"]);
 
 function switchTab(tabId, opts = {}) {
   if (state.loading || tabId === state.tab) return;
@@ -1411,16 +1411,58 @@ function renderError(p) {
 
 /* ------------------------------------------------------- experimental tabs */
 
-const MONACO_VERSION = "0.55.0";
 const KUSTO_MONACO_VERSION = "15.0.0";
 
 let _monacoEditor = null;
+let _monacoModel = null;
 let _monacoApi = null;
 
+/**
+ * @kusto/monaco-kusto's jsdelivr `+esm` bundle imports its own pinned copy of
+ * "monaco-editor" by exact CDN URL (version + subpath baked in at jsdelivr's
+ * build time). Since browser ES module caching is keyed by exact URL string,
+ * importing monaco-editor via any other URL -- even the "same" version --
+ * yields a second, unrelated monaco instance, and `monaco.languages.kusto`
+ * never registers on the one our own code holds. So instead of guessing a
+ * monaco-editor version/path, discover the exact specifier kusto-monaco uses
+ * and import through that.
+ */
+async function resolveSharedMonacoEditorUrl() {
+  const kustoBundleUrl = `https://cdn.jsdelivr.net/npm/@kusto/monaco-kusto@${KUSTO_MONACO_VERSION}/+esm`;
+  const kustoBundleSrc = await fetch(kustoBundleUrl).then((r) => r.text());
+  const match = /from"(\/npm\/monaco-editor@[^"]+)"/.exec(kustoBundleSrc);
+  if (!match) throw new Error("could not locate monaco-editor import in @kusto/monaco-kusto bundle");
+  return { kustoBundleUrl, monacoEditorUrl: `https://cdn.jsdelivr.net${match[1]}` };
+}
+
+/**
+ * Chromium refuses to construct a Worker (classic or module) from a
+ * cross-origin script URL at all, even with permissive CORS headers -- so
+ * `new Worker("https://cdn.jsdelivr.net/...")` throws a SecurityError
+ * unconditionally. Work around this by fetching the script ourselves and
+ * handing the browser a same-origin `blob:` URL instead. jsdelivr's `+esm`
+ * bundles reference their own dependencies via root-relative specifiers
+ * (e.g. `"/npm/..."`), which don't resolve against a `blob:` base, so those
+ * are rewritten to fully-qualified jsdelivr URLs first.
+ */
+async function blobWorkerUrl(scriptUrl) {
+  let src = await fetch(scriptUrl).then((r) => r.text());
+  src = src.replace(/(["'])\/npm\//g, "$1https://cdn.jsdelivr.net/npm/");
+  return URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
+}
+
 function disposeMonacoEditor() {
+  // editor.dispose() only tears down the view widget -- the text model is a
+  // separate disposable and leaks (along with its worker) if not disposed
+  // too, which matters here since renderMonacoTab() re-creates both every
+  // time the tab is (re-)entered, e.g. after a cluster switch.
   if (_monacoEditor) {
     try { _monacoEditor.dispose(); } catch { /* best-effort cleanup */ }
     _monacoEditor = null;
+  }
+  if (_monacoModel) {
+    try { _monacoModel.dispose(); } catch { /* best-effort cleanup */ }
+    _monacoModel = null;
   }
 }
 
@@ -1429,14 +1471,14 @@ async function renderMonacoTab() {
   content.innerHTML = `
     <div class="tool-panel">
       <div class="tool-banner">
-        <strong>Experimental</strong> — Monaco Editor with real KQL language support via
-        <code>@kusto/monaco-kusto</code>, loaded from a CDN with no build step. Autocomplete is
+        <strong>Experimental</strong> — A KQL query editor with real autocomplete via
+        <code>@kusto/monaco-kusto</code>, loaded from a CDN with no build step. Suggestions are
         grounded in this Hub database's live schema.
         <a href="https://learn.microsoft.com/en-us/kusto/api/monaco/monaco-kusto" target="_blank" rel="noopener">Docs ↗</a>
       </div>
       <div class="tool-toolbar">
         <button id="monaco-run" class="btn btn-primary" type="button">▶ Run (Ctrl/Cmd+Enter)</button>
-        <span id="monaco-status" class="tool-status">Loading Monaco…</span>
+        <span id="monaco-status" class="tool-status">Loading query editor…</span>
       </div>
       <div id="monaco-host" class="monaco-host"></div>
       <div id="monaco-result"></div>
@@ -1448,26 +1490,29 @@ async function renderMonacoTab() {
 
   try {
     if (!_monacoApi) {
-      statusEl.textContent = "Loading Monaco Editor + KQL language support from CDN…";
-      // Import monaco-editor via the same jsdelivr `+esm` alias that
-      // @kusto/monaco-kusto resolves its "monaco-editor" peer dependency to,
-      // so both packages share one module instance (required for
-      // monaco.languages.kusto to be registered on our editor API object).
-      _monacoApi = await import(`https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/+esm`);
+      statusEl.textContent = "Loading query editor + KQL language support from CDN…";
+      const { kustoBundleUrl, monacoEditorUrl } = await resolveSharedMonacoEditorUrl();
+      const monacoBase = monacoEditorUrl.replace(/\/esm\/.*$/, "");
+      // Import monaco-editor via the exact URL @kusto/monaco-kusto itself
+      // imports it from, so both packages share one module instance
+      // (required for monaco.languages.kusto to register on our copy).
+      _monacoApi = await import(monacoEditorUrl);
+      const [genericWorkerUrl, kustoWorkerUrl] = await Promise.all([
+        blobWorkerUrl(`${monacoBase}/esm/vs/editor/editor.worker.js/+esm`),
+        blobWorkerUrl(`https://cdn.jsdelivr.net/npm/@kusto/monaco-kusto@${KUSTO_MONACO_VERSION}/release/esm/kusto.worker.js/+esm`),
+      ]);
       self.MonacoEnvironment = {
-        getWorker(_moduleId, _label) {
-          return new Worker(
-            `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/esm/vs/editor/editor.worker.js`,
-            { type: "module" }
-          );
+        getWorker(_moduleId, label) {
+          return new Worker(label === "kusto" ? kustoWorkerUrl : genericWorkerUrl, { type: "module" });
         },
       };
-      await import(`https://cdn.jsdelivr.net/npm/@kusto/monaco-kusto@${KUSTO_MONACO_VERSION}/+esm`);
+      await import(kustoBundleUrl);
     }
     const monaco = _monacoApi;
 
     disposeMonacoEditor();
     const model = monaco.editor.createModel("Costs\n| take 20", "kusto");
+    _monacoModel = model;
     _monacoEditor = monaco.editor.create(hostEl, {
       model,
       theme: document.documentElement.getAttribute("data-color-mode") === "dark" ? "vs-dark" : "vs",
@@ -1499,7 +1544,7 @@ async function renderMonacoTab() {
     // Graceful fallback: never leave the tab blank if the CDN load fails
     // (e.g. cross-origin module workers unsupported in this webview).
     hostEl.innerHTML = `<textarea id="monaco-fallback" class="monaco-fallback" rows="14" spellcheck="false" placeholder="Costs | take 20"></textarea>`;
-    statusEl.textContent = `Monaco failed to load here (${esc(err.message || String(err))}) — using a plain text editor instead.`;
+    statusEl.textContent = `Query editor failed to load here (${esc(err.message || String(err))}) — using a plain text editor instead.`;
   }
   el("monaco-run").addEventListener("click", () => runMonacoQuery());
 }
@@ -1544,43 +1589,6 @@ async function runMonacoQuery() {
   }
 }
 
-let _adxListenerAttached = false;
-let _adxWorkspaceId = null;
-
-function renderAdxTab() {
-  if (!_adxWorkspaceId) _adxWorkspaceId = crypto.randomUUID();
-  const cfg = window.__cfg || {};
-  const clusterHint = cfg.clusterUri || "http://localhost:8082";
-  const iframeSrc = `https://dataexplorer.azure.com/?f-IFrameAuth=true&f-UseMeControl=false&workspace=${_adxWorkspaceId}`;
-
-  el("content").innerHTML = `
-    <div class="tool-panel">
-      <div class="tool-banner">
-        <strong>Experimental</strong> — public
-        <a href="https://dataexplorer.azure.com" target="_blank" rel="noopener">ADX web UI</a>
-        embedded per Microsoft's
-        <a href="https://learn.microsoft.com/en-us/kusto/api/monaco/host-web-ux-in-iframe" target="_blank" rel="noopener">iframe guide ↗</a>
-        — no Entra ID auth wired up (<code>${esc(clusterHint)}</code> needs none), so use
-        <a href="https://dataexplorer.azure.com" target="_blank" rel="noopener">open in a new tab ↗</a>
-        if the frame below stays blank.
-        <span id="adx-status" class="tool-status-inline"></span>
-      </div>
-      <iframe id="adx-iframe" class="adx-iframe" src="${esc(iframeSrc)}" title="Azure Data Explorer web UI"></iframe>
-    </div>
-  `;
-
-  if (!_adxListenerAttached) {
-    _adxListenerAttached = true;
-    window.addEventListener("message", (event) => {
-      if (event.origin !== "https://dataexplorer.azure.com") return;
-      if (event.data && event.data.type === "getToken") {
-        const statusEl = el("adx-status");
-        if (statusEl) statusEl.textContent = `· requested a token (scope: ${esc(String(event.data.scope || ""))}), unanswered`;
-      }
-    });
-  }
-}
-
 /* ----------------------------------------------------------------- driver */
 
 const ENDPOINT = {
@@ -1617,8 +1625,7 @@ async function load() {
   if (TOOL_TABS.has(tab)) {
     el("source-line").textContent = "Experimental tab — not part of the FinOps KPI pipeline.";
     el("footer-meta").textContent = "";
-    if (tab === "monaco") renderMonacoTab();
-    else renderAdxTab();
+    renderMonacoTab();
     return;
   }
   const key = cacheKey();

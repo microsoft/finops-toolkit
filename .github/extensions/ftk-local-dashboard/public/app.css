@@ -770,8 +770,8 @@ svg .hbar-selected text.name { font-weight: 700; fill: var(--accent); }
   .skeleton-card { animation: none; }
 }
 
-/* ---------- experimental tool tabs (Monaco KQL / ADX Web UI) ---------- */
-.tool-panel { display: flex; flex-direction: column; gap: 12px; height: 100%; }
+/* ---------- experimental tool tabs (query editor) ---------- */
+.tool-panel { display: flex; flex-direction: column; gap: 12px; }
 .tool-banner {
   background: color-mix(in srgb, var(--warn) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent);
@@ -784,22 +784,19 @@ svg .hbar-selected text.name { font-weight: 700; fill: var(--accent); }
 .tool-banner code { font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; }
 .tool-toolbar { display: flex; align-items: center; gap: 12px; }
 .tool-status { font-size: 12px; color: var(--muted); }
-.tool-status-inline { color: var(--muted); }
-/* .tool-panel's `height: 100%` and the flex children's `flex: 1` only work if
-   an ancestor up to <body> has an explicit height -- #content doesn't, it's a
-   plain auto-height block, so percentage/flex growth collapses to nothing and
-   these hosts fall back to their min-height. Use viewport units instead,
-   which don't depend on that broken chain, so the editor/iframe actually use
-   the available window height instead of being stuck ~420-480px tall. */
+/* Fixed height (not viewport-relative) so the editor doesn't crowd out the
+   result table below it -- this dashboard's other panels are all bounded,
+   normal-flow blocks (see .kql-result-scroll, .skeleton-panel-lg), and the
+   whole page scrolls rather than any one panel filling the viewport. */
 .monaco-host {
-  height: max(420px, calc(100vh - 300px));
+  height: 360px;
   border: 1px solid var(--grid);
   border-radius: var(--radius);
   overflow: hidden;
 }
 .monaco-fallback {
   width: 100%;
-  height: max(420px, calc(100vh - 300px));
+  height: 360px;
   box-sizing: border-box;
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 12.5px;
@@ -809,12 +806,4 @@ svg .hbar-selected text.name { font-weight: 700; fill: var(--accent); }
   background: var(--card-bg);
   color: inherit;
   resize: vertical;
-}
-.adx-iframe {
-  flex: 1;
-  width: 100%;
-  min-height: max(480px, calc(100vh - 300px));
-  border: 1px solid var(--grid);
-  border-radius: var(--radius);
-  background: var(--card-bg);
 }
