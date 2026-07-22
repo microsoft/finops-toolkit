@@ -1511,7 +1511,11 @@ async function renderMonacoTab() {
     const monaco = _monacoApi;
 
     disposeMonacoEditor();
-    const model = monaco.editor.createModel("Costs\n| take 20", "kusto");
+    // Seed from whatever was last saved server-side (survives page reloads,
+    // including the host restarting this extension's server process), not a
+    // hardcoded sample -- see saveQueryState() below for how it gets there.
+    const initialQuery = (window.__cfg && window.__cfg.lastQuery) || "Costs\n| take 20";
+    const model = monaco.editor.createModel(initialQuery, "kusto");
     _monacoModel = model;
     _monacoEditor = monaco.editor.create(hostEl, {
       model,
@@ -1521,6 +1525,7 @@ async function renderMonacoTab() {
       fontSize: 13,
     });
     _monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => runMonacoQuery());
+    _monacoEditor.onDidChangeModelContent(() => scheduleQueryStateSave(_monacoEditor.getValue()));
 
     statusEl.textContent = "Fetching database schema…";
     try {
@@ -1543,10 +1548,28 @@ async function renderMonacoTab() {
   } catch (err) {
     // Graceful fallback: never leave the tab blank if the CDN load fails
     // (e.g. cross-origin module workers unsupported in this webview).
-    hostEl.innerHTML = `<textarea id="monaco-fallback" class="monaco-fallback" rows="14" spellcheck="false" placeholder="Costs | take 20"></textarea>`;
+    const initialQuery = (window.__cfg && window.__cfg.lastQuery) || "Costs\n| take 20";
+    hostEl.innerHTML = `<textarea id="monaco-fallback" class="monaco-fallback" rows="14" spellcheck="false" placeholder="Costs | take 20">${esc(initialQuery)}</textarea>`;
+    el("monaco-fallback").addEventListener("input", (e) => scheduleQueryStateSave(e.target.value));
     statusEl.textContent = `Query editor failed to load here (${esc(err.message || String(err))}) — using a plain text editor instead.`;
   }
   el("monaco-run").addEventListener("click", () => runMonacoQuery());
+}
+
+// Debounced autosave of the query editor's text to the server (see
+// /api/query-state in extension.mjs), so an in-progress, unrun query
+// survives a page reload -- e.g. the host restarting this extension's server
+// process, which reassigns its ephemeral port and forces a fresh load.
+let _queryStateSaveTimer = null;
+function scheduleQueryStateSave(query) {
+  clearTimeout(_queryStateSaveTimer);
+  _queryStateSaveTimer = setTimeout(() => {
+    fetch("/api/query-state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+    }).catch(() => { /* best-effort; the next successful save will catch up */ });
+  }, 600);
 }
 
 async function runMonacoQuery() {
