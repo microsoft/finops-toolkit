@@ -54,7 +54,7 @@ Note the use of "Data Explorer" covers both Azure Data Explorer and Microsoft Fa
 
 One of the goals of the FinOps hubs data model is to guarantee backwards compatibility. To support this, each FinOps hub release uses a specific schema version which aligns to a specific FOCUS version. For instance, the `v1_4` schema version aligns with FOCUS 1.4 and the `v1_2` schema with FOCUS 1.2. The **schema version** defines the columns, data types, and allowed values in the tables and functions for each [managed dataset](#managed-datasets-in-finops-hubs).
 
-Data is transformed to the latest supported FOCUS version during ingestion. For instance, if you ingested FOCUS 1.0 data into the `v1_4` schema, it would be converted to FOCUS 1.4 during ingestion. Older data remains in its originally ingested format. For instance, if you previously ingested FOCUS 1.0 data into the `v1_2` schema, it would remain in the `v1_2` format even after upgrading to a newer schema version.
+During ingestion, data is transformed to the schema version of your current FinOps hub release, regardless of the FOCUS version of the source data. For instance, if your hub uses the `v1_4` schema, incoming FOCUS 1.0 data is converted to FOCUS 1.4 as it's ingested. Data ingested by an earlier release stays in the schema version it was originally ingested into. For instance, data ingested when your hub used the `v1_2` schema remains in the `v1_2` format even after you upgrade to a newer schema version.
 
 The functions in the `Hub` database pull from all tables and transform them into a specific version. For instance, `Costs_v1_0` will convert `v1_4` and `v1_2` data back to the `v1_0` format, ensuring backwards compatibility despite upgrading to newer versions. When you're ready to upgrade, you can selectively upgrade each report or integration to use `Costs_v1_2` or `Costs_v1_4` without breaking others. However, if you want a quick, convenience function that always returns the latest version, you can use the unversioned functions, like `Costs` and `Prices`. Unversioned functions are convenient for ad hoc use while versioned functions are recommended for integration points that require a consistent format after upgrades.
 
@@ -66,7 +66,7 @@ The following table indicates the schema version for each FinOps hub release and
 | 12-14   | `v1_2` | 1.2           |
 | 0.7-11  | `v1_0` | 1.0           |
 
-Cost Management export availability for a given FOCUS version is separate from FinOps hub support for that version. FinOps hubs transforms older export formats to the supported schema version (forward or backward, depending on your FinOps hub release).
+Cost Management export availability for a given FOCUS version is separate from FinOps hub support for that version. FinOps hubs transforms export data to the schema version of your current release during ingestion, whether the export uses an older or newer FOCUS version than that schema.
 
 <br>
 
@@ -88,7 +88,7 @@ Managed datasets also include the following assets for FinOps hubs with Data Exp
 - An unversioned function in the **Hub** database (for example, **Costs()**).
 - A table in Power BI KQL reports that wraps the corresponding versioned function.
 
-During data ingestion, FinOps hubs transform data to the latest supported [schema version](#schema-version). Unversioned functions, like **Costs()**, use the latest schema version. Unversioned functions, like **Costs_v1_0()**, are backwards compatible, should remain consistent, and do not need to change when upgrading your FinOps hub instance. To learn more about the data ingestion process, see [How data is processed in FinOps hubs](data-processing.md).
+During data ingestion, FinOps hubs transform data to the latest supported [schema version](#schema-version). Unversioned functions, like **Costs()**, use the latest schema version. Versioned functions, like **Costs_v1_0()**, are backwards compatible, should remain consistent, and do not need to change when upgrading your FinOps hub instance. To learn more about the data ingestion process, see [How data is processed in FinOps hubs](data-processing.md).
 
 When querying data in FinOps hubs, always use the **Hub** database and avoid working with the tables and functions in the **Ingestion** database. Use unversioned functions for ad-hoc analysis or reports that do not require long-term backwards compatibility. Use the versioned functions for reports or systems that do require backwards compatibility and you do not want to be impacted by FinOps hub updates, which may change column names, data types, and values.
 

@@ -45,7 +45,7 @@ To add a new FOCUS version:
    3. Update the ADX dashboard to use the new versioned functions
    4. Update the FOCUS queries in the best practices library to use the new versioned functions
 5. Update open-data metadata
-   1. Create a `FocusCost_<version>.json` file in [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/) for each Cost Management cost export version.
+   1. Create a `FocusCost_<version>.json` file in [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/) for each Cost Management cost export version. Use a `-preview` suffix for working draft FOCUS versions (for example, `FocusCost_1.2-preview.json`), matching the existing files.
    2. Create a `FinOpsHubs_<dataset>_<schema-version>.json` file in [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/) for each FinOps hub managed dataset schema version.
    3. Mirror the schema details (columns, types, descriptions) from the matching Cost Management export or FinOps hubs schema so downstream consumers see consistent metadata.
 6. Update plugin skill files
