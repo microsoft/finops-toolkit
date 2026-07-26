@@ -164,7 +164,7 @@ Stack order (nothing merged yet; phases 3–5 were closed/superseded): **#2126 (
    - **`CommitmentProgramEligibilityDetails`** (#2126 thread 3309107501) — *feasible now*. The `CommitmentDiscountEligibility.csv` open dataset (MeterId → spend/usage eligibility, ~121K rows) is the source; needs a materialized lookup + the FOCUS 1.4 JSON shape (verify against the spec `v1.4` tag). Owned by **W11a** — new PR stacked on the stack tail (phase9 head); owner: focus14-lead, after #2126 review closes.
    - **`InvoiceDetailId`** (#2126 thread 3309133481) — *needs a new source*. Not in current Cost Management exports; requires a new invoice-details API (not available for all account types) plus a custom lookup. Owned by **W11b** (separate PR; blocked on the API — stays null until then).
    - **`ContractCommitment*` per-row columns** (#2126 thread 3309131626) — *needs multiple sources*. Some data is in cost data, but not all; pulling from multiple APIs needs design. Owned by **W11c** (separate PR; stays null until then).
-   Consolidation: standalone issue #2217 closed into this plan + umbrella #2207; owner to decide whether #2159 (native 1.4 export column research) closes into W11 the same way.
+   Consolidation: standalone issues #2217 and #2159 (native 1.4 export column research) both closed into this plan + umbrella #2207; W11a owner: focus14-lead (agreed 2026-07-26).
 
 ## 8. Progress
 
