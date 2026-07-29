@@ -67,15 +67,19 @@ function Invoke-FinOpsHubLocalCommand
         # Kusto returns a structured JSON error body. Surface its message/code when present;
         # otherwise rethrow the original exception (for example, a connection failure) as-is.
         $content = $null
-        try
+        if ($null -ne $_.ErrorDetails -and -not [string]::IsNullOrWhiteSpace($_.ErrorDetails.Message))
         {
-            $content = $_.ErrorDetails.Message | ConvertFrom-Json -Depth 10
+            try
+            {
+                $content = $_.ErrorDetails.Message | ConvertFrom-Json -Depth 10
+            }
+            catch {}
         }
-        catch {}
 
-        if ($content.error)
+        if ($null -ne $content -and $content.PSObject.Properties['error'])
         {
-            throw ($script:LocalizedData.Common_ErrorResponse -f $content.error.message, $content.error.code)
+            $errorBody = $content.error
+            throw ($script:LocalizedData.Common_ErrorResponse -f $errorBody.message, $errorBody.code)
         }
 
         throw

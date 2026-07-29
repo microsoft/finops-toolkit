@@ -89,6 +89,21 @@ InModuleScope FinOpsToolkit {
                 { Invoke-FinOpsHubLocalCommand -ClusterUri 'http://localhost:8082' -Database 'Hub' -Command '.show version' } |
                     Should -Throw 'Unable to connect to the remote server'
             }
+
+            It 'Should rethrow the original exception when the error payload is blank' {
+                # Arrange
+                $errorRecord = New-Object System.Management.Automation.ErrorRecord(
+                    (New-Object System.Exception('Response status code does not indicate success')),
+                    'WebCmdletWebResponseException',
+                    [System.Management.Automation.ErrorCategory]::InvalidOperation,
+                    $null)
+                $errorRecord.ErrorDetails = [System.Management.Automation.ErrorDetails]::new([string]::Empty)
+                Mock -CommandName 'Invoke-RestMethod' -MockWith { throw $errorRecord }
+
+                # Act / Assert
+                { Invoke-FinOpsHubLocalCommand -ClusterUri 'http://localhost:8082' -Database 'Hub' -Command '.show version' } |
+                    Should -Throw 'Response status code does not indicate success'
+            }
         }
 
         Context 'Parameter validation' {
