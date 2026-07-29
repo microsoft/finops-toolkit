@@ -2,7 +2,7 @@
 description: Check deployed hub version against latest stable and dev releases and validate data freshness.
 ---
 
-# Health check for FinOps hubs
+# FinOps hubs health check
 
 ## Step 1: Check the latest released FinOps hub version
 

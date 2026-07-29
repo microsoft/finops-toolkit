@@ -1,4 +1,4 @@
-# Health check for FinOps hubs
+# FinOps hubs health check
 
 ## Step 1: Check the latest released FinOps hub version
 

@@ -30,7 +30,7 @@ Notes about the columns:
 
 - Use the `clusterShortUri` to refer to the FinOps hub instance.
 - Also accept the `hubName`, `clusterName`, or `resourceGroup` to refer to the FinOps hub instance as long as they are unique. If there are multiple FinOps hub instances with the same identifier, list them and ask which the user should use.
-- Use the `clusterUri` to connect to the cluster using `#azmcp-kusto-query`.
+- Use the `clusterUri` to connect to the cluster with the `azure-mcp-server` command `kusto_query`; pass it as `cluster-uri`.
 - The `hubVersion` is the version of the FinOps hub instance. Format this value is a string using Semantic Versioning (SemVer) format (e.g., `major.minor` or `major.minor.patch` or `major.minor-prerelease`).
 
 Tell the user how many FinOps hub instances you found that matched their inputs, if provided. If there is only one FinOps hub instance, announce that you will use that FinOps hub instance for this session and skip to step 4. If there are multiple FinOps hub instances, list them with the following details:
@@ -50,7 +50,7 @@ If multiple FinOps hub instances were found and shared with the user, ask the us
 
 ## Step 4: Validate the FinOps hub instance
 
-If a FinOps hub instance was identified in a previous step, run the following query against the `Hub` database with the #azmcp-kusto-query command to validate the FinOps hub instance. Use the `tenant` from the selected environment. The query reads the version from `Ingestion.HubSettings`, but the primary analytical surface is still `Costs()` in the `Hub` database:
+If a FinOps hub instance was identified in a previous step, run the following query against the `Hub` database with the `azure-mcp-server` command `kusto_query` to validate the FinOps hub instance. Pass the selected `clusterUri` as `cluster-uri` and use the `tenant` and subscription from the selected environment. The query reads the version from `Ingestion.HubSettings`, but the primary analytical surface is still `Costs()` in the `Hub` database:
 
 ```kusto
 let version = toscalar(database('Ingestion').HubSettings | project version);
@@ -95,4 +95,4 @@ See `references/settings-format.md` for the complete file format documentation.
 
 ## Step 6: Run a health check
 
-After connecting to the FinOps hub instance, inform the user they can use the `/ftk/hubs-healthCheck` prompt to run a health check.
+After connecting to the FinOps hub instance, inform the user they can use the `/ftk/hubs-health-check` prompt to run a health check.

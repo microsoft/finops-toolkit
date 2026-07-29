@@ -65,6 +65,19 @@ Describe 'Agent plugin components' {
         $commands.Count | Should -BeGreaterThan 0
     }
 
+    It 'Uses the kebab-case health-check command name throughout the plugin' {
+        Join-Path $script:Plugin 'commands/ftk/hubs-health-check.md' | Should -Exist
+        Join-Path $script:Plugin 'skills/finops-toolkit/references/workflows/ftk-hubs-health-check.md' | Should -Exist
+
+        $content = (Get-ChildItem $script:Plugin -Recurse -File | Get-Content -Raw) -join [Environment]::NewLine
+        $content | Should -Not -Match 'hubs-healthCheck|ftk-hubs-healthCheck'
+    }
+
+    It 'Does not reference the deprecated Azure MCP command name' {
+        $content = (Get-ChildItem $script:Plugin -Recurse -File | Get-Content -Raw) -join [Environment]::NewLine
+        $content | Should -Not -Match '#?azmcp-kusto-query'
+    }
+
     It 'Ships the finops-toolkit skill' {
         Join-Path $script:Plugin 'skills/finops-toolkit/SKILL.md' | Should -Exist
     }

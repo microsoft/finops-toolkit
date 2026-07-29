@@ -17,7 +17,7 @@ Use this reference once at the beginning of an analysis session, then reuse that
 ## Required grounding references
 
 - `references/workflows/ftk-hubs-connect.md`
-- `references/workflows/ftk-hubs-healthCheck.md`
+- `references/workflows/ftk-hubs-health-check.md`
 - `references/queries/finops-hub-database-guide.md`
 - `references/queries/INDEX.md`
 
@@ -75,7 +75,7 @@ If a cluster URI is already established for the session, reuse it. If not, conne
 
 ### Step 2: Validate the Hub and data freshness
 
-Use `references/workflows/ftk-hubs-healthCheck.md` after connection if you need to confirm version guidance or investigate stale data.
+Use `references/workflows/ftk-hubs-health-check.md` after connection if you need to confirm version guidance or investigate stale data.
 
 ### Step 3: Establish baseline analytical context
 
@@ -133,6 +133,6 @@ Other analysis references should assume this foundational step happened first. T
 ## See also
 
 - `references/workflows/ftk-hubs-connect.md`
-- `references/workflows/ftk-hubs-healthCheck.md`
+- `references/workflows/ftk-hubs-health-check.md`
 - `references/queries/finops-hub-database-guide.md`
 - `references/queries/INDEX.md`

@@ -16,16 +16,15 @@ FinOps hubs are a scalable platform for cloud cost analytics, insights, and opti
 
 Load only the references relevant to the task at hand.
 
-> **Maintainer note:** The references in this table intentionally use **shorthand skill paths** for readability. They are **not** a claim that the repo contains literal `toolkit/...`, `focus/...`, or bare `.kql` files next to `SKILL.md`.
+> **Maintainer note:** The references in this table intentionally use **shorthand skill paths** for readability. They are **not** a claim that the plugin contains literal `toolkit/...`, `focus/...`, or bare `.kql` files next to `SKILL.md`.
 >
-> The packaging flow copies `src/templates/agent-skills/**` into `release/agent-skills` and zips that content **without rewriting paths** (see `src/scripts/Build-Toolkit.ps1` and `src/scripts/Package-Toolkit.ps1`). Resolve the shorthand in this table as follows:
+> The `Build-AgentPlugin.ps1` packaging hook copies `src/queries` and `docs-mslearn` into this skill's `references/queries` and `references/docs-mslearn` directories. Resolve the shorthand in this table as follows:
 >
 > - `toolkit/...` → `references/docs-mslearn/toolkit/...`
 > - `focus/...` → `references/docs-mslearn/focus/...`
 > - bare `.kql` names → `references/queries/catalog/...`
 > - `references/...` paths are already literal
 >
-> **Do not flag this table as a packaging bug again unless the packaging scripts change.**
 
 | Task | Load these references first |
 |------|-----------------------------|
@@ -40,7 +39,7 @@ Load only the references relevant to the task at hand.
 | Troubleshooting / errors | `toolkit/help/troubleshooting.md`, `toolkit/help/errors.md` |
 | PowerShell commands | `toolkit/powershell/powershell-commands.md` + the specific command file |
 | Connect to hub for first time | `references/workflows/ftk-hubs-connect.md`, `references/settings-format.md` |
-| Check hub health / version | `references/workflows/ftk-hubs-healthCheck.md`, `toolkit/hubs/compatibility.md` |
+| Check hub health / version | `references/workflows/ftk-hubs-health-check.md`, `toolkit/hubs/compatibility.md` |
 
 ## Database functions
 
@@ -122,7 +121,7 @@ For detailed documentation: `references/finops-hubs-deployment.md`
 | [references/queries/INDEX.md](references/queries/INDEX.md) | Query catalog with scenario-to-query matrix, parameter docs, and usage guidance for the shipped pre-built KQL queries. |
 | [references/queries/finops-hub-database-guide.md](references/queries/finops-hub-database-guide.md) | Hub database schema: all four functions, column definitions, enrichment columns, and query best practices. **Read before writing custom KQL.** |
 | [references/workflows/ftk-hubs-connect.md](references/workflows/ftk-hubs-connect.md) | Workflow to discover FinOps hub instances via Resource Graph, connect, and save environment config. |
-| [references/workflows/ftk-hubs-healthCheck.md](references/workflows/ftk-hubs-healthCheck.md) | Health check workflow: version comparison against stable/dev releases, upgrade guidance, and diagnostic steps. |
+| [references/workflows/ftk-hubs-health-check.md](references/workflows/ftk-hubs-health-check.md) | Health check workflow: version comparison against stable/dev releases, upgrade guidance, and diagnostic steps. |
 
 ## Microsoft Learn documentation
 
