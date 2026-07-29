@@ -69,8 +69,10 @@ _Released June 2026_
 - **Fixed**
   - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
 
-### [Optimization engine](optimization-engine/overview.md) updates
+### [Optimization engine](optimization-engine/overview.md) v15
 
+- **Changed**
+  - Migrated Log Analytics ingestion from the Data Collection API (to be deprecated in September 2026) to a Data Collection Rule, Ingestion API-based solution.
 - **Fixed**
   - Removed call to Azure Classic administrators endpoint (deprecated on May 1, 2026) from Azure RBAC assignments exports ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
 
