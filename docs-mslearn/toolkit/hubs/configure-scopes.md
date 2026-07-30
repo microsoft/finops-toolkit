@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 05/14/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -224,7 +224,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    - Use the following guides to assign access to each scope you want to monitor:
      - EA enrollments – [Assign enrollment reader role permission](/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
      - EA departments – [Assign department reader role permission](/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
-     - Subscriptions and resource groups – [Assign Azure roles using the Azure portal](/azure/role-based-access-control/role-assignments-portal).
+     - Subscriptions and resource groups – Assign the **Cost Management Contributor** role to the hub managed identity on each scope. [Learn more](/azure/role-based-access-control/role-assignments-portal).
 
    <!--
    ### Enterprise agreement billing accounts and departments
@@ -266,6 +266,9 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    #### Option 1: Using config_RunBackfillJob pipeline
 
    Use the **config_RunBackfillJob** pipeline to process historical data after it's been exported. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
+
+   > [!IMPORTANT]
+   > This option relies on managed exports and is **not supported for Microsoft Customer Agreement (MCA) billing accounts or billing profiles**. The pipeline calls the Cost Management `exports/run` API using the Data Factory managed identity, which Cost Management rejects on MCA scopes regardless of role assignments — typically with an `RBACAccessDenied` error. For MCA, use [Option 2](#option-2-using-cost-management-exports) or [Option 3](#option-3-using-start-finopscostexport-powershell-command) instead.
 
    To run the pipeline from the Azure portal:
 

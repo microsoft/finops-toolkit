@@ -4,12 +4,32 @@ Our open data solutions are pretty straightforward. Nothing to deploy. Just use 
 
 On this page:
 
+- [💰 Commitment discount eligibility](#-commitment-discount-eligibility)
 - [📏 Pricing units](#-pricing-units)
 - [🗺️ Regions](#️-regions)
 - [🗺️ Resource types](#️-resource-types)
 - [🎛️ Services](#️-services)
 
 ---
+
+## 💰 Commitment discount eligibility
+
+<sup>
+    📅 Updated: Mar 24, 2026<br>
+    ➡️ Source: Azure Retail Prices API<br>
+</sup>
+
+<br>
+
+The [CommitmentDiscountEligibility.csv](./CommitmentDiscountEligibility.csv) file lists Azure meters that are eligible for reservations or savings plans. This data is updated weekly by the [Update Commitment Discount Eligibility](../../.github/workflows/opendata-commitment-eligibility.yml) workflow, which queries the [Azure Retail Prices API](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices).
+
+To update manually:
+
+```powershell
+./src/scripts/Update-CommitmentDiscountEligibility.ps1
+```
+
+<br>
 
 ## 📏 Pricing units
 

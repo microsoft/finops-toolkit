@@ -19,7 +19,7 @@ InModuleScope FinOpsToolkit {
                 Initialize-FinOpsHubDeployment
 
                 # Assert
-                Assert-MockCalled -CommandName 'Register-FinOpsHubProviders' -Times 1
+                Should -Invoke -CommandName 'Register-FinOpsHubProviders' -Times 1
             }
         }
     }

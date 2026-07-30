@@ -86,7 +86,12 @@ if ($update -or $Version)
     {
         $newLabel = $Label.ToLower() -replace '[^a-z]', ''
         Write-Verbose "Using label '$newLabel'."
-        $null = npm --no-git-tag-version --preid $newLabel version preminor
+        # Read directly from package.json here (rather than calling Get-Version) because $ver isn't set yet.
+        # Get-Version runs after this block (line 95) and reads the same file.
+        # This intentionally replaces any prerelease counter npm just wrote — only -Major/-Minor with a label is supported.
+        $bumpedVer = (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version
+        $baseVer = $bumpedVer -replace '-.*$', ''
+        $null = npm --no-git-tag-version version "$baseVer-$newLabel.0"
     }
 }
 
@@ -113,6 +118,46 @@ if ($update -or $Version)
         }
     }
 
+    # Update version in plugin.json files
+    Write-Verbose "Updating plugin.json files..."
+    Get-ChildItem $repoRoot -Include "plugin.json" -Recurse -Force `
+    | Where-Object { $_.FullName -like "*claude-plugin*" } `
+    | ForEach-Object {
+        Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
+        $json = Get-Content $_ -Raw | ConvertFrom-Json
+        $json.version = $ver
+        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
+    }
+
+    # Update version in marketplace.json plugin entries
+    Write-Verbose "Updating marketplace.json files..."
+    Get-ChildItem $repoRoot -Include "marketplace.json" -Recurse -Force `
+    | Where-Object { $_.Directory.Name -eq '.claude-plugin' }`
+    | ForEach-Object {
+        Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
+        $json = Get-Content $_ -Raw | ConvertFrom-Json
+        foreach ($plugin in $json.plugins) {
+            if ($plugin.PSObject.Properties['version']) {
+                $plugin.version = $ver
+            }
+        }
+        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
+    }
+
+    # Update FTK survey IDs in feedback links (e.g., surveyId/FTK0.11 -> surveyId/FTK14.0)
+    Write-Verbose "Updating FTK survey IDs..."
+    Get-ChildItem $repoRoot -Include '*.md' -Recurse -Force `
+    | Select-String -Pattern 'surveyId/FTK[\d.]+' -List `
+    | ForEach-Object {
+        $content = Get-Content $_.Path -Raw
+        $updated = $content -replace 'surveyId/FTK[\d.]+', "surveyId/FTK$ver"
+        if ($content -ne $updated)
+        {
+            $updated | Out-File $_.Path -NoNewline -Encoding utf8
+            Write-Verbose "- $($_.Path.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
+        }
+    }
+
     # Update version in PowerShell
     Write-Verbose "Updating PowerShell Get-VersionNumber..."
     & {
@@ -125,6 +170,91 @@ if ($update -or $Version)
         Write-Output "    return '$ver'"
         Write-Output "}"
     } | Out-File "$PSScriptRoot/../PowerShell/Private/Get-VersionNumber.ps1" -Encoding ascii -Append:$false
+
+    # Release tag strips prerelease labels and trailing .0 (e.g., "14.0-dev" -> "v14")
+    $releaseTag = 'v' + (($ver -replace '-.*$', '') -replace '\.0$', '')
+
+    # Update changelog with new version section
+    Write-Verbose "Updating changelog..."
+    $changelogPath = Join-Path $repoRoot 'docs-mslearn/toolkit/changelog.md'
+    if (Test-Path $changelogPath)
+    {
+        $changelogLines = Get-Content $changelogPath
+        $anchorIndex = $changelogLines.IndexOf('<br><a name="latest"></a>')
+        if ($anchorIndex -ge 0)
+        {
+            # Find the first ## v heading after the anchor to get the previous version tag
+            $prevTag = 'v0.0.1'
+            for ($i = $anchorIndex + 1; $i -lt $changelogLines.Count; $i++)
+            {
+                if ($changelogLines[$i] -match '^## (v\S+)')
+                {
+                    $prevTag = $Matches[1]
+                    break
+                }
+            }
+
+            # Skip if this version section already exists
+            if ($prevTag -eq $releaseTag)
+            {
+                Write-Verbose "- Changelog already has $releaseTag section"
+            }
+            else
+            {
+                $releaseDate = (Get-Date).AddMonths(1).ToString('MMMM yyyy')
+                $newSection = @(
+                    ''
+                    "## $releaseTag"
+                    ''
+                    "_Released ${releaseDate}_"
+                    ''
+                    '<!-- prettier-ignore-start -->'
+                    '> [!div class="nextstepaction"]'
+                    "> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/$releaseTag)"
+                    '> [!div class="nextstepaction"]'
+                    "> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/$prevTag...$releaseTag)"
+                    '<!-- prettier-ignore-end -->'
+                    ''
+                    '<br>'
+                )
+
+                $changelogLines = $changelogLines[0..$anchorIndex] + $newSection + $changelogLines[($anchorIndex + 1)..($changelogLines.Count - 1)]
+                $changelogLines | Out-File $changelogPath -Encoding utf8
+                Write-Verbose "- Added $releaseTag section to changelog"
+            }
+        }
+    }
+
+    # Update integration test version variables
+    Write-Verbose "Updating integration test versions..."
+    $testPath = Join-Path $repoRoot 'src/powershell/Tests/Integration/Toolkit.Tests.ps1'
+    if (Test-Path $testPath)
+    {
+        $testContent = Get-Content $testPath -Raw
+        $releaseTagName = $releaseTag.TrimStart('v')
+
+        # Extract current planned release and skip if already up to date
+        if ($testContent -match '\$plannedRelease = ''([^'']+)''')
+        {
+            $oldPlanned = $Matches[1]
+
+            if ($oldPlanned -eq $releaseTagName)
+            {
+                Write-Verbose "- Integration test already has planned release '$releaseTagName'"
+            }
+            else
+            {
+                # Update $plannedRelease to the new version
+                $testContent = $testContent -replace '\$plannedRelease = ''[^'']+''', ('$plannedRelease = ''{0}''' -f $releaseTagName)
+
+                # Prepend old planned release to $expected array
+                $testContent = $testContent -replace '\$expected = @\(', ('$expected = @(''{0}'', ' -f $oldPlanned)
+
+                $testContent | Out-File $testPath -NoNewline -Encoding utf8
+                Write-Verbose "- Updated planned release from '$oldPlanned' to '$releaseTagName'"
+            }
+        }
+    }
 }
 
 return $ver

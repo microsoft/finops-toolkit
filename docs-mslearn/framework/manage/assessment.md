@@ -4,7 +4,7 @@ description: This article helps you understand the FinOps assessment capability 
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 04/01/2026
 ms.service: finops
 ms.subservice: finops-learning-resources
 ms.reviewer: micflan

@@ -3,7 +3,7 @@ title: Reporting and analytics
 description: This article helps you understand the reporting and analytics capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 06/29/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -137,7 +137,6 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-> [!VIDEO https://www.youtube.com/embed/CVTJLdcozj1eEpxT?list=PLUSCToibAswlDSQdehKhi7ysP2hmetigl]
 
 <br>
 

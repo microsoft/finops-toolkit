@@ -21,8 +21,8 @@ InModuleScope 'FinOpsToolkit' {
 
                 # Assert
                 $requiredRPs | ForEach-Object {
-                    Assert-MockCalled -CommandName 'Get-AzResourceProvider' -Times 1 -ParameterFilter { $ProviderNamespace -eq $_ }
-                    Assert-MockCalled -CommandName 'Register-AzResourceProvider' -Times 1 -ParameterFilter { $ProviderNamespace -eq $_ -and $WhatIf -eq $true }
+                    Should -Invoke -CommandName 'Get-AzResourceProvider' -Times 1 -ParameterFilter { $ProviderNamespace -eq $_ }
+                    Should -Invoke -CommandName 'Register-AzResourceProvider' -Times 1 -ParameterFilter { $ProviderNamespace -eq $_ -and $WhatIf -eq $true }
                 }
             }
         }
@@ -40,8 +40,8 @@ InModuleScope 'FinOpsToolkit' {
                 Register-FinOpsHubProviders
 
                 # Assert
-                Assert-MockCalled -CommandName 'Get-AzResourceProvider' -Times $requiredRPs.Count
-                Assert-MockCalled -CommandName 'Register-AzResourceProvider' -Times ($state -eq 'Registered' ? 0 : $requiredRPs.Count)
+                Should -Invoke -CommandName 'Get-AzResourceProvider' -Times $requiredRPs.Count
+                Should -Invoke -CommandName 'Register-AzResourceProvider' -Times ($state -eq 'Registered' ? 0 : $requiredRPs.Count)
             }
         }
     }

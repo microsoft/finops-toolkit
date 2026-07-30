@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: flanakin
 ms.author: micflan
-ms.date: 03/11/2026
+ms.date: 07/30/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -25,6 +25,23 @@ If the information provided doesn't help you, [Create a support request](/azure/
 
 <br>
 
+## 403
+
+<sup>Severity: Critical</sup>
+
+You may see this error when using [Add-FinOpsServicePrincipal](../powershell/cost/add-finopsserviceprincipal.md) to assign EA enrollment reader permissions to a service principal. The billing role assignment API returns HTTP 403 when the request is rejected.
+
+**Mitigation**:
+
+1. Confirm you are using the service principal object ID from **Enterprise applications** in the Azure portal, not the application object ID from **App registrations**. See [Assign roles to EA service principals](/azure/cost-management-billing/manage/assign-roles-azure-service-principals).
+2. Confirm your account has the **Enrollment writer** role in your Enterprise Agreement. See [Understand EA administrative roles](/azure/cost-management-billing/manage/understand-ea-roles).
+3. Confirm the billing account ID matches your EA enrollment number exactly.
+4. If the error persists, try assigning the role directly through the [Billing Role Assignments REST API](/rest/api/billing/2019-10-01-preview/role-assignments/put) using the **Try it** feature.
+
+If this is not an EA enrollment scenario, see [Access to the resource is forbidden](#access-to-the-resource-is-forbidden).
+
+<br>
+
 ## Access to the resource is forbidden
 
 <sup>Severity: Critical</sup>
@@ -32,6 +49,8 @@ If the information provided doesn't help you, [Create a support request](/azure/
 This error generally means the account you are connected with does not have access to the resource you're attempting to use.
 
 **Mitigation**: Confirm you are using the correct account in the correct Microsoft Entra ID tenant.
+
+If this is an EA enrollment scenario, see [403](#403).
 
 <br>
 
@@ -931,6 +950,30 @@ The export manifest in hub storage indicates the export was for an unsupported d
 <sup>Severity: Minor</sup>
 
 Open the subscription in the Azure portal, then select **Settings** > **Resource providers**, select the resource provider row (for example, Microsoft.EventGrid), then select the **Register** command at the top of the page. Registration might take a few minutes.
+
+<br>
+
+## The sku {SkuName} is not supported in {region}
+
+<sup>Severity: Critical</sup>
+
+The Azure Data Explorer cluster deployment failed because the selected SKU isn't available in the target region for your subscription. Not all Data Explorer SKUs are available in every region.
+
+**Mitigation**: Check which SKUs are available in your region and choose one that's supported.
+
+Using Azure PowerShell (requires the [Az.Kusto](/powershell/module/az.kusto) module):
+
+```powershell
+Get-AzKustoSku -Location "westus"
+```
+
+Using Azure REST API:
+
+```http
+GET https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Kusto/locations/{location}/skus?api-version=2025-02-14
+```
+
+If your preferred SKU isn't listed, choose a different SKU or deploy to a region where it's available. The default dev/test SKU is `Dev(No SLA)_Standard_D11_v2`, and the lowest-cost dev/test SKU (`Dev(No SLA)_Standard_E2a_v4`) is available in most regions. For help choosing a SKU, see [Select a SKU for your Azure Data Explorer cluster](/azure/data-explorer/manage-cluster-choose-sku).
 
 <br>
 
