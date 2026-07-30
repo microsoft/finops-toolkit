@@ -4,6 +4,93 @@
 & "$PSScriptRoot/../Initialize-Tests.ps1"
 
 InModuleScope 'FinOpsToolkit' {
+    BeforeDiscovery {
+        function New-MockReleaseObject
+        {
+            param
+            (
+                [Parameter(Mandatory = $true)]
+                [hashtable[]]
+                $Releases,
+
+                [Parameter()]
+                [switch]
+                $GitHub
+            )
+
+            $output = @()
+            foreach ($hashtable in $Releases)
+            {
+                # Duplicate Files as "assets" to mock GitHub requests
+                $hashtable['assets'] = $hashtable.Files
+                $output += New-Object -TypeName 'psobject' -Property $hashtable
+            }
+
+            if ($GitHub)
+            {
+                $output = ConvertTo-Json -InputObject $output -Depth 10
+            }
+
+            return $output
+        }
+
+        function New-MockRelease
+        {
+            [OutputType([hashtable])]
+            [CmdletBinding()]
+            param
+            (
+                [Parameter(Mandatory = $true)]
+                [string]
+                $Name,
+
+                [Parameter(Mandatory = $true)]
+                [string]
+                $Version,
+
+                [Parameter()]
+                [bool]
+                $PreRelease = $false,
+
+                [Parameter()]
+                $Assets = @()
+            )
+
+            return @{
+                Name       = $Name
+                Version    = $Version
+                tag_name   = "v$Version"  # For mocking GitHub requests
+                PreRelease = $PreRelease
+                Files      = @($Assets)
+            }
+        }
+
+        function New-MockAsset
+        {
+            [OutputType([hashtable])]
+            [CmdletBinding()]
+            param
+            (
+                [Parameter(Mandatory = $true)]
+                [string]
+                $Name,
+
+                [Parameter(Mandatory = $true)]
+                [string]
+                $Url
+            )
+
+            return @{
+                Name                 = $Name
+                Url                  = $Url
+                browser_download_url = $Url  # For mocking GitHub requests
+            }
+        }
+
+        $previewVersion = '1.0.0-alpha.01'
+        $releaseVersion = '1.0.0'
+    }
+
     Describe 'New-Directory' {
         BeforeAll {
             Mock -CommandName 'New-Item'

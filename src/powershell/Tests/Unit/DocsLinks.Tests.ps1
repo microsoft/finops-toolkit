@@ -257,7 +257,7 @@ Describe 'Documentation links' {
 
     Context 'docs-mslearn: Internal relative links' {
 
-        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach $mslearnInternalLinks {
+        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach $mslearnInternalLinks {
             $sourceDir = Split-Path $SourceFile -Parent
 
             if ([string]::IsNullOrEmpty($PathPart))
@@ -270,7 +270,7 @@ Describe 'Documentation links' {
             $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
         }
 
-        It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach ($mslearnInternalLinks | Where-Object { $_.AnchorPart }) {
+        It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach ($mslearnInternalLinks | Where-Object { $_.AnchorPart }) {
             $sourceDir = Split-Path $SourceFile -Parent
             $resolvedPath = Join-Path $sourceDir $PathPart
 
@@ -288,7 +288,7 @@ Describe 'Documentation links' {
     Context 'docs-mslearn: No learn.microsoft.com URLs' {
         $learnMicrosoftLinks = @($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com' })
         if ($learnMicrosoftLinks.Count -gt 0) {
-            It 'Should not contain https://learn.microsoft.com links: <SourceRel>:<LineNumber>' -ForEach $learnMicrosoftLinks {
+            It 'Should not contain https://learn.microsoft.com links: <SourceRel>:<LineNumber>' -AllowNullOrEmptyForEach -ForEach $learnMicrosoftLinks {
                 $Url | Should -Not -Match 'learn\.microsoft\.com' -Because "links in docs-mslearn should use root-relative paths (e.g., /azure/...) instead of full URLs since docs are deployed to learn.microsoft.com (${SourceRel}:${LineNumber})"
             }
         }
@@ -302,7 +302,7 @@ Describe 'Documentation links' {
     Context 'docs-mslearn: No language locale in MS Learn links' {
         $localizedMsLearnLinks = @($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' })
         if ($localizedMsLearnLinks.Count -gt 0) {
-            It 'Should not contain language locale in URL: <SourceRel>:<LineNumber> <Url>' -ForEach $localizedMsLearnLinks {
+            It 'Should not contain language locale in URL: <SourceRel>:<LineNumber> <Url>' -AllowNullOrEmptyForEach -ForEach $localizedMsLearnLinks {
                 $Url | Should -Not -Match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' -Because "MS Learn links should not include language locale segments like /en-us/ (${SourceRel}:${LineNumber})"
             }
         }
@@ -315,7 +315,7 @@ Describe 'Documentation links' {
 
     Context 'docs-mslearn: No known broken external URLs' {
         if ($knownBrokenExternalUrlMatches.Count -gt 0) {
-            It 'Should not contain known broken external URL: <SourceRel>:<LineNumber> <Url>' -ForEach $knownBrokenExternalUrlMatches {
+            It 'Should not contain known broken external URL: <SourceRel>:<LineNumber> <Url>' -AllowNullOrEmptyForEach -ForEach $knownBrokenExternalUrlMatches {
                 $Url | Should -Not -Match $Pattern -Because "known broken external URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
             }
         }
@@ -328,7 +328,7 @@ Describe 'Documentation links' {
 
     Context 'docs-mslearn: No incomplete placeholder external URLs' {
         if ($incompleteExternalUrlMatches.Count -gt 0) {
-            It 'Should not contain incomplete placeholder URL: <SourceRel>:<LineNumber> <Url>' -ForEach $incompleteExternalUrlMatches {
+            It 'Should not contain incomplete placeholder URL: <SourceRel>:<LineNumber> <Url>' -AllowNullOrEmptyForEach -ForEach $incompleteExternalUrlMatches {
                 $Url | Should -Not -Match $Pattern -Because "incomplete placeholder URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
             }
         }
@@ -345,38 +345,31 @@ Describe 'Documentation links' {
 
     Context 'docs: Internal relative links' {
 
-        if ($jekyllInternalLinks.Count -gt 0) {
-            It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach $jekyllInternalLinks {
-                $sourceDir = Split-Path $SourceFile -Parent
+        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach $jekyllInternalLinks {
+            $sourceDir = Split-Path $SourceFile -Parent
 
-                if ([string]::IsNullOrEmpty($PathPart))
-                {
-                    Set-ItResult -Skipped -Because 'anchor-only link'
-                    return
-                }
-
-                $resolvedPath = Join-Path $sourceDir $PathPart | Resolve-Path -ErrorAction SilentlyContinue
-                $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
+            if ([string]::IsNullOrEmpty($PathPart))
+            {
+                Set-ItResult -Skipped -Because 'anchor-only link'
+                return
             }
 
-            It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach ($jekyllInternalLinks | Where-Object { $_.AnchorPart }) {
-                $sourceDir = Split-Path $SourceFile -Parent
-                $resolvedPath = Join-Path $sourceDir $PathPart
-
-                if (-not (Test-Path $resolvedPath))
-                {
-                    Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
-                    return
-                }
-
-                $anchors = Get-FileAnchors $resolvedPath
-                $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
-            }
+            $resolvedPath = Join-Path $sourceDir $PathPart | Resolve-Path -ErrorAction SilentlyContinue
+            $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
         }
-        else {
-            It 'Should not contain internal relative links to validate' {
-                $jekyllInternalLinks | Should -BeNullOrEmpty -Because 'the Jekyll docs site currently has no internal .md-to-.md relative links (navigation uses root-relative permalinks)'
+
+        It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach ($jekyllInternalLinks | Where-Object { $_.AnchorPart }) {
+            $sourceDir = Split-Path $SourceFile -Parent
+            $resolvedPath = Join-Path $sourceDir $PathPart
+
+            if (-not (Test-Path $resolvedPath))
+            {
+                Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
+                return
             }
+
+            $anchors = Get-FileAnchors $resolvedPath
+            $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
         }
     }
 
@@ -386,7 +379,7 @@ Describe 'Documentation links' {
 
     Context 'docs-wiki: Wiki page links' {
 
-        It 'Should reference an existing wiki page: <SourceRel>:<LineNumber> [[<DisplayText>]]' -ForEach $wikiPageLinks {
+        It 'Should reference an existing wiki page: <SourceRel>:<LineNumber> [[<DisplayText>]]' -AllowNullOrEmptyForEach -ForEach $wikiPageLinks {
             $pageFileName = ($PageName -replace '\s', '-') + '.md'
             # Case-insensitive match against actual wiki files
             $found = $wikiPageFileNames | Where-Object { $_ -ieq $pageFileName }
@@ -396,7 +389,7 @@ Describe 'Documentation links' {
 
     Context 'docs-wiki: Repo-relative links' {
 
-        It 'Should resolve to an existing repo path: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach $wikiRepoLinks {
+        It 'Should resolve to an existing repo path: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach $wikiRepoLinks {
             $fullPath = Join-Path $repoRoot $RepoPath
             $exists = (Test-Path $fullPath) -or (Test-Path "$fullPath.md")
             $exists | Should -BeTrue -Because "repo-relative link '$RepoPath' in ${SourceRel}:${LineNumber} should point to an existing file or directory"
@@ -405,7 +398,7 @@ Describe 'Documentation links' {
 
     Context 'docs-wiki: Internal relative links' {
 
-        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach $wikiInternalLinks {
+        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach $wikiInternalLinks {
             $sourceDir = Split-Path $SourceFile -Parent
 
             if ([string]::IsNullOrEmpty($PathPart))
@@ -425,7 +418,7 @@ Describe 'Documentation links' {
 
     Context 'Root files: Internal relative links' {
 
-        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach $rootInternalLinks {
+        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach $rootInternalLinks {
             $sourceDir = Split-Path $SourceFile -Parent
 
             if ([string]::IsNullOrEmpty($PathPart))
@@ -438,27 +431,18 @@ Describe 'Documentation links' {
             $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
         }
 
-        $rootInternalLinksWithAnchor = @($rootInternalLinks | Where-Object { $_.AnchorPart })
+        It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach ($rootInternalLinks | Where-Object { $_.AnchorPart }) {
+            $sourceDir = Split-Path $SourceFile -Parent
+            $resolvedPath = Join-Path $sourceDir $PathPart
 
-        if ($rootInternalLinksWithAnchor.Count -gt 0) {
-            It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach $rootInternalLinksWithAnchor {
-                $sourceDir = Split-Path $SourceFile -Parent
-                $resolvedPath = Join-Path $sourceDir $PathPart
-
-                if (-not (Test-Path $resolvedPath))
-                {
-                    Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
-                    return
-                }
-
-                $anchors = Get-FileAnchors $resolvedPath
-                $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
+            if (-not (Test-Path $resolvedPath))
+            {
+                Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
+                return
             }
-        }
-        else {
-            It 'Should not contain internal links with anchors to validate' {
-                $rootInternalLinksWithAnchor | Should -BeNullOrEmpty -Because 'no internal root markdown links currently include an anchor fragment'
-            }
+
+            $anchors = Get-FileAnchors $resolvedPath
+            $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
         }
     }
 
