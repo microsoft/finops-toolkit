@@ -135,7 +135,7 @@ InModuleScope 'FinOpsToolkit' {
                 $result | Should -HaveCount 1
 
                 # The individual GET endpoint was queried for the export's full run history
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $Uri -match 'exports/test-export\?' -and $Uri -match '\$expand=runHistory'
                 }
 
@@ -175,7 +175,7 @@ InModuleScope 'FinOpsToolkit' {
                 Get-FinOpsCostExport -Scope $scope -RunHistory
 
                 # Assert
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $Uri -match '\$expand=runHistory'
                 }
             }
@@ -208,8 +208,8 @@ InModuleScope 'FinOpsToolkit' {
 
                 # Assert
                 # Only the list call should be made (no $expand, no per-export GET)
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -Exactly
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -Exactly
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $Uri -notmatch '\$expand=runHistory'
                 }
             }
@@ -257,7 +257,7 @@ InModuleScope 'FinOpsToolkit' {
 
                 # Assert
                 # The per-export individual GET must be attempted before falling back
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $Uri -match 'exports/test-export\?' -and $Uri -match '\$expand=runHistory'
                 }
                 $result | Should -Not -BeNullOrEmpty
@@ -310,7 +310,7 @@ InModuleScope 'FinOpsToolkit' {
                 # Assert
                 # The cmdlet must still return data (the thrown error is caught and the
                 # list run history is used).
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $Uri -match 'exports/test-export\?' -and $Uri -match '\$expand=runHistory'
                 }
                 $result | Should -Not -BeNullOrEmpty
@@ -394,10 +394,10 @@ InModuleScope 'FinOpsToolkit' {
                 # Assert
                 # The throttled GET was retried (2 calls), waited once, and the full
                 # history (2 runs) -- not the truncated list (1 run) -- was returned.
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 2 -Exactly -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 2 -Exactly -ParameterFilter {
                     $Uri -match 'exports/test-export\?'
                 }
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Start-Sleep' -Times 1 -Exactly
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Start-Sleep' -Times 1 -Exactly
                 $result.RunHistory | Should -HaveCount 2
                 $result.RunHistory[1].RunId | Should -Be 'run2'
             }
