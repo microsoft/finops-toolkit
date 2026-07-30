@@ -515,7 +515,7 @@ Costs_transform_v1_0()
         x_ResourceType)
     | extend ResourceType = case(
         // Use existing resource type display name unless it's an internal resource type ID
-        isnotempty(ResourceType) and ResourceType !~ x_ResourceType and ResourceType !contains '/', ResourceType,
+        isnotempty(ResourceType) and ResourceType !~ x_ResourceType and ResourceType !has '/', ResourceType,
         // Use CommitmentDiscountType for commitment discount purchases
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountType), CommitmentDiscountType,
         // Look up display name from internal type
