@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: dev
 
@@ -32,7 +32,7 @@ jobs:
           Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
 
       - name: Login via Az module
-        uses: azure/login@hf_447_release
+        uses: azure/login@264ef4588d3ca547fea5296679ee9f8a4766d4df # hf_447_release
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
