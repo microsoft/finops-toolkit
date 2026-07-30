@@ -38,7 +38,7 @@ jobs:
         with:
           client-id: 07fb13e5-41ca-4f29-8d5e-cc4244db260b # finops-toolkit-opendata-reader
           tenant-id: 38a09d9b-84be-4c40-8aef-99ebeed474ff # FinOps Toolkit tenant
-          subscription-id: d23f7041-b350-4195-930e-e44dc2992ff1
+          subscription-id: 6c3cfdf5-688d-4259-9ef6-c3bbfb355c57
           enable-AzPSSession: true
 
       - name: Fetch ISF ratios from Azure Catalogs API
