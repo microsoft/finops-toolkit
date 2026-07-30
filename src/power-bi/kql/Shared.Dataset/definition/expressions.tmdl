@@ -102,10 +102,11 @@ expression ftk_ARGBatchSize = () => 100
 expression ftk_QueryARG =
 		(query as text, optional batchMultiplier as number) =>
 		    let
-		      batchSize = ftk_ARGBatchSize() * (if batchMultiplier <> null then batchMultiplier else 1),
+		      requestedBatchSize = try ftk_ARGBatchSize() * (if batchMultiplier <> null then batchMultiplier else 1) otherwise null,
+		      batchSize = if requestedBatchSize = null or not Value.Is(requestedBatchSize, type number) or requestedBatchSize < 1 then 100 else Number.RoundDown(requestedBatchSize),
 		      subQuery = "resourcecontainers | where type == 'microsoft.resources/subscriptions' | project subscriptionId" & ftk_DemoFilter(),
-		      Subscriptions = AzureResourceGraph.Query(subQuery, "Tenant", null, null, [resultTruncated = false]),
-		      SubscriptionIds = Subscriptions[subscriptionId],
+		      Subscriptions = try AzureResourceGraph.Query(subQuery, "Tenant", null, null, [resultTruncated = false]) otherwise null,
+		      SubscriptionIds = if Subscriptions = null or not Value.Is(Subscriptions, type table) or Table.RowCount(Subscriptions) = 0 or not Table.HasColumns(Subscriptions, "subscriptionId") then {} else Subscriptions[subscriptionId],
 		      BatchCount = Number.RoundUp(List.Count(SubscriptionIds) / batchSize),
 		      Batches = List.Transform({0..BatchCount-1}, each
 		        let

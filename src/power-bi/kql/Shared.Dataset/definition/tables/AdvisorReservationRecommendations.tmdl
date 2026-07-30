@@ -439,6 +439,7 @@ table AdvisorReservationRecommendations
 				    advisorresources
 				    | where type == 'microsoft.advisor/recommendations'
 				    | where properties.category == 'Cost'
+				    | where properties.shortDescription.solution == 'Consider virtual machine reserved instance to save over your on-demand costs'
 				    | extend
 				      ['properties.recommendationTypeId'] = properties.recommendationTypeId,
 				      ['properties.shortDescription'] = properties.shortDescription,
