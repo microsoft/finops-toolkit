@@ -1,0 +1,64 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+//======================================================================================================================
+// ContractedCost tolerance guard regression harness
+//
+// Verifies, per row, the behavior change shipped for #2216 (PR #2221): the ContractedCost recompute guard now compares
+// with a 0.0001 tolerance instead of exact float equality.
+//
+//   old: ... and ContractedCost != ContractedUnitPrice * PricingQuantity
+//   new: ... and abs(ContractedCost - ContractedUnitPrice * PricingQuantity) >= 0.0001
+//
+// How to run: paste into any Kusto database (ADX or Fabric eventhouse; no table access required).
+//   - PASS = the query returns 0 rows.
+//
+// expectedDivergent = true rows are the point of the fix: rows where the old guard fired on floating-point noise or
+// sub-tolerance differences and rewrote the value with a no-op (measured at 97.4-99.98% of 13.7M recorded mutations
+// across three production hubs, polluting the x_SourceValues audit trail). The new guard must NOT fire on those.
+// expectedDivergent = false rows assert that everything else is unchanged: exact matches stay untouched, material
+// corrections (>= 0.0001) still fire, and the ProviderName / isnotempty() guards still gate the recompute.
+//
+// Fixtures cover both engines' typing: real (Costs_final_v1_2) and decimal (Costs_final_v1_0) — decimal arithmetic is
+// exact, so the float-noise class only exists in the v1_2 path, but the sub-tolerance class applies to both.
+//======================================================================================================================
+
+// real-typed fixtures (IngestionSetup_v1_2.kql — Costs_final_v1_2 columns are real)
+let realCases = datatable(label:string, provider:string, qty:real, blockSize:real, cost:real, price:real, expectedDivergent:bool) [
+    'exact match',                 'Microsoft', real(10),   real(1),    real(10),       real(1),   false,
+    'float noise 0.1 * 3',         'Microsoft', real(3),    real(1),    real(0.3),      real(0.1), true,
+    'float noise 1.1 * 3',         'Microsoft', real(3),    real(1),    real(3.3),      real(1.1), true,
+    'sub-tolerance +0.00005',      'Microsoft', real(10),   real(1),    real(10.00005), real(1),   true,
+    // The decimal literal 8.0001 is 8.00009999... in IEEE 754, landing marginally below the threshold — a difference
+    // intended as exactly 0.0001 may be skipped. Documented as expected: a 1e-4-scale delta is immaterial by design.
+    'at tolerance +0.0001',        'Microsoft', real(8),    real(1),    real(8.0001),   real(1),   true,
+    'above tolerance +0.00011',    'Microsoft', real(8),    real(1),    real(8.00011),  real(1),   false,
+    'material +0.01',              'Microsoft', real(10),   real(1),    real(10.01),    real(1),   false,
+    'material large',              'Microsoft', real(10),   real(1),    real(12),       real(2),   false,
+    'negative sub-tolerance',      'Microsoft', real(-10),  real(1),    real(-10.00005), real(1),  true,
+    'negative material',           'Microsoft', real(-10),  real(1),    real(-12),      real(1),   false,
+    'zero product, zero cost',     'Microsoft', real(5),    real(1),    real(0),        real(0),   false,
+    'zero product, dust cost',     'Microsoft', real(5),    real(1),    real(0.00005),  real(0),   true,
+    'empty PricingQuantity',       'Microsoft', real(null), real(1),    real(999),      real(1),   false,
+    'empty x_PricingBlockSize',    'Microsoft', real(10),   real(null), real(999),      real(1),   false,
+    'non-Microsoft provider',      'AWS',       real(10),   real(1),    real(999),      real(1),   false,
+]
+| extend old_fires = provider == 'Microsoft' and isnotempty(qty) and isnotempty(blockSize) and cost != price * qty
+| extend new_fires = provider == 'Microsoft' and isnotempty(qty) and isnotempty(blockSize) and abs(cost - price * qty) >= 0.0001
+| extend check = '01 real-typed guard (Costs_final_v1_2)';
+//
+// decimal-typed fixtures (IngestionSetup_v1_0.kql — Costs_final_v1_0 columns are decimal)
+let decimalCases = datatable(label:string, provider:string, qty:decimal, blockSize:decimal, cost:decimal, price:decimal, expectedDivergent:bool) [
+    'decimal exact 0.1 * 3',       'Microsoft', decimal(3),  decimal(1), decimal(0.3),      decimal(0.1), false,
+    'decimal sub-tolerance',       'Microsoft', decimal(10), decimal(1), decimal(10.00005), decimal(1),   true,
+    'decimal material +0.01',      'Microsoft', decimal(10), decimal(1), decimal(10.01),    decimal(1),   false,
+]
+| extend old_fires = provider == 'Microsoft' and isnotempty(qty) and isnotempty(blockSize) and cost != price * qty
+| extend new_fires = provider == 'Microsoft' and isnotempty(qty) and isnotempty(blockSize) and abs(cost - price * qty) >= 0.0001
+| extend check = '02 decimal-typed guard (Costs_final_v1_0)';
+//
+union
+    (realCases    | project check, label, old_fires, new_fires, expectedDivergent),
+    (decimalCases | project check, label, old_fires, new_fires, expectedDivergent)
+| where (old_fires != new_fires) != expectedDivergent
+| order by check asc, label asc
