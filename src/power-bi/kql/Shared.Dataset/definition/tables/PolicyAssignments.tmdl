@@ -369,7 +369,7 @@ table PolicyAssignments
 				  query = "
 				    policyResources
 				    | where type =~'Microsoft.Authorization/PolicyAssignments'
-				    | extend subscriptionId = tostring(split(id, '/')[2])
+				    | extend subscriptionId = iff(tolower(tostring(split(id, '/')[1])) == 'subscriptions', tostring(split(id, '/')[2]), '')
 				    | extend
 				      ['properties.policyDefinitionId'] = properties.policyDefinitionId,
 				      ['properties.effectiveDefinitionVersion'] = properties.effectiveDefinitionVersion,

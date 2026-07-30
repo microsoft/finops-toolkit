@@ -562,7 +562,7 @@ expression PolicyDefinitions =
 		  policyResources
 		    | where type =='microsoft.authorization/policydefinitions'
 		    | extend
-		        subscriptionId = tostring(split(id, '/')[2]),
+		        subscriptionId = iff(tolower(tostring(split(id, '/')[1])) == 'subscriptions', tostring(split(id, '/')[2]), ''),
 		        displayName = properties.displayName,
 		        description = properties.description,
 		        version = properties.version
