@@ -486,7 +486,7 @@ Costs_transform_v1_0()
     | project-away x_PricingBlockSize1, PricingUnit1, ListUnitPrice1, ContractedUnitPrice1, tmp_MissingPrices, tmp_ReservationPriceLookupKey, tmp_ReservationPriceLookupKey1
     //
     // BUG: Fix ContractedCost that has bad values
-    | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and abs(ContractedCost - ContractedUnitPrice * PricingQuantity) >= 0.0001, ContractedUnitPrice * PricingQuantity, ContractedCost)
+    | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and isnotempty(ContractedUnitPrice) and (isempty(ContractedCost) or abs(ContractedCost - ContractedUnitPrice * PricingQuantity) >= 0.0001), ContractedUnitPrice * PricingQuantity, ContractedCost)
     //
     // Handle FOCUS 1.0-preview UsageQuantity/Unit
     | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), todecimal(''))

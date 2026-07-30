@@ -23,14 +23,14 @@ Describe 'HubsContractedCostGuard' {
     BeforeAll {
         $repoRoot = (Resolve-Path "$PSScriptRoot/../../../..").Path
         $harnessPath = Join-Path $repoRoot 'src/powershell/Tests/assets/ContractedCostTolerance.kql'
-        $toleranceGuard = 'abs(ContractedCost - ContractedUnitPrice * PricingQuantity) >= 0.0001'
+        $toleranceGuard = 'isnotempty(ContractedUnitPrice) and (isempty(ContractedCost) or abs(ContractedCost - ContractedUnitPrice * PricingQuantity) >= 0.0001)'
     }
 
     Context 'Tolerance guard' {
 
-        It 'Should compare ContractedCost with a tolerance: <Name>' -ForEach $guardFiles {
+        It 'Should compare ContractedCost with a null-safe tolerance: <Name>' -ForEach $guardFiles {
             $content = Get-Content -Path $FullName -Raw
-            $content.Contains($toleranceGuard) | Should -BeTrue -Because 'the ContractedCost recompute must use the 0.0001 tolerance (#2216); exact float equality fires on last-bit noise and floods x_SourceValues with no-op rewrites'
+            $content.Contains($toleranceGuard) | Should -BeTrue -Because 'the ContractedCost recompute must use the null-safe 0.0001 tolerance (#2216); exact float equality fires on last-bit noise, a bare abs() comparison silently drops the null-cost backfill, and a null unit price must not overwrite an existing cost'
         }
 
         It 'Should not compare ContractedCost with exact inequality: <Name>' -ForEach $guardFiles {
@@ -54,6 +54,12 @@ Describe 'HubsContractedCostGuard' {
             $harness = Get-Content -Path $harnessPath -Raw
             $harness | Should -Match 'qty:real' -Because 'Costs_final_v1_2 columns are real'
             $harness | Should -Match 'qty:decimal' -Because 'Costs_final_v1_0 columns are decimal'
+        }
+
+        It 'Should cover null semantics' {
+            $harness = Get-Content -Path $harnessPath -Raw
+            $harness | Should -Match 'null cost, valid product' -Because 'the null-cost backfill (null != 75 is true under the old guard) must stay covered'
+            $harness | Should -Match 'null price, existing cost' -Because 'a null unit price must not overwrite an existing cost'
         }
     }
 }
