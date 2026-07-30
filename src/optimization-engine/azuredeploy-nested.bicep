@@ -257,7 +257,7 @@ var csvExportsSchedules = [
   {
     exportSchedule: priceExportsScheduleName
     exportDescription: 'Weekly Pricesheet and Reservation Prices exports'
-    exportTimeOffset: 'PT1H35M'
+    exportTimeOffset: 'PT1H05M'
     exportFrequency: 'Week'
   }
   {
@@ -562,7 +562,7 @@ var csvExports = [
     variableDescription: 'The Storage Account container where Pricesheet exports are dumped to'
     ingestSchedule: 'AzureOptimization_IngestPricesheetWeekly'
     ingestDescription: 'Weekly Pricesheet ingests'
-    ingestTimeOffset: 'PT2H'
+    ingestTimeOffset: 'PT1H35M'
     ingestFrequency: 'Week'
     ingestJobId: pricesheetIngestJobId
     exportSchedule: priceExportsScheduleName
@@ -576,7 +576,7 @@ var csvExports = [
     variableDescription: 'The Storage Account container where Reservations Prices exports are dumped to'
     ingestSchedule: 'AzureOptimization_IngestReservationsPriceWeekly'
     ingestDescription: 'Weekly Reservations Prices ingests'
-    ingestTimeOffset: 'PT2H'
+    ingestTimeOffset: 'PT1H35M'
     ingestFrequency: 'Week'
     ingestJobId: reservationPricesIngestJobId
     exportSchedule: priceExportsScheduleName
@@ -949,7 +949,7 @@ var runbooks = [
   }
   {
     name: consumptionExportsRunbookName
-    version: '2.1.1.0'
+    version: '2.1.2.0'
     description: 'Exports Azure Consumption events to Blob Storage using Azure Consumption API'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${consumptionExportsRunbookName}.ps1')
@@ -1075,7 +1075,7 @@ var runbooks = [
   }
   {
     name: csvIngestRunbookName
-    version: '1.6.2.0'
+    version: '2.0.0.0'
     description: 'Ingests CSV blobs as custom logs to Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${csvIngestRunbookName}.ps1')
@@ -1187,21 +1187,21 @@ var runbooks = [
   }
   {
     name: recommendationsIngestRunbookName
-    version: '1.7.1.0'
+    version: '1.7.2.0'
     description: 'Ingests JSON-based recommendations into an Azure SQL Database'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${recommendationsIngestRunbookName}.ps1')
   }
   {
     name: recommendationsLogAnalyticsIngestRunbookName
-    version: '1.1.1.0'
+    version: '2.0.0.0'
     description: 'Ingests JSON-based recommendations into Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${recommendationsLogAnalyticsIngestRunbookName}.ps1')
   }
   {
     name: suppressionsLogAnalyticsIngestRunbookName
-    version: '1.1.0.0'
+    version: '2.0.0.0'
     description: 'Ingests suppressions into Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${suppressionsLogAnalyticsIngestRunbookName}.ps1')
@@ -1274,7 +1274,7 @@ var automationVariables = [
   {
     name: 'AzureOptimization_LogAnalyticsChunkSize'
     description: 'The size (in rows) for each chunk of Log Analytics ingestion request'
-    value: 6000
+    value: 150
   }
   {
     name: 'AzureOptimization_StorageBlobsPageSize'
@@ -1567,6 +1567,17 @@ resource logAnalyticsWorkspace 'microsoft.operationalinsights/workspaces@2020-08
       name: 'pergb2018'
     }
     retentionInDays: logAnalyticsRetentionDays
+  }
+}
+
+resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2022-06-01' = {
+  name: '${automationAccountName}-dce'
+  location: projectLocation
+  tags: resourceTags
+  properties: {
+    networkAcls: {
+      publicNetworkAccess: 'Enabled'
+    }
   }
 }
 
@@ -1893,6 +1904,15 @@ resource automationVariables_LogAnalyticsWorkspaceKey 'Microsoft.Automation/auto
   }
 }
 
+resource automationVariables_DCEIngestionEndpoint 'Microsoft.Automation/automationAccounts/variables@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'AzureOptimization_DCEIngestionEndpoint'
+  properties: {
+    description: 'The Logs Ingestion endpoint URL of the Data Collection Endpoint used for DCR-based ingestion'
+    value: '"${dataCollectionEndpoint.properties.logsIngestion.endpoint}"'
+  }
+}
+
 resource automationSchedules_csvExports 'Microsoft.Automation/automationAccounts/schedules@2020-01-13-preview' = [for item in csvExportsSchedules: {
   parent: automationAccount
   name: item.exportSchedule
@@ -2156,3 +2176,5 @@ resource contributorRoleAssignmentGuid_resource 'Microsoft.Authorization/roleAss
 }
 
 output automationPrincipalId string = reference(automationAccount.id, '2019-06-01', 'Full').identity.principalId
+output dceLogsIngestionEndpoint string = dataCollectionEndpoint.properties.logsIngestion.endpoint
+output dceResourceId string = dataCollectionEndpoint.id

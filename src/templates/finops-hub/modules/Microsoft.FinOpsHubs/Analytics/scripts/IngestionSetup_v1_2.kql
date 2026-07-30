@@ -422,7 +422,8 @@ Costs_transform_v1_2()
         Prices_final_v1_2
         | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(x_EffectivePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
         | where x_SkuPriceType == 'Consumption' and tmp_ReservationPriceLookupKey in ((costsWithMissingPrices | summarize by tmp_ReservationPriceLookupKey))
-        | summarize ListUnitPrice = min(ListUnitPrice), ContractedUnitPrice = min(ContractedUnitPrice) by tmp_ReservationPriceLookupKey, x_PricingBlockSize, PricingUnit
+        // When duplicate price rows collapse under one lookup key, use the highest on-demand price as the savings baseline; min() can pick an anomalously low row and underreport savings
+        | summarize ListUnitPrice = max(ListUnitPrice), ContractedUnitPrice = max(ContractedUnitPrice) by tmp_ReservationPriceLookupKey, x_PricingBlockSize, PricingUnit
     ) on tmp_ReservationPriceLookupKey
     //
     // Select the best price to use for each row
@@ -507,7 +508,7 @@ Costs_transform_v1_2()
     | extend old_CapacityReservationStatus = CapacityReservationStatus, CapacityReservationStatus = case(
         isempty(CapacityReservationId), '',
         isnotempty(CapacityReservationStatus), CapacityReservationStatus,
-        tolower(x_ResourceType) == 'microsoft.compute/capacityreservationgroups/capacityreservations', 'Unused',
+        x_ResourceType =~ 'microsoft.compute/capacityreservationgroups/capacityreservations', 'Unused',
         'Used'
     )
     //
@@ -564,7 +565,7 @@ Costs_transform_v1_2()
         // FOCUS 1.2
         isnotempty(x_AmortizationClass), x_AmortizationClass,
         // FOCUS 1.0-preview+
-        ChargeCategory == 'Purchase' and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+        ChargeCategory == 'Purchase' and (ResourceId has '/microsoft.capacity/reservationorders/' or ResourceId has '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
         ChargeCategory == 'Usage' and isnotempty(CommitmentDiscountId) and isnotempty(CommitmentDiscountStatus), 'Amortized Charge',
         ''
     )
@@ -621,7 +622,7 @@ Costs_transform_v1_2()
     )
     | extend old_ResourceType = ResourceType, ResourceType = case(
         // Use existing resource type display name unless it's an internal resource type ID
-        isnotempty(ResourceType) and tolower(ResourceType) != tolower(x_ResourceType) and ResourceType !contains '/', ResourceType,
+        isnotempty(ResourceType) and ResourceType !~ x_ResourceType and ResourceType !has '/', ResourceType,
         // Use CommitmentDiscountType for commitment discount purchases
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountType), CommitmentDiscountType,
         // Look up display name from internal type
@@ -683,14 +684,14 @@ Costs_transform_v1_2()
     | extend tmp_SqlAhb = tolower(coalesce(x_SkuDetails.AHB, SkuPriceDetails.x_AHB))
     | extend x_SkuLicenseType = case(
         ChargeCategory != 'Usage', '',
-        x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory contains 'Windows' or coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL'), 'Windows Server',
+        x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory has 'Windows' or coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL'), 'Windows Server',
         isnotempty(tmp_SqlAhb) or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',
         ''
     )
     | extend x_SkuLicenseStatus = case(
         isempty(x_SkuLicenseType), '',
-        coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL' or tmp_SqlAhb == 'true' or x_SkuMeterSubcategory contains 'Azure Hybrid Benefit', 'Enabled',
-        (x_SkuMeterSubcategory contains 'Windows') or tmp_SqlAhb == 'false', 'Not Enabled',
+        coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL' or tmp_SqlAhb == 'true' or x_SkuMeterSubcategory has 'Azure Hybrid Benefit', 'Enabled',
+        (x_SkuMeterSubcategory has 'Windows') or tmp_SqlAhb == 'false', 'Not Enabled',
         ''
     )
     | extend x_SkuLicenseQuantity = case(
@@ -1104,7 +1105,7 @@ ActualCosts_transform_v1_2()
     //
     //
     | extend x_AmortizationClass = case(
-        ChargeType in ('Purchase', 'Refund') and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+        ChargeType in ('Purchase', 'Refund') and (ResourceId has '/microsoft.capacity/reservationorders/' or ResourceId has '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
         ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', 'Amortized Charge',
         ''
     )
@@ -1314,7 +1315,7 @@ ActualCosts_transform_v1_2()
 
 // AmortizedCosts_transform_v1_2 function
 .create-or-alter function
-with (docstring='ActualCost exports transformed to FOCUS 1.2.', folder='Costs')
+with (docstring='AmortizedCost exports transformed to FOCUS 1.2.', folder='Costs')
 AmortizedCosts_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
@@ -1325,7 +1326,7 @@ AmortizedCosts_transform_v1_2()
     //
     //
     | extend x_AmortizationClass = case(
-        ChargeType in ('Purchase', 'Refund') and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+        ChargeType in ('Purchase', 'Refund') and (ResourceId has '/microsoft.capacity/reservationorders/' or ResourceId has '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
         ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', 'Amortized Charge',
         ''
     )

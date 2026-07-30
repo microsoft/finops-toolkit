@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'src/powershell/**'
+      # KQL sources are covered by unit tests (HubsKqlOperators.Tests.ps1)
+      - 'src/templates/finops-hub/**/*.kql'
+      - 'src/queries/**/*.kql'
 jobs:
   run_pester_tests:
     name: Pester
@@ -12,7 +15,7 @@ jobs:
       - name: Install and cache PowerShell modules
         uses: potatoqualitee/psmodulecache@v6.2.1
         with:
-          modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester, Az.Accounts, Az.Resources
+          modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester:6.0.0, Az.Accounts, Az.Resources
           shell: pwsh
       - uses: actions/checkout@v3
       - name: Run Tests
