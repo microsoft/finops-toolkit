@@ -6,10 +6,13 @@ on:
   workflow_dispatch:
 
 # Unlike the other open data workflows, the Catalogs API is authenticated and requires
-# Microsoft.Capacity/catalogs/read. This reuses the existing OIDC service principal from the
-# aoe-prod environment (same one the AOE deployment workflows use) via federated credentials,
-# so no client secret is stored. The principal's subscription must have the Microsoft.Capacity
-# resource provider registered.
+# Microsoft.Capacity/catalogs/read. Auth uses the dedicated "finops-toolkit-opendata-reader"
+# app registration in the FinOps Toolkit tenant: an OIDC federated credential trusts workflow
+# runs on this repo's dev branch (subject repo:microsoft/finops-toolkit:ref:refs/heads/dev),
+# and the principal holds only the Reader role on the subscription below, which has the
+# Microsoft.Capacity resource provider registered. No client secret is stored anywhere, and
+# the IDs below are identifiers, not secrets. The catalog content is subscription-independent,
+# so the subscription only serves as an API routing scope.
 permissions:
   contents: write
   pull-requests: write
@@ -17,7 +20,6 @@ permissions:
 
 jobs:
   update:
-    environment: aoe-prod
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -34,9 +36,9 @@ jobs:
       - name: Login via Az module
         uses: azure/login@264ef4588d3ca547fea5296679ee9f8a4766d4df # hf_447_release
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: 07fb13e5-41ca-4f29-8d5e-cc4244db260b # finops-toolkit-opendata-reader
+          tenant-id: 38a09d9b-84be-4c40-8aef-99ebeed474ff # FinOps Toolkit tenant
+          subscription-id: d23f7041-b350-4195-930e-e44dc2992ff1
           enable-AzPSSession: true
 
       - name: Fetch ISF ratios from Azure Catalogs API
