@@ -30,14 +30,17 @@
     Azure context.
 
     .PARAMETER Location
-    One or more Azure regions to query and union ISF ratios from. Compute ISF group/ratio
-    relationships are region-stable, but BlockBlob storage groups are region-specific, so the
-    default unions a broad region set to maximize coverage.
+    One or more Azure regions to query and union ISF ratios from. ISF group/ratio relationships
+    are region-stable, but not every SKU is available in every region, so the default unions a
+    broad region set to maximize SKU coverage.
 
     .PARAMETER ReservedResourceType
-    One or more reserved resource types to extract ISF ratios for. Default is the four types that
-    expose ISF ratios as of 2026-06 (VirtualMachines, BlockBlob, RedisCache, DedicatedHost);
-    other reserved types are 1:1 and carry no flexibility groups.
+    One or more reserved resource types to extract ISF ratios for. Default is VirtualMachines,
+    RedisCache, and DedicatedHost. BlockBlob is intentionally excluded: its catalog entries carry
+    no real ARM SKU names (only meter-style catalog names), every ratio is 1, and its groups are
+    region-specific, which would break the guarantee that ArmSkuName is unique across the output.
+    Pass it explicitly if you need it. Other reserved types are 1:1 and carry no flexibility
+    groups.
 
     .PARAMETER ApiVersion
     Catalogs API version. Default = 2022-03-01.
@@ -61,8 +64,8 @@ param(
 
     [string]$SubscriptionId,
 
-    # ISF group/ratio relationships are region-stable for compute, but BlockBlob storage groups
-    # are region-specific, so a broad region set is unioned to maximize coverage.
+    # ISF group/ratio relationships are region-stable, but SKU availability is not, so a broad
+    # region set is unioned to maximize coverage.
     [string[]]$Location = @(
         'eastus', 'eastus2', 'westus', 'westus2', 'westus3', 'centralus', 'southcentralus', 'northcentralus',
         'westeurope', 'northeurope', 'uksouth', 'francecentral', 'germanywestcentral', 'swedencentral', 'norwayeast',
@@ -70,9 +73,9 @@ param(
         'canadacentral', 'brazilsouth', 'southafricanorth', 'uaenorth'
     ),
 
-    # The reserved resource types that expose ISF ratios (ReservationsAutofitGroup/Ratio). As of
-    # 2026-06 only these four do; other reserved types are 1:1 and carry no flexibility groups.
-    [string[]]$ReservedResourceType = @('VirtualMachines', 'BlockBlob', 'RedisCache', 'DedicatedHost'),
+    # The reserved resource types that expose usable ISF ratios (ReservationsAutofitGroup/Ratio).
+    # BlockBlob is excluded by default -- see the parameter help above.
+    [string[]]$ReservedResourceType = @('VirtualMachines', 'RedisCache', 'DedicatedHost'),
 
     [string]$ApiVersion = '2022-03-01',
 
@@ -253,42 +256,19 @@ function Get-NormalizedRecords
 }
 
 # -----------------------------------------------------------------------
-# Step 1: Load existing CSV as a cache to preserve SKUs not seen this run
+# Step 1: Fetch ISF ratios for each reserved resource type across all regions
 # -----------------------------------------------------------------------
-$cache = @{}
-if (Test-Path $OutputPath)
-{
-    Write-Host "Loading existing CSV as cache..."
-    foreach ($row in (Import-Csv -Path $OutputPath))
-    {
-        $key = "$($row.InstanceSizeFlexibilityGroup)|$($row.ArmSkuName)"
-        $cache[$key] = [PSCustomObject]@{
-            InstanceSizeFlexibilityGroup = $row.InstanceSizeFlexibilityGroup
-            ArmSkuName                   = $row.ArmSkuName
-            Ratio                        = [double]$row.Ratio
-        }
-    }
-    Write-Host "  Cached SKUs: $($cache.Count)"
-}
-
-# -----------------------------------------------------------------------
-# Step 2: Fetch ISF ratios for each reserved resource type across all regions
-# -----------------------------------------------------------------------
+# The output is exactly what the API returns for a fully successful run so the dataset always
+# converges on the Catalogs API (records Microsoft retires disappear on the next run). Any scope
+# that still fails after retries aborts the whole run without touching the output file; the
+# weekly workflow then fails and the last published dataset stays as-is.
 $seen = @{}
 foreach ($type in $ReservedResourceType)
 {
     $typeKeys = @{}
     foreach ($region in $Location)
     {
-        try
-        {
-            $catalogItems = Invoke-CatalogsApi -ResourceType $type -Region $region
-        }
-        catch
-        {
-            Write-Warning "  $type/$region failed, skipping: $($_.Exception.Message)"
-            continue
-        }
+        $catalogItems = Invoke-CatalogsApi -ResourceType $type -Region $region
         foreach ($record in (Get-IsfRecords -CatalogItems $catalogItems))
         {
             $key = "$($record.InstanceSizeFlexibilityGroup)|$($record.ArmSkuName)"
@@ -299,38 +279,18 @@ foreach ($type in $ReservedResourceType)
     Write-Host "  $type`: $($typeKeys.Count) distinct SKUs with ISF ratios across $($Location.Count) region(s)"
 }
 
-# -----------------------------------------------------------------------
-# Step 3: Merge current run with cache (update seen, preserve unseen)
-# -----------------------------------------------------------------------
-$added = 0
-$modified = 0
-$unchanged = 0
-$preserved = 0
+$allRecords = @($seen.Values)
 
-$merged = @{}
-foreach ($key in $cache.Keys) { $merged[$key] = $cache[$key] }
-foreach ($key in $seen.Keys)
+# ArmSkuName is documented as a safe standalone join key, so fail hard if the API ever returns
+# the same SKU in multiple flexibility groups instead of silently publishing ambiguous data.
+$duplicateSkus = $allRecords | Group-Object ArmSkuName | Where-Object Count -gt 1
+if ($duplicateSkus)
 {
-    if (-not $cache.ContainsKey($key))
-    {
-        $added++
-    }
-    elseif ([Math]::Round($cache[$key].Ratio, 6) -ne [Math]::Round($seen[$key].Ratio, 6))
-    {
-        $modified++
-    }
-    else
-    {
-        $unchanged++
-    }
-    $merged[$key] = $seen[$key]
+    throw "Duplicate ArmSkuName values across flexibility groups: $($duplicateSkus.Name -join ', '). ArmSkuName must stay unique; investigate before publishing."
 }
-$preserved = $merged.Count - $seen.Count
-
-$allRecords = @($merged.Values)
 
 # -----------------------------------------------------------------------
-# Step 4: Normalize, sort, and write output
+# Step 2: Normalize, sort, and write output
 # -----------------------------------------------------------------------
 if ($Normalize)
 {
@@ -339,12 +299,6 @@ if ($Normalize)
 }
 
 $rows = $allRecords | Sort-Object InstanceSizeFlexibilityGroup, ArmSkuName
-
-Write-Host "`nMerge summary:"
-Write-Host "  Added:     $added"
-Write-Host "  Modified:  $modified"
-Write-Host "  Unchanged: $unchanged"
-Write-Host "  Preserved: $preserved (not seen this run, kept from cache)"
 
 $rows | Export-Csv -Path $OutputPath -UseQuotes Always -NoTypeInformation -Encoding utf8
 Write-Host "Wrote $($rows.Count) SKUs to $OutputPath"

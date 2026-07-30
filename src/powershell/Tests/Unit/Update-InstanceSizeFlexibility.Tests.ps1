@@ -106,12 +106,12 @@ Describe 'Update-InstanceSizeFlexibility' {
             Should -Invoke Start-Sleep -Exactly -Times 2
         }
 
-        It 'Does not retry non-transient 4xx and preserves cached data when a scope fails' {
+        It 'Fails the run on non-retryable 4xx without touching the existing output file' {
             @([PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'DSeries'; ArmSkuName = 'Standard_D2'; Ratio = '1' }) `
             | Export-Csv $outFile -NoTypeInformation
             Mock Invoke-AzRestMethod { New-CatalogResponse -StatusCode 403 -RawContent '{"error":"forbidden"}' }
 
-            Invoke-Generator $baseParams
+            { Invoke-Generator $baseParams } | Should -Throw
 
             @(Import-Csv $outFile).ArmSkuName | Should -Be 'Standard_D2'
             Should -Invoke Invoke-AzRestMethod -Exactly -Times 1
@@ -179,15 +179,15 @@ Describe 'Update-InstanceSizeFlexibility' {
         }
     }
 
-    Context 'Cache merge' {
-        It 'Updates changed ratios, adds new SKUs, and preserves unseen cached SKUs' {
+    Context 'Convergence' {
+        It 'Replaces the output with exactly what the API returned, removing retired records' {
             @(
                 [PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'DSeries'; ArmSkuName = 'Standard_D2'; Ratio = '1' },
-                [PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'DSeries'; ArmSkuName = 'Standard_D4'; Ratio = '2' }
+                [PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'DSeries'; ArmSkuName = 'Standard_Retired'; Ratio = '2' }
             ) | Export-Csv $outFile -NoTypeInformation
             Mock Invoke-AzRestMethod {
                 New-CatalogResponse -Items @(
-                    (New-CatalogItem -Sku 'Standard_D4' -Group 'DSeries' -Ratio '4'),
+                    (New-CatalogItem -Sku 'Standard_D2' -Group 'DSeries' -Ratio '1'),
                     (New-CatalogItem -Sku 'Standard_D8' -Group 'DSeries' -Ratio '8')
                 )
             }
@@ -195,10 +195,47 @@ Describe 'Update-InstanceSizeFlexibility' {
             Invoke-Generator $baseParams
 
             $rows = @(Import-Csv $outFile)
-            $rows.Count | Should -Be 3
-            ($rows | Where-Object ArmSkuName -eq 'Standard_D2').Ratio | Should -Be '1'   # unseen -> preserved
-            ($rows | Where-Object ArmSkuName -eq 'Standard_D4').Ratio | Should -Be '4'   # seen -> updated
-            ($rows | Where-Object ArmSkuName -eq 'Standard_D8').Ratio | Should -Be '8'   # new -> added
+            $rows.ArmSkuName | Should -Be @('Standard_D2', 'Standard_D8')   # retired record is gone
+        }
+
+        It 'Fails instead of publishing when the same SKU appears in multiple flexibility groups' {
+            Mock Invoke-AzRestMethod {
+                New-CatalogResponse -Items @(
+                    (New-CatalogItem -Sku 'Standard_D2' -Group 'GroupA' -Ratio '1'),
+                    (New-CatalogItem -Sku 'Standard_D2' -Group 'GroupB' -Ratio '2')
+                )
+            }
+
+            { Invoke-Generator $baseParams } | Should -Throw -ExpectedMessage '*Duplicate ArmSkuName*'
+
+            Test-Path $outFile | Should -BeFalse
+        }
+    }
+
+    Context 'Default scope' {
+        It 'Queries VirtualMachines, RedisCache, and DedicatedHost but not BlockBlob by default' {
+            Mock Invoke-AzRestMethod { New-CatalogResponse -Items @() }
+
+            Invoke-Generator @{ OutputPath = $outFile; Location = @('eastus') }
+
+            Should -Invoke Invoke-AzRestMethod -Exactly -Times 3
+            Should -Invoke Invoke-AzRestMethod -Exactly -Times 1 -ParameterFilter { $Uri -like '*reservedResourceType=VirtualMachines*' }
+            Should -Invoke Invoke-AzRestMethod -Exactly -Times 1 -ParameterFilter { $Uri -like '*reservedResourceType=RedisCache*' }
+            Should -Invoke Invoke-AzRestMethod -Exactly -Times 1 -ParameterFilter { $Uri -like '*reservedResourceType=DedicatedHost*' }
+            Should -Invoke Invoke-AzRestMethod -Exactly -Times 0 -ParameterFilter { $Uri -like '*reservedResourceType=BlockBlob*' }
+        }
+    }
+
+    Context 'Published dataset' {
+        It 'Has globally unique ArmSkuName values' {
+            $csv = Import-Csv "$PSScriptRoot/../../../open-data/InstanceSizeFlexibility.csv"
+            $duplicates = @($csv | Group-Object ArmSkuName | Where-Object Count -gt 1)
+            $duplicates.Name | Should -BeNullOrEmpty
+        }
+
+        It 'Has the documented three-column schema' {
+            $csv = Import-Csv "$PSScriptRoot/../../../open-data/InstanceSizeFlexibility.csv"
+            @($csv[0].PSObject.Properties.Name) | Should -Be @('InstanceSizeFlexibilityGroup', 'ArmSkuName', 'Ratio')
         }
     }
 

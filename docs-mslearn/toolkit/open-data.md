@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 06/29/2026
+ms.date: 07/30/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -193,9 +193,10 @@ Sample data:
 
 A few important notes about the data:
 
-- It covers the reserved resource types that expose ISF ratios: Virtual Machines, Block Blob storage, Redis Cache, and Dedicated Host.
+- It covers Virtual Machines, Redis Cache, and Dedicated Host.
+- `ArmSkuName` is unique across the file and can be used as a join key on its own.
 - Ratios are the raw Microsoft values within each group (the smallest SKU isn't always `1`).
-- Data is updated weekly via a GitHub Actions workflow.
+- Data is updated weekly via a GitHub Actions workflow and always reflects the current API catalog, so retired SKUs are removed automatically.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
