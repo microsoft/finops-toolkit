@@ -94,9 +94,8 @@ relationship b4df7db2-17c9-dcef-7d32-4d6aaf3b4f3c
 
 relationship c0c15128-2725-100f-2945-f99368d742f6
 	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
-	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
+	fromColumn: ReservationRecommendations.x_CommitmentDiscountNormalizedSize
+	toColumn: InstanceSizeFlexibility.x_SkuType
 
 relationship AutoDetected_8af1c026-78c9-4c32-ba5d-c90a60061c83
 	fromColumn: VirtualMachinesDisks.subscriptionId
