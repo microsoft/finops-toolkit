@@ -509,8 +509,9 @@ expression ftk_ARGBatchSize = () => 100
 expression ftk_QueryARG =
 		(query as text, optional batchMultiplier as number, optional includeUnscoped as logical) =>
 		    let
+		      defaultBatchSize = 100,
 		      requestedBatchSize = try ftk_ARGBatchSize() * (if batchMultiplier <> null then batchMultiplier else 1) otherwise null,
-		      batchSize = if requestedBatchSize = null or not Value.Is(requestedBatchSize, type number) or requestedBatchSize < 1 then 100 else Number.RoundDown(requestedBatchSize),
+		      batchSize = if requestedBatchSize = null or not Value.Is(requestedBatchSize, type number) or requestedBatchSize < 1 then defaultBatchSize else Number.RoundDown(requestedBatchSize),
 		      subQuery = "resourcecontainers | where type == 'microsoft.resources/subscriptions' | project subscriptionId" & ftk_DemoFilter(),
 		      Subscriptions = try AzureResourceGraph.Query(subQuery, "Tenant", null, null, [resultTruncated = false]) otherwise null,
 		      SubscriptionIds = if Subscriptions = null or not Value.Is(Subscriptions, type table) or Table.RowCount(Subscriptions) = 0 or not Table.HasColumns(Subscriptions, "subscriptionId") then {} else Subscriptions[subscriptionId],
@@ -519,6 +520,7 @@ expression ftk_QueryARG =
 		        let
 		          batchStart = _ * batchSize,
 		          batchIds = List.Range(SubscriptionIds, batchStart, List.Min({batchSize, List.Count(SubscriptionIds) - batchStart})),
+		          // filter within the ARG query itself (rather than the request-level "subscriptions" scope parameter) so batching logic stays entirely in M and behaves the same for every caller regardless of query shape
 		          subFilter = " | where subscriptionId in (" & Text.Combine(List.Transform(batchIds, each "'" & _ & "'"), ",") & ")",
 		          fullQuery = query & subFilter,
 		          Source = AzureResourceGraph.Query(fullQuery, "Tenant", null, null, [resultTruncated = false])
@@ -526,7 +528,7 @@ expression ftk_QueryARG =
 		          if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then null else Source
 		      ),
 		      // some callers (for example tenant/management-group-scoped policy resources) can have a blank subscriptionId that never matches any subscription batch filter above; fetch those rows once, unbatched, when requested
-		      UnscopedSource = if includeUnscoped = true then AzureResourceGraph.Query(query & " | where isempty(subscriptionId)", "Tenant", null, null, [resultTruncated = false]) else null,
+		      UnscopedSource = if includeUnscoped = true then (try AzureResourceGraph.Query(query & " | where isempty(subscriptionId)", "Tenant", null, null, [resultTruncated = false]) otherwise null) else null,
 		      UnscopedFiltered = if UnscopedSource <> null and not (Table.HasColumns(UnscopedSource, "Results") and Table.RowCount(UnscopedSource) = 1) then UnscopedSource else null,
 		      Filtered = List.RemoveNulls(Batches & {UnscopedFiltered}),
 		      Combined = if List.Count(Filtered) > 0 then Table.Combine(Filtered) else null

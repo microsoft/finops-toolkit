@@ -522,7 +522,7 @@ table AdvisorRecommendations
 				    ['properties.resourceMetadata.source'] = properties.resourceMetadata.source,
 				    SortOrder = case(properties.impact == 'High', 1, properties.impact == 'Medium', 2, properties.impact == 'Low', 3, 9)
 				  ",
-				  Source = ftk_QueryARG(query, 5),
+				  Source = ftk_QueryARG(query, 2),
 				  NullHandling =
 				    if Source = null then
 							#table(
@@ -537,9 +537,11 @@ table AdvisorRecommendations
 				      {"properties.extendedProperties.ObservationPeriodStartDate", type datetimezone},
 				      {"properties.extendedProperties.ObservationPeriodEndDate",   type datetimezone},
 				      {"properties.lastUpdated",                                   type datetimezone}
-				    }, "en-US")
+				    }, "en-US"),
+				  // Table.Combine concatenates per-batch results, so re-sort here to restore the global SortOrder ordering that the per-batch KQL "order by" only guarantees within each batch
+				  Sorted = Table.Sort(Types, {{"SortOrder", Order.Ascending}})
 				in
-				  Types
+				  Sorted
 				```
 
 	annotation PBI_NavigationStepName = Navigation
