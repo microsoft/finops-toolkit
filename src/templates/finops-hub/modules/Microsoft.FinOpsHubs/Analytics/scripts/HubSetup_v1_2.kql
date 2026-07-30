@@ -103,7 +103,7 @@ Costs_v1_2()
         | extend CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)
         | extend CapacityReservationStatus = case(
             isempty(CapacityReservationId), '',
-            tolower(x_ResourceType) == 'microsoft.compute/capacityreservationgroups/capacityreservations', 'Unused',
+            x_ResourceType =~ 'microsoft.compute/capacityreservationgroups/capacityreservations', 'Unused',
             'Used'
         )
         | extend x_CommitmentDiscountNormalizedRatio = case(
@@ -126,7 +126,7 @@ Costs_v1_2()
             ''
         )
         | extend x_AmortizationClass = case(
-            ChargeCategory == 'Purchase' and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+            ChargeCategory == 'Purchase' and (ResourceId has '/microsoft.capacity/reservationorders/' or ResourceId has '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
             ChargeCategory == 'Usage' and isnotempty(CommitmentDiscountId) and isnotempty(CommitmentDiscountStatus), 'Amortized Charge',
             ''
         )

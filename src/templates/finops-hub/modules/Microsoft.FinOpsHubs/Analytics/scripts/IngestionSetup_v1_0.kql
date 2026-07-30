@@ -515,7 +515,7 @@ Costs_transform_v1_0()
         x_ResourceType)
     | extend ResourceType = case(
         // Use existing resource type display name unless it's an internal resource type ID
-        isnotempty(ResourceType) and tolower(ResourceType) != tolower(x_ResourceType) and ResourceType !contains '/', ResourceType,
+        isnotempty(ResourceType) and ResourceType !~ x_ResourceType and ResourceType !contains '/', ResourceType,
         // Use CommitmentDiscountType for commitment discount purchases
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountType), CommitmentDiscountType,
         // Look up display name from internal type
@@ -825,7 +825,7 @@ ActualCosts_transform_v1_0()
     //
     //
     | extend x_AmortizationClass = case(
-        ChargeType in ('Purchase', 'Refund') and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+        ChargeType in ('Purchase', 'Refund') and (ResourceId has '/microsoft.capacity/reservationorders/' or ResourceId has '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
         ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', 'Amortized Charge',
         ''
     )
@@ -1047,7 +1047,7 @@ AmortizedCosts_transform_v1_0()
     //
     //
     | extend x_AmortizationClass = case(
-        ChargeType in ('Purchase', 'Refund') and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+        ChargeType in ('Purchase', 'Refund') and (ResourceId has '/microsoft.capacity/reservationorders/' or ResourceId has '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
         ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', 'Amortized Charge',
         ''
     )
