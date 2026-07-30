@@ -371,7 +371,7 @@ table PolicyStates
 				      ['properties.complianceReasonCode'] = properties.complianceReasonCode,
 				      ['properties.stateDetails'] = properties.stateDetails
 				  ",
-				  Source = ftk_QueryARG(query, 2),
+				  Source = ftk_QueryARG(query, 2, true),
 				  NullHandling =
 				    if Source = null then
 							#table(

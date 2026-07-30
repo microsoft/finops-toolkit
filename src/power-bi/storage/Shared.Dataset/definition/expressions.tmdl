@@ -507,7 +507,7 @@ expression ftk_ARGBatchSize = () => 100
 
 /// Queries Azure Resource Graph in batches of subscriptions and combines results to avoid the 16 MB payload limit.
 expression ftk_QueryARG =
-		(query as text, optional batchMultiplier as number) =>
+		(query as text, optional batchMultiplier as number, optional includeUnscoped as logical) =>
 		    let
 		      requestedBatchSize = try ftk_ARGBatchSize() * (if batchMultiplier <> null then batchMultiplier else 1) otherwise null,
 		      batchSize = if requestedBatchSize = null or not Value.Is(requestedBatchSize, type number) or requestedBatchSize < 1 then 100 else Number.RoundDown(requestedBatchSize),
@@ -525,7 +525,10 @@ expression ftk_QueryARG =
 		        in
 		          if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then null else Source
 		      ),
-		      Filtered = List.RemoveNulls(Batches),
+		      // some callers (for example tenant/management-group-scoped policy resources) can have a blank subscriptionId that never matches any subscription batch filter above; fetch those rows once, unbatched, when requested
+		      UnscopedSource = if includeUnscoped = true then AzureResourceGraph.Query(query & " | where isempty(subscriptionId)", "Tenant", null, null, [resultTruncated = false]) else null,
+		      UnscopedFiltered = if UnscopedSource <> null and not (Table.HasColumns(UnscopedSource, "Results") and Table.RowCount(UnscopedSource) = 1) then UnscopedSource else null,
+		      Filtered = List.RemoveNulls(Batches & {UnscopedFiltered}),
 		      Combined = if List.Count(Filtered) > 0 then Table.Combine(Filtered) else null
 		    in
 		      Combined
@@ -567,7 +570,7 @@ expression PolicyDefinitions =
 		        description = properties.description,
 		        version = properties.version
 		    | project subscriptionId, id, name, displayName, description, version",
-		  Source = ftk_QueryARG(query, 5),
+		  Source = ftk_QueryARG(query, 5, true),
 		  NullHandling =
 		    if Source = null then
 					#table(
