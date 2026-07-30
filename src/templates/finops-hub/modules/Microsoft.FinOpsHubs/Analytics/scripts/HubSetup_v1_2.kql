@@ -150,13 +150,13 @@ Costs_v1_2()
         | extend x_ConsumedCoreHours = iff(ConsumedUnit == 'Hours' and isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, real(null))
         | extend tmp_SqlAhb = tolower(x_SkuDetails.AHB)
         | extend x_SkuLicenseType = case(
-            x_SkuDetails.ImageType contains 'Windows Server BYOL', 'Windows Server',
+            x_SkuDetails.ImageType has 'Windows Server BYOL', 'Windows Server',
             x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',
             ''
         )
         | extend x_SkuLicenseStatus = case(
-            isnotempty(x_SkuLicenseType) or tmp_SqlAhb == 'true' or (x_SkuMeterSubcategory contains 'Azure Hybrid Benefit'), 'Enabled',
-            (x_SkuMeterSubcategory contains 'Windows') or tmp_SqlAhb == 'false', 'Not enabled',
+            isnotempty(x_SkuLicenseType) or tmp_SqlAhb == 'true' or (x_SkuMeterSubcategory has 'Azure Hybrid Benefit'), 'Enabled',
+            (x_SkuMeterSubcategory has 'Windows') or tmp_SqlAhb == 'false', 'Not enabled',
             ''
         )
         | extend x_SkuLicenseQuantity = case(

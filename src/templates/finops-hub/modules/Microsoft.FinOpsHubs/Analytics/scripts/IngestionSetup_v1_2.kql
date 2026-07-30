@@ -684,14 +684,14 @@ Costs_transform_v1_2()
     | extend tmp_SqlAhb = tolower(coalesce(x_SkuDetails.AHB, SkuPriceDetails.x_AHB))
     | extend x_SkuLicenseType = case(
         ChargeCategory != 'Usage', '',
-        x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory contains 'Windows' or coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL'), 'Windows Server',
+        x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory has 'Windows' or coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL'), 'Windows Server',
         isnotempty(tmp_SqlAhb) or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',
         ''
     )
     | extend x_SkuLicenseStatus = case(
         isempty(x_SkuLicenseType), '',
-        coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL' or tmp_SqlAhb == 'true' or x_SkuMeterSubcategory contains 'Azure Hybrid Benefit', 'Enabled',
-        (x_SkuMeterSubcategory contains 'Windows') or tmp_SqlAhb == 'false', 'Not Enabled',
+        coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL' or tmp_SqlAhb == 'true' or x_SkuMeterSubcategory has 'Azure Hybrid Benefit', 'Enabled',
+        (x_SkuMeterSubcategory has 'Windows') or tmp_SqlAhb == 'false', 'Not Enabled',
         ''
     )
     | extend x_SkuLicenseQuantity = case(
