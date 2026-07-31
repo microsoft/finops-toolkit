@@ -29,6 +29,28 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Added VNet and private network modes, including opt-in NAT Gateway support for private mode; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
+- **Changed**
+  - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
+  - Replaced whole-term `contains` matches with `has` across hub KQL and the query catalog (resource ID paths, licensing phrases, SKU description terms) and added a per-row operator-equivalence regression harness with unit test coverage ([#2220](https://github.com/microsoft/finops-toolkit/pull/2220)).
+- **Fixed**
+  - Fixed the `ContractedCost` recompute guard to compare with a null-safe tolerance instead of exact float equality, eliminating millions of no-op rewrites that polluted the `x_SourceValues` audit trail while preserving the null-cost backfill and no longer overwriting an existing cost when the unit price is missing ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
+
+### [Power BI reports](power-bi/reports.md)
+
+- **Changed**
+  - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+
+### [Optimization Engine](optimization-engine/overview.md)
+
+- **Changed**
+  - Switched the reservations and benefits workbooks from the retired `ccmstorageprod` isfratioblob.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+
+### [Open data](open-data.md) updates
+
+**[Instance size flexibility](open-data.md#instance-size-flexibility)**
+
+- **Added**
+  - Added a new [Instance size flexibility](open-data.md#instance-size-flexibility) dataset that maps each ARM SKU to its instance size flexibility group and ratio, sourced from the Azure Reservations Catalogs API. It replaces the deprecated ISF ratio files hosted on `ccmstorageprod.blob.core.windows.net` ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 
 -->
 

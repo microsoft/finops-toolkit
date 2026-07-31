@@ -508,7 +508,7 @@ Costs_transform_v1_2()
     | extend old_CapacityReservationStatus = CapacityReservationStatus, CapacityReservationStatus = case(
         isempty(CapacityReservationId), '',
         isnotempty(CapacityReservationStatus), CapacityReservationStatus,
-        tolower(x_ResourceType) == 'microsoft.compute/capacityreservationgroups/capacityreservations', 'Unused',
+        x_ResourceType =~ 'microsoft.compute/capacityreservationgroups/capacityreservations', 'Unused',
         'Used'
     )
     //
@@ -565,7 +565,7 @@ Costs_transform_v1_2()
         // FOCUS 1.2
         isnotempty(x_AmortizationClass), x_AmortizationClass,
         // FOCUS 1.0-preview+
-        ChargeCategory == 'Purchase' and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+        ChargeCategory == 'Purchase' and (ResourceId has '/microsoft.capacity/reservationorders/' or ResourceId has '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
         ChargeCategory == 'Usage' and isnotempty(CommitmentDiscountId) and isnotempty(CommitmentDiscountStatus), 'Amortized Charge',
         ''
     )
@@ -589,7 +589,7 @@ Costs_transform_v1_2()
     | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, real(0))
     //
     // BUG: Fix ContractedCost that has bad values
-    | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and ContractedCost != ContractedUnitPrice * PricingQuantity, ContractedUnitPrice * PricingQuantity, ContractedCost)
+    | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and isnotempty(ContractedUnitPrice) and (isempty(ContractedCost) or abs(ContractedCost - ContractedUnitPrice * PricingQuantity) >= 0.0001), ContractedUnitPrice * PricingQuantity, ContractedCost)
     //
     // Handle FOCUS 1.0-preview UsageQuantity/Unit
     | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), real(null))
@@ -622,7 +622,7 @@ Costs_transform_v1_2()
     )
     | extend old_ResourceType = ResourceType, ResourceType = case(
         // Use existing resource type display name unless it's an internal resource type ID
-        isnotempty(ResourceType) and tolower(ResourceType) != tolower(x_ResourceType) and ResourceType !contains '/', ResourceType,
+        isnotempty(ResourceType) and ResourceType !~ x_ResourceType and ResourceType !has '/', ResourceType,
         // Use CommitmentDiscountType for commitment discount purchases
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountType), CommitmentDiscountType,
         // Look up display name from internal type
@@ -684,14 +684,14 @@ Costs_transform_v1_2()
     | extend tmp_SqlAhb = tolower(coalesce(x_SkuDetails.AHB, SkuPriceDetails.x_AHB))
     | extend x_SkuLicenseType = case(
         ChargeCategory != 'Usage', '',
-        x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory contains 'Windows' or coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL'), 'Windows Server',
+        x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory has 'Windows' or coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL'), 'Windows Server',
         isnotempty(tmp_SqlAhb) or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',
         ''
     )
     | extend x_SkuLicenseStatus = case(
         isempty(x_SkuLicenseType), '',
-        coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL' or tmp_SqlAhb == 'true' or x_SkuMeterSubcategory contains 'Azure Hybrid Benefit', 'Enabled',
-        (x_SkuMeterSubcategory contains 'Windows') or tmp_SqlAhb == 'false', 'Not Enabled',
+        coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL' or tmp_SqlAhb == 'true' or x_SkuMeterSubcategory has 'Azure Hybrid Benefit', 'Enabled',
+        (x_SkuMeterSubcategory has 'Windows') or tmp_SqlAhb == 'false', 'Not Enabled',
         ''
     )
     | extend x_SkuLicenseQuantity = case(
@@ -1105,7 +1105,7 @@ ActualCosts_transform_v1_2()
     //
     //
     | extend x_AmortizationClass = case(
-        ChargeType in ('Purchase', 'Refund') and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+        ChargeType in ('Purchase', 'Refund') and (ResourceId has '/microsoft.capacity/reservationorders/' or ResourceId has '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
         ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', 'Amortized Charge',
         ''
     )
@@ -1326,7 +1326,7 @@ AmortizedCosts_transform_v1_2()
     //
     //
     | extend x_AmortizationClass = case(
-        ChargeType in ('Purchase', 'Refund') and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+        ChargeType in ('Purchase', 'Refund') and (ResourceId has '/microsoft.capacity/reservationorders/' or ResourceId has '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
         ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', 'Amortized Charge',
         ''
     )
