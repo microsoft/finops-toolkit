@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: flanakin
 ms.author: micflan
-ms.date: 07/30/2026
+ms.date: 07/31/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -766,13 +766,13 @@ Azure Resource Graph queries in the Governance and Workload optimization Power B
 
 > _OLE DB or ODBC error: [Expression.Error] Please provide below info when asking for support: timestamp = {timestamp}, correlationId = {guid}. Details: Response payload size is {number}, and has exceeded the limit of 16777216. Please consider querying less data at a time and make paginated call if needed._
 
-Azure Resource Graph enforces a 16 MB response payload limit per query. FinOps toolkit reports automatically paginate queries in batches of subscriptions (default: 100 per batch) to stay within this limit, so most environments should not encounter this error. If you still see it, it means the resources in a single batch of subscriptions exceed the 16 MB limit.
+Azure Resource Graph enforces a 16 MB response payload limit per query. FinOps toolkit reports automatically paginate queries in batches of subscriptions to stay within this limit, so most environments should not encounter this error. The base batch size is 100 subscriptions (set by the `ftk_ARGBatchSize` function), but some queries multiply this value for tables that return less data per resource, so the effective batch size varies by table. If you still see this error, it means the resources in a single batch of subscriptions exceed the 16 MB limit.
 
 **Mitigation**: Try the following options in order:
 
 ### Option 1: Reduce the batch size
 
-Reduce the number of subscriptions queried in each batch:
+Reduce the base number of subscriptions queried in each batch (some tables multiply this value, so the effective batch size for those tables will still be smaller, but proportionally reduced):
 
 1. Open Power BI Desktop and select **Transform data** from the ribbon.
 2. In the **Queries** pane on the left, expand the **Functions** folder.

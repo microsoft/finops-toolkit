@@ -538,7 +538,7 @@ table AdvisorRecommendations
 				      {"properties.extendedProperties.ObservationPeriodEndDate",   type datetimezone},
 				      {"properties.lastUpdated",                                   type datetimezone}
 				    }, "en-US"),
-				  // Table.Combine concatenates per-batch results, so re-sort here to restore the global SortOrder ordering that the per-batch KQL "order by" only guarantees within each batch
+				  // Table.Combine concatenates per-batch results in batch order, so re-sort here to restore SortOrder ordering across the combined table
 				  Sorted = Table.Sort(Types, {{"SortOrder", Order.Ascending}})
 				in
 				  Sorted

@@ -491,7 +491,6 @@ table AdvisorReservationRecommendations
 				      ['properties.resourceMetadata.source'] = properties.resourceMetadata.source,
 				      recommendedActions = iff(isnotempty(properties.extendedProperties.displaySKU), strcat(properties.extendedProperties.displaySKU, ' virtual machines in ', properties.extendedProperties.location), tostring(properties.shortDescription.solution)),
 				      SortOrder = case(properties.impact == 'High', 1, properties.impact == 'Medium', 2, properties.impact == 'Low', 3, 9)
-				    | order by SortOrder asc
 				  ",
 				  Source = ftk_QueryARG(query, 2),
 				  NullHandling =
@@ -506,13 +505,14 @@ table AdvisorReservationRecommendations
 				    {"properties.extendedProperties.savingsAmount",              type number},
 				    {"properties.extendedProperties.qty",                        Int64.Type},
 				    {"properties.extendedProperties.displayQty",                 Int64.Type},
+				    {"properties.extendedProperties.lookbackPeriod",             Int64.Type},
 				    {"properties.extendedProperties.targetResourceCount",        Int64.Type},
 				    {"SortOrder",                                                type number},
 				    {"properties.extendedProperties.ObservationPeriodStartDate", type datetimezone},
 				    {"properties.extendedProperties.ObservationPeriodEndDate",   type datetimezone},
 				    {"properties.lastUpdated",                                   type datetimezone}
 				  }, "en-US"),
-				  // Table.Combine concatenates per-batch results, so re-sort here to restore the global SortOrder ordering that the per-batch KQL "order by" only guarantees within each batch
+				  // Table.Combine concatenates per-batch results in batch order, so re-sort here to restore SortOrder ordering across the combined table
 				  Sorted = Table.Sort(Types, {{"SortOrder", Order.Ascending}})
 				in
 				  Sorted

@@ -3,7 +3,7 @@ title: FinOps toolkit Workload optimization report
 description: Learn about the Workload optimization report, which identifies opportunities for rightsizing and removing unused resources to enhance efficiency.
 author: flanakin
 ms.author: micflan
-ms.date: 07/30/2026
+ms.date: 07/31/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -85,6 +85,15 @@ The Workload optimization report uses Azure Resource Graph to query resource det
 
 If you experience a "Response payload size... exceeded the limit" error, open the report in Power BI Desktop, go to the Power Query editor, and reduce the value returned by the `ftk_ARGBatchSize` function (default: 100). For detailed steps, see [Response payload size exceeded the limit](../help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) in the error reference guide.
 
+Batching queries by subscription requires Reader access at the subscription level or above. If your account only has resource group-scoped access, some subscriptions may be silently excluded from the report even though you can see their resources elsewhere.
+
+<br>
+
+## See also
+
+- [Common terms](../help/terms.md)
+- [Data dictionary](../help/data-dictionary.md)
+
 <br>
 
 ## Looking for more?
@@ -99,11 +108,6 @@ We'd love to hear about any reports, charts, or general reporting questions you'
 <br>
 
 ## Related content
-
-Related resources:
-
-- [Common terms](../help/terms.md)
-- [Data dictionary](../help/data-dictionary.md)
 
 Related FinOps capabilities:
 
