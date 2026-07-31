@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 04/04/2026
+ms.date: 07/30/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -175,6 +175,32 @@ A few important notes about the data:
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscountEligibility.csv)
+<!-- prettier-ignore-end -->
+
+<br>
+
+## Instance size flexibility
+
+Instance size flexibility (ISF) lets a reservation apply across multiple SKUs in the same flexibility group, weighted by a ratio. The instance size flexibility file maps each ARM SKU to its flexibility group and ratio, sourced from the [Azure Reservations Catalogs API](/azure/cost-management-billing/reservations/instance-size-flexibility#extract-instance-size-flexibility-ratios-using-azure-catalogs-api). It replaces the static ISF ratio files that were previously hosted on `ccmstorageprod.blob.core.windows.net`, which Microsoft is retiring.
+
+Sample data:
+
+| InstanceSizeFlexibilityGroup | ArmSkuName     | Ratio |
+| ---------------------------- | -------------- | ----- |
+| Av2 Series                   | Standard_A1_v2 | 1     |
+| Av2 Series                   | Standard_A2_v2 | 2.1   |
+| Av2 Series                   | Standard_A4_v2 | 4.44  |
+
+A few important notes about the data:
+
+- It covers Virtual Machines, Redis Cache, and Dedicated Host.
+- `ArmSkuName` is unique across the file and can be used as a join key on its own.
+- Ratios are the raw Microsoft values within each group (the smallest SKU isn't always `1`).
+- Data is updated weekly via a GitHub Actions workflow and always reflects the current API catalog, so retired SKUs are removed automatically.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/InstanceSizeFlexibility.csv)
 <!-- prettier-ignore-end -->
 
 <br>

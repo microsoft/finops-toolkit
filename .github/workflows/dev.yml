@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'src/powershell/**'
+      # KQL sources are covered by unit tests (HubsKqlOperators.Tests.ps1)
+      - 'src/templates/finops-hub/**/*.kql'
+      - 'src/queries/**/*.kql'
 jobs:
   run_pester_tests:
     name: Pester
