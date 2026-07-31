@@ -51,7 +51,7 @@ _Released June 2026_
 - **Added**
   - Added a shared FinOps Toolkit plugin for Claude Code and GitHub Copilot CLI with 5 agents (CFO, FinOps practitioner, database query, hubs agent, and Azure capacity manager), 4 commands (`/ftk/hubs-connect`, `/ftk/hubs-health-check`, `/ftk/mom-report`, and `/ftk/ytd-report`), a FinOps hubs KQL skill, and a read-only Azure MCP server ([#2043](https://github.com/microsoft/finops-toolkit/pull/2043), [#2167](https://github.com/microsoft/finops-toolkit/pull/2167)).
   - Published marketplace entries and repository discovery so the plugin installs with `copilot plugin install microsoft/finops-toolkit`.
-  - The `azure-cost-management` skill isn't included; use the Azure MCP server for those capabilities.
+  - This release includes only the FinOps Toolkit skill. Azure Cost Management and capacity-management skills will be added in subsequent PRs.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v15
 
