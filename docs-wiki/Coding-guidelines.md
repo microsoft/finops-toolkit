@@ -61,7 +61,7 @@ Every KQL string operator is already case-insensitive (`has`, `contains`, `start
 | `tolower(Col) == 'value'` | `Col =~ 'value'` | `=~` is the case-insensitive equality operator |
 | `tolower(a) != tolower(b)` | `a !~ b` | One comparison instead of two per-row allocations |
 | `Col contains 'Windows'` | `Col has 'Windows'` | Whole-word needle – see below for when `contains` is right |
-| `indexof(Col, 'x') >= 0` | `Col has 'x'` | `indexof()` computes a position when you only need existence |
+| `indexof(Col, 'x') >= 0` | `Col has 'x'` *or* `Col contains 'x'` | Don't compute a position you don't need – but pick the operator by intent, not mechanically: `indexof()` is case-**sensitive** and substring-based, so it is equivalent to `contains_cs`, not to `has` |
 | `tostring(Dyn.Field) =~ 'true'` | `Dyn.Field =~ 'true'` | These operators accept a *scalar* dynamic operand directly – see the note below |
 
 Prefer `in~` over chained `=~` comparisons, and `has_any` / `has_all` over chained `has`.
