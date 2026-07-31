@@ -69,8 +69,9 @@ $apiBase = 'https://prices.azure.com/api/retail/prices?api-version=2023-01-01-pr
 # makes the shard set self-correcting; the per-family guard catches any family that
 # disappears between runs.
 
-# Repeat each shard until its unioned key set stops growing for $StablePasses
-# consecutive passes, or $MaxPassesPerShard is reached (treated as non-convergence).
+# Repeat each shard -- and each serviceFamily discovery scan -- until its unioned set
+# stops growing for $StablePasses consecutive passes, or $MaxPassesPerShard is reached
+# (treated as non-convergence, which aborts before the write).
 $MaxPassesPerShard = 4
 $StablePasses = 2
 
@@ -164,31 +165,91 @@ function Get-ServiceFamily
 {
     <#
         .SYNOPSIS
-        Scans a query to completion and returns the distinct serviceFamily values
-        present, used to build the shard list dynamically instead of hardcoding it.
+        Scans a query and returns the distinct serviceFamily values present, repeating
+        the scan and unioning the results until the family set stops growing. Used to
+        build the shard list dynamically instead of hardcoding it.
 
         .DESCRIPTION
-        A single full traversal is exposed to the API's unstable paging order. For
-        families with many meters the drop can only lose scattered rows, so they are
-        always discovered; a tiny family (1-2 meters) could in principle be missed,
-        which the caller backstops by unioning with the prior baseline (Add-BaselineShard).
-        The per-family data fetch in Invoke-ShardedUnion still repeats and unions to
-        recover the dropped rows.
+        Returns @{ Families = <sorted string[]>; Converged = <bool> }.
+
+        A single traversal is exposed to the API's unstable paging order. Families with
+        many meters survive it (the drop only loses scattered rows), but a family with
+        1-2 meters can lose its only row and be missed entirely. For a family seen in a
+        previous run Add-BaselineShard is a sufficient backstop, but it can only restore
+        what is already in the baseline -- a BRAND-NEW tiny family missed by discovery is
+        in neither the discovered set nor the baseline, so it is never fetched and both
+        completeness guards pass while the run publishes incomplete data. Repeating the
+        scan and unioning closes that hole: a family any pass sees enters the shard list.
+
+        Convergence follows the same policy as Invoke-ShardedUnion: stop once no pass has
+        added a family for $StablePasses consecutive passes, or at $MaxPasses (reported as
+        Converged = $false so the caller can refuse to publish rather than guess). A scan
+        that fit in a single response saw every row deterministically and stops at once.
     #>
     param(
         [string]$Filter,
         [string]$MeterRegion,
-        [string]$ActivityName
+        [string]$ActivityName,
+        [int]$MaxPasses,
+        [int]$StablePasses
     )
 
     $families = @{}
-    Write-Progress -Activity $ActivityName -Status 'Discovering serviceFamily values...'
-    $null = Get-RetailPriceSegment -Filter $Filter -MeterRegion $MeterRegion -OnItem {
-        param($item)
-        if ($item.serviceFamily) { $families[$item.serviceFamily] = $true }
+    $stable = 0
+    $pass = 0
+    $singlePage = $false
+
+    while ($pass -lt $MaxPasses -and $stable -lt $StablePasses)
+    {
+        $pass++
+        $before = $families.Count
+        Write-Progress -Activity $ActivityName -Status "Discovering serviceFamily values (pass $pass)..."
+        $segment = Get-RetailPriceSegment -Filter $Filter -MeterRegion $MeterRegion -OnItem {
+            param($item)
+            if ($item.serviceFamily) { $families[$item.serviceFamily] = $true }
+        }
+
+        # Single response (no NextPageLink): the scan is complete and deterministic, so
+        # repeating it cannot surface another family. Keyed off the page count rather
+        # than an item-count threshold, so a server page-size change can't mask a miss.
+        if ($segment.Pages -le 1) { $singlePage = $true; break }
+
+        if ($families.Count -eq $before) { $stable++ } else { $stable = 0 }
+        Write-Verbose "  Discovery pass $pass`: $($families.Count) families ($($families.Count - $before) new)"
     }
+
     Write-Progress -Activity $ActivityName -Completed
-    return [string[]]($families.Keys | Sort-Object)
+    return @{
+        Families  = [string[]]($families.Keys | Sort-Object)
+        Converged = ($singlePage -or $stable -ge $StablePasses)
+    }
+}
+
+function Assert-DiscoveryConverged
+{
+    <#
+        .SYNOPSIS
+        Throws if a serviceFamily discovery scan was still finding new families when it
+        hit the pass cap.
+
+        .DESCRIPTION
+        A shard list built from a non-converged discovery cannot be trusted to be
+        complete: a family that no pass ever saw is never fetched, and if it is also new
+        (so absent from the baseline that Add-BaselineShard restores from) neither
+        completeness guard can see the gap -- the run would publish silently partial
+        data. Called immediately after each discovery so an unpublishable run fails
+        before spending ~30 minutes of API calls on a fetch whose result is discarded.
+    #>
+    param(
+        [hashtable]$Discovery,
+        [string]$PriceType,
+        [int]$MaxPasses
+    )
+
+    if (-not $Discovery.Converged)
+    {
+        throw "Aborting: $PriceType serviceFamily discovery did not converge within $MaxPasses passes (still finding new families). The shard list may be missing a family, so the run could publish incomplete data; refusing to continue. Increase `$MaxPassesPerShard if the API is churning."
+    }
 }
 
 function Add-BaselineShard
@@ -198,14 +259,15 @@ function Add-BaselineShard
         Unions discovered families with the families seen in the prior run's baseline.
 
         .DESCRIPTION
-        A discovery scan is a single traversal and so is exposed to the ordering drop.
-        Most families have many meters (so the drop can't lose all of them), but some
-        have only 1-2, where a single miss could drop the family's only row and omit it
-        from the shard list. Re-including every family from the prior baseline
-        guarantees a previously-seen family is always queried -- it can never be
-        silently dropped by a discovery miss -- while discovery still surfaces new
-        families. The per-shard guard then catches any known family that genuinely
-        shrank. Returns the sorted, de-duplicated union.
+        Get-ServiceFamily already repeats and unions its scans, so a family missed by one
+        pass is normally recovered by the next. This is the second line of defence for
+        families that were seen before: re-including every family from the prior baseline
+        guarantees a previously-seen family is always queried even if every discovery pass
+        misses it. The per-shard guard then catches any known family that genuinely shrank.
+        Returns the sorted, de-duplicated union.
+
+        Note this cannot help a brand-new family -- it is in no baseline yet -- which is
+        why discovery itself has to converge rather than relying on this backstop.
     #>
     param(
         [string[]]$Discovered,
@@ -381,8 +443,9 @@ if (Test-Path $ShardCountPath)
 # Step 2: Reservation-eligible meters (sharded by serviceFamily, union to stable)
 # -----------------------------------------------------------------------
 Write-Host "Discovering Reservation serviceFamily values..."
-$riShards = Get-ServiceFamily -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -ActivityName 'Discovering Reservation families'
-$riShards = Add-BaselineShard -Discovered $riShards -BaselineSection $cachedShardCounts['Reservation']
+$riDiscovery = Get-ServiceFamily -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -ActivityName 'Discovering Reservation families' -MaxPasses $MaxPassesPerShard -StablePasses $StablePasses
+Assert-DiscoveryConverged -Discovery $riDiscovery -PriceType 'Reservation' -MaxPasses $MaxPassesPerShard
+$riShards = Add-BaselineShard -Discovered $riDiscovery.Families -BaselineSection $cachedShardCounts['Reservation']
 Write-Host "  Found $($riShards.Count) serviceFamily values: $($riShards -join ', ')"
 Write-Host "Fetching Reservation prices (sharded by serviceFamily)..."
 $riResult = Invoke-ShardedUnion -BaseFilter "priceType eq 'Reservation'" -Shards $riShards -MeterRegion 'primary' -ActivityName 'Fetching Reservation prices' -CollectKey {
@@ -398,8 +461,9 @@ Write-Host "  RI-eligible meters: $($riMeters.Count)"
 # primary Consumption meters and record those with a non-empty savingsPlan.
 # -----------------------------------------------------------------------
 Write-Host "Discovering Consumption serviceFamily values..."
-$spShards = Get-ServiceFamily -Filter "priceType eq 'Consumption'" -MeterRegion 'primary' -ActivityName 'Discovering Consumption families'
-$spShards = Add-BaselineShard -Discovered $spShards -BaselineSection $cachedShardCounts['Consumption']
+$spDiscovery = Get-ServiceFamily -Filter "priceType eq 'Consumption'" -MeterRegion 'primary' -ActivityName 'Discovering Consumption families' -MaxPasses $MaxPassesPerShard -StablePasses $StablePasses
+Assert-DiscoveryConverged -Discovery $spDiscovery -PriceType 'Consumption' -MaxPasses $MaxPassesPerShard
+$spShards = Add-BaselineShard -Discovered $spDiscovery.Families -BaselineSection $cachedShardCounts['Consumption']
 Write-Host "  Found $($spShards.Count) serviceFamily values: $($spShards -join ', ')"
 Write-Host "Fetching Consumption prices (sharded by serviceFamily; checking for Savings Plan eligibility)..."
 $spResult = Invoke-ShardedUnion -BaseFilter "priceType eq 'Consumption'" -Shards $spShards -MeterRegion 'primary' -ActivityName 'Fetching Consumption prices' -CollectKey {
