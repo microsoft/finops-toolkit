@@ -212,5 +212,6 @@ This repository supports production infrastructure managing significant revenue.
 - Content (text strings): Follow the Microsoft style guide and always use sentence casing except for proper nouns
 - Bicep: Follow Azure Bicep style guide
 - PowerShell: Use PowerShell best practices and approved verbs
+- KQL: Never use `tolower()`/`toupper()` in comparison position — KQL string operators are already case-insensitive (`_cs` variants are the case-sensitive ones). Use `has` for whole terms and path phrases, `=~`/`!~` for equality, `in~`/`has_any` for sets. Reserve `contains` for genuine substring matching (needle fused inside a larger token) and justify it in the allowlist in `src/powershell/Tests/Unit/HubsKqlOperators.Tests.ps1`, which enforces both rules on every PR. See the KQL section of `docs-wiki/Coding-guidelines.md`
 - Documentation: Use markdown with consistent formatting
 - Commit messages: Use conventional commit format
