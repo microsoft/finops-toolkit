@@ -58,10 +58,10 @@ InModuleScope 'FinOpsToolkit' {
                     $Database -eq 'NetDefaultDB' -and $Command -eq '.show version'
                 }
                 Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
-                    $Database -eq 'NetDefaultDB' -and $Command -like '*create database Ingestion*'
+                    $Database -eq 'NetDefaultDB' -and $Command -like '*create-merge database Ingestion*'
                 }
                 Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
-                    $Database -eq 'NetDefaultDB' -and $Command -like '*create database Hub*'
+                    $Database -eq 'NetDefaultDB' -and $Command -like '*create-merge database Hub*'
                 }
             }
 
@@ -109,6 +109,16 @@ InModuleScope 'FinOpsToolkit' {
                 }
             }
 
+            It 'Should not mangle an open data path containing regex replacement metacharacters' {
+                # Act -- '$&' and '$1' are special in -replace's replacement string; .Replace() must treat them literally.
+                Initialize-FinOpsHubLocal -ClusterUri $clusterUri -OpenDataPath '$&/$1data' -Destination $destination
+
+                # Assert
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
+                    $Database -eq 'Ingestion' -and $Command -eq 'opendata script $&/$1data'
+                }
+            }
+
             It 'Should thread the requested timeout through every emulator request and download' {
                 # Act
                 Initialize-FinOpsHubLocal -ClusterUri $clusterUri -TimeoutSec 45 -Destination $destination
@@ -116,6 +126,14 @@ InModuleScope 'FinOpsToolkit' {
                 # Assert
                 Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 0 -ParameterFilter { $TimeoutSec -ne 45 }
                 Should -Invoke -CommandName 'Invoke-WebRequest' -Times 0 -ParameterFilter { $TimeoutSec -ne 45 }
+            }
+
+            It 'Should default TimeoutSec to a finite value rather than waiting indefinitely' {
+                # Act
+                Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination
+
+                # Assert
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 0 -ParameterFilter { $TimeoutSec -eq 0 }
             }
 
             It 'Should skip downloading and loading open data when requested' {
@@ -213,6 +231,15 @@ InModuleScope 'FinOpsToolkit' {
                 # Assert -- only the reachability check runs; every ShouldProcess-gated call is skipped.
                 Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1
                 Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter { $Command -eq '.show version' }
+            }
+
+            It 'Should not create the destination folder or download any release assets' {
+                # Act
+                Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination -WhatIf
+
+                # Assert
+                Should -Invoke -CommandName 'New-Directory' -Times 0
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 0
             }
         }
 

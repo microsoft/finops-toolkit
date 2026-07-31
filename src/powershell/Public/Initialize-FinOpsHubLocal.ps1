@@ -10,6 +10,8 @@
 
     This command does not install Docker or manage the emulator container. Start the emulator first, then run this command against its endpoint. It does not ingest cost data; stage and ingest your own exports after setup.
 
+    Database storage paths assume the emulator's default data root (/kustodata), matching the container setup in the "Run FinOps hubs locally" guide. If your emulator mounts data elsewhere, create the Ingestion and Hub databases manually before running this command.
+
     .PARAMETER ClusterUri
     Optional. Base URI of the running Kusto emulator. Default = http://localhost:8082.
 
@@ -29,7 +31,7 @@
     Optional. Local folder used to download the setup scripts. Default = temp folder.
 
     .PARAMETER TimeoutSec
-    Optional. Maximum number of seconds to wait for each emulator request or asset download. Default = 0 (wait indefinitely).
+    Optional. Maximum number of seconds to wait for each emulator request or asset download. Default = 30. Use 0 to wait indefinitely (for example, on slow hardware).
 
     .EXAMPLE
     Initialize-FinOpsHubLocal
@@ -81,7 +83,7 @@ function Initialize-FinOpsHubLocal
         [Parameter()]
         [ValidateRange(0, [int]::MaxValue)]
         [int]
-        $TimeoutSec = 0
+        $TimeoutSec = 30
     )
 
     $progress = $ProgressPreference
@@ -106,41 +108,47 @@ function Initialize-FinOpsHubLocal
             $assetNames += 'finops-hub-local-opendata.kql'
         }
 
-        New-Directory -Path $Destination
         $scripts = @{}
-        foreach ($assetName in $assetNames)
+        if ($PSCmdlet.ShouldProcess($Destination, 'Download release assets'))
         {
-            $filePath = Join-Path -Path $Destination -ChildPath $assetName
-            try
+            New-Directory -Path $Destination
+            foreach ($assetName in $assetNames)
             {
-                $null = Invoke-WebRequest -Uri "$($ReleaseUri.TrimEnd('/'))/$assetName" -OutFile $filePath -TimeoutSec $TimeoutSec -Verbose:$false -ErrorAction 'Stop'
-            }
-            catch
-            {
-                throw ($script:LocalizedData.HubLocal_Initialize_DownloadFailed -f $assetName, $ReleaseUri)
-            }
+                $filePath = Join-Path -Path $Destination -ChildPath $assetName
+                try
+                {
+                    $null = Invoke-WebRequest -Uri "$($ReleaseUri.TrimEnd('/'))/$assetName" -OutFile $filePath -TimeoutSec $TimeoutSec -Verbose:$false -ErrorAction 'Stop'
+                }
+                catch
+                {
+                    throw ($script:LocalizedData.HubLocal_Initialize_DownloadFailed -f $assetName, $ReleaseUri)
+                }
 
-            $scripts[$assetName] = Get-Content -Path $filePath -Raw
-            if ([string]::IsNullOrWhiteSpace($scripts[$assetName]))
-            {
-                throw ($script:LocalizedData.HubLocal_Initialize_AssetEmpty -f $assetName, $ReleaseUri)
+                $scripts[$assetName] = Get-Content -Path $filePath -Raw
+                if ([string]::IsNullOrWhiteSpace($scripts[$assetName]))
+                {
+                    throw ($script:LocalizedData.HubLocal_Initialize_AssetEmpty -f $assetName, $ReleaseUri)
+                }
             }
         }
 
-        # Create the Ingestion and Hub databases
+        # Create the Ingestion and Hub databases. Uses create-merge so re-running this command
+        # (for example, after a failed setup step) does not fail if the databases already exist.
         foreach ($database in @('Ingestion', 'Hub'))
         {
-            $createCommand = '.create database {0} persist (@"/kustodata/dbs/{0}/md", @"/kustodata/dbs/{0}/data")' -f $database
+            $createCommand = '.create-merge database {0} persist (@"/kustodata/dbs/{0}/md", @"/kustodata/dbs/{0}/data")' -f $database
             if ($PSCmdlet.ShouldProcess($database, 'Create database'))
             {
                 $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'NetDefaultDB' -Command $createCommand -TimeoutSec $TimeoutSec
             }
         }
 
-        # Apply the Ingestion setup with the requested raw retention
-        $ingestionScript = $scripts['finops-hub-fabric-setup-Ingestion.kql'] -replace '\$\$rawRetentionInDays\$\$', $RawRetentionInDays
+        # Apply the Ingestion setup with the requested raw retention. Uses .Replace() (not -replace)
+        # since the replacement value flows into the replacement string, where -replace would treat
+        # sequences like $1 or $& as regex substitution tokens instead of literal text.
         if ($PSCmdlet.ShouldProcess('Ingestion', 'Apply setup script'))
         {
+            $ingestionScript = $scripts['finops-hub-fabric-setup-Ingestion.kql'].Replace('$$rawRetentionInDays$$', $RawRetentionInDays.ToString())
             $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'Ingestion' -Command $ingestionScript -TimeoutSec $TimeoutSec
         }
 
@@ -153,9 +161,10 @@ function Initialize-FinOpsHubLocal
         # Load the open data reference tables
         if (-not $SkipOpenData)
         {
-            $openDataScript = $scripts['finops-hub-local-opendata.kql'] -replace '\$\$openDataPath\$\$', $OpenDataPath
             if ($PSCmdlet.ShouldProcess('Ingestion', 'Load open data'))
             {
+                $openDataScript = $scripts['finops-hub-local-opendata.kql'].Replace('$$openDataPath$$', $OpenDataPath)
+
                 # The emulator's first external data read after setup can return no rows without
                 # raising an error. Load, verify the tables filled, and retry before giving up.
                 $openDataTables = @('PricingUnits', 'Regions', 'ResourceTypes', 'Services')

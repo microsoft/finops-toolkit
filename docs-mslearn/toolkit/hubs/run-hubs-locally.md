@@ -3,7 +3,7 @@ title: Run FinOps hubs locally
 description: Stand up a FinOps hub on your own hardware in a local container and ingest cost data, using the same KQL and open data as a deployed hub.
 author: MSBrett
 ms.author: brettwil
-ms.date: 07/30/2026
+ms.date: 07/31/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -102,7 +102,7 @@ A FinOps hub uses two databases: `Ingestion` for raw and transformed data, and `
 
 ```powershell
 foreach ($db in 'Ingestion', 'Hub') {
-  Invoke-Kusto NetDefaultDB ".create database $db persist (@`"/kustodata/dbs/$db/md`", @`"/kustodata/dbs/$db/data`")" | Out-Null
+  Invoke-Kusto NetDefaultDB ".create-merge database $db persist (@`"/kustodata/dbs/$db/md`", @`"/kustodata/dbs/$db/data`")" | Out-Null
 }
 ```
 
