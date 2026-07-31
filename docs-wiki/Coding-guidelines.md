@@ -62,9 +62,12 @@ Every KQL string operator is already case-insensitive (`has`, `contains`, `start
 | `tolower(a) != tolower(b)` | `a !~ b` | One comparison instead of two per-row allocations |
 | `Col contains 'Windows'` | `Col has 'Windows'` | Whole-word needle – see below for when `contains` is right |
 | `indexof(Col, 'x') >= 0` | `Col has 'x'` | `indexof()` computes a position when you only need existence |
-| `tostring(Dyn.Field) =~ 'true'` | `Dyn.Field =~ 'true'` | These operators accept a dynamic operand directly |
+| `tostring(Dyn.Field) =~ 'true'` | `Dyn.Field =~ 'true'` | These operators accept a *scalar* dynamic operand directly – see the note below |
 
 Prefer `in~` over chained `=~` comparisons, and `has_any` / `has_all` over chained `has`.
+
+> [!IMPORTANT]
+> Only compare a dynamic field this way when it holds a **scalar** (string, bool, or number), as `x_SkuDetails.AHB` does. If the field can hold an object or an array, the comparison runs against its JSON serialization, which is rarely what you want: `has` matches a value nested anywhere inside the JSON text, so `{"nested":"true"} has 'true'` is `true` while `=~ 'true'` is `false`. Adding `tostring()` does not change this — it produces the same JSON text and the same result. Extract the value you actually mean instead (for example `Dyn.Field.nested`), or compare with `array_index_of()` / `set_has_element()` for arrays.
 
 ### When `contains` is required
 
