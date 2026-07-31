@@ -22,6 +22,23 @@ Describe 'Agent plugin manifest' {
         $root.name | Should -Be $claude.name
     }
 
+    It 'Uses consistent shared manifest metadata and intentional platform-specific fields' {
+        $root = Get-Content (Join-Path $script:Plugin 'plugin.json') -Raw | ConvertFrom-Json
+        $claude = Get-Content (Join-Path $script:Plugin '.claude-plugin/plugin.json') -Raw | ConvertFrom-Json
+
+        $root.description | Should -Be $claude.description
+        $root.version | Should -Be $claude.version
+        $root.license | Should -Be $claude.license
+        $root.repository | Should -Be $claude.repository
+        $root.commands.TrimStart('./') | Should -Be $claude.commands.TrimStart('./')
+        $root.skills[0].TrimStart('./') | Should -Be $claude.skills[0].TrimStart('./')
+        $root.agents | Should -Be './agents/'
+        $root.mcpServers | Should -Be '.mcp.json'
+        $claude.agents | Should -BeNullOrEmpty
+        $claude.mcpServers | Should -BeNullOrEmpty
+        $claude.outputStyles | Should -Be './output-styles/'
+    }
+
     It 'Points the agents field at a directory that exists' {
         $root = Get-Content (Join-Path $script:Plugin 'plugin.json') -Raw | ConvertFrom-Json
         Join-Path $script:Plugin ($root.agents -replace '^\./', '') | Should -Exist
@@ -95,6 +112,17 @@ Describe 'Agent plugin components' {
     It 'Ships plugin root README for marketplace onboarding' {
         Join-Path $script:Plugin 'README.md' | Should -Exist
     }
+
+    It 'Bundles only Markdown Learn documentation' {
+        $bundle = Join-Path $TestDrive 'agent-plugin'
+        New-Item (Join-Path $bundle 'skills/finops-toolkit') -ItemType Directory -Force | Out-Null
+
+        & (Join-Path $script:RepoRoot 'src/scripts/Build-AgentPlugin.ps1') -DestDir $bundle
+
+        $docs = Get-ChildItem (Join-Path $bundle 'skills/finops-toolkit/references/docs-mslearn') -File -Recurse
+        $docs.Count | Should -BeGreaterThan 0
+        $docs.Extension | Select-Object -Unique | Should -Be @('.md')
+    }
 }
 
 Describe 'Deprecated azure-cost-management skill' {
@@ -113,7 +141,13 @@ Describe 'Deprecated azure-cost-management skill' {
 
 Describe 'Plugin discovery and marketplaces' {
     It 'Resolves the .plugin discovery pointer to a plugin manifest' {
-        Join-Path $script:RepoRoot '.plugin/plugin.json' | Should -Exist
+        $pluginRoot = Join-Path $script:RepoRoot '.plugin'
+        if (-not (Test-Path $pluginRoot -PathType Container))
+        {
+            $pluginRoot = Join-Path $script:RepoRoot (Get-Content $pluginRoot -Raw).Trim()
+        }
+
+        Join-Path $pluginRoot 'plugin.json' | Should -Exist
     }
 
     It 'Points every marketplace source at the plugin directory' {

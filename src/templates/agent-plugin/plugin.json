@@ -1,7 +1,7 @@
 {
   "name": "microsoft-finops-toolkit",
   "version": "15.0.0",
-  "description": "GitHub Copilot CLI plugin for FinOps Toolkit, providing tools and integrations for FinOps practitioners.",
+  "description": "AI-powered cloud financial management for Azure. Analyze FinOps hub cost data with KQL, get CFO-level reporting, and assess Azure capacity.",
   "author": {
     "name": "FinOps Toolkit Team",
     "url": "https://github.com/microsoft"

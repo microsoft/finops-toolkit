@@ -108,10 +108,18 @@ if ($update -or $Version)
     # Update version files: ftkver.txt (major.minor) and ftktag.txt (git tag, e.g., "v13")
     $repoRoot = (Resolve-Path "$PSScriptRoot/../..").Path
     $tag = & "$PSScriptRoot/Get-Version" -AsTag
+
+    # Do not update dependency, source-control, or generated output files.
+    function Get-RepositoryVersionFiles([string[]]$Include)
+    {
+        Get-ChildItem $repoRoot -Include $Include -Recurse -Force `
+        | Where-Object { $_.FullName -notmatch '[\\/](?:\.git|node_modules|release)(?:[\\/]|$)' }
+    }
+
     foreach ($entry in @{ 'ftkver.txt' = $ver; 'ftktag.txt' = $tag }.GetEnumerator())
     {
         Write-Verbose "Updating $($entry.Key) files..."
-        Get-ChildItem $repoRoot -Include $entry.Key -Recurse -Force `
+        Get-RepositoryVersionFiles $entry.Key `
         | ForEach-Object {
             Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
             $entry.Value | Out-File $_ -NoNewline
@@ -120,7 +128,7 @@ if ($update -or $Version)
 
     # Update version in plugin.json files
     Write-Verbose "Updating plugin.json files..."
-    Get-ChildItem $repoRoot -Include "plugin.json" -Recurse -Force `
+    Get-RepositoryVersionFiles "plugin.json" `
     | ForEach-Object {
         $json = Get-Content $_ -Raw | ConvertFrom-Json
         if ($json.PSObject.Properties['name'] -and $json.PSObject.Properties['version'])
@@ -133,7 +141,7 @@ if ($update -or $Version)
 
     # Update version in marketplace.json plugin entries
     Write-Verbose "Updating marketplace.json files..."
-    Get-ChildItem $repoRoot -Include "marketplace.json" -Recurse -Force `
+    Get-RepositoryVersionFiles "marketplace.json" `
     | ForEach-Object {
         $json = Get-Content $_ -Raw | ConvertFrom-Json
         if ($json.PSObject.Properties['plugins'])
@@ -156,7 +164,7 @@ if ($update -or $Version)
 
     # Update FTK survey IDs in feedback links (e.g., surveyId/FTK0.11 -> surveyId/FTK14.0)
     Write-Verbose "Updating FTK survey IDs..."
-    Get-ChildItem $repoRoot -Include '*.md' -Recurse -Force `
+    Get-RepositoryVersionFiles '*.md' `
     | Select-String -Pattern 'surveyId/FTK[\d.]+' -List `
     | ForEach-Object {
         $content = Get-Content $_.Path -Raw
