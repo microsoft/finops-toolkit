@@ -24,7 +24,7 @@ CommitmentDiscountUsage_v1_2()
             x_CommitmentDiscountCommittedAmount = toreal(x_CommitmentDiscountCommittedAmount),
             x_CommitmentDiscountNormalizedRatio = toreal(x_CommitmentDiscountNormalizedRatio)
         // Add new columns
-        | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceSubcategory) on x_ResourceType
+        | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceSubcategory) by x_ResourceType) on x_ResourceType
         | extend CommitmentDiscountQuantity = ConsumedQuantity * x_CommitmentDiscountNormalizedRatio
         | extend CommitmentDiscountUnit = case(
             x_CommitmentDiscountNormalizedRatio == 1, 'Hours',
