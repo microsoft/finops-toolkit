@@ -1,5 +1,6 @@
 ---
 description: Discover FinOps hub instances via Azure Resource Graph, connect to a cluster, and save environment settings.
+disable-model-invocation: true
 ---
 
 # Connect to a FinOps hub cluster

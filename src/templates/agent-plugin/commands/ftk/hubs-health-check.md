@@ -1,5 +1,6 @@
 ---
 description: Check deployed hub version against latest stable and dev releases and validate data freshness.
+disable-model-invocation: true
 ---
 
 # FinOps hubs health check

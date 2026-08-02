@@ -82,6 +82,19 @@ Describe 'Agent plugin components' {
         $commands.Count | Should -BeGreaterThan 0
     }
 
+    It 'Requires explicit invocation for commands that access hub data or write reports' {
+        foreach ($command in @('hubs-connect.md', 'hubs-health-check.md', 'mom-report.md', 'ytd-report.md'))
+        {
+            $content = Get-Content (Join-Path $script:Plugin "commands/ftk/$command") -Raw
+            $content | Should -Match '(?m)^disable-model-invocation:\s*true\s*$'
+        }
+    }
+
+    It 'Resolves linked template content from its full source path' {
+        $buildScript = Get-Content (Join-Path $script:RepoRoot 'src/scripts/Build-Toolkit.ps1') -Raw
+        $buildScript | Should -Match '\$target = Join-Path \(Split-Path -Path \$source\.FullName -Parent\) \$target'
+    }
+
     It 'Uses the kebab-case health-check command name throughout the plugin' {
         Join-Path $script:Plugin 'commands/ftk/hubs-health-check.md' | Should -Exist
         Join-Path $script:Plugin 'skills/finops-toolkit/references/workflows/ftk-hubs-health-check.md' | Should -Exist

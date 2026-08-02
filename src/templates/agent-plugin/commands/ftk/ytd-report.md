@@ -1,5 +1,6 @@
 ---
 description: Comprehensive fiscal year-to-date cost analysis with forecast through the organization's fiscal year end (July-June is an example only).
+disable-model-invocation: true
 ---
 
 # Instructions

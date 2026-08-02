@@ -204,7 +204,7 @@ $templates | ForEach-Object {
             $target = $source.Target
             if (-not [IO.Path]::IsPathRooted($target))
             {
-                $target = Join-Path $source.DirectoryName $target
+                $target = Join-Path (Split-Path -Path $source.FullName -Parent) $target
             }
 
             $source = Get-Item (Resolve-Path -LiteralPath $target -ErrorAction Stop)

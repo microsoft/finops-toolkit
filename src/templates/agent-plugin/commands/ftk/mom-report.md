@@ -1,5 +1,6 @@
 ---
 description: Autonomous month-over-month cost analysis with anomaly detection, forecasting, and actionable recommendations.
+disable-model-invocation: true
 ---
 
 # Instructions
