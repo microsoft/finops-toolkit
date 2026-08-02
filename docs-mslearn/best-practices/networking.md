@@ -134,7 +134,7 @@ resources
     backendPools = properties.backendAddressPools,
     resourceGroup = strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
 | project id, name, SKUName, SKUTier, SKUCapacity, resourceGroup, subscriptionId
-| join (
+| join kind=inner (
     resources
     | where type =~ 'Microsoft.Network/applicationGateways'
     | mvexpand backendPools = properties.backendAddressPools
@@ -578,7 +578,7 @@ resources
     | mv-expand IPconfig
     | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id)
     | project PublicIpId
-    | join (
+    | join kind=inner (
         resource
         | where type =~ 'Microsoft.Network/publicIPAddresses'
         | extend
