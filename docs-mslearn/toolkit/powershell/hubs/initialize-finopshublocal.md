@@ -3,7 +3,7 @@ title: Initialize-FinOpsHubLocal command
 description: Set up a local FinOps hub in a running Kusto emulator using the Initialize-FinOpsHubLocal command in the FinOpsToolkit module.
 author: MSBrett
 ms.author: brettwil
-ms.date: 07/31/2026
+ms.date: 08/02/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -29,6 +29,7 @@ Initialize-FinOpsHubLocal `
     [-OpenDataPath <string>] `
     [-SkipOpenData] `
     [-Destination <string>] `
+    [-TimeoutSec <int>] `
     [-WhatIf]
 ```
 
@@ -44,6 +45,7 @@ Initialize-FinOpsHubLocal `
 | `‑OpenDataPath`       | Optional. Path, as seen by the emulator, to the folder that holds the open data CSV files. Default = `/data/export/open-data`. |
 | `‑SkipOpenData`       | Optional. Skips loading the open data reference tables. Default = `false`.                                       |
 | `‑Destination`        | Optional. Local folder used to download the setup scripts. Default = temp folder.                               |
+| `‑TimeoutSec`         | Optional. Maximum number of seconds to wait for each emulator request or asset download. Default = `30`. Use `0` to wait indefinitely (for example, on slow hardware). |
 | `‑WhatIf`             | Optional. Shows what would happen if the command runs without actually running it.                              |
 
 <br>

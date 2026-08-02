@@ -148,6 +148,11 @@ function Initialize-FinOpsHubLocal
         # sequences like $1 or $& as regex substitution tokens instead of literal text.
         if ($PSCmdlet.ShouldProcess('Ingestion', 'Apply setup script'))
         {
+            if (-not $scripts.ContainsKey('finops-hub-fabric-setup-Ingestion.kql'))
+            {
+                throw ($script:LocalizedData.HubLocal_Initialize_ScriptsNotDownloaded -f 'Ingestion setup')
+            }
+
             $ingestionScript = $scripts['finops-hub-fabric-setup-Ingestion.kql'].Replace('$$rawRetentionInDays$$', $RawRetentionInDays.ToString())
             $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'Ingestion' -Command $ingestionScript -TimeoutSec $TimeoutSec
         }
@@ -155,6 +160,11 @@ function Initialize-FinOpsHubLocal
         # Apply the Hub setup
         if ($PSCmdlet.ShouldProcess('Hub', 'Apply setup script'))
         {
+            if (-not $scripts.ContainsKey('finops-hub-fabric-setup-Hub.kql'))
+            {
+                throw ($script:LocalizedData.HubLocal_Initialize_ScriptsNotDownloaded -f 'Hub setup')
+            }
+
             $null = Invoke-FinOpsHubLocalCommand -ClusterUri $ClusterUri -Database 'Hub' -Command $scripts['finops-hub-fabric-setup-Hub.kql'] -TimeoutSec $TimeoutSec
         }
 
@@ -163,6 +173,11 @@ function Initialize-FinOpsHubLocal
         {
             if ($PSCmdlet.ShouldProcess('Ingestion', 'Load open data'))
             {
+                if (-not $scripts.ContainsKey('finops-hub-local-opendata.kql'))
+                {
+                    throw ($script:LocalizedData.HubLocal_Initialize_ScriptsNotDownloaded -f 'open data load')
+                }
+
                 $openDataScript = $scripts['finops-hub-local-opendata.kql'].Replace('$$openDataPath$$', $OpenDataPath)
 
                 # The emulator's first external data read after setup can return no rows without
