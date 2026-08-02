@@ -344,7 +344,7 @@ table PolicyStates
 				  query = "
 				    policyResources
 				    | where type =~'Microsoft.PolicyInsights/PolicyStates'
-				    | extend subscriptionId = iff(tolower(tostring(split(id, '/')[1])) == 'subscriptions', tostring(split(id, '/')[2]), '')
+				    | extend subscriptionId = tostring(properties.subscriptionId)
 				    | extend
 				      ['properties.policyAssignmentParameters'] = properties.policyAssignmentParameters,
 				      ['properties.policyDefinitionAction'] = properties.policyDefinitionAction,
