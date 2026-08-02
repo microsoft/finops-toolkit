@@ -49,40 +49,35 @@ We adhere to the [Microsoft style guide](https://docs.microsoft.com/style-guide/
 
 ## ⚡ KQL
 
-Hub KQL runs over every ingested row, so string matching choices show up directly in ingestion cost and query latency. Two rules cover most of it: **never wrap a column in `tolower()` to compare it**, and **reach for `has` before `contains`**.
+Hub KQL runs over every ingested row, so string matching choices show up directly in ingestion cost and query latency. Two rules cover most of it: **never wrap a column in `tolower()` to compare it**, and **pick `has` vs `contains` by matching intent** – they are semantically different, not interchangeable speeds.
 
-### String comparison
+### String matching
 
-Every KQL string operator is already case-insensitive (`has`, `contains`, `startswith`, `endswith`, `=~`, `in~`). The `_cs` suffixed forms (and `==`, `in`) are the case-sensitive ones. Wrapping a column in `tolower()` therefore adds a per-row function call and prevents the engine from using the term index, with no behavioral benefit.
+Two facts about the engine drive everything below:
+
+1. **Case:** every plain string operator is already case-insensitive (`has`, `contains`, `startswith`, `endswith`, `=~`, `in~`). The `_cs` suffixed forms (and `==`, `in`) are the case-sensitive ones. `tolower()` on a column therefore adds a per-row allocation and blocks index use, with no behavioral benefit.
+2. **Terms:** string columns are tokenized at ingestion – runs of alphanumeric characters become *terms*, and punctuation (`/`, `.`, `-`, space) separates them. `has` matches whole terms; `contains` scans for an arbitrary substring: `Col has 'Windows'` does not match `WindowsServer`, `Col contains 'Windows'` does. Both are case-insensitive.
+
+That gives each operator its own set of valid cases:
+
+- Use **`has`** when the needle is a whole term, or a separator-bounded phrase – `ResourceId has '/microsoft.capacity/reservationorders/'` respects the surrounding separators exactly like `contains` would, and still uses the term index. Needles that are pure punctuation (`has '/'`) or shorter than three characters fall back to a scan but keep term-bounded semantics; prefer `has` there anyway for consistency.
+- Use **`contains`** only when the needle can be fused inside a larger token and you want to match anyway – `ConsumedUnit contains 'MB'` (which also matches `Mbps`), word stems (`'Trial'` inside `'Trials'`), and fragments that never form a whole term. It always scans.
 
 | ❌ Avoid | ✅ Prefer | Why |
 | --- | --- | --- |
-| `tolower(Col) contains 'term'` | `Col has 'term'` | `has` matches whole terms using the term index; `tolower()` disables it |
-| `tolower(Col) == 'value'` | `Col =~ 'value'` | `=~` is the case-insensitive equality operator |
+| `tolower(Col) contains 'term'` | `Col has 'term'` *or* `Col contains 'term'` | Drop the `tolower()` unconditionally (fact 1); then pick the operator by intent (fact 2) – moving to `has` is a semantic change, so verify it |
+| `tolower(Col) == 'value'` | `Col =~ 'value'` | `=~` compares case-insensitively without materializing a lowered copy per row – measured ~5× less CPU and ~4.5× lower latency than `tolower(Col) ==` over a 29.7M-row hub `Costs` table, and the [official best practices](https://learn.microsoft.com/kusto/query/best-practices) call this pair out verbatim. When the stored casing is known and fixed, plain `==` is the documented first choice (it measured the same as `=~` on that table) |
 | `tolower(a) != tolower(b)` | `a !~ b` | One comparison instead of two per-row allocations |
-| `Col contains 'Windows'` | `Col has 'Windows'` | Whole-word needle – see below for when `contains` is right |
+| `Col =~ 'a' or Col =~ 'b'` | `Col in~ ('a', 'b')` | One predicate the optimizer can index instead of a disjunction chain |
+| `Col has 'a' or Col has 'b'` | `Col has_any ('a', 'b')` | Same – and `has_all` for the `and` chain |
+| `Col contains 'Windows'` | `Col has 'Windows'` – only after verifying | Whole-word needle, but this is a behavioral change: `contains` also matches fused tokens (`WindowsServer`). Swap only when term-bounded matching is what you mean, and verify as below |
 | `indexof(Col, 'x') >= 0` | `Col has 'x'` *or* `Col contains 'x'` | Don't compute a position you don't need – but pick the operator by intent, not mechanically: `indexof()` is case-**sensitive** and substring-based, so it is equivalent to `contains_cs`, not to `has` |
 | `tostring(Dyn.Field) =~ 'true'` | `Dyn.Field =~ 'true'` | These operators accept a *scalar* dynamic operand directly – see the note below |
-
-Prefer `in~` over chained `=~` comparisons, and `has_any` / `has_all` over chained `has`.
 
 > [!IMPORTANT]
 > Only compare a dynamic field this way when it holds a **scalar** (string, bool, or number), as `x_SkuDetails.AHB` does. If the field can hold an object or an array, the comparison runs against its JSON serialization, which is rarely what you want: `has` matches a value nested anywhere inside the JSON text, so `{"nested":"true"} has 'true'` is `true` while `=~ 'true'` is `false`. Adding `tostring()` does not change this — it produces the same JSON text and the same result. Extract the value you actually mean instead (for example `Dyn.Field.nested`), or compare with `array_index_of()` / `set_has_element()` for arrays.
 
-### When `contains` is required
-
-ADX tokenizes string columns at ingestion: runs of alphanumeric characters become *terms*, and punctuation (`/`, `.`, `-`, space) are separators. `has` matches whole terms and can use the term index; `contains` scans for an arbitrary substring. That makes them **semantically different**, not just faster and slower.
-
-Use `contains` only when the text you're matching can be fused inside a larger token and you want to match anyway – for example `ConsumedUnit contains 'MB'`, which also matches `Mbps`. Word-stem matching (`'Trial'` inside `'Trials'`) and fragments that never form a whole term are the other legitimate cases.
-
-For a multi-word or path-shaped needle, use the full phrase with `has` rather than falling back to `contains`: `ResourceId has '/microsoft.capacity/reservationorders/'` respects the surrounding separators exactly like `contains` does, and still uses the index.
-
-> [!NOTE]
-> Needles that are pure punctuation (`has '/'`) or shorter than three characters can't use the term index and fall back to a scan – same speed as `contains`, but still term-bounded semantics. Prefer `has` anyway for consistency.
-
-### Verify before you swap
-
-Switching `contains` to `has` changes matching semantics, so treat it as a behavioral change until proven otherwise. Cross-tabulate both directions on real data (`countif(old != new)` must be `0` – equal aggregate counts can hide offsetting false positives and negatives), and add fixtures to the executable harness at `src/powershell/Tests/assets/StringOperatorEquivalence.kql`, which runs on any Kusto database and returns zero rows when it passes.
+**Verify before you swap.** Switching `contains` to `has` changes matching semantics, so treat it as a behavioral change until proven otherwise. Cross-tabulate both directions on real data (`countif(old != new)` must be `0` – equal aggregate counts can hide offsetting false positives and negatives), and add fixtures to the executable harness at `src/powershell/Tests/assets/StringOperatorEquivalence.kql`, which runs on any Kusto database and returns zero rows when it passes.
 
 These rules are enforced on every pull request by `src/powershell/Tests/Unit/HubsKqlOperators.Tests.ps1`: `tolower()` in comparison position fails the build, and each `contains` usage must be listed in that test's allowlist with a justification.
 
