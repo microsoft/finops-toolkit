@@ -35,7 +35,7 @@ Describe 'KqlJoinKinds' {
             @{ Path = 'src/workbooks'; Filter = 'workbook.json'; Recurse = $true }
             @{ Path = 'src/optimization-engine/runbooks'; Filter = '*.ps1'; Recurse = $true }
             @{ Path = 'src/optimization-engine/views'; Filter = '*.json'; Recurse = $true }
-            @{ Path = 'docs-mslearn/best-practices'; Filter = '*.md'; Recurse = $false }
+            @{ Path = 'docs-mslearn'; Filter = '*.md'; Recurse = $true }
         )
 
         $scanFiles = @($scanTargets | ForEach-Object {

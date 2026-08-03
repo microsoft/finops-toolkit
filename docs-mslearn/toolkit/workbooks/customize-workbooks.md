@@ -122,7 +122,7 @@ In the last section, the query joins the `ResourceContainerstable` with the `res
 
 ```kusto
 ResourceContainers | "Insert first code section go here"
-| join (
+| join kind=inner (
     resources  "Insert second code section here"
 ) on subscriptionId
 | order by type asc
@@ -137,7 +137,7 @@ Here's the full code example that you use to insert into the workbook.
 
 ```kusto
 ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has "MSDNDevTest_2014-09-01"  | extend SubscriptionName=name
-| join (
+| join kind=inner (
   resources
   | where resourceGroup in ({ResourceGroup})
   | where type == 'microsoft.azurestackhci/clusters'
