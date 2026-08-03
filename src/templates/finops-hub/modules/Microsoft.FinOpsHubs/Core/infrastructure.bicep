@@ -347,7 +347,7 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
 // Script storage
 //------------------------------------------------------------------------------
 
-resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2026-04-01' = if (hub.options.privateRouting) {
+resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (hub.options.privateRouting) {
   name: hub.routing.scriptStorage
   dependsOn: [
     vNet::scriptSubnet
