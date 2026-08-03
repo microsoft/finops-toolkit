@@ -579,7 +579,7 @@ resources
     | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id)
     | project PublicIpId
     | join kind=inner (
-        resource
+        resources
         | where type =~ 'Microsoft.Network/publicIPAddresses'
         | extend
             PublicIpId = id,
