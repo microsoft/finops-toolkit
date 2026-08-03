@@ -17,6 +17,14 @@
     Known pre-existing bare joins are baselined per file below. The baseline is a ratchet:
     - Fixing a bare join REQUIRES lowering the count here (the test fails on stale entries).
     - Adding a new bare join is never allowed; write `join kind=...` explicitly.
+
+    ARG-only surfaces (workbooks, recommendation queries, the alerts logic app) are additionally
+    checked for operators Azure Resource Graph rejects: the lookup operator and the semi/anti
+    join flavors. Verified live against ARG (2026-08): supported kinds are inner, innerunique,
+    leftouter, rightouter, fullouter; lookup, leftsemi, leftanti, rightsemi, rightanti, and
+    `in`/`!in` with a subquery are all rejected with InvalidQuery. Exclusion joins in ARG must
+    therefore use the leftouter + `where isempty(<right key>)` emulation (with a key-unique
+    right side) — the one place that pattern is acceptable.
 #>
 
 Describe 'KqlJoinKinds' {
@@ -43,6 +51,15 @@ Describe 'KqlJoinKinds' {
                 Get-ChildItem -Path $full -Filter $_.Filter -Recurse:$_.Recurse -File -ErrorAction SilentlyContinue
             } | Sort-Object FullName -Unique | ForEach-Object {
                 @{ Name = $_.Name; FullName = $_.FullName; RelPath = $_.FullName.Substring($repoRoot.Length + 1).Replace('\', '/') }
+            })
+
+        # Surfaces whose KQL runs on Azure Resource Graph. Workbook files may also contain the
+        # occasional Log Analytics query (queryType 0); if one legitimately needs lookup or a
+        # semi/anti join, add a per-file allowlist analogous to the bare-join baseline.
+        $argFiles = @($scanFiles | Where-Object {
+                $_.RelPath -like 'src/workbooks/*' -or
+                $_.RelPath -like 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Recommendations/queries/*' -or
+                $_.RelPath -eq 'src/templates/finops-alerts/modules/logicApp.bicep'
             })
     }
 
@@ -86,5 +103,12 @@ Describe 'KqlJoinKinds' {
             # Ratchet: if bare joins were removed, the baseline must be lowered so they cannot return.
             $bareJoins.Count | Should -Be $allowed -Because ("the bare-join count in this file dropped below the baseline ($allowed); lower the baseline entry for '$RelPath' in KqlJoinKinds.Tests.ps1 to $($bareJoins.Count) (or remove it if 0) so the fix is locked in.")
         }
+    }
+
+    It 'Should not use operators ARG rejects (lookup, semi/anti joins): <RelPath>' -ForEach $argFiles {
+        $content = Get-Content -Path $FullName -Raw
+        $rejected = @([regex]::Matches($content, '\|\s*lookup\b|join\s+kind\s*=\s*(leftanti|leftsemi|rightanti|rightsemi|anti|semi|leftantisemi|rightantisemi)\b'))
+
+        @($rejected | ForEach-Object { $_.Value }) -join '; ' | Should -BeNullOrEmpty -Because ('Azure Resource Graph rejects the lookup operator and all semi/anti join flavors with InvalidQuery (verified live; supported kinds are inner, innerunique, leftouter, rightouter, fullouter). For exclusions in ARG, use join kind=leftouter + where isempty(<right key>) with a key-unique right side. If this file contains a Log Analytics query that legitimately needs the operator, add a per-file allowlist to this test.')
     }
 }
