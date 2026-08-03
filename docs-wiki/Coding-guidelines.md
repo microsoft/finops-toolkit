@@ -49,7 +49,7 @@ We adhere to the [Microsoft style guide](https://docs.microsoft.com/style-guide/
 
 ## ⚡ KQL
 
-Hub KQL runs over every ingested row, so string matching choices show up directly in ingestion cost and query latency. Two rules cover most of it: **never wrap a column in `tolower()` to compare it**, and **pick `has` vs `contains` by matching intent** – they are semantically different, not interchangeable speeds.
+Hub KQL runs over every ingested row, so string matching and join choices show up directly in ingestion cost, query latency – and, if a join fans out or deduplicates unexpectedly, in the correctness of every downstream number. Three rules cover most of it: **never wrap a column in `tolower()` to compare it**, **pick `has` vs `contains` by matching intent**, and **never write a `join` without an explicit `kind`**.
 
 ### String matching
 
@@ -80,6 +80,37 @@ That gives each operator its own set of valid cases:
 **Verify before you swap.** Switching `contains` to `has` changes matching semantics, so treat it as a behavioral change until proven otherwise. Cross-tabulate both directions on real data (`countif(old != new)` must be `0` – equal aggregate counts can hide offsetting false positives and negatives), and add fixtures to the executable harness at `src/powershell/Tests/assets/StringOperatorEquivalence.kql`, which runs on any Kusto database and returns zero rows when it passes.
 
 These rules are enforced on every pull request by `src/powershell/Tests/Unit/HubsKqlOperators.Tests.ps1`: `tolower()` in comparison position fails the build, and each `contains` usage must be listed in that test's allowlist with a justification.
+
+### Joins and lookups
+
+Three facts about the engine drive everything below:
+
+1. **The default join flavor is a trap.** A bare `| join (T) on Key` means `kind=innerunique`, which *deduplicates the left side on the join key* – one arbitrary row survives per key value. This has caused real, silent data loss in shipped queries (savings plan recommendations collapsing to one row per subscription; SQL VMs with duplicate names disappearing – see PR #2225). Azure Resource Graph uses the same default.
+2. **`lookup` is the purpose-built form of the dimension join.** For enriching a large fact table from a small reference table, `lookup` assumes big-left/small-right (the *opposite* of `join`'s sizing assumption), broadcasts the right side (must fit in a few tens of MB), and does not emit duplicated key columns – no `Key1` to `project-away`. It only supports `kind=leftouter` (default) and `kind=inner`.
+3. **Both `join` and `lookup` return every match.** Neither deduplicates the right side: a dimension table with more than one row per key multiplies your fact rows. The open-data `Services` table has 30 resource types with duplicate rows (up to ×31 for `microsoft.sql/locations`) – joining its raw projection multiplied cost for those types until PR #2225 added an explicit dedup.
+
+That gives each operation a canonical form:
+
+- **Enrichment** (add columns from a small, key-unique reference): `| lookup kind=leftouter (Dim | summarize take_any(Col1), take_any(Col2) by Key) on Key`. The `summarize ... by Key` guarantees one row per key; `distinct Key, Col1, Col2` does **not** (it deduplicates whole rows, not keys).
+- **Filtering** (keep left rows that have a match): `join kind=inner` against a `distinct` right side – or `kind=leftsemi`, which adds no columns at all.
+- **Exclusion** (keep left rows with *no* match): `join kind=leftanti`. Never emulate it with `kind=leftouter` + `where isempty(RightKey1)` – if two right rows match, `leftouter` duplicates the left row *before* the `isempty` filter runs, and every downstream `count()`/`sum()` inflates.
+- **Comparison across two periods**: `kind=fullouter` is correct (and `lookup` cannot express it) – but coalesce the key columns afterwards (`| extend Key = coalesce(Key, Key1) | project-away Key1`), or rows that exist only on the right render with empty keys.
+
+| ❌ Avoid | ✅ Prefer | Why |
+| --- | --- | --- |
+| `\| join (T) on Key` | `\| join kind=... (T) on Key` | Bare join = `innerunique`: left side deduplicated per key, rows silently dropped. State the intent, always |
+| `\| join kind=leftouter (SmallDim) on Key` | `\| lookup kind=leftouter (SmallDim) on Key` | Fact-to-dimension enrichment is what `lookup` is for: broadcast, no duplicated key column. (ADX / Log Analytics only – ARG has no `lookup`) |
+| `lookup (Dim \| distinct Key, Col1, Col2) on Key` | `lookup (Dim \| summarize take_any(Col1), take_any(Col2) by Key) on Key` | `distinct` over multiple columns still yields >1 row per key when the other columns differ – fact rows multiply |
+| `join kind=leftouter (X) on K \| where isempty(K1)` | `join kind=leftanti (X) on K` | `leftanti` is duplicate-proof and never materializes right-side columns |
+| `summarize Total=... \| join ... on 1 == 1` | `let Total = toscalar(...)` | `on 1 == 1` is not valid KQL (verified: fails with `General_BadRequest`); `toscalar()` also avoids a second full-table scan |
+| `BigTable \| join kind=inner (OtherBigTable)` | smaller table on the **left**, or `hint.strategy=shuffle` / `hint.shufflekey` | `join` assumes the left side is the smaller one; large-to-large joins need the shuffle strategy. `hint.strategy=broadcast` is the manual spelling of what `lookup` does automatically |
+
+> [!IMPORTANT]
+> **Azure Resource Graph is not ADX.** ARG queries (workbooks, recommendation queries, the alerts logic app) support only a subset of join flavors (`inner`, `innerunique`, `leftouter` per the [ARG docs](https://learn.microsoft.com/azure/governance/resource-graph/concepts/query-language)), no `lookup`, no join hints, and a documented limit of 3 joins per query. The explicit-`kind` rule is therefore the *only* available defense there – and the `innerunique` default was verified live: a 40-row left side with one distinct key returns 1 row from a bare join and 40 from `kind=inner`.
+
+**Verify before you swap.** Converting `join` to `lookup` drops the duplicated key columns (`Key1`) from the output – confirm nothing downstream references them. Adding a dimension dedup changes which row wins for duplicate keys – confirm the surviving values are equivalent (or pick deterministically with `arg_max()`). For conversions on hub transforms, run the old and new pipeline over the same data and compare row counts *and* values, not just execution success.
+
+These rules are enforced on every pull request by `src/powershell/Tests/Lint/KqlJoinKinds.Tests.ps1`: any `join` without an explicit `kind=` fails the build, across every KQL-carrying surface (hub scripts, query catalog, workbooks, recommendation queries, the alerts logic app, optimization engine, and published docs). Pre-existing bare joins are baselined per file as a ratchet – counts can only go down, and lowering the baseline is enforced when a file is cleaned up (#2228 tracks the backlog).
 
 <br>
 
