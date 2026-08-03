@@ -25,67 +25,6 @@ var finopsHubSubnetName = 'private-endpoint-subnet'
 var scriptSubnetName = 'script-subnet'
 var dataExplorerSubnetName = 'dataExplorer-subnet'
 
-var subnets = !hub.options.privateRouting ? [] : [
-  {
-    name: finopsHubSubnetName
-    properties: {
-      addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 0)
-      defaultOutboundAccess: !hub.options.natGateway
-      networkSecurityGroup: {
-        id: nsg.id
-      }
-      serviceEndpoints: [
-        {
-          service: 'Microsoft.Storage'
-        }
-      ]
-    }
-  }
-  {
-    name: scriptSubnetName
-    properties: {
-      addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 1)
-      defaultOutboundAccess: !hub.options.natGateway
-      ...(hub.options.natGateway ? {
-        natGateway: {
-          id: resourceId('Microsoft.Network/natGateways', natGatewayName)
-        }
-      } : {})
-      networkSecurityGroup: {
-        id: nsg.id
-      }
-      delegations: [
-        {
-          name: 'Microsoft.ContainerInstance/containerGroups'
-          properties: {
-            serviceName: 'Microsoft.ContainerInstance/containerGroups'
-          }
-        }
-      ]
-      serviceEndpoints: [
-        {
-          service: 'Microsoft.Storage'
-        }
-      ]
-    }
-  }
-  {
-    name: dataExplorerSubnetName
-    properties: {
-      addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 27, 1)
-      defaultOutboundAccess: !hub.options.natGateway
-      ...(hub.options.natGateway ? {
-        natGateway: {
-          id: resourceId('Microsoft.Network/natGateways', natGatewayName)
-        }
-      } : {})
-      networkSecurityGroup: {
-        id: nsg.id
-      }
-    }
-  }
-]
-
 
 //==============================================================================
 // Resources
@@ -95,7 +34,7 @@ var subnets = !hub.options.privateRouting ? [] : [
 // Network
 //------------------------------------------------------------------------------
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.options.privateRouting) {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2025-07-01' = if (hub.options.privateRouting) {
   name: nsgName
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Storage/networkSecurityGroups')
@@ -183,7 +122,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.opti
   }
 }
 
-resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.privateRouting) {
+resource vNet 'Microsoft.Network/virtualNetworks@2025-07-01' = if (hub.options.privateRouting) {
   name: hub.routing.networkName
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Network/virtualNetworks')
@@ -194,19 +133,81 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
     addressSpace: {
       addressPrefixes: [hub.options.networkAddressPrefix]
     }
-    subnets: subnets
+    // Subnets are intentionally omitted here and declared as child resources below.
+    // A PUT that includes this property is authoritative for the entire subnet list, so ARM
+    // deletes any subnet the hub doesn't declare -- destroying customer-added subnets on upgrade.
+    // Since API version 2023-09-01, omitting it leaves existing subnets untouched, which lets the
+    // hub manage only the subnets it owns. See https://aka.ms/ftk/vnet-subnets and issue #2156.
+    // Never set this to [] or null: both are treated as "delete all subnets".
   }
 
-  resource finopsHubSubnet 'subnets' existing = {
+  // Subnets are serialized via dependsOn. Concurrent writes to subnets of the same virtual
+  // network fail with AnotherOperationInProgress.
+  resource finopsHubSubnet 'subnets' = {
     name: finopsHubSubnetName
+    properties: {
+      addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 0)
+      defaultOutboundAccess: !hub.options.natGateway
+      networkSecurityGroup: {
+        id: nsg.id
+      }
+      serviceEndpoints: [
+        {
+          service: 'Microsoft.Storage'
+        }
+      ]
+    }
   }
 
-  resource scriptSubnet 'subnets' existing = {
+  resource scriptSubnet 'subnets' = {
     name: scriptSubnetName
+    dependsOn: [
+      finopsHubSubnet
+    ]
+    properties: {
+      addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 1)
+      defaultOutboundAccess: !hub.options.natGateway
+      ...(hub.options.natGateway ? {
+        natGateway: {
+          id: resourceId('Microsoft.Network/natGateways', natGatewayName)
+        }
+      } : {})
+      networkSecurityGroup: {
+        id: nsg.id
+      }
+      delegations: [
+        {
+          name: 'Microsoft.ContainerInstance/containerGroups'
+          properties: {
+            serviceName: 'Microsoft.ContainerInstance/containerGroups'
+          }
+        }
+      ]
+      serviceEndpoints: [
+        {
+          service: 'Microsoft.Storage'
+        }
+      ]
+    }
   }
 
-  resource dataExplorerSubnet 'subnets' existing = {
+  resource dataExplorerSubnet 'subnets' = {
     name: dataExplorerSubnetName
+    dependsOn: [
+      scriptSubnet
+    ]
+    properties: {
+      addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 27, 1)
+      defaultOutboundAccess: !hub.options.natGateway
+      ...(hub.options.natGateway ? {
+        natGateway: {
+          id: resourceId('Microsoft.Network/natGateways', natGatewayName)
+        }
+      } : {})
+      networkSecurityGroup: {
+        id: nsg.id
+      }
+    }
   }
 }
 
@@ -216,7 +217,7 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 // policy and the September 2025 implicit-outbound retirement)
 //------------------------------------------------------------------------------
 
-resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (hub.options.natGateway) {
+resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2025-07-01' = if (hub.options.natGateway) {
   name: natGatewayPipName
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Network/publicIPAddresses')
@@ -229,7 +230,7 @@ resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = i
   }
 }
 
-resource natGateway 'Microsoft.Network/natGateways@2023-11-01' = if (hub.options.natGateway) {
+resource natGateway 'Microsoft.Network/natGateways@2025-07-01' = if (hub.options.natGateway) {
   name: natGatewayName
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Network/natGateways')
@@ -346,7 +347,7 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
 // Script storage
 //------------------------------------------------------------------------------
 
-resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (hub.options.privateRouting) {
+resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2026-04-01' = if (hub.options.privateRouting) {
   name: hub.routing.scriptStorage
   dependsOn: [
     vNet::scriptSubnet
@@ -377,10 +378,10 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
   }
 }
 
-resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hub.options.privateRouting) {
+resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2025-07-01' = if (hub.options.privateRouting) {
   name: '${scriptStorageAccount.name}-blob-ep'
   dependsOn: [
-    vNet::scriptSubnet
+    vNet::finopsHubSubnet
   ]
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Network/privateEndpoints')
@@ -429,7 +430,7 @@ output vNetId string = !hub.options.privateRouting ? '' : vNet.id
 #disable-next-line BCP318 // Null safety warning for conditional resource access
 output vNetAddressSpace array = !hub.options.privateRouting ? [] : vNet.properties.addressSpace.addressPrefixes
 
-@description('Virtual network subnets.')
+@description('Virtual network subnets. Includes any subnets added by the customer, not only the subnets the hub manages.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
 output vNetSubnets array = !hub.options.privateRouting ? [] : vNet.properties.subnets
 

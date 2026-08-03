@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 07/30/2026
+ms.date: 08/03/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -34,6 +34,7 @@ The following section lists features and enhancements that are currently in deve
   - Replaced whole-term `contains` matches with `has` across hub KQL and the query catalog (resource ID paths, licensing phrases, SKU description terms) and added a per-row operator-equivalence regression harness with unit test coverage ([#2220](https://github.com/microsoft/finops-toolkit/pull/2220)).
 - **Fixed**
   - Fixed the `ContractedCost` recompute guard to compare with a null-safe tolerance instead of exact float equality, eliminating millions of no-op rewrites that polluted the `x_SourceValues` audit trail while preserving the null-cost backfill and no longer overwriting an existing cost when the unit price is missing ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
+  - Fixed hub upgrades deleting subnets you added to the hub virtual network, or failing with `InUseSubnetCannotBeDeleted` when those subnets are in use. Hub subnets are now deployed as child resources, so upgrades no longer replace the entire subnet collection ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
 
 ### [Power BI reports](power-bi/reports.md)
 

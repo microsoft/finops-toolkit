@@ -7,6 +7,8 @@ on:
       # KQL sources are covered by unit tests (HubsKqlOperators.Tests.ps1)
       - 'src/templates/finops-hub/**/*.kql'
       - 'src/queries/**/*.kql'
+      # Hub networking is covered by unit tests (HubsPrivateNetworking.Tests.ps1)
+      - 'src/templates/finops-hub/**/*.bicep'
 jobs:
   run_pester_tests:
     name: Pester
