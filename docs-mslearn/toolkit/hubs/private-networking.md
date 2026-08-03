@@ -3,7 +3,7 @@ title: Configure private networking in FinOps hubs
 description: Learn about data access options with FinOps hubs and how to configure secure access to your data with private endpoints.
 author: MSBrett
 ms.author: brettwil
-ms.date: 07/31/2026
+ms.date: 08/03/2026
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
@@ -81,7 +81,7 @@ The following table compares the network access options available in FinOps hubs
 | ------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | Storage             | Accessible over the internet¹ | Customer-managed private endpoints and DNS in your own network; customer-managed peering is a secondary option            | Data access can remain private to your network    |
 | Azure Data Explorer | Accessible over the internet¹ | Customer-managed private endpoints and DNS in your own network; customer-managed peering is a secondary option            | Data access can remain private to your network    |
-| Key vault           | Accessible over the internet¹ | Toolkit-internal private connectivity                                                                                             | Keys and secrets aren't accessible from the open internet      |
+| Key Vault           | Accessible over the internet¹ | Toolkit-internal private connectivity                                                                                             | Keys and secrets aren't accessible from the open internet      |
 | Azure Data Factory  | Uses public compute pool      | Toolkit-managed runtime and connections                                                                                           | Toolkit processing remains private                             |
 | Virtual Network     | Not used                      | Toolkit-owned isolated virtual network; customer workloads and network resources aren't supported in this network                | Toolkit resources remain isolated from your network assets |
 

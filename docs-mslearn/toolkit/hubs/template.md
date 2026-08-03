@@ -3,7 +3,7 @@ title: FinOps hub template
 description: Learn about what's included in the FinOps hub template including parameters, resources, and outputs.
 author: MSBrett
 ms.author: brettwil
-ms.date: 07/31/2026
+ms.date: 08/03/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -149,7 +149,7 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
   - Toolkit-internal managed private endpoints
     - `<hubName>store<unique-suffix>` - Managed private endpoint for the hub storage account.
     - `<hubName>-vault-<unique-suffix>` - Managed private endpoint for the hub Azure Key Vault.
-    - `<dataExplorerName>` - Managed private endpoint for the hub Azure Data Explorer cluster.
+    - `hubDataExplorer` - Managed private endpoint for the hub Azure Data Explorer cluster.
 - `<hubName>-vault-<unique-suffix>` Key Vault instance (only included when deployed as a remote hub)
   - Secrets:
     - Data Factory system managed identity
