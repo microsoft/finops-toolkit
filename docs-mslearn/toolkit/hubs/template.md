@@ -1,9 +1,9 @@
 ---
 title: FinOps hub template
 description: Learn about what's included in the FinOps hub template including parameters, resources, and outputs.
-author: flanakin
-ms.author: micflan
-ms.date: 06/03/2026
+author: MSBrett
+ms.author: brettwil
+ms.date: 07/31/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -102,7 +102,7 @@ Here are the parameters you can use to customize the deployment:
 | **enableAHBRecommendations**           | Bool   | Optional. Enable Azure Hybrid Benefit recommendations that flag VMs and SQL VMs without Azure Hybrid Benefit enabled. May generate noise if your organization does not have on-premises licenses. Requires enableRecommendations.                                                                                                                                                                                                                                                                         | False              |
 | **enableSpotRecommendations**          | Bool   | Optional. Enable non-Spot AKS cluster recommendations that flag AKS clusters with autoscaling but not using Spot VMs. May generate noise since Spot VMs are only appropriate for interruptible workloads. Requires enableRecommendations.                                                                                                                                                                                                                                                                 | False              |
 | **enablePublicAccess**                 | Bool   | Optional. Disable public access to the data lake (storage firewall).                                                                                                                                                                                                                                                                                                                                                                                                                                      | True               |
-| **virtualNetworkAddressPrefix**        | String | Optional. IP Address range for the private virtual network used by FinOps hubs. Accepts any subnet size from `/8` to `/26` with a minimum of `/26` required. `/26` is recommended to avoid wasting IPs unless you need additional address space for services like Power BI VNet Data Gateway. Internally, the following subnets will be created: `/28` for private endpoints, another `/28` subnet for temporary deployment scripts (container instances), and `/27` for Azure Data Explorer, if enabled. | '10.20.30.0/26'    |
+| **virtualNetworkAddressPrefix**        | String | Optional. IP address range for the Toolkit-owned private virtual network. Accepts any subnet size from `/8` to `/26`, with a minimum of `/26` required. The virtual network, its internal subnets, and managed private endpoints are Toolkit-internal; they aren't available for customer workloads, gateways, endpoints, or DNS resources. For a diagram of the internal subnet layout, see [Private networking](./private-networking.md). | '10.20.30.0/26'    |
 
 <br>
 
@@ -146,9 +146,10 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
     - `config_MonthlySchedule` – Triggers the `config_RunExportJobs` pipeline monthly for the previous month's cost data.
     - `msexports_ManifestAdded` – Triggers the `msexports_ExecuteETL` pipeline when Cost Management exports complete.
     - `ingestion_ManifestAdded` – Triggers the `ingestion_ExecuteETL` pipeline when manifest.json files are added (handled by the `msexports_ETL_ingestion` pipeline).
-  - Managed Private Endpoints
-    - `<hubName>store<unique-suffix>` - Managed private endpoint for storage account.
-    - `<hubName>-vault-<unique-suffix>` - Managed private endpoint for Azure Key Vault.
+  - Toolkit-internal managed private endpoints
+    - `<hubName>store<unique-suffix>` - Managed private endpoint for the hub storage account.
+    - `<hubName>-vault-<unique-suffix>` - Managed private endpoint for the hub Azure Key Vault.
+    - `<dataExplorerName>` - Managed private endpoint for the hub Azure Data Explorer cluster.
 - `<hubName>-vault-<unique-suffix>` Key Vault instance (only included when deployed as a remote hub)
   - Secrets:
     - Data Factory system managed identity

@@ -53,7 +53,7 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
     </div>
     <div class="ftk-tile">
         <div>🛡️ Secure processing</div>
-        <div>Secure financial and organizational data on a private, isolated network you control and govern.</div>
+        <div>Secure financial and organizational data with private hub resources and customer-managed private access.</div>
     </div>
 </div>
 
@@ -113,10 +113,10 @@ Create a new or update an existing FinOps hub instance.
                     <div>🏢 Private routing</div>
                     <div>
                         <p>
-                            Most secure. Resources are only reachable from peered networks. Access is controlled via RBAC.
+                            Most secure. Resources are accessed through customer-managed private endpoints and DNS in your own network. Customer-managed peering is a secondary option. Access is controlled via RBAC.
                         </p>
                         <p>
-                            Work with your network admin to configure peering and routing so the FinOps hubs isolated network is reachable from your network.
+                            Review the supported private-access models and coordinate with the teams that own your network.
                         </p>
                         <p>
                             <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/private-networking">Plan for private networking</a>

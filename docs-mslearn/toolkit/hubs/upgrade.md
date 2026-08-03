@@ -1,9 +1,9 @@
 ---
 title: Upgrade your FinOps hubs
 description: Learn how to upgrade your existing FinOps hub instance to the latest version, including necessary steps and considerations.
-author: flanakin
-ms.author: micflan
-ms.date: 04/01/2026
+author: MSBrett
+ms.author: brettwil
+ms.date: 07/31/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -44,16 +44,18 @@ This step only applies when upgrading from FinOps hubs 0.7 and targeting a deplo
 - Upgrading from FinOps hubs 0.7 and using private network routing.
 - Upgrading from FinOps hubs 0.8 or later.
 
-FinOps hubs 0.8 introduced architectural changes to how networking resources were deployed. Networking resources must be deleted before upgrading from 0.7 to 0.8 or later. If you're moving from 0.6 or earlier to 0.8 or later, you can skip this step. The instructions assume your FinOps hub instance is the only thing in the resource group and there are no other networking resources. Don't delete resources that aren't related to FinOps hubs.
+FinOps hubs 0.8 introduced architectural changes to how Toolkit-created networking resources were deployed. Those Toolkit-created resources must be deleted before upgrading from 0.7 to 0.8 or later. If you're moving from 0.6 or earlier to 0.8 or later, you can skip this step. The instructions assume your FinOps hub instance is the only thing in the resource group and there are no other networking resources. Don't delete resources that aren't related to FinOps hubs.
 
 To delete FinOps hubs 0.7 networking resources:
 
 1. Open the FinOps hub resource group in the Azure portal.
-2. Delete all private endpoints within the resource group.
-3. Delete all private Domain Name System (DNS) zones within the resource group.
+2. Delete only the private endpoints created by the FinOps hubs 0.7 deployment.
+3. Delete only the private Domain Name System (DNS) zones created by the FinOps hubs 0.7 deployment.
 4. Delete the virtual network. If errors are encountered:
-   - Confirm no private endpoints or DNS zones remain.
+   - Confirm no Toolkit-created private endpoints or DNS zones remain.
    - Check the connected devices tab and remove any lingering resources to ensure the virtual network isn't in use.
+
+Don't delete endpoints, virtual networks, or DNS resources that you created. The Toolkit doesn't deploy or manage those resources.
 
 <br>
 

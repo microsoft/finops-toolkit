@@ -1,9 +1,9 @@
 ---
 title: Set up Power BI reports
 description: Learn how to set up Power BI FinOps reports using the FinOps toolkit, customize visuals, and connect to your cost data for detailed analysis.
-author: flanakin
-ms.author: micflan
-ms.date: 05/12/2026
+author: MSBrett
+ms.author: brettwil
+ms.date: 07/31/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -16,6 +16,19 @@ ms.reviewer: micflan
 The FinOps toolkit Power BI reports provide a great starting point for your FinOps reporting. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed. You can also copy and paste visuals between reports to create your own custom reports.
 
 FinOps toolkit reports support several ways to connect to your cost data. We generally recommend starting with Cost Management exports, which support up to $2-5 million in monthly spend. If you experience data refresh timeouts or need to report on data across multiple directories or tenants, use [FinOps hubs](../hubs/finops-hubs-overview.md). It's a data pipeline solution that optimizes data and offers more functionality. For more information about choosing the right backend, see [Help me choose](help-me-choose.md).
+
+## Private connectivity for FinOps hubs
+
+For Kusto-connected Power BI reports, a FinOps hub with private networking has two supported connectivity models:
+
+1. **Customer-managed private endpoint model** – Power BI reaches Kusto through customer-managed private endpoints and networking.
+2. **Customer-managed peering model** – When using the secondary peering option, Power BI reaches hub endpoints directly.
+
+If you need a Power BI gateway, place it in your own network. Never place it in the FinOps hub virtual network. The Toolkit doesn't deploy or manage your endpoint, virtual network, or DNS resources. For canonical guidance, see [Private Endpoint overview](https://learn.microsoft.com/azure/private-link/private-endpoint-overview), [Private Endpoint DNS integration](https://learn.microsoft.com/azure/private-link/private-endpoint-dns-integration), [Virtual network peering](https://learn.microsoft.com/azure/virtual-network/virtual-network-peering-overview), [Virtual network data gateways](https://learn.microsoft.com/data-integration/vnet/overview), [Use data gateways with Power BI sources](https://learn.microsoft.com/data-integration/vnet/use-data-gateways-sources-power-bi), and [On-premises data gateway](https://learn.microsoft.com/data-integration/gateway/service-gateway-onprem).
+
+For FinOps hub network ownership and access boundaries, see [Configure private networking](../hubs/private-networking.md).
+
+<br>
 
 ## Datasets and compatible tools
 
@@ -85,7 +98,7 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
      5. Select **Outputs**.
      6. Copy the value for `clusterUri`.
         > [!IMPORTANT]
-        > When using private endpoints in conjunction with a Power BI data gateway, make sure to use the fully qualified domain name (FQDN) of the Azure Data Explorer cluster (like `clustername.region.kusto.windows.net`) rather than the abbreviated version (like `clustername.region`). This ensures proper name resolution for the private endpoint functions as expected.
+        > If you're using a customer-managed private endpoint to reach Data Explorer (see [Private connectivity for FinOps hubs](#private-connectivity-for-finops-hubs)), use the fully qualified domain name (FQDN) of the cluster (like `clustername.region.kusto.windows.net`) rather than the abbreviated form (like `clustername.region`). The private endpoint's DNS zone only resolves the FQDN.
    - **Daily or Monthly** (KQL reports only) &ndash; Required granularity of data. Use this to report on longer periods of time.
      - Consider creating two copies of these reports to show both daily data for a short time period and monthly data for historical reporting.
    - **Storage URL** (storage reports only) &ndash; Required DFS endpoint for the Azure Data Lake Storage account with your data.
