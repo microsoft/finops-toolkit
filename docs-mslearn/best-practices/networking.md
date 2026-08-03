@@ -3,7 +3,7 @@ title: FinOps best practices for Networking
 description: This article outlines proven FinOps practices for networking services, focusing on cost optimization, efficiency improvements, and resource insights.
 author: flanakin
 ms.author: micflan
-ms.date: 08/02/2026
+ms.date: 08/03/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
