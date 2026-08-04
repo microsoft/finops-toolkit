@@ -118,7 +118,7 @@ Apply these rules to every query you write or modify. They mirror the project co
 - Neither `join` nor `lookup` deduplicates the right side — a reference table with more than one row per key multiplies your fact rows. Guarantee one row per key with `summarize take_any(Col1), take_any(Col2) by Key` (`distinct` over multiple columns does *not* guarantee this).
 - For exclusions ("rows with no match"), use `join kind=leftanti` — not `kind=leftouter` + `where isempty(...)`, which inflates counts when the right side has duplicate keys.
 - For two-period comparisons, `join kind=fullouter` is correct, but coalesce the key columns afterwards (`| extend Key = coalesce(Key, Key1) | project-away Key1`) or right-only rows render with empty keys.
-- For grand totals and percent-of-total, use `let Total = toscalar(...)` — never a cross join (`on 1 == 1` is not valid KQL and fails at runtime).
+- For grand totals and percent-of-total, compute the total once with `let Total = toscalar(...)` instead of joining an aggregate subquery onto every row.
 **Azure Resource Graph is different.** If you are writing ARG queries (resource inventory via `az graph query` — not the hub database), the bare-join `innerunique` trap is the same, but ARG supports *no* `lookup` and no semi/anti join flavors, and allows at most 3 joins per query. Exclusions in ARG must use the `join kind=leftouter` + `where isempty(...)` emulation with a key-unique right side.
 
 ---
