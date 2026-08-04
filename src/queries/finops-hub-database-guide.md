@@ -105,13 +105,13 @@ The FinOps hubs database is designed to support advanced cost and usage analytic
 
 Apply these rules to every query you write or modify. They mirror the project coding guidelines and come from real correctness bugs fixed across the toolkit ([#2189](https://github.com/microsoft/finops-toolkit/pull/2189), [#2220](https://github.com/microsoft/finops-toolkit/pull/2220), [#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
 
-**String matching**
+#### String matching
 
-- Never wrap a column in `tolower()`/`toupper()` to compare it. Every plain KQL string operator is already case-insensitive (`=~`, `has`, `contains`, `startswith`, `in~`); the `_cs` variants and `==`/`in` are the case-sensitive forms. Write `Col =~ 'value'`, not `tolower(Col) == 'value'`.
+- Never wrap a column in `tolower()`/`toupper()` to compare it. KQL's string *matching* operators are case-insensitive by default (`=~`, `has`, `contains`, `startswith`, `in~`); case-sensitive matching is what you opt into via the `_cs` variants and the equality operators `==`/`in`. Write `Col =~ 'value'`, not `tolower(Col) == 'value'`.
 - Prefer `has` when the needle is a whole term or a separator-bounded phrase (`ResourceId has '/microsoft.capacity/reservationorders/'`) — it uses the term index. Use `contains` only when the needle can be fused inside a larger token (`ConsumedUnit contains 'MB'` also matches `Mbps`).
 - Collapse operator chains: `Col in~ ('a', 'b')` instead of repeated `=~` with `or`; `has_any`/`has_all` instead of `has` chains.
 
-**Joins and lookups**
+#### Joins and lookups
 
 - Never write a bare `| join` — always state `kind=` explicitly. The default flavor is `innerunique`, which deduplicates the *left* side on the join key and silently drops rows.
 - To enrich cost rows from a small reference table, use `lookup kind=leftouter` instead of `join kind=leftouter`. It broadcasts the small side and emits no duplicated key columns.
@@ -119,6 +119,8 @@ Apply these rules to every query you write or modify. They mirror the project co
 - For exclusions ("rows with no match"), use `join kind=leftanti` — not `kind=leftouter` + `where isempty(...)`, which inflates counts when the right side has duplicate keys.
 - For two-period comparisons, `join kind=fullouter` is correct, but coalesce the key columns afterwards (`| extend Key = coalesce(Key, Key1) | project-away Key1`) or right-only rows render with empty keys.
 - For grand totals and percent-of-total, use `let Total = toscalar(...)` — never a cross join (`on 1 == 1` is not valid KQL and fails at runtime).
+
+> **Note:** One legacy example later in this guide still uses the `join ... on 1 == 1` pattern. It is replaced with `toscalar()` in [#2225](https://github.com/microsoft/finops-toolkit/pull/2225) — do not copy it.
 
 **Azure Resource Graph is different.** If you are writing ARG queries (resource inventory via `az graph query` — not the hub database), the bare-join `innerunique` trap is the same, but ARG supports *no* `lookup` and no semi/anti join flavors, and allows at most 3 joins per query. Exclusions in ARG must use the `join kind=leftouter` + `where isempty(...)` emulation with a key-unique right side.
 
@@ -716,7 +718,7 @@ The following table lists the columns produced in the `All available columns` qu
 | 2025-05-16 | 1.0     | FinOps Toolkit Team | Initial documentation                                                                                                                                                                                                                                                                                                                                                                              |
 | 2025-05-16 | 1.1     | FinOps Toolkit Team | Expanded schema, glossary, references                                                                                                                                                                                                                                                                                                                                                              |
 | 2026-05-28 | 1.2     | Sprint 3000 UAT     | Live-Hub schema audit: `Costs()`, `Prices()`, `Recommendations()` numeric columns retyped from `decimal` to `real` to match deployed Hub schema (cause of SEM0019 errors). `Recommendations()` table expanded from 12 to 20 columns to add the 8 columns present in the live schema. `x_RecommendationDate` documented as commonly-null in live Hubs (root cause of T-3000.13). |
-| 2026-08-04 | 1.3     | FinOps Toolkit Team | Added KQL language rules (case-insensitive operators, explicit join kinds, `lookup` for dimension enrichment) distilled from the project coding guidelines so query-writing agents load them alongside the schema. |
+| 2026-08-04 | 1.3     | FinOps Toolkit Team | Added KQL language rules (case-insensitive operators, explicit join kinds, `lookup` for dimension enrichment) distilled from the project coding guidelines so query-writing agents load them alongside the schema.                                                                                                                                                                                 |
 
 ---
 
