@@ -7,6 +7,8 @@ on:
       # KQL sources are covered by unit tests (HubsKqlOperators.Tests.ps1)
       - 'src/templates/finops-hub/**/*.kql'
       - 'src/queries/**/*.kql'
+      # ADF trigger time zone mappings are covered by unit tests (HubsAdfTriggerTimeZones.Tests.ps1)
+      - 'src/templates/finops-hub/**/timeZones.bicep'
 jobs:
   run_pester_tests:
     name: Pester
