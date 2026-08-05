@@ -160,6 +160,9 @@ There are many ways to participate. From reporting bugs and requesting features 
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/arthursilvany"><img src="https://avatars.githubusercontent.com/u/31347467?v=4?s=100" width="100px;" alt="Arthur Silvany"/><br /><sub><b>Arthur Silvany</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Aarthursilvany" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/Pasc104"><img src="https://avatars.githubusercontent.com/u/278708919?v=4?s=100" width="100px;" alt="Pasc104"/><br /><sub><b>Pasc104</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3APasc104" title="Bug reports">🐛</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/TakumiSeo"><img src="https://avatars.githubusercontent.com/u/49015441?v=4?s=100" width="100px;" alt="TakuSe"/><br /><sub><b>TakuSe</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=TakumiSeo" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
