@@ -9,6 +9,8 @@ on:
       - 'src/queries/**/*.kql'
       # ADF trigger time zone mappings are covered by unit tests (HubsAdfTriggerTimeZones.Tests.ps1)
       - 'src/templates/finops-hub/**/timeZones.bicep'
+      - 'docs/deploy/finops-hub-latest.json'
+      - 'docs/deploy/finops-hub-preview.json'
 jobs:
   run_pester_tests:
     name: Pester

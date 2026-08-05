@@ -16,6 +16,11 @@
     2. No value is an IANA-style ID (contains '/'), which .NET on Linux would accept but ADF rejects.
     3. Every region key matches the lookup normalization (lowercase, no spaces) and is a known Azure region.
     4. The fallback stays pinned to the valid Windows ID 'UTC' (not a display name).
+
+    The same value checks also run against the compiled deployment templates users actually deploy from
+    (docs/deploy/finops-hub-latest.json and finops-hub-preview.json), because those are regenerated at
+    release time and can lag a src fix (see the #2236 review discussion). Older versioned templates are
+    historical artifacts and intentionally not covered.
 #>
 
 Describe 'HubsAdfTriggerTimeZones' {
@@ -39,6 +44,32 @@ Describe 'HubsAdfTriggerTimeZones' {
         }
 
         $distinctTimeZones = @($mappings | ForEach-Object { $_.TimeZoneId } | Sort-Object -Unique | ForEach-Object { @{ TimeZoneId = $_ } })
+
+        # Extract the same mapping from the compiled deployment templates (shipped artifacts).
+        # Each template embeds the timezoneobject param default in nested deployments; the blocks are
+        # identical, so collapse to unique (File, Region, TimeZoneId) tuples.
+        $deployTemplates = @('finops-hub-latest.json', 'finops-hub-preview.json')
+        $deployMappings = @()
+        $deployBlockCounts = @()
+        foreach ($templateName in $deployTemplates)
+        {
+            $templateContent = Get-Content -Path (Join-Path $repoRoot "docs/deploy/$templateName") -Raw
+            $blocks = [regex]::Matches($templateContent, '"timezoneobject"\s*:\s*\{\s*"type"\s*:\s*"object",\s*"defaultValue"\s*:\s*\{([^}]*)\}')
+            $deployBlockCounts += @{ File = $templateName; BlockCount = $blocks.Count }
+            $seen = @{}
+            foreach ($block in $blocks)
+            {
+                foreach ($pair in [regex]::Matches($block.Groups[1].Value, '"([^"]+)"\s*:\s*"([^"]*)"'))
+                {
+                    $key = $pair.Groups[1].Value + '|' + $pair.Groups[2].Value
+                    if (-not $seen.ContainsKey($key))
+                    {
+                        $seen[$key] = $true
+                        $deployMappings += @{ File = $templateName; Region = $pair.Groups[1].Value; TimeZoneId = $pair.Groups[2].Value }
+                    }
+                }
+            }
+        }
     }
 
     BeforeAll {
@@ -58,6 +89,11 @@ Describe 'HubsAdfTriggerTimeZones' {
             # Count is captured at discovery time (BeforeDiscovery variables are not visible at run time).
             $MappingCount | Should -BeGreaterThan 30
         }
+
+        It 'Finds the timezoneobject blocks in <File>' -TestCases $deployBlockCounts {
+            # Same guard for the compiled templates: layout changes must not silently drop coverage.
+            $BlockCount | Should -BeGreaterThan 0
+        }
     }
 
     Context 'Windows time zone registry' {
@@ -66,6 +102,13 @@ Describe 'HubsAdfTriggerTimeZones' {
             $resolved = Get-TimeZone -Id $TimeZoneId -ErrorAction Stop
             # Exact casing: the registry lookup is case-insensitive, but pin the canonical ID so the
             # file never drifts from what ADF documents and the portal dropdown emits.
+            $resolved.Id | Should -BeExactly $TimeZoneId
+        }
+    }
+
+    Context 'Compiled deployment templates' {
+        It '<File>: maps <Region> to a Windows time zone ID that exists in the registry: <TimeZoneId>' -TestCases $deployMappings -Skip:(-not $IsWindows) {
+            $resolved = Get-TimeZone -Id $TimeZoneId -ErrorAction Stop
             $resolved.Id | Should -BeExactly $TimeZoneId
         }
     }
