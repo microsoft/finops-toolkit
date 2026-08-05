@@ -3,7 +3,7 @@ title: FinOps toolkit overview
 description: Learn how the FinOps toolkit helps you automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to improve FinOps practices.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/05/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -55,6 +55,17 @@ The FinOps toolkit produces monthly releases, which are tracked as milestones in
 To learn more about what's coming in current or future releases, see [upcoming milestones](https://github.com/microsoft/finops-toolkit/milestones?direction=asc&sort=title). For more information about longer-term plans, see [roadmap](roadmap.md).
 
 If you have any questions or comments on past or future releases, [join the conversation](https://github.com/microsoft/finops-toolkit/discussions). If you'd like to propose a change, [create or vote up issues](https://aka.ms/ftk/ideas). Issues are triaged multiple times a week and the highest voted issues are evaluated with each monthly planning cycle.
+
+<br>
+
+## Want more hands-on help?
+
+Independent organizations offer paid implementation, training, advisory, and managed services for the FinOps toolkit.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Meet the community](https://microsoft.github.io/finops-toolkit/community-resources)
+<!-- prettier-ignore-end -->
 
 <br>
 

@@ -3,7 +3,7 @@ title: Help and support options
 description: This article summarizes the options for getting help and support for common issues you might experience in the FinOps toolkit.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/05/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -32,6 +32,15 @@ Need help with an issue you're facing with one of the tools in the FinOps toolki
 - [Support overview](support.md)
 - [Common errors](errors.md)
 - [Troubleshooting guide](troubleshooting.md)
+
+## Want more hands-on help?
+
+Independent organizations offer paid implementation, training, advisory, and managed services for the FinOps toolkit.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Meet the community](https://microsoft.github.io/finops-toolkit/community-resources)
+<!-- prettier-ignore-end -->
 
 To learn more about recent changes, check out the [Changelog](../changelog.md).
 
