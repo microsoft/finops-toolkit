@@ -82,11 +82,11 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 <br>
 
-## Want more hands-on help?
+## Grown around the toolkit
 
-Independent organizations offer paid implementation, training, advisory, and managed services for the FinOps toolkit.
+The FinOps toolkit doesn't stop at what Microsoft builds. Independent tools extend it, and independent organizations offer expert help implementing and running it.
 
-<a class="btn mt-2 mb-4 mb-md-0 mr-4" href="./community-resources">Meet the community</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" href="./ecosystem">Explore the ecosystem</a>
 
 <br>
 

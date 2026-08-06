@@ -1,0 +1,68 @@
+name: "🤝 Suggest an Ecosystem Listing"
+description: "Tell us about a tool or organization that extends or supports the FinOps toolkit so we can feature it."
+labels:
+  - "Needs: Triage 🔍"
+  - "Type: Docs 📖"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thanks for helping the ecosystem grow! 🙌
+        The [FinOps toolkit ecosystem](https://microsoft.github.io/finops-toolkit/ecosystem) page features independent tools that extend the toolkit and organizations that offer paid implementation, training, advisory, or managed services for it.
+
+        To be featured, we just need public evidence that the tool or organization specifically works with the FinOps toolkit, FinOps hubs, Power BI reports, or related toolkit components – not just FinOps or Azure cost management in general.
+
+        Listings are informational only. They don't imply Microsoft endorsement, certification, or partnership, and entries are added alphabetically within their category, with no ranking or featured placement.
+
+  - type: dropdown
+    id: listing_type
+    attributes:
+      label: "What are you suggesting?"
+      options:
+        - "A tool that extends the FinOps toolkit"
+        - "An organization that offers paid services"
+    validations:
+      required: true
+
+  - type: input
+    id: name
+    attributes:
+      label: "Name"
+      placeholder: "Enter the tool or organization's name"
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: "Website"
+      placeholder: "https://example.com"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "What does it do?"
+      description: "Briefly describe the tool's capabilities, or the services offered (for example, implementation, training, advisory, customization, or managed services)."
+      placeholder: "Describe the tool or services"
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: "Public evidence of FinOps toolkit support"
+      description: "Link to public evidence that this tool or organization specifically works with the FinOps toolkit, FinOps hubs, Power BI reports, or related toolkit components (for example, a case study, blog post, or documentation page)."
+      placeholder: "Provide links"
+    validations:
+      required: true
+
+  - type: input
+    id: contact
+    attributes:
+      label: "Contact"
+      description: "Your name and relationship to the tool or organization."
+      placeholder: "Enter your name and role"
+    validations:
+      required: true

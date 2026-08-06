@@ -33,13 +33,13 @@ Need help with an issue you're facing with one of the tools in the FinOps toolki
 - [Common errors](errors.md)
 - [Troubleshooting guide](troubleshooting.md)
 
-## Want more hands-on help?
+## Get expert help
 
-Independent organizations offer paid implementation, training, advisory, and managed services for the FinOps toolkit.
+Still stuck, or just want someone to handle it for you? Independent organizations offer paid implementation, training, advisory, and managed services for the FinOps toolkit.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Meet the community](https://microsoft.github.io/finops-toolkit/community-resources)
+> [Find an expert](https://microsoft.github.io/finops-toolkit/ecosystem)
 <!-- prettier-ignore-end -->
 
 To learn more about recent changes, check out the [Changelog](../changelog.md).

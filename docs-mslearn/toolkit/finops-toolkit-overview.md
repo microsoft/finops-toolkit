@@ -58,13 +58,13 @@ If you have any questions or comments on past or future releases, [join the conv
 
 <br>
 
-## Want more hands-on help?
+## Grown around the toolkit
 
-Independent organizations offer paid implementation, training, advisory, and managed services for the FinOps toolkit.
+The FinOps toolkit doesn't stop at what Microsoft builds. Independent tools extend it, and independent organizations offer expert help implementing and running it.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Meet the community](https://microsoft.github.io/finops-toolkit/community-resources)
+> [Explore the ecosystem](https://microsoft.github.io/finops-toolkit/ecosystem)
 <!-- prettier-ignore-end -->
 
 <br>
