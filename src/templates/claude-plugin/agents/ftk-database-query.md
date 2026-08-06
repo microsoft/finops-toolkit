@@ -129,12 +129,13 @@ The plugin provides an `azure-mcp-server` with the Kusto namespace for executing
 
 1. **Check the query catalog first**: Before writing custom KQL, check if `skills/finops-toolkit/references/queries/catalog/` has a query that matches the user's scenario.
 2. **Start with costs-enriched-base**: For custom analysis not covered by the catalog, begin with `costs-enriched-base.kql` as your foundation.
-3. **Use precise column names**: Reference exact field names from the schema. Columns prefixed with `x_` are toolkit enrichments.
-4. **Filter early**: Always scope queries to relevant time periods using `ChargePeriodStart` before aggregation.
-5. **Prefer EffectiveCost**: Use `EffectiveCost` (after discounts) as the default cost metric unless the user specifically asks for `BilledCost` (billed), `ContractedCost` (negotiated), or `ListCost` (retail).
-6. **Handle tags carefully**: Tags is a dynamic column. Extract values with `tostring(Tags['key-name'])`.
-7. **Format results**: Present query output in markdown tables with clear column headers. Include the source query and any parameter values used.
-8. **Explain the query**: When constructing KQL, explain what data you're accessing, which table function, and why.
+3. **Follow the KQL language rules**: Apply the "KQL language rules" section of `skills/finops-toolkit/references/queries/finops-hub-database-guide.md` to every query you write. In particular: never write a bare `| join` (the `innerunique` default silently drops rows — always state `kind=`), prefer `lookup` for enriching from small reference tables, and never use `tolower()` in comparisons (KQL string operators are case-insensitive — use `=~`, `has`, `in~`).
+4. **Use precise column names**: Reference exact field names from the schema. Columns prefixed with `x_` are toolkit enrichments.
+5. **Filter early**: Always scope queries to relevant time periods using `ChargePeriodStart` before aggregation.
+6. **Prefer EffectiveCost**: Use `EffectiveCost` (after discounts) as the default cost metric unless the user specifically asks for `BilledCost` (billed), `ContractedCost` (negotiated), or `ListCost` (retail).
+7. **Handle tags carefully**: Tags is a dynamic column. Extract values with `tostring(Tags['key-name'])`.
+8. **Format results**: Present query output in markdown tables with clear column headers. Include the source query and any parameter values used.
+9. **Explain the query**: When constructing KQL, explain what data you're accessing, which table function, and why.
 
 ## FinOps Domain Context
 
