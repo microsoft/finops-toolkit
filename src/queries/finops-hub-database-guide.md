@@ -108,7 +108,7 @@ Apply these rules to every query you write or modify. They mirror the project co
 #### String matching
 
 - Never wrap a column in `tolower()`/`toupper()` to compare it. KQL's string *matching* operators are case-insensitive by default (`=~`, `has`, `contains`, `startswith`, `in~`); case-sensitive matching is what you opt into via the `_cs` variants and the equality operators `==`/`in`. Write `Col =~ 'value'`, not `tolower(Col) == 'value'`.
-- Prefer `has` when the needle is a whole term or a separator-bounded phrase (`ResourceId has '/microsoft.capacity/reservationorders/'`) — it uses the term index. Use `contains` only when the needle can be fused inside a larger token (`ConsumedUnit contains 'MB'` also matches `Mbps`).
+- Prefer `has` when the needle is a whole term or a separator-bounded phrase (`ResourceId has '/microsoft.capacity/reservationorders/'`) — it uses the term index and matches an exact substring whose edges fall on term boundaries (so separators inside the needle must match the data exactly). Use `contains` only when the needle can be fused inside a larger token (`ConsumedUnit contains 'MB'` also matches `Mbps`).
 - Collapse operator chains: `Col in~ ('a', 'b')` instead of repeated `=~` with `or`; `has_any`/`has_all` instead of `has` chains.
 
 #### Joins and lookups
@@ -119,7 +119,8 @@ Apply these rules to every query you write or modify. They mirror the project co
 - For exclusions ("rows with no match"), use `join kind=leftanti` — not `kind=leftouter` + `where isempty(...)`, which inflates counts when the right side has duplicate keys.
 - For two-period comparisons, `join kind=fullouter` is correct, but coalesce the key columns afterwards (`| extend Key = coalesce(Key, Key1) | project-away Key1`) or right-only rows render with empty keys.
 - For grand totals and percent-of-total, compute the total once with `let Total = toscalar(...)` instead of joining an aggregate subquery onto every row.
-**Azure Resource Graph is different.** If you are writing ARG queries (resource inventory via `az graph query` — not the hub database), the bare-join `innerunique` trap is the same, but ARG supports *no* `lookup` and no semi/anti join flavors, and allows at most 3 joins per query. Exclusions in ARG must use the `join kind=leftouter` + `where isempty(...)` emulation with a key-unique right side.
+
+**Azure Resource Graph is different.** If you are writing ARG queries (resource inventory via `az graph query` — not the hub database), the bare-join `innerunique` trap is the same, but ARG supports *no* `lookup` and no semi/anti join flavors, and documents a limit of 3 `join`/`union` operations combined per query (enforcement has been observed to be lax, but don't design queries that rely on more). Exclusions in ARG must use the `join kind=leftouter` + `where isempty(...)` emulation with a key-unique right side.
 
 ---
 
