@@ -82,9 +82,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 <br>
 
-## Grown around the toolkit
+## Looking for more?
 
-The FinOps toolkit doesn't stop at what Microsoft builds. Independent tools extend it, and independent organizations offer expert help implementing and running it.
+The FinOps toolkit is designed to be extended. Explore independent tools, implementation services, and advisory offerings that work with the FinOps toolkit.
 
 <a class="btn mt-2 mb-4 mb-md-0 mr-4" href="./ecosystem">Explore the ecosystem</a>
 

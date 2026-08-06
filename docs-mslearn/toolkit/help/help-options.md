@@ -33,9 +33,9 @@ Need help with an issue you're facing with one of the tools in the FinOps toolki
 - [Common errors](errors.md)
 - [Troubleshooting guide](troubleshooting.md)
 
-## Get expert help
+## Hands-on help
 
-Still stuck, or just want someone to handle it for you? Independent organizations offer paid implementation, training, advisory, and managed services for the FinOps toolkit.
+Want an expert alongside you for implementation, training, advisory, or managed services?
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]

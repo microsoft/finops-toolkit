@@ -16,39 +16,33 @@ Meet the independent organizations and tools that extend and support the FinOps 
 
 The FinOps toolkit is free and open source, built and supported by an amazing community 💜 Around that core, an ecosystem has grown – tools that extend what the toolkit can do, and organizations that offer hands-on expertise when you want an expert alongside you.
 
-Everyone below has shown up for the FinOps toolkit specifically – not just FinOps or Azure cost management in general.
-
-<a name="tools"></a>
-
-## Tools that extend the toolkit
+<a name="listings"></a>
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
-        <div>🌐 FinOpsHubs.com</div>
-        <div>A purpose-built web portal that extends FinOps hubs with richer workflows, insights, and everyday usability.</div>
-        <a target="_blank" href="https://finopshubs.com">Visit finopshubs.com</a>
-    </div>
-</div>
-
-<a name="providers"></a>
-
-## Organizations that offer expert help
-
-<div class="ftk-gallery">
-    <div class="ftk-tile">
-        <div>🤝 Allyte</div>
-        <div>Expert implementation support and advisory services for the FinOps toolkit and Microsoft FinOps practices.</div>
-        <a target="_blank" href="https://allyte.com">Visit allyte.com</a>
+        <div>📈 Alescent</div>
+        <div>Cloud economics consulting delivered through FinOps hubs.</div>
+        <a target="_blank" href="https://alescent.com">Learn more</a>
     </div>
     <div class="ftk-tile">
-        <div>🤝 Alescent</div>
-        <div>Value realization consulting and practical tooling that help organizations extend FinOps hubs into measurable business outcomes.</div>
-        <a target="_blank" href="https://alescent.com">Visit alescent.com</a>
+        <div>🛠️ Allyte</div>
+        <div>FinOps toolkit support and Microsoft FinOps advisory.</div>
+        <a target="_blank" href="https://allyte.com">Learn more</a>
     </div>
     <div class="ftk-tile">
-        <div>🤝 WellArchitected.ch</div>
-        <div>FinOps consulting and practical tooling that extend FinOps hubs and help organizations operationalize cloud value.</div>
-        <a target="_blank" href="https://wellarchitected.ch">Visit wellarchitected.ch</a>
+        <div>🏦 FinOpsHubs.com</div>
+        <div>Web portal that extends your FinOps hubs instance.</div>
+        <a target="_blank" href="https://finopshubs.com">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>🤖 TheCoded</div>
+        <div>Implement AI with FinOps toolkit cost governance.</div>
+        <a target="_blank" href="https://thecoded.io">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>🏗️ WellArchitected.ch</div>
+        <div>Well-architected reviews grounded in FinOps hubs data.</div>
+        <a target="_blank" href="https://wellarchitected.ch">Learn more</a>
     </div>
 </div>
 
@@ -56,14 +50,17 @@ Know a tool or organization that belongs here? We'd love to feature them too.
 
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://github.com/microsoft/finops-toolkit/issues/new?template=propose-ecosystem-listing.yaml">Suggest a listing</a>
 
-Just share a bit about what they do and a link showing their work with the FinOps toolkit specifically. We review submissions regularly and add new listings alphabetically within their category – no ranking, no logos, no "featured" placement. Everyone gets the same spotlight. ✨
-
 <br>
 
 ## The fine print
 
-This page is here to help you find independent tools and expertise – it's not a Microsoft-run marketplace or partner program. A listing means public evidence of working with the FinOps toolkit specifically; it isn't a Microsoft endorsement, certification, or partnership, and Microsoft doesn't vet, audit, or guarantee anyone's work. As always, do your own diligence – ask about experience, check references, and make sure it's the right fit for your team.
+This page is here to help you find independent tools and expertise. Everyone listed here uses the FinOps toolkit specifically in what they build or deliver – not just FinOps or Azure cost management in general. Some are also active in the community, but involvement alone isn't enough to get a listing. These organizations are independent of Microsoft, and Microsoft makes no representations or warranties regarding their products or services.
 
-The FinOps toolkit itself is open source and provided as-is, and Microsoft Support doesn't handle support requests for the toolkit. See [Help + support](./help) for community and self-service options, most of which are free.
+<br>
+
+## Resources
+
+- 🙋‍♀️ [How to get support](./help)
+- 🗓️ [FinOps toolkit office hours](./office-hours)
 
 <br>

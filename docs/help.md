@@ -169,13 +169,13 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">9️⃣&nbsp; Get expert help</button>
+        <button class="ftk-accordion">9️⃣&nbsp; Bring in an expert</button>
         <div>
             <p>
-                Still stuck, or just want someone to handle it for you? Independent organizations offer paid implementation, training, advisory, and managed services for the FinOps toolkit.
+                Still stuck, or just want someone to own it for you? Independent organizations offer paid implementation, training, advisory, and managed services for the FinOps toolkit.
             </p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" href="./ecosystem">Find an expert</a>
+                <a class="btn mb-4 mb-md-0 mr-4" href="./ecosystem">Explore the ecosystem</a>
             </p>
         </div>
     </div>
