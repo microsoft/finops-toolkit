@@ -54,7 +54,7 @@ Know a tool or organization that belongs here? We'd love to feature them too.
 
 ## The fine print
 
-This page is here to help you find independent tools and expertise. Everyone listed here uses the FinOps toolkit specifically in what they build or deliver – not just FinOps or Azure cost management in general. Some are also active in the community, but involvement alone isn't enough to get a listing. These organizations are independent of Microsoft, and Microsoft makes no representations or warranties regarding their products or services.
+This page is here to help you find independent tools and expertise. Everyone listed here uses the FinOps toolkit specifically in what they build or deliver – not just FinOps or Azure cost management in general. Some are also active in the community. These organizations are independent of Microsoft, and Microsoft makes no representations or warranties regarding their products or services.
 
 <br>
 
