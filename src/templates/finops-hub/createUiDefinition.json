@@ -936,6 +936,44 @@
                 }
               },
               {
+                "name": "virtualNetworkMode",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Virtual network mode",
+                "toolTip": "Choose whether FinOps hubs should create a new virtual network and subnets or use an existing virtual network.",
+                "defaultValue": "New",
+                "constraints": {
+                  "allowedValues": [
+                    {
+                      "label": "New",
+                      "description": "Create a new virtual network and subnets.",
+                      "value": "new"
+                    },
+                    {
+                      "label": "Existing",
+                      "description": "Use an existing virtual network and existing subnets.",
+                      "value": "existing"
+                    }
+                  ]
+                },
+                "visible": "[equals(steps('advanced').networking.enablePublicAccess, false)]"
+              },
+              {
+                "name": "existingVirtualNetworkResourceId",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Existing virtual network resource ID",
+                "toolTip": "Resource ID of the existing virtual network to use when virtual network mode is Existing.",
+                "defaultValue": "",
+                "constraints": {
+                  "validations": [
+                    {
+                      "isValid": "[or(not(equals(steps('advanced').networking.virtualNetworkMode, 'existing')), and(startsWith(steps('advanced').networking.existingVirtualNetworkResourceId, '/subscriptions/'), contains(steps('advanced').networking.existingVirtualNetworkResourceId, '/providers/Microsoft.Network/virtualNetworks/')))]",
+                      "message": "Enter a valid virtual network resource ID in the format /subscriptions/.../providers/Microsoft.Network/virtualNetworks/<name>."
+                    }
+                  ]
+                },
+                "visible": "[and(equals(steps('advanced').networking.enablePublicAccess, false), equals(steps('advanced').networking.virtualNetworkMode, 'existing'))]"
+              },
+              {
                 "name": "virtualNetworkAddressPrefix",
                 "type": "Microsoft.Common.TextBox",
                 "label": "Address prefix",
@@ -949,6 +987,30 @@
                     }
                   ]
                 },
+                "visible": "[and(equals(steps('advanced').networking.enablePublicAccess, false), equals(steps('advanced').networking.virtualNetworkMode, 'new'))]"
+              },
+              {
+                "name": "privateEndpointSubnetName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Private endpoint subnet name",
+                "toolTip": "Subnet name for storage, key vault, and Data Factory managed private endpoint routing.",
+                "defaultValue": "private-endpoint-subnet",
+                "visible": "[equals(steps('advanced').networking.enablePublicAccess, false)]"
+              },
+              {
+                "name": "scriptSubnetName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Script subnet name",
+                "toolTip": "Subnet name used by deployment scripts.",
+                "defaultValue": "script-subnet",
+                "visible": "[equals(steps('advanced').networking.enablePublicAccess, false)]"
+              },
+              {
+                "name": "dataExplorerSubnetName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Data Explorer subnet name",
+                "toolTip": "Subnet name used for Azure Data Explorer private endpoints.",
+                "defaultValue": "dataExplorer-subnet",
                 "visible": "[equals(steps('advanced').networking.enablePublicAccess, false)]"
               },
               {
@@ -957,7 +1019,7 @@
                 "label": "Deploy NAT Gateway and disable default outbound access",
                 "toolTip": "Required by the September 2025 'Subnets should be private' policy. Adds a Standard NAT Gateway and Standard static Public IP attached to the script and Data Explorer subnets to provide controlled outbound internet access. Leave unchecked if you have your own egress path (UDR to firewall, peered hub with NAT, etc.).",
                 "defaultValue": false,
-                "visible": "[equals(steps('advanced').networking.enablePublicAccess, false)]"
+                "visible": "[and(equals(steps('advanced').networking.enablePublicAccess, false), equals(steps('advanced').networking.virtualNetworkMode, 'new'))]"
               }
             ],
             "visible": true
@@ -1004,7 +1066,12 @@
       "enableSpotRecommendations": "[steps('recommendations').optional.enableSpotRecommendations]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
       "enableNatGateway": "[steps('advanced').networking.enableNatGateway]",
+      "virtualNetworkMode": "[steps('advanced').networking.virtualNetworkMode]",
+      "existingVirtualNetworkResourceId": "[steps('advanced').networking.existingVirtualNetworkResourceId]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
+      "privateEndpointSubnetName": "[steps('advanced').networking.privateEndpointSubnetName]",
+      "scriptSubnetName": "[steps('advanced').networking.scriptSubnetName]",
+      "dataExplorerSubnetName": "[steps('advanced').networking.dataExplorerSubnetName]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
       "exportRetentionInDays": "[steps('retention').storage.msexportsDays]",
       "ingestionRetentionInMonths": "[steps('retention').storage.ingestionMonths]",

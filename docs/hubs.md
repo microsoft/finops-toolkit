@@ -116,7 +116,7 @@ Create a new or update an existing FinOps hub instance.
                             Most secure. Resources are only reachable from peered networks. Access is controlled via RBAC.
                         </p>
                         <p>
-                            Work with your network admin to configure peering and routing so the FinOps hubs isolated network is reachable from your network.
+                            Work with your network admin to configure peering and routing so the FinOps hubs isolated network is reachable from your network. You can create a new virtual network during deployment or bring your own existing virtual network and subnet names. If using an existing virtual network, review the required subnet settings before deployment.
                         </p>
                         <p>
                             <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/private-networking">Plan for private networking</a>
