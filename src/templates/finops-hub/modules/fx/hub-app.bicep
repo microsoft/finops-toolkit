@@ -386,7 +386,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (use
   }
 }
 
-resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (usesStorage && app.hub.options.privateRouting) {
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (usesStorage && app.hub.options.privateRouting && app.hub.options.createPrivateDnsZones) {
   name: 'privatelink.blob.${environment().suffixes.storage}'  // cSpell:ignore privatelink
 }
 
@@ -425,7 +425,7 @@ resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (uses
   }
 }
 
-resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (usesStorage && app.hub.options.privateRouting) {
+resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (usesStorage && app.hub.options.privateRouting && app.hub.options.createPrivateDnsZones) {
   name: 'privatelink.dfs.${environment().suffixes.storage}'  // cSpell:ignore privatelink
 }
 
@@ -495,7 +495,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = if (usesKeyVault) {
   }
 }
 
-resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (usesKeyVault && app.hub.options.privateRouting) {
+resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (usesKeyVault && app.hub.options.privateRouting && app.hub.options.createPrivateDnsZones) {
   name: 'privatelink${replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')}'  // cSpell:ignore privatelink, vaultcore
   location: 'global'
   tags: getAppPublisherTags(app, 'Microsoft.Network/privateDnsZones')

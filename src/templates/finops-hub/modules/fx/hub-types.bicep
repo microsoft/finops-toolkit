@@ -99,6 +99,7 @@ type HubProperties = {
     networkAddressPrefix: string
     natGateway: bool
     privateRouting: bool
+    createPrivateDnsZones: bool
     publisherIsolation: bool
     storageInfrastructureEncryption: bool
     storageSku: string
@@ -195,6 +196,7 @@ func newHubInternal(
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
   enableNatGateway bool,
+  createPrivateDnsZones bool,
   networkName string,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
@@ -216,6 +218,7 @@ func newHubInternal(
     networkAddressPrefix: networkAddressPrefix
     natGateway: !enablePublicAccess && enableNatGateway
     privateRouting: !enablePublicAccess
+    createPrivateDnsZones: !enablePublicAccess && createPrivateDnsZones
     publisherIsolation: false  // TODO: Expose publisher isolation option
     storageInfrastructureEncryption: enableInfrastructureEncryption
     storageSku: storageSku
@@ -256,6 +259,7 @@ func newHub(
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
   enableNatGateway bool,
+  createPrivateDnsZones bool,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
 ) HubProperties => newHubInternal(
@@ -271,6 +275,7 @@ func newHub(
   enableInfrastructureEncryption,
   enablePublicAccess,
   enableNatGateway,
+  createPrivateDnsZones,
   '${safeStorageName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
   networkAddressPrefix,
   isTelemetryEnabled ?? true
