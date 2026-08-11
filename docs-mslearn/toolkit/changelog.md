@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/10/2026
+ms.date: 08/11/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -30,7 +30,8 @@ The following section lists features and enhancements that are currently in deve
 - **Added**
   - Added bring-your-own virtual network support for private networking with `virtualNetworkMode` (`new` or `existing`) and `existingVirtualNetworkResourceId` for existing virtual networks (#2163).
   - Added configurable subnet names for private networking deployments (#2163).
-  - Added opt-in NAT Gateway support for new virtual networks in private networking mode. NAT Gateway incurs additional cost when enabled (#2163).
+  - Added VNet and private network modes, including opt-in NAT Gateway support for private mode; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
+  - Added **createPrivateDnsZones** parameter (default: `true`) to skip private DNS zone and zone group creation for enterprise environments where a centralized DNS resolver manages private DNS registration. Private endpoints are still created when disabled.
 - **Changed**
   - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
   - Replaced whole-term `contains` matches with `has` across hub KQL and the query catalog (resource ID paths, licensing phrases, SKU description terms) and added a per-row operator-equivalence regression harness with unit test coverage ([#2220](https://github.com/microsoft/finops-toolkit/pull/2220)).

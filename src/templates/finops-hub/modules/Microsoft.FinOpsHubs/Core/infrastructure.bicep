@@ -253,7 +253,7 @@ resource natGateway 'Microsoft.Network/natGateways@2023-11-01' = if (createNetwo
 //------------------------------------------------------------------------------
 
 // Required for the Azure portal and Storage Explorer
-resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting && hub.options.createPrivateDnsZones) {
   name: string(hub.routing.dnsZones.blob.name)
   dependsOn: createNetwork ? [
     vNet
@@ -276,7 +276,7 @@ resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if 
 }
 
 // Required for Power BI
-resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting && hub.options.createPrivateDnsZones) {
   name: string(hub.routing.dnsZones.dfs.name)
   dependsOn: createNetwork ? [
     vNet
@@ -299,7 +299,7 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (
 }
 
 // Required for Azure Data Explorer
-resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting && hub.options.createPrivateDnsZones) {
   name: string(hub.routing.dnsZones.queue.name)
   dependsOn: createNetwork ? [
     vNet
@@ -322,7 +322,7 @@ resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
 }
 
 // Required for Azure Data Explorer
-resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting && hub.options.createPrivateDnsZones) {
   name: string(hub.routing.dnsZones.table.name)
   dependsOn: createNetwork ? [
     vNet

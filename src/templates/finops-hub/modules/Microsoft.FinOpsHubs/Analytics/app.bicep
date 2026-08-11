@@ -256,21 +256,21 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   ]
 }
 
-resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (useAzure && app.hub.options.privateRouting && app.hub.options.createPrivateDnsZones) {
   name: 'privatelink.blob.${environment().suffixes.storage}'
   dependsOn: [
     appRegistration
   ]
 }
 
-resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
+resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (useAzure && app.hub.options.privateRouting && app.hub.options.createPrivateDnsZones) {
   name: 'privatelink.queue.${environment().suffixes.storage}'
   dependsOn: [
     appRegistration
   ]
 }
 
-resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
+resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (useAzure && app.hub.options.privateRouting && app.hub.options.createPrivateDnsZones) {
   name: 'privatelink.table.${environment().suffixes.storage}'
   dependsOn: [
     appRegistration
@@ -459,7 +459,7 @@ resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-0
 }
 
 // DNS zone
-resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (useAzure && app.hub.options.privateRouting) {
+resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (useAzure && app.hub.options.privateRouting && app.hub.options.createPrivateDnsZones) {
   name: dataExplorerPrivateDnsZoneName
   location: 'global'
   tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.Network/privateDnsZones'] ?? {})
@@ -467,7 +467,7 @@ resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-0
 }
 
 // Link DNS zone to VNet
-resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (useAzure && app.hub.options.privateRouting) {
+resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (useAzure && app.hub.options.privateRouting && app.hub.options.createPrivateDnsZones) {
   name: '${replace(dataExplorerPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
   parent: dataExplorerPrivateDnsZone
@@ -502,7 +502,7 @@ resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = 
 }
 
 // DNS records for private endpoint
-resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (useAzure && app.hub.options.privateRouting) {
+resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (useAzure && app.hub.options.privateRouting && app.hub.options.createPrivateDnsZones) {
   name: 'dataExplorer-endpoint-zone'
   parent: dataExplorerEndpoint
   properties: {

@@ -182,6 +182,8 @@ param virtualNetworkMode string = 'new'
 
 @description('Optional. Resource ID of an existing virtual network to use when private routing is enabled and virtualNetworkMode is "existing". Ignored otherwise. Example: /subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Network/virtualNetworks/<vnetName>. Default: "".')
 param existingVirtualNetworkResourceId string = ''
+@description('Optional. Create private DNS zones for private endpoints. Set to false in enterprise environments where a centralized DNS resolver manages private DNS registration. Ignored when enablePublicAccess is true. Default: true.')
+param createPrivateDnsZones bool = true
 
 @description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
@@ -219,6 +221,7 @@ var hub = newHub(
   enableNatGateway,
   virtualNetworkMode,
   existingVirtualNetworkResourceId,
+  createPrivateDnsZones,
   virtualNetworkAddressPrefix,
   privateEndpointSubnetName,
   scriptSubnetName,

@@ -115,6 +115,7 @@ type HubProperties = {
     networkAddressPrefix: string
     natGateway: bool
     privateRouting: bool
+    createPrivateDnsZones: bool
     publisherIsolation: bool
     storageInfrastructureEncryption: bool
     storageSku: string
@@ -215,6 +216,7 @@ func newHubInternal(
   enableNatGateway bool,
   virtualNetworkMode string,
   existingVirtualNetworkResourceId string,
+  createPrivateDnsZones bool,
   networkName string,
   networkAddressPrefix string,
   privateEndpointSubnetName string,
@@ -240,6 +242,7 @@ func newHubInternal(
     networkAddressPrefix: networkAddressPrefix
     natGateway: !enablePublicAccess && enableNatGateway && virtualNetworkMode == 'new'
     privateRouting: !enablePublicAccess
+    createPrivateDnsZones: !enablePublicAccess && createPrivateDnsZones
     publisherIsolation: false  // TODO: Expose publisher isolation option
     storageInfrastructureEncryption: enableInfrastructureEncryption
     storageSku: storageSku
@@ -289,6 +292,7 @@ func newHub(
   enableNatGateway bool,
   virtualNetworkMode string,
   existingVirtualNetworkResourceId string,
+  createPrivateDnsZones bool,
   networkAddressPrefix string,
   privateEndpointSubnetName string,
   scriptSubnetName string,
@@ -309,6 +313,7 @@ func newHub(
   enableNatGateway,
   virtualNetworkMode,
   existingVirtualNetworkResourceId,
+  createPrivateDnsZones,
   '${safeStorageName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
   networkAddressPrefix,
   privateEndpointSubnetName,
