@@ -109,10 +109,9 @@ Costs()
 
 **Percent-of-total:**
 ```kusto
+let GrandTotal = toscalar(Costs() | summarize sum(EffectiveCost));
 Costs()
-| as allCosts
-| summarize GrandTotal = sum(EffectiveCost)
-| join kind=inner (allCosts | summarize Cost = sum(EffectiveCost) by ServiceName) on 1 == 1
+| summarize Cost = sum(EffectiveCost) by ServiceName
 | extend Pct = 100.0 * Cost / GrandTotal
 ```
 

@@ -105,15 +105,16 @@ az graph query -q "
 resources
 | where type == 'microsoft.compute/snapshots'
 | where todatetime(properties.timeCreated) < ago(30d)
-| extend sourceDisk = tostring(properties.creationData.sourceResourceId)
+| extend sourceDisk = tolower(tostring(properties.creationData.sourceResourceId))
 | where not(sourceDisk has '/snapshots/')
-| join kind=leftanti (
+| join kind=leftouter (
     resources
     | where type == 'microsoft.compute/disks'
-    | project id
-) on \$left.sourceDisk == \$right.id
+    | project diskId = tolower(id)
+) on \$left.sourceDisk == \$right.diskId
+| where isempty(diskId)
 | project name, resourceGroup, subscriptionId, location,
-    sizeGb = properties.diskSizeGB,
+    sizeGb = toint(properties.diskSizeGB),
     created = properties.timeCreated,
     sourceDisk
 | order by sizeGb desc

@@ -87,6 +87,8 @@ let baseline =
     | summarize BaselineCost = sum(EffectiveCost) by ServiceName;
 spike
 | join kind=fullouter baseline on ServiceName
+| extend ServiceName = coalesce(ServiceName, ServiceName1)
+| project-away ServiceName1
 | extend SpikeCost = coalesce(SpikeCost, 0.0), BaselineCost = coalesce(BaselineCost, 0.0)
 | extend CostIncrease = SpikeCost - BaselineCost
 | order by CostIncrease desc

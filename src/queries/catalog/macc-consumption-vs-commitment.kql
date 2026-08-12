@@ -47,11 +47,11 @@ let accountCommitment =
     // switch to max() or scan for the most-recent MACC event per period.
     | summarize AccountCommitment = todouble(sum(x_MonetaryCommitment)) by BillingCurrency, BillingAccountId, ReportingMonth;
 profileConsumption
-| join kind=leftouter (
+| lookup kind=leftouter (
     profileConsumption
     | summarize AccountConsumption = sum(ProfileConsumption) by BillingCurrency, BillingAccountId, ReportingMonth
 ) on BillingCurrency, BillingAccountId, ReportingMonth
-| join kind=leftouter accountCommitment on BillingCurrency, BillingAccountId, ReportingMonth
+| lookup kind=leftouter (accountCommitment) on BillingCurrency, BillingAccountId, ReportingMonth
 | extend AccountCommitment = todouble(coalesce(AccountCommitment, 0.0))
 | extend ProfileShare = iff(AccountConsumption == 0.0, 0.0, ProfileConsumption / AccountConsumption)
 | extend ConsumptionAmount = ProfileConsumption
