@@ -170,24 +170,6 @@ param dataExplorerFinalRetentionInMonths int = 13
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
 
-@description('Optional. Deploy a NAT Gateway for controlled outbound access when private routing is enabled. When true, subnets disable Azure default outbound access and route through the NAT Gateway. Ignored when enablePublicAccess is true. Default: false.')
-param enableNatGateway bool = false
-
-@description('Optional. Virtual network mode to use when private routing is enabled. Use "new" to create a virtual network and subnets. Use "existing" to bring your own virtual network. Ignored when enablePublicAccess is true. Allowed: "new", "existing". Default: "new".')
-@allowed([
-  'new'
-  'existing'
-])
-param virtualNetworkMode string = 'new'
-
-@description('Optional. Resource ID of an existing virtual network to use when private routing is enabled and virtualNetworkMode is "existing". Ignored otherwise. Example: /subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Network/virtualNetworks/<vnetName>. Default: "".')
-param existingVirtualNetworkResourceId string = ''
-@description('Optional. Create private DNS zones for private endpoints. Set to false in enterprise environments where a centralized DNS resolver manages private DNS registration. Ignored when enablePublicAccess is true. Default: true.')
-param createPrivateDnsZones bool = true
-
-@description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
-param virtualNetworkAddressPrefix string = '10.20.30.0/26'
-
 @description('Optional. Name of the subnet used for private endpoints (Storage, Key Vault, and Data Factory managed private endpoint routing). Used when private routing is enabled. Default: "private-endpoint-subnet".')
 param privateEndpointSubnetName string = 'private-endpoint-subnet'
 
@@ -196,6 +178,25 @@ param scriptSubnetName string = 'script-subnet'
 
 @description('Optional. Name of the subnet used for Azure Data Explorer private endpoints. Used when private routing is enabled. Default: "dataExplorer-subnet".')
 param dataExplorerSubnetName string = 'dataExplorer-subnet'
+
+@description('Optional. Deploy a NAT Gateway for controlled outbound access when private routing is enabled. When true, subnets disable Azure default outbound access and route through the NAT Gateway. Ignored when enablePublicAccess is true. Default: false.')
+param enableNatGateway bool = false
+
+@description('Optional. Create private DNS zones for private endpoints when virtualNetworkMode is "existing". Always enabled when virtualNetworkMode is "new". Set to false in enterprise environments where a centralized DNS resolver manages private DNS registration. Ignored when enablePublicAccess is true. Default: true.')
+param createPrivateDnsZones bool = true
+
+@description('Optional. Virtual network mode to use when private routing is enabled. Use "new" to create a virtual network and subnets. Use "existing" to bring your own virtual network. Ignored when enablePublicAccess is true. Allowed: "new", "existing". Default: "new".')
+@allowed([
+  'new'
+  'existing'
+])
+param virtualNetworkMode string = 'new'
+
+@description('Optional. Address space for the workload when private routing is enabled and virtualNetworkMode is "new". Minimum /26 subnet size is required. Ignored when virtualNetworkMode is "existing" or enablePublicAccess is true. Default: "10.20.30.0/26".')
+param virtualNetworkAddressPrefix string = '10.20.30.0/26'
+
+@description('Optional. Resource ID of an existing virtual network to use when private routing is enabled and virtualNetworkMode is "existing". Ignored otherwise. Example: /subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Network/virtualNetworks/<vnetName>. Default: "".')
+param existingVirtualNetworkResourceId string = ''
 
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
@@ -218,14 +219,14 @@ var hub = newHub(
   enablePurgeProtection,
   enableInfrastructureEncryption,
   enablePublicAccess,
-  enableNatGateway,
-  virtualNetworkMode,
-  existingVirtualNetworkResourceId,
-  createPrivateDnsZones,
-  virtualNetworkAddressPrefix,
   privateEndpointSubnetName,
   scriptSubnetName,
   dataExplorerSubnetName,
+  enableNatGateway,
+  createPrivateDnsZones,
+  virtualNetworkMode,
+  virtualNetworkAddressPrefix,
+  existingVirtualNetworkResourceId,
   enableDefaultTelemetry
 )
 

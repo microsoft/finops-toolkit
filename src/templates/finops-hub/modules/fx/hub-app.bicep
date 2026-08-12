@@ -410,7 +410,7 @@ resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (uses
     ]
   }
 
-  resource blobPrivateDnsZoneGroup 'privateDnsZoneGroups' = {
+  resource blobPrivateDnsZoneGroup 'privateDnsZoneGroups' = if (app.hub.options.createPrivateDnsZones) {
     name: 'storage-endpoint-zone'
     properties: {
       privateDnsZoneConfigs: [
@@ -449,7 +449,7 @@ resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesS
     ]
   }
 
-  resource dfsPrivateDnsZoneGroup 'privateDnsZoneGroups' = {
+  resource dfsPrivateDnsZoneGroup 'privateDnsZoneGroups' = if (app.hub.options.createPrivateDnsZones) {
     name: 'dfs-endpoint-zone'
     properties: {
       privateDnsZoneConfigs: [
@@ -534,7 +534,7 @@ resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (
     ]
   }
 
-  resource keyVaultPrivateDnsZoneGroup 'privateDnsZoneGroups' = {
+  resource keyVaultPrivateDnsZoneGroup 'privateDnsZoneGroups' = if (app.hub.options.createPrivateDnsZones) {
     name: 'keyvault-endpoint-zone'
     properties: {
       privateDnsZoneConfigs: [

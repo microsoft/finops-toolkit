@@ -2228,7 +2228,7 @@
                               ]
                             },
                             "scriptEndpoint::scriptPrivateDnsZoneGroup": {
-                              "condition": "[parameters('hub').options.privateRouting]",
+                              "condition": "[and(parameters('hub').options.privateRouting, parameters('hub').options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-blob-ep', parameters('hub').routing.scriptStorage), 'blob-endpoint-zone')]",
@@ -3034,7 +3034,7 @@
                               ]
                             },
                             "blobEndpoint::blobPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-blob-ep', parameters('app').storage), 'storage-endpoint-zone')]",
@@ -3053,7 +3053,7 @@
                               ]
                             },
                             "dfsEndpoint::dfsPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-dfs-ep', parameters('app').storage), 'dfs-endpoint-zone')]",
@@ -3089,7 +3089,7 @@
                               ]
                             },
                             "keyVaultEndpoint::keyVaultPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-ep', parameters('app').keyVault), 'keyvault-endpoint-zone')]",
@@ -9682,7 +9682,7 @@
                               ]
                             },
                             "blobEndpoint::blobPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-blob-ep', parameters('app').storage), 'storage-endpoint-zone')]",
@@ -9701,7 +9701,7 @@
                               ]
                             },
                             "dfsEndpoint::dfsPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-dfs-ep', parameters('app').storage), 'dfs-endpoint-zone')]",
@@ -9737,7 +9737,7 @@
                               ]
                             },
                             "keyVaultEndpoint::keyVaultPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-ep', parameters('app').keyVault), 'keyvault-endpoint-zone')]",
@@ -16158,7 +16158,7 @@
                               ]
                             },
                             "blobEndpoint::blobPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-blob-ep', parameters('app').storage), 'storage-endpoint-zone')]",
@@ -16177,7 +16177,7 @@
                               ]
                             },
                             "dfsEndpoint::dfsPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-dfs-ep', parameters('app').storage), 'dfs-endpoint-zone')]",
@@ -16213,7 +16213,7 @@
                               ]
                             },
                             "keyVaultEndpoint::keyVaultPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-ep', parameters('app').keyVault), 'keyvault-endpoint-zone')]",
@@ -18615,7 +18615,7 @@
                       ]
                     },
                     "dataExplorerPrivateDnsZoneGroup": {
-                      "condition": "[and(variables('useAzure'), parameters('app').hub.options.privateRouting)]",
+                      "condition": "[and(and(variables('useAzure'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2023-11-01",
                       "name": "[format('{0}/{1}', format('{0}-ep', replace(parameters('clusterName'), '_', '-')), 'dataExplorer-endpoint-zone')]",
@@ -20452,7 +20452,7 @@
                               ]
                             },
                             "blobEndpoint::blobPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-blob-ep', parameters('app').storage), 'storage-endpoint-zone')]",
@@ -20471,7 +20471,7 @@
                               ]
                             },
                             "dfsEndpoint::dfsPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-dfs-ep', parameters('app').storage), 'dfs-endpoint-zone')]",
@@ -20507,7 +20507,7 @@
                               ]
                             },
                             "keyVaultEndpoint::keyVaultPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-ep', parameters('app').keyVault), 'keyvault-endpoint-zone')]",
@@ -25165,7 +25165,7 @@
                               ]
                             },
                             "blobEndpoint::blobPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-blob-ep', parameters('app').storage), 'storage-endpoint-zone')]",
@@ -25184,7 +25184,7 @@
                               ]
                             },
                             "dfsEndpoint::dfsPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-dfs-ep', parameters('app').storage), 'dfs-endpoint-zone')]",
@@ -25220,7 +25220,7 @@
                               ]
                             },
                             "keyVaultEndpoint::keyVaultPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-ep', parameters('app').keyVault), 'keyvault-endpoint-zone')]",
@@ -27650,7 +27650,7 @@
                               ]
                             },
                             "blobEndpoint::blobPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-blob-ep', parameters('app').storage), 'storage-endpoint-zone')]",
@@ -27669,7 +27669,7 @@
                               ]
                             },
                             "dfsEndpoint::dfsPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-dfs-ep', parameters('app').storage), 'dfs-endpoint-zone')]",
@@ -27705,7 +27705,7 @@
                               ]
                             },
                             "keyVaultEndpoint::keyVaultPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-ep', parameters('app').keyVault), 'keyvault-endpoint-zone')]",
@@ -29899,7 +29899,7 @@
                               ]
                             },
                             "blobEndpoint::blobPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-blob-ep', parameters('app').storage), 'storage-endpoint-zone')]",
@@ -29918,7 +29918,7 @@
                               ]
                             },
                             "dfsEndpoint::dfsPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-dfs-ep', parameters('app').storage), 'dfs-endpoint-zone')]",
@@ -29954,7 +29954,7 @@
                               ]
                             },
                             "keyVaultEndpoint::keyVaultPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-ep', parameters('app').keyVault), 'keyvault-endpoint-zone')]",
@@ -34480,7 +34480,7 @@
                               ]
                             },
                             "blobEndpoint::blobPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-blob-ep', parameters('app').storage), 'storage-endpoint-zone')]",
@@ -34499,7 +34499,7 @@
                               ]
                             },
                             "dfsEndpoint::dfsPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesStorage'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesStorage'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-dfs-ep', parameters('app').storage), 'dfs-endpoint-zone')]",
@@ -34535,7 +34535,7 @@
                               ]
                             },
                             "keyVaultEndpoint::keyVaultPrivateDnsZoneGroup": {
-                              "condition": "[and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting)]",
+                              "condition": "[and(and(variables('usesKeyVault'), parameters('app').hub.options.privateRouting), parameters('app').hub.options.createPrivateDnsZones)]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-11-01",
                               "name": "[format('{0}/{1}', format('{0}-ep', parameters('app').keyVault), 'keyvault-endpoint-zone')]",

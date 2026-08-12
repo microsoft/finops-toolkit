@@ -401,7 +401,7 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hu
     ]
   }
   
-  resource scriptPrivateDnsZoneGroup 'privateDnsZoneGroups' = {
+  resource scriptPrivateDnsZoneGroup 'privateDnsZoneGroups' = if (hub.options.privateRouting && hub.options.createPrivateDnsZones) {
     name: 'blob-endpoint-zone'
     properties: {
       privateDnsZoneConfigs: [

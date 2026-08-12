@@ -3,7 +3,7 @@ title: Configure private networking in FinOps hubs
 description: Learn about data access options with FinOps hubs and how to configure secure access to your data with private endpoints.
 author: flanakin
 ms.author: micflan
-ms.date: 08/10/2026
+ms.date: 08/12/2026
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
@@ -155,28 +155,57 @@ When private access is selected, choose your mode using **virtualNetworkMode**:
 - Set **virtualNetworkMode** to `new` to create a new virtual network and subnets.
 - Set **virtualNetworkMode** to `existing` to use your existing virtual network. In this mode, set **existingVirtualNetworkResourceId**.
 
-For new virtual networks:
+### Virtual network mode and parameter usage
 
+The following table shows which network parameters are used in each mode when private access is enabled (**enablePublicAccess** = `false`).
+
+| Parameter                            | `new` mode | `existing` mode | Notes                                                                                                                                                                                                            |
+| ------------------------------------ | ---------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **virtualNetworkMode**               | Used       | Used            | Selects whether FinOps hubs creates a VNet or reuses one.                                                                                                                                                        |
+| **privateEndpointSubnetName**        | Used       | Used            | Subnet name used for storage, Key Vault, and script storage private endpoints.                                                                                                                                   |
+| **scriptSubnetName**                 | Used       | Used            | Subnet name used for deployment script container groups.                                                                                                                                                         |
+| **dataExplorerSubnetName**           | Used       | Used            | Subnet name used for Azure Data Explorer private endpoint.                                                                                                                                                       |
+| **createPrivateDnsZones**            | Always on  | Used            | In `new` mode, FinOps hubs always creates private DNS zones and links them to the created virtual network. In `existing` mode, set to `false` to skip private DNS zones, zone groups, and virtual network links. |
+| **virtualNetworkAddressPrefix**      | Used       | Ignored         | Used only when creating a new VNet.                                                                                                                                                                              |
+| **enableNatGateway**                 | Used       | Ignored         | NAT Gateway is only created/attached when mode is `new`.                                                                                                                                                         |
+| **existingVirtualNetworkResourceId** | Ignored    | Used            | Required in `existing` mode to target your VNet.                                                                                                                                                                 |
+
+In `new` mode:
+
+- Set **virtualNetworkAddressPrefix** to define the VNet address space.
+- FinOps hubs always creates the required private DNS zones and links them to the new virtual network.
 - The virtual network can be any subnet size from **/8** to **/26**, with a minimum of **/26** (64 IP addresses) required.
 - The default IP range is **10.20.30.0/26**.
+- FinOps hubs creates three subnets from this range: **/28** for private endpoints, **/28** for deployment scripts, and **/27** reserved for Azure Data Explorer private endpoints.
 - Choose a larger range (for example, **/24**) if you need more private address space for adjacent services like Power BI VNet Data Gateway.
 
-### Bring your own virtual network subnet settings
+In `existing` mode:
 
-If you're using an existing virtual network, configure these subnets before deploying FinOps hubs.
+### Existing mode: bring your own virtual network subnet requirements and mapping
 
-| Setting                      | Requirement                                                                                                                          | Used for                                                              |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| VNet size                    | Minimum **/26** address space                                                                                                        | Supports required subnet sizing                                       |
-| Private endpoint subnet name | Default: **private-endpoint-subnet** (override with **privateEndpointSubnetName**)                                                   | Storage, Key Vault, and Data Factory managed private endpoint routing |
-| Script subnet name           | Default: **script-subnet** (override with **scriptSubnetName**)                                                                      | Deployment scripts                                                    |
-| Data Explorer subnet name    | Default: **dataExplorer-subnet** (override with **dataExplorerSubnetName**)                                                          | Azure Data Explorer private endpoints                                 |
-| Private endpoint subnet size | Minimum **/28**                                                                                                                      | Private endpoints                                                     |
-| Script subnet size           | Minimum **/28**                                                                                                                      | Deployment script container group                                     |
-| Data Explorer subnet size    | Minimum **/27**                                                                                                                      | Data Explorer private endpoints                                       |
-| Script subnet delegation     | Required: **Microsoft.ContainerInstance/containerGroups**                                                                            | Required for deployment scripts                                       |
-| Service endpoints            | Recommended on private endpoint and script subnets: **Microsoft.Storage**                                                            | Improves storage connectivity consistency                             |
-| Outbound routing             | Required from script and Data Explorer subnets (for example, NAT Gateway or UDR to firewall) if your policies block default outbound | Required for deployment/runtime connectivity                          |
+If you're using an existing virtual network, configure these settings before deploying FinOps hubs:
+
+- Set **existingVirtualNetworkResourceId** to your VNet resource ID.
+- Set **createPrivateDnsZones** to `true` to let FinOps hubs create the required private DNS zones, link them to your existing virtual network, and attach private endpoints to those zones.
+- Set **createPrivateDnsZones** to `false` if your organization manages private DNS separately. In this case, FinOps hubs still creates private endpoints, but doesn't create private DNS zones, private DNS zone groups, or virtual network links.
+- **virtualNetworkAddressPrefix** is ignored.
+- FinOps hubs uses your existing VNet address space and the subnet names you provide.
+
+When **enablePublicAccess** is set to `false`, FinOps hubs uses the following requirements and subnet mapping:
+
+| Subnet parameter              | Default subnet name         | Minimum size | Required configuration                                                                                                                                                                      | Contains                                                                                                                              |
+| ----------------------------- | --------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **privateEndpointSubnetName** | **private-endpoint-subnet** | **/28**      | Service endpoint recommended: **Microsoft.Storage**                                                                                                                                         | Azure Resource Manager private endpoints for hub storage (`blob`, `dfs`), Key Vault (`vault`), and deployment script storage (`blob`) |
+| **scriptSubnetName**          | **script-subnet**           | **/28**      | Subnet delegation required: **Microsoft.ContainerInstance/containerGroups**. Service endpoint recommended: **Microsoft.Storage**. Outbound routing required if default outbound is blocked. | Deployment script container groups (Azure Container Instances)                                                                        |
+| **dataExplorerSubnetName**    | **dataExplorer-subnet**     | **/27**      | Outbound routing required if default outbound is blocked.                                                                                                                                   | Azure Data Explorer cluster private endpoint (`cluster`)                                                                              |
+
+Virtual network requirement: minimum **/26** address space.
+
+> [!NOTE]
+> Data Factory managed private endpoints (for storage, Key Vault, and Data Explorer) are created in the Data Factory managed virtual network, not as Azure Resource Manager private endpoints in your bring-your-own virtual network subnets.
+
+> [!NOTE]
+> Azure Data Explorer private endpoints commonly consume 8 private IPs in the subnet baseline (engine endpoint, data management endpoint, and transient storage endpoints). This baseline doesn't scale linearly with **dataExplorerSkuCapacity** (node count). Additional private IP usage is primarily tied to high-ingestion scenarios that scale transient storage endpoints. The **/27** minimum in bring-your-own virtual network mode is kept to provide operational headroom.
 
 ### Bring your own virtual network NSG settings
 
