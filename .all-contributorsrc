@@ -989,6 +989,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "OssSecurityBot",
+      "name": "Microsoft Open Source Security Bot",
+      "avatar_url": "https://avatars.githubusercontent.com/u/301434949?v=4",
+      "profile": "https://aka.ms/oss-sec-bot",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",
