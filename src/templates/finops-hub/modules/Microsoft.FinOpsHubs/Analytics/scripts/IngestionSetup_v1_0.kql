@@ -78,26 +78,40 @@ Prices_transform_v1_0()
         | extend x_IngestionTime = ingestion_time()
     );
     //
-    // Meters for reservations and savings plans to identify commitment eligibility
-    let riMeters = prices | where x_SkuPriceType == 'ReservedInstance' | distinct x_SkuMeterId;
-    let spMeters = prices | where x_SkuPriceType == 'SavingsPlan' | distinct x_SkuMeterId;
+    // Commitment discount eligibility per meter, used below. Sourced from the
+    // CommitmentDiscountEligibility open-data table (a snapshot of the Azure Retail Prices API)
+    // rather than derived from `prices` itself: Prices_raw can land as multiple parquet-snappy
+    // files per export, each triggering a SEPARATE update policy invocation (see #1625), so a
+    // meter's Reservation/SavingsPlan row and its Consumption row can be visible in different
+    // invocations. Deriving eligibility from `prices` only sees whichever rows happen to be in the
+    // current invocation; CommitmentDiscountEligibility is ingested as a whole table and doesn't
+    // have that gap. Dedupe with take_any() even though MeterId is expected to be unique in the
+    // source data -- defends against a future duplicate row silently fanning out the lookup below.
+    let commitmentEligibility = CommitmentDiscountEligibility
+        | summarize take_any(x_CommitmentDiscountSpendEligibility), take_any(x_CommitmentDiscountUsageEligibility) by MeterId;
     //
     // Copy list/base/contracted prices from on-demand SKUs
     prices
     | where x_SkuPriceType == 'SavingsPlan'
     // If we use join, specify the shuffle key
-    // TODO: Compare join vs. lookup perf -- | join kind=leftouter hint.strategy=shuffle (prices | where x_SkuPriceType == 'Consumption' | where x_SkuMeterId in (spMeters) | distinct tmp_SavingsPlanKey, ListUnitPrice, ContractedUnitPrice, x_BaseUnitPrice) on tmp_SavingsPlanKey
-    | lookup kind=leftouter (prices | where x_SkuPriceType == 'Consumption' | where x_SkuMeterId in (spMeters) | distinct tmp_SavingsPlanKey, ListUnitPrice, ContractedUnitPrice, x_BaseUnitPrice) on tmp_SavingsPlanKey
+    // TODO: Compare join vs. lookup perf -- | join kind=leftouter hint.strategy=shuffle (prices | where x_SkuPriceType == 'Consumption' | summarize take_any(ListUnitPrice), take_any(ContractedUnitPrice), take_any(x_BaseUnitPrice) by tmp_SavingsPlanKey) on tmp_SavingsPlanKey
+    // The dimension side must be unique per tmp_SavingsPlanKey (meter+product+SKU+tier+offer, no region/currency):
+    // `distinct` over the price columns does not guarantee that when the same key has rows with
+    // different prices (e.g. multi-region exports), so it can fan out matching SavingsPlan rows.
+    // `summarize take_any(...) by tmp_SavingsPlanKey` guarantees exactly one row per key.
+    | lookup kind=leftouter (prices | where x_SkuPriceType == 'Consumption' | summarize take_any(ListUnitPrice), take_any(ContractedUnitPrice), take_any(x_BaseUnitPrice) by tmp_SavingsPlanKey) on tmp_SavingsPlanKey
     | extend ListUnitPrice = coalesce(ListUnitPrice, ListUnitPrice1)
     | extend ContractedUnitPrice = coalesce(ContractedUnitPrice, ContractedUnitPrice1)
     | extend x_BaseUnitPrice = coalesce(x_BaseUnitPrice, x_BaseUnitPrice1)
     | project-away ListUnitPrice1, ContractedUnitPrice1, x_BaseUnitPrice1, tmp_SavingsPlanKey
     | union ((prices | where x_SkuPriceType != 'SavingsPlan'))
     //
-    // Calculate commitment discount elgibility
+    // Calculate commitment discount eligibility from the open-data snapshot; unmatched meters default to not eligible
     // TODO: Would a join be faster?
-    | extend x_CommitmentDiscountSpendEligibility = iff(x_SkuMeterId in (riMeters) and x_SkuPriceType != 'ReservedInstance', 'Eligible', 'Not Eligible')
-    | extend x_CommitmentDiscountUsageEligibility = iff(x_SkuMeterId in (spMeters), 'Eligible', 'Not Eligible')
+    | lookup kind=leftouter (commitmentEligibility) on $left.x_SkuMeterId == $right.MeterId
+    | extend x_CommitmentDiscountSpendEligibility = iff(isnotempty(x_CommitmentDiscountSpendEligibility) and x_SkuPriceType != 'ReservedInstance', x_CommitmentDiscountSpendEligibility, 'Not Eligible')
+    | extend x_CommitmentDiscountUsageEligibility = coalesce(x_CommitmentDiscountUsageEligibility, 'Not Eligible')
+    | project-away MeterId
     //
     // Add PricingUnit and x_PricingBlockSize
     // TODO: Compare join vs. lookup perf -- | join kind=leftouter (PricingUnits) on x_PricingUnitDescription | project-away x_PricingUnitDescription1

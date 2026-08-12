@@ -88,6 +88,13 @@ HubScopes()
     x_ServiceModel:           string
 )
 
+// CommitmentDiscountEligibility
+.create-merge table CommitmentDiscountEligibility(
+    MeterId:                               string,
+    x_CommitmentDiscountSpendEligibility:  string,
+    x_CommitmentDiscountUsageEligibility:  string
+)
+
 //----------------------------------------------------------------------------------------------------------------------
 
 // parse_resourceid
