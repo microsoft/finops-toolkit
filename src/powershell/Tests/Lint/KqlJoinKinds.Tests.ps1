@@ -61,6 +61,12 @@ Describe 'KqlJoinKinds' {
                 $_.RelPath -like 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Recommendations/queries/*' -or
                 $_.RelPath -eq 'src/templates/finops-alerts/modules/logicApp.bicep'
             })
+
+        # Published docs mix engines within a single file: docs-mslearn/best-practices/compute.md
+        # carries both ARG inventory queries and hub (ADX) cost queries, and the latter legitimately
+        # use lookup. So docs are classified per code block rather than per file - see the
+        # 'ARG examples' test below.
+        $docsFiles = @($scanFiles | Where-Object { $_.RelPath -like 'docs-mslearn/*' })
     }
 
     BeforeAll {
@@ -75,6 +81,13 @@ Describe 'KqlJoinKinds' {
         # Matches `| join` not followed by `kind=` before the right-table parenthesis.
         # Catches `| join (`, `| join(`, and `| join hint.x=y (`; ignores `| join kind=...` and `lookup`.
         $bareJoinPattern = [regex]'\|\s*join\b(?![^(\r\n]*\bkind\s*=)'
+
+        # Operators Azure Resource Graph rejects with InvalidQuery (verified live, 2026-08).
+        $argRejectedPattern = [regex]'\|\s*lookup\b|join\s+kind\s*=\s*(leftanti|leftsemi|rightanti|rightsemi|anti|semi|leftantisemi|rightantisemi)\b'
+
+        # ARG tables that can open a query. A KQL query names its source table first, so the first
+        # non-comment line of a docs code block identifies the engine it targets.
+        $argTablePattern = [regex]'^\s*(resources|resourcecontainers|advisorresources|resourcechanges|resourcecontainerchanges|healthresources|securityresources|policyresources|guestconfigurationresources|patchassessmentresources|patchinstallationresources|maintenanceresources|servicehealthresources|desktopvirtualizationresources|kubernetesconfigurationresources|extendedlocationresources|networkresources|chaosresources|iotsecurityresources|insightsresources)\b'
 
         # Pre-existing bare joins, counted per repo-relative path. Ratchet only: lower on fix, never raise.
         # All remaining entries are benign today (left side unique on the join key) but rely on the
@@ -107,8 +120,26 @@ Describe 'KqlJoinKinds' {
 
     It 'Should not use operators ARG rejects (lookup, semi/anti joins): <RelPath>' -ForEach $argFiles {
         $content = Get-Content -Path $FullName -Raw
-        $rejected = @([regex]::Matches($content, '\|\s*lookup\b|join\s+kind\s*=\s*(leftanti|leftsemi|rightanti|rightsemi|anti|semi|leftantisemi|rightantisemi)\b'))
+        $rejected = @($argRejectedPattern.Matches($content))
 
         @($rejected | ForEach-Object { $_.Value }) -join '; ' | Should -BeNullOrEmpty -Because ('Azure Resource Graph rejects the lookup operator and all semi/anti join flavors with InvalidQuery (verified live; supported kinds are inner, innerunique, leftouter, rightouter, fullouter). For exclusions in ARG, use join kind=leftouter + where isempty(<right key>) with a key-unique right side. If this file contains a Log Analytics query that legitimately needs the operator, add a per-file allowlist to this test.')
+    }
+
+    It 'Should not use operators ARG rejects in docs ARG examples: <RelPath>' -ForEach $docsFiles {
+        $content = Get-Content -Path $FullName -Raw
+
+        # Fenced code blocks, so a hub (ADX) example in the same file cannot mask or trip this rule.
+        $offenders = @(
+            foreach ($block in [regex]::Matches($content, '(?ms)^```[a-zA-Z]*\r?\n(.*?)^```'))
+            {
+                $code = $block.Groups[1].Value
+                $firstLine = @($code -split '\r?\n' | Where-Object { $_.Trim() -and $_.Trim() -notmatch '^//' })[0]
+                if ($null -eq $firstLine -or -not $argTablePattern.IsMatch($firstLine)) { continue }
+
+                $argRejectedPattern.Matches($code) | ForEach-Object { $_.Value.Trim() }
+            }
+        )
+
+        $offenders -join '; ' | Should -BeNullOrEmpty -Because ('this code block opens with an Azure Resource Graph table, and ARG rejects the lookup operator and all semi/anti join flavors with InvalidQuery (verified live). Published examples are copied verbatim by readers, so they must run as written: use join kind=leftouter + where isempty(<right key>) for exclusions. Hub (ADX) examples in the same file are unaffected - they open with Costs, Prices, or another hub table.')
     }
 }
