@@ -3,7 +3,7 @@ title: FinOps toolkit Workload optimization report
 description: Learn about the Workload optimization report, which identifies opportunities for rightsizing and removing unused resources to enhance efficiency.
 author: flanakin
 ms.author: micflan
-ms.date: 08/02/2026
+ms.date: 08/12/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
