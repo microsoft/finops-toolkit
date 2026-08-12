@@ -25,9 +25,9 @@ on:
     types: [labeled]
 
 env:
-  AZ_ACCOUNTS_VERSION: '2.19.0'
-  AZ_RESOURCES_VERSION: '6.16.2'
-  AZ_STORAGE_VERSION: '6.2.0'
+  AZ_ACCOUNTS_VERSION: '5.5.2'
+  AZ_RESOURCES_VERSION: '10.1.0'
+  AZ_STORAGE_VERSION: '9.7.2'
 
 concurrency:
   group: ftk-pr-${{ github.event.pull_request.number }}

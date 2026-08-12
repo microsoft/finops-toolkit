@@ -31,7 +31,7 @@ jobs:
         shell: pwsh
         run: |
           Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
+          Install-Module -Name Az.Accounts -RequiredVersion 5.5.2 -Force
 
       - name: Login via Az module
         uses: azure/login@264ef4588d3ca547fea5296679ee9f8a4766d4df # hf_447_release

@@ -23,8 +23,8 @@ jobs:
         shell: pwsh
         run: |
           Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
-          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+          Install-Module -Name Az.Accounts -RequiredVersion 5.5.2 -Force
+          Install-Module -Name Az.Resources -RequiredVersion 10.1.0 -Force
 
       - name: Azure login
         uses: azure/login@v2
