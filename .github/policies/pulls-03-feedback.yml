@@ -38,6 +38,8 @@ configuration:
                       action: Created
                   - isActivitySender:
                       issueAuthor: False
+                  - isPullRequest
+                  - isOpen
           - not:
               targetsBranch:
                 branch: main
