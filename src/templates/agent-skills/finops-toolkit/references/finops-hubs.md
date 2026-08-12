@@ -50,7 +50,12 @@ All KQL queries are located in `references/queries/`:
 
 **Database Rules:**
 - Always use "Hub" database, NEVER "Ingestion"
-- Function-based access: `Costs()`, `Prices()`, `Recommendations()`, `Transactions()`
+- Function-based access: `Costs()`, `Prices()`, `CommitmentDiscountUsage()`, `ContractCommitments()`, `BillingPeriods()`, `InvoiceDetails()`, `Recommendations()`, `Transactions()`
+- The unversioned functions (`Costs()`, etc.) return the latest supported FOCUS schema (v1_4). Use versioned functions (`Costs_v1_0()`, `Costs_v1_2()`, `Costs_v1_4()`) to pin to a specific schema.
+- The hubs v1_4 schema adds FOCUS 1.3 columns — `AllocatedMethodId`, `AllocatedMethodDetails`, `AllocatedResourceId`, `AllocatedResourceName`, `AllocatedTags` (data-generator split cost allocation), `ContractApplied` (per-row contract commitment application), `ServiceProviderName` (vendor that makes the service available — Marketplace publisher or Microsoft; never null; replaces the removed `PublisherName` and `ProviderName`), and `HostProviderName` (infrastructure provider that hosts the resource; always `Microsoft` for Cost Management data) — plus FOCUS 1.4 columns: `CommitmentProgramEligibilityDetails`, `InvoiceDetailId`, and 12 per-row `ContractCommitment*` columns. It also adds three supplemental datasets: `ContractCommitments`, `BillingPeriods`, and `InvoiceDetails`.
+- The `ContractCommitments()` function (FOCUS 1.4+) returns provider-confirmed contract commitment metadata — the dataset behind the `ContractApplied` JSON arrays on each cost row. Note: returns no data until Microsoft Cost Management ships a FOCUS 1.4 export (not yet available).
+- The `BillingPeriods()` function (FOCUS 1.4+) returns billing period metadata (start/end/status) for aligning cost data with invoice timing. Note: returns no data until Microsoft Cost Management ships a FOCUS 1.4 export (not yet available).
+- The `InvoiceDetails()` function (FOCUS 1.4+) returns invoice line-item metadata associated with `InvoiceId` and `InvoiceDetailId` on the cost rows. Note: returns no data until Microsoft Cost Management ships a FOCUS 1.4 export (not yet available).
 
 ---
 
