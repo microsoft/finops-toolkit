@@ -203,7 +203,14 @@
             "name": "enablePurgeProtection",
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable Key Vault purge protection",
-            "toolTip": "Enables purge protection for the Key Vault used to store the remote hub storage key. Purge protection prevents permanent deletion of the Key Vault for 90 days after deletion. Note: If the key is lost, you can regenerate it from the remote hub's storage account.",
+            "toolTip": "Enables purge protection for the Key Vault used to store the remote hub storage key. Purge protection prevents permanent deletion of the Key Vault for 90 days after deletion. Note: If the key is lost, you can regenerate it from the remote hub's storage account. This cannot be disabled once enabled.",
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]"
+          },
+          {
+            "name": "enableRbacAuthorization",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Key Vault RBAC authorization",
+            "toolTip": "Enables Azure RBAC instead of access policies to authorize access to the Key Vault used to store the remote hub storage key. Required by some organizations for policy compliance (e.g., Cloud Adoption Framework guardrails). Enable this if you are deploying to a subscription that enforces this requirement.",
             "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]"
           }
         ],
@@ -1013,6 +1020,7 @@
       "remoteHubStorageUri": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), basics('analyticsBackend').remoteHubStorageUri, '')]",
       "remoteHubStorageKey": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), basics('analyticsBackend').remoteHubStorageKey, '')]",
       "enablePurgeProtection": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), coalesce(basics('analyticsBackend').enablePurgeProtection, false), false)]",
+      "enableRbacAuthorization": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), coalesce(basics('analyticsBackend').enableRbacAuthorization, false), false)]",
       "tagsByResource": "[steps('tags').tagsByResource]"
     }
   }

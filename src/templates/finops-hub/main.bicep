@@ -26,8 +26,11 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
 param enableInfrastructureEncryption bool = false
 
-@description('Optional. Enable purge protection for the Key Vault. Default: false.')
+@description('Optional. Enable purge protection for the Key Vault. Once enabled on a vault, purge protection cannot be disabled. Default: false.')
 param enablePurgeProtection bool = false
+
+@description('Optional. Enable Azure RBAC for authorizing access to the Key Vault instead of access policies. Required by some organizations for policy compliance (e.g., Cloud Adoption Framework guardrails). Switching an existing vault from access policies to RBAC has migration implications, so this defaults to false for backward compatibility with existing deployments; review before enabling on an upgrade. Default: false.')
+param enableRbacAuthorization bool = false
 
 @description('Optional. Storage account to push data to for ingestion into a remote hub.')
 param remoteHubStorageUri string = ''
@@ -179,6 +182,7 @@ module hub 'modules/hub.bicep' = {
     storageSku: storageSku
     enableInfrastructureEncryption: enableInfrastructureEncryption
     enablePurgeProtection: enablePurgeProtection
+    enableRbacAuthorization: enableRbacAuthorization
     enableManagedExports: enableManagedExports
     enableRecommendations: enableRecommendations
     enableAHBRecommendations: enableAHBRecommendations
