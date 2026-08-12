@@ -207,6 +207,10 @@ let prior =
     | summarize PriorCost = sum(EffectiveCost) by RegionName, x_ResourceGroupName, ResourceType;
 recent
 | join kind=fullouter prior on RegionName, x_ResourceGroupName, ResourceType
+| extend RegionName = coalesce(RegionName, RegionName1),
+         x_ResourceGroupName = coalesce(x_ResourceGroupName, x_ResourceGroupName1),
+         ResourceType = coalesce(ResourceType, ResourceType1)
+| project-away RegionName1, x_ResourceGroupName1, ResourceType1
 | extend RecentCost = coalesce(RecentCost, 0.0),
          PriorCost = coalesce(PriorCost, 0.0),
          Delta = RecentCost - PriorCost
