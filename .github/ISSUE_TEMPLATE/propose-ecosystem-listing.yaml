@@ -2,7 +2,7 @@ name: "🤝 Suggest an Ecosystem Listing"
 description: "Tell us about a tool or organization that extends or supports the FinOps toolkit so we can feature it."
 labels:
   - "Needs: Triage 🔍"
-  - "Type: Docs 📖"
+  - "Type: Documentation 📃"
 body:
   - type: markdown
     attributes:
