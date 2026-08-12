@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 07/30/2026
+ms.date: 08/05/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -62,6 +62,8 @@ _Released June 2026_
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v15
 
+- **Added**
+  - Added a [FinOps toolkit ecosystem page](https://microsoft.github.io/ecosystem) listing independent tools and organizations that build on or support the FinOps toolkit.
 - **Fixed**
   - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` in the [data dictionary](help/data-dictionary.md) to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
 
