@@ -1109,6 +1109,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
               }
             }
             fieldList: [
+              'exists'
               'childItems'
             ]
             storeSettings: {
@@ -1135,7 +1136,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           userProperties: []
           typeProperties: {
             items: {
-              value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
+              value: '@if(and(activity(\'Get Existing Parquet Files\').output.exists, contains(activity(\'Get Existing Parquet Files\').output, \'childItems\')), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
               type: 'Expression'
             }
             condition: {
