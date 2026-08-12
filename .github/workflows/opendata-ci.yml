@@ -21,7 +21,7 @@ jobs:
       CI_COMMIT_MESSAGE: Generate PowerShell commands for open data
       CI_COMMIT_AUTHOR: Open Data CI
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
       with:
         ref: ${{ github.event.pull_request.head.ref }}
     - name: Set environment variable "commit-message"
@@ -50,7 +50,7 @@ jobs:
       shell: pwsh
       run: |
         src/scripts/Build-OpenData.ps1 -Test
-    - uses: actions/github-script@v7
+    - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
       if: failure()
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
