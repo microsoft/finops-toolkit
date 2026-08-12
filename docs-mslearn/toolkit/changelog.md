@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/03/2026
+ms.date: 08/12/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -64,6 +64,11 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Added a new [Instance size flexibility](open-data.md#instance-size-flexibility) dataset that maps each ARM SKU to its instance size flexibility group and ratio, sourced from the Azure Reservations Catalogs API. It replaces the deprecated ISF ratio files hosted on `ccmstorageprod.blob.core.windows.net` ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+
+**[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**
+
+- **Fixed**
+  - Fixed the commitment discount eligibility dataset refresh so it is reproducible and complete; retired meters now age out and previously missed meters are included ([#2164](https://github.com/microsoft/finops-toolkit/pull/2164)).
 
 -->
 
