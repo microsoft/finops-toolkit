@@ -10,11 +10,50 @@ Describe 'Update-CommitmentDiscountEligibility helpers' {
     BeforeAll {
         $scriptPath = Join-Path (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName 'src/scripts/Update-CommitmentDiscountEligibility.ps1'
         $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
-        foreach ($name in 'Get-ShardShortfall', 'Get-RetryDelay', 'Get-EligibleMeter')
+        foreach ($name in 'Get-ShardShortfall', 'Get-RetryDelay', 'Get-EligibleMeter', 'ConvertTo-SortedMap')
         {
             $fn = $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name }, $true) | Select-Object -First 1
             if (-not $fn) { throw "Function $name not found in $scriptPath" }
             . ([scriptblock]::Create($fn.Extent.Text))
+        }
+    }
+
+    Context 'ConvertTo-SortedMap' {
+        It 'orders entries by key' {
+            $m = ConvertTo-SortedMap -Map @{ Storage = 3; Compute = 1; Analytics = 2 }
+            @($m.Keys) | Should -Be @('Analytics', 'Compute', 'Storage')
+        }
+
+        It 'preserves every value' {
+            $m = ConvertTo-SortedMap -Map @{ Storage = 3; Compute = 1 }
+            $m['Compute'] | Should -Be 1
+            $m['Storage'] | Should -Be 3
+        }
+
+        It 'serializes identically regardless of insertion order' {
+            # The actual regression: the workflow treats any diff in the baseline sidecar
+            # as "data changed", so an unstable key order would push a branch and ask for
+            # a PR even when no count moved.
+            $a = [ordered]@{}
+            'Storage', 'Compute', 'Analytics' | ForEach-Object { $a[$_] = 1 }
+            $b = [ordered]@{}
+            'Analytics', 'Storage', 'Compute' | ForEach-Object { $b[$_] = 1 }
+
+            $jsonA = ConvertTo-SortedMap -Map ([hashtable]$a) | ConvertTo-Json -Depth 4
+            $jsonB = ConvertTo-SortedMap -Map ([hashtable]$b) | ConvertTo-Json -Depth 4
+
+            $jsonA | Should -BeExactly $jsonB
+        }
+
+        It 'handles an empty map' {
+            $m = ConvertTo-SortedMap -Map @{}
+            $m.Count | Should -Be 0
+        }
+
+        It 'sorts family names containing spaces and symbols' {
+            # Real family names include 'AI + Machine Learning' and 'Management and Governance'.
+            $m = ConvertTo-SortedMap -Map @{ 'Management and Governance' = 1; 'AI + Machine Learning' = 82 }
+            @($m.Keys)[0] | Should -Be 'AI + Machine Learning'
         }
     }
 

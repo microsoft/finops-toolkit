@@ -1,6 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+# PowerShell 7+ only: this script uses ConvertFrom-Json -AsHashtable, Export-Csv
+# -UseQuotes, and reads Invoke-RestMethod's error response as an HttpResponseMessage
+# (Windows PowerShell 5.1 surfaces an HttpWebResponse instead). Declaring it here fails
+# fast with a clear message rather than a confusing downstream error. The workflow runs
+# `shell: pwsh`, so this only affects someone running the script by hand.
+#Requires -Version 7.0
+
 <#
     .SYNOPSIS
     Fetches commitment discount eligibility data from the Azure Retail Prices API.
@@ -281,6 +288,26 @@ function Get-EligibleMeter
 # filter, and the packaging exclusion all key off it.
 $ShardCountPath = [System.IO.Path]::ChangeExtension($OutputPath, 'shardcounts.json')
 
+function ConvertTo-SortedMap
+{
+    <#
+        .SYNOPSIS
+        Returns an ordered dictionary with the given hashtable's entries sorted by key.
+
+        .DESCRIPTION
+        Hashtable key enumeration order is not guaranteed, so serializing one directly
+        can reorder the JSON between runs even when every count is identical. The
+        workflow treats ANY diff in the baseline sidecar as "data changed" and pushes a
+        branch asking for a PR, so an unstable key order would manufacture empty
+        update PRs. Sorting makes the file a function of its contents alone.
+    #>
+    param([hashtable]$Map)
+
+    $sorted = [ordered]@{}
+    foreach ($key in ($Map.Keys | Sort-Object)) { $sorted[$key] = $Map[$key] }
+    return $sorted
+}
+
 function Get-ShardShortfall
 {
     <#
@@ -461,10 +488,11 @@ $rows | Export-Csv -Path $OutputPath -UseQuotes Always -NoTypeInformation -Encod
 Write-Verbose "  CSV write completed in $([Math]::Round(([DateTime]::UtcNow - $writeStart).TotalSeconds, 1))s"
 Write-Host "Wrote $($rows.Count) meters to $OutputPath"
 
-# Persist this run's per-family counts as the baseline for the next run's guard.
+# Persist this run's per-family counts as the baseline for the next run's guard, with
+# the families in sorted order (see ConvertTo-SortedMap).
 $newShardCounts = [ordered]@{
-    Reservation = $riResult.FamilyCounts
-    Consumption = $spResult.FamilyCounts
+    Reservation = ConvertTo-SortedMap -Map $riResult.FamilyCounts
+    Consumption = ConvertTo-SortedMap -Map $spResult.FamilyCounts
 }
 $newShardCounts | ConvertTo-Json -Depth 4 | Set-Content -Path $ShardCountPath -Encoding utf8 -NoNewline
 Write-Host "Wrote per-family baseline to $ShardCountPath"
