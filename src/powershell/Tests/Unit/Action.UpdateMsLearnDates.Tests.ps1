@@ -57,10 +57,10 @@ Describe 'update-mslearn-dates GitHub Action' {
     }
 
     Context 'Workflow steps' {
-        # Third-party actions are pinned to a full 40-character commit SHA (with the
-        # human-readable version in a trailing comment) rather than a floating @vN tag,
-        # so these assertions accept either form. Matching only @vN made the suite fail
-        # the moment the workflows were hardened.
+        # Actions are pinned to a full 40-character commit SHA (with the human-readable
+        # version in a trailing comment) rather than a floating @vN tag, so these
+        # assertions accept either form. Matching only @vN made the suite fail the
+        # moment the workflows were hardened.
         It 'Should checkout the PR branch' {
             $workflowContent | Should -Match 'uses:\s*actions/checkout@(?:[0-9a-f]{40}|v\d+)'
             $workflowContent | Should -Match 'ref:\s*\$\{\{\s*github\.head_ref\s*\}\}'
