@@ -124,7 +124,7 @@ if (-not $ftk_Pester)
     | Select-Object -First 1 -ExpandProperty Version
     Write-Error ("Pester $ftk_MinPesterVersion or later is required to run these tests" `
             + $(if ($ftk_FoundPester) { " (found $ftk_FoundPester)" } else { ' (not installed)' }) `
-            + ". Run: Install-Module Pester -MinimumVersion $ftk_MinPesterVersion -Force")
+            + ". Run: Install-Module -Name Pester -MinimumVersion $ftk_MinPesterVersion -Scope CurrentUser -Repository PSGallery -Force")
     return
 }
 Import-Module -ModuleInfo $ftk_Pester

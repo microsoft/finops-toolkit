@@ -195,9 +195,9 @@ elseif (-not $npmVer)
 # Pester 6 is the minimum: the test suite uses -AllowNullOrEmptyForEach, which Pester 5 rejects.
 if ($Pester -or $All)
 {
-    Install-Module -Name Pester -MinimumVersion 6.0.0 -Force
+    Install-Module -Name Pester -MinimumVersion 6.0.0 -Scope CurrentUser -Repository PSGallery -Force
 }
 elseif (-not (Get-Module Pester -ListAvailable | Where-Object { $_.Version -ge [version]'6.0.0' }))
 {
-    Write-Host "⚠️ Skipping Pester 6 or later. You will not be able to run tests."
+    Write-Host "⚠️ Skipping Pester. You will not be able to run tests."
 }
