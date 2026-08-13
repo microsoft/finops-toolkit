@@ -54,11 +54,11 @@ jobs:
           DRY_RUN: ${{ github.event.inputs.dry_run }}
           RUN_REF: ${{ github.event.inputs.ref || 'dev' }}
         run: |
-          # Check for changes to the CSV or the per-shard baseline (handles both
+          # Check for changes to the CSV or the per-family baseline (handles both
           # modified and newly-created/untracked files). The baseline is checked too
           # so a counts-only update (no eligibility change) is still surfaced.
-          if git diff --quiet --exit-code -- src/open-data/CommitmentDiscountEligibility.csv src/open-data/CommitmentDiscountEligibility.shardcounts.json 2>/dev/null && \
-             ! git ls-files --others --exclude-standard -- src/open-data/ | grep -qE 'CommitmentDiscountEligibility\.(csv|shardcounts\.json)'; then
+          if git diff --quiet --exit-code -- src/open-data/CommitmentDiscountEligibility.csv src/open-data/CommitmentDiscountEligibility.familycounts.json 2>/dev/null && \
+             ! git ls-files --others --exclude-standard -- src/open-data/ | grep -qE 'CommitmentDiscountEligibility\.(csv|familycounts\.json)'; then
             echo "No changes detected"
             exit 0
           fi
@@ -70,9 +70,9 @@ jobs:
               echo "Ran the fetch against \`${RUN_REF}\` and detected changes, but \`dry_run\` was set, so no branch was pushed."
               echo ""
               echo '```'
-              git --no-pager diff --stat -- src/open-data/CommitmentDiscountEligibility.csv src/open-data/CommitmentDiscountEligibility.shardcounts.json || true
+              git --no-pager diff --stat -- src/open-data/CommitmentDiscountEligibility.csv src/open-data/CommitmentDiscountEligibility.familycounts.json || true
               # --stat covers tracked files only, so list any newly created ones too.
-              git ls-files --others --exclude-standard -- src/open-data/ | grep -E 'CommitmentDiscountEligibility\.(csv|shardcounts\.json)' | sed 's/^/new file: /' || true
+              git ls-files --others --exclude-standard -- src/open-data/ | grep -E 'CommitmentDiscountEligibility\.(csv|familycounts\.json)' | sed 's/^/new file: /' || true
               echo '```'
             } >> "$GITHUB_STEP_SUMMARY"
             echo "Dry run: changes detected, not pushing."
@@ -83,7 +83,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
-          git add src/open-data/CommitmentDiscountEligibility.csv src/open-data/CommitmentDiscountEligibility.shardcounts.json
+          git add src/open-data/CommitmentDiscountEligibility.csv src/open-data/CommitmentDiscountEligibility.familycounts.json
           git commit -m "chore: Update commitment discount eligibility data"
           git push origin "$BRANCH"
 

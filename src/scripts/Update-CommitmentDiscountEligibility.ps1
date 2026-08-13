@@ -283,10 +283,9 @@ function Get-EligibleMeter
 # good run are persisted here to let the completeness guard catch a single family
 # that systematically under-fetches (which an aggregate-only check could miss when
 # growth elsewhere masks it). Committed/pushed beside the CSV so it survives the
-# fresh checkout of each scheduled CI run. The 'shardcounts' name predates the removal
-# of serviceFamily sharding and is retained because the workflow, the open-data CI path
-# filter, and the packaging exclusion all key off it.
-$ShardCountPath = [System.IO.Path]::ChangeExtension($OutputPath, 'shardcounts.json')
+# fresh checkout of each scheduled CI run, and excluded from release packages by
+# Package-Toolkit.ps1 -- it is an internal operational baseline, not published data.
+$FamilyCountPath = [System.IO.Path]::ChangeExtension($OutputPath, 'familycounts.json')
 
 function ConvertTo-SortedMap
 {
@@ -308,7 +307,7 @@ function ConvertTo-SortedMap
     return $sorted
 }
 
-function Get-ShardShortfall
+function Get-FamilyShortfall
 {
     <#
         .SYNOPSIS
@@ -332,19 +331,19 @@ function Get-ShardShortfall
 
     $violations = @()
     if (-not $Baseline) { return $violations }
-    foreach ($shard in $Baseline.Keys)
+    foreach ($family in $Baseline.Keys)
     {
-        $prev = $Baseline[$shard]
+        $prev = $Baseline[$family]
         if (-not $prev) { continue }   # previously-empty family: nothing to compare
         # Ceiling, not Floor: Floor rounds the bound down, allowing up to ~1 extra row
         # of shrink -- and for a baseline of 1 it floors to 0, so a drop to 0 (the
         # family vanishing) would pass. Ceiling preserves the fractional bound and
         # flags small-baseline regressions.
         $floor = [Math]::Ceiling($prev * (1 - $MaxShrinkFraction))
-        $cur = if ($Current.ContainsKey($shard)) { $Current[$shard] } else { 0 }
+        $cur = if ($Current.ContainsKey($family)) { $Current[$family] } else { 0 }
         if ($cur -lt $floor)
         {
-            $violations += "$Section/$shard $cur (baseline $prev, floor $floor)"
+            $violations += "$Section/$family $cur (baseline $prev, floor $floor)"
         }
     }
     return $violations
@@ -371,11 +370,11 @@ if (Test-Path $OutputPath)
     Write-Host "  Previous CSV: $cachedTotal meters"
 }
 
-$cachedShardCounts = $null
-if (Test-Path $ShardCountPath)
+$cachedFamilyCounts = $null
+if (Test-Path $FamilyCountPath)
 {
-    $cachedShardCounts = Get-Content -Path $ShardCountPath -Raw | ConvertFrom-Json -AsHashtable
-    Write-Verbose "  Loaded per-family baseline from $ShardCountPath"
+    $cachedFamilyCounts = Get-Content -Path $FamilyCountPath -Raw | ConvertFrom-Json -AsHashtable
+    Write-Verbose "  Loaded per-family baseline from $FamilyCountPath"
 }
 
 # -----------------------------------------------------------------------
@@ -425,22 +424,22 @@ if ($cachedTotal -gt 0)
 
 # Per-family guard: a single family that systematically under-fetches can be hidden
 # from the aggregate check by growth elsewhere, so compare each family against its
-# own baseline (when one exists from a prior run). $cachedShardCounts is a hashtable
+# own baseline (when one exists from a prior run). $cachedFamilyCounts is a hashtable
 # (ConvertFrom-Json -AsHashtable), so index its sections by key -- but it is $null
 # when no baseline sidecar exists, and PowerShell throws "Cannot index into a null
 # array" rather than yielding $null, so the section lookup MUST be guarded. The sidecar
 # is committed next to the CSV, so a normal CI run does have one; this path is taken
 # when running against a fresh -OutputPath (as a local test run does) or if the sidecar
 # is ever removed.
-$riBaseline = if ($cachedShardCounts) { $cachedShardCounts['Reservation'] } else { $null }
-$spBaseline = if ($cachedShardCounts) { $cachedShardCounts['Consumption'] } else { $null }
+$riBaseline = if ($cachedFamilyCounts) { $cachedFamilyCounts['Reservation'] } else { $null }
+$spBaseline = if ($cachedFamilyCounts) { $cachedFamilyCounts['Consumption'] } else { $null }
 
-$shardShortfall = @()
-$shardShortfall += Get-ShardShortfall -Section 'Reservation' -Current $riResult.FamilyCounts -Baseline $riBaseline -MaxShrinkFraction $MaxShrinkFraction
-$shardShortfall += Get-ShardShortfall -Section 'Consumption' -Current $spResult.FamilyCounts -Baseline $spBaseline -MaxShrinkFraction $MaxShrinkFraction
-if ($shardShortfall.Count -gt 0)
+$familyShortfall = @()
+$familyShortfall += Get-FamilyShortfall -Section 'Reservation' -Current $riResult.FamilyCounts -Baseline $riBaseline -MaxShrinkFraction $MaxShrinkFraction
+$familyShortfall += Get-FamilyShortfall -Section 'Consumption' -Current $spResult.FamilyCounts -Baseline $spBaseline -MaxShrinkFraction $MaxShrinkFraction
+if ($familyShortfall.Count -gt 0)
 {
-    throw "Aborting before write: service family/families fell more than $([Math]::Round($MaxShrinkFraction * 100))% below baseline: $($shardShortfall -join '; '). A family likely under-fetched; refusing to overwrite published data. Raise -MaxShrinkFraction for a deliberate large change."
+    throw "Aborting before write: service family/families fell more than $([Math]::Round($MaxShrinkFraction * 100))% below baseline: $($familyShortfall -join '; '). A family likely under-fetched; refusing to overwrite published data. Raise -MaxShrinkFraction for a deliberate large change."
 }
 Write-Host "Completeness check passed: $seenTotal meters seen this run (cached $cachedTotal)."
 
@@ -491,9 +490,9 @@ Write-Host "Wrote $($rows.Count) meters to $OutputPath"
 
 # Persist this run's per-family counts as the baseline for the next run's guard, with
 # the families in sorted order (see ConvertTo-SortedMap).
-$newShardCounts = [ordered]@{
+$newFamilyCounts = [ordered]@{
     Reservation = ConvertTo-SortedMap -Map $riResult.FamilyCounts
     Consumption = ConvertTo-SortedMap -Map $spResult.FamilyCounts
 }
-$newShardCounts | ConvertTo-Json -Depth 4 | Set-Content -Path $ShardCountPath -Encoding utf8 -NoNewline
-Write-Host "Wrote per-family baseline to $ShardCountPath"
+$newFamilyCounts | ConvertTo-Json -Depth 4 | Set-Content -Path $FamilyCountPath -Encoding utf8 -NoNewline
+Write-Host "Wrote per-family baseline to $FamilyCountPath"

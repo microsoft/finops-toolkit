@@ -10,7 +10,7 @@ Describe 'Update-CommitmentDiscountEligibility helpers' {
     BeforeAll {
         $scriptPath = Join-Path (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName 'src/scripts/Update-CommitmentDiscountEligibility.ps1'
         $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
-        foreach ($name in 'Get-ShardShortfall', 'Get-RetryDelay', 'Get-EligibleMeter', 'ConvertTo-SortedMap')
+        foreach ($name in 'Get-FamilyShortfall', 'Get-RetryDelay', 'Get-EligibleMeter', 'ConvertTo-SortedMap')
         {
             $fn = $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name }, $true) | Select-Object -First 1
             if (-not $fn) { throw "Function $name not found in $scriptPath" }
@@ -57,30 +57,30 @@ Describe 'Update-CommitmentDiscountEligibility helpers' {
         }
     }
 
-    Context 'Get-ShardShortfall' {
+    Context 'Get-FamilyShortfall' {
         It 'flags a previously-nonempty family that vanishes (drops to zero)' {
-            $v = Get-ShardShortfall -Section 'Reservation' -Current @{ Compute = 100 } -Baseline @{ Compute = 100; Tiny = 1 } -MaxShrinkFraction 0.15
+            $v = Get-FamilyShortfall -Section 'Reservation' -Current @{ Compute = 100 } -Baseline @{ Compute = 100; Tiny = 1 } -MaxShrinkFraction 0.15
             @($v) | Should -HaveCount 1
             $v | Should -Match 'Tiny'
         }
 
-        It 'flags a shard that shrinks beyond the tolerance' {
-            $v = Get-ShardShortfall -Section 'Reservation' -Current @{ Compute = 80 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
+        It 'flags a family that shrinks beyond the tolerance' {
+            $v = Get-FamilyShortfall -Section 'Reservation' -Current @{ Compute = 80 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
             @($v) | Should -HaveCount 1
         }
 
-        It 'passes a shard within tolerance' {
-            $v = Get-ShardShortfall -Section 'Reservation' -Current @{ Compute = 90 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
+        It 'passes a family within tolerance' {
+            $v = Get-FamilyShortfall -Section 'Reservation' -Current @{ Compute = 90 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
             $v | Should -BeNullOrEmpty
         }
 
         It 'does not flag a brand-new family absent from the baseline' {
-            $v = Get-ShardShortfall -Section 'Reservation' -Current @{ Compute = 100; New = 5 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
+            $v = Get-FamilyShortfall -Section 'Reservation' -Current @{ Compute = 100; New = 5 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
             $v | Should -BeNullOrEmpty
         }
 
         It 'returns nothing when there is no baseline' {
-            $v = Get-ShardShortfall -Section 'Reservation' -Current @{ Compute = 1 } -Baseline $null -MaxShrinkFraction 0.15
+            $v = Get-FamilyShortfall -Section 'Reservation' -Current @{ Compute = 1 } -Baseline $null -MaxShrinkFraction 0.15
             $v | Should -BeNullOrEmpty
         }
     }

@@ -8,7 +8,7 @@ on:
       - 'src/open-data/*.json'
       # Internal operational baselines for the eligibility completeness guard, not
       # reference data; Build-OpenData ignores them, so they shouldn't trigger CI.
-      - '!src/open-data/*.shardcounts.json'
+      - '!src/open-data/*.familycounts.json'
 permissions: 
   contents: write
   pull-requests: write
