@@ -82,6 +82,14 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 <br>
 
+## Looking for more?
+
+The FinOps toolkit is designed to be extended. Explore independent tools, implementation services, and advisory offerings that work with the FinOps toolkit.
+
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" href="./ecosystem">Explore the ecosystem</a>
+
+<br>
+
 ## Say hello to the FinOps toolkit community
 
 Whether you're looking for a little assistance or are interested in contributing to the toolkit, the FinOps toolkit community is here for you.
