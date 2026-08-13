@@ -82,6 +82,14 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 <br>
 
+## Looking for more?
+
+The FinOps toolkit is designed to be extended. Explore independent tools, implementation services, and advisory offerings that work with the FinOps toolkit.
+
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" href="./ecosystem">Explore the ecosystem</a>
+
+<br>
+
 ## Say hello to the FinOps toolkit community
 
 Whether you're looking for a little assistance or are interested in contributing to the toolkit, the FinOps toolkit community is here for you.
@@ -230,6 +238,9 @@ Whether you're looking for a little assistance or are interested in contributing
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/pvansteenkiste"><img src="https://avatars.githubusercontent.com/u/35564924?v=4?s=100" width="100px;" alt="pvansteenkiste"/><br /><sub><b>pvansteenkiste</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Apvansteenkiste" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/arthursilvany"><img src="https://avatars.githubusercontent.com/u/31347467?v=4?s=100" width="100px;" alt="Arthur Silvany"/><br /><sub><b>Arthur Silvany</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Aarthursilvany" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/Pasc104"><img src="https://avatars.githubusercontent.com/u/278708919?v=4?s=100" width="100px;" alt="Pasc104"/><br /><sub><b>Pasc104</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3APasc104" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/TakumiSeo"><img src="https://avatars.githubusercontent.com/u/49015441?v=4?s=100" width="100px;" alt="TakuSe"/><br /><sub><b>TakuSe</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=TakumiSeo" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

@@ -168,6 +168,17 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
             </p>
         </div>
     </div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">9️⃣&nbsp; Bring in an expert</button>
+        <div>
+            <p>
+                Still stuck, or just want someone to own it for you? Independent organizations offer paid implementation, training, advisory, and managed services for the FinOps toolkit.
+            </p>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" href="./ecosystem">Explore the ecosystem</a>
+            </p>
+        </div>
+    </div>
 </div>
 
 We try to respond to issues and discussions within three business days but there can sometimes be unanticipated delays. If you completed all of the preceding steps and the issue wasn't resolved within a week, join our [biweekly office hours](https://aka.ms/ftk/office-hours) to get live help from the team. If you need more hands-on support, you can request a paid, community-driven advisory session or consulting delivery during the office hours call.

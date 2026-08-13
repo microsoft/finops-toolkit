@@ -6,6 +6,9 @@ on:
     paths:
       - 'src/open-data/*.csv'
       - 'src/open-data/*.json'
+      # Internal operational baselines for the eligibility completeness guard, not
+      # reference data; Build-OpenData ignores them, so they shouldn't trigger CI.
+      - '!src/open-data/*.shardcounts.json'
 permissions: 
   contents: write
   pull-requests: write
@@ -18,7 +21,7 @@ jobs:
       CI_COMMIT_MESSAGE: Generate PowerShell commands for open data
       CI_COMMIT_AUTHOR: Open Data CI
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         ref: ${{ github.event.pull_request.head.ref }}
     - name: Set environment variable "commit-message"
@@ -47,7 +50,7 @@ jobs:
       shell: pwsh
       run: |
         src/scripts/Build-OpenData.ps1 -Test
-    - uses: actions/github-script@v7
+    - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       if: failure()
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}

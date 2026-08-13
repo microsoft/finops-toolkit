@@ -3,7 +3,7 @@ title: FinOps toolkit Usage optimization report
 description: Learn about the Usage optimization report, which identifies opportunities for rightsizing and removing unused resources to enhance efficiency.
 author: flanakin
 ms.author: micflan
-ms.date: 06/21/2026
+ms.date: 08/13/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -76,6 +76,16 @@ The **Unattached disks** page lists the unattached disks sorted by cost.
 The chart shows the cost of each disk over time. The table shows the disks with related properties. It includes billed and effective cost and the dates the disk was available during the selected date range. The date range is shown in the Charge period filter at the top-left of the page.
 
 :::image type="content" source="./media/workload-optimization/unattached-disks.png" border="true" alt-text="Screenshot of the Unattached disks page that shows unattached disks sorted by cost." lightbox="./media/workload-optimization/unattached-disks.png" :::
+
+<br>
+
+## Known limitations
+
+The Workload optimization report uses Azure Resource Graph to query resource details. Azure Resource Graph has a response payload limit of 16 MB per query. The report automatically paginates queries in batches of subscriptions to stay within this limit, but may not work for large environments where a single batch exceeds the limit.
+
+If you experience a "Response payload size... exceeded the limit" error, open the report in Power BI Desktop, go to the Power Query editor, and reduce the value returned by the `ftk_ARGBatchSize` function (default: 100). For detailed steps, see [Response payload size exceeded the limit](../help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) in the error reference guide.
+
+Batching queries by subscription requires Reader access at the subscription level or above. If your account only has resource group-scoped access, some subscriptions may be silently excluded from the report even though you can see their resources elsewhere.
 
 <br>
 

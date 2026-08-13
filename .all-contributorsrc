@@ -980,6 +980,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "TakumiSeo",
+      "name": "TakuSe",
+      "avatar_url": "https://avatars.githubusercontent.com/u/49015441?v=4",
+      "profile": "https://github.com/TakumiSeo",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",

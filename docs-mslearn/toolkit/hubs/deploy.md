@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 06/21/2026
+ms.date: 08/13/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -135,6 +135,9 @@ Configuring Microsoft Fabric is a manual process and requires explicit steps bef
 ## Deploy the FinOps hub template
 
 The core engine for FinOps hubs is deployed via an Azure Resource Manager deployment template. The template is available in [bicep](/azure/azure-resource-manager/bicep/overview). The template includes a storage account, Azure Data Factory, Azure Data Explorer, and other supporting resources. To learn more about the template and least-privileged access requirements, refer to the [FinOps hub template details](template.md).
+
+> [!TIP]
+> Want to explore the hub's KQL and data model without deploying Azure resources? See [Run FinOps hubs locally](run-hubs-locally.md) to stand up a hub on your own hardware.
 
 ### [Azure portal](#tab/azure-portal)
 
@@ -560,7 +563,6 @@ For more information, see [Configure Data Explorer dashboards](configure-dashboa
    - **Azure Data Explorer (Kusto)** &ndash; Use an account that has at least viewer access to the Hub and Ingestion databases.
    - **Azure Resource Graph** &ndash; Use an account that has direct access to any subscriptions you would like to report on.
    - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access.
-   - **<https://ccmstorageprod.blob.core.windows.net/costmanagementconnector-data/AutofitComboMeterData.csv>** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
    - **<https://github.com/>...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
 
 For more information, see [Set up Power BI reports](../power-bi/setup.md).

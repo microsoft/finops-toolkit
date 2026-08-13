@@ -87,7 +87,7 @@ if ($update -or $Version)
         $newLabel = $Label.ToLower() -replace '[^a-z]', ''
         Write-Verbose "Using label '$newLabel'."
         # Read directly from package.json here (rather than calling Get-Version) because $ver isn't set yet.
-        # Get-Version runs after this block (line 95) and reads the same file.
+        # Get-Version runs after this block and reads the same file.
         # This intentionally replaces any prerelease counter npm just wrote — only -Major/-Minor with a label is supported.
         $bumpedVer = (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version
         $baseVer = $bumpedVer -replace '-.*$', ''
@@ -108,10 +108,18 @@ if ($update -or $Version)
     # Update version files: ftkver.txt (major.minor) and ftktag.txt (git tag, e.g., "v13")
     $repoRoot = (Resolve-Path "$PSScriptRoot/../..").Path
     $tag = & "$PSScriptRoot/Get-Version" -AsTag
+
+    # Do not update dependency, source-control, or generated output files.
+    function Get-RepositoryVersionFiles([string[]]$Include)
+    {
+        Get-ChildItem $repoRoot -Include $Include -Recurse -Force `
+        | Where-Object { $_.FullName -notmatch '[\\/](?:\.git|node_modules|release)(?:[\\/]|$)' }
+    }
+
     foreach ($entry in @{ 'ftkver.txt' = $ver; 'ftktag.txt' = $tag }.GetEnumerator())
     {
         Write-Verbose "Updating $($entry.Key) files..."
-        Get-ChildItem $repoRoot -Include $entry.Key -Recurse -Force `
+        Get-RepositoryVersionFiles $entry.Key `
         | ForEach-Object {
             Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
             $entry.Value | Out-File $_ -NoNewline
@@ -120,33 +128,43 @@ if ($update -or $Version)
 
     # Update version in plugin.json files
     Write-Verbose "Updating plugin.json files..."
-    Get-ChildItem $repoRoot -Include "plugin.json" -Recurse -Force `
-    | Where-Object { $_.FullName -like "*claude-plugin*" } `
+    Get-RepositoryVersionFiles "plugin.json" `
     | ForEach-Object {
-        Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         $json = Get-Content $_ -Raw | ConvertFrom-Json
-        $json.version = $ver
-        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
+        if ($json.PSObject.Properties['name'] -and $json.PSObject.Properties['version'])
+        {
+            Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
+            $json.version = $ver
+            $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
+        }
     }
 
     # Update version in marketplace.json plugin entries
     Write-Verbose "Updating marketplace.json files..."
-    Get-ChildItem $repoRoot -Include "marketplace.json" -Recurse -Force `
-    | Where-Object { $_.Directory.Name -eq '.claude-plugin' }`
+    Get-RepositoryVersionFiles "marketplace.json" `
     | ForEach-Object {
-        Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         $json = Get-Content $_ -Raw | ConvertFrom-Json
-        foreach ($plugin in $json.plugins) {
-            if ($plugin.PSObject.Properties['version']) {
-                $plugin.version = $ver
+        if ($json.PSObject.Properties['plugins'])
+        {
+            Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
+            if ($json.PSObject.Properties['metadata'] -and $json.metadata.PSObject.Properties['version'])
+            {
+                $json.metadata.version = $ver
             }
+            foreach ($plugin in $json.plugins)
+            {
+                if ($plugin.PSObject.Properties['version'])
+                {
+                    $plugin.version = $ver
+                }
+            }
+            $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
         }
-        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
     }
 
     # Update FTK survey IDs in feedback links (e.g., surveyId/FTK0.11 -> surveyId/FTK14.0)
     Write-Verbose "Updating FTK survey IDs..."
-    Get-ChildItem $repoRoot -Include '*.md' -Recurse -Force `
+    Get-RepositoryVersionFiles '*.md' `
     | Select-String -Pattern 'surveyId/FTK[\d.]+' -List `
     | ForEach-Object {
         $content = Get-Content $_.Path -Raw

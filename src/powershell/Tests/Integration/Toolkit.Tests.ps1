@@ -49,6 +49,7 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "finops-hub-dashboard.json"             '0.8'  $null
                 CheckFile "finops-hub-fabric-setup-Hub.kql"       '0.10' $null
                 CheckFile "finops-hub-fabric-setup-Ingestion.kql" '0.10' $null
+                CheckFile "finops-hub-local-opendata.kql"         '15.0' $null
                 CheckFile "finops-hub-v$verStr.zip"               $null  $null
                 CheckFile "finops-workbooks-v$verStr.zip"         '0.6'  $null
                 CheckFile "governance-workbook-v$verStr.zip"      '0.1'  '0.5'
