@@ -8,7 +8,7 @@ on:
       ref:
         # The scheduled run always uses dev. This input exists so a change to the fetch
         # script can be exercised end-to-end from its PR branch BEFORE merging, which
-        # matters for a job that only runs weekly and takes ~35 minutes to fail. Only
+        # matters for a job that only runs weekly and takes ~44 minutes to fail. Only
         # users with write access can dispatch a workflow, so this does not widen who
         # can run code in the repo.
         #
@@ -35,11 +35,11 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-    # Two full traversals per price type (fetch + verification) run ~35-40 minutes; the
-    # headroom above that absorbs Retry-After backoff on a throttled run.
+    # Two full traversals per price type (fetch + verification) measured 44 minutes on
+    # run 31710007476. The headroom absorbs Retry-After backoff on a throttled run.
     timeout-minutes: 90
     steps:
-      # Fail before the ~35-minute fetch rather than after it, so an invalid input
+      # Fail before the ~44-minute fetch rather than after it, so an invalid input
       # combination costs seconds instead of most of an hour.
       - name: Validate dispatch inputs
         env:

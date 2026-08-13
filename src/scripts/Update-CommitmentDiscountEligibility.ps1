@@ -36,9 +36,9 @@
        reported on every run and aborts it above -MaxVerifyDrift.
 
        A small non-zero difference is expected rather than alarming: the catalogue is
-       live, so a meter may legitimately appear or disappear during the ~20 minutes
-       between the start of pass 1 and the end of pass 2. -MaxVerifyDrift separates that
-       churn from a genuine paging fault.
+       live, so a meter may legitimately appear or disappear during the window the two
+       passes span (~9 minutes for Reservation, ~32 for Consumption). -MaxVerifyDrift
+       separates that churn from a genuine paging fault.
 
     2. Historical guards (the regression net). The run is compared against the previously
        published data in aggregate AND per serviceFamily; either falling more than
@@ -102,9 +102,10 @@ param(
 
     # Verification guard: abort if the two traversals of a price type disagree on more
     # than this fraction of their combined meterId set. Sized to pass genuine catalogue
-    # churn over the ~20 minutes the two passes span (empirically a handful of meters
-    # out of ~92k, i.e. well under 0.01%) while failing the June-2026 style fault, which
-    # dropped a scattered PERCENTAGE of rows. Set to 0 to require exact agreement.
+    # churn over the window the two passes span while failing the June-2026 style fault,
+    # which dropped a scattered PERCENTAGE of rows. Run 31710007476 measured 0% drift on
+    # both price types (0 meters of 66,199 and 0 of 82,677), so the default is roughly
+    # two orders of magnitude above observed churn. Set to 0 to require exact agreement.
     [ValidateRange(0.0, 1.0)]
     [double]$MaxVerifyDrift = 0.001,
 
@@ -538,8 +539,8 @@ if (Test-Path $FamilyCountPath)
 # -----------------------------------------------------------------------
 # Step 2: Reservation-eligible meters (verified traversal)
 # Reservation is fetched and verified FIRST because it is by far the cheaper of the
-# two (~3 minutes per pass vs ~17). If the API is paging inconsistently, this aborts
-# after ~7 minutes instead of after the ~40 the Consumption passes would add.
+# two (~3-6 minutes per pass vs ~15-17). If the API is paging inconsistently, this
+# aborts after ~12 minutes rather than the full ~44 the Consumption passes would add.
 # -----------------------------------------------------------------------
 Write-Host "Fetching Reservation prices..."
 $riResult = Get-VerifiedEligibleMeter -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -ActivityName 'Fetching Reservation prices' -MaxVerifyDrift $MaxVerifyDrift -SkipVerify:$SkipVerify -CollectKey {
