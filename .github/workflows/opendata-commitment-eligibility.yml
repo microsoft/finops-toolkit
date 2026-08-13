@@ -2,8 +2,28 @@ name: Update Commitment Discount Eligibility
 
 on:
   schedule:
-    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
+    - cron: '0 6 * * 1' # Every Monday at 06:00 UTC
   workflow_dispatch:
+    inputs:
+      ref:
+        # The scheduled run always uses dev. This input exists so a change to the fetch
+        # script can be exercised end-to-end from its PR branch BEFORE merging, which
+        # matters for a job that only runs weekly and takes ~15 minutes to fail. Only
+        # users with write access can dispatch a workflow, so this does not widen who
+        # can run code in the repo.
+        description: 'Branch to check out and run the script from'
+        required: false
+        default: 'dev'
+        type: string
+      dry_run:
+        # Pair this with a non-dev ref when testing: the fetch and the change detection
+        # still run, but no opendata/* branch is pushed, so a test does not leave stray
+        # branches behind. A real run from a non-dev ref would also base its data branch
+        # on that ref, which is usually not what you want.
+        description: 'Fetch and detect changes only; do not push a branch'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -13,9 +33,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      # github.event.inputs is null for the scheduled run, so this falls back to dev.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          ref: dev
+          ref: ${{ github.event.inputs.ref || 'dev' }}
 
       - name: Fetch eligibility data from Azure Retail Prices API
         shell: pwsh
@@ -25,6 +46,13 @@ jobs:
       # a branch and surface a one-click "create PR" link in the job summary for a
       # maintainer to open. Opening the PR triggers Open Data CI and normal review.
       - name: Push branch and surface PR link if data changed
+        env:
+          # Read as a string and compared as one below. A `type: boolean` input arrives
+          # here as the literal "true"/"false", and in a GitHub `if:` expression the
+          # string "false" is truthy -- comparing in bash sidesteps that trap. Empty for
+          # the scheduled run, which therefore takes the normal push path.
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          RUN_REF: ${{ github.event.inputs.ref || 'dev' }}
         run: |
           # Check for changes to the CSV or the per-shard baseline (handles both
           # modified and newly-created/untracked files). The baseline is checked too
@@ -32,6 +60,22 @@ jobs:
           if git diff --quiet --exit-code -- src/open-data/CommitmentDiscountEligibility.csv src/open-data/CommitmentDiscountEligibility.shardcounts.json 2>/dev/null && \
              ! git ls-files --others --exclude-standard -- src/open-data/ | grep -qE 'CommitmentDiscountEligibility\.(csv|shardcounts\.json)'; then
             echo "No changes detected"
+            exit 0
+          fi
+
+          if [ "$DRY_RUN" = "true" ]; then
+            {
+              echo "### Dry run: data changed, nothing pushed"
+              echo ""
+              echo "Ran the fetch against \`${RUN_REF}\` and detected changes, but \`dry_run\` was set, so no branch was pushed."
+              echo ""
+              echo '```'
+              git --no-pager diff --stat -- src/open-data/CommitmentDiscountEligibility.csv src/open-data/CommitmentDiscountEligibility.shardcounts.json || true
+              # --stat covers tracked files only, so list any newly created ones too.
+              git ls-files --others --exclude-standard -- src/open-data/ | grep -E 'CommitmentDiscountEligibility\.(csv|shardcounts\.json)' | sed 's/^/new file: /' || true
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "Dry run: changes detected, not pushing."
             exit 0
           fi
 
@@ -47,7 +91,7 @@ jobs:
           {
             echo "### Commitment discount eligibility data updated"
             echo ""
-            echo "Pushed branch \`${BRANCH}\`. GitHub Actions cannot open PRs in this repo, so open it manually:"
+            echo "Pushed branch \`${BRANCH}\` (fetched from \`${RUN_REF}\`). GitHub Actions cannot open PRs in this repo, so open it manually:"
             echo ""
             echo "[**Create pull request →**](${PR_URL})"
             echo ""
