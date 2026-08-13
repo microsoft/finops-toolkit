@@ -1,9 +1,11 @@
 {
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "finops-toolkit",
-  "description": "Microsoft FinOps toolkit plugin for AI-powered cloud financial management.",
   "owner": {
     "name": "Microsoft"
+  },
+  "metadata": {
+    "description": "Microsoft FinOps toolkit plugin for AI-powered cloud financial management.",
+    "version": "15.0.0"
   },
   "plugins": [
     {

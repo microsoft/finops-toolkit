@@ -84,12 +84,11 @@ _Released June 2026_
 - **Fixed**
   - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` in the [data dictionary](help/data-dictionary.md) to align with FOCUS 1.2 ([#2112](https://github.com/microsoft/finops-toolkit/pull/2112)).
 
-### Claude Code plugin v15
+### FinOps toolkit agent plugins v15
 
 - **Added**
-  - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management ([#2043](https://github.com/microsoft/finops-toolkit/pull/2043)).
-  - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
-  - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
+  - Added a shared FinOps Toolkit plugin for Claude Code and GitHub Copilot CLI with 5 agents (CFO, FinOps practitioner, database query, hubs agent, and Azure capacity manager), 4 commands (`/ftk/hubs-connect`, `/ftk/hubs-health-check`, `/ftk/mom-report`, and `/ftk/ytd-report`), a FinOps hubs KQL skill, and a read-only Azure MCP server.
+  - Published marketplace entries and repository discovery so the plugin installs with `copilot plugin install microsoft/finops-toolkit`.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v15
 

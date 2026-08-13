@@ -57,15 +57,17 @@ Describe 'update-mslearn-dates GitHub Action' {
     }
 
     Context 'Workflow steps' {
+        # Actions are pinned to a full 40-character commit SHA (with the human-readable
+        # version in a trailing comment) rather than a floating @vN tag, so these
+        # assertions accept either form. Matching only @vN made the suite fail the
+        # moment the workflows were hardened.
         It 'Should checkout the PR branch' {
-            # Actions are pinned to full-length commit SHAs (with a version comment), not tags.
-            $workflowContent | Should -Match 'uses:\s*actions/checkout@([0-9a-f]{40}|v\d+)'
+            $workflowContent | Should -Match 'uses:\s*actions/checkout@(?:[0-9a-f]{40}|v\d+)'
             $workflowContent | Should -Match 'ref:\s*\$\{\{\s*github\.head_ref\s*\}\}'
         }
 
         It 'Should use changed-files action' {
-            # Actions are pinned to full-length commit SHAs (with a version comment), not tags.
-            $workflowContent | Should -Match 'uses:\s*tj-actions/changed-files@([0-9a-f]{40}|v\d+)'
+            $workflowContent | Should -Match 'uses:\s*tj-actions/changed-files@(?:[0-9a-f]{40}|v\d+)'
         }
 
         It 'Should filter changed-files to docs-mslearn markdown' {
