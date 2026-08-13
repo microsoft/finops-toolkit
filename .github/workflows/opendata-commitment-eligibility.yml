@@ -8,21 +8,25 @@ on:
       ref:
         # The scheduled run always uses dev. This input exists so a change to the fetch
         # script can be exercised end-to-end from its PR branch BEFORE merging, which
-        # matters for a job that only runs weekly and takes ~15 minutes to fail. Only
+        # matters for a job that only runs weekly and takes ~35 minutes to fail. Only
         # users with write access can dispatch a workflow, so this does not widen who
         # can run code in the repo.
-        description: 'Branch to check out and run the script from'
+        #
+        # A non-dev ref is TEST-ONLY and is enforced as such by the guard step below:
+        # pushing a data branch built from a feature ref would carry that ref's code
+        # commits into the data PR, so the combination is rejected rather than merely
+        # discouraged.
+        description: 'Branch to check out and run the script from (non-dev requires dry_run)'
         required: false
         default: 'dev'
         type: string
       dry_run:
-        # Pair this with a non-dev ref when testing: the fetch and the change detection
-        # still run, but no opendata/* branch is pushed, so a test does not leave stray
-        # branches behind. A real run from a non-dev ref would also base its data branch
-        # on that ref, which is usually not what you want.
+        # Defaults to true so the safe path is also the default one. A real data push is
+        # therefore always an explicit choice, and the scheduled run (where this input is
+        # absent entirely, not false) is unaffected -- see the DRY_RUN env note below.
         description: 'Fetch and detect changes only; do not push a branch'
         required: false
-        default: false
+        default: true
         type: boolean
 
 permissions:
@@ -31,8 +35,25 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # Two full traversals per price type (fetch + verification) run ~35-40 minutes; the
+    # headroom above that absorbs Retry-After backoff on a throttled run.
+    timeout-minutes: 90
     steps:
+      # Fail before the ~35-minute fetch rather than after it, so an invalid input
+      # combination costs seconds instead of most of an hour.
+      - name: Validate dispatch inputs
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          RUN_REF: ${{ github.event.inputs.ref || 'dev' }}
+        run: |
+          if [ "$RUN_REF" != "dev" ] && [ "$DRY_RUN" != "true" ]; then
+            echo "::error::ref='$RUN_REF' is not 'dev' and dry_run is not true. A push from a" \
+                 "non-dev ref would base the opendata/* branch on that ref, so the data PR" \
+                 "would carry its code commits as well as the data update. Re-run with" \
+                 "dry_run enabled to test a branch, or with ref='dev' to publish data."
+            exit 1
+          fi
+
       # github.event.inputs is null for the scheduled run, so this falls back to dev.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -49,8 +70,9 @@ jobs:
         env:
           # Read as a string and compared as one below. A `type: boolean` input arrives
           # here as the literal "true"/"false", and in a GitHub `if:` expression the
-          # string "false" is truthy -- comparing in bash sidesteps that trap. Empty for
-          # the scheduled run, which therefore takes the normal push path.
+          # string "false" is truthy -- comparing in bash sidesteps that trap. For the
+          # SCHEDULED run there is no inputs object at all, so this is empty (not the
+          # "true" default), and the run therefore takes the normal push path.
           DRY_RUN: ${{ github.event.inputs.dry_run }}
           RUN_REF: ${{ github.event.inputs.ref || 'dev' }}
         run: |
