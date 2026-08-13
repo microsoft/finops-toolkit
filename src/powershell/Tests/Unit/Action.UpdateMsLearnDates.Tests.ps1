@@ -58,12 +58,14 @@ Describe 'update-mslearn-dates GitHub Action' {
 
     Context 'Workflow steps' {
         It 'Should checkout the PR branch' {
-            $workflowContent | Should -Match 'uses:\s*actions/checkout@v\d+'
+            # Actions are pinned to full-length commit SHAs (with a version comment), not tags.
+            $workflowContent | Should -Match 'uses:\s*actions/checkout@([0-9a-f]{40}|v\d+)'
             $workflowContent | Should -Match 'ref:\s*\$\{\{\s*github\.head_ref\s*\}\}'
         }
 
         It 'Should use changed-files action' {
-            $workflowContent | Should -Match 'uses:\s*tj-actions/changed-files@v\d+'
+            # Actions are pinned to full-length commit SHAs (with a version comment), not tags.
+            $workflowContent | Should -Match 'uses:\s*tj-actions/changed-files@([0-9a-f]{40}|v\d+)'
         }
 
         It 'Should filter changed-files to docs-mslearn markdown' {
