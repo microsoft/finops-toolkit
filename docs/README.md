@@ -233,6 +233,7 @@ Whether you're looking for a little assistance or are interested in contributing
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/TakumiSeo"><img src="https://avatars.githubusercontent.com/u/49015441?v=4?s=100" width="100px;" alt="TakuSe"/><br /><sub><b>TakuSe</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=TakumiSeo" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/apps/dependabot"><img src="https://avatars.githubusercontent.com/in/29110?v=4?s=100" width="100px;" alt="dependabot[bot]"/><br /><sub><b>dependabot[bot]</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=dependabot[bot]" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
