@@ -606,7 +606,7 @@ Related FinOps capabilities:
 - [Data ingestion](../../framework/understand/ingestion.md)
 - [Reporting and analytics](../../framework/understand/reporting.md)
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 
