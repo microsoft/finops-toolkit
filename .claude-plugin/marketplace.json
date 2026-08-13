@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "finops-toolkit",
-  "description": "Microsoft FinOps Toolkit plugins for AI-powered cloud financial management.",
+  "description": "Microsoft FinOps toolkit plugin for AI-powered cloud financial management.",
   "owner": {
     "name": "Microsoft"
   },
@@ -10,9 +10,9 @@
       "name": "microsoft-finops-toolkit",
       "version": "15.0.0",
       "source": "./plugins/microsoft-finops-toolkit",
-      "description": "AI-powered cloud financial management for Azure. Analyze FinOps hub cost data with KQL, get CFO-level reporting, and assess Azure capacity.",
+      "description": "Microsoft FinOps toolkit plugin for AI-powered cloud financial management.",
       "category": "finops",
-      "homepage": "https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/finops-toolkit-overview"
+      "homepage": "https://aka.ms/finops/toolkit"
     },
     {
       "name": "microsoft-learn",

@@ -25,6 +25,14 @@ table AdvisorReservationRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
+	column 'properties.extendedProperties.reservedResourceType'
+		dataType: string
+		lineageTag: 865a01a5-6c7e-4669-9b20-19133445405f
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.reservedResourceType
+
+		annotation SummarizationSetBy = Automatic
+
 	column 'properties.extendedProperties.annualSavingsAmount'
 		dataType: double
 		lineageTag: 09d4b890-7c8d-4ee0-943d-4a9212c7091f
@@ -35,6 +43,15 @@ table AdvisorReservationRecommendations
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	column 'properties.extendedProperties.targetResourceCount'
+		dataType: int64
+		formatString: 0
+		lineageTag: f2f67512-e38d-410d-a77a-1a530a905a36
+		summarizeBy: sum
+		sourceColumn: properties.extendedProperties.targetResourceCount
+
+		annotation SummarizationSetBy = Automatic
+
 	column 'properties.extendedProperties.savingsCurrency'
 		dataType: string
 		lineageTag: 26882091-cceb-4825-8f25-e57c49d2353e
@@ -44,9 +61,10 @@ table AdvisorReservationRecommendations
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.extendedProperties.lookbackPeriod'
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 82a3a6d5-01c1-4db7-be17-572b62ceb699
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: properties.extendedProperties.lookbackPeriod
 
 		annotation SummarizationSetBy = Automatic
@@ -60,6 +78,47 @@ table AdvisorReservationRecommendations
 		annotation SummarizationSetBy = Automatic
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'properties.extendedProperties.displaySKU'
+		dataType: string
+		lineageTag: 20289648-2bc4-4c25-b1b0-826abefd04cb
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.displaySKU
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.displayQty'
+		dataType: int64
+		formatString: 0
+		lineageTag: 886d306c-f180-4676-8cd0-5ec56d7feb04
+		summarizeBy: sum
+		sourceColumn: properties.extendedProperties.displayQty
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.location'
+		dataType: string
+		lineageTag: 42e5826c-0b31-4819-b7e0-319ecea32fea
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.location
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.region'
+		dataType: string
+		lineageTag: c6c5edcb-3e8f-464c-86a0-bb54b943e817
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.region
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.vmSize'
+		dataType: string
+		lineageTag: 8fed315f-01e6-4b99-8881-931664de1eae
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.vmSize
+
+		annotation SummarizationSetBy = Automatic
 
 	column 'properties.extendedProperties.subId'
 		dataType: string
@@ -90,6 +149,15 @@ table AdvisorReservationRecommendations
 		lineageTag: 9754b4be-44c4-46ed-b53a-0cd3c0d3b32c
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.qty'
+		dataType: int64
+		formatString: 0
+		lineageTag: b5c62ce1-3aa8-4e8f-bf60-91b160868d92
+		summarizeBy: sum
+		sourceColumn: properties.extendedProperties.qty
 
 		annotation SummarizationSetBy = Automatic
 
@@ -206,9 +274,17 @@ table AdvisorReservationRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
+	column recommendedActions
+		dataType: string
+		lineageTag: e7e9e023-cf8c-4c71-b652-4481af19b173
+		summarizeBy: none
+		sourceColumn: recommendedActions
+
+		annotation SummarizationSetBy = Automatic
+
 	column 'properties.shortDescription'
 		dataType: string
-		lineageTag: 34fae73f-1cea-4fab-8ee4-9c406b4e5de2
+		lineageTag: 5ed5ac30-eac0-4e94-8539-9092867e2a8e
 		summarizeBy: none
 		sourceColumn: properties.shortDescription
 
@@ -216,121 +292,9 @@ table AdvisorReservationRecommendations
 
 	column 'properties.resourceMetadata'
 		dataType: string
-		lineageTag: 6399ea0e-c284-4fb8-84e4-a8994d38b8d2
+		lineageTag: 42f6c299-bcec-47a5-ad78-cb16c57a372f
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata
-
-		annotation SummarizationSetBy = Automatic
-
-	column type
-		dataType: string
-		lineageTag: 16f6fad3-9392-43a0-8414-17d80c82489b
-		summarizeBy: none
-		sourceColumn: type
-
-		annotation SummarizationSetBy = Automatic
-
-	column tenantId
-		dataType: string
-		lineageTag: 944b83f2-1e35-43d1-b712-f8488a690464
-		summarizeBy: none
-		sourceColumn: tenantId
-
-		annotation SummarizationSetBy = Automatic
-
-	column kind
-		dataType: string
-		lineageTag: a16fb1e8-681c-4133-8c2b-ac38888c4f0a
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
-	column location
-		dataType: string
-		lineageTag: 3702fe61-d409-4c8d-8be1-cba17061e33e
-		summarizeBy: none
-		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: bbcbb6da-7975-49eb-8f02-f2d7dcb5dc0f
-		summarizeBy: none
-		sourceColumn: resourceGroup
-
-		annotation SummarizationSetBy = Automatic
-
-	column subscriptionId
-		dataType: string
-		lineageTag: c90deea5-7ac8-438f-a194-7d97640da5f9
-		summarizeBy: none
-		sourceColumn: subscriptionId
-
-		annotation SummarizationSetBy = Automatic
-
-	column managedBy
-		dataType: string
-		lineageTag: 32f1ed8e-b5fc-40f8-a90e-2e1f87171ace
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: 482c2e98-e7f4-40fe-8a05-1fd4a70f6fee
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: c59c57c5-74ab-41de-af37-a23d1dca2ecc
-		summarizeBy: none
-		sourceColumn: plan
-
-		annotation SummarizationSetBy = Automatic
-
-	column properties
-		dataType: string
-		lineageTag: 8d40212f-93f6-489a-8a48-002238128415
-		summarizeBy: none
-		sourceColumn: properties
-
-		annotation SummarizationSetBy = Automatic
-
-	column tags
-		dataType: string
-		lineageTag: 959f8886-ecee-40bc-b1b7-78d0684f2d66
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: 2c5dfecb-d165-4f56-8a05-bad2ba1e07cc
-		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: 2af41178-da35-4296-bfea-d430c5f24fe2
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: 63619dfc-ce80-4af4-b3a1-345ab5604a66
-		summarizeBy: none
-		sourceColumn: extendedLocation
 
 		annotation SummarizationSetBy = Automatic
 
@@ -469,79 +433,90 @@ table AdvisorReservationRecommendations
 	partition AdvisorReservationRecommendations = m
 		mode: import
 		queryGroup: 'Resource Graph'
-		source = ```
+		source =
 				let
-				  Source = AzureResourceGraph.Query("
-				
-				
-				  advisorresources 
-				  | where type == 'microsoft.advisor/recommendations'
-				  | where properties.category == 'Cost'
-				  | extend
-				    ['properties.recommendationTypeId'] = properties.recommendationTypeId,
-				    ['properties.shortDescription'] = properties.shortDescription,
-				    ['properties.resourceMetadata'] = properties.resourceMetadata,
-				    ['properties.suppressionIds'] = properties.suppressionIds,
-				    ['properties.impactedField'] = properties.impactedField,
-				    ['properties.impactedValue'] = properties.impactedValue,
-				    ['properties.lastUpdated'] = properties.lastUpdated,
-				    ['properties.category'] = properties.category,
-				    ['properties.metadata'] = properties.metadata,
-				    ['properties.impact'] = properties.impact,
-				    ['properties.shortDescription.problem'] = properties.shortDescription.problem,
-				    ['properties.shortDescription.solution'] = properties.shortDescription.solution,
-				    ['properties.extendedProperties.ObservationPeriodStartDate'] = properties.extendedProperties.ObservationPeriodStartDate,
-				    ['properties.extendedProperties.ObservationPeriodEndDate'] = properties.extendedProperties.ObservationPeriodEndDate,
-				    ['properties.extendedProperties.annualSavingsAmount'] = coalesce(properties.extendedProperties.annualSavingsAmount, 0),
-				    ['properties.extendedProperties.HasRecommendation'] = properties.extendedProperties.HasRecommendation,
-				    ['properties.extendedProperties.savingsCurrency'] = properties.extendedProperties.savingsCurrency,
-				    ['properties.extendedProperties.IsInReplication'] = properties.extendedProperties.IsInReplication,
-				    ['properties.extendedProperties.Recommended_DTU'] = properties.extendedProperties.Recommended_DTU,
-				    ['properties.extendedProperties.Recommended_SKU'] = properties.extendedProperties.Recommended_SKU,
-				    ['properties.extendedProperties.ResourceGroup'] = tolower(properties.extendedProperties.ResourceGroup),
-				    ['properties.extendedProperties.savingsAmount'] = coalesce(properties.extendedProperties.savingsAmount, 0),
-				    ['properties.extendedProperties.DatabaseSize'] = properties.extendedProperties.DatabaseSize,
-				    ['properties.extendedProperties.DatabaseName'] = properties.extendedProperties.DatabaseName,
-				    ['properties.extendedProperties.ServerName'] = properties.extendedProperties.ServerName,
-				    ['properties.extendedProperties.Region'] = properties.extendedProperties.Region,
-				    ['properties.extendedProperties.lookbackPeriod'] = properties.extendedProperties.lookbackPeriod,
-				    ['properties.extendedProperties.subId'] = properties.extendedProperties.subId,
-				    ['properties.extendedProperties.scope'] = properties.extendedProperties.scope,
-				    ['properties.extendedProperties.term'] = properties.extendedProperties.term,
-				    ['properties.extendedProperties.sku'] = properties.extendedProperties.sku,
-				    ['properties.extendedProperties.commitment'] = properties.extendedProperties.commitment,
-				    ['properties.extendedProperties.currentSku'] = properties.extendedProperties.currentSku,
-				    ['properties.extendedProperties.targetSku'] = properties.extendedProperties.targetSku,
-				    ['properties.extendedProperties.recommendationMessage'] = properties.extendedProperties.recommendationMessage,
-				    ['properties.resourceMetadata.resourceId'] = tolower(properties.resourceMetadata.resourceId),
-				    ['properties.resourceMetadata.singular'] = properties.resourceMetadata.singular,
-				    ['properties.resourceMetadata.plural'] = properties.resourceMetadata.plural,
-				    ['properties.resourceMetadata.action'] = properties.resourceMetadata.action,
-				    ['properties.resourceMetadata.source'] = properties.resourceMetadata.source,
-				    SortOrder = case(properties.impact == 'High', 1, properties.impact == 'Medium', 2, properties.impact == 'Low', 3, 9)
-				
-				
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = true]),
+				  query = "
+				    advisorresources
+				    | where type == 'microsoft.advisor/recommendations'
+				    | where properties.category == 'Cost'
+				    | where properties.shortDescription.solution == 'Consider virtual machine reserved instance to save over your on-demand costs'
+				    | extend
+				      ['properties.recommendationTypeId'] = properties.recommendationTypeId,
+				      ['properties.shortDescription'] = properties.shortDescription,
+				      ['properties.resourceMetadata'] = properties.resourceMetadata,
+				      ['properties.suppressionIds'] = properties.suppressionIds,
+				      ['properties.impactedField'] = properties.impactedField,
+				      ['properties.impactedValue'] = properties.impactedValue,
+				      ['properties.lastUpdated'] = todatetime(properties.lastUpdated),
+				      ['properties.category'] = properties.category,
+				      ['properties.metadata'] = properties.metadata,
+				      ['properties.impact'] = properties.impact,
+				      ['properties.shortDescription.problem'] = properties.shortDescription.problem,
+				      ['properties.shortDescription.solution'] = properties.shortDescription.solution,
+				      ['properties.extendedProperties.ObservationPeriodStartDate'] = properties.extendedProperties.ObservationPeriodStartDate,
+				      ['properties.extendedProperties.ObservationPeriodEndDate'] = properties.extendedProperties.ObservationPeriodEndDate,
+				      ['properties.extendedProperties.reservedResourceType'] = properties.extendedProperties.reservedResourceType,
+				      ['properties.extendedProperties.annualSavingsAmount'] = coalesce(properties.extendedProperties.annualSavingsAmount, 0),
+				      ['properties.extendedProperties.targetResourceCount'] = toint(properties.extendedProperties.targetResourceCount),
+				      ['properties.extendedProperties.HasRecommendation'] = properties.extendedProperties.HasRecommendation,
+				      ['properties.extendedProperties.savingsCurrency'] = properties.extendedProperties.savingsCurrency,
+				      ['properties.extendedProperties.IsInReplication'] = properties.extendedProperties.IsInReplication,
+				      ['properties.extendedProperties.Recommended_DTU'] = properties.extendedProperties.Recommended_DTU,
+				      ['properties.extendedProperties.Recommended_SKU'] = properties.extendedProperties.Recommended_SKU,
+				      ['properties.extendedProperties.ResourceGroup'] = tolower(properties.extendedProperties.ResourceGroup),
+				      ['properties.extendedProperties.lookbackPeriod'] = properties.extendedProperties.lookbackPeriod,
+				      ['properties.extendedProperties.savingsAmount'] = coalesce(properties.extendedProperties.savingsAmount, 0),
+				      ['properties.extendedProperties.DatabaseSize'] = properties.extendedProperties.DatabaseSize,
+				      ['properties.extendedProperties.DatabaseName'] = properties.extendedProperties.DatabaseName,
+				      ['properties.extendedProperties.ServerName'] = properties.extendedProperties.ServerName,
+				      ['properties.extendedProperties.Region'] = properties.extendedProperties.Region,
+				      ['properties.extendedProperties.displaySKU'] = properties.extendedProperties.displaySKU,
+				      ['properties.extendedProperties.displayQty'] = toint(properties.extendedProperties.displayQty),
+				      ['properties.extendedProperties.location'] = properties.extendedProperties.location,
+				      ['properties.extendedProperties.region'] = properties.extendedProperties.region,
+				      ['properties.extendedProperties.vmSize'] = properties.extendedProperties.vmSize,
+				      ['properties.extendedProperties.subId'] = properties.extendedProperties.subId,
+				      ['properties.extendedProperties.scope'] = properties.extendedProperties.scope,
+				      ['properties.extendedProperties.term'] = properties.extendedProperties.term,
+				      ['properties.extendedProperties.sku'] = properties.extendedProperties.sku,
+				      ['properties.extendedProperties.qty'] = toint(properties.extendedProperties.qty),
+				      ['properties.extendedProperties.commitment'] = properties.extendedProperties.commitment,
+				      ['properties.extendedProperties.currentSku'] = properties.extendedProperties.currentSku,
+				      ['properties.extendedProperties.targetSku'] = properties.extendedProperties.targetSku,
+				      ['properties.extendedProperties.recommendationMessage'] = properties.extendedProperties.recommendationMessage,
+				      ['properties.resourceMetadata.resourceId'] = tolower(properties.resourceMetadata.resourceId),
+				      ['properties.resourceMetadata.singular'] = properties.resourceMetadata.singular,
+				      ['properties.resourceMetadata.plural'] = properties.resourceMetadata.plural,
+				      ['properties.resourceMetadata.action'] = properties.resourceMetadata.action,
+				      ['properties.resourceMetadata.source'] = properties.resourceMetadata.source,
+				      recommendedActions = iff(isnotempty(properties.extendedProperties.displaySKU), strcat(properties.extendedProperties.displaySKU, ' virtual machines in ', properties.extendedProperties.location), tostring(properties.shortDescription.solution)),
+				      SortOrder = case(properties.impact == 'High', 1, properties.impact == 'Medium', 2, properties.impact == 'Low', 3, 9)
+				  ",
+				  Source = ftk_QueryARG(query, 2),
 				  NullHandling =
-				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				    if Source = null then
 							#table(
-								{ "id", "name", "type", "properties.recommendationTypeId", "properties.shortDescription", "properties.resourceMetadata", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.category", "properties.metadata", "properties.impact", "properties.shortDescription.problem", "properties.shortDescription.solution", "properties.extendedProperties.ObservationPeriodStartDate", "properties.extendedProperties.ObservationPeriodEndDate", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.HasRecommendation", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.IsInReplication", "properties.extendedProperties.Recommended_DTU", "properties.extendedProperties.Recommended_SKU", "properties.extendedProperties.ResourceGroup", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.DatabaseSize", "properties.extendedProperties.DatabaseName", "properties.extendedProperties.ServerName", "properties.extendedProperties.Region", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.commitment", "properties.extendedProperties.currentSku", "properties.extendedProperties.targetSku", "properties.extendedProperties.recommendationMessage", "properties.resourceMetadata.resourceId", "properties.resourceMetadata.singular", "properties.resourceMetadata.plural", "properties.resourceMetadata.action", "properties.resourceMetadata.source", "SortOrder" },
+								{ "id", "name", "properties.recommendationTypeId", "properties.shortDescription", "properties.resourceMetadata", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.category", "properties.metadata", "properties.impact", "properties.shortDescription.problem", "properties.shortDescription.solution", "properties.extendedProperties.ObservationPeriodStartDate", "properties.extendedProperties.ObservationPeriodEndDate", "properties.extendedProperties.reservedResourceType", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.targetResourceCount", "properties.extendedProperties.HasRecommendation", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.IsInReplication", "properties.extendedProperties.Recommended_DTU", "properties.extendedProperties.Recommended_SKU", "properties.extendedProperties.ResourceGroup", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.DatabaseSize", "properties.extendedProperties.DatabaseName", "properties.extendedProperties.ServerName", "properties.extendedProperties.Region", "properties.extendedProperties.displaySKU", "properties.extendedProperties.displayQty", "properties.extendedProperties.location", "properties.extendedProperties.region", "properties.extendedProperties.vmSize", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.qty", "properties.extendedProperties.commitment", "properties.extendedProperties.currentSku", "properties.extendedProperties.targetSku", "properties.extendedProperties.recommendationMessage", "properties.resourceMetadata.resourceId", "properties.resourceMetadata.singular", "properties.resourceMetadata.plural", "properties.resourceMetadata.action", "properties.resourceMetadata.source", "recommendedActions", "SortOrder" },
 								{}
 							)
 				    else Source,
 				  Types = Table.TransformColumnTypes(NullHandling, {
-				      {"properties.extendedProperties.annualSavingsAmount", type number},
-				      {"properties.extendedProperties.savingsAmount",       type number},
-				      {"SortOrder",                                         type number},
-				      {"properties.extendedProperties.ObservationPeriodStartDate", type datetimezone},
-				      {"properties.extendedProperties.ObservationPeriodEndDate",   type datetimezone},
-				      {"properties.lastUpdated",                                   type datetimezone}
-				    }, "en-US")
+				    {"properties.extendedProperties.annualSavingsAmount",        type number},
+				    {"properties.extendedProperties.savingsAmount",              type number},
+				    {"properties.extendedProperties.qty",                        Int64.Type},
+				    {"properties.extendedProperties.displayQty",                 Int64.Type},
+				    {"properties.extendedProperties.lookbackPeriod",             Int64.Type},
+				    {"properties.extendedProperties.targetResourceCount",        Int64.Type},
+				    {"SortOrder",                                                type number},
+				    {"properties.extendedProperties.ObservationPeriodStartDate", type datetimezone},
+				    {"properties.extendedProperties.ObservationPeriodEndDate",   type datetimezone},
+				    {"properties.lastUpdated",                                   type datetimezone}
+				  }, "en-US"),
+				  // Table.Combine concatenates per-batch results in batch order, so re-sort here to restore SortOrder ordering across the combined table
+				  Sorted = Table.Sort(Types, {{"SortOrder", Order.Ascending}})
 				in
-				  Types
-				```
+				  Sorted
 
 	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Table
-

@@ -34,12 +34,12 @@ Common fields worth checking:
 - `x_BillingProfileName`
 - `x_InvoiceSectionName`
 
-Some environments have strong tag coverage, some rely more on financial hierarchy columns, and some have both. Use only the fields that are observed and meaningfully populated in the reporting period.
+Some environments have strong tag coverage, some rely more on account hierarchy columns, and some have both. Use only the fields that are observed and meaningfully populated in the reporting period.
 
 ## Recommended workflow
 
 ### 1. Inspect populated business fields first
-Start with `cost-by-financial-hierarchy.kql` when billing hierarchy answers the allocation question. Use `costs-enriched-base.kql` or a small direct query against `Costs()` only to inspect a narrow sample of populated tags and enrichment fields:
+Start with `cost-by-financial-hierarchy.kql` when the account hierarchy answers the allocation question. Use `costs-enriched-base.kql` or a small direct query against `Costs()` only to inspect a narrow sample of populated tags and enrichment fields:
 
 ```kusto
 Costs()
@@ -63,7 +63,7 @@ Costs()
 
 Repeat the same pattern for `Tags['product']`, `Tags['application']`, `Tags['environment']`, `x_CostCenter`, or `x_Project` when populated.
 
-### 3. Add financial hierarchy context
+### 3. Add account hierarchy context
 Use `cost-by-financial-hierarchy.kql` when you need business reporting that rolls up through billing ownership and allocation layers.
 
 Example pattern:
@@ -79,7 +79,7 @@ Costs()
 | order by EffectiveCost desc
 ```
 
-This is useful for showback and chargeback because it connects business ownership to the financial hierarchy already present in the hub.
+This is useful for showback and chargeback because it connects business ownership to the account hierarchy already present in the hub.
 
 ### 4. Measure allocation coverage honestly
 Business reporting is only as strong as field coverage.

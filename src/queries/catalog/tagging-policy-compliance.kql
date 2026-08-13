@@ -47,7 +47,7 @@ let tag_compliance = materialize(
     | project tmp_TagsString, tmp_IsCompliant
 );
 base
-| join kind=leftouter tag_compliance on tmp_TagsString
+| lookup kind=leftouter (tag_compliance) on tmp_TagsString
 | summarize
     CompliantEffectiveCost = todouble(sumif(EffectiveCost, tmp_IsCompliant)),
     TotalEffectiveCost = todouble(sum(EffectiveCost))

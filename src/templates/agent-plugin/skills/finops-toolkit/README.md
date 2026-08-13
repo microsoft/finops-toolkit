@@ -82,8 +82,8 @@ See `references/finops-hubs-deployment.md` for deployment methods, scope configu
 | `references/settings-format.md` | `.ftk/environments.local.md` format: named environments with cluster-uri, tenant, subscription |
 | `references/queries/INDEX.md` | Query-to-scenario matrix with parameters and usage guidance for the shipped pre-built KQL queries |
 | `references/queries/finops-hub-database-guide.md` | Full database schema: all four functions, column definitions, enrichment columns, query best practices |
-| `references/workflows/ftk-hubs-connect.md` | Hub discovery via Resource Graph, connection validation, environment persistence |
-| `references/workflows/ftk-hubs-health-check.md` | Version comparison against stable/dev releases, data freshness check |
+| `/ftk/hubs-connect` | Hub discovery via Resource Graph, connection validation, environment persistence |
+| `/ftk/hubs-health-check` | Version comparison against stable/dev releases, data freshness check |
 
 ## Query execution
 

@@ -38,8 +38,8 @@ Load only the references relevant to the task at hand.
 | Power BI setup | `toolkit/power-bi/setup.md`, `toolkit/power-bi/connector.md` |
 | Troubleshooting / errors | `toolkit/help/troubleshooting.md`, `toolkit/help/errors.md` |
 | PowerShell commands | `toolkit/powershell/powershell-commands.md` + the specific command file |
-| Connect to hub for first time | `references/workflows/ftk-hubs-connect.md`, `references/settings-format.md` |
-| Check hub health / version | `references/workflows/ftk-hubs-health-check.md`, `toolkit/hubs/compatibility.md` |
+| Connect to hub for first time | `/ftk/hubs-connect`, `references/settings-format.md` |
+| Check hub health / version | `/ftk/hubs-health-check`, `toolkit/hubs/compatibility.md` |
 
 ## Database functions
 
@@ -120,8 +120,6 @@ For detailed documentation: `references/finops-hubs-deployment.md`
 | [references/settings-format.md](references/settings-format.md) | Format specification for `.ftk/environments.local.md` — named environments with cluster-uri, tenant, subscription, and resource-group. |
 | [references/queries/INDEX.md](references/queries/INDEX.md) | Query catalog with scenario-to-query matrix, parameter docs, and usage guidance for the shipped pre-built KQL queries. |
 | [references/queries/finops-hub-database-guide.md](references/queries/finops-hub-database-guide.md) | Hub database schema: all four functions, column definitions, enrichment columns, and query best practices. **Read before writing custom KQL.** |
-| [references/workflows/ftk-hubs-connect.md](references/workflows/ftk-hubs-connect.md) | Workflow to discover FinOps hub instances via Resource Graph, connect, and save environment config. |
-| [references/workflows/ftk-hubs-health-check.md](references/workflows/ftk-hubs-health-check.md) | Health check workflow: version comparison against stable/dev releases, upgrade guidance, and diagnostic steps. |
 
 ## Microsoft Learn documentation
 

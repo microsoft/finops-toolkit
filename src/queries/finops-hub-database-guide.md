@@ -148,17 +148,16 @@ This example demonstrates how to report costs using the full financial hierarchy
 
 ```kusto
 let numberOfMonths = 1; // Set to desired reporting period
+let GrandTotal = toscalar(
+    Costs()
+    | where ChargePeriodStart >= monthsago(numberOfMonths)
+    | summarize sum(EffectiveCost)
+);
 Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | extend Team = tostring(Tags['team']), Product = tostring(Tags['product']), Application = tostring(Tags['application'])
 | summarize TotalCost = sum(EffectiveCost)
     by x_BillingProfileName, x_InvoiceSectionName, Team, Product, Application
-| join kind=leftouter (
-    Costs()
-    | where ChargePeriodStart >= monthsago(numberOfMonths)
-    | summarize GrandTotal = sum(EffectiveCost)
-)
-on 1 == 1
 | extend PercentOfTotal = 100.0 * TotalCost / GrandTotal
 | project x_BillingProfileName, x_InvoiceSectionName, Team, Product, Application, TotalCost, PercentOfTotal
 | order by TotalCost desc

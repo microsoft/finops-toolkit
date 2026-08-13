@@ -4,7 +4,6 @@
 BeforeAll {
     $script:RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../../..')).Path
     $script:Plugin = Join-Path $script:RepoRoot 'src/templates/agent-plugin'
-    $script:PluginSource = './plugins/microsoft-finops-toolkit'
 }
 
 Describe 'Agent plugin manifest' {
@@ -95,12 +94,14 @@ Describe 'Agent plugin components' {
         $buildScript | Should -Match '\$target = Join-Path \(Split-Path -Path \$source\.FullName -Parent\) \$target'
     }
 
-    It 'Uses the kebab-case health-check command name throughout the plugin' {
+    It 'Uses direct slash commands instead of duplicate workflow references' {
+        Join-Path $script:Plugin 'commands/ftk/hubs-connect.md' | Should -Exist
         Join-Path $script:Plugin 'commands/ftk/hubs-health-check.md' | Should -Exist
-        Join-Path $script:Plugin 'skills/finops-toolkit/references/workflows/ftk-hubs-health-check.md' | Should -Exist
+        Join-Path $script:Plugin 'skills/finops-toolkit/references/workflows/ftk-hubs-connect.md' | Should -Not -Exist
+        Join-Path $script:Plugin 'skills/finops-toolkit/references/workflows/ftk-hubs-health-check.md' | Should -Not -Exist
 
         $content = (Get-ChildItem $script:Plugin -Recurse -File | Get-Content -Raw) -join [Environment]::NewLine
-        $content | Should -Not -Match 'hubs-healthCheck|ftk-hubs-healthCheck'
+        $content | Should -Not -Match 'hubs-healthCheck|ftk-hubs-healthCheck|references/workflows/ftk-hubs-(connect|health-check)'
     }
 
     It 'Does not reference the deprecated Azure MCP command name' {
@@ -163,12 +164,17 @@ Describe 'Plugin discovery and marketplaces' {
         Join-Path $pluginRoot 'plugin.json' | Should -Exist
     }
 
-    It 'Points every marketplace source at the plugin directory' {
-        foreach ($marketplace in @('.github/plugin/marketplace.json', '.claude-plugin/marketplace.json'))
+    It 'Uses repository-root-relative marketplace sources' {
+        $marketplaces = @{
+            '.github/plugin/marketplace.json' = './plugins/microsoft-finops-toolkit'
+            '.claude-plugin/marketplace.json' = './plugins/microsoft-finops-toolkit'
+        }
+
+        foreach ($marketplace in $marketplaces.Keys)
         {
             $json = Get-Content (Join-Path $script:RepoRoot $marketplace) -Raw | ConvertFrom-Json
             $entry = $json.plugins | Where-Object { $_.name -eq 'microsoft-finops-toolkit' }
-            $entry.source | Should -Be $script:PluginSource
+            $entry.source | Should -Be $marketplaces[$marketplace]
         }
     }
 }
