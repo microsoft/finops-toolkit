@@ -7,11 +7,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Install and cache PowerShell modules
-        uses: potatoqualitee/psmodulecache@v6.2.1
+        uses: potatoqualitee/psmodulecache@ee5e9494714abf56f6efbfa51527b2aec5c761b8 # v6.2.1
         with:
           modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester, Az.Accounts, Az.Resources
           shell: pwsh
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
       - name: PowerShellGallery
         shell: pwsh
         run: ./.build/start.ps1 -Task Publish.PsModule -ApiKey ${{ secrets.POWERSHELLGALLERY }}

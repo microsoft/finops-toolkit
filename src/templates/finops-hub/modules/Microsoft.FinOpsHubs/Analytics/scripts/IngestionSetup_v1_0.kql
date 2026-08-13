@@ -840,12 +840,12 @@ ActualCosts_transform_v1_0()
     | project-rename
         PricingQuantity = Quantity,
         x_PricingUnitDescription = UnitOfMeasure
-    | join kind=leftouter (PricingUnits) on x_PricingUnitDescription
-    | join kind=leftouter (Regions) on ResourceLocation
-    | join kind=leftouter (ResourceTypes | project x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
+    | lookup kind=leftouter (PricingUnits) on x_PricingUnitDescription
+    | lookup kind=leftouter (Regions) on ResourceLocation
+    | lookup kind=leftouter (ResourceTypes | project x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
     // TODO: Add the following in 1.2: ServiceSubcategory, PublisherName, x_PublisherCategory, x_Environment, x_ServiceModel
-    | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceName, ServiceCategory) on x_ResourceType
-    | join kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
+    | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceName), take_any(ServiceCategory) by x_ResourceType) on x_ResourceType
+    | lookup kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
@@ -1062,12 +1062,12 @@ AmortizedCosts_transform_v1_0()
     | project-rename
         PricingQuantity = Quantity,
         x_PricingUnitDescription = UnitOfMeasure
-    | join kind=leftouter (PricingUnits) on x_PricingUnitDescription
-    | join kind=leftouter (Regions) on ResourceLocation
-    | join kind=leftouter (ResourceTypes | project x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
+    | lookup kind=leftouter (PricingUnits) on x_PricingUnitDescription
+    | lookup kind=leftouter (Regions) on ResourceLocation
+    | lookup kind=leftouter (ResourceTypes | project x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
     // TODO: Add the following in 1.2: ServiceSubcategory, PublisherName, x_PublisherCategory, x_Environment, x_ServiceModel
-    | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceName, ServiceCategory) on x_ResourceType
-    | join kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
+    | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceName), take_any(ServiceCategory) by x_ResourceType) on x_ResourceType
+    | lookup kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
@@ -1282,7 +1282,7 @@ CommitmentDiscountUsage_transform_v1_0()
     | extend x_ResourceGroupName = tostring(tmp_ResourceDetails.x_ResourceGroupName)
     | extend x_ResourceType      = tostring(tmp_ResourceDetails.x_ResourceType)
     | lookup kind=leftouter (ResourceTypes | distinct x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
-    | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceName, ServiceCategory, x_ServiceModel) on x_ResourceType
+    | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceName), take_any(ServiceCategory), take_any(x_ServiceModel) by x_ResourceType) on x_ResourceType
     //
     // Sort columns and apply final transforms
     | project

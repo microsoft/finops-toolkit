@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/02/2026
+ms.date: 08/12/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -34,6 +34,20 @@ The following section lists features and enhancements that are currently in deve
   - Replaced whole-term `contains` matches with `has` across hub KQL and the query catalog (resource ID paths, licensing phrases, SKU description terms) and added a per-row operator-equivalence regression harness with unit test coverage ([#2220](https://github.com/microsoft/finops-toolkit/pull/2220)).
 - **Fixed**
   - Fixed the `ContractedCost` recompute guard to compare with a null-safe tolerance instead of exact float equality, eliminating millions of no-op rewrites that polluted the `x_SourceValues` audit trail while preserving the null-cost backfill and no longer overwriting an existing cost when the unit price is missing ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
+  - Fixed the SQL VMs without Azure Hybrid Benefit recommendation query to join on the SQL VM `virtualMachineResourceId` instead of a case-sensitive VM name match that skipped VMs with uppercase names and dropped duplicate names, and made all Azure Resource Graph join kinds explicit so no query relies on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+  - Switched dimension enrichment in the v1_0/v1_2 ingestion transforms (`PricingUnits`, `Regions`, `ResourceTypes`, `Services`) from `join` to the broadcast-optimized `lookup` operator and deduplicated the `Services` mapping per resource type to prevent cost row fan-out ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md)
+
+- **Fixed**
+  - Fixed the savings plan workbook summary and details queries silently dropping all but one recommendation per subscription due to an implicit `innerunique` join ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+  - Fixed the AHB workbook "VM Latest Change Last 7 days" tile, which joined the `resourcechanges` record id against the resource id and always returned no rows, and the SQL VM queries, which never matched VMs with uppercase names ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+  - Changed the savings plan workbook subscription name joins to `leftouter` so a recommendation is still shown when its subscription is missing from `resourcecontainers` ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+
+### [FinOps alerts](alerts/finops-alerts-overview.md)
+
+- **Fixed**
+  - Made the idle application gateway and idle public IP query join kinds explicit so they no longer rely on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
 
 ### [Power BI reports](power-bi/reports.md)
 
@@ -51,6 +65,11 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Added a new [Instance size flexibility](open-data.md#instance-size-flexibility) dataset that maps each ARM SKU to its instance size flexibility group and ratio, sourced from the Azure Reservations Catalogs API. It replaces the deprecated ISF ratio files hosted on `ccmstorageprod.blob.core.windows.net` ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+
+**[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**
+
+- **Fixed**
+  - Fixed the commitment discount eligibility dataset refresh so it is reproducible and complete; retired meters now age out and previously missed meters are included ([#2164](https://github.com/microsoft/finops-toolkit/pull/2164)).
 
 -->
 
@@ -88,6 +107,7 @@ _Released June 2026_
 
 - **Fixed**
   - Fixed Power BI storage report refresh errors caused by ISO 8601 duration `x_SkuTerm` values (like `P3Y`) and empty strings in cost exports ([#2174](https://github.com/microsoft/finops-toolkit/issues/2174)).
+  - Paginate Azure Resource Graph queries by subscription to mitigate [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) errors in the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)). Queries still surface a payload size error (rather than silently returning truncated results) if a single batch of subscriptions exceeds the limit; see [Reduce the batch size](help/errors.md#option-1-reduce-the-batch-size) for the mitigation. As part of this change, the `AdvisorRecommendations` and `AdvisorReservationRecommendations` tables now return complete (non-truncated) results per batch, matching every other batched table; previously these two tables silently dropped rows beyond the payload limit instead of erroring.
 
 ### [Data dictionary](help/data-dictionary.md) updates
 

@@ -3,7 +3,7 @@ title: FinOps best practices for Networking
 description: This article outlines proven FinOps practices for networking services, focusing on cost optimization, efficiency improvements, and resource insights.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/12/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -134,7 +134,7 @@ resources
     backendPools = properties.backendAddressPools,
     resourceGroup = strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
 | project id, name, SKUName, SKUTier, SKUCapacity, resourceGroup, subscriptionId
-| join (
+| join kind=inner (
     resources
     | where type =~ 'Microsoft.Network/applicationGateways'
     | mvexpand backendPools = properties.backendAddressPools
@@ -578,8 +578,8 @@ resources
     | mv-expand IPconfig
     | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id)
     | project PublicIpId
-    | join (
-        resource
+    | join kind=inner (
+        resources
         | where type =~ 'Microsoft.Network/publicIPAddresses'
         | extend
             PublicIpId = id,
