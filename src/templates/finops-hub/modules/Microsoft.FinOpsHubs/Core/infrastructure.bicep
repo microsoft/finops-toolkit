@@ -30,7 +30,6 @@ var subnets = !hub.options.privateRouting ? [] : [
     name: finopsHubSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 0)
-      defaultOutboundAccess: !hub.options.natGateway
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -45,7 +44,6 @@ var subnets = !hub.options.privateRouting ? [] : [
     name: scriptSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 1)
-      defaultOutboundAccess: !hub.options.natGateway
       ...(hub.options.natGateway ? {
         natGateway: {
           id: resourceId('Microsoft.Network/natGateways', natGatewayName)
@@ -73,7 +71,6 @@ var subnets = !hub.options.privateRouting ? [] : [
     name: dataExplorerSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 27, 1)
-      defaultOutboundAccess: !hub.options.natGateway
       ...(hub.options.natGateway ? {
         natGateway: {
           id: resourceId('Microsoft.Network/natGateways', natGatewayName)
@@ -211,9 +208,15 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 }
 
 //------------------------------------------------------------------------------
-// NAT Gateway (provides outbound for script-subnet + dataExplorer-subnet when
-// defaultOutboundAccess is disabled; required by the 'Subnets should be private'
-// policy and the September 2025 implicit-outbound retirement)
+// NAT Gateway (provides explicit outbound for script-subnet + dataExplorer-subnet;
+// required by the 'Subnets should be private' policy and the September 2025
+// implicit-outbound retirement)
+//
+// Do not set defaultOutboundAccess on the subnets. Setting it -- at any value, on any
+// subnet in this virtual network -- makes the Deployment Scripts service reject the
+// script storage account with DeploymentScriptStorageAccountWithServiceEndpointEnabled,
+// which fails the deployment before the app layer starts. Attaching the NAT Gateway is
+// what actually routes outbound traffic, so the property is not needed here.
 //------------------------------------------------------------------------------
 
 resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (hub.options.natGateway) {
