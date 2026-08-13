@@ -427,10 +427,11 @@ if ($cachedTotal -gt 0)
 # from the aggregate check by growth elsewhere, so compare each family against its
 # own baseline (when one exists from a prior run). $cachedShardCounts is a hashtable
 # (ConvertFrom-Json -AsHashtable), so index its sections by key -- but it is $null
-# until a baseline file exists, and PowerShell throws "Cannot index into a null array"
-# rather than yielding $null, so the section lookup MUST be guarded. The baseline has
-# never existed in CI (the job has never completed a successful run), so this is the
-# path every first run takes.
+# when no baseline sidecar exists, and PowerShell throws "Cannot index into a null
+# array" rather than yielding $null, so the section lookup MUST be guarded. The sidecar
+# is committed next to the CSV, so a normal CI run does have one; this path is taken
+# when running against a fresh -OutputPath (as a local test run does) or if the sidecar
+# is ever removed.
 $riBaseline = if ($cachedShardCounts) { $cachedShardCounts['Reservation'] } else { $null }
 $spBaseline = if ($cachedShardCounts) { $cachedShardCounts['Consumption'] } else { $null }
 
