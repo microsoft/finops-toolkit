@@ -17,19 +17,35 @@
     Reserved Instances and/or Savings Plans. Outputs a CSV file that can be used as
     open data for FinOps Hub ingestion and PowerShell module lookups.
 
-    Each price type is fetched in a single traversal that follows the documented
-    NextPageLink verbatim -- no $top, no $orderby (a multi-field $orderby is rejected
-    by the API with HTTP 400), no client-side $skip. The same pass records both the
-    eligible meterIds and a per-serviceFamily count, so the completeness guard below
-    gets its per-family baseline for free.
+    Each price type is fetched by a traversal that follows the documented NextPageLink
+    verbatim -- no $top, no $orderby (a multi-field $orderby is rejected by the API with
+    HTTP 400), no client-side $skip. The same pass records both the eligible meterIds and
+    the per-serviceFamily key sets, so the historical guards below get their per-family
+    baseline for free.
 
-    Data integrity rests on the completeness guard, not on re-fetching. Before writing,
-    the run is compared against the previously published data in aggregate AND per
-    serviceFamily; either check falling more than -MaxShrinkFraction below its baseline
-    aborts the run, so an incomplete fetch can never overwrite good open data with
-    missing eligibility. The per-family check is what catches a single family that
-    silently under-fetches, which an aggregate-only floor would miss when growth
-    elsewhere masks it.
+    Data integrity rests on TWO independent mechanisms, because neither alone is
+    sufficient:
+
+    1. Verification traversal (the completeness signal). Every price type is traversed
+       TWICE and the two meterId sets are compared directly. This is what actually
+       detects an incomplete fetch: it needs no historical baseline, so unlike a count
+       comparison it catches a paging regression that drops meters uniformly, one that
+       drops old meters while new ones offset the count, and one that misses brand-new
+       meters entirely. The published set is the UNION of both passes, so a meter missed
+       by one pass is still recovered. The symmetric difference between the passes is
+       reported on every run and aborts it above -MaxVerifyDrift.
+
+       A small non-zero difference is expected rather than alarming: the catalogue is
+       live, so a meter may legitimately appear or disappear during the ~20 minutes
+       between the start of pass 1 and the end of pass 2. -MaxVerifyDrift separates that
+       churn from a genuine paging fault.
+
+    2. Historical guards (the regression net). The run is compared against the previously
+       published data in aggregate AND per serviceFamily; either falling more than
+       -MaxShrinkFraction below its baseline aborts before writing. These are retained
+       because they catch what the verification traversal structurally cannot: a
+       DETERMINISTIC omission that both passes share, which set comparison sees as
+       perfect agreement. They are a backstop, not the completeness signal.
 
     History: this script previously sharded each query by serviceFamily and repeated
     every shard until its meterId set stopped growing, to work around a period when the
@@ -40,32 +56,62 @@
     telemetry in CI on 2026-08-12 showed every repeat pass across all 22 shards adding
     exactly zero meters while costing 2-3x the traversal volume -- and the shard list
     required a full discovery traversal per price type, which alone consumed 25 of the
-    job's 60 minutes and pushed the run into its timeout. The workaround was therefore
-    removed in favour of the guards. If the instability returns, the guards abort the
-    run loudly rather than publishing partial data; that is the intended behaviour and
-    the signal to reopen the case.
+    job's 60 minutes and pushed the run into its timeout.
+
+    What replaced it is bounded rather than absent: exactly two passes, no shard
+    discovery, so the cost is 2x the item volume instead of the old unbounded repeat-
+    until-stable across 22 shards on top of discovery. If the instability returns, the
+    verification traversal aborts the run loudly rather than publishing partial data;
+    that is the intended behaviour and the signal to reopen the case.
 
     .PARAMETER OutputPath
     Path to the output CSV file. Defaults to src/open-data/CommitmentDiscountEligibility.csv.
+
+    .PARAMETER MaxShrinkFraction
+    Historical guard tolerance. See the .DESCRIPTION notes on mechanism 2.
+
+    .PARAMETER MaxVerifyDrift
+    Verification traversal tolerance. See the .DESCRIPTION notes on mechanism 1.
+
+    .PARAMETER SkipVerify
+    Skips the verification traversal, halving the runtime. For local iteration only --
+    it disables the completeness signal, so the output must not be published.
 
     .EXAMPLE
     ./Update-CommitmentDiscountEligibility.ps1
 
     .EXAMPLE
     ./Update-CommitmentDiscountEligibility.ps1 -OutputPath ./output/eligibility.csv
+
+    .EXAMPLE
+    ./Update-CommitmentDiscountEligibility.ps1 -OutputPath ./scratch/eligibility.csv -SkipVerify
+    Fast local run for iterating on the script. Not publishable -- see -SkipVerify.
 #>
 
 [CmdletBinding()]
 param(
     [string]$OutputPath = "$PSScriptRoot/../open-data/CommitmentDiscountEligibility.csv",
 
-    # Completeness guard: abort without writing if this run's meter total falls more
+    # Historical guard: abort without writing if this run's meter total falls more
     # than this fraction below the previously published row count. Raise it for a
     # deliberate large change (e.g. an initial migration that sheds retired meters).
     # Constrained to 0..1: a value >1 would make the floor negative and silently
     # disable the guard.
     [ValidateRange(0.0, 1.0)]
-    [double]$MaxShrinkFraction = 0.15
+    [double]$MaxShrinkFraction = 0.15,
+
+    # Verification guard: abort if the two traversals of a price type disagree on more
+    # than this fraction of their combined meterId set. Sized to pass genuine catalogue
+    # churn over the ~20 minutes the two passes span (empirically a handful of meters
+    # out of ~92k, i.e. well under 0.01%) while failing the June-2026 style fault, which
+    # dropped a scattered PERCENTAGE of rows. Set to 0 to require exact agreement.
+    [ValidateRange(0.0, 1.0)]
+    [double]$MaxVerifyDrift = 0.001,
+
+    # Local-iteration escape hatch. Halves the runtime by skipping the verification
+    # traversal, which is the completeness signal -- output from such a run must not be
+    # published. CI never sets this.
+    [switch]$SkipVerify
 )
 
 $ErrorActionPreference = 'Stop'
@@ -212,11 +258,19 @@ function Get-EligibleMeter
         per-serviceFamily counts in the same pass.
 
         .DESCRIPTION
-        Returns @{ Keys = @{ meterId -> $true }; FamilyCounts = @{ family -> count };
-        Items = <items walked>; Pages = <pages fetched> }.
+        Returns @{ Keys = @{ meterId -> $true }; FamilyKeys = @{ family -> @{ meterId ->
+        $true } }; FamilyCounts = @{ family -> count }; Items = <items walked>;
+        Pages = <pages fetched> }.
 
         $CollectKey receives an item and returns the meterId to record, or $null to skip
         it (used to gate Savings Plan eligibility on a non-empty savingsPlan).
+
+        FamilyKeys is returned alongside FamilyCounts because two passes cannot be merged
+        from counts alone -- unioning the meterId sets is what makes the merged per-family
+        count correct rather than an approximation. Taking the max of the two counts would
+        UNDERCOUNT a family whose passes each missed a different meter (pass 1 sees {a,b},
+        pass 2 sees {a,c}: the union is 3, the max is 2). FamilyCounts is derived from the
+        sets for callers that only need the totals.
 
         FamilyCounts counts DISTINCT COLLECTED meterIds per family, matching what the
         sharded implementation persisted, so an existing baseline stays comparable. A
@@ -272,9 +326,113 @@ function Get-EligibleMeter
 
     return @{
         Keys         = $keys
+        FamilyKeys   = $familyKeys
         FamilyCounts = $familyCounts
         Items        = $segment.Items
         Pages        = $segment.Pages
+    }
+}
+
+function Get-VerifiedEligibleMeter
+{
+    <#
+        .SYNOPSIS
+        Traverses one price type twice and returns the union of the two passes, aborting
+        if they disagree on more than $MaxVerifyDrift of their combined meterId set.
+
+        .DESCRIPTION
+        This is the completeness signal described in the script's .DESCRIPTION. It is
+        deliberately independent of any historical baseline: the two passes are compared
+        against EACH OTHER, so a paging fault is caught on the run that suffers it rather
+        than inferred from how the totals moved since last week.
+
+        The published set is the UNION, not the intersection: if exactly one pass missed a
+        meter, the meter is real and belongs in the output. The intersection would let a
+        faulty pass silently delete rows, which is the very failure this guards against.
+
+        Per-family sets are unioned in the same way so the persisted baseline describes
+        the data actually written.
+
+        Returns the same shape as Get-EligibleMeter, plus @{ VerifyDrift = <fraction>;
+        OnlyFirst = <count>; OnlySecond = <count> }.
+    #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '',
+        Justification = 'Filter/MeterRegion/CollectKey/ActivityName are forwarded to Get-EligibleMeter via splatting, which the analyzer cannot trace. Target must be empty to suppress on PSScriptAnalyzer 1.x.')]
+    param(
+        [string]$Filter,
+        [string]$MeterRegion,
+        [scriptblock]$CollectKey,
+        [string]$ActivityName,
+        [double]$MaxVerifyDrift,
+        [switch]$SkipVerify
+    )
+
+    $fetchArgs = @{
+        Filter      = $Filter
+        MeterRegion = $MeterRegion
+        CollectKey  = $CollectKey
+    }
+
+    $first = Get-EligibleMeter @fetchArgs -ActivityName $ActivityName
+    Write-Host "  Pass 1: walked $($first.Items) items over $($first.Pages) pages, $($first.Keys.Count) eligible meters across $($first.FamilyCounts.Count) service families"
+
+    if ($SkipVerify)
+    {
+        Write-Warning "  Verification traversal SKIPPED (-SkipVerify). Output is not publishable."
+        return $first + @{ VerifyDrift = [double]0; OnlyFirst = 0; OnlySecond = 0 }
+    }
+
+    $second = Get-EligibleMeter @fetchArgs -ActivityName "$ActivityName (verification)"
+    Write-Host "  Pass 2: walked $($second.Items) items over $($second.Pages) pages, $($second.Keys.Count) eligible meters across $($second.FamilyCounts.Count) service families"
+
+    # Symmetric difference. Counted in both directions because they mean different
+    # things: OnlySecond is a meter pass 1 missed (or one that appeared mid-run),
+    # OnlyFirst is a meter pass 2 missed (or one retired mid-run). Either direction is
+    # evidence of a fault when it is large.
+    $onlyFirst = 0
+    foreach ($key in $first.Keys.Keys) { if (-not $second.Keys.ContainsKey($key)) { $onlyFirst++ } }
+    $onlySecond = 0
+    foreach ($key in $second.Keys.Keys) { if (-not $first.Keys.ContainsKey($key)) { $onlySecond++ } }
+
+    $union = @{}
+    foreach ($key in $first.Keys.Keys) { $union[$key] = $true }
+    foreach ($key in $second.Keys.Keys) { $union[$key] = $true }
+
+    # Guard the division: an empty union would otherwise throw rather than report a
+    # (correctly) zero drift.
+    $drift = if ($union.Count -gt 0) { ($onlyFirst + $onlySecond) / $union.Count } else { [double]0 }
+
+    Write-Host "  Verification: $($union.Count) meters in union, $onlyFirst only in pass 1, $onlySecond only in pass 2 (drift $([Math]::Round($drift * 100, 4))%)"
+
+    if ($drift -gt $MaxVerifyDrift)
+    {
+        throw "Aborting before write: the two traversals of '$Filter' disagreed on $($onlyFirst + $onlySecond) of $($union.Count) meters (drift $([Math]::Round($drift * 100, 4))%, max $([Math]::Round($MaxVerifyDrift * 100, 4))%). The API is likely paging inconsistently again (see support case 2606030050003725); refusing to publish a possibly incomplete set."
+    }
+
+    # Union the per-family sets so the persisted baseline matches the published data.
+    $mergedFamilyKeys = @{}
+    foreach ($source in @($first.FamilyKeys, $second.FamilyKeys))
+    {
+        foreach ($family in $source.Keys)
+        {
+            if (-not $mergedFamilyKeys.ContainsKey($family)) { $mergedFamilyKeys[$family] = @{} }
+            foreach ($key in $source[$family].Keys) { $mergedFamilyKeys[$family][$key] = $true }
+        }
+    }
+
+    $mergedFamilyCounts = @{}
+    foreach ($family in $mergedFamilyKeys.Keys) { $mergedFamilyCounts[$family] = $mergedFamilyKeys[$family].Count }
+
+    return @{
+        Keys         = $union
+        FamilyKeys   = $mergedFamilyKeys
+        FamilyCounts = $mergedFamilyCounts
+        # Reported as the totals actually fetched across both passes.
+        Items        = $first.Items + $second.Items
+        Pages        = $first.Pages + $second.Pages
+        VerifyDrift  = $drift
+        OnlyFirst    = $onlyFirst
+        OnlySecond   = $onlySecond
     }
 }
 
@@ -378,35 +536,39 @@ if (Test-Path $FamilyCountPath)
 }
 
 # -----------------------------------------------------------------------
-# Step 2: Reservation-eligible meters (single traversal)
+# Step 2: Reservation-eligible meters (verified traversal)
+# Reservation is fetched and verified FIRST because it is by far the cheaper of the
+# two (~3 minutes per pass vs ~17). If the API is paging inconsistently, this aborts
+# after ~7 minutes instead of after the ~40 the Consumption passes would add.
 # -----------------------------------------------------------------------
 Write-Host "Fetching Reservation prices..."
-$riResult = Get-EligibleMeter -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -ActivityName 'Fetching Reservation prices' -CollectKey {
+$riResult = Get-VerifiedEligibleMeter -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -ActivityName 'Fetching Reservation prices' -MaxVerifyDrift $MaxVerifyDrift -SkipVerify:$SkipVerify -CollectKey {
     param($item)
     $item.meterId
 }
 $riMeters = $riResult.Keys
-Write-Host "  Walked $($riResult.Items) items over $($riResult.Pages) pages across $($riResult.FamilyCounts.Count) service families"
 Write-Host "  RI-eligible meters: $($riMeters.Count)"
 
 # -----------------------------------------------------------------------
-# Step 3: Savings Plan-eligible meters (single traversal)
+# Step 3: Savings Plan-eligible meters (verified traversal)
 # The savingsPlan array is embedded in Consumption items, so we page through
 # primary Consumption meters and record those with a non-empty savingsPlan.
 # -----------------------------------------------------------------------
 Write-Host "Fetching Consumption prices (checking for Savings Plan eligibility)..."
-$spResult = Get-EligibleMeter -Filter "priceType eq 'Consumption'" -MeterRegion 'primary' -ActivityName 'Fetching Consumption prices' -CollectKey {
+$spResult = Get-VerifiedEligibleMeter -Filter "priceType eq 'Consumption'" -MeterRegion 'primary' -ActivityName 'Fetching Consumption prices' -MaxVerifyDrift $MaxVerifyDrift -SkipVerify:$SkipVerify -CollectKey {
     param($item)
     if ($item.savingsPlan -and $item.savingsPlan.Count -gt 0) { $item.meterId } else { $null }
 }
 $spMeters = $spResult.Keys
-Write-Host "  Walked $($spResult.Items) items over $($spResult.Pages) pages across $($spResult.FamilyCounts.Count) service families"
 Write-Host "  SP-eligible meters: $($spMeters.Count)"
 
 # -----------------------------------------------------------------------
-# Step 3b: Completeness guard. Abort before writing if the meter total dropped
-# materially below the published total -- an incomplete run must never overwrite
-# good open-data (a missed SP flag would flip Eligible -> Not).
+# Step 3b: Historical guards. The verification traversals above are the completeness
+# signal; these catch what set comparison structurally cannot -- a DETERMINISTIC
+# omission that both passes share, which they see as perfect agreement. Abort before
+# writing if the meter total dropped materially below the published total, since an
+# incomplete run must never overwrite good open-data (a missed SP flag would flip
+# Eligible -> Not).
 # -----------------------------------------------------------------------
 $seenSet = @{}
 foreach ($key in $riMeters.Keys) { $seenSet[$key] = $true }
@@ -441,12 +603,12 @@ if ($familyShortfall.Count -gt 0)
 {
     throw "Aborting before write: service family/families fell more than $([Math]::Round($MaxShrinkFraction * 100))% below baseline: $($familyShortfall -join '; '). A family likely under-fetched; refusing to overwrite published data. Raise -MaxShrinkFraction for a deliberate large change."
 }
-Write-Host "Completeness check passed: $seenTotal meters seen this run (cached $cachedTotal)."
+Write-Host "Historical guards passed: $seenTotal meters seen this run (cached $cachedTotal)."
 
 # -----------------------------------------------------------------------
-# Step 4: Build the output from this run's sets (write fresh) and summarize the
-# change versus the previously published CSV. Meters present only in the old CSV are
-# dropped (retired); the guard above already ensured the run is whole.
+# Step 4: Build the output from this run's verified sets (write fresh) and summarize
+# the change versus the previously published CSV. Meters present only in the old CSV
+# are dropped (retired); the verification traversal established that the run is whole.
 # -----------------------------------------------------------------------
 Write-Host "`nBuilding output..."
 $sortedIds = [string[]]($seenSet.Keys | Sort-Object)
@@ -481,6 +643,16 @@ Write-Host "  Added:     $added"
 Write-Host "  Changed:   $changed"
 Write-Host "  Unchanged: $unchanged"
 Write-Host "  Removed:   $removed (retired meters no longer returned by the API)"
+
+# Surfaced on every run, not just failures: a drift that climbs week over week while
+# staying under the threshold is the early warning that the June-2026 paging fault is
+# returning, and it is only visible if the passing value is logged too.
+if (-not $SkipVerify)
+{
+    Write-Host "`nVerification drift (pass 1 vs pass 2):"
+    Write-Host "  Reservation: $([Math]::Round($riResult.VerifyDrift * 100, 4))% ($($riResult.OnlyFirst) only in pass 1, $($riResult.OnlySecond) only in pass 2)"
+    Write-Host "  Consumption: $([Math]::Round($spResult.VerifyDrift * 100, 4))% ($($spResult.OnlyFirst) only in pass 1, $($spResult.OnlySecond) only in pass 2)"
+}
 
 Write-Verbose "Writing CSV to $OutputPath..."
 $writeStart = [DateTime]::UtcNow

@@ -10,7 +10,7 @@ Describe 'Update-CommitmentDiscountEligibility helpers' {
     BeforeAll {
         $scriptPath = Join-Path (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName 'src/scripts/Update-CommitmentDiscountEligibility.ps1'
         $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
-        foreach ($name in 'Get-FamilyShortfall', 'Get-RetryDelay', 'Get-EligibleMeter', 'ConvertTo-SortedMap')
+        foreach ($name in 'Get-FamilyShortfall', 'Get-RetryDelay', 'Get-EligibleMeter', 'ConvertTo-SortedMap', 'Get-VerifiedEligibleMeter')
         {
             $fn = $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name }, $true) | Select-Object -First 1
             if (-not $fn) { throw "Function $name not found in $scriptPath" }
@@ -225,6 +225,163 @@ Describe 'Update-CommitmentDiscountEligibility helpers' {
             $r = Get-EligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -CollectKey $script:allMeters
 
             $r.Pages | Should -Be 1
+        }
+
+        It 'exposes the per-family key sets, not just the counts' {
+            # Get-VerifiedEligibleMeter merges two passes by unioning these sets; counts
+            # alone cannot be merged correctly.
+            $script:items = @(
+                @{ meterId = 'm1'; serviceFamily = 'Compute' },
+                @{ meterId = 'm2'; serviceFamily = 'Compute' }
+            )
+
+            $r = Get-EligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -CollectKey $script:allMeters
+
+            $r.FamilyKeys['Compute'].ContainsKey('m1') | Should -BeTrue
+            $r.FamilyKeys['Compute'].ContainsKey('m2') | Should -BeTrue
+        }
+    }
+
+    Context 'Get-VerifiedEligibleMeter' {
+        # The verification traversal is the completeness signal, so these tests drive it
+        # through the failure modes a historical count comparison cannot see: a uniform
+        # drop, an offsetting drop/add, and a missed brand-new meter.
+        BeforeEach {
+            # Each call to the stub replays the next scripted pass, so pass 1 and pass 2
+            # can be made to disagree.
+            function Get-RetailPriceSegment
+            {
+                [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '',
+                    Justification = 'Stub mirrors the real Get-RetailPriceSegment signature; only OnItem is exercised')]
+                param($Filter, $MeterRegion, $OnItem)
+                $pass = $script:passes[$script:passIndex]
+                $script:passIndex++
+                foreach ($i in $pass) { & $OnItem $i }
+                return @{ Items = @($pass).Count; Pages = 1 }
+            }
+
+            # Defined here rather than at Context scope: Pester does not surface a bare
+            # function declaration in a Context block to the It blocks inside it.
+            function Get-TestMeter
+            {
+                param([string]$Id, [string]$Family = 'Compute')
+                return @{ meterId = $Id; serviceFamily = $Family }
+            }
+
+            $script:passIndex = 0
+            $script:allMeters = { param($item) $item.meterId }
+        }
+
+        It 'returns the meters and zero drift when both passes agree' {
+            $pass = @((Get-TestMeter 'm1'), (Get-TestMeter 'm2'))
+            $script:passes = @($pass, $pass)
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.001 -CollectKey $script:allMeters
+
+            $r.Keys.Count | Should -Be 2
+            $r.VerifyDrift | Should -Be 0
+            $r.OnlyFirst | Should -Be 0
+            $r.OnlySecond | Should -Be 0
+        }
+
+        It 'recovers a meter that pass 2 missed rather than dropping it' {
+            # Publishing the intersection would let a faulty pass silently delete rows.
+            $script:passes = @(
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2')),
+                @((Get-TestMeter 'm1'))
+            )
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 1.0 -CollectKey $script:allMeters
+
+            $r.Keys.Count | Should -Be 2
+            $r.Keys.ContainsKey('m2') | Should -BeTrue
+            $r.OnlyFirst | Should -Be 1
+            $r.OnlySecond | Should -Be 0
+        }
+
+        It 'recovers a meter that pass 1 missed' {
+            $script:passes = @(
+                @((Get-TestMeter 'm1')),
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2'))
+            )
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 1.0 -CollectKey $script:allMeters
+
+            $r.Keys.Count | Should -Be 2
+            $r.OnlyFirst | Should -Be 0
+            $r.OnlySecond | Should -Be 1
+        }
+
+        It 'aborts when the passes disagree beyond the tolerance' {
+            $script:passes = @(
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2')),
+                @((Get-TestMeter 'm1'))
+            )
+
+            # Drift is 1/2 = 50%, far above the default.
+            { Get-VerifiedEligibleMeter -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.001 -CollectKey $script:allMeters } |
+                Should -Throw -ExpectedMessage '*disagreed on 1 of 2 meters*'
+        }
+
+        It 'catches an offsetting drop and add that leaves the count unchanged' {
+            # The failure mode a count-based guard structurally cannot see: same total,
+            # different members.
+            $script:passes = @(
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2')),
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm3'))
+            )
+
+            { Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.001 -CollectKey $script:allMeters } |
+                Should -Throw -ExpectedMessage '*disagreed on 2 of 3 meters*'
+        }
+
+        It 'passes when drift is exactly at the tolerance' {
+            # 1 of 100 = 1%, compared with -gt so the boundary is inclusive.
+            $first = 1..99 | ForEach-Object { Get-TestMeter "m$_" }
+            $script:passes = @(
+                @($first + @(Get-TestMeter 'm100')),
+                @($first)
+            )
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.01 -CollectKey $script:allMeters
+
+            $r.VerifyDrift | Should -Be 0.01
+            $r.Keys.Count | Should -Be 100
+        }
+
+        It 'unions per-family sets instead of taking the larger count' {
+            # Each pass sees two Compute meters, but not the same two. The merged count
+            # must be 3; max(2,2) would report 2 and understate the family.
+            $script:passes = @(
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2')),
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm3'))
+            )
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 1.0 -CollectKey $script:allMeters
+
+            $r.FamilyCounts['Compute'] | Should -Be 3
+        }
+
+        It 'reports zero drift for an empty result rather than dividing by zero' {
+            $script:passes = @(@(), @())
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.001 -CollectKey $script:allMeters
+
+            $r.VerifyDrift | Should -Be 0
+            $r.Keys.Count | Should -Be 0
+        }
+
+        It 'runs a single pass when -SkipVerify is set' {
+            $script:passes = @(
+                @((Get-TestMeter 'm1')),
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2'))
+            )
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.001 -SkipVerify -CollectKey $script:allMeters -WarningAction SilentlyContinue
+
+            # Only pass 1 consumed, and the second (disagreeing) pass never ran.
+            $script:passIndex | Should -Be 1
+            $r.Keys.Count | Should -Be 1
         }
     }
 }
