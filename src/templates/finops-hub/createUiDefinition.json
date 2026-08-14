@@ -960,22 +960,6 @@
                 "visible": "[equals(steps('advanced').networking.enablePublicAccess, false)]"
               },
               {
-                "name": "enableNatGateway",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Deploy NAT Gateway and disable default outbound access",
-                "toolTip": "Required by the September 2025 'Subnets should be private' policy. Adds a Standard NAT Gateway and Standard static Public IP attached to the script and Data Explorer subnets to provide controlled outbound internet access. Leave unchecked if you have your own egress path (UDR to firewall, peered hub with NAT, etc.).",
-                "defaultValue": false,
-                "visible": "[and(equals(steps('advanced').networking.enablePublicAccess, false), equals(steps('advanced').networking.virtualNetworkMode, 'new'))]"
-              },
-              {
-                "name": "createPrivateDnsZones",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Create private DNS zones",
-                "toolTip": "Used only when virtual network mode is Existing. Uncheck in enterprise environments where a centralized DNS resolver (such as Azure Private DNS Resolver or an on-premises forwarder) manages private DNS registration. When unchecked, private endpoints are still created but no private DNS zones, zone groups, or virtual network links are deployed.",
-                "defaultValue": true,
-                "visible": "[and(equals(steps('advanced').networking.enablePublicAccess, false), equals(steps('advanced').networking.virtualNetworkMode, 'existing'))]"
-              },
-              {
                 "name": "virtualNetworkMode",
                 "type": "Microsoft.Common.DropDown",
                 "label": "Virtual network mode",
@@ -996,6 +980,22 @@
                   ]
                 },
                 "visible": "[equals(steps('advanced').networking.enablePublicAccess, false)]"
+              },
+              {
+                "name": "enableNatGateway",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Deploy NAT Gateway and disable default outbound access",
+                "toolTip": "Required by the September 2025 'Subnets should be private' policy. Adds a Standard NAT Gateway and Standard static Public IP attached to the script and Data Explorer subnets to provide controlled outbound internet access. Leave unchecked if you have your own egress path (UDR to firewall, peered hub with NAT, etc.).",
+                "defaultValue": false,
+                "visible": "[and(equals(steps('advanced').networking.enablePublicAccess, false), equals(steps('advanced').networking.virtualNetworkMode, 'new'))]"
+              },
+              {
+                "name": "createPrivateDnsZones",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Create private DNS zones",
+                "toolTip": "Used only when virtual network mode is Existing. Uncheck in enterprise environments where a centralized DNS resolver (such as Azure Private DNS Resolver or an on-premises forwarder) manages private DNS registration. When unchecked, private endpoints are still created but no private DNS zones, zone groups, or virtual network links are deployed.",
+                "defaultValue": true,
+                "visible": "[and(equals(steps('advanced').networking.enablePublicAccess, false), equals(steps('advanced').networking.virtualNetworkMode, 'existing'))]"
               },
               {
                 "name": "existingVirtualNetworkResourceId",
