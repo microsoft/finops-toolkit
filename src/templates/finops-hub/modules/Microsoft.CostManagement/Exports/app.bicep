@@ -1129,7 +1129,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
             {
               activity: 'Get Existing Parquet Files'
               dependencyConditions: [
-                'Completed'
+                'Succeeded'
               ]
             }
           ]
