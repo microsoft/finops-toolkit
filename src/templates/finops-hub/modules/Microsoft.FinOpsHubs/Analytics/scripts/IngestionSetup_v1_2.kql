@@ -529,10 +529,7 @@ Costs_transform_v1_2()
         isnotempty(CommitmentDiscountQuantity), CommitmentDiscountQuantity,
         // FOCUS 1.0-preview, 1.0
         isempty(CommitmentDiscountStatus), real(null),
-        // Don't assume a 1:1 exchange rate when it's missing -- that silently distorts
-        // the derived quantity (and any utilization built on it) by the true FX factor.
-        // Leave it unset like the other not-derivable cases below instead.
-        CommitmentDiscountCategory == 'Spend' and isnotempty(x_BillingExchangeRate), EffectiveCost / x_BillingExchangeRate,
+        CommitmentDiscountCategory == 'Spend', EffectiveCost / coalesce(x_BillingExchangeRate, real(1)),
         CommitmentDiscountCategory == 'Usage' and isnotempty(x_CommitmentDiscountNormalizedRatio), PricingQuantity / coalesce(x_PricingBlockSize, real(1)) * x_CommitmentDiscountNormalizedRatio,
         real(null)
     )
