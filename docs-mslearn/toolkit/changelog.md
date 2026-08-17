@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/12/2026
+ms.date: 08/17/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -70,6 +70,7 @@ The following section lists features and enhancements that are currently in deve
 
 - **Fixed**
   - Fixed the commitment discount eligibility dataset refresh so it is reproducible and complete; retired meters now age out and previously missed meters are included ([#2164](https://github.com/microsoft/finops-toolkit/pull/2164)).
+  - Fixed the weekly commitment discount eligibility refresh timing out before it could publish, which left the dataset unchanged since it first shipped in v14. The refresh now walks each price type directly instead of sharding by service family, and verifies completeness by comparing two independent traversals before writing ([#2251](https://github.com/microsoft/finops-toolkit/pull/2251)).
 
 -->
 
