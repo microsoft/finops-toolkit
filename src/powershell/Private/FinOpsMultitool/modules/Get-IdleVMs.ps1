@@ -41,7 +41,8 @@ resources
         $runningVMs = @($allVMs | Where-Object { $_.powerState -eq 'PowerState/running' })
         $deallocatedCount = $totalVMs - $runningVMs.Count
         Write-Host "    VMs found: $totalVMs ($($runningVMs.Count) running, $deallocatedCount stopped/deallocated)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Running VM query failed: $($_.Exception.Message)"
         $runningVMs = @()
     }
@@ -54,24 +55,25 @@ resources
             'No virtual machines found in scope.'
         }
         return [PSCustomObject]@{
-            IdleVMs          = @()
-            Count            = 0
-            HasData          = $false
-            ScannedVMs       = 0
-            TotalVMs         = $totalVMs
-            DeallocatedVMs   = $deallocatedCount
-            Note             = $note
+            IdleVMs        = @()
+            Count          = 0
+            HasData        = $false
+            ScannedVMs     = 0
+            TotalVMs       = $totalVMs
+            DeallocatedVMs = $deallocatedCount
+            Note           = $note
         }
     }
 
     # -- 2: Query 14-day avg CPU + Network for each VM -------------------
-    $token = (Get-AzAccessToken -ResourceUrl 'https://management.azure.com').Token
+    $armBase = Get-FinOpsArmEndpoint
+    $token = (Get-AzAccessToken -ResourceUrl $armBase).Token
     $headers = @{ 'Authorization' = "Bearer $token"; 'Content-Type' = 'application/json' }
     $now = (Get-Date).ToUniversalTime()
     $fourteenDaysAgo = $now.AddDays(-14).ToString('yyyy-MM-ddTHH:mm:ssZ')
     $nowStr = $now.ToString('yyyy-MM-ddTHH:mm:ssZ')
 
-    $cpuThreshold     = 5    # avg CPU < 5% = idle
+    $cpuThreshold = 5    # avg CPU < 5% = idle
     $networkThreshold = 1048576  # < 1 MB/day total network = idle (14d * 1MB = 14MB)
     $networkThreshold14d = $networkThreshold * 14
 
@@ -87,7 +89,7 @@ resources
         $scope = "/subscriptions/$($vm.subscriptionId)/resourceGroups/$($vm.resourceGroup)/providers/Microsoft.Compute/virtualMachines/$($vm.name)"
         try {
             # Query CPU + Network In + Network Out in a single call
-            $metricUri = "https://management.azure.com$scope/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=Percentage CPU,Network In Total,Network Out Total&timespan=$fourteenDaysAgo/$nowStr&aggregation=Average,Total&interval=P14D"
+            $metricUri = "$armBase$scope/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=Percentage CPU,Network In Total,Network Out Total&timespan=$fourteenDaysAgo/$nowStr&aggregation=Average,Total&interval=P14D"
             $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
             $metricData = ($resp.Content | ConvertFrom-Json)
 
@@ -123,7 +125,8 @@ resources
             if ($avgCpu -ne $null -and $avgCpu -lt $cpuThreshold -and $totalNetwork -lt $networkThreshold14d) {
                 $isIdle = $true
                 $classification = 'Idle'
-            } elseif ($avgCpu -ne $null -and $avgCpu -lt 10 -and $totalNetwork -lt ($networkThreshold14d * 10)) {
+            }
+            elseif ($avgCpu -ne $null -and $avgCpu -lt 10 -and $totalNetwork -lt ($networkThreshold14d * 10)) {
                 $isIdle = $true
                 $classification = 'Underutilized'
             }
@@ -131,19 +134,20 @@ resources
             if ($isIdle) {
                 $dailyNetMB = [math]::Round($totalNetwork / 14 / 1MB, 2)
                 [void]$results.Add([PSCustomObject]@{
-                    VMName         = $vm.name
-                    ResourceGroup  = $vm.resourceGroup
-                    SubscriptionId = $vm.subscriptionId
-                    Location       = $vm.location
-                    VMSize         = $vm.vmSize
-                    OS             = $vm.osType
-                    AvgCPU14d      = [math]::Round($avgCpu, 1)
-                    NetworkPerDay  = "$($dailyNetMB) MB"
-                    Classification = $classification
-                    Recommendation = if ($classification -eq 'Idle') { 'Deallocate or delete' } else { 'Downsize VM' }
-                })
+                        VMName         = $vm.name
+                        ResourceGroup  = $vm.resourceGroup
+                        SubscriptionId = $vm.subscriptionId
+                        Location       = $vm.location
+                        VMSize         = $vm.vmSize
+                        OS             = $vm.osType
+                        AvgCPU14d      = [math]::Round($avgCpu, 1)
+                        NetworkPerDay  = "$($dailyNetMB) MB"
+                        Classification = $classification
+                        Recommendation = if ($classification -eq 'Idle') { 'Deallocate or delete' } else { 'Downsize VM' }
+                    })
             }
-        } catch {
+        }
+        catch {
             # Metrics not available — skip this VM
         }
     }

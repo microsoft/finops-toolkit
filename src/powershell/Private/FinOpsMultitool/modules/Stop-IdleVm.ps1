@@ -113,7 +113,7 @@ function Stop-IdleVm {
             WriteMode         = $decision.Mode
             Warning           = "PREVIEW ONLY - the VM was not stopped. Deallocate is REVERSIBLE (you can start the VM again; disks are kept). $($decision.Reason)"
             Method            = 'POST'
-            Uri               = "https://management.azure.com$deallocPath"
+            Uri               = "$(Get-FinOpsArmEndpoint)$deallocPath"
             ResourceId        = $ResourceId
             ResourceName      = $vmName
             CurrentPowerState = $powerState
@@ -146,7 +146,7 @@ function Stop-IdleVm {
         Warning      = if ($ok) { "Deallocate started (async). Reversible - start the VM to bring it back." } else { $null }
         Error        = $errMsg
         Method       = 'POST'
-        Uri          = "https://management.azure.com$deallocPath"
+        Uri          = "$(Get-FinOpsArmEndpoint)$deallocPath"
         ResourceId   = $ResourceId
         ResourceName = $vmName
         Async        = ($status -eq 202)

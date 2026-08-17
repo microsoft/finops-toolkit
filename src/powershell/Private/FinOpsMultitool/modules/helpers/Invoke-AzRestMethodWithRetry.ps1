@@ -152,20 +152,29 @@ function Invoke-AzRestMethodWithRetry {
             $resp = [PSCustomObject]@{ StatusCode = $resp.StatusCode; Content = '{}'; Headers = if ($resp.Headers) { $resp.Headers } else { @{} } }
         }
 
-        if ($resp.StatusCode -ne 429) { return $resp }
+        # 429 and transient 5xx are both retryable. 5xx also covers the synthetic
+        # 503 this function raises for transport failures, which are the most
+        # likely thing to succeed on a second attempt.
+        $isThrottled = ($resp.StatusCode -eq 429)
+        $isServerErr = ($resp.StatusCode -ge 500 -and $resp.StatusCode -le 599)
+        if (-not ($isThrottled -or $isServerErr)) { return $resp }
+        if ($attempt -eq $MaxRetries) { return $resp }
 
         # Parse Retry-After header or default to exponential backoff
         $retryAfter = 10
-        if ($resp.Headers -and $resp.Headers['Retry-After']) {
+        if ($isThrottled -and $resp.Headers -and $resp.Headers['Retry-After']) {
             $parsed = 0
             if ([int]::TryParse($resp.Headers['Retry-After'], [ref]$parsed)) {
                 $retryAfter = [math]::Max($parsed, 5)
             }
         }
+        elseif ($isServerErr) {
+            $retryAfter = [math]::Min(2 * [math]::Pow(2, $attempt), 30)
+        }
         else {
             $retryAfter = [math]::Min(10 * [math]::Pow(2, $attempt), 60)
         }
-        $friendly = Get-NextThrottleMessage
+        $friendly = if ($isThrottled) { Get-NextThrottleMessage } else { "Azure returned $($resp.StatusCode) - retrying..." }
         Write-Host "  $friendly" -ForegroundColor Yellow
 
         if (Get-Command Update-ScanStatus -ErrorAction SilentlyContinue) {

@@ -35,6 +35,92 @@ function ConvertTo-HashtableFromJson {
     return $ht
 }
 
+function Get-FinOpsParquetCachePath {
+    # Per-user cache, not the world-writable shared temp dir. On a multi-user or
+    # shared host, %TEMP%/tmp lets another local principal pre-plant DLLs at a
+    # predictable path that we would then load into this process.
+    $base = [Environment]::GetFolderPath('LocalApplicationData')
+    if ([string]::IsNullOrWhiteSpace($base)) { $base = [System.IO.Path]::GetTempPath() }
+    return (Join-Path (Join-Path $base 'FinOpsMultitool') 'parquet')
+}
+
+# Every managed/native DLL the loader can pull in, in a stable order.
+function Get-ParquetPayloadFile {
+    param([Parameter(Mandatory)][string]$BasePath)
+    $roots = @((Join-Path $BasePath 'lib'), (Join-Path $BasePath 'runtimes'))
+    $files = foreach ($r in $roots) {
+        if (Test-Path -LiteralPath $r) {
+            Get-ChildItem -LiteralPath $r -Filter '*.dll' -Recurse -File -ErrorAction SilentlyContinue
+        }
+    }
+    return @($files | Sort-Object FullName)
+}
+
+function New-ParquetManifest {
+    param(
+        [Parameter(Mandatory)][string]$BasePath,
+        [Parameter(Mandatory)][string]$ManifestPath
+    )
+    $entries = @{}
+    foreach ($f in (Get-ParquetPayloadFile -BasePath $BasePath)) {
+        $rel = $f.FullName.Substring($BasePath.Length).TrimStart('\', '/')
+        $entries[$rel] = (Get-FileHash -LiteralPath $f.FullName -Algorithm SHA256).Hash
+    }
+    [PSCustomObject]@{
+        version = '4.24.0'
+        created = (Get-Date).ToUniversalTime().ToString('o')
+        files   = $entries
+    } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $ManifestPath -Encoding UTF8
+}
+
+# Re-hashes every payload DLL against the manifest recorded at install time.
+# Runs on EVERY load, so a tampered cache cannot ride in behind a marker file.
+function Test-ParquetManifest {
+    param(
+        [Parameter(Mandatory)][string]$BasePath,
+        [Parameter(Mandatory)][string]$ManifestPath
+    )
+    if (-not (Test-Path -LiteralPath $ManifestPath)) { return $false }
+    try {
+        $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch { return $false }
+    if (-not $manifest.files) { return $false }
+
+    $recorded = @{}
+    foreach ($p in $manifest.files.PSObject.Properties) { $recorded[$p.Name] = [string]$p.Value }
+    if ($recorded.Count -eq 0) { return $false }
+
+    $onDisk = Get-ParquetPayloadFile -BasePath $BasePath
+    if ($onDisk.Count -ne $recorded.Count) { return $false }
+
+    foreach ($f in $onDisk) {
+        $rel = $f.FullName.Substring($BasePath.Length).TrimStart('\', '/')
+        if (-not $recorded.ContainsKey($rel)) { return $false }
+        if ((Get-FileHash -LiteralPath $f.FullName -Algorithm SHA256).Hash -ne $recorded[$rel]) { return $false }
+    }
+    return $true
+}
+
+# Validates nuget.org repository signatures on the packages we just fetched.
+# TLS alone only proves who we talked to, not that the payload is authentic.
+function Assert-NuGetPackageSignature {
+    param(
+        [Parameter(Mandatory)][string]$NuGetExe,
+        [Parameter(Mandatory)][string]$PackageDir
+    )
+    $nupkgs = @(Get-ChildItem -LiteralPath $PackageDir -Filter '*.nupkg' -Recurse -File -ErrorAction SilentlyContinue)
+    if ($nupkgs.Count -eq 0) {
+        throw "No .nupkg files were retained for signature verification. Refusing to load unverified assemblies."
+    }
+    foreach ($pkg in $nupkgs) {
+        $output = & $NuGetExe verify -Signatures $pkg.FullName 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "NuGet signature verification failed for $($pkg.Name): $($output -join ' ')"
+        }
+    }
+}
+
 function Install-ParquetReader {
     [CmdletBinding()]
     param()
@@ -45,17 +131,23 @@ function Install-ParquetReader {
     }
     if ($loaded) { return $true }
 
-    $parquetDir = Join-Path ([System.IO.Path]::GetTempPath()) 'FinOpsMultitool-Parquet'
-    $markerFile = Join-Path $parquetDir '.installed'
+    $parquetDir = Get-FinOpsParquetCachePath
+    $manifestFile = Join-Path $parquetDir 'parquet-manifest.json'
 
-    # If all DLLs were previously installed, just load them
-    if (Test-Path $markerFile) {
-        try {
-            Import-ParquetAssemblies -BasePath $parquetDir
-            return $true
+    # Reuse a cached install only when every DLL still matches the hash recorded
+    # at install time.
+    if (Test-Path -LiteralPath $manifestFile) {
+        if (Test-ParquetManifest -BasePath $parquetDir -ManifestPath $manifestFile) {
+            try {
+                Import-ParquetAssemblies -BasePath $parquetDir
+                return $true
+            }
+            catch {
+                Remove-Item $parquetDir -Recurse -Force -ErrorAction SilentlyContinue
+            }
         }
-        catch {
-            # Corrupt install — wipe and redo
+        else {
+            Write-Warning "Parquet cache failed integrity check - reinstalling."
             Remove-Item $parquetDir -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
@@ -93,6 +185,10 @@ function Install-ParquetReader {
         $pkgDir = Join-Path $parquetDir 'packages'
         & $nugetExe install Parquet.Net -Version 4.24.0 -OutputDirectory $pkgDir -Framework net8.0 2>&1 | Out-Null
 
+        # Verify nuget.org signatures on the fetched packages before any of
+        # their assemblies are copied or loaded into this process.
+        Assert-NuGetPackageSignature -NuGetExe $nugetExe -PackageDir $pkgDir
+
         # Copy managed DLLs to flat directory (prefer net8.0 > net6.0 > netstandard2.0)
         $libDir = Join-Path $parquetDir 'lib'
         New-Item -ItemType Directory -Path $libDir -Force | Out-Null
@@ -124,8 +220,9 @@ function Install-ParquetReader {
             }
         }
 
-        # Write marker so next session skips the nuget step
-        'installed' | Set-Content $markerFile
+        # Record hashes of everything we just staged so later loads can detect
+        # tampering instead of trusting a bare marker file.
+        New-ParquetManifest -BasePath $parquetDir -ManifestPath $manifestFile
 
         Import-ParquetAssemblies -BasePath $parquetDir
         Write-Host "    Parquet reader installed." -ForegroundColor DarkGray

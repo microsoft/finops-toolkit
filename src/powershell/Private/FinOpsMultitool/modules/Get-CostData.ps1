@@ -82,11 +82,27 @@ function Get-CostData {
 
         $result = ($response.Content | ConvertFrom-Json)
 
+        # Resolve column indices by name. The MG-scope response is not contractually
+        # ordered, and a reorder would silently attribute cost to the wrong sub.
+        $aCols = $result.properties.columns
+        $aCostIdx = -1; $aSubIdx = -1; $aCurIdx = -1
+        if ($aCols) {
+            for ($ci = 0; $ci -lt $aCols.Count; $ci++) {
+                $cn = ([string]$aCols[$ci].name).ToLower()
+                if ($cn -eq 'subscriptionid') { $aSubIdx = $ci }
+                elseif ($cn -eq 'currency') { $aCurIdx = $ci }
+                elseif ($cn -match 'cost|pretaxcost') { $aCostIdx = $ci }
+            }
+        }
+        if ($aCostIdx -eq -1) { $aCostIdx = 0 }
+        if ($aSubIdx -eq -1) { $aSubIdx = 1 }
+        if ($aCurIdx -eq -1) { $aCurIdx = 2 }
+
         if ($result.properties.rows) {
             foreach ($row in $result.properties.rows) {
-                $subId = $row[1]
-                $amount = [math]::Round($row[0], 2)
-                $currency = $row[2]
+                $subId = $row[$aSubIdx]
+                $amount = [math]::Round($row[$aCostIdx], 2)
+                $currency = $row[$aCurIdx]
 
                 if ($selectedSubs -and -not $selectedSubs.Contains([string]$subId)) { continue }
 

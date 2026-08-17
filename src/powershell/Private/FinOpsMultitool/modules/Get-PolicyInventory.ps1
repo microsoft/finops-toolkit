@@ -25,9 +25,9 @@ function Get-PolicyInventory {
     Write-Host "  Scanning policy assignments across $subCount subscriptions..." -ForegroundColor Cyan
 
     $allAssignments = [System.Collections.Generic.List[PSCustomObject]]::new()
-    $complianceMap  = @{}
+    $complianceMap = @{}
     $gotAssignments = $false
-    $gotCompliance  = $false
+    $gotCompliance = $false
 
     # -- Strategy 1: ARM REST API for ALL effective assignments ----------
     # Resource Graph policyresources at subscription scope only returns
@@ -49,31 +49,33 @@ function Get-PolicyInventory {
                     if ($seenIds.ContainsKey($a.id)) { continue }
                     $seenIds[$a.id] = $true
 
-                    $props  = $a.properties
-                    $defId  = $props.policyDefinitionId
+                    $props = $a.properties
+                    $defId = $props.policyDefinitionId
                     $origin = if ($defId -match '/policySetDefinitions/') { 'Initiative' }
-                              elseif ($defId -match '/providers/Microsoft\.Authorization/policyDefinitions/') { 'BuiltIn' }
-                              else { 'Custom' }
-                    $scope  = if ($a.id -match '^(.*)/providers/Microsoft\.Authorization/policyAssignments/') {
-                                  $Matches[1]
-                              } else { '' }
+                    elseif ($defId -match '/providers/Microsoft\.Authorization/policyDefinitions/') { 'BuiltIn' }
+                    else { 'Custom' }
+                    $scope = if ($a.id -match '^(.*)/providers/Microsoft\.Authorization/policyAssignments/') {
+                        $Matches[1]
+                    }
+                    else { '' }
 
                     [void]$allAssignments.Add([PSCustomObject]@{
-                        AssignmentName  = if ($props.displayName) { $props.displayName } else { $a.name }
-                        AssignmentId    = $a.id
-                        PolicyDefId     = $defId
-                        Scope           = $scope
-                        Effect          = if ($props.parameters -and $props.parameters.effect) { $props.parameters.effect.value } else { '-' }
-                        EnforcementMode = if ($props.enforcementMode) { $props.enforcementMode } else { 'Default' }
-                        Origin          = $origin
-                        Subscription    = $subName
-                        Description     = if ($props.description) { $props.description } else { '' }
-                    })
+                            AssignmentName  = if ($props.displayName) { $props.displayName } else { $a.name }
+                            AssignmentId    = $a.id
+                            PolicyDefId     = $defId
+                            Scope           = $scope
+                            Effect          = if ($props.parameters -and $props.parameters.effect) { $props.parameters.effect.value } else { '-' }
+                            EnforcementMode = if ($props.enforcementMode) { $props.enforcementMode } else { 'Default' }
+                            Origin          = $origin
+                            Subscription    = $subName
+                            Description     = if ($props.description) { $props.description } else { '' }
+                        })
                 }
                 # Handle pagination via nextLink
                 $nextLink = if ($body.nextLink) {
                     $body.nextLink -replace '^https://management\.azure\.com', ''
-                } else { $null }
+                }
+                else { $null }
             }
         }
 
@@ -81,7 +83,8 @@ function Get-PolicyInventory {
             $gotAssignments = $true
             Write-Host "  ARM REST API: $($allAssignments.Count) unique policy assignments (including inherited)" -ForegroundColor Green
         }
-    } catch {
+    }
+    catch {
         Write-Warning "  ARM REST policy query failed: $($_.Exception.Message)"
     }
 
@@ -105,31 +108,33 @@ policyresources
                         $props = $r.properties
                         $defId = $props.policyDefinitionId
                         $origin = if ($defId -match '/policySetDefinitions/') { 'Initiative' }
-                                  elseif ($defId -match '/providers/Microsoft\.Authorization/policyDefinitions/') { 'BuiltIn' }
-                                  else { 'Custom' }
+                        elseif ($defId -match '/providers/Microsoft\.Authorization/policyDefinitions/') { 'BuiltIn' }
+                        else { 'Custom' }
                         $subName = $r.subscriptionId
                         $matchSub = $Subscriptions | Where-Object { $_.Id -eq $r.subscriptionId } | Select-Object -First 1
                         if ($matchSub) { $subName = $matchSub.Name }
                         [void]$allAssignments.Add([PSCustomObject]@{
-                            AssignmentName  = if ($props.displayName) { $props.displayName } else { $r.name }
-                            AssignmentId    = $r.id
-                            PolicyDefId     = $defId
-                            Scope           = if ($props.scope) { $props.scope } else { ($r.id -replace '/providers/Microsoft\.Authorization/policyAssignments/.*', '') }
-                            Effect          = if ($props.parameters -and $props.parameters.effect) { $props.parameters.effect.value } else { '-' }
-                            EnforcementMode = if ($props.enforcementMode) { $props.enforcementMode } else { 'Default' }
-                            Origin          = $origin
-                            Subscription    = $subName
-                            Description     = if ($props.description) { $props.description } else { '' }
-                        })
+                                AssignmentName  = if ($props.displayName) { $props.displayName } else { $r.name }
+                                AssignmentId    = $r.id
+                                PolicyDefId     = $defId
+                                Scope           = if ($props.scope) { $props.scope } else { ($r.id -replace '/providers/Microsoft\.Authorization/policyAssignments/.*', '') }
+                                Effect          = if ($props.parameters -and $props.parameters.effect) { $props.parameters.effect.value } else { '-' }
+                                EnforcementMode = if ($props.enforcementMode) { $props.enforcementMode } else { 'Default' }
+                                Origin          = $origin
+                                Subscription    = $subName
+                                Description     = if ($props.description) { $props.description } else { '' }
+                            })
                     }
                     $skipToken = $result.SkipToken
-                } else { $skipToken = $null }
+                }
+                else { $skipToken = $null }
             } while ($skipToken)
             if ($allAssignments.Count -gt 0) {
                 $gotAssignments = $true
                 Write-Host "  Resource Graph fallback: $($allAssignments.Count) assignments" -ForegroundColor Green
             }
-        } catch {
+        }
+        catch {
             Write-Warning "  Resource Graph policy query failed: $($_.Exception.Message)"
         }
     }
@@ -166,13 +171,16 @@ policyresources
                     TotalResources = $row.Total
                     NonCompliant   = $row.NonCompliant
                     Compliant      = $row.Compliant
-                    PolicyCount    = 0
+                    # Not derivable from the compliance query; the REST fallback
+                    # computes it. $null distinguishes "unknown" from a real zero.
+                    PolicyCount    = $null
                 }
             }
             $gotCompliance = $true
             Write-Host "  Resource Graph compliance: $($complianceMap.Count) subscriptions" -ForegroundColor Green
         }
-    } catch {
+    }
+    catch {
         Write-Warning "  Resource Graph compliance query failed: $($_.Exception.Message)"
     }
 
@@ -195,16 +203,17 @@ policyresources
                     if ($summary -and $summary.Count -gt 0) {
                         $s = $summary[0].results
                         $complianceMap[$sub.Id] = [PSCustomObject]@{
-                            Subscription     = $sub.Name
-                            SubscriptionId   = $sub.Id
-                            TotalResources   = $s.resourceDetails | ForEach-Object { $_.count } | Measure-Object -Sum | Select-Object -ExpandProperty Sum
-                            NonCompliant     = ($s.resourceDetails | Where-Object { $_.complianceState -eq 'noncompliant' }).count
-                            Compliant        = ($s.resourceDetails | Where-Object { $_.complianceState -eq 'compliant' }).count
-                            PolicyCount      = $s.policyDetails | ForEach-Object { $_.count } | Measure-Object -Sum | Select-Object -ExpandProperty Sum
+                            Subscription   = $sub.Name
+                            SubscriptionId = $sub.Id
+                            TotalResources = $s.resourceDetails | ForEach-Object { $_.count } | Measure-Object -Sum | Select-Object -ExpandProperty Sum
+                            NonCompliant   = ($s.resourceDetails | Where-Object { $_.complianceState -eq 'noncompliant' }).count
+                            Compliant      = ($s.resourceDetails | Where-Object { $_.complianceState -eq 'compliant' }).count
+                            PolicyCount    = $s.policyDetails | ForEach-Object { $_.count } | Measure-Object -Sum | Select-Object -ExpandProperty Sum
                         }
                     }
                 }
-            } catch {
+            }
+            catch {
                 Write-Warning "  Policy compliance failed for $($sub.Name): $($_.Exception.Message)"
             }
         }
@@ -233,19 +242,20 @@ policyresources
                         if ($defId -match '/policySetDefinitions/') { $origin = 'Initiative' }
 
                         [void]$allAssignments.Add([PSCustomObject]@{
-                            AssignmentName  = $props.displayName
-                            AssignmentId    = $a.id
-                            PolicyDefId     = $defId
-                            Scope           = $props.scope
-                            Effect          = if ($props.parameters -and $props.parameters.effect) { $props.parameters.effect.value } else { '-' }
-                            EnforcementMode = if ($props.enforcementMode) { $props.enforcementMode } else { 'Default' }
-                            Origin          = $origin
-                            Subscription    = $sub.Name
-                            Description     = if ($props.description) { $props.description } else { '' }
-                        })
+                                AssignmentName  = $props.displayName
+                                AssignmentId    = $a.id
+                                PolicyDefId     = $defId
+                                Scope           = $props.scope
+                                Effect          = if ($props.parameters -and $props.parameters.effect) { $props.parameters.effect.value } else { '-' }
+                                EnforcementMode = if ($props.enforcementMode) { $props.enforcementMode } else { 'Default' }
+                                Origin          = $origin
+                                Subscription    = $sub.Name
+                                Description     = if ($props.description) { $props.description } else { '' }
+                            })
                     }
                 }
-            } catch {
+            }
+            catch {
                 Write-Warning "  Policy assignments failed for $($sub.Name): $($_.Exception.Message)"
             }
         }
@@ -263,23 +273,23 @@ policyresources
     }
 
     # -- Compliance totals ---------------------------------------------
-    $totalCompliant    = 0
+    $totalCompliant = 0
     $totalNonCompliant = 0
     foreach ($c in $complianceMap.Values) {
-        $totalCompliant    += $c.Compliant
+        $totalCompliant += $c.Compliant
         $totalNonCompliant += $c.NonCompliant
     }
     $totalEvaluated = $totalCompliant + $totalNonCompliant
-    $compliancePct  = if ($totalEvaluated -gt 0) { [math]::Round(($totalCompliant / $totalEvaluated) * 100, 1) } else { 0 }
+    $compliancePct = if ($totalEvaluated -gt 0) { [math]::Round(($totalCompliant / $totalEvaluated) * 100, 1) } else { 0 }
 
     return [PSCustomObject]@{
-        Assignments      = $unique
-        AssignmentCount  = $unique.Count
+        Assignments        = $unique
+        AssignmentCount    = $unique.Count
         ComplianceBySubMap = $complianceMap
-        CompliancePct    = $compliancePct
-        TotalCompliant   = $totalCompliant
-        TotalNonCompliant = $totalNonCompliant
-        TotalEvaluated   = $totalEvaluated
-        HasComplianceData = ($totalEvaluated -gt 0)
+        CompliancePct      = $compliancePct
+        TotalCompliant     = $totalCompliant
+        TotalNonCompliant  = $totalNonCompliant
+        TotalEvaluated     = $totalEvaluated
+        HasComplianceData  = ($totalEvaluated -gt 0)
     }
 }

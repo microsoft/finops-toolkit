@@ -258,7 +258,7 @@ function Set-CostAllocationRule {
             WriteMode         = $decision.Mode
             Warning           = "PREVIEW ONLY - nothing was written to Azure. This rule changes chargeback/cost allocation. Show this preview to the user and get explicit approval, then re-run with apply=true to write it. $($decision.Reason)"
             Method            = 'PUT'
-            Uri               = "https://management.azure.com$path"
+            Uri               = "$(Get-FinOpsArmEndpoint)$path"
             BillingAccountId  = $BillingAccountId
             RuleName          = $RuleName
             Status            = $Status
@@ -305,7 +305,7 @@ function Set-CostAllocationRule {
         Warning          = if ($ok) { 'Cost allocation rule written. It changes how shared cost is charged back; allow time for Cost Management to reprocess.' } else { $null }
         Error            = $errMsg
         Method           = 'PUT'
-        Uri              = "https://management.azure.com$path"
+        Uri              = "$(Get-FinOpsArmEndpoint)$path"
         BillingAccountId = $BillingAccountId
         RuleName         = $RuleName
         Status           = $Status

@@ -20,11 +20,10 @@ function Get-CostByTag {
         [Parameter()]
         [hashtable]$ExistingTags,
 
+        # No -RestrictToSelected here: this scan queries each subscription
+        # individually, so it is always scoped to $Subscriptions.
         [Parameter()]
-        [object[]]$Subscriptions,
-
-        [Parameter()]
-        [switch]$RestrictToSelected
+        [object[]]$Subscriptions
     )
 
     # Tags we want to break cost down by (in priority order — matches CAF allocation tags)

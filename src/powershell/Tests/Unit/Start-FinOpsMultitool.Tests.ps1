@@ -32,7 +32,33 @@ InModuleScope 'FinOpsToolkit' {
             It 'Should have all scanner module files' {
                 $modulesPath = Join-Path -Path $PSScriptRoot -ChildPath '../../Private/FinOpsMultitool/modules'
                 $modules = Get-ChildItem -Path $modulesPath -Filter '*.ps1'
-                $modules.Count | Should -BeGreaterOrEqual 20
+                # Exact count so a deleted scanner fails the build instead of
+                # silently passing a loose lower bound.
+                $modules.Count | Should -Be 37
+            }
+
+            It 'Should dot-source every scanner module file from the loader' {
+                $psm1Path = Join-Path -Path $PSScriptRoot -ChildPath '../../Private/FinOpsMultitool/FinOpsMultitool.psm1'
+                $modulesPath = Join-Path -Path $PSScriptRoot -ChildPath '../../Private/FinOpsMultitool/modules'
+                $loader = Get-Content -Path $psm1Path -Raw
+                foreach ($m in (Get-ChildItem -Path $modulesPath -Filter '*.ps1')) {
+                    $loader | Should -Match ([regex]::Escape($m.Name))
+                }
+            }
+        }
+
+        Context 'Behavior' {
+            It 'Should write an error when the TUI launcher is missing' {
+                Mock Test-Path { $false }
+                { Start-FinOpsMultitool -ErrorAction Stop } | Should -Throw '*installation may be incomplete*'
+            }
+
+            It 'Should not attempt to launch the TUI when the launcher is missing' {
+                Mock Test-Path { $false }
+                # Returns instead of dot-sourcing; a throw here would be a
+                # CommandNotFoundException for the never-loaded TUI function.
+                Start-FinOpsMultitool -ErrorAction SilentlyContinue
+                Should -Invoke Test-Path -Times 1 -Exactly
             }
         }
 

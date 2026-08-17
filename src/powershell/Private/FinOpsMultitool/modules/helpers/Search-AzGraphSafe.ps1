@@ -1,6 +1,15 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+# Escapes a caller-supplied value for safe use inside a single-quoted KQL
+# string literal. KQL uses backslash escapes, so \ and ' must both be escaped
+# or a crafted value could terminate the literal and alter query semantics.
+function ConvertTo-KqlLiteral {
+    param([string]$Value)
+    if ($null -eq $Value) { return '' }
+    return $Value.Replace('\', '\\').Replace("'", "\'")
+}
+
 function Search-AzGraphSafe {
     param(
         [Parameter(Mandatory)][string]$Query,
@@ -34,6 +43,7 @@ function Search-AzGraphSafe {
 
         $result = $null
         $is429 = $false
+        $isTransient = $false
         if ($asyncResult.IsCompleted) {
             try {
                 $raw = $ps.EndInvoke($asyncResult)
@@ -53,11 +63,13 @@ function Search-AzGraphSafe {
                 if ($ps.Streams.Error.Count -gt 0) {
                     $errMsg = $ps.Streams.Error[0].Exception.Message
                     if ($errMsg -match '429|throttl|Too Many Requests') { $is429 = $true; $result = $null }
+                    elseif ($errMsg -match '\b50[0234]\b|ServiceUnavailable|InternalServerError|BadGateway|Gateway Timeout|temporarily unavailable') { $isTransient = $true; $result = $null }
                     elseif (-not $result) { throw $ps.Streams.Error[0].Exception }
                 }
             }
             catch {
                 if ($_.Exception.Message -match '429|throttl|Too Many Requests') { $is429 = $true }
+                elseif ($_.Exception.Message -match '\b50[0234]\b|ServiceUnavailable|InternalServerError|BadGateway|Gateway Timeout|temporarily unavailable') { $isTransient = $true }
                 else { $ps.Dispose(); throw }
             }
         }
@@ -68,11 +80,22 @@ function Search-AzGraphSafe {
 
         $ps.Dispose()
 
-        if (-not $is429) { return $result }
+        if (-not ($is429 -or $isTransient)) { return $result }
+        if ($attempt -eq $MaxRetries) { return $result }
 
-        # 429 retry wait
-        $retryAfter = [math]::Min(10 * [math]::Pow(2, $attempt), 30)
-        $friendly = if (Get-Command Get-NextThrottleMessage -ErrorAction SilentlyContinue) { Get-NextThrottleMessage } else { 'Fetching numbers......' }
+        # Throttling backs off harder than a transient server error.
+        $retryAfter = if ($is429) {
+            [math]::Min(10 * [math]::Pow(2, $attempt), 30)
+        }
+        else {
+            [math]::Min(2 * [math]::Pow(2, $attempt), 15)
+        }
+        $friendly = if ($is429) {
+            if (Get-Command Get-NextThrottleMessage -ErrorAction SilentlyContinue) { Get-NextThrottleMessage } else { 'Fetching numbers......' }
+        }
+        else {
+            'Resource Graph is unavailable - retrying...'
+        }
         Write-Host "  $friendly" -ForegroundColor Yellow
         if (Get-Command Update-ScanStatus -ErrorAction SilentlyContinue) {
             Update-ScanStatus $friendly

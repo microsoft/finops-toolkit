@@ -164,7 +164,8 @@ resources
 
     if (-not $fromHub -and $openAiAccounts.Count -gt 0) {
         $token = $null
-        try { $token = (Get-AzAccessToken -ResourceUrl 'https://management.azure.com').Token } catch { }
+        $armBase = Get-FinOpsArmEndpoint
+        try { $token = (Get-AzAccessToken -ResourceUrl $armBase).Token } catch { }
 
         if ($token) {
             $headers = @{ 'Authorization' = "Bearer $token"; 'Content-Type' = 'application/json' }
@@ -189,7 +190,7 @@ resources
                 # filter literal needs a single-quoted segment to keep the
                 # '$filter' token and the '*' from being touched by PowerShell.
                 $filterSeg = '&$filter=' + [uri]::EscapeDataString("ModelDeploymentName eq '*'")
-                $metricUri = "https://management.azure.com$($acct.Id)/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=$metricNames&timespan=$fromStr/$toStr&aggregation=Total&interval=P1D$filterSeg"
+                $metricUri = "$armBase$($acct.Id)/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=$metricNames&timespan=$fromStr/$toStr&aggregation=Total&interval=P1D$filterSeg"
 
                 try {
                     $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 20 -ErrorAction Stop

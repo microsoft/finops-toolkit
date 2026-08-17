@@ -1,8 +1,18 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+# ARM endpoint for the cloud the user is actually signed in to. Hardcoding the
+# public URL breaks Azure Government and Azure China.
+function Get-FinOpsArmEndpoint {
+    $url = $null
+    try { $url = (Get-AzContext).Environment.ResourceManagerUrl } catch { }
+    if ([string]::IsNullOrWhiteSpace($url)) { $url = 'https://management.azure.com' }
+    return $url.TrimEnd('/')
+}
+
 function Get-PlainAccessToken {
-    param([string]$ResourceUrl = 'https://management.azure.com')
+    param([string]$ResourceUrl)
+    if ([string]::IsNullOrWhiteSpace($ResourceUrl)) { $ResourceUrl = Get-FinOpsArmEndpoint }
     $tok = (Get-AzAccessToken -ResourceUrl $ResourceUrl).Token
     if ($tok -is [securestring]) {
         $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($tok)

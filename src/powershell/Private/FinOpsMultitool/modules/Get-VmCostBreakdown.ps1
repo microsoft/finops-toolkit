@@ -83,13 +83,13 @@ function Resolve-VmAssociation {
     )
 
     $where = if ($ResourceId) {
-        "id =~ '$ResourceId'"
+        "id =~ '$(ConvertTo-KqlLiteral $ResourceId)'"
     }
     elseif ($ResourceGroup) {
-        "name =~ '$VmName' and resourceGroup =~ '$ResourceGroup'"
+        "name =~ '$(ConvertTo-KqlLiteral $VmName)' and resourceGroup =~ '$(ConvertTo-KqlLiteral $ResourceGroup)'"
     }
     else {
-        "name =~ '$VmName'"
+        "name =~ '$(ConvertTo-KqlLiteral $VmName)'"
     }
 
     $vmQuery = @"
@@ -127,7 +127,7 @@ resources
 
     # Resolve public IPs attached to the VM's NICs
     if ($nicIds.Count -gt 0) {
-        $nicList = ($nicIds | ForEach-Object { "'$_'" }) -join ','
+        $nicList = ($nicIds | ForEach-Object { "'$(ConvertTo-KqlLiteral $_)'" }) -join ','
         $pipQuery = @"
 resources
 | where type =~ 'microsoft.network/networkinterfaces'

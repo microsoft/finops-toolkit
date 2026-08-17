@@ -51,11 +51,11 @@ function Resolve-SharedCostPool {
 
     $clauses = @()
     if ($ResourceIds -and $ResourceIds.Count -gt 0) {
-        $idList = ($ResourceIds | ForEach-Object { "'$_'" }) -join ','
+        $idList = ($ResourceIds | ForEach-Object { "'$(ConvertTo-KqlLiteral $_)'" }) -join ','
         $clauses += "id in~ ($idList)"
     }
     if ($ResourceGroup) {
-        $clauses += "resourceGroup =~ '$ResourceGroup'"
+        $clauses += "resourceGroup =~ '$(ConvertTo-KqlLiteral $ResourceGroup)'"
     }
     if ($clauses.Count -eq 0) { return @() }
 
@@ -132,7 +132,7 @@ AzureNetworkAnalytics_CL
             }
         }
         'resourceCount' {
-            $spokeList = ($Spokes | ForEach-Object { "'$_'" }) -join ','
+            $spokeList = ($Spokes | ForEach-Object { "'$(ConvertTo-KqlLiteral $_)'" }) -join ','
             $query = @"
 resources
 | where subscriptionId in~ ($spokeList)

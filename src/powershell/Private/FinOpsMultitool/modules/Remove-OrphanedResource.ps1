@@ -46,10 +46,10 @@ function Remove-OrphanedResource {
     # mean the resource is STILL IN USE (so we must refuse to delete).
     # -----------------------------------------------------------------
     $allowList = @{
-        'Microsoft.Compute/disks'             = @{ api = '2023-04-02'; label = 'Managed disk';        inUseProps = @('managedBy', 'diskState'); kind = 'attachment' }
-        'Microsoft.Network/publicIPAddresses' = @{ api = '2023-09-01'; label = 'Public IP address';   inUseProps = @('ipConfiguration', 'natGateway'); kind = 'attachment' }
-        'Microsoft.Network/networkInterfaces' = @{ api = '2023-09-01'; label = 'Network interface';   inUseProps = @('virtualMachine', 'privateEndpoint'); kind = 'attachment' }
-        'Microsoft.Compute/snapshots'         = @{ api = '2023-04-02'; label = 'Disk snapshot';       inUseProps = @(); kind = 'backup' }
+        'Microsoft.Compute/disks'             = @{ api = '2023-04-02'; label = 'Managed disk'; inUseProps = @('managedBy', 'diskState'); kind = 'attachment' }
+        'Microsoft.Network/publicIPAddresses' = @{ api = '2023-09-01'; label = 'Public IP address'; inUseProps = @('ipConfiguration', 'natGateway'); kind = 'attachment' }
+        'Microsoft.Network/networkInterfaces' = @{ api = '2023-09-01'; label = 'Network interface'; inUseProps = @('virtualMachine', 'privateEndpoint'); kind = 'attachment' }
+        'Microsoft.Compute/snapshots'         = @{ api = '2023-04-02'; label = 'Disk snapshot'; inUseProps = @(); kind = 'backup' }
     }
 
     # ---- Validate the resource id ----
@@ -214,7 +214,7 @@ function Remove-OrphanedResource {
             WriteMode         = $decision.Mode
             Warning           = "PREVIEW ONLY - nothing was deleted. $irreversible $($decision.Reason)"
             Method            = 'DELETE'
-            Uri               = "https://management.azure.com$path"
+            Uri               = "$(Get-FinOpsArmEndpoint)$path"
             ResourceId        = $ResourceId
             ResourceName      = $resName
             ResourceType      = $fullType
@@ -260,7 +260,7 @@ function Remove-OrphanedResource {
         Warning      = if ($ok) { 'Resource deleted. This is irreversible.' } else { $null }
         Error        = $errMsg
         Method       = 'DELETE'
-        Uri          = "https://management.azure.com$path"
+        Uri          = "$(Get-FinOpsArmEndpoint)$path"
         ResourceId   = $ResourceId
         ResourceName = $resName
         ResourceType = $fullType

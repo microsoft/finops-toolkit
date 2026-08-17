@@ -34,13 +34,15 @@ resources
         $result = Search-AzGraphSafe -Query $query -Subscription $subIds -First 1000
         $hotAccounts = if ($result) { @($result.Data) } else { @() }
         Write-Host "    Hot-tier storage accounts: $($hotAccounts.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Storage account query failed: $($_.Exception.Message)"
         $hotAccounts = @()
     }
 
     # -- 2: For each hot account, check last access metrics ---------------
-    $token = (Get-AzAccessToken -ResourceUrl 'https://management.azure.com').Token
+    $armBase = Get-FinOpsArmEndpoint
+    $token = (Get-AzAccessToken -ResourceUrl $armBase).Token
     $headers = @{ 'Authorization' = "Bearer $token"; 'Content-Type' = 'application/json' }
     $now = (Get-Date).ToUniversalTime()
     $thirtyDaysAgo = $now.AddDays(-30).ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -50,7 +52,7 @@ resources
         $scope = "/subscriptions/$($sa.subscriptionId)/resourceGroups/$($sa.resourceGroup)/providers/Microsoft.Storage/storageAccounts/$($sa.name)"
         try {
             # Query transaction count (Blob service) over last 30 days
-            $metricUri = "https://management.azure.com$scope/blobServices/default/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=Transactions&timespan=$thirtyDaysAgo/$nowStr&aggregation=Total&interval=P30D"
+            $metricUri = "$armBase$scope/blobServices/default/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=Transactions&timespan=$thirtyDaysAgo/$nowStr&aggregation=Total&interval=P30D"
             $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
             $metricData = ($resp.Content | ConvertFrom-Json)
 
@@ -64,7 +66,7 @@ resources
             }
 
             # Also query used capacity
-            $capacityUri = "https://management.azure.com$scope/blobServices/default/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=BlobCapacity&timespan=$thirtyDaysAgo/$nowStr&aggregation=Average&interval=P30D"
+            $capacityUri = "$armBase$scope/blobServices/default/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=BlobCapacity&timespan=$thirtyDaysAgo/$nowStr&aggregation=Average&interval=P30D"
             $capResp = Invoke-WebRequest -Uri $capacityUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -ErrorAction SilentlyContinue
             $capacityBytes = 0
             if ($capResp) {
@@ -85,29 +87,32 @@ resources
             if ($totalTx -eq 0 -and $capacityGB -gt 0) {
                 $recommendation = 'Archive'
                 $estSavingsPct = 90
-            } elseif ($totalTx -lt 100 -and $capacityGB -gt 0) {
+            }
+            elseif ($totalTx -lt 100 -and $capacityGB -gt 0) {
                 $recommendation = 'Archive'
                 $estSavingsPct = 90
-            } elseif ($totalTx -lt 1000 -and $capacityGB -gt 1) {
+            }
+            elseif ($totalTx -lt 1000 -and $capacityGB -gt 1) {
                 $recommendation = 'Cool'
                 $estSavingsPct = 50
             }
 
             if ($recommendation) {
                 [void]$results.Add([PSCustomObject]@{
-                    StorageAccount  = $sa.name
-                    ResourceGroup   = $sa.resourceGroup
-                    SubscriptionId  = $sa.subscriptionId
-                    Location        = $sa.location
-                    CurrentTier     = if ($sa.accessTier) { $sa.accessTier } else { 'Hot (default)' }
-                    SKU             = $sa.sku
-                    CapacityGB      = $capacityGB
-                    Transactions30d = $totalTx
-                    Recommendation  = $recommendation
-                    EstSavingsPct   = $estSavingsPct
-                })
+                        StorageAccount  = $sa.name
+                        ResourceGroup   = $sa.resourceGroup
+                        SubscriptionId  = $sa.subscriptionId
+                        Location        = $sa.location
+                        CurrentTier     = if ($sa.accessTier) { $sa.accessTier } else { 'Hot (default)' }
+                        SKU             = $sa.sku
+                        CapacityGB      = $capacityGB
+                        Transactions30d = $totalTx
+                        Recommendation  = $recommendation
+                        EstSavingsPct   = $estSavingsPct
+                    })
             }
-        } catch {
+        }
+        catch {
             # Metrics not available (classic account, no blob service, etc.) — skip
         }
     }
@@ -115,9 +120,9 @@ resources
     Write-Host "    Storage tier recommendations: $($results.Count)" -ForegroundColor Gray
 
     [PSCustomObject]@{
-        Recommendations = @($results)
+        Recommendations  = @($results)
         TotalHotAccounts = $hotAccounts.Count
-        Count           = $results.Count
-        HasData         = ($results.Count -gt 0)
+        Count            = $results.Count
+        HasData          = ($results.Count -gt 0)
     }
 }

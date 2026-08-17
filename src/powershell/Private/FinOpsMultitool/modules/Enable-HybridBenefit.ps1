@@ -78,9 +78,9 @@ function Enable-HybridBenefit {
         if ($osType -ieq 'Windows') { $LicenseType = 'Windows_Server' }
         elseif ($osType -ieq 'Linux') {
             return [PSCustomObject]@{
-                HasData      = $false
-                Error        = "VM '$vmName' is Linux. AHB for Linux requires the exact distro license (RHEL_BYOS or SLES_BYOS). Re-run with an explicit licenseType only if this VM is RHEL/SLES BYOS-eligible."
-                ResourceId   = $ResourceId
+                HasData        = $false
+                Error          = "VM '$vmName' is Linux. AHB for Linux requires the exact distro license (RHEL_BYOS or SLES_BYOS). Re-run with an explicit licenseType only if this VM is RHEL/SLES BYOS-eligible."
+                ResourceId     = $ResourceId
                 CurrentLicense = $currentLicense
             }
         }
@@ -130,7 +130,7 @@ function Enable-HybridBenefit {
             WriteMode         = $decision.Mode
             Warning           = "PREVIEW ONLY - the VM was not changed. This is REVERSIBLE and reduces licensing cost. $($decision.Reason)"
             Method            = 'PATCH'
-            Uri               = "https://management.azure.com$path"
+            Uri               = "$(Get-FinOpsArmEndpoint)$path"
             ResourceId        = $ResourceId
             ResourceName      = $vmName
             Location          = $location
@@ -159,18 +159,18 @@ function Enable-HybridBenefit {
     }
 
     return [PSCustomObject]@{
-        HasData      = $true
-        Mode         = 'Apply'
-        Applied      = $ok
-        WriteMode    = $decision.Mode
-        StatusCode   = $status
-        Warning      = if ($ok) { "AHB enabled ($LicenseType). Reversible - set licenseType back to None to undo." } else { $null }
-        Error        = $errMsg
-        Method       = 'PATCH'
-        Uri          = "https://management.azure.com$path"
-        ResourceId   = $ResourceId
-        ResourceName = $vmName
+        HasData        = $true
+        Mode           = 'Apply'
+        Applied        = $ok
+        WriteMode      = $decision.Mode
+        StatusCode     = $status
+        Warning        = if ($ok) { "AHB enabled ($LicenseType). Reversible - set licenseType back to None to undo." } else { $null }
+        Error          = $errMsg
+        Method         = 'PATCH'
+        Uri            = "$(Get-FinOpsArmEndpoint)$path"
+        ResourceId     = $ResourceId
+        ResourceName   = $vmName
         CurrentLicense = $currentLicense
-        NewLicense   = $LicenseType
+        NewLicense     = $LicenseType
     }
 }
