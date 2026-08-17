@@ -83,8 +83,9 @@ var storageInfrastructureEncryptionProperties = !app.hub.options.storageInfrastr
   }
 }
 
-// KeyVault access policies
-var keyVaultAccessPolicies = [
+// KeyVault access policies -- only used when the vault uses the legacy access-policy auth model
+// (RBAC-authorized vaults must have an empty accessPolicies array; Azure rejects a non-empty array otherwise)
+var keyVaultAccessPolicies = app.hub.options.keyVaultEnableRbacAuthorization ? [] : [
   {
     #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access
     objectId: dataFactory.identity.principalId
@@ -92,6 +93,10 @@ var keyVaultAccessPolicies = [
     permissions: { secrets: ['get'] }
   }
 ]
+
+// Built-in role definition IDs used for Key Vault RBAC role assignments
+// Key Vault Secrets User -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-secrets-user
+var keyVaultSecretsUserRoleId = '4633458b-17de-408a-b874-0445c86b69e6'
 
 
 //==============================================================================
@@ -484,7 +489,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = if (usesKeyVault) {
     softDeleteRetentionInDays: 90
     // Use null instead of false when purge protection is disabled - Azure requires null to indicate the property should not be set
     enablePurgeProtection: app.hub.options.keyVaultEnablePurgeProtection ? true : null
-    enableRbacAuthorization: false
+    enableRbacAuthorization: app.hub.options.keyVaultEnableRbacAuthorization
     createMode: 'default'
     tenantId: subscription().tenantId
     accessPolicies: keyVaultAccessPolicies
@@ -492,6 +497,18 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = if (usesKeyVault) {
       bypass: 'AzureServices'
       defaultAction: app.hub.options.privateRouting ? 'Deny' : 'Allow'
     }
+  }
+}
+
+// Grant ADF identity RBAC access to read secrets when the vault uses RBAC instead of access policies
+resource keyVaultRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (usesKeyVault && usesDataFactory && app.hub.options.keyVaultEnableRbacAuthorization) {
+  name: guid(keyVault.id, keyVaultSecretsUserRoleId, dataFactory.id)
+  scope: keyVault
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', keyVaultSecretsUserRoleId)
+    #disable-next-line BCP318 // Null safety warning for conditional resource access
+    principalId: dataFactory.identity.principalId
+    principalType: 'ServicePrincipal'
   }
 }
 

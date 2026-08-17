@@ -71,6 +71,7 @@ type HubRoutingProperties = {
     enableTelemetry: 'Indicates whether telemetry should be enabled for deployments.'
     keyVaultSku: 'KeyVault SKU. Allowed values: "standard", "premium".'
     keyVaultEnablePurgeProtection: 'Indicates whether purge protection is enabled for the Key Vault. When enabled, deleted Key Vault and its secrets cannot be permanently deleted until the retention period expires, which is required for compliance in some environments.'
+    keyVaultEnableRbacAuthorization: 'Indicates whether the Key Vault uses Azure RBAC instead of access policies to authorize access to secrets. When enabled, access policies are ignored and callers need an RBAC role assignment (e.g., Key Vault Secrets User) on the vault, which is required for compliance in some environments.'
     networkAddressPrefix: 'Address prefix for the FinOps hub isolated virtual network, if private network routing is enabled.'
     natGateway: 'Indicates whether a NAT Gateway should be deployed for controlled outbound internet access. When enabled, subnets disable Azure default outbound access and route through the NAT Gateway.'
     privateRouting: 'Indicates whether private network routing is enabled.'
@@ -96,6 +97,7 @@ type HubProperties = {
     enableTelemetry: bool
     keyVaultSku: string
     keyVaultEnablePurgeProtection: bool
+    keyVaultEnableRbacAuthorization: bool
     networkAddressPrefix: string
     natGateway: bool
     privateRouting: bool
@@ -192,6 +194,7 @@ func newHubInternal(
   storageSku string,
   keyVaultSku string,
   keyVaultEnablePurgeProtection bool,
+  keyVaultEnableRbacAuthorization bool,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
   enableNatGateway bool,
@@ -213,6 +216,7 @@ func newHubInternal(
     enableTelemetry: isTelemetryEnabled ?? true
     keyVaultSku: keyVaultSku
     keyVaultEnablePurgeProtection: keyVaultEnablePurgeProtection
+    keyVaultEnableRbacAuthorization: keyVaultEnableRbacAuthorization
     networkAddressPrefix: networkAddressPrefix
     natGateway: !enablePublicAccess && enableNatGateway
     privateRouting: !enablePublicAccess
@@ -253,6 +257,7 @@ func newHub(
   storageSku string,
   keyVaultSku string,
   keyVaultEnablePurgeProtection bool,
+  keyVaultEnableRbacAuthorization bool,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
   enableNatGateway bool,
@@ -268,6 +273,7 @@ func newHub(
   storageSku,
   keyVaultSku,
   keyVaultEnablePurgeProtection,
+  keyVaultEnableRbacAuthorization,
   enableInfrastructureEncryption,
   enablePublicAccess,
   enableNatGateway,
