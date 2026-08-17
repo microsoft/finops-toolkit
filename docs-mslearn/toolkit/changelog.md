@@ -32,10 +32,10 @@ The following section lists features and enhancements that are currently in deve
   - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
   - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
 
-### FinOps Multitool v15.0.0
+### [FinOps multitool](multitool/finops-multitool-overview.md) v15.0.0
 
 - **Added**
-  - Added the FinOps Multitool, which scans an Azure environment for cost optimization, governance, and FinOps insights through a cross-platform terminal UI and an MCP server for AI agents ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+  - Added the FinOps multitool, which scans an Azure environment for cost optimization, governance, and FinOps insights through a cross-platform terminal UI and an MCP server for AI agents ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
     - Includes 30 read-only scan modules covering orphaned resources, idle VMs, storage tier advice, Azure Hybrid Benefit, tag and policy inventory and recommendations, cost data, cost trend, cost by tag, resource costs, reservation advice, commitment utilization, realized savings, budget status, anomaly alerts, Advisor recommendations, billing structure, and contract info.
     - The MCP server exposes 40 tools (36 read-only and 4 gated write/remediation) over the Model Context Protocol, with a configurable write-safety policy that defaults to read-only.
     - Cost scans prefer the FinOps hub's Azure Data Explorer or Microsoft Fabric Kusto database and push aggregation into the engine to scale to large environments, with a storage reader as a small-dataset fallback.

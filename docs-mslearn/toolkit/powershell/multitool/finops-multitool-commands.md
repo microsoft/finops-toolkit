@@ -1,5 +1,5 @@
 ---
-title: FinOps Multitool commands
+title: FinOps multitool commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
@@ -8,23 +8,23 @@ ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand what FinOps Multitool commands are available in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand what FinOps multitool commands are available in the FinOpsToolkit module.
 ---
 
-# FinOps Multitool commands
+# FinOps multitool commands
 
-The FinOps Multitool scans an Azure environment for cost optimization, governance, and FinOps insights and grounds its findings in your live resource state. It surfaces cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
+The FinOps multitool PowerShell commands help you scan an Azure environment for cost optimization, governance, and FinOps insights. Findings are grounded in your live resource state and cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
 
-The Multitool delivers the same scan engine through two interfaces:
+The Multitool delivers one scan engine through two interfaces:
 
-- **Terminal UI (TUI)** – An interactive, cross-platform terminal experience launched with [Start-FinOpsMultitool](start-finopsmultitool.md).
-- **MCP server** – A Model Context Protocol server (`Start-McpServer.ps1`) that exposes the scans as tools for AI agents like GitHub Copilot.
+- **Terminal UI (TUI)** – An interactive, cross-platform terminal experience launched with [Start-FinOpsMultitool](Start-FinOpsMultitool.md). It surfaces 26 of the 30 scans.
+- **MCP server** – A Model Context Protocol server (`Start-McpServer.ps1`) that exposes all 30 scans as tools for AI agents like GitHub Copilot.
 
 <br>
 
 ## Commands
 
-- [Start-FinOpsMultitool](start-finopsmultitool.md) – Launch the interactive FinOps Multitool terminal UI.
+- [Start-FinOpsMultitool](Start-FinOpsMultitool.md) – Launch the interactive FinOps multitool terminal UI.
 
 <br>
 
@@ -32,19 +32,21 @@ The Multitool delivers the same scan engine through two interfaces:
 
 The Multitool includes 30 scan modules across the following categories:
 
-- **Optimization** – Orphaned resources, idle VMs, storage tier advice, and Azure Hybrid Benefit opportunities.
+- **Optimization** – Orphaned resources, idle VMs, storage tier advice, Azure Hybrid Benefit opportunities, and legacy resources.
 - **Governance** – Tag inventory and recommendations, and policy inventory and recommendations.
-- **Cost analysis** – Cost data, cost trend, cost by tag, and top resources by cost.
+- **Cost analysis** – Cost data, resource costs, cost by tag, cost trend, unit economics, VM cost breakdown, shared cost allocation, billing account, and usage allocation.
 - **Commitments** – Reservation advice, commitment utilization, and realized savings.
-- **Monitoring** – Budget status and anomaly alerts.
+- **Monitoring** – Budget status, budget history, and anomaly alerts.
 - **Advisor** – Azure Advisor cost recommendations.
-- **Account** – Billing structure, contract info, and tenant hierarchy.
+- **Account** – Billing structure, contract info, and Microsoft Azure Consumption Commitment (MACC) balance.
+- **AI and ML** – Azure AI workload spend.
+- **Sustainability** – Carbon emissions.
 
-Analysis scans are read-only and use Reader or Cost Management Reader access.
+Analysis scans are read-only. Most need Reader or Cost Management Reader access. Account scans also need Billing Reader, or Enterprise Administrator (reader) on an Enterprise Agreement. The carbon scan needs Reader or Carbon Optimization Reader.
 
 <br>
 
-## FinOps Hub data paths
+## FinOps hub data paths
 
 When a [FinOps hub](../../hubs/finops-hubs-overview.md) is present, cost scans read from the hub and choose the path automatically:
 

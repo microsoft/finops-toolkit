@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires access to the Microsoft Emissions Impact Dashboard / Azure carbon optimization (Reader on the relevant scope). Pairs with the finops-multitool MCP server for the cost side of the same resources.
 metadata:
   author: microsoft
-  version: "1.0"
+  version: '1.0'
 ---
 
 # Sustainability and carbon
@@ -18,11 +18,12 @@ Use it when the user mentions carbon, emissions, sustainability, ESG, green/effi
 
 ## Where the data comes from
 
-| Tool | Provides |
-|------|----------|
-| **Emissions Impact Dashboard (EID)** | Scope 1/2/3 emissions for the Microsoft Cloud footprint, by service/subscription/time |
-| **Azure carbon optimization** | Per-resource emissions estimates and reduction recommendations in the portal |
-| **Cloud for Sustainability** | Broader org-level sustainability data model |
+| Tool                                 | Provides                                                                                                                          |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| **`scan_carbon`** (finops-multitool) | kgCO2e totals, month-over-month change, 12-month trend, and per-subscription breakdown. Start here in a multitool-driven session. |
+| **Emissions Impact Dashboard (EID)** | Scope 1/2/3 emissions for the Microsoft Cloud footprint, by service/subscription/time                                             |
+| **Azure carbon optimization**        | Per-resource emissions estimates and reduction recommendations in the portal                                                      |
+| **Cloud for Sustainability**         | Broader org-level sustainability data model                                                                                       |
 
 Reference: https://learn.microsoft.com/azure/carbon-optimization/
 
@@ -30,12 +31,12 @@ Reference: https://learn.microsoft.com/azure/carbon-optimization/
 
 The same actions reduce both — lead with these because they need no trade-off:
 
-| Action | Cost effect | Carbon effect |
-|--------|-------------|---------------|
-| Delete orphaned/idle resources (`scan_orphaned_resources`, `scan_idle_vms`) | ↓ spend | ↓ emissions (nothing running) |
-| Rightsize over-provisioned VMs | ↓ spend | ↓ emissions (less compute) |
-| Increase utilization / consolidate | ↓ unit cost | ↓ emissions per unit |
-| Shut down non-prod off-hours | ↓ spend | ↓ emissions |
+| Action                                                                      | Cost effect | Carbon effect                 |
+| --------------------------------------------------------------------------- | ----------- | ----------------------------- |
+| Delete orphaned/idle resources (`scan_orphaned_resources`, `scan_idle_vms`) | ↓ spend     | ↓ emissions (nothing running) |
+| Rightsize over-provisioned VMs                                              | ↓ spend     | ↓ emissions (less compute)    |
+| Increase utilization / consolidate                                          | ↓ unit cost | ↓ emissions per unit          |
+| Shut down non-prod off-hours                                                | ↓ spend     | ↓ emissions                   |
 
 Where they diverge: a **low-carbon region** may cost more, and **reservations** cut cost without changing emissions (same hardware runs). Be explicit when a recommendation trades one for the other.
 

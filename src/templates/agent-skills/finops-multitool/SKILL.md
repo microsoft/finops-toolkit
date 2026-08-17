@@ -1,6 +1,6 @@
 ---
 name: finops-multitool
-description: This skill should be used when the user asks to "scan for cost savings", "find orphaned resources", "find idle VMs", "check Azure Hybrid Benefit", "review tags", "tag coverage", "tag recommendations", "policy coverage", "cost by tag", "cost trend", "top resources by cost", "reservation recommendations", "commitment utilization", "realized savings", "budget status", "cost anomaly alerts", "Advisor cost recommendations", "billing structure", "contract info", or run a "FinOps assessment", "FinOps scan", or "cost optimization scan" using the FinOps Multitool MCP server. Also use it proactively whenever the conversation turns to Azure cost, waste, savings, governance, or FinOps health and a live read-only scan would answer the question.
+description: This skill should be used when the user asks to "scan for cost savings", "find orphaned resources", "find idle VMs", "check Azure Hybrid Benefit", "review tags", "tag coverage", "tag recommendations", "policy coverage", "cost by tag", "cost trend", "top resources by cost", "reservation recommendations", "commitment utilization", "realized savings", "budget status", "cost anomaly alerts", "Advisor cost recommendations", "billing structure", "contract info", or run a "FinOps assessment", "FinOps scan", or "cost optimization scan" using the FinOps multitool MCP server. Also use it proactively whenever the conversation turns to Azure cost, waste, savings, governance, or FinOps health and a live read-only scan would answer the question.
 license: MIT
 compatibility: Requires the finops-multitool MCP server to be running (see .vscode/mcp.json) and an authenticated Azure session (Connect-AzAccount) with at least Reader access. The scan tools are read-only; four write/remediation tools are dry-run by default, gated by a write-safety policy, and disabled unless FINOPS_WRITE_MODE is set (the server defaults to ReadOnly).
 metadata:
@@ -8,9 +8,9 @@ metadata:
   version: '1.0'
 ---
 
-# FinOps Multitool
+# FinOps multitool
 
-The FinOps Multitool MCP server exposes 40 tools that scan a live Azure environment for cost savings, governance gaps, and FinOps health. Thirty-six are read-only analysis tools; four are write/remediation tools - delete an orphaned resource, deallocate an idle VM, enable Azure Hybrid Benefit, and set a cost allocation rule - that are dry-run by default and gated by a configurable write-safety policy. Use it to ground answers about waste, savings, tags, policy, budgets, and commitments in the customer's actual resource state instead of guessing.
+The FinOps multitool MCP server exposes 40 tools that scan a live Azure environment for cost savings, governance gaps, and FinOps health. Thirty-six are read-only analysis tools; four are write/remediation tools - delete an orphaned resource, deallocate an idle VM, enable Azure Hybrid Benefit, and set a cost allocation rule - that are dry-run by default and gated by a configurable write-safety policy. Use it to ground answers about waste, savings, tags, policy, budgets, and commitments in the customer's actual resource state instead of guessing.
 
 The analysis tools query Azure Resource Graph, Cost Management, and Azure Advisor with **Reader** scope and never modify resources. The four write tools (`remediate_delete_orphaned_resource`, `remediate_deallocate_vm`, `remediate_enable_hybrid_benefit`, and `set_cost_allocation_rule`) are the only ones that can change Azure, and only when explicitly applied: they preview by default (`apply=false`), route through a write-safety gate (protected-tag / resource-group / subscription guardrails, estimated-impact and blast-radius caps, and an append-only audit log), and are disabled entirely unless an operator sets `FINOPS_WRITE_MODE` - the server defaults to `ReadOnly`, which blocks all writes. Be proactive: when a user raises a cost, waste, savings, or governance topic, offer to run the matching scan rather than answering abstractly.
 
@@ -73,9 +73,9 @@ How to drive them safely:
 3. **Then apply.** Call again with `apply=true`. In `Enforced` mode you must also pass the `confirmationToken` from the matching preview.
 4. **Writes are opt-in.** If `FINOPS_WRITE_MODE` is unset or `ReadOnly` (the default), every write is blocked - the tool returns a `Blocked` result explaining how to enable writes. Do not tell the user a change was applied unless the result has `Applied = true`.
 
-## FinOps Hub data paths (cost scans)
+## FinOps hub data paths (cost scans)
 
-The cost-family scans (`scan_cost_data`, `scan_resource_costs`, `scan_cost_by_tag`) read from a FinOps Hub when one is available, choosing a path automatically. Call `detect_cost_data_source` first to see which path covers the scope and how fresh it is. Two of the three paths push aggregation **into the Kusto engine** and return only summarized results, so they scale to large customer datasets (tens of GB / hundreds of millions of rows) — the raw rows are never loaded into PowerShell:
+The cost-family scans (`scan_cost_data`, `scan_resource_costs`, `scan_cost_by_tag`) read from a FinOps hub when one is available, choosing a path automatically. Call `detect_cost_data_source` first to see which path covers the scope and how fresh it is. Two of the three paths push aggregation **into the Kusto engine** and return only summarized results, so they scale to large customer datasets (tens of GB / hundreds of millions of rows) — the raw rows are never loaded into PowerShell:
 
 | Path                           | When                                                        | Notes                                                                                                  |
 | ------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |

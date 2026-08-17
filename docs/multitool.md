@@ -1,14 +1,14 @@
 ---
 layout: default
-title: FinOps Multitool
-browser: FinOps Multitool - Scan your Azure environment for FinOps insights
+title: FinOps multitool
+browser: FinOps multitool - Scan your Azure environment for FinOps insights
 nav_order: 52
-description: 'The FinOps Multitool scans an Azure environment for cost optimization, governance, and FinOps insights from an interactive terminal UI or an MCP server for AI agents.'
+description: 'The FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from an interactive terminal UI or an MCP server for AI agents.'
 permalink: /multitool
-#customer intent: As a FinOps practitioner, I need to learn about the FinOps Multitool
+#customer intent: As a FinOps practitioner, I need to learn about the FinOps multitool
 ---
 
-<span class="fs-9 d-block mb-4">FinOps Multitool</span>
+<span class="fs-9 d-block mb-4">FinOps multitool</span>
 Scan your Azure environment for cost optimization, governance, and FinOps insights from an interactive terminal UI or an MCP server for AI agents.
 {: .fs-6 .fw-300 }
 
@@ -17,12 +17,12 @@ Scan your Azure environment for cost optimization, governance, and FinOps insigh
 
 ---
 
-The FinOps Multitool scans an Azure environment for cost optimization, governance, and FinOps insights and grounds its findings in your live resource state. It surfaces cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance—from an interactive terminal UI or as tools an AI agent can call.
+The FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights and grounds its findings in your live resource state. It surfaces cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance—from an interactive terminal UI or as tools an AI agent can call.
 
 <div id="whats-new" class="ftk-new">
     <h3>New in the FinOps toolkit<span class="ftk-version">v15</span></h3>
     <p>
-        The FinOps Multitool is a new addition to the FinOps toolkit. It delivers 30 read-only scan modules through a cross-platform terminal UI and an MCP server for AI agents, with a scalable FinOps Hub Kusto data path for large environments.
+        The FinOps multitool is a new addition to the FinOps toolkit. It delivers 30 read-only scan modules through a cross-platform terminal UI and an MCP server for AI agents, with a scalable FinOps hub Kusto data path for large environments.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -43,7 +43,7 @@ The FinOps Multitool scans an Azure environment for cost optimization, governanc
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">Learn more</a>
     </div>
     <div class="ftk-tile">
-        <div>🏦 FinOps Hub data paths</div>
+        <div>🏦 FinOps hub data paths</div>
         <div>Query the hub's Azure Data Explorer or Fabric database directly and push aggregation into the engine to scale to large environments.</div>
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">Learn more</a>
     </div>
@@ -77,6 +77,7 @@ The FinOps Multitool scans an Azure environment for cost optimization, governanc
             <div class="highlight">
                 <pre class="highlight"><code><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.Accounts</span><span class="w">
 </span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.ResourceGraph</span><span class="w">
+</span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.Storage</span><span class="w">
 </span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">FinOpsToolkit</span><span class="w">
 </span><span class="n">Connect-AzAccount</span><span class="w">
 </span></code></pre>

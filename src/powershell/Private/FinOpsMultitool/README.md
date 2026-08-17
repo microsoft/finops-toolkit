@@ -1,4 +1,4 @@
-# FinOps Multitool — Terminal UI (TUI)
+# FinOps multitool — Terminal UI (TUI)
 
 Interactive terminal interface for running FinOps scans against Azure subscriptions. No GUI dependencies — works in any terminal on Windows, macOS, and Linux.
 
@@ -323,7 +323,7 @@ $costByTag = ConvertTo-CostByTagFromHub -HubData $hubData -ExistingTags $tagInve
 
 ## MCP Server (AI Integration)
 
-The FinOps Multitool includes an MCP (Model Context Protocol) server that exposes all 30 scan modules — plus a `run_full_scan` composite — as AI-callable tools, along with a set of **remediation (write) tools** that act on the findings. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI.
+The FinOps multitool includes an MCP (Model Context Protocol) server that exposes all 30 scan modules — plus a `run_full_scan` composite — as AI-callable tools, along with a set of **remediation (write) tools** that act on the findings. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI.
 
 Read scans are always safe. The write tools are gated by a configurable [write-safety policy](#write-safety-remediation-tools) so neither a person nor an autonomous agent can make a costly mistake — every write previews first (dry-run) and, in autonomous mode, requires a single-use confirmation token bound to the exact change.
 

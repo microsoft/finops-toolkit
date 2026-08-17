@@ -71,7 +71,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
         <a href="./powershell">Learn more</a>
     </div>
     <div class="ftk-tile">
-        <div>🛠️ FinOps Multitool</div>
+        <div>🛠️ FinOps multitool</div>
         <div>Scan your environment for cost, governance, and optimization insights.</div>
         <a href="./multitool">Learn more</a>
     </div>

@@ -194,6 +194,12 @@
           href: toolkit/alerts/finops-alerts-overview.md
         - name: Configure alerts
           href: toolkit/alerts/configure-finops-alerts.md
+    - name: FinOps Multitool
+      items:
+        - name: Overview
+          href: toolkit/multitool/finops-multitool-overview.md
+        - name: Commands
+          href: toolkit/powershell/multitool/finops-multitool-commands.md
     - name: Optimization engine
       items:
         - name: Overview

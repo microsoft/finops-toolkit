@@ -59,9 +59,9 @@ The FinOps toolkit PowerShell module includes commands to manage FinOps solution
 - [Remove-FinOpsCostExport](cost/Remove-FinOpsCostExport.md) – Delete a Cost Management export and optionally data associated with the export.
 - [Start-FinOpsCostExport](cost/Start-FinOpsCostExport.md) – Initiates a Cost Management export run for the most recent period.
 
-### FinOps Multitool commands
+### FinOps multitool commands
 
-- [Start-FinOpsMultitool](multitool/start-finopsmultitool.md) – Launch the interactive FinOps Multitool terminal UI to scan for cost, governance, and optimization insights.
+- [Start-FinOpsMultitool](multitool/Start-FinOpsMultitool.md) – Launch the interactive FinOps multitool terminal UI to scan for cost, governance, and optimization insights.
 
 ### FinOps hubs commands
 
