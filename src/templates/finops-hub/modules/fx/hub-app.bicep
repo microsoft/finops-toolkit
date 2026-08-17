@@ -23,7 +23,7 @@ param version string
 @description('Optional. Indicate which features the app requires. Allowed values: "DataFactory", "KeyVault", "Storage". Default: [] (none).')
 param features HubAppFeature[] = []
 
-@description('Optional. Indicate which RBAC roles the Data Factory identity needs on the storage account, if created. This is in addition to Storage Blob Data Contributor for reading and managing content. Default: [] (none).')
+@description('Optional. Indicate which RBAC roles the Data Factory identity needs on the publisher storage account. This is in addition to Storage Blob Data Contributor for reading and managing content, which is granted to apps that use the "Storage" feature. Roles are assigned whether or not the app uses the "Storage" feature since the storage account is shared across all apps from the same publisher. Default: [] (none).')
 param storageRoles string[] = []
 
 @description('Optional. Custom string with additional metadata to log. Must an alphanumeric string without spaces or special characters except for underscores and dashes. Namespace + appName + telemetryString must be 50 characters or less - additional characters will be trimmed.')
@@ -65,7 +65,8 @@ var factoryManagementRoles = [
 
 // Roles for ADF to manage data in storage
 // Does not include roles assignments needed against the export scope
-var factoryStorageRoles = union(storageRoles, [
+// The data management roles are only granted to apps that use the "Storage" feature; roles requested via storageRoles are always granted
+var factoryStorageRoles = union(storageRoles, !usesStorage ? [] : [
   // Storage Account Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor
   // Used to move files from the msexports to ingestion container
   '17d1049b-9a84-46fb-8f53-869881c3d3ab'
@@ -284,8 +285,9 @@ module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = if (u
 //------------------------------------------------------------------------------
 
 // Grant ADF identity access to storage
+// The storage account is shared across all apps from the same publisher, so apps that request roles via storageRoles are granted them even when they do not create the storage account themselves
 resource storageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
-  for role in factoryStorageRoles: if (usesDataFactory && usesStorage) {
+  for role in factoryStorageRoles: if (usesDataFactory) {
     name: guid(storageAccount.id, role, dataFactory.id)
     scope: storageAccount
     properties: {
