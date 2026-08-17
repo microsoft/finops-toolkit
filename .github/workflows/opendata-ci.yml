@@ -45,6 +45,15 @@ jobs:
           git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push
         }
+    # Build-OpenData.ps1 -Test calls Test-PowerShell.ps1, which requires Pester 6 (#2254):
+    # the suite uses -AllowNullOrEmptyForEach, which Pester 5 rejects. The ubuntu runner
+    # image ships Pester 5.9.0, so the minimum has to be installed explicitly. This is the
+    # same command Init-Repo.ps1 runs and the one Test-PowerShell.ps1 names in its error.
+    # dev.yml pins the same floor through psmodulecache, which this repo only uses on
+    # Windows runners.
+    - name: Install Pester
+      shell: pwsh
+      run: Install-Module -Name Pester -MinimumVersion 6.0.0 -Scope CurrentUser -Repository PSGallery -Force
     - name: Test Open Data
       id: test
       shell: pwsh
