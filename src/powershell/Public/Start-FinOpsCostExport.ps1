@@ -119,7 +119,7 @@ function Start-FinOpsCostExport
         # If -EndDate is not set, assume 1 month
         if (-not $EndDate)
         {
-            $EndDate = $StartDate.AddMonths(1).AddMilliseconds(-1)
+            $EndDate = $StartDate.AddMonths(1).AddDays(-1)
         }
 
         # Move start date to account for the backfill period
