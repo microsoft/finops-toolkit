@@ -1105,7 +1105,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     ]
                     policy: {
                       timeout: '0.12:00:00'
-                      retry: 0
+                      retry: 2  // CommitmentDiscountEligibility.csv is ~8x larger than the next biggest reference CSV (ResourceTypes); retry transient network failures instead of failing the whole pipeline
                       retryIntervalInSeconds: 30
                       secureOutput: false
                       secureInput: false
@@ -1113,7 +1113,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     userProperties: []
                     typeProperties: {
                       command: '.set-or-replace CommitmentDiscountEligibility <| externaldata(MeterId: string, x_CommitmentDiscountSpendEligibility: string, x_CommitmentDiscountUsageEligibility: string)[@"${ftkReleaseUri}/CommitmentDiscountEligibility.csv"] with (format="csv", ignoreFirstRecord=true)'
-                      commandTimeout: '00:20:00'
+                      commandTimeout: '00:30:00'
                     }
                     linkedServiceName: {
                       referenceName: linkedService_dataExplorer.name
