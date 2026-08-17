@@ -133,6 +133,7 @@ _Released June 2026_
     - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
   - Hardened the reservation price backfill to select the highest on-demand price (`max()` instead of `min()`) when duplicate price rows collapse under a single reservation price lookup key, preventing understated commitment discount savings ([#2189](https://github.com/microsoft/finops-toolkit/pull/2189)).
   - Fixed inflated savings in the Data Explorer dashboard Summary and Rate optimization pages by excluding commitment discount purchases from list cost, contracted cost, and savings ([#2315](https://github.com/microsoft/finops-toolkit/issues/2315)).
+  - Fixed the Reservations tab in the Rate Optimization report showing no data for Microsoft Customer Agreement (MCA) deployments. The reservation price backfill gate required a non-blank offer ID, but MCA cost and price rows never populate an offer ID, so MCA reservation rows never attempted the price recovery join. The gate now admits rows without an offer ID only when they are reservation usage; all other rows are unchanged ([#1769](https://github.com/microsoft/finops-toolkit/issues/1769), [#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
 
 ### [Power BI reports](power-bi/reports.md) v15
 
