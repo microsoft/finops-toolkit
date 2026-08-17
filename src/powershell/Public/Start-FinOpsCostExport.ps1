@@ -21,10 +21,10 @@
     Optional. Resource ID of the scope to export data for. If empty, defaults to current subscription context.
 
     .PARAMETER StartDate
-    Optional. Day to start pulling the data for. If not set, the export will use the dates defined in the export configuration.
+    Optional. Day to start pulling the data for. Interpreted as a UTC calendar date, so the day you specify is the day that is exported, regardless of the local time zone. If not set, the export will use the dates defined in the export configuration.
 
     .PARAMETER EndDate
-    Optional. Last day to pull data for. If not set and -StartDate is set, -EndDate will use the last day of the month. If not set and -StartDate is not set, the export will use the dates defined in the export configuration.
+    Optional. Last day to pull data for. Interpreted as a UTC calendar date, so the day you specify is the day that is exported, regardless of the local time zone. If not set and -StartDate is set, -EndDate will use the last day of the month. If not set and -StartDate is not set, the export will use the dates defined in the export configuration.
 
     .PARAMETER Backfill
     Optional. Number of months to export the data for. Make note of throttling (429) errors. This is only run once. Failed exports are not re-attempted. Default = 0.
@@ -91,6 +91,19 @@ function Start-FinOpsCostExport
 
     $runpath = "$($export.Id)/run?api-version=$ApiVersion"
 
+    # -StartDate and -EndDate are calendar dates, not instants. Cost Management export periods
+    # are UTC and day-granular, so keep the day the caller named and tag it as UTC. Converting
+    # with ToUniversalTime() would move the period back a day for every caller east of UTC,
+    # where local midnight falls on the previous UTC day.
+    if ($StartDate)
+    {
+        $StartDate = [datetime]::SpecifyKind($StartDate.Date, [DateTimeKind]::Utc)
+    }
+    if ($EndDate)
+    {
+        $EndDate = [datetime]::SpecifyKind($EndDate.Date, [DateTimeKind]::Utc)
+    }
+
     # Set start date if using -Backfill
     if ($Backfill -gt 0)
     {
@@ -99,7 +112,8 @@ function Start-FinOpsCostExport
         # If -StartDate is not set, assume the current month
         if (-not $StartDate)
         {
-            $StartDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).ToUniversalTime().Date
+            $utcToday = (Get-Date).ToUniversalTime().Date
+            $StartDate = $utcToday.AddDays(1 - $utcToday.Day)
         }
 
         # If -EndDate is not set, assume 1 month
@@ -110,22 +124,21 @@ function Start-FinOpsCostExport
 
         # Move start date to account for the backfill period
         $StartDate = $StartDate.AddMonths($Backfill * -1)
-        Write-Verbose "Backfill $Backfill months = $($StartDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"')) to $($EndDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"'))"
+        Write-Verbose "Backfill $Backfill months = $($StartDate.ToString('yyyy-MM-dd"T"HH:mm:ss"Z"')) to $($EndDate.ToString('yyyy-MM-dd"T"HH:mm:ss"Z"'))"
     }
 
     # Remove time + set end date
     if ($StartDate)
     {
-        $StartDate = $StartDate.ToUniversalTime().Date
         if ($EndDate)
         {
-            $EndDate = $EndDate.ToUniversalTime().Date
+            $EndDate = $EndDate.Date
         }
         else
         {
-            $EndDate = $StartDate.ToUniversalTime().Date.AddMonths(1).AddDays(-1)
+            $EndDate = $StartDate.AddMonths(1).AddDays(-1)
         }
-        Write-Verbose "Updated dates = $($StartDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"')) to $($EndDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"'))"
+        Write-Verbose "Updated dates = $($StartDate.ToString('yyyy-MM-dd"T"HH:mm:ss"Z"')) to $($EndDate.ToString('yyyy-MM-dd"T"HH:mm:ss"Z"'))"
     }
 
     # Start measuring progress
