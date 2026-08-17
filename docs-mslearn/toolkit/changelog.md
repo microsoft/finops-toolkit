@@ -25,6 +25,57 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+<<<<<<< HEAD
+=======
+### [FinOps hubs](hubs/finops-hubs-overview.md)
+
+- **Added**
+  - Added VNet and private network modes, including opt-in NAT Gateway support for private mode; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
+- **Changed**
+  - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
+  - Replaced whole-term `contains` matches with `has` across hub KQL and the query catalog (resource ID paths, licensing phrases, SKU description terms) and added a per-row operator-equivalence regression harness with unit test coverage ([#2220](https://github.com/microsoft/finops-toolkit/pull/2220)).
+- **Fixed**
+  - Fixed the `ContractedCost` recompute guard to compare with a null-safe tolerance instead of exact float equality, eliminating millions of no-op rewrites that polluted the `x_SourceValues` audit trail while preserving the null-cost backfill and no longer overwriting an existing cost when the unit price is missing ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
+  - Fixed the SQL VMs without Azure Hybrid Benefit recommendation query to join on the SQL VM `virtualMachineResourceId` instead of a case-sensitive VM name match that skipped VMs with uppercase names and dropped duplicate names, and made all Azure Resource Graph join kinds explicit so no query relies on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+  - Switched dimension enrichment in the v1_0/v1_2 ingestion transforms (`PricingUnits`, `Regions`, `ResourceTypes`, `Services`) from `join` to the broadcast-optimized `lookup` operator and deduplicated the `Services` mapping per resource type to prevent cost row fan-out ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+  - Fixed the v1_0/v1_2 price transforms creating more rows than were ingested: the savings plan price `lookup` deduplicated its Consumption dimension side with `distinct` over columns that vary by region/currency, so a meter with multiple regional prices fanned out every matching savings plan row; switched to `summarize take_any(...) by tmp_SavingsPlanKey` for a guaranteed one-row-per-key dimension side ([#1736](https://github.com/microsoft/finops-toolkit/issues/1736)).
+  - Fixed commitment discount eligibility (`x_CommitmentDiscountSpendEligibility`, `x_CommitmentDiscountUsageEligibility`) being computed incorrectly when a pricesheet export lands as multiple parquet files: because `Prices_transform_v1_0`/`v1_2` are Data Explorer update policy functions, each file triggers a separate invocation that only sees that file's rows of `Prices_raw`, so a meter's Reservation/SavingsPlan row and its Consumption row could each be visible in different invocations and eligibility would be computed against a partial view. Eligibility is now sourced from the [Commitment discount eligibility](open-data.md#commitment-discount-eligibility) open-data table, ingested into a new `CommitmentDiscountEligibility` ADX table, which isn't affected by per-invocation partitioning ([#1625](https://github.com/microsoft/finops-toolkit/issues/1625)). Both sides of the eligibility lookup are normalized to lowercase before joining, since the pricesheet's meter ID casing isn't guaranteed to match the open-data table's.
+
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md)
+
+- **Fixed**
+  - Fixed the savings plan workbook summary and details queries silently dropping all but one recommendation per subscription due to an implicit `innerunique` join ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+  - Fixed the AHB workbook "VM Latest Change Last 7 days" tile, which joined the `resourcechanges` record id against the resource id and always returned no rows, and the SQL VM queries, which never matched VMs with uppercase names ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+  - Changed the savings plan workbook subscription name joins to `leftouter` so a recommendation is still shown when its subscription is missing from `resourcecontainers` ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+
+### [FinOps alerts](alerts/finops-alerts-overview.md)
+
+- **Fixed**
+  - Made the idle application gateway and idle public IP query join kinds explicit so they no longer rely on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+
+### [Power BI reports](power-bi/reports.md)
+
+- **Changed**
+  - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+
+### [Optimization Engine](optimization-engine/overview.md)
+
+- **Changed**
+  - Switched the reservations and benefits workbooks from the retired `ccmstorageprod` isfratioblob.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+
+### [Open data](open-data.md) updates
+
+**[Instance size flexibility](open-data.md#instance-size-flexibility)**
+
+- **Added**
+  - Added a new [Instance size flexibility](open-data.md#instance-size-flexibility) dataset that maps each ARM SKU to its instance size flexibility group and ratio, sourced from the Azure Reservations Catalogs API. It replaces the deprecated ISF ratio files hosted on `ccmstorageprod.blob.core.windows.net` ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+
+**[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**
+
+- **Fixed**
+  - Fixed the commitment discount eligibility dataset refresh so it is reproducible and complete; retired meters now age out and previously missed meters are included ([#2164](https://github.com/microsoft/finops-toolkit/pull/2164)).
+
+>>>>>>> e9f42774 (fix(hubs): normalize meter ID casing in eligibility lookup, harden CSV load)
 -->
 
 <br><a name="latest"></a>

@@ -87,8 +87,12 @@ Prices_transform_v1_0()
     // current invocation; CommitmentDiscountEligibility is ingested as a whole table and doesn't
     // have that gap. Dedupe with take_any() even though MeterId is expected to be unique in the
     // source data -- defends against a future duplicate row silently fanning out the lookup below.
+    // MeterId is lowercased by the generator (Update-CommitmentDiscountEligibility.ps1); the
+    // pricesheet's MeterId/MeterID casing isn't documented/guaranteed, and `lookup on` only
+    // supports case-sensitive equality, so both sides are normalized to lowercase for the join.
     let commitmentEligibility = CommitmentDiscountEligibility
-        | summarize take_any(x_CommitmentDiscountSpendEligibility), take_any(x_CommitmentDiscountUsageEligibility) by MeterId;
+        | extend tmp_MeterId = tolower(MeterId)
+        | summarize take_any(x_CommitmentDiscountSpendEligibility), take_any(x_CommitmentDiscountUsageEligibility) by tmp_MeterId;
     //
     // Copy list/base/contracted prices from on-demand SKUs
     prices
@@ -110,10 +114,18 @@ Prices_transform_v1_0()
     // Spend = savings plan, Usage = reservation. Reservation price rows are excluded from their own
     // usage eligibility: the column describes what an on-demand charge could be covered by.
     // TODO: Would a join be faster?
+<<<<<<< HEAD
     | lookup kind=leftouter (commitmentEligibility) on $left.x_SkuMeterId == $right.MeterId
     | extend x_CommitmentDiscountSpendEligibility = coalesce(x_CommitmentDiscountSpendEligibility, 'Not Eligible')
     | extend x_CommitmentDiscountUsageEligibility = iff(isnotempty(x_CommitmentDiscountUsageEligibility) and x_SkuPriceType != 'ReservedInstance', x_CommitmentDiscountUsageEligibility, 'Not Eligible')
     | project-away MeterId
+=======
+    | extend tmp_MeterId = tolower(x_SkuMeterId)
+    | lookup kind=leftouter (commitmentEligibility) on tmp_MeterId
+    | extend x_CommitmentDiscountSpendEligibility = iff(isnotempty(x_CommitmentDiscountSpendEligibility) and x_SkuPriceType != 'ReservedInstance', x_CommitmentDiscountSpendEligibility, 'Not Eligible')
+    | extend x_CommitmentDiscountUsageEligibility = coalesce(x_CommitmentDiscountUsageEligibility, 'Not Eligible')
+    | project-away tmp_MeterId
+>>>>>>> e9f42774 (fix(hubs): normalize meter ID casing in eligibility lookup, harden CSV load)
     //
     // Add PricingUnit and x_PricingBlockSize
     // TODO: Compare join vs. lookup perf -- | join kind=leftouter (PricingUnits) on x_PricingUnitDescription | project-away x_PricingUnitDescription1
