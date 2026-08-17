@@ -186,7 +186,7 @@ Create a new or update an existing FinOps hub instance.
         </div>
     </div>
     <div class="ftk-tile">
-        <div>☁️ <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/workload-optimization">Workload optimization</a></div>
+        <div>☁️ <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/workload-optimization">Usage optimization</a></div>
         <div>
             Gain insights into resource utilization and efficiency opportunities based on historical usage patterns.
         </div>

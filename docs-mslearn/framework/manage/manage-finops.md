@@ -3,7 +3,7 @@ title: Manage the FinOps practice
 description: Learn about the FinOps capabilities that help you establish your FinOps practice and drive organizational accountability.
 author: flanakin
 ms.author: micflan
-ms.date: 05/19/2026
+ms.date: 06/21/2026
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -20,7 +20,7 @@ This domain is focused on establishing a clear and consistent vision of FinOps a
 
 ## FinOps education and enablement
 
-FinOps education and enablement involve refers to the process of providing training, resources, and support to help individuals and teams within an organization adopt FinOps practices. This capability ensures that stakeholders across the organization have the resources they need to:
+FinOps education and enablement refers to the process of providing training, resources, and support to help individuals and teams within an organization adopt FinOps practices. This capability ensures that stakeholders across the organization have the resources they need to:
 
 - Understand FinOps
 - Understand how it can help them achieve their goals
@@ -56,15 +56,15 @@ To learn more, see [Onboarding workloads](./onboarding.md).
 
 <br>
 
-## Policy and governance
+## Governance, policy, and risk
 
-Policy and governance refer to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:
+Governance, policy, and risk refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:
 
 - Specific SKUs
 - Resource configurations
 - Other practices that might affect cost, usage, and carbon growth
 
-To learn more, see [Policy and governance](./governance.md).
+To learn more, see [Governance, policy, and risk](./governance.md).
 
 <br>
 
