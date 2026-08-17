@@ -214,6 +214,8 @@
           href: toolkit/optimization-engine/faq.md
         - name: Troubleshooting guide
           href: toolkit/optimization-engine/troubleshooting.md
+        - name: Reference
+          href: toolkit/optimization-engine/reference.md
     - name: Open data
       href: toolkit/open-data.md
     - name: PowerShell
