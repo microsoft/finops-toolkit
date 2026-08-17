@@ -222,6 +222,10 @@ function Get-RetryDelay
         The value is clamped to -MaxSeconds so an outsized server value cannot stall the
         run past the job timeout, and a non-positive value (a stale HTTP-date already in
         the past) falls back to the exponential backoff rather than retrying instantly.
+
+        -MaxSeconds bounds EVERY wait, not just the header-driven one: the exponential
+        fallback reaches 2^5 * 10 = 320s on the last of the 5 retries, which would
+        otherwise exceed the same ceiling the server value is held to.
     #>
     param(
         $Response,
@@ -248,7 +252,7 @@ function Get-RetryDelay
     {
         return [Math]::Min($retryAfter, $MaxSeconds)
     }
-    return [int][Math]::Pow(2, $Attempt) * 10
+    return [Math]::Min([int][Math]::Pow(2, $Attempt) * 10, $MaxSeconds)
 }
 
 function Get-EligibleMeter
@@ -380,6 +384,10 @@ function Get-VerifiedEligibleMeter
     if ($SkipVerify)
     {
         Write-Warning "  Verification traversal SKIPPED (-SkipVerify). Output is not publishable."
+        # `+` on two hashtables returns a new one carrying the keys of both, so this is
+        # pass 1's result shape plus the verification fields the caller expects. It throws
+        # on a duplicate key rather than silently overwriting, which is the behavior we
+        # want here: Get-EligibleMeter must never start returning these three itself.
         return $first + @{ VerifyDrift = [double]0; OnlyFirst = 0; OnlySecond = 0 }
     }
 

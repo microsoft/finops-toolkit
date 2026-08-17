@@ -135,6 +135,16 @@ Describe 'Update-CommitmentDiscountEligibility helpers' {
             $past = [DateTimeOffset]::UtcNow.AddSeconds(-60).ToString('r')
             Get-RetryDelay -Response (Get-TestResponse -RetryAfter $past) -Attempt 1 | Should -Be 20
         }
+
+        It 'clamps the exponential backoff to MaxSeconds as well' {
+            # MaxSeconds must bound every wait, not only the header-driven one. Attempt 5
+            # is reachable -- it is the last of the 5 retries the fetch loop allows -- and
+            # 2^5 * 10 = 320s would otherwise overrun the ceiling the header is held to.
+            Get-RetryDelay -Response (Get-TestResponse) -Attempt 5 -MaxSeconds 300 | Should -Be 300
+            Get-RetryDelay -Response $null -Attempt 5 -MaxSeconds 300 | Should -Be 300
+            # Below the ceiling the backoff is unchanged.
+            Get-RetryDelay -Response (Get-TestResponse) -Attempt 4 -MaxSeconds 300 | Should -Be 160
+        }
     }
 
     Context 'Get-EligibleMeter' {
