@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-COMMITMENTUTILIZATION.PS1
 # AZURE FINOPS MULTITOOL - RI & Savings Plan Utilization
 ###########################################################################

@@ -1,9 +1,11 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # READ-FINOPSHUBDATA.PS1
 # FINOPS HUB STORAGE DATA READER
 ###########################################################################
 # Purpose: Read cost data from a FinOps Hub storage account
-# Author: Zac Larsen
 # Date: Created for FinOps Multitool TUI integration
 #
 # Description:

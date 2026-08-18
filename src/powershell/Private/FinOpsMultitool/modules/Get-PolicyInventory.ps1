@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 ###########################################################################
 # GET-POLICYINVENTORY.PS1
 # AZURE FINOPS MULTITOOL - Policy Inventory Across the Tenant

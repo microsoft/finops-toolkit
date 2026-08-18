@@ -9,7 +9,6 @@
 #          FinOps Hub) and read their CSV data from blob storage so the MCP
 #          server can serve cost tools from a pre-materialized export
 #          instead of the throttle-bound live Cost Management query API.
-# Author: Zac Larsen
 # Date: Created for FinOps Multitool MCP generic export detection
 #
 # Description:

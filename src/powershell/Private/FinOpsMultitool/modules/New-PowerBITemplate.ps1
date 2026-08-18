@@ -1,9 +1,11 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # NEW-POWERBITEMPLATE.PS1
 # POWER BI TEMPLATE GENERATOR (GUI-FREE)
 ###########################################################################
 # Purpose: Build a Power BI template (.pbit) from FinOps scan data.
-# Author:  Zac Larsen
 # Date:    Created for FinOps Toolkit integration
 #
 # Description:

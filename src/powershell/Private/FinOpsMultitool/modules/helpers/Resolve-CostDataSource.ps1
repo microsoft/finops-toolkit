@@ -1,10 +1,12 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # RESOLVE-COSTDATASOURCE.PS1
 # COST DATA SOURCE RESOLVER (EXPORT-FIRST ROUTING)
 ###########################################################################
 # Purpose: Decide whether cost scans should read FinOps Hub / Cost
 #          Management export data (fast) or the live Cost Management API.
-# Author: Zac Larsen
 # Date: Created for FinOps Multitool MCP server export-first routing
 #
 # Description:

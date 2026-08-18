@@ -1,10 +1,12 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # SET-COSTALLOCATIONRULE.PS1
 # WRITE-BACK: NATIVE AZURE COST ALLOCATION RULE (CHARGEBACK)
 ###########################################################################
 # Purpose: Push transfer-weighted percentages into a native Azure Cost
 #          Management cost allocation rule so chargeback reflects the split.
-# Author: Zac Larsen
 # Date: Created for FinOps Multitool shared-cost allocation
 #
 # Description:

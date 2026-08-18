@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-TENANTHIERARCHY.PS1
 # AZURE FINOPS MULTITOOL - Management Group & Subscription Hierarchy
 ###########################################################################

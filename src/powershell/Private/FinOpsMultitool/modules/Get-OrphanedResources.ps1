@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-ORPHANEDRESOURCES.PS1
 # AZURE FINOPS MULTITOOL - Orphaned & Idle Resource Detection
 ###########################################################################

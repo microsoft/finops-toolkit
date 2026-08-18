@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 ###########################################################################
 # GET-POLICYRECOMMENDATIONS.PS1
 # AZURE FINOPS MULTITOOL - FinOps Policy Recommendations

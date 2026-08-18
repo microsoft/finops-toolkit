@@ -9,7 +9,6 @@
 #          only the (already-summarized) result rows. This is the scalable
 #          hub path: aggregation is pushed into the engine so PowerShell
 #          never materializes tens of GB / hundreds of millions of rows.
-# Author: Zac Larsen
 # Date: Created for FinOps Multitool scalable hub data path
 #
 # Description:

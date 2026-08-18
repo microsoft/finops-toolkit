@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-BUDGETSTATUS.PS1
 # AZURE FINOPS MULTITOOL - Budget vs. Actual Comparison
 ###########################################################################

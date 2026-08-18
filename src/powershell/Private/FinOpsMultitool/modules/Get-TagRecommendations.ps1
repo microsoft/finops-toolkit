@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-TAGRECOMMENDATIONS.PS1
 # AZURE FINOPS MULTITOOL - Tag Recommendations (MS Best Practices)
 ###########################################################################

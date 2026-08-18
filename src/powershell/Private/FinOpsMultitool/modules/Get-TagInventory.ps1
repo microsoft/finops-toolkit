@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-TAGINVENTORY.PS1
 # AZURE FINOPS MULTITOOL - Tag Inventory Across the Tenant
 ###########################################################################

@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-RESERVATIONADVICE.PS1
 # AZURE FINOPS MULTITOOL - Reservation & Savings Plan Recommendations
 ###########################################################################

@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # TEST-MCPSERVER.PS1
 # FINOPS MULTITOOL MCP SERVER TEST HARNESS
 ###########################################################################
@@ -6,7 +9,6 @@
 #          Spawns the server as a child process, drives the JSON-RPC
 #          lifecycle over stdio, and asserts on protocol, tools,
 #          resources, a live Azure tool call, and error/edge paths.
-# Author:  Zac Larsen
 # Date:    Created for FinOps Toolkit MCP integration testing
 #
 # Description:

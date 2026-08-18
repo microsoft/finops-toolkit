@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-MACCCOMMITMENT.PS1
 # AZURE FINOPS MULTITOOL - MACC Consumption Commitment Tracking
 ###########################################################################

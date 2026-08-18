@@ -1,10 +1,12 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # START-MCPSERVER.PS1
 # FINOPS MULTITOOL MCP SERVER (STDIO)
 ###########################################################################
 # Purpose: Model Context Protocol server exposing FinOps scan modules
 #          as AI-callable tools over JSON-RPC via stdin/stdout.
-# Author:  Zac Larsen
 # Date:    Created for FinOps Toolkit integration
 #
 # Description:
@@ -77,7 +79,10 @@ Import-Module $psm1Path -Force -DisableNameChecking
 # =====================================================================
 $MCP_VERSION = '2024-11-05'
 $SERVER_NAME = 'finops-multitool'
-$SERVER_VERSION = '1.3.0'
+
+# Reported server version tracks the toolkit release so the two cannot drift.
+. (Join-Path $PSScriptRoot '..' 'Get-VersionNumber.ps1')
+$SERVER_VERSION = Get-VersionNumber
 
 # =====================================================================
 #  TOOL DEFINITIONS

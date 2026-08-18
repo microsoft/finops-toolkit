@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-SHAREDCOSTALLOCATION.PS1
 # AZURE FINOPS MULTITOOL - Shared Hub Cost Allocation (Showback)
 ###########################################################################

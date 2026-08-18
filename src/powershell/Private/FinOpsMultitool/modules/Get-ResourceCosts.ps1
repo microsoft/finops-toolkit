@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-RESOURCECOSTS.PS1
 # AZURE FINOPS MULTITOOL - Per-Resource Cost Breakdown
 ###########################################################################

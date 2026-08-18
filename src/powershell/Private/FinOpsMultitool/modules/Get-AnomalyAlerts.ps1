@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 ###########################################################################
 # GET-ANOMALYALERTS.PS1
 # AZURE FINOPS MULTITOOL - Cost Management Anomaly & Budget Alerts

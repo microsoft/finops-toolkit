@@ -1,11 +1,13 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-BILLINGACCOUNT.PS1
 # DISCOVER BILLING ACCOUNTS + COST ALLOCATION ELIGIBILITY
 ###########################################################################
 # Purpose: Read-only lookup of billing accounts you can see, their agreement
 #          type, whether they support cost allocation rules, and whether you
 #          can reach the rules endpoint (Cost Management Contributor signal).
-# Author: Zac Larsen
 # Date: Created for FinOps Multitool shared-cost allocation
 #
 # Description:

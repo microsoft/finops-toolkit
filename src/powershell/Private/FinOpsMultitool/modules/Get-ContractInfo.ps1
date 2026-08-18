@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-CONTRACTINFO.PS1
 # AZURE FINOPS MULTITOOL - Billing Account & Contract Type Detection
 ###########################################################################

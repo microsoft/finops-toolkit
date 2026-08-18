@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-LEGACYRESOURCES.PS1
 # AZURE FINOPS MULTITOOL - Legacy & Retiring Resource Detection
 ###########################################################################

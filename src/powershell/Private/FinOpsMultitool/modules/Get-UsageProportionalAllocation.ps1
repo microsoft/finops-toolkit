@@ -1,11 +1,13 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-USAGEPROPORTIONALALLOCATION.PS1
 # TELEMETRY-KEYED SHOWBACK FOR SHARED PLATFORMS (AKS / APIM / AOAI)
 ###########################################################################
 # Purpose: Split the billed cost of a shared platform across SUB-RESOURCE
 #          consumers (k8s namespace, APIM product, OpenAI deployment) by a
 #          usage signal pulled from telemetry - for showback/chargeback.
-# Author: Zac Larsen
 # Date: Created for FinOps Multitool shared-cost allocation
 #
 # Description:

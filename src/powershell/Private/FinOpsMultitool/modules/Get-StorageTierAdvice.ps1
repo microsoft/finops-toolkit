@@ -1,3 +1,6 @@
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 ###########################################################################
 # GET-STORAGETIERADVICE.PS1
 # AZURE FINOPS MULTITOOL - Storage Tier Optimization

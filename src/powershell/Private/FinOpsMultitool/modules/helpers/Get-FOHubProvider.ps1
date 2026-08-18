@@ -10,7 +10,6 @@
 #          returning ONLY summarized results. This is the scalable hub path
 #          for large customer datasets (tens of GB / hundreds of millions of
 #          rows) that must never be loaded into PowerShell objects.
-# Author: Zac Larsen
 # Date: Created for FinOps Multitool scalable hub data path
 #
 # Description:

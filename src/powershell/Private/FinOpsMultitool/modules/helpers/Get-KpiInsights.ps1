@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-KPIINSIGHTS.PS1
 # FINOPS KPI CORRELATION LAYER
 ###########################################################################
@@ -6,7 +9,6 @@
 #          (https://www.finops.org/finops-kpis/) so MCP users who do not
 #          know the KPI taxonomy still see which industry KPIs their results
 #          inform, with a computed value where the data allows.
-# Author: Zac Larsen
 # Date: Created for KPI skills
 #
 # Description:

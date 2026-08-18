@@ -1,3 +1,6 @@
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 ###########################################################################
 # GET-IDLEVMS.PS1
 # AZURE FINOPS MULTITOOL - Idle & Underutilized VM Detection

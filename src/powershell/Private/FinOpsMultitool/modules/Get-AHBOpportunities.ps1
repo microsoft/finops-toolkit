@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-AHBOPPORTUNITIES.PS1
 # AZURE FINOPS MULTITOOL - Azure Hybrid Benefit Gap Detection
 ###########################################################################

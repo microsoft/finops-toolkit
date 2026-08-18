@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-BILLINGSTRUCTURE.PS1
 # AZURE FINOPS MULTITOOL - Billing Profiles, Invoice Sections & Cost Allocation
 ###########################################################################

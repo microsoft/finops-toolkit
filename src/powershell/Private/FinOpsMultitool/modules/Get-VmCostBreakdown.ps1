@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-VMCOSTBREAKDOWN.PS1
 # AZURE FINOPS MULTITOOL - Full VM Cost Decomposition
 ###########################################################################

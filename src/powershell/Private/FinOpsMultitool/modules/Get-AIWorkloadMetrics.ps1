@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-AIWORKLOADMETRICS.PS1
 # AZURE FINOPS MULTITOOL - AI/LLM Workload KPIs (token economics)
 ###########################################################################

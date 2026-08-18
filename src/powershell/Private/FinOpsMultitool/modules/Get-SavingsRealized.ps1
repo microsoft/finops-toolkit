@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-SAVINGSREALIZED.PS1
 # AZURE FINOPS MULTITOOL - Savings Already Realized from Commitments
 ###########################################################################

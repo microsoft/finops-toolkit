@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-OPTIMIZATIONADVICE.PS1
 # AZURE FINOPS MULTITOOL - Azure Advisor Cost Optimization
 ###########################################################################

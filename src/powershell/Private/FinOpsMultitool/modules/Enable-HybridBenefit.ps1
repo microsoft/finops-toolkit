@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # ENABLE-HYBRIDBENEFIT.PS1
 # AZURE FINOPS MULTITOOL - Enable Azure Hybrid Benefit on a VM
 ###########################################################################

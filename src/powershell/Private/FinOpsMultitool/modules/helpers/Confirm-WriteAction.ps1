@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # CONFIRM-WRITEACTION.PS1
 # AZURE FINOPS MULTITOOL - Configurable Write-Safety Core
 ###########################################################################

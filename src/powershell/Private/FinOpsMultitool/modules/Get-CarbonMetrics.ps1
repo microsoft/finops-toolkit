@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-CARBONMETRICS.PS1
 # AZURE FINOPS MULTITOOL - Carbon Emissions (Sustainability)
 ###########################################################################

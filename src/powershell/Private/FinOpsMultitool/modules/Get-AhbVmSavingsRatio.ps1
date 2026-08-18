@@ -1,4 +1,7 @@
-﻿###########################################################################
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
 # GET-AHBVMSAVINGSRATIO.PS1
 # AZURE FINOPS MULTITOOL - Per-SKU Azure Hybrid Benefit Savings Ratio
 ###########################################################################
