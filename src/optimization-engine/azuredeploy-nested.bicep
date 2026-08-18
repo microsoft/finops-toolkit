@@ -1894,16 +1894,6 @@ resource automationVariables_LogAnalyticsWorkspaceId 'Microsoft.Automation/autom
   }
 }
 
-resource automationVariables_LogAnalyticsWorkspaceKey 'Microsoft.Automation/automationAccounts/variables@2020-01-13-preview' = {
-  parent: automationAccount  
-  name: 'AzureOptimization_LogAnalyticsWorkspaceKey'
-  properties: {
-    description: 'The shared key for the Log Analytics Workspace where optimization data will be ingested'
-    value: '"${listKeys(((!logAnalyticsReuse) ? logAnalyticsWorkspace.id : resourceId(logAnalyticsWorkspaceRG, 'microsoft.operationalinsights/workspaces', logAnalyticsWorkspaceName)), '2020-08-01').primarySharedKey}"'
-    isEncrypted: true
-  }
-}
-
 resource automationVariables_DCEIngestionEndpoint 'Microsoft.Automation/automationAccounts/variables@2020-01-13-preview' = {
   parent: automationAccount
   name: 'AzureOptimization_DCEIngestionEndpoint'

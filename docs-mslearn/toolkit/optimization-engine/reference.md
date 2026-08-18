@@ -177,7 +177,7 @@ Schedule start times are calculated from the deployment time by using the offset
 | `AzureOptimization_LogAnalyticsWorkspaceRG` | Log Analytics workspace resource group. | `Recommend-*` runbooks | Set by deployment. |
 | `AzureOptimization_LogAnalyticsWorkspaceSubId` | Log Analytics workspace subscription ID. | `Recommend-*` runbooks | Set by deployment. |
 | `AzureOptimization_LogAnalyticsWorkspaceTenantId` | Log Analytics workspace tenant ID. | `Recommend-*` runbooks | Set by deployment. |
-| `AzureOptimization_LogAnalyticsWorkspaceKey` | Encrypted Log Analytics workspace shared key. | None of the current runbooks | Retained for compatibility; DCR ingestion uses managed identity. |
+| `AzureOptimization_LogAnalyticsWorkspaceKey` | Encrypted Log Analytics workspace shared key. | None of the current runbooks | Removed on upgrade to latest version; DCR ingestion uses managed identity. |
 | `AzureOptimization_DCEIngestionEndpoint` | Logs Ingestion endpoint of the data collection endpoint. | Log Analytics ingestion runbooks | Set by deployment. |
 | `AzureOptimization_LogAnalyticsChunkSize` | Rows per Logs Ingestion API request. | Log Analytics ingestion runbooks | Defaults to `150`. |
 | `AzureOptimization_LogAnalyticsLogPrefix` | Prefix for custom Log Analytics tables. | Log Analytics ingestion runbooks | Defaults to `AzureOptimization`. |
