@@ -167,6 +167,20 @@ function Invoke-FinOpsMultitool {
     }
 
     # =====================================================================
+    #  CONSOLE HELPERS
+    # =====================================================================
+    # Menu rows must never reach the console width. A row that wraps occupies two
+    # physical lines, which desynchronizes the cursor-up math the pickers use to
+    # redraw in place and makes the menu smear down the screen.
+    function Get-MenuWidth {
+        param([int]$Cap)
+        $consoleWidth = 0
+        try { $consoleWidth = [Console]::WindowWidth } catch { $consoleWidth = 0 }
+        if ($consoleWidth -lt 20) { return $Cap }
+        return [math]::Min($Cap, $consoleWidth - 1)
+    }
+
+    # =====================================================================
     #  DATA SOURCE PICKER
     # =====================================================================
     function Select-DataSource {
@@ -305,6 +319,7 @@ function Invoke-FinOpsMultitool {
             }
 
             while ($true) {
+                $tWidth = Get-MenuWidth 85
                 [Console]::SetCursorPosition(0, [Console]::CursorTop)
                 for ($t = 0; $t -lt $tenants.Count; $t++) {
                     $tPrefix = if ($t -eq $tCursor) { '  > ' } else { '    ' }
@@ -315,8 +330,8 @@ function Invoke-FinOpsMultitool {
                     else { $tenants[$t].TenantId }
                     $current = if ($tenants[$t].TenantId -eq $currentTenantId) { ' (current)' } else { '' }
                     $tLine = "$tPrefix$tLabel$current"
-                    if ($tLine.Length -gt 80) { $tLine = $tLine.Substring(0, 77) + '...' }
-                    Write-Host $tLine.PadRight(85) -ForegroundColor $tColor
+                    if ($tLine.Length -gt $tWidth) { $tLine = $tLine.Substring(0, $tWidth - 3) + '...' }
+                    Write-Host $tLine.PadRight($tWidth) -ForegroundColor $tColor
                 }
                 Write-Host ""
                 Write-Host "  ↑↓ Navigate  │  Enter = Select tenant  │  Q = Stay in current" -ForegroundColor DarkGray
@@ -350,7 +365,7 @@ function Invoke-FinOpsMultitool {
 
                 # Move cursor back up to re-render
                 $tLinesToClear = $tenants.Count + 2
-                [Console]::SetCursorPosition(0, [Console]::CursorTop - $tLinesToClear)
+                [Console]::SetCursorPosition(0, [math]::Max(0, [Console]::CursorTop - $tLinesToClear))
             }
             Write-Host ""
         }
@@ -406,14 +421,15 @@ function Invoke-FinOpsMultitool {
             # Render list
             $renderStart = $offset
             $renderEnd = [math]::Min($offset + $pageSize, $allSubs.Count) - 1
+            $width = Get-MenuWidth 75
             [Console]::SetCursorPosition(0, [Console]::CursorTop)
 
             for ($i = $renderStart; $i -le $renderEnd; $i++) {
                 $prefix = if ($i -eq $cursor) { '  > ' } else { '    ' }
                 $color = if ($i -eq $cursor) { 'Green' } else { 'Gray' }
                 $line = "$prefix$($allSubs[$i].Name)"
-                if ($line.Length -gt 70) { $line = $line.Substring(0, 67) + '...' }
-                Write-Host $line.PadRight(75) -ForegroundColor $color
+                if ($line.Length -gt $width) { $line = $line.Substring(0, $width - 3) + '...' }
+                Write-Host $line.PadRight($width) -ForegroundColor $color
             }
             Write-Host ""
             Write-Host "  ↑↓ Navigate  │  Enter = Select  │  Q = Cancel" -ForegroundColor DarkGray
@@ -441,7 +457,7 @@ function Invoke-FinOpsMultitool {
 
             # Move cursor back up to re-render
             $linesToClear = ($renderEnd - $renderStart + 1) + 2
-            [Console]::SetCursorPosition(0, [Console]::CursorTop - $linesToClear)
+            [Console]::SetCursorPosition(0, [math]::Max(0, [Console]::CursorTop - $linesToClear))
         }
     }
 
