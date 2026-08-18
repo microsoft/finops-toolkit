@@ -3,7 +3,7 @@ title: Reference
 description: Reference to the optimization engine tables, runbooks, schedules and variables.
 author: flanakin
 ms.author: micflan
-ms.date: 08/17/2026
+ms.date: 08/18/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,7 @@ ms.reviewer: hepint
 #customer intent: As a FinOps user, I want to understand the Azure optimization engine reference tables, runbooks, schedules and variables.
 ---
 
-# 🧿 Runbooks
+# Runbooks
 
 Azure Optimization Engine runbooks form a data pipeline. Export runbooks collect Azure data as CSV files in Azure Storage. Ingestion runbooks load the exported data into Log Analytics or Azure SQL Database. Recommendation runbooks query Log Analytics and export recommendations as JSON files, which are then ingested into Log Analytics and Azure SQL Database. Maintenance and optional remediation runbooks operate on the recommendations stored in Azure SQL Database.
 
@@ -177,7 +177,7 @@ Schedule start times are calculated from the deployment time by using the offset
 | `AzureOptimization_LogAnalyticsWorkspaceRG` | Log Analytics workspace resource group. | `Recommend-*` runbooks | Set by deployment. |
 | `AzureOptimization_LogAnalyticsWorkspaceSubId` | Log Analytics workspace subscription ID. | `Recommend-*` runbooks | Set by deployment. |
 | `AzureOptimization_LogAnalyticsWorkspaceTenantId` | Log Analytics workspace tenant ID. | `Recommend-*` runbooks | Set by deployment. |
-| `AzureOptimization_LogAnalyticsWorkspaceKey` | Encrypted Log Analytics workspace shared key. | None of the current runbooks | Removed on upgrade to latest version; DCR ingestion uses managed identity. |
+| `AzureOptimization_LogAnalyticsWorkspaceKey` | Encrypted Log Analytics workspace shared key. | None of the current runbooks | Legacy variable (not deployed in current versions). If upgrading from older versions, it is removed; DCR ingestion uses managed identity. |
 | `AzureOptimization_DCEIngestionEndpoint` | Logs Ingestion endpoint of the data collection endpoint. | Log Analytics ingestion runbooks | Set by deployment. |
 | `AzureOptimization_LogAnalyticsChunkSize` | Rows per Logs Ingestion API request. | Log Analytics ingestion runbooks | Defaults to `150`. |
 | `AzureOptimization_LogAnalyticsLogPrefix` | Prefix for custom Log Analytics tables. | Log Analytics ingestion runbooks | Defaults to `AzureOptimization`. |
