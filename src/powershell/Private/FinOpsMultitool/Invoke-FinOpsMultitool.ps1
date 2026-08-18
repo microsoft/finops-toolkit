@@ -140,6 +140,17 @@ function Invoke-FinOpsMultitool {
     # =====================================================================
     function Show-Banner {
         Clear-Host
+
+        # Version comes from the toolkit so the TUI, MCP server, and module cannot drift.
+        # Get-VersionNumber is a sibling private function, absent when this script runs standalone.
+        if (-not (Get-Command -Name Get-VersionNumber -ErrorAction SilentlyContinue)) {
+            $verFile = Join-Path -Path $PSScriptRoot -ChildPath '..' -AdditionalChildPath 'Get-VersionNumber.ps1'
+            if (Test-Path -Path $verFile) { . $verFile }
+        }
+        $verText = if (Get-Command -Name Get-VersionNumber -ErrorAction SilentlyContinue) { "v$(Get-VersionNumber)" } else { '' }
+        # Keeps the banner box interior at a fixed 72 characters for any version length.
+        $verPad = ' ' * [math]::Max(1, 32 - $verText.Length)
+
         $banner = @"
 
   ╔════════════════════════════════════════════════════════════════════════╗
@@ -158,7 +169,7 @@ function Invoke-FinOpsMultitool {
   ║   ██║ ╚═╝ ██║╚██████╔╝███████╗██║   ██║   ██║   ╚██████╔╝╚██████╔╝███████╗
   ║   ╚═╝     ╚═╝ ╚═════╝ ╚══════╝╚═╝   ╚═╝   ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝
   ║                                                                        ║
-  ║   Azure FinOps Scanner & Optimizer                          v2.3.0     ║
+  ║   Azure FinOps Scanner & Optimizer$verPad$verText     ║
   ║                                                                        ║
   ╚════════════════════════════════════════════════════════════════════════╝
 
