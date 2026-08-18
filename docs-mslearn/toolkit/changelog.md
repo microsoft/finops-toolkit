@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/13/2026
+ms.date: 08/18/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -56,6 +56,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### [Optimization Engine](optimization-engine/overview.md)
 
+- **Added**
+  - Added a comprehensive [Azure Optimization Engine reference](optimization-engine/reference.md) for runbooks, schedules, variables, Log Analytics tables, and SQL Database tables. ([#1271](https://github.com/microsoft/finops-toolkit/issues/1271))
 - **Changed**
   - Switched the reservations and benefits workbooks from the retired `ccmstorageprod` isfratioblob.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 
