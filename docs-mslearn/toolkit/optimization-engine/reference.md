@@ -104,7 +104,7 @@ See [Variables](#-variables) for more details.
 
 <br>
 
-# ⏰ Schedules
+# Schedules
 
 Schedule start times are calculated from the deployment time by using the offsets defined in the deployment manifest. You can reschedule any runbook after deployment.
 
@@ -162,7 +162,7 @@ Schedule start times are calculated from the deployment time by using the offset
 
 <br>
 
-# 🧿 Variables
+# Variables
 
 | Variable | Description | Used in runbooks | Notes |
 | --- | --- | --- | --- |
@@ -266,7 +266,7 @@ Changing a container variable also requires updating the corresponding `StorageC
 
 <br>
 
-# 🧿 Log Analytics tables
+# Log Analytics tables
 
 All tables are DCR-based custom tables. Most tables are populated from CSV files by `Ingest-OptimizationCSVExportsToLogAnalytics`. Recommendations are populated from JSON files by `Ingest-RecommendationsToLogAnalytics`, and suppressions are populated from Azure SQL Database by `Ingest-SuppressionsToLogAnalytics`.
 
@@ -302,7 +302,7 @@ All tables are DCR-based custom tables. Most tables are populated from CSV files
 
 <br>
 
-# 🧿 SQL Database tables
+# SQL Database tables
 
 | Table | Data stored | Origin storage container | Origin runbooks | Used in runbooks | Used in Power BI |
 | --- | --- | --- | --- | --- | --- |
