@@ -3,7 +3,7 @@ title: Configure private networking in FinOps hubs
 description: Learn about data access options with FinOps hubs and how to configure secure access to your data with private endpoints.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/19/2026
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
@@ -43,7 +43,23 @@ Private access is a more secure option that places FinOps hubs resources on an i
 
 :::image type="content" source="./media/private-networking/finops-hubs-private-network.png" border="false" alt-text="Screenshot of privately accessible deployments." lightbox="./media/private-networking/finops-hubs-private-network.png" :::
 
+The FinOps Toolkit exclusively owns and manages the FinOps hub virtual network, its three subnets, private endpoints, private DNS, routing, and related resources. This network supports FinOps hub deployment and operation; it isn't a shared network for customer resources.
+
+Don't add customer workloads, subnets, gateways, endpoints, DNS, route tables, or other configuration inside the Toolkit-managed virtual network. The Toolkit doesn't preserve customer additions during deployment or upgrade operations.
+
 Note that private networking incurs extra cost for networking resources, connectivity, and dedicated compute in Azure Data Factory. For a detailed cost estimate, please refer to the Azure pricing calculator.
+
+<br>
+
+## Preferred option: customer-managed private endpoints
+
+For private access from your network, create and manage private endpoints and DNS in your own virtual network for the FinOps hub Storage and Azure Data Explorer resources. This topology is preferred because it keeps customer networking separate from the Toolkit-managed virtual network. The Toolkit doesn't deploy or manage resources in your network.
+
+:::image type="content" source="./media/private-networking/finops-hubs-customer-endpoints.png" border="false" alt-text="Diagram of customer-managed private endpoints and DNS reaching FinOps hub Storage and Azure Data Explorer through Private Link." lightbox="./media/private-networking/finops-hubs-customer-endpoints.png" :::
+
+Azure Private Link connects your private endpoints directly to Storage and Azure Data Explorer without entering or peering with the FinOps hub virtual network. The Toolkit-managed virtual network remains deployed for internal connectivity. For configuration guidance, see [Private Endpoint overview](/azure/private-link/private-endpoint-overview) and [Private Endpoint DNS integration](/azure/private-link/private-endpoint-dns-integration).
+
+If you use a Power BI virtual network data gateway, deploy it in your own virtual network and plan enough subnet address space for the gateway. Don't deploy the gateway in the FinOps hub virtual network. When you connect to Azure Data Explorer, use the fully qualified domain name (FQDN), such as `clustername.region.kusto.windows.net`, to ensure private endpoint name resolution works correctly.
 
 <br>
 
@@ -51,13 +67,13 @@ Note that private networking incurs extra cost for networking resources, connect
 
 The following table compares the network access options available in FinOps hubs:
 
-| Component           | Public                        | Private                                                                                                                | Benefit                                                        |
-| ------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Storage             | Accessible over the internet¹ | Access restricted to the FinOps hub network, peered networks (for example, corporate vNet), and trusted Azure services | Data only accessible when at work or on the corporate VPN      |
-| Azure Data Explorer | Accessible over the internet¹ | Access restricted to the FinOps hub network, peered networks (for example, corporate vNet), and trusted Azure services | Data only accessible when at work or on the corporate VPN      |
-| Key vault           | Accessible over the internet¹ | Access restricted to the FinOps hub network, peered networks (for example, corporate vNet), and trusted Azure services | Keys and secrets are never accessible via to the open internet |
-| Azure Data Factory  | Uses public compute pool      | Managed integration runtime in a private network with Data Explorer, storage, and key vault                            | All data processing happens inside the network                 |
-| Virtual Network     | Not used                      | FinOps hub traffic happens within an isolated vNet                                                                     | Everything remains private; ideal for regulated environments   |
+| Component           | Public                        | Private                                                                                                                 | Benefit                                                        |
+| ------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Storage             | Accessible over the internet¹ | Customer-managed private endpoints in your virtual network (preferred) or customer-managed peering (secondary)          | Data access can remain private to your network                 |
+| Azure Data Explorer | Accessible over the internet¹ | Customer-managed private endpoints in your virtual network (preferred) or customer-managed peering (secondary)          | Data access can remain private to your network                 |
+| Key Vault           | Accessible over the internet¹ | Access restricted to the Toolkit-managed FinOps hub virtual network and trusted Azure services                          | Keys and secrets aren't accessible from the open internet      |
+| Azure Data Factory  | Uses public compute pool      | Managed integration runtime in the Toolkit-managed FinOps hub virtual network                                           | All data processing happens inside the network                 |
+| Virtual Network     | Not used                      | Toolkit-owned and managed isolated virtual network; customer resources aren't supported in this network                 | Toolkit resources remain isolated from customer resources      |
 
 _¹ While resources are accessible over the internet, access is still protected by role-based access control (RBAC)._
 
@@ -69,18 +85,15 @@ To enable private networking when deploying a new or updating an existing FinOps
 
 :::image type="content" source="./media/private-networking/finops-hubs-private-deployment.png" alt-text="Screenshot of secure private deployments." lightbox="./media/private-networking/finops-hubs-private-deployment.png" :::
 
-Before enabling private access, review the networking details on this page to understand the extra configuration required in order to connect to your hub instance. Once enabled, your FinOps hub instance is inaccessible until network access is configured outside of the FinOps hub instance. We recommend sharing this with your network admins to ensure the IP range meets network standards and they understand how to connect your hub instance to the existing network.
+Before enabling private access, review the networking details on this page and coordinate with your network admins. Configure customer-managed private endpoints and DNS in your own network (preferred), or use the secondary peering option, before users and systems connect to the hub.
 
 <br>
 
 ## Removing private networking
 
-If you need to reduce costs or simplify your FinOps hub deployment, you can remove private networking and switch back to public access. This change will:
+If you need to reduce costs or simplify your FinOps hub deployment, you can switch back to public access. Redeploying with **Access** set to **Public** configures Storage, Data Explorer, and Key Vault to use public access and switches Azure Data Factory back to the public integration runtime.
 
-- Remove the virtual network and associated networking costs
-- Disable private endpoints and DNS zones
-- Configure storage, Data Explorer, and Key Vault to use public access
-- Switch Azure Data Factory back to the public integration runtime
+The incremental deployment doesn't delete the Toolkit-created virtual network, private endpoints, private DNS zones, or managed integration runtime. These resources continue to incur costs until you remove them. Customer-managed endpoints, DNS, and other resources in your network are also outside the Toolkit deployment and aren't removed.
 
 > [!WARNING]
 > Removing private networking is a significant change that will affect how you access your FinOps hub. Ensure all stakeholders understand the security implications before proceeding.
@@ -123,12 +136,12 @@ If you need to reduce costs or simplify your FinOps hub deployment, you can remo
 
 4. **Clean up networking resources** (optional):
 
-   - Once you've confirmed the hub is working correctly with public access, you can delete the networking resources to stop incurring networking costs
+   - Once you've confirmed the hub is working correctly with public access, delete only the Toolkit-created networking resources that are no longer needed to stop incurring networking costs
    - Delete resources in the following order to avoid dependency conflicts:
      1. Private endpoints
      2. Private DNS zones
      3. Virtual network and network security groups (NSGs)
-   - Be cautious when deleting resources manually - ensure they're not being used by other systems
+   - Don't delete customer-managed networking resources as part of the FinOps hub cleanup
 
 5. **Remove Azure Data Factory managed integration runtime** (optional):
    - When private networking was enabled, Azure Data Factory may have created a managed integration runtime for secure data processing
@@ -155,25 +168,22 @@ If you need to reduce costs or simplify your FinOps hub deployment, you can remo
 
 ## FinOps hub virtual network
 
-When private access is selected, your FinOps hub instance includes a virtual network to ensure communication between its various components remain private.
+When private access is selected, the Toolkit creates and exclusively manages the FinOps hub virtual network, its three subnets, private endpoints, private DNS, routing, and related resources. The network ensures communication between hub components remains private.
 
-- The virtual network can be any subnet size from **/8** to **/26**, with a minimum of **/26** (64 IP addresses) required. The default is **/26** to conserve IP addresses while providing the minimum required subnet sizes for Container Services (used during deployments for running scripts) and Data Explorer.
-- The IP range can be set at the time of deployment and defaults to **10.20.30.0/26**. Choose a larger subnet (like **/24** or smaller) if you need additional address space for services such as Power BI VNet Data Gateway.
-
-If necessary, you can create the virtual network, subnets, and optionally peer it with your hub network before deploying FinOps hubs if you follow these requirements:
-
-- The virtual network should be a minimum of **/26** in size (64 IP addresses) but can be any size up to **/8** (16,777,216 IP addresses).
-- The name should be `<HubName>-vNet`.
-- The virtual network must be divided into three subnets with the service delegations as specified:
+- The virtual network address range can be any size from **/8** through **/26**, with a minimum address space of **/26** (64 IP addresses). The default is **/26** to conserve IP addresses while providing the minimum required subnet sizes for Container Services (used during deployments for running scripts) and Data Explorer.
+- The IP range can be set at the time of deployment and defaults to **10.20.30.0/26**. The Toolkit divides the range into three subnets with the following service delegations:
   - **private-endpoint-subnet** (**/28**) – no service delegations configured; hosts private endpoints for storage and key vault.
   - **script-subnet** (**/28**) – delegated to container services for running scripts during deployment.
   - **dataExplorer-subnet** (**/27**) – delegated to Azure Data Explorer.
+- If you use Power BI VNet Data Gateway, plan additional subnet address space in your own virtual network, not in the FinOps hub virtual network.
+
+Don't precreate, extend, or modify the FinOps hub virtual network or its subnets. Don't place customer workloads, subnets, gateways, endpoints, DNS, route tables, or other configuration in this network.
 
 <br>
 
 ## Private endpoints and DNS
 
-Communication between the various FinOps hub components is encrypted using TLS. For TLS certificate validation to succeed when using private networking, reliable domain name system (DNS) name resolution is required. DNS zones, private endpoints, and DNS entries guarantee name resolution between FinOps hub components.
+Communication between the various FinOps hub components is encrypted using TLS. For TLS certificate validation to succeed when using private networking, reliable domain name system (DNS) name resolution is required. The Toolkit creates and manages DNS zones, private endpoints, and DNS entries that guarantee name resolution between FinOps hub components.
 
 <!-- cSpell:ignore privatelink, vaultcore -->
 
@@ -185,21 +195,21 @@ Communication between the various FinOps hub components is encrypted using TLS. 
 - **privatelink.{location}.kusto.windows.net** – for Data Explorer
 
 > [!IMPORTANT]
-> Altering the DNS configuration of the FinOps hub virtual network isn't recommended. FinOps hub components require reliable name resolution for deployments and upgrades to succeed. Data Factory pipelines also require reliable name resolution between components.
+> Don't alter the DNS configuration of the FinOps hub virtual network. FinOps hub components require reliable name resolution for deployments and upgrades to succeed. Data Factory pipelines also require reliable name resolution between components.
 
 <br>
 
 ## Network peering, routing, and name resolution
 
-When private access is selected, the FinOps hub instance is deployed to an isolated spoke virtual network. Multiple options exist to enable private connectivity to the FinOps hub virtual network including:
+Customer-managed private endpoints in your own virtual network are the preferred private-access topology. As a secondary option, you can use VNet peering to connect your network to the isolated FinOps hub virtual network. Peering doesn't make the FinOps hub virtual network a shared network: don't place customer workloads or networking resources inside it.
+
+Secondary connectivity options include:
 
 - Peering the FinOps hub network with another Azure vNet.
 - Peering the FinOps hub network with an Azure vWAN hub.
-- Extending the FinOps hub network address space and deploying a VPN gateway.
-- Extending the FinOps hub network address space and deploying a Power BI data gateway.
 - Allowing one's corporate firewall and VPN IP ranges access over the public internet via the storage and Data Explorer firewalls.
 
-To access FinOps hub data from an existing virtual network, configure **A** records in your existing virtual network to access storage or Data Explorer. **CNAME** records may also be required depending on your DNS solution.
+To access FinOps hub data from a peered virtual network, configure **A** records in customer-managed DNS to access Storage or Data Explorer. **CNAME** records may also be required depending on your DNS solution. The Toolkit-managed private DNS zones are linked only to the FinOps hub virtual network and don't provide name resolution to peered networks.
 
 | Required     | Name                                                                | Description                         |
 | ------------ | ------------------------------------------------------------------- | ----------------------------------- |
