@@ -25,7 +25,7 @@ var finopsHubSubnetName = 'private-endpoint-subnet'
 var scriptSubnetName = 'script-subnet'
 var dataExplorerSubnetName = 'dataExplorer-subnet'
 
-// Azure Policy requires private subnets to set defaultOutboundAccess to false explicitly.
+// Azure Policy requires private mode subnets to set defaultOutboundAccess to false explicitly.
 var subnets = !hub.options.privateRouting ? [] : [
   {
     name: finopsHubSubnetName
