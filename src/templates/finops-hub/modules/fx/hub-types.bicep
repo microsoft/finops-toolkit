@@ -28,6 +28,7 @@ type IdNameObject = { id: string, name: string }
   dnsZones: {
     blob: 'Resource ID and name for the blob storage DNS zone.'
     dfs: 'Resource ID and name for the DFS storage DNS zone.'
+    file: 'Resource ID and name for the file storage DNS zone.'
     queue: 'Resource ID and name for the queue storage DNS zone.'
     table: 'Resource ID and name for the table storage DNS zone.'
   }
@@ -46,6 +47,7 @@ type HubRoutingProperties = {
   dnsZones: {
     blob: IdNameObject
     dfs: IdNameObject
+    file: IdNameObject
     queue: IdNameObject
     table: IdNameObject
   }
@@ -227,6 +229,7 @@ func newHubInternal(
     dnsZones: {
       blob:  enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('blob')
       dfs:   enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('dfs')
+      file:  enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('file')
       queue: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('queue')
       table: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('table')
     }

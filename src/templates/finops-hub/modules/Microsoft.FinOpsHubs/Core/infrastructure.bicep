@@ -25,11 +25,13 @@ var finopsHubSubnetName = 'private-endpoint-subnet'
 var scriptSubnetName = 'script-subnet'
 var dataExplorerSubnetName = 'dataExplorer-subnet'
 
+// Azure Policy requires private subnets to set defaultOutboundAccess to false explicitly.
 var subnets = !hub.options.privateRouting ? [] : [
   {
     name: finopsHubSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 0)
+      defaultOutboundAccess: !hub.options.natGateway
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -44,6 +46,7 @@ var subnets = !hub.options.privateRouting ? [] : [
     name: scriptSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 1)
+      defaultOutboundAccess: !hub.options.natGateway
       ...(hub.options.natGateway ? {
         natGateway: {
           id: resourceId('Microsoft.Network/natGateways', natGatewayName)
@@ -60,17 +63,13 @@ var subnets = !hub.options.privateRouting ? [] : [
           }
         }
       ]
-      serviceEndpoints: [
-        {
-          service: 'Microsoft.Storage'
-        }
-      ]
     }
   }
   {
     name: dataExplorerSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 27, 1)
+      defaultOutboundAccess: !hub.options.natGateway
       ...(hub.options.natGateway ? {
         natGateway: {
           id: resourceId('Microsoft.Network/natGateways', natGatewayName)
@@ -211,12 +210,6 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 // NAT Gateway (provides explicit outbound for script-subnet + dataExplorer-subnet;
 // required by the 'Subnets should be private' policy and the September 2025
 // implicit-outbound retirement)
-//
-// Do not set defaultOutboundAccess on the subnets. Setting it -- at any value, on any
-// subnet in this virtual network -- makes the Deployment Scripts service reject the
-// script storage account with DeploymentScriptStorageAccountWithServiceEndpointEnabled,
-// which fails the deployment before the app layer starts. Attaching the NAT Gateway is
-// what actually routes outbound traffic, so the property is not needed here.
 //------------------------------------------------------------------------------
 
 resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (hub.options.natGateway) {
@@ -299,6 +292,29 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (
   }
 }
 
+// Required for deployment scripts
+resource filePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+  name: string(hub.routing.dnsZones.file.name)
+  dependsOn: [
+    vNet
+  ]
+  location: 'global'
+  tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
+  properties: {}
+
+  resource filePrivateDnsZoneLink 'virtualNetworkLinks' = {
+    name: '${replace(filePrivateDnsZone.name, '.', '-')}-link'
+    location: 'global'
+    tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+    properties: {
+      registrationEnabled: false
+      virtualNetwork: {
+        id: hub.routing.networkId
+      }
+    }
+  }
+}
+
 // Required for Azure Data Explorer
 resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
   name: string(hub.routing.dnsZones.queue.name)
@@ -366,22 +382,16 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
     isHnsEnabled: false
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
-      virtualNetworkRules: [
-        {
-          id: hub.routing.subnets.scripts
-          action: 'Allow'
-        }
-      ]
     }
   }
 }
 
 resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hub.options.privateRouting) {
-  name: '${scriptStorageAccount.name}-blob-ep'
+  name: '${scriptStorageAccount.name}-file-ep'
   dependsOn: [
     vNet::scriptSubnet
   ]
@@ -396,20 +406,20 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hu
         name: 'scriptLink'
         properties: {
           privateLinkServiceId: scriptStorageAccount.id
-          groupIds: ['blob']
+          groupIds: ['file']
         }
       }
     ]
   }
   
   resource scriptPrivateDnsZoneGroup 'privateDnsZoneGroups' = {
-    name: 'blob-endpoint-zone'
+    name: 'file-endpoint-zone'
     properties: {
       privateDnsZoneConfigs: [
         {
-          name: blobPrivateDnsZone.name
+          name: filePrivateDnsZone.name
           properties: {
-            privateDnsZoneId: blobPrivateDnsZone.id
+            privateDnsZoneId: filePrivateDnsZone.id
           }
         }
       ]
