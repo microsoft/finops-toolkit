@@ -37,8 +37,8 @@ Private access is a more secure option that places FinOps hubs resources on an i
 - Public network access is disabled by default.
 - Storage is accessible via private IP address and trusted Azure services - firewall is set to default deny with bypass for services on trusted list.
 - Data Explorer (if deployed) is accessible via private IP address - firewall is set to default deny with no exceptions.
-- Key vault is accessible via private IP address and trusted Azure services - firewall is set to default deny with bypass for services on trusted list.
-- Azure Data Factory is configured to use the public integration runtime, which helps reduce costs.
+- Key Vault is accessible via private IP address and trusted Azure services - firewall is set to default deny with bypass for services on trusted list.
+- Azure Data Factory is configured to use a managed integration runtime for private data processing.
 - A virtual network is deployed to ensure communication between all components during deployment and at runtime remains private.
 
 :::image type="content" source="./media/private-networking/finops-hubs-private-network.png" border="false" alt-text="Screenshot of privately accessible deployments." lightbox="./media/private-networking/finops-hubs-private-network.png" :::
@@ -47,7 +47,7 @@ The FinOps Toolkit exclusively owns and manages the FinOps hub virtual network, 
 
 Don't add customer workloads, subnets, gateways, endpoints, DNS, route tables, or other configuration inside the Toolkit-managed virtual network. The Toolkit doesn't preserve customer additions during deployment or upgrade operations.
 
-Note that private networking incurs extra cost for networking resources, connectivity, and dedicated compute in Azure Data Factory. For a detailed cost estimate, please refer to the Azure pricing calculator.
+Note that private networking incurs extra cost for networking resources, connectivity, and dedicated compute in Azure Data Factory. For a detailed cost estimate, see the Azure pricing calculator.
 
 <br>
 
@@ -172,7 +172,7 @@ When private access is selected, the Toolkit creates and exclusively manages the
 
 - The virtual network address range can be any size from **/8** through **/26**, with a minimum address space of **/26** (64 IP addresses). The default is **/26** to conserve IP addresses while providing the minimum required subnet sizes for Container Services (used during deployments for running scripts) and Data Explorer.
 - The IP range can be set at the time of deployment and defaults to **10.20.30.0/26**. The Toolkit divides the range into three subnets with the following service delegations:
-  - **private-endpoint-subnet** (**/28**) – no service delegations configured; hosts private endpoints for storage and key vault.
+  - **private-endpoint-subnet** (**/28**) – no service delegations configured; hosts private endpoints for storage and Key Vault.
   - **script-subnet** (**/28**) – delegated to container services for running scripts during deployment.
   - **dataExplorer-subnet** (**/27**) – delegated to Azure Data Explorer.
 - If you use Power BI VNet Data Gateway, plan additional subnet address space in your own virtual network, not in the FinOps hub virtual network.
@@ -183,7 +183,7 @@ Don't precreate, extend, or modify the FinOps hub virtual network or its subnets
 
 ## Private endpoints and DNS
 
-Communication between the various FinOps hub components is encrypted using TLS. For TLS certificate validation to succeed when using private networking, reliable domain name system (DNS) name resolution is required. The Toolkit creates and manages DNS zones, private endpoints, and DNS entries that guarantee name resolution between FinOps hub components.
+Communication between the various FinOps hub components is encrypted using TLS. For TLS certificate validation to succeed when using private networking, reliable Domain Name System (DNS) name resolution is required. The Toolkit creates and manages DNS zones, private endpoints, and DNS entries that guarantee name resolution between FinOps hub components.
 
 <!-- cSpell:ignore privatelink, vaultcore -->
 
@@ -207,7 +207,7 @@ Secondary connectivity options include:
 
 - Peering the FinOps hub network with another Azure vNet.
 - Peering the FinOps hub network with an Azure vWAN hub.
-- Allowing one's corporate firewall and VPN IP ranges access over the public internet via the storage and Data Explorer firewalls.
+- Allowing your corporate firewall and VPN IP ranges access over the public internet via the storage and Data Explorer firewalls.
 
 To access FinOps hub data from a peered virtual network, configure **A** records in customer-managed DNS to access Storage or Data Explorer. **CNAME** records may also be required depending on your DNS solution. The Toolkit-managed private DNS zones are linked only to the FinOps hub virtual network and don't provide name resolution to peered networks.
 
