@@ -6,11 +6,11 @@ Splitting shared cost across the teams that consume it. Two distinct problems wi
 
 ## Which problem are you solving?
 
-| Consumer is... | Native Azure allocation? | Method |
-| -------------- | ------------------------ | ------ |
-| A subscription, resource group, or tag | **Yes** — cost allocation rules | Write a rule; cost moves in Cost Management |
-| A hub resource shared by spoke subscriptions | Partly | Split by a measured key, then optionally write a rule |
-| A Kubernetes namespace, APIM product, or OpenAI deployment | **No** | Telemetry-keyed showback only |
+| Consumer is...                                             | Native Azure allocation?        | Method                                                |
+| ---------------------------------------------------------- | ------------------------------- | ----------------------------------------------------- |
+| A subscription, resource group, or tag                     | **Yes** — cost allocation rules | Write a rule; cost moves in Cost Management           |
+| A hub resource shared by spoke subscriptions               | Partly                          | Split by a measured key, then optionally write a rule |
+| A Kubernetes namespace, APIM product, or OpenAI deployment | **No**                          | Telemetry-keyed showback only                         |
 
 That last row is the trap. Azure cost allocation rules can only key on **SubscriptionId, ResourceGroupName, or Tag**. A namespace is none of those. Any split you produce for it is a reporting artifact — it can never be written back into Cost Management, and presenting it as though it can is a promise you can't keep.
 
@@ -33,12 +33,12 @@ A `FixedRatio` of 0.3 to 0.5 is a reasonable starting point for connectivity. St
 
 ### Weighting providers, best to worst
 
-| Provider | Accuracy | Source |
-| -------- | -------- | ------ |
-| `inline` | Exact | Caller supplies a measured GB/TB map |
-| `trafficAnalytics` | Exact | Traffic Analytics / VNet flow logs in Log Analytics |
-| `resourceCount` | Proxy | Billable resource count per spoke, from Resource Graph |
-| `equal` | None | Even split |
+| Provider           | Accuracy | Source                                                 |
+| ------------------ | -------- | ------------------------------------------------------ |
+| `inline`           | Exact    | Caller supplies a measured GB/TB map                   |
+| `trafficAnalytics` | Exact    | Traffic Analytics / VNet flow logs in Log Analytics    |
+| `resourceCount`    | Proxy    | Billable resource count per spoke, from Resource Graph |
+| `equal`            | None     | Even split                                             |
 
 **Per-spoke ExpressRoute attribution is impossible from billing data alone.** It requires the flow-log key. Without flow logs you are estimating — label the output that way rather than presenting a proxy split as measured.
 

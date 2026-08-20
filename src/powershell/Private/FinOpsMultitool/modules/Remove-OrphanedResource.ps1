@@ -114,8 +114,22 @@ function Remove-OrphanedResource {
 
     $resObj = $null
     try { $resObj = $getResp.Content | ConvertFrom-Json -ErrorAction Stop } catch {}
-    $props = if ($resObj) { $resObj.properties } else { $null }
-    $location = if ($resObj) { $resObj.location } else { $null }
+
+    # Without a parsed body the orphan check below cannot evaluate anything and
+    # would pass by default, so refuse rather than delete on unverified state.
+    if (-not $resObj) {
+        return [PSCustomObject]@{
+            HasData      = $false
+            Mode         = 'Blocked'
+            Applied      = $false
+            Error        = "Refusing to delete: the response for '$resName' could not be parsed, so it cannot be confirmed as orphaned."
+            ResourceId   = $ResourceId
+            ResourceType = $fullType
+        }
+    }
+
+    $props = $resObj.properties
+    $location = $resObj.location
 
     # ---- Defense in depth: verify the resource is genuinely orphaned ----
     $inUseBy = @()

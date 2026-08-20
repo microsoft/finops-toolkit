@@ -286,7 +286,9 @@ $scope
     # One snapshot: a sentinel *TOTAL* row plus per-(key,value) cost. Untagged
     # cost per key is derived in PowerShell as total minus the key's tagged sum
     # (mirrors the converter assigning '(untagged)' to rows lacking the key).
-    $keyList = ($keys | Where-Object { $_ } | ForEach-Object { '"' + ($_ -replace '"', '\"') + '"' }) -join ', '
+    # Escape backslash before quote, matching ConvertTo-KqlLiteral, so a tag key
+    # ending in a backslash cannot terminate the KQL string early.
+    $keyList = ($keys | Where-Object { $_ } | ForEach-Object { '"' + $_.Replace('\', '\\').Replace('"', '\"') + '"' }) -join ', '
     $query = @"
 $(Get-FOHubAnchorLet)
 let src = Costs
