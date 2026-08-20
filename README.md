@@ -162,6 +162,7 @@ There are many ways to participate. From reporting bugs and requesting features 
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/TakumiSeo"><img src="https://avatars.githubusercontent.com/u/49015441?v=4?s=100" width="100px;" alt="TakuSe"/><br /><sub><b>TakuSe</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=TakumiSeo" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/fatimataayeb"><img src="https://avatars.githubusercontent.com/u/10252241?v=4?s=100" width="100px;" alt="Fatima Tayeb"/><br /><sub><b>Fatima Tayeb</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=fatimataayeb" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
