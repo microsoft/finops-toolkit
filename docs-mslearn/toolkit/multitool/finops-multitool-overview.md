@@ -1,9 +1,9 @@
 ---
 title: FinOps multitool overview
-description: FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from a terminal UI or an MCP server for AI agents.
+description: FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from a terminal UI, with agent skills so AI assistants can run the same analysis.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 08/13/2026
+ms.date: 08/19/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -21,7 +21,7 @@ FinOps multitool runs 30 scan modules against the subscriptions you select and r
 
 - **Interactive scanning** <br> Choose the subscriptions and scan modules you want, then review results in the terminal. Findings can be exported to CSV, an HTML report, and a text summary.
 
-- **AI agent support** <br> A Model Context Protocol (MCP) server exposes the same scans as tools, so agents like GitHub Copilot can answer cost questions grounded in your environment instead of general guidance.
+- **AI agent support** <br> A companion set of agent skills teaches AI assistants the same investigations, the queries behind them, and how to read the results, so they can answer cost questions grounded in your environment instead of general guidance.
 
 - **Scales with your data** <br> When a [FinOps hub](../hubs/finops-hubs-overview.md) is available, cost scans query the hub's Azure Data Explorer or Microsoft Fabric database and push aggregation into the engine, returning only summarized results. A storage reader covers smaller datasets, and the Cost Management API is used when no hub is present.
 

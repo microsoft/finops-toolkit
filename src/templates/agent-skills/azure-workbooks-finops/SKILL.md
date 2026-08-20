@@ -2,7 +2,7 @@
 name: azure-workbooks-finops
 description: Use when the user wants to deploy, interpret, or customize the FinOps toolkit Azure Monitor workbooks (Governance and Optimization), build a workbook from cost/resource data, or troubleshoot a workbook that shows no data. For Azure Monitor workbooks specifically — not Power BI.
 license: MIT
-compatibility: Requires Azure access with Reader (to view) or Workbook Contributor (to save) and, for some tiles, Azure Resource Graph and Cost Management read access. Pairs with the finops-multitool MCP server.
+compatibility: Requires Azure access with Reader (to view) or Workbook Contributor (to save) and, for some tiles, Azure Resource Graph and Cost Management read access. Pairs with the finops-multitool skill.
 metadata:
   author: microsoft
   version: "1.0"

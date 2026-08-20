@@ -2,7 +2,7 @@
 name: cost-data-source
 description: This skill should be used before any spend question that would call the FinOps multitool cost tools — "what's my cost", "current spend", "top resources by cost", "cost by tag", "this month's bill", "where is the money going", or any "cost scan". It decides whether to read from a FinOps Hub (its Kusto database or storage export) or the live Cost Management API, warns the user before a slow API scan, and supports chunking large tenants for incremental progress. Use it to keep cost scans fast and the session engaging instead of blocking on long API runs.
 license: MIT
-compatibility: Requires the finops-multitool MCP server (see .vscode/mcp.json) and an authenticated Azure session (Connect-AzAccount). The hub Kusto path needs read access to the FinOps Hub Azure Data Explorer / Fabric cluster (or a reachable ftklocal emulator); the storage-reader fallback needs Storage Blob Data Reader on the hub storage account. The cost tools this skill routes are read-only.
+compatibility: Requires the finops-multitool skill and an authenticated Azure session (Connect-AzAccount). The hub Kusto path needs read access to the FinOps Hub Azure Data Explorer / Fabric cluster (or a reachable ftklocal emulator); the storage-reader fallback needs Storage Blob Data Reader on the hub storage account. The cost tools this skill routes are read-only.
 metadata:
   author: microsoft
   version: '1.1'
@@ -19,17 +19,17 @@ This skill decides hub vs API so cost scans stay fast and the session stays inte
 
 This routing applies **only** to the spend-breakdown tools that read from a hub:
 
-- `scan_cost_data` (current month actuals per subscription)
-- `scan_resource_costs` (top resources by cost)
-- `scan_cost_by_tag` (spend by tag key/value)
+- cost data (current month actuals per subscription)
+- resource costs (top resources by cost)
+- cost by tag (spend by tag key/value)
 
-All other cost-family tools — `scan_cost_trend`, `scan_budget_status`, `scan_anomaly_alerts`, `scan_reservation_advice`, `scan_commitment_utilization`, `scan_savings_realized` — are **not** derivable from cost exports and always run on the live API. Governance and optimization tools are unaffected.
+All other cost-family tools — cost trend, budget status, anomaly alerts, reservation advice, commitment utilization, savings realized — are **not** derivable from cost exports and always run on the live API. Governance and optimization tools are unaffected.
 
 ## Protocol: detect first, then decide
 
 For any spend question that maps to one of the three tools above, do this **before** calling the cost tool:
 
-1. Call `detect_cost_data_source` (pass `subscriptionId` if the user scoped to one subscription). It returns a decision object describing whether a hub was found, whether it is readable, what it covers, how fresh it is, and how long the live API path would take.
+1. Call the data-source check (pass `subscriptionId` if the user scoped to one subscription). It returns a decision object describing whether a hub was found, whether it is readable, what it covers, how fresh it is, and how long the live API path would take.
 2. Branch on the `Recommendation` field. Never silently run a slow API scan — warn and ask first.
 
 ### Decision object fields
@@ -104,8 +104,8 @@ Always tell the user which source the numbers came from and, for hub data, how f
 
 ## Prerequisites
 
-- The `finops-multitool` MCP server must be running (defined in `.vscode/mcp.json`).
+- An authenticated Azure session (`az login`, or `Connect-AzAccount` for the terminal UI).
 - An authenticated Azure session is required (`Connect-AzAccount`).
 - The scalable hub path needs read access to the FinOps Hub Kusto database — an Azure Data Explorer / Fabric cluster (discovered automatically), or a reachable ftklocal emulator via `FINOPS_HUB_KUSTO_URI`.
-- The storage-reader fallback additionally needs **Storage Blob Data Reader** on the hub storage account. Without any hub path, `detect_cost_data_source` reports the blocker and the live API is used instead.
+- The storage-reader fallback additionally needs **Storage Blob Data Reader** on the hub storage account. Without any hub path, the data-source check reports the blocker and the live API is used instead.
 - The cost tools this skill routes are read-only.

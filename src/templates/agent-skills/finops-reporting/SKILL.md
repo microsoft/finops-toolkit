@@ -2,7 +2,7 @@
 name: finops-reporting
 description: Use when the user wants to turn cost data, scan output, or KQL results into an audience-ready narrative — executive summaries, monthly cost reviews, QBR decks, variance write-ups, or savings/optimization status reports. Converts numbers into decisions and recommendations.
 license: MIT
-compatibility: Works on output from the finops-multitool MCP server, the finops-toolkit KQL skill, or any cost dataset. Pairs with power-bi-finops for visuals and content-humanizer for tone.
+compatibility: Works on output from the finops-multitool skill, the finops-toolkit KQL skill, or any cost dataset. Pairs with power-bi-finops for visuals and content-humanizer for tone.
 metadata:
   author: microsoft
   version: "1.0"
@@ -14,7 +14,7 @@ Translate cost analytics into the report the audience actually needs. The other 
 
 ## When to use this skill
 
-Use it when the user asks for a summary, executive report, monthly/quarterly review, QBR, variance explanation, or "write up" of cost or savings. Gather the data first (`finops-multitool` scans, `finops-toolkit` KQL, or `run_full_scan` for a broad sweep), then shape it here.
+Use it when the user asks for a summary, executive report, monthly/quarterly review, QBR, variance explanation, or "write up" of cost or savings. Gather the data first (`finops-multitool` scans, `finops-toolkit` KQL, or a full assessment for a broad sweep), then shape it here.
 
 ## Match the report to the audience
 
@@ -28,9 +28,9 @@ Use it when the user asks for a summary, executive report, monthly/quarterly rev
 ## Executive summary structure
 
 1. **Headline** — total spend, MoM/QoQ change %, one sentence on why.
-2. **Trend** — are we accelerating, flat, or declining? (`scan_cost_trend`, `monthly-cost-trend.kql`)
+2. **Trend** — are we accelerating, flat, or declining? (cost trend, `monthly-cost-trend.kql`)
 3. **Top movers** — the 3 services/resource groups driving the change.
-4. **Savings captured** — ESR and realized savings (`scan_savings_realized`, `savings-summary-report.kql`).
+4. **Savings captured** — ESR and realized savings (savings realized, `savings-summary-report.kql`).
 5. **Opportunities** — top 3 unrealized savings, each with $ impact, effort, and owner.
 6. **Anomalies / risks** — anything unusual, expiring commitments, budget overruns.
 7. **Recommended actions** — numbered, owned, with a target date. This is the part executives read.
@@ -49,7 +49,7 @@ For every finding, give: **what** (the issue), **how much** ($ / month or %), **
 
 ## Hand-offs
 
-- Need the data → `finops-multitool` (`run_full_scan` for breadth) or `finops-toolkit` KQL.
+- Need the data → `finops-multitool` (a full assessment for breadth) or `finops-toolkit` KQL.
 - Need charts in the report → `power-bi-finops`.
 - Need efficiency KPIs (ESR, unit cost) → `unit-economics`.
 - Need budget vs actual variance → `forecasting-budgeting`.

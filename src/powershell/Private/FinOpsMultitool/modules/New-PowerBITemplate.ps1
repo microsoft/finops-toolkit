@@ -9,7 +9,7 @@
 # Date:    Created for FinOps Toolkit integration
 #
 # Description:
-# Headless, dependency-free generator used by the TUI and the MCP
+# Headless, dependency-free generator used by the TUI and by
 # server. Given a scan-data hashtable it:
 # 1. Writes one curated CSV per scan section into the output folder.
 # 2. Clones assets\skeleton.pbit and injects a generated DataModelSchema so
@@ -18,7 +18,7 @@
 #
 # This function performs NO UI work: no WPF, no MessageBox, no folder
 # dialogs. Errors are thrown so callers can surface them however they
-# like. The MCP server calls it directly.
+# like. Callers can invoke it directly.
 #
 # ── Parameters ──────────────────────────────────────────────────
 # ScanData       Hashtable of scan results (Auth, Costs, ResourceCosts,

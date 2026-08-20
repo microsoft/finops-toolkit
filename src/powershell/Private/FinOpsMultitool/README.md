@@ -172,9 +172,9 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 
 ## FinOps KPI Coverage
 
-The scan modules map directly to [FinOps Foundation KPIs](https://www.finops.org/finops-kpis/). When using the MCP server, you ask in natural language and the agent calls the matching tool. A few examples of prompt → output:
+The scan modules map directly to [FinOps Foundation KPIs](https://www.finops.org/finops-kpis/). Each scan answers a KPI question directly, and the `finops-multitool` agent skill routes a natural-language question to the matching investigation. A few examples of question → output:
 
-### Percentage of Legacy Resource → `scan_legacy_resources`
+### Percentage of Legacy Resource → legacy resources
 
 > "Which of my resources are running on legacy or retiring SKUs?"
 
@@ -191,7 +191,7 @@ By category:
 
 Legacy % = 47 ÷ total resources in scope.
 
-### Cost per Gigabyte Stored / Hourly Cost per CPU Core → `scan_unit_economics`
+### Cost per Gigabyte Stored / Hourly Cost per CPU Core → unit economics
 
 > "What's my cost per vCPU and per GB of storage this month?"
 
@@ -209,7 +209,7 @@ Storage  $ 41,200 (24.3%)   126,400 GB (84,600 GB disk + 41,800 GB blob/file)
 
 vCPU and RAM are exact (read from Compute SKU capabilities). Storage GB combines provisioned managed disks with Storage-account used capacity (Azure Monitor `UsedCapacity`). Cost is scoped to the selected subscriptions and falls back to per-subscription queries when the management-group scope is not accessible, so the section is never silently $0. Directly produces `Cost per GB Stored`; feeds `Hourly Cost per CPU Core` (÷ 730) and `Effective Avg Compute Cost per Core`.
 
-### Token Consumption / Cost per 1K Tokens / Cost per API Call → `scan_ai_workloads`
+### Token Consumption / Cost per 1K Tokens / Cost per API Call → ai workloads
 
 > "What are my AI/LLM workloads costing per token and per request this month?"
 
@@ -229,7 +229,7 @@ Produces `Token Consumption`, `Cost per 1K Tokens` (effective blended rate), and
 
 Like the cost scans, this honors `dataSource` (`auto` / `hub` / `api`). When a readable FinOps Hub export covers the scope, AI spend and billed token volume are read straight from the export — no Azure Monitor or Cost Management calls. Cost per request is only available on the live API path, since request counts are not billed line items.
 
-### Carbon per Unit of Spend / Carbon Efficiency → `scan_carbon`
+### Carbon per Unit of Spend / Carbon Efficiency → carbon
 
 > "Show my cloud carbon footprint and how it changed month over month."
 
@@ -245,9 +245,9 @@ Top emitting subscriptions:
   Data-Platform     a1b2c3d4…   4,330 kgCO2e
 ```
 
-Combined with `scan_cost_data`, `Carbon per Unit of Spend` = total emissions ÷ monthly spend.
+Combined with cost data, `Carbon per Unit of Spend` = total emissions ÷ monthly spend.
 
-### Commitment Utilization Score / % Discount Waste → `scan_commitment_utilization`
+### Commitment Utilization Score / % Discount Waste → commitment utilization
 
 > "How well are my reservations and savings plans being used?"
 
@@ -261,7 +261,7 @@ Overall score         91.8%
 
 `Commitment Utilization Score` = 91.8%; `% Commitment Discount Waste` = 100 − 91.8 = 8.2%.
 
-### % Costs from Untagged Resources → `scan_cost_by_tag`
+### % Costs from Untagged Resources → cost by tag
 
 > "How much of my spend is on untagged resources?"
 
@@ -294,7 +294,7 @@ The cost-family scans (Cost Data, Resource Costs, Cost by Tag) read from a FinOp
 | **Kusto — offline (ftklocal)** | Your own hardware / air-gapped: an [ftklocal](https://github.com/microsoft/finops-toolkit) Kusto emulator with the exports loaded into the local **Hub** database | Set `FINOPS_HUB_KUSTO_URI` (and optionally `FINOPS_HUB_KUSTO_DB`, default `Hub`). The local emulator is queried anonymously — same KQL, no auth.                                                       |
 | **Storage export reader**      | Small datasets, or when no Kusto cluster is available                                                                                                             | Reads the hub's `ingestion` parquet / `msexports` CSV and aggregates in PowerShell. A convenience fallback, **not** the scalable path.                                                                 |
 
-Selection is automatic: `FINOPS_HUB_KUSTO_URI` (if set) wins, else a discovered cluster, else the storage reader. To force the live Cost Management API instead, choose the **Cost Management API** source (TUI) or pass `dataSource=api` (MCP).
+Selection is automatic: `FINOPS_HUB_KUSTO_URI` (if set) wins, else a discovered cluster, else the storage reader. To force the live Cost Management API instead, choose the **Cost Management API** source in the TUI.
 
 #### Environment variables
 
@@ -321,129 +321,9 @@ $tagInventory = ConvertTo-TagInventoryFromHub -HubData $hubData
 $costByTag = ConvertTo-CostByTagFromHub -HubData $hubData -ExistingTags $tagInventory.TagNames
 ```
 
-## MCP Server (AI Integration)
-
-The FinOps multitool includes an MCP (Model Context Protocol) server that exposes all 30 scan modules — plus a `run_full_scan` composite — as AI-callable tools, along with a set of **remediation (write) tools** that act on the findings. This lets Copilot, Claude, custom agents, and SRE automation call the same functions used by the TUI.
-
-Read scans are always safe. The write tools are gated by a configurable [write-safety policy](#write-safety-remediation-tools) so neither a person nor an autonomous agent can make a costly mistake — every write previews first (dry-run) and, in autonomous mode, requires a single-use confirmation token bound to the exact change.
-
-### Setup
-
-For a standalone `.vscode/mcp.json` (workspace or user level), use a top-level `servers` block:
-
-```json
-{
-  "servers": {
-    "finops-multitool": {
-      "type": "stdio",
-      "command": "pwsh",
-      "args": ["-NoProfile", "-File", "path/to/Start-McpServer.ps1"]
-    }
-  }
-}
-```
-
-For VS Code `settings.json`, nest the same under an `mcp` key:
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "finops-multitool": {
-        "type": "stdio",
-        "command": "pwsh",
-        "args": ["-NoProfile", "-File", "path/to/Start-McpServer.ps1"]
-      }
-    }
-  }
-}
-```
-
-### Available Tools
-
-| Tool                          | Description                                           |
-| ----------------------------- | ----------------------------------------------------- |
-| `scan_orphaned_resources`     | Find unattached disks, NICs, public IPs, NSGs         |
-| `scan_idle_vms`               | Find VMs with <5% CPU over 14-30 days                 |
-| `scan_storage_tier_advice`    | Storage accounts that could use cooler tiers          |
-| `scan_ahb_opportunities`      | VMs/SQL not using Azure Hybrid Benefit                |
-| `scan_tag_inventory`          | Tag coverage %, tag names, resource counts            |
-| `scan_tag_recommendations`    | Inconsistent casing, missing standard tags            |
-| `scan_policy_inventory`       | Policy assignments with compliance status             |
-| `scan_policy_recommendations` | Policy coverage gaps for cost governance              |
-| `scan_cost_data`              | Actual + forecasted cost per subscription             |
-| `scan_resource_costs`         | Top resources by cost (MTD)                           |
-| `scan_cost_by_tag`            | Spend breakdown by tag key/value                      |
-| `scan_cost_trend`             | Month-over-month spend comparison                     |
-| `scan_reservation_advice`     | RI purchase recommendations                           |
-| `scan_commitment_utilization` | RI and Savings Plan usage rates                       |
-| `scan_savings_realized`       | Actual savings from commitments                       |
-| `scan_budget_status`          | Budget consumption vs thresholds                      |
-| `scan_anomaly_alerts`         | Recent cost anomaly detections                        |
-| `scan_legacy_resources`       | Legacy/retiring SKUs needing modernization            |
-| `scan_unit_economics`         | Cost per vCPU, per VM, and per GB stored              |
-| `scan_ai_workloads`           | AI token consumption, cost per 1K tokens, per call    |
-| `scan_carbon`                 | Cloud carbon emissions and month-over-month trend     |
-| `scan_optimization_advice`    | Azure Advisor cost recommendations                    |
-| `scan_billing_structure`      | Billing account hierarchy                             |
-| `scan_contract_info`          | Agreement type, offer, support plan                   |
-| `explore_finops_kpis`         | Browse the FinOps Foundation KPIs this server informs |
-| `run_full_scan`               | Run all modules — comprehensive assessment            |
-
-### Remediation Tools (write actions)
-
-These tools **change Azure resources**. They are dry-run by default and route through the [write-safety policy](#write-safety-remediation-tools) below. Each acts on a single resource ID returned by the matching read scan.
-
-| Tool                                 | Action                                                                                | Reversible             |
-| ------------------------------------ | ------------------------------------------------------------------------------------- | ---------------------- |
-| `remediate_enable_hybrid_benefit`    | Enable Azure Hybrid Benefit on a VM (from `scan_ahb_opportunities`)                   | Yes (set back to None) |
-| `remediate_deallocate_vm`            | Deallocate an idle VM (from `scan_idle_vms`)                                          | Yes (start the VM)     |
-| `remediate_delete_orphaned_resource` | Delete an orphaned disk / NIC / public IP / snapshot (from `scan_orphaned_resources`) | No (delete)            |
-
-Each write tool takes `resourceId` (required), `apply` (default `false` = preview), and `confirmationToken` (required only in Enforced mode). The delete tool only accepts an allow-list of safe-to-delete types and re-verifies the resource is still orphaned before acting.
-
-### FinOps KPI Insights
-
-Most users do not know the [FinOps Foundation KPI catalog](https://www.finops.org/finops-kpis/) by name, so the server surfaces it for them. Every scan automatically attaches a `kpiInsights` block that maps the result to the industry KPIs it informs, with a computed value where the data allows:
-
-```json
-"kpiInsights": [
-  { "kpiId": "cost-per-gb-stored", "kpiName": "Cost per Gigabyte Stored",
-    "domain": "Quantify", "status": "computed", "yourValue": "USD 0.0108 per GB / month",
-    "plainLanguage": "What you pay for each GB of stored data this month.",
-    "exploreHint": "Run scan_storage_tier_advice to see if cooler tiers lower this.",
-    "learnMore": "https://www.finops.org/finops-kpis/" }
-]
-```
-
-`status` is `computed` when a real value was derived from the scan, or `informational` when the scan relates to the KPI but the value needs another scan or external input — the server never fabricates a number. Call `explore_finops_kpis` (no arguments) to list the informable KPIs grouped by FinOps domain, or pass a `kpiId` for a single KPI's definition and which tool produces it. This first release covers ~27 KPIs across Understand, Quantify, Optimize, and Manage.
-
-### Resources
-
-| URI                    | Description                         |
-| ---------------------- | ----------------------------------- |
-| `finops://permissions` | Required RBAC roles per scan module |
-| `finops://modules`     | List of all available scan modules  |
-
-### Architecture
-
-```
-AI Agent (Copilot / Claude / SRE Agent)
-    │ MCP Protocol (stdio JSON-RPC)
-    ▼
-Start-McpServer.ps1
-    │ Imports FinOpsMultitool.psm1
-    ▼
-Get-CostData, Get-TagInventory, etc.   ◄── read scans
-Remove-OrphanedResource, Stop-IdleVm…   ◄── write tools → Resolve-WriteDecision (safety gate)
-    │ Same functions used by the TUI
-    ▼
-Azure APIs (Cost Management, Resource Graph, Advisor, etc.)
-```
-
 ## Write Safety (Remediation Tools)
 
-The remediation tools are designed for two audiences at once — a person chatting through an AI client, **and** an autonomous agent running unattended — without forcing the safety burden on the interactive experience. Behavior is controlled by environment variables, so the same server is friendly in a chat and locked-down in production. The server is **read-only by default** (`ReadOnly`); enabling writes is a deliberate opt-in via `FINOPS_WRITE_MODE`.
+The remediation functions are read-only by default. Every write previews first, and enabling writes is a deliberate opt-in via `FINOPS_WRITE_MODE`. The gate lives in the functions themselves, so it applies to any caller — the TUI, a script, or anything that imports the module.
 
 ### Modes — `FINOPS_WRITE_MODE`
 
@@ -477,7 +357,6 @@ These never depend on a well-behaved client. Configure via environment variables
     "finops-multitool": {
       "type": "stdio",
       "command": "pwsh",
-      "args": ["-NoProfile", "-File", "path/to/Start-McpServer.ps1"],
       "env": {
         "FINOPS_WRITE_MODE": "Enforced",
         "FINOPS_PROTECTED_RGS": "rg-prod-*,rg-shared",
@@ -497,7 +376,6 @@ FinOpsMultitool/
 ├── README.md                  # This file
 ├── FinOpsMultitool.psm1       # Module loader (dot-sources all scan modules)
 ├── Invoke-FinOpsMultitool.ps1 # TUI entry point
-├── Start-McpServer.ps1        # MCP server (AI integration, stdio JSON-RPC)
 ├── modules/
 │   ├── helpers/
 │   │   ├── Read-FinOpsHubData.ps1          # Hub storage reader + converters (small-dataset path)

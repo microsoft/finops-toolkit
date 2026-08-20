@@ -15,12 +15,12 @@ Enforce the guardrails that make FinOps allocation and waste-control durable: ta
 
 ## When to use this skill
 
-Use it when the user wants to enforce or audit tagging, restrict what can be deployed, or asks for "a policy" to back up a FinOps recommendation. Run `scan_policy_inventory` and `scan_policy_recommendations` from the `finops-multitool` MCP server first to see what's already assigned and where the gaps are, then generate policy here.
+Use it when the user wants to enforce or audit tagging, restrict what can be deployed, or asks for "a policy" to back up a FinOps recommendation. Run policy inventory and policy recommendations from the `finops-multitool` skill first to see what's already assigned and where the gaps are, then generate policy here.
 
 ## Workflow
 
-1. **Inventory** — `scan_policy_inventory` (existing assignments, scopes, effects, compliance).
-2. **Gap analysis** — `scan_policy_recommendations` (missing tagging/region/SKU guardrails).
+1. **Inventory** — policy inventory (existing assignments, scopes, effects, compliance).
+2. **Gap analysis** — policy recommendations (missing tagging/region/SKU guardrails).
 3. **Verify definition IDs** — built-in policy IDs change rarely but must be confirmed. Use the Microsoft Learn MCP / docs before emitting any ID into a template. Do not ship an ID from memory.
 4. **Generate** — produce Bicep or ARM for the assignment(s), parameterized and scoped.
 5. **Stage effects** — deploy as `Audit`/`AuditIfNotExists` first, review compliance, then escalate to `Deny`/`Modify`. Never lead with `Deny` on an existing environment.

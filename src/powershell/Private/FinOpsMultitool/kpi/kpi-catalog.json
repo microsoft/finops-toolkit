@@ -1,5 +1,5 @@
 {
-  "_comment": "FinOps Foundation KPI correlation catalog (Phase 1). Curated subset of https://www.finops.org/finops-kpis/ that this MCP server can inform from scan output. Each entry maps one or more source tools to a KPI. 'compute' = the server can calculate a value; 'informational' = the scan relates to the KPI but the value needs the field below or external input. Keep this honest: never claim a value we cannot derive.",
+  "_comment": "FinOps Foundation KPI correlation catalog (Phase 1). Curated subset of https://www.finops.org/finops-kpis/ that the scan output can inform. Each entry maps one or more source tools to a KPI. 'compute' = the server can calculate a value; 'informational' = the scan relates to the KPI but the value needs the field below or external input. Keep this honest: never claim a value we cannot derive.",
   "version": "1.0.0",
   "learnMoreBase": "https://www.finops.org/finops-kpis/",
   "kpis": [

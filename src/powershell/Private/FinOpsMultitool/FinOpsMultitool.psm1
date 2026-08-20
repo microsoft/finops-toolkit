@@ -6,7 +6,7 @@
 # MODULE LOADER
 ###########################################################################
 # Purpose: Dot-sources all helpers and analysis modules so they can be
-#          imported via Import-Module and used by the TUI or MCP server.
+#          imported via Import-Module and used by the TUI.
 #
 # Usage:
 #   Import-Module .\FinOpsMultitool.psm1

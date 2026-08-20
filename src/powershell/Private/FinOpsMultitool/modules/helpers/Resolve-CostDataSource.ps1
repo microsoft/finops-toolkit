@@ -7,10 +7,10 @@
 ###########################################################################
 # Purpose: Decide whether cost scans should read FinOps Hub / Cost
 #          Management export data (fast) or the live Cost Management API.
-# Date: Created for FinOps Multitool MCP server export-first routing
+# Date: Created for FinOps Multitool export-first routing
 #
 # Description:
-# Non-interactive detector used by the MCP server and the agent skill.
+# Non-interactive detector used by the TUI and the agent skills.
 # It inspects the requested scope and returns a structured decision so
 # the agent can take the fast path when an export is readable, or set
 # expectations (and ask) before falling back to the slow API path.
@@ -143,7 +143,7 @@ Resources
     # The scalable ONLINE path. The toolkit deploys the cluster alongside the
     # hub storage (same resource group) and tags it ftk-tool == 'FinOps hubs'.
     # This is the same discovery the toolkit's own ftk-hubs-connect flow uses.
-    # Attached here so it flows through every return path below and the MCP
+    # Attached here so it flows through every return path below and the
     # detect tool can advertise it without a second Resource Graph call.
     $cluster = Get-HubKustoCluster -RequestedSubscriptionIds $requested -HubResourceGroup $hub.resourceGroup
     if ($cluster -and $cluster.ClusterUri) {
@@ -418,7 +418,7 @@ function Get-HubCoverage {
 # When no FinOps Hub is present, look for any Cost Management export the
 # caller can read (classic or FOCUS, CSV). Picks the newest-run CSV export
 # per subscription (deduping overlapping exports so cost is not double
-# counted), and reports coverage + freshness so the MCP server can take the
+# counted), and reports coverage + freshness so the caller can take the
 # export fast path the same way it does for a hub. CSV only — Parquet
 # exports are detected and reported but not read in PowerShell.
 function Resolve-GenericExportSource {
@@ -443,7 +443,7 @@ function Resolve-GenericExportSource {
     $subCount = $requested.Count
 
     # Find-CostExport needs subscription objects (Id + Name). The resolver
-    # only has IDs; names are not needed for detection (the MCP dispatch
+    # only has IDs; names are not needed for detection (the dispatch
     # supplies the real sub objects to the converters).
     $subObjs = $requested | ForEach-Object { [pscustomobject]@{ Id = $_; Name = $_ } }
 

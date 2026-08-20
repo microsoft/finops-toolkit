@@ -3,13 +3,13 @@ layout: default
 title: FinOps multitool
 browser: FinOps multitool - Scan your Azure environment for FinOps insights
 nav_order: 52
-description: 'The FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from an interactive terminal UI or an MCP server for AI agents.'
+description: 'The FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from an interactive terminal UI, with agent skills so AI assistants can run the same analysis.'
 permalink: /multitool
 #customer intent: As a FinOps practitioner, I need to learn about the FinOps multitool
 ---
 
 <span class="fs-9 d-block mb-4">FinOps multitool</span>
-Scan your Azure environment for cost optimization, governance, and FinOps insights from an interactive terminal UI or an MCP server for AI agents.
+Scan your Azure environment for cost optimization, governance, and FinOps insights from an interactive terminal UI, with agent skills so AI assistants can run the same analysis.
 {: .fs-6 .fw-300 }
 
 <a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#install">Install</a>
@@ -22,7 +22,7 @@ The FinOps multitool scans an Azure environment for cost optimization, governanc
 <div id="whats-new" class="ftk-new">
     <h3>New in the FinOps toolkit<span class="ftk-version">v15</span></h3>
     <p>
-        The FinOps multitool is a new addition to the FinOps toolkit. It delivers 30 read-only scan modules through a cross-platform terminal UI and an MCP server for AI agents, with a scalable FinOps hub Kusto data path for large environments.
+        The FinOps multitool is a new addition to the FinOps toolkit. It delivers 30 read-only scan modules through a cross-platform terminal UI, plus agent skills for AI assistants, with a scalable FinOps hub Kusto data path for large environments.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -38,8 +38,8 @@ The FinOps multitool scans an Azure environment for cost optimization, governanc
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/start-finopsmultitool">Learn more</a>
     </div>
     <div class="ftk-tile">
-        <div>🤖 MCP server</div>
-        <div>Expose the scan engine as tools for AI agents like GitHub Copilot over the Model Context Protocol.</div>
+        <div>🤖 Agent skills</div>
+        <div>Teach AI agents the FinOps investigations, the queries behind them, and how to read the results.</div>
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">Learn more</a>
     </div>
     <div class="ftk-tile">

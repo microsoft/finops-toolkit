@@ -18,7 +18,7 @@
 #           and bucket each line item into a human-readable category.
 #
 # Sources:  Live Cost Management API (default) OR the FinOps Hub / export
-#           when -HubData is injected by the MCP dispatcher (fast path,
+#           when -HubData is injected by the caller (fast path,
 #           also carries consumed quantity so egress GB is exact).
 #
 # Notes:

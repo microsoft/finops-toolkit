@@ -6,13 +6,13 @@
 # FINOPS KPI CORRELATION LAYER
 ###########################################################################
 # Purpose: Map FinOps Multitool scan output to FinOps Foundation KPIs
-#          (https://www.finops.org/finops-kpis/) so MCP users who do not
+#          (https://www.finops.org/finops-kpis/) so callers who do not
 #          know the KPI taxonomy still see which industry KPIs their results
 #          inform, with a computed value where the data allows.
 # Date: Created for KPI skills
 #
 # Description:
-# Additive only. Does not change any scan. After a tool returns, the MCP
+# Additive only. Does not change any scan. After a scan returns, the
 # server calls Add-KpiInsights to attach a kpiInsights[] block:
 #   - status 'computed'      a value was derived from the scan fields
 #   - status 'informational' the scan relates to the KPI; explore to learn
@@ -288,8 +288,8 @@ function Add-KpiInsights {
 }
 
 # Map a raw scan function name (as used by the TUI/automated editions) to the
-# MCP tool name the KPI catalog keys off (sourceTool). Lets the TUI reuse the
-# exact same compute path as the MCP server, so KPI behavior stays in parity.
+# scan name the KPI catalog keys off (sourceTool). Lets every caller reuse the
+# exact same compute path, so KPI behavior stays in parity.
 function Get-KpiToolNameForFunction {
     param([Parameter(Mandatory)][string]$FunctionName)
     $map = @{
@@ -317,8 +317,8 @@ function Get-KpiToolNameForFunction {
 }
 
 # Compute the kpiInsights array for a raw scan output (where the result IS the
-# data, not an MCP { tool; data } envelope). Wraps the output in the same
-# envelope the MCP server uses so Add-KpiInsights/Get-KpiComputedValue run the
+# data, not a { tool; data } envelope). Wraps the output in the same
+# envelope the catalog expects so Add-KpiInsights/Get-KpiComputedValue run the
 # identical logic. Returns an array of insight objects (possibly empty).
 function Get-KpiInsightsForResult {
     param(

@@ -2,7 +2,7 @@
 name: focus-data-quality
 description: Use when the user works with FOCUS cost data — validating FOCUS conformance, mapping native Azure cost exports to FOCUS columns, checking dataset completeness/freshness, or troubleshooting ingestion gaps that make cost analysis wrong. FOCUS is the FinOps Open Cost and Usage Specification.
 license: MIT
-compatibility: Requires access to the cost dataset — FOCUS exports in storage, or a FinOps hub that ingests them. Pairs with the finops-toolkit skill (hub ingestion) and the finops-multitool MCP server.
+compatibility: Requires access to the cost dataset — FOCUS exports in storage, or a FinOps hub that ingests them. Pairs with the finops-toolkit skill (hub ingestion) and the finops-multitool skill.
 metadata:
   author: microsoft
   version: "1.0"

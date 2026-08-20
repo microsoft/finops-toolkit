@@ -141,7 +141,7 @@ function Invoke-FinOpsMultitool {
     function Show-Banner {
         Clear-Host
 
-        # Version comes from the toolkit so the TUI, MCP server, and module cannot drift.
+        # Version comes from the toolkit so the TUI and the module cannot drift.
         # Get-VersionNumber is a sibling private function, absent when this script runs standalone.
         if (-not (Get-Command -Name Get-VersionNumber -ErrorAction SilentlyContinue)) {
             $verFile = Join-Path -Path $PSScriptRoot -ChildPath '..' -AdditionalChildPath 'Get-VersionNumber.ps1'
@@ -1565,7 +1565,7 @@ function Invoke-FinOpsMultitool {
             # -- FinOps KPI Insights ---------------------------------------
             # Map this scan's result to the FinOps Foundation KPIs it informs,
             # with a computed value where the data allows. Reuses the same
-            # catalog + compute path as the MCP server (parity).
+            # catalog + compute path in both entry points (parity).
             if (Get-Command Get-KpiInsightsForResult -ErrorAction SilentlyContinue) {
                 $kpiInsights = @()
                 try { $kpiInsights = @(Get-KpiInsightsForResult -FunctionName $mod.Fn -Output $data) } catch { $kpiInsights = @() }

@@ -2,7 +2,7 @@
 name: sustainability-carbon
 description: Use when the user wants to measure or reduce the carbon emissions of their Azure footprint — the Emissions Impact Dashboard, carbon optimization recommendations, or aligning cost optimization with sustainability goals. Treats carbon as a FinOps-adjacent efficiency dimension alongside cost.
 license: MIT
-compatibility: Requires access to the Microsoft Emissions Impact Dashboard / Azure carbon optimization (Reader on the relevant scope). Pairs with the finops-multitool MCP server for the cost side of the same resources.
+compatibility: Requires access to the Microsoft Emissions Impact Dashboard / Azure carbon optimization (Reader on the relevant scope). Pairs with the finops-multitool skill for the cost side of the same resources.
 metadata:
   author: microsoft
   version: '1.0'
@@ -20,7 +20,7 @@ Use it when the user mentions carbon, emissions, sustainability, ESG, green/effi
 
 | Tool                                 | Provides                                                                                                                          |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| **`scan_carbon`** (finops-multitool) | kgCO2e totals, month-over-month change, 12-month trend, and per-subscription breakdown. Start here in a multitool-driven session. |
+| **carbon** (finops-multitool) | kgCO2e totals, month-over-month change, 12-month trend, and per-subscription breakdown. Start here in a multitool-driven session. |
 | **Emissions Impact Dashboard (EID)** | Scope 1/2/3 emissions for the Microsoft Cloud footprint, by service/subscription/time                                             |
 | **Azure carbon optimization**        | Per-resource emissions estimates and reduction recommendations in the portal                                                      |
 | **Cloud for Sustainability**         | Broader org-level sustainability data model                                                                                       |
@@ -33,7 +33,7 @@ The same actions reduce both — lead with these because they need no trade-off:
 
 | Action                                                                      | Cost effect | Carbon effect                 |
 | --------------------------------------------------------------------------- | ----------- | ----------------------------- |
-| Delete orphaned/idle resources (`scan_orphaned_resources`, `scan_idle_vms`) | ↓ spend     | ↓ emissions (nothing running) |
+| Delete orphaned/idle resources (orphaned resources, idle vms) | ↓ spend     | ↓ emissions (nothing running) |
 | Rightsize over-provisioned VMs                                              | ↓ spend     | ↓ emissions (less compute)    |
 | Increase utilization / consolidate                                          | ↓ unit cost | ↓ emissions per unit          |
 | Shut down non-prod off-hours                                                | ↓ spend     | ↓ emissions                   |
@@ -53,6 +53,6 @@ When the user reports cost optimization, offer the carbon co-benefit: "removing 
 
 ## Hand-offs
 
-- The wasteful resources (cost side) → `finops-multitool` (`scan_orphaned_resources`, `scan_idle_vms`, `scan_storage_tier_advice`).
+- The wasteful resources (cost side) → `finops-multitool` (orphaned resources, idle vms, storage tier advice).
 - Express carbon-per-unit → `unit-economics` skill.
 - Put cost + carbon co-benefits in a report → `finops-reporting`.

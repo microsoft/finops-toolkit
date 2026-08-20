@@ -2,7 +2,7 @@
 name: unit-economics
 description: Use when the user wants to measure cost efficiency rather than raw spend — cost per customer/transaction/unit, Effective Savings Rate (ESR), commitment coverage and utilization rates, waste percentage, or any FinOps "quantify business value" KPI that ties cloud cost to a business or usage metric.
 license: MIT
-compatibility: Requires cost data (Cost Management scope or a FinOps hub) and a business/usage denominator (customers, transactions, requests, GB, etc.). Pairs with the finops-toolkit KQL skill and the finops-multitool MCP server.
+compatibility: Requires cost data (Cost Management scope or a FinOps hub) and a business/usage denominator (customers, transactions, requests, GB, etc.). Pairs with the finops-toolkit KQL skill and the finops-multitool skill.
 metadata:
   author: microsoft
   version: "1.0"
@@ -22,10 +22,10 @@ Use it when the user asks about cost efficiency, cost per unit, ROI of optimizat
 |-----|---------|-----------|
 | **Unit cost** | EffectiveCost ÷ business unit (customers, txns, orders, GB) | Cost + a usage/business metric |
 | **Effective Savings Rate (ESR)** | (ListCost − EffectiveCost) ÷ ListCost | `savings-summary-report.kql` |
-| **Commitment coverage** | Cost covered by RI/SP ÷ total commitment-eligible cost | `scan_commitment_utilization`, `commitment-discount-utilization.kql` |
-| **Commitment utilization** | Used commitment ÷ purchased commitment | `scan_commitment_utilization` |
-| **Waste %** | Idle/orphaned cost ÷ total cost | `scan_orphaned_resources`, `scan_idle_vms` |
-| **Allocation coverage** | Allocated cost ÷ total cost | `scan_cost_by_tag`, `cost-allocation` skill |
+| **Commitment coverage** | Cost covered by RI/SP ÷ total commitment-eligible cost | commitment utilization, `commitment-discount-utilization.kql` |
+| **Commitment utilization** | Used commitment ÷ purchased commitment | commitment utilization |
+| **Waste %** | Idle/orphaned cost ÷ total cost | orphaned resources, idle vms |
+| **Allocation coverage** | Allocated cost ÷ total cost | cost by tag, `cost-allocation` skill |
 | **Forecast accuracy** | 1 − |actual − forecast| ÷ actual | `forecasting-budgeting` skill |
 
 ## ESR — the headline rate KPI
@@ -34,7 +34,7 @@ ESR is the single best measure of rate-optimization maturity. It captures *all* 
 
 - Use `EffectiveCost` vs `ListCost` — not `BilledCost`, which already nets commitments.
 - Track ESR as a trend, not a point. A rising ESR means discounts are compounding; a falling ESR means coverage is decaying (often an expiring reservation).
-- Pair a falling ESR with `scan_commitment_utilization` to find the expiring or under-covered commitment.
+- Pair a falling ESR with commitment utilization to find the expiring or under-covered commitment.
 
 ## Defining a unit metric
 

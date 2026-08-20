@@ -2,10 +2,10 @@
 name: cost-allocation
 description: Use when the user wants to design showback or chargeback, allocate shared costs, build a tagging strategy for cost accountability, map spend to teams/products/cost centers, split shared platform costs, or model a financial hierarchy from billing and tag data.
 license: MIT
-compatibility: Requires read access to cost data (Cost Management scope or a FinOps hub) and resource tags. Pairs with the finops-multitool MCP server (tag and cost-by-tag scans) and the azure-policy-governance skill for enforcement.
+compatibility: Requires read access to cost data (Cost Management scope or a FinOps hub) and resource tags. Pairs with the finops-multitool skill (tag and cost-by-tag scans) and the azure-policy-governance skill for enforcement.
 metadata:
   author: microsoft
-  version: "1.0"
+  version: '1.0'
 ---
 
 # Cost allocation
@@ -14,12 +14,12 @@ Allocate Azure cost to the teams, products, and cost centers that own it — the
 
 ## When to use this skill
 
-Use it when the user mentions showback, chargeback, allocation, cost centers, "who owns this spend", splitting shared costs, or building a tag strategy for accountability. For raw tag coverage numbers, run the `finops-multitool` scans first (`scan_tag_inventory`, `scan_tag_recommendations`, `scan_cost_by_tag`) and bring the results here to design the model.
+Use it when the user mentions showback, chargeback, allocation, cost centers, "who owns this spend", splitting shared costs, or building a tag strategy for accountability. For raw tag coverage numbers, run the `finops-multitool` scans first (tag inventory, tag recommendations, cost by tag) and bring the results here to design the model.
 
 ## Allocation readiness checklist
 
-1. **Coverage** — what % of cost carries the allocation tag(s)? Below ~95% means material spend is unallocated. Use `scan_tag_inventory`.
-2. **Consistency** — no casing or spelling drift in tag keys/values (`CostCenter` vs `costcenter`, `managed_by` vs `managedBy`). Use `scan_tag_recommendations`.
+1. **Coverage** — what % of cost carries the allocation tag(s)? Below ~95% means material spend is unallocated. Use tag inventory.
+2. **Consistency** — no casing or spelling drift in tag keys/values (`CostCenter` vs `costcenter`, `managed_by` vs `managedBy`). Use tag recommendations.
 3. **Cost dimension** — the allocation tag must be enabled as a cost-allocation dimension in Cost Management, or tag-dimensioned cost data will be empty even when the tags exist.
 4. **Inheritance** — resources that can't be tagged directly (or are missed) should inherit from the resource group via Azure Policy. See the `azure-policy-governance` skill.
 
@@ -27,14 +27,14 @@ Use it when the user mentions showback, chargeback, allocation, cost centers, "w
 
 Anchor on the Cloud Adoption Framework resource-tagging standard. The seven CAF-aligned tags map cleanly to allocation:
 
-| Tag | Allocation role |
-|-----|-----------------|
-| `CostCenter` | Primary chargeback dimension (finance ledger) |
-| `BusinessUnit` | Org rollup |
-| `ApplicationName` / `WorkloadName` | Product / service showback |
-| `OpsTeam` | Operational ownership |
-| `Criticality` | Prioritization, not allocation |
-| `DataClassification` | Compliance, not allocation |
+| Tag                                | Allocation role                               |
+| ---------------------------------- | --------------------------------------------- |
+| `CostCenter`                       | Primary chargeback dimension (finance ledger) |
+| `BusinessUnit`                     | Org rollup                                    |
+| `ApplicationName` / `WorkloadName` | Product / service showback                    |
+| `OpsTeam`                          | Operational ownership                         |
+| `Criticality`                      | Prioritization, not allocation                |
+| `DataClassification`               | Compliance, not allocation                    |
 
 Reference: https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging
 
@@ -44,12 +44,12 @@ Pick **one** authoritative allocation key (usually `CostCenter`) and enforce it 
 
 Costs that no single team owns (shared platform, networking, management tooling, support, marketplace, unallocated remainder) must be distributed. Choose a split method per shared pool:
 
-| Method | How | Use when |
-|--------|-----|----------|
-| **Proportional** | Split in ratio to each team's direct/allocated cost | Default; "you pay for shared services in proportion to what you use" |
-| **Even** | Equal share across N teams | Small, fixed set of consumers |
-| **Fixed / manual** | Hard-coded percentages | Contractual or negotiated splits |
-| **Usage-based** | Split by a usage metric (vCPU-hours, GB, requests) | A real consumption signal exists |
+| Method             | How                                                 | Use when                                                             |
+| ------------------ | --------------------------------------------------- | -------------------------------------------------------------------- |
+| **Proportional**   | Split in ratio to each team's direct/allocated cost | Default; "you pay for shared services in proportion to what you use" |
+| **Even**           | Equal share across N teams                          | Small, fixed set of consumers                                        |
+| **Fixed / manual** | Hard-coded percentages                              | Contractual or negotiated splits                                     |
+| **Usage-based**    | Split by a usage metric (vCPU-hours, GB, requests)  | A real consumption signal exists                                     |
 
 Document the rule, the source pool, and the target dimension so the allocation is reproducible and auditable.
 
@@ -64,7 +64,7 @@ Map raw billing + tags into a reporting hierarchy: **Billing account → Billing
 
 ## Hand-offs
 
-- Tag coverage / drift numbers → `finops-multitool` MCP tools.
+- Tag coverage / drift numbers → `finops-multitool` skill.
 - Enforce tags and inheritance → `azure-policy-governance` skill.
 - Visualize allocation → `power-bi-finops` skill (governance / cost-summary reports).
 - Express allocation efficiency as KPIs → `unit-economics` skill.

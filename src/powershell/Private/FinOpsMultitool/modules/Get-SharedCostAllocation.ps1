@@ -33,7 +33,7 @@
 #   zero traffic) and Variable = pool * (1 - FixedRatio) (by transfer).
 #
 # Sources: Live Cost Management API (default) OR the FinOps Hub / export
-#          when -HubData is injected by the MCP dispatcher (fast path).
+#          when -HubData is injected by the caller (fast path).
 #
 # Notes:
 # - RBAC: Cost Management Reader (hub + spoke subs) + Reader (ARG).

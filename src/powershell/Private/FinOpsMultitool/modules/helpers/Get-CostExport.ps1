@@ -3,13 +3,13 @@
 
 ###########################################################################
 # GET-COSTEXPORT.PS1
-# COST MANAGEMENT EXPORT DETECTION & FAST READ (TUI / MCP)
+# COST MANAGEMENT EXPORT DETECTION & FAST READ
 ###########################################################################
 # Purpose: Detect existing Cost Management exports (any export, not just a
-#          FinOps Hub) and read their CSV data from blob storage so the MCP
+#          FinOps Hub) and read their CSV data from blob storage so the
 #          server can serve cost tools from a pre-materialized export
 #          instead of the throttle-bound live Cost Management query API.
-# Date: Created for FinOps Multitool MCP generic export detection
+# Date: Created for FinOps Multitool generic export detection
 #
 # Description:
 # Read-only port of the GUI scanner's export module. Supplies the same
