@@ -50,10 +50,17 @@ Scope every query explicitly when the user only cares about one subscription. An
 | What are we spending? What's the forecast?    | Cost summary and trend               | [references/cost-analysis.md](references/cost-analysis.md)     |
 | Which resources cost the most?                | Resource cost ranking                | [references/cost-analysis.md](references/cost-analysis.md)     |
 | Split cost by team / app / cost center        | Cost by tag                          | [references/cost-analysis.md](references/cost-analysis.md)     |
+| What does one VM really cost?                 | VM cost including disks and IP       | [references/additional-investigations.md](references/additional-investigations.md) |
+| What are we paying per vCPU or per GB?        | Unit economics                       | [references/additional-investigations.md](references/additional-investigations.md) |
+| What are we spending on Azure OpenAI?         | AI workload cost per 1K tokens       | [references/additional-investigations.md](references/additional-investigations.md) |
+| Are we running retiring SKUs?                 | Legacy resources                     | [references/additional-investigations.md](references/additional-investigations.md) |
+| Was the budget ever realistic?                | Budget history                       | [references/additional-investigations.md](references/additional-investigations.md) |
+| What does the tenant hierarchy look like?     | Management group structure           | [references/additional-investigations.md](references/additional-investigations.md) |
+| Split shared hub or platform cost             | Shared and telemetry-keyed splitting | [references/allocation.md](references/allocation.md)           |
 | Why did cost spike?                           | Anomaly root cause                   | `anomaly-investigation` skill                                  |
-| Are we on budget?                             | Budget status and history            | `forecasting-budgeting` skill                                  |
+| Are we on budget?                             | Budget status                        | `forecasting-budgeting` skill                                  |
 | Advisor cost recommendations                  | Advisor query                        | `azure-cost-management` → `references/azure-advisor.md`        |
-| Split shared platform cost across teams       | Allocation modelling                 | `cost-allocation` skill                                        |
+| Design a showback or chargeback model         | Allocation modelling                 | `cost-allocation` skill                                        |
 | What's our carbon footprint?                  | Emissions and waste co-benefit       | `sustainability-carbon` skill                                  |
 
 When `azure-cost-management` already documents an API, use it rather than duplicating the call here. This skill adds the sequencing and interpretation on top.
