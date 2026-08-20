@@ -2,11 +2,26 @@
 
 This file provides guidance to AI Agents when working with code in this repository.
 
+> [!IMPORTANT]
+> `AGENTS.md` is the single source of truth for agent guidance. `CLAUDE.md` and `.github/copilot-instructions.md` are git symlinks (mode `120000`) pointing here. Never replace those symlinks with real files — edit this file instead.
+
 ## Repository Overview
 
 The FinOps Toolkit is an open-source collection of tools for adopting and implementing FinOps capabilities in the Microsoft Cloud. It contains templates, PowerShell modules, workbooks, optimization engines, and supporting documentation organized in a modular architecture.
 
 ## Common Commands
+
+### First-time setup
+
+`src/scripts/Init-Repo.ps1` installs the required tooling (Az PowerShell, Bicep CLI) and optional tooling (VS Code, Bicep module, NPM, Pester):
+
+```powershell
+./src/scripts/Init-Repo -All          # required + optional tooling
+./src/scripts/Init-Repo -Pester       # required + Pester only
+./src/scripts/Init-Repo -All -WhatIf  # preview
+```
+
+**Pester 6.0.0 or later is required.** The suite uses `-AllowNullOrEmptyForEach`, which Pester 5 rejects during discovery — the affected file is silently skipped. `Test-PowerShell.ps1` resolves the module version explicitly and fails with an actionable message if only an older Pester is present. CI pins the same floor (`.github/workflows/dev.yml`).
 
 ### Building and Development
 
@@ -19,11 +34,19 @@ pwsh -Command ./src/scripts/Build-Toolkit
 # Build FinOps hubs
 pwsh -Command ./src/scripts/Build-Toolkit finops-hub
 
+# Build a single workbook
+pwsh -Command ./src/scripts/Build-Toolkit "<workbook-name>-workbook"
+
 # Build specific components
-npm run build-ps                               # PowerShell module only
-pwsh -Command ./src/scripts/Build-Bicep        # Bicep templates
-pwsh -Command ./src/scripts/Build-Workbook     # Azure Monitor workbooks
-pwsh -Command ./src/scripts/Build-OpenData     # Open data files
+npm run build-ps                                        # PowerShell module (Invoke-Task Build.PsModule)
+pwsh -Command ./src/scripts/Build-PowerShell            # PowerShell module (wraps the Invoke-Build task)
+pwsh -Command ./src/scripts/Build-Bicep ../bicep-registry/<module>  # single Bicep Registry module
+pwsh -Command ./src/scripts/Build-Workbook              # Azure Monitor workbooks
+pwsh -Command ./src/scripts/Build-OpenData              # Open data files (check in generated files manually)
+pwsh -Command ./src/scripts/Invoke-Task -Task <TaskName>  # Invoke-Build tasks (e.g. Build.PsModule)
+
+# Load the locally built module
+pwsh -Command 'Remove-Module FinOpsToolkit -EA SilentlyContinue; Import-Module -FullyQualifiedName ./src/powershell/FinOpsToolkit.psm1'
 
 # Deploy for testing
 npm run deploy-test
@@ -38,21 +61,42 @@ pwsh -Command ./src/scripts/Package-Toolkit -Build
 
 ### Testing
 
+`src/scripts/Test-PowerShell.ps1` is the entry point for all Pester runs. It runs unit tests by default; naming any test type runs only those types.
+
 ```bash
 # Run PowerShell unit tests
-npm run pester
+pwsh -Command ./src/scripts/Test-PowerShell
 # or
-pwsh -Command Invoke-Pester -Output Detailed -Path ./src/powershell/Tests/Unit/*
+npm run pester
 
-# Run integration tests
+# Run lint / integration / everything
+pwsh -Command ./src/scripts/Test-PowerShell -Lint
 pwsh -Command ./src/scripts/Test-PowerShell -Integration
+pwsh -Command ./src/scripts/Test-PowerShell -AllTests
 
-# Run specific test categories
+# Run specific test categories (combine freely)
+# Cost, Data, Docs, Exports, FOCUS, Hubs, Toolkit, Workbooks, Actions, Private
 pwsh -Command ./src/scripts/Test-PowerShell -Hubs -Exports
 
-# Lint PowerShell code
-pwsh -Command ./src/scripts/Test-PowerShell -Lint
+# Re-run only the tests that failed in the previous run
+pwsh -Command ./src/scripts/Test-PowerShell -RunFailed
 ```
+
+Run a **single test file** or a **single test case** with Pester directly (import Pester 6 explicitly so a side-by-side Pester 3/5 install cannot win):
+
+```bash
+# One file
+pwsh -Command 'Import-Module Pester -MinimumVersion 6.0.0; Invoke-Pester -Output Detailed -Path ./src/powershell/Tests/Unit/Get-FinOpsRegion.Tests.ps1'
+
+# One Describe/Context/It by name
+pwsh -Command 'Import-Module Pester -MinimumVersion 6.0.0; Invoke-Pester -Output Detailed -Path ./src/powershell/Tests/Unit/Get-FinOpsRegion.Tests.ps1 -FullNameFilter "*returns all regions*"'
+```
+
+After a `Test-PowerShell` run, inspect these globals to debug:
+
+- `$global:ftk_TestPowerShell_Results` — full result object from the last run
+- `$global:ftk_TestPowerShell_Summary` — failed tests only
+- `$global:ftk_TestPowerShell_FailedTests` — the Pester config used by `-RunFailed`
 
 ### Bicep Development
 
@@ -68,23 +112,27 @@ az deployment group what-if --resource-group myRG --template-file template.bicep
 
 ### High-Level Structure
 
-- **`/src/templates/`** - ARM/Bicep infrastructure templates with modular namespace organization
+- **`/src/templates/`** - ARM/Bicep infrastructure templates (`finops-hub`, `finops-alerts`, `finops-workbooks`, `agent-plugin`, `finops-hub-copilot*`)
 - **`/src/powershell/`** - PowerShell module with public/private functions and comprehensive tests
+- **`/src/queries/`** - KQL query catalog (`catalog/`, `INDEX.md`, `KPI.md`, `finops-hub-database-guide.md`)
+- **`/src/bicep-registry/`** - Bicep Registry modules (multi-scope build)
 - **`/src/optimization-engine/`** - Azure Optimization Engine for cost recommendations
 - **`/src/workbooks/`** - Azure Monitor workbooks for governance and optimization
 - **`/src/open-data/`** - Reference data (pricing, regions, services) with utilities
-- **`/src/scripts/`** - Build automation and development tools
+- **`/src/power-bi/`** - Power BI reports (built manually, not by the build scripts)
+- **`/src/scripts/`** - Build automation and development tools (see `src/scripts/README.md`)
+- **`/plugins/`**, **`/.claude-plugin/`** - Agent plugin packaging (`plugins/microsoft-finops-toolkit`)
 - **`/docs/`** - Jekyll documentation website
-- **`/docs-mslearn/`** - Microsoft Learn documentation website
-- **`/docs-wiki/`** - GitHub wiki documentation
+- **`/docs-mslearn/`** - Microsoft Learn documentation website (includes `toolkit/changelog.md`)
+- **`/docs-wiki/`** - GitHub wiki documentation (authoritative dev process + coding guidelines)
 
 ### Current Architectural Reorganization
 
-The FinOps hubs solution is actively migrating to a namespace-based modular structure:
+The FinOps hubs solution is actively migrating to a namespace-based modular structure under `src/templates/finops-hub/modules/`:
 
-- **`Microsoft.FinOpsHubs/`** - Core FinOps Hub infrastructure modules
+- **`Microsoft.FinOpsHubs/`** - Core FinOps Hub infrastructure modules, split into `Core`, `Analytics`, `IngestionQueries`, `Recommendations`, `AzureResourceGraph`, and `RemoteHub`
 - **`Microsoft.CostManagement/`** - Cost management exports and schemas
-- **`fx/`** - Shared foundation components (hub-types, scripts, utilities)
+- **`fx/`** - Shared foundation components: `hub-types.bicep`, `hub-app.bicep`, `hub-storage.bicep`, `hub-database.bicep`, `hub-identity.bicep`, `hub-vault.bicep`, `hub-deploymentScript.bicep`, `hub-eventTrigger.bicep`, plus `scripts/` and version/tag files
 
 ### Template Architecture
 
@@ -106,8 +154,11 @@ Key patterns:
 
 - **`Public/`** - User-facing cmdlets (Get-_, Set-_, New-\*, etc.)
 - **`Private/`** - Internal utilities and helpers
-- **`Tests/Unit/`** - Pester unit tests with mocking
+- **`en-US/`** - Localized strings (validated by `Tests/Unit/LocalizedData.Tests.ps1`)
+- **`Tests/Lint/`** - Repo-wide standards tests (`Lint.Tests.ps1`, `KqlJoinKinds.Tests.ps1`, `MsLearnDocs.Tests.ps1`)
+- **`Tests/Unit/`** - Pester unit tests with mocking. Note these cover far more than cmdlets — hub Bicep/KQL guards (`HubsKqlOperators`, `HubsIngestionQueries`, `HubsPrivateNetworking`, `HubsContractedCostGuard`, `HubsAdfTriggerTimeZones`), GitHub Actions parity, and docs links all live here
 - **`Tests/Integration/`** - End-to-end Azure integration tests
+- **`Tests/Initialize-Tests.ps1`** - Reimports `FinOpsToolkit.psm1` and dot-sources `src/scripts/Monitor.ps1`; test files reference it rather than importing the module themselves
 - **Module manifest** defines exports and dependencies
 
 ### Data Flow and Integration
@@ -152,8 +203,8 @@ The PowerShell-based build system:
 
 ### Version Management
 
-- Central version in `package.json` (currently 12.0.0)
-- Synchronized across all components via build scripts
+- Central version in `package.json` (source of truth; prerelease format is `<major>.0.0-dev.0`)
+- Synchronized across all components via `src/scripts/Update-Version.ps1`; read the current value with `src/scripts/Get-Version`
 - Individual `ftkver.txt` files distributed to modules
 - Git tags correspond to release versions
 
@@ -205,6 +256,17 @@ This repository supports production infrastructure managing significant revenue.
 - PowerShell follows standard module layout
 - Documentation uses Jekyll conventions
 - Build artifacts are generated, not checked in
+
+### Changelog
+
+User-facing changes must be added to `docs-mslearn/toolkit/changelog.md`. Full rules are in the "Changelog" section of `docs-wiki/Coding-guidelines.md`. Key points:
+
+- All changes for the upcoming release go in **one** version section — never create a duplicate `## v{version}` heading
+- Group by tool with an H3 heading linking to the tool's doc page plus its version (e.g. `### [FinOps hubs](...) v14`), matching the tool order used in previous releases
+- Category order: Added, Changed, Fixed, Deprecated, Removed. Omit empty categories
+- One past-tense sentence per entry, ending with a period, linking the issue as `([#{number}]({url}))` when one exists
+- Write for users, not developers — no implementation details, no filler entries
+- Prefix breaking changes with `**Breaking:**` and list them first in their category
 
 ### Coding Standards
 
