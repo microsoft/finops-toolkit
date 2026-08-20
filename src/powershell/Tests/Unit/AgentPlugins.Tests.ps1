@@ -33,8 +33,8 @@ Describe 'Agent plugin manifest' {
         $root.skills[0].TrimStart('./') | Should -Be $claude.skills[0].TrimStart('./')
         $root.agents | Should -Be './agents/'
         $root.mcpServers | Should -Be '.mcp.json'
-        $claude.agents | Should -BeNullOrEmpty
-        $claude.mcpServers | Should -BeNullOrEmpty
+        $claude.agents.Count | Should -Be 5
+        $claude.mcpServers | Should -Be './.mcp.json'
         $claude.outputStyles | Should -Be './output-styles/'
     }
 
@@ -48,9 +48,18 @@ Describe 'Agent plugin manifest' {
         $claude = Get-Content (Join-Path $script:Plugin '.claude-plugin/plugin.json') -Raw | ConvertFrom-Json
 
         $root.mcpServers | Should -Be '.mcp.json'
-        $claude.mcpServers | Should -BeNullOrEmpty
-        $claude.agents | Should -BeNullOrEmpty
+        $claude.mcpServers | Should -Be './.mcp.json'
         Join-Path $script:Plugin '.mcp.json' | Should -Exist
+    }
+
+    It 'Declares resolvable paths for every Claude component' {
+        $claude = Get-Content (Join-Path $script:Plugin '.claude-plugin/plugin.json') -Raw | ConvertFrom-Json
+        $paths = @($claude.commands) + @($claude.agents) + @($claude.skills) + @($claude.mcpServers) + @($claude.outputStyles)
+
+        $paths.Count | Should -Be 9
+        $paths | ForEach-Object {
+            Join-Path $script:Plugin $_ | Should -Exist
+        }
     }
 
     It 'Uses unpinned Azure MCP latest package in .mcp.json' {
@@ -167,7 +176,7 @@ Describe 'Plugin discovery and marketplaces' {
     It 'Uses repository-root-relative marketplace sources' {
         $marketplaces = @{
             '.github/plugin/marketplace.json' = './plugins/microsoft-finops-toolkit'
-            '.claude-plugin/marketplace.json' = './plugins/microsoft-finops-toolkit'
+            '.claude-plugin/marketplace.json' = './src/templates/agent-plugin'
         }
 
         foreach ($marketplace in $marketplaces.Keys)
@@ -176,5 +185,12 @@ Describe 'Plugin discovery and marketplaces' {
             $entry = $json.plugins | Where-Object { $_.name -eq 'microsoft-finops-toolkit' }
             $entry.source | Should -Be $marketplaces[$marketplace]
         }
+    }
+
+    It 'Enables strict mode explicitly for the Claude plugin' {
+        $json = Get-Content (Join-Path $script:RepoRoot '.claude-plugin/marketplace.json') -Raw | ConvertFrom-Json
+        $entry = $json.plugins | Where-Object { $_.name -eq 'microsoft-finops-toolkit' }
+
+        $entry.strict | Should -BeTrue
     }
 }
