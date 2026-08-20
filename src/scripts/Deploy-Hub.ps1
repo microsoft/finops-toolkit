@@ -76,6 +76,12 @@
     .PARAMETER Recommendations
     Enable recommendations with all noisy recommendation types (AHB, Spot). Requires the hub template to have recommendation parameters.
 
+    .PARAMETER InvoiceDownload
+    Enable automatic download of Microsoft invoice files. Requires the hub template to have invoice parameters.
+
+    .PARAMETER InvoiceBillingAccounts
+    Optional. Billing account IDs to download invoices for, separated by a new line, comma, or semicolon. Requires InvoiceDownload. Default: use the billing account scopes monitored by the hub.
+
     .PARAMETER Remove
     Remove test environments. With a name, deletes the target resource group. Alone, lists all resource groups matching "{initials}-*".
 
@@ -116,6 +122,8 @@ param(
     [string]$Fabric,
     [switch]$StorageOnly,
     [switch]$Recommendations,
+    [switch]$InvoiceDownload,
+    [string]$InvoiceBillingAccounts,
     [switch]$Remove,
     [string]$Scope,
     [switch]$ManagedExports,
@@ -249,6 +257,16 @@ if ($Recommendations)
     $params.enableRecommendations = $true
     $params.enableAHBRecommendations = $true
     $params.enableSpotRecommendations = $true
+}
+
+# Invoice download (requires enableInvoiceDownload param in hub template)
+if ($InvoiceDownload)
+{
+    $params.enableInvoiceDownload = $true
+    if ($InvoiceBillingAccounts)
+    {
+        $params.invoiceBillingAccounts = $InvoiceBillingAccounts
+    }
 }
 
 # Analytics backend

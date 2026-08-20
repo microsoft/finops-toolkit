@@ -36,6 +36,9 @@ param rawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param finalRetentionInMonths int = 13
 
+@description('Optional. List of billing account IDs to download invoices for. Only used when the Invoices app is enabled. Leave empty to use the billing account scopes monitored by this hub. Default: [] (none).')
+param invoiceBillingAccounts string[] = []
+
 
 //==============================================================================
 // Variables
@@ -139,6 +142,10 @@ module uploadSettings '../../fx/hub-deploymentScript.bicep' = {
       {
         name: 'finalRetentionInMonths'
         value: string(finalRetentionInMonths)
+      }
+      {
+        name: 'invoiceBillingAccounts'
+        value: join(invoiceBillingAccounts, '|')
       }
       {
         name: 'storageAccountName'

@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/19/2026
+ms.date: 08/20/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -100,6 +100,7 @@ _Released June 2026_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v15
 
 - **Added**
+  - Added optional invoice download, which saves your Microsoft invoice files in the hub data lake every month, organized by billing period, billing profile, and purchase order number. Enable it in the **Invoices** step of the deployment wizard.
   - Added a [Run hubs locally](hubs/run-hubs-locally.md) guide to stand up a FinOps hub in a local Kusto emulator container and ingest cost data using the same KQL, transforms, and open data as a deployed hub.
   - Added a build-generated `finops-hub-local-opendata.kql` release artifact that loads the open data reference tables from CSV, so the local hub guide stays in sync with published open data instead of hard-coding schemas.
 - **Changed**
