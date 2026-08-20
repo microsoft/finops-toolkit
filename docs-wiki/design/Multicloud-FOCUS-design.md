@@ -48,7 +48,7 @@ Campos efetivamente consumidos pelo `msexports_ExecuteETL` (extraídos das expre
 | Campo | Uso | Valor para AWS/GCP |
 | --- | --- | --- |
 | `exportConfig.type` | 1ª parte do nome do schema | `FocusCost` |
-| `exportConfig.dataVersion` | 2ª parte do nome do schema **e** `x_SourceType` / `x_SourceVersion` | `1.0-aws` / `1.0-gcp` (ver §2.1) |
+| `exportConfig.dataVersion` | 2ª parte do nome do schema (e **só** isso — ver §8/R2) | `1.2-aws` / `1.2-gcp` (ver §2.1) |
 | `exportConfig.exportName` | nome lógico do export | `aws-focus` / `gcp-focus` |
 | `exportConfig.resourceId` | deriva o scope (= segmento de caminho) | ver §2.2 |
 | `runInfo.runId` | identidade da execução | GUID gerado no pipeline |
@@ -68,7 +68,7 @@ schemaFile = toLower(concat(exportDatasetType, '_', exportDatasetVersion, <sufix
 
 O `<sufixo de canal>` (`_ea` / `_mca`) só é aplicado quando `mcaColumnToCheck` não é nulo, e essa variável é nula para `FocusCost` — ela só é preenchida para `pricesheet`, `reservationtransactions` e `reservationrecommendations`. Portanto, para FOCUS o nome do arquivo é determinado **inteiramente** por dois campos que nós controlamos no manifest sintético.
 
-Consequência: publicar `focuscost_1.0-aws.json` e definir `dataVersion: '1.0-aws'` faz o ETL carregar o schema correto **sem uma única alteração no pipeline existente**.
+Consequência: publicar `focuscost_1.2-aws.json` e definir `dataVersion: '1.2-aws'` faz o ETL carregar o schema correto **sem uma única alteração no pipeline existente**. `exportConfig.type`, ao contrário, é obrigatoriamente `FocusCost` — ver §8d.
 
 ### 2.2 Valor de `exportConfig.resourceId`
 
@@ -301,9 +301,9 @@ E acrescentar `awsFocus` / `googleFocus` ao `dependsOn` do módulo `startTrigger
 | 3 | `src/templates/finops-hub/createUiDefinition.json` | + step `multicloud`, + outputs |
 | 4 | `.../modules/Microsoft.FinOpsHubs/AmazonWebServices/{app,metadata}.bicep` + `README.md` | novo |
 | 5 | `.../modules/Microsoft.FinOpsHubs/GoogleCloud/{app,metadata}.bicep` + `README.md` | novo |
-| 6 | `.../Microsoft.CostManagement/Exports/schemas/focuscost_1.0-aws.json` | novo (ver R2) |
-| 7 | `.../Microsoft.CostManagement/Exports/schemas/focuscost_1.0-gcp.json` | novo (ver R2) |
-| 8 | `.../Microsoft.CostManagement/Exports/app.bicep` | + 2 entradas no map `files:` do módulo de schemas (linhas 59-85) |
+| 6 | `.../Microsoft.CostManagement/Exports/schemas/focuscost_1.2-aws.json` | ✅ **criado** — 56 mapeamentos, ver R2 |
+| 7 | `.../Microsoft.CostManagement/Exports/schemas/focuscost_1.2-gcp.json` | novo (ver R2) |
+| 8 | `.../Microsoft.CostManagement/Exports/app.bicep` | ✅ **feito** — schema AWS registrado no map `files:` |
 | 9 | `src/templates/finops-hub/.build.config` | + 2 READMEs em `ignore` |
 | 10 | `docs-mslearn/toolkit/hubs/template.md` | + linhas na tabela de parâmetros |
 | 11 | `docs-mslearn/toolkit/hubs/configure-multicloud.md` | novo how-to |
@@ -328,18 +328,33 @@ destino = replace(concat(hubDataset, '/', ano, '/', mês, '/', toLower(scope), .
 
 `split()` com delimitador ausente devolve a string inteira em `[0]`. Não há decomposição de resource ID, validação de formato nem lookup — o valor é usado apenas como segmento de caminho, em minúsculas, com `//` colapsado. Qualquer string funciona. A hipótese original de que um ARN quebraria o parsing estava errada. Não é necessário pseudo-scope no formato Azure; ver §2.2.
 
-**R2 — paridade de schema FOCUS — RESOLVIDO, exige schemas por provedor.** Spike executado. `focuscost_1.0.json` é um `TabularTranslator` com **96 mapeamentos explícitos, dos quais 52 (54%) são colunas `x_*` específicas da Azure** (`x_AccountId`, `x_BillingProfileId`, `x_BillingExchangeRate`, …) e apenas 44 são FOCUS-padrão. Um export FOCUS de AWS/GCP não tem essas 52 colunas, e um mapeamento explícito sobre colunas de origem inexistentes falha.
+**R2 — paridade de schema FOCUS — RESOLVIDO, exige schemas por provedor.** Validado contra um arquivo FOCUS **real** da AWS (parquet snappy, 60 colunas, 19.827 linhas). O arquivo é **FOCUS 1.2**, não 1.0.
 
-Portanto **não se reusa o schema existente**. Publicar arquivos próprios no mesmo `files: {}` do `hub-storage.bicep` usado em `Exports/app.bicep:59-85`:
+Comparação com `focuscost_1.2.json` (104 mapeamentos):
 
-| Arquivo | Conteúdo |
-| --- | --- |
-| `schemas/focuscost_1.0-aws.json` | 44 mapeamentos FOCUS-padrão + colunas `x_` da AWS + `additionalColumns: [{ name: 'x_SourceProvider', value: 'AWS' }]` |
-| `schemas/focuscost_1.0-gcp.json` | idem, com `value: 'Google Cloud'` |
+| | Qtd | Observação |
+| --- | --- | --- |
+| Colunas FOCUS que batem exatamente por nome | 53 | reusáveis sem alteração |
+| Colunas `x_*` da Azure ausentes no arquivo AWS | 51 | `x_BillingProfileId`, `x_SkuMeterId`, … — não podem ser mapeadas |
+| Colunas da AWS ausentes no schema do hub | 7 | `AvailabilityZone`, `x_Operation`, `x_ServiceCode`, `x_Discounts`, 3× `PricingCurrency*` |
 
-O `additionalColumns` do arquivo de schema é injetado na cópia (`activity('Load Schema Mappings').output.firstRow.additionalColumns`) e está **vazio** nos schemas atuais — é o mecanismo limpo para carimbar a proveniência sem tocar no pipeline.
+Portanto **não se reusa o schema existente**. Publicado `schemas/focuscost_1.2-aws.json` com **56 mapeamentos**: os 53 compartilhados (tipos herdados do schema 1.2 do hub) + `AvailabilityZone` + `x_Operation` + `x_ServiceCode` — as três confirmadas como colunas existentes da tabela `Costs_raw` do ADX.
 
-Residual: o ETL também injeta `x_SourceType` e `x_SourceVersion` a partir de `dataVersion`, então esses campos ficarão com `1.0-aws` / `1.0-gcp`. Bom para rastreabilidade; confirmar apenas que a ingestão do ADX roteia tabelas por pasta/dataset e não por `x_SourceVersion`.
+Omitidas por não existirem no schema do ADX: `x_Discounts` (`map<string,double>`) e `PricingCurrencyContractedUnitPrice` / `PricingCurrencyEffectiveCost` / `PricingCurrencyListUnitPrice`. Incluí-las exigiria alterar `IngestionSetup_RawTables.kql`, `HubSetup_v1_2.kql` e as tabelas finais — mudança que afeta também os dados da Azure e fica fora do escopo desta feature. Registrar como gap conhecido no README.
+
+**Correção de um erro do design anterior:** as `additionalColumns` do arquivo de schema **não** servem para carimbar a proveniência. O ETL aplica
+
+```
+intersection(
+  [{"name":"x_SourceProvider","value":"Microsoft"}, {"name":"x_SourceName","value":"Cost Management"},
+   {"name":"x_SourceType","value":"<dataVersion>"}, {"name":"x_SourceVersion","value":"<dataVersion>"}],
+  activity('Load Schema Mappings').output.firstRow.additionalColumns
+)
+```
+
+(`Exports/app.bicep:1225`). Como é uma **interseção** com um array de valores fixos em `Microsoft` / `Cost Management`, um objeto com `"value":"AWS"` nunca sobrevive. E como **todos** os 14 arquivos de schema do repositório têm `additionalColumns: []`, a interseção é sempre vazia hoje — o ETL não carimba `x_Source*` para nenhum dataset.
+
+**Consequência boa:** `dataVersion` não vaza para `x_SourceType` / `x_SourceVersion`. É um parâmetro puramente de seleção de schema, sem efeito colateral. O risco residual apontado antes **não existe**.
 
 **R3 — rede privada (médio).** Com `enablePublicAccess = false`, a saída para S3/GCS depende do Managed VNet do ADF e do NAT Gateway (`enableNatGateway`). Documentar que a combinação rede privada + multicloud exige `enableNatGateway = true`.
 
@@ -351,25 +366,61 @@ Residual: o ETL também injeta `x_SourceType` e `x_SourceVersion` a partir de `d
 
 ## 8b. Resultado do spike
 
-Executado em `arthursilvany/multicloud-focus`, por leitura estática de `Microsoft.CostManagement/Exports/app.bicep` e dos arquivos de schema.
+Executado em `arthursilvany/multicloud-focus`, por leitura estática do ETL e dos schemas, e validado contra um export FOCUS **real** da AWS.
 
 | Item | Hipótese inicial | Resultado |
 | --- | --- | --- |
 | R1 — parsing do `resourceId` | Alto risco; poderia invalidar a abordagem | **Refutado.** É só um segmento de caminho. Formato livre. |
-| R2 — reuso do `focuscost_1.0.json` | Provavelmente reutilizável | **Refutado.** 52/96 colunas são Azure-específicas. Precisa de schema por provedor. |
-| Seleção do schema | Fixa no ETL | **Melhor que o esperado.** Derivada de `type` + `dataVersion`, ambos controlados pelo manifest. Extensão sem tocar no pipeline. |
-| Proveniência multicloud | Precisaria de coluna nova no ETL | **Já existe.** `additionalColumns` do schema, hoje vazio. |
+| R2 — reuso do `focuscost_1.2.json` | Provavelmente reutilizável | **Refutado.** 51 das 104 colunas são Azure-específicas. Precisa de schema por provedor. |
+| Seleção do schema | Fixa no ETL | **Melhor que o esperado.** Derivada de `type` + `dataVersion`, e `dataVersion` é livre e sem efeito colateral. |
+| Proveniência via `additionalColumns` | Mecanismo pronto | **Refutado.** O `intersection()` com valores fixos `Microsoft` bloqueia. Ver R2. |
+| Proveniência multicloud | Precisaria de coluna nova | **Já resolvido a montante.** Ver §8c. |
 
-Conclusão: a abordagem de manifest sintético está validada. O trabalho de implementação concentra-se em dois arquivos de schema e dois apps Bicep — nenhuma alteração no ETL existente.
+### 8c. O ADX já tem suporte a AWS e GCP
 
-Pendência remanescente antes do merge: validar os dois schemas contra um arquivo FOCUS real de cada provedor (as 44 colunas padrão e os nomes `x_` de cada um).
+Achado que reduz o escopo da feature. `IngestionSetup_v1_0.kql:367-372` já classifica o provedor a partir da forma dos dados:
+
+```kusto
+| extend ProviderName = case(
+    isnotempty(ProviderName), ProviderName,
+    isnotempty(coalesce(x_CostCategories, x_Discount, x_Operation, x_ServiceCode, x_UsageType)), 'AWS',
+    isnotempty(coalesce(tostring(UsageAmount), tostring(x_Cost), ..., x_Project, x_ServiceId)), 'GCP',
+    isnotempty(coalesce(x_BillingProfileId, x_InvoiceSectionId)), 'Microsoft',
+    ''
+)
+| extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
+| extend x_SourceVersion  = coalesce(x_SourceVersion, case(...))
+```
+
+A tabela `Costs_raw` já declara `x_Operation` e `x_ServiceCode` com o comentário `// AWS 1.0`, e `AvailabilityZone` como `// FOCUS 0.5+`. O arquivo real da AWS traz `ProviderName = 'AWS'` preenchido, então a classificação acerta pelo primeiro branch.
+
+**Conclusão: nenhum trabalho de proveniência é necessário.** Basta entregar os dados em `Costs_raw` que o ADX classifica, versiona e roteia sozinho.
+
+### 8d. Restrições fixadas pelo roteamento de tabela
+
+`Analytics/app.bicep:1815` define a tabela de destino como o **primeiro segmento da pasta** de ingestão:
+
+```
+table = concat(first(split(containerFolderPath, '/')), '_raw')
+```
+
+e `Exports/app.bicep:847` mapeia `exportDatasetType = 'focuscost'` → `hubDataset = 'Costs'`, com fallback para o próprio nome do tipo. Logo:
+
+| Campo do manifest | Valor obrigatório | Motivo |
+| --- | --- | --- |
+| `exportConfig.type` | **`FocusCost`** (exato) | qualquer outro valor gera a pasta `<tipo>` e a tabela `<tipo>_raw`, que não existe |
+| `exportConfig.dataVersion` | livre | só seleciona o arquivo de schema |
+
+O uso de sufixo em `dataVersion` já tem precedente no repositório: `focuscost_1.0-preview(v1).json` e `focuscost_1.2-preview.json`.
+
+---
 
 ---
 
 ## 9. Ordem de execução
 
 1. ~~Spike do R1 e R2~~ — **concluído**, ver §8b.
-2. Escrever `focuscost_1.0-aws.json` e validar contra um arquivo FOCUS real da AWS.
+2. ~~Escrever `focuscost_1.2-aws.json` e validar contra um arquivo FOCUS real da AWS~~ — **concluído**.
 3. App AWS completo (Bicep + README).
 4. App Google, reaproveitando o formato validado.
 5. UI, parâmetros do PowerShell e testes.
