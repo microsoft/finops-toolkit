@@ -436,3 +436,51 @@ az bicep build --file src/templates/finops-hub/main.bicep --stdout
 ```
 
 O primeiro teste de regressão obrigatório é um deploy **com as duas flags desligadas**, comparando o `what-if` com o baseline: o resultado tem que ser vazio.
+
+---
+
+## 10. Topologia da origem AWS (BCM Data Exports)
+
+Confirmado na [documentação da AWS](https://docs.aws.amazon.com/cur/latest/userguide/dataexports-export-delivery.html).
+
+### Layout no S3
+
+```
+s3://<bucket>/<prefix>/<export-name>/data/BILLING_PERIOD=YYYY-MM/            # modo "overwrite"
+s3://<bucket>/<prefix>/<export-name>/data/BILLING_PERIOD=YYYY-MM/<timestamp>-<execution-id>/   # modo "create new"
+s3://<bucket>/<prefix>/<export-name>/metadata/BILLING_PERIOD=YYYY-MM/<export-name>-Manifest.json
+```
+
+Arquivos: `<export-name>-<chunk>.snappy.parquet` ou `<export-name>-<chunk>.csv.gz`, com `chunk` de 5 dígitos a partir de `00001`.
+
+### Três consequências de design
+
+**1. O `Manifest.json` da AWS não pode ser copiado para `msexports`.** O schema é totalmente diferente do contrato do Cost Management (§2) — se o trigger o capturasse, `Read Manifest` retornaria nulos e o ETL falharia. Ele deve ser **lido** de um `Lookup` direto no S3 e nunca gravado no container `msexports`. Só o manifest sintético que nós montamos é gravado lá.
+
+Atenuante: o arquivo da AWS chama-se `<export-name>-Manifest.json`, e o trigger filtra por `storagePathEndsWith: 'manifest.json'`. Ainda assim, não se deve depender de sensibilidade a maiúsculas do Event Grid como mecanismo de segurança — a regra é simplesmente não copiá-lo.
+
+**2. Ler o manifest da AWS é obrigatório, não opcional.** No modo "create new", a pasta `data/BILLING_PERIOD=YYYY-MM/` acumula **uma subpasta por refresh diário**. Um `Get Metadata` recursivo copiaria todas e duplicaria os custos do mês. Só o `Manifest.json` no nível `metadata/<partition>/` identifica a execução corrente.
+
+**3. O manifest é o sinal de completude.** A AWS só o publica depois que todos os arquivos de dados chegaram — é o equivalente exato do `manifest.json` do Cost Management e dispensa qualquer heurística de "arquivo estável".
+
+### Janela de coleta
+
+A AWS pode atualizar o período anterior por até duas semanas após o fechamento. O pipeline deve iterar sobre **dois** períodos por execução — mês corrente e mês anterior — e não apenas o corrente.
+
+### Idempotência: por que refresh diário não duplica dados
+
+`ingestionId = runInfo.runId` do manifest sintético, e a limpeza pós-ingestão do ADX (`Analytics/app.bicep:1423`) remove extents que tenham a tag `drop-by:<folderPath>` mas **não** `drop-by:<ingestionId>`. Ou seja: gerando um `runId` novo a cada execução e mantendo o caminho de destino estável por período (`Costs/YYYY/MM/aws/<accountId>`), cada refresh **substitui** o mês inteiro em vez de acumular. É o mesmo mecanismo usado pelos exports da Azure.
+
+### Contrato exato consumido pelo ETL, revisitado
+
+| Expressão real no ETL | Implicação para o manifest sintético |
+| --- | --- |
+| `replace(substring(runInfo.startDate, 0, 7), '-', '')` | `startDate` deve ser ISO: `YYYY-MM-01T00:00:00Z`. Derivável direto de `BILLING_PERIOD=YYYY-MM`. |
+| `last(split(blobs[0].blobName, '.'))` | seleciona o dataset por extensão: `parquet`, `gz` ou `csv`. `*.snappy.parquet` resolve para `parquet`. |
+| `ForEach(blobs)` → `item().blobName` | `blobName` é o caminho **dentro do container `msexports`**, não a chave do S3. |
+| `last(split(replace(replace(blobName,'.gz',''),'.csv','.parquet'), '/'))` | nome do arquivo de destino; preserva `.snappy.parquet`. |
+| `blobCount` / `dataRowCount` | se zero ou nulo, o ETL faz short-circuit. Preencher `blobCount` com o número real de arquivos. |
+
+### Pendência
+
+Os nomes exatos dos campos do `Manifest.json` da AWS (lista de arquivos e período) não estão documentados de forma confiável nas fontes públicas — as referências divergem entre `dataFiles` e `files`, e entre chave relativa e URI completa do S3. **Não implementar por suposição.** Necessário um arquivo real para fixar o contrato do `Lookup`.
