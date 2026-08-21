@@ -3,11 +3,12 @@
 
 ###########################################################################
 # GET-SAVINGSREALIZED.PS1
-# AZURE FINOPS MULTITOOL - Savings Already Realized from Commitments
+# AZURE FINOPS MULTITOOL - Estimated Savings from Commitments
 ###########################################################################
-# Purpose: Calculate how much existing RIs, Savings Plans, and AHB have
-#          already saved vs pay-as-you-go. This is the "value delivered"
-#          metric that FinOps teams report to leadership.
+# Purpose: Estimate how much existing RIs, Savings Plans, and AHB are saving
+#          versus pay-as-you-go. RI and savings plan figures apply an assumed
+#          effective discount rate, so they are an estimate rather than
+#          measured savings - see EstimateBasis on the result.
 ###########################################################################
 
 function Get-SavingsRealized {
@@ -28,6 +29,19 @@ function Get-SavingsRealized {
     $riSavings  = 0
     $spSavings  = 0
     $ahbSavings = 0
+
+    # Assumed effective discount versus pay-as-you-go. Real discounts vary by
+    # SKU, term, region, and agreement, so the RI/SP numbers below are an
+    # estimate rather than measured savings.
+    $riDiscountRate = 0.40
+    $spDiscountRate = 0.25
+
+    # Savings is the gap up to the PAYG price, not a share of what was paid:
+    #   payg    = paid / (1 - d)
+    #   savings = payg - paid = paid * d / (1 - d)
+    # At a 40% discount, $100 paid implies $66.67 saved, not $40.
+    $script:FinOpsRiSavingsFactor = $riDiscountRate / (1 - $riDiscountRate)
+    $script:FinOpsSpSavingsFactor = $spDiscountRate / (1 - $spDiscountRate)
     # Amortized cost split by pricing model, used for commitment COVERAGE
     # (how much of eligible spend rides on a commitment) - distinct from the
     # savings amounts above. Spot is excluded from the eligible base because it
@@ -124,12 +138,12 @@ function Get-SavingsRealized {
                     $sub = if ($subNameById.ContainsKey($sid)) { $subNameById[$sid] } else { $sid }
                 }
                 if ($pm -match 'Reservation') {
-                    $ri += $cost * 0.4
+                    $ri += $cost * $script:FinOpsRiSavingsFactor
                     $committed += $cost
                     $rows.Add([PSCustomObject]@{ Subscription = $sub; Category = 'Reservation Benefit'; Amount = $cost; Type = 'Commitment' })
                 }
                 elseif ($pm -match 'SavingsPlan') {
-                    $sp += $cost * 0.25
+                    $sp += $cost * $script:FinOpsSpSavingsFactor
                     $committed += $cost
                     $rows.Add([PSCustomObject]@{ Subscription = $sub; Category = 'Savings Plan Benefit'; Amount = $cost; Type = 'Commitment' })
                 }
@@ -370,6 +384,8 @@ resources
         SpotAmortized      = [math]::Round($spotAmort, 2)
         CommitmentCoveragePct = $commitmentCoverage
         Details            = @($details)
+        IsEstimate         = $true
+        EstimateBasis      = "RI and savings plan figures assume a $([int]($riDiscountRate * 100))% and $([int]($spDiscountRate * 100))% effective discount versus pay-as-you-go. Actual discounts vary by SKU, term, region, and agreement. Compare against matching PAYG retail rates for measured savings."
         HasData            = ($totalMonthly -gt 0 -or $details.Count -gt 0)
     }
 }

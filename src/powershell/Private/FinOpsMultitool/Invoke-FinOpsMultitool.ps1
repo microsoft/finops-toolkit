@@ -1203,9 +1203,12 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-SavingsRealized' {
-                    Write-Host "    Monthly savings breakdown:" -ForegroundColor White
+                    Write-Host "    Estimated monthly savings breakdown:" -ForegroundColor White
                     Write-ColorizedLine -Text "      RI:  $($data.RISavingsMonthly.ToString('C0'))   SP: $($data.SPSavingsMonthly.ToString('C0'))   AHB: $($data.AHBSavingsMonthly.ToString('C0'))" -DefaultColor 'Cyan'
                     Write-ColorizedLine -Text "      Total monthly: $($data.TotalMonthly.ToString('C0'))   Annual: $($data.TotalAnnual.ToString('C0'))" -DefaultColor 'White'
+                    if ($data.EstimateBasis) {
+                        Write-Host "      $($data.EstimateBasis)" -ForegroundColor DarkGray
+                    }
                     $rows = $null  # summary only
                 }
                 'Get-CostData' {
