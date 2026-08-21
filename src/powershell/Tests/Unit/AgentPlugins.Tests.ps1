@@ -33,7 +33,7 @@ Describe 'Agent plugin manifest' {
         $root.skills[0].TrimStart('./') | Should -Be $claude.skills[0].TrimStart('./')
         $root.agents | Should -Be './agents/'
         $root.mcpServers | Should -Be '.mcp.json'
-        $claude.agents.Count | Should -Be 5
+        $claude.agents | Should -BeNullOrEmpty
         $claude.mcpServers | Should -Be './.mcp.json'
         $claude.outputStyles | Should -Be './output-styles/'
     }
@@ -54,9 +54,9 @@ Describe 'Agent plugin manifest' {
 
     It 'Declares resolvable paths for every Claude component' {
         $claude = Get-Content (Join-Path $script:Plugin '.claude-plugin/plugin.json') -Raw | ConvertFrom-Json
-        $paths = @($claude.commands) + @($claude.agents) + @($claude.skills) + @($claude.mcpServers) + @($claude.outputStyles)
+        $paths = @($claude.commands) + @($claude.skills) + @($claude.mcpServers) + @($claude.outputStyles)
 
-        $paths.Count | Should -Be 9
+        $paths.Count | Should -Be 4
         $paths | ForEach-Object {
             Join-Path $script:Plugin $_ | Should -Exist
         }
@@ -73,13 +73,17 @@ Describe 'Agent plugin manifest' {
 }
 
 Describe 'Agent plugin components' {
-    It 'Ships agent definitions as NAME.agent.md files' {
-        $agents = Get-ChildItem (Join-Path $script:Plugin 'agents') -Filter '*.agent.md'
-        $agents.Count | Should -BeGreaterThan 0
+    It 'Ships agent definitions as Claude-compatible NAME.md files' {
+        $agents = Get-ChildItem (Join-Path $script:Plugin 'agents') -Filter '*.md'
+
+        $agents.Count | Should -Be 5
+        $agents.Name | ForEach-Object {
+            $_ | Should -Not -Match '\.agent\.md$'
+        }
     }
 
     It 'Gives every agent a name and description in front matter' {
-        Get-ChildItem (Join-Path $script:Plugin 'agents') -Filter '*.agent.md' | ForEach-Object {
+        Get-ChildItem (Join-Path $script:Plugin 'agents') -Filter '*.md' | ForEach-Object {
             $content = Get-Content $_.FullName -Raw
             $content | Should -Match '(?ms)^---\s.*^name:\s*\S.*^description:\s*\S.*^---'
         }

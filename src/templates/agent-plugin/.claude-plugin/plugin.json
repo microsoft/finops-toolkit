@@ -11,13 +11,6 @@
   "license": "MIT",
   "keywords": ["finops", "cost-management", "reservations", "savings-plans", "cloud-optimization", "commitments", "credits", "macc"],
   "commands": "./commands/",
-  "agents": [
-    "./agents/azure-capacity-manager.agent.md",
-    "./agents/chief-financial-officer.agent.md",
-    "./agents/finops-practitioner.agent.md",
-    "./agents/ftk-database-query.agent.md",
-    "./agents/ftk-hubs-agent.agent.md"
-  ],
   "skills": [
     "./skills/"
   ],
