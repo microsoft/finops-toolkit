@@ -1,53 +1,65 @@
-# Plano: tornar opcional a configuração de FOCUS AWS e Google na instalação do FinOps hub
+# Plan: make AWS and Google FOCUS ingestion an optional FinOps hub setup step
 
-> Escopo, justificativa e decisões de alto nível da feature. O detalhamento técnico — contrato do manifest, parâmetros Bicep, estrutura dos módulos e checklist de arquivos — está em [Multicloud-FOCUS-design](./Multicloud-FOCUS-design.md).
-> Branch de trabalho: `arthursilvany/multicloud-focus`.
+> Scope, rationale, and high-level decisions for the feature. The technical detail — manifest contract, Bicep parameters, module structure, and file checklist — lives in [Multicloud-FOCUS-design](./Multicloud-FOCUS-design.md).
+> Working branch: `arthursilvany/multicloud-focus`.
 
-## Problema
-Adicionar suporte opcional para ingestão de dados FOCUS de AWS e Google (GCP) durante a instalação do FinOps hub, sem transformar isso em um requisito do deployment padrão. O objetivo é permitir que uma implantação Azure do hub também receba dados multicloud em um fluxo de ingestão controlado, seguindo o modelo atual de extensões opcionais do template.
+## Problem
 
-## Referências analisadas
-- https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/hubs/deploy?tabs=azure-portal%2Cadx-dashboard#managed-exports
-- https://techcommunity.microsoft.com/blog/finopsblog/getting-started-with-finops-hubs-multicloud-cost-reporting-with-azure-and-google/4415190
-- Repositório atual: `src/templates/finops-hub/main.bicep`, `src/templates/finops-hub/modules/hub.bicep`, `src/templates/finops-hub/createUiDefinition.json`, `src/templates/finops-hub/modules/Microsoft.FinOpsHubs/RemoteHub/app.bicep`
+Add optional support for ingesting FOCUS data from AWS and Google (GCP) during FinOps hub setup, without turning it into a requirement of the default deployment. The goal is to let an Azure hub deployment also receive multicloud data through a controlled ingestion flow, following the template's existing model for optional extensions.
 
-## Conclusões do estudo
-- O template atual já usa um padrão de flags opcionais para extensões de instalação (`enableManagedExports`, `enableRecommendations`, `remoteHubStorageUri`, `remoteHubStorageKey`).
-- O arquivo `createUiDefinition.json` mostra que a UI do Azure Portal já expõe configurações opcionais em seções avançadas para cenários de hub remoto.
-- O módulo `Microsoft.FinOpsHubs/RemoteHub/app.bicep` é o melhor padrão de referência do repositório para: (1) conectar um recurso externo ao Data Factory do hub; (2) sobrescrever datasets; e (3) manter o hub funcionando como ingestão centralizada.
-- A documentação Microsoft cobre multicloud/remote hub para Azure, mas ainda não modela AWS e Google como configurações nativas e opcionais do instalador do FinOps hub. Há uma lacuna de experiência de deployment entre “Azure-only defaults” e “multicloud custom ingestion”.
+## References reviewed
 
-## Direção do plano
-1. Manter o deployment padrão do FinOps hub completamente Azure-first e sem mudanças de comportamento por default.
-2. Adicionar um step opcional "Multicloud" no wizard, com toggles separados para AWS e Google.
-3. Reaproveitar o Data Factory do hub como orquestrador para a coleta de arquivos FOCUS externos em vez de criar um deployment paralelo.
-4. Tratar AWS/Google como “data sources extras” e não como recursos obrigatórios do hub.
+- <https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/hubs/deploy?tabs=azure-portal%2Cadx-dashboard#managed-exports>
+- <https://techcommunity.microsoft.com/blog/finopsblog/getting-started-with-finops-hubs-multicloud-cost-reporting-with-azure-and-google/4415190>
+- Current repository: `src/templates/finops-hub/main.bicep`, `src/templates/finops-hub/modules/hub.bicep`, `src/templates/finops-hub/createUiDefinition.json`, `src/templates/finops-hub/modules/Microsoft.FinOpsHubs/RemoteHub/app.bicep`
 
-## Revisão arquitetural após leitura do código (decisão principal)
-O detalhamento está em `files/design-multicloud-focus.md`. A conclusão mudou o desenho original:
+## Findings
 
-**Não construir um ETL paralelo.** O hub já possui a cadeia completa `msexports → Parquet → ingestion → ADX`, e ela é disparada por um `BlobEventsTrigger` que reage **exclusivamente** a `manifest.json` (`Microsoft.CostManagement/Exports/app.bicep:1712-1728`). Os schemas FOCUS 1.0/1.0r2/1.2 e os datasets para CSV, gzip e Parquet já existem.
+- The current template already uses an optional-flag pattern for setup extensions (`enableManagedExports`, `enableRecommendations`, `remoteHubStorageUri`, `remoteHubStorageKey`).
+- `createUiDefinition.json` shows that the Azure portal UI already exposes optional settings in advanced sections for remote hub scenarios.
+- `Microsoft.FinOpsHubs/RemoteHub/app.bicep` is the best reference pattern in the repository for: (1) connecting an external resource to the hub's Data Factory; (2) overriding datasets; and (3) keeping the hub working as centralized ingestion.
+- Microsoft documentation covers multicloud/remote hub for Azure, but does not yet model AWS and Google as native, optional FinOps hub installer settings. There is a deployment-experience gap between "Azure-only defaults" and "multicloud custom ingestion".
 
-Portanto o conector multicloud precisa apenas:
-1. copiar os arquivos FOCUS do bucket S3/GCS para `msexports/<provider>/...`;
-2. gravar por último um `manifest.json` compatível com o contrato do Cost Management.
+## Direction
 
-Tudo depois disso — conversão, retenção e ingestão analítica — já funciona sem alteração. Isso reduz drasticamente o código novo e o custo de manutenção.
+1. Keep the default FinOps hub deployment fully Azure-first, with no behavior changes by default.
+2. Add an optional "Multicloud" step to the wizard, with separate toggles for AWS and Google.
+3. Reuse the hub's Data Factory as the orchestrator for collecting external FOCUS files instead of creating a parallel deployment.
+4. Treat AWS/Google as extra data sources, not as required hub resources.
 
-Padrão de referência a seguir: `Microsoft.Billing/Invoices`, o app opcional mais recente e completo do repositório (parâmetro `enableInvoiceDownload` + módulo condicional + step de UI + README + entrada no `.build.config`).
+## Architectural revision after reading the code (key decision)
 
-## Resultado dos spikes (concluídos)
-Executados na branch `arthursilvany/multicloud-focus`. Detalhes em `files/design-multicloud-focus.md` §8b.
+The full analysis is in [Multicloud-FOCUS-design](./Multicloud-FOCUS-design.md). Its conclusion changed the original design:
 
-- **R1 — `exportConfig.resourceId`: refutado.** O ETL faz `split(toLower(resourceId), '/providers/microsoft.costmanagement/exports/')[0]` e usa o resultado apenas como segmento de caminho. Não há parsing de resource ID. Qualquer string funciona — adotado `/aws/<accountId>` e `/gcp/<projectId>`. Risco de alto para baixo.
-- **R2 — reuso do schema FOCUS: confirmado como problema, e resolvido.** `focuscost_1.0.json` tem 96 mapeamentos explícitos, dos quais 52 (54%) são colunas `x_*` da Azure. Não é reutilizável. Solução: publicar `focuscost_1.0-aws.json` e `focuscost_1.0-gcp.json` e selecioná-los pelo campo `exportConfig.dataVersion` do manifest sintético (`1.0-aws` / `1.0-gcp`), já que o nome do schema é derivado de `type` + `dataVersion` — ambos sob nosso controle. **Zero alteração no ETL.**
-- **Bônus:** o `additionalColumns` do arquivo de schema, hoje vazio, é o mecanismo pronto para carimbar `x_SourceProvider` e distinguir a origem dos dados no ADX.
+**Do not build a parallel ETL.** The hub already has the complete `msexports → Parquet → ingestion → ADX` chain, and it is fired by a `BlobEventsTrigger` that reacts **exclusively** to `manifest.json` (`Microsoft.CostManagement/Exports/app.bicep:1712-1728`). The FOCUS 1.0/1.0r2/1.2 schemas and the CSV, gzip, and Parquet datasets already exist.
 
-Conclusão: a abordagem de manifest sintético está validada. Nenhum bloqueante restante para iniciar a implementação.
+So the multicloud connector only needs to:
 
-## Escopo proposto
-### 1) Configuração de instalação
-Adicionar parâmetros opcionais ao template principal e à UI do portal:
+1. copy the FOCUS files from the S3/GCS bucket into `msexports/<provider>/...`;
+2. write a Cost Management-compatible `manifest.json` **last**.
+
+Everything after that — conversion, retention, and analytical ingestion — already works unchanged. This drastically reduces new code and maintenance cost.
+
+Reference pattern to follow: `Microsoft.Billing/Invoices`, the newest and most complete optional app in the repository (`enableInvoiceDownload` parameter + conditional module + UI step + README + `.build.config` entry).
+
+## Spike results (complete)
+
+Run on the `arthursilvany/multicloud-focus` branch. Details in [Multicloud-FOCUS-design](./Multicloud-FOCUS-design.md) §8b.
+
+- **R1 — `exportConfig.resourceId`: disproved.** The ETL runs `split(toLower(resourceId), '/providers/microsoft.costmanagement/exports/')[0]` and uses the result only as a path segment. There is no resource ID parsing. Any string works — `/aws/<accountId>` and `/gcp/<projectId>` were adopted. Risk dropped from high to low.
+- **R2 — FOCUS schema reuse: confirmed as a problem, and solved.** The hub's FOCUS schema is dominated by Azure-specific `x_*` columns and is not reusable. Solution: publish per-provider schemas and select them through the synthetic manifest's `exportConfig.dataVersion` field, since the schema file name is derived from `type` + `dataVersion` — both under our control. **Zero ETL changes.**
+- **Bonus:** the schema file's `additionalColumns` field, empty today, looked like a ready-made mechanism for stamping `x_SourceProvider` to distinguish data origin in ADX.
+
+> **Superseded by the design doc.** Two of the statements above were later corrected: the real AWS export is FOCUS **1.2**, so the schema is `focuscost_1.2-aws.json` (not `1.0-aws`); and `additionalColumns` **cannot** stamp provenance, because the ETL intersects it with a fixed `Microsoft` / `Cost Management` array. Provenance turned out to require no work at all — ADX already classifies AWS and GCP from the shape of the data. See design §8/R2, §8b, and §8c.
+
+Conclusion: the synthetic manifest approach is validated. No blockers remain for starting implementation.
+
+## Proposed scope
+
+### 1) Setup configuration
+
+Add optional parameters to the main template and the portal UI:
+
 - `enableAwsFocusIngestion` (bool, default false)
 - `enableGoogleFocusIngestion` (bool, default false)
 - `awsFocusBucketName` / `awsFocusPrefix` / `awsFocusRegion`
@@ -56,45 +68,53 @@ Adicionar parâmetros opcionais ao template principal e à UI do portal:
 - `googleFocusCredentialsSecretName`
 - `focusIngestionSchedule` or `triggerFrequency`
 
-Essas entradas devem ser condicionais: só ficam visíveis quando a fonte correspondente está habilitada.
+These inputs must be conditional: they are only visible when the matching source is enabled.
 
-### 2) Segurança e segredos
-- Usar Key Vault para guardar credenciais de AWS/Google ao invés de expor secrets no template.
-- Modelar a propriedade como refs do Key Vault, semelhante ao padrão de `remoteHubStorageKey`/`AzureKeyVaultSecret`.
-- Validar que as credenciais sejam opcionais e que a configuração falhe de forma explícita quando o flag estiver habilitado mas o segredo ou a URI estiver faltando.
+### 2) Security and secrets
 
-### 3) Extensão do Data Factory
-Adicionar módulos Bicep no fluxo do hub para:
-- criar `linkedService` de origem AWS e/ou Google
-- criar datasets de origem e destino
-- criar pipeline(s) de cópia para mover os arquivos FOCUS do storage externo para o `ingestion` do FinOps hub
-- criar trigger periódico (daily/hourly, conforme a necessidade da fonte)
-- preservar a lógica atual de `startTriggers` via `fx/hub-initialize.bicep`
+- Use Key Vault to store AWS/Google credentials instead of exposing secrets in the template.
+- Model the property as Key Vault references, similar to the `remoteHubStorageKey`/`AzureKeyVaultSecret` pattern.
+- Validate that credentials are optional and that configuration fails explicitly when the flag is enabled but the secret or URI is missing.
 
-A extensão deve seguir o mesmo padrão já usado em `Microsoft.FinOpsHubs/RemoteHub/app.bicep`.
+### 3) Data Factory extension
 
-### 4) Ingestão e normalização
-- Garantir que o destino final seja compatível com o modelo já usado pelo hub para arquivos FOCUS/Parquet e ingestão analítica.
-- Definir regras de estrutura de pastas e nomenclatura para evitar colisão entre fontes AWS, Google e Azure.
-- Validar se o schema de FOCUS do provedor é consistente com o esperado pelo hub e se será necessária uma camada de transformação antes da ingestão final.
+Add Bicep modules to the hub flow to:
 
-### 5) Testes, validação e documentação
-- Validar o deploy do template com flags desligadas (baseline intacta).
-- Validar o deploy com cada origem habilitada separadamente.
-- Validar `bicep build`/deployment validation e testes do repositório (`src/scripts/Test-PowerShell`).
-- Atualizar documentação do FinOps hub e do portal de deployment para explicar o fluxo opcional multi-cloud.
+- create the AWS and/or Google source `linkedService`
+- create source and destination datasets
+- create copy pipelines that move FOCUS files from external storage into the FinOps hub
+- create a periodic trigger (daily/hourly, depending on the source)
+- preserve the current `startTriggers` logic via `fx/hub-initialize.bicep`
 
-## Riscos e considerations
-- A topologia de integração AWS/Google tende a depender de serviços, APIs e credenciais específicas; a solução deve ser um “connector pattern”, não um hardcoded scenario único.
-- O custo e a latência de ingestão aumentam com conexões externas; o recurso deve ser explicitamente opcional e documentado.
-- O hub tem a premissa de dados Azure-first; a extensão multicloud deve ser isolada para não afetar a instalação padrão.
-- As configurações Google/AWS podem exigir regras de rede e acesso de saída distintas; esse ponto precisa ser avaliado no design do template.
+The extension must follow the same pattern already used in `Microsoft.FinOpsHubs/RemoteHub/app.bicep`.
 
-## Tarefas planejadas
-- `multicloud-research`: confirmar o escopo técnico e escolher o modelo de extensão mais compatível com o hub atual.
-- `multicloud-design`: definir parâmetros, UI e objeto de configuração do instalador.
-- `multicloud-iac`: especificar o Bicep do hub e o pattern do Data Factory para AWS/Google.
-- `multicloud-docs`: validar documentação, testes e rollout.
+### 4) Ingestion and normalization
 
-## Resultado esperado
-Uma instalação do FinOps hub que continue funcionando como Azure-first por default, mas permita a opção de coletar dados FOCUS do AWS e Google como fontes complementares, com segurança, isolamento e compatibilidade com o fluxo atual do hub.
+- Ensure the final destination is compatible with the model the hub already uses for FOCUS/Parquet files and analytical ingestion.
+- Define folder structure and naming rules to avoid collisions between AWS, Google, and Azure sources.
+- Validate that the provider's FOCUS schema is consistent with what the hub expects, and whether a transformation layer is needed before final ingestion.
+
+### 5) Testing, validation, and documentation
+
+- Validate the template deployment with the flags off (baseline unchanged).
+- Validate the deployment with each source enabled separately.
+- Validate `bicep build`/deployment validation and the repository tests (`src/scripts/Test-PowerShell`).
+- Update the FinOps hub and deployment portal documentation to explain the optional multicloud flow.
+
+## Risks and considerations
+
+- AWS/Google integration topology tends to depend on provider-specific services, APIs, and credentials; the solution must be a connector pattern, not a single hardcoded scenario.
+- Ingestion cost and latency increase with external connections; the feature must be explicitly optional and documented.
+- The hub assumes Azure-first data; the multicloud extension must be isolated so it does not affect the default installation.
+- Google/AWS configurations may require distinct network and egress rules; this must be addressed in the template design.
+
+## Planned tasks
+
+- `multicloud-research`: confirm the technical scope and choose the extension model most compatible with the current hub.
+- `multicloud-design`: define installer parameters, UI, and configuration object.
+- `multicloud-iac`: specify the hub Bicep and the Data Factory pattern for AWS/Google.
+- `multicloud-docs`: validate documentation, tests, and rollout.
+
+## Expected outcome
+
+A FinOps hub installation that keeps working as Azure-first by default, but offers the option to collect FOCUS data from AWS and Google as complementary sources, with security, isolation, and compatibility with the hub's current flow.

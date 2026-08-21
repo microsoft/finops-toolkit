@@ -1,88 +1,88 @@
-# Design: ingestão opcional de FOCUS AWS e Google no FinOps hub
+# Design: optional AWS and Google FOCUS ingestion in FinOps hub
 
-> Detalhamento técnico do plano aprovado em [Multicloud-FOCUS-plan](./Multicloud-FOCUS-plan.md). Baseado na leitura do código atual em `src/templates/finops-hub`.
-> Branch de trabalho: `arthursilvany/multicloud-focus`.
+> Technical detail for the plan approved in [Multicloud-FOCUS-plan](./Multicloud-FOCUS-plan.md). Based on a reading of the current code in `src/templates/finops-hub`.
+> Working branch: `arthursilvany/multicloud-focus`.
 
 ---
 
-## 1. Descoberta que define a arquitetura
+## 1. The discovery that defines the architecture
 
-O hub **já tem** todo o pipeline de FOCUS → Parquet → ADX. O que falta é apenas **entregar o arquivo na porta certa**.
+The hub **already has** the entire FOCUS → Parquet → ADX pipeline. All that is missing is **delivering the file to the right door**.
 
-Cadeia atual, confirmada no código:
+The current chain, confirmed in code:
 
 ```
 Cost Management export
-  → grava arquivos + manifest.json no container "msexports"
-    → trigger msexports_ManifestAdded  (BlobEventsTrigger, storagePathEndsWith: 'manifest.json')
-      → pipeline msexports_ExecuteETL   (lê o manifest, escolhe o schema)
-        → msexports_ETL_ingestion       (converte para Parquet no container "ingestion")
-          → trigger ingestion_ManifestAdded
-            → pipeline de ingestão do ADX / Fabric
+  → writes files + manifest.json to the "msexports" container
+    → msexports_ManifestAdded trigger  (BlobEventsTrigger, storagePathEndsWith: 'manifest.json')
+      → msexports_ExecuteETL pipeline   (reads the manifest, picks the schema)
+        → msexports_ETL_ingestion       (converts to Parquet in the "ingestion" container)
+          → ingestion_ManifestAdded trigger
+            → ADX / Fabric ingestion pipeline
 ```
 
-Evidências:
+Evidence:
 
-| Fato | Arquivo |
+| Fact | File |
 | --- | --- |
-| Trigger dispara **só** em `manifest.json` | `Microsoft.CostManagement/Exports/app.bicep:1712-1728` |
-| Trigger de ingestão idem | `Microsoft.FinOpsHubs/Analytics/app.bicep:682-698` |
-| Schemas FOCUS 1.0 / 1.0r2 / 1.2 já publicados no container `config` | `Microsoft.CostManagement/Exports/app.bicep:59-85` |
-| Datasets para CSV, **gzip** e **Parquet** já existem | `Microsoft.CostManagement/Exports/app.bicep:164-254` |
+| Trigger fires **only** on `manifest.json` | `Microsoft.CostManagement/Exports/app.bicep:1712-1728` |
+| Same for the ingestion trigger | `Microsoft.FinOpsHubs/Analytics/app.bicep:682-698` |
+| FOCUS 1.0 / 1.0r2 / 1.2 schemas already published to the `config` container | `Microsoft.CostManagement/Exports/app.bicep:59-85` |
+| Datasets for CSV, **gzip**, and **Parquet** already exist | `Microsoft.CostManagement/Exports/app.bicep:164-254` |
 
-**Consequência de design:** não construir um ETL paralelo. O conector AWS/Google deve apenas:
+**Design consequence:** do not build a parallel ETL. The AWS/Google connector only has to:
 
-1. copiar os arquivos FOCUS do bucket para `msexports/<provider>/...`;
-2. gravar um `manifest.json` compatível **por último**.
+1. copy the FOCUS files from the bucket into `msexports/<provider>/...`;
+2. write a compatible `manifest.json` **last**.
 
-A partir daí, tudo o que já existe funciona sem alteração — incluindo a conversão para Parquet, a retenção e a ingestão no ADX. Como o trigger só reage a `manifest.json`, gravar os dados antes e o manifest depois é seguro por construção.
+From there, everything that already exists works unchanged — including Parquet conversion, retention, and ADX ingestion. Because the trigger only reacts to `manifest.json`, writing the data first and the manifest afterward is safe by construction.
 
-Isso também resolve o formato: AWS entrega FOCUS em `.csv.gz` ou `.parquet` e o GCS em `.csv`/`.parquet` — os três já são tratados pelos datasets `msexports`, `msexports_gzip` e `msexports_parquet`.
+This also settles the format question: AWS delivers FOCUS as `.csv.gz` or `.parquet`, and GCS as `.csv`/`.parquet` — all three are already handled by the `msexports`, `msexports_gzip`, and `msexports_parquet` datasets.
 
 ---
 
-## 2. Contrato do `manifest.json`
+## 2. The `manifest.json` contract
 
-Campos efetivamente consumidos pelo `msexports_ExecuteETL` (extraídos das expressões `activity('Read Manifest').output.firstRow.*`):
+Fields actually consumed by `msexports_ExecuteETL` (extracted from the `activity('Read Manifest').output.firstRow.*` expressions):
 
-| Campo | Uso | Valor para AWS/GCP |
+| Field | Use | Value for AWS/GCP |
 | --- | --- | --- |
-| `exportConfig.type` | 1ª parte do nome do schema | `FocusCost` |
-| `exportConfig.dataVersion` | 2ª parte do nome do schema (e **só** isso — ver §8/R2) | `1.2-aws` / `1.2-gcp` (ver §2.1) |
-| `exportConfig.exportName` | nome lógico do export | `aws-focus` / `gcp-focus` |
-| `exportConfig.resourceId` | deriva o scope (= segmento de caminho) | ver §2.2 |
-| `runInfo.runId` | identidade da execução | GUID gerado no pipeline |
-| `runInfo.startDate` | período dos dados | início do mês do arquivo |
-| `blobCount` / `blobs[].blobName` | lista de arquivos | preenchido pelo Get Metadata |
-| `dataRowCount` | short-circuit de export vazio | omitir ou `null` |
-| `retention.msexports.days` | limpeza | copiar do `settings.json` |
-| `additionalColumns`, `translator` | vêm do arquivo de schema, não do manifest | omitir |
+| `exportConfig.type` | 1st part of the schema file name | `FocusCost` |
+| `exportConfig.dataVersion` | 2nd part of the schema file name (and **only** that — see §8/R2) | `1.2-aws` / `1.2-gcp` (see §2.1) |
+| `exportConfig.exportName` | logical export name | `aws-focus` / `gcp-focus` |
+| `exportConfig.resourceId` | derives the scope (= path segment) | see §2.2 |
+| `runInfo.runId` | run identity | GUID generated in the pipeline |
+| `runInfo.startDate` | data period | start of the file's month |
+| `blobCount` / `blobs[].blobName` | file list | populated by Get Metadata |
+| `dataRowCount` | empty-export short-circuit | **omit the property** — never `null` or `0` (see §10) |
+| `retention.msexports.days` | cleanup | copy from `settings.json` |
+| `additionalColumns`, `translator` | come from the schema file, not the manifest | omit |
 
-O manifest é montado no próprio pipeline (atividade `Set Variable` + `Copy` com `JsonSink`), não como arquivo estático — o conteúdo depende do run.
+The manifest is assembled inside the pipeline (a `Set Variable` activity + a `Copy` with `JsonSink`), not as a static file — its content depends on the run.
 
-### 2.1 Como o schema é selecionado — o ponto de extensão
+### 2.1 How the schema is selected — the extension point
 
 ```
-schemaFile = toLower(concat(exportDatasetType, '_', exportDatasetVersion, <sufixo de canal>, '.json'))
+schemaFile = toLower(concat(exportDatasetType, '_', exportDatasetVersion, <channel suffix>, '.json'))
 ```
 
-O `<sufixo de canal>` (`_ea` / `_mca`) só é aplicado quando `mcaColumnToCheck` não é nulo, e essa variável é nula para `FocusCost` — ela só é preenchida para `pricesheet`, `reservationtransactions` e `reservationrecommendations`. Portanto, para FOCUS o nome do arquivo é determinado **inteiramente** por dois campos que nós controlamos no manifest sintético.
+The `<channel suffix>` (`_ea` / `_mca`) is only applied when `mcaColumnToCheck` is non-null, and that variable is null for `FocusCost` — it is only populated for `pricesheet`, `reservationtransactions`, and `reservationrecommendations`. So for FOCUS the file name is determined **entirely** by two fields we control in the synthetic manifest.
 
-Consequência: publicar `focuscost_1.2-aws.json` e definir `dataVersion: '1.2-aws'` faz o ETL carregar o schema correto **sem uma única alteração no pipeline existente**. `exportConfig.type`, ao contrário, é obrigatoriamente `FocusCost` — ver §8d.
+Consequence: publishing `focuscost_1.2-aws.json` and setting `dataVersion: '1.2-aws'` makes the ETL load the correct schema **without a single change to the existing pipeline**. `exportConfig.type`, by contrast, must be exactly `FocusCost` — see §8d.
 
-### 2.2 Valor de `exportConfig.resourceId`
+### 2.2 Value of `exportConfig.resourceId`
 
-Recomendado: `/aws/<accountId>` e `/gcp/<projectId>`.
+Recommended: `/aws/<accountId>` and `/gcp/<projectId>`, **always lowercase** (see §10 — the ADX tag comparison is case-sensitive, and case variations silently duplicate data).
 
-Produz os caminhos `FocusCost/2026/08/aws/123456789012/` e `FocusCost/2026/08/gcp/meu-projeto/`, legíveis e isolados dos caminhos de scope da Azure. Ver §8/R1 para a análise que sustenta essa liberdade de formato.
+This produces the paths `Costs/2026/08/aws/123456789012/` and `Costs/2026/08/gcp/my-project/`, which are readable and isolated from Azure scope paths. The first segment is the `hubDataset` (`focuscost` → `Costs`), not the `exportDatasetType`. See §8/R1 for the analysis that supports this freedom of format.
 
 ---
 
-## 3. Parâmetros novos
+## 3. New parameters
 
-### `main.bicep` e `modules/hub.bicep`
+### `main.bicep` and `modules/hub.bicep`
 
-Seguem exatamente o padrão de `enableInvoiceDownload` (`main.bicep:52-57`).
+These follow the `enableInvoiceDownload` pattern exactly (`main.bicep:52-57`).
 
 ```bicep
 @description('Optional. Enable ingestion of FOCUS cost data exported from Amazon Web Services. Requires an S3 bucket with a FOCUS 1.0 or 1.2 export and an access key stored during deployment. Default: false.')
@@ -109,9 +109,9 @@ param awsSecretAccessKey string = ''
 param awsFocusVersion string = '1.0'
 ```
 
-Equivalente para Google, com nomes `enableGoogleFocusIngestion`, `googleBucketName`, `googleBucketPrefix`, `googleProjectId`, `googleAccessKeyId`, `googleSecretAccessKey` (HMAC do GCS), `googleFocusVersion`.
+The Google equivalent uses the names `enableGoogleFocusIngestion`, `googleBucketName`, `googleBucketPrefix`, `googleProjectId`, `googleAccessKeyId`, `googleSecretAccessKey` (GCS HMAC), and `googleFocusVersion`.
 
-Comuns aos dois:
+Common to both:
 
 ```bicep
 @description('Optional. Hour of the day (UTC) to collect multicloud FOCUS files. Default: 4.')
@@ -120,11 +120,11 @@ Comuns aos dois:
 param multiCloudScheduleHour int = 4
 ```
 
-**Chave do design:** os defaults deixam tudo desligado. Um deploy existente que rode `main.bicep` sem esses parâmetros não muda em nada — nenhum recurso novo, nenhum custo novo.
+**Key design point:** the defaults leave everything off. An existing deployment that runs `main.bicep` without these parameters changes in no way — no new resources, no new cost.
 
-### Telemetria — `modules/hub.bicep`
+### Telemetry — `modules/hub.bicep`
 
-O `telemetryString` (`hub.bicep:206-222`) é limitado a 12 caracteres. Acrescentar apenas dois flags:
+`telemetryString` (`hub.bicep:206-222`) is limited to 12 characters. Add only two flags:
 
 ```bicep
 // A = AWS FOCUS ingestion, G = Google FOCUS ingestion
@@ -134,11 +134,11 @@ enableGoogleFocusIngestion ? 'G' : ''
 
 ---
 
-## 4. UI do portal — `createUiDefinition.json`
+## 4. Portal UI — `createUiDefinition.json`
 
-Estrutura atual dos steps: `pricing`, `retention`, `recommendations`, `invoices`, `advanced`, `tags`.
+Current step structure: `pricing`, `retention`, `recommendations`, `invoices`, `advanced`, `tags`.
 
-Adicionar um step `multicloud` entre `invoices` e `advanced`, espelhando o layout do step `invoices` (`createUiDefinition.json:841-930`):
+Add a `multicloud` step between `invoices` and `advanced`, mirroring the layout of the `invoices` step (`createUiDefinition.json:841-930`):
 
 ```
 - multicloud  (label: "🆕 Multicloud")
@@ -153,12 +153,12 @@ Adicionar um step `multicloud` entre `invoices` e `advanced`, espelhando o layou
         - focusVersion       [Microsoft.Common.DropDown]  (1.0 | 1.2)
     * enableGoogle           [Microsoft.Common.CheckBox]
     * google                 [Microsoft.Common.Section]   visible: [steps('multicloud').enableGoogle]
-        - (mesmos campos + projectId)
+        - (same fields + projectId)
     * schedule               [Microsoft.Common.Section]
-    * permissions            [Microsoft.Common.Section]   (texto sobre a política IAM mínima)
+    * permissions            [Microsoft.Common.Section]   (text describing the minimum IAM policy)
 ```
 
-Outputs, no mesmo estilo dos existentes (`createUiDefinition.json:1102`):
+Outputs, in the same style as the existing ones (`createUiDefinition.json:1102`):
 
 ```json
 "enableAwsFocusIngestion": "[steps('multicloud').enableAws]",
@@ -166,15 +166,15 @@ Outputs, no mesmo estilo dos existentes (`createUiDefinition.json:1102`):
 "awsSecretAccessKey": "[if(steps('multicloud').enableAws, steps('multicloud').aws.secretAccessKey, '')]"
 ```
 
-O `if(...)` é obrigatório: garante que campos ocultos nunca vazem valores residuais para o template — mesmo padrão já usado em `remoteHubStorageUri`/`remoteHubStorageKey`.
+The `if(...)` is mandatory: it guarantees that hidden fields never leak stale values into the template — the same pattern already used for `remoteHubStorageUri`/`remoteHubStorageKey`.
 
-Usar `Microsoft.Common.PasswordBox` para os segredos, para que não apareçam em tela nem no histórico do portal.
+Use `Microsoft.Common.PasswordBox` for secrets so they never appear on screen or in portal history.
 
 ---
 
-## 5. Módulos novos
+## 5. New modules
 
-Dois apps irmãos, seguindo a estrutura de `Microsoft.Billing/Invoices` (o app opcional mais recente e completo do repo):
+Two sibling apps, following the structure of `Microsoft.Billing/Invoices` (the newest and most complete optional app in the repository):
 
 ```
 modules/Microsoft.FinOpsHubs/AmazonWebServices/
@@ -187,9 +187,9 @@ modules/Microsoft.FinOpsHubs/GoogleCloud/
     README.md
 ```
 
-Publisher = `Microsoft.FinOpsHubs`, porque quem publica o conector é a Microsoft. Isso mantém os recursos no Data Factory / Key Vault / storage do próprio hub em vez de criar um segundo Data Factory quando `publisherIsolation` for ativado no futuro (`hub-types.bicep`, `newApp`).
+Publisher = `Microsoft.FinOpsHubs`, because Microsoft is who publishes the connector. This keeps the resources in the hub's own Data Factory / Key Vault / storage instead of creating a second Data Factory when `publisherIsolation` is enabled in the future (`hub-types.bicep`, `newApp`).
 
-### Cabeçalho do `app.bicep` (padrão obrigatório do repo)
+### `app.bicep` header (required repository pattern)
 
 ```bicep
 import { finOpsToolkitVersion, HubAppProperties, privateRoutingForLinkedServices, isSupportedVersion } from '../../fx/hub-types.bicep'
@@ -206,21 +206,21 @@ metadata hubApp = {
 param core CoreMetadata
 ```
 
-A dependência de `Microsoft.CostManagement.Exports` é real e não opcional: é dele que vêm o container `msexports` e os arquivos de schema.
+The dependency on `Microsoft.CostManagement.Exports` is real and not optional: it owns the `msexports` container and the schema files.
 
-### Recursos criados por app
+### Resources created per app
 
-| Tipo | Nome (AWS) | Nome (Google) | Função |
+| Type | Name (AWS) | Name (Google) | Purpose |
 | --- | --- | --- | --- |
 | Key Vault secret | `aws-secret-access-key` | `gcp-secret-access-key` | via `fx/hub-vault.bicep` |
 | Linked service | `aws_s3` | `gcp_storage` | `AmazonS3` / `GoogleCloudStorage` |
 | Dataset | `aws_focus_source` | `gcp_focus_source` | `Binary` + `AmazonS3Location` / `GoogleCloudStorageLocation` |
-| Dataset | `aws_focus_landing` | `gcp_focus_landing` | `Binary` no container `msexports` |
-| Dataset | `aws_focus_manifest` | `gcp_focus_manifest` | `Json` no container `msexports` |
-| Pipeline | `aws_CollectFocusExport` | `gcp_CollectFocusExport` | copiar + gerar manifest |
-| Trigger | `aws_DailySchedule` | `gcp_DailySchedule` | `ScheduleTrigger` diário |
+| Dataset | `aws_focus_landing` | `gcp_focus_landing` | `Binary` in the `msexports` container |
+| Dataset | `aws_focus_manifest` | `gcp_focus_manifest` | `Json` in the `msexports` container |
+| Pipeline | `aws_CollectFocusExport` | `gcp_CollectFocusExport` | copy + generate manifest |
+| Trigger | `aws_DailySchedule` | `gcp_DailySchedule` | daily `ScheduleTrigger` |
 
-O linked service usa segredo do Key Vault exatamente como o RemoteHub (`Microsoft.FinOpsHubs/RemoteHub/app.bicep:88-98`):
+The linked service uses a Key Vault secret exactly like RemoteHub does (`Microsoft.FinOpsHubs/RemoteHub/app.bicep:88-98`):
 
 ```bicep
 resource linkedService_awsS3 'linkedservices' = {
@@ -241,21 +241,21 @@ resource linkedService_awsS3 'linkedservices' = {
 }
 ```
 
-O spread `...privateRoutingForLinkedServices(app.hub)` não é opcional — sem ele o linked service ignora o Managed VNet quando o hub roda em rede privada.
+The `...privateRoutingForLinkedServices(app.hub)` spread is not optional — without it the linked service ignores the Managed VNet when the hub runs on a private network.
 
-### Atividades do pipeline `*_CollectFocusExport`
+### `*_CollectFocusExport` pipeline activities
 
-1. **Load Settings** — `Lookup` no dataset `config` para ler `retention.msexports.days`.
+1. **Load Settings** — `Lookup` on the `config` dataset to read `retention.msexports.days`.
 2. **Set Run Id** — `@guid()`.
-3. **List Source Files** — `Get Metadata` (`childItems`) no prefixo do bucket.
-4. **Filter New Files** — `Filter` pelo mês corrente / arquivos ainda não copiados.
-5. **Copy FOCUS Files** — `ForEach` (sequencial = false) com `Copy` binário de S3/GCS → `msexports/<provider>/<periodo>/<runId>/`.
-6. **Build Manifest** — `Set Variable` montando o JSON do contrato da seção 2.
-7. **Write Manifest** — `Copy` com `JsonSink` gravando `manifest.json` na **mesma pasta**, com `dependsOn: Succeeded` do passo 5.
+3. **List Source Files** — `Get Metadata` (`childItems`) on the bucket prefix.
+4. **Filter New Files** — `Filter` by current month / files not yet copied.
+5. **Copy FOCUS Files** — `ForEach` (sequential = false) with a binary `Copy` from S3/GCS to `msexports/<provider>/<period>/<runId>/`.
+6. **Build Manifest** — `Set Variable` assembling the JSON contract from section 2.
+7. **Write Manifest** — `Copy` with a `JsonSink` writing `manifest.json` to the **same folder**, with `dependsOn: Succeeded` on step 5.
 
-O passo 7 depender de `Succeeded` (não `Completed`) é o que garante que o manifest nunca seja publicado sobre uma cópia parcial.
+Step 7 depending on `Succeeded` (not `Completed`) is what guarantees the manifest is never published over a partial copy.
 
-### Estrutura de pastas no `msexports`
+### Folder structure in `msexports`
 
 ```
 msexports/
@@ -263,13 +263,13 @@ msexports/
 └── gcp/<projectId>/<YYYYMMDD-YYYYMMDD>/<runId>/{data files, manifest.json}
 ```
 
-Prefixos `aws/` e `gcp/` isolam as fontes e evitam colisão com os caminhos de scope do Cost Management.
+The `aws/` and `gcp/` prefixes isolate the sources and avoid collisions with Cost Management scope paths.
 
 ---
 
-## 6. Ligação em `modules/hub.bicep`
+## 6. Wiring in `modules/hub.bicep`
 
-Inserir depois do bloco de Invoices (`hub.bicep:368-380`), seguindo o mesmo formato:
+Insert after the Invoices block (`hub.bicep:368-380`), following the same format:
 
 ```bicep
 //------------------------------------------------------------------------------
@@ -288,61 +288,61 @@ module awsFocus 'Microsoft.FinOpsHubs/AmazonWebServices/app.bicep' = if (enableA
 }
 ```
 
-E acrescentar `awsFocus` / `googleFocus` ao `dependsOn` do módulo `startTriggers` (`hub.bicep:405-420`) — caso contrário os triggers novos ficam parados após o deploy, porque quem os inicia é o `Init-DataFactory.ps1` chamado por `fx/hub-initialize.bicep`.
+Also add `awsFocus` / `googleFocus` to the `dependsOn` of the `startTriggers` module (`hub.bicep:423-442`, `dependsOn` array at `425-432`) — otherwise the new triggers stay stopped after deployment, because they are started by `Init-DataFactory.ps1`, which is called by `fx/hub-initialize.bicep`.
 
 ---
 
-## 7. Checklist de arquivos
+## 7. File checklist
 
-| # | Arquivo | Ação |
+| # | File | Action |
 | --- | --- | --- |
-| 1 | `src/templates/finops-hub/main.bicep` | + parâmetros, + passthrough |
-| 2 | `src/templates/finops-hub/modules/hub.bicep` | + parâmetros, + 2 módulos, + telemetria, + `dependsOn` |
-| 3 | `src/templates/finops-hub/createUiDefinition.json` | + step `multicloud`, + outputs |
-| 4 | `.../modules/Microsoft.FinOpsHubs/AmazonWebServices/{app,metadata}.bicep` + `README.md` | novo |
-| 5 | `.../modules/Microsoft.FinOpsHubs/GoogleCloud/{app,metadata}.bicep` + `README.md` | novo |
-| 6 | `.../Microsoft.CostManagement/Exports/schemas/focuscost_1.2-aws.json` | ✅ **criado** — 56 mapeamentos, ver R2 |
-| 7 | `.../Microsoft.CostManagement/Exports/schemas/focuscost_1.2-gcp.json` | novo (ver R2) |
-| 8 | `.../Microsoft.CostManagement/Exports/app.bicep` | ✅ **feito** — schema AWS registrado no map `files:` |
-| 9 | `src/templates/finops-hub/.build.config` | + 2 READMEs em `ignore` |
-| 10 | `docs-mslearn/toolkit/hubs/template.md` | + linhas na tabela de parâmetros |
-| 11 | `docs-mslearn/toolkit/hubs/configure-multicloud.md` | novo how-to |
-| 12 | `docs-mslearn/toolkit/changelog.md` | entrada **Added** em FinOps hubs |
-| 13 | `src/powershell/Public/Deploy-FinOpsHub.ps1` | + parâmetros equivalentes |
-| 14 | `src/powershell/Tests/Unit/Deploy-FinOpsHub.Tests.ps1` | + casos |
+| 1 | `src/templates/finops-hub/main.bicep` | + parameters, + passthrough |
+| 2 | `src/templates/finops-hub/modules/hub.bicep` | + parameters, + 2 modules, + telemetry, + `dependsOn` |
+| 3 | `src/templates/finops-hub/createUiDefinition.json` | + `multicloud` step, + outputs |
+| 4 | `.../modules/Microsoft.FinOpsHubs/AmazonWebServices/{app,metadata}.bicep` + `README.md` | new |
+| 5 | `.../modules/Microsoft.FinOpsHubs/GoogleCloud/{app,metadata}.bicep` + `README.md` | new |
+| 6 | `.../Microsoft.CostManagement/Exports/schemas/focuscost_1.2-aws.json` | ✅ **created and validated** — 56 mappings, checked one by one against a real manifest (§10) and end to end in a deployed hub (§11) |
+| 7 | `.../Microsoft.CostManagement/Exports/schemas/focuscost_1.2-gcp.json` | new (see R2) |
+| 8 | `.../Microsoft.CostManagement/Exports/app.bicep` | ✅ **done** — AWS schema registered in the `files:` map |
+| 9 | `src/templates/finops-hub/.build.config` | + 2 READMEs under `ignore` |
+| 10 | `docs-mslearn/toolkit/hubs/template.md` | + rows in the parameter table |
+| 11 | `docs-mslearn/toolkit/hubs/configure-multicloud.md` | new how-to |
+| 12 | `docs-mslearn/toolkit/changelog.md` | **Added** entry under FinOps hubs |
+| 13 | `src/powershell/Public/Deploy-FinOpsHub.ps1` | + equivalent parameters |
+| 14 | `src/powershell/Tests/Unit/Deploy-FinOpsHub.Tests.ps1` | + test cases |
 
-Os itens 9, 10 e 12 são exigências do repositório, não opcionais: o `.build.config` precisa ignorar READMEs de módulo (senão vão para o pacote do Azure Quickstart Templates), e o changelog tem regras próprias em `docs-wiki/Coding-guidelines.md`.
+Items 9, 10, and 12 are repository requirements, not optional: `.build.config` must ignore module READMEs (otherwise they ship in the Azure Quickstart Templates package), and the changelog has its own rules in `docs-wiki/Coding-guidelines.md`.
 
-Nota sobre o item 8: os schemas ficam no app `Microsoft.CostManagement.Exports` porque é ele que possui o container `msexports` e publica a pasta `schemas/`. Alternativa, se preferir isolamento: cada app multicloud publica o próprio schema via `fx/hub-storage.bicep` no mesmo caminho — evita tocar no app de Exports, ao custo de espalhar a responsabilidade.
+Note on item 8: the schemas live in the `Microsoft.CostManagement.Exports` app because it owns the `msexports` container and publishes the `schemas/` folder. Alternative, if isolation is preferred: each multicloud app publishes its own schema via `fx/hub-storage.bicep` to the same path — this avoids touching the Exports app, at the cost of spreading the responsibility.
 
 ---
 
-## 8. Riscos
+## 8. Risks
 
-**R1 — `exportConfig.resourceId` — RESOLVIDO, risco baixo.** Spike executado. Expressão real:
+**R1 — `exportConfig.resourceId` — RESOLVED, low risk.** Spike complete. The real expression:
 
 ```
-scope = split(toLower(exportConfig.resourceId), '/providers/microsoft.costmanagement/exports/')[0]
-destino = replace(concat(hubDataset, '/', ano, '/', mês, '/', toLower(scope), ...), '//', '/')
+scope       = split(toLower(exportConfig.resourceId), '/providers/microsoft.costmanagement/exports/')[0]
+destination = replace(concat(hubDataset, '/', year, '/', month, '/', toLower(scope), ...), '//', '/')
 ```
 
-`split()` com delimitador ausente devolve a string inteira em `[0]`. Não há decomposição de resource ID, validação de formato nem lookup — o valor é usado apenas como segmento de caminho, em minúsculas, com `//` colapsado. Qualquer string funciona. A hipótese original de que um ARN quebraria o parsing estava errada. Não é necessário pseudo-scope no formato Azure; ver §2.2.
+`split()` with a missing delimiter returns the whole string in `[0]`. There is no resource ID decomposition, format validation, or lookup — the value is used only as a path segment, lowercased, with `//` collapsed. Any string works. The original hypothesis that an ARN would break the parsing was wrong. An Azure-format pseudo-scope is not needed; see §2.2.
 
-**R2 — paridade de schema FOCUS — RESOLVIDO, exige schemas por provedor.** Validado contra um arquivo FOCUS **real** da AWS (parquet snappy, 60 colunas, 19.827 linhas). O arquivo é **FOCUS 1.2**, não 1.0.
+**R2 — FOCUS schema parity — RESOLVED, requires per-provider schemas.** Validated against a **real** AWS FOCUS file (snappy parquet, 60 columns, 19,827 rows). The file is **FOCUS 1.2**, not 1.0.
 
-Comparação com `focuscost_1.2.json` (104 mapeamentos):
+Comparison with `focuscost_1.2.json` (104 mappings):
 
-| | Qtd | Observação |
+| | Count | Note |
 | --- | --- | --- |
-| Colunas FOCUS que batem exatamente por nome | 53 | reusáveis sem alteração |
-| Colunas `x_*` da Azure ausentes no arquivo AWS | 51 | `x_BillingProfileId`, `x_SkuMeterId`, … — não podem ser mapeadas |
-| Colunas da AWS ausentes no schema do hub | 7 | `AvailabilityZone`, `x_Operation`, `x_ServiceCode`, `x_Discounts`, 3× `PricingCurrency*` |
+| FOCUS columns matching exactly by name | 53 | reusable unchanged |
+| Azure `x_*` columns missing from the AWS file | 51 | `x_BillingProfileId`, `x_SkuMeterId`, … — cannot be mapped |
+| AWS columns missing from the hub schema | 7 | `AvailabilityZone`, `x_Operation`, `x_ServiceCode`, `x_Discounts`, 3× `PricingCurrency*` |
 
-Portanto **não se reusa o schema existente**. Publicado `schemas/focuscost_1.2-aws.json` com **56 mapeamentos**: os 53 compartilhados (tipos herdados do schema 1.2 do hub) + `AvailabilityZone` + `x_Operation` + `x_ServiceCode` — as três confirmadas como colunas existentes da tabela `Costs_raw` do ADX.
+So the existing schema **cannot be reused**. `schemas/focuscost_1.2-aws.json` was published with **56 mappings**: the 53 shared ones (types inherited from the hub's 1.2 schema) plus `AvailabilityZone`, `x_Operation`, and `x_ServiceCode` — all three confirmed as existing columns of the ADX `Costs_raw` table.
 
-Omitidas por não existirem no schema do ADX: `x_Discounts` (`map<string,double>`) e `PricingCurrencyContractedUnitPrice` / `PricingCurrencyEffectiveCost` / `PricingCurrencyListUnitPrice`. Incluí-las exigiria alterar `IngestionSetup_RawTables.kql`, `HubSetup_v1_2.kql` e as tabelas finais — mudança que afeta também os dados da Azure e fica fora do escopo desta feature. Registrar como gap conhecido no README.
+Omitted because they do not exist in the ADX schema: `x_Discounts` (`map<string,double>`) and `PricingCurrencyContractedUnitPrice` / `PricingCurrencyEffectiveCost` / `PricingCurrencyListUnitPrice`. Including them would require changing `IngestionSetup_RawTables.kql`, `HubSetup_v1_2.kql`, and the final tables — a change that also affects Azure data and is out of scope for this feature. Record it as a known gap in the README.
 
-**Correção de um erro do design anterior:** as `additionalColumns` do arquivo de schema **não** servem para carimbar a proveniência. O ETL aplica
+**Correction to an earlier design error:** the schema file's `additionalColumns` **cannot** be used to stamp provenance. The ETL applies:
 
 ```
 intersection(
@@ -352,33 +352,33 @@ intersection(
 )
 ```
 
-(`Exports/app.bicep:1225`). Como é uma **interseção** com um array de valores fixos em `Microsoft` / `Cost Management`, um objeto com `"value":"AWS"` nunca sobrevive. E como **todos** os 14 arquivos de schema do repositório têm `additionalColumns: []`, a interseção é sempre vazia hoje — o ETL não carimba `x_Source*` para nenhum dataset.
+(`Exports/app.bicep:1225`). Because it is an **intersection** with an array of values fixed to `Microsoft` / `Cost Management`, an object with `"value":"AWS"` never survives. And because **all** 14 schema files in the repository have `additionalColumns: []`, the intersection is always empty today — the ETL does not stamp `x_Source*` for any dataset.
 
-**Consequência boa:** `dataVersion` não vaza para `x_SourceType` / `x_SourceVersion`. É um parâmetro puramente de seleção de schema, sem efeito colateral. O risco residual apontado antes **não existe**.
+**Good consequence:** `dataVersion` does not leak into `x_SourceType` / `x_SourceVersion`. It is purely a schema-selection parameter with no side effects. The residual risk flagged earlier **does not exist**.
 
-**R3 — rede privada (médio).** Com `enablePublicAccess = false`, a saída para S3/GCS depende do Managed VNet do ADF e do NAT Gateway (`enableNatGateway`). Documentar que a combinação rede privada + multicloud exige `enableNatGateway = true`.
+**R3 — private networking (medium).** With `enablePublicAccess = false`, egress to S3/GCS depends on the ADF Managed VNet and the NAT Gateway (`enableNatGateway`). Document that private networking + multicloud requires `enableNatGateway = true`.
 
-**R4 — segredos de longa duração (médio).** Access keys de AWS/GCS não expiram sozinhas. O secret já nasce no Key Vault, mas o README deve exigir rotação e uma policy IAM mínima (`s3:GetObject` + `s3:ListBucket` restrito ao prefixo).
+**R4 — long-lived secrets (medium).** AWS/GCS access keys do not expire on their own. The secret is already created in Key Vault, but the README must require rotation and a minimum IAM policy (`s3:GetObject` + `s3:ListBucket` restricted to the prefix).
 
-**R5 — custo de egresso (baixo).** A transferência sai do provedor de origem e é cobrada por ele. Documentar junto com a estimativa de custo, como o README de Invoices já faz.
+**R5 — egress cost (low).** The transfer leaves the source provider and is billed by it. Document this alongside the cost estimate, as the Invoices README already does.
 
 ---
 
-## 8b. Resultado do spike
+## 8b. Spike results
 
-Executado em `arthursilvany/multicloud-focus`, por leitura estática do ETL e dos schemas, e validado contra um export FOCUS **real** da AWS.
+Run on `arthursilvany/multicloud-focus`, by static reading of the ETL and schemas, and validated against a **real** AWS FOCUS export.
 
-| Item | Hipótese inicial | Resultado |
+| Item | Initial hypothesis | Result |
 | --- | --- | --- |
-| R1 — parsing do `resourceId` | Alto risco; poderia invalidar a abordagem | **Refutado.** É só um segmento de caminho. Formato livre. |
-| R2 — reuso do `focuscost_1.2.json` | Provavelmente reutilizável | **Refutado.** 51 das 104 colunas são Azure-específicas. Precisa de schema por provedor. |
-| Seleção do schema | Fixa no ETL | **Melhor que o esperado.** Derivada de `type` + `dataVersion`, e `dataVersion` é livre e sem efeito colateral. |
-| Proveniência via `additionalColumns` | Mecanismo pronto | **Refutado.** O `intersection()` com valores fixos `Microsoft` bloqueia. Ver R2. |
-| Proveniência multicloud | Precisaria de coluna nova | **Já resolvido a montante.** Ver §8c. |
+| R1 — `resourceId` parsing | High risk; could invalidate the approach | **Disproved.** It is just a path segment. Free format. |
+| R2 — reusing `focuscost_1.2.json` | Probably reusable | **Disproved.** 51 of 104 columns are Azure-specific. Needs a per-provider schema. |
+| Schema selection | Hardcoded in the ETL | **Better than expected.** Derived from `type` + `dataVersion`, and `dataVersion` is free and side-effect-free. |
+| Provenance via `additionalColumns` | Ready-made mechanism | **Disproved.** The `intersection()` with fixed `Microsoft` values blocks it. See R2. |
+| Multicloud provenance | Would need a new column | **Already solved upstream.** See §8c. |
 
-### 8c. O ADX já tem suporte a AWS e GCP
+### 8c. ADX already supports AWS and GCP
 
-Achado que reduz o escopo da feature. `IngestionSetup_v1_0.kql:367-372` já classifica o provedor a partir da forma dos dados:
+A finding that reduces the scope of the feature. `IngestionSetup_v1_0.kql:367-372` already classifies the provider from the shape of the data:
 
 ```kusto
 | extend ProviderName = case(
@@ -392,41 +392,39 @@ Achado que reduz o escopo da feature. `IngestionSetup_v1_0.kql:367-372` já clas
 | extend x_SourceVersion  = coalesce(x_SourceVersion, case(...))
 ```
 
-A tabela `Costs_raw` já declara `x_Operation` e `x_ServiceCode` com o comentário `// AWS 1.0`, e `AvailabilityZone` como `// FOCUS 0.5+`. O arquivo real da AWS traz `ProviderName = 'AWS'` preenchido, então a classificação acerta pelo primeiro branch.
+The `Costs_raw` table already declares `x_Operation` and `x_ServiceCode` with the comment `// AWS 1.0`, and `AvailabilityZone` as `// FOCUS 0.5+`. The real AWS file arrives with `ProviderName = 'AWS'` already populated, so classification succeeds on the first branch.
 
-**Conclusão: nenhum trabalho de proveniência é necessário.** Basta entregar os dados em `Costs_raw` que o ADX classifica, versiona e roteia sozinho.
+**Conclusion: no provenance work is required.** Simply delivering the data into `Costs_raw` is enough — ADX classifies, versions, and routes it on its own.
 
-### 8d. Restrições fixadas pelo roteamento de tabela
+### 8d. Constraints fixed by table routing
 
-`Analytics/app.bicep:1815` define a tabela de destino como o **primeiro segmento da pasta** de ingestão:
+`Analytics/app.bicep:1815` derives the destination table from the **first folder segment** of the ingestion path:
 
 ```
 table = concat(first(split(containerFolderPath, '/')), '_raw')
 ```
 
-e `Exports/app.bicep:847` mapeia `exportDatasetType = 'focuscost'` → `hubDataset = 'Costs'`, com fallback para o próprio nome do tipo. Logo:
+and `Exports/app.bicep:847` maps `exportDatasetType = 'focuscost'` → `hubDataset = 'Costs'`, falling back to the type name itself. Therefore:
 
-| Campo do manifest | Valor obrigatório | Motivo |
+| Manifest field | Required value | Reason |
 | --- | --- | --- |
-| `exportConfig.type` | **`FocusCost`** (exato) | qualquer outro valor gera a pasta `<tipo>` e a tabela `<tipo>_raw`, que não existe |
-| `exportConfig.dataVersion` | livre | só seleciona o arquivo de schema |
+| `exportConfig.type` | **`FocusCost`** (exact) | any other value produces a `<type>` folder and a `<type>_raw` table, which does not exist |
+| `exportConfig.dataVersion` | free | only selects the schema file |
 
-O uso de sufixo em `dataVersion` já tem precedente no repositório: `focuscost_1.0-preview(v1).json` e `focuscost_1.2-preview.json`.
-
----
+Using a suffix in `dataVersion` already has precedent in the repository: `focuscost_1.0-preview(v1).json` and `focuscost_1.2-preview.json`.
 
 ---
 
-## 9. Ordem de execução
+## 9. Execution order
 
-1. ~~Spike do R1 e R2~~ — **concluído**, ver §8b.
-2. ~~Escrever `focuscost_1.2-aws.json` e validar contra um arquivo FOCUS real da AWS~~ — **concluído**.
-3. App AWS completo (Bicep + README).
-4. App Google, reaproveitando o formato validado.
-5. UI, parâmetros do PowerShell e testes.
-6. Documentação e changelog.
+1. ~~R1 and R2 spikes~~ — **complete**, see §8b.
+2. ~~Write `focuscost_1.2-aws.json` and validate it against a real AWS FOCUS file~~ — **complete**, see §10 and §11.
+3. Complete AWS app (Bicep + README).
+4. Google app, reusing the validated format.
+5. UI, PowerShell parameters, and tests.
+6. Documentation and changelog.
 
-Validação a cada etapa:
+Validation at each stage:
 
 ```powershell
 az bicep build --file src/templates/finops-hub/main.bicep --stdout
@@ -435,52 +433,127 @@ az bicep build --file src/templates/finops-hub/main.bicep --stdout
 ./src/scripts/Test-PowerShell -Lint -Hubs
 ```
 
-O primeiro teste de regressão obrigatório é um deploy **com as duas flags desligadas**, comparando o `what-if` com o baseline: o resultado tem que ser vazio.
+The first mandatory regression test is a deployment **with both flags off**, comparing the what-if against the baseline: the result must be empty.
 
 ---
 
-## 10. Topologia da origem AWS (BCM Data Exports)
+## 10. AWS source topology (BCM Data Exports)
 
-Confirmado na [documentação da AWS](https://docs.aws.amazon.com/cur/latest/userguide/dataexports-export-delivery.html).
+Confirmed in the [AWS documentation](https://docs.aws.amazon.com/cur/latest/userguide/dataexports-export-delivery.html).
 
-### Layout no S3
+### S3 layout
 
 ```
-s3://<bucket>/<prefix>/<export-name>/data/BILLING_PERIOD=YYYY-MM/            # modo "overwrite"
-s3://<bucket>/<prefix>/<export-name>/data/BILLING_PERIOD=YYYY-MM/<timestamp>-<execution-id>/   # modo "create new"
-s3://<bucket>/<prefix>/<export-name>/metadata/BILLING_PERIOD=YYYY-MM/<export-name>-Manifest.json
+s3://<bucket>/<prefix>/<export-name>/data/billing_period=YYYY-MM/            # "overwrite" mode
+s3://<bucket>/<prefix>/<export-name>/data/billing_period=YYYY-MM/<timestamp>-<execution-id>/   # "create new" mode
+s3://<bucket>/<prefix>/<export-name>/metadata/billing_period=YYYY-MM/<export-name>-Manifest.json
 ```
 
-Arquivos: `<export-name>-<chunk>.snappy.parquet` ou `<export-name>-<chunk>.csv.gz`, com `chunk` de 5 dígitos a partir de `00001`.
+Files: `<export-name>-<chunk>.snappy.parquet` or `<export-name>-<chunk>.csv.gz`, where `chunk` is a 5-digit number starting at `00001`.
 
-### Três consequências de design
+> The AWS documentation spells the partition key as `BILLING_PERIOD=`, but the real export delivers lowercase `billing_period=`. The pipeline must not write that literal: the path always comes from the manifest's `dataFiles` field.
 
-**1. O `Manifest.json` da AWS não pode ser copiado para `msexports`.** O schema é totalmente diferente do contrato do Cost Management (§2) — se o trigger o capturasse, `Read Manifest` retornaria nulos e o ETL falharia. Ele deve ser **lido** de um `Lookup` direto no S3 e nunca gravado no container `msexports`. Só o manifest sintético que nós montamos é gravado lá.
+### Three design consequences
 
-Atenuante: o arquivo da AWS chama-se `<export-name>-Manifest.json`, e o trigger filtra por `storagePathEndsWith: 'manifest.json'`. Ainda assim, não se deve depender de sensibilidade a maiúsculas do Event Grid como mecanismo de segurança — a regra é simplesmente não copiá-lo.
+**1. The AWS `Manifest.json` must not be copied into `msexports`.** Its schema is completely different from the Cost Management contract (§2) — if the trigger picked it up, `Read Manifest` would return nulls and the ETL would fail. It must be **read** by a `Lookup` directly against S3 and never written to the `msexports` container. Only the synthetic manifest we build is written there.
 
-**2. Ler o manifest da AWS é obrigatório, não opcional.** No modo "create new", a pasta `data/BILLING_PERIOD=YYYY-MM/` acumula **uma subpasta por refresh diário**. Um `Get Metadata` recursivo copiaria todas e duplicaria os custos do mês. Só o `Manifest.json` no nível `metadata/<partition>/` identifica a execução corrente.
+Mitigating factor: the AWS file is named `<export-name>-Manifest.json`, and the trigger filters on `storagePathEndsWith: 'manifest.json'`. Even so, Event Grid case sensitivity must not be relied on as a safety mechanism — the rule is simply not to copy it.
 
-**3. O manifest é o sinal de completude.** A AWS só o publica depois que todos os arquivos de dados chegaram — é o equivalente exato do `manifest.json` do Cost Management e dispensa qualquer heurística de "arquivo estável".
+**2. Reading the AWS manifest is mandatory, not optional.** In "create new" mode, the `data/billing_period=YYYY-MM/` folder accumulates **one subfolder per daily refresh**. A recursive `Get Metadata` would copy them all and duplicate the month's costs. Only the `Manifest.json` at the `metadata/<partition>/` level identifies the current run.
 
-### Janela de coleta
+**3. The manifest is the completeness signal.** AWS publishes it only after all data files have landed — it is the exact equivalent of the Cost Management `manifest.json` and removes the need for any "stable file" heuristic.
 
-A AWS pode atualizar o período anterior por até duas semanas após o fechamento. O pipeline deve iterar sobre **dois** períodos por execução — mês corrente e mês anterior — e não apenas o corrente.
+### Collection window
 
-### Idempotência: por que refresh diário não duplica dados
+AWS may update the previous period for up to two weeks after it closes. The pipeline must iterate over **two** periods per run — the current month and the previous month — not just the current one.
 
-`ingestionId = runInfo.runId` do manifest sintético, e a limpeza pós-ingestão do ADX (`Analytics/app.bicep:1423`) remove extents que tenham a tag `drop-by:<folderPath>` mas **não** `drop-by:<ingestionId>`. Ou seja: gerando um `runId` novo a cada execução e mantendo o caminho de destino estável por período (`Costs/YYYY/MM/aws/<accountId>`), cada refresh **substitui** o mês inteiro em vez de acumular. É o mesmo mecanismo usado pelos exports da Azure.
+### Idempotency: why a daily refresh does not duplicate data
 
-### Contrato exato consumido pelo ETL, revisitado
+`ingestionId = runInfo.runId` from the synthetic manifest, and the ADX post-ingestion cleanup (`Analytics/app.bicep:1423`) removes extents tagged `drop-by:<folderPath>` but **not** `drop-by:<ingestionId>`. In other words: by generating a new `runId` on every run and keeping the destination path stable per period (`Costs/YYYY/MM/aws/<accountId>`), each refresh **replaces** the whole month instead of accumulating. This is the same mechanism used by Azure exports.
 
-| Expressão real no ETL | Implicação para o manifest sintético |
+#### The `drop-by` tag is case-sensitive — and includes the file name
+
+Two details of the mechanism above were confirmed empirically and constrain the format of `exportConfig.resourceId`:
+
+1. **The tag carries the full blob path, including the file name** — not just the folder. For example: `drop-by:Costs/2026/05/aws/390402570720/2026-05-20T22_19_25.548Z-<execId>_CCOE-PRODAM-AWS-00001.snappy.parquet`. Because the AWS file name embeds `<timestamp>-<executionId>`, it **changes on every refresh**. Replacement only works because the ADX cleanup matches on the folder prefix; any change to the path format breaks idempotency.
+2. **The comparison is case-sensitive.** The ETL applies `toLower()` to the scope (§8/R1), so `resourceId: /aws/390402570720` always writes to `Costs/YYYY/MM/aws/390402570720/`. A manual load into `.../AWS/390402570720/` produces a distinct tag and both sets **coexist**, doubling the cost.
+
+Observed in the lab: after ingesting the same parquet through both routes, `Costs_final_v1_2` held 39,654 rows (2 × 19,827) and USD 164,511.26 (2 × USD 82,264.63), under two tags that differ only by `AWS` vs `aws`:
+
+```
+drop-by:Costs/2026/05/AWS/390402570720/<file>.snappy.parquet
+drop-by:Costs/2026/05/aws/390402570720/<file>.snappy.parquet
+```
+
+**Design consequence:** `exportConfig.resourceId` must **always** be emitted in lowercase by the `AmazonWebServices`/`GoogleCloud` modules. Any case variation in the account or provider identifier produces silent duplication — no error, no alert, just double the cost.
+
+### The exact contract consumed by the ETL, revisited
+
+| Real ETL expression | Implication for the synthetic manifest |
 | --- | --- |
-| `replace(substring(runInfo.startDate, 0, 7), '-', '')` | `startDate` deve ser ISO: `YYYY-MM-01T00:00:00Z`. Derivável direto de `BILLING_PERIOD=YYYY-MM`. |
-| `last(split(blobs[0].blobName, '.'))` | seleciona o dataset por extensão: `parquet`, `gz` ou `csv`. `*.snappy.parquet` resolve para `parquet`. |
-| `ForEach(blobs)` → `item().blobName` | `blobName` é o caminho **dentro do container `msexports`**, não a chave do S3. |
-| `last(split(replace(replace(blobName,'.gz',''),'.csv','.parquet'), '/'))` | nome do arquivo de destino; preserva `.snappy.parquet`. |
-| `blobCount` / `dataRowCount` | se zero ou nulo, o ETL faz short-circuit. Preencher `blobCount` com o número real de arquivos. |
+| `replace(substring(runInfo.startDate, 0, 7), '-', '')` | `startDate` must be ISO: `YYYY-MM-01T00:00:00Z`. Derivable from the `billing_period=YYYY-MM` segment present in `dataFiles[0]`. |
+| `last(split(blobs[0].blobName, '.'))` | selects the dataset by extension: `parquet`, `gz`, or `csv`. `*.snappy.parquet` resolves to `parquet`. |
+| `ForEach(blobs)` → `item().blobName` | `blobName` is the path **inside the `msexports` container**, not the S3 key. |
+| `last(split(replace(replace(blobName,'.gz',''),'.csv','.parquet'), '/'))` | destination file name; preserves `.snappy.parquet`. |
+| `blobCount` / `dataRowCount` | if `blobCount` is zero or null the ETL short-circuits. Populate it with `length(dataFiles)`. `dataRowCount` is only evaluated **if the property exists** (`contains(firstRow, 'dataRowCount')`) — since the AWS manifest carries no row count, the property must be **omitted**, never written as `0`. |
 
-### Pendência
+### The AWS `Manifest.json` contract — RESOLVED
 
-Os nomes exatos dos campos do `Manifest.json` da AWS (lista de arquivos e período) não estão documentados de forma confiável nas fontes públicas — as referências divergem entre `dataFiles` e `files`, e entre chave relativa e URI completa do S3. **Não implementar por suposição.** Necessário um arquivo real para fixar o contrato do `Lookup`.
+Fixed against a **real** manifest (`CCOE-PRODAM-AWS`, period `2026-05`):
+
+```json
+{
+  "executionId": "9b6b32ef-2b70-3d10-9448-07e23ebce6b9",
+  "exportArn": "arn:aws:bcm-data-exports:us-east-1:<accountId>:export/<export-name>-<uuid>",
+  "columns": [ { "name": "AvailabilityZone", "type": "string" }, ... ],
+  "dataFiles": [
+    "s3://<bucket>/<prefix>/<export-name>/data/billing_period=2026-05/2026-06-01T23:48:02.356Z-9b6b32ef-2b70-3d10-9448-07e23ebce6b9/<export-name>-00001.snappy.parquet"
+  ],
+  "additionalOutputFiles": []
+}
+```
+
+Six points the `Lookup` and the synthetic manifest must respect:
+
+| Confirmed fact | Consequence |
+| --- | --- |
+| The field is **`dataFiles`**, not `files`. | Settles the disagreement between public sources. |
+| Each item is a **full `s3://` URI**, not a relative key. | The `Copy` must strip `s3://<bucket>/` to obtain the object key. Do not apply the dataset's `bucketName` on top of the raw URI. |
+| **There is no period field** in the manifest. | `billing_period` is derived from the path in `dataFiles[0]` (or from the partition the manifest was read from), and the synthetic manifest's ISO `startDate` follows from it. |
+| **There is no row count.** | Omit `dataRowCount` from the synthetic manifest (see the table above). `blobCount = length(dataFiles)`. |
+| The path contains `<timestamp>-<executionId>`, and `executionId` is in the manifest itself. | Confirms design consequence #2: the customer is in "create new" mode and the folder accumulates one refresh per day. Copying only what is listed in `dataFiles` is mandatory. |
+| `columns` carries the name and type of every delivered column. | This gives a free schema-drift detector: compare against the 56 mappings in `focuscost_1.2-aws.json` before copying, and fail with a clear message instead of silently ingesting truncated data. |
+
+`additionalOutputFiles` was empty in this export; the pipeline should ignore it.
+
+### Schema validation against the real manifest
+
+The manifest's 60 column names were compared one by one against `focuscost_1.2-aws.json`:
+
+- **56 of 56 schema mappings exist in the manifest**, with compatible types (`string`→`String`, `double`→`Decimal`, `timestamp`→`DateTimeOffset`).
+- **No schema column is missing** from the AWS file.
+- The 4 manifest columns without a mapping are exactly the omissions already documented in R2: `x_Discounts`, `PricingCurrencyContractedUnitPrice`, `PricingCurrencyEffectiveCost`, and `PricingCurrencyListUnitPrice`.
+- `Tags` and `SkuPriceDetails` arrive as parquet `map` columns and are mapped as `String`. **Validated in a real deployment** (§11): the `TabularTranslator` serializes the map as JSON and ADX materializes it as `dynamic`. The type risk is closed.
+
+---
+
+## 11. End-to-end validation in a real hub
+
+`focuscost_1.2-aws.json` was exercised against a deployed FinOps hub v14, using the real AWS FOCUS parquet file (19,827 rows, USD 82,264.63, May 2026, 16 sub-accounts, 57 services).
+
+**Method.** Because the only ETL trigger is a `manifest.json` landing in `msexports`, a temporary Data Factory pipeline published the schema to `config/schemas/`, copied the parquet into `msexports/<folder>/`, and wrote a synthetic manifest with `exportConfig.type = FocusCost`, `dataVersion = 1.2-aws`, and `resourceId = /aws/<accountId>-test`. The whole test was driven from Data Factory because the hub storage account has `publicNetworkAccess: Disabled`.
+
+**Result — the full chain succeeded:**
+
+| Pipeline | Status | What it proves |
+| --- | --- | --- |
+| `msexports_ExecuteETL` | Succeeded | The trigger accepts a synthetic manifest; routing by `exportDatasetType` works. |
+| `msexports_ETL_ingestion` → `Load Schema Mappings` | Succeeded | `toLower('FocusCost_1.2-aws.json')` resolves to `focuscost_1.2-aws.json`. The extension point from §2.1 works as designed. |
+| `msexports_ETL_ingestion` → `Convert to Parquet` | Succeeded | The 56 `TabularTranslator` mappings are valid against the real AWS parquet, including the `map` columns. |
+| `ingestion_ExecuteETL` → `ingestion_ETL_dataExplorer` | Succeeded | ADX ingestion and the `Costs_raw` → `Costs_final_v1_2` transforms accept AWS data unchanged. |
+
+**ADX verification:** all 19,827 rows were ingested, with `ProviderName = "AWS"`, `Tags` materialized as `dynamic` (`{"map-migrated":"mig656O1TB0TE"}`), `ServiceCategory` correctly enriched, and non-empty cell counts identical to the native load.
+
+**Conclusion:** `focuscost_1.2-aws.json` is validated. The remaining work is exclusively collection — the `AmazonWebServices`/`GoogleCloud` modules that read S3/GCS and write the synthetic manifest (§5). Nothing in the existing ETL needs to change.
+
+**Note on `Get Existing Parquet Files`:** this activity fails with `PathNotFound` when the destination folder does not exist yet, and that is handled — the pipeline still completes successfully. It is not a symptom of a problem in the multicloud path.
