@@ -146,7 +146,7 @@ function Enable-HybridBenefit {
             NextStep          = if ($decision.RequiresToken) {
                 'Enforced mode: re-run with apply=true AND confirmationToken=<the ConfirmationToken above>.'
             }
-            else { 'Re-run remediate_enable_hybrid_benefit with apply=true to enable AHB.' }
+            else { 'Re-run Enable-HybridBenefit with -Apply to enable AHB.' }
         }
     }
 

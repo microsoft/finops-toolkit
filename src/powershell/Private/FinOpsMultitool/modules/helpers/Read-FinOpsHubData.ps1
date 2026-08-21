@@ -315,6 +315,24 @@ function Read-ParquetFile {
     }
 }
 
+# Resolve a row's subscription GUID. FOCUS exports use SubAccountId, older
+# exports use SubscriptionId or x_SubscriptionId, and any of them may hold a
+# full resource path rather than a bare GUID.
+function Get-FinOpsHubRowSubscriptionId {
+    param([object]$Row)
+
+    $props = $Row.PSObject.Properties.Name
+    $subId = if ($props -contains 'SubAccountId' -and $Row.SubAccountId) { $Row.SubAccountId }
+    elseif ($props -contains 'SubscriptionId' -and $Row.SubscriptionId) { $Row.SubscriptionId }
+    elseif ($props -contains 'x_SubscriptionId' -and $Row.x_SubscriptionId) { $Row.x_SubscriptionId }
+    else { '' }
+
+    if ($subId -match '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}') {
+        return $Matches[0].ToLower()
+    }
+    return ([string]$subId).ToLower()
+}
+
 function Read-FinOpsHubData {
     [CmdletBinding()]
     param(
@@ -325,7 +343,13 @@ function Read-FinOpsHubData {
         [string]$ResourceGroupName,
 
         [Parameter()]
-        [int]$Months = 1
+        [int]$Months = 1,
+
+        # Restrict returned rows to these subscriptions. A hub holds every
+        # subscription it ingests, so without this a scoped scan reports on
+        # subscriptions the user did not select.
+        [Parameter()]
+        [string[]]$SubscriptionIds
     )
 
     Write-Host "    Connecting to Hub storage: $StorageAccountName" -ForegroundColor DarkGray
@@ -464,6 +488,14 @@ function Read-FinOpsHubData {
     if ($allData.Count -gt 0) {
         $source = if ($allData[0].PSObject.Properties.Name -contains 'x_SkuTier') { 'CSV' } else { 'parquet' }
         Write-Host "    Total rows from Hub ($source): $($allData.Count)" -ForegroundColor Green
+    }
+
+    if ($SubscriptionIds -and $SubscriptionIds.Count -gt 0 -and $allData.Count -gt 0) {
+        $wanted = @{}
+        foreach ($s in $SubscriptionIds) { if ($s) { $wanted[$s.ToLower()] = $true } }
+        $before = $allData.Count
+        $allData = @($allData | Where-Object { $wanted.ContainsKey((Get-FinOpsHubRowSubscriptionId $_)) })
+        Write-Host "    Scoped to $($SubscriptionIds.Count) selected subscription(s): $($allData.Count) of $before rows" -ForegroundColor DarkGray
     }
 
     return $allData

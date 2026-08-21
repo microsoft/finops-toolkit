@@ -125,7 +125,7 @@ function Stop-IdleVm {
             NextStep          = if ($decision.RequiresToken) {
                 'Enforced mode: re-run with apply=true AND confirmationToken=<the ConfirmationToken above>, after user confirmation.'
             }
-            else { 'Re-run remediate_deallocate_vm with apply=true (after user confirmation) to deallocate this VM.' }
+            else { 'Re-run Stop-IdleVm with -Apply (after user confirmation) to deallocate this VM.' }
         }
     }
 

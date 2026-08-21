@@ -6,7 +6,7 @@
 # AZURE FINOPS MULTITOOL - Safe Deletion of Orphaned Resources
 ###########################################################################
 # Purpose: Delete a single orphaned Azure resource (unattached managed
-#          disk, dangling public IP, unattached NIC, or stale snapshot)
+#          disk, dangling public IP, or unattached NIC)
 #          discovered by scan_orphaned_resources.
 #
 # Description:
@@ -47,12 +47,17 @@ function Remove-OrphanedResource {
     # Allow-list: ONLY these types may ever be deleted by this tool.
     # inUseProps = the resource 'properties' fields that, when populated,
     # mean the resource is STILL IN USE (so we must refuse to delete).
+    # Every entry must have at least one such property - a type with none
+    # would pass the orphan check vacuously.
+    #
+    # Snapshots are deliberately excluded. A snapshot has no in-use property;
+    # whether it is safe to delete depends on retention and backup policy,
+    # which this tool does not evaluate, and the delete is irreversible.
     # -----------------------------------------------------------------
     $allowList = @{
         'Microsoft.Compute/disks'             = @{ api = '2023-04-02'; label = 'Managed disk'; inUseProps = @('managedBy', 'diskState'); kind = 'attachment' }
         'Microsoft.Network/publicIPAddresses' = @{ api = '2023-09-01'; label = 'Public IP address'; inUseProps = @('ipConfiguration', 'natGateway'); kind = 'attachment' }
         'Microsoft.Network/networkInterfaces' = @{ api = '2023-09-01'; label = 'Network interface'; inUseProps = @('virtualMachine', 'privateEndpoint'); kind = 'attachment' }
-        'Microsoft.Compute/snapshots'         = @{ api = '2023-04-02'; label = 'Disk snapshot'; inUseProps = @(); kind = 'backup' }
     }
 
     # ---- Validate the resource id ----
@@ -66,7 +71,7 @@ function Remove-OrphanedResource {
     if ($ResourceId -notmatch '/providers/(?<ns>Microsoft\.[^/]+)/(?<type>[^/]+)/(?<name>[^/]+)$') {
         return [PSCustomObject]@{
             HasData = $false
-            Error   = "Could not parse a top-level resource type from resourceId. This tool only deletes top-level orphaned resources (disks, public IPs, NICs, snapshots)."
+            Error   = "Could not parse a top-level resource type from resourceId. This tool only deletes top-level orphaned resources (disks, public IPs, NICs)."
         }
     }
     $fullType = "$($Matches.ns)/$($Matches.type)"
@@ -156,7 +161,7 @@ function Remove-OrphanedResource {
             HasData      = $false
             Mode         = 'Blocked'
             Applied      = $false
-            Error        = "Refusing to delete: '$resName' appears to be IN USE ($($inUseBy -join ', ')). It is not orphaned. Re-run scan_orphaned_resources to refresh, or detach it first."
+            Error        = "Refusing to delete: '$resName' appears to be IN USE ($($inUseBy -join ', ')). It is not orphaned. Re-run the orphaned resources scan to refresh, or detach it first."
             ResourceId   = $ResourceId
             ResourceType = $fullType
             Location     = $location
@@ -180,18 +185,9 @@ function Remove-OrphanedResource {
         'Microsoft.Network/networkInterfaces' {
             $evidence['attachedVM'] = 'none'
         }
-        'Microsoft.Compute/snapshots' {
-            $evidence['sizeGB'] = $props.diskSizeGB
-            $evidence['timeCreated'] = $props.timeCreated
-        }
     }
 
-    $irreversible = if ($cfg.kind -eq 'backup') {
-        'This is a point-in-time backup. Deletion is IRREVERSIBLE and you lose the restore point.'
-    }
-    else {
-        'Deletion is IRREVERSIBLE. The orphaned resource and any data on it are permanently removed.'
-    }
+    $irreversible = 'Deletion is IRREVERSIBLE. The orphaned resource and any data on it are permanently removed.'
 
     # ---- Route through the configurable write-safety gate ----
     $subId = if ($ResourceId -match '/subscriptions/([^/]+)/') { $Matches[1] } else { $null }
@@ -241,10 +237,10 @@ function Remove-OrphanedResource {
             ConfirmationToken = $decision.ConfirmationToken
             RequiresToken     = $decision.RequiresToken
             NextStep          = if ($decision.RequiresToken) {
-                'Enforced mode: re-run remediate_delete_orphaned_resource with apply=true AND confirmationToken=<the ConfirmationToken above>, after user confirmation.'
+                'Enforced mode: re-run Remove-OrphanedResource with -Apply AND -ConfirmationToken <the ConfirmationToken above>, after user confirmation.'
             }
             else {
-                'Re-run remediate_delete_orphaned_resource with apply=true (after user confirmation) to delete this resource.'
+                'Re-run Remove-OrphanedResource with -Apply (after user confirmation) to delete this resource.'
             }
         }
     }

@@ -168,7 +168,8 @@ resources
     if (-not $fromHub -and $openAiAccounts.Count -gt 0) {
         $token = $null
         $armBase = Get-FinOpsArmEndpoint
-        try { $token = (Get-AzAccessToken -ResourceUrl $armBase).Token } catch { }
+        $tokenError = $null
+        try { $token = Get-PlainAccessToken -ResourceUrl $armBase } catch { $tokenError = $_.Exception.Message }
 
         if ($token) {
             $headers = @{ 'Authorization' = "Bearer $token"; 'Content-Type' = 'application/json' }
@@ -230,6 +231,9 @@ resources
                     # not an OpenAI-capable kind) - skip it.
                 }
             }
+        }
+        elseif ($tokenError) {
+            Write-Warning "AI workload metrics skipped: could not acquire an access token. $tokenError"
         }
     }
 

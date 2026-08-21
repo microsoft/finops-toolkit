@@ -3,16 +3,18 @@
 
 & "$PSScriptRoot/../Initialize-Tests.ps1"
 
-BeforeAll {
-    $script:MultitoolModule = Join-Path $PSScriptRoot '../../Private/FinOpsMultitool/FinOpsMultitool.psm1'
-    Import-Module $script:MultitoolModule -Force
-}
-
-AfterAll {
-    Remove-Module FinOpsMultitool -ErrorAction SilentlyContinue
-}
-
 Describe 'FinOps Hub Kusto provider' {
+
+    # Scoped to this Describe: Initialize-Tests.ps1 already declares a root-level
+    # BeforeAll, and Pester 6 rejects a second one during discovery.
+    BeforeAll {
+        $script:MultitoolModule = Join-Path $PSScriptRoot '../../Private/FinOpsMultitool/FinOpsMultitool.psm1'
+        Import-Module $script:MultitoolModule -Force
+    }
+
+    AfterAll {
+        Remove-Module FinOpsMultitool -ErrorAction SilentlyContinue
+    }
 
     Context 'Resolve-FOHubProvider - explicit override' {
         AfterEach {

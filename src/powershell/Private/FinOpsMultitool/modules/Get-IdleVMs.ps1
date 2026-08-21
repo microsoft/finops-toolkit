@@ -52,7 +52,7 @@ resources
 
     if ($runningVMs.Count -eq 0) {
         $note = if ($totalVMs -gt 0) {
-            "$totalVMs VM(s) found but none are running ($deallocatedCount stopped/deallocated), so there is no CPU to sample for idle detection. Stopped/deallocated VMs still incur disk and IP cost - see scan_orphaned_resources."
+            "$totalVMs VM(s) found but none are running ($deallocatedCount stopped/deallocated), so there is no CPU to sample for idle detection. Stopped/deallocated VMs still incur disk and IP cost - run the orphaned resources scan."
         }
         else {
             'No virtual machines found in scope.'
@@ -70,7 +70,7 @@ resources
 
     # -- 2: Query 14-day avg CPU + Network for each VM -------------------
     $armBase = Get-FinOpsArmEndpoint
-    $token = (Get-AzAccessToken -ResourceUrl $armBase).Token
+    $token = Get-PlainAccessToken -ResourceUrl $armBase
     $headers = @{ 'Authorization' = "Bearer $token"; 'Content-Type' = 'application/json' }
     $now = (Get-Date).ToUniversalTime()
     $fourteenDaysAgo = $now.AddDays(-14).ToString('yyyy-MM-ddTHH:mm:ssZ')

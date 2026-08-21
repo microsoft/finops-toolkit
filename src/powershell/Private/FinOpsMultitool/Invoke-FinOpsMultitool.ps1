@@ -609,8 +609,8 @@ function Invoke-FinOpsMultitool {
         # what lets the tool scale to large hub datasets. Falls back to the
         # storage reader below when no cluster is available.
         $kustoProvider = $null
+        $subIdsForDisco = @($Subscriptions | ForEach-Object { $_.Id })
         if ($DataSource.Source -eq 'Hub' -or $env:FINOPS_HUB_KUSTO_URI) {
-            $subIdsForDisco = @($Subscriptions | ForEach-Object { $_.Id })
             $kp = Resolve-FOHubProvider -Subscriptions $subIdsForDisco
             if ($kp -and $kp.Found) { $kustoProvider = $kp }
         }
@@ -618,13 +618,36 @@ function Invoke-FinOpsMultitool {
         if ($kustoProvider) {
             Write-Host ""
             Write-Host "  Querying FinOps Hub Kusto database ($($kustoProvider.Mode))..." -ForegroundColor Green
-            $cs = Get-FOHubCostSummary -Provider $kustoProvider
-            if (-not ($cs -is [System.Collections.IDictionary] -and $cs.Contains('Error') -and $cs.Error)) { $hubCostData = $cs }
-            $rc = Get-FOHubResourceCosts -Provider $kustoProvider
-            if (-not ($rc -is [System.Collections.IDictionary] -and $rc.Contains('Error') -and $rc.Error)) { $hubResourceCosts = $rc }
-            $ct = Get-FOHubCostByTag -Provider $kustoProvider
-            if (-not ($ct -is [System.Collections.IDictionary] -and $ct.Contains('Error') -and $ct.Error)) { $hubCostByTag = $ct }
-            Write-Host "  Hub data summarized in-engine (no rows loaded). Forecast is not included; choose API source for live forecast." -ForegroundColor DarkGray
+
+            # Scope every query to the selected subscriptions. Without this the
+            # hub returns every subscription it holds, contaminating a report
+            # the user asked to be scoped to one.
+            $hubErrors = [System.Collections.Generic.List[string]]::new()
+            $hubOk = 0
+
+            $cs = Get-FOHubCostSummary -Provider $kustoProvider -SubscriptionIds $subIdsForDisco
+            if ($cs -is [System.Collections.IDictionary] -and $cs.Contains('Error') -and $cs.Error) { $hubErrors.Add("cost summary: $($cs.Error)") }
+            else { $hubCostData = $cs; $hubOk++ }
+
+            $rc = Get-FOHubResourceCosts -Provider $kustoProvider -SubscriptionIds $subIdsForDisco
+            if ($rc -is [System.Collections.IDictionary] -and $rc.Contains('Error') -and $rc.Error) { $hubErrors.Add("resource costs: $($rc.Error)") }
+            else { $hubResourceCosts = $rc; $hubOk++ }
+
+            $ct = Get-FOHubCostByTag -Provider $kustoProvider -SubscriptionIds $subIdsForDisco
+            if ($ct -is [System.Collections.IDictionary] -and $ct.Contains('Error') -and $ct.Error) { $hubErrors.Add("cost by tag: $($ct.Error)") }
+            else { $hubCostByTag = $ct; $hubOk++ }
+
+            if ($hubOk -gt 0) {
+                Write-Host "  Hub data summarized in-engine (no rows loaded). Forecast is not included; choose API source for live forecast." -ForegroundColor DarkGray
+            }
+            foreach ($e in $hubErrors) {
+                Write-Host "  Hub query failed - $e" -ForegroundColor Yellow
+            }
+            if ($hubOk -eq 0) {
+                # Nothing came back from the hub, so the numbers below are Cost
+                # Management API results. Say so rather than labelling them Hub.
+                Write-Host "  No Hub results. Falling back to the Cost Management API - results are NOT from the FinOps Hub." -ForegroundColor Yellow
+            }
         }
         elseif ($DataSource.HubStorage) {
             # Storage reader: small-dataset convenience path (rows loaded into
@@ -639,7 +662,7 @@ function Invoke-FinOpsMultitool {
                 Write-Host "  Loading Hub tag data for fast tag scans..." -ForegroundColor DarkGray
             }
             try {
-                $hubRaw = Read-FinOpsHubData -StorageAccountName $hub.name -ResourceGroupName $hub.resourceGroup -Months 1
+                $hubRaw = Read-FinOpsHubData -StorageAccountName $hub.name -ResourceGroupName $hub.resourceGroup -Months 1 -SubscriptionIds $subIdsForDisco
             }
             catch {
                 Write-Host "  Hub data load failed: $($_.Exception.Message)" -ForegroundColor Yellow
@@ -923,6 +946,11 @@ function Invoke-FinOpsMultitool {
                         $cmdInfo = Get-Command $fn -ErrorAction SilentlyContinue
                         if ($cmdInfo -and $cmdInfo.Parameters.ContainsKey('TenantId') -and $TenantId) {
                             $params['TenantId'] = $TenantId
+                        }
+                        # The user picked a subscription set, so management-group
+                        # scope queries must be filtered back down to it.
+                        if ($cmdInfo -and $cmdInfo.Parameters.ContainsKey('RestrictToSelected')) {
+                            $params['RestrictToSelected'] = $true
                         }
                         $output = & $fn @params
                     }

@@ -16,7 +16,9 @@ function Get-PlainAccessToken {
     $tok = (Get-AzAccessToken -ResourceUrl $ResourceUrl).Token
     if ($tok -is [securestring]) {
         $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($tok)
-        try { [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr) }
+        # PtrToStringBSTR, not PtrToStringAuto: a BSTR is always UTF-16, but Auto
+        # picks the platform default and truncates the token to one char on macOS.
+        try { [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr) }
         finally { [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
     }
     else { $tok }

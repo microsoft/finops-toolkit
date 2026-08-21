@@ -45,7 +45,7 @@ resources
 
     # -- 2: For each hot account, check last access metrics ---------------
     $armBase = Get-FinOpsArmEndpoint
-    $token = (Get-AzAccessToken -ResourceUrl $armBase).Token
+    $token = Get-PlainAccessToken -ResourceUrl $armBase
     $headers = @{ 'Authorization' = "Bearer $token"; 'Content-Type' = 'application/json' }
     $now = (Get-Date).ToUniversalTime()
     $thirtyDaysAgo = $now.AddDays(-30).ToString('yyyy-MM-ddTHH:mm:ssZ')
