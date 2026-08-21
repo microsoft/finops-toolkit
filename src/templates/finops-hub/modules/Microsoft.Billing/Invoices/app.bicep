@@ -171,6 +171,310 @@ resource dataset_invoiceFile 'Microsoft.DataFactory/factories/datasets@2018-06-0
 // Pipelines
 //------------------------------------------------------------------------------
 
+// Downloads a single invoice file. Split out from the per-billing-account pipeline because
+// Data Factory does not support an Until activity nested inside a ForEach activity, and because
+// a child pipeline gives each invoice its own variable scope, which keeps the parent ForEach parallel.
+resource pipeline_DownloadInvoiceFile 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${INVOICES}_DownloadInvoiceFile'
+  parent: dataFactory
+  properties: {
+    description: 'Requests a download URL for a single invoice and saves the file in the hub data lake.'
+    parameters: {
+      invoiceId: {
+        type: 'String'
+      }
+      folderPath: {
+        type: 'String'
+      }
+      fileName: {
+        type: 'String'
+      }
+    }
+    variables: {
+      downloadUrl: {
+        type: 'String'
+      }
+      pollUrl: {
+        type: 'String'
+      }
+    }
+    activities: [
+      { // Request Download URL
+        name: 'Request Download URL'
+        description: 'Request a short-lived SAS URL for the invoice file. This is a long-running operation: the API may return 200 with the URL or 202 with a Location header to poll.'
+        type: 'WebActivity'
+        dependsOn: []
+        policy: {
+          timeout: '0.00:05:00'
+          retry: 3
+          retryIntervalInSeconds: 30
+          secureOutput: true
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          // invoiceId starts with a slash, so strip it before appending to the ARM endpoint.
+          url: {
+            value: '@concat(\'${environment().resourceManager}\', substring(pipeline().parameters.invoiceId, 1, sub(length(pipeline().parameters.invoiceId), 1)), \'/download?api-version=${billingApiVersion}\')'
+            type: 'Expression'
+          }
+          method: 'POST'
+          body: '{}'
+          authentication: {
+            type: 'MSI'
+            resource: environment().resourceManager
+          }
+        }
+      }
+      { // Set Download URL
+        name: 'Set Download URL'
+        description: 'Capture the download URL when the API completed synchronously.'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Request Download URL'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        policy: {
+          secureOutput: true
+          secureInput: true
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'downloadUrl'
+          value: {
+            value: '@if(contains(activity(\'Request Download URL\').output, \'url\'), activity(\'Request Download URL\').output.url, \'\')'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set Poll URL
+        name: 'Set Poll URL'
+        description: 'Capture the async operation URL when the API returned 202 Accepted. Data Factory does not follow long-running operations automatically.'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set Download URL'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        policy: {
+          secureOutput: true
+          secureInput: true
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'pollUrl'
+          value: {
+            value: '@if(contains(activity(\'Request Download URL\').output, \'ADFWebActivityResponseHeaders\'), if(contains(activity(\'Request Download URL\').output.ADFWebActivityResponseHeaders, \'Location\'), activity(\'Request Download URL\').output.ADFWebActivityResponseHeaders.Location, if(contains(activity(\'Request Download URL\').output.ADFWebActivityResponseHeaders, \'Azure-AsyncOperation\'), activity(\'Request Download URL\').output.ADFWebActivityResponseHeaders[\'Azure-AsyncOperation\'], \'\')), \'\')'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Until Download URL Is Ready
+        name: 'Until Download URL Is Ready'
+        description: 'Poll the async operation until it returns the download URL. Exits immediately when the URL is already known or there is nothing to poll.'
+        type: 'Until'
+        dependsOn: [
+          {
+            activity: 'Set Poll URL'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@or(not(empty(variables(\'downloadUrl\'))), empty(variables(\'pollUrl\')))'
+            type: 'Expression'
+          }
+          timeout: '0.00:30:00'
+          activities: [
+            { // If Download Is Pending
+              name: 'If Download Is Pending'
+              type: 'IfCondition'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@and(empty(variables(\'downloadUrl\')), not(empty(variables(\'pollUrl\'))))'
+                  type: 'Expression'
+                }
+                ifTrueActivities: [
+                  { // Wait For Download
+                    name: 'Wait For Download'
+                    type: 'Wait'
+                    dependsOn: []
+                    userProperties: []
+                    typeProperties: {
+                      waitTimeInSeconds: 15
+                    }
+                  }
+                  { // Check Download Status
+                    name: 'Check Download Status'
+                    description: 'Check whether the invoice document is ready. Returns 202 while running and 200 with the download URL when complete.'
+                    type: 'WebActivity'
+                    dependsOn: [
+                      {
+                        activity: 'Wait For Download'
+                        dependencyConditions: ['Succeeded']
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.00:05:00'
+                      retry: 3
+                      retryIntervalInSeconds: 30
+                      secureOutput: true
+                      secureInput: true
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      url: {
+                        value: '@variables(\'pollUrl\')'
+                        type: 'Expression'
+                      }
+                      method: 'GET'
+                      authentication: {
+                        type: 'MSI'
+                        resource: environment().resourceManager
+                      }
+                    }
+                  }
+                  { // Update Download URL
+                    name: 'Update Download URL'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Check Download Status'
+                        dependencyConditions: ['Succeeded']
+                      }
+                    ]
+                    policy: {
+                      secureOutput: true
+                      secureInput: true
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'downloadUrl'
+                      value: {
+                        value: '@if(contains(activity(\'Check Download Status\').output, \'url\'), activity(\'Check Download Status\').output.url, \'\')'
+                        type: 'Expression'
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+      { // Verify Download URL
+        name: 'Verify Download URL'
+        description: 'Fail with a clear error when the download URL was never returned, instead of letting the copy fail on an empty URL.'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Until Download URL Is Ready'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@empty(variables(\'downloadUrl\'))'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Missing Download URL'
+              type: 'Fail'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: '@concat(\'The Billing API did not return a download URL for invoice \', pipeline().parameters.fileName, \'. The request may still be in progress or the invoice may not be available for download.\')'
+                  type: 'Expression'
+                }
+                errorCode: 'InvoiceDownloadUrlNotAvailable'
+              }
+            }
+          ]
+        }
+      }
+      { // Save Invoice File
+        name: 'Save Invoice File'
+        description: 'Copy the invoice file from the SAS URL into the hub data lake.'
+        type: 'Copy'
+        dependsOn: [
+          {
+            activity: 'Verify Download URL'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        policy: {
+          timeout: '0.00:15:00'
+          retry: 2
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: true
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'BinarySource'
+            storeSettings: {
+              type: 'HttpReadSettings'
+              requestMethod: 'GET'
+            }
+            formatSettings: {
+              type: 'BinaryReadSettings'
+            }
+          }
+          sink: {
+            type: 'BinarySink'
+            storeSettings: {
+              type: 'AzureBlobFSWriteSettings'
+            }
+          }
+          enableStaging: false
+        }
+        inputs: [
+          {
+            referenceName: dataset_invoiceDownload.name
+            type: 'DatasetReference'
+            parameters: {
+              downloadUrl: {
+                value: '@variables(\'downloadUrl\')'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
+        outputs: [
+          {
+            referenceName: dataset_invoiceFile.name
+            type: 'DatasetReference'
+            parameters: {
+              folderPath: {
+                value: '@pipeline().parameters.folderPath'
+                type: 'Expression'
+              }
+              fileName: {
+                value: '@pipeline().parameters.fileName'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
+      }
+    ]
+    policy: {
+      elapsedTimeMetric: {}
+    }
+    annotations: []
+  }
+}
+
 // Downloads all invoices for a single billing account. Split out from the orchestrator
 // pipeline because Data Factory does not support nested ForEach activities.
 resource pipeline_DownloadBillingAccountInvoices 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
@@ -286,99 +590,38 @@ resource pipeline_DownloadBillingAccountInvoices 'Microsoft.DataFactory/factorie
           isSequential: false
           batchCount: 3
           activities: [
-            { // Request Download URL
-              name: 'Request Download URL'
-              description: 'Request a short-lived SAS URL for the invoice file.'
-              type: 'WebActivity'
+            { // Download Invoice File
+              name: 'Download Invoice File'
+              type: 'ExecutePipeline'
               dependsOn: []
               policy: {
-                timeout: '0.00:05:00'
-                retry: 3
-                retryIntervalInSeconds: 30
-                secureOutput: true
                 secureInput: false
               }
               userProperties: []
               typeProperties: {
-                url: {
-                  // item().id starts with a slash, so strip it before appending to the ARM endpoint.
-                  value: '@concat(\'${environment().resourceManager}\', substring(item().id, 1, sub(length(item().id), 1)), \'/download?api-version=${billingApiVersion}\')'
-                  type: 'Expression'
+                pipeline: {
+                  referenceName: pipeline_DownloadInvoiceFile.name
+                  type: 'PipelineReference'
                 }
-                method: 'POST'
-                body: '{}'
-                authentication: {
-                  type: 'MSI'
-                  resource: environment().resourceManager
+                waitOnCompletion: true
+                parameters: {
+                  invoiceId: {
+                    value: '@item().id'
+                    type: 'Expression'
+                  }
+                  folderPath: {
+                    // invoices/<yyyy-MM>/<billingProfileId>/<purchaseOrderNumber>
+                    // billingProfileId and purchaseOrderNumber are optional. Referencing a property that
+                    // is missing from the response fails to evaluate, so guard each one with contains().
+                    value: '@concat(\'${INVOICES}/\', formatDateTime(item().properties.invoicePeriodStartDate, \'yyyy-MM\'), \'/\', if(contains(item().properties, \'billingProfileId\'), last(split(item().properties.billingProfileId, \'/\')), \'unknown\'), \'/\', if(and(contains(item().properties, \'purchaseOrderNumber\'), not(empty(item().properties.purchaseOrderNumber))), item().properties.purchaseOrderNumber, \'no-po\'))'
+                    type: 'Expression'
+                  }
+                  fileName: {
+                    value: '@concat(item().name, \'.pdf\')'
+                    type: 'Expression'
+                  }
                 }
               }
-            }
-            { // Save Invoice File
-              name: 'Save Invoice File'
-              description: 'Copy the invoice file from the SAS URL into the hub data lake.'
-              type: 'Copy'
-              dependsOn: [
-                {
-                  activity: 'Request Download URL'
-                  dependencyConditions: ['Succeeded']
-                }
-              ]
-              policy: {
-                timeout: '0.00:15:00'
-                retry: 2
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: true
-              }
-              userProperties: []
-              typeProperties: {
-                source: {
-                  type: 'BinarySource'
-                  storeSettings: {
-                    type: 'HttpReadSettings'
-                    requestMethod: 'GET'
-                  }
-                  formatSettings: {
-                    type: 'BinaryReadSettings'
-                  }
-                }
-                sink: {
-                  type: 'BinarySink'
-                  storeSettings: {
-                    type: 'AzureBlobFSWriteSettings'
-                  }
-                }
-                enableStaging: false
-              }
-              inputs: [
-                {
-                  referenceName: dataset_invoiceDownload.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    downloadUrl: {
-                      value: '@activity(\'Request Download URL\').output.url'
-                      type: 'Expression'
-                    }
-                  }
-                }
-              ]
-              outputs: [
-                {
-                  referenceName: dataset_invoiceFile.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    folderPath: {
-                      // invoices/<yyyy-MM>/<billingProfileId>/<purchaseOrderNumber>
-                      value: '@concat(\'${INVOICES}/\', formatDateTime(item().properties.invoicePeriodStartDate, \'yyyy-MM\'), \'/\', last(split(coalesce(item().properties.billingProfileId, \'unknown\'), \'/\')), \'/\', if(empty(coalesce(item().properties.purchaseOrderNumber, \'\')), \'no-po\', item().properties.purchaseOrderNumber))'
-                      type: 'Expression'
-                    }
-                    fileName: {
-                      value: '@concat(item().name, \'.pdf\')'
-                      type: 'Expression'
-                    }
-                  }
-                }
-              ]
             }
           ]
         }
