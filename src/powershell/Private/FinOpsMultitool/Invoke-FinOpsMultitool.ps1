@@ -316,6 +316,33 @@ function Invoke-FinOpsMultitool {
         Write-Host "  Signed in as: $($ctx.Account.Id)" -ForegroundColor Green
         Write-Host ""
 
+        # -- Explicit scope: resolve before either picker ------------------
+        # When the caller already named a subscription there is nothing to pick,
+        # so resolve it, set that context, and return. The current tenant is
+        # tried first because Get-AzSubscription without -TenantId probes every
+        # accessible tenant and emits a conditional-access/MFA warning for each
+        # one that refuses.
+        if ($PreselectedId) {
+            $sub = $null
+            if ($ctx -and $ctx.Tenant -and $ctx.Tenant.Id) {
+                $sub = Get-AzSubscription -SubscriptionId $PreselectedId -TenantId $ctx.Tenant.Id -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            }
+            if (-not $sub) {
+                foreach ($t in @(Get-AzTenant -ErrorAction SilentlyContinue)) {
+                    $sub = Get-AzSubscription -SubscriptionId $PreselectedId -TenantId $t.Id -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+                    if ($sub) { break }
+                }
+            }
+            if ($sub) {
+                $null = Set-AzContext -SubscriptionId $sub.Id -TenantId $sub.TenantId -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+                Write-Host "  Using subscription: $($sub.Name)" -ForegroundColor Green
+                Write-Host "  Tenant: $($sub.TenantId)" -ForegroundColor Green
+                Write-Host ""
+                return @($sub)
+            }
+            Write-Host "  Subscription $PreselectedId not found in any accessible tenant, showing picker..." -ForegroundColor Yellow
+        }
+
         # -- Tenant picker ------------------------------------------------
         $tenants = @(Get-AzTenant -ErrorAction SilentlyContinue)
         if ($tenants.Count -gt 1) {
@@ -384,15 +411,6 @@ function Invoke-FinOpsMultitool {
             $tLabel = if ($tenants[0].Name -and $tenants[0].Name -ne $tenants[0].TenantId) { $tenants[0].Name } else { $tenants[0].TenantId }
             Write-Host "  Tenant: $tLabel" -ForegroundColor Green
             Write-Host ""
-        }
-
-        if ($PreselectedId) {
-            $sub = Get-AzSubscription -SubscriptionId $PreselectedId -ErrorAction SilentlyContinue
-            if ($sub) {
-                Write-Host "  Using subscription: $($sub.Name)" -ForegroundColor Green
-                return @($sub)
-            }
-            Write-Host "  Subscription $PreselectedId not found, showing picker..." -ForegroundColor Yellow
         }
 
         # Scope subscription enumeration to the SELECTED tenant only.
