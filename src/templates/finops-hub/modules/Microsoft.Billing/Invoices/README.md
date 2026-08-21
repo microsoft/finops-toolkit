@@ -11,6 +11,7 @@ Downloads Microsoft invoice files into the FinOps hub data lake so you can recon
 | Dataset | `invoices_file` | Binary sink in the ingestion container. |
 | Pipeline | `invoices_DownloadInvoices` | Resolves the billing accounts to process and runs the download pipeline for each one. |
 | Pipeline | `invoices_DownloadBillingAccountInvoices` | Downloads all invoices for a single billing account. |
+| Pipeline | `invoices_DownloadInvoiceFile` | Requests a download URL for a single invoice and saves the file. Polls the Billing API while the request is still running. |
 | Trigger | `invoices_MonthlySchedule` | Runs once a month to download invoices from the previous month. |
 
 Invoice files are saved in the **ingestion** container using the following hierarchy:
@@ -70,7 +71,7 @@ az role assignment create \
 2. Confirm each activity succeeds:
    - `Load Settings` returns the hub settings.
    - `List Invoices` returns a populated `value` array.
-   - `Request Download URL` returns a download URL for each invoice.
+   - `Request Download URL` returns a download URL for each invoice, or a 202 status followed by `Until Download URL Is Ready` completing.
    - `Save Invoice File` reports more than 0 bytes written.
 3. Confirm the files exist in the `invoices` folder of the ingestion container.
 
@@ -82,6 +83,7 @@ az role assignment create \
 | `List Invoices` returns an empty array | There are no invoices for the period, or the billing account is a legacy EA account. | Run the pipeline with `periodOffsetMonths` set to `-2`. Confirm the account type in **Cost Management + Billing** > **Properties**. |
 | `Download Invoices Per Billing Account` iterates 0 times | No billing accounts are configured and no billing account scopes are monitored. | Set `invoiceBillingAccounts`, or add a billing account scope to the hub. |
 | `Request Download URL` returns 404 | The invoice ID is malformed. | Check the `List Invoices` output and confirm each `id` starts with `/providers/Microsoft.Billing/`. |
+| `Missing Download URL` fails the pipeline | The Billing API accepted the request but never returned a download URL within 30 minutes. | Confirm the invoice is available for download in the portal. Increase the `Until Download URL Is Ready` timeout if the account consistently takes longer. |
 | `Save Invoice File` fails with an expired URL | Too much time elapsed between requesting the URL and copying the file. | Download URLs expire in about an hour. Reduce the `batchCount` on the `Download Invoices` loop. |
 | `Save Invoice File` fails with a permission error | The managed identity is missing `Storage Blob Data Contributor` on the hub storage account. | Redeploy the hub. This role is granted automatically. |
 
