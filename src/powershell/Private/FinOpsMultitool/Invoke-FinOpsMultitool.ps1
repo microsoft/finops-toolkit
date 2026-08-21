@@ -1042,6 +1042,108 @@ function Invoke-FinOpsMultitool {
         }
     }
 
+    # CSV cells must be scalars. Anything else lands as "System.Collections.Hashtable"
+    # or "System.Object[]" in the file.
+    function ConvertTo-FinOpsExportCell {
+        param($Value)
+
+        if ($null -eq $Value) { return '' }
+        if ($Value -is [string] -or $Value -is [ValueType]) { return $Value }
+        if ($Value -is [System.Collections.IDictionary]) {
+            return (($Value.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join '; ')
+        }
+        if ($Value -is [System.Collections.IEnumerable]) {
+            return ((@($Value) | ForEach-Object { [string]$_ }) -join '; ')
+        }
+        return [string]$Value
+    }
+
+    # Scan results are wrapper objects whose payload is a nested collection or a
+    # hashtable keyed by subscription. Exporting the wrapper directly produces
+    # object-type cells, and for the cost contracts it turns subscription IDs
+    # into columns. Project each result to flat rows before writing CSV.
+    function ConvertTo-FinOpsExportRows {
+        param(
+            [string]$Fn,
+            $Data
+        )
+
+        if ($null -eq $Data) { return @() }
+
+        $rows = $null
+
+        # Contracts whose payload is not a plain collection.
+        if ($Fn -eq 'Get-CostData' -and $Data -is [System.Collections.IDictionary]) {
+            $rows = @($Data.GetEnumerator() | ForEach-Object {
+                    [PSCustomObject]@{
+                        SubscriptionId = $_.Key
+                        Actual         = $_.Value.Actual
+                        Forecast       = $_.Value.Forecast
+                        Currency       = $_.Value.Currency
+                    }
+                })
+        }
+        elseif ($Fn -eq 'Get-CostByTag' -and $Data.CostByTag) {
+            $rows = @(foreach ($tag in $Data.CostByTag.GetEnumerator()) {
+                    foreach ($val in $tag.Value.GetEnumerator()) {
+                        [PSCustomObject]@{
+                            TagKey   = $tag.Key
+                            TagValue = $val.Key
+                            Cost     = $val.Value
+                        }
+                    }
+                })
+        }
+        elseif ($Data -is [System.Collections.IDictionary]) {
+            $rows = @($Data.GetEnumerator() | ForEach-Object {
+                    [PSCustomObject]@{ Key = $_.Key; Value = (ConvertTo-FinOpsExportCell $_.Value) }
+                })
+        }
+        elseif ($Data -is [System.Collections.IEnumerable] -and $Data -isnot [string]) {
+            $rows = @($Data)
+        }
+        else {
+            # Wrapper object: the payload is the collection property. Prefer the
+            # single collection when there is exactly one, so new scans that follow
+            # the pattern export correctly without needing a case here.
+            $collections = @($Data.PSObject.Properties | Where-Object {
+                    $_.Value -is [System.Collections.IEnumerable] -and
+                    $_.Value -isnot [string] -and
+                    $_.Value -isnot [System.Collections.IDictionary] -and
+                    @($_.Value).Count -gt 0
+                })
+            if ($collections.Count -eq 1) {
+                $rows = @($collections[0].Value)
+            }
+            elseif ($collections.Count -gt 1) {
+                $preferred = $collections | Where-Object { $_.Name -in @('Rows', 'Details', 'Analysis', 'Recommendations', 'Items') } | Select-Object -First 1
+                $rows = if ($preferred) { @($preferred.Value) } else { @($collections[0].Value) }
+            }
+            else {
+                # Summary-only contract: one row of its scalar properties.
+                $rows = @($Data)
+            }
+        }
+
+        # Whatever projection was chosen, guarantee scalar cells.
+        return @($rows | Where-Object { $null -ne $_ } | ForEach-Object {
+                $row = $_
+                if ($row -is [System.Collections.IDictionary]) {
+                    $ordered = [ordered]@{}
+                    foreach ($k in $row.Keys) { $ordered[[string]$k] = ConvertTo-FinOpsExportCell $row[$k] }
+                    [PSCustomObject]$ordered
+                }
+                elseif ($row.PSObject.Properties.Count -gt 0 -and $row -isnot [string] -and $row -isnot [ValueType]) {
+                    $ordered = [ordered]@{}
+                    foreach ($p in $row.PSObject.Properties) { $ordered[$p.Name] = ConvertTo-FinOpsExportCell $p.Value }
+                    [PSCustomObject]$ordered
+                }
+                else {
+                    [PSCustomObject]@{ Value = ConvertTo-FinOpsExportCell $row }
+                }
+            })
+    }
+
     function Show-ResultsSummary {
         param(
             [hashtable]$Results,
@@ -2146,10 +2248,12 @@ function Invoke-FinOpsMultitool {
             # -- CSV exports per module --
             foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
                 $data = $Results[$mod.Fn]
-                if ($data -and @($data).Count -gt 0) {
+                if (-not $data) { continue }
+                $exportRows = ConvertTo-FinOpsExportRows -Fn $mod.Fn -Data $data
+                if ($exportRows.Count -gt 0) {
                     $safeName = $mod.Fn -replace '[^a-zA-Z0-9\-]', ''
                     $csvPath = Join-Path $exportDir "$safeName.csv"
-                    $data | Export-Csv -Path $csvPath -NoTypeInformation
+                    $exportRows | Export-Csv -Path $csvPath -NoTypeInformation
                 }
             }
 
