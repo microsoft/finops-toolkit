@@ -36,6 +36,9 @@ configuration:
                   - payloadType: Issue_Comment
                   - isAction:
                       action: Created
+                  - not:
+                      commentContains:
+                        pattern: '#needs-review'
                   - isActivitySender:
                       issueAuthor: False
                   - isPullRequest
