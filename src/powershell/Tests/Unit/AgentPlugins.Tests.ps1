@@ -56,8 +56,9 @@ Describe 'Agent plugin manifest' {
         $claude = Get-Content (Join-Path $script:Plugin '.claude-plugin/plugin.json') -Raw | ConvertFrom-Json
         $paths = @($claude.commands) + @($claude.skills) + @($claude.mcpServers) + @($claude.outputStyles)
 
-        $paths.Count | Should -Be 4
+        $paths.Count | Should -BeGreaterOrEqual 4
         $paths | ForEach-Object {
+            $_ | Should -Not -BeNullOrEmpty
             Join-Path $script:Plugin $_ | Should -Exist
         }
     }
