@@ -1,5 +1,6 @@
 ---
 description: Use when writing, rewriting, or reviewing Microsoft-branded or customer-facing content, or resolving Microsoft terminology. Covers voice, grammar, punctuation, capitalization, UI text, procedures, accessibility, bias-free and global-ready language, developer content, and the complete Microsoft A-Z word list.
+license: MIT AND CC-BY-4.0; see LICENSE, LICENSE-CONTENT, and NOTICE.md
 metadata:
     github-path: plugins/microsoft-writing-style/skills/microsoft-writing-style-guide
     github-pinned: d9227efa6c984c13260e3bf869f4b6132cfb3c19

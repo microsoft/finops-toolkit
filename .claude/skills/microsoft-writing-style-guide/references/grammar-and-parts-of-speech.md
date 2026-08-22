@@ -88,7 +88,7 @@ Remember my password
 
 I agree to the terms of service
 
-**Exception** In rare cases, it’s OK to use “my” in navigation or filter labels if you need to distinguish a person’s content from other content that may be presented in the same visual space. !image
+**Exception** In rare cases, it’s OK to use “my” in navigation or filter labels if you need to distinguish a person’s content from other content that may be presented in the same visual space.
 
 **Exception** Cortana is a persona, so the use of *I* is appropriate.
 

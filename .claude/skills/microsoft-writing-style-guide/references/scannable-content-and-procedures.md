@@ -351,7 +351,7 @@ Sidebars are useful in longer articles or documents to call out interesting sect
 
 Typically people read sidebars before or after the rest of the page, so don’t use sidebars for information that should be read in sequence with the main text.
 
-!Screenshot of an article with a sidebar the provides statistics that accompany the written content.
+**Figure** An article sidebar provides statistics that accompany the written content.
 
 ## Tables
 

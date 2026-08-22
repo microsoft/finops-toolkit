@@ -69,11 +69,16 @@ def validate_skill(root: Path) -> list[str]:
     index_path = references / "term-index.tsv"
     manifest_path = references / "source-manifest.md"
     eval_path = root / "evals" / "evals.json"
+    required_distribution_files = {
+        "LICENSE": "MIT License",
+        "LICENSE-CONTENT": "Attribution 4.0 International",
+        "NOTICE.md": "MicrosoftDocs/microsoft-style-guide-pr",
+    }
 
     if not skill_path.is_file():
         return ["SKILL_MISSING: SKILL.md is missing"]
 
-    skill = skill_path.read_text()
+    skill = skill_path.read_text(encoding="utf-8")
     frontmatter = re.match(r"\A---\n(.*?)\n---\n", skill, re.S)
     if not frontmatter:
         errors.append("SKILL_FRONTMATTER: valid YAML frontmatter is missing")
@@ -86,6 +91,13 @@ def validate_skill(root: Path) -> list[str]:
 
     if len(skill.splitlines()) > 250:
         errors.append("SKILL_LENGTH: SKILL.md exceeds 250 lines")
+
+    for filename, expected in required_distribution_files.items():
+        path = root / filename
+        if not path.is_file():
+            errors.append(f"DISTRIBUTION_FILE_MISSING: {filename}")
+        elif expected not in path.read_text(encoding="utf-8"):
+            errors.append(f"DISTRIBUTION_FILE_CONTENT: {filename}")
 
     required_skill_text = (
         "## Choose a mode",
@@ -113,16 +125,18 @@ def validate_skill(root: Path) -> list[str]:
         )
 
     for path in [skill_path, *sorted(references.glob("*.md"))]:
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         if re.search(r"!INCLUDE\s*\[", text):
             errors.append(f"UNRESOLVED_INCLUDE: {path.relative_to(root)}")
+        if re.search(r"!(?!\[)(?:image|screenshot)\b", text, re.I):
+            errors.append(f"UNRESOLVED_IMAGE: {path.relative_to(root)}")
         if "ms.topic: include" in text:
             errors.append(f"INCLUDE_FRONTMATTER: {path.relative_to(root)}")
 
     if not manifest_path.is_file():
         errors.append("MANIFEST_MISSING: references/source-manifest.md is missing")
     else:
-        manifest = manifest_path.read_text()
+        manifest = manifest_path.read_text(encoding="utf-8")
         for expected in (
             PINNED_COMMIT,
             "2026-08-22",
@@ -136,7 +150,7 @@ def validate_skill(root: Path) -> list[str]:
     if not index_path.is_file():
         errors.append("TERM_INDEX_MISSING: references/term-index.tsv is missing")
     else:
-        with index_path.open(newline="") as stream:
+        with index_path.open(encoding="utf-8", newline="") as stream:
             reader = csv.DictReader(stream, delimiter="\t")
             if reader.fieldnames != ["term", "file", "source_path"]:
                 errors.append(
@@ -170,7 +184,7 @@ def validate_skill(root: Path) -> list[str]:
                 heading_cache[filename] = {
                     normalize(heading)
                     for heading in re.findall(
-                        r"^### (.+)$", target.read_text(), re.M
+                        r"^### (.+)$", target.read_text(encoding="utf-8"), re.M
                     )
                 }
             if normalize(row["term"]) not in heading_cache[filename]:
@@ -194,7 +208,7 @@ def validate_skill(root: Path) -> list[str]:
         ),
     }
     for path, expected_values in sentinels.items():
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         for expected in expected_values:
             if expected not in text:
                 errors.append(
@@ -205,7 +219,7 @@ def validate_skill(root: Path) -> list[str]:
         errors.append("EVAL_MISSING: evals/evals.json is missing")
     else:
         try:
-            data = json.loads(eval_path.read_text())
+            data = json.loads(eval_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
             errors.append(f"EVAL_JSON: {exc}")
         else:
@@ -247,7 +261,10 @@ def run_self_check(root: Path) -> list[str]:
             candidate = Path(directory) / "skill"
             shutil.copytree(root, candidate)
             checklist = candidate / "references" / "checklists.md"
-            checklist.write_text(checklist.read_text() + f"\n{fixture}\n")
+            checklist.write_text(
+                checklist.read_text(encoding="utf-8") + f"\n{fixture}\n",
+                encoding="utf-8",
+            )
             if not any(
                 error.startswith("UNRESOLVED_INCLUDE")
                 for error in validate_skill(candidate)
@@ -259,9 +276,41 @@ def run_self_check(root: Path) -> list[str]:
     with tempfile.TemporaryDirectory() as directory:
         candidate = Path(directory) / "skill"
         shutil.copytree(root, candidate)
+        checklist = candidate / "references" / "checklists.md"
+        checklist.write_text(
+            checklist.read_text(encoding="utf-8")
+            + "\n!Screenshot unresolved image placeholder\n",
+            encoding="utf-8",
+        )
+        if not any(
+            error.startswith("UNRESOLVED_IMAGE")
+            for error in validate_skill(candidate)
+        ):
+            failures.append(
+                "SELF_CHECK_IMAGE: unresolved image placeholder wasn't detected"
+            )
+
+    with tempfile.TemporaryDirectory() as directory:
+        candidate = Path(directory) / "skill"
+        shutil.copytree(root, candidate)
+        (candidate / "LICENSE").unlink()
+        if not any(
+            error.startswith("DISTRIBUTION_FILE_MISSING")
+            for error in validate_skill(candidate)
+        ):
+            failures.append(
+                "SELF_CHECK_LICENSE: missing distribution license wasn't detected"
+            )
+
+    with tempfile.TemporaryDirectory() as directory:
+        candidate = Path(directory) / "skill"
+        shutil.copytree(root, candidate)
         index = candidate / "references" / "term-index.tsv"
-        lines = index.read_text().splitlines()
-        index.write_text("\n".join([lines[0], *lines[2:]]) + "\n")
+        lines = index.read_text(encoding="utf-8").splitlines()
+        index.write_text(
+            "\n".join([lines[0], *lines[2:]]) + "\n",
+            encoding="utf-8",
+        )
         errors = validate_skill(candidate)
         if not any(error.startswith("TERM_COUNT") for error in errors):
             failures.append("SELF_CHECK_COUNT: missing index row wasn't detected")

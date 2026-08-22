@@ -1065,7 +1065,7 @@ Don't use. Use *multiple selection* instead. If it's important to emphasize that
 
 Avoid referring by name to this icon and the menu that it opens. If you must, refer to the *\<App Name\> icon* or the *\<title bar\> shortcut menu*.
 
-!Screenshot of the shortcut menu which contains various icons that can be selected, including undo and redo options.
+**Figure** A shortcut menu includes selectable icons such as **Undo** and **Redo**.
 
 ### Control Panel
 

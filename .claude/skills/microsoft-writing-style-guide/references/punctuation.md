@@ -176,7 +176,7 @@ the ellipsis replaces the end of a quoted sentence, include a space before the e
 
 It’s OK to use an ellipsis in multiple-part callouts, especially with screenshots or graphics in documentation.
 
-!Screenshot of a presentation slide with a line to a note above the slide reading When you apply a design template...!Screenshot of a presentation slide with brackets to the right of the slide with text reading formatting and items change...
+**Figure** A two-part callout reads, “When you apply a design template … formatting and items change ….”
 
   - Ensure that the path through the callouts is clear. Document each step.  
   

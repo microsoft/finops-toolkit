@@ -596,7 +596,7 @@ Use *pin* to refer to placing an item, such as a tile, an app, or a command, in 
 
 **Pin apps to Start**
 
-1.  Select the **Start** !Screenshot of a black Windows icon as it appears as the Start button on Windows. button, and then select **All apps**. 
+1.  Select the **Start** button (shown with the Windows logo), and then select **All apps**.
 
 2.  Press and hold (or right-click) the app you want to pin.
 

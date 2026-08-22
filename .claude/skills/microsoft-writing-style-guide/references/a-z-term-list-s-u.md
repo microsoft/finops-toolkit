@@ -290,7 +290,7 @@ In general, avoid talking about UI elements. Most of the time, just describe wha
 
 In content for a general audience, it's OK to use *slider* when you need to describe the UI element used to set a value on a continuous range of possible values, such as screen brightness, mouse-click speed, or volume.
 
-!Screenshot of a cursor thickness slider with an image to the left of the slider showing how thick a cursor will be at the selected setting.
+**Figure** A cursor-thickness slider previews the selected thickness.
 
 In content for developers, it's OK to refer to a slider as a *trackbar control*.
 
@@ -386,13 +386,13 @@ Don't use *spell check* as a noun.
 
 It's OK to use *spin box* in content for a technical audience to describe a control that users can use to move, or spin, through a fixed set of values, such as dates.
 
-!Screenshot of the Duration field which has a clock icon next to it and a text field with arrows to set the desired value.
+**Figure** The **Duration** field has a clock symbol and arrows for setting the value.
 
 For a general audience, just discuss what the customer needs to do. If you need to refer to the control, refer to a spin box by its label. **Example** the **Start time** box
 
 ### split bar, split box
 
-!Screenshot of the split bar and split box icon as it appears when hovering over a bar or box that can be split.
+**Figure** The split-bar and split-box symbol appears when the pointer is over an area that can be split.
 
 It's OK to use *split bar* and *split box* in content for all audiences.
 
@@ -464,9 +464,9 @@ It's OK to use *startup* as an adjective in phrases such as *startup screen*.
 
 Use instead of *status line* or *message area* to refer to the area at the bottom of a document window that shows the status of a document and other information, such as the meaning of a command. Messages appear *on,* not *in,* the status bar.
 
-!Screenshot of a progress bar for downloading the Childcare Policies document file with an icon to cancel the download.
+**Figure** A progress bar shows a document download and provides a cancel button.
 
-!Screenshot of the bottom of a document window that shows the currently displayed page, section, line, and column.
+**Figure** A document status bar shows the current page, section, line, and column.
 
 **Example** The page number is displayed on the status bar.
 
@@ -560,7 +560,7 @@ Follow these guidelines when discussing symbols:
 out the name of the symbol in text and, if the symbol itself is important, enclose the symbol in parentheses. Use a symbol by itself only in tables and lists where space is limited or in mathematical expressions. <br />**Examples**<br />Enter a backslash (\\) to return to the previous directory. <br />Only 75 percent of the students attended.
 
   - For
-UI elements, such as buttons, you can use a graphic of the button by itself after it has been named once or if selecting it displays a definition. <br />**Examples**<br />Select the **Minimize** button (!Screenshot of a gray square with a subtraction icon to indicate a screen can be minimized.).<br />Select !Screenshot of a gray square with a black X to indicate that a screen can be closed..
+UI elements, such as buttons, you can use a graphic of the button by itself after it has been named once or if selecting it displays a definition. <br />**Examples**<br />Select the **Minimize** button (shown as a minus sign in a square).<br />Select the **Close** button (shown as an X in a square).
 
   - Write out the plurals of symbols, showing the use in parentheses. Don't add *s* or *'s* to a symbol. <br />**Example** <br />Enter two backslashes (\\\\) to show a network connection. 
 

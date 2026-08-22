@@ -15,6 +15,20 @@ The pinned commit is the source of truth for this snapshot. If a local rule
 conflicts with that source, use the pinned source. Check the live guide before
 relying on this snapshot for a rule changed after the synchronization date.
 
+## Distribution source
+
+| Field | Value |
+|---|---|
+| Repository | `msbrettorg/microsoft-writing-style` |
+| Repository URL | https://github.com/msbrettorg/microsoft-writing-style |
+| Pinned commit | `d9227efa6c984c13260e3bf869f4b6132cfb3c19` |
+| Skill tree | `73d4edd9337016a22a9918497b1ba377449894fb` |
+
+This FinOps Toolkit copy includes the distribution repository's `LICENSE`,
+`LICENSE-CONTENT`, and `NOTICE.md`. It also applies review fixes that replace
+unresolved image placeholders with text descriptions, make the validator's
+text handling explicitly UTF-8, and reject unresolved placeholders.
+
 ## Coverage
 
 | Source surface | Authoritative count | Local status |
@@ -44,3 +58,6 @@ relying on this snapshot for a rule changed after the synchronization date.
 | `term-index.tsv` | Canonical A-Z term inventory and local routing |
 | `../scripts/validate.py` | Offline structural and freshness validation |
 | `../evals/evals.json` | Representative behavior evaluations |
+| `../LICENSE` | MIT license for original repository contributions |
+| `../LICENSE-CONTENT` | CC BY 4.0 license for Microsoft-derived content |
+| `../NOTICE.md` | Source attribution and modification notice |
