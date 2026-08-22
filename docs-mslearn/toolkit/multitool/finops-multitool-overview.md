@@ -25,7 +25,7 @@ FinOps multitool runs 30 scan modules against the subscriptions you select and r
 
 - **Scales with your data** <br> When a [FinOps hub](../hubs/finops-hubs-overview.md) is available, cost scans query the hub's Azure Data Explorer or Microsoft Fabric database and push aggregation into the engine, returning only summarized results. A storage reader covers smaller datasets, and the Cost Management API is used when no hub is present.
 
-- **Read-only** <br> Every scan reads your environment and reports what it finds. The multitool never creates, changes, or deletes a resource, so you can run it against production and hand it to anyone with Reader access.
+- **Read-only** <br> Every scan reads your environment and reports what it finds. The multitool never creates, changes, or deletes a resource.
 
 ## Benefits
 

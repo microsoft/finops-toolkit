@@ -49,7 +49,7 @@ The FinOps multitool scans an Azure environment for cost optimization, governanc
     </div>
     <div class="ftk-tile">
         <div>🛡️ Read-only by design</div>
-        <div>Every scan reads your environment and reports what it finds. The multitool never creates, changes, or deletes a resource, so it's safe to run against production.</div>
+        <div>Every scan reads your environment and reports what it finds. The multitool never creates, changes, or deletes a resource.</div>
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">Learn more</a>
     </div>
 </div>
