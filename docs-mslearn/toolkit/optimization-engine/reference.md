@@ -1,15 +1,17 @@
 ---
-title: Reference
-description: Reference to the optimization engine tables, runbooks, schedules and variables.
+title: Azure optimization engine reference
+description: Reference to the optimization engine tables, runbooks, schedules, and variables.
 author: flanakin
 ms.author: micflan
-ms.date: 08/18/2026
+ms.date: 08/22/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: hepint
-#customer intent: As a FinOps user, I want to understand the Azure optimization engine reference tables, runbooks, schedules and variables.
+#customer intent: As a FinOps user, I want to understand the Azure optimization engine reference tables, runbooks, schedules, and variables.
 ---
+
+# Azure optimization engine reference
 
 # Runbooks
 
@@ -100,7 +102,7 @@ The runbooks use different deployment-specific variables based on their function
 - Runbooks that access Azure SQL Database use `AzureOptimization_SQLServerHostname`; `AzureOptimization_SQLServerDatabase` defaults to `azureoptimization`.
 - Runbooks that ingest data into Log Analytics use `AzureOptimization_DCEIngestionEndpoint` and the DCR mappings stored in Azure SQL Database.
 
-See [Variables](#-variables) for more details.
+See [Variables](#variables) for more details.
 
 <br>
 
@@ -310,3 +312,11 @@ All tables are DCR-based custom tables. Most tables are populated from CSV files
 | `LogAnalyticsIngestControl` | Storage-to-table mappings, DCR identifiers, and CSV ingestion progress | All CSV export containers | Initialized by deployment and updated by `Setup-LogAnalyticsTablesAndDCRs` | `Ingest-OptimizationCSVExportsToLogAnalytics`, `Ingest-RecommendationsToLogAnalytics`, `Ingest-SuppressionsToLogAnalytics` | No |
 | `Recommendations` | Generated recommendations and resource context | `recommendationsexports` | All `Recommend-*` runbooks; populated by `Ingest-RecommendationsToSQLServer` | Cleanup and `Remediate-*` runbooks | Yes |
 | `SqlServerIngestControl` | Recommendation JSON ingestion progress | `recommendationsexports` | Initialized by deployment | `Ingest-RecommendationsToSQLServer` | No |
+
+<br>
+
+## Related content
+
+- [Get started with the Azure Optimization Engine](overview.md)
+- [Customize Azure optimization engine](customize.md)
+- [Troubleshoot Azure Optimization Engine issues](troubleshooting.md)
