@@ -22,11 +22,17 @@ function Invoke-FinOpsMultitool {
     [CmdletBinding()]
     param(
         [string]$SubscriptionId,
-        [string]$OutputPath
+        [string]$OutputPath,
+        [string[]]$Scans,
+        [ValidateSet('Hub', 'API', 'GraphOnly')]
+        [string]$DataSource,
+        [switch]$NonInteractive
     )
 
     # -- Load modules (always force-reimport to pick up latest changes) ----
     $multitoolRoot = $PSScriptRoot
+    # Re-probe the console every run; the host can differ between invocations.
+    $script:FinOpsRichConsole = $null
     $psm1Path = Join-Path $multitoolRoot 'FinOpsMultitool.psm1'
     if (Test-Path $psm1Path) {
         Import-Module $psm1Path -Force
@@ -104,6 +110,27 @@ function Invoke-FinOpsMultitool {
         @{ Name = 'MACC Commitment'; Fn = 'Get-MaccCommitment'; Selected = $true; Category = 'Account' }
     )
 
+    # An explicit -Scans list replaces the default selection. Names match either the
+    # scan function or its display name, so both the docs and the menu labels work.
+    if ($Scans -and $Scans.Count -gt 0) {
+        if ($Scans.Count -eq 1 -and $Scans[0] -match '^(?i)all$') {
+            foreach ($m in $scanModules) { $m.Selected = $true }
+        }
+        else {
+            foreach ($m in $scanModules) { $m.Selected = $false }
+            $unknownScans = @()
+            foreach ($name in $Scans) {
+                $matched = @($scanModules | Where-Object { $_.Fn -eq $name -or $_.Name -eq $name })
+                if ($matched.Count -gt 0) { foreach ($m in $matched) { $m.Selected = $true } }
+                else { $unknownScans += $name }
+            }
+            if ($unknownScans.Count -gt 0) {
+                Write-Error "Unknown scan name(s): $($unknownScans -join ', '). Valid names: $(($scanModules | ForEach-Object { $_.Fn }) -join ', ')"
+                return
+            }
+        }
+    }
+
     # -- Permission Requirements per Module --------------------------------
     # Maps each function to the Azure RBAC role(s) needed and a human-readable reason
     $permissionInfo = @{
@@ -139,7 +166,7 @@ function Invoke-FinOpsMultitool {
     #  BANNER
     # =====================================================================
     function Show-Banner {
-        Clear-Host
+        try { Clear-Host } catch { }
 
         # Version comes from the toolkit so the TUI and the module cannot drift.
         # Get-VersionNumber is a sibling private function, absent when this script runs standalone.
@@ -191,13 +218,45 @@ function Invoke-FinOpsMultitool {
         return [math]::Min($Cap, $consoleWidth - 1)
     }
 
+    # Hosts without a usable console (remoting, CI, some editor terminals) still
+    # expose $Host.UI.RawUI, and there ReadKey blocks forever rather than failing,
+    # so probe a real console operation instead of testing for the object.
+    function Test-FinOpsRichConsole {
+        if ($null -ne $script:FinOpsRichConsole) { return $script:FinOpsRichConsole }
+        $rich = $true
+        try { $null = [Console]::CursorTop } catch { $rich = $false }
+        if ($rich) {
+            try { if ([Console]::IsInputRedirected) { $rich = $false } } catch { }
+        }
+        $script:FinOpsRichConsole = $rich
+        if (-not $rich) {
+            Write-Host ""
+            Write-Host "  This console does not support the arrow-key menus. Using numbered prompts." -ForegroundColor DarkGray
+        }
+        return $rich
+    }
+
+    # Read-Host returns an empty string in a host that cannot prompt, which would
+    # spin a validation loop forever, so every caller needs an attempt ceiling.
+    function Read-FinOpsAnswer {
+        param([string]$Prompt)
+        Write-Host $Prompt -ForegroundColor White -NoNewline
+        $answer = $null
+        try { $answer = Read-Host }
+        catch [System.Management.Automation.PipelineStoppedException] { throw }
+        catch { $answer = $null }
+        if ($null -eq $answer) { return '' }
+        return $answer.Trim()
+    }
+
     # =====================================================================
     #  DATA SOURCE PICKER
     # =====================================================================
     function Select-DataSource {
         param(
             [string]$TenantId,
-            [array]$Subscriptions
+            [array]$Subscriptions,
+            [string]$Preselected
         )
 
         Write-Host ""
@@ -220,6 +279,21 @@ function Invoke-FinOpsMultitool {
             catch { }
         }
 
+        if ($Preselected) {
+            if ($Preselected -eq 'Hub' -and -not $hubStorage) {
+                Write-Host "  No FinOps Hub found in scope. Using the Cost Management API instead." -ForegroundColor Yellow
+                return @{ Source = 'API'; HubStorage = $null }
+            }
+            Write-Host "  Data source set by parameter: $Preselected" -ForegroundColor DarkGray
+            return @{ Source = $Preselected; HubStorage = $hubStorage }
+        }
+
+        if ($NonInteractive) {
+            $autoSource = if ($hubStorage) { 'Hub' } else { 'API' }
+            Write-Host "  Non-interactive run. Using $autoSource." -ForegroundColor DarkGray
+            return @{ Source = $autoSource; HubStorage = $hubStorage }
+        }
+
         if ($hubStorage) {
             Write-Host "  FinOps Hub detected: " -ForegroundColor Green -NoNewline
             Write-Host "$($hubStorage.name)" -ForegroundColor White -NoNewline
@@ -237,10 +311,10 @@ function Invoke-FinOpsMultitool {
             Write-Host "  - Skip cost modules, run governance/optimization scans only" -ForegroundColor DarkGray
             Write-Host ""
 
+            $attempts = 0
             while ($true) {
-                Write-Host "  Select [1/2/3]: " -ForegroundColor White -NoNewline
-                $choice = Read-Host
-                switch ($choice.Trim()) {
+                $choice = Read-FinOpsAnswer '  Select [1/2/3]: '
+                switch ($choice) {
                     '1' {
                         # Large-hub heads-up: the [1] Hub choice uses the scalable
                         # Kusto engine when the hub has an ADX/Fabric cluster (auto-
@@ -265,15 +339,24 @@ function Invoke-FinOpsMultitool {
                         Write-Host ""
                         Write-Host "  Switch to the live Cost Management API instead? " -ForegroundColor White -NoNewline
                         Write-Host "(N = continue with the storage reader)" -ForegroundColor DarkGray
-                        $useApi = Read-Host "  Select [Y/N]"
-                        if ($useApi.Trim() -match '^(y|yes)$') {
+                        $useApi = Read-FinOpsAnswer '  Select [Y/N]: '
+                        if ($useApi -match '^(?i)(y|yes)$') {
                             return @{ Source = 'API'; HubStorage = $hubStorage }
                         }
                         return @{ Source = 'Hub'; HubStorage = $hubStorage }
                     }
                     '2' { return @{ Source = 'API'; HubStorage = $hubStorage } }
                     '3' { return @{ Source = 'GraphOnly'; HubStorage = $hubStorage } }
-                    default { Write-Host "  Invalid choice." -ForegroundColor Red }
+                    default {
+                        $attempts++
+                        # A console that cannot take input returns empty forever, so only give
+                        # up there. A real terminal keeps asking until it gets an answer.
+                        if ($attempts -ge 3 -and -not (Test-FinOpsRichConsole)) {
+                            Write-Host "  No valid selection. Using the FinOps Hub." -ForegroundColor Yellow
+                            return @{ Source = 'Hub'; HubStorage = $hubStorage }
+                        }
+                        Write-Host "  Invalid choice." -ForegroundColor Red
+                    }
                 }
             }
         }
@@ -288,13 +371,20 @@ function Invoke-FinOpsMultitool {
             Write-Host "  - Skip cost modules, run governance/optimization scans only" -ForegroundColor DarkGray
             Write-Host ""
 
+            $attempts = 0
             while ($true) {
-                Write-Host "  Select [1/2]: " -ForegroundColor White -NoNewline
-                $choice = Read-Host
-                switch ($choice.Trim()) {
+                $choice = Read-FinOpsAnswer '  Select [1/2]: '
+                switch ($choice) {
                     '1' { return @{ Source = 'API'; HubStorage = $null } }
                     '2' { return @{ Source = 'GraphOnly'; HubStorage = $null } }
-                    default { Write-Host "  Invalid choice." -ForegroundColor Red }
+                    default {
+                        $attempts++
+                        if ($attempts -ge 3 -and -not (Test-FinOpsRichConsole)) {
+                            Write-Host "  No valid selection. Using the Cost Management API." -ForegroundColor Yellow
+                            return @{ Source = 'API'; HubStorage = $null }
+                        }
+                        Write-Host "  Invalid choice." -ForegroundColor Red
+                    }
                 }
             }
         }
@@ -345,7 +435,15 @@ function Invoke-FinOpsMultitool {
 
         # -- Tenant picker ------------------------------------------------
         $tenants = @(Get-AzTenant -ErrorAction SilentlyContinue)
-        if ($tenants.Count -gt 1) {
+        if ($tenants.Count -gt 1 -and ($NonInteractive -or -not (Test-FinOpsRichConsole))) {
+            # The tenant picker is arrow-key only, so stay in the signed-in tenant
+            # and let -SubscriptionId reach the others.
+            $currentTenant = (Get-AzContext -ErrorAction SilentlyContinue).Tenant.Id
+            Write-Host "  Tenant: $currentTenant" -ForegroundColor Green
+            Write-Host "  $($tenants.Count) tenants available. Pass -SubscriptionId to target another one." -ForegroundColor DarkGray
+            Write-Host ""
+        }
+        elseif ($tenants.Count -gt 1) {
             Write-Host "  $($tenants.Count) tenants available:" -ForegroundColor White
             Write-Host ""
 
@@ -429,16 +527,40 @@ function Invoke-FinOpsMultitool {
         }
 
         # Multi-sub picker
+        if ($NonInteractive) {
+            Write-Host "  Non-interactive run. Scanning all $($allSubs.Count) subscriptions." -ForegroundColor Green
+            return $allSubs
+        }
+
         Write-Host "  Found $($allSubs.Count) subscriptions. Select scope:" -ForegroundColor White
         Write-Host ""
         Write-Host "    [A] All subscriptions" -ForegroundColor White
         Write-Host "    [S] Single subscription (pick from list)" -ForegroundColor White
         Write-Host ""
-        $choice = Read-Host "  Choice (A/S)"
+        $choice = Read-FinOpsAnswer '  Choice (A/S): '
 
-        if ($choice -eq 'A' -or $choice -eq 'a') {
+        if ($choice -match '^(?i)(a|all)$') {
             Write-Host "  Scanning all $($allSubs.Count) subscriptions" -ForegroundColor Green
             return $allSubs
+        }
+
+        if (-not (Test-FinOpsRichConsole)) {
+            Write-Host ""
+            for ($i = 0; $i -lt $allSubs.Count; $i++) {
+                Write-Host ("    [{0}] {1}" -f ($i + 1), $allSubs[$i].Name)
+            }
+            Write-Host ""
+            $pick = Read-FinOpsAnswer '  Subscription number (blank = all): '
+            if ($pick -eq '') { return $allSubs }
+            $pickIndex = 0
+            if ([int]::TryParse($pick, [ref]$pickIndex) -and $pickIndex -ge 1 -and $pickIndex -le $allSubs.Count) {
+                Write-Host "  Selected: $($allSubs[$pickIndex - 1].Name)" -ForegroundColor Green
+                return @($allSubs[$pickIndex - 1])
+            }
+            # Cancel rather than fall through to every subscription; a mistyped number
+            # should not silently widen the scan to the whole tenant.
+            Write-Host "  '$pick' is not one of the listed numbers. Cancelled." -ForegroundColor Yellow
+            return $null
         }
 
         # Arrow-key single subscription picker
@@ -493,8 +615,55 @@ function Invoke-FinOpsMultitool {
     # =====================================================================
     #  SCAN MODULE PICKER (checkbox menu)
     # =====================================================================
+    # Numbered alternative to the checkbox menu for hosts that cannot render it.
+    function Select-ScanModulesLineMode {
+        param([array]$Modules)
+
+        Write-Host ""
+        Write-Host "  SELECT SCANS" -ForegroundColor White
+        Write-Host ""
+        for ($i = 0; $i -lt $Modules.Count; $i++) {
+            $mark = if ($Modules[$i].Selected) { 'x' } else { ' ' }
+            Write-Host ("    [{0,2}] [{1}] {2}  ({3})" -f ($i + 1), $mark, $Modules[$i].Name, $Modules[$i].Category)
+        }
+        Write-Host ""
+        Write-Host "  Enter numbers separated by commas, 'all', or blank to keep the [x] defaults." -ForegroundColor DarkGray
+        $entry = Read-FinOpsAnswer '  Scans: '
+
+        if ($entry -eq '') { return $Modules }
+        if ($entry -match '^(?i)all$') {
+            foreach ($m in $Modules) { $m.Selected = $true }
+            return $Modules
+        }
+
+        $picked = @()
+        $ignored = @()
+        foreach ($piece in ($entry -split ',')) {
+            $parsed = 0
+            if ([int]::TryParse($piece.Trim(), [ref]$parsed) -and $parsed -ge 1 -and $parsed -le $Modules.Count) {
+                $picked += ($parsed - 1)
+            }
+            elseif ($piece.Trim() -ne '') {
+                $ignored += $piece.Trim()
+            }
+        }
+        if ($ignored.Count -gt 0) {
+            Write-Host "  Ignored, not a listed number: $($ignored -join ', ')" -ForegroundColor Yellow
+        }
+        if ($picked.Count -eq 0) {
+            Write-Host "  No valid numbers. Keeping the default selection." -ForegroundColor Yellow
+            return $Modules
+        }
+        for ($i = 0; $i -lt $Modules.Count; $i++) { $Modules[$i].Selected = ($i -in $picked) }
+        return $Modules
+    }
+
     function Select-ScanModules {
         param([array]$Modules)
+
+        # -Scans, or the defaults, already carry the selection when nothing can prompt.
+        if ($NonInteractive) { return $Modules }
+        if (-not (Test-FinOpsRichConsole)) { return (Select-ScanModulesLineMode -Modules $Modules) }
 
         $cursor = 0
         $categories = $Modules | ForEach-Object { $_.Category } | Select-Object -Unique
@@ -2220,11 +2389,25 @@ function Invoke-FinOpsMultitool {
         }
 
         # -- Export option -------------------------------------------------
+        $defaultPath = Join-Path (Get-Location) 'FinOpsResults'
         if ($ExportPath) {
             $exportDir = $ExportPath
         }
+        elseif ($NonInteractive) {
+            # Nothing can answer a prompt here, so -OutputPath is the way to export.
+            $exportDir = $null
+        }
+        elseif (-not (Test-FinOpsRichConsole)) {
+            $wantExport = Read-FinOpsAnswer '  Export results? [y/N]: '
+            if ($wantExport -match '^(?i)y') {
+                $entered = Read-FinOpsAnswer "  Path [$defaultPath]: "
+                $exportDir = if ($entered -eq '') { $defaultPath } else { $entered }
+            }
+            else {
+                $exportDir = $null
+            }
+        }
         else {
-            $defaultPath = Join-Path (Get-Location) 'FinOpsResults'
             Write-Host "  Export results?  [E] Export  [Enter] Skip" -ForegroundColor DarkGray
             $eKey = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
             if ($eKey.Character -eq 'e' -or $eKey.Character -eq 'E') {
@@ -2551,7 +2734,7 @@ tr:hover { background: #161b22; }
     $tenantId = (Get-AzContext).Tenant.Id
 
     # Step 2: Pick data source
-    $dataSource = Select-DataSource -TenantId $tenantId -Subscriptions $subs
+    $dataSource = Select-DataSource -TenantId $tenantId -Subscriptions $subs -Preselected $DataSource
 
     # If "Resource Graph only", disable cost modules
     $costModuleFns = @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-CostTrend',
@@ -2560,6 +2743,10 @@ tr:hover { background: #161b22; }
     if ($dataSource.Source -eq 'GraphOnly') {
         foreach ($mod in $scanModules) {
             if ($mod.Fn -in $costModuleFns) { $mod.Selected = $false }
+        }
+        if (-not ($scanModules | Where-Object { $_.Selected })) {
+            Write-Warning "Every selected scan needs cost data, which the 'Resource Graph only' source excludes. Nothing left to run."
+            return
         }
     }
 

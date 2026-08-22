@@ -20,12 +20,32 @@
     PowerShell 7+ (cross-platform) and requires the Az modules (Az.Accounts,
     Az.ResourceGraph, Az.Storage) and Reader access on the target scope.
 
+    Consoles that cannot drive the arrow-key menus, such as remoting sessions and some
+    editor terminals, automatically fall back to numbered prompts. Use NonInteractive to
+    run with no prompts at all.
+
     .PARAMETER SubscriptionId
     Optional subscription ID to scope the scan to a single subscription. When omitted,
     the tool discovers all accessible subscriptions.
 
     .PARAMETER OutputPath
     Optional directory for exported result files. Defaults to the tool's working folder.
+
+    .PARAMETER Scans
+    Optional list of scans to run, replacing the default selection. Accepts either the
+    scan function name, such as Get-OrphanedResources, or its menu label, such as
+    'Orphaned Resources'. Use 'All' to select every scan. An unrecognized name is an error.
+
+    .PARAMETER DataSource
+    Optional data source, which skips the data source prompt. Hub reads a deployed FinOps
+    hub, API queries Cost Management directly, and GraphOnly skips the cost scans. Hub
+    falls back to API when no hub is found in scope.
+
+    .PARAMETER NonInteractive
+    Runs without prompting, for automation and scheduled jobs. Every choice comes from the
+    parameters or their defaults: all accessible subscriptions in the current tenant unless
+    SubscriptionId is set, a detected hub or the Cost Management API unless DataSource is
+    set, and results are exported only when OutputPath is supplied.
 
     .EXAMPLE
     Start-FinOpsMultitool
@@ -37,6 +57,12 @@
     Start-FinOpsMultitool -SubscriptionId '00000000-0000-0000-0000-000000000000'
 
     Launches the TUI scoped to a single subscription.
+
+    .EXAMPLE
+    Start-FinOpsMultitool -NonInteractive -Scans Get-OrphanedResources, Get-IdleVMs -OutputPath './results'
+
+    Runs two scans without prompting and writes the CSV output to the results folder,
+    which is the shape to use from a pipeline or scheduled job.
 
     .LINK
     https://aka.ms/ftk/Start-FinOpsMultitool
@@ -50,7 +76,17 @@ function Start-FinOpsMultitool {
         [string]$SubscriptionId,
 
         [Parameter()]
-        [string]$OutputPath
+        [string]$OutputPath,
+
+        [Parameter()]
+        [string[]]$Scans,
+
+        [Parameter()]
+        [ValidateSet('Hub', 'API', 'GraphOnly')]
+        [string]$DataSource,
+
+        [Parameter()]
+        [switch]$NonInteractive
     )
 
     # Locate the Multitool TUI implementation
