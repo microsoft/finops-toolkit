@@ -1,0 +1,77 @@
+{
+  "skill_name": "microsoft-writing-style-guide",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "For Microsoft documentation, should I write plug-in, plugin, or add-in when describing an AI component that gives an agent access to external APIs?",
+      "expected_output": "Uses term lookup mode, routes through the term index to the plugin entry, recommends plugin as one word, preserves the distinction from add-in and add-on, and cites the reference file and heading.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Review this security sentence for Microsoft terminology: Add the user to the whitelist and place unknown devices on the blacklist.",
+      "expected_output": "Flags whitelist and blacklist as explicit terminology violations, recommends allow list and block list as two words, provides exact replacement text, and cites the matching A-Z entries.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Write a concise Microsoft-style error message for an invalid work email address. The required example format is someone@example.com.",
+      "expected_output": "Produces warm, direct, actionable UI text that explains the expected email format, avoids blame and jargon, and does not add unnecessary rationale.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Rewrite this for Microsoft product documentation: There are a number of configuration options which you can utilize in order to optimize performance.",
+      "expected_output": "Returns the concise rewrite first, removes there are, you can, utilize, and in order to, preserves the meaning, and briefly identifies only the material changes.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Review this heading and sentence: ## Configure Your New Account:  You can click the Save button in order to continue.",
+      "expected_output": "Uses review mode, flags title-style capitalization, the trailing colon, two spaces, weak you can phrasing, click, unnecessary button naming, and in order to; groups related issues and gives exact fixes with severity and rule sources.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Review this text and report only real Microsoft style violations: Select Save. The settings take effect immediately.",
+      "expected_output": "States that no material Microsoft style issues were found and does not invent low-value findings or rewrite already clear content.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Rewrite this alt text guidance inclusively: The image shows a disabled person confined to a wheelchair. Click here to see it.",
+      "expected_output": "Applies accessibility and bias-free guidance, avoids pity or confinement language, uses preference-aware person or identity wording as context supports, replaces click here with descriptive language, and preserves only visually meaningful information.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Make this globally ready: Our fall sale starts 10/11/26. Prices begin at $25 and setup is a piece of cake.",
+      "expected_output": "Removes the seasonal reference and idiom, replaces the ambiguous numeric date with an unambiguous month-name date, clarifies currency when audience context requires it, and cites global communications guidance.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "Rewrite this procedure step: Click on the Settings button, then click the Privacy tab, and check the Allow diagnostics checkbox.",
+      "expected_output": "Uses location-before-action structure and input-neutral verbs, avoids unnecessary UI element types, preserves literal labels in bold, and uses select or clear consistently with procedure guidance.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "Review an API reference that italicizes method names, rewrites parameter identifiers into friendly words, and changes the literal --force option to Force.",
+      "expected_output": "Protects code identifiers, syntax, and literal options from style rewriting, applies developer-content formatting guidance, and distinguishes prose improvements from technical tokens.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "Write a virtual-agent response for a failed payment that sounds helpful without saying Oops or blaming the customer.",
+      "expected_output": "Uses conversational bot guidance, gives the outcome and next action clearly, avoids Oops, excessive apology, blame, and unsupported explanations, and keeps the response concise.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "Audit and then rewrite this announcement: We are pleased to inform users that they can visit the admin page to execute setup. The page is required for all administrators.",
+      "expected_output": "Reviews before rewriting, distinguishes visit from required go to navigation, replaces execute with a clearer verb where appropriate, removes formal filler and weak can phrasing, preserves the requirement, and returns a concise rewrite plus material changes.",
+      "files": []
+    }
+  ]
+}
