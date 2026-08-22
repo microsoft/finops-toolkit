@@ -10,6 +10,31 @@
     Reserved Instances and/or Savings Plans. Outputs a CSV file that can be used as
     open data for FinOps Hub ingestion and PowerShell module lookups.
 
+    The Azure Retail Prices API does not guarantee a stable total order across paged
+    requests, so a single NextPageLink/$skip traversal of a large result set silently
+    drops a scattered fraction of rows and is not reproducible run-to-run. To work
+    around this, the script:
+      1. Discovers the serviceFamily values actually present in the API (one scan per
+         price type) and shards by those, so the shard list is self-correcting: a
+         newly added family (or a rename) is fetched automatically instead of being
+         silently excluded by a hardcoded allowlist. A discovery scan is itself a long
+         traversal and so is exposed to the ordering drop; for most families the drop
+         can only lose scattered rows (never all of them), but a tiny family with 1-2
+         meters could be missed entirely, so the discovered set is unioned with the
+         prior run's families (Add-BaselineShard) -- a previously-seen family is always
+         queried and can never be silently dropped.
+      2. Shards each query by those serviceFamily values so individual traversals stay
+         short (short traversals are far less exposed to the ordering instability), and
+      3. Repeats each shard, unioning results by meterId, until the collected set
+         stops growing (misses are random per pass, so the union converges).
+    A completeness guard aborts before writing if the fetched total falls materially
+    below the previously published total -- in aggregate and per family, so a family
+    that vanishes or under-fetches is caught even if growth elsewhere masks it -- so an
+    incomplete run can never overwrite good open-data with missing eligibility.
+
+    Pagination follows the documented NextPageLink verbatim; no undocumented $orderby
+    is used (a multi-field $orderby is now rejected by the API with HTTP 400).
+
     .PARAMETER OutputPath
     Path to the output CSV file. Defaults to src/open-data/CommitmentDiscountEligibility.csv.
 
@@ -22,50 +47,65 @@
 
 [CmdletBinding()]
 param(
-    [string]$OutputPath = "$PSScriptRoot/../open-data/CommitmentDiscountEligibility.csv"
+    [string]$OutputPath = "$PSScriptRoot/../open-data/CommitmentDiscountEligibility.csv",
+
+    # Completeness guard: abort without writing if this run's meter total falls more
+    # than this fraction below the previously published row count. Raise it for a
+    # deliberate large change (e.g. an initial migration that sheds retired meters).
+    # Constrained to 0..1: a value >1 would make the floor negative and silently
+    # disable the guard.
+    [ValidateRange(0.0, 1.0)]
+    [double]$MaxShrinkFraction = 0.15
 )
 
 $ErrorActionPreference = 'Stop'
 
 $apiBase = 'https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview'
 
-function Get-RetailPricePages
+# The serviceFamily values to shard by are discovered at runtime per price type (see
+# Get-ServiceFamily), not hardcoded: a positive `serviceFamily eq` allowlist would
+# silently drop any family it omits (e.g. a newly added or renamed family), and the
+# completeness guard's aggregate floor is too coarse to catch a small family. Discovery
+# makes the shard set self-correcting; the per-family guard catches any family that
+# disappears between runs.
+
+# Repeat each shard -- and each serviceFamily discovery scan -- until its unioned set
+# stops growing for $StablePasses consecutive passes, or $MaxPassesPerShard is reached
+# (treated as non-convergence, which aborts before the write).
+$MaxPassesPerShard = 4
+$StablePasses = 2
+
+function Get-RetailPriceSegment
 {
     <#
         .SYNOPSIS
-        Pages through the Azure Retail Prices API and invokes a callback per item.
+        Walks a single query to completion by following NextPageLink verbatim,
+        invoking a callback per item. No client-side $skip or $orderby.
+
+        .DESCRIPTION
+        Returns @{ Items = <count walked>; Pages = <responses fetched> }. Retries
+        429/5xx with backoff (honoring Retry-After) and throws on terminal 4xx.
+        NextPageLink already carries api-version, $filter, $skip, and meterRegion,
+        so it is followed verbatim. Pages lets the caller detect "fit in one page"
+        without assuming a fixed server page size.
     #>
     param(
         [string]$Filter,
         [string]$MeterRegion,
-        [string]$OrderBy,
-        [string]$ActivityName,
-        [int]$EstimatedItems = 0,
         [scriptblock]$OnItem
     )
 
-    $pageSize = 1000
-    $overlap = 10
+    # Do NOT send $top: the API's NextPageLink generator decrements $top by the page
+    # size each page (1000 -> 0 -> -1000 -> ...), and a negative $top returns HTTP 400.
+    # Omitting it lets the server default its page size and only advance $skip.
     $url = $apiBase
     if ($Filter) { $url += "&`$filter=$Filter" }
     if ($MeterRegion) { $url += "&meterRegion='$MeterRegion'" }
-    if ($OrderBy) { $url += "&`$orderby=$OrderBy" }
-    $url += "&`$top=$pageSize"
-    Write-Verbose "  API URL: $url"
-    $page = 0
+
     $totalItems = 0
-    $driftDetected = 0
-    $skip = 0
-    $startTime = [DateTime]::UtcNow
-    $estimatedPages = if ($EstimatedItems -gt 0) { [Math]::Ceiling($EstimatedItems / $pageSize) } else { 0 }
-    if ($estimatedPages -gt 0) { Write-Verbose "  Estimated pages: $estimatedPages (~$EstimatedItems items)" }
-
-    # Track the last $overlap items from each page for drift detection
-    $prevTail = @()
-
+    $pageCount = 0
     while ($url)
     {
-        $page++
         $retries = 0
         $maxRetries = 5
 
@@ -83,226 +123,417 @@ function Get-RetailPricePages
             }
             catch
             {
-                $statusCode = [int]$_.Exception.Response.StatusCode
+                # On network/DNS/timeout errors there is no HTTP response, so guard
+                # against a null .Response before reading status code / headers --
+                # otherwise indexing it throws here and bypasses the retry/backoff.
+                $errResponse = $_.Exception.Response
+                $statusCode = if ($errResponse) { [int]$errResponse.StatusCode } else { 0 }
                 if ($statusCode -and $statusCode -lt 500 -and $statusCode -ne 429)
                 {
-                    throw "HTTP $statusCode on page $page`: $_"
+                    throw "HTTP $statusCode`: $_"
                 }
 
                 $retries++
                 if ($retries -gt $maxRetries)
                 {
-                    throw "Failed after $maxRetries retries on page $page`: $_"
+                    throw "Failed after $maxRetries retries: $_"
                 }
 
-                $retryAfter = $_.Exception.Response.Headers['Retry-After']
+                $retryAfter = if ($errResponse) { $errResponse.Headers['Retry-After'] } else { $null }
                 $wait = if ($retryAfter) { [int]$retryAfter } else { [Math]::Pow(2, $retries) * 10 }
-                $reason = if ($statusCode -eq 429) { 'Rate limited' } else { "HTTP $statusCode" }
-                Write-Host "  $reason on page $page, retrying in ${wait}s (attempt $retries/$maxRetries)"
+                $reason = if ($statusCode -eq 429) { 'Rate limited' } elseif ($statusCode) { "HTTP $statusCode" } else { 'Network error' }
+                Write-Host "  $reason, retrying in ${wait}s (attempt $retries/$maxRetries)"
                 Start-Sleep -Seconds $wait
             }
         }
 
-        $items = $response.Items
-        $newItems = $items
-
-        # Drift detection: verify overlap with previous page
-        if ($prevTail.Count -gt 0 -and $items.Count -gt 0)
-        {
-            $overlapCount = [Math]::Min($prevTail.Count, $items.Count)
-            $matched = 0
-            for ($i = 0; $i -lt $overlapCount; $i++)
-            {
-                if ($items[$i].meterId -eq $prevTail[$i].meterId -and $items[$i].skuId -eq $prevTail[$i].skuId)
-                {
-                    $matched++
-                }
-                else
-                {
-                    break
-                }
-            }
-
-            if ($matched -eq $overlapCount)
-            {
-                Write-Verbose "  Page ${page}: overlap verified ($matched/$overlapCount items matched)"
-            }
-            else
-            {
-                $driftDetected++
-                Write-Warning "Drift detected on page $page! Expected overlap of $overlapCount items but only $matched matched."
-                Write-Warning "  Expected: $($prevTail[0].meterId) ($($prevTail[0].skuId))"
-                Write-Warning "  Got:      $($items[0].meterId) ($($items[0].skuId))"
-            }
-
-            # Strip the overlap items so we don't process them twice
-            $newItems = $items | Select-Object -Skip $matched
-        }
-
-        foreach ($item in $newItems)
+        $pageCount++
+        foreach ($item in $response.Items)
         {
             & $OnItem $item
         }
+        $totalItems += $response.Items.Count
 
-        $totalItems += $newItems.Count
+        # NextPageLink already carries api-version, $filter, $skip, and meterRegion.
+        $url = $response.NextPageLink
+    }
 
-        # Save the last $overlap items for next page's verification
-        if ($items.Count -ge $overlap)
-        {
-            $prevTail = $items[($items.Count - $overlap)..($items.Count - 1)]
-        }
-        else
-        {
-            $prevTail = $items
+    return @{ Items = $totalItems; Pages = $pageCount }
+}
+
+function Get-ServiceFamily
+{
+    <#
+        .SYNOPSIS
+        Scans a query and returns the distinct serviceFamily values present, repeating
+        the scan and unioning the results until the family set stops growing. Used to
+        build the shard list dynamically instead of hardcoding it.
+
+        .DESCRIPTION
+        Returns @{ Families = <sorted string[]>; Converged = <bool> }.
+
+        A single traversal is exposed to the API's unstable paging order. Families with
+        many meters survive it (the drop only loses scattered rows), but a family with
+        1-2 meters can lose its only row and be missed entirely. For a family seen in a
+        previous run Add-BaselineShard is a sufficient backstop, but it can only restore
+        what is already in the baseline -- a BRAND-NEW tiny family missed by discovery is
+        in neither the discovered set nor the baseline, so it is never fetched and both
+        completeness guards pass while the run publishes incomplete data. Repeating the
+        scan and unioning closes that hole: a family any pass sees enters the shard list.
+
+        Convergence follows the same policy as Invoke-ShardedUnion: stop once no pass has
+        added a family for $StablePasses consecutive passes, or at $MaxPasses (reported as
+        Converged = $false so the caller can refuse to publish rather than guess). A scan
+        that fit in a single response saw every row deterministically and stops at once.
+    #>
+    param(
+        [string]$Filter,
+        [string]$MeterRegion,
+        [string]$ActivityName,
+        [int]$MaxPasses,
+        [int]$StablePasses
+    )
+
+    $families = @{}
+    $stable = 0
+    $pass = 0
+    $singlePage = $false
+
+    while ($pass -lt $MaxPasses -and $stable -lt $StablePasses)
+    {
+        $pass++
+        $before = $families.Count
+        Write-Progress -Activity $ActivityName -Status "Discovering serviceFamily values (pass $pass)..."
+        $segment = Get-RetailPriceSegment -Filter $Filter -MeterRegion $MeterRegion -OnItem {
+            param($item)
+            if ($item.serviceFamily) { $families[$item.serviceFamily] = $true }
         }
 
-        # Build next page URL with overlap: back up by $overlap items.
-        # Advance by actual returned count (minus overlap) to stay aligned even
-        # if the API returns fewer items than $top requested.
-        if ($response.NextPageLink)
-        {
-            $skip += [Math]::Max(0, $items.Count - $overlap)
-            $url = $apiBase
-            if ($Filter) { $url += "&`$filter=$Filter" }
-            if ($MeterRegion) { $url += "&meterRegion='$MeterRegion'" }
-            if ($OrderBy) { $url += "&`$orderby=$OrderBy" }
-            $url += "&`$top=$pageSize&`$skip=$skip"
-        }
-        else
-        {
-            $url = $null
-        }
+        # Single response (no NextPageLink): the scan is complete and deterministic, so
+        # repeating it cannot surface another family. Keyed off the page count rather
+        # than an item-count threshold, so a server page-size change can't mask a miss.
+        if ($segment.Pages -le 1) { $singlePage = $true; break }
 
-        $status = if ($estimatedPages -gt 0) { "Page $page of ~$estimatedPages" } else { "Page $page" }
-        if ($estimatedPages -gt 0)
-        {
-            $pct = [Math]::Min(100, [Math]::Floor($page / $estimatedPages * 100))
-            $elapsed = ([DateTime]::UtcNow - $startTime).TotalSeconds
-            $secsRemaining = if ($page -gt 0) { ($elapsed / $page) * [Math]::Max(0, $estimatedPages - $page) } else { -1 }
-            Write-Progress -Activity $ActivityName -Status $status -PercentComplete $pct -SecondsRemaining $secsRemaining
-        }
-        else
-        {
-            Write-Progress -Activity $ActivityName -Status $status
-        }
+        if ($families.Count -eq $before) { $stable++ } else { $stable = 0 }
+        Write-Verbose "  Discovery pass $pass`: $($families.Count) families ($($families.Count - $before) new)"
     }
 
     Write-Progress -Activity $ActivityName -Completed
-    $elapsed = ([DateTime]::UtcNow - $startTime).TotalSeconds
-    Write-Host "  Done: $totalItems items across $page pages"
-    if ($driftDetected -gt 0)
-    {
-        Write-Warning "  Drift detected on $driftDetected pages -- results may be incomplete"
+    return @{
+        Families  = [string[]]($families.Keys | Sort-Object)
+        Converged = ($singlePage -or $stable -ge $StablePasses)
     }
-    Write-Verbose "  Elapsed: $([Math]::Round($elapsed, 1))s ($([Math]::Round($totalItems / [Math]::Max(1, $elapsed), 0)) items/s)"
+}
+
+function Assert-DiscoveryConverged
+{
+    <#
+        .SYNOPSIS
+        Throws if a serviceFamily discovery scan was still finding new families when it
+        hit the pass cap.
+
+        .DESCRIPTION
+        A shard list built from a non-converged discovery cannot be trusted to be
+        complete: a family that no pass ever saw is never fetched, and if it is also new
+        (so absent from the baseline that Add-BaselineShard restores from) neither
+        completeness guard can see the gap -- the run would publish silently partial
+        data. Called immediately after each discovery so an unpublishable run fails
+        before spending ~30 minutes of API calls on a fetch whose result is discarded.
+    #>
+    param(
+        [hashtable]$Discovery,
+        [string]$PriceType,
+        [int]$MaxPasses
+    )
+
+    if (-not $Discovery.Converged)
+    {
+        throw "Aborting: $PriceType serviceFamily discovery did not converge within $MaxPasses passes (still finding new families). The shard list may be missing a family, so the run could publish incomplete data; refusing to continue. Increase `$MaxPassesPerShard if the API is churning."
+    }
+}
+
+function Add-BaselineShard
+{
+    <#
+        .SYNOPSIS
+        Unions discovered families with the families seen in the prior run's baseline.
+
+        .DESCRIPTION
+        Get-ServiceFamily already repeats and unions its scans, so a family missed by one
+        pass is normally recovered by the next. This is the second line of defence for
+        families that were seen before: re-including every family from the prior baseline
+        guarantees a previously-seen family is always queried even if every discovery pass
+        misses it. The per-shard guard then catches any known family that genuinely shrank.
+        Returns the sorted, de-duplicated union.
+
+        Note this cannot help a brand-new family -- it is in no baseline yet -- which is
+        why discovery itself has to converge rather than relying on this backstop.
+    #>
+    param(
+        [string[]]$Discovered,
+        [hashtable]$BaselineSection
+    )
+    if (-not $BaselineSection) { return [string[]](@($Discovered) | Sort-Object -Unique) }
+    return [string[]](@($Discovered) + @($BaselineSection.Keys) | Sort-Object -Unique)
+}
+
+function Invoke-ShardedUnion
+{
+    <#
+        .SYNOPSIS
+        Runs a query sharded by serviceFamily, repeating each shard and unioning the
+        collected meterId keys until the set stabilizes (or a pass cap is hit).
+
+        .DESCRIPTION
+        Returns a hashtable: Keys = @{ meterId -> $true } for all collected meters;
+        NonConverged = list of shards that hit the pass cap while still adding keys;
+        ShardCounts = @{ shard -> collected key count } for the per-shard guard.
+        $CollectKey receives an item and returns the meterId to record, or $null to
+        skip it (used to gate Savings Plan eligibility on a non-empty savingsPlan).
+    #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '',
+        Justification = 'CollectKey is invoked inside the nested -OnItem closure passed to Get-RetailPriceSegment, which the analyzer cannot trace. Target must be empty to suppress on PSScriptAnalyzer 1.x.')]
+    param(
+        [string]$BaseFilter,
+        [string[]]$Shards,
+        [string]$MeterRegion,
+        [scriptblock]$CollectKey,
+        [string]$ActivityName
+    )
+
+    $union = @{}
+    $nonConverged = @()
+    $shardCounts = @{}
+    $shardNum = 0
+
+    foreach ($shard in $Shards)
+    {
+        $shardNum++
+        # URL-encode the serviceFamily value. In a query string an unescaped '+' is
+        # decoded server-side to a space, so a family like 'AI + Machine Learning'
+        # would match nothing and be silently dropped (168 meters today). The server
+        # decodes the escape back to the literal value before OData parsing.
+        $encodedShard = [uri]::EscapeDataString($shard)
+        $shardFilter = "$BaseFilter and serviceFamily eq '$encodedShard'"
+        $shardKeys = @{}
+        $stable = 0
+        $pass = 0
+        $itemsLastPass = 0
+
+        $singlePage = $false
+        while ($pass -lt $MaxPassesPerShard -and $stable -lt $StablePasses)
+        {
+            $pass++
+            $before = $shardKeys.Count
+            $segment = Get-RetailPriceSegment -Filter $shardFilter -MeterRegion $MeterRegion -OnItem {
+                param($item)
+                $key = & $CollectKey $item
+                if ($key) { $shardKeys[$key.ToLowerInvariant()] = $true }
+            }
+            $itemsLastPass = $segment.Items
+
+            # A shard that fit in a single response (the API returned no NextPageLink)
+            # delivered its complete, deterministic set -- repeating cannot add anything,
+            # so stop. Only paginated shards are exposed to the unstable-order drop and
+            # need repeats. Keyed off the page count rather than a hardcoded page size,
+            # so a change to the server's default page size cannot mask a real miss.
+            if ($segment.Pages -le 1) { $singlePage = $true; break }
+
+            $added = $shardKeys.Count - $before
+            if ($added -eq 0) { $stable++ } else { $stable = 0 }
+
+            $pct = [Math]::Min(100, [Math]::Floor($shardNum / $Shards.Count * 100))
+            Write-Progress -Activity $ActivityName -Status "$shard (pass $pass): $($shardKeys.Count) keys" -PercentComplete $pct
+        }
+
+        foreach ($k in $shardKeys.Keys) { $union[$k] = $true }
+        $shardCounts[$shard] = $shardKeys.Count
+
+        if (-not $singlePage -and $stable -lt $StablePasses)
+        {
+            $nonConverged += $shard
+            Write-Warning "  Shard '$shard' did not converge within $MaxPassesPerShard passes (still adding keys)."
+        }
+        Write-Host "  $shard : $($shardKeys.Count) keys ($itemsLastPass items/pass, $pass pass(es))"
+    }
+
+    Write-Progress -Activity $ActivityName -Completed
+    return @{ Keys = $union; NonConverged = $nonConverged; ShardCounts = $shardCounts }
+}
+
+# Per-shard baseline (sidecar alongside the CSV). The published CSV carries only
+# MeterId + the two flags -- no serviceFamily -- so per-shard counts from the last
+# good run are persisted here to let the completeness guard catch a single shard
+# that systematically under-fetches (which an aggregate-only check could miss when
+# growth elsewhere masks it). Committed/pushed beside the CSV so it survives the
+# fresh checkout of each scheduled CI run.
+$ShardCountPath = [System.IO.Path]::ChangeExtension($OutputPath, 'shardcounts.json')
+
+function Get-ShardShortfall
+{
+    <#
+        .SYNOPSIS
+        Returns per-shard guard violations: families whose collected count fell more
+        than $MaxShrinkFraction below the baseline. Empty when the baseline is
+        absent (first run) or every family is within tolerance.
+
+        .DESCRIPTION
+        Iterates the BASELINE families, not the current run's, so a family that
+        disappears entirely this run (e.g. discovery missed it, or a rename) is caught
+        as a 100% shortfall against its baseline -- iterating the current set would
+        skip a vanished family and let the silent drop through. New families (present
+        now, absent from the baseline) need no check and are simply not iterated.
+    #>
+    param(
+        [string]$Section,
+        [hashtable]$Current,
+        [hashtable]$Baseline,
+        [double]$MaxShrinkFraction
+    )
+
+    $violations = @()
+    if (-not $Baseline) { return $violations }
+    foreach ($shard in $Baseline.Keys)
+    {
+        $prev = $Baseline[$shard]
+        if (-not $prev) { continue }   # previously-empty shard: nothing to compare
+        # Ceiling, not Floor: Floor rounds the bound down, allowing up to ~1 extra row
+        # of shrink -- and for a baseline of 1 it floors to 0, so a drop to 0 (the
+        # family vanishing) would pass. Ceiling preserves the fractional bound and
+        # flags small-baseline regressions.
+        $floor = [Math]::Ceiling($prev * (1 - $MaxShrinkFraction))
+        $cur = if ($Current.ContainsKey($shard)) { $Current[$shard] } else { 0 }
+        if ($cur -lt $floor)
+        {
+            $violations += "$Section/$shard $cur (baseline $prev, floor $floor)"
+        }
+    }
+    return $violations
 }
 
 # -----------------------------------------------------------------------
-# Step 1: Load existing CSV as a cache to preserve meters not seen this run
+# Step 1: Load the previously published CSV. Used only for the completeness-guard
+# baseline and a change summary -- its rows are NOT preserved. Meters not seen this
+# run are dropped (so retired meters age out instead of accumulating forever).
 # -----------------------------------------------------------------------
-$cachedRi = @{}
-$cachedSp = @{}
+$cached = @{}
 $cachedTotal = 0
 
 if (Test-Path $OutputPath)
 {
-    Write-Host "Loading existing CSV as cache..."
-    Write-Verbose "  Cache file: $OutputPath"
+    Write-Host "Loading previously published CSV..."
+    Write-Verbose "  File: $OutputPath"
     $existing = Import-Csv -Path $OutputPath
     foreach ($row in $existing)
     {
-        $key = $row.MeterId.ToLowerInvariant()
-        if ($row.x_CommitmentDiscountSpendEligibility -eq 'Eligible') { $cachedRi[$key] = $true }
-        if ($row.x_CommitmentDiscountUsageEligibility -eq 'Eligible') { $cachedSp[$key] = $true }
+        $cached[$row.MeterId.ToLowerInvariant()] = "$($row.x_CommitmentDiscountSpendEligibility)|$($row.x_CommitmentDiscountUsageEligibility)"
     }
     $cachedTotal = $existing.Count
-    Write-Host "  Cached meters: $cachedTotal (RI: $($cachedRi.Count), SP: $($cachedSp.Count))"
+    Write-Host "  Previous CSV: $cachedTotal meters"
+}
+
+$cachedShardCounts = $null
+if (Test-Path $ShardCountPath)
+{
+    $cachedShardCounts = Get-Content -Path $ShardCountPath -Raw | ConvertFrom-Json -AsHashtable
+    Write-Verbose "  Loaded per-shard baseline from $ShardCountPath"
 }
 
 # -----------------------------------------------------------------------
-# Step 2: Reservation-eligible meters
+# Step 2: Reservation-eligible meters (sharded by serviceFamily, union to stable)
 # -----------------------------------------------------------------------
-Write-Host "Fetching Reservation prices..."
-$riMeters = @{}
-
-Get-RetailPricePages -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -OrderBy 'meterId asc, skuId asc' -ActivityName 'Fetching Reservation prices' -EstimatedItems ($cachedRi.Count * 2) -OnItem {
+Write-Host "Discovering Reservation serviceFamily values..."
+$riDiscovery = Get-ServiceFamily -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -ActivityName 'Discovering Reservation families' -MaxPasses $MaxPassesPerShard -StablePasses $StablePasses
+Assert-DiscoveryConverged -Discovery $riDiscovery -PriceType 'Reservation' -MaxPasses $MaxPassesPerShard
+$riShards = Add-BaselineShard -Discovered $riDiscovery.Families -BaselineSection $cachedShardCounts['Reservation']
+Write-Host "  Found $($riShards.Count) serviceFamily values: $($riShards -join ', ')"
+Write-Host "Fetching Reservation prices (sharded by serviceFamily)..."
+$riResult = Invoke-ShardedUnion -BaseFilter "priceType eq 'Reservation'" -Shards $riShards -MeterRegion 'primary' -ActivityName 'Fetching Reservation prices' -CollectKey {
     param($item)
-    $key = $item.meterId.ToLowerInvariant()
-    if (-not $riMeters.ContainsKey($key))
-    {
-        $riMeters[$key] = $true
-    }
+    $item.meterId
 }
-
+$riMeters = $riResult.Keys
 Write-Host "  RI-eligible meters: $($riMeters.Count)"
 
 # -----------------------------------------------------------------------
-# Step 3: Savings Plan-eligible meters
-# The savingsPlan array is embedded in Consumption items, so we page
-# through primary Consumption meters and check for its presence.
+# Step 3: Savings Plan-eligible meters (sharded by serviceFamily, union to stable)
+# The savingsPlan array is embedded in Consumption items, so we page through
+# primary Consumption meters and record those with a non-empty savingsPlan.
 # -----------------------------------------------------------------------
-Write-Host "Fetching Consumption prices (checking for Savings Plan eligibility)..."
-$spMeters = @{}
-
-Get-RetailPricePages -Filter "priceType eq 'Consumption'" -MeterRegion 'primary' -OrderBy 'meterId asc, skuId asc' -ActivityName 'Fetching Consumption prices' -EstimatedItems ($cachedTotal * 5) -OnItem {
+Write-Host "Discovering Consumption serviceFamily values..."
+$spDiscovery = Get-ServiceFamily -Filter "priceType eq 'Consumption'" -MeterRegion 'primary' -ActivityName 'Discovering Consumption families' -MaxPasses $MaxPassesPerShard -StablePasses $StablePasses
+Assert-DiscoveryConverged -Discovery $spDiscovery -PriceType 'Consumption' -MaxPasses $MaxPassesPerShard
+$spShards = Add-BaselineShard -Discovered $spDiscovery.Families -BaselineSection $cachedShardCounts['Consumption']
+Write-Host "  Found $($spShards.Count) serviceFamily values: $($spShards -join ', ')"
+Write-Host "Fetching Consumption prices (sharded by serviceFamily; checking for Savings Plan eligibility)..."
+$spResult = Invoke-ShardedUnion -BaseFilter "priceType eq 'Consumption'" -Shards $spShards -MeterRegion 'primary' -ActivityName 'Fetching Consumption prices' -CollectKey {
     param($item)
-    if ($item.savingsPlan -and $item.savingsPlan.Count -gt 0)
-    {
-        $key = $item.meterId.ToLowerInvariant()
-        if (-not $spMeters.ContainsKey($key))
-        {
-            $spMeters[$key] = $true
-        }
-    }
+    if ($item.savingsPlan -and $item.savingsPlan.Count -gt 0) { $item.meterId } else { $null }
 }
-
+$spMeters = $spResult.Keys
 Write-Host "  SP-eligible meters: $($spMeters.Count)"
 
 # -----------------------------------------------------------------------
-# Step 4: Merge current run with cache and write output
+# Step 3b: Completeness guard. Abort before writing if the run did not converge or
+# the meter total dropped materially below the published total -- an incomplete run
+# must never overwrite good open-data (a missed SP flag would flip Eligible -> Not).
 # -----------------------------------------------------------------------
-Write-Host "`nMerging results..."
-$mergeStart = [DateTime]::UtcNow
-Write-Verbose "  Seen meters: $($riMeters.Count) RI + $($spMeters.Count) SP"
-
 $seenSet = @{}
 foreach ($key in $riMeters.Keys) { $seenSet[$key] = $true }
 foreach ($key in $spMeters.Keys) { $seenSet[$key] = $true }
+$seenTotal = $seenSet.Count
 
-$allMeterIds = @{}
-foreach ($key in $seenSet.Keys) { $allMeterIds[$key] = $true }
-foreach ($key in $cachedRi.Keys) { $allMeterIds[$key] = $true }
-foreach ($key in $cachedSp.Keys) { $allMeterIds[$key] = $true }
+$nonConverged = @($riResult.NonConverged + $spResult.NonConverged | Sort-Object -Unique)
+if ($nonConverged.Count -gt 0)
+{
+    throw "Aborting before write: shard(s) did not converge within $MaxPassesPerShard passes: $($nonConverged -join ', '). Increase `$MaxPassesPerShard or sub-shard these families by serviceName."
+}
 
-$sortedIds = [string[]]($allMeterIds.Keys | Sort-Object)
+if ($cachedTotal -gt 0)
+{
+    $floor = [Math]::Ceiling($cachedTotal * (1 - $MaxShrinkFraction))
+    if ($seenTotal -lt $floor)
+    {
+        throw "Aborting before write: fetched $seenTotal meters, below the floor of $floor (cached $cachedTotal, max shrink $([Math]::Round($MaxShrinkFraction * 100))%). Run is likely incomplete; refusing to overwrite published data."
+    }
+}
+
+# Per-shard guard: a single family that systematically under-fetches can be hidden
+# from the aggregate check by growth elsewhere, so compare each shard against its
+# own baseline (when one exists from a prior run). $cachedShardCounts is a hashtable
+# (ConvertFrom-Json -AsHashtable), so index its sections by key; null-safe when no
+# baseline file exists.
+$shardShortfall = @()
+$shardShortfall += Get-ShardShortfall -Section 'Reservation' -Current $riResult.ShardCounts -Baseline $cachedShardCounts['Reservation'] -MaxShrinkFraction $MaxShrinkFraction
+$shardShortfall += Get-ShardShortfall -Section 'Consumption' -Current $spResult.ShardCounts -Baseline $cachedShardCounts['Consumption'] -MaxShrinkFraction $MaxShrinkFraction
+if ($shardShortfall.Count -gt 0)
+{
+    throw "Aborting before write: shard(s) fell more than $([Math]::Round($MaxShrinkFraction * 100))% below baseline: $($shardShortfall -join '; '). A family likely under-fetched; refusing to overwrite published data. Raise -MaxShrinkFraction for a deliberate large change."
+}
+Write-Host "Completeness check passed: $seenTotal meters seen this run (cached $cachedTotal)."
+
+# -----------------------------------------------------------------------
+# Step 4: Build the output from this run's converged sets (write fresh) and
+# summarize the change versus the previously published CSV. Meters present only in
+# the old CSV are dropped (retired); the guard above already ensured the run is whole.
+# -----------------------------------------------------------------------
+Write-Host "`nBuilding output..."
+$sortedIds = [string[]]($seenSet.Keys | Sort-Object)
 
 $added = 0
-$modified = 0
-$preserved = 0
+$changed = 0
 $unchanged = 0
 
 $rows = [System.Collections.ArrayList]::new($sortedIds.Count)
 foreach ($meterId in $sortedIds)
 {
-    $wasCached = $cachedRi.ContainsKey($meterId) -or $cachedSp.ContainsKey($meterId)
-    $wasSeen = $seenSet.ContainsKey($meterId)
+    $ri = if ($riMeters.ContainsKey($meterId)) { 'Eligible' } else { 'Not Eligible' }
+    $sp = if ($spMeters.ContainsKey($meterId)) { 'Eligible' } else { 'Not Eligible' }
+    $val = "$ri|$sp"
 
-    if ($wasSeen)
-    {
-        $ri = if ($riMeters.ContainsKey($meterId)) { 'Eligible' } else { 'Not Eligible' }
-        $sp = if ($spMeters.ContainsKey($meterId)) { 'Eligible' } else { 'Not Eligible' }
-
-        if (-not $wasCached) { $added++ }
-        elseif (($cachedRi.ContainsKey($meterId)) -ne ($riMeters.ContainsKey($meterId)) -or
-            ($cachedSp.ContainsKey($meterId)) -ne ($spMeters.ContainsKey($meterId))) { $modified++ }
-        else { $unchanged++ }
-    }
-    else
-    {
-        $ri = if ($cachedRi.ContainsKey($meterId)) { 'Eligible' } else { 'Not Eligible' }
-        $sp = if ($cachedSp.ContainsKey($meterId)) { 'Eligible' } else { 'Not Eligible' }
-        $preserved++
-    }
+    if (-not $cached.ContainsKey($meterId)) { $added++ }
+    elseif ($cached[$meterId] -ne $val) { $changed++ }
+    else { $unchanged++ }
 
     $null = $rows.Add([PSCustomObject]@{
             MeterId                              = $meterId
@@ -311,15 +542,25 @@ foreach ($meterId in $sortedIds)
         })
 }
 
-Write-Verbose "  Merge completed in $([Math]::Round(([DateTime]::UtcNow - $mergeStart).TotalSeconds, 1))s"
-Write-Host "`nMerge summary:"
+$removed = 0
+foreach ($key in $cached.Keys) { if (-not $seenSet.ContainsKey($key)) { $removed++ } }
+
+Write-Host "`nChange summary (vs previous CSV):"
 Write-Host "  Added:     $added"
-Write-Host "  Modified:  $modified"
+Write-Host "  Changed:   $changed"
 Write-Host "  Unchanged: $unchanged"
-Write-Host "  Preserved: $preserved (not seen this run, kept from cache)"
+Write-Host "  Removed:   $removed (retired meters no longer returned by the API)"
 
 Write-Verbose "Writing CSV to $OutputPath..."
 $writeStart = [DateTime]::UtcNow
 $rows | Export-Csv -Path $OutputPath -UseQuotes Always -NoTypeInformation -Encoding utf8
 Write-Verbose "  CSV write completed in $([Math]::Round(([DateTime]::UtcNow - $writeStart).TotalSeconds, 1))s"
 Write-Host "Wrote $($rows.Count) meters to $OutputPath"
+
+# Persist this run's per-shard counts as the baseline for the next run's guard.
+$newShardCounts = [ordered]@{
+    Reservation = $riResult.ShardCounts
+    Consumption = $spResult.ShardCounts
+}
+$newShardCounts | ConvertTo-Json -Depth 4 | Set-Content -Path $ShardCountPath -Encoding utf8 -NoNewline
+Write-Host "Wrote per-shard baseline to $ShardCountPath"

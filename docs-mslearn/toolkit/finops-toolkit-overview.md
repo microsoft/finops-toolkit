@@ -59,6 +59,17 @@ If you have any questions or comments on past or future releases, [join the conv
 
 <br>
 
+## Looking for more?
+
+The FinOps toolkit is designed to be extended. Explore independent tools, implementation services, and advisory offerings that work with the FinOps toolkit.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Explore the ecosystem](https://microsoft.github.io/finops-toolkit/ecosystem)
+<!-- prettier-ignore-end -->
+
+<br>
+
 ## Get involved
 
 The FinOps toolkit is an open source project. We have many ideas on the long-term vision, but are more interested in learning from the community to drive the product direction. There are many ways you can contribute to the project. You can participate in discussions and request features to review and submitting pull requests.

@@ -266,17 +266,17 @@
         },
         {
             "name": "AzureOptimization_ExportPricesWeekly",
-            "offset": "PT1H35M",
+            "offset": "PT1H05M",
             "frequency": "Week"
         },
         {
             "name": "AzureOptimization_IngestPricesheetWeekly",
-            "offset": "PT2H10M",
+            "offset": "PT1H35M",
             "frequency": "Week"
         },
         {
             "name": "AzureOptimization_IngestReservationsPriceWeekly",
-            "offset": "PT2H10M",
+            "offset": "PT1H35M",
             "frequency": "Week"
         },
         {
@@ -304,14 +304,14 @@
         {
             "runbook": {
                 "name": "runbooks/data-collection/Ingest-OptimizationCSVExportsToLogAnalytics.ps1",
-                "version": "1.6.2.0"
+                "version": "2.0.0.0"
             },
             "source": "dataCollection"
         },
         {
             "runbook": {
                 "name": "runbooks/recommendations/Ingest-RecommendationsToSQLServer.ps1",
-                "version": "1.7.1.0"
+                "version": "1.7.2.0"
             },
             "source": "recommendations",
             "schedule": "AzureOptimization_IngestRecommendationsWeekly"
@@ -319,7 +319,7 @@
         {
             "runbook": {
                 "name": "runbooks/recommendations/Ingest-RecommendationsToLogAnalytics.ps1",
-                "version": "1.1.1.0"
+                "version": "2.0.0.0"
             },
             "source": "recommendations",
             "schedule": "AzureOptimization_IngestRecommendationsWeekly"
@@ -327,7 +327,7 @@
         {
             "runbook": {
                 "name": "runbooks/recommendations/Ingest-SuppressionsToLogAnalytics.ps1",
-                "version": "1.1.0.0"
+                "version": "2.0.0.0"
             },
             "source": "recommendations",
             "schedule": "AzureOptimization_IngestSuppressionsWeekly"
@@ -521,7 +521,7 @@
         {
             "runbook": {
                 "name": "runbooks/data-collection/Export-ConsumptionToBlobStorage.ps1",
-                "version": "2.1.1.0"
+                "version": "2.1.2.0"
             },
             "container": "consumptionexports",
             "requiredVariables": [
@@ -532,7 +532,7 @@
         {
             "runbook": {
                 "name": "runbooks/data-collection/Export-RBACAssignmentsToBlobStorage.ps1",
-                "version": "1.1.1.0"
+                "version": "1.1.2.0"
             },
             "container": "rbacexports",
             "requiredVariables": [
@@ -689,7 +689,7 @@
         {
             "runbook": {
                 "name": "runbooks/data-collection/Export-PriceSheetToBlobStorage.ps1",
-                "version": "1.1.2.0"
+                "version": "1.1.3.0"
             },
             "container": "pricesheetexports",
             "requiredVariables": [
@@ -704,7 +704,7 @@
         {
             "runbook": {
                 "name": "runbooks/data-collection/Export-ReservationsPriceToBlobStorage.ps1",
-                "version": "1.0.2.0"
+                "version": "1.0.3.0"
             },
             "container": "reservationspriceexports",
             "requiredVariables": [
@@ -1052,7 +1052,7 @@
     "overwriteVariables": [
         {
             "name": "AzureOptimization_LogAnalyticsChunkSize",
-            "value": 6000
+            "value": 150
         }
     ]
 }

@@ -547,7 +547,8 @@ if ("N", "n" -contains $workspaceReuse)
     $laWorkspaceResourceGroup = $resourceGroupName
 
     $la = Get-AzOperationalInsightsWorkspace -ResourceGroupName $resourceGroupName -Name $laWorkspaceName -ErrorAction SilentlyContinue
-    if ($null -ne $la) {
+    if ($null -ne $la)
+    {
         Write-Host "(The Log Analytics Workspace was already deployed)" -ForegroundColor Green
     }
 }
@@ -1123,6 +1124,32 @@ if ("Y", "y" -contains $continueInput)
         #endregion
     }
 
+    #region Ensuring Data Collection Endpoint was created (in case of partial upgrade)
+    $dceName = "$automationAccountName-dce"
+    $dce = Get-AzDataCollectionEndpoint -ResourceGroupName $ResourceGroupName -Name $dceName -ErrorAction SilentlyContinue
+    if ($null -eq $dce)
+    {
+        Write-Host "Creating Data Collection Endpoint $dceName..." -ForegroundColor Green
+        $dce = New-AzDataCollectionEndpoint -ResourceGroupName $ResourceGroupName -Name $dceName -Location $targetLocation `
+            -Tag $resourceTags -NetworkAclsPublicNetworkAccess Enabled
+    }
+    if ($null -ne $dce.LogIngestionEndpoint)
+    {
+        $dceIngestionEndpointVariableName = "AzureOptimization_DCEIngestionEndpoint"
+        $dceIngestionEndpointVariable = Get-AzAutomationVariable -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Name $dceIngestionEndpointVariableName -ErrorAction SilentlyContinue
+        if ($null -eq $dceIngestionEndpointVariable)
+        {
+            Write-Host "Creating Automation Variable with Data Collection Endpoint ingestion endpoint..." -ForegroundColor Green
+            New-AzAutomationVariable -Name $dceIngestionEndpointVariableName -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Value $dce.LogIngestionEndpoint -Encrypted $false | Out-Null
+        }
+    }
+    else
+    {
+        throw "Data Collection Endpoint $dceName does not have a log ingestion endpoint yet. Please, check it was created successfully."
+    }
+    #endregion
+
+
     #region Schedules reset
     if ($upgradingSchedules)
     {
@@ -1167,7 +1194,7 @@ if ("Y", "y" -contains $continueInput)
         $deploymentDate = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd")
         Write-Host "Setting initial deployment date ($deploymentDate)..." -ForegroundColor Green
         New-AzAutomationVariable -Name $deploymentDateVariableName -Description "The date of the initial engine deployment" `
-            -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Value $deploymentDate -Encrypted $false
+            -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Value $deploymentDate -Encrypted $false | Out-Null
     }
     #endregion
 
@@ -1185,12 +1212,24 @@ if ("Y", "y" -contains $continueInput)
     $sa = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName
     $auto = Get-AzAutomationAccount -Name $automationAccountName -ResourceGroupName $resourceGroupName
     $spnId = $auto.Identity.PrincipalId
-    $storageBlobContributorRoleId = "ba92f5b4-2d11-453d-a403-e96b0029c9fe" # Storage Blob Data Contributor role
-    $roleAssignment = Get-AzRoleAssignment -ObjectId $spnId -Scope $sa.Id -ErrorAction SilentlyContinue
-    if (-not($roleAssignment) -or -not($roleAssignment.RoleDefinitionId -contains $storageBlobContributorRoleId))
+
+    if ($spnId)
     {
-        Write-Host "Granting Storage Blob Data Contributor role to the Automation Account identity..." -ForegroundColor Green
-        New-AzRoleAssignment -ObjectId $spnId -RoleDefinitionId $storageBlobContributorRoleId -Scope $sa.Id | Out-Null
+        $storageBlobContributorRoleId = "ba92f5b4-2d11-453d-a403-e96b0029c9fe" # Storage Blob Data Contributor role
+        $roleAssignment = Get-AzRoleAssignment -ObjectId $spnId -Scope $sa.Id -ErrorAction SilentlyContinue
+        if (-not($roleAssignment) -or -not($roleAssignment.RoleDefinitionId -contains $storageBlobContributorRoleId))
+        {
+            Write-Host "Granting Storage Blob Data Contributor role to the Automation Account identity..." -ForegroundColor Green
+            New-AzRoleAssignment -ObjectId $spnId -RoleDefinitionId $storageBlobContributorRoleId -Scope $sa.Id | Out-Null
+        }
+        else
+        {
+            Write-Host "Automation Account identity already has the Storage Blob Data Contributor role at the Storage Account level." -ForegroundColor Green
+        }
+    }
+    else
+    {
+        Write-Host "Automation Account does not have a system-assigned identity. Manually grant the Storage Blob Data Contributor role to the managed identity used by AOE on the $($sa.Id) resource." -ForegroundColor Yellow
     }
 
     #region Open SQL Server firewall rule
@@ -1332,17 +1371,25 @@ if ("Y", "y" -contains $continueInput)
             $Cmd.ExecuteReader()
             $Conn.Close()
 
-            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
-            $Conn.AccessToken = $dbToken
-            $Conn.Open()
+            if ($spnId)
+            {
+                $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
+                $Conn.AccessToken = $dbToken
+                $Conn.Open()
 
-            $createUserQuery = (Get-Content -Path "./model/automation-user.sql").Replace("<automation-account-name>", $automationAccountName)
-            $Cmd = New-Object system.Data.SqlClient.SqlCommand
-            $Cmd.Connection = $Conn
-            $Cmd.CommandTimeout = $SqlTimeout
-            $Cmd.CommandText = $createUserQuery
-            $Cmd.ExecuteReader()
-            $Conn.Close()
+                $createUserQuery = (Get-Content -Path "./model/automation-user.sql").Replace("<automation-account-name>", $automationAccountName)
+                $Cmd = New-Object system.Data.SqlClient.SqlCommand
+                $Cmd.Connection = $Conn
+                $Cmd.CommandTimeout = $SqlTimeout
+                $Cmd.CommandText = $createUserQuery
+                $Cmd.ExecuteReader()
+                $Conn.Close()
+            }
+            else
+            {
+                Write-Host "Automation Account does not have a system-assigned identity. Please, create a SQL user for the identity used by AOE with db_datareader and db_datawriter roles on the $databaseName database." -ForegroundColor Yellow
+                Write-Host "You can use the T-SQL script in model/automation-user.sql as a template, replacing <automation-account-name> with the name of the AOE Managed Identity." -ForegroundColor Yellow
+            }
 
             $connectionSuccess = $true
         }
@@ -1362,6 +1409,26 @@ if ("Y", "y" -contains $continueInput)
             Remove-AzSqlServerFirewallRule -FirewallRuleName $tempFirewallRuleName -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -ErrorAction Continue | Out-Null
         }
         throw "Could not establish connection to SQL."
+    }
+    #endregion
+
+    #region DCR-based ingestion setup
+    Write-Host "Setting up Log Analytics custom tables and Data Collection Rules for DCR-based ingestion..." -ForegroundColor Green
+    try
+    {
+        .\Setup-LogAnalyticsTablesAndDCRs.ps1 `
+            -ResourceGroupName $resourceGroupName `
+            -AutomationAccountName $automationAccountName `
+            -WorkspaceName $laWorkspaceName `
+            -WorkspaceResourceGroupName $laWorkspaceResourceGroup `
+            -SqlServerName $sqlServerName `
+            -SqlDatabaseName $sqlDatabaseName `
+            -CloudEnvironment $cloudEnvironment
+    }
+    catch
+    {
+        Write-Host "Could not complete the Log Analytics tables and DCR setup: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "You can re-run Setup-LogAnalyticsTablesAndDCRs.ps1 manually after resolving the issue." -ForegroundColor Yellow
     }
     #endregion
 
@@ -1409,95 +1476,86 @@ if ("Y", "y" -contains $continueInput)
     if (!$silentDeploy)
     {
         #region Grant Microsoft Entra ID role to AOE principal
-        if ($null -eq $spnId)
+        if ($spnId)
         {
-            $auto = Get-AzAutomationAccount -Name $automationAccountName -ResourceGroupName $resourceGroupName
-            $spnId = $auto.Identity.PrincipalId
-            if ($null -eq $spnId)
+            try
             {
-                $runAsConnection = Get-AzAutomationConnection -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Name AzureRunAsConnection -ErrorAction SilentlyContinue
-                $runAsAppId = $runAsConnection.FieldDefinitionValues.ApplicationId
-                if ($runAsAppId)
+                Import-Module Microsoft.Graph.Authentication
+                Import-Module Microsoft.Graph.Identity.DirectoryManagement
+
+                Write-Host "Granting Microsoft Entra ID Global Reader role to the Automation Account (requires administrative permissions in Microsoft Entra and MS Graph PowerShell SDK >= 2.4.0)..." -ForegroundColor Green
+
+                #workaround for https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/888
+                $localPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
+                if (-not(Get-Item "$localPath\.graph\" -ErrorAction SilentlyContinue))
                 {
-                    $runAsServicePrincipal = Get-AzADServicePrincipal -ApplicationId $runAsAppId
-                    $spnId = $runAsServicePrincipal.Id
+                    New-Item -Type Directory "$localPath\.graph"
                 }
-            }
-        }
 
-        try
-        {
-            Import-Module Microsoft.Graph.Authentication
-            Import-Module Microsoft.Graph.Identity.DirectoryManagement
-
-            Write-Host "Granting Microsoft Entra ID Global Reader role to the Automation Account (requires administrative permissions in Microsoft Entra and MS Graph PowerShell SDK >= 2.4.0)..." -ForegroundColor Green
-
-            #workaround for https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/888
-            $localPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
-            if (-not(Get-Item "$localPath\.graph\" -ErrorAction SilentlyContinue))
-            {
-                New-Item -Type Directory "$localPath\.graph"
-            }
-
-            switch ($cloudEnvironment)
-            {
-                "AzureUSGovernment"
+                switch ($cloudEnvironment)
                 {
-                    $graphEnvironment = "USGov"
-                    break
+                    "AzureUSGovernment"
+                    {
+                        $graphEnvironment = "USGov"
+                        break
+                    }
+                    "AzureChinaCloud"
+                    {
+                        $graphEnvironment = "China"
+                        break
+                    }
+                    "AzureGermanCloud"
+                    {
+                        $graphEnvironment = "Germany"
+                        break
+                    }
+                    default
+                    {
+                        $graphEnvironment = "Global"
+                    }
                 }
-                "AzureChinaCloud"
-                {
-                    $graphEnvironment = "China"
-                    break
-                }
-                "AzureGermanCloud"
-                {
-                    $graphEnvironment = "Germany"
-                    break
-                }
-                default
-                {
-                    $graphEnvironment = "Global"
-                }
-            }
 
-            Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory", "Directory.Read.All" -UseDeviceAuthentication -Environment $graphEnvironment -NoWelcome
+                Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory", "Directory.Read.All" -UseDeviceAuthentication -Environment $graphEnvironment -NoWelcome
 
-            $globalReaderRole = Get-MgDirectoryRole -ExpandProperty Members -Property Id, Members, DisplayName, RoleTemplateId `
-            | Where-Object { $_.RoleTemplateId -eq "f2ef992c-3afb-46b9-b7cf-a126ee74c451" }
-            $globalReaders = $globalReaderRole.Members.Id
-            if (-not($globalReaders -contains $spnId))
-            {
-                New-MgDirectoryRoleMemberByRef -DirectoryRoleId $globalReaderRole.Id -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$spnId" }
-                Start-Sleep -Seconds 5
                 $globalReaderRole = Get-MgDirectoryRole -ExpandProperty Members -Property Id, Members, DisplayName, RoleTemplateId `
                 | Where-Object { $_.RoleTemplateId -eq "f2ef992c-3afb-46b9-b7cf-a126ee74c451" }
                 $globalReaders = $globalReaderRole.Members.Id
-                if ($globalReaders -contains $spnId)
+                if (-not($globalReaders -contains $spnId))
                 {
-                    Write-Host "Role granted." -ForegroundColor Green
+                    New-MgDirectoryRoleMemberByRef -DirectoryRoleId $globalReaderRole.Id -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$spnId" }
+                    Start-Sleep -Seconds 5
+                    $globalReaderRole = Get-MgDirectoryRole -ExpandProperty Members -Property Id, Members, DisplayName, RoleTemplateId `
+                    | Where-Object { $_.RoleTemplateId -eq "f2ef992c-3afb-46b9-b7cf-a126ee74c451" }
+                    $globalReaders = $globalReaderRole.Members.Id
+                    if ($globalReaders -contains $spnId)
+                    {
+                        Write-Host "Role granted." -ForegroundColor Green
+                    }
+                    else
+                    {
+                        throw "Error when trying to grant Global Reader role"
+                    }
                 }
                 else
                 {
-                    throw "Error when trying to grant Global Reader role"
+                    Write-Host "Role was already granted before." -ForegroundColor Green
                 }
             }
-            else
+            catch
             {
-                Write-Host "Role was already granted before." -ForegroundColor Green
+                Write-Host $Error[0] -ForegroundColor Yellow
+                Write-Host "Could not grant role. If you want Microsoft Entra-based recommendations, please grant the Global Reader role manually to the $automationAccountName managed identity or, for previous versions of AOE, to the Run As Account principal." -ForegroundColor Red
             }
         }
-        catch
+        else
         {
-            Write-Host $Error[0] -ForegroundColor Yellow
-            Write-Host "Could not grant role. If you want Microsoft Entra-based recommendations, please grant the Global Reader role manually to the $automationAccountName managed identity or, for previous versions of AOE, to the Run As Account principal." -ForegroundColor Red
+            Write-Host "Automation Account does not have a system-assigned identity. Please grant the Global Reader role manually to the managed identity used by AOE." -ForegroundColor Yellow
         }
         #endregion
     }
     else
     {
-        Write-Host "Could not grant role. If you want Microsoft Entra-based recommendations, please grant the Global Reader role manually to the $automationAccountName managed identity or, for previous versions of AOE, to the Run As Account principal." -ForegroundColor Red
+        Write-Host "Could not grant role. If you want Microsoft Entra-based recommendations, please grant the Global Reader role manually to the $automationAccountName managed identity." -ForegroundColor Red
     }
     Write-Host "Azure Optimization Engine deployment completed! We're almost there..." -ForegroundColor Green
 

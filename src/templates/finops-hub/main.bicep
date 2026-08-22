@@ -159,6 +159,9 @@ param dataExplorerFinalRetentionInMonths int = 13
 @description('Optional. Enable public access to FinOps hubs resources.  Default: true.')
 param enablePublicAccess bool = true
 
+@description('Optional. Deploy a NAT Gateway for controlled outbound access when private routing is enabled. When true, the script and Data Explorer subnets route outbound traffic through the NAT Gateway. Ignored when enablePublicAccess is true. Default: false.')
+param enableNatGateway bool = false
+
 @description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
@@ -195,6 +198,7 @@ module hub 'modules/hub.bicep' = {
     remoteHubStorageUri: remoteHubStorageUri
     remoteHubStorageKey: remoteHubStorageKey
     enablePublicAccess: enablePublicAccess
+    enableNatGateway: enableNatGateway
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
   }
 }

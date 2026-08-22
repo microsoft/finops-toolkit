@@ -85,8 +85,11 @@ function Copy-TemplateFiles()
 {
     Write-Host "Packaging $(if ($Template -ne "*") { "$Template $version template" } else { "$version templates" })..."
 
-    Write-Verbose "Removing existing ZIP files..."
-    Remove-Item "$relDir/*.zip" -Force
+    if ($Template -eq "*")
+    {
+        Write-Verbose "Removing existing ZIP files..."
+        Remove-Item "$relDir/*.zip" -Force
+    }
 
     return Get-ChildItem "$relDir/$Template*" -Directory `
     | Where-Object { @('pbit', 'pbix', 'FinOpsToolkit') -notcontains $_.Name } `
@@ -144,6 +147,16 @@ function Copy-TemplateFiles()
 
         function Copy-DeploymentFiles($suffix)
         {
+            function Copy-FlatDeploymentFiles()
+            {
+                if (Test-Path "$srcPath/azuredeploy.json")
+                {
+                    # Copy azuredeploy.json to docs/deploy folder
+                    Copy-Item "$srcPath/azuredeploy.json" "$deployDir/$templateName-$suffix.json"
+                    Copy-Item "$srcPath/createUiDefinition.json" "$deployDir/$templateName-$suffix.ui.json"
+                }
+            }
+
             $packageManifestPath = "$srcPath/package-manifest.json"
             if (Test-Path $packageManifestPath)
             {
@@ -194,12 +207,12 @@ function Copy-TemplateFiles()
                 {
                     Write-Debug "No directory entries in manifest"
                 }
+
+                Copy-FlatDeploymentFiles
             }
-            elseif (Test-Path "$srcPath/azuredeploy.json")
+            else
             {
-                # Copy azuredeploy.json to docs/deploy folder
-                Copy-Item "$srcPath/azuredeploy.json" "$deployDir/$templateName-$suffix.json"
-                Copy-Item "$srcPath/createUiDefinition.json" "$deployDir/$templateName-$suffix.ui.json"
+                Copy-FlatDeploymentFiles
             }
         }
 
@@ -214,7 +227,8 @@ function Copy-TemplateFiles()
         }
 
         Write-Verbose ("Compressing $srcPath to $zip" -replace [regex]::Escape((Get-Item $relDir).FullName), '.')
-        Compress-Archive -Path "$srcPath/*" -DestinationPath $zip
+        Remove-Item $zip -Force -ErrorAction SilentlyContinue
+        Get-ChildItem $srcPath -Force | Compress-Archive -DestinationPath $zip
         return $zip
     }
 }
@@ -223,7 +237,10 @@ function Copy-OpenDataFiles()
 {
     Write-Verbose "Copying open data files..."
     Copy-Item "$PSScriptRoot/../open-data/*.csv" $relDir
-    Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir
+    # Exclude *.shardcounts.json: these are internal operational baselines for the
+    # eligibility completeness guard (not reference data), so they must not ship in
+    # the public release package alongside legitimate open data.
+    Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir -Exclude '*.shardcounts.json'
 }
 
 function Copy-OpenDataFolders()

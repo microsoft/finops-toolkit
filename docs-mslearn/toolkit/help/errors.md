@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: flanakin
 ms.author: micflan
-ms.date: 04/04/2026
+ms.date: 08/13/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -392,7 +392,7 @@ Exports weren't found in the specified storage path.
 
 This billing scope type is not supported by managed exports.
 
-**Mitigation**: Remove the unsupported billing scope from settings.json, confirm the billing scope is supported by FinOps hubs and manually create new Cost management exports for the billing scope.
+**Mitigation**: Remove the unsupported billing scope from settings.json, confirm the billing scope is supported by FinOps hubs and manually create new Cost Management exports for the billing scope.
 
 <br>
 
@@ -762,17 +762,63 @@ Indicates that the account loading data in Power BI doesn't have the [Storage Bl
 
 <sup>Severity: Major</sup>
 
-Azure Resource Graph queries in the Governance and Workload optimization Power BI reports may return an error similar to:
+Azure Resource Graph queries in the Governance and Usage optimization Power BI reports may return an error similar to:
 
 > _OLE DB or ODBC error: [Expression.Error] Please provide below info when asking for support: timestamp = {timestamp}, correlationId = {guid}. Details: Response payload size is {number}, and has exceeded the limit of 16777216. Please consider querying less data at a time and make paginated call if needed._
 
-This error means that you have more resources than are supported in an unfiltered Resource Graph query. This happens because FinOps toolkit reports are designed to show resource-level details and are not aggregated. They are designed for small- and medium-sized environments and not designed to support organizations with millions of resources.
+Azure Resource Graph enforces a 16 MB response payload limit per query. FinOps toolkit reports automatically paginate queries in batches of subscriptions to stay within this limit, so most environments should not encounter this error. The base batch size is 100 subscriptions (set by the `ftk_ARGBatchSize` function), but some queries multiply this value for tables that return less data per resource, so the effective batch size varies by table. If you still see this error, it means the resources in a single batch of subscriptions exceed the 16 MB limit.
 
-**Mitigation**: If you experience this error, there are several options:
+**Mitigation**: Try the following options in order:
 
-- Remove columns that are not necessary for your needs.
-- Filter the query to return fewer resources based on what's most important for you (e.g., subscriptions, tags).
-- Disable the query so it doesn't block other queries from running.
+### Option 1: Reduce the batch size
+
+Reduce the base number of subscriptions queried in each batch (some tables multiply this value, so the effective batch size for those tables will still be smaller, but proportionally reduced):
+
+1. Open Power BI Desktop and select **Transform data** from the ribbon.
+2. In the **Queries** pane on the left, expand the **Functions** folder.
+3. Select the **ftk_ARGBatchSize** function.
+4. Change the return value from `100` to a smaller number (e.g., `20` or `10`).
+5. Select **Close & Apply** to save changes.
+
+### Option 2: Filter by resource group or tags
+
+Add a filter clause to the failing query to reduce the number of resources returned:
+
+1. Open Power BI Desktop and select **Transform data** from the ribbon.
+2. In the **Queries** pane on the left, expand the **Resource Graph** folder.
+3. Select the query that's failing (e.g., **NetworkSecurityGroups**, **Resources**).
+4. In the query editor, find the `query = "` section in the formula bar.
+5. Add a filter clause after the `| where type` line and before any `| extend` clauses. For example:
+
+   ```kusto
+   | where resourceGroup in~ ('rg-production', 'rg-staging')
+   ```
+
+   Or filter by tags:
+
+   ```kusto
+   | where tags.Environment =~ 'Production'
+   ```
+
+6. Select **Close & Apply** to save changes.
+
+### Option 3: Remove unnecessary columns
+
+Reduce the payload size by removing columns you don't need:
+
+1. Open the query in Power Query Editor (steps 1-3 from Option 2).
+2. In the query text, remove column names from the `extend` or `project` statements that you don't need for your analysis.
+3. Be careful not to remove columns that are used in report visuals or relationships.
+
+### Option 4: Disable the failing query
+
+If a specific query consistently fails and isn't critical to your needs:
+
+1. In Power Query Editor, right-click the failing query in the **Queries** pane.
+2. Uncheck **Enable load** to prevent the query from loading data.
+3. The query will remain in the report but won't execute during refresh.
+
+For more information about Azure Resource Graph limits, see [Working with large Azure resource data sets](/azure/governance/resource-graph/concepts/work-with-data).
 
 <br>
 
@@ -904,6 +950,30 @@ The export manifest in hub storage indicates the export was for an unsupported d
 <sup>Severity: Minor</sup>
 
 Open the subscription in the Azure portal, then select **Settings** > **Resource providers**, select the resource provider row (for example, Microsoft.EventGrid), then select the **Register** command at the top of the page. Registration might take a few minutes.
+
+<br>
+
+## The sku {SkuName} is not supported in {region}
+
+<sup>Severity: Critical</sup>
+
+The Azure Data Explorer cluster deployment failed because the selected SKU isn't available in the target region for your subscription. Not all Data Explorer SKUs are available in every region.
+
+**Mitigation**: Check which SKUs are available in your region and choose one that's supported.
+
+Using Azure PowerShell (requires the [Az.Kusto](/powershell/module/az.kusto) module):
+
+```powershell
+Get-AzKustoSku -Location "westus"
+```
+
+Using Azure REST API:
+
+```http
+GET https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Kusto/locations/{location}/skus?api-version=2025-02-14
+```
+
+If your preferred SKU isn't listed, choose a different SKU or deploy to a region where it's available. The default dev/test SKU is `Dev(No SLA)_Standard_D11_v2`, and the lowest-cost dev/test SKU (`Dev(No SLA)_Standard_E2a_v4`) is available in most regions. For help choosing a SKU, see [Select a SKU for your Azure Data Explorer cluster](/azure/data-explorer/manage-cluster-choose-sku).
 
 <br>
 

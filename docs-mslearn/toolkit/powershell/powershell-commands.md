@@ -68,6 +68,7 @@ The FinOps toolkit PowerShell module includes commands to manage FinOps solution
 - [Deploy-FinOpsHub](hubs/Deploy-FinOpsHub.md) – Deploy your first hub or update to the latest version.
 - [Get-FinOpsHub](hubs/Get-FinOpsHub.md) – Get details about your FinOps hub instance.
 - [Initialize-FinOpsHubDeployment](hubs/Initialize-FinOpsHubDeployment.md) – Initializes the deployment for FinOps hubs.
+- [Initialize-FinOpsHubLocal](hubs/initialize-finopshublocal.md) – Set up a local FinOps hub in a running Kusto emulator.
 - [Register-FinOpsHubProviders](hubs/Register-FinOpsHubProviders.md) – Registers resource providers for FinOps hubs.
 - [Remove-FinOpsHub](hubs/Remove-FinOpsHub.md) – Deletes a FinOps hub instance.
 

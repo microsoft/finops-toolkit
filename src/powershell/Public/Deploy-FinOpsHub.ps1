@@ -84,8 +84,11 @@
     .PARAMETER DataExplorerFinalRetentionInMonths
     Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.
 
-    .PARAMETER EnablePublicAccess
-    Optional. Enable public access to the data lake.  Default: true.
+    .PARAMETER NetworkMode
+    Optional. Network mode for the hub: 'public' (default), 'vnet' (private endpoints, default outbound), or 'private' (private endpoints + NAT Gateway for controlled outbound access - required when the 'Subnets should be private' policy is enforced).
+
+    .PARAMETER DisablePublicAccess
+    Optional. Deprecated. Use -NetworkMode 'vnet' or -NetworkMode 'private' instead. When set without -NetworkMode, behaves as -NetworkMode 'vnet'. Ignored when -NetworkMode is supplied.
 
     .PARAMETER VirtualNetworkAddressPrefix
     Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".
@@ -188,6 +191,11 @@ function Deploy-FinOpsHub
         $DataExplorerFinalRetentionInMonths = 13,
 
         [Parameter()]
+        [ValidateSet('public', 'vnet', 'private')]
+        [string]
+        $NetworkMode,
+
+        [Parameter()]
         [switch]
         $DisablePublicAccess,
 
@@ -249,6 +257,16 @@ function Deploy-FinOpsHub
         # Init deployment (register providers)
         Initialize-FinOpsHubDeployment -WhatIf:$WhatIfPreference
 
+        # Resolve network mode. -NetworkMode wins; -DisablePublicAccess (deprecated) maps to 'vnet'.
+        $effectiveNetworkMode = if ($NetworkMode) { $NetworkMode } elseif ($DisablePublicAccess) { 'vnet' } else { 'public' }
+        if (-not $NetworkMode -and $DisablePublicAccess) { Write-Warning "-DisablePublicAccess is deprecated; use -NetworkMode 'vnet' or -NetworkMode 'private'." }
+
+        # Private network mode (NAT Gateway) requires hub template version 15.0 or later
+        if ($effectiveNetworkMode -eq 'private' -and $Version -ne 'latest' -and [version]$Version -lt '15.0')
+        {
+            throw "NAT Gateway / private network mode requires hub template version 15.0 or later. Current version: $Version"
+        }
+
         # Download template
         if (Test-ShouldProcess $PSCmdlet $Version 'DownloadTemplate')
         {
@@ -281,7 +299,7 @@ function Deploy-FinOpsHub
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerCapacity', $DataExplorerCapacity)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerRawRetentionInDays', $DataExplorerRawRetentionInDays)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerFinalRetentionInMonths', $DataExplorerFinalRetentionInMonths)
-                $parameterSplat.TemplateParameterObject.Add('enablePublicAccess', -not $DisablePublicAccess)
+                $parameterSplat.TemplateParameterObject.Add('enablePublicAccess', ($effectiveNetworkMode -eq 'public'))
                 $parameterSplat.TemplateParameterObject.Add('virtualNetworkAddressPrefix', $VirtualNetworkAddressPrefix)
                 $parameterSplat.TemplateParameterObject.Add('exportRetentionInDays', $ExportRetentionInDays)
                 $parameterSplat.TemplateParameterObject.Add('ingestionRetentionInMonths', $IngestionRetentionInMonths)
@@ -302,6 +320,13 @@ function Deploy-FinOpsHub
             if ($Version -eq 'latest' -or [version]$Version -ge '13.0')
             {
                 $parameterSplat.TemplateParameterObject.Add('enablePurgeProtection', $EnablePurgeProtection.IsPresent)
+            }
+
+            # Only pass enableNatGateway when private mode is requested. This keeps public/vnet
+            # deployments compatible with template versions that predate the parameter.
+            if ($effectiveNetworkMode -eq 'private' -and ($Version -eq 'latest' -or [version]$Version -ge '15.0'))
+            {
+                $parameterSplat.TemplateParameterObject.Add('enableNatGateway', $true)
             }
 
             if ($Tags -and $Tags.Keys.Count -gt 0)
