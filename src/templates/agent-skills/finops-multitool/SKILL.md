@@ -2,7 +2,7 @@
 name: finops-multitool
 description: This skill should be used when the user asks to "scan for cost savings", "find orphaned resources", "find idle VMs", "check Azure Hybrid Benefit", "review tags", "tag coverage", "tag recommendations", "policy coverage", "cost by tag", "cost trend", "top resources by cost", "reservation recommendations", "commitment utilization", "realized savings", "budget status", "cost anomaly alerts", "Advisor cost recommendations", "billing structure", "contract info", or run a "FinOps assessment", "FinOps scan", or "cost optimization scan". Also use it proactively whenever the conversation turns to Azure cost, waste, savings, governance, or FinOps health and live data would answer the question better than a general explanation.
 license: MIT
-compatibility: Requires an authenticated Azure session (az login, or Connect-AzAccount for PowerShell) with at least Reader access on the target scope. Everything in this skill is read-only. Remediation is deliberately out of scope - use the FinOps multitool terminal UI (Start-FinOpsMultitool, from the FinOpsToolkit PowerShell module) which gates every write behind a preview and confirmation.
+compatibility: Requires an authenticated Azure session (az login, or Connect-AzAccount for PowerShell) with at least Reader access on the target scope. Everything here is read-only, including the FinOps multitool terminal UI. Recommend changes and explain their impact, and leave applying them to the user.
 metadata:
   author: microsoft
   version: '2.0'
@@ -15,10 +15,10 @@ This is the routing hub for FinOps investigations. It answers "what should I loo
 
 Two ways to gather the data:
 
-- **Interactively** - `Start-FinOpsMultitool` launches a terminal UI that runs 30 read-only scan modules, renders the results, and exports them. Best when a person wants the full picture, and the only supported path for remediation.
+- **Interactively** - `Start-FinOpsMultitool` launches a terminal UI that runs 30 read-only scan modules, renders the results, and exports them. Best when a person wants the full picture.
 - **Directly** - query Azure Resource Graph, Cost Management, Advisor, Monitor, or a FinOps hub yourself with `az` or an Azure MCP server. Best when answering one question inside a conversation. This skill carries the queries and the interpretation rules.
 
-Prefer the direct path for a single question. Suggest the terminal UI when the user wants a full assessment or intends to act on the findings.
+Prefer the direct path for a single question. Suggest the terminal UI when the user wants a full assessment.
 
 ## Always confirm scope first
 
@@ -84,9 +84,11 @@ This is the part raw API output gets wrong. Apply these before reporting a numbe
 - Surface the cost driver, not just the resource list.
 - Name the scope you scanned every time.
 
-## Remediation
+## Acting on findings
 
-This skill does not change Azure. When a finding warrants action, hand the user to `Start-FinOpsMultitool`, which previews every change, requires explicit confirmation, and records an audit trail. Recommend the change and explain the impact; let the tool apply it.
+Nothing here changes Azure, and neither does the terminal UI. Every investigation ends in a recommendation, not an action.
+
+Name the specific change, explain what it saves and what it risks, and give the user the command or portal path to apply it. Check for a dependency before recommending a deletion - an unattached disk can be a deliberate spare, and a snapshot is sometimes the backup.
 
 ## FinOps skill ecosystem
 

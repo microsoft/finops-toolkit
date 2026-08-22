@@ -20,6 +20,7 @@
 
 function Invoke-FinOpsMultitool {
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'NonInteractive', Justification = 'Read by the nested picker functions, which PSScriptAnalyzer does not trace into. Verified on PowerShell 5.1 and 7.')]
     param(
         [string]$SubscriptionId,
         [string]$OutputPath,
@@ -166,7 +167,7 @@ function Invoke-FinOpsMultitool {
     #  BANNER
     # =====================================================================
     function Show-Banner {
-        try { Clear-Host } catch { }
+        try { Clear-Host } catch { Write-Debug "Clear-Host is unavailable in this host: $_" }
 
         # Version comes from the toolkit so the TUI and the module cannot drift.
         # Get-VersionNumber is a sibling private function, absent when this script runs standalone.
@@ -226,7 +227,9 @@ function Invoke-FinOpsMultitool {
         $rich = $true
         try { $null = [Console]::CursorTop } catch { $rich = $false }
         if ($rich) {
-            try { if ([Console]::IsInputRedirected) { $rich = $false } } catch { }
+            $redirected = $false
+            try { $redirected = [Console]::IsInputRedirected } catch { $redirected = $false }
+            if ($redirected) { $rich = $false }
         }
         $script:FinOpsRichConsole = $rich
         if (-not $rich) {

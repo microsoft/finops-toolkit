@@ -29,7 +29,7 @@ The FinOps multitool scans an Azure environment for cost optimization, governanc
 
 <a name="features"></a>
 
-## Explore the Multitool
+## Explore the multitool
 
 <div class="ftk-gallery ftk-50">
     <div class="ftk-tile">
@@ -48,8 +48,8 @@ The FinOps multitool scans an Azure environment for cost optimization, governanc
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">Learn more</a>
     </div>
     <div class="ftk-tile">
-        <div>🛡️ Write-safety policy</div>
-        <div>Optional remediation tools are dry-run by default and gated by a configurable write-safety policy. The server is read-only out of the box.</div>
+        <div>🛡️ Read-only by design</div>
+        <div>Every scan reads your environment and reports what it finds. The multitool never creates, changes, or deletes a resource, so it's safe to run against production.</div>
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">Learn more</a>
     </div>
 </div>
@@ -86,7 +86,7 @@ The FinOps multitool scans an Azure environment for cost optimization, governanc
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">3️⃣&nbsp; Launch the Multitool</button>
+        <button class="ftk-accordion">3️⃣&nbsp; Launch the multitool</button>
         <div>You're now ready to scan. Run the command, then choose the subscriptions and modules to scan.</div>
         <div class="language-powershell highlighter-rouge">
             <div class="highlight">

@@ -3,7 +3,7 @@ title: FinOps multitool commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 08/19/2026
+ms.date: 08/21/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -15,10 +15,12 @@ ms.reviewer: micflan
 
 The FinOps multitool PowerShell commands help you scan an Azure environment for cost optimization, governance, and FinOps insights. Findings are grounded in your live resource state and cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
 
-The Multitool delivers one scan engine through two interfaces:
+The multitool delivers one scan engine through two interfaces:
 
 - **Terminal UI (TUI)** – An interactive, cross-platform terminal experience launched with [Start-FinOpsMultitool](Start-FinOpsMultitool.md). It surfaces 26 of the 30 scans.
-- **Agent skills** - A set of skills that teach AI assistants which investigation answers a question, the queries behind it, and how to read the results.
+- **Agent skills** – A set of skills that teach AI assistants which investigation answers a question, the queries behind it, and how to read the results.
+
+The terminal UI prompts for each choice by default. Consoles that can't render the arrow-key menus, such as PowerShell remoting sessions, fall back to numbered prompts. To run the tool from a pipeline or a scheduled job, use `-NonInteractive` and supply the choices as parameters.
 
 <br>
 
@@ -30,7 +32,7 @@ The Multitool delivers one scan engine through two interfaces:
 
 ## Scan coverage
 
-The Multitool includes 30 scan modules across the following categories:
+The multitool includes 30 scan modules across the following categories:
 
 - **Optimization** – Orphaned resources, idle VMs, storage tier advice, Azure Hybrid Benefit opportunities, and legacy resources.
 - **Governance** – Tag inventory and recommendations, and policy inventory and recommendations.
@@ -50,8 +52,8 @@ Analysis scans are read-only. Most need Reader or Cost Management Reader access.
 
 When a [FinOps hub](../../hubs/finops-hubs-overview.md) is present, cost scans read from the hub and choose the path automatically:
 
-- **Kusto database (recommended for large environments)** – When the hub has an Azure Data Explorer or Microsoft Fabric cluster, the Multitool discovers it through Azure Resource Graph and pushes aggregation into the engine, returning only summarized results. This scales to large datasets without loading raw cost rows into PowerShell. To query a local hub on your own hardware, set the `FINOPS_HUB_KUSTO_URI` environment variable to a local Kusto endpoint (optionally set `FINOPS_HUB_KUSTO_DB`, which defaults to `Hub`).
-- **Storage reader (small-dataset fallback)** – When no Kusto cluster is reachable, the Multitool reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets.
+- **Kusto database (recommended for large environments)** – When the hub has an Azure Data Explorer or Microsoft Fabric cluster, the multitool discovers it through Azure Resource Graph and pushes aggregation into the engine, returning only summarized results. This scales to large datasets without loading raw cost rows into PowerShell. To query a local hub on your own hardware, set the `FINOPS_HUB_KUSTO_URI` environment variable to a local Kusto endpoint (optionally set `FINOPS_HUB_KUSTO_DB`, which defaults to `Hub`).
+- **Storage reader (small-dataset fallback)** – When no Kusto cluster is reachable, the multitool reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets.
 
 If no hub is available, cost scans use the live Cost Management API.
 
@@ -61,7 +63,7 @@ If no hub is available, cost scans use the live Cost Management API.
 
 A companion set of agent skills carries the same analysis as guidance an AI agent can act on: which investigation answers the question, the Resource Graph and Cost Management queries behind it, and the places raw results mislead. Agents run the queries through Azure CLI or an Azure MCP server, so no additional server is required.
 
-The `finops-multitool` skill is the routing hub and hands off to FinOps-adjacent skills for reporting, allocation, governance, unit economics, and more. The skills are read-only by design—remediation stays in the terminal UI, where every write previews first and requires confirmation.
+The `finops-multitool` skill is the routing hub and hands off to FinOps-adjacent skills for reporting, allocation, governance, unit economics, and more. The skills are read-only, and so is the terminal UI. Both report what they find and recommend a change; applying it stays with you.
 
 <br>
 

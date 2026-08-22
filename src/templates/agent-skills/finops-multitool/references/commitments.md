@@ -66,6 +66,8 @@ Sources: cost data with `pricingModel` or `benefitId` populated, compared agains
 
 Report realized savings and projected savings separately and label them clearly. Blending "we saved $X" with "we could save $Y" is how a savings number loses credibility.
 
+The FinOps multitool reports this figure as an estimate and labels it as one. It derives savings from amortized cost and an assumed discount rate rather than comparing each line against its retail rate, so treat it as an order-of-magnitude number. When you need a defensible figure, use the retail-rate comparison described above and say which method produced it.
+
 ## MACC
 
 Microsoft Azure Consumption Commitment burn-down is documented fully in `azure-cost-management` → `references/azure-macc.md`, including the critical detail that `closedBalance` is the **remaining** balance, not the consumed amount.

@@ -13,7 +13,7 @@
       "field": "CostPerGb",
       "unit": "per GB / month",
       "plainLanguage": "What you pay for each GB of stored data this month.",
-      "exploreHint": "Run scan_storage_tier_advice to see if moving cold data to Cool or Archive lowers this."
+      "exploreHint": "Run the Storage Tier Advice scan to see if moving cold data to Cool or Archive lowers this."
     },
     {
       "id": "hourly-cost-per-cpu-core",
@@ -26,7 +26,7 @@
       "divideBy": 730,
       "unit": "per vCPU / hour",
       "plainLanguage": "Roughly what one CPU core costs you per hour.",
-      "exploreHint": "Run scan_optimization_advice or scan_idle_vms to find rightsizing that lowers this."
+      "exploreHint": "Run the Optimization Advice or Idle VMs scan to find rightsizing that lowers this."
     },
     {
       "id": "effective-avg-compute-cost-per-core",
@@ -38,7 +38,7 @@
       "field": "CostPerVCpu",
       "unit": "per vCPU / month",
       "plainLanguage": "Average monthly cost of one CPU core across your fleet.",
-      "exploreHint": "Pair with scan_commitment_utilization to amortize unused reservation/savings-plan cost."
+      "exploreHint": "Pair with the Commitment Utilization scan to amortize unused reservation and savings plan cost."
     },
     {
       "id": "pct-costs-untagged",
@@ -49,7 +49,7 @@
       "compute": true,
       "unit": "%",
       "plainLanguage": "How much of your spend lands on resources that are not tagged.",
-      "exploreHint": "Run scan_tag_recommendations to see which CAF tags to backfill and where."
+      "exploreHint": "Run the Tag Recommendations scan to see which CAF tags to backfill and where."
     },
     {
       "id": "pct-costs-unallocated",
@@ -60,7 +60,7 @@
       "compute": true,
       "unit": "%",
       "plainLanguage": "Share of your bill you cannot yet assign to an owner.",
-      "exploreHint": "Backfill allocation tags (Customer/project/CostCenter), then re-run scan_cost_by_tag."
+      "exploreHint": "Backfill allocation tags (Customer/project/CostCenter), then re-run the Cost by Tag scan."
     },
     {
       "id": "tagging-policy-compliant",
@@ -71,7 +71,7 @@
       "compute": true,
       "unit": "%",
       "plainLanguage": "How much of your spend is on properly tagged resources.",
-      "exploreHint": "Run scan_policy_recommendations to deploy tag-enforcement policy."
+      "exploreHint": "Run the Policy Recommendations scan to deploy tag-enforcement policy."
     },
     {
       "id": "commitment-utilization-score",
@@ -82,7 +82,7 @@
       "compute": true,
       "unit": "%",
       "plainLanguage": "How much of your reserved/committed capacity you are actually using.",
-      "exploreHint": "Run scan_reservation_advice to right-size future commitments."
+      "exploreHint": "Run the Reservation Advice scan to right-size future commitments."
     },
     {
       "id": "pct-commitment-discount-waste",
@@ -115,7 +115,7 @@
       "compute": true,
       "unit": "count / cost",
       "plainLanguage": "Resources you are paying for that nothing is using. Shown as the orphaned-resource count found by the scan.",
-      "exploreHint": "Run remediate_delete_orphaned_resource (gated) to clean them up."
+      "exploreHint": "Confirm nothing depends on them, then delete them in the Azure portal or with Azure CLI."
     },
     {
       "id": "computational-waste",
@@ -126,7 +126,7 @@
       "compute": true,
       "unit": "count / cost",
       "plainLanguage": "Compute you are running and paying for but barely using. Shown as the share of running VMs flagged idle or underutilized.",
-      "exploreHint": "Run remediate_deallocate_vm (gated, reversible) on confirmed idle VMs."
+      "exploreHint": "Deallocate confirmed idle VMs in the Azure portal or with Azure CLI. Deallocating is reversible; the disks keep billing."
     },
     {
       "id": "percent-storage-frequent-tier",
@@ -247,7 +247,7 @@
       "compute": false,
       "unit": "%",
       "plainLanguage": "Shared platform cost not yet split across its consumers.",
-      "exploreHint": "Use scan_allocate_shared_cost or scan_usage_allocation to split it."
+      "exploreHint": "Split it with a shared cost allocation or usage-proportional allocation scan."
     },
     {
       "id": "allocation-accuracy-index",
@@ -269,7 +269,7 @@
       "compute": false,
       "unit": "cost / workload",
       "plainLanguage": "The true all-in cost of one workload, not just its compute line.",
-      "exploreHint": "scan_vm_cost_breakdown decomposes a VM into all its billed meters."
+      "exploreHint": "The VM cost breakdown scan decomposes a VM into all its billed meters."
     },
     {
       "id": "frequency-of-data-updates",

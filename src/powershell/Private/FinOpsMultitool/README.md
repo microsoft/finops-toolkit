@@ -87,7 +87,7 @@ Guidance includes FinOps Foundation best practices, actionable next steps, and l
 - **Access denied** (403/401) — Shows the exact error, required RBAC role, scope, and API
 - **No data** — Explains whether the module requires specific resources (e.g., "Returns empty if no budgets are configured")
 
-An optional CSV/JSON export saves to the output path.
+Optional exports write to the output path: one CSV file per scan module, a `FinOpsReport.html` summary, and a `ScanSummary.txt` text summary.
 
 ## Required Permissions
 
@@ -178,7 +178,7 @@ The scan modules map directly to [FinOps Foundation KPIs](https://www.finops.org
 
 > "Which of my resources are running on legacy or retiring SKUs?"
 
-```
+```text
 Legacy / Retiring Resources — 47 found across 156 subscriptions
 
 By category:
@@ -195,7 +195,7 @@ Legacy % = 47 ÷ total resources in scope.
 
 > "What's my cost per vCPU and per GB of storage this month?"
 
-```
+```text
 Unit Economics — Month to Date (USD)
 
 Compute  $128,400 (75.7%)   312 VMs / 1,840 vCPU / 7,360 GB RAM
@@ -215,7 +215,7 @@ vCPU and RAM are exact (read from Compute SKU capabilities). Storage GB combines
 
 This scan is self-gating: a single Resource Graph query detects whether any AI workloads (Azure OpenAI, AI Services, Machine Learning, AI Search, GPU VMs) exist. Non-AI tenants skip the deep scan entirely, so the scan stays fast. When AI is present, it joins Azure Monitor token metrics to Cost Management spend over the same month-to-date window.
 
-```
+```text
 AI footprint — OpenAI/AIServices: 3   ML workspaces: 1   AI Search: 2   GPU VMs: 0
 Tokens (MTD): 412,800,000 total (288,100,000 in / 124,700,000 out) over 1,240,500 requests
 AI spend (MTD): USD 3,910.42  |  USD 0.0095 /1K tokens  |  USD 0.00315 /request
@@ -233,7 +233,7 @@ Like the cost scans, this honors `dataSource` (`auto` / `hub` / `api`). When a r
 
 > "Show my cloud carbon footprint and how it changed month over month."
 
-```
+```text
 Carbon Emissions — latest available month: 2026-04 (data lags ~2 mo)
 
 Total emissions      18,420 kgCO2e
@@ -251,7 +251,7 @@ Combined with cost data, `Carbon per Unit of Spend` = total emissions ÷ monthly
 
 > "How well are my reservations and savings plans being used?"
 
-```
+```text
 Commitment Utilization — trailing 30 days
 
 Reserved Instances    94.2% utilized   ($3,120 unused)
@@ -265,7 +265,7 @@ Overall score         91.8%
 
 > "How much of my spend is on untagged resources?"
 
-```
+```text
 Cost by Tag — Month to Date
 
 Tagged spend       $612,300   (87.4%)
@@ -321,57 +321,9 @@ $tagInventory = ConvertTo-TagInventoryFromHub -HubData $hubData
 $costByTag = ConvertTo-CostByTagFromHub -HubData $hubData -ExistingTags $tagInventory.TagNames
 ```
 
-## Write Safety (Remediation Tools)
-
-The remediation functions are read-only by default. Every write previews first, and enabling writes is a deliberate opt-in via `FINOPS_WRITE_MODE`. The gate lives in the functions themselves, so it applies to any caller — the TUI, a script, or anything that imports the module.
-
-### Modes — `FINOPS_WRITE_MODE`
-
-| Mode          | Behavior                                                                                                                                                             | Use for                                                 |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `ReadOnly`    | **Default.** All write tools are blocked; read scans still work. Set `FINOPS_WRITE_MODE` to `Interactive` or `Enforced` to enable writes.                            | Locked-down or audit-only deployments (and the default) |
-| `Interactive` | `apply=true` runs the change directly. A preview/token is offered but not required. The client (human or AI) is the gate.                                            | Platform-agnostic AI chat — low friction, any client    |
-| `Enforced`    | `apply=true` is **rejected** unless it carries the exact single-use token from that change's own dry-run preview (bound to a SHA-256 fingerprint, expires in 5 min). | Autonomous / unattended agents — server is the gate     |
-
-Every write previews first: call the tool without `apply` to get the exact REST call, the resource evidence, and (in Enforced mode) a `confirmationToken` to pass back with `apply=true`.
-
-### Guardrails (enforced in every mode)
-
-These never depend on a well-behaved client. Configure via environment variables:
-
-| Variable                      | Effect                                                                                  | Default                                                     |
-| ----------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `FINOPS_PROTECTED_TAGS`       | Resources carrying any of these tag keys are never written to                           | `do-not-delete`, `DoNotDelete`, `lock`, `protected`         |
-| `FINOPS_PROTECTED_RGS`        | Resource groups (supports `*` wildcards) that are off-limits                            | none                                                        |
-| `FINOPS_PROTECTED_SUBS`       | Subscriptions that are off-limits                                                       | none                                                        |
-| `FINOPS_WRITE_MAX_IMPACT`     | Block any single write whose estimated monthly $ impact exceeds this cap (`0` = no cap) | `0`                                                         |
-| `FINOPS_WRITE_MAX_PER_WINDOW` | Max writes allowed per rolling window (blast-radius limit)                              | unlimited                                                   |
-| `FINOPS_WRITE_WINDOW_MIN`     | Length of that window in minutes                                                        | `60`                                                        |
-| `FINOPS_AUDIT_LOG`            | Path for the append-only audit log (every preview / apply / block is recorded as JSON)  | `%LOCALAPPDATA%\FinOpsMultitool\finops-multitool-audit.log` |
-
-### Example — autonomous, locked-down server
-
-```json
-{
-  "servers": {
-    "finops-multitool": {
-      "type": "stdio",
-      "command": "pwsh",
-      "env": {
-        "FINOPS_WRITE_MODE": "Enforced",
-        "FINOPS_PROTECTED_RGS": "rg-prod-*,rg-shared",
-        "FINOPS_WRITE_MAX_PER_WINDOW": "5"
-      }
-    }
-  }
-}
-```
-
-In this configuration an agent must preview each change, pass the matching token back, stay out of protected resource groups, and is capped at five writes per hour — all enforced by the server, not the client.
-
 ## File Structure
 
-```
+```text
 FinOpsMultitool/
 ├── README.md                  # This file
 ├── FinOpsMultitool.psm1       # Module loader (dot-sources all scan modules)
@@ -384,7 +336,6 @@ FinOpsMultitool/
 │   │   ├── Get-PlainAccessToken.ps1        # Token helper
 │   │   ├── Invoke-AzRestMethodWithRetry.ps1 # REST retry logic
 │   │   ├── Search-AzGraphSafe.ps1          # ARG query wrapper
-│   │   ├── Confirm-WriteAction.ps1         # Write-safety policy gate (modes, guardrails, audit)
 │   │   └── MgCostScope.ps1                 # Management group scope state
 │   ├── Initialize-Scanner.ps1
 │   ├── Get-CostData.ps1
@@ -392,9 +343,6 @@ FinOpsMultitool/
 │   ├── Get-TagInventory.ps1
 │   ├── Get-CostByTag.ps1
 │   ├── Get-OrphanedResources.ps1
-│   ├── Remove-OrphanedResource.ps1         # Write: delete orphaned resource (gated)
-│   ├── Enable-HybridBenefit.ps1            # Write: enable Azure Hybrid Benefit (gated)
-│   ├── Stop-IdleVm.ps1                     # Write: deallocate idle VM (gated)
 │   ├── Get-IdleVMs.ps1
 │   └── ...                    # One file per scan module
 ```

@@ -34,7 +34,7 @@ InModuleScope 'FinOpsToolkit' {
                 $modules = Get-ChildItem -Path $modulesPath -Filter '*.ps1'
                 # Exact count so a deleted scanner fails the build instead of
                 # silently passing a loose lower bound.
-                $modules.Count | Should -Be 37
+                $modules.Count | Should -Be 33
             }
 
             It 'Should dot-source every scanner module file from the loader' {

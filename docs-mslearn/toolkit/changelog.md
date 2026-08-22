@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/19/2026
+ms.date: 08/21/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -39,6 +39,7 @@ The following section lists features and enhancements that are currently in deve
     - Includes 30 read-only scan modules covering orphaned resources, idle VMs, storage tier advice, Azure Hybrid Benefit, tag and policy inventory and recommendations, cost data, cost trend, cost by tag, resource costs, reservation advice, commitment utilization, realized savings, budget status, anomaly alerts, Advisor recommendations, billing structure, and contract info.
     - Added a companion set of agent skills that carry the investigation routing, the queries, and the interpretation rules so AI agents can run the same analysis through Azure CLI or an Azure MCP server.
     - Cost scans prefer the FinOps hub's Azure Data Explorer or Microsoft Fabric Kusto database and push aggregation into the engine to scale to large environments, with a storage reader as a small-dataset fallback.
+    - Added a non-interactive mode so the same scans run from a pipeline or a scheduled job. Consoles that can't render the arrow-key menus, such as PowerShell remoting sessions, fall back to numbered prompts.
 
 ### Bicep Registry module pending updates
 
