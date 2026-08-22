@@ -3,7 +3,7 @@ title: Start-FinOpsCostExport command
 description: Initiate a Cost Management export run for the most recent period using the Start-FinOpsCostExport command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 08/17/2026
+ms.date: 08/22/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
