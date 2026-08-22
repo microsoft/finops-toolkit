@@ -75,7 +75,7 @@ Choose colors and patterns carefully. High contrast may improve readability for 
 
 ## Alternative text (alt text)
 
-Alternative text (abbreviated as *alt text*) is a textual replacement for images, including graphics, photographs, charts, and screenshots. Alt text an essential part of accessibility because it benefits users who can't view or process images. The purpose is to provide an equivalent user experience by communicating the same basic information that other users gain from looking at the image.
+Alternative text (abbreviated as *alt text*) is a textual replacement for images, including graphics, photographs, charts, and screenshots. Alt text is an essential part of accessibility because it benefits users who can't view or process images. The purpose is to provide an equivalent user experience by communicating the same basic information that other users gain from looking at the image.
 
 In your alt text, accurately but concisely convey the image's purpose. Writing good alt text isn't about describing every detail. It requires interpretation and judgment.
 

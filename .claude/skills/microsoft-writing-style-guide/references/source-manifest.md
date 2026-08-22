@@ -27,7 +27,9 @@ relying on this snapshot for a rule changed after the synchronization date.
 This FinOps Toolkit copy includes the distribution repository's `LICENSE`,
 `LICENSE-CONTENT`, and `NOTICE.md`. It also applies review fixes that replace
 unresolved image placeholders with text descriptions, make the validator's
-text handling explicitly UTF-8, and reject unresolved placeholders.
+text handling explicitly UTF-8, and reject unresolved placeholders. Additional
+review fixes align percentage guidance, correct alt-text grammar, and make
+damaged-distribution validation return errors instead of raising exceptions.
 
 ## Coverage
 

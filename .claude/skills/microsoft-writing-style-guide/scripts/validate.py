@@ -208,6 +208,11 @@ def validate_skill(root: Path) -> list[str]:
         ),
     }
     for path, expected_values in sentinels.items():
+        if not path.is_file():
+            errors.append(
+                f"FRESHNESS_SENTINEL: {path.relative_to(root)} is missing"
+            )
+            continue
         text = path.read_text(encoding="utf-8")
         for expected in expected_values:
             if expected not in text:
@@ -223,29 +228,37 @@ def validate_skill(root: Path) -> list[str]:
         except json.JSONDecodeError as exc:
             errors.append(f"EVAL_JSON: {exc}")
         else:
-            if data.get("skill_name") != "microsoft-writing-style-guide":
-                errors.append("EVAL_SKILL_NAME: skill_name is incorrect")
-            evaluations = data.get("evals")
-            if not isinstance(evaluations, list) or len(evaluations) < 12:
-                errors.append("EVAL_COUNT: at least 12 evaluations are required")
+            if not isinstance(data, dict):
+                errors.append("EVAL_SHAPE: evals/evals.json root isn't an object")
             else:
-                ids = []
-                for position, evaluation in enumerate(evaluations, start=1):
-                    if not isinstance(evaluation, dict):
-                        errors.append(f"EVAL_SHAPE: evaluation {position} isn't an object")
-                        continue
-                    ids.append(evaluation.get("id"))
-                    for key in ("prompt", "expected_output"):
-                        if not isinstance(evaluation.get(key), str) or not evaluation[key]:
+                if data.get("skill_name") != "microsoft-writing-style-guide":
+                    errors.append("EVAL_SKILL_NAME: skill_name is incorrect")
+                evaluations = data.get("evals")
+                if not isinstance(evaluations, list) or len(evaluations) < 12:
+                    errors.append("EVAL_COUNT: at least 12 evaluations are required")
+                else:
+                    ids = []
+                    for position, evaluation in enumerate(evaluations, start=1):
+                        if not isinstance(evaluation, dict):
                             errors.append(
-                                f"EVAL_SHAPE: evaluation {position} has invalid {key}"
+                                f"EVAL_SHAPE: evaluation {position} isn't an object"
                             )
-                    if not isinstance(evaluation.get("files"), list):
-                        errors.append(
-                            f"EVAL_SHAPE: evaluation {position} has invalid files"
-                        )
-                if ids != list(range(1, len(evaluations) + 1)):
-                    errors.append("EVAL_IDS: IDs must be unique and sequential")
+                            continue
+                        ids.append(evaluation.get("id"))
+                        for key in ("prompt", "expected_output"):
+                            if (
+                                not isinstance(evaluation.get(key), str)
+                                or not evaluation[key]
+                            ):
+                                errors.append(
+                                    f"EVAL_SHAPE: evaluation {position} has invalid {key}"
+                                )
+                        if not isinstance(evaluation.get("files"), list):
+                            errors.append(
+                                f"EVAL_SHAPE: evaluation {position} has invalid files"
+                            )
+                    if ids != list(range(1, len(evaluations) + 1)):
+                        errors.append("EVAL_IDS: IDs must be unique and sequential")
 
     return errors
 
@@ -300,6 +313,29 @@ def run_self_check(root: Path) -> list[str]:
         ):
             failures.append(
                 "SELF_CHECK_LICENSE: missing distribution license wasn't detected"
+            )
+
+    with tempfile.TemporaryDirectory() as directory:
+        candidate = Path(directory) / "skill"
+        shutil.copytree(root, candidate)
+        (candidate / "references" / "a-z-term-list-n-r.md").unlink()
+        if not any(
+            error.startswith("FRESHNESS_SENTINEL")
+            for error in validate_skill(candidate)
+        ):
+            failures.append(
+                "SELF_CHECK_SENTINEL: missing sentinel file wasn't detected"
+            )
+
+    with tempfile.TemporaryDirectory() as directory:
+        candidate = Path(directory) / "skill"
+        shutil.copytree(root, candidate)
+        (candidate / "evals" / "evals.json").write_text("[]\n", encoding="utf-8")
+        if not any(
+            error.startswith("EVAL_SHAPE") for error in validate_skill(candidate)
+        ):
+            failures.append(
+                "SELF_CHECK_EVAL_SHAPE: non-object eval root wasn't detected"
             )
 
     with tempfile.TemporaryDirectory() as directory:
