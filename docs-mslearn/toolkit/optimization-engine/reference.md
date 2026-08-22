@@ -1,9 +1,9 @@
 ---
 title: Azure optimization engine reference
-description: Reference to the optimization engine tables, runbooks, schedules and variables.
+description: Reference to the optimization engine tables, runbooks, schedules, and variables.
 author: flanakin
 ms.author: micflan
-ms.date: 08/18/2026
+ms.date: 08/22/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -314,6 +314,8 @@ All tables are DCR-based custom tables. Most tables are populated from CSV files
 | `LogAnalyticsIngestControl` | Storage-to-table mappings, DCR identifiers, and CSV ingestion progress | All CSV export containers | Initialized by deployment and updated by `Setup-LogAnalyticsTablesAndDCRs` | `Ingest-OptimizationCSVExportsToLogAnalytics`, `Ingest-RecommendationsToLogAnalytics`, `Ingest-SuppressionsToLogAnalytics` | No |
 | `Recommendations` | Generated recommendations and resource context | `recommendationsexports` | All `Recommend-*` runbooks; populated by `Ingest-RecommendationsToSQLServer` | Cleanup and `Remediate-*` runbooks | Yes |
 | `SqlServerIngestControl` | Recommendation JSON ingestion progress | `recommendationsexports` | Initialized by deployment | `Ingest-RecommendationsToSQLServer` | No |
+
+<br>
 
 ## Related content
 
