@@ -86,7 +86,7 @@ Do you prefer public or private network routing?
 - Public routing is most common, easiest to use, and makes resources reachable from the open internet.
 - Private routing is most secure, comes with added cost, and makes resources reachable through private connectivity.
 
-Public routing doesn't require configuration. If you opt for private routing, work with your network admin to create private endpoints and DNS in your own virtual network (preferred) or configure VNet peering and routing (secondary). Before you decide, learn more about the ownership boundaries and configuration steps in [Configure private networking](private-networking.md).
+Public routing doesn't require configuration. If you opt for private routing, work with your network admin to create private endpoints and DNS in your own virtual network (preferred) or configure virtual network peering and routing (secondary). Before you decide, learn more about the ownership boundaries and configuration steps in [Configure private networking](private-networking.md).
 
 <br>
 
