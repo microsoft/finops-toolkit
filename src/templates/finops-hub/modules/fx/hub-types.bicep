@@ -28,6 +28,7 @@ type IdNameObject = { id: string, name: string }
   dnsZones: {
     blob: 'Resource ID and name for the blob storage DNS zone.'
     dfs: 'Resource ID and name for the DFS storage DNS zone.'
+    file: 'Resource ID and name for the file storage DNS zone.'
     queue: 'Resource ID and name for the queue storage DNS zone.'
     table: 'Resource ID and name for the table storage DNS zone.'
   }
@@ -46,6 +47,7 @@ type HubRoutingProperties = {
   dnsZones: {
     blob: IdNameObject
     dfs: IdNameObject
+    file: IdNameObject
     queue: IdNameObject
     table: IdNameObject
   }
@@ -72,7 +74,7 @@ type HubRoutingProperties = {
     keyVaultSku: 'KeyVault SKU. Allowed values: "standard", "premium".'
     keyVaultEnablePurgeProtection: 'Indicates whether purge protection is enabled for the Key Vault. When enabled, deleted Key Vault and its secrets cannot be permanently deleted until the retention period expires, which is required for compliance in some environments.'
     networkAddressPrefix: 'Address prefix for the FinOps hub isolated virtual network, if private network routing is enabled.'
-    natGateway: 'Indicates whether a NAT Gateway should be deployed for controlled outbound internet access. When enabled, subnets disable Azure default outbound access and route through the NAT Gateway.'
+    natGateway: 'Indicates whether a NAT Gateway should be deployed for controlled outbound internet access. When enabled, the script and Data Explorer subnets route outbound traffic through the NAT Gateway.'
     privateRouting: 'Indicates whether private network routing is enabled.'
     publisherIsolation: 'Indicates whether FinOps hub resources should be separated by publisher for advanced security.'
     storageInfrastructureEncryption: 'Indicates whether infrastructure encryption is enabled for the storage account.'
@@ -227,6 +229,7 @@ func newHubInternal(
     dnsZones: {
       blob:  enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('blob')
       dfs:   enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('dfs')
+      file:  enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('file')
       queue: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('queue')
       table: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('table')
     }
