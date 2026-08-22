@@ -3,7 +3,7 @@ title: FinOps multitool overview
 description: FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from a terminal UI, with agent skills so AI assistants can run the same analysis.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 08/21/2026
+ms.date: 08/22/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -37,7 +37,7 @@ FinOps multitool shortens the path from "what is this costing us?" to a specific
 
 ## Required permissions
 
-Most scans need [Reader](/azure/role-based-access-control/built-in-roles#reader) or [Cost Management Reader](/azure/role-based-access-control/built-in-roles#cost-management-reader) on the target scope. Account scans (billing structure, contract info, and Microsoft Azure Consumption Commitment balance) also need [Billing Reader](/azure/role-based-access-control/built-in-roles#billing-reader), or Enterprise Administrator (reader) on an Enterprise Agreement. The carbon scan needs Reader or Carbon Optimization Reader.
+Most scans need [Reader](/azure/role-based-access-control/built-in-roles#reader) or [Cost Management Reader](/azure/role-based-access-control/built-in-roles#cost-management-reader) on the target scope. Account scans (billing structure, contract info, and Microsoft Azure Consumption Commitment balance) also need [Billing Reader](/azure/role-based-access-control/built-in-roles#billing-reader), or Enterprise Administrator (reader) on an Enterprise Agreement. The carbon scan needs Reader or [Carbon Optimization Reader](/azure/carbon-optimization/permissions) assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
 
 ## Give feedback
 

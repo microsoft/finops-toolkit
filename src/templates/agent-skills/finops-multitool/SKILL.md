@@ -119,5 +119,5 @@ Gather the data first so the numbers are real, then route. Don't answer governan
 - **Reader** on the target scope for resource and policy investigations.
 - **Cost Management Reader** for cost, budget, and anomaly investigations.
 - **Billing Reader**, or Enterprise Administrator (reader) on an Enterprise Agreement, for billing account, contract, and MACC investigations.
-- **Carbon Optimization Reader** for emissions data.
+- **Carbon Optimization Reader** for emissions data, assigned at the subscription. Reader works too, but only at subscription scope - carbon permissions don't apply at resource group or resource level.
 - The terminal UI additionally needs the `FinOpsToolkit` PowerShell module and the `Az.Accounts`, `Az.ResourceGraph`, and `Az.Storage` modules.

@@ -3,7 +3,7 @@ title: FinOps multitool commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 08/21/2026
+ms.date: 08/22/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -44,7 +44,7 @@ The multitool includes 30 scan modules across the following categories:
 - **AI and ML** – Azure AI workload spend.
 - **Sustainability** – Carbon emissions.
 
-Analysis scans are read-only. Most need Reader or Cost Management Reader access. Account scans also need Billing Reader, or Enterprise Administrator (reader) on an Enterprise Agreement. The carbon scan needs Reader or Carbon Optimization Reader.
+Analysis scans are read-only. Most need Reader or Cost Management Reader access. Account scans also need Billing Reader, or Enterprise Administrator (reader) on an Enterprise Agreement. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
 
 <br>
 
