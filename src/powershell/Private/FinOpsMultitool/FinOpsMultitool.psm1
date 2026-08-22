@@ -52,8 +52,6 @@ $script:ScriptRootDir = $PSScriptRoot
 
 # -- Analysis Modules ----------------------------------------------------
 $modulePath = Join-Path $PSScriptRoot 'modules'
-. (Join-Path $modulePath 'Initialize-Scanner.ps1')
-. (Join-Path $modulePath 'Get-TenantHierarchy.ps1')
 . (Join-Path $modulePath 'Get-ContractInfo.ps1')
 . (Join-Path $modulePath 'Get-CostData.ps1')
 . (Join-Path $modulePath 'Get-ResourceCosts.ps1')
@@ -84,4 +82,3 @@ $modulePath = Join-Path $PSScriptRoot 'modules'
 . (Join-Path $modulePath 'Get-UsageProportionalAllocation.ps1')
 . (Join-Path $modulePath 'Get-AIWorkloadMetrics.ps1')
 . (Join-Path $modulePath 'Get-CarbonMetrics.ps1')
-. (Join-Path $modulePath 'New-PowerBITemplate.ps1')

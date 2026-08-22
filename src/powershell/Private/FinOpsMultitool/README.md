@@ -337,7 +337,6 @@ FinOpsMultitool/
 │   │   ├── Invoke-AzRestMethodWithRetry.ps1 # REST retry logic
 │   │   ├── Search-AzGraphSafe.ps1          # ARG query wrapper
 │   │   └── MgCostScope.ps1                 # Management group scope state
-│   ├── Initialize-Scanner.ps1
 │   ├── Get-CostData.ps1
 │   ├── Get-ResourceCosts.ps1
 │   ├── Get-TagInventory.ps1
