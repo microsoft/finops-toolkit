@@ -85,10 +85,7 @@ resource linkedService_invoiceDownload 'Microsoft.DataFactory/factories/linkedse
       }
     }
     typeProperties: {
-      url: {
-        value: '@linkedService().baseUrl'
-        type: 'Expression'
-      }
+      url: '@{linkedService().baseUrl}'
       enableServerCertificateValidation: true
       authenticationType: 'Anonymous'
     }
