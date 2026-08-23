@@ -3,7 +3,7 @@ title: Configure private networking in FinOps hubs
 description: Learn about data access options with FinOps hubs and how to configure secure access to your data with private endpoints.
 author: flanakin
 ms.author: micflan
-ms.date: 08/22/2026
+ms.date: 08/23/2026
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
@@ -111,7 +111,7 @@ If you need to reduce costs or simplify your FinOps hub deployment, you can swit
 
 The incremental deployment retains the Toolkit-created virtual network, network security groups, private endpoints, private DNS zones, deployment-script Storage account, Data Factory managed virtual network and private endpoints, managed integration runtime, and optional NAT Gateway and static public IP address. Customer-managed resources in your network are also outside the Toolkit deployment and aren't removed.
 
-Retained resources don't all have standing charges. Private endpoints, private DNS zones, NAT Gateway, public IP address, and data in the deployment-script Storage account can continue to accrue charges. The managed integration runtime incurs charges only when it runs.
+Retained resources don't all have standing charges. Private endpoints, private DNS zones, NAT Gateway, public IP address, and data in the deployment-script Storage account can continue to accrue charges. The managed integration runtime can also continue to incur compute charges during its configured time to live (TTL) after an activity completes: 10 minutes for data flows and 30 minutes for copy, pipeline, and external compute.
 
 > [!WARNING]
 > Removing private networking is a significant change that will affect how you access your FinOps hub. Ensure all stakeholders understand the security implications before proceeding.
@@ -241,12 +241,14 @@ Your DNS solution might also require **CNAME** records from service FQDNs to pri
 In this example:
 
 - The FinOps hub virtual network and DNS resolver virtual network are each peered to the connectivity hub virtual network.
-- Azure Firewall acts as the core router.
+- The connectivity hub peering allows gateway transit. The FinOps hub and DNS resolver peerings use the remote virtual network gateway.
+- On-premises traffic uses the connectivity hub VPN or ExpressRoute gateway to reach the peered virtual networks.
 - Customer-managed private DNS zones contain the Storage and Data Explorer records and are linked to the DNS resolver virtual network.
 - On-premises DNS forwards Azure service queries to the resolver's inbound endpoint.
-- A route table is attached to `GatewaySubnet` so traffic from on-premises can route to the peered virtual network.
 
-:::image type="content" source="./media/private-networking/finops-hubs-network-peering.png" border="false" alt-text="Diagram of peered FinOps hub, DNS resolver, and connectivity hub networks with on-premises routing and DNS forwarding." lightbox="./media/private-networking/finops-hubs-network-peering.png" :::
+This example uses [gateway transit](/azure/virtual-network/virtual-network-peering-overview#gateways-and-on-premises-connectivity) and doesn't require a user-defined route (UDR) in the FinOps hub virtual network. Don't attach route tables to Toolkit-managed subnets. The Toolkit doesn't enable [private endpoint network policies](/azure/private-link/disable-private-endpoint-network-policy), so UDRs can't override private endpoint routes. Storage [service endpoint routes](/azure/virtual-network/virtual-network-service-endpoints-overview#logging-and-troubleshooting) also override matching UDRs and Border Gateway Protocol (BGP) routes.
+
+:::image type="content" source="./media/private-networking/finops-hubs-network-peering.png" border="false" alt-text="Diagram of FinOps hub and DNS resolver networks using gateway transit through a connectivity hub to an on-premises network." lightbox="./media/private-networking/finops-hubs-network-peering.png" :::
 
 This network topology follows the Hub-Spoke network architecture guidance outlined in the [Cloud Adoption Framework](/azure/cloud-adoption-framework/ready/azure-best-practices/hub-spoke-network-topology) for Azure and the [Azure Architecture Center](/azure/architecture/networking/architecture/hub-spoke).
 
