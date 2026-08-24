@@ -749,7 +749,10 @@ resource pipeline_CollectFocusExportManifest 'Microsoft.DataFactory/factories/pi
             }
             formatSettings: {
               type: 'DelimitedTextWriteSettings'
-              quoteAllText: false
+              // quoteAllText must not be set: Data Factory rejects false with
+              // DelimitedTextInvalidSettings. Quoting is already disabled by the empty quoteChar
+              // on the dataset.
+              fileExtension: '.json'
             }
           }
           enableStaging: false
@@ -1073,7 +1076,9 @@ resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06
       recurrence: {
         frequency: 'Day'
         interval: 1
-        startTime: '2023-01-01T00:00:00'
+        // The zone designator is required when timeZone is UTC. Without it, the trigger deploys but
+        // fails to start with InvalidWorkflowTriggerRecurrence.
+        startTime: '2023-01-01T00:00:00Z'
         timeZone: 'UTC'
         schedule: {
           hours: [
