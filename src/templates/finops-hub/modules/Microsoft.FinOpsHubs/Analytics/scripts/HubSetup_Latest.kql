@@ -42,6 +42,14 @@ Recommendations()
 
 
 .create-or-alter function
+with (docstring = 'Gets all quota records with the latest supported schema.', folder = 'Quota')
+Quota()
+{
+    Quota_v1_0()
+}
+
+
+.create-or-alter function
 with (docstring = 'Gets all transactions with the latest supported version of the FOCUS schema.', folder = 'Transactions')
 Transactions()
 {

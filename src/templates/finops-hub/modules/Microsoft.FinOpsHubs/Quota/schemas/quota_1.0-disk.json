@@ -1,0 +1,58 @@
+{
+  "additionalColumns": [],
+  "translator": {
+    "type": "TabularTranslator",
+    "mappings": [
+      {
+        "source": {
+          "path": "['id']"
+        },
+        "sink": {
+          "name": "ResourceId"
+        }
+      },
+      {
+        "source": {
+          "path": "['name']"
+        },
+        "sink": {
+          "name": "ResourceName"
+        }
+      },
+      {
+        "source": {
+          "path": "['type']"
+        },
+        "sink": {
+          "name": "ResourceType"
+        }
+      },
+      {
+        "source": {
+          "path": "['sku']['name']"
+        },
+        "sink": {
+          "name": "displayName"
+        }
+      },
+      {
+        "source": {
+          "path": "['location']"
+        },
+        "sink": {
+          "name": "location"
+        }
+      },
+      {
+        "source": {
+          "path": "['properties']['diskSizeGB']"
+        },
+        "sink": {
+          "name": "currentValue"
+        }
+      }
+    ],
+    "collectionReference": "$['value']",
+    "mapComplexValuesToString": true
+  }
+}

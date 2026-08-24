@@ -42,6 +42,9 @@ param enableManagedExports bool = true
 @description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The Data Factory managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
 param enableRecommendations bool = false
 
+@description('Optional. Enable quota and capacity data ingestion from Azure Resource Manager. The Data Factory managed identity requires Reader role on the subscriptions to scan. Default: false.')
+param enableQuota bool = false
+
 @description('Optional. Enable Azure Hybrid Benefit recommendations that flag VMs and SQL VMs without Azure Hybrid Benefit enabled. May generate noise if your organization does not have on-premises licenses. Requires enableRecommendations. Default: false.')
 param enableAHBRecommendations bool = false
 
@@ -181,6 +184,7 @@ module hub 'modules/hub.bicep' = {
     enablePurgeProtection: enablePurgeProtection
     enableManagedExports: enableManagedExports
     enableRecommendations: enableRecommendations
+    enableQuota: enableQuota
     enableAHBRecommendations: enableAHBRecommendations
     enableSpotRecommendations: enableSpotRecommendations
     dataExplorerName: dataExplorerName

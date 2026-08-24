@@ -1,0 +1,10 @@
+{
+  "dataset": "Quota",
+  "provider": "Microsoft",
+  "query": "/providers/Microsoft.Compute/disks?api-version=2024-03-02",
+  "queryEngine": "AzureResourceManager",
+  "scope": "Tenant",
+  "source": "Azure Resource Manager",
+  "type": "PremiumSSDv2Disk",
+  "version": "1.0-disk"
+}

@@ -1,0 +1,42 @@
+{
+  "additionalColumns": [],
+  "translator": {
+    "type": "TabularTranslator",
+    "mappings": [
+      {
+        "source": {
+          "path": "['id']"
+        },
+        "sink": {
+          "name": "ResourceId"
+        }
+      },
+      {
+        "source": {
+          "path": "['name']"
+        },
+        "sink": {
+          "name": "ResourceName"
+        }
+      },
+      {
+        "source": {
+          "path": "['type']"
+        },
+        "sink": {
+          "name": "ResourceType"
+        }
+      },
+      {
+        "source": {
+          "path": "['location']"
+        },
+        "sink": {
+          "name": "location"
+        }
+      }
+    ],
+    "collectionReference": "$['value']",
+    "mapComplexValuesToString": true
+  }
+}

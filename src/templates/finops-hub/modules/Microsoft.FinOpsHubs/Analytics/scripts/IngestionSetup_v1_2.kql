@@ -1679,7 +1679,11 @@ Recommendations_transform_v1_2()
     | extend x_SourceName     = coalesce(x_SourceName, iff(ProviderName == 'Microsoft', 'Cost Management', ProviderName))
     | extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
     | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', ''))
-    | extend x_SourceVersion  = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2023-05-01', ''))
+    | extend x_SourceVersion  = coalesce(x_SourceVersion, case(
+        x_SourceType =~ 'SavingsPlan', '2026-06-01',
+        ProviderName == 'Microsoft', '2023-05-01',
+        ''
+    ))
     //
     // Convert JSON cost columns to real
     | extend CostWithNoReservedInstances    = case(isnotempty(CostWithNoReservedInstances),    CostWithNoReservedInstances,    isnotempty(CostWithNoReservedInstancesJson),    toreal(extract(@'"value":([0-9\.]+)', 1, CostWithNoReservedInstancesJson)),    CostWithNoReservedInstances)
@@ -1731,6 +1735,7 @@ Recommendations_transform_v1_2()
     // Prefer specified date, then fall back to generating a date based on reservation recommendation lookback period, then validate to ensure it's not in the future
     | extend x_RecommendationDate = coalesce(x_RecommendationDate, FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d))
     | extend x_RecommendationDate = iff(x_RecommendationDate > now(), startofday(now()), x_RecommendationDate)
+    | extend x_RecommendationId = coalesce(x_RecommendationId, ResourceId)
     //
     // Derive x_ResourceType from ResourceId
     | extend tmp_ResourceType = tostring(parse_resourceid(ResourceId).x_ResourceType)

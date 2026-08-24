@@ -1,0 +1,34 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+//
+// NAME: Quota headroom
+// DESCRIPTION: Calculates remaining headroom and usage percentage for quota records with nonnegative limits.
+// CATEGORY: Governance
+// FEATURE: Quota
+// REGION: All
+// TECH: KQL
+//
+// SOURCE: Quota()
+//
+
+Quota()
+| summarize arg_max(x_IngestionTime, *) by ResourceId
+| extend
+    Headroom = iff(limit >= 0, limit - currentValue, real(null)),
+    PercentUsed = iff(limit > 0, round(100.0 * currentValue / limit, 1), real(null))
+| project
+    ProviderName,
+    ResourceId,
+    ResourceName,
+    ResourceType,
+    SubAccountId,
+    displayName,
+    location,
+    currentValue,
+    limit,
+    Headroom,
+    PercentUsed,
+    unit,
+    x_SourceType,
+    x_IngestionTime
+| order by PercentUsed desc nulls last

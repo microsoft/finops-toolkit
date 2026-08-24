@@ -1,0 +1,10 @@
+{
+  "dataset": "Quota",
+  "provider": "Microsoft",
+  "query": "/providers/Microsoft.Compute/capacityReservationGroups?api-version=2024-03-01",
+  "queryEngine": "AzureResourceManager",
+  "scope": "Tenant",
+  "source": "Azure Resource Manager",
+  "type": "CapacityReservation",
+  "version": "1.0-capacity-reservation"
+}

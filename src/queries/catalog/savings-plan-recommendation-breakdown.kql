@@ -1,0 +1,44 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+//
+// NAME: Savings plan recommendation breakdown
+// DESCRIPTION: Summarizes Savings Plan recommendations for all supported benefit types and terms.
+// CATEGORY: Optimization
+// FEATURE: Recommendations
+// REGION: All
+// TECH: KQL
+//
+// RESOURCE TYPES: Microsoft.CostManagement/benefitRecommendations
+//
+// SOURCE: Recommendations()
+//
+// NOTES:
+// - Savings Plan recommendations include both compute and database benefits.
+// - Costs and savings use the billing currency returned by Cost Management.
+// - Savings rates are rounded to one decimal place for readability.
+//
+
+Recommendations()
+| where x_SourceProvider =~ "Microsoft" and x_SourceType =~ "SavingsPlan"
+| extend
+    BenefitType = replace_regex(tostring(x_RecommendationDetails.x_ArmSkuName), @"_Savings_Plan$", ""),
+    ArmSkuName = tostring(x_RecommendationDetails.x_ArmSkuName),
+    Term = tostring(x_RecommendationDetails.x_Term),
+    LookBackPeriod = tostring(x_RecommendationDetails.x_LookBackPeriod),
+    Scope = tostring(x_RecommendationDetails.x_Scope),
+    CurrencyCode = tostring(x_RecommendationDetails.x_CurrencyCode)
+| summarize arg_max(x_RecommendationDate, *) by BenefitType, ArmSkuName, Term, LookBackPeriod, Scope
+| project
+    BenefitType,
+    ArmSkuName,
+    Term,
+    LookBackPeriod,
+    Scope,
+    CurrencyCode,
+    CostWithoutBenefit = x_EffectiveCostBefore,
+    CostWithBenefit = x_EffectiveCostAfter,
+    EstimatedSavings = x_EffectiveCostSavings,
+    SavingsRate = round(100.0 * x_EffectiveCostSavings / x_EffectiveCostBefore, 1),
+    RecommendationDate = x_RecommendationDate,
+    RecommendationId = x_RecommendationId
+| order by EstimatedSavings desc

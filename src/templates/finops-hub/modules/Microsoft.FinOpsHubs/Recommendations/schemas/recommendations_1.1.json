@@ -1,0 +1,91 @@
+{
+  "additionalColumns": [],
+  "translator": {
+    "type": "TabularTranslator",
+    "mappings": [
+      {
+        "source": {
+          "path": "['id']"
+        },
+        "sink": {
+          "name": "ResourceId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['properties']['armSkuName']"
+        },
+        "sink": {
+          "name": "ResourceName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['type']"
+        },
+        "sink": {
+          "name": "ResourceType",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['properties']['costWithoutBenefit']"
+        },
+        "sink": {
+          "name": "x_EffectiveCostBefore",
+          "type": "Double"
+        }
+      },
+      {
+        "source": {
+          "path": "['properties']['recommendationDetails']['totalCost']"
+        },
+        "sink": {
+          "name": "x_EffectiveCostAfter",
+          "type": "Double"
+        }
+      },
+      {
+        "source": {
+          "path": "['properties']['recommendationDetails']['savingsAmount']"
+        },
+        "sink": {
+          "name": "x_EffectiveCostSavings",
+          "type": "Double"
+        }
+      },
+      {
+        "source": {
+          "path": "['properties']['firstConsumptionDate']"
+        },
+        "sink": {
+          "name": "x_RecommendationDate",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['properties']"
+        },
+        "sink": {
+          "name": "x_RecommendationDetails",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['kind']"
+        },
+        "sink": {
+          "name": "x_SourceType",
+          "type": "String"
+        }
+      }
+    ],
+    "collectionReference": "$['value']",
+    "mapComplexValuesToString": true
+  }
+}

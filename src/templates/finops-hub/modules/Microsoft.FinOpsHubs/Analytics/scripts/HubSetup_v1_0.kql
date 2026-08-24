@@ -331,6 +331,32 @@ Recommendations_v1_0()
 }
 
 
+// Quota_final_v1_0
+.create-or-alter function
+with (docstring = 'Gets all quota records aligned to the Quota 1.0 contract.', folder = 'Quota')
+Quota_v1_0()
+{
+    database('Ingestion').Quota_final_v1_0
+    | project
+        ProviderName,
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        SubAccountId,
+        displayName,
+        location,
+        currentValue,
+        limit,
+        unit,
+        x_QuotaDetails,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion,
+        x_IngestionTime
+}
+
+
 // Transactions_final_v1_0
 .create-or-alter function
 with (docstring = 'Gets all transactions aligned to FOCUS 1.0.', folder = 'Transactions')

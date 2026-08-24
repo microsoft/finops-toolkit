@@ -1,0 +1,10 @@
+{
+  "dataset": "Quota",
+  "provider": "Microsoft",
+  "query": "/providers/Microsoft.CognitiveServices/locations/{location}/usages?api-version=2023-05-01",
+  "queryEngine": "AzureResourceManager",
+  "scope": "Tenant",
+  "source": "Azure Resource Manager",
+  "type": "CognitiveServicesUsage",
+  "version": "1.0-usage"
+}

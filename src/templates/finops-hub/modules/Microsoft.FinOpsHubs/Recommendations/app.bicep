@@ -43,15 +43,50 @@ param ingestionQueries IngestionQueriesMetadata
 //==============================================================================
 
 // <generated-query-files>
-// Query file entries are generated during build by Build-HubIngestionQueries.ps1.
-// Do not edit this section manually. The build script scans the queries/ folder and
-// generates loadTextContent entries grouped by the optional "group" field in each JSON file.
-var queryFiles = {}
+// Load query files -- core recommendations are always included
+var coreQueryFiles = {
+  'Recommendations-Microsoft-AdvisorCost': loadTextContent('queries/Recommendations-Microsoft-AdvisorCost.json')
+  'Recommendations-Microsoft-BackendlessAppGateways': loadTextContent('queries/Recommendations-Microsoft-BackendlessAppGateways.json')
+  'Recommendations-Microsoft-BackendlessLoadBalancers': loadTextContent('queries/Recommendations-Microsoft-BackendlessLoadBalancers.json')
+  'Recommendations-Microsoft-BasicLoadBalancers': loadTextContent('queries/Recommendations-Microsoft-BasicLoadBalancers.json')
+  'Recommendations-Microsoft-BasicPublicIPs': loadTextContent('queries/Recommendations-Microsoft-BasicPublicIPs.json')
+  'Recommendations-Microsoft-ClassicAppGateways': loadTextContent('queries/Recommendations-Microsoft-ClassicAppGateways.json')
+  'Recommendations-Microsoft-EmptyAppServicePlans': loadTextContent('queries/Recommendations-Microsoft-EmptyAppServicePlans.json')
+  'Recommendations-Microsoft-EmptyNSGs': loadTextContent('queries/Recommendations-Microsoft-EmptyNSGs.json')
+  'Recommendations-Microsoft-EmptySQLElasticPools': loadTextContent('queries/Recommendations-Microsoft-EmptySQLElasticPools.json')
+  'Recommendations-Microsoft-IdleVNetGateways': loadTextContent('queries/Recommendations-Microsoft-IdleVNetGateways.json')
+  'Recommendations-Microsoft-LegacyStorageAccounts': loadTextContent('queries/Recommendations-Microsoft-LegacyStorageAccounts.json')
+  'Recommendations-Microsoft-OrphanedNATGateways': loadTextContent('queries/Recommendations-Microsoft-OrphanedNATGateways.json')
+  'Recommendations-Microsoft-PremiumSnapshots': loadTextContent('queries/Recommendations-Microsoft-PremiumSnapshots.json')
+  'Recommendations-Microsoft-SavingsPlan-P1Y': loadTextContent('queries/Recommendations-Microsoft-SavingsPlan-P1Y.json')
+  'Recommendations-Microsoft-SavingsPlan-P3Y': loadTextContent('queries/Recommendations-Microsoft-SavingsPlan-P3Y.json')
+  'Recommendations-Microsoft-StoppedVMs': loadTextContent('queries/Recommendations-Microsoft-StoppedVMs.json')
+  'Recommendations-Microsoft-UnassociatedDDoSPlans': loadTextContent('queries/Recommendations-Microsoft-UnassociatedDDoSPlans.json')
+  'Recommendations-Microsoft-UnattachedDisks': loadTextContent('queries/Recommendations-Microsoft-UnattachedDisks.json')
+  'Recommendations-Microsoft-UnattachedNICs': loadTextContent('queries/Recommendations-Microsoft-UnattachedNICs.json')
+  'Recommendations-Microsoft-UnattachedPublicIPs': loadTextContent('queries/Recommendations-Microsoft-UnattachedPublicIPs.json')
+  'Recommendations-Microsoft-UnmanagedDisks': loadTextContent('queries/Recommendations-Microsoft-UnmanagedDisks.json')
+  'Recommendations-Microsoft-UnprovisionedExpressRouteCircuits': loadTextContent('queries/Recommendations-Microsoft-UnprovisionedExpressRouteCircuits.json')
+}
+
+// Optional: Azure Hybrid Benefit recommendations (may generate noise without on-premises licenses)
+var ahbQueryFiles = enableAHBRecommendations ? {
+  'Recommendations-Microsoft-SQLVMsWithoutAHB': loadTextContent('queries/Recommendations-Microsoft-SQLVMsWithoutAHB.json')
+  'Recommendations-Microsoft-VMsWithoutAHB': loadTextContent('queries/Recommendations-Microsoft-VMsWithoutAHB.json')
+} : {}
+
+// Optional: Spot VM recommendations (may generate noise for non-interruptible workloads)
+var spotQueryFiles = enableSpotRecommendations ? {
+  'Recommendations-Microsoft-NonSpotAKSClusters': loadTextContent('queries/Recommendations-Microsoft-NonSpotAKSClusters.json')
+} : {}
+
+var queryFiles = union(coreQueryFiles, ahbQueryFiles, spotQueryFiles)
 // </generated-query-files>
 
 // Load schema files
 var schemaFiles = {
   'recommendations_1.0': loadTextContent('schemas/recommendations_1.0.json')
+  'recommendations_1.1': loadTextContent('schemas/recommendations_1.1.json')
 }
 
 
