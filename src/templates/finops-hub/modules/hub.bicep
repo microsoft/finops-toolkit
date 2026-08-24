@@ -67,6 +67,39 @@ param invoiceBillingAccounts string[] = []
 @maxValue(28)
 param invoiceScheduleDay int = 10
 
+@description('Optional. Enable ingestion of FOCUS cost data exported from Amazon Web Services. Requires an S3 bucket with a FOCUS 1.2 export and an access key provided during deployment. Default: false.')
+param enableAwsFocusIngestion bool = false
+
+@description('Optional. Name of the Amazon S3 bucket that contains the FOCUS export. Requires enableAwsFocusIngestion.')
+param awsBucketName string = ''
+
+@description('Optional. Path to the export root folder within the S3 bucket. This is the folder that contains the "data" and "metadata" subfolders. Requires enableAwsFocusIngestion.')
+param awsBucketPath string = ''
+
+@description('Optional. Amazon Web Services account ID that owns the FOCUS export. Requires enableAwsFocusIngestion.')
+param awsAccountId string = ''
+
+@description('Optional. Amazon Web Services region of the S3 bucket. Leave empty to use the global S3 endpoint. Requires enableAwsFocusIngestion. Default: "" (global).')
+param awsRegion string = ''
+
+@description('Optional. Amazon Web Services access key ID used to read the S3 bucket. Requires enableAwsFocusIngestion.')
+param awsAccessKeyId string = ''
+
+@description('Optional. Amazon Web Services secret access key used to read the S3 bucket. Stored in Key Vault. Requires enableAwsFocusIngestion.')
+@secure()
+param awsSecretAccessKey string = ''
+
+@description('Optional. FOCUS version of the Amazon Web Services export. Requires enableAwsFocusIngestion. Default: "1.2".')
+@allowed([
+  '1.2'
+])
+param awsFocusVersion string = '1.2'
+
+@description('Optional. Hour of the day (UTC) to collect multicloud FOCUS files. Default: 4.')
+@minValue(0)
+@maxValue(23)
+param multiCloudScheduleHour int = 4
+
 // cSpell:ignore eventhouse
 @description('Optional. Microsoft Fabric eventhouse query URI. Default: "" (do not use).')
 param fabricQueryUri string = ''
@@ -234,6 +267,8 @@ var telemetryString = join([
   !useAzureDataExplorer || dataExplorerCapacity == 1 ? '' : 'x${dataExplorerCapacity}'
   // P = private endpoints enabled
   enablePublicAccess ? '' : 'P'
+  // A = AWS FOCUS ingestion enabled
+  enableAwsFocusIngestion ? 'A' : ''
 ], '')
 
 
@@ -378,6 +413,27 @@ module invoices 'Microsoft.Billing/Invoices/app.bicep' = if (enableInvoiceDownlo
 }
 
 //------------------------------------------------------------------------------
+// Multicloud FOCUS ingestion
+//------------------------------------------------------------------------------
+
+module awsFocus 'Microsoft.FinOpsHubs/AmazonWebServices/app.bicep' = if (enableAwsFocusIngestion) {
+  name: 'Microsoft.FinOpsHubs.AmazonWebServices'
+  params: {
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'AmazonWebServices')
+    core: core.outputs.metadata
+    exports: cmExports.outputs.metadata
+    bucketName: awsBucketName
+    bucketPath: awsBucketPath
+    accountId: awsAccountId
+    region: awsRegion
+    accessKeyId: awsAccessKeyId
+    secretAccessKey: awsSecretAccessKey
+    focusVersion: awsFocusVersion
+    scheduleHour: multiCloudScheduleHour
+  }
+}
+
+//------------------------------------------------------------------------------
 // Remote hub app
 //------------------------------------------------------------------------------
 
@@ -429,6 +485,7 @@ module startTriggers 'fx/hub-initialize.bicep' = {
     remoteHub
     cmManagedExports
     invoices
+    awsFocus
   ]
   params: {
     app: core.outputs.app
