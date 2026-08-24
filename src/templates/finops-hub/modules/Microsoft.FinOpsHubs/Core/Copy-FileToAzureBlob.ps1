@@ -69,6 +69,9 @@ if (!$json)
         version   = ''
         learnMore = 'https://aka.ms/finops/hubs'
         scopes    = @()
+        invoices  = @{
+            billingAccounts = @()
+        }
         retention = @{
             'msexports' = @{
                 days = 0
@@ -153,6 +156,24 @@ else
 {
     $json.retention.final.months = [Int32]::Parse($env:finalRetentionInMonths)
 }
+
+# Set or update the billing accounts to download invoices for
+$invoiceBillingAccounts = @()
+if ($env:invoiceBillingAccounts)
+{
+    $invoiceBillingAccounts = @($env:invoiceBillingAccounts.Split('|') | ForEach-Object { $_.Trim() } | Where-Object { $_ } | Select-Object -Unique)
+}
+
+if (!($json.invoices))
+{
+    $json | Add-Member -Name invoices -Value (ConvertFrom-Json '{ "billingAccounts": [] }') -MemberType NoteProperty
+}
+elseif ($null -eq $json.invoices.billingAccounts)
+{
+    $json.invoices | Add-Member -Name billingAccounts -Value @() -MemberType NoteProperty -Force
+}
+
+$json.invoices.billingAccounts = $invoiceBillingAccounts
 
 # Updating settings
 Write-Output "Updating version to $env:ftkVersion..."

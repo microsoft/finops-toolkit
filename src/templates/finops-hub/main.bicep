@@ -48,6 +48,17 @@ param enableAHBRecommendations bool = false
 @description('Optional. Enable non-Spot AKS cluster recommendations that flag AKS clusters with autoscaling but not using Spot VMs. May generate noise since Spot VMs are only appropriate for interruptible workloads. Requires enableRecommendations. Default: false.')
 param enableSpotRecommendations bool = false
 
+@description('Optional. Enable automatic download of Microsoft invoice files into the hub data lake. Only supported for Microsoft Customer Agreement (MCA) and Microsoft Partner Agreement (MPA) billing accounts. The Data Factory managed identity requires Billing Reader role on the billing account. Default: false.')
+param enableInvoiceDownload bool = false
+
+@description('Optional. Billing account IDs to download invoices for, separated by a new line, comma, or semicolon. Requires enableInvoiceDownload. Leave empty to use the billing account scopes monitored by this hub. Default: "" (none).')
+param invoiceBillingAccounts string = ''
+
+@description('Optional. Day of the month to download invoices from the previous month. Requires enableInvoiceDownload. Default: 10.')
+@minValue(1)
+@maxValue(28)
+param invoiceScheduleDay int = 10
+
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
 param dataExplorerName string = ''
 
@@ -167,11 +178,21 @@ param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
 
 //==============================================================================
+// Variables
+//==============================================================================
+
+// Accept new lines, commas, and semicolons as separators for billing account IDs.
+var invoiceBillingAccountArray = filter(
+  map(split(replace(replace(replace(invoiceBillingAccounts, '\r\n', '\n'), ',', '\n'), ';', '\n'), '\n'), id => trim(id)),
+  id => !empty(id)
+)
+
+
+//==============================================================================
 // Resources
 //==============================================================================
 
-module hub 'modules/hub.bicep' = {
-  name: 'hub'
+module hub 'modules/hub.bicep' = {  name: 'hub'
   params: {
     hubName: hubName
     location: location
@@ -183,6 +204,9 @@ module hub 'modules/hub.bicep' = {
     enableRecommendations: enableRecommendations
     enableAHBRecommendations: enableAHBRecommendations
     enableSpotRecommendations: enableSpotRecommendations
+    enableInvoiceDownload: enableInvoiceDownload
+    invoiceBillingAccounts: invoiceBillingAccountArray
+    invoiceScheduleDay: invoiceScheduleDay
     dataExplorerName: dataExplorerName
     dataExplorerSku: dataExplorerSku
     dataExplorerCapacity: dataExplorerCapacity

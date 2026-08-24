@@ -56,6 +56,17 @@ param enableAHBRecommendations bool = false
 @description('Optional. Enable non-Spot AKS cluster recommendations that flag AKS clusters with autoscaling but not using Spot VMs. May generate noise since Spot VMs are only appropriate for interruptible workloads. Requires enableRecommendations. Default: false.')
 param enableSpotRecommendations bool = false
 
+@description('Optional. Enable automatic download of Microsoft invoice files into the hub data lake. Only supported for Microsoft Customer Agreement (MCA) and Microsoft Partner Agreement (MPA) billing accounts. The Data Factory managed identity requires Billing Reader role on the billing account. Default: false.')
+param enableInvoiceDownload bool = false
+
+@description('Optional. List of billing account IDs to download invoices for. Requires enableInvoiceDownload. Leave empty to use the billing account scopes monitored by this hub. Default: [] (none).')
+param invoiceBillingAccounts string[] = []
+
+@description('Optional. Day of the month to download invoices from the previous month. Requires enableInvoiceDownload. Default: 10.')
+@minValue(1)
+@maxValue(28)
+param invoiceScheduleDay int = 10
+
 // cSpell:ignore eventhouse
 @description('Optional. Microsoft Fabric eventhouse query URI. Default: "" (do not use).')
 param fabricQueryUri string = ''
@@ -266,6 +277,7 @@ module core 'Microsoft.FinOpsHubs/Core/app.bicep' = {
     ingestionRetentionInMonths: ingestionRetentionInMonths
     rawRetentionInDays: dataExplorerRawRetentionInDays
     finalRetentionInMonths: dataExplorerFinalRetentionInMonths
+    invoiceBillingAccounts: enableInvoiceDownload ? invoiceBillingAccounts : []
   }
 }
 
@@ -353,6 +365,19 @@ module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (en
 }
 
 //------------------------------------------------------------------------------
+// Invoices
+//------------------------------------------------------------------------------
+
+module invoices 'Microsoft.Billing/Invoices/app.bicep' = if (enableInvoiceDownload) {
+  name: 'Microsoft.Billing.Invoices'
+  params: {
+    app: newApp(hub, 'Microsoft.Billing', 'Invoices')
+    core: core.outputs.metadata
+    scheduleDay: invoiceScheduleDay
+  }
+}
+
+//------------------------------------------------------------------------------
 // Remote hub app
 //------------------------------------------------------------------------------
 
@@ -403,6 +428,7 @@ module startTriggers 'fx/hub-initialize.bicep' = {
     deleteOldResources
     remoteHub
     cmManagedExports
+    invoices
   ]
   params: {
     app: core.outputs.app

@@ -837,6 +837,103 @@
         ]
       },
       {
+        "name": "invoices",
+        "label": "🆕 Invoices",
+        "elements": [
+          {
+            "name": "invoicesIntro",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": true,
+            "options": {
+              "text": "Save your Microsoft invoice files in the hub data lake for reconciliation and audit. FinOps hubs can download invoices every month and organize them by billing period, billing profile, and purchase order number. Only supported for Microsoft Customer Agreement (MCA) and Microsoft Partner Agreement (MPA) billing accounts."
+            }
+          },
+          {
+            "name": "enableInvoiceDownload",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable invoice download (preview)",
+            "toolTip": "Download Microsoft invoice files into the ingestion container every month. Invoices are saved in the invoices folder."
+          },
+          {
+            "name": "billingAccounts",
+            "type": "Microsoft.Common.Section",
+            "label": "Billing accounts",
+            "visible": "[steps('invoices').enableInvoiceDownload]",
+            "elements": [
+              {
+                "name": "billingAccountsIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Leave blank to download invoices for the billing account scopes this hub already monitors. To download invoices for specific billing accounts, enter one billing account ID per line. Find your billing account ID in Cost Management + Billing > Properties."
+                }
+              },
+              {
+                "name": "invoiceBillingAccounts",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Billing account IDs",
+                "defaultValue": "",
+                "multiLine": true,
+                "toolTip": "One billing account ID per line. Example: 12345678-1234-1234-1234-123456789012:87654321-4321-4321-4321-210987654321_2019-05-31",
+                "constraints": {
+                  "required": false
+                },
+                "visible": true
+              }
+            ]
+          },
+          {
+            "name": "schedule",
+            "type": "Microsoft.Common.Section",
+            "label": "Schedule",
+            "visible": "[steps('invoices').enableInvoiceDownload]",
+            "elements": [
+              {
+                "name": "scheduleIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Invoices for the previous month are downloaded once a month. Invoices are generally available within the first few days of the month, but the exact date varies by billing account."
+                }
+              },
+              {
+                "name": "invoiceScheduleDay",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Day of the month",
+                "defaultValue": "10",
+                "toolTip": "Day of the month to download invoices from the previous month.",
+                "constraints": {
+                  "allowedValues": [
+                    { "label": "5", "value": 5 },
+                    { "label": "10", "value": 10 },
+                    { "label": "15", "value": 15 },
+                    { "label": "20", "value": 20 }
+                  ],
+                  "required": true
+                },
+                "visible": true
+              }
+            ]
+          },
+          {
+            "name": "permissions",
+            "type": "Microsoft.Common.Section",
+            "label": "Required permissions",
+            "visible": "[steps('invoices').enableInvoiceDownload]",
+            "elements": [
+              {
+                "name": "permissionsNote",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "The Data Factory managed identity requires the Billing Reader role on the billing account. This role cannot be granted during deployment. After deployment, run Add-FinOpsHubBillingReader from the FinOpsToolkit PowerShell module or grant the role in Cost Management + Billing > Access control (IAM)."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "advanced",
         "label": "Advanced",
         "elements": [
@@ -1002,6 +1099,9 @@
       "enableRecommendations": "[steps('recommendations').enableRecommendations]",
       "enableAHBRecommendations": "[steps('recommendations').optional.enableAHBRecommendations]",
       "enableSpotRecommendations": "[steps('recommendations').optional.enableSpotRecommendations]",
+      "enableInvoiceDownload": "[steps('invoices').enableInvoiceDownload]",
+      "invoiceBillingAccounts": "[steps('invoices').billingAccounts.invoiceBillingAccounts]",
+      "invoiceScheduleDay": "[steps('invoices').schedule.invoiceScheduleDay]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
       "enableNatGateway": "[steps('advanced').networking.enableNatGateway]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
