@@ -29,7 +29,8 @@
     the tool discovers all accessible subscriptions.
 
     .PARAMETER OutputPath
-    Optional directory for exported result files. Defaults to the tool's working folder.
+    Optional directory for exported result files. Defaults to a FinOpsResults folder in your
+    home directory.
 
     .PARAMETER Scans
     Optional list of scans to run, replacing the default selection. Accepts either the

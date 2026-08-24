@@ -2404,7 +2404,7 @@ function Invoke-FinOpsMultitool {
         }
 
         # -- Export option -------------------------------------------------
-        $defaultPath = Join-Path (Get-Location) 'FinOpsResults'
+        $defaultPath = Join-Path $HOME 'FinOpsResults'
         if ($ExportPath) {
             $exportDir = $ExportPath
         }

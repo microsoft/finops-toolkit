@@ -3,7 +3,7 @@ title: Start-FinOpsMultitool command
 description: Launch the FinOps multitool interactive terminal UI to scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 08/22/2026
+ms.date: 08/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -42,7 +42,7 @@ Start-FinOpsMultitool `
 | Name              | Description                                                                                                                                                                                                                                                |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `‑SubscriptionId` | Optional. Scopes the scan to a single subscription. When omitted, all accessible subscriptions are discovered.                                                                                                                                             |
-| `‑OutputPath`     | Optional. Directory for exported result files. Defaults to the tool's working folder.                                                                                                                                                                      |
+| `‑OutputPath`     | Optional. Directory for exported result files. Defaults to a `FinOpsResults` folder in your home directory.                                                                                                                                                |
 | `‑Scans`          | Optional. Runs the specified scans instead of the default selection. Accepts a scan command name, such as `Get-OrphanedResources`, or its menu label, such as `Orphaned Resources`. Use `All` to select every scan. An unrecognized name returns an error. |
 | `‑DataSource`     | Optional. Sets the data source and skips the data source prompt. Valid values are `Hub`, `API`, and `GraphOnly`. `Hub` falls back to `API` when no FinOps hub is found in scope.                                                                           |
 | `‑NonInteractive` | Optional. Runs without prompting. Every choice comes from the parameters or their defaults, and results are exported only when you set `-OutputPath`.                                                                                                      |
