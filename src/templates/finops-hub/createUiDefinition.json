@@ -934,6 +934,189 @@
         ]
       },
       {
+        "name": "multicloud",
+        "label": "🆕 Multicloud",
+        "elements": [
+          {
+            "name": "multicloudIntro",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": true,
+            "options": {
+              "text": "Ingest FOCUS cost data exported from other clouds so you can report on all of your costs together. FinOps hubs copy the exported files once a day and run them through the same normalization and ingestion pipeline used for Microsoft Cloud costs."
+            }
+          },
+          {
+            "name": "enableAwsFocusIngestion",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Amazon Web Services FOCUS ingestion (preview)",
+            "toolTip": "Collect a FOCUS 1.2 export from an Amazon S3 bucket every day and ingest it into the hub."
+          },
+          {
+            "name": "awsExport",
+            "type": "Microsoft.Common.Section",
+            "label": "Amazon Web Services export",
+            "visible": "[steps('multicloud').enableAwsFocusIngestion]",
+            "elements": [
+              {
+                "name": "awsExportIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Create a FOCUS 1.2 export in Billing and Cost Management > Data Exports and point it at an S3 bucket. Then enter the bucket details below. For an export delivered to s3://my-bucket/reports/focus-export/data/, the bucket name is my-bucket and the export path is reports/focus-export."
+                }
+              },
+              {
+                "name": "awsBucketName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "S3 bucket name",
+                "defaultValue": "",
+                "toolTip": "Name of the S3 bucket that receives the FOCUS export.",
+                "constraints": {
+                  "required": "[steps('multicloud').enableAwsFocusIngestion]",
+                  "regex": "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$",
+                  "validationMessage": "Must be a valid S3 bucket name: 3-63 characters, lowercase letters, numbers, dots, and hyphens."
+                },
+                "visible": true
+              },
+              {
+                "name": "awsBucketPath",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Export path",
+                "defaultValue": "",
+                "toolTip": "Path to the export root folder within the bucket. This is the folder that contains the data and metadata subfolders.",
+                "constraints": {
+                  "required": "[steps('multicloud').enableAwsFocusIngestion]",
+                  "regex": "^[^/].*[^/]$",
+                  "validationMessage": "Must not start or end with a slash. Do not include the data or metadata folder."
+                },
+                "visible": true
+              },
+              {
+                "name": "awsAccountId",
+                "type": "Microsoft.Common.TextBox",
+                "label": "AWS account ID",
+                "defaultValue": "",
+                "toolTip": "Account ID that owns the export. Used to isolate the data in the hub data lake.",
+                "constraints": {
+                  "required": "[steps('multicloud').enableAwsFocusIngestion]",
+                  "regex": "^[0-9]{12}$",
+                  "validationMessage": "Must be a 12-digit AWS account ID."
+                },
+                "visible": true
+              },
+              {
+                "name": "awsRegion",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Bucket region",
+                "defaultValue": "",
+                "toolTip": "Region of the bucket, for example us-east-1. Leave blank to use the global S3 endpoint.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^$|^[a-z]{2}-[a-z]+-[0-9]$",
+                  "validationMessage": "Must be a valid AWS region, for example us-east-1, or blank."
+                },
+                "visible": true
+              }
+            ]
+          },
+          {
+            "name": "awsCredentials",
+            "type": "Microsoft.Common.Section",
+            "label": "Amazon Web Services credentials",
+            "visible": "[steps('multicloud').enableAwsFocusIngestion]",
+            "elements": [
+              {
+                "name": "awsCredentialsIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Create an IAM user with read access to the bucket and generate an access key for it. The user needs s3:ListBucket on the bucket and s3:GetObject on its contents. The secret access key is stored in the hub Key Vault and is never written to the connection definition."
+                }
+              },
+              {
+                "name": "awsAccessKeyId",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Access key ID",
+                "defaultValue": "",
+                "toolTip": "Access key ID for the IAM user that can read the bucket.",
+                "constraints": {
+                  "required": "[steps('multicloud').enableAwsFocusIngestion]",
+                  "regex": "^[A-Z0-9]{16,128}$",
+                  "validationMessage": "Must be a valid AWS access key ID."
+                },
+                "visible": true
+              },
+              {
+                "name": "awsSecretAccessKey",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Secret access key"
+                },
+                "toolTip": "Secret access key for the IAM user that can read the bucket.",
+                "constraints": {
+                  "required": "[steps('multicloud').enableAwsFocusIngestion]"
+                },
+                "options": {
+                  "hideConfirmation": true
+                },
+                "visible": true
+              }
+            ]
+          },
+          {
+            "name": "schedule",
+            "type": "Microsoft.Common.Section",
+            "label": "Schedule",
+            "visible": "[steps('multicloud').enableAwsFocusIngestion]",
+            "elements": [
+              {
+                "name": "scheduleIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Files are collected once a day. Each run collects the current and the previous billing period, because AWS can restate a closed period for up to two weeks after it ends."
+                }
+              },
+              {
+                "name": "multiCloudScheduleHour",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Hour of the day (UTC)",
+                "defaultValue": "04:00",
+                "toolTip": "Hour of the day, in UTC, to collect FOCUS files.",
+                "constraints": {
+                  "allowedValues": [
+                    { "label": "00:00", "value": 0 },
+                    { "label": "04:00", "value": 4 },
+                    { "label": "08:00", "value": 8 },
+                    { "label": "12:00", "value": 12 },
+                    { "label": "16:00", "value": 16 },
+                    { "label": "20:00", "value": 20 }
+                  ],
+                  "required": true
+                },
+                "visible": true
+              }
+            ]
+          },
+          {
+            "name": "egress",
+            "type": "Microsoft.Common.Section",
+            "label": "Cost note",
+            "visible": "[steps('multicloud').enableAwsFocusIngestion]",
+            "elements": [
+              {
+                "name": "egressNote",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Copying data out of Amazon S3 incurs egress charges billed by AWS, not Azure. Data Factory activity runs and staging storage are billed by Azure."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "advanced",
         "label": "Advanced",
         "elements": [
@@ -1102,6 +1285,14 @@
       "enableInvoiceDownload": "[steps('invoices').enableInvoiceDownload]",
       "invoiceBillingAccounts": "[steps('invoices').billingAccounts.invoiceBillingAccounts]",
       "invoiceScheduleDay": "[steps('invoices').schedule.invoiceScheduleDay]",
+      "enableAwsFocusIngestion": "[steps('multicloud').enableAwsFocusIngestion]",
+      "awsBucketName": "[steps('multicloud').awsExport.awsBucketName]",
+      "awsBucketPath": "[steps('multicloud').awsExport.awsBucketPath]",
+      "awsAccountId": "[steps('multicloud').awsExport.awsAccountId]",
+      "awsRegion": "[steps('multicloud').awsExport.awsRegion]",
+      "awsAccessKeyId": "[steps('multicloud').awsCredentials.awsAccessKeyId]",
+      "awsSecretAccessKey": "[steps('multicloud').awsCredentials.awsSecretAccessKey]",
+      "multiCloudScheduleHour": "[steps('multicloud').schedule.multiCloudScheduleHour]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
       "enableNatGateway": "[steps('advanced').networking.enableNatGateway]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",

@@ -245,25 +245,32 @@ The `...privateRoutingForLinkedServices(app.hub)` spread is not optional — wit
 
 ### `*_CollectFocusExport` pipeline activities
 
-1. **Load Settings** — `Lookup` on the `config` dataset to read `retention.msexports.days`.
-2. **Set Run Id** — `@guid()`.
-3. **List Source Files** — `Get Metadata` (`childItems`) on the bucket prefix.
-4. **Filter New Files** — `Filter` by current month / files not yet copied.
-5. **Copy FOCUS Files** — `ForEach` (sequential = false) with a binary `Copy` from S3/GCS to `msexports/<provider>/<period>/<runId>/`.
-6. **Build Manifest** — `Set Variable` assembling the JSON contract from section 2.
-7. **Write Manifest** — `Copy` with a `JsonSink` writing `manifest.json` to the **same folder**, with `dependsOn: Succeeded` on step 5.
+The pipeline is **manifest-driven**, not listing-driven. An earlier draft of this section proposed a `Get Metadata` (`childItems`) listing of the bucket prefix followed by a `Filter`. That approach is wrong and must not be used: in "create new" mode the `data/billing_period=YYYY-MM/` folder accumulates one subfolder per daily refresh, so a recursive listing copies every refresh and duplicates the month's costs. Only the provider's own manifest identifies the current run. See §10, design consequence #2.
 
-Step 7 depending on `Succeeded` (not `Completed`) is what guarantees the manifest is never published over a partial copy.
+The pipeline is invoked once per collection period. A parent pipeline iterates the current and previous month (§10, "Collection window") and calls the child pipeline through `ExecutePipeline`, which also keeps each period in its own variable scope.
+
+1. **Set Run Id** — `@guid()`, used as `runInfo.runId` and as the destination subfolder.
+2. **Set Billing Period** — derive `yyyy-MM` from `@addToTime(utcNow(), periodOffsetMonths, 'Month')`.
+3. **Load Settings** — `Lookup` on the `config` dataset to read `retention.msexports.days`.
+4. **Read Source Manifest** — `Lookup` on the provider manifest (`<prefix>/<exportName>/metadata/billing_period=<period>/<exportName>-Manifest.json`) read **directly from S3/GCS**. This file is never copied into `msexports` — its schema is incompatible with the Cost Management contract (§10, design consequence #1).
+5. **Copy FOCUS Files** — `ForEach` over `dataFiles` (parallel) with a binary `Copy` from S3/GCS to `msexports/<provider>/<accountId>/<period>/<runId>/`. Each item is a full `s3://` URI and must have the `s3://<bucket>/` prefix stripped to obtain the object key.
+6. **Build Blob List** — `ForEach` (sequential) appending one `{ "blobName": "..." }` entry per copied file. Sequential because `AppendVariable` is not safe inside a parallel `ForEach`. `blobName` is the path **inside the `msexports` container**, matching how the ETL passes it to `msexports_parquet` as `blobPath`.
+7. **Build Manifest** — `Set Variable` assembling the JSON contract from §2. Emit `blobCount = length(dataFiles)` and **omit `dataRowCount` entirely**; `exportConfig.resourceId` must be lowercase.
+8. **Write Manifest** — `Copy` with a `JsonSink` writing `manifest.json` to the **same folder**, with `dependsOn: Succeeded` on steps 5 and 6.
+
+Step 8 depending on `Succeeded` (not `Completed`) is what guarantees the manifest is never published over a partial copy. Because the manifest lands last, it is also the signal that fires the existing `msexports_ManifestAdded` trigger — no new trigger wiring is needed on the ETL side.
+
+> **Data Factory constraint.** A container activity cannot contain another container activity. A `ForEach` or `Until` nested inside an `If` or `Switch` **deploys successfully but fails at runtime** with `Container activity cannot include another container activity`. Every loop above is therefore top level; conditional behavior is expressed by iterating an empty array (`@if(cond, json('[]'), realArray)`) rather than by wrapping the loop in an `If`.
 
 ### Folder structure in `msexports`
 
 ```
 msexports/
-├── aws/<accountId>/<YYYYMMDD-YYYYMMDD>/<runId>/{data files, manifest.json}
-└── gcp/<projectId>/<YYYYMMDD-YYYYMMDD>/<runId>/{data files, manifest.json}
+├── aws/<accountId>/<yyyy-MM>/<runId>/{data files, manifest.json}
+└── gcp/<projectId>/<yyyy-MM>/<runId>/{data files, manifest.json}
 ```
 
-The `aws/` and `gcp/` prefixes isolate the sources and avoid collisions with Cost Management scope paths.
+The `aws/` and `gcp/` prefixes isolate the sources and avoid collisions with Cost Management scope paths. The `<runId>` subfolder keeps concurrent or repeated runs of the same period from overwriting each other mid-copy; idempotency in the data lake is handled downstream by the `drop-by` tag mechanism described in §10, which keys on the stable `Costs/YYYY/MM/aws/<accountId>` destination rather than on this staging path.
 
 ---
 

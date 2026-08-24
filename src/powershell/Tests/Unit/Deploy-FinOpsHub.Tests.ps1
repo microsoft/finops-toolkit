@@ -268,5 +268,85 @@ InModuleScope 'FinOpsToolkit' {
                 } -Times 1
             }
         }
+
+        Context 'Multicloud' {
+            BeforeAll {
+                Mock -CommandName 'Get-AzResourceGroup' -MockWith { return @{ ResourceGroupName = $rgName } }
+                Mock -CommandName 'New-AzResourceGroup'
+                Mock -CommandName 'Save-FinOpsHubTemplate'
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
+                $templateFile = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOps/finops-hub-v1.0.0/main.bicep'
+                Mock -CommandName 'Get-ChildItem' -MockWith { return @{ FullName = $templateFile } }
+                Mock -CommandName 'New-AzResourceGroupDeployment'
+
+                [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
+                $awsSecret = ConvertTo-SecureString -String 'ftk-test-secret' -AsPlainText -Force
+            }
+
+            It 'Should not pass AWS parameters by default' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    -not $TemplateParameterObject.ContainsKey('enableAwsFocusIngestion')
+                } -Times 1
+            }
+
+            It 'Should pass AWS parameters when AWS FOCUS ingestion is enabled' {
+                {
+                    Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' `
+                        -EnableAwsFocusIngestion `
+                        -AwsBucketName 'ftk-test-bucket' `
+                        -AwsBucketPath 'reports/focus-export' `
+                        -AwsAccountId '123456789012' `
+                        -AwsRegion 'us-east-1' `
+                        -AwsAccessKeyId 'AKIAIOSFODNN7EXAMPLE' `
+                        -AwsSecretAccessKey $awsSecret
+                } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.enableAwsFocusIngestion -eq $true -and
+                    $TemplateParameterObject.awsBucketName -eq 'ftk-test-bucket' -and
+                    $TemplateParameterObject.awsBucketPath -eq 'reports/focus-export' -and
+                    $TemplateParameterObject.awsAccountId -eq '123456789012' -and
+                    $TemplateParameterObject.awsRegion -eq 'us-east-1' -and
+                    $TemplateParameterObject.awsAccessKeyId -eq 'AKIAIOSFODNN7EXAMPLE'
+                } -Times 1
+            }
+
+            It 'Should default the collection hour to 4' {
+                {
+                    Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' `
+                        -EnableAwsFocusIngestion -AwsBucketName 'ftk-test-bucket' -AwsSecretAccessKey $awsSecret
+                } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.multiCloudScheduleHour -eq 4
+                } -Times 1
+            }
+
+            It 'Should pass the requested collection hour' {
+                {
+                    Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' `
+                        -EnableAwsFocusIngestion -AwsBucketName 'ftk-test-bucket' -AwsSecretAccessKey $awsSecret -MultiCloudScheduleHour 20
+                } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.multiCloudScheduleHour -eq 20
+                } -Times 1
+            }
+
+            It 'Should not pass AWS parameters when targeting a version older than 15.0' {
+                {
+                    Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '14.0' `
+                        -EnableAwsFocusIngestion -AwsBucketName 'ftk-test-bucket' -AwsSecretAccessKey $awsSecret
+                } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    -not $TemplateParameterObject.ContainsKey('enableAwsFocusIngestion')
+                } -Times 1
+            }
+
+            It 'Should reject a collection hour outside of 0-23' {
+                {
+                    Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' `
+                        -EnableAwsFocusIngestion -MultiCloudScheduleHour 24
+                } | Should -Throw
+            }
+        }
     }
 }
