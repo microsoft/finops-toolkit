@@ -13,7 +13,8 @@
     "deploy-test": "pwsh -Command ./src/scripts/Deploy-Toolkit -Build -Test",
     "package": "pwsh -Command ./src/scripts/Package-Toolkit -Build",
     "pester": "pwsh -Command Invoke-Pester -Output Detailed -Path ./src/powershell/Tests/Unit/*",
-    "contrib": "all-contributors add"
+    "contrib": "all-contributors add",
+    "test-dashboard": "node --test .github/extensions/ftk-local-dashboard/test/ftk-local-dashboard.test.mjs"
   },
   "repository": {
     "type": "git",
