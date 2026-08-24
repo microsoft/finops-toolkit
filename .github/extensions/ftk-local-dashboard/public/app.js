@@ -86,6 +86,27 @@ const PANEL_KQL = {
 };
 /* eslint-enable max-len */
 
+// Panel id -> the name of the query that produced it. Used to look up the KQL
+// the server actually executed, which keeps the panel "KQL" dialog honest
+// without a second hand-maintained copy of every query.
+const PANEL_QUERY = {
+  "ai-capability-trend": "capabilityTrend",
+  "ai-capability": "capability",
+  "ai-by-service": "byService",
+  "ai-token-demand": "monthly",
+  "ai-cpmt-trend": "monthly",
+  "ai-model-bench": "modelBench",
+  "ai-direction": "direction",
+  "ai-ml-gpu": "mlGpu",
+  "ai-ml-unit": "mlUnit",
+  "ai-search": "search",
+  "ai-cognitive": "cognitive",
+  "ai-allocation": "allocation",
+  "ai-by-owner": "byOwner",
+  "ai-posture": "posture",
+  "ai-drivers": "drivers",
+};
+
 let _kqlPanelId = null;
 let _loadAbort = null;
 
@@ -127,6 +148,14 @@ function clearFilters() {
   load();
 }
 
+// The tab strip scrolls horizontally below ~1000px and never moved on its own,
+// so deep-linking to a tab late in the strip left the nav looking like the first
+// tab was still selected. Called from every path that marks a tab active.
+function revealActiveTab() {
+  const active = el("tabs")?.querySelector("button[data-tab].active");
+  if (active && active.scrollIntoView) active.scrollIntoView({ inline: "nearest", block: "nearest" });
+}
+
 function syncCanvasControls() {
   [...el("preset").querySelectorAll("button[data-preset]")].forEach((button) => {
     button.classList.toggle("active", button.dataset.preset === state.preset);
@@ -136,6 +165,7 @@ function syncCanvasControls() {
     button.classList.toggle("active", active);
     button.setAttribute("aria-selected", active ? "true" : "false");
   });
+  revealActiveTab();
   const isTool = TOOL_TABS.has(state.tab);
   const isCapacity = state.tab === "capacity";
   el("preset").hidden = isTool || isCapacity;
@@ -266,6 +296,84 @@ function fmtPerM(costPer1K) {
   const v = (costPer1K || 0) * 1000;
   return `$${v.toFixed(2)}`;
 }
+// Unit rates span many orders of magnitude ($75 per 1K core-hours down to
+// $0.00015 per VM-hour), so scale precision to the value. fmtMoneyFull rounds
+// to whole dollars and would collapse every sub-dollar rate to "$0".
+export function fmtRate(n) {
+  if (n == null || isNaN(n)) return "—";
+  if (n === 0) return "$0.00";
+  const abs = Math.abs(n);
+  if (abs >= 1) return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  if (abs >= 0.01) return `$${n.toFixed(3)}`;
+  return `$${Number(n.toPrecision(2))}`;
+}
+// Consumed quantities are not integers (VM-hours, request units), and
+// toLocaleString's 3-decimal default renders "22.033" one row above "22,247" —
+// two numbers three orders of magnitude apart distinguished only by the
+// separator glyph. Abbreviate above 1K so the magnitude is unambiguous.
+export function fmtQty(n) {
+  if (n == null || isNaN(n)) return "—";
+  const a = Math.abs(n);
+  if (a >= 1e6) return `${(n / 1e6).toFixed(2)}M`;
+  if (a >= 1e3) return `${(n / 1e3).toFixed(1)}K`;
+  if (a === 0) return "0";
+  return `${Number(n.toFixed(2))}`;
+}
+// A money column is read as a right-aligned stack, so every cell in it must
+// share one precision. Pick that precision once from the column's own maximum:
+// large columns drop cents (nobody reads cents next to $178,528), small columns
+// keep them. A nonzero value too small for the chosen precision renders as a
+// floor marker rather than "$0.00", which would read as missing data.
+export function moneyColumn(rows, ...keys) {
+  const vals = [];
+  for (const r of rows || []) for (const k of keys) {
+    const v = Math.abs(+r[k]); if (v > 0 && isFinite(v)) vals.push(v);
+  }
+  const dp = vals.length && Math.max(...vals) >= 1000 ? 0 : 2;
+  return fixedDollars(dp);
+}
+
+// Rates span far more orders of magnitude than money ($0.0004 to $74 in one
+// table), so they need their own ladder — but still one precision per column,
+// because a reader compares cells down a column, not against their magnitude.
+export function rateColumn(rows, ...keys) {
+  const vals = [];
+  for (const r of rows || []) for (const k of keys) {
+    const v = Math.abs(+r[k]); if (v > 0 && isFinite(v)) vals.push(v);
+  }
+  const max = vals.length ? Math.max(...vals) : 1;
+  const dp = max >= 1 ? 2 : max >= 0.01 ? 3 : 4;
+  return fixedDollars(dp);
+}
+
+// Values below half a unit would round to "$0.00" and read as free, so they get
+// a floor marker instead.
+function fixedDollars(dp) {
+  const unit = Math.pow(10, -dp);
+  return (n) => {
+    if (n == null || isNaN(n)) return "—";
+    if (n === 0) return `$${(0).toFixed(dp)}`;
+    if (Math.abs(n) < unit / 2) return `<$${unit.toFixed(dp)}`;
+    const body = Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+    return `${n < 0 ? "-" : ""}$${body}`;
+  };
+}
+// Axis ticks share one scale, so they need one precision — unlike a cell, where
+// fmtRate scales precision to the individual value. Mixing them puts "$0.500"
+// directly above "$1.00" on the same axis.
+function axisRate(n) {
+  if (n == null || isNaN(n)) return "—";
+  return `$${Number(n).toFixed(2)}`;
+}
+
+export function fmtShare(x, d = 1) {
+  // A row with visible nonzero cost must never report "0.0%" — that reads as a
+  // broken calculation and makes the column visibly fail to sum to 100%.
+  if (x == null || isNaN(x)) return "—";
+  const floor = 1 / Math.pow(10, d + 2);
+  if (x > 0 && x < floor) return `<${(floor * 100).toFixed(d)}%`;
+  return `${(x * 100).toFixed(d)}%`;
+}
 function fmtMonth(ym) {
   // "2025-04" -> "Apr ’25"
   if (!ym || typeof ym !== "string") return String(ym ?? "—");
@@ -324,9 +432,25 @@ function yAxisGrid(m, W, ih, yMax, ticks, valFmt) {
     const val = (yMax / ticks) * t;
     const yy = m.t + ih - (ih / ticks) * t;
     g += `<line class="grid-line" x1="${m.l}" y1="${yy}" x2="${W - m.r}" y2="${yy}"/>`;
-    g += `<text class="tick" x="${m.l - 8}" y="${yy + 4}" text-anchor="end">${valFmt(val)}</text>`;
+    // The zero tick otherwise takes a different branch of the money/token
+    // formatters ("$0.00" beneath "$4.3K"), leaving one tick in a format the
+    // rest of the axis doesn't share.
+    const label = t === 0 ? valFmt(0).replace(/\.0+\b/, "") : valFmt(val);
+    g += `<text class="tick" x="${m.l - 8}" y="${yy + 4}" text-anchor="end">${label}</text>`;
   }
   return g;
+}
+
+// Round an axis ceiling up to a 1 / 2 / 2.5 / 5 x 10^n step so gridlines land on
+// values a reader can actually use. Always rounds up, so a series can never
+// exceed the plotted maximum.
+export function niceMax(v, ticks = 4) {
+  if (!(v > 0) || !isFinite(v)) return 1;
+  const raw = v / ticks;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / mag;
+  const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10) * mag;
+  return step * ticks;
 }
 
 // Shared index-thinned x-axis month-label renderer: shows a label at evenly
@@ -337,10 +461,18 @@ function xAxisMonthLabels(rows, xFn, H, monthField = "Month") {
   let g = "";
   const n = rows.length;
   const step = Math.ceil(n / 12);
-  rows.forEach((r, i) => {
-    if (i % step === 0 || i === n - 1) {
-      g += `<text class="tick" x="${xFn(i)}" y="${H - 12}" text-anchor="middle">${esc(fmtMonth(r[monthField]))}</text>`;
-    }
+  // Emit the evenly-stepped indices, then append the final month only when it
+  // isn't already on the grid *and* it clears the previous label by a full step.
+  // Otherwise the last two ticks crowd at half the spacing of every other pair.
+  const idx = [];
+  for (let i = 0; i < n; i += step) idx.push(i);
+  const last = n - 1;
+  if (last >= 0 && idx[idx.length - 1] !== last) {
+    if (last - idx[idx.length - 1] >= step) idx.push(last);
+    else idx[idx.length - 1] = last;
+  }
+  idx.forEach((i) => {
+    g += `<text class="tick" x="${xFn(i)}" y="${H - 12}" text-anchor="middle">${esc(fmtMonth(rows[i][monthField]))}</text>`;
   });
   return g;
 }
@@ -392,6 +524,9 @@ function hbar(rows, nameKey, valKey, opts = {}) {
   const max = Math.max(...data.map((d) => d.val), 1);
   const total = data.reduce((s, d) => s + d.val, 0);
   const rowH = 30, padR = 64, nameW = opts.nameW ?? 142;
+  // The name budget is a character count, so it has to track nameW or wide
+  // panels truncate names that had ~100 viewBox units of free gutter beside them.
+  const nameChars = opts.nameChars ?? Math.max(12, Math.floor(nameW / 7.1));
   const W = 540, H = data.length * rowH + 6;
   const barX = nameW + 8, barW = W - barX - padR;
   const valFmt = opts.valFmt || fmtMoney;
@@ -412,13 +547,13 @@ function hbar(rows, nameKey, valKey, opts = {}) {
     if (filterDim) cls += " hbar-filterable";
     if (isSelected) cls += " hbar-selected";
     if (isDimmed) cls += " hbar-dimmed";
-    const isTruncated = d.name.length > 20;
+    const isTruncated = d.name.length > nameChars;
     const dimAttr = filterDim ? ` data-filter-dim="${esc(filterDim)}" data-filter-val="${esc(d.name)}"` : "";
     const interactiveAttrs = filterDim
       ? ` tabindex="0" role="button" aria-pressed="${isSelected ? 'true' : 'false'}" aria-label="Filter by ${esc(d.name)}, ${valFmt(d.val)}"`
       : ` tabindex="0" aria-label="${esc(d.name)}, ${valFmt(d.val)}"`;
     g += `<g class="${cls}"${dimAttr}${interactiveAttrs}>`;
-    g += `<text class="name${isTruncated ? " name--truncated" : ""}" x="0" y="${cy + 4}">${esc(trunc(d.name, 20))}<title>${esc(d.name)}</title></text>`;
+    g += `<text class="name${isTruncated ? " name--truncated" : ""}" x="0" y="${cy + 4}">${esc(trunc(d.name, nameChars))}<title>${esc(d.name)}</title></text>`;
     g += `<rect class="hbar" x="${barX}" y="${cy - 9}" width="${w}" height="18" rx="4" fill="${color}"><title>${esc(d.name)}\n${fmtMoneyFull(d.val)} · ${fmtPct(pct)}</title></rect>`;
     g += `<text class="val" x="${W}" y="${cy + 4}" text-anchor="end">${valFmt(d.val)}</text>`;
     g += `</g>`;
@@ -570,6 +705,85 @@ function tokenTrendChart(rows) {
     { label: "AI effective cost", color: PALETTE[3] },
   ]);
   return svgEl(W, H, g, "AI token volume and cost trend") + legend;
+}
+
+// Fixed capability colors so the stacked chart, its legend, and the capability
+// table all agree on which hue means which workload. A rotating index would
+// re-colour a capability whenever the estate mix changes month to month.
+const AI_CAPABILITY_COLORS = {
+  "GPU / accelerated compute": PALETTE[9],
+  "Foundation models (LLM)": PALETTE[2],
+  "AI Search / retrieval": PALETTE[5],
+  "ML platform & compute": PALETTE[0],
+  "ML / analytics platform": PALETTE[1],
+  "Cognitive services": PALETTE[3],
+  "Bot & agents": PALETTE[6],
+  "Other AI/ML": PALETTE[7],
+};
+const aiColor = (capability) => AI_CAPABILITY_COLORS[capability] ?? UNKNOWN_COLOR;
+
+function aiCapabilityChart(rows) {
+  // rows: [{Month, Capability, Cost}] — stacked columns, one stack per month.
+  const W = 760, H = 200;
+  const m = { l: 56, r: 18, t: 16, b: 34 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  if (!rows || rows.length === 0) return emptyChart(W, H, "AI spend by capability over time — no data");
+
+  const months = [...new Set(rows.map((r) => r.Month))].sort();
+  // Order the stack by total spend so the dominant capability sits at the base
+  // and the thin slices stay adjacent to the axis labels.
+  const totals = new Map();
+  rows.forEach((r) => totals.set(r.Capability, (totals.get(r.Capability) ?? 0) + (r.Cost || 0)));
+  const caps = [...totals.entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c);
+  const at = new Map(rows.map((r) => [`${r.Month}|${r.Capability}`, r.Cost || 0]));
+
+  const monthTotals = months.map((mo) => caps.reduce((s, c) => s + (at.get(`${mo}|${c}`) ?? 0), 0));
+  const yMax = niceMax(Math.max(...monthTotals, 1) * 1.02, 4);
+  const n = months.length;
+  const cx = (i) => m.l + ((i + 0.5) / n) * iw;
+  const bw = Math.max(4, (iw / n) * 0.62);
+
+  let g = yAxisGrid(m, W, ih, yMax, 4, fmtMoney);
+  months.forEach((mo, i) => {
+    let acc = 0;
+    caps.forEach((c) => {
+      const v = at.get(`${mo}|${c}`) ?? 0;
+      if (v <= 0) return;
+      const h = (v / yMax) * ih;
+      const yTop = m.t + ih - ((acc + v) / yMax) * ih;
+      acc += v;
+      g += `<rect class="bar" tabindex="0" x="${cx(i) - bw / 2}" y="${yTop}" width="${bw}" height="${Math.max(1, h)}" fill="${aiColor(c)}"><title>${esc(fmtMonth(mo))}\n${esc(c)}\n${fmtMoneyFull(v)}</title></rect>`;
+    });
+  });
+  g += xAxisMonthLabels(months.map((mo) => ({ Month: mo })), cx, H);
+  const legend = legendHtml(caps.map((c) => ({ label: c, color: aiColor(c) })));
+  return svgEl(W, H, g, "AI spend by capability over time") + legend;
+}
+
+function monthAreaChart(rows, opts) {
+  // rows: [{Month, <valueKey>}] — filled area with a stroked top edge.
+  const { valueKey, color = PALETTE[0], valFmt = fmtMoney, tipFmt = valFmt, label = "Trend" } = opts;
+  const W = 760, H = 200;
+  const m = { l: 56, r: 18, t: 16, b: 34 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const data = (rows || []).filter((r) => isFinite(r[valueKey]));
+  if (data.length === 0) return emptyChart(W, H, `${label} — no data`);
+
+  const yMax = niceMax(Math.max(...data.map((r) => r[valueKey]), 1) * 1.02, 4);
+  const n = data.length;
+  const cx = (i) => m.l + ((i + 0.5) / n) * iw;
+  const y = (v) => m.t + ih - (v / yMax) * ih;
+
+  let g = yAxisGrid(m, W, ih, yMax, 4, valFmt);
+  const pts = data.map((r, i) => `${cx(i)},${y(r[valueKey])}`);
+  const base = m.t + ih;
+  g += `<path d="M${cx(0)},${base} L${pts.join(" L")} L${cx(n - 1)},${base} Z" fill="${color}" fill-opacity="0.18"/>`;
+  g += `<path d="M${pts.join(" L")}" fill="none" stroke="${color}" stroke-width="2.5"/>`;
+  data.forEach((r, i) => {
+    g += `<circle tabindex="0" cx="${cx(i)}" cy="${y(r[valueKey])}" r="3" fill="${color}"><title>${esc(fmtMonth(r.Month))}\n${tipFmt(r[valueKey])}</title></circle>`;
+  });
+  g += xAxisMonthLabels(data, cx, H);
+  return svgEl(W, H, g, label);
 }
 
 function anomalyChart(rows) {
@@ -725,7 +939,7 @@ function kpiThreshold(pct, greenMax, amberMax) {
   return "threshold-red";
 }
 
-const VALID_TABS = ["overview", "allocation", "rate", "usage", "anomaly", "tokenomics", "capacity", "monaco"];
+const VALID_TABS = ["overview", "allocation", "rate", "usage", "anomaly", "tokenomics", "ai", "capacity", "monaco"];
 
 // "Tool" tabs are experiments that don't follow the KPI dashboard pipeline
 // (no preset/filter-driven queries, no response caching) — they render their
@@ -737,9 +951,11 @@ function switchTab(tabId, opts = {}) {
   const leavingMonaco = state.tab === "monaco";
   state.tab = tabId;
   [...el("tabs").querySelectorAll("button")].forEach((b) => {
-    b.classList.toggle("active", b.dataset.tab === tabId);
-    b.setAttribute("aria-selected", b.dataset.tab === tabId ? "true" : "false");
+    const active = b.dataset.tab === tabId;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-selected", active ? "true" : "false");
   });
+  revealActiveTab();
   const isTool = TOOL_TABS.has(tabId);
   el("preset").hidden = isTool || tabId === "capacity";
   el("refresh").hidden = isTool;
@@ -963,7 +1179,10 @@ function panelHtml(id, span, title, sub, body) {
 
 function openKqlDialog(panelId) {
   _kqlPanelId = panelId;
-  el("kql-text").value = PANEL_KQL[panelId] || "";
+  // Prefer the query the server actually executed for this panel; fall back to
+  // the static map for tabs that don't publish their queries yet.
+  const served = currentPayload()?.kql?.[PANEL_QUERY[panelId]];
+  el("kql-text").value = served || PANEL_KQL[panelId] || "";
   el("kql-error").textContent = "";
   const prev = document.getElementById("kql-result");
   if (prev) prev.remove();
@@ -1231,6 +1450,282 @@ function aiByAppTable(rows) {
       </tr>`;
     }).join("")}</tbody>
   </table>`;
+}
+
+/* --------------------------------------------- AI & emerging workloads render */
+
+// Middle-ellipsis a cell value and expose the full string on hover, so long
+// meter and series names shorten predictably instead of overflowing the
+// `white-space: nowrap` table cells.
+function nameCell(value, n) {
+  // `??` alone lets an empty string through, which renders as a blank cell and
+  // reads as a rendering failure rather than as absent data.
+  const s = String(value ?? "").trim() || "—";
+  const short = trunc(s, n);
+  return short === s ? esc(s) : `<span class="truncate-hint" title="${esc(s)}">${esc(short)}</span>`;
+}
+
+// Wrap a table that can exceed its panel width. The first column stays pinned
+// while the numeric columns scroll, so a row never loses its label.
+function wideTable(html) {
+  return `<div class="table-scroll">${html}</div>`;
+}
+
+function aiCapabilityTable(rows, estate) {
+  const money = moneyColumn(rows, "Cost");
+  return wideTable(tableHtml([
+    { label: "Capability", align: "left", get: (r) =>
+      `<span class="model">${swatchHtml(aiColor(r.Capability))}${nameCell(r.Capability, 26)}</span>` },
+    { label: "Services", get: (r) => fmtInt(r.Services) },
+    { label: "Cost", get: (r) => money(r.Cost) },
+    { label: "Share", get: (r) => estate > 0 ? fmtShare(r.Cost / estate, 1) : "—" },
+  ], rows, "No AI/ML estate cost in range."));
+}
+
+function aiModelBenchTable(rows) {
+  const money = moneyColumn(rows, "Cost");
+  const rate = rateColumn(rows, "Cpmt");
+  return wideTable(tableHtml([
+    { label: "Model family", align: "left", get: (r) => nameCell(r.Family, 26) },
+    { label: "Tokens", get: (r) => fmtTokens(r.Tokens) },
+    { label: "Cost", get: (r) => money(r.Cost) },
+    { label: "$ / 1M tokens", get: (r) => rate(r.Cpmt) },
+  ], rows, "No foundation model token meters in range."));
+}
+
+function aiDirectionTable(rows) {
+  const rate = rateColumn(rows, "Cpmt");
+  const total = (rows || []).reduce((s, r) => s + (r.Tokens || 0), 0);
+  return wideTable(tableHtml([
+    { label: "Direction", align: "left", get: (r) => nameCell(r.Direction, 26) },
+    { label: "Tokens", get: (r) => fmtTokens(r.Tokens) },
+    { label: "Share", get: (r) => total > 0 ? fmtShare(r.Tokens / total, 1) : "—" },
+    { label: "$ / 1M tokens", get: (r) => rate(r.Cpmt) },
+  ], rows, "No foundation model token meters in range."));
+}
+
+export function deriveAiKpis(d, lastClosedMonth) {
+  const months = d.monthly || [];
+  const sum = (key) => months.reduce((s, r) => s + (r[key] || 0), 0);
+  const cloud = sum("Cloud"), estate = sum("Estate"), mlGpu = sum("MlGpu");
+  const tokens = sum("Tokens"), tokenCost = sum("TokenCost");
+
+  // Anchor month-over-month to the last *closed* month reported by the server.
+  // The newest month in the window is normally a partial ingestion month, and
+  // comparing it against a full month reports a collapse that isn't real.
+  const closedIdx = lastClosedMonth ? months.findIndex((r) => r.Month === lastClosedMonth) : -1;
+  const closed = closedIdx >= 0 ? months[closedIdx] : null;
+  const prior = closedIdx > 0 ? months[closedIdx - 1] : null;
+  const mom = closed && prior && prior.Estate > 0 ? (closed.Estate - prior.Estate) / prior.Estate : null;
+
+  const a = (d.allocation || [])[0] || {};
+  const allocTotal = a.Total || 0;
+  const appCoverage = allocTotal > 0 ? (a.App || 0) / allocTotal : null;
+
+  const posture = (d.posture || [])[0] || {};
+
+  return {
+    cloud, estate, mlGpu, tokens, tokenCost,
+    estateShare: cloud > 0 ? estate / cloud : 0,
+    mlGpuShare: estate > 0 ? mlGpu / estate : 0,
+    cpmt: tokens > 0 ? (tokenCost / tokens) * 1000000 : null,
+    mom, closedMonth: lastClosedMonth, hasClosedMonth: !!closed,
+    partialMonth: months.length > 0 && months[months.length - 1].Month !== lastClosedMonth
+      ? months[months.length - 1].Month : null,
+    alloc: a, allocTotal, appCoverage,
+    committedShare: posture.Total > 0 ? (posture.Committed || 0) / posture.Total : null,
+    recommendations: ((d.recommendations || [])[0] || {}).Count ?? 0,
+    transactions: ((d.transactions || [])[0] || {}).Count ?? 0,
+  };
+}
+
+function aiAllocationTable(k) {
+  const rows = [
+    { Dimension: "Application tag", Covered: k.alloc.App || 0 },
+    { Dimension: "Owner / team tag", Covered: k.alloc.Owner || 0 },
+    { Dimension: "Cost center", Covered: k.alloc.CostCenter || 0 },
+    { Dimension: "Resource group", Covered: k.alloc.ResourceGroup || 0 },
+  ];
+  if (k.allocTotal <= 0) return `<p class="muted" style="font-size:12px">No AI/ML estate cost in range.</p>`;
+  const money = moneyColumn(rows, "Covered");
+  return wideTable(tableHtml([
+    { label: "Dimension", align: "left", get: (r) => esc(r.Dimension) },
+    { label: "Covered cost", get: (r) => money(r.Covered) },
+    { label: "Coverage", get: (r) => {
+      const pct = r.Covered / k.allocTotal;
+      const cls = pct >= 0.85 ? "pos" : pct >= 0.65 ? "warn" : "neg";
+      return `<span class="${cls}">${fmtShare(pct)}</span>`;
+    } },
+  ], rows));
+}
+
+function aiPostureTable(k) {
+  // Counts are descriptive: a zero means no AI-scoped records were ingested,
+  // which is a different statement from "no opportunity exists".
+  const rows = [
+    {
+      Signal: "Commitment coverage",
+      Value: k.committedShare == null ? "—" : fmtPct(k.committedShare),
+      Note: k.committedShare ? "AI/ML estate cost on a commitment discount" : "No AI/ML spend is on a commitment discount",
+    },
+    {
+      Signal: "AI-scoped rate recommendations",
+      Value: fmtInt(k.recommendations),
+      Note: k.recommendations > 0 ? "Open recommendations touching AI/ML resource types" : "None ingested for AI/ML resource types",
+    },
+    {
+      Signal: "AI-scoped commitment transactions",
+      Value: fmtInt(k.transactions),
+      Note: k.transactions > 0 ? "Purchase or refund events matching AI/GPU descriptions" : "None ingested matching AI/GPU descriptions",
+    },
+  ];
+  return wideTable(tableHtml([
+    { label: "Signal", align: "left", get: (r) => esc(r.Signal) },
+    { label: "Value", get: (r) => r.Value },
+    { label: "Detail", align: "left", get: (r) => `<span class="muted">${esc(r.Note)}</span>` },
+  ], rows));
+}
+
+function aiDriversTable(rows, k) {
+  const money = moneyColumn(rows, "Prev", "Cost");
+  const delta = moneyColumn(rows, "Change");
+  // Below half a cent the change is a rounding artefact, not a movement: format
+  // it as a flat zero so it can't render as a signed "-$0.00 (-0.0%)" and can't
+  // pick up a directional colour.
+  const EPS = 0.005;
+  return wideTable(tableHtml([
+    { label: "Service", align: "left", get: (r) => nameCell(r.Service, 26) },
+    { label: "Meter", align: "left", get: (r) => nameCell(r.Meter, 26) },
+    { label: "Prior month", get: (r) => money(r.Prev) },
+    { label: k.closedMonth ? fmtMonth(k.closedMonth) : "Latest month", get: (r) => money(r.Cost) },
+    { label: "Change", get: (r) => {
+      const chg = Math.abs(r.Change || 0) < EPS ? 0 : r.Change;
+      const cls = chg > 0 ? "neg" : chg < 0 ? "pos" : "muted";
+      if (chg === 0) return `<span class="muted">no change</span>`;
+      // A zero baseline has no percentage; say so rather than leaving the
+      // cell ragged against the rows that carry one.
+      const pct = r.Prev > 0
+        ? ` (${chg > 0 ? "+" : ""}${fmtShare(chg / r.Prev, 1)})`
+        : ` (new)`;
+      return `<span class="${cls}">${chg > 0 ? "+" : ""}${delta(chg)}${pct}</span>`;
+    } },
+  ], rows, "No month-over-month movement in range."));
+}
+
+function renderAi(p) {
+  const content = el("content");
+  if (!p) return;
+  if (p.error) return renderError(p);
+  if (p.empty) {
+    content.innerHTML = `<div class="error"><h2>No AI or emerging workload data</h2>
+      <p>No AI, machine learning, or GPU-accelerated spend was found in the <code>Hub</code> database for this period.</p>
+      <p class="muted">This view scopes to the <code>AI and Machine Learning</code> service category, Azure AI Search, Azure Databricks, and GPU VM series (NC/ND/NV/NG). Ingest cost data covering those workloads, then refresh.</p></div>`;
+    return;
+  }
+  const d = p.data;
+  const k = deriveAiKpis(d, p.lastClosedMonth);
+
+  const momTxt = k.mom == null ? null : `${k.mom > 0 ? "+" : ""}${fmtPct(k.mom, 1)}`;
+  const momCls = k.mom == null ? "muted" : k.mom > 0 ? "neg" : "pos";
+  const estateMeta = momTxt
+    ? `<span class="${momCls}">${momTxt}</span> vs prior · ${esc(fmtMonth(k.closedMonth))}`
+    : `${fmtPct(k.estateShare, 1)} of all cloud cost`;
+
+  const covCls = k.appCoverage == null ? undefined
+    : k.appCoverage >= 0.85 ? "threshold-green" : k.appCoverage >= 0.65 ? "threshold-amber" : "threshold-red";
+
+  const cpmtTrend = (d.monthly || [])
+    .filter((r) => (r.Tokens || 0) > 0)
+    .map((r) => ({ Month: r.Month, Cpmt: (r.TokenCost / r.Tokens) * 1000000 }));
+
+  const kpis = [
+    kpiCard("AI/ML estate spend", fmtMoney(k.estate), estateMeta, PALETTE[2], undefined, "primary"),
+    kpiCard("ML & GPU compute", fmtMoney(k.mlGpu), `${fmtPct(k.mlGpuShare, 1)} of AI/ML estate`, PALETTE[9]),
+    kpiCard("Token volume", fmtTokens(k.tokens), `${fmtMoney(k.tokenCost)} in token meters`, PALETTE[0]),
+    kpiCard("Cost per 1M tokens", k.cpmt == null ? "—" : fmtRate(k.cpmt),
+      k.cpmt == null ? "No token meters in range" : "Blended across all model families", PALETTE[5]),
+    kpiCard("AI allocation coverage", k.appCoverage == null ? "—" : fmtPct(k.appCoverage),
+      k.appCoverage == null ? "No AI/ML estate cost in range" : "Carrying an application tag",
+      PALETTE[3], covCls),
+    kpiCard("AI share of cloud", fmtPct(k.estateShare, 1), `${fmtMoney(k.estate)} of ${fmtMoney(k.cloud)}`, PALETTE[1], undefined, "reference"),
+  ].join("");
+
+  // One money scale per detail table, derived from that table's own maximum.
+  const mlGpuMoney = moneyColumn(d.mlGpu, "Cost");
+  const mlUnitMoney = moneyColumn(d.mlUnit, "Cost");
+  const mlUnitVmRate = rateColumn(d.mlUnit, "PerVmHour");
+  const mlUnitCoreRate = rateColumn(d.mlUnit, "Per1KCoreHours");
+  const searchMoney = moneyColumn(d.search, "Cost");
+  const cognitiveMoney = moneyColumn(d.cognitive, "Cost");
+
+  const partialNote = k.partialMonth
+    ? ` Month-over-month figures compare ${esc(fmtMonth(k.closedMonth))} against the month before it; ${esc(fmtMonth(k.partialMonth))} is still ingesting and is excluded from those comparisons.`
+    : "";
+
+  content.innerHTML = `
+    <div class="kpi-grid">${kpis}</div>
+
+    <p class="scope-note">This view scopes to the <strong>AI and Machine Learning</strong> service category plus Azure AI Search, Azure Databricks, and GPU VM series (NC/ND/NV/NG). GPU capacity bought outside those services — or AI work running on general-purpose compute — will not appear here.${partialNote}</p>
+
+    <div class="section-title"><h2>AI/ML estate</h2><span class="domain">Workload composition</span></div>
+    <div class="panel-grid">
+      ${panelHtml("ai-capability-trend", 12, "AI spend by capability over time", "Monthly effective cost split across AI capability groups.", aiCapabilityChart(d.capabilityTrend))}
+      ${panelHtml("ai-capability", 6, "Estate composition", "Effective cost and distinct services per capability.", aiCapabilityTable(d.capability, k.estate))}
+      ${panelHtml("ai-by-service", 6, "Estate spend by service", "Top billing services in the AI/ML estate.",
+        hbar(d.byService, "Service", "Cost", { filterDim: "ServiceName", nameW: 210, color: PALETTE[2], label: "AI/ML estate spend by service" }))}
+    </div>
+
+    <div class="section-title"><h2>Token &amp; model economics</h2><span class="domain">Unit economics</span></div>
+    <div class="panel-grid">
+      ${panelHtml("ai-token-demand", 6, "Token demand", "Monthly token volume across all foundation model meters.",
+        monthAreaChart(d.monthly, { valueKey: "Tokens", color: PALETTE[2], valFmt: fmtTokens, label: "Monthly token volume" }))}
+      ${panelHtml("ai-cpmt-trend", 6, "Cost per 1M tokens", "Blended effective rate — the direction of travel matters more than the level.",
+        monthAreaChart(cpmtTrend, { valueKey: "Cpmt", color: PALETTE[5], valFmt: axisRate, tipFmt: fmtRate, label: "Blended cost per 1M tokens" }))}
+      ${panelHtml("ai-model-bench", 6, "Model family benchmark", "Cost per 1M tokens by model family — the input to model selection.", aiModelBenchTable(d.modelBench))}
+      ${panelHtml("ai-direction", 6, "Token direction mix", "Input, cached input, output, and embedding meters.", aiDirectionTable(d.direction))}
+    </div>
+
+    <div class="section-title"><h2>Workload detail</h2><span class="domain">Compute, retrieval &amp; applied AI</span></div>
+    <div class="panel-grid">
+      ${panelHtml("ai-ml-gpu", 12, "ML platform &amp; GPU compute", "Components behind machine learning and accelerated compute spend.",
+        wideTable(tableHtml([
+          { label: "Component", align: "left", get: (r) => nameCell(r.Component, 28) },
+          { label: "Unit", align: "left", get: (r) => nameCell(r.Unit, 16) },
+          { label: "Quantity", get: (r) => fmtQty(r.Quantity) },
+          { label: "Cost", get: (r) => mlGpuMoney(r.Cost) },
+        ], d.mlGpu)))}
+      ${panelHtml("ai-search", 12, "AI Search / retrieval", "Azure AI Search meters supporting retrieval-augmented generation.",
+        wideTable(tableHtml([
+          { label: "Meter", align: "left", get: (r) => nameCell(r.Meter, 28) },
+          { label: "Unit", align: "left", get: (r) => nameCell(r.Unit, 16) },
+          { label: "Quantity", get: (r) => fmtQty(r.Quantity) },
+          { label: "Cost", get: (r) => searchMoney(r.Cost) },
+        ], d.search, "No Azure AI Search meters in range.")))}
+      ${panelHtml("ai-ml-unit", 6, "ML compute unit economics", "Effective rate per VM-hour and per 1K core-hours by VM series.",
+        wideTable(tableHtml([
+          { label: "Series", align: "left", get: (r) => nameCell(r.Series, 24) },
+          { label: "VM hours", get: (r) => fmtQty(r.VmHours) },
+          { label: "$ / VM-hour", get: (r) => mlUnitVmRate(r.PerVmHour) },
+          { label: "$ / 1K core-hours", get: (r) => mlUnitCoreRate(r.Per1KCoreHours) },
+          { label: "Cost", get: (r) => mlUnitMoney(r.Cost) },
+        ], d.mlUnit, "No ML virtual machine meters in range.")))}
+      ${panelHtml("ai-cognitive", 6, "Cognitive &amp; applied AI", "Speech, vision, language, and video services, excluding token meters.",
+        wideTable(tableHtml([
+          { label: "Service", align: "left", get: (r) => nameCell(r.Service, 30) },
+          { label: "Quantity", get: (r) => fmtQty(r.Units) },
+          { label: "Cost", get: (r) => cognitiveMoney(r.Cost) },
+        ], d.cognitive, "No cognitive or applied AI meters in range.")))}
+    </div>
+
+    <div class="section-title"><h2>Allocation &amp; posture</h2><span class="domain">Accountability &amp; rate optimization</span></div>
+    <div class="panel-grid">
+      ${panelHtml("ai-allocation", 6, "Allocation coverage", "Share of AI/ML estate cost carrying each accountability dimension.", aiAllocationTable(k))}
+      ${panelHtml("ai-by-owner", 6, "Estate spend by owner", "Owner or team tag, falling back to cost center then resource group. Tag values are folded case-insensitively.",
+        hbar(d.byOwner, "Owner", "Cost", { filterDim: null, nameW: 210, color: PALETTE[2], label: "AI/ML estate spend by owner" }))}
+      ${panelHtml("ai-posture", 12, "Commitment &amp; rate posture", "Whether AI/ML spend is on a commitment, and which AI-scoped rate signals were ingested.", aiPostureTable(k))}
+      ${panelHtml("ai-drivers", 12, "Top movers", `Largest AI/ML meters, ${k.closedMonth ? `${esc(fmtMonth(k.closedMonth))} against the month before it` : "latest month against the month before it"}.`, aiDriversTable(d.drivers, k))}
+    </div>
+  `;
 }
 
 /* --------------------------------------------- anomalies & forecast render */
@@ -2311,6 +2806,7 @@ function render() {
   try {
     if (p.error) renderError(p);
     else if (state.tab === "tokenomics") renderTokenomics(p);
+    else if (state.tab === "ai") renderAi(p);
     else if (state.tab === "allocation") renderAllocation(p);
     else if (state.tab === "rate") renderRate(p);
     else if (state.tab === "usage") renderUsage(p);
@@ -2655,6 +3151,7 @@ async function init() {
     history.replaceState({ tab: initialTab, capacityClass: state.capacityClass }, "", initialHash);
   } else {
     history.replaceState({ tab: state.tab, capacityClass: state.capacityClass }, "", initialHash);
+    revealActiveTab();
     load();
   }
 

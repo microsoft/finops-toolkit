@@ -172,6 +172,13 @@ body {
 .kpi .neg { color: var(--neg); font-weight: 600; }
 .kpi .warn { color: var(--warn); font-weight: 600; }
 
+/* Tables compute the same threshold classes as KPI cards, so give them the same
+   meaning. Without these the classes are inert and every table renders its
+   thresholds as plain body text. */
+.dtable .pos { color: var(--pos); font-weight: 600; }
+.dtable .neg { color: var(--neg); font-weight: 600; }
+.dtable .warn { color: var(--warn); font-weight: 600; }
+
 /* ---------- KPI hierarchy (primary vs reference) ---------- */
 .kpi--primary .value { font-size: 28px; }
 .kpi--reference { opacity: 0.75; }
@@ -303,6 +310,7 @@ body {
 .section-title {
   display: flex;
   align-items: baseline;
+  flex-wrap: wrap;
   gap: 10px;
   margin: 26px 0 12px;
 }
@@ -316,6 +324,22 @@ body {
   font-size: 11px;
   color: var(--muted);
 }
+
+/* Neutral scope caveat shown above a tab's sections. Deliberately not
+   .triage-callout: that carries a warning tone, and a scope statement is
+   context, not a problem to act on. */
+.scope-note {
+  margin: 18px 0 0;
+  padding: 10px 14px;
+  border: 1px solid var(--border-muted);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--muted) 6%, transparent);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 100%;
+}
+.scope-note strong { color: inherit; font-weight: 600; }
 
 .panel-grid {
   display: grid;
@@ -342,6 +366,11 @@ body {
    the donut in the extra space so it reads as balanced padding, not an
    empty gap under a chart pinned to the top. */
 .panel-body:has(> .donut-wrap) { justify-content: center; }
+/* Same reasoning for a short table: a one-row result in a panel stretched to
+   match a tall sibling otherwise leaves ~390px of blank card below it, which
+   reads as a panel that failed to load. Centering only takes effect when there
+   is free space, so tall tables are unaffected. */
+.panel-body:has(> .table-scroll) { justify-content: center; }
 .panel.col-12 { grid-column: span 12; }
 .panel.col-9  { grid-column: span 9; }
 .panel.col-8  { grid-column: span 8; }
@@ -401,7 +430,8 @@ svg { display: block; width: 100%; overflow: visible; }
 /* Truncated labels: dotted underline hints there's more text on hover
    (the <title> tooltip already carries the full value). */
 .name--truncated { text-decoration: underline dotted; text-decoration-color: var(--muted); text-underline-offset: 2px; }
-td.truncate-hint { text-decoration: underline dotted; text-decoration-color: var(--muted); text-underline-offset: 2px; cursor: help; }
+td.truncate-hint,
+.truncate-hint { text-decoration: underline dotted; text-decoration-color: var(--muted); text-underline-offset: 2px; cursor: help; }
 
 /* ---------- data table ---------- */
 .dtable { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
@@ -410,7 +440,10 @@ td.truncate-hint { text-decoration: underline dotted; text-decoration-color: var
 .dtable thead th { color: var(--muted); font-weight: 600; font-size: 11px; }
 .dtable tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .dtable .model { display: inline-flex; align-items: center; gap: 7px; font-weight: 500; }
-.dtable .swatch { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+/* Swatches are bare <span>s at some call sites, where the default display:inline
+   would drop width/height entirely and render nothing. Pin the box explicitly so
+   the chip shows whether or not it sits inside an inline-flex .model wrapper. */
+.dtable .swatch { display: inline-block; vertical-align: middle; width: 9px; height: 9px; border-radius: 3px; flex: none; }
 .dtable .barcell { position: relative; }
 .dtable .minibar { display: inline-block; height: 7px; border-radius: 3px; vertical-align: middle; margin-left: 6px; }
 
@@ -914,13 +947,44 @@ svg .hbar-selected text.name { font-weight: 700; fill: var(--accent); }
   border-color: color-mix(in srgb, var(--neg) 55%, var(--grid));
   background: color-mix(in srgb, var(--neg) 8%, transparent);
 }
-.capacity-table-scroll {
+.capacity-table-scroll,
+.table-scroll {
   width: 100%;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
+  /* Overlay scrollbars leave a scrollable table with no visible cue, so a
+     clipped column reads as corrupted data ("$13,3") rather than as more
+     content to the right. The right-hand shadow is painted with
+     background-attachment: scroll while the masking gradient uses local, so it
+     appears only while there is further to scroll and clears at the end. */
+  background:
+    linear-gradient(to right, var(--card-bg) 30%, transparent) left center,
+    linear-gradient(to left, var(--card-bg) 30%, transparent) right center,
+    radial-gradient(farthest-side at 0 50%, color-mix(in srgb, var(--muted) 38%, transparent), transparent) left center,
+    radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--muted) 38%, transparent), transparent) right center;
+  background-repeat: no-repeat;
+  background-size: 34px 100%, 34px 100%, 12px 100%, 12px 100%;
+  background-attachment: local, local, scroll, scroll;
+  /* Keep a real scrollbar rather than relying on the overlay one. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-muted) transparent;
+  padding-bottom: 2px;
 }
+.capacity-table-scroll::-webkit-scrollbar,
+.table-scroll::-webkit-scrollbar { height: 8px; }
+.capacity-table-scroll::-webkit-scrollbar-track,
+.table-scroll::-webkit-scrollbar-track { background: transparent; }
+.capacity-table-scroll::-webkit-scrollbar-thumb,
+.table-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-muted);
+  border-radius: 4px;
+}
+.capacity-table-scroll::-webkit-scrollbar-thumb:hover,
+.table-scroll::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 .capacity-table-scroll .dtable th:first-child,
 .capacity-table-scroll .dtable td:first-child,
+.table-scroll .dtable th:first-child,
+.table-scroll .dtable td:first-child,
 .capacity-heatmap th:first-child {
   position: sticky;
   left: 0;

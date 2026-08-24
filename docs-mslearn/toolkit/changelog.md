@@ -30,6 +30,7 @@ The following section lists features and enhancements that are currently in deve
 - **Added**
   - Added VNet and private network modes, including opt-in NAT Gateway support for private mode; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
   - Added a repository-scoped FinOps hub dashboard canvas with separate capacity views for App Service, Azure AI, Compute, Azure SQL, Storage, capacity reservations, and Premium SSD v2. The Compute view adds an estate-wide VM family by region heatmap that reads supply restrictions and quota utilization as separate signals ([#2277](https://github.com/microsoft/finops-toolkit/pull/2277)).
+  - Added an AI and emerging workloads view to the FinOps hub dashboard canvas, covering estate composition, token and model economics, workload detail, allocation coverage, and commitment and rate posture. Month-over-month comparisons anchor to the last closed month so a partially ingested month cannot report a false decline ([#2277](https://github.com/microsoft/finops-toolkit/pull/2277)).
 - **Changed**
   - Clarified that the FinOps toolkit exclusively manages the FinOps hub virtual network and documented customer-managed private endpoints as the preferred private-access topology, with virtual network peering as a secondary option ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
   - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
@@ -62,6 +63,11 @@ The following section lists features and enhancements that are currently in deve
 - **Changed**
   - Switched the reservations and benefits workbooks from the retired `ccmstorageprod` isfratioblob.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 
+### [PowerShell module](powershell/powershell-commands.md)
+
+- **Fixed**
+  - Fixed [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) exporting the wrong period for anyone running in a positive UTC offset. `-StartDate` and `-EndDate` are now treated as UTC calendar dates instead of being time zone converted, so the days you request are the days that get exported. Previously, local midnight converted to the previous UTC day, which moved the period back a day and made `-Backfill` run one extra month ([#2255](https://github.com/microsoft/finops-toolkit/issues/2255)).
+
 ### [Open data](open-data.md) updates
 
 **[Instance size flexibility](open-data.md#instance-size-flexibility)**
@@ -73,6 +79,7 @@ The following section lists features and enhancements that are currently in deve
 
 - **Fixed**
   - Fixed the commitment discount eligibility dataset refresh so it is reproducible and complete; retired meters now age out and previously missed meters are included ([#2164](https://github.com/microsoft/finops-toolkit/pull/2164)).
+  - Fixed the weekly commitment discount eligibility refresh timing out before it could publish, which left the dataset unchanged since it first shipped in v14. The refresh now walks each price type directly instead of sharding by service family, and verifies completeness by comparing two independent traversals before writing ([#2251](https://github.com/microsoft/finops-toolkit/pull/2251)).
 
 -->
 

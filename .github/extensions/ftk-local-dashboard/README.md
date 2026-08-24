@@ -10,6 +10,7 @@ The dashboard includes these views:
 - Usage and unit economics
 - Anomalies and forecast
 - AI tokenomics
+- AI and emerging workloads
 - Capacity
 - Read-only KQL query editor
 

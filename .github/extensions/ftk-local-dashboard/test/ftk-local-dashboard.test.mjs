@@ -459,7 +459,9 @@ test("capacity markup retains module loading, tab semantics, and visible text st
   assert.match(source, /aria-selected=/);
   assert.match(source, /Every colored cell includes the same value and state in text/);
   assert.match(css, /\*:focus-visible/);
-  assert.match(css, /\.capacity-table-scroll\s*\{[^}]*overflow-x:\s*auto/s);
+  // The horizontal-scroll rule is shared with the generic `.table-scroll`
+  // wrapper, so match the grouped selector rather than a lone one.
+  assert.match(css, /\.capacity-table-scroll,\s*\.table-scroll\s*\{[^}]*overflow-x:\s*auto/s);
 });
 
 test("read-only KQL guard ignores strings and comments but rejects management commands", () => {
@@ -812,4 +814,203 @@ test("supply and demand stay separate channels in the rendered matrix", async ()
   assert.match(js, /capacity-supply--\$\{esc\(semantic\.supply/);
   assert.match(js, /capacity-demand--\$\{esc\(tier\)\}/);
   assert.match(js, /data-family-mark=/, "the mark must be the operator's to set");
+});
+
+test("last closed month skips a partial ingestion month", () => {
+  // Data stops mid-month: that month is still ingesting, so the month before
+  // it is the newest one safe to compare against.
+  assert.equal(kusto.lastClosedMonthStart("2026-08-20").toISOString().slice(0, 10), "2026-07-01");
+  // Data reaches the final day: the month is complete and is itself the anchor.
+  assert.equal(kusto.lastClosedMonthStart("2026-08-31").toISOString().slice(0, 10), "2026-08-01");
+  assert.equal(kusto.lastClosedMonthStart("2026-02-28").toISOString().slice(0, 10), "2026-02-01");
+  assert.equal(kusto.lastClosedMonthStart(null), null);
+});
+
+test("AI KPIs anchor month-over-month to the closed month, not the partial one", () => {
+  const payload = {
+    monthly: [
+      { Month: "2026-06", Cloud: 1000, Estate: 400, MlGpu: 300, Tokens: 1000000, TokenCost: 10 },
+      { Month: "2026-07", Cloud: 1200, Estate: 500, MlGpu: 380, Tokens: 2000000, TokenCost: 30 },
+      { Month: "2026-08", Cloud: 200, Estate: 80, MlGpu: 60, Tokens: 400000, TokenCost: 6 },
+    ],
+    allocation: [{ Total: 980, App: 490, Owner: 0, CostCenter: 980, ResourceGroup: 980 }],
+    posture: [{ Total: 980, Committed: 245 }],
+    recommendations: [{ Count: 3 }],
+    transactions: [{ Count: 0 }],
+  };
+  const k = app.deriveAiKpis(payload, "2026-07");
+
+  // July (500) against June (400) is +25%. Anchoring to the partial August
+  // month instead would report a -84% collapse that never happened.
+  assert.equal(k.closedMonth, "2026-07");
+  assert.equal(k.partialMonth, "2026-08");
+  assert.ok(Math.abs(k.mom - 0.25) < 1e-9);
+
+  // Totals still span the whole window, including the partial month.
+  assert.equal(k.estate, 980);
+  assert.equal(k.cloud, 2400);
+  assert.equal(k.tokens, 3400000);
+  assert.ok(Math.abs(k.cpmt - (46 / 3400000) * 1000000) < 1e-9);
+  assert.ok(Math.abs(k.appCoverage - 0.5) < 1e-9);
+  assert.ok(Math.abs(k.committedShare - 0.25) < 1e-9);
+  assert.equal(k.recommendations, 3);
+  assert.equal(k.transactions, 0);
+});
+
+test("AI KPIs degrade to null rather than dividing by zero", () => {
+  const k = app.deriveAiKpis({ monthly: [], allocation: [], posture: [] }, null);
+  assert.equal(k.mom, null);
+  assert.equal(k.cpmt, null);
+  assert.equal(k.appCoverage, null);
+  assert.equal(k.committedShare, null);
+  assert.equal(k.estateShare, 0);
+  assert.equal(k.recommendations, 0);
+});
+
+test("AI tab is wired end to end and every panel can show its query", async () => {
+  const [html, source] = await Promise.all([
+    readFile(new URL("../public/index.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/app.js", import.meta.url), "utf8"),
+  ]);
+  assert.match(html, /data-tab="ai"/);
+  assert.match(source, /const VALID_TABS = \[[^\]]*"ai"/);
+  assert.match(source, /state\.tab === "ai"\) renderAi\(p\)/);
+  // The server must accept "ai" as a view name, which proves the getter is
+  // registered and reachable through /api/view.
+  assert.equal(extension.validateViewInput({ name: "ai", preset: "6m" }).name, "ai");
+
+  // Every panel the AI tab renders must resolve to a named query, or its
+  // "KQL" button opens an empty dialog.
+  const panelIds = [...source.matchAll(/panelHtml\("(ai-[a-z-]+)"/g)].map((m) => m[1]);
+  assert.ok(panelIds.length >= 15);
+  const mapped = source.slice(source.indexOf("const PANEL_QUERY"), source.indexOf("};", source.indexOf("const PANEL_QUERY")));
+  for (const id of panelIds) {
+    assert.ok(mapped.includes(`"${id}"`), `PANEL_QUERY is missing '${id}'`);
+  }
+});
+
+test("unit rates keep precision instead of rounding to zero dollars", () => {
+  // $/VM-hour on a large denominator is genuinely sub-cent; whole-dollar
+  // formatting would render every one of these as "$0".
+  assert.equal(app.fmtRate(0.000148966), "$0.00015");
+  assert.equal(app.fmtRate(0.526), "$0.526");
+  assert.equal(app.fmtRate(75.2341), "$75.23");
+  assert.equal(app.fmtRate(1234.5), "$1,234.50");
+  // An exact zero must keep the column's decimal shape, or "$0" sits beside
+  // "$0.130" and breaks the right-aligned stack.
+  assert.equal(app.fmtRate(0), "$0.00");
+  assert.equal(app.fmtRate(null), "—");
+  assert.equal(app.fmtRate(NaN), "—");
+});
+
+test("quantities stay unambiguous instead of leaking locale decimals", () => {
+  // toLocaleString's 3-decimal default rendered "22.033" directly beneath
+  // "22,247" — three orders of magnitude apart, one separator glyph different.
+  assert.equal(app.fmtQty(22247), "22.2K");
+  assert.equal(app.fmtQty(22.033), "22.03");
+  assert.equal(app.fmtQty(163922.121), "163.9K");
+  assert.equal(app.fmtQty(8.414), "8.41");
+  assert.equal(app.fmtQty(0), "0");
+  assert.equal(app.fmtQty(null), "—");
+  assert.ok(!app.fmtQty(22.033).includes(","), "small quantities must not look like thousands");
+});
+
+test("a visible nonzero share never reports as 0.0%", () => {
+  // A row showing real cost beside "0.0%" reads as a broken calculation, and
+  // the column visibly fails to sum to 100%.
+  assert.equal(app.fmtShare(0.0000255), "<0.1%");
+  assert.equal(app.fmtShare(0.923), "92.3%");
+  assert.equal(app.fmtShare(0), "0.0%");
+  assert.equal(app.fmtShare(null), "—");
+});
+
+test("every table on the AI tab can scroll instead of forcing the page sideways", async () => {
+  // .dtable sets white-space: nowrap, and .panel sets min-width: 0 with no
+  // overflow. An unwrapped table therefore escapes its card and drags the whole
+  // document sideways -- it broke the page below 560px before wideTable() was
+  // applied to the posture table.
+  const source = await readFile(new URL("../public/app.js", import.meta.url), "utf8");
+  const ai = source.slice(source.indexOf("AI & emerging workloads render"), source.indexOf("anomalies & forecast render"));
+  const calls = [...ai.matchAll(/(wideTable\(\s*)?tableHtml\(/g)];
+  assert.ok(calls.length >= 8, `expected the AI tab to build several tables, found ${calls.length}`);
+  const unwrapped = calls.filter((m) => !m[1]).length;
+  assert.equal(unwrapped, 0, `${unwrapped} table(s) on the AI tab are not wrapped in wideTable()`);
+});
+
+test("a money column shares one precision and never zeroes real spend", () => {
+  // Mixed precision in a right-aligned stack destroys the alignment's meaning,
+  // but a fixed precision must not report real spend as exactly zero.
+  const big = app.moneyColumn([{ c: 178528 }, { c: 421 }, { c: 2.08 }, { c: 0.12 }], "c");
+  assert.equal(big(178528), "$178,528");
+  assert.equal(big(421), "$421");
+  assert.equal(big(2.08), "$2");
+  assert.equal(big(0.12), "<$1", "real spend below the column precision needs a floor marker");
+
+  const small = app.moneyColumn([{ c: 358 }, { c: 58.16 }, { c: 0.004 }], "c");
+  assert.equal(small(358), "$358.00");
+  assert.equal(small(58.16), "$58.16");
+  assert.equal(small(0.004), "<$0.01");
+  assert.equal(small(0), "$0.00", "an exact zero is legitimately zero");
+
+  // A shared scale across two columns of the same measure.
+  const pair = app.moneyColumn([{ a: 13400, b: 871 }, { a: 18, b: 17.92 }], "a", "b");
+  assert.equal(pair(13400), "$13,400");
+  assert.equal(pair(17.92), "$18");
+  assert.equal(pair(-871), "-$871");
+  assert.equal(app.moneyColumn([], "c")(5), "$5.00");
+});
+
+test("rate columns hold one precision across the column", () => {
+  // The AI direction table put "$0.248" directly above "$1.20" -- a reader
+  // scanning the column has to re-parse the decimal place on every row.
+  const rate = app.rateColumn([{ c: 0.248 }, { c: 1.2 }, { c: 6.09 }, { c: 0.13 }], "c");
+  const out = [0.248, 1.2, 6.09, 0.13].map(rate);
+  assert.deepEqual(out, ["$0.25", "$1.20", "$6.09", "$0.13"]);
+  const dp = new Set(out.map((s) => s.split(".")[1].length));
+  assert.equal(dp.size, 1, "every cell in a rate column must share one precision");
+
+  // Sub-dollar columns need more resolution than money columns get.
+  const fine = app.rateColumn([{ c: 0.149 }, { c: 0.021 }], "c");
+  assert.equal(fine(0.149), "$0.149");
+  assert.equal(fine(0.021), "$0.021");
+  assert.equal(app.rateColumn([{ c: 0.0004 }], "c")(0.0004), "$0.0004");
+
+  // A real but tiny rate must never render as free.
+  assert.equal(rate(0.0001), "<$0.01");
+  assert.equal(app.rateColumn([], "c")(0), "$0.00");
+});
+
+test("axis ceilings round up to readable steps without clipping the series", () => {
+  // Gridlines exist to be read off, so the ceiling must be a nice number --
+  // and it must never fall below the largest plotted value.
+  for (const v of [17300, 372300000, 1.93, 0.0004, 7, 1]) {
+    const m = app.niceMax(v, 4);
+    assert.ok(m >= v, `niceMax(${v}) = ${m} would clip the series`);
+    const step = m / 4;
+    const mag = Math.pow(10, Math.floor(Math.log10(step)));
+    assert.ok([1, 2, 2.5, 5, 10].some((x) => Math.abs(step / mag - x) < 1e-9),
+      `step ${step} for niceMax(${v}) is not a 1/2/2.5/5 multiple`);
+  }
+  assert.equal(app.niceMax(0, 4), 1);
+});
+
+test("AI capability colors cover every capability the query can emit", async () => {
+  const [source, queries] = await Promise.all([
+    readFile(new URL("../public/app.js", import.meta.url), "utf8"),
+    readFile(new URL("../kusto.mjs", import.meta.url), "utf8"),
+  ]);
+  const clause = queries.slice(queries.indexOf("const AI_CAPABILITY ="));
+  // Each `case()` arm ends with the label it emits, so the emitted value is
+  // the last quoted string on the line. Matching every quoted string instead
+  // would also pick up condition operands like 'Foundry Models'.
+  const emitted = clause.slice(0, clause.indexOf("`;")).split("\n")
+    .map((line) => [...line.matchAll(/'([^']+)'/g)].pop())
+    .filter(Boolean)
+    .map((m) => m[1]);
+  const mapped = source.slice(source.indexOf("const AI_CAPABILITY_COLORS"), source.indexOf("};", source.indexOf("const AI_CAPABILITY_COLORS")));
+  // A capability missing from the map silently renders in the "no data" grey,
+  // which reads as an unclassified slice rather than a real workload.
+  for (const capability of emitted) {
+    assert.ok(mapped.includes(`"${capability}"`), `AI_CAPABILITY_COLORS is missing '${capability}'`);
+  }
 });

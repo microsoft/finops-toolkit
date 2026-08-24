@@ -1778,3 +1778,214 @@ Costs() | where ChargePeriodStart>=s and ChargePeriodStart<e ${NON_PURCHASE}
         };
     }, filters);
 }
+
+// --- AI & emerging workloads page ---------------------------------------------
+// The 2026 FinOps "AI as a Technology Scope" view: the whole AI/ML estate, not
+// just tokens. Tokenomics (above) drills into Azure OpenAI token unit economics;
+// this page covers foundation models, cognitive services, the ML platform, AI
+// Search / retrieval, and GPU-accelerated compute together.
+//
+// GPU detection is a case-insensitive regex over the concatenated service and
+// SKU text, so N-series capacity billed through Virtual Machines or Virtual
+// Machine Scale Sets is attributed to the AI estate even though its
+// ServiceCategory is Compute. The regex replaces the equivalent toupper()
+// form to keep case handling out of comparison position.
+const AI_GPU = `strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'`;
+
+// The AI/ML estate: the declared FOCUS service category, plus two services that
+// sit outside it but are unambiguously AI workloads, plus GPU compute.
+const AI_ESTATE = `| where ServiceCategory == 'AI and Machine Learning' or ServiceName in ('Azure AI Search', 'Azure Databricks') or (${AI_GPU})`;
+
+// Token meters on this page are scoped by meter category rather than the
+// tokenomics page's SKU-description test, so Foundry-billed models beyond
+// Azure OpenAI (Deepseek, Phi, and later additions) are counted too.
+const AI_TOKENS = `x_SkuMeterCategory == 'Foundry Models' and PricingUnit == 'Units'`;
+
+// Capability taxonomy, ordered most specific first: GPU wins over service name
+// because N-series capacity bills through generic Compute services.
+const AI_CAPABILITY = `extend Capability = case(
+    _gpu, 'GPU / accelerated compute',
+    x_SkuMeterCategory == 'Foundry Models' or x_SkuMeterSubcategory has_any ('OpenAI', 'Deepseek', 'GPT'), 'Foundation models (LLM)',
+    ServiceName == 'Azure AI Search', 'AI Search / retrieval',
+    ServiceName == 'Azure Machine Learning', 'ML platform & compute',
+    ServiceName == 'Azure Databricks', 'ML / analytics platform',
+    ServiceName == 'Azure AI Video Indexer' or x_SkuMeterSubcategory has_any ('Vision', 'Speech', 'Translator', 'Content Understanding', 'Video Indexer', 'Bing', 'Content Safety', 'Phi'), 'Cognitive services',
+    ServiceName == 'Azure AI Bot Service', 'Bot & agents',
+    'Other AI/ML')`;
+
+// Tag keys that identify an owning application or team. Allocation coverage is
+// reported per dimension rather than as one blended score, so a gap in tagging
+// stays distinguishable from a gap in cost-center enrichment.
+const AI_APP_TAGS = `dynamic(['application', 'app', 'workload', 'product', 'service'])`;
+const AI_OWNER_TAGS = `dynamic(['owner', 'team', 'createdby'])`;
+
+/**
+ * First day of the most recent *complete* month in the data.
+ *
+ * Ingestion usually stops mid-month, so the newest month in the window is
+ * partial. Comparing it against a full prior month reports a collapse that is
+ * an artifact of the ingestion cut-off, not a change in spend, so
+ * month-over-month comparison is anchored to the last closed month instead.
+ */
+export function lastClosedMonthStart(dataMax) {
+    if (!dataMax) return null;
+    const max = new Date(dataMax);
+    if (Number.isNaN(max.getTime())) return null;
+    const monthStart = startOfMonthUTC(max);
+    const lastDayOfMonth = new Date(addMonthsUTC(monthStart, 1).getTime() - 86400000);
+    return isoDay(max) === isoDay(lastDayOfMonth) ? monthStart : addMonthsUTC(monthStart, -1);
+}
+
+export async function getAi(clusterUri, database, preset = "all", filters = {}) {
+    let closedMonth = null;
+    let built = null;
+    const page = await runPage(clusterUri, database, preset, (period, win) => {
+        closedMonth = lastClosedMonthStart(win.dataMax);
+        // Fall back to the window start when the data is too short to contain a
+        // closed month, so the driver comparison stays inside the window.
+        const closedDay = isoDay(closedMonth ?? new Date(win.start));
+        built = {
+        // Single monthly rollup that powers both trend charts and every
+        // month-over-month KPI, so the page costs one scan instead of the
+        // five scalar round-trips the source dashboard used.
+        monthly: `Costs() ${period}
+| extend _gpu = ${AI_GPU}
+| extend _ai = ServiceCategory == 'AI and Machine Learning' or ServiceName in ('Azure AI Search', 'Azure Databricks') or _gpu
+| extend _tok = ${AI_TOKENS}
+| summarize Cloud=sum(EffectiveCost), Estate=sumif(EffectiveCost, _ai), MlGpu=sumif(EffectiveCost, ServiceName == 'Azure Machine Learning' or _gpu),
+    Tokens=sumif(ConsumedQuantity, _tok), TokenCost=sumif(EffectiveCost, _tok)
+    by Month=format_datetime(startofmonth(ChargePeriodStart), 'yyyy-MM')
+| order by Month asc`,
+        // AI/ML estate by capability over time — stacked column source.
+        capabilityTrend: `Costs() ${period} ${AI_ESTATE}
+| extend _gpu = ${AI_GPU}
+| ${AI_CAPABILITY}
+| summarize Cost=sum(EffectiveCost) by Month=format_datetime(startofmonth(ChargePeriodStart), 'yyyy-MM'), Capability
+| order by Month asc`,
+        // Estate composition: cost, distinct services, and share per capability.
+        capability: `Costs() ${period} ${AI_ESTATE}
+| extend _gpu = ${AI_GPU}
+| ${AI_CAPABILITY}
+| summarize Cost=sum(EffectiveCost), Services=dcount(ServiceName) by Capability
+| where Cost > 0
+| order by Cost desc`,
+        // Estate spend by billing service.
+        byService: `Costs() ${period} ${AI_ESTATE}
+| summarize Cost=sum(EffectiveCost), Meters=dcount(x_SkuMeterSubcategory) by Service=ServiceName, Category=ServiceCategory
+| where Cost > 0
+| top 15 by Cost desc`,
+        // AI Search / retrieval meters.
+        search: `Costs() ${period}
+| where ServiceName == 'Azure AI Search'
+| summarize Cost=sum(EffectiveCost), Quantity=sum(ConsumedQuantity) by Meter=tostring(SkuMeter), Unit=PricingUnit
+| where Cost > 0
+| top 10 by Cost desc`,
+        // ML platform and GPU compute components.
+        mlGpu: `Costs() ${period}
+| extend _gpu = ${AI_GPU}
+| where ServiceName == 'Azure Machine Learning' or _gpu
+| summarize Cost=sum(EffectiveCost), Quantity=sum(PricingQuantity) by Component=x_SkuMeterSubcategory, Unit=PricingUnit
+| where Cost > 0
+| top 12 by Cost desc`,
+        // ML compute unit economics — $/VM-hour and $/1K core-hours by series.
+        mlUnit: `Costs() ${period}
+| where ServiceName == 'Azure Machine Learning' and x_SkuMeterCategory == 'Virtual Machines'
+| extend CoreHours = todouble(coalesce(x_SkuCoreCount, 0)) * PricingQuantity
+| summarize Cost=sum(EffectiveCost), VmHours=sum(PricingQuantity), CoreHours=sum(CoreHours) by Series=x_SkuMeterSubcategory
+| where VmHours > 0
+| extend PerVmHour=Cost/VmHours, Per1KCoreHours=iff(CoreHours > 0, Cost/CoreHours*1000.0, real(null))
+| top 10 by Cost desc`,
+        // Foundation model benchmark — cost per 1M tokens by model family.
+        // 'embed' is a genuine substring test: the token appears fused inside
+        // meter names such as 'text-embedding-3-large'.
+        modelBench: `Costs() ${period}
+| where ${AI_TOKENS}
+| extend Family = iff(SkuMeter contains 'embed', 'Embeddings', x_SkuMeterSubcategory)
+| summarize Tokens=sum(ConsumedQuantity), Cost=sum(EffectiveCost) by Family
+| where Tokens > 0
+| extend Cpmt=Cost/Tokens*1000000.0
+| order by Cost desc`,
+        // Token direction mix by meter name. Meter names fuse the direction
+        // into abbreviations ("Inpt", "Outp", "cchd", "cd inp"), so the tests
+        // anchor to a word boundary rather than a bare substring: a plain
+        // `contains 'out'` would also classify a future "Throughput" meter as
+        // output. Verified against the live meter catalog with zero rows
+        // falling through to 'Other'.
+        direction: `Costs() ${period}
+| where ${AI_TOKENS}
+| extend Direction = case(
+    SkuMeter contains 'embed', 'Embedding',
+    SkuMeter matches regex @'(?i)\\bcd\\s+wr', 'Cached write',
+    SkuMeter has_any ('cchd', 'cached') or SkuMeter matches regex @'(?i)\\bcd\\s+inp', 'Cached input',
+    SkuMeter matches regex @'(?i)\\b(out|opt)', 'Output',
+    SkuMeter matches regex @'(?i)\\binp', 'Input',
+    'Other')
+| summarize Tokens=sum(ConsumedQuantity), Cost=sum(EffectiveCost) by Direction
+| where Tokens > 0
+| extend Cpmt=Cost/Tokens*1000000.0
+| order by Tokens desc`,
+        // Cognitive and specialized AI services, excluding token meters.
+        cognitive: `Costs() ${period}
+| where ServiceName in ('Azure AI Services', 'Azure AI Video Indexer') and x_SkuMeterCategory != 'Foundry Models'
+| summarize Cost=sum(EffectiveCost), Units=sum(ConsumedQuantity) by Service=x_SkuMeterSubcategory
+| where Cost > 0
+| top 12 by Cost desc`,
+        // Allocation coverage per dimension, plus the estate total that every
+        // coverage percentage is measured against.
+        allocation: `Costs() ${period} ${AI_ESTATE}
+| extend tk = coalesce(bag_keys(Tags), dynamic([]))
+| summarize Total=sum(EffectiveCost),
+    App=sumif(EffectiveCost, array_length(set_intersect(tk, ${AI_APP_TAGS})) > 0),
+    Owner=sumif(EffectiveCost, array_length(set_intersect(tk, ${AI_OWNER_TAGS})) > 0),
+    CostCenter=sumif(EffectiveCost, isnotempty(x_CostCenter)),
+    ResourceGroup=sumif(EffectiveCost, isnotempty(x_ResourceGroupName))`,
+        // Estate spend by owning team or cost center.
+        // Tag values are free text, so the same owner arrives in several
+        // casings ("ACM9000" / "acm9000"). Splitting them into separate rows
+        // understates the real owner and reads as broken data on screen, so
+        // group case-insensitively and keep the most expensive casing as the
+        // display label. tolower() is the grouping key here, not a comparison —
+        // KQL's comparison operators are already case-insensitive.
+        byOwner: `Costs() ${period} ${AI_ESTATE}
+| extend Owner = coalesce(tostring(Tags['owner']), tostring(Tags['team']), x_CostCenter, x_ResourceGroupName, '(unassigned)')
+| summarize Cost=sum(EffectiveCost) by Owner
+| where Cost > 0
+| summarize Cost=sum(Cost), Variants=dcount(Owner), (TopCost, Owner)=arg_max(Cost, Owner) by OwnerKey=tolower(Owner)
+| project Owner, Cost, Variants
+| top 12 by Cost desc`,
+        // Commitment posture across the estate.
+        posture: `Costs() ${period} ${AI_ESTATE}
+| summarize Total=sum(EffectiveCost), Committed=sumif(EffectiveCost, isnotempty(CommitmentDiscountCategory))`,
+        // AI-scoped rate recommendations and commitment transactions. Both
+        // render as descriptive counts; an empty result means no AI-scoped
+        // records were ingested, not that no opportunity exists.
+        recommendations: `Recommendations()
+| where ResourceType has_any ('MachineLearning', 'CognitiveServices', 'Search/search', 'Databricks', 'BotService', 'VideoIndexer')
+    or x_RecommendationDescription has_any ('AI', 'OpenAI', 'GPU', 'machine learning', 'cognitive')
+| summarize Count=count()`,
+        transactions: `Transactions()
+| where ChargeDescription has_any ('NC', 'ND', 'NV', 'NG', 'GPU', 'Machine Learning', 'Cognitive', 'OpenAI', 'Databricks', 'AI Search')
+| summarize Count=count()`,
+        // Top movers: the last closed month against the month before it, so a
+        // partial ingestion month can't read as a collapse in spend. A single
+        // conditional aggregation replaces the source dashboard's self-join.
+        drivers: `let _last = datetime(${closedDay});
+let _prev = datetime_add('month', -1, _last);
+Costs() ${period} ${AI_ESTATE}
+| where ChargePeriodStart >= _prev and ChargePeriodStart < datetime_add('month', 1, _last)
+| summarize Cost=sumif(EffectiveCost, ChargePeriodStart >= _last), Prev=sumif(EffectiveCost, ChargePeriodStart < _last)
+    by Service=ServiceName, Meter=x_SkuMeterSubcategory
+| where Cost > 0 or Prev > 0
+| extend Change=Cost-Prev
+| top 12 by Cost desc`,
+    };
+    return built;
+    }, filters);
+    if (!page.empty) {
+        page.lastClosedMonth = closedMonth ? isoDay(closedMonth).slice(0, 7) : null;
+        // Ship the queries that actually ran, so the panel "KQL" dialog shows
+        // executed text rather than a hand-maintained copy that can drift.
+        page.kql = built;
+    }
+    return page;
+}

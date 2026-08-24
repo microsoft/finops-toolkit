@@ -20,6 +20,7 @@ import {
   getUsage,
   getAnomaly,
   getCapacity,
+  getAi,
   normalizeConnection,
   normalizeCapacityClassId,
   validateFilters,
@@ -44,6 +45,7 @@ if (TEST_MODE) {
 const GETTERS = {
   overview: getDashboard,
   tokenomics: getTokenomics,
+  ai: getAi,
   allocation: getAllocation,
   rate: getRate,
   usage: getUsage,
@@ -719,7 +721,7 @@ export function createDashboardCanvas(dependencies = {}) {
   return canvasFactory({
     id: "ftk-local-dashboard",
     displayName: "FinOps hub dashboard",
-    description: "Live FinOps dashboard for local and remote hubs with cost, allocation, rate, usage, anomaly, AI tokenomics, and capacity views.",
+    description: "Live FinOps dashboard for local and remote hubs with cost, allocation, rate, usage, anomaly, AI tokenomics, AI and emerging workload, and capacity views.",
     inputSchema: {
       type: "object",
       additionalProperties: false,
