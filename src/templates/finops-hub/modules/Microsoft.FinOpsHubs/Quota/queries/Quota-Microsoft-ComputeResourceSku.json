@@ -1,0 +1,10 @@
+{
+  "dataset": "Quota",
+  "provider": "Microsoft",
+  "query": "/providers/Microsoft.Compute/skus?api-version=2021-07-01",
+  "queryEngine": "AzureResourceManager",
+  "scope": "Tenant",
+  "source": "Azure Resource Manager",
+  "type": "ComputeResourceSku",
+  "version": "1.0-compute-sku"
+}

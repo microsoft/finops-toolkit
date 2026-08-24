@@ -28,13 +28,15 @@ Describe 'HubsIngestionQueries' {
                 }
             })
         $quotaCatalogContracts = @(
-            @{ Name = 'quota-app-service-usage.kql'; SourceType = 'AppServiceUsage' }
-            @{ Name = 'quota-capacity-reservations.kql'; SourceType = 'CapacityReservation' }
-            @{ Name = 'quota-cognitive-services-usage.kql'; SourceType = 'CognitiveServicesUsage' }
-            @{ Name = 'quota-compute-usage.kql'; SourceType = 'ComputeUsage' }
-            @{ Name = 'quota-premium-ssd-v2-disks.kql'; SourceType = 'PremiumSSDv2Disk' }
-            @{ Name = 'quota-sql-subscription-usage.kql'; SourceType = 'SqlSubscriptionUsage' }
-            @{ Name = 'quota-storage-usage.kql'; SourceType = 'StorageUsage' }
+            @{ Name = 'quota-app-service-usage.kql'; SourceTypes = @('AppServiceUsage'); ResourceTypes = @('Microsoft.Web/locations/usages') }
+            @{ Name = 'quota-availability-zone-mappings.kql'; SourceTypes = @('AvailabilityZoneMapping'); ResourceTypes = @('Region') }
+            @{ Name = 'quota-capacity-reservations.kql'; SourceTypes = @('CapacityReservation'); ResourceTypes = @('Microsoft.Compute/capacityReservationGroups') }
+            @{ Name = 'quota-cognitive-services-usage.kql'; SourceTypes = @('CognitiveServicesUsage'); ResourceTypes = @('Microsoft.CognitiveServices/locations/usages') }
+            @{ Name = 'quota-compute-resource-skus.kql'; SourceTypes = @('ComputeResourceSku'); ResourceTypes = @('virtualMachines') }
+            @{ Name = 'quota-compute-usage.kql'; SourceTypes = @('ComputeUsage'); ResourceTypes = @('Microsoft.Compute/locations/usages') }
+            @{ Name = 'quota-premium-ssd-v2-disks.kql'; SourceTypes = @('PremiumSSDv2Disk'); ResourceTypes = @('Microsoft.Compute/disks') }
+            @{ Name = 'quota-sql-subscription-usage.kql'; SourceTypes = @('SqlSubscriptionUsage'); ResourceTypes = @('Microsoft.Sql/locations/usages') }
+            @{ Name = 'quota-storage-usage.kql'; SourceTypes = @('StorageUsage', 'ComputeUsage'); ResourceTypes = @('Microsoft.Storage/locations/usages', 'Microsoft.Compute/locations/usages') }
         ) | ForEach-Object {
             $_.FullName = Join-Path $repoRoot "src/queries/catalog/$($_.Name)"
             $_
@@ -82,8 +84,10 @@ Describe 'HubsIngestionQueries' {
         $savingsPlanCatalogContent = Get-Content -Path (Join-Path $repoRoot 'src/queries/catalog/savings-plan-recommendation-breakdown.kql') -Raw
         $quotaCatalogFileNames = @(
             'quota-app-service-usage.kql'
+            'quota-availability-zone-mappings.kql'
             'quota-capacity-reservations.kql'
             'quota-cognitive-services-usage.kql'
+            'quota-compute-resource-skus.kql'
             'quota-compute-usage.kql'
             'quota-premium-ssd-v2-disks.kql'
             'quota-sql-subscription-usage.kql'
@@ -201,7 +205,7 @@ Describe 'HubsIngestionQueries' {
             }
         }
 
-        It 'Should use sink.name for new ARM tabular schemas: <Name>' -ForEach ($schemaFiles | Where-Object { $_.Name -in @('recommendations_1.1.json', 'quota_1.0-capacity-reservation.json', 'quota_1.0-disk.json', 'quota_1.0-sql.json', 'quota_1.0-usage.json') }) {
+        It 'Should use sink.name for new ARM tabular schemas: <Name>' -ForEach ($schemaFiles | Where-Object { $_.Name -in @('recommendations_1.1.json', 'quota_1.0-capacity-reservation.json', 'quota_1.0-compute-sku.json', 'quota_1.0-disk.json', 'quota_1.0-sql.json', 'quota_1.0-usage.json', 'quota_1.0-zone-mapping.json') }) {
             $json = Get-Content -Path $FullName -Raw | ConvertFrom-Json
             @($json.translator.mappings | Where-Object { -not $_.sink.name -or $_.sink.path }).Count | Should -Be 0
         }
@@ -211,7 +215,7 @@ Describe 'HubsIngestionQueries' {
             @($json.translator.mappings | Where-Object { $_.sink.name -eq 'x_QuotaDetails' }).Count | Should -Be 0
         }
 
-        It 'Should not map one REST source path more than once: <Name>' -ForEach ($schemaFiles | Where-Object { $_.Name -in @('recommendations_1.1.json', 'quota_1.0-capacity-reservation.json', 'quota_1.0-disk.json', 'quota_1.0-sql.json', 'quota_1.0-usage.json') }) {
+        It 'Should not map one REST source path more than once: <Name>' -ForEach ($schemaFiles | Where-Object { $_.Name -in @('recommendations_1.1.json', 'quota_1.0-capacity-reservation.json', 'quota_1.0-compute-sku.json', 'quota_1.0-disk.json', 'quota_1.0-sql.json', 'quota_1.0-usage.json', 'quota_1.0-zone-mapping.json') }) {
             $json = Get-Content -Path $FullName -Raw | ConvertFrom-Json
             $sourcePaths = @($json.translator.mappings | ForEach-Object { $_.source.path })
             @($sourcePaths | Group-Object | Where-Object { $_.Count -gt 1 }).Count | Should -Be 0
@@ -254,6 +258,10 @@ Describe 'HubsIngestionQueries' {
 
         It 'Should rerun storage deployment scripts when files change' {
             $deploymentScriptContent | Should -Match 'param forceUpdateTag string = utcNow\(\)'
+        }
+
+        It 'Should run ingestion queries every four hours' {
+            $ingestionQueriesContent | Should -Match "(?s)frequency: 'Hour'\s+interval: 4"
             $deploymentScriptContent | Should -Match 'forceUpdateTag: forceUpdateTag'
         }
 
@@ -264,6 +272,11 @@ Describe 'HubsIngestionQueries' {
 
         It 'Should match managed export query concurrency limits' {
             $ingestionQueriesContent | Should -Match 'batchCount: app\.hub\.options\.privateRouting \? 4 : 30'
+        }
+
+        It 'Should publish a manifest only for the current Parquet output' {
+            $ingestionQueriesContent | Should -Match "(?s)name: 'Check If Data Was Written'.*?'childItems'"
+            $ingestionQueriesContent | Should -Match 'output\.childItems.*pipeline\(\)\.parameters\.ingestionId.*pipeline\(\)\.parameters\.queryType'
         }
 
         It 'Should keep the ARM engine as one GET Copy with native paging' {
@@ -309,6 +322,7 @@ Describe 'HubsIngestionQueries' {
         It 'Should use the copied parallel child pipeline boundary' {
             [regex]::Matches($armEngineContent, "type: 'ForEach'").Count | Should -Be 3
             [regex]::Matches($armEngineContent, 'batchCount: app\.hub\.options\.privateRouting \? 4 : 30').Count | Should -Be 3
+            $armEngineContent | Should -Not -Match 'concurrency:\s+1'
             $armEngineContent | Should -Match "(?s)type: 'ForEach'.*?activities: \[\s*\{\s*name: 'Execute"
             $armEngineContent | Should -Match 'waitOnCompletion: true'
         }
@@ -351,14 +365,16 @@ Describe 'HubsIngestionQueries' {
             $savingsPlanCatalogContent | Should -Not -Match 'x_RecommendationType'
         }
 
-        It 'Should define the seven approved GET-only quota queries' {
+        It 'Should define the nine approved GET-only quota queries' {
             $quotaQueries = @($queryObjects | Where-Object { $_.AppName -eq 'Quota' })
 
-            $quotaQueries.Count | Should -Be 7
+            $quotaQueries.Count | Should -Be 9
             @($quotaQueries.Query.type | Sort-Object) | Should -Be @(
                 'AppServiceUsage'
+                'AvailabilityZoneMapping'
                 'CapacityReservation'
                 'CognitiveServicesUsage'
+                'ComputeResourceSku'
                 'ComputeUsage'
                 'PremiumSSDv2Disk'
                 'SqlSubscriptionUsage'
@@ -366,10 +382,10 @@ Describe 'HubsIngestionQueries' {
             )
             @($quotaQueries.Query.queryEngine | Sort-Object -Unique) | Should -Be @('AzureResourceManager')
             @($quotaQueries.Query.scope | Sort-Object -Unique) | Should -Be @('Tenant')
-            @($quotaQueries.Query.query | Where-Object { $_ -notmatch '^/providers/' }).Count | Should -Be 0
+            @($quotaQueries.Query.query | Where-Object { $_ -notmatch '^/(providers/|locations\?)' }).Count | Should -Be 0
         }
 
-        It 'Should define only the seven approved type-specific quota catalog files' {
+        It 'Should define only the nine approved type-specific quota catalog files' {
             $catalogPath = Join-Path $repoRoot 'src/queries/catalog'
             $aggregateFiles = @('quota-current-usage.kql', 'quota-headroom.kql')
             $actualFiles = @(Get-ChildItem -Path $catalogPath -Filter 'quota-*.kql' |
@@ -381,11 +397,19 @@ Describe 'HubsIngestionQueries' {
             $actualFiles | Should -Be $expectedFiles
         }
 
-        It 'Should rehydrate <SourceType> in <Name>' -ForEach $quotaCatalogContracts {
+        It 'Should rehydrate the intended resource contract in <Name>' -ForEach $quotaCatalogContracts {
             Test-Path $FullName | Should -BeTrue
             $content = Get-Content -Path $FullName -Raw
 
-            $content | Should -Match ([regex]::Escape("x_SourceType =~ '$SourceType'"))
+            foreach ($sourceType in $SourceTypes)
+            {
+                $content | Should -Match ([regex]::Escape("x_SourceType =~ '$sourceType'"))
+            }
+            foreach ($resourceType in $ResourceTypes)
+            {
+                $content | Should -Match ([regex]::Escape("ResourceType =~ '$resourceType'"))
+            }
+            $content | Should -Match 'ResourceName'
             $content | Should -Match '\| summarize arg_max\(x_IngestionTime, \*\) by ResourceId'
             $content | Should -Not -Match 'PostgreSQL'
 
@@ -393,6 +417,18 @@ Describe 'HubsIngestionQueries' {
             {
                 $content | Should -Match "(?m)^\s+$column,?\r?$" -Because "quota catalog query '$Name' should project '$column'"
             }
+        }
+
+        It 'Should separate Compute quota from Storage quota by resource name' {
+            $computeContent = Get-Content -Path (Join-Path $repoRoot 'src/queries/catalog/quota-compute-usage.kql') -Raw
+            $storageContent = Get-Content -Path (Join-Path $repoRoot 'src/queries/catalog/quota-storage-usage.kql') -Raw
+
+            $computeContent | Should -Match ([regex]::Escape("ResourceName endswith 'Family'"))
+            $computeContent | Should -Match ([regex]::Escape("ResourceName in~ ('cores', 'lowPriorityCores', 'dedicatedVCpus')"))
+            $computeContent | Should -Not -Match '(?i)disk|snapshot'
+            $storageContent | Should -Match ([regex]::Escape("ResourceName =~ 'StorageAccounts'"))
+            $storageContent | Should -Match 'isnotempty\(location\)'
+            $storageContent | Should -Match ([regex]::Escape("ResourceName matches regex '(?i)(disk|snapshot)'"))
         }
 
         It 'Should limit quota schemas to the approved public raw fields' {
@@ -412,6 +448,17 @@ Describe 'HubsIngestionQueries' {
                 'x_SourceProvider'
                 'x_SourceType'
                 'x_SourceVersion'
+                'x_AvailabilityZoneMappings'
+                'x_Capabilities'
+                'x_Family'
+                'x_Kind'
+                'x_LocationInfo'
+                'x_LocationMetadata'
+                'x_Locations'
+                'x_RegionalDisplayName'
+                'x_Restrictions'
+                'x_Size'
+                'x_Tier'
             )
 
             foreach ($schemaFile in ($schemaFiles | Where-Object { $_.AppName -eq 'Quota' }))
@@ -425,7 +472,7 @@ Describe 'HubsIngestionQueries' {
             $rawColumns = [regex]::Match($rawTablesContent, '(?s)// Quota_raw table -- Redefine all columns\s+\.alter table Quota_raw \((.*?)\)\s+// Quota_raw ingestion mapping').Groups[1].Value
             $finalColumns = [regex]::Match($ingestionSetupContent, '(?s)// Quota_final_v1_0 table\s+\.create-merge table Quota_final_v1_0 \((.*?)\)\s+// Update policy').Groups[1].Value
 
-            [regex]::Matches($rawColumns, '(?m)^\s+\w+\s*:').Count | Should -Be 15
+            [regex]::Matches($rawColumns, '(?m)^\s+\w+\s*:').Count | Should -Be 26
             [regex]::Matches($finalColumns, '(?m)^\s+\w+\s*:').Count | Should -Be 16
             $ingestionSetupContent | Should -Match 'Quota_transform_v1_0\(\)'
             $ingestionSetupContent | Should -Match 'extent_tags\(\)'
@@ -433,8 +480,11 @@ Describe 'HubsIngestionQueries' {
             $ingestionSetupContent | Should -Match "x_SourceType !~ 'PremiumSSDv2Disk' or displayName =~ 'PremiumV2_LRS'"
             $ingestionSetupContent | Should -Match "x_SourceType =~ 'AppServiceUsage'"
             $ingestionSetupContent | Should -Match "x_SourceType =~ 'StorageUsage'"
+            $ingestionSetupContent | Should -Match ([regex]::Escape("strcat(SubAccountId, '/providers/Microsoft.Compute/locations/', location, '/skus/', ResourceName)"))
             $hubSetupContent | Should -Match 'Quota_v1_0\(\)'
+            $hubSetupContent | Should -Match 'ComputeQuota_v1_0\(\)'
             $hubLatestContent | Should -Match 'Quota\(\)'
+            $hubLatestContent | Should -Match 'ComputeQuota\(\)'
         }
 
         It 'Should use the approved four-state deployment matrix' {

@@ -1,25 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 //
-// NAME: Capacity reservations
-// DESCRIPTION: Rehydrates the latest capacity reservation group inventory for each subscription.
+// NAME: Compute resource SKUs
+// DESCRIPTION: Rehydrates the latest virtual machine SKU family, availability zone, and restriction evidence.
 // CATEGORY: Governance
 // FEATURE: Quota
 // REGION: All
 // TECH: KQL
 //
-// RESOURCE TYPES: Microsoft.Compute/capacityReservationGroups
+// RESOURCE TYPES: virtualMachines
 //
 // SOURCE: Quota()
 //
-// NOTES:
-// - Capacity reservation groups are inventory observations, so usage, limit, and unit may be empty.
-//
 
 Quota()
-| where x_SourceType =~ 'CapacityReservation'
-| where ResourceType =~ 'Microsoft.Compute/capacityReservationGroups'
-| where isnotempty(ResourceName)
+| where x_SourceType =~ 'ComputeResourceSku'
+| where ResourceType =~ 'virtualMachines'
+| where isnotempty(ResourceName) and isnotempty(location)
 | summarize arg_max(x_IngestionTime, *) by ResourceId
 | project
     ProviderName,

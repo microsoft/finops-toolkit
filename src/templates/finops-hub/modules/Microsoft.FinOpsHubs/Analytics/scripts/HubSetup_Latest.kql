@@ -50,6 +50,14 @@ Quota()
 
 
 .create-or-alter function
+with (docstring = 'Gets Compute quota by VM family and availability zone with the latest supported schema.', folder = 'Quota')
+ComputeQuota()
+{
+    ComputeQuota_v1_0()
+}
+
+
+.create-or-alter function
 with (docstring = 'Gets all transactions with the latest supported version of the FOCUS schema.', folder = 'Transactions')
 Transactions()
 {

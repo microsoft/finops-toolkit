@@ -1527,11 +1527,15 @@ Quota_transform_v1_0()
         x_SourceType =~ 'CapacityReservation', 'Microsoft.Compute/capacityReservationGroups',
         x_SourceType =~ 'PremiumSSDv2Disk', 'Microsoft.Compute/disks',
         x_SourceType =~ 'StorageUsage', 'Microsoft.Storage/locations/usages',
+        x_SourceType =~ 'ComputeResourceSku', 'Microsoft.Compute/skus',
+        x_SourceType =~ 'AvailabilityZoneMapping', 'Microsoft.Resources/subscriptions/locations',
         ''
     ))
     | extend ResourceId = tolower(coalesce(ResourceId, case(
         x_SourceType in~ ('AppServiceUsage', 'ComputeUsage', 'CognitiveServicesUsage', 'StorageUsage'),
             strcat(SubAccountId, '/providers/', tostring(split(ResourceType, '/')[0]), '/locations/', location, '/usages/', ResourceName),
+        x_SourceType =~ 'ComputeResourceSku',
+            strcat(SubAccountId, '/providers/Microsoft.Compute/locations/', location, '/skus/', ResourceName),
         ''
     )))
     | extend x_QuotaDetails = bag_merge(
@@ -1544,7 +1548,18 @@ Quota_transform_v1_0()
             'Unit', unit,
             'QueryScope', SubAccountId,
             'QueryType', x_SourceType,
-            'QueryVersion', x_SourceVersion
+            'QueryVersion', x_SourceVersion,
+            'AvailabilityZoneMappings', todynamic(x_AvailabilityZoneMappings),
+            'Capabilities', todynamic(x_Capabilities),
+            'Family', x_Family,
+            'Kind', x_Kind,
+            'LocationInfo', todynamic(x_LocationInfo),
+            'LocationMetadata', todynamic(x_LocationMetadata),
+            'Locations', todynamic(x_Locations),
+            'RegionalDisplayName', x_RegionalDisplayName,
+            'Restrictions', todynamic(x_Restrictions),
+            'Size', x_Size,
+            'Tier', x_Tier
         )
     )
     | project

@@ -2,19 +2,26 @@
 // Licensed under the MIT License.
 //
 // NAME: Storage quota usage
-// DESCRIPTION: Rehydrates the latest Storage quota usage records for each subscription and region.
+// DESCRIPTION: Rehydrates the latest Storage account, disk, and snapshot quota usage records for each subscription and region.
 // CATEGORY: Governance
 // FEATURE: Quota
 // REGION: All
 // TECH: KQL
 //
-// RESOURCE TYPES: Microsoft.Storage/locations/usages
+// RESOURCE TYPES: Microsoft.Storage/locations/usages, Microsoft.Compute/locations/usages
 //
 // SOURCE: Quota()
 //
 
 Quota()
-| where x_SourceType =~ 'StorageUsage'
+| where
+    (x_SourceType =~ 'StorageUsage'
+        and ResourceType =~ 'Microsoft.Storage/locations/usages'
+        and ResourceName =~ 'StorageAccounts'
+        and isnotempty(location))
+    or (x_SourceType =~ 'ComputeUsage'
+        and ResourceType =~ 'Microsoft.Compute/locations/usages'
+        and ResourceName matches regex '(?i)(disk|snapshot)')
 | summarize arg_max(x_IngestionTime, *) by ResourceId
 | project
     ProviderName,

@@ -1,0 +1,109 @@
+{
+  "additionalColumns": [],
+  "translator": {
+    "type": "TabularTranslator",
+    "mappings": [
+      {
+        "source": {
+          "path": "['name']"
+        },
+        "sink": {
+          "name": "ResourceName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['resourceType']"
+        },
+        "sink": {
+          "name": "ResourceType",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['family']"
+        },
+        "sink": {
+          "name": "x_Family",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['locations'][0]"
+        },
+        "sink": {
+          "name": "location",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['tier']"
+        },
+        "sink": {
+          "name": "x_Tier",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['size']"
+        },
+        "sink": {
+          "name": "x_Size",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['kind']"
+        },
+        "sink": {
+          "name": "x_Kind",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['locations']"
+        },
+        "sink": {
+          "name": "x_Locations",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['locationInfo']"
+        },
+        "sink": {
+          "name": "x_LocationInfo",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['restrictions']"
+        },
+        "sink": {
+          "name": "x_Restrictions",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['capabilities']"
+        },
+        "sink": {
+          "name": "x_Capabilities",
+          "type": "String"
+        }
+      }
+    ],
+    "collectionReference": "$['value']",
+    "mapComplexValuesToString": true
+  }
+}

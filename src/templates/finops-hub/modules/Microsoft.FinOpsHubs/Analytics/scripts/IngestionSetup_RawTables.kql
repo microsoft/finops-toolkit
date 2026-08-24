@@ -915,7 +915,18 @@
     x_SourceName:    string,
     x_SourceProvider:string,
     x_SourceType:    string,
-    x_SourceVersion: string
+    x_SourceVersion: string,
+    x_AvailabilityZoneMappings: string,
+    x_Capabilities:             string,
+    x_Family:                   string,
+    x_Kind:                     string,
+    x_LocationInfo:             string,
+    x_LocationMetadata:         string,
+    x_Locations:                string,
+    x_RegionalDisplayName:      string,
+    x_Restrictions:             string,
+    x_Size:                     string,
+    x_Tier:                     string
 )
 
 // Quota_raw ingestion mapping
@@ -936,7 +947,18 @@
     { "Column": "x_SourceName",     "Properties": { "Field": "x_SourceName" } },
     { "Column": "x_SourceProvider", "Properties": { "Field": "x_SourceProvider" } },
     { "Column": "x_SourceType",     "Properties": { "Field": "x_SourceType" } },
-    { "Column": "x_SourceVersion",  "Properties": { "Field": "x_SourceVersion" } }
+    { "Column": "x_SourceVersion",  "Properties": { "Field": "x_SourceVersion" } },
+    { "Column": "x_AvailabilityZoneMappings", "Properties": { "Field": "x_AvailabilityZoneMappings" } },
+    { "Column": "x_Capabilities",             "Properties": { "Field": "x_Capabilities" } },
+    { "Column": "x_Family",                   "Properties": { "Field": "x_Family" } },
+    { "Column": "x_Kind",                     "Properties": { "Field": "x_Kind" } },
+    { "Column": "x_LocationInfo",             "Properties": { "Field": "x_LocationInfo" } },
+    { "Column": "x_LocationMetadata",         "Properties": { "Field": "x_LocationMetadata" } },
+    { "Column": "x_Locations",                "Properties": { "Field": "x_Locations" } },
+    { "Column": "x_RegionalDisplayName",      "Properties": { "Field": "x_RegionalDisplayName" } },
+    { "Column": "x_Restrictions",             "Properties": { "Field": "x_Restrictions" } },
+    { "Column": "x_Size",                     "Properties": { "Field": "x_Size" } },
+    { "Column": "x_Tier",                     "Properties": { "Field": "x_Tier" } }
 ]
 ```
 

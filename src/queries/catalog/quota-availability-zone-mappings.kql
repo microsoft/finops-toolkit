@@ -1,25 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 //
-// NAME: Capacity reservations
-// DESCRIPTION: Rehydrates the latest capacity reservation group inventory for each subscription.
+// NAME: Availability zone mappings
+// DESCRIPTION: Rehydrates the latest subscription-specific logical-to-physical availability zone mappings.
 // CATEGORY: Governance
 // FEATURE: Quota
 // REGION: All
 // TECH: KQL
 //
-// RESOURCE TYPES: Microsoft.Compute/capacityReservationGroups
+// RESOURCE TYPES: Region
 //
 // SOURCE: Quota()
 //
-// NOTES:
-// - Capacity reservation groups are inventory observations, so usage, limit, and unit may be empty.
-//
 
 Quota()
-| where x_SourceType =~ 'CapacityReservation'
-| where ResourceType =~ 'Microsoft.Compute/capacityReservationGroups'
-| where isnotempty(ResourceName)
+| where x_SourceType =~ 'AvailabilityZoneMapping'
+| where ResourceType =~ 'Region'
+| where isnotempty(ResourceName) and array_length(x_QuotaDetails.AvailabilityZoneMappings) > 0
 | summarize arg_max(x_IngestionTime, *) by ResourceId
 | project
     ProviderName,

@@ -123,7 +123,7 @@ resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06
     typeProperties: {
       recurrence: {
         frequency: 'Hour'
-        interval: 24
+        interval: 4
         startTime: '2023-01-01T01:01:00'
         timeZone: timeZones.outputs.Timezone
       }
@@ -671,7 +671,10 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
               folderPath: '@concat(pipeline().parameters.outputDataset, \'/\', variables(\'queryScope\'), \'/\', pipeline().parameters.queryType)'
             }
           }
-          fieldList: ['exists']
+          fieldList: [
+            'exists'
+            'childItems'
+          ]
           storeSettings: {
             type: 'AzureBlobFSReadSettings'
             enablePartitionDiscovery: false
@@ -851,7 +854,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@and(pipeline().parameters.publishManifest, activity(\'Check If Data Was Written\').output.exists)'
+            value: '@and(pipeline().parameters.publishManifest, activity(\'Check If Data Was Written\').output.exists, contains(string(activity(\'Check If Data Was Written\').output.childItems), concat(pipeline().parameters.ingestionId, \'${core.ingestionIdFileNameSeparator}\', pipeline().parameters.queryType, \'.parquet\')))'
             type: 'Expression'
           }
           ifTrueActivities: [

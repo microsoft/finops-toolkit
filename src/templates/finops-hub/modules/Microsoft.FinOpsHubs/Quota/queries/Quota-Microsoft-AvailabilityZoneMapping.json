@@ -1,0 +1,10 @@
+{
+  "dataset": "Quota",
+  "provider": "Microsoft",
+  "query": "/locations?api-version=2022-12-01",
+  "queryEngine": "AzureResourceManager",
+  "scope": "Tenant",
+  "source": "Azure Resource Manager",
+  "type": "AvailabilityZoneMapping",
+  "version": "1.0-zone-mapping"
+}

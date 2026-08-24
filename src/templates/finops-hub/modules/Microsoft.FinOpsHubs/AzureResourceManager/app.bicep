@@ -981,7 +981,6 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
   name: 'queries_AzureResourceManager_CopyQuery'
   parent: dataFactory
   properties: {
-    concurrency: 1
     activities: [
       {
         name: 'Execute ARM Query'
