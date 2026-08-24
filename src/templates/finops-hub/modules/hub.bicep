@@ -339,6 +339,10 @@ module azureResourceGraph 'Microsoft.FinOpsHubs/AzureResourceGraph/app.bicep' = 
 
 module azureResourceManager 'Microsoft.FinOpsHubs/AzureResourceManager/app.bicep' = if (enableRecommendations || enableQuota) {
   name: 'Microsoft.FinOpsHubs.AzureResourceManager'
+  dependsOn: [
+    cmExports
+    ingestionQueries
+  ]
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'AzureResourceManager')
     core: core.outputs.metadata

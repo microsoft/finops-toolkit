@@ -1512,7 +1512,7 @@ Quota_transform_v1_0()
         tmp_QueryLocation = replace_string(tostring(tmp_FileParts[3]), '.parquet', '')
     | extend
         ProviderName = coalesce(ProviderName, 'Microsoft'),
-        SubAccountId = tolower(coalesce(SubAccountId, tmp_QueryScope)),
+        SubAccountId = tolower(coalesce(tmp_QueryScope, SubAccountId)),
         displayName = coalesce(displayName, ResourceName),
         location = coalesce(location, tmp_QueryLocation),
         x_SourceName = coalesce(x_SourceName, 'Azure Resource Manager'),

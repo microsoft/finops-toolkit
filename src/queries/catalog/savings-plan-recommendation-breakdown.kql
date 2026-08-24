@@ -27,8 +27,9 @@ Recommendations()
     LookBackPeriod = tostring(x_RecommendationDetails.x_LookBackPeriod),
     Scope = tostring(x_RecommendationDetails.x_Scope),
     CurrencyCode = tostring(x_RecommendationDetails.x_CurrencyCode)
-| summarize arg_max(x_RecommendationDate, *) by BenefitType, ArmSkuName, Term, LookBackPeriod, Scope
+| summarize arg_max(x_RecommendationDate, *) by SubAccountId, BenefitType, ArmSkuName, Term, LookBackPeriod, Scope
 | project
+    SubAccountId,
     BenefitType,
     ArmSkuName,
     Term,

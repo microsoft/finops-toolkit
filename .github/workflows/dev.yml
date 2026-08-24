@@ -13,6 +13,10 @@ on:
       - 'docs/deploy/finops-hub-preview.json'
       - '.github/extensions/ftk-local-dashboard/**'
       - 'package.json'
+
+permissions:
+  contents: read
+
 jobs:
   run_pester_tests:
     name: Pester

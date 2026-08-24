@@ -221,6 +221,9 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
       queryScope: {
         type: 'String'
       }
+      queryScopeTypes: {
+        type: 'Array'
+      }
       querySource: {
         type: 'String'
       }

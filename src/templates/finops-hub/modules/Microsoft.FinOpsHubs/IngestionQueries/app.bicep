@@ -251,6 +251,10 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
                     value: '@item().scope'
                     type: 'Expression'
                   }
+                  queryScopeTypes: {
+                    value: '@if(contains(item(), \'scopeTypes\'), item().scopeTypes, json(\'[]\'))'
+                    type: 'Expression'
+                  }
                   query: {
                     value: '@item().query'
                     type: 'Expression'
@@ -522,7 +526,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
             'Content-Type': 'application/json'
           }
           body: {
-            value: '@json(concat(\'{"query":"\', pipeline().parameters.query, \'","queryScope":"\', pipeline().parameters.queryScope, \'","querySource":"\', pipeline().parameters.querySource, \'","queryType":"\', pipeline().parameters.queryType, \'","queryProvider":"\', pipeline().parameters.queryProvider, \'","queryVersion":"\', pipeline().parameters.queryVersion, \'","ingestionPath":"\', concat(variables(\'ingestionPath\'), pipeline().parameters.queryType, \'.parquet\'), \'","translator":\', string(activity(\'Load Schema Mappings\').output.firstRow.translator), \'}\'))'
+            value: '@json(concat(\'{"query":"\', pipeline().parameters.query, \'","queryScope":"\', pipeline().parameters.queryScope, \'","queryScopeTypes":\', string(pipeline().parameters.queryScopeTypes), \',"querySource":"\', pipeline().parameters.querySource, \'","queryType":"\', pipeline().parameters.queryType, \'","queryProvider":"\', pipeline().parameters.queryProvider, \'","queryVersion":"\', pipeline().parameters.queryVersion, \'","ingestionPath":"\', concat(variables(\'ingestionPath\'), pipeline().parameters.queryType, \'.parquet\'), \'","translator":\', string(activity(\'Load Schema Mappings\').output.firstRow.translator), \'}\'))'
             type: 'Expression'
           }
           authentication: {
@@ -937,6 +941,9 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
       }
       queryScope: {
         type: 'String'
+      }
+      queryScopeTypes: {
+        type: 'Array'
       }
       query: {
         type: 'String'

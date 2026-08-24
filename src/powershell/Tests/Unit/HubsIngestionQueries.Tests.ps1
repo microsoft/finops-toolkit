@@ -70,6 +70,7 @@ Describe 'HubsIngestionQueries' {
         $ingestionQueriesContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/IngestionQueries/app.bicep') -Raw
         $argEngineContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/AzureResourceGraph/app.bicep') -Raw
         $armEngineContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/AzureResourceManager/app.bicep') -Raw
+        $armCopyPipelineContent = [regex]::Match($armEngineContent, '(?s)resource pipeline_CopyQuery.*?(?=\r?\n\r?\n//==============================================================================)').Value
         $settingsContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Core/settings.json') -Raw
         $rawTablesContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts/IngestionSetup_RawTables.kql') -Raw
         $ingestionSetupContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts/IngestionSetup_v1_0.kql') -Raw
@@ -78,6 +79,7 @@ Describe 'HubsIngestionQueries' {
         $hubLatestContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts/HubSetup_Latest.kql') -Raw
         $mainTemplateContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/main.bicep') -Raw
         $hubModuleContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/hub.bicep') -Raw
+        $armHubModuleContent = [regex]::Match($hubModuleContent, '(?ms)^module azureResourceManager .*?^\}').Value
         $deploymentScriptContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/fx/hub-deploymentScript.bicep') -Raw
         $portal = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/createUiDefinition.json') -Raw | ConvertFrom-Json
         $buildScriptContent = Get-Content -Path (Join-Path $repoRoot 'src/scripts/Build-HubIngestionQueries.ps1') -Raw
@@ -279,18 +281,66 @@ Describe 'HubsIngestionQueries' {
             $ingestionQueriesContent | Should -Match 'output\.childItems.*pipeline\(\)\.parameters\.ingestionId.*pipeline\(\)\.parameters\.queryType'
         }
 
-        It 'Should keep the ARM engine as one GET Copy with native paging' {
-            [regex]::Matches($armEngineContent, "type: 'Copy'").Count | Should -Be 1
-            $armEngineContent | Should -Match "requestMethod: 'GET'"
-            $armEngineContent | Should -Match "AbsoluteUrl: '\$\.nextLink'"
-            $armEngineContent | Should -Not -Match 'additionalColumns|requestBody|additionalHeaders|queryDefinition'
-            $armEngineContent | Should -Not -Match "type: 'Until'"
+        It 'Should derive data and continuation metadata from one stored response' {
+            [regex]::Matches($armCopyPipelineContent, "type: 'Copy'").Count | Should -Be 3
+            [regex]::Matches($armCopyPipelineContent, "type: 'RestSource'").Count | Should -Be 1
+            [regex]::Matches($armCopyPipelineContent, "requestMethod: 'GET'").Count | Should -Be 1
+            [regex]::Matches($armCopyPipelineContent, "type: 'JsonSource'").Count | Should -Be 2
+            $armCopyPipelineContent | Should -Match "name: 'Read ARM Pages'"
+            $armCopyPipelineContent | Should -Match "type: 'Until'"
+            $armCopyPipelineContent | Should -Match "name: 'Validate Page URL'"
+            $armCopyPipelineContent | Should -Match "name: 'Reject Unsafe Page URL'"
+            $armCopyPipelineContent | Should -Match 'UnsafeArmContinuation'
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("startswith(toLower(variables(\'requestUrl\')), toLower(\'`$`{environment().resourceManager`}\'))"))
+            $armCopyPipelineContent | Should -Match "name: 'Copy Raw ARM Page'"
+            $armCopyPipelineContent | Should -Match "name: 'Copy Page Metadata'"
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("path: '`$[\'nextLink\']'"))
+            $armCopyPipelineContent | Should -Match "name: 'Lookup Page Metadata'"
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("activity(\'Lookup Page Metadata\').output.firstRow.nextLink"))
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Copy Raw ARM Page'.*?activity: 'Set Page Metadata Path'"
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Copy Page Metadata'.*?activity: 'Copy Raw ARM Page'"
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Copy ARM Page'.*?activity: 'Copy Raw ARM Page'"
+            [regex]::Matches($armCopyPipelineContent, 'dataset_msexports_manifest\.name').Count | Should -Be 3
+            $armCopyPipelineContent | Should -Not -Match "type: 'WebActivity'"
+            $armCopyPipelineContent | Should -Not -Match "AbsoluteUrl: '\$\.nextLink'"
+            $armCopyPipelineContent | Should -Not -Match 'paginationRules'
+            $armCopyPipelineContent | Should -Not -Match 'additionalColumns|requestBody|additionalHeaders|queryDefinition'
+        }
+
+        It 'Should isolate and delete run-unique continuation metadata' {
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("_ftk-arm-pagination/\', pipeline().RunId"))
+            $armCopyPipelineContent | Should -Match "guid\(\)"
+            $armCopyPipelineContent | Should -Match "name: 'Delete Paging Files'"
+            $armCopyPipelineContent | Should -Match 'dataset_msexports_parquet_files\.name'
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("@concat(\'_ftk-arm-pagination/\', pipeline().RunId)"))
+            $armCopyPipelineContent | Should -Match '_ftk-query-staging/'
         }
 
         It 'Should pass queryScope through the shared engine contract' {
             $ingestionQueriesContent | Should -Match '"queryScope":"'
             $argEngineContent | Should -Match '(?s)queryScope:\s*\{\s*type:\s*''String'''
             $armEngineContent | Should -Match '(?s)queryScope:\s*\{\s*type:\s*''String'''
+        }
+
+        It 'Should reject unsafe ARM request inputs before dispatch' {
+            $armEngineContent | Should -Match "name: 'Validate Request'"
+            $armEngineContent | Should -Match "name: 'Reject Unsafe Request'"
+            $armEngineContent | Should -Match 'UnsafeArmRequest'
+            $armEngineContent | Should -Match "name: 'Validate Subscription ID'"
+            $armEngineContent | Should -Match 'MalformedAzureResourceId'
+            $armEngineContent | Should -Match ([regex]::Escape("startswith(pipeline().parameters.query, \'/\')"))
+            $armEngineContent | Should -Match ([regex]::Escape("contains(pipeline().parameters.query, \'//\')"))
+            $armEngineContent | Should -Match ([regex]::Escape("contains(pipeline().parameters.query, \'://\')"))
+            $armEngineContent | Should -Match ([regex]::Escape("contains(pipeline().parameters.query, \'#\')"))
+            $armEngineContent | Should -Match ([regex]::Escape("contains(pipeline().parameters.query, \'@\')"))
+            $armEngineContent | Should -Match ([regex]::Escape("contains(pipeline().parameters.query, \'\\\')"))
+            $armEngineContent | Should -Match ([regex]::Escape("contains(pipeline().parameters.queryScope, \'//\')"))
+            $armEngineContent | Should -Match ([regex]::Escape("split(pipeline().parameters.queryScope, \'/\')"))
+            $armEngineContent | Should -Match ([regex]::Escape("equals(length(split(pipeline().parameters.queryScope, \'/\')[2]), 36)"))
+            $armEngineContent | Should -Match ([regex]::Escape("equals(substring(split(pipeline().parameters.queryScope, \'/\')[2], 8, 1), \'-\')"))
+            $armEngineContent | Should -Match ([regex]::Escape("toLower(replace(split(pipeline().parameters.queryScope, \'/\')[2], \'-\', \'\'))"))
+            $armEngineContent | Should -Match ([regex]::Escape("\'resourcegroups\'"))
+            $armEngineContent | Should -Match ([regex]::Escape("\'providers\'"))
         }
 
         It 'Should not add subscription scopes to settings' {
@@ -306,6 +356,18 @@ Describe 'HubsIngestionQueries' {
             $armEngineContent | Should -Match ([regex]::Escape("@if(startswith(string(activity(\'Get Config\').output.firstRow.scopes), \'[\'), activity(\'Get Config\').output.firstRow.scopes, createArray(activity(\'Get Config\').output.firstRow.scopes))"))
             $armEngineContent | Should -Not -Match "name: 'Set Scopes as Array'"
             $armEngineContent | Should -Not -Match 'billingScopes'
+        }
+
+        It 'Should filter configured scopes by query-compatible resource type' {
+            $ingestionQueriesContent | Should -Match '"queryScopeTypes":'
+            $argEngineContent | Should -Match '(?s)queryScopeTypes:\s*\{\s*type:\s*''Array'''
+            $armEngineContent | Should -Match '(?s)queryScopeTypes:\s*\{\s*type:\s*''Array'''
+            $armEngineContent | Should -Match 'Microsoft\.Billing/billingAccounts'
+            $armEngineContent | Should -Match 'Microsoft\.Billing/billingAccounts/billingProfiles'
+        }
+
+        It 'Should deploy ARM ingestion after its shared datasets' {
+            $armHubModuleContent | Should -Match '(?s)dependsOn:\s*\[\s*cmExports\s+ingestionQueries\s*\]'
         }
 
         It 'Should use fixed tenant and physical region discovery' {
@@ -334,11 +396,13 @@ Describe 'HubsIngestionQueries' {
             $armEngineContent | Should -Match ([regex]::Escape("pipeline().parameters.queryType, \'--\', pipeline().parameters.queryVersion, \'--\', replace(pipeline().parameters.queryScope, \'/\', \'_\'), \'--\', pipeline().parameters.queryLocation"))
         }
 
-        It 'Should not dispatch on query metadata' {
+        It 'Should propagate source metadata without dispatching on it' {
             [regex]::Matches($armEngineContent, 'queryDataset').Count | Should -Be 1
-            [regex]::Matches($armEngineContent, 'queryProvider').Count | Should -Be 1
             [regex]::Matches($armEngineContent, 'queryEngine').Count | Should -Be 1
-            [regex]::Matches($armEngineContent, 'querySource').Count | Should -Be 1
+            [regex]::Matches($armEngineContent, 'queryProvider').Count | Should -BeGreaterThan 1
+            [regex]::Matches($armEngineContent, 'querySource').Count | Should -BeGreaterThan 1
+            $armEngineContent | Should -Match 'x_SourceName=.+parameters\.querySource'
+            $armEngineContent | Should -Match 'x_SourceProvider=.+parameters\.queryProvider'
             $armEngineContent | Should -Not -Match "type: 'Switch'"
         }
     }
@@ -354,6 +418,10 @@ Describe 'HubsIngestionQueries' {
             @($savingsPlanQueries.Query.query | Where-Object { $_ -match "term eq 'P3Y'" }).Count | Should -Be 1
             @($savingsPlanQueries.Query.scope | Sort-Object -Unique) | Should -Be @('Configured')
             @($savingsPlanQueries.Query.queryEngine | Sort-Object -Unique) | Should -Be @('AzureResourceManager')
+            @($savingsPlanQueries.Query.scopeTypes | Sort-Object -Unique) | Should -Be @(
+                'Microsoft.Billing/billingAccounts'
+                'Microsoft.Billing/billingAccounts/billingProfiles'
+            )
         }
 
         It 'Should derive the Savings Plan recommendation ID from the single mapped ARM ID' {
@@ -362,6 +430,8 @@ Describe 'HubsIngestionQueries' {
 
         It 'Should derive the Savings Plan benefit type from the documented ARM SKU name' {
             $savingsPlanCatalogContent | Should -Match 'BenefitType = replace_regex\(tostring\(x_RecommendationDetails\.x_ArmSkuName\)'
+            $savingsPlanCatalogContent | Should -Match 'summarize arg_max\(x_RecommendationDate, \*\) by SubAccountId, BenefitType'
+            $savingsPlanCatalogContent | Should -Match '(?m)^\s+SubAccountId,\r?$'
             $savingsPlanCatalogContent | Should -Not -Match 'x_RecommendationType'
         }
 
@@ -476,6 +546,7 @@ Describe 'HubsIngestionQueries' {
             [regex]::Matches($finalColumns, '(?m)^\s+\w+\s*:').Count | Should -Be 16
             $ingestionSetupContent | Should -Match 'Quota_transform_v1_0\(\)'
             $ingestionSetupContent | Should -Match 'extent_tags\(\)'
+            $ingestionSetupContent | Should -Match 'SubAccountId = tolower\(coalesce\(tmp_QueryScope, SubAccountId\)\)'
             $ingestionSetupContent | Should -Match 'bag_pack\('
             $ingestionSetupContent | Should -Match "x_SourceType !~ 'PremiumSSDv2Disk' or displayName =~ 'PremiumV2_LRS'"
             $ingestionSetupContent | Should -Match "x_SourceType =~ 'AppServiceUsage'"
