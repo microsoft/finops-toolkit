@@ -1,4 +1,4 @@
-name: 'PowerShell Tests'
+name: 'Development tests'
 
 on:
   pull_request:
@@ -11,6 +11,8 @@ on:
       - 'src/templates/finops-hub/**/timeZones.bicep'
       - 'docs/deploy/finops-hub-latest.json'
       - 'docs/deploy/finops-hub-preview.json'
+      - '.github/extensions/ftk-local-dashboard/**'
+      - 'package.json'
 jobs:
   run_pester_tests:
     name: Pester
@@ -25,3 +27,10 @@ jobs:
       - name: Run Tests
         shell: pwsh
         run: .build/start.ps1 -Task Test.PowerShell.All
+  run_dashboard_tests:
+    name: FinOps hub dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run dashboard tests
+        run: npm run test-dashboard
