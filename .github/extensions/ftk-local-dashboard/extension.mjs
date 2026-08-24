@@ -20,6 +20,7 @@ import {
   getUsage,
   getAnomaly,
   getCapacity,
+  getComputeSubscriptionPage,
   getAi,
   normalizeConnection,
   normalizeCapacityClassId,
@@ -541,6 +542,20 @@ async function handleRequest(entry, req, res) {
       sendJson(res, 200, payload);
     } catch (err) {
       sendQueryError(res, entry, "view", err);
+    }
+    return;
+  }
+
+  if (path === "/api/capacity-subscriptions" && req.method === "POST") {
+    try {
+      const payload = await getComputeSubscriptionPage(
+        entry.clusterUri,
+        entry.database,
+        await readJsonBody(req)
+      );
+      sendJson(res, 200, payload);
+    } catch (err) {
+      sendQueryError(res, entry, "capacity subscriptions", err);
     }
     return;
   }

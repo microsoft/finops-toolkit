@@ -310,6 +310,14 @@ test("capacity history gates activate only supported readings", () => {
 test("capacity KQL is bounded and preserves semantic dimensions", () => {
   const current = kusto.buildCapacityCurrentQuery("compute");
   const selectors = kusto.buildCapacitySelectorQuery("compute");
+  const subscriptions = kusto.buildComputeSubscriptionQuery({
+    status: "in-use",
+    familySearch: "Dsv5",
+    regions: ["eastus"],
+    subscriptionSearch: "64e3",
+    page: 2,
+    pageSize: 50,
+  });
   const heatmap = kusto.buildCapacityHeatmapQuery("compute", {
     resourceName: "cores",
     unit: "Count",
@@ -321,6 +329,16 @@ test("capacity KQL is bounded and preserves semantic dimensions", () => {
 
   assert.match(current, /\| take 251$/);
   assert.match(selectors, /\| take 501$/);
+  assert.match(selectors, /summarize displayName=take_any\(displayName\).+by ResourceName, unit, x_SourceType, x_SourceVersion/s);
+  assert.doesNotMatch(selectors, /by ResourceId/);
+  assert.match(subscriptions, /where CoresUsed > 0/);
+  assert.match(subscriptions, /Family contains "Dsv5"/);
+  assert.match(subscriptions, /Location in~ \("eastus"\)/);
+  assert.match(subscriptions, /SubscriptionId startswith "64e3"/);
+  assert.match(subscriptions, /RowNumber between \(51 \.\. 100\)/);
+  assert.match(subscriptions, /real\(null\)/);
+  assert.match(subscriptions, /\| take 50$/);
+  assert.throws(() => kusto.buildComputeSubscriptionQuery({ regions: "eastus" }), /must be an array/);
   assert.match(heatmap, /\| take 501$/);
   assert.match(demand, /\| take 501$/);
   for (const dimension of ["ConsumedUnit", "x_SkuMeterCategory", "x_SkuMeterSubcategory", "SkuMeter", "SkuPriceId", "BillingCurrency"]) {
@@ -458,7 +476,17 @@ test("capacity markup retains module loading, tab semantics, and visible text st
   assert.match(source, /role="tablist"/);
   assert.match(source, /aria-selected=/);
   assert.match(source, /Every colored cell includes the same value and state in text/);
+  assert.match(source, /data-capacity-detail-tab="subscriptions"/);
+  assert.match(source, /data-capacity-subscription-search/);
+  assert.match(source, /data-capacity-family-page/);
+  assert.match(source, /Filtered capacity detail/);
+  assert.match(source, /row\.HeadroomCores != null/);
+  assert.match(source, /invalidateCapacitySubscriptions\(\);\s*\n\s*load\(\);/);
+  assert.match(source, /id="capacity-subscription-summary"[^>]*tabindex="-1"/);
+  assert.match(source, /state\.capacitySelections = next;[\s\S]*?}\s*\n\s*\nfunction setCapacityDetailTab/);
+  assert.match(source, /payload\.classId === "compute" \? "" : capacityPanel\("Observed history"/);
   assert.match(css, /\*:focus-visible/);
+  assert.match(css, /\.capacity-panel--wide\s*\{\s*grid-column:\s*span 12/);
   // The horizontal-scroll rule is shared with the generic `.table-scroll`
   // wrapper, so match the grouped selector rather than a lone one.
   assert.match(css, /\.capacity-table-scroll,\s*\.table-scroll\s*\{[^}]*overflow-x:\s*auto/s);

@@ -34,6 +34,13 @@ const state = {
   capacityClass: "home",
   capacitySelections: {},
   familyFilter: { status: "in-use", search: "", regions: [], mark: 70 },
+  capacityDetailTab: "families",
+  capacityFamilyPage: 1,
+  capacitySubscriptionSearch: "",
+  capacitySubscriptionPage: 1,
+  capacitySubscriptionData: null,
+  capacitySubscriptionLoading: false,
+  capacitySubscriptionError: null,
   revision: 0,
 };
 const queryState = { rows: 0, health: "ok", refreshedAt: null, dataset: "Hub database" };
@@ -109,6 +116,8 @@ const PANEL_QUERY = {
 
 let _kqlPanelId = null;
 let _loadAbort = null;
+let _capacitySubscriptionAbort = null;
+let _capacitySubscriptionFocusResults = false;
 
 /* ------------------------------------------------------------------ filter management */
 
@@ -177,6 +186,7 @@ function syncCanvasControls() {
 function applySharedCanvasState(next, options = {}) {
   if (!next || !Number.isInteger(next.revision) || next.revision < state.revision) return;
   const previousTab = state.tab;
+  const previousCapacityClass = state.capacityClass;
   const changed = next.tab !== state.tab || next.preset !== state.preset ||
     next.capacityClass !== state.capacityClass ||
     JSON.stringify(next.capacitySelections || {}) !== JSON.stringify(state.capacitySelections) ||
@@ -187,10 +197,14 @@ function applySharedCanvasState(next, options = {}) {
   state.capacityClass = next.capacityClass || "home";
   state.capacitySelections = next.capacitySelections || {};
   state.revision = next.revision;
+  if (previousCapacityClass !== state.capacityClass) resetCapacityDetail();
   syncCanvasControls();
   if (previousTab === "monaco" && state.tab !== "monaco") disposeMonacoEditor();
   if (changed || options.forceReload) {
-    if (options.forceReload) state.cache = {};
+    if (options.forceReload) {
+      state.cache = {};
+      invalidateCapacitySubscriptions();
+    }
     const hash = state.tab === "capacity"
       ? `#tab=capacity&capacity=${state.capacityClass}`
       : `#tab=${state.tab}`;
@@ -996,7 +1010,10 @@ function selectCapacityClass(classId, options = {}) {
   if (!CAPACITY_TABS.some((item) => item.id === classId) || state.loading) return;
   const changed = classId !== state.capacityClass;
   state.capacityClass = classId;
-  if (changed) state.capacitySelections = {};
+  if (changed) {
+    state.capacitySelections = {};
+    resetCapacityDetail();
+  }
   if (!options.skipHash) {
     history.pushState({ tab: "capacity", capacityClass: classId }, "", `#tab=capacity&capacity=${classId}`);
   }
@@ -1006,11 +1023,31 @@ function selectCapacityClass(classId, options = {}) {
   if (changed || options.force) load();
 }
 
+function resetCapacityDetail() {
+  invalidateCapacitySubscriptions();
+  state.capacityDetailTab = "families";
+  state.capacityFamilyPage = 1;
+  state.capacitySubscriptionSearch = "";
+}
+
+function invalidateCapacitySubscriptions() {
+  if (_capacitySubscriptionAbort) _capacitySubscriptionAbort.abort();
+  _capacitySubscriptionAbort = null;
+  _capacitySubscriptionFocusResults = false;
+  state.capacitySubscriptionPage = 1;
+  state.capacitySubscriptionData = null;
+  state.capacitySubscriptionLoading = false;
+  state.capacitySubscriptionError = null;
+}
+
 // The family matrix filters run against the payload already in memory, so they
 // re-render without a round trip. Re-rendering replaces the search input, so its
 // focus and caret are restored by hand.
 function setFamilyFilter(patch) {
   state.familyFilter = { ...state.familyFilter, ...patch };
+  state.capacityFamilyPage = 1;
+  state.capacitySubscriptionPage = 1;
+  state.capacitySubscriptionData = null;
   const active = document.activeElement;
   const search = document.getElementById("family-search");
   const hadSearchFocus = search && active === search;
@@ -1019,6 +1056,9 @@ function setFamilyFilter(patch) {
   const regionFocus = !hadSearchFocus && active?.dataset?.familyRegion ? active.dataset.familyRegion : null;
   const markFocus = !hadSearchFocus && active?.dataset?.familyMark ? String(state.familyFilter.mark) : null;
   render();
+  if (state.capacityDetailTab === "subscriptions") {
+    queueMicrotask(() => void loadCapacitySubscriptions());
+  }
   if (hadSearchFocus) {
     const next = document.getElementById("family-search");
     if (!next) return;
@@ -1034,7 +1074,7 @@ function setFamilyFilter(patch) {
 }
 
 function applyCapacitySelection(kind, value) {
-  if (!["quota", "demand"].includes(kind) || state.loading) return;
+  if (!["quota", "metric", "demand"].includes(kind) || state.loading) return;
   const next = { ...state.capacitySelections };
   const selectionName = `${kind}Selection`;
   if (!value) {
@@ -1058,6 +1098,73 @@ function applyCapacitySelection(kind, value) {
   state.capacitySelections = next;
   void publishCanvasState({ capacitySelections: next });
   load();
+}
+
+function setCapacityDetailTab(tab) {
+  if (!["families", "subscriptions"].includes(tab) || tab === state.capacityDetailTab) return;
+  state.capacityDetailTab = tab;
+  render();
+  document.querySelector(`[data-capacity-detail-tab="${CSS.escape(tab)}"]`)?.focus();
+  if (tab === "subscriptions" && !state.capacitySubscriptionData) {
+    void loadCapacitySubscriptions();
+  }
+}
+
+function renderPreservingSubscriptionSearchFocus() {
+  const search = document.querySelector("[data-capacity-subscription-search]");
+  const focused = search && document.activeElement === search;
+  const detailTab = document.activeElement?.dataset?.capacityDetailTab;
+  const caret = focused ? search.selectionStart : null;
+  render();
+  if (focused) {
+    const next = document.querySelector("[data-capacity-subscription-search]");
+    next?.focus();
+    if (caret !== null) next?.setSelectionRange(caret, caret);
+  } else if (detailTab) {
+    document.querySelector(`[data-capacity-detail-tab="${CSS.escape(detailTab)}"]`)?.focus();
+  } else if (_capacitySubscriptionFocusResults) {
+    const results = document.querySelector("#capacity-subscription-summary, #capacity-detail-panel [role=alert]");
+    if (results) {
+      results.focus();
+      _capacitySubscriptionFocusResults = false;
+    }
+  }
+}
+
+async function loadCapacitySubscriptions() {
+  if (state.capacityClass !== "compute" || state.capacityDetailTab !== "subscriptions") return;
+  if (_capacitySubscriptionAbort) _capacitySubscriptionAbort.abort();
+  const controller = new AbortController();
+  _capacitySubscriptionAbort = controller;
+  state.capacitySubscriptionLoading = true;
+  state.capacitySubscriptionError = null;
+  renderPreservingSubscriptionSearchFocus();
+  try {
+    const response = await fetch("/api/capacity-subscriptions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: state.familyFilter.status,
+        familySearch: state.familyFilter.search,
+        regions: state.familyFilter.regions,
+        subscriptionSearch: state.capacitySubscriptionSearch,
+        page: state.capacitySubscriptionPage,
+        pageSize: 50,
+      }),
+      signal: controller.signal,
+    });
+    const body = await response.json();
+    if (!response.ok || body.error) throw new Error(body.error || "Could not load subscriptions.");
+    state.capacitySubscriptionData = body;
+  } catch (err) {
+    if (err.name === "AbortError") return;
+    state.capacitySubscriptionError = err.message || "Could not load subscriptions.";
+  } finally {
+    if (_capacitySubscriptionAbort === controller) {
+      state.capacitySubscriptionLoading = false;
+      renderPreservingSubscriptionSearchFocus();
+    }
+  }
 }
 
 function moveCapacityTabFocus(target, key) {
@@ -2155,8 +2262,8 @@ function capacityNavigationHtml() {
   </nav>`;
 }
 
-function capacityPanel(title, subtitle, body) {
-  return `<section class="capacity-panel">
+function capacityPanel(title, subtitle, body, wide = false) {
+  return `<section class="capacity-panel${wide ? " capacity-panel--wide" : ""}">
     <header><h3>${esc(title)}</h3>${subtitle ? `<p>${esc(subtitle)}</p>` : ""}</header>
     <div class="capacity-panel-body">${body}</div>
   </section>`;
@@ -2189,7 +2296,8 @@ function capacityHomeTable(classes) {
 
 function capacitySelectorHtml(kind, classId, items, currentSelection) {
   const isDemand = kind === "demand";
-  const label = isDemand ? "Billed demand series" : "Quota or inventory series";
+  const isMetric = kind === "metric";
+  const label = isDemand ? "Billed demand series" : isMetric ? "Quota metric" : "Quota or inventory series";
   const options = (items || []).map((row, index) => {
     const selection = capacitySelectionFromRow(kind, classId, row);
     const selected = sameCapacitySelection(selection, currentSelection);
@@ -2197,14 +2305,16 @@ function capacitySelectorHtml(kind, classId, items, currentSelection) {
       ? classId === "premium-ssd-v2"
         ? `${row.DiskName || row.InventoryResourceId} · ${row.SkuMeter || "No matched cost"} · ${row.BillingCurrency || "—"}`
         : `${row.SkuMeter || row.x_SkuMeterSubcategory || "Unknown meter"} · ${row.ConsumedUnit || "—"} · ${row.BillingCurrency || "—"}`
-      : `${row.ResourceName || row.displayName || "Unknown"} · ${row.SubAccountId || "—"} · ${row.location || "—"}`;
+      : isMetric
+        ? `${row.displayName || row.ResourceName || "Unknown metric"} · ${row.unit || "—"}`
+        : `${row.ResourceName || row.displayName || "Unknown"} · ${row.SubAccountId || "—"} · ${row.location || "—"}`;
     const disabled = Object.values(selection || {}).some((value) => !value);
     return `<option value="${index}"${selected ? " selected" : ""}${disabled ? " disabled" : ""}>${esc(display)}</option>`;
   }).join("");
   return `<label class="capacity-selector">
     <span>${esc(label)}</span>
     <select data-capacity-selector="${esc(kind)}">
-      <option value="">Select an exact ${isDemand ? "meter" : "source"} key</option>
+      <option value="">Select an exact ${isDemand ? "meter" : isMetric ? "metric" : "source"} key</option>
       ${options}
     </select>
   </label>`;
@@ -2454,6 +2564,109 @@ function computeFamilyHeatmap(payload) {
   </table></div>`;
 }
 
+function familySupplyLabel(row) {
+  const supply = row.semantic?.supply;
+  if (supply === "blocked") return row.semantic?.regionRestricted ? "Region restricted" : "All zones restricted";
+  if (supply === "partial") return "Some zones restricted";
+  if (supply === "open") return "Open";
+  return "No quota";
+}
+
+function familyZoneLabel(row) {
+  const present = Number(row.ZonesPresentCount || 0);
+  const restricted = Array.isArray(row.ZonesRestricted) ? row.ZonesRestricted.length : 0;
+  if (!present) return "Not mapped";
+  return restricted ? `${restricted} of ${present} restricted` : `${present} open`;
+}
+
+function computeFamilyDetail(payload) {
+  const rows = filterFamilyRows(payload.familyHeatmap?.rows || [], state.familyFilter);
+  if (!rows.length) {
+    return `<div class="capacity-notice">No family and region combination matches the filters above.</div>`;
+  }
+  const pageSize = 50;
+  const totalPages = Math.ceil(rows.length / pageSize);
+  const page = Math.min(state.capacityFamilyPage, totalPages);
+  const pageRows = rows.slice((page - 1) * pageSize, page * pageSize);
+  const table = `<div class="capacity-table-scroll">${tableHtml([
+    { label: "VM family", align: "left", get: (row) => esc(row.Family || row.FamilyKey || "—") },
+    { label: "Region", align: "left", get: (row) => esc(row.Location || "—") },
+    { label: "Used cores", get: (row) => fmtInt(row.CoresUsed) },
+    { label: "Quota", get: (row) => fmtInt(row.CoresTotal) },
+    { label: "Headroom", get: (row) => Number.isFinite(row.semantic?.headroomCores) ? fmtInt(row.semantic.headroomCores) : "—" },
+    { label: "Subscriptions", get: (row) => fmtInt(row.Subscriptions) },
+    { label: "Supply", align: "left", get: (row) => esc(familySupplyLabel(row)) },
+    { label: "Zones", align: "left", get: (row) => esc(familyZoneLabel(row)) },
+  ], pageRows, "No family and region combination matches the filters above.")}</div>`;
+  const pagination = totalPages > 1
+    ? `<div class="capacity-detail-pagination" aria-label="Family and region pages">
+        <button type="button" class="capacity-filter-reset" data-capacity-family-page="${page - 1}"${page <= 1 ? " disabled" : ""}>Previous</button>
+        <span>Page ${fmtInt(page)} of ${fmtInt(totalPages)}</span>
+        <button type="button" class="capacity-filter-reset" data-capacity-family-page="${page + 1}"${page >= totalPages ? " disabled" : ""}>Next</button>
+      </div>`
+    : "";
+  return `<div id="capacity-family-summary" class="capacity-detail-summary" role="status" tabindex="-1">${fmtInt(rows.length)} matching family and region combinations</div>${table}${pagination}`;
+}
+
+function computeSubscriptionDetail() {
+  const search = `<div class="capacity-detail-toolbar">
+    <label class="capacity-filter-group" for="capacity-subscription-search">
+      <span class="capacity-filter-label">Subscription</span>
+      <input id="capacity-subscription-search" class="capacity-filter-search" type="search"
+        data-capacity-subscription-search value="${esc(state.capacitySubscriptionSearch)}"
+        placeholder="Search by subscription ID" autocomplete="off" spellcheck="false">
+    </label>
+    <span class="capacity-detail-hint">Matches the Show, VM family, and region filters above.</span>
+  </div>`;
+  if (state.capacitySubscriptionLoading) {
+    return `${search}<div class="capacity-notice" role="status">Loading matching subscriptions…</div>`;
+  }
+  if (state.capacitySubscriptionError) {
+    return `${search}<div class="capacity-notice capacity-notice--warning" role="alert" tabindex="-1"><strong>Subscriptions unavailable.</strong> ${esc(state.capacitySubscriptionError)}</div>`;
+  }
+  const data = state.capacitySubscriptionData;
+  if (!data) return `${search}<div class="capacity-notice">Select this tab to load matching subscriptions.</div>`;
+  const rows = data.rows || [];
+  const totalPages = Number(data.totalPages || 0);
+  const summary = `<div id="capacity-subscription-summary" class="capacity-detail-summary" role="status" tabindex="-1">${fmtInt(data.totalSubscriptions)} matching subscriptions</div>`;
+  if (!rows.length) {
+    return `${search}${summary}<div class="capacity-notice">No subscription matches these filters.</div>`;
+  }
+  const table = `<div class="capacity-table-scroll">${tableHtml([
+    { label: "Subscription ID", align: "left", get: (row) => `<span title="${esc(row.SubscriptionId || "")}">${esc(row.SubscriptionId || "—")}</span>` },
+    { label: "Families", get: (row) => fmtInt(row.Families) },
+    { label: "Regions", get: (row) => fmtInt(row.Regions) },
+    { label: "Used cores", get: (row) => fmtInt(row.CoresUsed) },
+    { label: "Quota", get: (row) => fmtInt(row.CoresTotal) },
+    { label: "Headroom", get: (row) => row.HeadroomCores != null && Number.isFinite(Number(row.HeadroomCores)) ? fmtInt(row.HeadroomCores) : "—" },
+    { label: "Restrictions", get: (row) => fmtInt(row.RestrictedRows) },
+    { label: "Last ingested", get: (row) => row.LastIngestion ? esc(fmtRelativeTime(new Date(row.LastIngestion))) : "—" },
+  ], rows, "No subscription matches these filters.")}</div>`;
+  const page = Number(data.page || 1);
+  return `${search}
+    ${summary}
+    ${table}
+    <div class="capacity-detail-pagination" aria-label="Subscription pages">
+      <button type="button" class="capacity-filter-reset" data-capacity-subscription-page="${page - 1}"${page <= 1 ? " disabled" : ""}>Previous</button>
+      <span>Page ${fmtInt(page)} of ${fmtInt(totalPages)}</span>
+      <button type="button" class="capacity-filter-reset" data-capacity-subscription-page="${page + 1}"${page >= totalPages ? " disabled" : ""}>Next</button>
+    </div>`;
+}
+
+function computeCapacityDetail(payload) {
+  const tab = state.capacityDetailTab;
+  return `<div class="capacity-detail-tabs" role="tablist" aria-label="Capacity detail">
+      <button id="capacity-detail-tab-families" type="button" class="capacity-segment" role="tab"
+        data-capacity-detail-tab="families" aria-selected="${tab === "families"}"
+        aria-controls="capacity-detail-panel" tabindex="${tab === "families" ? "0" : "-1"}">Family and region</button>
+      <button id="capacity-detail-tab-subscriptions" type="button" class="capacity-segment" role="tab"
+        data-capacity-detail-tab="subscriptions" aria-selected="${tab === "subscriptions"}"
+        aria-controls="capacity-detail-panel" tabindex="${tab === "subscriptions" ? "0" : "-1"}">Subscriptions</button>
+    </div>
+    <div id="capacity-detail-panel" role="tabpanel"
+      aria-labelledby="capacity-detail-tab-${tab}">${tab === "subscriptions" ? computeSubscriptionDetail() : computeFamilyDetail(payload)}</div>`;
+}
+
 function capacityHistory(payload) {
   const history = payload.history || {};
   if (history.status === "no-selection") return `<div class="capacity-notice">Select one exact source row to view its observed history.</div>`;
@@ -2509,7 +2722,7 @@ function renderCapacity(payload) {
   if (payload.classId === "home") {
     content.innerHTML = `${nav}<section id="capacity-panel" role="tabpanel" aria-labelledby="capacity-tab-home">
       <div class="capacity-header">
-        <div><span class="capacity-eyebrow">Capacity</span><h2>Capacity workspace</h2></div>
+        <div><h2>Capacity workspace</h2></div>
         <p>Quota entitlement, billed demand, inventory, physical supply, and pricing commitments are separate data sources.</p>
       </div>
       ${capacityPanel("Quota coverage", "Seven independent quota areas; no combined health score or ranking.", capacityHomeTable(payload.classes))}
@@ -2536,33 +2749,44 @@ function renderCapacity(payload) {
     : "";
   const quotaSelectors = payload.selectors?.items || [];
   const demandSelectors = payload.demand?.selectors?.items || [];
-  const kpis = [
-    kpiCard("Observations", fmtInt(coverage.observations), `${fmtInt(coverage.resources)} current resource keys`, undefined, undefined, "reference"),
-    kpiCard("Snapshot days", fmtInt(coverage.distinctDays), coverage.distinctDays < 2 ? "No trend can be inferred" : "Compatible history is evaluated per exact key"),
-    kpiCard("Latest ingestion", coverage.lastObservation ? esc(fmtRelativeTime(new Date(coverage.lastObservation))) : "—", "ADX arrival time, not provider observation time"),
-    kpiCard("Enabled", fmtInt(enabledCount), "Rows with approved semantics"),
-    kpiCard("Unclassified", fmtInt(statusCounts.unclassified), "Raw rows retained; registry review required"),
-    kpiCard("Stale", fmtInt(statusCounts.stale), "Older than 48 hours; arithmetic disabled"),
-  ].join("");
+  const familyRows = payload.familyHeatmap?.rows || [];
+  const kpis = payload.classId === "compute"
+    ? [
+      kpiCard("Family-region pairs", fmtInt(familyRows.length), "Estate totals; subscriptions are aggregated before display"),
+      kpiCard("In use", fmtInt(familyRows.filter(FAMILY_STATUS_FILTERS[0].match).length), "Family and region pairs using cores"),
+      kpiCard("Restricted", fmtInt(familyRows.filter(FAMILY_STATUS_FILTERS[1].match).length), "Region or zone restrictions"),
+      kpiCard("No quota", fmtInt(familyRows.filter(FAMILY_STATUS_FILTERS[2].match).length), "No regional family quota"),
+    ].join("")
+    : [
+      kpiCard("Observations", fmtInt(coverage.observations), `${fmtInt(coverage.resources)} current resource keys`, undefined, undefined, "reference"),
+      kpiCard("Snapshot days", fmtInt(coverage.distinctDays), coverage.distinctDays < 2 ? "No trend can be inferred" : "Compatible history is evaluated per exact key"),
+      kpiCard("Latest ingestion", coverage.lastObservation ? esc(fmtRelativeTime(new Date(coverage.lastObservation))) : "—", "ADX arrival time, not provider observation time"),
+      kpiCard("Enabled", fmtInt(enabledCount), "Rows with approved semantics"),
+      kpiCard("Unclassified", fmtInt(statusCounts.unclassified), "Raw rows retained; registry review required"),
+      kpiCard("Stale", fmtInt(statusCounts.stale), "Older than 48 hours; arithmetic disabled"),
+    ].join("");
 
   content.innerHTML = `${nav}<section id="capacity-panel" role="tabpanel" aria-labelledby="capacity-tab-${esc(payload.classId)}">
     <div class="capacity-header">
-      <div><span class="capacity-eyebrow">${esc(payload.contract?.quotaType || "quota")}</span><h2>${esc(payload.contract?.title || payload.classId)}</h2></div>
+      <div><h2>${esc(payload.contract?.title || payload.classId)}</h2></div>
       <p>${esc(payload.capability?.sourceNote || payload.contract?.sourceNote || "")}</p>
     </div>
     ${notReported}${schemaNotice}
     <div class="capacity-notice"><strong>Next action:</strong> ${esc(CAPACITY_ACTIONS[payload.classId] || "Review the source rows before taking action.")}</div>
     <div class="kpi-grid">${kpis}</div>
     <div class="capacity-selectors">
-      ${capacitySelectorHtml("quota", payload.classId, quotaSelectors, state.capacitySelections.quotaSelection)}
+      ${capacitySelectorHtml(payload.classId === "compute" ? "metric" : "quota", payload.classId, quotaSelectors,
+        payload.classId === "compute" ? state.capacitySelections.metricSelection : state.capacitySelections.quotaSelection)}
       ${capacitySelectorHtml("demand", payload.classId, demandSelectors, state.capacitySelections.demandSelection)}
     </div>
     <div class="capacity-layout">
       ${payload.classId === "compute"
-        ? capacityPanel("Estate capacity by VM family and region", "Supply and demand at family grain. Zone restrictions are descriptive; they never change regional core quota.", computeFamilyHeatmap(payload))
+        ? capacityPanel("Estate capacity by VM family and region", "Supply and demand at family grain. Zone restrictions are descriptive; they never change regional core quota.", computeFamilyHeatmap(payload), true)
         : ""}
-      ${capacityPanel("Current quota", `${payload.table?.rowLimit || 250}-row bound${payload.table?.truncated ? " reached" : ""}. Raw rows remain visible when calculations are disabled.`, capacityCurrentTable(payload))}
-      ${capacityPanel("Observed history", "Ingestion time is ADX arrival time. Missing days are not inferred.", capacityHistory(payload))}
+      ${payload.classId === "compute"
+        ? capacityPanel("Filtered capacity detail", "Every row matches the matrix controls above. Switch to Subscriptions for server-paged detail across the full estate.", computeCapacityDetail(payload), true)
+        : capacityPanel("Current quota", `${payload.table?.rowLimit || 250}-row bound${payload.table?.truncated ? " reached" : ""}. Raw rows remain visible when calculations are disabled.`, capacityCurrentTable(payload))}
+      ${payload.classId === "compute" ? "" : capacityPanel("Observed history", "Ingestion time is ADX arrival time. Missing days are not inferred.", capacityHistory(payload))}
       ${capacityPanel("Subscription × region", "Quota color is available only for exact enabled metrics. Inventory uses neutral density.", capacityHeatmap(payload))}
       ${capacityPanel("Parallel billed demand", payload.demand?.capability?.sourceNote || "Billed usage stays separate from quota.", capacityDemandHistory(payload))}
       ${payload.classId === "capacity-reservations"
@@ -2873,6 +3097,10 @@ async function load() {
   }
   updateChrome();
   render();
+  if (tab === "capacity" && state.capacityClass === "compute" &&
+    state.capacityDetailTab === "subscriptions" && !state.capacitySubscriptionData) {
+    void loadCapacitySubscriptions();
+  }
 }
 
 function setRefreshSpinning(on) {
@@ -2965,6 +3193,7 @@ async function saveSettings() {
     window.__cfg = body;
     el("settings-dialog").close();
     state.cache = {}; // stale data belongs to the old connection
+    invalidateCapacitySubscriptions();
     load();
   } catch (err) {
     el("settings-error").textContent = err.message || "Could not save settings.";
@@ -2990,6 +3219,7 @@ function wireControls() {
   el("refresh").addEventListener("click", () => {
     if (state.loading) return;
     if (state.cache[state.tab]) delete state.cache[state.tab][cacheKey()]; // force re-query
+    if (state.tab === "capacity" && state.capacityClass === "compute") invalidateCapacitySubscriptions();
     load();
   });
 
@@ -3055,6 +3285,25 @@ function wireControls() {
     }
     if (e.target.closest("[data-family-reset]")) {
       setFamilyFilter({ status: "all", search: "", regions: [] });
+      return;
+    }
+    const detailTab = e.target.closest("[data-capacity-detail-tab]");
+    if (detailTab) {
+      setCapacityDetailTab(detailTab.dataset.capacityDetailTab);
+      return;
+    }
+    const subscriptionPage = e.target.closest("[data-capacity-subscription-page]");
+    if (subscriptionPage && !subscriptionPage.disabled) {
+      state.capacitySubscriptionPage = Number(subscriptionPage.dataset.capacitySubscriptionPage);
+      _capacitySubscriptionFocusResults = true;
+      void loadCapacitySubscriptions();
+      return;
+    }
+    const familyPage = e.target.closest("[data-capacity-family-page]");
+    if (familyPage && !familyPage.disabled) {
+      state.capacityFamilyPage = Number(familyPage.dataset.capacityFamilyPage);
+      render();
+      document.querySelector("#capacity-family-summary")?.focus();
     }
   });
 
@@ -3064,16 +3313,41 @@ function wireControls() {
   });
 
   let familySearchTimer;
+  let subscriptionSearchTimer;
   document.addEventListener("input", (e) => {
     const search = e.target.closest("[data-family-search]");
-    if (!search) return;
-    clearTimeout(familySearchTimer);
-    const value = search.value;
-    familySearchTimer = setTimeout(() => setFamilyFilter({ search: value }), 160);
+    if (search) {
+      clearTimeout(familySearchTimer);
+      const value = search.value;
+      familySearchTimer = setTimeout(() => setFamilyFilter({ search: value }), 160);
+      return;
+    }
+    const subscriptionSearch = e.target.closest("[data-capacity-subscription-search]");
+    if (subscriptionSearch) {
+      clearTimeout(subscriptionSearchTimer);
+      const value = subscriptionSearch.value;
+      subscriptionSearchTimer = setTimeout(() => {
+        state.capacitySubscriptionSearch = value;
+        state.capacitySubscriptionPage = 1;
+        void loadCapacitySubscriptions();
+      }, 250);
+    }
   });
 
   // Keyboard activation and roving focus for interactive data controls.
   document.addEventListener("keydown", (e) => {
+    const detailTab = e.target.closest("[data-capacity-detail-tab]");
+    if (detailTab && ["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) {
+      e.preventDefault();
+      const tabs = ["families", "subscriptions"];
+      const current = tabs.indexOf(detailTab.dataset.capacityDetailTab);
+      const next = e.key === "Home" ? 0
+        : e.key === "End" ? tabs.length - 1
+          : e.key === "ArrowRight" ? (current + 1) % tabs.length
+            : (current - 1 + tabs.length) % tabs.length;
+      setCapacityDetailTab(tabs[next]);
+      return;
+    }
     const lens = e.target.closest("[data-family-status]");
     if (lens && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) {
       e.preventDefault();

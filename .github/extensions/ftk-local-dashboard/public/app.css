@@ -1035,6 +1035,7 @@ svg .hbar-selected text.name { font-weight: 700; fill: var(--accent); }
 }
 .capacity-panel:first-child,
 .capacity-panel:last-child { grid-column: span 12; }
+.capacity-panel--wide { grid-column: span 12; }
 .capacity-panel header h3 { margin: 0; font-size: 13.5px; }
 .capacity-panel header p { margin: 3px 0 12px; color: var(--muted); font-size: 11.5px; }
 .capacity-heatmap {
@@ -1242,7 +1243,8 @@ svg .hbar-selected text.name { font-weight: 700; fill: var(--accent); }
 }
 .capacity-segment:hover { border-color: var(--muted); }
 .capacity-segment[aria-checked="true"],
-.capacity-segment[aria-pressed="true"] {
+.capacity-segment[aria-pressed="true"],
+.capacity-segment[aria-selected="true"] {
   border-color: var(--accent, var(--text));
   background: color-mix(in srgb, var(--muted) 14%, transparent);
   font-weight: 600;
@@ -1253,7 +1255,8 @@ svg .hbar-selected text.name { font-weight: 700; fill: var(--accent); }
   font-variant-numeric: tabular-nums;
 }
 .capacity-segment[aria-checked="true"] .capacity-segment-count,
-.capacity-segment[aria-pressed="true"] .capacity-segment-count { color: inherit; }
+.capacity-segment[aria-pressed="true"] .capacity-segment-count,
+.capacity-segment[aria-selected="true"] .capacity-segment-count { color: inherit; }
 .capacity-segment:focus-visible,
 .capacity-filter-search:focus-visible { outline: 2px solid var(--accent, var(--text)); outline-offset: 2px; }
 .capacity-filter-search {
@@ -1285,6 +1288,35 @@ svg .hbar-selected text.name { font-weight: 700; fill: var(--accent); }
   cursor: pointer;
 }
 .capacity-filter-reset:hover { border-color: var(--muted); }
+.capacity-filter-reset:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.capacity-detail-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.capacity-detail-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 16px;
+  margin-bottom: 10px;
+}
+.capacity-detail-hint,
+.capacity-detail-summary,
+.capacity-detail-pagination {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+.capacity-detail-summary { margin-bottom: 8px; }
+.capacity-detail-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  font-variant-numeric: tabular-nums;
+}
 
 @media (max-width: 900px) {
   .capacity-panel { grid-column: span 12; }

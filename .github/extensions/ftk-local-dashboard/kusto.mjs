@@ -31,6 +31,7 @@ export const CAPACITY_LIMITS = Object.freeze({
     heatmapCells: 500,
     familyCells: 4000,
 });
+export const COMPUTE_SUBSCRIPTION_PAGE_SIZE = 50;
 export const CAPACITY_FRESHNESS_HOURS = 48;
 
 const CAPACITY_SOURCE_TYPES = Object.freeze([
@@ -858,6 +859,16 @@ ${where}
 export function buildCapacitySelectorQuery(classId, filters = {}) {
     const contract = capacityClass(classId);
     const where = buildCapacityWhere(filters);
+    if (contract.id === "compute") {
+        return `Quota()
+| where x_SourceType =~ ${JSON.stringify(contract.sourceType)}
+${where}
+| summarize displayName=take_any(displayName), x_IngestionTime=max(x_IngestionTime)
+    by ResourceName, unit, x_SourceType, x_SourceVersion
+| project ResourceName, displayName, unit, x_SourceType, x_SourceVersion, x_IngestionTime
+| order by ResourceName asc, unit asc, x_SourceVersion asc
+| take ${CAPACITY_LIMITS.selectorKeys + 1}`;
+    }
     return `Quota()
 | where x_SourceType =~ ${JSON.stringify(contract.sourceType)}
 ${where}
@@ -947,6 +958,106 @@ base
 | project Family, FamilyKey, Location, CoresUsed, CoresTotal, Subscriptions, RestrictedSubscriptions, ZonesPresent, ZonesRestricted, x_IngestionTime
 | order by Location asc, FamilyKey asc
 | take ${CAPACITY_LIMITS.familyCells + 1}`;
+}
+
+function normalizeComputeSubscriptionOptions(options = {}) {
+    if (!options || typeof options !== "object" || Array.isArray(options)) {
+        throw new Error("Compute subscription options must be an object.");
+    }
+    const status = options.status || "in-use";
+    if (!["in-use", "restricted", "no-quota", "all"].includes(status)) {
+        throw new Error(`Unsupported Compute subscription status '${status}'.`);
+    }
+    const cleanText = (value, name) => {
+        const text = String(value ?? "").trim();
+        if (text.length > 128 || /[\u0000-\u001f\u007f]/.test(text)) {
+            throw new Error(`${name} must be at most 128 printable characters.`);
+        }
+        return text;
+    };
+    const inputRegions = options.regions || [];
+    if (!Array.isArray(inputRegions)) {
+        throw new Error("Compute subscription regions must be an array.");
+    }
+    const regions = [...new Set(inputRegions.map((value) => String(value).trim()))];
+    if (regions.length > 64 || regions.some((value) => !value || value.length > 128)) {
+        throw new Error("Compute subscription regions must contain at most 64 non-empty values.");
+    }
+    const page = Number(options.page || 1);
+    const pageSize = Number(options.pageSize || COMPUTE_SUBSCRIPTION_PAGE_SIZE);
+    if (!Number.isInteger(page) || page < 1 || page > 100000) {
+        throw new Error("Compute subscription page must be an integer from 1 to 100000.");
+    }
+    if (!Number.isInteger(pageSize) || pageSize < 10 || pageSize > 100) {
+        throw new Error("Compute subscription page size must be an integer from 10 to 100.");
+    }
+    return {
+        status,
+        familySearch: cleanText(options.familySearch, "familySearch"),
+        subscriptionSearch: cleanText(options.subscriptionSearch, "subscriptionSearch"),
+        regions,
+        page,
+        pageSize,
+    };
+}
+
+export function buildComputeSubscriptionQuery(options = {}) {
+    const normalized = normalizeComputeSubscriptionOptions(options);
+    const statusWhere = normalized.status === "in-use"
+        ? "| where CoresUsed > 0"
+        : normalized.status === "restricted"
+            ? "| where RegionRestricted or ZoneRestrictions > 0"
+            : normalized.status === "no-quota"
+                ? "| where CoresTotal <= 0"
+                : "";
+    // The client search is substring-based so operators can enter partial family names.
+    const familyWhere = normalized.familySearch
+        ? `| where Family contains ${kqlString(normalized.familySearch, "familySearch")} or FamilyKey contains ${kqlString(normalized.familySearch, "familySearch")}`
+        : "";
+    const regionWhere = normalized.regions.length
+        ? `| where Location in~ (${normalized.regions.map((value) => kqlString(value, "region")).join(", ")})`
+        : "";
+    const subscriptionWhere = normalized.subscriptionSearch
+        ? `| where SubscriptionId startswith ${kqlString(normalized.subscriptionSearch, "subscriptionSearch")}`
+        : "";
+    const firstRow = (normalized.page - 1) * normalized.pageSize + 1;
+    const lastRow = firstRow + normalized.pageSize - 1;
+    return `let scoped = ComputeQuota()
+| where isnotempty(SubscriptionId)
+| extend ZoneRestrictions=coalesce(array_length(PhysicalZonesRestricted), 0)
+${statusWhere}
+${familyWhere}
+${regionWhere}
+${subscriptionWhere}
+| summarize
+    CoresUsed=sum(CoresUsed),
+    CoresTotal=sum(CoresTotal),
+    Families=dcount(FamilyKey),
+    Regions=dcount(Location),
+    RestrictedRows=countif(RegionRestricted or ZoneRestrictions > 0),
+    LastIngestion=max(x_IngestionTime)
+    by SubscriptionId;
+let total = toscalar(scoped | count);
+scoped
+| order by CoresUsed desc, SubscriptionId asc
+| serialize RowNumber=row_number()
+| where RowNumber between (${firstRow} .. ${lastRow})
+| extend HeadroomCores=iff(CoresTotal > 0, CoresTotal - CoresUsed, real(null)), TotalSubscriptions=total
+| project SubscriptionId, Families, Regions, CoresUsed, CoresTotal, HeadroomCores, RestrictedRows, LastIngestion, RowNumber, TotalSubscriptions
+| take ${normalized.pageSize}`;
+}
+
+export async function getComputeSubscriptionPage(clusterUri, database, options = {}) {
+    const normalized = normalizeComputeSubscriptionOptions(options);
+    const rows = await runQuery(clusterUri, database, buildComputeSubscriptionQuery(normalized));
+    const totalSubscriptions = Number(rows[0]?.TotalSubscriptions || 0);
+    return {
+        rows: rows.map(({ TotalSubscriptions: _total, RowNumber: _row, ...row }) => row),
+        page: normalized.page,
+        pageSize: normalized.pageSize,
+        totalSubscriptions,
+        totalPages: Math.ceil(totalSubscriptions / normalized.pageSize),
+    };
 }
 
 // Regional quota drives the state. Supply restrictions never fabricate headroom.
@@ -1292,7 +1403,9 @@ export async function getCapacity(clusterUri, database, classId = "home", option
     const costSchema = assessSchema(costSchemaRows, requiredCostFields(normalizedClassId), "Costs");
     const baseQueries = {};
     if (quotaSchema.available) {
-        baseQueries.current = buildCapacityCurrentQuery(normalizedClassId, filters);
+        if (normalizedClassId !== "compute") {
+            baseQueries.current = buildCapacityCurrentQuery(normalizedClassId, filters);
+        }
         baseQueries.selectors = buildCapacitySelectorQuery(normalizedClassId, filters);
         baseQueries.coverage = buildCapacityCoverageQuery(normalizedClassId, filters);
     }
@@ -1357,7 +1470,9 @@ export async function getCapacity(clusterUri, database, classId = "home", option
     if (familyBounds?.status === "disabled") familyBounds.status = "heatmap-disabled";
     const coverageRow = data.coverage?.[0] ?? {};
     const demandCoverageRow = data.demandCoverage?.[0] ?? {};
-    const enabledRows = currentRows.filter((row) => row.semantic.capability === "enabled").length;
+    const enabledRows = normalizedClassId === "compute"
+        ? (familyBounds?.rows?.length || 0)
+        : currentRows.filter((row) => row.semantic.capability === "enabled").length;
     const classCapability = !quotaSchema.available
         ? { mode: "disabled", reasonCode: quotaSchema.reasonCode, sourceNote: "Quota source fields are unavailable" }
         : enabledRows > 0 && normalizedClassId === "compute"
