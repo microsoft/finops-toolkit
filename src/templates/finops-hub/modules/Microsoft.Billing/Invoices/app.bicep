@@ -708,10 +708,13 @@ resource pipeline_DownloadInvoices 'Microsoft.DataFactory/factories/pipelines@20
           }
         }
       }
-      { // Resolve Billing Accounts
-        name: 'Resolve Billing Accounts'
-        description: 'Use the explicitly configured billing accounts when available; otherwise use the monitored billing account scopes.'
-        type: 'IfCondition'
+      { // Set Configured Billing Accounts
+        // Data Factory does not allow a container activity (ForEach) inside another container
+        // activity (If), so the configured and monitored billing accounts are resolved with two
+        // top-level loops instead. Each loop iterates over an empty array when it does not apply.
+        name: 'Set Configured Billing Accounts'
+        description: 'Add the explicitly configured billing accounts, if any.'
+        type: 'ForEach'
         dependsOn: [
           {
             activity: 'Find Monitored Billing Accounts'
@@ -720,57 +723,57 @@ resource pipeline_DownloadInvoices 'Microsoft.DataFactory/factories/pipelines@20
         ]
         userProperties: []
         typeProperties: {
-          expression: {
-            value: '@greater(length(coalesce(activity(\'Load Settings\').output.firstRow.invoices.billingAccounts, json(\'[]\'))), 0)'
+          items: {
+            value: '@coalesce(activity(\'Load Settings\').output.firstRow.invoices.billingAccounts, json(\'[]\'))'
             type: 'Expression'
           }
-          ifTrueActivities: [
+          isSequential: true
+          activities: [
             {
-              name: 'Set Configured Billing Accounts'
-              type: 'SetVariable'
+              name: 'Append Configured Billing Account'
+              type: 'AppendVariable'
               dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
               userProperties: []
               typeProperties: {
                 variableName: 'billingAccounts'
                 value: {
-                  value: '@activity(\'Load Settings\').output.firstRow.invoices.billingAccounts'
+                  value: '@item()'
                   type: 'Expression'
                 }
               }
             }
           ]
-          ifFalseActivities: [
+        }
+      }
+      { // Set Monitored Billing Accounts
+        name: 'Set Monitored Billing Accounts'
+        description: 'Extract the billing account ID from each monitored billing account scope. Skipped when billing accounts are explicitly configured.'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Set Configured Billing Accounts'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@if(greater(length(coalesce(activity(\'Load Settings\').output.firstRow.invoices.billingAccounts, json(\'[]\'))), 0), json(\'[]\'), activity(\'Find Monitored Billing Accounts\').output.Value)'
+            type: 'Expression'
+          }
+          isSequential: true
+          activities: [
             {
-              name: 'Set Monitored Billing Accounts'
-              description: 'Extract the billing account ID from each monitored billing account scope.'
-              type: 'ForEach'
+              name: 'Append Monitored Billing Account'
+              type: 'AppendVariable'
               dependsOn: []
               userProperties: []
               typeProperties: {
-                items: {
-                  value: '@activity(\'Find Monitored Billing Accounts\').output.Value'
+                variableName: 'billingAccounts'
+                value: {
+                  value: '@last(split(item().scope, \'/\'))'
                   type: 'Expression'
                 }
-                isSequential: true
-                activities: [
-                  {
-                    name: 'Append Billing Account'
-                    type: 'AppendVariable'
-                    dependsOn: []
-                    userProperties: []
-                    typeProperties: {
-                      variableName: 'billingAccounts'
-                      value: {
-                        value: '@last(split(item().scope, \'/\'))'
-                        type: 'Expression'
-                      }
-                    }
-                  }
-                ]
               }
             }
           ]
@@ -782,7 +785,7 @@ resource pipeline_DownloadInvoices 'Microsoft.DataFactory/factories/pipelines@20
         type: 'ForEach'
         dependsOn: [
           {
-            activity: 'Resolve Billing Accounts'
+            activity: 'Set Monitored Billing Accounts'
             dependencyConditions: ['Succeeded']
           }
         ]

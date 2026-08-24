@@ -89,12 +89,42 @@ function Add-FinOpsHubBillingReader
         throw ($script:LocalizedData.HubBillingReader_Add_IdentityNotFound -f $dataFactories[0].Name)
     }
 
-    $existing = Get-AzRoleAssignment -ObjectId $principalId -Scope $scope -RoleDefinitionName 'Billing Reader' -ErrorAction SilentlyContinue `
-    | Where-Object { $_.Scope -eq $scope }
-    if ($existing)
+    $apiVersion = '2024-04-01'
+    $billingAccountUri = "providers/Microsoft.Billing/billingAccounts/$accountId"
+
+    # Billing account scopes are not part of Azure RBAC, so the billing role assignment API must be
+    # used instead of New-AzRoleAssignment. Role definition IDs differ per agreement type, so the
+    # reader role is looked up by name and only falls back to the documented MCA role definition.
+    $roleDefinitionId = $null
+    $roleDefinitions = Invoke-Rest -Method GET -Uri "$billingAccountUri/billingRoleDefinitions?api-version=$apiVersion" -CommandName 'Add-FinOpsHubBillingReader'
+    if ($roleDefinitions.Success)
     {
-        Write-Verbose ($script:LocalizedData.HubBillingReader_Add_AlreadyAssigned -f $accountId)
-        return $existing
+        $readerRole = $roleDefinitions.Content.value `
+        | Where-Object { $_.properties.roleName -in @('Billing account reader', 'Billing Reader', 'Reader') } `
+        | Select-Object -First 1
+        if ($readerRole)
+        {
+            $roleDefinitionId = $readerRole.id
+        }
+    }
+
+    if (-not $roleDefinitionId)
+    {
+        # Billing account reader for a Microsoft Customer Agreement
+        $roleDefinitionId = "/$billingAccountUri/billingRoleDefinitions/50000000-aaaa-bbbb-cccc-100000000002"
+    }
+
+    $assignments = Invoke-Rest -Method GET -Uri "$billingAccountUri/billingRoleAssignments?api-version=$apiVersion" -CommandName 'Add-FinOpsHubBillingReader'
+    if ($assignments.Success)
+    {
+        $existing = $assignments.Content.value `
+        | Where-Object { $_.properties.principalId -eq $principalId -and $_.properties.roleDefinitionId -eq $roleDefinitionId } `
+        | Select-Object -First 1
+        if ($existing)
+        {
+            Write-Verbose ($script:LocalizedData.HubBillingReader_Add_AlreadyAssigned -f $accountId)
+            return $existing
+        }
     }
 
     if (-not $PSCmdlet.ShouldProcess($scope, 'Grant Billing Reader'))
@@ -102,15 +132,20 @@ function Add-FinOpsHubBillingReader
         return
     }
 
-    try
-    {
-        $assignment = New-AzRoleAssignment -ObjectId $principalId -Scope $scope -RoleDefinitionName 'Billing Reader' -ObjectType 'ServicePrincipal'
+    $body = [PSCustomObject]@{
+        properties = [PSCustomObject]@{
+            principalId       = $principalId
+            principalTenantId = $context.Tenant.Id
+            roleDefinitionId  = $roleDefinitionId
+        }
     }
-    catch
+
+    $response = Invoke-Rest -Method PUT -Uri "$billingAccountUri/billingRoleAssignments/$((New-Guid).Guid)?api-version=$apiVersion" -Body $body -CommandName 'Add-FinOpsHubBillingReader'
+    if (-not $response.Success)
     {
-        throw ($script:LocalizedData.HubBillingReader_Add_AssignFailed -f $accountId, $_.Exception.Message)
+        throw ($script:LocalizedData.HubBillingReader_Add_AssignFailed -f $accountId, $response.Content.error.message)
     }
 
     Write-Verbose ($script:LocalizedData.HubBillingReader_Add_Assigned -f $accountId)
-    return $assignment
+    return $response.Content
 }

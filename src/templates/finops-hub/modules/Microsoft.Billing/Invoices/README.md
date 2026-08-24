@@ -49,21 +49,13 @@ Billing accounts are stored in the `invoices.billingAccounts` array in `settings
 
 ## Grant the Billing Reader role
 
-Billing account scopes exist outside of any Azure subscription, so the role assignment cannot be created during deployment. Grant it after the hub is deployed:
+Billing account scopes exist outside of any Azure subscription and are not part of Azure RBAC, so the role assignment cannot be created during deployment and `az role assignment create` doesn't work. Grant it after the hub is deployed:
 
 ```powershell
 Add-FinOpsHubBillingReader -BillingAccountId '<billing-account-id>'
 ```
 
-Or with the Azure CLI:
-
-```azurecli
-az role assignment create \
-  --assignee-object-id "<data-factory-managed-identity-object-id>" \
-  --assignee-principal-type ServicePrincipal \
-  --role "Billing Reader" \
-  --scope "/providers/Microsoft.Billing/billingAccounts/<billing-account-id>"
-```
+Or grant it in the Azure portal under **Cost Management + Billing** > your billing account > **Access control (IAM)**, assigning the **Billing account reader** role to the Data Factory managed identity.
 
 ## Validate the deployment
 
