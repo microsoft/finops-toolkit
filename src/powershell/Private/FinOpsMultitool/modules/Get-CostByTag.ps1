@@ -372,6 +372,14 @@ function Get-CostByTag {
     $subsFailed   = 0
     $grandTotal   = 0.0
 
+    # True allocation coverage, counted once per resource. The per-tag totals
+    # cannot answer this: a resource appears as untagged under every tag it
+    # lacks, so summing across tags double-counts the same spend.
+    $allocTagNames    = if (Get-Command Get-CafAllocationTag -ErrorAction SilentlyContinue) { Get-CafAllocationTag } else { @('CostCenter', 'Customer', 'Project', 'Environment', 'Application', 'Owner', 'BusinessUnit', 'Department', 'Team', 'Service', 'WorkloadName') }
+    $allocatedCost    = 0.0   # resource carries at least one allocation tag
+    $unallocatedCost  = 0.0   # resource carries none
+    $resourceCostSeen = 0.0   # allocated + unallocated, excludes non-resource charges
+
     if (-not $Subscriptions -or $Subscriptions.Count -eq 0) {
         Write-Host "  No subscriptions available for cost-by-tag." -ForegroundColor Yellow
     }
@@ -462,10 +470,20 @@ function Get-CostByTag {
                                         if ($k -ieq $t) { $val = $tags[$k]; break }
                                     }
                                 }
-                                if ([string]::IsNullOrWhiteSpace($val)) { $val = '(untagged resources)' }
+                                if ([string]::IsNullOrWhiteSpace($val)) { $val = '(untagged)' }
                                 $cur = [double]$tagAgg[$t][$val]
                                 $tagAgg[$t][$val] = $cur + $cost
                             }
+
+                            # Count this resource once toward allocation coverage.
+                            $hasAlloc = $false
+                            if ($tags -and $tags.Count -gt 0) {
+                                foreach ($k in $tags.Keys) {
+                                    if ($allocTagNames -contains $k -and -not [string]::IsNullOrWhiteSpace($tags[$k])) { $hasAlloc = $true; break }
+                                }
+                            }
+                            $resourceCostSeen += $cost
+                            if ($hasAlloc) { $allocatedCost += $cost } else { $unallocatedCost += $cost }
                         }
                     }
                     elseif ($subResp.StatusCode -eq 403) {
@@ -496,7 +514,7 @@ function Get-CostByTag {
 
     # === Materialize aggregation into the result contract =================
     # For each tag, emit { TagValue; Cost; Currency } rows sorted by cost desc.
-    # The synthetic "(untagged resources)" and "(non-resource charges)" values
+    # The synthetic "(untagged)" and "(non-resource charges)" values
     # reconcile the breakdown back to the subscription invoice total.
     foreach ($t in $tagsToQuery) {
         $rows = [System.Collections.Generic.List[PSCustomObject]]::new()
@@ -509,9 +527,16 @@ function Get-CostByTag {
     }
 
     return [PSCustomObject]@{
-        TagsQueried   = $tagsToQuery
-        CostByTag     = $results
-        NoTagsFound   = ($tagsToQuery.Count -eq 0)
-        UsedTimeframe = $usedTimeframe
+        TagsQueried      = $tagsToQuery
+        CostByTag        = $results
+        NoTagsFound      = ($tagsToQuery.Count -eq 0)
+        UsedTimeframe    = $usedTimeframe
+        # Allocation coverage counted once per resource. Null when this run did
+        # not walk resources (hub paths aggregate server-side), so consumers can
+        # tell "no allocated spend" apart from "not measured".
+        AllocatedCost    = if ($resourceCostSeen -gt 0) { [math]::Round($allocatedCost, 2) } else { $null }
+        UnallocatedCost  = if ($resourceCostSeen -gt 0) { [math]::Round($unallocatedCost, 2) } else { $null }
+        ResourceCostSeen = if ($resourceCostSeen -gt 0) { [math]::Round($resourceCostSeen, 2) } else { $null }
+        AllocationTags   = $allocTagNames
     }
 }

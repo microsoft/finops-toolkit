@@ -83,7 +83,7 @@ InModuleScope 'FinOpsToolkit' {
             It 'Should constrain DataSource to the supported sources' {
                 $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
                 $set = $cmd.Parameters['DataSource'].Attributes |
-                    Where-Object { $_ -is [System.Management.Automation.ValidateSetAttribute] }
+                Where-Object { $_ -is [System.Management.Automation.ValidateSetAttribute] }
                 $set.ValidValues | Should -Be @('Hub', 'API', 'GraphOnly')
             }
         }
@@ -105,16 +105,16 @@ InModuleScope 'FinOpsToolkit' {
                 $fn | Should -Not -BeNullOrEmpty
 
                 $guarded = $fn.Body.ParamBlock.Parameters |
-                    Where-Object { $_.Attributes.TypeName.Name -contains 'ValidateSet' } |
-                    ForEach-Object { $_.Name.VariablePath.UserPath }
+                Where-Object { $_.Attributes.TypeName.Name -contains 'ValidateSet' } |
+                ForEach-Object { $_.Name.VariablePath.UserPath }
                 $guarded | Should -Not -BeNullOrEmpty -Because 'DataSource carries a ValidateSet'
 
                 $assigned = $fn.FindAll({
                         param($n) $n -is [System.Management.Automation.Language.AssignmentStatementAst]
                     }, $true) |
-                    ForEach-Object { $_.Left } |
-                    Where-Object { $_ -is [System.Management.Automation.Language.VariableExpressionAst] } |
-                    ForEach-Object { $_.VariablePath.UserPath }
+                ForEach-Object { $_.Left } |
+                Where-Object { $_ -is [System.Management.Automation.Language.VariableExpressionAst] } |
+                ForEach-Object { $_.VariablePath.UserPath }
 
                 foreach ($p in $guarded) {
                     $assigned | Should -Not -Contain $p -Because "assigning to `$$p reuses the validated parameter"

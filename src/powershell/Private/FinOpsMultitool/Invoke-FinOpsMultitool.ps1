@@ -2042,18 +2042,26 @@ function Invoke-FinOpsMultitool {
                             @('CostCenter', 'Customer', 'Project', 'Environment', 'Application',
                                 'Owner', 'BusinessUnit', 'Department', 'Team', 'Service', 'WorkloadName')
                         }
-                        # Pick the allocation tag with the largest untagged cost
-                        # (the biggest allocation gap). Each resource appears as
-                        # "(untagged)" under every tag it lacks, so taking the max
-                        # across tags avoids summing the same resource repeatedly.
+                        # Prefer the per-resource allocation figure so the guidance
+                        # and the FinOps KPI report the same number. Falls back to
+                        # the largest single-tag gap when a run aggregated
+                        # server-side and never walked resources.
                         $maxUntaggedCost = 0
                         $maxUntaggedTag = ''
-                        foreach ($tag in $data.CostByTag.GetEnumerator()) {
-                            if ($allocTags -notcontains $tag.Key) { continue }
-                            foreach ($v in $tag.Value) {
-                                if ($v.TagValue -eq '(untagged)' -and [double]$v.Cost -gt $maxUntaggedCost) {
-                                    $maxUntaggedCost = [double]$v.Cost
-                                    $maxUntaggedTag = $tag.Key
+                        $seenCost = $data.ResourceCostSeen
+                        $unallocCost = $data.UnallocatedCost
+                        if ($seenCost -and [double]$seenCost -gt 0 -and $null -ne $unallocCost) {
+                            $maxUntaggedCost = [double]$unallocCost
+                            $maxUntaggedTag = 'any allocation tag'
+                        }
+                        else {
+                            foreach ($tag in $data.CostByTag.GetEnumerator()) {
+                                if ($allocTags -notcontains $tag.Key) { continue }
+                                foreach ($v in $tag.Value) {
+                                    if ($v.TagValue -eq '(untagged)' -and [double]$v.Cost -gt $maxUntaggedCost) {
+                                        $maxUntaggedCost = [double]$v.Cost
+                                        $maxUntaggedTag = $tag.Key
+                                    }
                                 }
                             }
                         }
