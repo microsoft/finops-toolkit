@@ -39,6 +39,7 @@ $helpersPath = Join-Path $PSScriptRoot 'modules\helpers'
 . (Join-Path $helpersPath 'Get-PlainAccessToken.ps1')
 . (Join-Path $helpersPath 'Invoke-AzRestMethodWithRetry.ps1')
 . (Join-Path $helpersPath 'Search-AzGraphSafe.ps1')
+. (Join-Path $helpersPath 'Resolve-BillingScope.ps1')
 . (Join-Path $helpersPath 'MgCostScope.ps1')
 . (Join-Path $helpersPath 'Read-FinOpsHubData.ps1')
 . (Join-Path $helpersPath 'Invoke-FOHubKustoQuery.ps1')

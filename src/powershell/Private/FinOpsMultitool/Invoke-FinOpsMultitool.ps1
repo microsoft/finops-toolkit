@@ -2756,13 +2756,15 @@ tr:hover { background: #161b22; }
     $tenantId = (Get-AzContext).Tenant.Id
 
     # Step 2: Pick data source
-    $dataSource = Select-DataSource -TenantId $tenantId -Subscriptions $subs -Preselected $DataSource
+    # Must not be named $dataSource: PowerShell variable names are case-insensitive,
+    # so that would reassign the -DataSource parameter and trip its ValidateSet.
+    $sourceChoice = Select-DataSource -TenantId $tenantId -Subscriptions $subs -Preselected $DataSource
 
     # If "Resource Graph only", disable cost modules
     $costModuleFns = @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-CostTrend',
         'Get-SavingsRealized', 'Get-CommitmentUtilization', 'Get-ReservationAdvice',
         'Get-BudgetStatus', 'Get-AnomalyAlerts', 'Get-BillingStructure', 'Get-ContractInfo')
-    if ($dataSource.Source -eq 'GraphOnly') {
+    if ($sourceChoice.Source -eq 'GraphOnly') {
         foreach ($mod in $scanModules) {
             if ($mod.Fn -in $costModuleFns) { $mod.Selected = $false }
         }
@@ -2773,12 +2775,12 @@ tr:hover { background: #161b22; }
     }
 
     # Show active data source
-    $sourceLabel = switch ($dataSource.Source) {
-        'Hub' { "FinOps Hub ($($dataSource.HubStorage.name))" }
+    $sourceLabel = switch ($sourceChoice.Source) {
+        'Hub' { "FinOps Hub ($($sourceChoice.HubStorage.name))" }
         'API' { 'Cost Management API (real-time)' }
         'GraphOnly' { 'Resource Graph only (no cost data)' }
     }
-    $sourceColor = switch ($dataSource.Source) { 'Hub' { 'Green' } 'API' { 'Yellow' } 'GraphOnly' { 'DarkGray' } }
+    $sourceColor = switch ($sourceChoice.Source) { 'Hub' { 'Green' } 'API' { 'Yellow' } 'GraphOnly' { 'DarkGray' } }
     Write-Host ""
     Write-Host "  Data source: $sourceLabel" -ForegroundColor $sourceColor
     Write-Host ""
@@ -2815,7 +2817,7 @@ tr:hover { background: #161b22; }
     }
 
     # Step 4: Run
-    $results = Invoke-SelectedScans -Modules $finalModules -Subscriptions $subs -TenantId $tenantId -DataSource $dataSource
+    $results = Invoke-SelectedScans -Modules $finalModules -Subscriptions $subs -TenantId $tenantId -DataSource $sourceChoice
 
     # Step 5: Summary + export
     $global:FinOpsResults = Show-ResultsSummary -Results $results -Modules $finalModules -ExportPath $OutputPath -Subscriptions $subs

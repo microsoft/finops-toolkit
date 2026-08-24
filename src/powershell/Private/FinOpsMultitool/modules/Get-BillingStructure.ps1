@@ -23,46 +23,24 @@ function Get-BillingStructure {
     $invoiceSections = @()
     $costAllocationRules = @()
 
-    # -- Resolve billing account IDs linked to scanned subscriptions -----
-    # Query ALL scanned subscriptions (not just 5) to build a complete set
-    # of billing accounts that belong to this tenant/scan scope.
-    $tenantBillingAccountNames = @{}
-    if ($Subscriptions) {
-        foreach ($sub in $Subscriptions) {
-            try {
-                $biPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Billing/billingInfo/default?api-version=2024-04-01"
-                $biResp = Invoke-AzRestMethodWithRetry -Path $biPath -Method GET
-                if ($biResp.StatusCode -eq 200) {
-                    $biResult = ($biResp.Content | ConvertFrom-Json)
-                    $baId = $biResult.properties.billingAccountId
-                    if ($baId) {
-                        # Normalize: extract the account name portion after /billingAccounts/
-                        $baName = ($baId -replace '(?i).*/billingAccounts/', '').Trim('/')
-                        if ($baName) { $tenantBillingAccountNames[$baName] = $true }
-                    }
-                }
-            } catch { }
-        }
-        Write-Host "  Resolved $($tenantBillingAccountNames.Count) billing account(s) linked to scanned subscriptions." -ForegroundColor Cyan
-    }
-
     # -- Step 1: Get Billing Accounts -----------------------------------
+    # Correlation happens after the list call: billingInfo/default is not a valid
+    # resource type and 404s on every api-version, which previously left the
+    # linked-account set empty and skipped every account.
     try {
         $baPath = "/providers/Microsoft.Billing/billingAccounts?api-version=2024-04-01"
         $baResp = Invoke-AzRestMethodWithRetry -Path $baPath -Method GET
         if ($baResp.StatusCode -eq 200) {
             $baResult = ($baResp.Content | ConvertFrom-Json)
             if ($baResult.value) {
-                foreach ($ba in $baResult.value) {
-                    # Filter to billing accounts associated with scanned subscriptions
-                    if ($tenantBillingAccountNames.Count -gt 0 -and -not $tenantBillingAccountNames.ContainsKey($ba.name)) {
-                        continue
-                    }
-                    # If no billing account names resolved at all, skip rather than showing everything
-                    if ($tenantBillingAccountNames.Count -eq 0) {
-                        Write-Warning "  Could not resolve any billing account IDs from subscriptions — skipping billing account: $($ba.properties.displayName)"
-                        continue
-                    }
+                $scope = Get-FinOpsBillingScope -BillingAccounts @($baResult.value) -Subscriptions $Subscriptions
+                if (-not $scope.Resolved) {
+                    Write-Warning "  $($scope.Reason)"
+                }
+                else {
+                    Write-Host "  Resolved $(@($scope.Accounts).Count) billing account(s) linked to scanned subscriptions." -ForegroundColor Cyan
+                }
+                foreach ($ba in @($scope.Accounts)) {
                     $props = $ba.properties
                     $billingAccounts += [PSCustomObject]@{
                         AccountId     = $ba.name

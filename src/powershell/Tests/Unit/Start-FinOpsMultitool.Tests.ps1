@@ -72,6 +72,54 @@ InModuleScope 'FinOpsToolkit' {
                 $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
                 $cmd.Parameters.ContainsKey('OutputPath') | Should -BeTrue
             }
+
+            It 'Should expose Scans, DataSource, and NonInteractive parameters' {
+                $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
+                foreach ($p in 'Scans', 'DataSource', 'NonInteractive') {
+                    $cmd.Parameters.ContainsKey($p) | Should -BeTrue -Because "$p is documented as a parameter"
+                }
+            }
+
+            It 'Should constrain DataSource to the supported sources' {
+                $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
+                $set = $cmd.Parameters['DataSource'].Attributes |
+                    Where-Object { $_ -is [System.Management.Automation.ValidateSetAttribute] }
+                $set.ValidValues | Should -Be @('Hub', 'API', 'GraphOnly')
+            }
+        }
+
+        Context 'Variable safety' {
+            # A local named like a validated parameter is the same variable, because
+            # PowerShell names are case-insensitive. Assigning a different type to it
+            # throws ValidationMetadataException at runtime and breaks every code path,
+            # which unit tests that never enter the main flow will not catch.
+            It 'Should not assign to any validated parameter of Invoke-FinOpsMultitool' {
+                $tuiPath = Join-Path -Path $PSScriptRoot -ChildPath '../../Private/FinOpsMultitool/Invoke-FinOpsMultitool.ps1'
+                $ast = [System.Management.Automation.Language.Parser]::ParseFile($tuiPath, [ref]$null, [ref]$null)
+
+                $fn = $ast.FindAll({
+                        param($n)
+                        $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                        $n.Name -eq 'Invoke-FinOpsMultitool'
+                    }, $true) | Select-Object -First 1
+                $fn | Should -Not -BeNullOrEmpty
+
+                $guarded = $fn.Body.ParamBlock.Parameters |
+                    Where-Object { $_.Attributes.TypeName.Name -contains 'ValidateSet' } |
+                    ForEach-Object { $_.Name.VariablePath.UserPath }
+                $guarded | Should -Not -BeNullOrEmpty -Because 'DataSource carries a ValidateSet'
+
+                $assigned = $fn.FindAll({
+                        param($n) $n -is [System.Management.Automation.Language.AssignmentStatementAst]
+                    }, $true) |
+                    ForEach-Object { $_.Left } |
+                    Where-Object { $_ -is [System.Management.Automation.Language.VariableExpressionAst] } |
+                    ForEach-Object { $_.VariablePath.UserPath }
+
+                foreach ($p in $guarded) {
+                    $assigned | Should -Not -Contain $p -Because "assigning to `$$p reuses the validated parameter"
+                }
+            }
         }
     }
 }

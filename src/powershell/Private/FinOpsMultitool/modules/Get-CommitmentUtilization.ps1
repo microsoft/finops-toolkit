@@ -37,38 +37,19 @@ function Get-CommitmentUtilization {
     $billingProfileIds = @()
     if ($AgreementType -in @('MicrosoftCustomerAgreement', 'MicrosoftPartnerAgreement')) {
         Write-Host "  MCA/MPA detected — resolving billing profiles..." -ForegroundColor Cyan
-        # Discover billing account IDs linked to scanned subscriptions
-        $tenantBillingAccountIds = @{}
-        foreach ($sub in @($Subscriptions | Select-Object -First 10)) {
-            try {
-                $biPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Billing/billingInfo/default?api-version=2024-04-01"
-                $biResp = Invoke-AzRestMethodWithRetry -Path $biPath -Method GET
-                if ($biResp.StatusCode -eq 200) {
-                    $biResult = ($biResp.Content | ConvertFrom-Json)
-                    $baId = $biResult.properties.billingAccountId
-                    if ($baId) { $tenantBillingAccountIds[$baId] = $true }
-                }
-            } catch { }
-        }
-
-        # Get billing profiles for those accounts
+        # Get billing profiles for the accounts that own a scanned subscription.
+        # The previous subscription-scoped lookup used billingInfo/default, which is
+        # not a valid resource type, so the account set was always empty and the
+        # filter below was skipped entirely - every reachable MCA account was used.
         try {
             $baPath = "/providers/Microsoft.Billing/billingAccounts?api-version=2024-04-01"
             $baResp = Invoke-AzRestMethodWithRetry -Path $baPath -Method GET
             if ($baResp.StatusCode -eq 200) {
                 $baResult = ($baResp.Content | ConvertFrom-Json)
-                foreach ($ba in $baResult.value) {
-                    if ($tenantBillingAccountIds.Count -gt 0 -and -not $tenantBillingAccountIds.ContainsKey($ba.id)) {
-                        # Normalize — try matching on name portion only
-                        $baNamePortion = $ba.id -replace '.*/billingAccounts/', ''
-                        $matched = $false
-                        foreach ($k in $tenantBillingAccountIds.Keys) {
-                            $kName = $k -replace '.*/billingAccounts/', ''
-                            if ($kName -eq $baNamePortion) { $matched = $true; break }
-                        }
-                        if (-not $matched) { continue }
-                    }
-                    if ($ba.properties.agreementType -notin @('MicrosoftCustomerAgreement', 'MicrosoftPartnerAgreement')) { continue }
+                $mcaAccounts = @($baResult.value | Where-Object { $_.properties.agreementType -in @('MicrosoftCustomerAgreement', 'MicrosoftPartnerAgreement') })
+                $scope = Get-FinOpsBillingScope -BillingAccounts $mcaAccounts -Subscriptions $Subscriptions
+                if (-not $scope.Resolved) { Write-Warning "  $($scope.Reason)" }
+                foreach ($ba in @($scope.Accounts)) {
                     try {
                         $bpPath = "$($ba.id)/billingProfiles?api-version=2024-04-01"
                         $bpResp = Invoke-AzRestMethodWithRetry -Path $bpPath -Method GET

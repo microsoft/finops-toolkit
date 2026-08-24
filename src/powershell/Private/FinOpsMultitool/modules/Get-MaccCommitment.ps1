@@ -86,6 +86,20 @@ function Get-MaccCommitment {
         return $result
     }
 
+    # Keep only accounts that own a scanned subscription. Listing billingAccounts
+    # returns every account the caller can read, which would otherwise mix in
+    # commitments from unrelated enrollments.
+    $scope = Get-FinOpsBillingScope -BillingAccounts $billingAccounts -Subscriptions $Subscriptions
+    if (-not $scope.Resolved) {
+        $result.Reason = $scope.Reason
+        Write-Host "  MACC: $($scope.Reason)" -ForegroundColor DarkGray
+        return $result
+    }
+    if (@($scope.Accounts).Count -lt $billingAccounts.Count) {
+        Write-Host "  MACC: scoped to $(@($scope.Accounts).Count) of $($billingAccounts.Count) reachable billing account(s)." -ForegroundColor DarkGray
+    }
+    $billingAccounts = @($scope.Accounts)
+
     # -- Step 2: List MACC lots per billing account ---------------------
     $lots = [System.Collections.Generic.List[PSCustomObject]]::new()
     $lotAccessDenied = $false   # set if the lots call is forbidden (403) for any account
