@@ -1637,12 +1637,23 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-TagInventory' {
-                    Write-Host "    Coverage: $($data.TagCoverage)%  |  $($data.TaggedCount) tagged / $($data.UntaggedCount) untagged  |  $($data.TagCount) unique tags" -ForegroundColor White
+                    $tagCountText = if ($data.SpellingCount -and $data.SpellingCount -ne $data.TagCount) { "$($data.TagCount) unique tag keys ($($data.SpellingCount) spellings)" } else { "$($data.TagCount) unique tags" }
+                    Write-Host "    Coverage: $($data.TagCoverage)%  |  $($data.TaggedCount) tagged / $($data.UntaggedCount) untagged  |  $tagCountText" -ForegroundColor White
+                    if ($data.CaseVariants -and @($data.CaseVariants).Count -gt 0) {
+                        Write-Host "    Case-variant keys (Azure treats these as one tag):" -ForegroundColor Yellow
+                        foreach ($cv in @($data.CaseVariants)) {
+                            Write-Host "      $($cv.TagKey): $($cv.Detail)" -ForegroundColor DarkGray
+                        }
+                    }
                     if ($data.TagNames -and $data.TagNames.Count -gt 0) {
                         $rows = $data.TagNames.GetEnumerator() | Sort-Object { $_.Value.TotalResources } -Descending | Select-Object -First 15 | ForEach-Object {
-                            [PSCustomObject]@{ Tag = $_.Key; Resources = $_.Value.TotalResources; UniqueValues = @($_.Value.Values).Count }
+                            $vals = @($_.Value.Values | Sort-Object ResourceCount -Descending)
+                            $shown = @($vals | Select-Object -First 3 | ForEach-Object { "$($_.Value) ($($_.ResourceCount))" })
+                            $more = $vals.Count - $shown.Count
+                            $valText = ($shown -join ', ') + $(if ($more -gt 0) { ", +$more more" } else { '' })
+                            [PSCustomObject]@{ Tag = $_.Key; Resources = $_.Value.TotalResources; Values = $vals.Count; 'Top values' = $valText }
                         }
-                        $cols = @('Tag', 'Resources', 'UniqueValues')
+                        $cols = @('Tag', 'Resources', 'Values', 'Top values')
                     }
                 }
                 'Get-TagRecommendations' {
@@ -2063,6 +2074,17 @@ function Invoke-FinOpsMultitool {
                             @{ Severity = 'Green'; Message = "Enable tag-based cost allocation in Cost Management to leverage your tags for chargeback." }
                             @{ Severity = 'Green'; Message = "Consider adding a 'Criticality' tag for incident response prioritization."; Docs = 'https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging' }
                         )
+                    }
+
+                    # Case variants are independent of coverage, so append rather than replace.
+                    if ($data.CaseVariants -and @($data.CaseVariants).Count -gt 0) {
+                        $cvCount = @($data.CaseVariants).Count
+                        $cvWord = if ($cvCount -eq 1) { 'tag key is' } else { 'tag keys are' }
+                        $guidanceItems += @{ Severity = 'Yellow'; Message = "$cvCount $cvWord applied under more than one spelling. Azure resolves tag keys case-insensitively, so these are a single key to Azure, but Resource Graph and cost exports report each spelling separately." }
+                        foreach ($cv in @($data.CaseVariants)) {
+                            $guidanceItems += @{ Severity = 'Yellow'; Message = "$($cv.TagKey): $($cv.Detail). Standardize on one spelling, then retag the others." }
+                        }
+                        $guidanceItems += @{ Severity = 'Yellow'; Message = "Azure Policy 'Require a tag and its value' enforces the key name at deployment, which prevents new variants."; Docs = 'https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging' }
                     }
                 }
                 'Get-CostByTag' {
@@ -2735,12 +2757,25 @@ tr:hover td { background: var(--surface); }
                         $htmlCols = @('Type', 'Name', 'ResourceGroup', 'Size', 'License', 'Est Savings')
                     }
                     'Get-TagInventory' {
-                        [void]$htmlSb.Append("<p>Coverage: $($data.TagCoverage)% &nbsp;|&nbsp; $($data.TaggedCount) tagged / $($data.UntaggedCount) untagged &nbsp;|&nbsp; $($data.TagCount) unique tags</p>")
+                        $tagCountHtml = if ($data.SpellingCount -and $data.SpellingCount -ne $data.TagCount) { "$($data.TagCount) unique tag keys ($($data.SpellingCount) spellings)" } else { "$($data.TagCount) unique tags" }
+                        [void]$htmlSb.Append("<p>Coverage: $($data.TagCoverage)% &nbsp;|&nbsp; $($data.TaggedCount) tagged / $($data.UntaggedCount) untagged &nbsp;|&nbsp; $tagCountHtml</p>")
+                        if ($data.CaseVariants -and @($data.CaseVariants).Count -gt 0) {
+                            # Tag keys and values come from customer resources, so encode before emitting.
+                            $cvText = (@($data.CaseVariants) | ForEach-Object {
+                                    "$([System.Net.WebUtility]::HtmlEncode([string]$_.TagKey)): $([System.Net.WebUtility]::HtmlEncode([string]$_.Detail))"
+                                }) -join ' &nbsp;&bull;&nbsp; '
+                            [void]$htmlSb.Append("<div class=`"guidance yellow`">Case-variant tag keys found. Azure resolves tag keys case-insensitively, so these spellings are a single key to Azure, but Resource Graph and cost exports report each one separately. $cvText</div>")
+                        }
                         if ($data.TagNames) {
                             $htmlRows = $data.TagNames.GetEnumerator() | Sort-Object { $_.Value.TotalResources } -Descending | Select-Object -First 15 | ForEach-Object {
-                                [PSCustomObject]@{ Tag = $_.Key; Resources = $_.Value.TotalResources; UniqueValues = @($_.Value.Values).Count }
+                                $vals = @($_.Value.Values | Sort-Object ResourceCount -Descending)
+                                $shown = @($vals | Select-Object -First 5 | ForEach-Object { "$($_.Value) ($($_.ResourceCount))" })
+                                $more = $vals.Count - $shown.Count
+                                $valText = ($shown -join ', ') + $(if ($more -gt 0) { ", +$more more" } else { '' })
+                                [PSCustomObject]@{ Tag = $_.Key; Resources = $_.Value.TotalResources; Values = $vals.Count; 'Top values' = $valText }
                             }
-                            $htmlCols = @('Tag', 'Resources', 'UniqueValues')
+                            $htmlCols = @('Tag', 'Resources', 'Values', 'Top values')
+                            $tableNote = 'Values are the distinct tag values in use, with the resource count for each. A tag with a single value provides no allocation granularity; a tag with many near-identical values indicates inconsistent tagging.'
                         }
                     }
                     'Get-CostData' {

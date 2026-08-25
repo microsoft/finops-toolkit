@@ -155,10 +155,18 @@ resources
         if (-not $tagNames.ContainsKey($name)) {
             $tagNames[$name] = @{ Values = @(); TotalResources = 0 }
         }
-        $tagNames[$name].Values += [PSCustomObject]@{
-            Value         = $row.tagValue
-            ResourceCount = $row.ResourceCount
-            ResourceTypes = $row.ResourceTypes
+        # Case-variant keys fold into one hashtable entry, so the same value can
+        # arrive twice. Merge on an exact match; a different casing is a different value.
+        $existingValue = $tagNames[$name].Values | Where-Object { [string]$_.Value -ceq [string]$row.tagValue } | Select-Object -First 1
+        if ($existingValue) {
+            $existingValue.ResourceCount += $row.ResourceCount
+        }
+        else {
+            $tagNames[$name].Values += [PSCustomObject]@{
+                Value         = $row.tagValue
+                ResourceCount = $row.ResourceCount
+                ResourceTypes = $row.ResourceTypes
+            }
         }
         $tagNames[$name].TotalResources += $row.ResourceCount
     }
@@ -229,9 +237,40 @@ resources
     $taggedCount = [math]::Max(0, $totalCount - $untaggedCount)
     $tagCoverage = if ($totalCount -gt 0) { [math]::Round(($taggedCount / $totalCount) * 100, 1) } else { 0 }
 
+    # -- Case-variant tag keys -------------------------------------------
+    # Azure stores tag keys case-preserving but resolves them case-insensitively.
+    # PowerShell hashtables fold case too, so $tagNames has already merged the
+    # spellings; only the raw Resource Graph rows still carry them apart. Their
+    # values stay on separate rows, which is why one value can appear twice.
+    $caseVariants = @()
+    $bySpelling = @($allResults) | Group-Object -Property tagName -CaseSensitive
+    foreach ($fold in ($bySpelling | Group-Object { ([string]$_.Name).ToLowerInvariant() })) {
+        if ($fold.Count -le 1) { continue }
+        $variants = @($fold.Group | ForEach-Object {
+                [PSCustomObject]@{
+                    Spelling      = $_.Name
+                    ResourceCount = (@($_.Group) | Measure-Object -Property ResourceCount -Sum).Sum
+                }
+            } | Sort-Object ResourceCount -Descending)
+        $caseVariants += [PSCustomObject]@{
+            TagKey        = $fold.Name
+            VariantCount  = $fold.Count
+            Spellings     = @($variants | ForEach-Object { $_.Spelling })
+            Variants      = $variants
+            ResourceCount = ($variants | Measure-Object -Property ResourceCount -Sum).Sum
+            Detail        = (($variants | ForEach-Object { "$($_.Spelling) ($($_.ResourceCount))" }) -join ', ')
+        }
+    }
+    $spellingCount = @($bySpelling).Count
+    if ($caseVariants.Count -gt 0) {
+        Write-Host "    Case-variant tag keys: $($caseVariants.Count) ($spellingCount spellings across $($tagNames.Count) keys)" -ForegroundColor Yellow
+    }
+
     return [PSCustomObject]@{
         TagNames           = $tagNames
         TagCount           = $tagNames.Count
+        SpellingCount      = $spellingCount
+        CaseVariants       = @($caseVariants)
         TagLocations       = $tagLocations
         TotalResources     = $totalCount
         TaggedCount        = $taggedCount
