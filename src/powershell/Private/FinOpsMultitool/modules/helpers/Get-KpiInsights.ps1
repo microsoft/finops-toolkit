@@ -63,6 +63,13 @@ function Get-ScanField {
 
 # Compute a KPI value from scan data where we have a real formula. Returns
 # a string value or $null when it cannot be computed (stays informational).
+# Display is what a human reads; Value is the same figure as a number so scoring
+# never has to recompute (and diverge from) the displayed math.
+function New-KpiValue {
+    param([Parameter(Mandatory)][string]$Display, $Value = $null)
+    [PSCustomObject]@{ Display = $Display; Value = $Value }
+}
+
 function Get-KpiComputedValue {
     param([string]$KpiId, $Data, $Catalog)
 
@@ -70,20 +77,20 @@ function Get-KpiComputedValue {
         'cost-per-gb-stored' {
             $v = Get-ScanField $Data 'CostPerGb'
             $cur = Get-ScanField $Data 'Currency'
-            if ($null -ne $v -and $v -gt 0) { return "$cur $v per GB / month" }
+            if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$cur $v per GB / month" ([double]$v)) }
         }
         'hourly-cost-per-cpu-core' {
             $v = Get-ScanField $Data 'CostPerVCpu'
             $cur = Get-ScanField $Data 'Currency'
             if ($null -ne $v -and $v -gt 0) {
                 $hourly = [math]::Round([double]$v / 730, 4)
-                return "$cur $hourly per vCPU / hour"
+                return (New-KpiValue "$cur $hourly per vCPU / hour" $hourly)
             }
         }
         'effective-avg-compute-cost-per-core' {
             $v = Get-ScanField $Data 'CostPerVCpu'
             $cur = Get-ScanField $Data 'Currency'
-            if ($null -ne $v -and $v -gt 0) { return "$cur $v per vCPU / month" }
+            if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$cur $v per vCPU / month" ([double]$v)) }
         }
         'commitment-utilization-score' {
             $ri = Get-ScanField $Data 'RIAvgUtilization'
@@ -91,7 +98,7 @@ function Get-KpiComputedValue {
             $vals = @($ri, $sp) | Where-Object { $null -ne $_ -and $_ -gt 0 }
             if ($vals.Count -gt 0) {
                 $avg = [math]::Round(($vals | Measure-Object -Average).Average, 1)
-                return "$avg%"
+                return (New-KpiValue "$avg%" $avg)
             }
         }
         'anomaly-detection-rate' {
@@ -106,7 +113,8 @@ function Get-KpiComputedValue {
                 $r = if ($null -ne $rules) { [int]$rules } else { 0 }
                 $alertWord = if ($a -eq 1) { 'alert' } else { 'alerts' }
                 $ruleWord = if ($r -eq 1) { 'rule' } else { 'rules' }
-                return "$a anomaly $alertWord caught, $r detection $ruleWord configured (proxy)"
+                # Score on rules configured: that is the controllable maturity signal.
+                return (New-KpiValue "$a anomaly $alertWord caught, $r detection $ruleWord configured (proxy)" $r)
             }
         }
         'percent-unused-resources' {
@@ -115,7 +123,7 @@ function Get-KpiComputedValue {
             $n = Get-ScanField $Data 'TotalCount'
             if ($null -ne $n) {
                 $word = if ([int]$n -eq 1) { 'orphaned resource' } else { 'orphaned resources' }
-                return "$([int]$n) $word"
+                return (New-KpiValue "$([int]$n) $word" ([int]$n))
             }
         }
         'computational-waste' {
@@ -124,7 +132,7 @@ function Get-KpiComputedValue {
             $scanned = Get-ScanField $Data 'ScannedVMs'
             if ($null -ne $idle -and $null -ne $scanned -and [int]$scanned -gt 0) {
                 $pct = [math]::Round(100 * [int]$idle / [int]$scanned, 1)
-                return "$pct% of running VMs idle ($([int]$idle) of $([int]$scanned))"
+                return (New-KpiValue "$pct% of running VMs idle ($([int]$idle) of $([int]$scanned))" $pct)
             }
         }
         'budget-burn-rate' {
@@ -134,7 +142,7 @@ function Get-KpiComputedValue {
                 $pcts = @($budgets | ForEach-Object { $_.PctUsed } | Where-Object { $null -ne $_ })
                 if ($pcts.Count -gt 0) {
                     $avg = [math]::Round(($pcts | Measure-Object -Average).Average, 1)
-                    return "$avg% of budget consumed (avg across $($pcts.Count))"
+                    return (New-KpiValue "$avg% of budget consumed (avg across $($pcts.Count))" $avg)
                 }
             }
         }
@@ -147,7 +155,8 @@ function Get-KpiComputedValue {
                 if ($totBudget -and $totBudget -gt 0) {
                     $variance = [math]::Round(100 * ($totActual - $totBudget) / $totBudget, 1)
                     $sign = if ($variance -ge 0) { 'over' } else { 'under' }
-                    return "$([math]::Abs($variance))% $sign budget (actual vs planned)"
+                    # Score on distance from plan in either direction.
+                    return (New-KpiValue "$([math]::Abs($variance))% $sign budget (actual vs planned)" ([math]::Abs($variance)))
                 }
             }
         }
@@ -158,7 +167,7 @@ function Get-KpiComputedValue {
             $cur = Get-ScanField $Data 'Currency'
             if (-not $cur) { $cur = 'USD' }
             if ($null -ne $monthly -and [double]$monthly -gt 0) {
-                return "$cur $([math]::Round([double]$monthly, 2)) / month realized (proxy)"
+                return (New-KpiValue "$cur $([math]::Round([double]$monthly, 2)) / month realized (proxy)" ([math]::Round([double]$monthly, 2)))
             }
         }
         'pct-compute-covered-by-commitment' {
@@ -176,7 +185,7 @@ function Get-KpiComputedValue {
                     $base = [double]$committed + [double]$onDemand
                     $detail = " ($cur $([math]::Round([double]$committed, 0)) committed of $cur $([math]::Round($base, 0)) eligible)"
                 }
-                return "$cov% covered by commitments$detail"
+                return (New-KpiValue "$cov% covered by commitments$detail" ([double]$cov))
             }
         }
         'token-consumption-metrics' {
@@ -186,7 +195,7 @@ function Get-KpiComputedValue {
             if (-not $cur) { $cur = 'USD' }
             if ($null -ne $tokens -and [long]$tokens -gt 0) {
                 $costStr = if ($null -ne $cost -and [double]$cost -gt 0) { " for $cur $([math]::Round([double]$cost, 2)) (MTD)" } else { '' }
-                return "$('{0:N0}' -f [long]$tokens) tokens$costStr"
+                return (New-KpiValue "$('{0:N0}' -f [long]$tokens) tokens$costStr" ([long]$tokens))
             }
         }
         'cost-per-api-call' {
@@ -194,7 +203,7 @@ function Get-KpiComputedValue {
             $cur = Get-ScanField $Data 'Currency'
             if (-not $cur) { $cur = 'USD' }
             if ($null -ne $cpr -and [double]$cpr -gt 0) {
-                return "$cur $([math]::Round([double]$cpr, 5)) per AI request"
+                return (New-KpiValue "$cur $([math]::Round([double]$cpr, 5)) per AI request" ([math]::Round([double]$cpr, 5)))
             }
         }
         'pct-commitment-discount-waste' {
@@ -203,7 +212,8 @@ function Get-KpiComputedValue {
             $vals = @($ri, $sp) | Where-Object { $null -ne $_ -and $_ -gt 0 }
             if ($vals.Count -gt 0) {
                 $avg = ($vals | Measure-Object -Average).Average
-                return "$([math]::Round(100 - $avg, 1))%"
+                $waste = [math]::Round(100 - $avg, 1)
+                return (New-KpiValue "$waste%" $waste)
             }
         }
         { $_ -in @('pct-costs-untagged', 'pct-costs-unallocated', 'tagging-policy-compliant') } {
@@ -216,9 +226,9 @@ function Get-KpiComputedValue {
             if ($seen -and [double]$seen -gt 0 -and $null -ne $unalloc) {
                 $pct = [math]::Round(100 * [double]$unalloc / [double]$seen, 1)
                 switch ($KpiId) {
-                    'pct-costs-untagged' { return "$pct% of resource spend carries no allocation tag" }
-                    'pct-costs-unallocated' { return "$pct% unallocated across all allocation tags" }
-                    'tagging-policy-compliant' { return "$([math]::Round(100 - $pct, 1))% of resource spend is allocated" }
+                    'pct-costs-untagged' { return (New-KpiValue "$pct% of resource spend carries no allocation tag" $pct) }
+                    'pct-costs-unallocated' { return (New-KpiValue "$pct% unallocated across all allocation tags" $pct) }
+                    'tagging-policy-compliant' { return (New-KpiValue "$([math]::Round(100 - $pct, 1))% of resource spend is allocated" ([math]::Round(100 - $pct, 1))) }
                 }
             }
 
@@ -250,9 +260,9 @@ function Get-KpiComputedValue {
             }
             if ($null -eq $worst) { return $null }   # no allocation tags -> stays informational
             switch ($KpiId) {
-                'pct-costs-untagged' { return "$($worst.PctUntag)% untagged (worst allocation tag: '$($worst.Tag)')" }
-                'pct-costs-unallocated' { return "$($worst.PctUntag)% unallocated (worst: '$($worst.Tag)')" }
-                'tagging-policy-compliant' { return "$([math]::Round(100 - $worst.PctUntag, 1))% compliant (worst: '$($worst.Tag)')" }
+                'pct-costs-untagged' { return (New-KpiValue "$($worst.PctUntag)% untagged (worst allocation tag: '$($worst.Tag)')" $worst.PctUntag) }
+                'pct-costs-unallocated' { return (New-KpiValue "$($worst.PctUntag)% unallocated (worst: '$($worst.Tag)')" $worst.PctUntag) }
+                'tagging-policy-compliant' { return (New-KpiValue "$([math]::Round(100 - $worst.PctUntag, 1))% compliant (worst: '$($worst.Tag)')" ([math]::Round(100 - $worst.PctUntag, 1))) }
             }
         }
     }
@@ -286,7 +296,8 @@ function Add-KpiInsights {
             kpiName       = $kpi.name
             domain        = $kpi.domain
             status        = $status
-            yourValue     = $value
+            yourValue     = if ($value) { $value.Display } else { $null }
+            numericValue  = if ($value) { $value.Value } else { $null }
             plainLanguage = $kpi.plainLanguage
             exploreHint   = $kpi.exploreHint
             learnMore     = $catalog.learnMoreBase
