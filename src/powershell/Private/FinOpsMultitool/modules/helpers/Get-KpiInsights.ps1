@@ -138,27 +138,32 @@ function Get-KpiComputedValue {
             }
         }
         'budget-burn-rate' {
-            # Average percent of budget consumed across all budgets.
+            # Unweighted mean of per-budget percentages, so a large budget does not dominate.
             $budgets = Get-ScanField $Data 'Budgets'
             if ($budgets) {
                 $pcts = @($budgets | ForEach-Object { $_.PctUsed } | Where-Object { $null -ne $_ })
                 if ($pcts.Count -gt 0) {
                     $avg = [math]::Round(($pcts | Measure-Object -Average).Average, 1)
-                    return (New-KpiValue "$avg% of budget consumed (avg across $($pcts.Count))" $avg)
+                    $word = if ($pcts.Count -eq 1) { 'budget' } else { 'budgets' }
+                    return (New-KpiValue "$avg% of budget consumed (average of $($pcts.Count) $word)" $avg)
                 }
             }
         }
         'variance-budget-vs-actual' {
-            # Total actual vs total budgeted across all budgets.
+            # Weighted by budget size, unlike budget-burn-rate which averages percentages.
             $budgets = Get-ScanField $Data 'Budgets'
             if ($budgets) {
                 $totBudget = ($budgets | Measure-Object -Property Amount -Sum).Sum
                 $totActual = ($budgets | Measure-Object -Property ActualSpend -Sum).Sum
+                $cur = Get-ScanField $Data 'Currency'
+                if (-not $cur) { $cur = 'USD' }
                 if ($totBudget -and $totBudget -gt 0) {
-                    $variance = [math]::Round(100 * ($totActual - $totBudget) / $totBudget, 1)
-                    $sign = if ($variance -ge 0) { 'over' } else { 'under' }
+                    $pctOfPlan = [math]::Round(100 * $totActual / $totBudget, 1)
+                    $spend = '{0:N0}' -f [math]::Round([double]$totActual, 0)
+                    $plan = '{0:N0}' -f [math]::Round([double]$totBudget, 0)
                     # Score on distance from plan in either direction.
-                    return (New-KpiValue "$([math]::Abs($variance))% $sign budget (actual vs planned)" ([math]::Abs($variance)))
+                    $variance = [math]::Abs([math]::Round(100 * ($totActual - $totBudget) / $totBudget, 1))
+                    return (New-KpiValue "Actual is $pctOfPlan% of planned ($cur $spend of $cur $plan, all budgets combined)" $variance)
                 }
             }
         }
