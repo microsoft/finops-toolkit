@@ -333,6 +333,133 @@ function Get-FinOpsHubRowSubscriptionId {
     return ([string]$subId).ToLower()
 }
 
+function Format-FinOpsByteSize {
+    param([long]$Bytes)
+    if ($Bytes -ge 1TB) { return "{0:N1} TB" -f ($Bytes / 1TB) }
+    if ($Bytes -ge 1GB) { return "{0:N1} GB" -f ($Bytes / 1GB) }
+    if ($Bytes -ge 1MB) { return "{0:N1} MB" -f ($Bytes / 1MB) }
+    if ($Bytes -ge 1KB) { return "{0:N1} KB" -f ($Bytes / 1KB) }
+    return "$Bytes bytes"
+}
+
+function Test-FinOpsHubAccessDenied {
+    # Separates "storage refused us" from ordinary misses like a month with no
+    # data, which decides whether the caller reports unreachable or just unknown.
+    param([string]$Message)
+    return [bool]($Message -match 'not authorized|AuthorizationFailure|\(403\)|Forbidden|public access is not permitted|no longer allowed|denied')
+}
+
+function Get-FinOpsHubSizeClass {
+    # Pure classification, deliberately free of I/O so every branch is testable
+    # without reaching storage.
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [object[]]$Items,
+
+        [Parameter()]
+        [long]$LargeThresholdBytes = 256MB,
+
+        [Parameter()]
+        [int]$MaxFiles = 2000,
+
+        # Set when the listing was cut short, which proves "large" on its own.
+        [Parameter()]
+        [switch]$Truncated
+    )
+
+    $bytes = 0L
+    $count = 0
+    foreach ($item in @($Items)) {
+        if (-not $item) { continue }
+        if ($item.IsDirectory) { continue }
+        $bytes += [long]$item.Length
+        $count++
+    }
+
+    $partial = ($Truncated -or $count -ge $MaxFiles)
+    $atLeast = if ($partial) { 'at least ' } else { '' }
+    return @{
+        Known     = $true
+        Reachable = $true
+        Bytes     = $bytes
+        FileCount = $count
+        IsLarge   = ($bytes -ge $LargeThresholdBytes -or $partial)
+        Display   = "$atLeast$(Format-FinOpsByteSize $bytes) across $atLeast$count file(s)"
+        Issue     = $null
+    }
+}
+
+function Measure-FinOpsHubSize {
+    # Size probe of the ingestion container, used to decide whether the storage
+    # reader is a reasonable choice before any data is downloaded. MaxCount bounds
+    # the listing itself, so a 40 GB hub costs no more to classify than a 40 MB one.
+    #
+    # Known = $false means the probe could not run (no permission, no container).
+    # Callers must treat that as "assume large" - an unknown hub is not a small one.
+    # Reachable = $false is stronger: storage denied access outright, so the reader
+    # cannot work at all and the caller should say so rather than warn about speed.
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$StorageAccountName,
+
+        [Parameter()]
+        [int]$Months = 1,
+
+        # Parquet is columnar and compressed; PSCustomObject rows are neither, so
+        # in-memory size is a large multiple of what is measured here. This stays
+        # deliberately conservative rather than modelling that expansion exactly.
+        [Parameter()]
+        [long]$LargeThresholdBytes = 256MB,
+
+        # A hub can be large by file count as well as by bytes, and either shape
+        # makes the reader slow.
+        [Parameter()]
+        [int]$MaxFiles = 2000
+    )
+
+    $result = @{ Known = $false; Reachable = $true; Bytes = 0L; FileCount = 0; IsLarge = $true; Display = 'unknown size'; Issue = $null }
+
+    try { $ctx = New-AzStorageContext -StorageAccountName $StorageAccountName -UseConnectedAccount -ErrorAction Stop }
+    catch {
+        $result.Reachable = $false
+        $result.Issue = $_.Exception.Message
+        return $result
+    }
+
+    $collected = [System.Collections.Generic.List[object]]::new()
+    $enumerated = $false
+    $truncated = $false
+    $now = Get-Date
+
+    for ($m = 0; $m -lt $Months -and -not $truncated; $m++) {
+        $d = $now.AddMonths(-$m)
+        $basePath = "Costs/$($d.ToString('yyyy'))/$($d.ToString('MM'))"
+        try {
+            # One over the cap is enough to prove the listing was truncated.
+            $items = @(Get-AzDataLakeGen2ChildItem -Context $ctx -FileSystem 'ingestion' -Path $basePath -Recurse -MaxCount ($MaxFiles + 1) -ErrorAction Stop)
+            $enumerated = $true
+            foreach ($item in $items) { [void]$collected.Add($item) }
+            if ($items.Count -gt $MaxFiles) { $truncated = $true }
+        }
+        catch {
+            # A missing month is normal; an auth or network denial is not.
+            $msg = [string]$_.Exception.Message
+            if (Test-FinOpsHubAccessDenied -Message $msg) {
+                $result.Reachable = $false
+                $result.Issue = $msg
+                return $result
+            }
+            continue
+        }
+    }
+
+    if (-not $enumerated) { return $result }
+
+    return Get-FinOpsHubSizeClass -Items $collected.ToArray() -LargeThresholdBytes $LargeThresholdBytes -MaxFiles $MaxFiles -Truncated:$truncated
+}
+
 function Read-FinOpsHubData {
     [CmdletBinding()]
     param(

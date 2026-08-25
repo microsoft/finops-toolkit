@@ -319,12 +319,11 @@ function Invoke-FinOpsMultitool {
                 $choice = Read-FinOpsAnswer '  Select [1/2/3]: '
                 switch ($choice) {
                     '1' {
-                        # Large-hub heads-up: the [1] Hub choice uses the scalable
-                        # Kusto engine when the hub has an ADX/Fabric cluster (auto-
-                        # discovered) or FINOPS_HUB_KUSTO_URI is set (ftklocal). If
-                        # neither exists, cost scans fall back to the STORAGE READER,
-                        # which loads cost rows into PowerShell - slow / memory-heavy
-                        # on large hubs. Warn and let the user switch to the live API.
+                        # The [1] Hub choice uses the scalable Kusto engine when the
+                        # hub has an ADX/Fabric cluster (auto-discovered) or
+                        # FINOPS_HUB_KUSTO_URI is set (ftklocal). If neither exists,
+                        # cost scans fall back to the STORAGE READER, which loads cost
+                        # rows into PowerShell.
                         $hubSubIds = @($Subscriptions | ForEach-Object { $_.Id })
                         $prov = $null
                         try { $prov = Resolve-FOHubProvider -Subscriptions $hubSubIds } catch { }
@@ -332,8 +331,47 @@ function Invoke-FinOpsMultitool {
                             # A scalable Kusto path exists - no warning needed.
                             return @{ Source = 'Hub'; HubStorage = $hubStorage }
                         }
+
+                        # Size the hub before judging the reader. An unmeasurable hub
+                        # is treated as large, so a failed probe never downgrades the
+                        # warning.
+                        $hubSize = @{ Known = $false; Reachable = $true; IsLarge = $true; Display = 'unknown size'; Issue = $null }
+                        if ($hubStorage -and $hubStorage.name) {
+                            try { $hubSize = Measure-FinOpsHubSize -StorageAccountName $hubStorage.name } catch { }
+                        }
+
+                        if (-not $hubSize.Reachable) {
+                            # Storage refused access, so the reader cannot run at all.
+                            # Speed is not the problem here; reachability is.
+                            Write-Host ""
+                            Write-Host "  This FinOps Hub's storage account is not reachable from here." -ForegroundColor Yellow
+                            Write-Host "  Hub cost scans need to read the ingestion container, so they will return nothing." -ForegroundColor DarkGray
+                            Write-Host "  Common causes: the storage firewall denies this network, public network access is" -ForegroundColor DarkGray
+                            Write-Host "  disabled, or the account is reachable only through a private endpoint." -ForegroundColor DarkGray
+                            Write-Host ""
+                            Write-Host "  Use the live Cost Management API instead? " -ForegroundColor White -NoNewline
+                            Write-Host "(N = continue with the Hub anyway)" -ForegroundColor DarkGray
+                            $useApi = Read-FinOpsAnswer '  Select [Y/N]: '
+                            if ($useApi -notmatch '^(?i)(n|no)$') {
+                                return @{ Source = 'API'; HubStorage = $hubStorage }
+                            }
+                            return @{ Source = 'Hub'; HubStorage = $hubStorage }
+                        }
+
+                        if (-not $hubSize.IsLarge) {
+                            # Small enough for the reader. Still name it the small-dataset
+                            # path so it is never mistaken for the scalable engine.
+                            Write-Host ""
+                            Write-Host "  Using the FinOps Hub storage reader (small-dataset path; $($hubSize.Display))." -ForegroundColor DarkGray
+                            Write-Host "  Larger hubs should query Kusto: deploy ADX/Fabric, or set FINOPS_HUB_KUSTO_URI (ftklocal)." -ForegroundColor DarkGray
+                            return @{ Source = 'Hub'; HubStorage = $hubStorage }
+                        }
+
                         Write-Host ""
                         Write-Host "  Note: this FinOps Hub has no Azure Data Explorer (Kusto) cluster." -ForegroundColor Yellow
+                        if ($hubSize.Known) {
+                            Write-Host "  Ingestion data measured at $($hubSize.Display)." -ForegroundColor Yellow
+                        }
                         Write-Host "  Cost scans will use the storage reader, which loads cost rows into" -ForegroundColor DarkGray
                         Write-Host "  memory. On a large hub (tens of GB) this can be slow or run out of" -ForegroundColor DarkGray
                         Write-Host "  memory before completing." -ForegroundColor DarkGray
