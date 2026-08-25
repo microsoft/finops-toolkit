@@ -2550,6 +2550,8 @@ tr:hover td { background: var(--surface); }
 .kpi-name { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .kpi-value { font-size: 17px; font-weight: 600; color: var(--navy); margin: 2px 0; }
 .kpi-plain { font-size: 13px; color: var(--muted); }
+.kpi-next { font-size: 13px; color: var(--ink); margin-top: 6px; }
+.kpi-next-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); margin-right: 6px; }
 .no-data { color: var(--muted); font-style: italic; padding: 8px 0; }
 .money { color: var(--success); font-weight: 600; }
 .tag-error { background: #FDF3F2; border: 1px solid #F1C9C4; border-left: 4px solid var(--danger); border-radius: 0 4px 4px 0; padding: 11px 16px; margin: 8px 0; }
@@ -2612,7 +2614,7 @@ tr:hover td { background: var(--surface); }
 
             if ($hasStory) {
                 [void]$htmlSb.Append('<section id="tab-FinOpsStory" class="tabpane active" role="tabpanel">')
-                [void]$htmlSb.Append('<p class="story-intro">FinOps splits cloud cost work into four domains. Your results are retold here in that order, so the numbers arrive in the sequence a FinOps practice would work through them. Each measure below is a FinOps Foundation KPI.</p>')
+                [void]$htmlSb.Append('<p class="story-intro">The FinOps Framework organizes cloud cost management into four domains. This report presents your scan results in that order, so each measure appears alongside the FinOps capability it supports. Every measure below is a FinOps Foundation KPI.</p>')
                 foreach ($dom in $storyCatalog.domains) {
                     $domKpis = @($kpiCollected | Where-Object { $_.domain -eq $dom.id })
                     if ($domKpis.Count -eq 0) { continue }
@@ -2623,10 +2625,15 @@ tr:hover td { background: var(--surface); }
                     $measured = @($domKpis | Where-Object { $_.status -eq 'computed' -and $_.yourValue })
                     foreach ($kpi in $measured) {
                         [void]$htmlSb.Append('<div class="kpi">')
-                        [void]$htmlSb.Append("<div class=`"kpi-name`">$([System.Net.WebUtility]::HtmlEncode([string]$kpi.kpiName))</div>")
+                        # The formal FinOps definition sits on the title so the card stays readable.
+                        $defAttr = if ($kpi.definition) { " title=`"$([System.Net.WebUtility]::HtmlEncode([string]$kpi.definition))`"" } else { '' }
+                        [void]$htmlSb.Append("<div class=`"kpi-name`"$defAttr>$([System.Net.WebUtility]::HtmlEncode([string]$kpi.kpiName))</div>")
                         [void]$htmlSb.Append("<div class=`"kpi-value`">$([System.Net.WebUtility]::HtmlEncode([string]$kpi.yourValue))</div>")
                         if ($kpi.plainLanguage) {
                             [void]$htmlSb.Append("<div class=`"kpi-plain`">$([System.Net.WebUtility]::HtmlEncode([string]$kpi.plainLanguage))</div>")
+                        }
+                        if ($kpi.exploreHint) {
+                            [void]$htmlSb.Append("<div class=`"kpi-next`"><span class=`"kpi-next-label`">Next step</span> $([System.Net.WebUtility]::HtmlEncode([string]$kpi.exploreHint))</div>")
                         }
                         [void]$htmlSb.Append('</div>')
                     }
@@ -2634,12 +2641,12 @@ tr:hover td { background: var(--surface); }
                     $notMeasured = @($domKpis | Where-Object { $_.status -ne 'computed' -or -not $_.yourValue })
                     if ($notMeasured.Count -gt 0) {
                         $names = ($notMeasured | ForEach-Object { $_.kpiName }) -join ', '
-                        [void]$htmlSb.Append("<p class=`"table-note`">Also in this domain, not measured by this scan: $([System.Net.WebUtility]::HtmlEncode($names)).</p>")
+                        [void]$htmlSb.Append("<p class=`"table-note`">Other KPIs in this domain that this scan didn't measure: $([System.Net.WebUtility]::HtmlEncode($names)). Run the scans that inform them to complete the picture.</p>")
                     }
-                    [void]$htmlSb.Append("<p class=`"story-caps`">FinOps capabilities: $([System.Net.WebUtility]::HtmlEncode([string]$dom.capabilities))</p>")
+                    [void]$htmlSb.Append("<p class=`"story-caps`">FinOps capabilities in this domain: $([System.Net.WebUtility]::HtmlEncode([string]$dom.capabilities))</p>")
                 }
                 $lm = [System.Net.WebUtility]::HtmlEncode([string]$storyCatalog.learnMoreBase)
-                [void]$htmlSb.Append("<p class=`"table-note`">KPI definitions come from the FinOps Foundation: <a href=`"$lm`">$lm</a></p>")
+                [void]$htmlSb.Append("<p class=`"table-note`">Domain and capability names follow the FinOps Framework. KPI definitions are published by the FinOps Foundation at <a href=`"$lm`">$lm</a>.</p>")
                 [void]$htmlSb.Append('</section>')
             }
 

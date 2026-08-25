@@ -297,6 +297,7 @@ function Add-KpiInsights {
             kpiId         = $kpi.id
             kpiName       = $kpi.name
             domain        = $kpi.domain
+            definition    = $kpi.definition
             status        = $status
             yourValue     = if ($value) { $value.Display } else { $null }
             numericValue  = if ($value) { $value.Value } else { $null }

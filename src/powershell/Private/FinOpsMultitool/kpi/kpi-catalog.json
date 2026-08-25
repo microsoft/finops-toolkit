@@ -6,30 +6,30 @@
     {
       "id": "Understand",
       "name": "Understand usage and cost",
-      "summary": "See what you are spending and who is spending it.",
-      "detail": "The starting point of FinOps. Cost data is brought together, attributed to the teams and workloads that caused it, and made visible enough that surprises get noticed. Without this, every later step is guesswork.",
-      "capabilities": "Data ingestion, allocation, reporting and analytics, anomaly management"
+      "summary": "Data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption.",
+      "detail": "This domain is about observability and business intelligence. It brings the data that stakeholders need together (ingestion) into a meaningful breakdown for the organization (allocation). That data can then be reported on (reporting) and monitored to proactively identify and react to issues (anomalies).",
+      "capabilities": "Data ingestion, Allocation, Reporting and analytics, Anomaly management"
     },
     {
       "id": "Quantify",
       "name": "Quantify business value",
-      "summary": "Connect that spend to something the business cares about.",
-      "detail": "Turns a bill into a unit of value: cost per customer, per transaction, per GB stored. Also where planning, forecasting and budgeting live, so spend can be compared against a plan instead of only against last month.",
-      "capabilities": "Planning and estimating, forecasting, budgeting, benchmarking, unit economics"
+      "summary": "Identifying and breaking down cost, usage, and carbon emissions to stay aligned with organizational plans and measure the return on investment from cloud computing efforts.",
+      "detail": "This domain is about measuring and maximizing the business value each team and workload gets from the cloud to maximize future potential.",
+      "capabilities": "Planning and estimating, Forecasting, Budgeting, Benchmarking, Unit economics"
     },
     {
       "id": "Optimize",
       "name": "Optimize usage and cost",
-      "summary": "Take action to pay less for the same outcome.",
-      "detail": "Two levers. Rate optimization means paying a lower price for what you already use, through reservations, savings plans and licence benefits. Usage optimization means using less, by removing waste and right-sizing what remains.",
-      "capabilities": "Architecting for cloud, rate optimization, workload optimization, cloud sustainability"
+      "summary": "Designing and optimizing solutions for efficiency to ensure you get the most out of your cloud investments.",
+      "detail": "Rate optimization lowers the price paid for resources already in use, through commitment discounts and licensing benefits. Usage optimization reduces what is consumed, by removing waste and rightsizing what remains.",
+      "capabilities": "Architecting for the cloud, Usage optimization, Rate optimization, Licensing and SaaS, Cloud sustainability"
     },
     {
       "id": "Manage",
       "name": "Manage the FinOps practice",
-      "summary": "Make it stick, rather than a one-off cleanup.",
-      "detail": "The operating discipline around the other three: policies that hold tagging and budgets in place, chargeback so costs land with their owners, and the habits that keep this running after the first review.",
-      "capabilities": "Practice operations, policy and governance, invoicing and chargeback, education and enablement"
+      "summary": "Establishing a clear and consistent vision of FinOps and driving cultural adoption across your organization.",
+      "detail": "Unlike domains that focus on FinOps tasks to drive efficiency and maximize value, this domain emphasizes managing and supporting your FinOps practice.",
+      "capabilities": "FinOps education and enablement, FinOps practice operations, Onboarding workloads, Governance, policy, and risk, Invoicing and chargeback, FinOps assessment, FinOps tools and services, Intersecting frameworks"
     }
   ],
   "kpis": [
