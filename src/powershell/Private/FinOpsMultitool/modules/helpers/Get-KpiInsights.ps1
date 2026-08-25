@@ -65,8 +65,9 @@ function Get-ScanField {
 # a string value or $null when it cannot be computed (stays informational).
 # Display is what a human reads; Value is the same figure as a number so scoring
 # never has to recompute (and diverge from) the displayed math.
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'New-KpiValue builds an in-memory object and changes no state.')]
 function New-KpiValue {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Builds an in-memory object and changes no state.')]
+    [CmdletBinding()]
     param([Parameter(Mandatory)][string]$Display, $Value = $null)
     [PSCustomObject]@{ Display = $Display; Value = $Value }
 }
