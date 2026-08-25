@@ -2590,6 +2590,8 @@ tr:hover td { background: var(--surface); }
                 $data = $Results[$fn]
                 $eName = [System.Net.WebUtility]::HtmlEncode($mod.Name)
                 [void]$htmlSb.Append("<h2>$eName</h2>")
+                # Anything appended past this point counts as content for the section.
+                $sectionMark = $htmlSb.Length
 
                 $errorKey = "_error_$fn"
                 if ($Results.ContainsKey($errorKey)) {
@@ -2801,6 +2803,88 @@ tr:hover td { background: var(--surface); }
                         $htmlRows = @($data) | ForEach-Object { [PSCustomObject]@{ Account = $_.AccountName; Agreement = $_.AgreementType; Type = $_.FriendlyType; Currency = $_.Currency; Status = $_.AccountStatus } }
                         $htmlCols = @('Account', 'Agreement', 'Type', 'Currency', 'Status')
                     }
+                    'Get-BudgetHistory' {
+                        $htmlRows = @($data) | Where-Object { $_ } | ForEach-Object {
+                            [PSCustomObject]@{
+                                Subscription = $_.Subscription
+                                Budget       = $_.BudgetName
+                                Month        = $_.Month
+                                Budgeted     = '{0:C0}' -f [double]$_.BudgetAmount
+                                Actual       = '{0:C0}' -f [double]$_.ActualSpend
+                                PctUsed      = "$($_.PctUsed)%"
+                                Status       = $_.Status
+                            }
+                        }
+                        $htmlCols = @('Subscription', 'Budget', 'Month', 'Budgeted', 'Actual', 'PctUsed', 'Status')
+                    }
+                    'Get-CarbonMetrics' {
+                        $cLatest = [System.Net.WebUtility]::HtmlEncode([string]$data.LatestMonth)
+                        $cUnit = [System.Net.WebUtility]::HtmlEncode([string]$data.Unit)
+                        [void]$htmlSb.Append("<p>Latest month ($cLatest): $($data.TotalEmissionsKg) $cUnit &nbsp;|&nbsp; month over month $($data.ChangeRatio)%</p>")
+                        $htmlRows = $data.BySubscription | Where-Object { $_ } | ForEach-Object {
+                            [PSCustomObject]@{ Subscription = $_.Subscription; Emissions = "$($_.EmissionsKg) kg" }
+                        }
+                        $htmlCols = @('Subscription', 'Emissions')
+                    }
+                    'Get-UnitEconomics' {
+                        $uCur = [System.Net.WebUtility]::HtmlEncode([string]$data.Currency)
+                        [void]$htmlSb.Append("<p>Compute: $uCur $($data.ComputeCost) ($($data.ComputeSharePct)%) over $($data.VmCount) VMs, $($data.TotalVCpu) vCPU, $($data.TotalMemoryGb) GB RAM</p>")
+                        [void]$htmlSb.Append("<p>Storage: $uCur $($data.StorageCost) ($($data.StorageSharePct)%) over $($data.TotalStorageGb) GB</p>")
+                        $htmlRows = @(
+                            [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = "$($data.Currency) $($data.CostPerVCpu)" }
+                            [PSCustomObject]@{ Metric = 'Cost per GB RAM'; Value = "$($data.Currency) $($data.CostPerGbRam)" }
+                            [PSCustomObject]@{ Metric = 'Cost per VM'; Value = "$($data.Currency) $($data.CostPerVm)" }
+                            [PSCustomObject]@{ Metric = 'Cost per GB stored'; Value = "$($data.Currency) $($data.CostPerGb)" }
+                        )
+                        $htmlCols = @('Metric', 'Value')
+                        if ($data.Note) { $tableNote = [string]$data.Note }
+                    }
+                    'Get-LegacyResources' {
+                        [void]$htmlSb.Append("<p>$($data.TotalCount) legacy or retiring resources found</p>")
+                        $htmlRows = $data.LegacyResources | Where-Object { $_ } | ForEach-Object {
+                            [PSCustomObject]@{ Category = $_.Category; Resource = $_.ResourceName; Detail = $_.Detail; Impact = $_.Impact }
+                        }
+                        $htmlCols = @('Category', 'Resource', 'Detail', 'Impact')
+                    }
+                    'Get-AIWorkloadMetrics' {
+                        if ($data.HasData) {
+                            $fp = $data.AIFootprint
+                            $aCur = [System.Net.WebUtility]::HtmlEncode([string]$data.Currency)
+                            [void]$htmlSb.Append("<p>AI footprint &mdash; OpenAI/AI Services: $($fp.OpenAIAccounts + $fp.AIServices) &nbsp;|&nbsp; ML workspaces: $($fp.MLWorkspaces) &nbsp;|&nbsp; AI Search: $($fp.SearchServices) &nbsp;|&nbsp; GPU VMs: $($fp.GpuVmCount)</p>")
+                            [void]$htmlSb.Append("<p>Tokens (MTD): $($data.TotalTokens) over $($data.TotalRequests) requests &nbsp;|&nbsp; AI spend: $aCur $($data.TotalAICost)</p>")
+                            if ($data.ByModel -and @($data.ByModel | Where-Object { $_ }).Count -gt 0) {
+                                $htmlRows = $data.ByModel
+                                $htmlCols = @('Deployment', 'PromptTokens', 'GeneratedTokens', 'TotalTokens', 'PctOfTokens')
+                            }
+                            elseif ($data.ByAccount -and @($data.ByAccount | Where-Object { $_ }).Count -gt 0) {
+                                $htmlRows = $data.ByAccount
+                                $htmlCols = @('Name', 'Tokens', 'Requests', 'Cost', 'CostPer1KTokens')
+                            }
+                            if ($data.Note) { $tableNote = [string]$data.Note }
+                        }
+                        else {
+                            [void]$htmlSb.Append('<div class="no-data">No AI workloads detected.</div>')
+                        }
+                    }
+                    'Get-MaccCommitment' {
+                        if ($data.Applicable -and $data.HasMacc -and @($data.Commitments | Where-Object { $_ }).Count -gt 0) {
+                            $htmlRows = @($data.Commitments) | ForEach-Object {
+                                [PSCustomObject]@{
+                                    Account    = $_.BillingAccount
+                                    Commitment = '{0:C0}' -f [double]$_.Commitment
+                                    Consumed   = '{0:C0}' -f [double]$_.Consumed
+                                    Remaining  = '{0:C0}' -f [double]$_.Remaining
+                                    PctUsed    = "$($_.PctUsed)%"
+                                    Status     = $_.Status
+                                    Expires    = $_.ExpirationDate
+                                }
+                            }
+                            $htmlCols = @('Account', 'Commitment', 'Consumed', 'Remaining', 'PctUsed', 'Status', 'Expires')
+                        }
+                        elseif ($data.Reason) {
+                            [void]$htmlSb.Append("<div class=`"no-data`">$([System.Net.WebUtility]::HtmlEncode([string]$data.Reason))</div>")
+                        }
+                    }
                 }
 
                 # Render HTML table
@@ -2855,6 +2939,11 @@ tr:hover td { background: var(--surface); }
                         }
                         [void]$htmlSb.Append('</div>')
                     }
+                }
+
+                # A scan that produced no table and no summary would otherwise be a bare heading.
+                if ($htmlSb.Length -eq $sectionMark) {
+                    [void]$htmlSb.Append('<div class="no-data">This scan ran but returned nothing to display.</div>')
                 }
             }
 
