@@ -55,36 +55,81 @@ resources
         Write-Warning "  Orphaned disk query failed: $($_.Exception.Message)"
     }
 
-    # -- 2: Unattached Public IPs -----------------------------------------
+    # -- 2: Idle Public IPs ------------------------------------------------
+    # Two distinct cases with different remediation: an IP attached to nothing,
+    # and an IP still reserved by a stopped VM. Both bill; only the first is
+    # safe to simply delete.
     try {
         $pipQuery = @"
 resources
 | where type =~ 'microsoft.network/publicipaddresses'
-| where properties.ipConfiguration == '' or isnull(properties.ipConfiguration)
-| where properties.natGateway == '' or isnull(properties.natGateway)
+| extend ipConfigId = tolower(tostring(properties.ipConfiguration.id))
+| extend natGw = tostring(properties.natGateway.id)
 | project id, name, resourceGroup, subscriptionId, location,
-          sku = sku.name, ipAddress = properties.ipAddress,
-          allocationMethod = properties.publicIPAllocationMethod,
-          type = 'Unattached Public IP'
+          sku = tostring(sku.name),
+          allocationMethod = tostring(properties.publicIPAllocationMethod),
+          ipAddress = tostring(properties.ipAddress),
+          ipConfigId, natGw
+| join kind=leftouter (
+    resources
+    | where type =~ 'microsoft.network/networkinterfaces'
+    | mv-expand ipc = properties.ipConfigurations
+    | project nicName = name,
+              nicVmId = tolower(tostring(properties.virtualMachine.id)),
+              ipConfigId = tolower(tostring(ipc.id))
+  ) on ipConfigId
+| join kind=leftouter (
+    resources
+    | where type =~ 'microsoft.compute/virtualmachines'
+    | project nicVmId = tolower(tostring(id)), vmName = name,
+              vmPower = tostring(properties.extended.instanceView.powerState.displayStatus)
+  ) on nicVmId
+| project id, name, resourceGroup, subscriptionId, location, sku, allocationMethod,
+          ipAddress, ipConfigId, natGw, nicName, vmName, vmPower
 "@
         $result = Search-AzGraphSafe -Query $pipQuery -Subscription $subIds -First 1000
         $rows = if ($result) { @($result.Data) } else { @() }
+        $pipUnattached = 0
+        $pipStoppedVm = 0
         foreach ($r in $rows) {
+            $addr = if ($r.ipAddress) { $r.ipAddress } else { 'no address' }
+            $held = if ($r.allocationMethod -eq 'Static') { 'address is reserved' } else { 'address is dynamic' }
+            $isStoppedVm = ($r.vmName -and $r.vmPower -and $r.vmPower -notmatch '(?i)running')
+            $isUnattached = ([string]::IsNullOrWhiteSpace([string]$r.ipConfigId) -and [string]::IsNullOrWhiteSpace([string]$r.natGw))
+
+            if ($isStoppedVm) {
+                $category = 'Public IP on stopped VM'
+                $detail = "$($r.sku)/$($r.allocationMethod) $addr - held by stopped VM $($r.vmName), $held"
+                $pipStoppedVm++
+            }
+            elseif ($isUnattached) {
+                $category = 'Unattached Public IP'
+                $detail = "$($r.sku)/$($r.allocationMethod) $addr - attached to nothing, $held"
+                $pipUnattached++
+            }
+            else {
+                # In use by a load balancer, gateway, Bastion, firewall or running VM.
+                continue
+            }
+
             [void]$allOrphans.Add([PSCustomObject]@{
-                    Category       = 'Unattached Public IP'
+                    Category       = $category
                     ResourceId     = $r.id
                     ResourceName   = $r.name
                     ResourceGroup  = $r.resourceGroup
                     SubscriptionId = $r.subscriptionId
                     Location       = $r.location
-                    Detail         = "$($r.sku) - $($r.allocationMethod)"
+                    IpAddress      = $r.ipAddress
+                    AttachedTo     = if ($isStoppedVm) { $r.vmName } else { $null }
+                    Detail         = $detail
                     Impact         = if ($r.sku -eq 'Standard') { 'Medium' } else { 'Low' }
                 })
         }
-        Write-Host "    Unattached public IPs: $($rows.Count)" -ForegroundColor Gray
+        Write-Host "    Unattached public IPs: $pipUnattached" -ForegroundColor Gray
+        Write-Host "    Public IPs on stopped VMs: $pipStoppedVm" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Unattached public IP query failed: $($_.Exception.Message)"
+        Write-Warning "  Public IP query failed: $($_.Exception.Message)"
     }
 
     # -- 3: Unattached NICs -----------------------------------------------
