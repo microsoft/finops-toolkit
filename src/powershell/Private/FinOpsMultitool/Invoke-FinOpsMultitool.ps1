@@ -1415,23 +1415,25 @@ function Invoke-FinOpsMultitool {
             switch ($mod.Fn) {
                 'Get-OrphanedResources' {
                     if ($data.MonthlyCost) {
-                        Write-Host "    Observed last-month cost: $('{0:C2}' -f [double]$data.MonthlyCost) across $($data.CostedCount) of $($data.TotalCount) resources" -ForegroundColor White
+                        Write-Host "    Observed cost ($($data.CostPeriod)): $('{0:C2}' -f [double]$data.MonthlyCost) across $($data.CostedCount) of $($data.TotalCount) resources" -ForegroundColor White
                     }
                     if ($data.CostIssue) {
                         Write-Host "    Cost column incomplete - $($data.CostIssue)" -ForegroundColor Yellow
                     }
                     # 'n/a' when the lookup failed, '-' when it succeeded and the resource simply had no spend.
                     $noCost = if ($data.CostAvailable) { '-' } else { 'n/a' }
+                    $costCol = if ($data.CostPeriod) { [string]$data.CostPeriod } else { 'Cost' }
                     $rows = $data.Orphans | ForEach-Object {
-                        [PSCustomObject]@{
+                        $o = [ordered]@{
                             Category      = $_.Category
                             ResourceName  = $_.ResourceName
                             ResourceGroup = $_.ResourceGroup
-                            'Last month'  = if ($null -ne $_.MonthlyCost) { '{0:C2}' -f [double]$_.MonthlyCost } else { $noCost }
-                            Detail        = $_.Detail
                         }
+                        $o[$costCol] = if ($null -ne $_.MonthlyCost) { '{0:C2}' -f [double]$_.MonthlyCost } else { $noCost }
+                        $o['Detail'] = $_.Detail
+                        [PSCustomObject]$o
                     }
-                    $cols = @('Category', 'ResourceName', 'ResourceGroup', 'Last month', 'Detail')
+                    $cols = @('Category', 'ResourceName', 'ResourceGroup', $costCol, 'Detail')
                 }
                 'Get-IdleVMs' {
                     $scanned = if ($data.ScannedVMs) { $data.ScannedVMs } else { 0 }
@@ -2621,24 +2623,26 @@ tr:hover td { background: var(--surface); }
                 switch ($fn) {
                     'Get-OrphanedResources' {
                         if ($data.MonthlyCost) {
-                            [void]$htmlSb.Append("<p>Observed last-month cost: <span class=`"money`">$('{0:C2}' -f [double]$data.MonthlyCost)</span> across $($data.CostedCount) of $($data.TotalCount) resources</p>")
+                            [void]$htmlSb.Append("<p>Observed cost ($([System.Net.WebUtility]::HtmlEncode([string]$data.CostPeriod))): <span class=`"money`">$('{0:C2}' -f [double]$data.MonthlyCost)</span> across $($data.CostedCount) of $($data.TotalCount) resources</p>")
                         }
                         if ($data.CostIssue) {
                             [void]$htmlSb.Append("<div class=`"guidance yellow`">Cost column incomplete: $([System.Net.WebUtility]::HtmlEncode([string]$data.CostIssue)). An empty cost cell below means the lookup failed, not that the resource is free.</div>")
                         }
                         # 'n/a' when the lookup failed, '-' when it succeeded and the resource simply had no spend.
                         $noCostHtml = if ($data.CostAvailable) { '-' } else { 'n/a' }
+                        $costColHtml = if ($data.CostPeriod) { [string]$data.CostPeriod } else { 'Cost' }
                         $htmlRows = $data.Orphans | ForEach-Object {
-                            [PSCustomObject]@{
+                            $o = [ordered]@{
                                 Category      = $_.Category
                                 ResourceName  = $_.ResourceName
                                 ResourceGroup = $_.ResourceGroup
-                                'Last month'  = if ($null -ne $_.MonthlyCost) { '{0:C2}' -f [double]$_.MonthlyCost } else { $noCostHtml }
-                                Detail        = $_.Detail
                             }
+                            $o[$costColHtml] = if ($null -ne $_.MonthlyCost) { '{0:C2}' -f [double]$_.MonthlyCost } else { $noCostHtml }
+                            $o['Detail'] = $_.Detail
+                            [PSCustomObject]$o
                         }
-                        $htmlCols = @('Category', 'ResourceName', 'ResourceGroup', 'Last month', 'Detail')
-                        $tableNote = 'Last month is actual billed cost for that resource over the previous full calendar month, not a projection. Deleting it avoids recurring charges such as disks and reserved IPs. A resource stopped part way through last month shows the cost it incurred while still running, so the ongoing saving is lower than the figure shown.'
+                        $htmlCols = @('Category', 'ResourceName', 'ResourceGroup', $costColHtml, 'Detail')
+                        $tableNote = 'Cost is actual billed spend for that resource over the stated period, not a projection. Deleting it avoids recurring charges such as disks and reserved IPs. A resource stopped part way through the period shows what it incurred while still running, so the ongoing saving is lower than the figure shown.'
                     }
                     'Get-IdleVMs' {
                         [void]$htmlSb.Append("<p>Scanned $($data.ScannedVMs) running VMs</p>")

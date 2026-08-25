@@ -216,36 +216,78 @@ resources
 
     # -- Observed cost per orphan (best effort) ---------------------------
     # Cost Management is a separate grant from Reader, so a denial here leaves
-    # MonthlyCost null instead of failing the scan. TheLastMonth is used rather
-    # than month-to-date so the figure is a whole month of spend.
+    # MonthlyCost null instead of failing the scan. The API rejects the
+    # TheLastMonth timeframe, so a full previous month needs an explicit Custom
+    # range, with month-to-date as the fallback.
     $costMap = @{}
     $costFailures = [System.Collections.Generic.List[string]]::new()
     $costQueried = 0
+    $costPeriodLabel = $null
+    $firstOfThisMonth = (Get-Date -Day 1).Date
+    $lastMonthStart = $firstOfThisMonth.AddMonths(-1)
+    $lastMonthEnd = $firstOfThisMonth.AddDays(-1)
+    $costAttempts = @(
+        @{
+            Label = $lastMonthStart.ToString('MMM yyyy')
+            Body  = @{
+                type       = 'ActualCost'
+                timeframe  = 'Custom'
+                timePeriod = @{
+                    from = $lastMonthStart.ToString('yyyy-MM-ddT00:00:00Z')
+                    to   = $lastMonthEnd.ToString('yyyy-MM-ddT23:59:59Z')
+                }
+                dataset    = @{
+                    granularity = 'None'
+                    aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
+                    grouping    = @(@{ type = 'Dimension'; name = 'ResourceId' })
+                }
+            }
+        }
+        @{
+            Label = 'Month to date'
+            Body  = @{
+                type      = 'ActualCost'
+                timeframe = 'MonthToDate'
+                dataset   = @{
+                    granularity = 'None'
+                    aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
+                    grouping    = @(@{ type = 'Dimension'; name = 'ResourceId' })
+                }
+            }
+        }
+    )
     if ($allOrphans.Count -gt 0) {
         foreach ($sub in $Subscriptions) {
-            try {
-                $costBody = @{
-                    type      = 'ActualCost'
-                    timeframe = 'TheLastMonth'
-                    dataset   = @{
-                        granularity = 'None'
-                        aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
-                        grouping    = @(@{ type = 'Dimension'; name = 'ResourceId' })
-                    }
-                } | ConvertTo-Json -Depth 10
-
-                $costResp = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01" -Method POST -Payload $costBody
-                if (-not $costResp -or $costResp.StatusCode -ne 200) {
-                    $code = if ($costResp) { [string]$costResp.StatusCode } else { 'no response' }
-                    $reason = switch ($code) {
-                        '429' { 'rate limited by Cost Management' }
-                        '401' { 'not authorized for Cost Management' }
-                        '403' { 'not authorized for Cost Management' }
-                        default { "Cost Management returned $code" }
-                    }
-                    [void]$costFailures.Add("$($sub.Name): $reason")
-                    continue
+            $costResp = $null
+            $usedLabel = $null
+            $lastCode = 'no response'
+            foreach ($attempt in $costAttempts) {
+                # A later subscription reuses whatever period already worked.
+                if ($costPeriodLabel -and $attempt.Label -ne $costPeriodLabel) { continue }
+                try {
+                    $body = $attempt.Body | ConvertTo-Json -Depth 10
+                    $r = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01" -Method POST -Payload $body
+                    if ($r -and $r.StatusCode -eq 200) { $costResp = $r; $usedLabel = $attempt.Label; break }
+                    $lastCode = if ($r) { [string]$r.StatusCode } else { 'no response' }
                 }
+                catch {
+                    $lastCode = $_.Exception.Message
+                }
+            }
+
+            if (-not $costResp) {
+                $reason = switch ($lastCode) {
+                    '429' { 'rate limited by Cost Management' }
+                    '401' { 'not authorized for Cost Management' }
+                    '403' { 'not authorized for Cost Management' }
+                    default { "Cost Management returned $lastCode" }
+                }
+                [void]$costFailures.Add("$($sub.Name): $reason")
+                continue
+            }
+
+            try {
+                if (-not $costPeriodLabel) { $costPeriodLabel = $usedLabel }
                 $costQueried++
 
                 $costResult = ($costResp.Content | ConvertFrom-Json)
@@ -277,7 +319,7 @@ resources
     $costAvailable = ($costQueried -gt 0)
     $costIssue = if ($costFailures.Count -gt 0) { ($costFailures | Select-Object -Unique) -join '; ' } else { $null }
     if ($costed.Count -gt 0) {
-        Write-Host "    Observed last-month cost on $($costed.Count) of $($allOrphans.Count) orphans." -ForegroundColor Gray
+        Write-Host "    Observed cost ($costPeriodLabel) on $($costed.Count) of $($allOrphans.Count) orphans." -ForegroundColor Gray
     }
     if ($costIssue) {
         Write-Host "    Cost lookup incomplete - $costIssue" -ForegroundColor Yellow
@@ -299,6 +341,7 @@ resources
         MonthlyCost   = $totalMonthlyCost
         CostedCount   = $costed.Count
         CostAvailable = $costAvailable
+        CostPeriod    = $costPeriodLabel
         CostIssue     = $costIssue
     }
 }
