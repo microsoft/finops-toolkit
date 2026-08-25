@@ -128,20 +128,30 @@ resources
 | project id, name, resourceGroup, subscriptionId, location,
           vmSize = properties.hardwareProfile.vmSize,
           powerState = properties.extended.instanceView.powerState.displayStatus,
+          osDiskId = tostring(properties.storageProfile.osDisk.managedDisk.id),
+          dataDisks = properties.storageProfile.dataDisks,
           type = 'Deallocated VM'
 "@
         $result = Search-AzGraphSafe -Query $vmQuery -Subscription $subIds -First 1000
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
+            # A stopped VM bills nothing itself; the spend sits on its managed disks.
+            $vmDiskIds = [System.Collections.Generic.List[string]]::new()
+            if ($r.osDiskId) { [void]$vmDiskIds.Add([string]$r.osDiskId) }
+            foreach ($dd in @($r.dataDisks)) {
+                if ($dd -and $dd.managedDisk -and $dd.managedDisk.id) { [void]$vmDiskIds.Add([string]$dd.managedDisk.id) }
+            }
+            $diskLabel = if ($vmDiskIds.Count -eq 1) { '1 disk' } else { "$($vmDiskIds.Count) disks" }
             [void]$allOrphans.Add([PSCustomObject]@{
-                    Category       = 'Deallocated VM'
-                    ResourceId     = $r.id
-                    ResourceName   = $r.name
-                    ResourceGroup  = $r.resourceGroup
-                    SubscriptionId = $r.subscriptionId
-                    Location       = $r.location
-                    Detail         = "$($r.vmSize) - still incurs disk/IP costs"
-                    Impact         = 'Medium'
+                    Category         = 'Deallocated VM'
+                    ResourceId       = $r.id
+                    ChildResourceIds = @($vmDiskIds)
+                    ResourceName     = $r.name
+                    ResourceGroup    = $r.resourceGroup
+                    SubscriptionId   = $r.subscriptionId
+                    Location         = $r.location
+                    Detail           = "$($r.vmSize) - $diskLabel still billing"
+                    Impact           = 'Medium'
                 })
         }
         Write-Host "    Deallocated VMs: $($rows.Count)" -ForegroundColor Gray
@@ -310,8 +320,23 @@ resources
 
     foreach ($orphan in $allOrphans) {
         $ridKey = if ($orphan.ResourceId) { ([string]$orphan.ResourceId).ToLowerInvariant() } else { $null }
-        $orphanCost = if ($ridKey -and $costMap.ContainsKey($ridKey)) { $costMap[$ridKey] } else { $null }
-        $orphan | Add-Member -NotePropertyName MonthlyCost -NotePropertyValue $orphanCost -Force
+        $ownCost = if ($ridKey -and $costMap.ContainsKey($ridKey)) { $costMap[$ridKey] } else { $null }
+
+        # A deallocated VM bills nothing on its own object, so fold in its disks.
+        $attachedCost = $null
+        if ($orphan.PSObject.Properties['ChildResourceIds']) {
+            foreach ($childId in @($orphan.ChildResourceIds)) {
+                $childKey = ([string]$childId).ToLowerInvariant()
+                if ($costMap.ContainsKey($childKey)) {
+                    if ($null -eq $attachedCost) { $attachedCost = 0 }
+                    $attachedCost += $costMap[$childKey]
+                }
+            }
+        }
+
+        $combined = if ($null -eq $ownCost -and $null -eq $attachedCost) { $null } else { [math]::Round(([double]$ownCost + [double]$attachedCost), 2) }
+        $orphan | Add-Member -NotePropertyName MonthlyCost -NotePropertyValue $combined -Force
+        $orphan | Add-Member -NotePropertyName AttachedCost -NotePropertyValue $(if ($null -ne $attachedCost) { [math]::Round($attachedCost, 2) } else { $null }) -Force
     }
 
     $costed = @($allOrphans | Where-Object { $null -ne $_.MonthlyCost })

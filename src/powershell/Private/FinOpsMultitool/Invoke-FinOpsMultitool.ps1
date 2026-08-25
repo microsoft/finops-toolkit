@@ -2642,7 +2642,7 @@ tr:hover td { background: var(--surface); }
                             [PSCustomObject]$o
                         }
                         $htmlCols = @('Category', 'ResourceName', 'ResourceGroup', $costColHtml, 'Detail')
-                        $tableNote = 'Cost is actual billed spend for that resource over the stated period, not a projection. Deleting it avoids recurring charges such as disks and reserved IPs. A resource stopped part way through the period shows what it incurred while still running, so the ongoing saving is lower than the figure shown.'
+                        $tableNote = 'Cost is actual billed spend over the stated period, not a projection. A deallocated VM bills nothing on the VM object itself, so its attached managed disks are rolled into its row - those disks are excluded from the orphaned disk rows above, so nothing is double counted. A resource stopped part way through the period shows what it incurred while still running, so the ongoing saving is lower than the figure shown.'
                     }
                     'Get-IdleVMs' {
                         [void]$htmlSb.Append("<p>Scanned $($data.ScannedVMs) running VMs</p>")
