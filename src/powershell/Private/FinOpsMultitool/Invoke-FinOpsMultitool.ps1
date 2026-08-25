@@ -1364,6 +1364,9 @@ function Invoke-FinOpsMultitool {
         # Guidance is built per scan during this pass; the HTML report is written
         # later, so keep it here rather than recomputing the whole switch.
         $guidanceByFn = @{}
+        # KPIs are collected across every scan so the report can retell them by
+        # FinOps domain rather than scattered under the scan that produced them.
+        $kpiCollected = [System.Collections.Generic.List[PSCustomObject]]::new()
         foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
             $data = $Results[$mod.Fn]
             if (-not $data -or @($data).Count -eq 0) {
@@ -1918,6 +1921,11 @@ function Invoke-FinOpsMultitool {
             if (Get-Command Get-KpiInsightsForResult -ErrorAction SilentlyContinue) {
                 $kpiInsights = @()
                 try { $kpiInsights = @(Get-KpiInsightsForResult -FunctionName $mod.Fn -Output $data) } catch { $kpiInsights = @() }
+                foreach ($kpi in $kpiInsights) {
+                    if (-not ($kpiCollected | Where-Object { $_.kpiId -eq $kpi.kpiId -and $_.status -eq 'computed' })) {
+                        [void]$kpiCollected.Add($kpi)
+                    }
+                }
                 if ($kpiInsights.Count -gt 0) {
                     Write-Host ""
                     Write-Host "    FinOps KPIs:" -ForegroundColor Cyan
@@ -2528,6 +2536,14 @@ tr:hover td { background: var(--surface); }
 .guidance a { color: var(--blue); text-decoration: none; }
 .guidance a:hover { text-decoration: underline; }
 .table-note { color: var(--muted); font-size: 12px; font-style: italic; margin: -14px 0 22px 0; max-width: 74ch; }
+.story-intro { font-size: 14px; color: var(--ink); max-width: 78ch; margin: 20px 0 4px 0; }
+.story-summary { font-size: 15px; font-weight: 600; color: var(--navy); margin: 10px 0 4px 0; }
+.story-detail { font-size: 13px; color: var(--muted); max-width: 78ch; margin: 0 0 14px 0; }
+.story-caps { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0 0 26px 0; }
+.kpi { border-left: 4px solid var(--blue); background: var(--surface); border-radius: 0 4px 4px 0; padding: 10px 16px; margin: 0 0 10px 0; max-width: 78ch; }
+.kpi-name { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.kpi-value { font-size: 17px; font-weight: 600; color: var(--navy); margin: 2px 0; }
+.kpi-plain { font-size: 13px; color: var(--muted); }
 .no-data { color: var(--muted); font-style: italic; padding: 8px 0; }
 .money { color: var(--success); font-weight: 600; }
 .tag-error { background: #FDF3F2; border: 1px solid #F1C9C4; border-left: 4px solid var(--danger); border-radius: 0 4px 4px 0; padding: 11px 16px; margin: 8px 0; }
@@ -2570,13 +2586,56 @@ tr:hover td { background: var(--surface); }
             $presentCats = @($selectedMods | ForEach-Object { $_.Category } | Select-Object -Unique)
             # A category missing from $catOrder still gets a tab, after the known ones.
             $tabCats = @($catOrder | Where-Object { $presentCats -contains $_ }) + @($presentCats | Where-Object { $catOrder -notcontains $_ })
+
+            $storyCatalog = $null
+            if (Get-Command Get-KpiCatalog -ErrorAction SilentlyContinue) {
+                try { $storyCatalog = Get-KpiCatalog } catch { $storyCatalog = $null }
+            }
+            $hasStory = ($storyCatalog -and @($storyCatalog.domains).Count -gt 0 -and $kpiCollected.Count -gt 0)
+
             [void]$htmlSb.Append('<nav class="tabs" role="tablist">')
+            if ($hasStory) {
+                [void]$htmlSb.Append('<button type="button" class="tab active" role="tab" data-target="tab-FinOpsStory">FinOps story</button>')
+            }
             for ($ti = 0; $ti -lt $tabCats.Count; $ti++) {
-                $tabCls = if ($ti -eq 0) { 'tab active' } else { 'tab' }
+                $tabCls = if (-not $hasStory -and $ti -eq 0) { 'tab active' } else { 'tab' }
                 $tabId = 'tab-' + ($tabCats[$ti] -replace '[^A-Za-z0-9]', '')
                 [void]$htmlSb.Append("<button type=`"button`" class=`"$tabCls`" role=`"tab`" data-target=`"$tabId`">$([System.Net.WebUtility]::HtmlEncode([string]$tabCats[$ti]))</button>")
             }
             [void]$htmlSb.Append('</nav>')
+
+            if ($hasStory) {
+                [void]$htmlSb.Append('<section id="tab-FinOpsStory" class="tabpane active" role="tabpanel">')
+                [void]$htmlSb.Append('<p class="story-intro">FinOps splits cloud cost work into four domains. Your results are retold here in that order, so the numbers arrive in the sequence a FinOps practice would work through them. Each measure below is a FinOps Foundation KPI.</p>')
+                foreach ($dom in $storyCatalog.domains) {
+                    $domKpis = @($kpiCollected | Where-Object { $_.domain -eq $dom.id })
+                    if ($domKpis.Count -eq 0) { continue }
+                    [void]$htmlSb.Append("<h2>$([System.Net.WebUtility]::HtmlEncode([string]$dom.name))</h2>")
+                    [void]$htmlSb.Append("<p class=`"story-summary`">$([System.Net.WebUtility]::HtmlEncode([string]$dom.summary))</p>")
+                    [void]$htmlSb.Append("<p class=`"story-detail`">$([System.Net.WebUtility]::HtmlEncode([string]$dom.detail))</p>")
+
+                    $measured = @($domKpis | Where-Object { $_.status -eq 'computed' -and $_.yourValue })
+                    foreach ($kpi in $measured) {
+                        [void]$htmlSb.Append('<div class="kpi">')
+                        [void]$htmlSb.Append("<div class=`"kpi-name`">$([System.Net.WebUtility]::HtmlEncode([string]$kpi.kpiName))</div>")
+                        [void]$htmlSb.Append("<div class=`"kpi-value`">$([System.Net.WebUtility]::HtmlEncode([string]$kpi.yourValue))</div>")
+                        if ($kpi.plainLanguage) {
+                            [void]$htmlSb.Append("<div class=`"kpi-plain`">$([System.Net.WebUtility]::HtmlEncode([string]$kpi.plainLanguage))</div>")
+                        }
+                        [void]$htmlSb.Append('</div>')
+                    }
+
+                    $notMeasured = @($domKpis | Where-Object { $_.status -ne 'computed' -or -not $_.yourValue })
+                    if ($notMeasured.Count -gt 0) {
+                        $names = ($notMeasured | ForEach-Object { $_.kpiName }) -join ', '
+                        [void]$htmlSb.Append("<p class=`"table-note`">Also in this domain, not measured by this scan: $([System.Net.WebUtility]::HtmlEncode($names)).</p>")
+                    }
+                    [void]$htmlSb.Append("<p class=`"story-caps`">FinOps capabilities: $([System.Net.WebUtility]::HtmlEncode([string]$dom.capabilities))</p>")
+                }
+                $lm = [System.Net.WebUtility]::HtmlEncode([string]$storyCatalog.learnMoreBase)
+                [void]$htmlSb.Append("<p class=`"table-note`">KPI definitions come from the FinOps Foundation: <a href=`"$lm`">$lm</a></p>")
+                [void]$htmlSb.Append('</section>')
+            }
 
             $orderedMods = @(foreach ($c in $tabCats) { $selectedMods | Where-Object { $_.Category -eq $c } })
             $currentCat = $null
@@ -2584,7 +2643,7 @@ tr:hover td { background: var(--surface); }
                 if ($mod.Category -ne $currentCat) {
                     if ($null -ne $currentCat) { [void]$htmlSb.Append('</section>') }
                     $currentCat = $mod.Category
-                    $paneCls = if ($tabCats[0] -eq $currentCat) { 'tabpane active' } else { 'tabpane' }
+                    $paneCls = if (-not $hasStory -and $tabCats[0] -eq $currentCat) { 'tabpane active' } else { 'tabpane' }
                     $paneId = 'tab-' + ($currentCat -replace '[^A-Za-z0-9]', '')
                     [void]$htmlSb.Append("<section id=`"$paneId`" class=`"$paneCls`" role=`"tabpanel`">")
                 }

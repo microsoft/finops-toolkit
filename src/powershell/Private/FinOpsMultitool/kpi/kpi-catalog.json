@@ -2,6 +2,36 @@
   "_comment": "FinOps Foundation KPI correlation catalog (Phase 1). Curated subset of https://www.finops.org/finops-kpis/ that the scan output can inform. Each entry maps one or more source tools to a KPI. 'compute' = the server can calculate a value; 'informational' = the scan relates to the KPI but the value needs the field below or external input. Keep this honest: never claim a value we cannot derive.",
   "version": "1.0.0",
   "learnMoreBase": "https://www.finops.org/finops-kpis/",
+  "domains": [
+    {
+      "id": "Understand",
+      "name": "Understand usage and cost",
+      "summary": "See what you are spending and who is spending it.",
+      "detail": "The starting point of FinOps. Cost data is brought together, attributed to the teams and workloads that caused it, and made visible enough that surprises get noticed. Without this, every later step is guesswork.",
+      "capabilities": "Data ingestion, allocation, reporting and analytics, anomaly management"
+    },
+    {
+      "id": "Quantify",
+      "name": "Quantify business value",
+      "summary": "Connect that spend to something the business cares about.",
+      "detail": "Turns a bill into a unit of value: cost per customer, per transaction, per GB stored. Also where planning, forecasting and budgeting live, so spend can be compared against a plan instead of only against last month.",
+      "capabilities": "Planning and estimating, forecasting, budgeting, benchmarking, unit economics"
+    },
+    {
+      "id": "Optimize",
+      "name": "Optimize usage and cost",
+      "summary": "Take action to pay less for the same outcome.",
+      "detail": "Two levers. Rate optimization means paying a lower price for what you already use, through reservations, savings plans and licence benefits. Usage optimization means using less, by removing waste and right-sizing what remains.",
+      "capabilities": "Architecting for cloud, rate optimization, workload optimization, cloud sustainability"
+    },
+    {
+      "id": "Manage",
+      "name": "Manage the FinOps practice",
+      "summary": "Make it stick, rather than a one-off cleanup.",
+      "detail": "The operating discipline around the other three: policies that hold tagging and budgets in place, chargeback so costs land with their owners, and the habits that keep this running after the first review.",
+      "capabilities": "Practice operations, policy and governance, invoicing and chargeback, education and enablement"
+    }
+  ],
   "kpis": [
     {
       "id": "cost-per-gb-stored",
