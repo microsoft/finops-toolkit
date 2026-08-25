@@ -1922,7 +1922,13 @@ function Invoke-FinOpsMultitool {
                 $kpiInsights = @()
                 try { $kpiInsights = @(Get-KpiInsightsForResult -FunctionName $mod.Fn -Output $data) } catch { $kpiInsights = @() }
                 foreach ($kpi in $kpiInsights) {
-                    if (-not ($kpiCollected | Where-Object { $_.kpiId -eq $kpi.kpiId -and $_.status -eq 'computed' })) {
+                    # One entry per KPI. A computed value replaces an informational one.
+                    $existingKpi = $kpiCollected | Where-Object { $_.kpiId -eq $kpi.kpiId } | Select-Object -First 1
+                    if (-not $existingKpi) {
+                        [void]$kpiCollected.Add($kpi)
+                    }
+                    elseif ($existingKpi.status -ne 'computed' -and $kpi.status -eq 'computed') {
+                        [void]$kpiCollected.Remove($existingKpi)
                         [void]$kpiCollected.Add($kpi)
                     }
                 }
