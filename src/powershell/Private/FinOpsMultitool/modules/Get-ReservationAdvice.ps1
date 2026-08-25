@@ -79,31 +79,32 @@ advisorresources
             # commitment rather than a bare ID with missing data. RIs keep their
             # real SKU/region/qty. The savings come straight from Advisor.
             $isSavingsPlan = ($row.shortDescriptionSolution -match '(?i)savings plan') -or ($row.shortDescriptionProblem -match '(?i)savings plan')
-            $isSubScope    = $row.impactedField -match '(?i)subscriptions/subscriptions'
+            $isSubScope = $row.impactedField -match '(?i)subscriptions/subscriptions'
             $resName = if ($isSubScope) { "$subName (subscription-wide)" } else { $row.impactedValue }
-            $sku    = if ($row.displaySKU) { $row.displaySKU } elseif ($isSavingsPlan) { 'Any (flexible)' } else { '-' }
-            $region = if ($row.region)    { $row.region }    elseif ($isSavingsPlan) { 'Any' }            else { '-' }
-            $qty    = if ($row.displayQty) { $row.displayQty } elseif ($isSavingsPlan) { 'Commitment' }     else { '-' }
+            $sku = if ($row.displaySKU) { $row.displaySKU } elseif ($isSavingsPlan) { 'Any (flexible)' } else { '-' }
+            $region = if ($row.region) { $row.region }    elseif ($isSavingsPlan) { 'Any' }            else { '-' }
+            $qty = if ($row.displayQty) { $row.displayQty } elseif ($isSavingsPlan) { 'Commitment' }     else { '-' }
 
             [void]$allRecommendations.Add([PSCustomObject]@{
-                Subscription     = $subName
-                SubscriptionId   = $subId
-                Problem          = $row.shortDescriptionProblem
-                Solution         = $row.shortDescriptionSolution
-                Impact           = $row.impact
-                Category         = 'Reservation / Savings Plan'
-                ResourceType     = $row.impactedField
-                ResourceName     = $resName
-                SKU              = $sku
-                Region           = $region
-                Qty              = $qty
-                AnnualSavings    = $savings
-                Currency         = $row.savingsCurrency
-                Term             = $row.term
-                RecommendationId = $row.recName
-            })
+                    Subscription     = $subName
+                    SubscriptionId   = $subId
+                    Problem          = $row.shortDescriptionProblem
+                    Solution         = $row.shortDescriptionSolution
+                    Impact           = $row.impact
+                    Category         = 'Reservation / Savings Plan'
+                    ResourceType     = $row.impactedField
+                    ResourceName     = $resName
+                    SKU              = $sku
+                    Region           = $region
+                    Qty              = $qty
+                    AnnualSavings    = $savings
+                    Currency         = $row.savingsCurrency
+                    Term             = $row.term
+                    RecommendationId = $row.recName
+                })
         }
-    } catch {
+    }
+    catch {
         Write-Warning "  Advisor Resource Graph query failed: $($_.Exception.Message)"
         Write-Warning "  Falling back to per-subscription REST calls..."
 
@@ -125,32 +126,34 @@ advisorresources
                 foreach ($item in $riRecs) {
                     $rec = $item.properties
                     $isSavingsPlan = ($rec.shortDescription.solution -match '(?i)savings plan') -or ($rec.shortDescription.problem -match '(?i)savings plan')
-                    $isSubScope    = $rec.impactedField -match '(?i)subscriptions/subscriptions'
+                    $isSubScope = $rec.impactedField -match '(?i)subscriptions/subscriptions'
                     $resName = if ($isSubScope) { "$($sub.Name) (subscription-wide)" } else { $rec.impactedValue }
-                    $sku    = if ($rec.extendedProperties.displaySKU) { $rec.extendedProperties.displaySKU } elseif ($isSavingsPlan) { 'Any (flexible)' } else { '-' }
-                    $region = if ($rec.extendedProperties.region)     { $rec.extendedProperties.region }     elseif ($isSavingsPlan) { 'Any' }            else { '-' }
-                    $qty    = if ($rec.extendedProperties.displayQty) { $rec.extendedProperties.displayQty } elseif ($isSavingsPlan) { 'Commitment' }     else { '-' }
+                    $sku = if ($rec.extendedProperties.displaySKU) { $rec.extendedProperties.displaySKU } elseif ($isSavingsPlan) { 'Any (flexible)' } else { '-' }
+                    $region = if ($rec.extendedProperties.region) { $rec.extendedProperties.region }     elseif ($isSavingsPlan) { 'Any' }            else { '-' }
+                    $qty = if ($rec.extendedProperties.displayQty) { $rec.extendedProperties.displayQty } elseif ($isSavingsPlan) { 'Commitment' }     else { '-' }
                     [void]$allRecommendations.Add([PSCustomObject]@{
-                        Subscription     = $sub.Name
-                        SubscriptionId   = $sub.Id
-                        Problem          = $rec.shortDescription.problem
-                        Solution         = $rec.shortDescription.solution
-                        Impact           = $rec.impact
-                        Category         = 'Reservation / Savings Plan'
-                        ResourceType     = $rec.impactedField
-                        ResourceName     = $resName
-                        SKU              = $sku
-                        Region           = $region
-                        Qty              = $qty
-                        AnnualSavings    = if ($rec.extendedProperties.annualSavingsAmount) {
-                                             [math]::Round([double]$rec.extendedProperties.annualSavingsAmount, 2)
-                                           } else { $null }
-                        Currency         = $rec.extendedProperties.savingsCurrency
-                        Term             = $rec.extendedProperties.term
-                        RecommendationId = $item.name
-                    })
+                            Subscription     = $sub.Name
+                            SubscriptionId   = $sub.Id
+                            Problem          = $rec.shortDescription.problem
+                            Solution         = $rec.shortDescription.solution
+                            Impact           = $rec.impact
+                            Category         = 'Reservation / Savings Plan'
+                            ResourceType     = $rec.impactedField
+                            ResourceName     = $resName
+                            SKU              = $sku
+                            Region           = $region
+                            Qty              = $qty
+                            AnnualSavings    = if ($rec.extendedProperties.annualSavingsAmount) {
+                                [math]::Round([double]$rec.extendedProperties.annualSavingsAmount, 2)
+                            }
+                            else { $null }
+                            Currency         = $rec.extendedProperties.savingsCurrency
+                            Term             = $rec.extendedProperties.term
+                            RecommendationId = $item.name
+                        })
                 }
-            } catch {
+            }
+            catch {
                 if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
                 Write-Warning "  Advisor query failed for $($sub.Name): $($_.Exception.Message)"
             }
@@ -158,34 +161,55 @@ advisorresources
     }
 
     # -- Also try the Reservation Recommendation API --------------------
+    # Must be subscription scoped: the bare provider path returns 404
+    # InvalidResourceType. 'Shared' scope is only valid at billing-account scope
+    # and returns 422 here. resourceType defaults to VirtualMachines, so every
+    # other type has to be requested by name or it is silently absent.
+    $rrResourceTypes = @(
+        'VirtualMachines', 'SQLDatabases', 'PostgreSQL', 'ManagedDisk', 'MySQL',
+        'RedHat', 'MariaDB', 'RedisCache', 'CosmosDB', 'SqlDataWarehouse',
+        'SUSELinux', 'AppService', 'BlockBlob', 'AzureDataExplorer', 'VMwareCloudSimple'
+    )
     $reservationRecs = [System.Collections.Generic.List[PSCustomObject]]::new()
-    try {
-        $rrPath = "/providers/Microsoft.Consumption/reservationRecommendations?api-version=2023-05-01&`$filter=properties/scope eq 'Shared' and properties/lookBackPeriod eq 'Last30Days'"
-        $rrResp = Invoke-AzRestMethodWithRetry -Path $rrPath -Method GET
-        if ($rrResp -and $rrResp.StatusCode -in @(401, 403)) { $accessDenied = $true }
-        if (-not $rrResp -or -not $rrResp.Content) { throw "Reservation recommendation API returned no content (HTTP $($rrResp.StatusCode))" }
-        $rrResult = ($rrResp.Content | ConvertFrom-Json)
+    foreach ($sub in $Subscriptions) {
+        foreach ($rrType in $rrResourceTypes) {
+            try {
+                $rrFilter = "properties/scope eq 'Single' and properties/resourceType eq '$rrType' and properties/lookBackPeriod eq 'Last30Days'"
+                $rrPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Consumption/reservationRecommendations?api-version=2023-05-01&`$filter=$rrFilter"
+                $rrResp = Invoke-AzRestMethodWithRetry -Path $rrPath -Method GET
+                if ($rrResp -and $rrResp.StatusCode -in @(401, 403)) { $accessDenied = $true; break }
+                if (-not $rrResp -or $rrResp.StatusCode -ne 200 -or -not $rrResp.Content) { continue }
+                $rrResult = ($rrResp.Content | ConvertFrom-Json)
+                if (-not $rrResult.value) { continue }
 
-        if ($rrResult.value) {
-            foreach ($item in $rrResult.value) {
-                $props = $item.properties
-                [void]$reservationRecs.Add([PSCustomObject]@{
-                    ResourceType      = $props.resourceType
-                    SKU               = $props.skuProperties.name
-                    RecommendedQty    = $props.recommendedQuantity
-                    Term              = $props.term
-                    CostWithoutRI     = if ($props.costWithNoReservedInstances) { [math]::Round($props.costWithNoReservedInstances, 2) } else { $null }
-                    CostWithRI        = if ($props.totalCostWithReservedInstances) { [math]::Round($props.totalCostWithReservedInstances, 2) } else { $null }
-                    NetSavings        = if ($props.netSavings) { [math]::Round($props.netSavings, 2) } else { $null }
-                    Currency          = $props.currencyCode
-                    Scope             = $props.scope
-                    LookBackPeriod    = $props.lookBackPeriod
-                })
+                foreach ($item in $rrResult.value) {
+                    $props = $item.properties
+                    # Legacy records carry normalizedSize and no resourceType; modern carry skuName.
+                    $rrSku = if ($props.skuName) { $props.skuName } elseif ($props.normalizedSize) { $props.normalizedSize } else { '-' }
+                    [void]$reservationRecs.Add([PSCustomObject]@{
+                            Subscription   = $sub.Name
+                            ResourceType   = if ($props.resourceType) { $props.resourceType } else { $rrType }
+                            SKU            = $rrSku
+                            Region         = $item.location
+                            RecommendedQty = $props.recommendedQuantity
+                            Term           = $props.term
+                            CostWithoutRI  = if ($null -ne $props.costWithNoReservedInstances) { [math]::Round($props.costWithNoReservedInstances, 2) } else { $null }
+                            CostWithRI     = if ($null -ne $props.totalCostWithReservedInstances) { [math]::Round($props.totalCostWithReservedInstances, 2) } else { $null }
+                            NetSavings     = if ($null -ne $props.netSavings) { [math]::Round($props.netSavings, 2) } else { $null }
+                            Scope          = $props.scope
+                            LookBackPeriod = $props.lookBackPeriod
+                            FlexGroup      = $props.instanceFlexibilityGroup
+                        })
+                }
+            }
+            catch {
+                if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
+                Write-Verbose "Reservation recommendation query failed for $($sub.Name)/$rrType : $($_.Exception.Message)"
             }
         }
-    } catch {
-        if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
-        Write-Warning "Reservation recommendation API query failed (non-critical): $($_.Exception.Message)"
+    }
+    if ($reservationRecs.Count -gt 0) {
+        Write-Host "  Retrieved $($reservationRecs.Count) reservation purchase recommendations." -ForegroundColor Cyan
     }
 
     # -- De-duplicate Advisor records -----------------------------------
@@ -222,12 +246,12 @@ advisorresources
     $denied = ($accessDenied -and $allRecommendations.Count -eq 0 -and $reservationRecs.Count -eq 0)
 
     return [PSCustomObject]@{
-        AdvisorRecommendations    = $allRecommendations
+        AdvisorRecommendations     = $allRecommendations
         ReservationRecommendations = $reservationRecs
-        TotalAdvisorCount         = $allRecommendations.Count
-        TotalReservationCount     = $reservationRecs.Count
-        EstimatedAnnualSavings    = [math]::Round($totalAnnualSavings, 2)
-        AccessDenied              = $denied
-        Summary                   = "$($allRecommendations.Count) Advisor + $($reservationRecs.Count) reservation recommendations"
+        TotalAdvisorCount          = $allRecommendations.Count
+        TotalReservationCount      = $reservationRecs.Count
+        EstimatedAnnualSavings     = [math]::Round($totalAnnualSavings, 2)
+        AccessDenied               = $denied
+        Summary                    = "$($allRecommendations.Count) Advisor + $($reservationRecs.Count) reservation recommendations"
     }
 }

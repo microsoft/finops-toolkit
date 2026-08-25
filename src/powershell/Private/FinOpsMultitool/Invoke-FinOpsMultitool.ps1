@@ -1414,8 +1414,24 @@ function Invoke-FinOpsMultitool {
 
             switch ($mod.Fn) {
                 'Get-OrphanedResources' {
-                    $rows = $data.Orphans
-                    $cols = @('Category', 'ResourceName', 'ResourceGroup', 'Detail')
+                    if ($data.MonthlyCost) {
+                        Write-Host "    Observed last-month cost: $('{0:C2}' -f [double]$data.MonthlyCost) across $($data.CostedCount) of $($data.TotalCount) resources" -ForegroundColor White
+                    }
+                    if ($data.CostIssue) {
+                        Write-Host "    Cost column incomplete - $($data.CostIssue)" -ForegroundColor Yellow
+                    }
+                    # 'n/a' when the lookup failed, '-' when it succeeded and the resource simply had no spend.
+                    $noCost = if ($data.CostAvailable) { '-' } else { 'n/a' }
+                    $rows = $data.Orphans | ForEach-Object {
+                        [PSCustomObject]@{
+                            Category      = $_.Category
+                            ResourceName  = $_.ResourceName
+                            ResourceGroup = $_.ResourceGroup
+                            'Last month'  = if ($null -ne $_.MonthlyCost) { '{0:C2}' -f [double]$_.MonthlyCost } else { $noCost }
+                            Detail        = $_.Detail
+                        }
+                    }
+                    $cols = @('Category', 'ResourceName', 'ResourceGroup', 'Last month', 'Detail')
                 }
                 'Get-IdleVMs' {
                     $scanned = if ($data.ScannedVMs) { $data.ScannedVMs } else { 0 }
@@ -1468,15 +1484,20 @@ function Invoke-FinOpsMultitool {
                             $resLabel = if ($_.Subscription -and $_.Subscription -ne $_.SubscriptionId) { $_.Subscription }
                             elseif ($_.Solution) { $_.Solution.Substring(0, [math]::Min(50, $_.Solution.Length)) }
                             else { ($_.ResourceName -split '/')[-1] }
+                            # Console width is tight once SKU/Region/Qty are shown.
+                            if ($resLabel.Length -gt 22) { $resLabel = $resLabel.Substring(0, 21) + [char]0x2026 }
                             [PSCustomObject]@{
                                 Resource = $resLabel
                                 Type     = ($_.ResourceType -split '/')[-1]
+                                SKU      = $_.SKU
+                                Region   = $_.Region
+                                Qty      = $_.Qty
                                 Term     = $_.Term
                                 Savings  = '{0:C0}' -f [double]$_.AnnualSavings
                                 Impact   = $_.Impact
                             }
                         }
-                        $cols = @('Resource', 'Type', 'Term', 'Savings', 'Impact')
+                        $cols = @('Resource', 'Type', 'SKU', 'Region', 'Qty', 'Term', 'Savings', 'Impact')
                         if ($data.EstimatedAnnualSavings) {
                             Write-ColorizedLine -Text "    Est. annual savings: $($data.EstimatedAnnualSavings.ToString('C0'))" -DefaultColor 'White'
                         }
@@ -2464,39 +2485,71 @@ function Invoke-FinOpsMultitool {
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FinOps Multitool Report — $timestamp</title>
+<title>FinOps Multitool Report &mdash; $timestamp</title>
 <style>
-body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px 40px; }
-h1 { color: #58a6ff; border-bottom: 2px solid #30363d; padding-bottom: 12px; font-size: 24px; }
-h2 { color: #58a6ff; margin-top: 32px; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
-.meta { color: #8b949e; font-size: 13px; margin-bottom: 24px; }
-.summary-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
-.summary-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px 18px; min-width: 180px; }
-.summary-card .label { color: #8b949e; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-.summary-card .value { font-size: 22px; font-weight: 600; color: #c9d1d9; }
-table { border-collapse: collapse; width: 100%; margin: 12px 0 24px 0; font-size: 13px; }
-th { background: #161b22; color: #58a6ff; text-align: left; padding: 8px 12px; border-bottom: 2px solid #30363d; font-weight: 600; }
-td { padding: 6px 12px; border-bottom: 1px solid #21262d; }
-tr:hover { background: #161b22; }
-.severity-red { color: #f85149; font-weight: 600; }
-.severity-yellow { color: #d29922; }
-.severity-green { color: #3fb950; }
-.guidance { background: #161b22; border-left: 3px solid #30363d; padding: 10px 16px; margin: 8px 0 16px 0; border-radius: 0 6px 6px 0; font-size: 13px; }
-.guidance.red { border-left-color: #f85149; }
-.guidance.yellow { border-left-color: #d29922; }
-.guidance.green { border-left-color: #3fb950; }
-.guidance a { color: #58a6ff; text-decoration: none; }
+:root {
+  --energy-blue: #0000B3; --blue: #0078D4; --navy: #0D0061; --deep-blue: #000085;
+  --indigo: #5D52EC; --turquoise: #00BBC3; --mint: #CFF3E8; --lavender: #AAC0FC;
+  --light-gray: #D9D9D6; --surface: #F7F7F5; --ink: #1A1A1A; --muted: #5A5A5A;
+  --danger: #C42B1C; --warning: #8A5300; --success: #0F7B0F;
+}
+* { box-sizing: border-box; }
+body { font-family: 'Segoe Sans Display', 'Segoe UI Variable Display', 'Segoe UI', system-ui, -apple-system, sans-serif; background: #FFFFFF; color: var(--ink); margin: 0; padding: 0 0 48px 0; }
+.masthead { background: var(--navy); color: #FFFFFF; padding: 28px 40px 24px 40px; }
+.masthead .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--lavender); margin-bottom: 6px; }
+.masthead h1 { font-size: 30px; font-weight: 300; margin: 0 0 10px 0; letter-spacing: -0.01em; color: #FFFFFF; }
+.masthead .meta { color: #C5CBE8; font-size: 13px; margin: 0; }
+.wrap { padding: 0 40px; }
+h2 { color: var(--energy-blue); font-size: 19px; font-weight: 600; margin: 30px 0 4px 0; padding-bottom: 8px; border-bottom: 1px solid var(--light-gray); }
+h3 { color: var(--navy); font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin: 22px 0 4px 0; }
+.summary-grid { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0 4px 0; }
+.summary-card { background: var(--surface); border: 1px solid var(--light-gray); border-top: 3px solid var(--blue); border-radius: 6px; padding: 12px 18px; min-width: 170px; }
+.summary-card .label { color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+.summary-card .value { font-size: 24px; font-weight: 600; color: var(--navy); margin-top: 2px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 2px; border-bottom: 2px solid var(--light-gray); margin: 22px 0 0 0; position: sticky; top: 0; background: #FFFFFF; z-index: 10; }
+.tab { font: inherit; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -2px; padding: 11px 16px; cursor: pointer; }
+.tab:hover { color: var(--energy-blue); background: var(--surface); }
+.tab.active { color: var(--energy-blue); border-bottom-color: var(--energy-blue); }
+.tabpane { display: none; }
+.tabpane.active { display: block; }
+table { border-collapse: collapse; width: 100%; margin: 12px 0 22px 0; font-size: 13px; }
+th { background: var(--surface); color: var(--navy); text-align: left; padding: 9px 12px; border-bottom: 2px solid var(--light-gray); font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+td { padding: 7px 12px; border-bottom: 1px solid #ECECEA; }
+tr:hover td { background: var(--surface); }
+.severity-red { color: var(--danger); font-weight: 600; }
+.severity-yellow { color: var(--warning); font-weight: 600; }
+.severity-green { color: var(--success); font-weight: 600; }
+.guidance { background: var(--surface); border-left: 4px solid var(--light-gray); padding: 11px 16px; margin: 8px 0 16px 0; border-radius: 0 4px 4px 0; font-size: 13px; }
+.guidance.red { border-left-color: var(--danger); }
+.guidance.yellow { border-left-color: var(--warning); }
+.guidance.green { border-left-color: var(--success); }
+.guidance a { color: var(--blue); text-decoration: none; }
 .guidance a:hover { text-decoration: underline; }
-.no-data { color: #8b949e; font-style: italic; padding: 8px 0; }
-.money { color: #3fb950; font-weight: 500; }
-.tag-error { background: #1c1210; border: 1px solid #f8514950; border-radius: 6px; padding: 10px 16px; margin: 8px 0; }
-.permission-hint { color: #d29922; font-size: 12px; }
-@media print { body { background: #fff; color: #1a1a1a; } h1, h2, th { color: #0366d6; } td, th { border-color: #ddd; } .summary-card { border-color: #ddd; } }
+.table-note { color: var(--muted); font-size: 12px; font-style: italic; margin: -14px 0 22px 0; max-width: 74ch; }
+.no-data { color: var(--muted); font-style: italic; padding: 8px 0; }
+.money { color: var(--success); font-weight: 600; }
+.tag-error { background: #FDF3F2; border: 1px solid #F1C9C4; border-left: 4px solid var(--danger); border-radius: 0 4px 4px 0; padding: 11px 16px; margin: 8px 0; }
+.permission-hint { color: var(--warning); font-size: 12px; }
+.footer { color: var(--muted); font-size: 12px; margin-top: 40px; border-top: 1px solid var(--light-gray); padding-top: 14px; }
+.footer a { color: var(--blue); text-decoration: none; }
+@media print {
+  .tabs { display: none; }
+  .tabpane { display: block !important; }
+  .masthead { background: #FFFFFF; color: var(--ink); padding: 0 0 12px 0; border-bottom: 2px solid var(--energy-blue); }
+  .masthead h1, .masthead .meta, .masthead .eyebrow { color: var(--ink); }
+  .wrap { padding: 0; }
+  body { padding: 16px; }
+  tr:hover td { background: none; }
+}
 </style>
 </head>
 <body>
-<h1>FinOps Multitool Report</h1>
-<div class="meta">Generated: $timestamp &nbsp;|&nbsp; Subscriptions: $([System.Net.WebUtility]::HtmlEncode($subList))</div>
+<div class="masthead">
+<div class="eyebrow">FinOps Toolkit</div>
+<h1>FinOps Multitool report</h1>
+<p class="meta">Generated: $timestamp &nbsp;|&nbsp; Subscriptions: $([System.Net.WebUtility]::HtmlEncode($subList))</p>
+</div>
+<div class="wrap">
 "@)
 
             # Summary cards
@@ -2509,8 +2562,30 @@ tr:hover { background: #161b22; }
             }
             [void]$htmlSb.Append('</div>')
 
-            # Per-module sections
-            foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
+            # Per-module sections, grouped into one tab per category
+            $selectedMods = @($Modules | Where-Object { $_.Selected })
+            $catOrder = @('Cost Analysis', 'Optimization', 'Commitments', 'Governance', 'Monitoring', 'Advisor', 'AI & ML', 'Sustainability', 'Account')
+            $presentCats = @($selectedMods | ForEach-Object { $_.Category } | Select-Object -Unique)
+            # A category missing from $catOrder still gets a tab, after the known ones.
+            $tabCats = @($catOrder | Where-Object { $presentCats -contains $_ }) + @($presentCats | Where-Object { $catOrder -notcontains $_ })
+            [void]$htmlSb.Append('<nav class="tabs" role="tablist">')
+            for ($ti = 0; $ti -lt $tabCats.Count; $ti++) {
+                $tabCls = if ($ti -eq 0) { 'tab active' } else { 'tab' }
+                $tabId = 'tab-' + ($tabCats[$ti] -replace '[^A-Za-z0-9]', '')
+                [void]$htmlSb.Append("<button type=`"button`" class=`"$tabCls`" role=`"tab`" data-target=`"$tabId`">$([System.Net.WebUtility]::HtmlEncode([string]$tabCats[$ti]))</button>")
+            }
+            [void]$htmlSb.Append('</nav>')
+
+            $orderedMods = @(foreach ($c in $tabCats) { $selectedMods | Where-Object { $_.Category -eq $c } })
+            $currentCat = $null
+            foreach ($mod in $orderedMods) {
+                if ($mod.Category -ne $currentCat) {
+                    if ($null -ne $currentCat) { [void]$htmlSb.Append('</section>') }
+                    $currentCat = $mod.Category
+                    $paneCls = if ($tabCats[0] -eq $currentCat) { 'tabpane active' } else { 'tabpane' }
+                    $paneId = 'tab-' + ($currentCat -replace '[^A-Za-z0-9]', '')
+                    [void]$htmlSb.Append("<section id=`"$paneId`" class=`"$paneCls`" role=`"tabpanel`">")
+                }
                 $fn = $mod.Fn
                 $data = $Results[$fn]
                 $eName = [System.Net.WebUtility]::HtmlEncode($mod.Name)
@@ -2540,10 +2615,28 @@ tr:hover { background: #161b22; }
                 # Render module-specific summaries + table
                 $htmlRows = $null
                 $htmlCols = $null
+                $tableNote = $null
                 switch ($fn) {
                     'Get-OrphanedResources' {
-                        $htmlRows = $data.Orphans
-                        $htmlCols = @('Category', 'ResourceName', 'ResourceGroup', 'Detail')
+                        if ($data.MonthlyCost) {
+                            [void]$htmlSb.Append("<p>Observed last-month cost: <span class=`"money`">$('{0:C2}' -f [double]$data.MonthlyCost)</span> across $($data.CostedCount) of $($data.TotalCount) resources</p>")
+                        }
+                        if ($data.CostIssue) {
+                            [void]$htmlSb.Append("<div class=`"guidance yellow`">Cost column incomplete: $([System.Net.WebUtility]::HtmlEncode([string]$data.CostIssue)). An empty cost cell below means the lookup failed, not that the resource is free.</div>")
+                        }
+                        # 'n/a' when the lookup failed, '-' when it succeeded and the resource simply had no spend.
+                        $noCostHtml = if ($data.CostAvailable) { '-' } else { 'n/a' }
+                        $htmlRows = $data.Orphans | ForEach-Object {
+                            [PSCustomObject]@{
+                                Category      = $_.Category
+                                ResourceName  = $_.ResourceName
+                                ResourceGroup = $_.ResourceGroup
+                                'Last month'  = if ($null -ne $_.MonthlyCost) { '{0:C2}' -f [double]$_.MonthlyCost } else { $noCostHtml }
+                                Detail        = $_.Detail
+                            }
+                        }
+                        $htmlCols = @('Category', 'ResourceName', 'ResourceGroup', 'Last month', 'Detail')
+                        $tableNote = 'Last month is actual billed cost for that resource over the previous full calendar month, not a projection. Deleting it avoids recurring charges such as disks and reserved IPs. A resource stopped part way through last month shows the cost it incurred while still running, so the ongoing saving is lower than the figure shown.'
                     }
                     'Get-IdleVMs' {
                         [void]$htmlSb.Append("<p>Scanned $($data.ScannedVMs) running VMs</p>")
@@ -2595,6 +2688,7 @@ tr:hover { background: #161b22; }
                                 }
                             }
                             $htmlCols = @('Tag', 'Value', 'Cost')
+                            $tableNote = 'Each tag is measured on its own, so a resource missing that tag counts as (untagged) for it and appears once per tag it lacks. Costs overlap between tags and do not sum to total spend.'
                         }
                     }
                     'Get-CostTrend' {
@@ -2605,10 +2699,54 @@ tr:hover { background: #161b22; }
                     }
                     'Get-ReservationAdvice' {
                         if ($data.EstimatedAnnualSavings) { [void]$htmlSb.Append("<p>Est. annual savings: <span class=`"money`">`$$($data.EstimatedAnnualSavings.ToString('N0'))</span></p>") }
-                        $htmlRows = $data.AdvisorRecommendations | ForEach-Object {
-                            [PSCustomObject]@{ Resource = ($_.ResourceName -split '/')[-1]; Type = ($_.ResourceType -split '/')[-1]; Term = $_.Term; Savings = '{0:C0}' -f [double]$_.AnnualSavings; Impact = $_.Impact }
+
+                        # Wrapping a null in @() yields a one-element array, so filter before counting.
+                        $rrRows = @($data.ReservationRecommendations | Where-Object { $_ })
+                        if ($rrRows.Count -gt 0) {
+                            [void]$htmlSb.Append('<h3>Reservation purchase detail</h3>')
+                            [void]$htmlSb.Append('<table><thead><tr>')
+                            foreach ($c in @('SKU', 'Resource type', 'Region', 'Qty', 'Term', 'Lookback', 'Cost without RI', 'Cost with RI', 'Net savings')) {
+                                [void]$htmlSb.Append("<th>$([System.Net.WebUtility]::HtmlEncode($c))</th>")
+                            }
+                            [void]$htmlSb.Append('</tr></thead><tbody>')
+                            foreach ($rr in $rrRows) {
+                                $cells = @(
+                                    [string]$rr.SKU
+                                    [string]$rr.ResourceType
+                                    [string]$rr.Region
+                                    [string]$rr.RecommendedQty
+                                    [string]$rr.Term
+                                    [string]$rr.LookBackPeriod
+                                    $(if ($null -ne $rr.CostWithoutRI) { '{0:N2}' -f [double]$rr.CostWithoutRI } else { '-' })
+                                    $(if ($null -ne $rr.CostWithRI) { '{0:N2}' -f [double]$rr.CostWithRI } else { '-' })
+                                    $(if ($null -ne $rr.NetSavings) { '{0:N2}' -f [double]$rr.NetSavings } else { '-' })
+                                )
+                                [void]$htmlSb.Append('<tr>')
+                                for ($ci = 0; $ci -lt $cells.Count; $ci++) {
+                                    $cell = [System.Net.WebUtility]::HtmlEncode([string]$cells[$ci])
+                                    if ($ci -eq ($cells.Count - 1) -and $cells[$ci] -ne '-') { $cell = "<span class=`"money`">$cell</span>" }
+                                    [void]$htmlSb.Append("<td>$cell</td>")
+                                }
+                                [void]$htmlSb.Append('</tr>')
+                            }
+                            [void]$htmlSb.Append('</tbody></table>')
+                            [void]$htmlSb.Append('<p class="table-note">From the Consumption reservation recommendation API at single-subscription scope over the last 30 days, queried per resource type. Costs are modeled over the lookback window and the API does not return a currency.</p>')
+                            [void]$htmlSb.Append('<h3>Advisor recommendations</h3>')
                         }
-                        $htmlCols = @('Resource', 'Type', 'Term', 'Savings', 'Impact')
+
+                        $htmlRows = $data.AdvisorRecommendations | ForEach-Object {
+                            [PSCustomObject]@{
+                                Resource = ($_.ResourceName -split '/')[-1]
+                                Type     = ($_.ResourceType -split '/')[-1]
+                                SKU      = $_.SKU
+                                Region   = $_.Region
+                                Qty      = $_.Qty
+                                Term     = $_.Term
+                                Savings  = '{0:C0}' -f [double]$_.AnnualSavings
+                                Impact   = $_.Impact
+                            }
+                        }
+                        $htmlCols = @('Resource', 'Type', 'SKU', 'Region', 'Qty', 'Term', 'Savings', 'Impact')
                     }
                     'Get-CommitmentUtilization' {
                         if ($data.HasData) {
@@ -2674,7 +2812,16 @@ tr:hover { background: #161b22; }
                         [void]$htmlSb.Append('<tr>')
                         foreach ($c in $htmlCols) {
                             $val = $r.$c
-                            $enc = [System.Net.WebUtility]::HtmlEncode([string]$val)
+                            $raw = [string]$val
+                            $tdAttr = ''
+                            if ($raw.Length -gt 60) {
+                                # Keep the full value reachable on hover rather than blowing out the column.
+                                $tdAttr = " title=`"$([System.Net.WebUtility]::HtmlEncode($raw))`""
+                                $enc = [System.Net.WebUtility]::HtmlEncode($raw.Substring(0, 57)) + '&hellip;'
+                            }
+                            else {
+                                $enc = [System.Net.WebUtility]::HtmlEncode($raw)
+                            }
                             # Colorize money values and risk/severity
                             if ($enc -match '^\$') { $enc = "<span class=`"money`">$enc</span>" }
                             if ($c -eq 'Risk' -and $r.PSObject.Properties['_riskClass']) { $enc = "<span class=`"$($r._riskClass)`">$enc</span>" }
@@ -2682,11 +2829,14 @@ tr:hover { background: #161b22; }
                                 $impClass = switch ($val) { 'High' { 'severity-red' } 'Medium' { 'severity-yellow' } default { 'severity-green' } }
                                 $enc = "<span class=`"$impClass`">$enc</span>"
                             }
-                            [void]$htmlSb.Append("<td>$enc</td>")
+                            [void]$htmlSb.Append("<td$tdAttr>$enc</td>")
                         }
                         [void]$htmlSb.Append('</tr>')
                     }
                     [void]$htmlSb.Append('</tbody></table>')
+                    if ($tableNote) {
+                        [void]$htmlSb.Append("<p class=`"table-note`">$([System.Net.WebUtility]::HtmlEncode($tableNote))</p>")
+                    }
                 }
 
                 # Render guidance
@@ -2708,8 +2858,27 @@ tr:hover { background: #161b22; }
                 }
             }
 
-            [void]$htmlSb.Append('<div class="meta" style="margin-top:40px;border-top:1px solid #30363d;padding-top:12px;">Generated by FinOps Multitool &mdash; part of the <a href="https://aka.ms/finops/toolkit" style="color:#58a6ff;">FinOps Toolkit</a></div>')
-            [void]$htmlSb.Append('</body></html>')
+            if ($null -ne $currentCat) { [void]$htmlSb.Append('</section>') }
+            [void]$htmlSb.Append('<div class="footer">Generated by FinOps Multitool &mdash; part of the <a href="https://aka.ms/finops/toolkit">FinOps Toolkit</a></div>')
+            [void]$htmlSb.Append('</div>')
+            [void]$htmlSb.Append(@'
+<script>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  var panes = Array.prototype.slice.call(document.querySelectorAll('.tabpane'));
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      tabs.forEach(function (x) { x.classList.remove('active'); });
+      panes.forEach(function (x) { x.classList.remove('active'); });
+      t.classList.add('active');
+      var pane = document.getElementById(t.getAttribute('data-target'));
+      if (pane) { pane.classList.add('active'); }
+    });
+  });
+})();
+</script>
+</body></html>
+'@)
 
             $htmlPath = Join-Path $exportDir 'FinOpsReport.html'
             $htmlSb.ToString() | Out-File -FilePath $htmlPath -Encoding utf8

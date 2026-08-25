@@ -30,7 +30,7 @@ resources
 | where type =~ 'microsoft.compute/disks'
 | where managedBy == '' or isnull(managedBy)
 | where properties.diskState == 'Unattached'
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           diskSizeGb = properties.diskSizeGB,
           sku = sku.name, diskState = properties.diskState,
           type = 'Orphaned Disk'
@@ -39,17 +39,19 @@ resources
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allOrphans.Add([PSCustomObject]@{
-                Category       = 'Orphaned Disk'
-                ResourceName   = $r.name
-                ResourceGroup  = $r.resourceGroup
-                SubscriptionId = $r.subscriptionId
-                Location       = $r.location
-                Detail         = "$($r.diskSizeGb) GB ($($r.sku))"
-                Impact         = 'Medium'
-            })
+                    Category       = 'Orphaned Disk'
+                    ResourceId     = $r.id
+                    ResourceName   = $r.name
+                    ResourceGroup  = $r.resourceGroup
+                    SubscriptionId = $r.subscriptionId
+                    Location       = $r.location
+                    Detail         = "$($r.diskSizeGb) GB ($($r.sku))"
+                    Impact         = 'Medium'
+                })
         }
         Write-Host "    Orphaned disks: $($rows.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Orphaned disk query failed: $($_.Exception.Message)"
     }
 
@@ -60,7 +62,7 @@ resources
 | where type =~ 'microsoft.network/publicipaddresses'
 | where properties.ipConfiguration == '' or isnull(properties.ipConfiguration)
 | where properties.natGateway == '' or isnull(properties.natGateway)
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           sku = sku.name, ipAddress = properties.ipAddress,
           allocationMethod = properties.publicIPAllocationMethod,
           type = 'Unattached Public IP'
@@ -69,17 +71,19 @@ resources
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allOrphans.Add([PSCustomObject]@{
-                Category       = 'Unattached Public IP'
-                ResourceName   = $r.name
-                ResourceGroup  = $r.resourceGroup
-                SubscriptionId = $r.subscriptionId
-                Location       = $r.location
-                Detail         = "$($r.sku) - $($r.allocationMethod)"
-                Impact         = if ($r.sku -eq 'Standard') { 'Medium' } else { 'Low' }
-            })
+                    Category       = 'Unattached Public IP'
+                    ResourceId     = $r.id
+                    ResourceName   = $r.name
+                    ResourceGroup  = $r.resourceGroup
+                    SubscriptionId = $r.subscriptionId
+                    Location       = $r.location
+                    Detail         = "$($r.sku) - $($r.allocationMethod)"
+                    Impact         = if ($r.sku -eq 'Standard') { 'Medium' } else { 'Low' }
+                })
         }
         Write-Host "    Unattached public IPs: $($rows.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Unattached public IP query failed: $($_.Exception.Message)"
     }
 
@@ -90,7 +94,7 @@ resources
 | where type =~ 'microsoft.network/networkinterfaces'
 | where isnull(properties.virtualMachine) or properties.virtualMachine == ''
 | where isnull(properties.privateEndpoint) or properties.privateEndpoint == ''
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           enableAcceleratedNetworking = properties.enableAcceleratedNetworking,
           type = 'Unattached NIC'
 "@
@@ -98,17 +102,19 @@ resources
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allOrphans.Add([PSCustomObject]@{
-                Category       = 'Unattached NIC'
-                ResourceName   = $r.name
-                ResourceGroup  = $r.resourceGroup
-                SubscriptionId = $r.subscriptionId
-                Location       = $r.location
-                Detail         = "Accelerated: $($r.enableAcceleratedNetworking)"
-                Impact         = 'Low'
-            })
+                    Category       = 'Unattached NIC'
+                    ResourceId     = $r.id
+                    ResourceName   = $r.name
+                    ResourceGroup  = $r.resourceGroup
+                    SubscriptionId = $r.subscriptionId
+                    Location       = $r.location
+                    Detail         = "Accelerated: $($r.enableAcceleratedNetworking)"
+                    Impact         = 'Low'
+                })
         }
         Write-Host "    Unattached NICs: $($rows.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Unattached NIC query failed: $($_.Exception.Message)"
     }
 
@@ -119,7 +125,7 @@ resources
 | where type =~ 'microsoft.compute/virtualmachines'
 | where properties.extended.instanceView.powerState.displayStatus == 'VM deallocated'
     or properties.extended.instanceView.powerState.code == 'PowerState/deallocated'
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           vmSize = properties.hardwareProfile.vmSize,
           powerState = properties.extended.instanceView.powerState.displayStatus,
           type = 'Deallocated VM'
@@ -128,17 +134,19 @@ resources
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allOrphans.Add([PSCustomObject]@{
-                Category       = 'Deallocated VM'
-                ResourceName   = $r.name
-                ResourceGroup  = $r.resourceGroup
-                SubscriptionId = $r.subscriptionId
-                Location       = $r.location
-                Detail         = "$($r.vmSize) - still incurs disk/IP costs"
-                Impact         = 'Medium'
-            })
+                    Category       = 'Deallocated VM'
+                    ResourceId     = $r.id
+                    ResourceName   = $r.name
+                    ResourceGroup  = $r.resourceGroup
+                    SubscriptionId = $r.subscriptionId
+                    Location       = $r.location
+                    Detail         = "$($r.vmSize) - still incurs disk/IP costs"
+                    Impact         = 'Medium'
+                })
         }
         Write-Host "    Deallocated VMs: $($rows.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Deallocated VM query failed: $($_.Exception.Message)"
     }
 
@@ -149,7 +157,7 @@ resources
 | where type =~ 'microsoft.web/serverfarms'
 | where properties.numberOfSites == 0
 | where sku.tier != 'Free' and sku.tier != 'Shared'
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           sku = strcat(sku.tier, ' / ', sku.name),
           workers = properties.numberOfWorkers,
           type = 'Empty App Service Plan'
@@ -158,17 +166,19 @@ resources
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allOrphans.Add([PSCustomObject]@{
-                Category       = 'Empty App Service Plan'
-                ResourceName   = $r.name
-                ResourceGroup  = $r.resourceGroup
-                SubscriptionId = $r.subscriptionId
-                Location       = $r.location
-                Detail         = "$($r.sku), $($r.workers) worker(s), 0 apps"
-                Impact         = 'High'
-            })
+                    Category       = 'Empty App Service Plan'
+                    ResourceId     = $r.id
+                    ResourceName   = $r.name
+                    ResourceGroup  = $r.resourceGroup
+                    SubscriptionId = $r.subscriptionId
+                    Location       = $r.location
+                    Detail         = "$($r.sku), $($r.workers) worker(s), 0 apps"
+                    Impact         = 'High'
+                })
         }
         Write-Host "    Empty App Service Plans: $($rows.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Empty ASP query failed: $($_.Exception.Message)"
     }
 
@@ -179,7 +189,7 @@ resources
 resources
 | where type =~ 'microsoft.compute/snapshots'
 | where properties.timeCreated < datetime('$snapshotCutoff')
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           diskSizeGb = properties.diskSizeGB,
           timeCreated = properties.timeCreated,
           type = 'Old Snapshot'
@@ -188,18 +198,89 @@ resources
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allOrphans.Add([PSCustomObject]@{
-                Category       = 'Old Snapshot (30d+)'
-                ResourceName   = $r.name
-                ResourceGroup  = $r.resourceGroup
-                SubscriptionId = $r.subscriptionId
-                Location       = $r.location
-                Detail         = "$($r.diskSizeGb) GB, created $($r.timeCreated)"
-                Impact         = 'Low'
-            })
+                    Category       = 'Old Snapshot (30d+)'
+                    ResourceId     = $r.id
+                    ResourceName   = $r.name
+                    ResourceGroup  = $r.resourceGroup
+                    SubscriptionId = $r.subscriptionId
+                    Location       = $r.location
+                    Detail         = "$($r.diskSizeGb) GB, created $($r.timeCreated)"
+                    Impact         = 'Low'
+                })
         }
         Write-Host "    Old snapshots (30d+): $($rows.Count)" -ForegroundColor Gray
-    } catch {
+    }
+    catch {
         Write-Warning "  Snapshot query failed: $($_.Exception.Message)"
+    }
+
+    # -- Observed cost per orphan (best effort) ---------------------------
+    # Cost Management is a separate grant from Reader, so a denial here leaves
+    # MonthlyCost null instead of failing the scan. TheLastMonth is used rather
+    # than month-to-date so the figure is a whole month of spend.
+    $costMap = @{}
+    $costFailures = [System.Collections.Generic.List[string]]::new()
+    $costQueried = 0
+    if ($allOrphans.Count -gt 0) {
+        foreach ($sub in $Subscriptions) {
+            try {
+                $costBody = @{
+                    type      = 'ActualCost'
+                    timeframe = 'TheLastMonth'
+                    dataset   = @{
+                        granularity = 'None'
+                        aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
+                        grouping    = @(@{ type = 'Dimension'; name = 'ResourceId' })
+                    }
+                } | ConvertTo-Json -Depth 10
+
+                $costResp = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01" -Method POST -Payload $costBody
+                if (-not $costResp -or $costResp.StatusCode -ne 200) {
+                    $code = if ($costResp) { [string]$costResp.StatusCode } else { 'no response' }
+                    $reason = switch ($code) {
+                        '429' { 'rate limited by Cost Management' }
+                        '401' { 'not authorized for Cost Management' }
+                        '403' { 'not authorized for Cost Management' }
+                        default { "Cost Management returned $code" }
+                    }
+                    [void]$costFailures.Add("$($sub.Name): $reason")
+                    continue
+                }
+                $costQueried++
+
+                $costResult = ($costResp.Content | ConvertFrom-Json)
+                $costCols = @{}
+                for ($cIdx = 0; $cIdx -lt $costResult.properties.columns.Count; $cIdx++) {
+                    $costCols[$costResult.properties.columns[$cIdx].name] = $cIdx
+                }
+                foreach ($costRow in $costResult.properties.rows) {
+                    $rid = [string]$costRow[$costCols['ResourceId']]
+                    # Resource Graph and Cost Management disagree on ID casing.
+                    if ($rid) { $costMap[$rid.ToLowerInvariant()] = [math]::Round([double]$costRow[$costCols['Cost']], 2) }
+                }
+            }
+            catch {
+                [void]$costFailures.Add("$($sub.Name): $($_.Exception.Message)")
+                Write-Verbose "Orphan cost lookup failed for $($sub.Name): $($_.Exception.Message)"
+            }
+        }
+    }
+
+    foreach ($orphan in $allOrphans) {
+        $ridKey = if ($orphan.ResourceId) { ([string]$orphan.ResourceId).ToLowerInvariant() } else { $null }
+        $orphanCost = if ($ridKey -and $costMap.ContainsKey($ridKey)) { $costMap[$ridKey] } else { $null }
+        $orphan | Add-Member -NotePropertyName MonthlyCost -NotePropertyValue $orphanCost -Force
+    }
+
+    $costed = @($allOrphans | Where-Object { $null -ne $_.MonthlyCost })
+    $totalMonthlyCost = if ($costed.Count -gt 0) { [math]::Round((($costed | Measure-Object -Property MonthlyCost -Sum).Sum), 2) } else { $null }
+    $costAvailable = ($costQueried -gt 0)
+    $costIssue = if ($costFailures.Count -gt 0) { ($costFailures | Select-Object -Unique) -join '; ' } else { $null }
+    if ($costed.Count -gt 0) {
+        Write-Host "    Observed last-month cost on $($costed.Count) of $($allOrphans.Count) orphans." -ForegroundColor Gray
+    }
+    if ($costIssue) {
+        Write-Host "    Cost lookup incomplete - $costIssue" -ForegroundColor Yellow
     }
 
     # -- Summary by category --
@@ -211,9 +292,13 @@ resources
     }
 
     return [PSCustomObject]@{
-        Orphans     = @($allOrphans)
-        Summary     = @($summary)
-        TotalCount  = $allOrphans.Count
-        HasData     = ($allOrphans.Count -gt 0)
+        Orphans       = @($allOrphans)
+        Summary       = @($summary)
+        TotalCount    = $allOrphans.Count
+        HasData       = ($allOrphans.Count -gt 0)
+        MonthlyCost   = $totalMonthlyCost
+        CostedCount   = $costed.Count
+        CostAvailable = $costAvailable
+        CostIssue     = $costIssue
     }
 }
