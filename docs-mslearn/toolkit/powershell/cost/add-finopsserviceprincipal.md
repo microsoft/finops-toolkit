@@ -13,7 +13,7 @@ ms.reviewer: brettwil
 
 # Add-FinOpsServicePrincipal command
 
-The **Add-FinOpsServicePrincipal** command grants the specified service principal or managed identity access to an Enterprise Agreement billing account or department.  
+The **Add-FinOpsServicePrincipal** command grants the specified service principal or managed identity access to an Enterprise Agreement billing account or department.
 
 For more information about granting roles to service principals, see [Assign Enterprise Agreement roles to service principals](/azure/cost-management-billing/manage/assign-roles-azure-service-principals). For more information about the permissions associated with each role, see [Usage and costs access by role](/azure/cost-management-billing/manage/understand-ea-roles#usage-and-costs-access-by-role).
 
@@ -23,22 +23,22 @@ For more information about granting roles to service principals, see [Assign Ent
 
 ```powershell
 Add-FinOpsServicePrincipal `
-    -ObjectId 00000000-0000-0000-0000-000000000000 `
-    -TenantId 00000000-0000-0000-0000-000000000000 `
-    -BillingAccountId 12345 `
-    -DepartmentId 67890
+    [‑ObjectId] <string> `
+    [‑TenantId] <string> `
+    [‑BillingAccountId] <string> `
+    [[‑DepartmentId] <string>]
 ```
 
 <br>
 
 ## Parameters
 
-| Name               | Description                                                                        |
-| ------------------ | ---------------------------------------------------------------------------------- |
-| `ObjectId`         | Required. The object ID of the service principal or managed identity.              |
-| `TenantId`         | Required. The Azure Active Directory tenant which contains the identity.           |
-| `BillingAccountId` | Required. The billing account ID (enrollment number) to grant permissions against. |
-| `DepartmentId`     | Optional. The department ID to grant permissions against.                          |
+| Name                | Description                                                                        |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| `‑ObjectId`         | Required. The object ID of the service principal or managed identity.              |
+| `‑TenantId`         | Required. The Azure Active Directory tenant which contains the identity.           |
+| `‑BillingAccountId` | Required. The billing account ID (enrollment number) to grant permissions against. |
+| `‑DepartmentId`     | Optional. The department ID to grant permissions against.                          |
 
 <br>
 
@@ -49,10 +49,7 @@ The following examples demonstrate how to use the Add-FinOpsServicePrincipal com
 ### Enterprise Administrator (read only)
 
 ```powershell
-Add-FinOpsServicePrincipal `
-    -ObjectId 00000000-0000-0000-0000-000000000000 `
-    -TenantId 00000000-0000-0000-0000-000000000000 `
-    -BillingAccountId 12345 
+Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345
 ```
 
 Grants Enterprise Administrator (read only) permissions to the specified service principal or managed identity.
@@ -60,11 +57,7 @@ Grants Enterprise Administrator (read only) permissions to the specified service
 ### Department Administrator (read only)
 
 ```powershell
-Add-FinOpsServicePrincipal `
-    -ObjectId 00000000-0000-0000-0000-000000000000 `
-    -TenantId 00000000-0000-0000-0000-000000000000 `
-    -BillingAccountId 12345 `
-    -DepartmentId 67890
+Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345 -DepartmentId 67890
 ```
 
 Grants Department Administrator (read only) permissions to the specified service principal or managed identity.
