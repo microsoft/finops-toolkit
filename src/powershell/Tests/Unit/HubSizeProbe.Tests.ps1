@@ -1,4 +1,4 @@
-﻿# Copyright (c) Microsoft Corporation.
+# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
 & "$PSScriptRoot/../Initialize-Tests.ps1"
@@ -11,7 +11,7 @@ Describe 'FinOps Hub size probe' {
         $script:MultitoolModule = Join-Path $PSScriptRoot '../../Private/FinOpsMultitool/FinOpsMultitool.psm1'
         Import-Module $script:MultitoolModule -Force
 
-        function New-TestItem {
+        function Get-TestItem {
             param([string]$Name, [long]$Length, [bool]$IsDirectory = $false)
             [PSCustomObject]@{ Name = $Name; Length = $Length; IsDirectory = $IsDirectory }
         }
@@ -51,8 +51,8 @@ Describe 'FinOps Hub size probe' {
     Context 'Get-FinOpsHubSizeClass' {
         It 'Classifies a small hub as not large' {
             $r = Get-FinOpsHubSizeClass -Items @(
-                (New-TestItem -Name 'a.parquet' -Length 1MB)
-                (New-TestItem -Name 'b.parquet' -Length 2MB)
+                (Get-TestItem -Name 'a.parquet' -Length 1MB)
+                (Get-TestItem -Name 'b.parquet' -Length 2MB)
             )
             $r.Known | Should -BeTrue
             $r.IsLarge | Should -BeFalse
@@ -62,27 +62,27 @@ Describe 'FinOps Hub size probe' {
         }
 
         It 'Classifies a hub over the byte threshold as large' {
-            $r = Get-FinOpsHubSizeClass -Items @(New-TestItem -Name 'big.parquet' -Length 512MB)
+            $r = Get-FinOpsHubSizeClass -Items @(Get-TestItem -Name 'big.parquet' -Length 512MB)
             $r.IsLarge | Should -BeTrue
         }
 
         It 'Classifies a hub at the file cap as large even when small in bytes' {
-            $items = 1..50 | ForEach-Object { New-TestItem -Name "f$_.parquet" -Length 1KB }
+            $items = 1..50 | ForEach-Object { Get-TestItem -Name "f$_.parquet" -Length 1KB }
             $r = Get-FinOpsHubSizeClass -Items $items -MaxFiles 50
             $r.IsLarge | Should -BeTrue
             $r.Display | Should -Match 'at least'
         }
 
         It 'Marks a truncated listing as large regardless of measured size' {
-            $r = Get-FinOpsHubSizeClass -Items @(New-TestItem -Name 'a.parquet' -Length 1KB) -Truncated
+            $r = Get-FinOpsHubSizeClass -Items @(Get-TestItem -Name 'a.parquet' -Length 1KB) -Truncated
             $r.IsLarge | Should -BeTrue
             $r.Display | Should -Match 'at least'
         }
 
         It 'Excludes directory entries from the size and count' {
             $r = Get-FinOpsHubSizeClass -Items @(
-                (New-TestItem -Name 'folder' -Length 9999 -IsDirectory $true)
-                (New-TestItem -Name 'a.parquet' -Length 1MB)
+                (Get-TestItem -Name 'folder' -Length 9999 -IsDirectory $true)
+                (Get-TestItem -Name 'a.parquet' -Length 1MB)
             )
             $r.FileCount | Should -Be 1
             $r.Bytes | Should -Be 1MB
@@ -95,8 +95,8 @@ Describe 'FinOps Hub size probe' {
         }
 
         It 'Uses the exact threshold boundary' {
-            (Get-FinOpsHubSizeClass -Items @(New-TestItem -Name 'a' -Length 256MB)).IsLarge | Should -BeTrue
-            (Get-FinOpsHubSizeClass -Items @(New-TestItem -Name 'a' -Length ((256MB) - 1))).IsLarge | Should -BeFalse
+            (Get-FinOpsHubSizeClass -Items @(Get-TestItem -Name 'a' -Length 256MB)).IsLarge | Should -BeTrue
+            (Get-FinOpsHubSizeClass -Items @(Get-TestItem -Name 'a' -Length ((256MB) - 1))).IsLarge | Should -BeFalse
         }
     }
 }

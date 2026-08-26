@@ -1359,7 +1359,11 @@ function Invoke-FinOpsMultitool {
             [hashtable]$Results,
             [array]$Modules,
             [string]$ExportPath,
-            [array]$Subscriptions
+            [array]$Subscriptions,
+
+            # The source that actually produced the numbers, which is not always the
+            # one requested: a Hub run that returns nothing falls back to the API.
+            [string]$DataSourceLabel
         )
 
         # Build sub ID → name lookup for display functions
@@ -2640,7 +2644,7 @@ tr:hover td { background: var(--surface); }
 <div class="masthead">
 <div class="eyebrow">FinOps Toolkit</div>
 <h1>FinOps Multitool report</h1>
-<p class="meta">Generated: $timestamp &nbsp;|&nbsp; Subscriptions: $([System.Net.WebUtility]::HtmlEncode($subList))</p>
+<p class="meta">Generated: $timestamp &nbsp;|&nbsp; Subscriptions: $([System.Net.WebUtility]::HtmlEncode($subList))$(if ($DataSourceLabel) { " &nbsp;|&nbsp; Cost data: $([System.Net.WebUtility]::HtmlEncode($DataSourceLabel))" })</p>
 </div>
 <div class="wrap">
 "@)
@@ -3248,7 +3252,16 @@ tr:hover td { background: var(--surface); }
     $results = Invoke-SelectedScans -Modules $finalModules -Subscriptions $subs -TenantId $tenantId -DataSource $sourceChoice
 
     # Step 5: Summary + export
-    $global:FinOpsResults = Show-ResultsSummary -Results $results -Modules $finalModules -ExportPath $OutputPath -Subscriptions $subs
+    # Re-read the source after the run: Invoke-SelectedScans downgrades Hub to API
+    # in place when the hub returns nothing, so this is the source that actually
+    # produced the numbers rather than the one requested.
+    $effectiveSource = switch ($sourceChoice.Source) {
+        'Hub' { "FinOps Hub ($($sourceChoice.HubStorage.name))" }
+        'API' { 'Cost Management API (real-time)' }
+        'GraphOnly' { 'Resource Graph only (no cost data)' }
+        default { [string]$sourceChoice.Source }
+    }
+    $global:FinOpsResults = Show-ResultsSummary -Results $results -Modules $finalModules -ExportPath $OutputPath -Subscriptions $subs -DataSourceLabel $effectiveSource
 
     Write-Host "  Done. Results available in `$FinOpsResults" -ForegroundColor Green
     Write-Host ""

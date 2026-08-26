@@ -79,6 +79,12 @@ function Get-PolicyDefinitionMap {
 
     $map = @{}
     foreach ($id in @($DefinitionIds | Where-Object { $_ } | Select-Object -Unique)) {
+        # The ID is concatenated ahead of a query string, so anything carrying '?',
+        # '#' or '&' could rewrite the request. Accept only well-formed definition IDs.
+        # The scope prefix is optional: built-ins start at /providers directly.
+        if ($id -notmatch '^(/[A-Za-z0-9._\-()/]+)?/providers/Microsoft\.Authorization/policyDefinitions/[A-Za-z0-9._\-()]+$') {
+            continue
+        }
         try {
             $resp = Invoke-AzRestMethodWithRetry -Path "$($id)?api-version=2023-04-01" -Method GET
             if ($resp.StatusCode -eq 200) {
