@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/12/2026
+ms.date: 08/26/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -95,6 +95,7 @@ _Released June 2026_
 
 - **Changed**
   - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
+  - Changed the Data Explorer dashboard's savings-breakdown, stacked cost + savings, and Effective Savings Rate tiles to derive their displayed List cost and Contracted cost operands from the same clamped, row-level savings basis as the results shown alongside them, so the on-screen equations (for example, "List − Contracted = Negotiated savings") always reconcile. This changes the Effective Savings Rate definition on the affected tiles from `(sum(ListCost) − sum(EffectiveCost)) / sum(ListCost)` to a derived List cost built from Effective cost plus the clamped Negotiated and Commitment savings sums ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
 - **Fixed**
   - Fixed Data Factory ingestion memory pressure during emptiness filtering.
     - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
