@@ -20,9 +20,9 @@ Automate and scale your FinOps efforts with PowerShell commands that streamline 
 The FinOps toolkit PowerShell module helps you automate and scale common Cost Management and FinOps toolkit management operations and work with FinOps toolkit open data.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in April 2026<span class="ftk-version">v14</span></h3>
+    <h3>What's new in August 2026<span class="ftk-version">v15</span></h3>
     <p>
-        In April, the PowerShell module added WhatIf support for resource provider registration in New-FinOpsCostExport and fixed inverted verbose logging in Start-FinOpsCostExport.
+        In August, the PowerShell module added Initialize-FinOpsHubLocal for setting up a local FinOps hub with one command, updated test compatibility with Pester 6, and fixed Get-FinOpsCostExport -RunHistory to return the complete run history.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

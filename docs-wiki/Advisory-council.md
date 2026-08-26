@@ -61,6 +61,7 @@ This currently includes the following people:
 
 | Seat                                 | Member                |
 | ------------------------------------ | --------------------- |
+| Agent plugin                         | Brett Wilson          |
 | Azure Data Explorer                  | Brad Watts            |
 | Azure Optimization Engine            | Helder Pinto          |
 | Bicep Registry                       | Vacant                |
