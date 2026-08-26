@@ -2147,6 +2147,7 @@ function Invoke-FinOpsMultitool {
                         $maxUntaggedTag = ''
                         $seenCost = $data.ResourceCostSeen
                         $unallocCost = $data.UnallocatedCost
+                        $haveCostData = (($seenCost -and [double]$seenCost -gt 0) -or ($data.AllocatedCost -and [double]$data.AllocatedCost -gt 0))
                         if ($seenCost -and [double]$seenCost -gt 0 -and $null -ne $unallocCost) {
                             $maxUntaggedCost = [double]$unallocCost
                             $maxUntaggedTag = 'any allocation tag'
@@ -2162,8 +2163,14 @@ function Invoke-FinOpsMultitool {
                                 }
                             }
                         }
-                        if (-not $maxUntaggedTag) {
-                            # No CAF allocation tag present to measure against
+                        if (-not $haveCostData) {
+                            # Nothing to attribute. Blaming the tags here would be wrong:
+                            # the tag inventory is fine, the cost side came back empty.
+                            $guidanceItems = @(
+                                @{ Severity = 'Yellow'; Message = "No cost data was returned for this period, so spend cannot be split by tag. Tag coverage itself is unaffected - check the data source, permissions, and that the period has usage." }
+                            )
+                        }
+                        elseif (@($data.AllocationTags | Where-Object { $_ }).Count -eq 0) {
                             $guidanceItems = @(
                                 @{ Severity = 'Yellow'; Message = "No CAF allocation tag (CostCenter, Customer, Project, Environment, Owner, ...) is in use, so spend cannot be attributed. Add an allocation tag and deploy inheritance to make cost traceable." }
                             )
@@ -2848,6 +2855,10 @@ tr:hover td { background: var(--surface); }
                         if ($data.Months) {
                             $htmlRows = $data.Months | ForEach-Object { [PSCustomObject]@{ Month = $_.Month; Cost = '{0:C0}' -f [double]$_.Cost; Currency = $_.Currency } }
                             $htmlCols = @('Month', 'Cost', 'Currency')
+                        }
+                        else {
+                            # Say why it is empty; the generic fallback reads like the scan failed.
+                            [void]$htmlSb.Append('<div class="guidance yellow">No cost data was returned for the trend period. Check the data source, permissions, and that the period has usage.</div>')
                         }
                     }
                     'Get-ReservationAdvice' {
