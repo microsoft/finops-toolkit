@@ -3,7 +3,7 @@ title: Understanding savings calculations in FinOps toolkit
 description: Learn how savings values are calculated and displayed in FinOps toolkit reports, including negative savings and missing price scenarios.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/26/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -142,6 +142,8 @@ If you see many zero savings values:
 1. **Export price data** - Use Cost Management price sheet exports to populate missing prices.
 2. **Enable price population** - In storage reports, enable "Experimental: Populate Missing Prices" parameter.
 3. **Use FinOps hubs** - FinOps hubs with Data Explorer automatically populate missing prices when available.
+
+For detailed steps to resolve missing reservation savings, see [Troubleshooting reservation savings](./troubleshooting-reservation-savings.md).
 
 <br>
 
