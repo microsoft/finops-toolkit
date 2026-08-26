@@ -5,8 +5,6 @@
   items:
     - name: What is FinOps?
       href: overview.md
-    - name: FinOps on Azure e-book
-      href: https://aka.ms/finops/ebook
     - name: What's new
       href: https://aka.ms/finops/blog
 - name: Implementing FinOps
@@ -130,16 +128,24 @@
           href: toolkit/hubs/finops-hubs-overview.md
         - name: Create or upgrade hubs
           href: toolkit/hubs/deploy.md
+        - name: Run hubs locally
+          href: toolkit/hubs/run-hubs-locally.md
         - name: Configure private networking
           href: toolkit/hubs/private-networking.md
         - name: Configure scopes
           href: toolkit/hubs/configure-scopes.md
+        - name: Configure recommendations
+          href: toolkit/hubs/configure-recommendations.md
         - name: Configure dashboards
           href: toolkit/hubs/configure-dashboards.md
         - name: Configure AI agents
           href: toolkit/hubs/configure-ai.md
+        - name: Configure AI in Copilot Studio
+          href: toolkit/hubs/configure-ai-copilot-studio.md
+        - name: Configure remote hubs
+          href: toolkit/hubs/configure-remote-hubs.md
         - name: Savings calculations
-          href: toolkit/hubs/savings-calculations.md          
+          href: toolkit/hubs/savings-calculations.md
         - name: Deployment template
           href: toolkit/hubs/template.md
         - name: Data model
@@ -242,6 +248,8 @@
               href: toolkit/powershell/hubs/deploy-finopshub.md
             - name: Initialize-FinOpsHubDeployment
               href: toolkit/powershell/hubs/initialize-finopshubdeployment.md
+            - name: Initialize-FinOpsHubLocal
+              href: toolkit/powershell/hubs/initialize-finopshublocal.md
             - name: Register-FinOpsHubProviders
               href: toolkit/powershell/hubs/register-finopshubproviders.md
             - name: Remove-FinOpsHub
@@ -268,6 +276,8 @@
           href: toolkit/bicep-registry/modules.md
         - name: Scheduled actions
           href: toolkit/bicep-registry/scheduled-actions.md
+    - name: Data Lake Storage connectivity
+      href: toolkit/data-lake-storage-connectivity.md
     - name: Help + support
       items:
         - name: Help options

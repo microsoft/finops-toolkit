@@ -31,11 +31,17 @@
     .PARAMETER EnableInfrastructureEncryption
     Optional. Enable infrastructure encryption on the storage account. Default = false.
 
+    .PARAMETER EnablePurgeProtection
+    Optional. Enable purge protection for the Key Vault. Default = false.
+
     .PARAMETER RemoteHubStorageUri
     Optional. Storage account to push data to for ingestion into a remote hub.
 
     .PARAMETER RemoteHubStorageKey
     Optional. Storage account key to use when pushing data to a remote hub.
+
+    .PARAMETER EnableManagedExports
+    Optional. Enable managed exports where your FinOps hub instance creates and runs Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Default = false.
 
     .PARAMETER DataExplorerName
     Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).
@@ -46,29 +52,43 @@
     .PARAMETER DataExplorerCapacity
     Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1 for dev/test SKUs, 2 for standard SKUs.
 
+    .PARAMETER FabricQueryUri
+    Optional. Microsoft Fabric eventhouse query URI. Default: "" (do not use).
+
+    .PARAMETER FabricCapacityUnits
+    Optional. Number of capacity units for the Microsoft Fabric capacity. This is the number in your Fabric SKU (e.g., Trial = 1, F2 = 2, F64 = 64). Allowed values: 1-2048. Default: 2.
+
     .PARAMETER Tags
     Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.
 
     .PARAMETER TagsByResource
     Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.
 
-    # .PARAMETER ScopesToMonitor
-    # Optional. List of scope IDs to monitor and ingest cost for.
+    .PARAMETER ScopesToMonitor
+    Optional. Array of scope IDs to monitor and ingest cost for. Used with managed exports to automatically create Cost Management exports. Scope ID formats:
+    - EA billing account: /providers/Microsoft.Billing/billingAccounts/{enrollment-number}
+    - MCA billing profile: /providers/Microsoft.Billing/billingAccounts/{billing-account-id}/billingProfiles/{billing-profile-id}
+    - Subscription: /subscriptions/{subscription-id}
+    - Resource group: /subscriptions/{subscription-id}/resourceGroups/{resource-group-name}
+    Example: @('/subscriptions/00000000-0000-0000-0000-000000000000', '/subscriptions/11111111-1111-1111-1111-111111111111')
 
-    # .PARAMETER ExportRetentionInDays
-    # Optional. Number of days of data to retain in the msexports container. Default: 0.
+    .PARAMETER ExportRetentionInDays
+    Optional. Number of days of data to retain in the msexports container. Default: 0.
 
-    # .PARAMETER IngestionRetentionInMonths
-    # Optional. Number of months of data to retain in the ingestion container. Default: 13.
+    .PARAMETER IngestionRetentionInMonths
+    Optional. Number of months of data to retain in the ingestion container. Default: 13.
 
-    .PARAMETER DataExplorerRawRetentionInDays int = 0
+    .PARAMETER DataExplorerRawRetentionInDays
     Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.
 
     .PARAMETER DataExplorerFinalRetentionInMonths
     Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.
 
-    .PARAMETER EnablePublicAccess
-    Optional. Enable public access to the data lake.  Default: true.
+    .PARAMETER NetworkMode
+    Optional. Network mode for the hub: 'public' (default), 'vnet' (private endpoints, default outbound), or 'private' (private endpoints + NAT Gateway for controlled outbound access - required when the 'Subnets should be private' policy is enforced).
+
+    .PARAMETER DisablePublicAccess
+    Optional. Deprecated. Use -NetworkMode 'vnet' or -NetworkMode 'private' instead. When set without -NetworkMode, behaves as -NetworkMode 'vnet'. Ignored when -NetworkMode is supplied.
 
     .PARAMETER VirtualNetworkAddressPrefix
     Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".
@@ -122,12 +142,20 @@ function Deploy-FinOpsHub
         $EnableInfrastructureEncryption,
 
         [Parameter()]
+        [switch]
+        $EnablePurgeProtection,
+
+        [Parameter()]
         [string]
         $RemoteHubStorageUri,
 
         [Parameter()]
         [string]
         $RemoteHubStorageKey,
+
+        [Parameter()]
+        [switch]
+        $EnableManagedExports,
 
         [Parameter()]
         [string]
@@ -144,6 +172,15 @@ function Deploy-FinOpsHub
         $DataExplorerCapacity = 1,
 
         [Parameter()]
+        [string]
+        $FabricQueryUri,
+
+        [Parameter()]
+        [ValidateRange(1, 2048)]
+        [int]
+        $FabricCapacityUnits = 2,
+
+        [Parameter()]
         [ValidateRange(0, 9999)]
         [int]
         $DataExplorerRawRetentionInDays = 0,
@@ -152,6 +189,11 @@ function Deploy-FinOpsHub
         [ValidateRange(0, 999)]
         [int]
         $DataExplorerFinalRetentionInMonths = 13,
+
+        [Parameter()]
+        [ValidateSet('public', 'vnet', 'private')]
+        [string]
+        $NetworkMode,
 
         [Parameter()]
         [switch]
@@ -163,11 +205,41 @@ function Deploy-FinOpsHub
 
         [Parameter()]
         [hashtable]
-        $Tags
+        $Tags,
+
+        [Parameter()]
+        [hashtable]
+        $TagsByResource,
+
+        [Parameter()]
+        [string[]]
+        $ScopesToMonitor = @(),
+
+        [Parameter()]
+        [ValidateRange(0, 9999)]
+        [int]
+        $ExportRetentionInDays = 0,
+
+        [Parameter()]
+        [ValidateRange(0, 999)]
+        [int]
+        $IngestionRetentionInMonths = 13
     )
+
+    # Initialize toolkitPath before try block to ensure cleanup works even if early failure occurs
+    # Fixes issue #665: If an error occurred before $toolkitPath was set, the finally block failed
+    # with 'Cannot bind argument to parameter Path because it is null', masking the real error
+    $toolkitPath = $null
 
     try
     {
+        # Ensure TEMP environment variable is set for Linux/Mac/Cloud Shell compatibility
+        # Bicep CLI requires TEMP to be set for intermediate file operations
+        if (-not $env:TEMP)
+        {
+            $env:TEMP = [System.IO.Path]::GetTempPath().TrimEnd([System.IO.Path]::DirectorySeparatorChar)
+        }
+
         # Create resource group if it doesn't exist
         $resourceGroupObject = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction 'SilentlyContinue'
         if (-not $resourceGroupObject -and (Test-ShouldProcess $PSCmdlet $ResourceGroupName 'CreateResourceGroup'))
@@ -176,7 +248,7 @@ function Deploy-FinOpsHub
         }
 
         # Create folder for download
-        $toolkitPath = Join-Path $env:temp -ChildPath 'FinOpsToolkit'
+        $toolkitPath = Join-Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOpsToolkit'
         if (Test-ShouldProcess $PSCmdlet $toolkitPath 'CreateTempDirectory')
         {
             New-Directory -Path $toolkitPath
@@ -184,6 +256,16 @@ function Deploy-FinOpsHub
 
         # Init deployment (register providers)
         Initialize-FinOpsHubDeployment -WhatIf:$WhatIfPreference
+
+        # Resolve network mode. -NetworkMode wins; -DisablePublicAccess (deprecated) maps to 'vnet'.
+        $effectiveNetworkMode = if ($NetworkMode) { $NetworkMode } elseif ($DisablePublicAccess) { 'vnet' } else { 'public' }
+        if (-not $NetworkMode -and $DisablePublicAccess) { Write-Warning "-DisablePublicAccess is deprecated; use -NetworkMode 'vnet' or -NetworkMode 'private'." }
+
+        # Private network mode (NAT Gateway) requires hub template version 15.0 or later
+        if ($effectiveNetworkMode -eq 'private' -and $Version -ne 'latest' -and [version]$Version -lt '15.0')
+        {
+            throw "NAT Gateway / private network mode requires hub template version 15.0 or later. Current version: $Version"
+        }
 
         # Download template
         if (Test-ShouldProcess $PSCmdlet $Version 'DownloadTemplate')
@@ -217,13 +299,44 @@ function Deploy-FinOpsHub
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerCapacity', $DataExplorerCapacity)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerRawRetentionInDays', $DataExplorerRawRetentionInDays)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerFinalRetentionInMonths', $DataExplorerFinalRetentionInMonths)
-                $parameterSplat.TemplateParameterObject.Add('enablePublicAccess', -not $DisablePublicAccess)
+                $parameterSplat.TemplateParameterObject.Add('enablePublicAccess', ($effectiveNetworkMode -eq 'public'))
                 $parameterSplat.TemplateParameterObject.Add('virtualNetworkAddressPrefix', $VirtualNetworkAddressPrefix)
+                $parameterSplat.TemplateParameterObject.Add('exportRetentionInDays', $ExportRetentionInDays)
+                $parameterSplat.TemplateParameterObject.Add('ingestionRetentionInMonths', $IngestionRetentionInMonths)
+                $parameterSplat.TemplateParameterObject.Add('scopesToMonitor', $ScopesToMonitor)
+            }
+
+            if ($Version -eq 'latest' -or [version]$Version -ge '0.10')
+            {
+                $parameterSplat.TemplateParameterObject.Add('fabricQueryUri', $FabricQueryUri)
+                $parameterSplat.TemplateParameterObject.Add('fabricCapacityUnits', $FabricCapacityUnits)
+            }
+
+            if ($Version -eq 'latest' -or [version]$Version -ge '12.0')
+            {
+                $parameterSplat.TemplateParameterObject.Add('enableManagedExports', $EnableManagedExports.IsPresent)
+            }
+
+            if ($Version -eq 'latest' -or [version]$Version -ge '13.0')
+            {
+                $parameterSplat.TemplateParameterObject.Add('enablePurgeProtection', $EnablePurgeProtection.IsPresent)
+            }
+
+            # Only pass enableNatGateway when private mode is requested. This keeps public/vnet
+            # deployments compatible with template versions that predate the parameter.
+            if ($effectiveNetworkMode -eq 'private' -and ($Version -eq 'latest' -or [version]$Version -ge '15.0'))
+            {
+                $parameterSplat.TemplateParameterObject.Add('enableNatGateway', $true)
             }
 
             if ($Tags -and $Tags.Keys.Count -gt 0)
             {
                 $parameterSplat.TemplateParameterObject.Add('tags', $Tags)
+            }
+
+            if ($TagsByResource -and $TagsByResource.Keys.Count -gt 0)
+            {
+                $parameterSplat.TemplateParameterObject.Add('tagsByResource', $TagsByResource)
             }
         }
 
@@ -241,6 +354,9 @@ function Deploy-FinOpsHub
     finally
     {
         # Clean up downloaded files
-        Remove-Item -Path $toolkitPath -Recurse -Force -ErrorAction 'SilentlyContinue'
+        if ($toolkitPath)
+        {
+            Remove-Item -Path $toolkitPath -Recurse -Force -ErrorAction 'SilentlyContinue'
+        }
     }
 }

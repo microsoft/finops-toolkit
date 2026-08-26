@@ -20,9 +20,9 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 FinOps toolkit Power BI reports provide a great starting point for FinOps reporting. Customize and augment reports with your own data to facilitate organizational requirements.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in July 2025<span class="ftk-version">v12</span></h3>
+    <h3>What's new in April 2026<span class="ftk-version">v14</span></h3>
     <p>
-        In July, Power BI reports were updated to add a new Summary page in the Cost summary report, add an invoice ID filter in the Invoicing and chargeback report, and update all KQL reports to use the latest FinOps hubs v1_2 schema.
+        In April, Power BI reports fixed storage report refresh errors caused by unrecognized Term values like P10Y in pricesheet exports.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -186,7 +186,7 @@ Create a new or update an existing FinOps hub instance.
         </div>
     </div>
     <div class="ftk-tile">
-        <div>☁️ <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/workload-optimization">Workload optimization</a></div>
+        <div>☁️ <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/workload-optimization">Usage optimization</a></div>
         <div>
             Gain insights into resource utilization and efficiency opportunities based on historical usage patterns.
         </div>

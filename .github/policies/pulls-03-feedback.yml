@@ -26,6 +26,23 @@ configuration:
                   - payloadType: Pull_Request_Review
                   - isReviewState:
                       reviewState: Changes_requested
+              - and:
+                  - payloadType: Pull_Request_Review
+                  - isReviewState:
+                      reviewState: Commented
+                  - isActivitySender:
+                      issueAuthor: False
+              - and:
+                  - payloadType: Issue_Comment
+                  - isAction:
+                      action: Created
+                  - not:
+                      commentContains:
+                        pattern: '#needs-review'
+                  - isActivitySender:
+                      issueAuthor: False
+                  - isPullRequest
+                  - isOpen
           - not:
               targetsBranch:
                 branch: main

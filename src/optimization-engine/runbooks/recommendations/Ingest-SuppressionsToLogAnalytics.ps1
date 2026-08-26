@@ -6,12 +6,11 @@ if ([string]::IsNullOrEmpty($cloudEnvironment))
     $cloudEnvironment = "AzureCloud"
 }
 
-$workspaceId = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsWorkspaceId"
-$sharedKey = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsWorkspaceKey"
+$dceEndpoint = Get-AutomationVariable -Name  "AzureOptimization_DCEIngestionEndpoint"
 $LogAnalyticsChunkSize = [int] (Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsChunkSize" -ErrorAction SilentlyContinue)
 if (-not($LogAnalyticsChunkSize -gt 0))
 {
-    $LogAnalyticsChunkSize = 6000
+    $LogAnalyticsChunkSize = 150
 }
 $lognamePrefix = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsLogPrefix" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($lognamePrefix))
@@ -41,85 +40,43 @@ $FiltersTable = "Filters"
 
 #region Functions
 
-# Function to create the authorization signature
-Function Build-OMSSignature ($workspaceId, $sharedKey, $date, $contentLength, $method, $contentType, $resource) {
-    $xHeaders = "x-ms-date:" + $date
-    $stringToHash = $method + "`n" + $contentLength + "`n" + $contentType + "`n" + $xHeaders + "`n" + $resource
-    $bytesToHash = [Text.Encoding]::UTF8.GetBytes($stringToHash)
-    $keyBytes = [Convert]::FromBase64String($sharedKey)
-    $sha256 = New-Object System.Security.Cryptography.HMACSHA256
-    $sha256.Key = $keyBytes
-    $calculatedHash = $sha256.ComputeHash($bytesToHash)
-    $encodedHash = [Convert]::ToBase64String($calculatedHash)
-    $authorization = 'SharedKey {0}:{1}' -f $workspaceId, $encodedHash
-    return $authorization
-}
-
-# Function to create and post the request
-Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField, $AzureEnvironment) {
-    $method = "POST"
-    $contentType = "application/json"
-    $resource = "/api/logs"
-    $rfc1123date = [DateTime]::UtcNow.ToString("r")
-    $contentLength = $body.Length
-    $signature = Build-OMSSignature `
-        -workspaceId $workspaceId `
-        -sharedKey $sharedKey `
-        -date $rfc1123date `
-        -contentLength $contentLength `
-        -method $method `
-        -contentType $contentType `
-        -resource $resource
-
-    $uri = "https://" + $workspaceId + ".ods.opinsights.azure.com" + $resource + "?api-version=2016-04-01"
-    if ($AzureEnvironment -eq "AzureChinaCloud")
+# Sends data to a Log Analytics custom table via the DCR-based Logs Ingestion API.
+function Send-LogIngestionData($accessToken, $dceEndpoint, $dcrImmutableId, $streamName, $body)
+{
+    $uri = "$dceEndpoint/dataCollectionRules/$dcrImmutableId/streams/$streamName`?api-version=2023-01-01"
+    $headers = @{
+        "Authorization" = "Bearer $accessToken"
+        "Content-Type"  = "application/json"
+    }
+    try
     {
-        $uri = "https://" + $workspaceId + ".ods.opinsights.azure.cn" + $resource + "?api-version=2016-04-01"
+        $response = Invoke-WebRequest -Uri $uri -Method POST -Headers $headers -Body $body -UseBasicParsing -TimeoutSec 1000 -ErrorAction Stop
+        return $response.StatusCode
     }
-    if ($AzureEnvironment -eq "AzureUSGovernment")
+    catch
     {
-        $uri = "https://" + $workspaceId + ".ods.opinsights.azure.us" + $resource + "?api-version=2016-04-01"
-    }
-    if ($AzureEnvironment -eq "AzureGermanCloud")
-    {
-        throw "Azure Germany isn't suported for the Log Analytics Data Collector API"
-    }
-
-    $OMSheaders = @{
-        "Authorization"        = $signature;
-        "Log-Type"             = $logType;
-        "x-ms-date"            = $rfc1123date;
-        "time-generated-field" = $TimeStampField;
-    }
-
-    Try {
-
-        $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
-    }
-    catch {
-        if ($_.Exception.Response.StatusCode.Value__ -eq 401) {
-            "REAUTHENTICATING"
-
-            $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
-        }
-        else
+        if ($_.Exception.Response -and $_.Exception.Response.StatusCode)
         {
-            return $_.Exception.Response.StatusCode.Value__
+            return [int]$_.Exception.Response.StatusCode
         }
+        throw
     }
-
-    return $response.StatusCode
 }
+
 #endregion Functions
 
 "Logging in to Azure with $authenticationOption..."
 
-switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" {
+switch ($authenticationOption)
+{
+    "UserAssignedManagedIdentity"
+    {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
-    Default { #ManagedIdentity
+    default
+    {
+        #ManagedIdentity
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
@@ -128,18 +85,28 @@ switch ($authenticationOption) {
 $cloudDetails = Get-AzEnvironment -Name $CloudEnvironment
 $azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
 
+# Determine the Logs Ingestion API audience URL for this cloud
+switch ($cloudEnvironment)
+{
+    "AzureChinaCloud" { $monitorAudience = "https://monitor.azure.cn/" }
+    "AzureUSGovernment" { $monitorAudience = "https://monitor.azure.us/" }
+    default { $monitorAudience = "https://monitor.azure.com/" }
+}
+
 Write-Output "Getting excluded recommendation sub-type IDs..."
 
 $tries = 0
 $connectionSuccess = $false
-do {
+do
+{
     $tries++
-    try {
+    try
+    {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
         $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
         $Conn.Open()
-        $Cmd=new-object system.Data.SqlClient.SqlCommand
+        $Cmd = New-Object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$FiltersTable] WHERE IsEnabled = 1 AND (FilterEndDate IS NULL OR FilterEndDate > GETDATE())"
@@ -150,7 +117,8 @@ do {
         $sqlAdapter.Fill($filters) | Out-Null
         $connectionSuccess = $true
     }
-    catch {
+    catch
+    {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
@@ -165,22 +133,22 @@ if (-not($connectionSuccess))
 $Conn.Close()
 $Conn.Dispose()
 
-$datetime = (get-date).ToUniversalTime()
+$datetime = (Get-Date).ToUniversalTime()
 $timestamp = $datetime.ToString("yyyy-MM-ddTHH:mm:00.000Z")
 
 $filterObjects = @()
 
 $filterObject = New-Object PSObject -Property @{
-    Timestamp = $timestamp
-    FilterId = (New-Guid).Guid
+    Timestamp               = $timestamp
+    FilterId                = (New-Guid).Guid
     RecommendationSubTypeId = [System.Guid]::empty.Guid
-    FilterType = "Dummy"
-    InstanceId = [System.Guid]::empty.Guid
-    InstanceName = "Dummy"
-    FilterStartDate = "2019-01-01T00:00:00.000Z"
-    FilterEndDate = "2199-12-31T23:59:59.000Z"
-    Author = "AOE"
-    Notes = "This is a dummy suppression required to build the full suppressions schema in Log Analytics"
+    FilterType              = "Dummy"
+    InstanceId              = [System.Guid]::empty.Guid
+    InstanceName            = "Dummy"
+    FilterStartDate         = "2019-01-01T00:00:00.000Z"
+    FilterEndDate           = "2199-12-31T23:59:59.000Z"
+    Author                  = "AOE"
+    Notes                   = "This is a dummy suppression required to build the full suppressions schema in Log Analytics"
 }
 $filterObjects += $filterObject
 
@@ -220,30 +188,73 @@ foreach ($filter in $filters)
     }
 
     $filterObject = New-Object PSObject -Property @{
-        Timestamp = $timestamp
-        FilterId = $filter.FilterId
+        Timestamp               = $timestamp
+        FilterId                = $filter.FilterId
         RecommendationSubTypeId = $filter.RecommendationSubTypeId
-        FilterType = $filter.FilterType
-        InstanceId = $instanceId
-        InstanceName = $instanceName
-        FilterStartDate = $filterStartDate
-        FilterEndDate = $filterEndDate
-        Author = $filter.Author
-        Notes = $filter.Notes
+        FilterType              = $filter.FilterType
+        InstanceId              = $instanceId
+        InstanceName            = $instanceName
+        FilterStartDate         = $filterStartDate
+        FilterEndDate           = $filterEndDate
+        Author                  = $filter.Author
+        Notes                   = $filter.Notes
     }
     $filterObjects += $filterObject
 }
 
-$filtersJson = $filterObjects | ConvertTo-Json
+$filtersJson = $filterObjects | ForEach-Object {
+    $_ | Add-Member -MemberType NoteProperty -Name 'TimeGenerated' -Value $_.Timestamp -Force -PassThru
+} | ConvertTo-Json
 
 $LogAnalyticsSuffix = "SuppressionsV1"
 $logname = $lognamePrefix + $LogAnalyticsSuffix
+$streamName = "Custom-$logname"
 
-$res = Post-OMSData -workspaceId $workspaceId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($filtersJson)) -logType $logname -TimeStampField "Timestamp" -AzureEnvironment $cloudEnvironment
-If ($res -ge 200 -and $res -lt 300) {
-    Write-Output "Succesfully uploaded $($filterObjects.Count) $LogAnalyticsSuffix rows to Log Analytics"
+# Retrieve DCR immutable ID from SQL control table
+$dcrImmutableId = $null
+$tries = 0
+$dcrQuerySuccess = $false
+do
+{
+    $tries++
+    try
+    {
+        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+        $dcrConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
+        $dcrConn.AccessToken = $dbToken.Token
+        $dcrConn.Open()
+        $dcrCmd = New-Object system.Data.SqlClient.SqlCommand
+        $dcrCmd.Connection = $dcrConn
+        $dcrCmd.CommandTimeout = $SqlTimeout
+        $dcrCmd.CommandText = "SELECT DCRImmutableId FROM [dbo].[LogAnalyticsIngestControl] WHERE StorageContainerName = 'suppressions'"
+        $dcrImmutableId = $dcrCmd.ExecuteScalar()
+        $dcrConn.Close()
+        $dcrConn.Dispose()
+        $dcrQuerySuccess = $true
+    }
+    catch
+    {
+        Write-Output "Failed to retrieve DCR immutable ID from SQL at try $tries."
+        Write-Output $Error[0]
+        Start-Sleep -Seconds ($tries * 20)
+    }
+} while (-not($dcrQuerySuccess) -and $tries -lt 3)
+
+if ([string]::IsNullOrEmpty($dcrImmutableId))
+{
+    throw "DCRImmutableId is not set for suppressions. Run Setup-LogAnalyticsTablesAndDCRs.ps1 first."
 }
-Else {
+
+$monitorToken = (Get-AzAccessToken -ResourceUrl $monitorAudience).Token
+$res = Send-LogIngestionData -accessToken $monitorToken -dceEndpoint $dceEndpoint `
+    -dcrImmutableId $dcrImmutableId -streamName $streamName `
+    -body ([System.Text.Encoding]::UTF8.GetBytes($filtersJson))
+if ($res -ge 200 -and $res -lt 300)
+{
+    Write-Output "Successfully uploaded $($filterObjects.Count) $LogAnalyticsSuffix rows to Log Analytics"
+}
+else
+{
     Write-Warning "Failed to upload $($filterObjects.Count) $LogAnalyticsSuffix rows. Error code: $res"
     throw
 }

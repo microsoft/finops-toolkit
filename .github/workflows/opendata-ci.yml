@@ -6,6 +6,9 @@ on:
     paths:
       - 'src/open-data/*.csv'
       - 'src/open-data/*.json'
+      # Internal operational baselines for the eligibility completeness guard, not
+      # reference data; Build-OpenData ignores them, so they shouldn't trigger CI.
+      - '!src/open-data/*.familycounts.json'
 permissions: 
   contents: write
   pull-requests: write
@@ -18,7 +21,7 @@ jobs:
       CI_COMMIT_MESSAGE: Generate PowerShell commands for open data
       CI_COMMIT_AUTHOR: Open Data CI
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         ref: ${{ github.event.pull_request.head.ref }}
     - name: Set environment variable "commit-message"
@@ -42,12 +45,21 @@ jobs:
           git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push
         }
+    # Build-OpenData.ps1 -Test calls Test-PowerShell.ps1, which requires Pester 6 (#2254):
+    # the suite uses -AllowNullOrEmptyForEach, which Pester 5 rejects. The ubuntu runner
+    # image ships Pester 5.9.0, so the minimum has to be installed explicitly. This is the
+    # same command Init-Repo.ps1 runs and the one Test-PowerShell.ps1 names in its error.
+    # dev.yml pins the same floor through psmodulecache, which this repo only uses on
+    # Windows runners.
+    - name: Install Pester
+      shell: pwsh
+      run: Install-Module -Name Pester -MinimumVersion 6.0.0 -Scope CurrentUser -Repository PSGallery -Force
     - name: Test Open Data
       id: test
       shell: pwsh
       run: |
         src/scripts/Build-OpenData.ps1 -Test
-    - uses: actions/github-script@v7
+    - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       if: failure()
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}

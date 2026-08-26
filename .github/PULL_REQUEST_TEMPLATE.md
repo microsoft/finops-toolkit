@@ -25,6 +25,15 @@ Fixes # <!-- TODO: Add related issues (e.g., Fixes #123, #246, #369) -->
 > - [ ] 💪 Unit tests
 > - [ ] 🙌 Integration tests
 
+### 📦 Deploy to test?
+
+> - [ ] Hubs + ADX (managed)
+> - [ ] Hubs + Fabric (manual) — URI: <!-- paste eventhouse query URI -->
+> - [ ] Hubs (manual)
+> - [ ] Hubs (no data)
+> - [ ] Workbooks
+> - [ ] Alerts
+
 ### 🙋‍♀️ Do any of the following that apply?
 
 > - [ ] 🚨 This is a breaking change.
@@ -39,6 +48,8 @@ Fixes # <!-- TODO: Add related issues (e.g., Fixes #123, #246, #369) -->
 ### 📖 Did you update documentation?
 
 > - [ ] ✅ Public docs in `docs` (required for `dev`)
+> - [ ] ✅ Public docs in `docs-mslearn` (required for `dev`)
+> - [ ] ✅ Internal dev docs in `docs-wiki` (required for `dev`)
 > - [ ] ✅ Internal dev docs in `src` (required for `dev`)
 > - [ ] ➡️ Will add docs in a future PR (feature branch PRs only)
 > - [ ] ❎ Docs not needed (small/internal change)

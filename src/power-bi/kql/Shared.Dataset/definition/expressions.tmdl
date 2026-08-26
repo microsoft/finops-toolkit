@@ -1,4 +1,4 @@
-/// Name of the Azure DataLake Gen2 storage account to pull data from.
+/// URL for the Azure Data Lake Storage Gen2 account with your data. Must use the DFS endpoint (.dfs.core.windows.net), not the Blob endpoint (.blob.core.windows.net).
 expression 'Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
 	queryGroup: '🛠️ Setup'
@@ -22,7 +22,7 @@ expression '▶️  START HERE' = ```
 				    DateEnd = null,
 				    DateStart = null,
 				    DateMonths = #"Number of Months",
-				    DateStartEffective = if DateStart <> null and DateStart <> "" then DateStart else Date.AddMonths(if DateEnd <> null and DateEnd <> "" then DateEnd else Date.AddMonths(Date.StartOfMonth(DateTime.LocalNow()), 1), -DateMonths+1),
+				    DateStartEffective = if DateStart <> null and DateStart <> "" then DateStart else Date.AddMonths(if DateEnd <> null and DateEnd <> "" then DateEnd else Date.AddMonths(Date.StartOfMonth(DateTime.LocalNow()), 1), -DateMonths),
 				    _formatDate = (d) => try DateTime.ToText(d, [Format="MMM d, yyyy"]) otherwise d,
 				    DateStartFormat = 
 				        if (DateStart = null or DateStart = "") and (DateMonths = null or DateMonths < 1) then "*"
@@ -89,6 +89,72 @@ expression ftk_DemoFilter =
 
 	annotation PBI_ResultType = Function
 
+/// Number of subscriptions to include in each Azure Resource Graph query batch. Decrease if you experience payload limit errors. Default: 100.
+expression ftk_ARGBatchSize = () => 100
+	lineageTag: 8c0ab9c7-ff92-4d6f-9882-4ec18a0c041f
+	queryGroup: Functions
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
+/// Queries Azure Resource Graph in batches of subscriptions and combines results to avoid the 16 MB payload limit.
+expression ftk_QueryARG =
+		(query as text, optional batchMultiplier as number, optional includeUnscoped as logical) =>
+		    let
+		      defaultBatchSize = 100,
+		      requestedBatchSize = try ftk_ARGBatchSize() * (if batchMultiplier <> null then batchMultiplier else 1) otherwise null,
+		      batchSize = if requestedBatchSize = null or requestedBatchSize < 1 then defaultBatchSize else Number.RoundDown(requestedBatchSize),
+		      // retry each Azure Resource Graph call with a short backoff (plus jitter so concurrently-throttled batches don't all retry in lockstep) to absorb throttling: batching multiplies ARG calls per table refresh, and Power BI evaluates table partitions concurrently
+		      retryDelays = {5, 10},
+		      QueryARG = (q as text, optional attempt as number) as any =>
+		        let
+		          attemptNumber = if attempt = null then 0 else attempt,
+		          attempted = try AzureResourceGraph.Query(q, "Tenant", null, null, [resultTruncated = false]),
+		          result =
+		            if attempted[HasError] and attemptNumber < List.Count(retryDelays) then
+		              Function.InvokeAfter(() => @QueryARG(q, attemptNumber + 1), #duration(0, 0, 0, retryDelays{attemptNumber} + Number.RandomBetween(0, 3)))
+		            else if attempted[HasError] then
+		              error attempted[Error]
+		            else
+		              attempted[Value]
+		        in
+		          result,
+		      // batch discovery requires Reader at subscription scope or above to enumerate resourcecontainers; a principal with only resource-group-scoped Reader won't see their subscription here even though they can read its resources, so their data is silently excluded from batching -- documented as a known limitation in the report docs
+		      subQuery = "resourcecontainers | where type == 'microsoft.resources/subscriptions' | project subscriptionId" & ftk_DemoFilter(),
+		      Subscriptions = try QueryARG(subQuery) otherwise null,
+		      // fail loudly instead of silently returning zero batches (indistinguishable from "refreshed successfully, no data" for every calling table) when the subscription list can't be determined at all; a well-formed empty result (zero subscriptions in scope) is treated as legitimate and passes through unchanged
+		      SubscriptionIds =
+		        if Subscriptions = null or not Table.HasColumns(Subscriptions, "subscriptionId") then
+		          error Error.Record("DataSource.Error", "Unable to determine the list of subscriptions to query from Azure Resource Graph. Verify Resource Graph access and connectivity, then refresh again.")
+		        else
+		          Subscriptions[subscriptionId],
+		      BatchCount = Number.RoundUp(List.Count(SubscriptionIds) / batchSize),
+		      Batches = if BatchCount <= 0 then {} else List.Transform({0..BatchCount-1}, each
+		        let
+		          batchStart = _ * batchSize,
+		          batchIds = List.Range(SubscriptionIds, batchStart, List.Min({batchSize, List.Count(SubscriptionIds) - batchStart})),
+		          // filter within the ARG query itself (rather than the request-level "subscriptions" scope parameter) so batching logic stays entirely in M and behaves the same for every caller regardless of query shape
+		          subFilter = " | where subscriptionId in (" & Text.Combine(List.Transform(batchIds, each "'" & _ & "'"), ",") & ")",
+		          fullQuery = query & subFilter,
+		          Source = QueryARG(fullQuery)
+		        in
+		          if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then null else Source
+		      ),
+		      // some callers (for example tenant/management-group-scoped policy resources) can have a blank subscriptionId that never matches any subscription batch filter above; fetch those rows once, unbatched, when requested. ftk_DemoFilter() intentionally isn't applied here since these rows aren't tied to any specific subscription, so demo scoping can't cleanly narrow them
+		      UnscopedSource = if includeUnscoped = true then (try QueryARG(query & " | where isempty(subscriptionId)") otherwise null) else null,
+		      UnscopedFiltered = if UnscopedSource <> null and not (Table.HasColumns(UnscopedSource, "Results") and Table.RowCount(UnscopedSource) = 1) then UnscopedSource else null,
+		      Filtered = List.RemoveNulls(Batches & {UnscopedFiltered}),
+		      Combined = if List.Count(Filtered) > 0 then Table.Combine(Filtered) else null
+		    in
+		      Combined
+	lineageTag: b4bb963c-20fd-4e46-8c14-7ecc59559bf7
+	queryGroup: Functions
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
 /// URI of the FinOps hub Azure Data Explorer cluster to pull data from. Copy from the "clusterUri" deployment output.
 /// 
 /// Pro tip: As a shortcut, you can alternatively use the "{name}.{region}" subset of the URI.
@@ -114,16 +180,17 @@ expression PolicyDefinitions =
 		  query = "
 		  policyResources
 		  | where type =='microsoft.authorization/policydefinitions'
-		  | extend displayName = properties.displayName,
+		  | extend
+		      subscriptionId = iff(tolower(tostring(split(id, '/')[1])) == 'subscriptions', tostring(split(id, '/')[2]), ''),
+		      displayName = properties.displayName,
 		      description = properties.description,
 		      version = properties.version
-		    | project subscriptionId, id, name, displayName, description, version"
-		  & ftk_DemoFilter(),
-		  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+		    | project subscriptionId, id, name, displayName, description, version",
+		  Source = ftk_QueryARG(query, 5, true),
 		  NullHandling =
-		    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+		    if Source = null then
 					#table(
-						{ "id", "name", "displayName", "description", "version" },
+						{ "subscriptionId", "id", "name", "displayName", "description", "version" },
 						{}
 					)
 		    else Source

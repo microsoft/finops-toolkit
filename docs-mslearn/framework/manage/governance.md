@@ -1,32 +1,31 @@
 ---
-title: Policy and governance
-description: This article helps you understand the policy and governance capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+title: Governance, policy, and risk
+description: This article helps you understand the governance, policy, and risk capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/04/2025
+ms.date: 06/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
 ms.reviewer: kedelaro
-# customer intent: As a FinOps practitioner, I want to understand the policy and governance capability so that I can implement it in the Microsoft Cloud.
+# customer intent: As a FinOps practitioner, I want to understand the governance, policy, and risk capability so that I can implement it in the Microsoft Cloud.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
-# Policy and governance
+# Governance, policy, and risk
 
-This article helps you understand the policy and governance capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+This article helps you understand the governance, policy, and risk capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 
 <br>
 
 ## Definition
 
-**Policy and governance refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts.**
+**Governance, policy, and risk refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts.**
 
 Define your governance goals and success metrics. Review and document how existing policies are updated to account for FinOps efforts. Review with all stakeholders to get buy-in and endorsement.
 
 Establish a rollout plan that starts with audit rules and slowly (and safely) expands coverage to drive compliance without negatively impacting engineering efforts.
 
-Implementing a policy and governance strategy enables organizations to sustainably implement FinOps at scale. Policy and governance can act as a multiplier to FinOps efforts by building them natively into day-to-day operations.
+Implementing a governance, policy, and risk strategy enables organizations to sustainably implement FinOps at scale. Governance, policy, and risk can act as a multiplier to FinOps efforts by building them natively into day-to-day operations.
 
 <br>
 
@@ -60,14 +59,14 @@ At this point, you have a basic set of policies in place that are being managed 
   - Map governance efforts to FinOps efficiencies that can be mapped back to more business value with less effort.
 - Expand coverage of more scenarios.
   - Consider evaluating ways to quantify the impact of each rule in cost and/or business value.
-- Integrate policy and governance into every conversation to establish a plan for how you want to automate the tracking and application of new policies.
+- Integrate governance, policy, and risk into every conversation to establish a plan for how you want to automate the tracking and application of new policies.
 - Consider advanced governance scenarios outside of Azure Policy. Build monitoring solutions using systems like [Power Automate](/power-automate/getting-started) or [Logic Apps](/azure/logic-apps/logic-apps-overview).
 
 <br>
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Policy and governance capability](https://www.finops.org/framework/capabilities/policy-governance/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Governance, policy, and risk capability](https://www.finops.org/framework/capabilities/governance-policy-risk/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
@@ -79,13 +78,17 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.Framework/featureName/Capabilities.Manage.Governance)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -94,7 +97,7 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [FinOps practice operations](./operations.md)
-- [Workload optimization](../optimize/workloads.md)
+- [Usage optimization](../optimize/workloads.md)
 
 Related products:
 

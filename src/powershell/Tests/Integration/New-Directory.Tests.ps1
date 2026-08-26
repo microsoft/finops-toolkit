@@ -7,7 +7,7 @@ InModuleScope 'FinOpsToolkit' {
     Describe 'New-Directory' {
         It 'Should create a directory' {
             # Arrange
-            $path = "$env:temp/ftk-test/New-Directory"
+            $path = Join-Path ([System.IO.Path]::GetTempPath()) 'ftk-test/New-Directory'
             if (Test-Path $path)
             {
                 Remove-Item -Path $path -Recurse -Force

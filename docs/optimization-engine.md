@@ -19,15 +19,13 @@ Optimize your Azure environment.
 
 The Azure Optimization Engine (AOE) is an extensible solution designed to generate optimization recommendations for your Azure environment. See it like a fully customizable Azure Advisor.
 
-<!--
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in May 2025<span class="ftk-version">v0.11</span></h3>
+    <h3>What's new in April 2026<span class="ftk-version">v14</span></h3>
     <p>
-        In May, AOE updated the SQL server name availability API version due to the planned retirement of the current version.
+        In April, Azure Optimization Engine upgraded the EA/MCA pricesheet API version (the previous version is deprecated June 1, 2026) and improved retail prices export resilience with retry logic, streamed CSV writes, and progress logging.
     </p>
     <p class="mt-2 mb-0 ftk-externallink"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
--->
 <a name="features"></a>
 
 ## Azure Optimization Engine features

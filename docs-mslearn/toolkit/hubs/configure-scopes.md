@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 04/29/2025
+ms.date: 05/14/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,12 +11,27 @@ ms.reviewer: micflan
 # customer intent: As a FinOps toolkit user, I want to learn about how to connect FinOps hubs to billing accounts and subscriptions so that I can do it.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Configure scopes
 
 Connect FinOps hubs to your billing accounts and subscriptions by configuring Cost Management exports manually or granting FinOps hubs access to manage exports for you.
 
-FinOps hubs use Cost Management exports to import cost data for the billing accounts and subscriptions you want to monitor. You can either configure Cost Management exports manually or grant FinOps hubs access to manage exports for you.
+FinOps hubs use Cost Management exports to import cost data for the billing accounts and subscriptions you want to monitor. **You can configure multiple billing accounts, subscriptions, and even data from other cloud providers** within a single FinOps hub instance. You can either configure Cost Management exports manually or grant FinOps hubs access to manage exports for you.
+
+<br>
+
+## Multi-scope and multi-cloud capabilities
+
+FinOps hubs are designed to handle multiple scopes and even data from multiple cloud providers:
+
+- **Multiple Azure scopes**: You can configure a single FinOps hub to monitor multiple EA billing accounts, MCA billing profiles, subscriptions, and resource groups simultaneously.
+- **Cross-cloud support**: FinOps hubs support the [FinOps Open Cost and Usage Specification (FOCUS)](https://focus.finops.org), which enables ingestion of cost data from other cloud providers like AWS, Google Cloud, and others.
+- **Extensible platform**: The open architecture allows you to extend FinOps hubs to ingest custom data sources beyond standard cloud billing data.
+
+> [!TIP]
+> When configuring multiple scopes, ensure each scope has a unique directory path in your exports to avoid data conflicts. See the [Settings.json scope examples](#settingsjson-scope-examples) section for detailed configuration guidance.
+
+> [!WARNING]
+> Avoid configuring overlapping export scopes as this leads to duplicate cost data. For example, if you configure both a billing account-level export and a subscription-level export for the same subscription, costs for that subscription will be duplicated in your hub. Always ensure your export scopes are mutually exclusive.
 
 <br>
 
@@ -33,12 +48,57 @@ This walkthrough will trigger the following indirect costs:
 
 <br>
 
+## Find your billing account and scope IDs
+
+Before configuring exports, you need to identify the billing account and scope IDs you want to monitor. The specific ID format depends on your billing account type.
+
+### Enterprise Agreement (EA) accounts
+
+For EA accounts, you need your enrollment number (billing account ID):
+
+1. Sign in to the [Azure portal](https://portal.azure.com).
+2. Search for and select **Cost Management + Billing**.
+3. Select **Billing scopes** from the left menu.
+4. Select your billing account.
+5. On the **Properties** page, copy the **Billing account ID** (enrollment number).
+   - Use this format for billing account scope: `/providers/Microsoft.Billing/billingAccounts/{enrollment-number}`
+   - For departments, append the department ID: `/providers/Microsoft.Billing/billingAccounts/{enrollment-number}/departments/{department-id}`
+
+### Microsoft Customer Agreement (MCA) accounts
+
+For MCA accounts, you should set up exports using the billing profile, not the billing account. You need your billing profile ID:
+
+1. Sign in to the [Azure portal](https://portal.azure.com).
+2. Search for and select **Cost Management + Billing**.
+3. Select **Billing scopes** from the left menu.
+4. Select your billing account, then select the billing profile you want to monitor.
+5. On the billing profile **Properties** page, copy the **Billing profile ID**.
+   - Use this format: `/providers/Microsoft.Billing/billingAccounts/{billing-account-id}/billingProfiles/{billing-profile-id}`
+
+> [!IMPORTANT]
+> For MCA contracts, always use the billing profile scope for exports, not the billing account scope. Certain datasets (price sheets, reservation recommendations, and reservation details) are only available at the billing profile level.
+
+### Subscriptions and resource groups
+
+For subscriptions and resource groups:
+
+1. Sign in to the [Azure portal](https://portal.azure.com).
+2. Search for and select **Subscriptions**.
+3. Select the subscription you want to monitor.
+4. On the **Overview** page, copy the **Subscription ID**.
+   - For subscription scope: `/subscriptions/{subscription-id}`
+   - For resource group scope: `/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}`
+
+For more information about finding your billing account and scope information, see [View all your billing accounts in Azure portal](/azure/cost-management-billing/manage/view-all-accounts).
+
+<br>
+
 ## About Cost Management exports
 
 Cost Management provides the following 5 types of exports:
 
 - Cost and usage details (FOCUS)
-  - Exports all costs using the FOCUS version of the cost and usage details file  as they're defined in the FinOps Open Cost and Usage Specification (FOCUS) project.
+  - Exports all costs using the FOCUS version of the cost and usage details file as they're defined in the FinOps Open Cost and Usage Specification (FOCUS) project.
   - Maps to the Costs folder in the ingestion container.
 - Price sheet
   - Exports prices for your Azure services.
@@ -55,7 +115,7 @@ Cost Management provides the following 5 types of exports:
 
 FinOps hubs support the following dataset types, versions, and API versions:
 
-- FocusCost: 1.0r2, 1.0, 1.0-preview(v1)
+- FocusCost: 1.2-preview, 1.0r2, 1.0, 1.0-preview(v1)
 - PriceSheet: 2023-05-01
 - ReservationDetails: 2023-03-01
 - ReservationRecommendations: 2023-05-01
@@ -70,28 +130,34 @@ For the most seamless experience, we recommend [allowing FinOps hubs to manage e
 
 If you can't grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
 
+<!-- prettier-ignore-start -->
+
 1. Determine the scope for your data export.
+
+   - For information about finding your billing account and scope IDs, see [Find your billing account and scope IDs](#find-your-billing-account-and-scope-ids).
    - We recommend exporting from either an **EA billing account** or **MCA billing profile** scope to access additional datasets, including price sheets and reservation recommendations.
    - Price sheet exports are required to populate missing prices and costs.
    - Reservation recommendation exports are used on the Rate optimization Reservation recommendations page.
-   
+
    > [!IMPORTANT]
    > **Microsoft Customer Agreement (MCA) scope requirements**
-   > 
+   >
    > For MCA contracts, certain datasets are **only available at the billing profile level**, not at the billing account level:
+   >
    > - Price sheet data
-   > - Reservation recommendations 
+   > - Reservation recommendations
    > - Reservation details
-   > 
+   >
    > You must use the billing profile scope (`/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###`) for these exports. This is a Cost Management limitation.
-   
+
    - We recommend creating daily exports for each export type supported at your chosen billing scope:
-      - Enterprise Agreement billing account: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
-      - Microsoft Customer Agreement billing profile: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
-      - Subscription: FocusCosts
+     - Enterprise Agreement billing account: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
+     - Microsoft Customer Agreement billing profile: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
+     - Subscription: FocusCosts
+
 2. [Create a new FOCUS cost export](/azure/cost-management-billing/costs/tutorial-export-acm-data) using the following settings:
    - **Type of data** = `Cost and usage details (FOCUS)`¹
-   - **Dataset version** = `1.0` or `1.0r2`²
+   - **Dataset version** = `1.0`, `1.0r2`, or `1.2-preview`²
    - **Frequency** = `Daily export of month-to-date costs`³
    - **Storage account** = (Use subscription/resource deployed with your hub)
    - **Container** = `msexports`
@@ -120,7 +186,14 @@ If you can't grant permissions for your scope, you can create Cost Management ex
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how large your account is.
    - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md) to export a larger date range with either the `-Backfill` parameter or specific start and end dates.
-6. Repeat steps 1-4 for each scope you want to monitor.
+6. **Repeat steps 1-5 for each additional scope you want to monitor** (multiple billing accounts, subscriptions, etc.).
+
+<!-- prettier-ignore-end -->
+
+<!-- prettier-ignore-start -->
+> [!IMPORTANT]
+> **Configuring multiple scopes**: When setting up multiple scopes, ensure each has a unique directory path to prevent data conflicts. You can monitor multiple EA billing accounts, MCA billing profiles, subscriptions, and resource groups within a single FinOps hub instance.
+<!-- prettier-ignore-end -->
 
 _¹ FinOps hubs 0.2 and later requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you don't see this option, search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports)._
 
@@ -151,22 +224,22 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    - Use the following guides to assign access to each scope you want to monitor:
      - EA enrollments – [Assign enrollment reader role permission](/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
      - EA departments – [Assign department reader role permission](/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
-     - Subscriptions and resource groups – [Assign Azure roles using the Azure portal](/azure/role-based-access-control/role-assignments-portal).
+     - Subscriptions and resource groups – Assign the **Cost Management Contributor** role to the hub managed identity on each scope. [Learn more](/azure/role-based-access-control/role-assignments-portal).
 
    <!--
    ### Enterprise agreement billing accounts and departments
-   
+
    1. [Find your enrollment (and department) Id](/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
    2. Load the FinOps Toolkit PowerShell module.
    3. Grant reader permissions to the data factory
-   
+
       ```powershell
       # Grants enrollment reader permissions to the specified service principal or managed identity
       Add-FinOpsServicePrincipal `
          -ObjectId aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb ` # Object Id of data factory managed identity
          -TenantId aaaabbbb-0000-cccc-1111-dddd2222eeee ` # Azure Active Directory tenant Id
          -BillingAccountId 12345                          # Enrollment ID
-   
+
       # Grants department reader permissions to the specified service principal or managed identity
       Add-FinOpsServicePrincipal `
          -ObjectId aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb ` # Object Id of data factory managed identity
@@ -193,6 +266,9 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    #### Option 1: Using config_RunBackfillJob pipeline
 
    Use the **config_RunBackfillJob** pipeline to process historical data after it's been exported. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
+
+   > [!IMPORTANT]
+   > This option relies on managed exports and is **not supported for Microsoft Customer Agreement (MCA) billing accounts or billing profiles**. The pipeline calls the Cost Management `exports/run` API using the Data Factory managed identity, which Cost Management rejects on MCA scopes regardless of role assignments — typically with an `RBACAccessDenied` error. For MCA, use [Option 2](#option-2-using-cost-management-exports) or [Option 3](#option-3-using-start-finopscostexport-powershell-command) instead.
 
    To run the pipeline from the Azure portal:
 
@@ -281,7 +357,36 @@ Managed exports use a managed identity (MI) to configure the exports automatical
       "scope": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
     },
     {
-      "scope": "subscriptions/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f"
+      "scope": "/subscriptions/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f"
+    }
+  ]
+  ```
+
+- Multiple EA billing accounts
+
+  ```json
+  "scopes": [
+    {
+      "scope": "/providers/Microsoft.Billing/billingAccounts/1234567"
+    },
+    {
+      "scope": "/providers/Microsoft.Billing/billingAccounts/7654321"
+    }
+  ]
+  ```
+
+- Mixed scopes (EA billing account and subscriptions)
+
+  ```json
+  "scopes": [
+    {
+      "scope": "/providers/Microsoft.Billing/billingAccounts/1234567"
+    },
+    {
+      "scope": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
+    },
+    {
+      "scope": "/subscriptions/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f"
     }
   ]
   ```
@@ -324,13 +429,19 @@ If it's the first time you're using the FinOps toolkit PowerShell module, refer 
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/ConfigureScopes)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
+
+<br>
 
 ## Related content
 

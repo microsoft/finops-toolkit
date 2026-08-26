@@ -266,7 +266,7 @@ table StorageData
 					end   = if RangeEnd <> null then Date.From(RangeEnd, Culture.Current) else null,
 					start = 
 						if RangeStart <> null then Date.From(RangeStart, Culture.Current)
-						else if #"Number of Months" <> null and #"Number of Months" > 0 then Date.AddMonths(if end <> null then end else Date.StartOfMonth(Date.From(DateTime.LocalNow())), -(#"Number of Months"+1))
+						else if #"Number of Months" <> null and #"Number of Months" > 0 then Date.AddMonths(if end <> null then end else Date.StartOfMonth(Date.From(DateTime.LocalNow())), -#"Number of Months")
 						else null,
 					FilterFilesByDate =
 						if start = null and end = null then InitialDetails

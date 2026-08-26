@@ -62,9 +62,9 @@ function Invoke-Rest
 
     # TODO: Remove after Az PowerShell 13.0
     # Temporarily suppress warnings for Get-AzAccessToken
-    $prevWarningPreference = $WarningPreference 
-    $WarningPreference = "SilentlyContinue" 
-    $token = (Get-AzAccessToken -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText 
+    $prevWarningPreference = $WarningPreference
+    $WarningPreference = "SilentlyContinue"
+    $token = (Get-AzAccessToken -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText
     $WarningPreference = $prevWarningPreference
 
     $arm = (Get-AzContext).Environment.ResourceManagerUrl
