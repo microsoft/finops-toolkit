@@ -26,6 +26,20 @@ Before you begin, you must have:
 - [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub).
 - Assigned the **Reader** role to the Data Factory managed identity on the management groups or subscriptions you want to query. This permission must be configured separately from the FinOps hub deployment.
 
+If the role has not been assigned, use the `Add-FinOpsHubResourceGraphReader` cmdlet after connecting
+to Azure. The command is safe to rerun because it checks for an existing assignment first:
+
+```powershell
+Connect-AzAccount
+Add-FinOpsHubResourceGraphReader `
+    -Scope '<subscription-id-or-management-group-resource-id>' `
+    -HubName '<finops-hub-name>'
+```
+
+Use a subscription ID to grant access to one subscription, or a management group resource ID to grant
+access to all subscriptions below that management group. The command must be run by an account that
+can create role assignments at the requested scope.
+
 <br>
 
 ## How recommendations are processed
