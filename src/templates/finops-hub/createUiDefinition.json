@@ -207,7 +207,7 @@
             "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]"
           },
           {
-            "name": "enableRbacAuthorization",
+            "name": "enableKeyVaultRbacAuthorization",
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable Key Vault RBAC authorization",
             "toolTip": "Enables Azure RBAC instead of access policies to authorize access to the Key Vault used to store the remote hub storage key. Required by some organizations for policy compliance (e.g., Cloud Adoption Framework guardrails). Enable this if you are deploying to a subscription that enforces this requirement.",
@@ -1020,7 +1020,7 @@
       "remoteHubStorageUri": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), basics('analyticsBackend').remoteHubStorageUri, '')]",
       "remoteHubStorageKey": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), basics('analyticsBackend').remoteHubStorageKey, '')]",
       "enablePurgeProtection": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), coalesce(basics('analyticsBackend').enablePurgeProtection, false), false)]",
-      "enableRbacAuthorization": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), coalesce(basics('analyticsBackend').enableRbacAuthorization, false), false)]",
+      "enableKeyVaultRbacAuthorization": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), coalesce(basics('analyticsBackend').enableKeyVaultRbacAuthorization, false), false)]",
       "tagsByResource": "[steps('tags').tagsByResource]"
     }
   }
