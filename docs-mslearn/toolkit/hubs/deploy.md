@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 08/13/2026
+ms.date: 08/19/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -84,9 +84,9 @@ Public routing is most common and easiest to use. Resources are reachable from t
 Do you prefer public or private network routing?
 
 - Public routing is most common, easiest to use, and makes resources reachable from the open internet.
-- Private routing is most secure, comes with added cost, and makes resources only reachable from peered networks.
+- Private routing is most secure, comes with added cost, and makes resources reachable through private connectivity.
 
-Public routing doesn't require configuration. If you opt for private routing, work with your network admin to configure peering and routing so the FinOps hubs isolated network is reachable from your network. Before you decide, learn more about the extra configuration steps required in [Configure private networking](private-networking.md).
+Public routing doesn't require configuration. If you opt for private routing, work with your network admin to create private endpoints and DNS in your own virtual network (preferred) or configure virtual network peering and routing (secondary). Before you decide, learn more about the ownership boundaries and configuration steps in [Configure private networking](private-networking.md).
 
 <br>
 
