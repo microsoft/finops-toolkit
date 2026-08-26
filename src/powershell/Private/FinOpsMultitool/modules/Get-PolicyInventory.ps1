@@ -14,6 +14,86 @@
 #           Falls back to per-sub only for small tenants if above fail.
 ###########################################################################
 
+function Format-PolicyEffectName {
+    # Azure stores effect names inconsistently across definitions: some authored as
+    # "modify", others as "AuditIfNotExists". Capitalizing the first character keeps
+    # one column from mixing both conventions.
+    param([string]$Effect)
+    if ([string]::IsNullOrWhiteSpace($Effect)) { return $Effect }
+    $trimmed = $Effect.Trim()
+    return $trimmed.Substring(0, 1).ToUpperInvariant() + $trimmed.Substring(1)
+}
+
+function Resolve-PolicyEffect {
+    # An assignment only carries an effect when it overrides the parameter, which
+    # is the exception rather than the rule. Everything else has to come from the
+    # definition, or the report understates what is actually enforced.
+    #
+    # Precedence: assignment override, definition literal, definition parameter default.
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]$AssignmentEffect,
+
+        [Parameter()]
+        [object]$Definition,
+
+        # An initiative bundles policies with differing effects, so there is no
+        # single value to report. That is not the same as an unknown effect.
+        [Parameter()]
+        [switch]$IsInitiative
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($AssignmentEffect) -and $AssignmentEffect -ne '-') {
+        return (Format-PolicyEffectName $AssignmentEffect)
+    }
+    if ($IsInitiative) { return 'varies' }
+    if (-not $Definition) { return '-' }
+
+    # "[parameters('effect')]" defers to the parameter default; a bare word is the effect.
+    $literal = [string]$Definition.policyRule.then.effect
+    if (-not [string]::IsNullOrWhiteSpace($literal) -and $literal -notmatch '^\s*\[') {
+        return (Format-PolicyEffectName $literal)
+    }
+
+    $default = [string]$Definition.parameters.effect.defaultValue
+    if (-not [string]::IsNullOrWhiteSpace($default)) { return (Format-PolicyEffectName $default) }
+
+    return '-'
+}
+
+function Get-PolicyDefinitionMap {
+    # Fetched by resource ID rather than queried. Resource Graph's policyresources
+    # only returns definitions scoped to the subscriptions being queried, which
+    # excludes tenant-level built-ins and management-group definitions - and those
+    # are exactly where inherited assignments point. A GET against the definition
+    # ID works for all three scopes.
+    #
+    # Callers pass only the IDs they could not resolve, deduplicated, so this stays
+    # proportional to distinct definitions rather than to assignment count.
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string[]]$DefinitionIds
+    )
+
+    $map = @{}
+    foreach ($id in @($DefinitionIds | Where-Object { $_ } | Select-Object -Unique)) {
+        try {
+            $resp = Invoke-AzRestMethodWithRetry -Path "$($id)?api-version=2023-04-01" -Method GET
+            if ($resp.StatusCode -eq 200) {
+                $def = $resp.Content | ConvertFrom-Json
+                if ($def.properties) { $map[[string]$id] = $def.properties }
+            }
+        }
+        catch {
+            # An unreadable definition just leaves the effect unresolved.
+            continue
+        }
+    }
+    return $map
+}
+
 function Get-PolicyInventory {
     [CmdletBinding()]
     param(
@@ -273,6 +353,22 @@ policyresources
             $seen[$key] = $true
             [void]$unique.Add($a)
         }
+    }
+
+    # -- Resolve effects the assignment did not override ---------------
+    if ($unique.Count -gt 0) {
+        # Only single policies need a definition lookup; initiatives resolve to 'varies'.
+        $needsLookup = @($unique |
+            Where-Object { $_.Origin -ne 'Initiative' -and (-not $_.Effect -or $_.Effect -eq '-') } |
+            ForEach-Object { $_.PolicyDefId })
+        $defMap = if ($needsLookup.Count -gt 0) { Get-PolicyDefinitionMap -DefinitionIds $needsLookup } else { @{} }
+
+        foreach ($a in $unique) {
+            $override = if ($a.Effect -and $a.Effect -ne '-') { $a.Effect } else { '' }
+            $a.Effect = Resolve-PolicyEffect -AssignmentEffect $override -Definition $defMap[[string]$a.PolicyDefId] -IsInitiative:($a.Origin -eq 'Initiative')
+        }
+        $resolved = @($unique | Where-Object { $_.Effect -ne '-' }).Count
+        Write-Host "  Effects resolved for $resolved of $($unique.Count) assignments." -ForegroundColor Green
     }
 
     # -- Compliance totals ---------------------------------------------

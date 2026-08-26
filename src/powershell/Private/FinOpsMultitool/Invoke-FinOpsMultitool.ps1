@@ -2650,10 +2650,12 @@ tr:hover td { background: var(--surface); }
 
             # Per-module sections, grouped into one tab per category
             $selectedMods = @($Modules | Where-Object { $_.Selected })
-            $catOrder = @('Cost Analysis', 'Optimization', 'Commitments', 'Governance', 'Monitoring', 'Advisor', 'AI & ML', 'Sustainability', 'Account')
             $presentCats = @($selectedMods | ForEach-Object { $_.Category } | Select-Object -Unique)
-            # A category missing from $catOrder still gets a tab, after the known ones.
-            $tabCats = @($catOrder | Where-Object { $presentCats -contains $_ }) + @($presentCats | Where-Object { $catOrder -notcontains $_ })
+            # Cost Analysis leads; the rest sort alphabetically so a new category
+            # lands in a predictable spot instead of being appended.
+            $leadCat = 'Cost Analysis'
+            $tabCats = @($presentCats | Where-Object { $_ -eq $leadCat }) +
+            @($presentCats | Where-Object { $_ -ne $leadCat } | Sort-Object)
 
             $storyCatalog = $null
             if (Get-Command Get-KpiCatalog -ErrorAction SilentlyContinue) {
