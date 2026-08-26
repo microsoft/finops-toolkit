@@ -8,7 +8,7 @@ ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsCostExport command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the Get-FinOpsCostExport command in the FinOpsToolkit module.
 ---
 
 # Get-FinOpsCostExport command
@@ -28,30 +28,30 @@ This command was tested with the following API versions:
 
 ```powershell
 Get-FinOpsCostExport `
-    [-Name <string>] `
-    [-Scope <string>] `
-    [-DataSet <string>] `
-    [-DataSetVersion <string>] `
-    [-StorageAccountId <string>] `
-    [-StorageContainer <string>] `
-    [-RunHistory] `
-    [-ApiVersion <string>]
+    [[‑Name] <string>] `
+    [[‑Scope] <string>] `
+    [[‑Dataset] <string>] `
+    [[‑DatasetVersion] <string>] `
+    [[‑StorageAccountId] <string>] `
+    [[‑StorageContainer] <string>] `
+    [‑RunHistory] `
+    [[‑ApiVersion] <string>]
 ```
 
 <br>
 
 ## Parameters
 
-| Name                | Description                                                                                                                                                                                                                   |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `‑Name`             | Optional. Name of the export. Supports wildcards.                                                                                                                                                                             |
-| `‑Scope`            | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.                                                                                                            |
-| `‑DataSet`          | Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations". Default = null (all exports). |
-| `‑DataSetVersion`   | Optional. Schema version of the dataset to export. Default = null (all exports).                                                                                                                                              |
-| `‑StorageAccountId` | Optional. Resource ID of the storage account to get exports for. Default = null (all exports).                                                                                                                                |
-| `‑StorageContainer` | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).                                                                                                                         |
-| `‑RunHistory`       | Optional. Indicates whether the run history should be expanded. Default = false.                                                                                                                                              |
-| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2025-03-01.                                                                                                                              |
+| Name                | Description                                                                                                                                                                                                          |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑Name`             | Optional. Name of the export. Supports wildcards.                                                                                                                                                                    |
+| `‑Scope`            | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.                                                                                                   |
+| `‑Dataset`          | Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations". Default = null (all exports). |
+| `‑DatasetVersion`   | Optional. Schema version of the dataset to export. Default = null (all exports).                                                                                                                                     |
+| `‑StorageAccountId` | Optional. Resource ID of the storage account to get exports for. Default = null (all exports).                                                                                                                       |
+| `‑StorageContainer` | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).                                                                                                                |
+| `‑RunHistory`       | Optional. Indicates whether the run history should be expanded. Default = false.                                                                                                                                     |
+| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2025-03-01.                                                                                                                     |
 
 <br>
 
@@ -89,16 +89,21 @@ Get-FinOpsCostExport `
 
 ### FinOpsCostExportRunHistory object
 
-| Property        | Type     | JSON path                                                |
-| --------------- | -------- | -------------------------------------------------------- |
-| `Id`            | String   | `properties.runHistory.value[].id`                       |
-| `ExecutionType` | String   | `properties.runHistory.value[].properties.executionType` |
-| `FileName`      | String   | `properties.runHistory.value[].fileName`                 |
-| `StartTime`     | DateTime | `properties.runHistory.value[].processingStartTime`      |
-| `EndTime`       | DateTime | `properties.runHistory.value[].processingEndTime`        |
-| `Status`        | String   | `properties.runHistory.value[].status`                   |
-| `SubmittedBy`   | String   | `properties.runHistory.value[].submittedBy`              |
-| `SubmittedTime` | DateTime | `properties.runHistory.value[].submittedTime`            |
+| Property         | Type     | JSON path                                                  |
+| ---------------- | -------- | ----------------------------------------------------------- |
+| `ResourceId`     | String   | `properties.runHistory.value[].id`                           |
+| `RunId`          | String   | `properties.runHistory.value[].name`                         |
+| `ExecutionType`  | String   | `properties.runHistory.value[].properties.executionType`     |
+| `Status`         | String   | `properties.runHistory.value[].properties.status`            |
+| `SubmittedBy`    | String   | `properties.runHistory.value[].properties.submittedBy`       |
+| `SubmittedTime`  | DateTime | `properties.runHistory.value[].properties.submittedTime`     |
+| `RunStartTime`   | DateTime | `properties.runHistory.value[].properties.processingStartTime` |
+| `RunEndTime`     | DateTime | `properties.runHistory.value[].properties.processingEndTime` |
+| `FileName`       | String   | `properties.runHistory.value[].properties.fileName`          |
+| `QueryStartDate` | DateTime | `properties.runHistory.value[].properties.startDate`         |
+| `QueryEndDate`   | DateTime | `properties.runHistory.value[].properties.endDate`           |
+| `ErrorCode`      | String   | `properties.runHistory.value[].properties.error.code`        |
+| `ErrorMessage`   | String   | `properties.runHistory.value[].properties.error.message`     |
 
 <br>
 
@@ -107,27 +112,23 @@ Get-FinOpsCostExport `
 ### Get all cost exports for a subscription
 
 ```powershell
-Get-FinOpsCostExport `
-    -Scope "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
+Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
 ```
 
-Gets all exports for a subscription. Doesn't include exports in nested resource groups.
+Gets all exports for a subscription. Does not include exports in nested resource groups.
 
 ### Get exports matching a wildcard name
 
 ```powershell
-Get-FinOpsCostExport `
-    -Name mtd* `
-    -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
+Get-FinOpsCostExport -Name mtd* -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
 ```
 
-Gets export with name matching wildcard mtd\* within the specified billing account scope. Doesn't include exports in nested resource groups.
+Gets export with name matching wildcard mtd* within the specified billing account scope. Does not include exports in nested resource groups.
 
 ### Get all amortized cost exports
 
 ```powershell
-Get-FinOpsCostExport `
-    -DataSet "AmortizedCost"
+Get-FinOpsCostExport -Dataset "AmortizedCost"
 ```
 
 Gets all exports within the current context subscription scope and filtered by dataset AmortizedCost.
@@ -135,9 +136,7 @@ Gets all exports within the current context subscription scope and filtered by d
 ### Get exports using a specific storage account
 
 ```powershell
-Get-FinOpsCostExport `
-    -Scope "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"`
-    -StorageAccountId "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
+Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
 ```
 
 Gets all exports within the subscription scope filtered by a specific storage account.
@@ -145,9 +144,7 @@ Gets all exports within the subscription scope filtered by a specific storage ac
 ### Get exports using a specific container
 
 ```powershell
-Get-FinOpsCostExport `
-    -Scope "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e" `
-    -StorageContainer "MyContainer*"
+Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "MyContainer*"
 ```
 
 Gets all exports within the subscription scope for a specific container. Supports wildcard.
@@ -155,11 +152,7 @@ Gets all exports within the subscription scope for a specific container. Support
 ### Get exports using a specific API version
 
 ```powershell
-Get-FinOpsCostExport `
-    -Scope "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
-    -StorageContainer "mtd*"
-    -ApiVersion "2023-08-01"
-    -StorageContainer "MyContainer*"
+Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2025-03-01"
 ```
 
 Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.
