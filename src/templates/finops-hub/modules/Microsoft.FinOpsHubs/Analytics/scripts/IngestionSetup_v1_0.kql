@@ -403,20 +403,28 @@ Costs_transform_v1_0()
         ConsumedQuantity
     )
     //
-    // Populate missing prices -- mapping to on-demand prices requires meter ID and offer ID
-    | extend tmp_MissingPrices = ProviderName == 'Microsoft'
+    // Populate missing costs -- the price-sheet lookup below needs a meter ID and offer ID to map to an on-demand
+    // price, but the cost fallback further down doesn't. Rows without either ID (e.g. third-party Marketplace/ISV
+    // purchases, which have no Microsoft retail list price by design) used to be excluded from this whole block and
+    // never reached the cost fallback, leaving ListCost/ContractedCost at 0 despite a real EffectiveCost -- which
+    // breaks downstream savings/ESR math (#2214, #2286). tmp_MissingCost is the broader set that flows through to
+    // the fallback case() blocks below; tmp_MissingPrices narrows that to rows the price-sheet join can actually
+    // resolve. Rows in tmp_MissingCost but not tmp_MissingPrices skip the join (all Prices_final_v1_0 columns come
+    // back null) and fall through the case() blocks' existing null-safe branches straight to the EffectiveCost-based
+    // fallback -- the same outcome #2214's fix asks for, using logic that already exists for the join's no-match case.
+    | extend tmp_MissingCost = ProviderName == 'Microsoft'
         and (ListUnitPrice == 0 or ContractedUnitPrice == 0)
         and x_EffectiveUnitPrice != 0
         and not(CommitmentDiscountCategory == 'Spend' and CommitmentDiscountStatus == 'Unused')
-        and isnotempty(x_SkuMeterId) and isnotempty(x_SkuOfferId)
+    | extend tmp_MissingPrices = tmp_MissingCost and isnotempty(x_SkuMeterId) and isnotempty(x_SkuOfferId)
     | as allCosts
-    | where tmp_MissingPrices
+    | where tmp_MissingCost
     | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(ChargePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
     | as costsWithMissingPrices
     | join kind=leftouter (
         Prices_final_v1_0
         | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(x_EffectivePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
-        | where x_SkuPriceType == 'Consumption' and tmp_ReservationPriceLookupKey in ((costsWithMissingPrices | summarize by tmp_ReservationPriceLookupKey))
+        | where x_SkuPriceType == 'Consumption' and tmp_ReservationPriceLookupKey in ((costsWithMissingPrices | where tmp_MissingPrices | summarize by tmp_ReservationPriceLookupKey))
         // When duplicate price rows collapse under one lookup key, use the highest on-demand price as the savings baseline; min() can pick an anomalously low row and underreport savings
         | summarize ListUnitPrice = max(ListUnitPrice), ContractedUnitPrice = max(ContractedUnitPrice) by tmp_ReservationPriceLookupKey, x_PricingBlockSize, PricingUnit
     ) on tmp_ReservationPriceLookupKey
@@ -482,11 +490,20 @@ Costs_transform_v1_0()
         ListCost
     )
     // Merge the rest of the unmodified cost records and remove excess columns
-    | union (allCosts | where not(tmp_MissingPrices))
-    | project-away x_PricingBlockSize1, PricingUnit1, ListUnitPrice1, ContractedUnitPrice1, tmp_MissingPrices, tmp_ReservationPriceLookupKey, tmp_ReservationPriceLookupKey1
+    | union (allCosts | where not(tmp_MissingCost))
+    | project-away x_PricingBlockSize1, PricingUnit1, ListUnitPrice1, ContractedUnitPrice1, tmp_MissingCost, tmp_MissingPrices, tmp_ReservationPriceLookupKey, tmp_ReservationPriceLookupKey1
     //
     // BUG: Fix ContractedCost that has bad values
     | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and isnotempty(ContractedUnitPrice) and (isempty(ContractedCost) or abs(ContractedCost - ContractedUnitPrice * PricingQuantity) >= 0.0001), ContractedUnitPrice * PricingQuantity, ContractedCost)
+    //
+    // MissingListCost was flagged before the repair above ran, so a repaired row still carries the flag and can't be
+    // told apart from a row the repair couldn't fix (#2214, #2286). Clear it once ListCost is known-good post-repair.
+    // MissingListCost keeps its trailing comma unless it's the last flag in the string (trim_end strips only the
+    // final comma of the whole value), so both forms need stripping; trim_end re-cleans a comma left dangling at
+    // the end if MissingListCost, was that last flag.
+    | extend x_SourceChanges = iff((isnotempty(ListCost) and ListCost != 0),
+        trim_end(',', replace_string(replace_string(x_SourceChanges, 'MissingListCost,', ''), 'MissingListCost', '')),
+        x_SourceChanges)
     //
     // Handle FOCUS 1.0-preview UsageQuantity/Unit
     | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), todecimal(''))
