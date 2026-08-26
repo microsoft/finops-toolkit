@@ -1,8 +1,8 @@
-# FinOps multitool — Terminal UI (TUI)
+# FinOps multitool terminal UI (TUI)
 
 Interactive terminal interface for running FinOps scans against Azure subscriptions. No GUI dependencies — works in any terminal on Windows, macOS, and Linux.
 
-## Quick Start
+## Quick start
 
 ```powershell
 # From the FinOpsMultitool directory
@@ -31,13 +31,13 @@ Install Az modules if needed:
 Install-Module Az.Accounts, Az.Resources, Az.ResourceGraph, Az.Storage -Scope CurrentUser
 ```
 
-## How It Works
+## How it works
 
 ### 1. Authentication
 
 On launch, the TUI checks for an existing `Az.Accounts` session. If you're not logged in, it prompts you to run `Connect-AzAccount`. If your account has access to multiple Azure AD tenants, a tenant picker appears so you can select which tenant to scan. It then discovers all accessible subscriptions and lets you select which ones to scan.
 
-### 2. Data Source Selection
+### 2. Data source selection
 
 If a FinOps Hub is detected in any of your subscriptions, you'll be asked to choose a data source:
 
@@ -49,7 +49,7 @@ If a FinOps Hub is detected in any of your subscriptions, you'll be asked to cho
 
 When the **FinOps Hub** source is chosen, the tool prefers the hub's **Kusto database** (Azure Data Explorer / Fabric, or a local ftklocal emulator) and pushes aggregation into the engine, returning only summarized results. This is the scalable path for large customer datasets — it never loads the raw cost rows into PowerShell. See [FinOps Hub data paths](#finops-hub-data-paths) below. The storage-export reader remains as a small-dataset fallback.
 
-### 3. Scan Selection
+### 3. Scan selection
 
 Arrow-key driven menu to toggle individual scans on/off. All scans are selected by default except Billing Structure.
 
@@ -62,7 +62,7 @@ Arrow-key driven menu to toggle individual scans on/off. All scans are selected 
 | `Enter`   | Run selected scans |
 | `Q`       | Quit               |
 
-### 4. Scan Execution
+### 4. Scan execution
 
 Selected scans run sequentially with a progress bar. When a FinOps Hub is available, tag-related scans (Tag Inventory, Cost by Tag) use pre-loaded Hub data instead of API calls — completing in under a second.
 
@@ -89,7 +89,7 @@ Guidance includes FinOps Foundation best practices, actionable next steps, and l
 
 Optional exports write to the output path: one CSV file per scan module, a `FinOpsReport.html` summary, and a `ScanSummary.txt` text summary.
 
-## Required Permissions
+## Required permissions
 
 Each scan module requires specific Azure RBAC roles. The TUI will tell you which role is needed if a scan fails due to missing permissions.
 
@@ -104,7 +104,7 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 | Account      | Billing Structure, Contract Info                             | Billing Reader           | Billing Account     |
 | Hub (opt.)   | All scans via Hub data                                       | Storage Blob Data Reader | Hub Storage Account |
 
-## Available Scans
+## Available scans
 
 ### Optimization (Resource Graph)
 
@@ -170,7 +170,7 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 | Billing Structure   | Account hierarchy and enrollment details |
 | Contract Info       | Agreement type, offer, support plan      |
 
-## FinOps KPI Coverage
+## FinOps KPI coverage
 
 The scan modules map directly to [FinOps Foundation KPIs](https://www.finops.org/finops-kpis/). Each scan answers a KPI question directly, and the `finops-multitool` agent skill routes a natural-language question to the matching investigation. A few examples of question → output:
 
@@ -274,7 +274,7 @@ Untagged spend     $ 88,200   (12.6%)   ← KPI
 
 `% Costs from Untagged Resources` = 12.6%.
 
-## FinOps Hub Integration
+## FinOps hub integration
 
 When a Hub is detected, the tool reads FinOps Hub cost data. This enables:
 
@@ -284,7 +284,7 @@ When a Hub is detected, the tool reads FinOps Hub cost data. This enables:
 - **Forecast enrichment** — Hub data contains actuals only, so the TUI calls the Cost Management Forecast API to project full-month costs and adds them to Hub actuals (storage path)
 - **Accurate tag coverage** — Hub only sees resources with cost data. The TUI queries Azure Resource Graph for the true total/untagged resource count and overrides the Hub-derived coverage percentage
 
-### FinOps Hub data paths
+### FinOps hub data paths
 
 The cost-family scans (Cost Data, Resource Costs, Cost by Tag) read from a FinOps Hub three ways, in priority order. The first two push aggregation **into the engine** and bring back only summarized results — they never load the raw cost rows into PowerShell, so they scale to large customer datasets (tens of GB / hundreds of millions of rows):
 
@@ -305,7 +305,7 @@ Selection is automatic: `FINOPS_HUB_KUSTO_URI` (if set) wins, else a discovered 
 
 Hub data is loaded once at startup and reused across all scans that need it.
 
-## Scripting (Non-Interactive)
+## Scripting (non-interactive)
 
 The scan modules can be called directly without the TUI:
 
@@ -321,7 +321,7 @@ $tagInventory = ConvertTo-TagInventoryFromHub -HubData $hubData
 $costByTag = ConvertTo-CostByTagFromHub -HubData $hubData -ExistingTags $tagInventory.TagNames
 ```
 
-## File Structure
+## File structure
 
 ```text
 FinOpsMultitool/

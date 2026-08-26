@@ -17,7 +17,7 @@ Scan your Azure environment for cost optimization, governance, and FinOps insigh
 
 ---
 
-The FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights and grounds its findings in your live resource state. It surfaces cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance—from an interactive terminal UI or as tools an AI agent can call.
+The FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights, grounded in your live resource state. It reports on cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance. Run it from an interactive terminal UI, or call it as tools from an AI agent.
 
 <div id="whats-new" class="ftk-new">
     <h3>New in the FinOps toolkit<span class="ftk-version">v15</span></h3>

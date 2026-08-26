@@ -3,7 +3,7 @@ title: FinOps multitool overview
 description: FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from a terminal UI, with agent skills so AI assistants can run the same analysis.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 08/22/2026
+ms.date: 08/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -13,7 +13,7 @@ ms.reviewer: micflan
 
 # FinOps multitool
 
-FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights and grounds its findings in your live resource state. It surfaces cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance—from an interactive terminal or as tools an AI agent can call.
+FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights, grounded in your live resource state. It reports on cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance. Run it from an interactive terminal, or call it as tools from an AI agent.
 
 ## How it works
 
@@ -29,7 +29,7 @@ FinOps multitool runs 30 scan modules against the subscriptions you select and r
 
 ## Benefits
 
-FinOps multitool shortens the path from "what is this costing us?" to a specific, actionable list. Instead of checking Azure Advisor, Cost Analysis, Resource Graph, and the budgets blade separately, you run one scan and get the findings together, scoped to the subscriptions you care about.
+Instead of checking Azure Advisor, Cost Analysis, Resource Graph, and the budgets blade separately, you run one scan and get the findings together, scoped to the subscriptions you select.
 
 ## Why FinOps multitool?
 
