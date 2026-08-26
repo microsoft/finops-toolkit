@@ -25,9 +25,9 @@ FinOps hubs extend Cost Management to provide a scalable platform for advanced d
 
 <!-- prettier-ignore-start -->
 > [!NOTE]
-> Estimated cost: Starts at $120/mo + $10/mo per $1M in cost being monitored.
+> Estimated cost: Starts at $160/mo + $10/mo per $1M in cost being monitored.
 >
-> Estimated monthly cost includes $120 for a single-node Azure Data Explorer cluster or $300 for F2 Fabric capacity, plus $10 in Azure storage and processing cost per $1M being monitored. Exact cost will vary based on discounts, data size (we estimate ~20GB per $1M), and Fabric or Power BI license requirements. Cost without Data Explorer or Fabric is $5 per $1M. For details, refer to the [FinOps hub cost estimate](https://aka.ms/finops/hubs/calculator) in the Azure Pricing Calculator.
+> Estimated monthly cost includes $160+ for a single-node Azure Data Explorer cluster or $310 for F2 Fabric capacity, plus $10 in Azure storage and processing cost per $1M being monitored. Exact cost will vary based on discounts, region, data size, and Fabric or Power BI license requirements. Cost without Data Explorer or Fabric is $15 per $1M. For details, refer to the [FinOps hub cost estimate](https://aka.ms/finops/hubs/calculator) in the Azure Pricing Calculator.
 <!-- prettier-ignore-end -->
 
 <br>
