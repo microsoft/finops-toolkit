@@ -1,0 +1,79 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+//======================================================================================================================
+// Missing-cost gate split regression harness
+//
+// Verifies, per row, the behavior change shipped for #2214/#2235/#2286: the ListCost/ContractedCost repair fallback
+// used to be gated behind the same condition as the price-sheet lookup, which requires a meter ID and offer ID.
+// Rows without either -- most commonly third-party Marketplace/ISV purchases, which have no Microsoft retail list
+// price by design -- were excluded from the whole repair block and never got a repaired ListCost/ContractedCost,
+// even though a real EffectiveCost was present. That leaves ListCost at 0 despite real spend, which collapses
+// x_TotalSavings and corrupts downstream Effective Savings Rate reporting.
+//
+//   old: tmp_MissingPrices gates BOTH the price-sheet join AND the cost-repair fallback
+//        (isempty(ListUnitPrice) or isempty(ContractedUnitPrice) or ListUnitPrice == 0 or ContractedUnitPrice == 0)
+//            and x_EffectiveUnitPrice != 0 and not(unused spend commitment)
+//            and isnotempty(x_SkuMeterId) and isnotempty(x_SkuOfferId)
+//
+//   new: tmp_MissingCost (no meter/offer ID requirement) gates the cost-repair fallback;
+//        tmp_MissingPrices narrows that further to rows the price-sheet join can resolve
+//        tmp_MissingCost   = (isempty(ListUnitPrice) or isempty(ContractedUnitPrice) or ListUnitPrice == 0 or ContractedUnitPrice == 0)
+//            and x_EffectiveUnitPrice != 0 and not(unused spend commitment)
+//        tmp_MissingPrices = tmp_MissingCost and isnotempty(x_SkuMeterId) and isnotempty(x_SkuOfferId)
+//
+// A row that is tmp_MissingCost but NOT tmp_MissingPrices now enters the repair block (skips the join, all joined
+// columns come back null) and falls through the existing case() branches' null-safe fallback to EffectiveCost-based
+// values -- the same outcome #2214 asked for, reusing logic that already exists for the join's no-match case.
+//
+// How to run: paste into any Kusto database (ADX or Fabric eventhouse; no table access required).
+//   - PASS = the query returns 0 rows.
+//
+// expectedRepaired = whether the row should enter the repair fallback (new_entersRepair) after the fix.
+// expectedChanged  = whether this row's outcome should actually differ from the old gate (old_entersRepair). Rows
+// with a meter/offer ID behave identically under both gates -- only rows missing one or both IDs should change.
+//======================================================================================================================
+
+let cases = datatable(
+    label:string,
+    provider:string,
+    listPrice:real,
+    contractedPrice:real,
+    effectivePrice:real,
+    commitmentCategory:string,
+    commitmentStatus:string,
+    meterId:string,
+    offerId:string,
+    expectedRepaired:bool,
+    expectedChanged:bool
+) [
+    'ISV row, no meter/offer ID -- the #2214 case',
+        'Microsoft', real(0),    real(0),    real(1.5), '',      '',       '',       '',       true,  true,
+    'Microsoft usage, has meter/offer ID -- price-sheet lookup applies as before',
+        'Microsoft', real(0),    real(0),    real(1.5), '',      '',       'meter1', 'offer1', true,  false,
+    'Microsoft usage, only meter ID set (no offer ID) -- still enters repair, still skips the join',
+        'Microsoft', real(0),    real(0),    real(1.5), '',      '',       'meter1', '',       true,  true,
+    'Microsoft usage, only offer ID set (no meter ID) -- still enters repair, still skips the join',
+        'Microsoft', real(0),    real(0),    real(1.5), '',      '',       '',       'offer1', true,  true,
+    'prices already populated -- gate should not fire either way',
+        'Microsoft', real(1.5),  real(1.5),  real(1.5), '',      '',       '',       '',       false, false,
+    'no effective price -- nothing to repair from',
+        'Microsoft', real(0),    real(0),    real(0),   '',      '',       '',       '',       false, false,
+    'unused spend commitment -- excluded on purpose, no consumption to base a fallback on',
+        'Microsoft', real(0),    real(0),    real(1.5), 'Spend', 'Unused', '',       '',       false, false,
+    'non-Microsoft provider -- gate is Microsoft-only',
+        'AWS',       real(0),    real(0),    real(1.5), '',      '',       '',       '',       false, false,
+    'only contracted price missing, meter/offer ID absent -- still enters repair under the new gate',
+        'Microsoft', real(1.5),  real(0),    real(1.5), '',      '',       '',       '',       true,  true,
+]
+| extend old_entersRepair = coalesce(provider == 'Microsoft'
+    and (listPrice == 0 or contractedPrice == 0)
+    and effectivePrice != 0
+    and not(commitmentCategory == 'Spend' and commitmentStatus == 'Unused')
+    and isnotempty(meterId) and isnotempty(offerId), false)
+| extend new_entersRepair = coalesce(provider == 'Microsoft'
+    and (listPrice == 0 or contractedPrice == 0)
+    and effectivePrice != 0
+    and not(commitmentCategory == 'Spend' and commitmentStatus == 'Unused'), false)
+| where new_entersRepair != expectedRepaired or (old_entersRepair != new_entersRepair) != expectedChanged
+| order by label asc
