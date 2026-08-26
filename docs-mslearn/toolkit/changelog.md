@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/22/2026
+ms.date: 08/26/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -53,6 +53,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### [Power BI reports](power-bi/reports.md)
 
+- **Added**
+  - Added comprehensive documentation for [configuring scheduled refresh in Power BI service](power-bi/setup.md#configure-scheduled-refresh-in-power-bi-service) including step-by-step instructions and guidance on when refresh is needed for different data sources.
 - **Changed**
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 

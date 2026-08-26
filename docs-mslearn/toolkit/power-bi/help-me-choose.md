@@ -3,7 +3,7 @@ title: Choose a Power BI data source
 description: Learn about different ways to connect Power BI to your data to analyze and report on cloud costs, including connectors and exports.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/26/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -84,7 +84,7 @@ The following table outlines the supported features by each data source option. 
 
 _¹ FinOps hubs include a Data Factory pipeline for added benefits on top of Cost Management exports. Pipeline costs are $2/mo per $1 million in spend based on list prices and add support for multiple tenants, scheduling export times, and parquet data conversion._
 
-_² The Cost Management connector for Power BI doesn't support incremental refresh, so the limits are the same as the per-month estimation. Storage-based estimates are based on incremental refresh being enabled, which requires configuration after your report is published._
+_² The Cost Management connector for Power BI doesn't support incremental refresh, so the limits are the same as the per-month estimation. Storage-based estimates are based on incremental refresh being enabled, which requires configuration after your report is published. For guidance on configuring refresh, see [Configure scheduled refresh in Power BI service](setup.md#configure-scheduled-refresh-in-power-bi-service)._
 
 _³ The Cost Management connector uses an old API version and doesn't include details for some features, like savings plans. Use exports or FinOps hubs for the latest version with all details._
 
