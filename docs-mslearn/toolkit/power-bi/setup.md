@@ -132,7 +132,7 @@ After publishing your reports to the Power BI service, you can configure schedul
 
 **Data sources that do not require scheduled refresh:**
 - **FinOps hubs with Azure Data Explorer** &ndash; Data is automatically ingested and immediately available through KQL queries.
-- **FinOps hubs with Microsoft Fabric** &ndash; Data is automatically ingested and immediately available through SQL queries.
+- **FinOps hubs with Microsoft Fabric** &ndash; Data is automatically ingested and immediately available through KQL queries against Fabric Real-Time Intelligence.
 
 ### Set up scheduled refresh
 
