@@ -3,7 +3,7 @@ title: Start-FinOpsCostExport command
 description: Initiate a Cost Management export run for the most recent period using the Start-FinOpsCostExport command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/22/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -39,14 +39,14 @@ Start-FinOpsCostExport `
 
 ## Parameters
 
-| Name          | Description                                                                                                                                                                                                         |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `‑Name`       | Required. Name of the export.                                                                                                                                                                                       |
-| `‑Scope`      | Optional. Resource ID of the scope to export data for. If empty, defaults to current subscription context.                                                                                                          |
-| `‑StartDate`  | Optional. Day to start pulling the data for. If not set, the export uses the dates defined in the export configuration.                                                                                             |
-| `‑EndDate`    | Optional. Last day to pull data for. If not set and -StartDate is set, -EndDate uses the last day of the month. If not set and -StartDate isn't set, the export uses the dates defined in the export configuration. |
-| `‑Backfill`   | Optional. Number of months to export the data for. Make note of throttling (429) errors. It only runs once. Failed exports aren't reattempted. Default = 0.                                                         |
-| `‑ApiVersion` | Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.                                                                                                                    |
+| Name          | Description                                                                                                                                                                                                                                                                                                                                       |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑Name`       | Required. Name of the export.                                                                                                                                                                                                                                                                                                                     |
+| `‑Scope`      | Optional. Resource ID of the scope to export data for. If empty, defaults to current subscription context.                                                                                                                                                                                                                                        |
+| `‑StartDate`  | Optional. Day to start pulling the data for. Interpreted as a UTC calendar date, so the day you specify is the day that gets exported, regardless of your local time zone. If not set, the export uses the dates defined in the export configuration.                                                                                             |
+| `‑EndDate`    | Optional. Last day to pull data for. Interpreted as a UTC calendar date, so the day you specify is the day that gets exported, regardless of your local time zone. If not set and -StartDate is set, -EndDate uses the last day of the month. If not set and -StartDate isn't set, the export uses the dates defined in the export configuration. |
+| `‑Backfill`   | Optional. Number of months to export the data for. Make note of throttling (429) errors. It only runs once. Failed exports aren't reattempted. Default = 0.                                                                                                                                                                                       |
+| `‑ApiVersion` | Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.                                                                                                                                                                                                                                                  |
 
 <br>
 

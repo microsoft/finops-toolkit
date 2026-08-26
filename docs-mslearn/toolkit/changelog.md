@@ -70,6 +70,11 @@ The following section lists features and enhancements that are currently in deve
 - **Changed**
   - Switched the reservations and benefits workbooks from the retired `ccmstorageprod` isfratioblob.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 
+### [PowerShell module](powershell/powershell-commands.md)
+
+- **Fixed**
+  - Fixed [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) exporting the wrong period for anyone running in a positive UTC offset. `-StartDate` and `-EndDate` are now treated as UTC calendar dates instead of being time zone converted, so the days you request are the days that get exported. Previously, local midnight converted to the previous UTC day, which moved the period back a day and made `-Backfill` run one extra month ([#2255](https://github.com/microsoft/finops-toolkit/issues/2255)).
+
 ### [Open data](open-data.md) updates
 
 **[Instance size flexibility](open-data.md#instance-size-flexibility)**
@@ -81,6 +86,7 @@ The following section lists features and enhancements that are currently in deve
 
 - **Fixed**
   - Fixed the commitment discount eligibility dataset refresh so it is reproducible and complete; retired meters now age out and previously missed meters are included ([#2164](https://github.com/microsoft/finops-toolkit/pull/2164)).
+  - Fixed the weekly commitment discount eligibility refresh timing out before it could publish, which left the dataset unchanged since it first shipped in v14. The refresh now walks each price type directly instead of sharding by service family, and verifies completeness by comparing two independent traversals before writing ([#2251](https://github.com/microsoft/finops-toolkit/pull/2251)).
 
 -->
 
