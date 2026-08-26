@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/14/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -470,6 +470,12 @@ Examples:
 - `ifempty('', '(empty)')` = "(empty)"
 - `ifempty(null, '(empty)')` = "(empty)"
 - `ifempty(123, '(empty)')` = 123
+
+<br>
+
+## InstanceSizeFlexibility table
+
+The **InstanceSizeFlexibility** table in Power BI and Data Explorer is populated from the [Instance size flexibility open data file](../open-data.md#instance-size-flexibility). This table is used to identify reservation-eligible SKUs that share instance size flexibility with a purchased reservation.
 
 <br>
 

@@ -20,9 +20,9 @@ Open, extensible, and scalable cost governance for the enterprise.
 FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization – virtual command centers for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in April 2026<span class="ftk-version">v14</span></h3>
+    <h3>What's new in August 2026<span class="ftk-version">v15</span></h3>
     <p>
-        In April, FinOps hubs added recommendations ingestion from Azure Advisor and custom ARG queries, a Copilot Studio agent template, simplified the deployment UI, and fixed deployment and ETL pipeline issues.
+        In August, FinOps hubs added VNet and private network modes with optional NAT Gateway support, a guide to run FinOps hubs using a local Kusto emulator, and fixed several KQL join and cost recompute issues.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

@@ -19,15 +19,13 @@ Accelerate your cost optimization efforts with scheduled notifications that cont
 
 Designed with flexibility in mind, FinOps alerts run on a fully configurable schedule, continuously scanning your selected subscriptions for idle resources.
 
-<!--
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in April 2025<span class="ftk-version">v0.10</span></h3>
+    <h3>What's new in August 2026<span class="ftk-version">v15</span></h3>
     <p>
-        In April, FinOps alerts introduced small bug fixes and improvements.
+        In August, FinOps alerts made join kinds explicit in the idle application gateway and idle public IP queries so they no longer rely on the default join behavior.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
--->
 <a name="features"></a>
 
 ## Actionable insights for smarter cloud management

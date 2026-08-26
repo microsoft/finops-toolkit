@@ -216,8 +216,8 @@
           href: toolkit/optimization-engine/troubleshooting.md
         - name: Reference
           href: toolkit/optimization-engine/reference.md
-    - name: Open data
-      href: toolkit/open-data.md
+    - name: Agent plugins
+      href: toolkit/agent-plugin/finops-toolkit-agent-plugin-overview.md
     - name: PowerShell
       items:
         - name: All commands
@@ -278,6 +278,8 @@
           href: toolkit/bicep-registry/modules.md
         - name: Scheduled actions
           href: toolkit/bicep-registry/scheduled-actions.md
+    - name: Open data
+      href: toolkit/open-data.md
     - name: Data Lake Storage connectivity
       href: toolkit/data-lake-storage-connectivity.md
     - name: Help + support
