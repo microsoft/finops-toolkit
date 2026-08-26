@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: flanakin
 ms.author: micflan
-ms.date: 08/13/2026
+ms.date: 08/26/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -357,6 +357,26 @@ This error occurs when the Data Explorer cleanup step that runs before ingesting
 3. **Rerun ingestion**: Once the issue is resolved, rerun data ingestion for the specified folder using the `ingestion_ExecuteETL` pipeline in Azure Data Factory.
 
 For more information, see the mitigation steps for [DataExplorerPostIngestionDropFailed](#dataexplorerpostingestiondropfailed).
+
+Report unresolved issues at <https://aka.ms/ftk/ideas>.
+
+<br>
+
+## DeploymentScriptACIProvisioningTimeout
+
+<sup>Severity: Major</sup>
+
+FinOps hub deployments use `Microsoft.Resources/deploymentScripts` resources to run PowerShell setup scripts. Each deployment script provisions a temporary Azure Container Instance (ACI) to execute its script. If that container instance doesn't start in time, the deployment script — and the overall deployment — fails with `DeploymentScriptACIProvisioningTimeout`.
+
+This error isn't caused by the script itself; it means the underlying ACI never finished provisioning. We've seen two causes:
+
+- **Transient ACI capacity or scheduling delay.** The container instance service is momentarily unable to place the container. This usually resolves on its own.
+- **Restrictive tenant security policies (for example, Microsoft SFI) blocking the deployment script's use of a storage account key.** The container gets stuck in a `Waiting to run` or `Creating` state and never progresses.
+
+**Mitigation**:
+
+1. **Retry the deployment.** Most instances of this error are transient — simply redeploying resolves it.
+2. **If it keeps failing, set the `SecurityControl` tag to `Ignore` on the target resource group before deploying.** Some tenant security policies disable the shared storage account key that deployment scripts rely on; this tag bypasses that restriction for the deployment. You can either tag the resource group yourself before deploying (for example, `az group create --tags SecurityControl=Ignore` or `az group update --tags SecurityControl=Ignore`), or pass `resourceGroupTags: { SecurityControl: 'Ignore' }` to the FinOps hub template, which merges the tag onto the resource group as part of the deployment.
 
 Report unresolved issues at <https://aka.ms/ftk/ideas>.
 

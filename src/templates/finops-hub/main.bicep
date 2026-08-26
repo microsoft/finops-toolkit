@@ -141,6 +141,9 @@ param tags object = {}
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
+@description('Optional. Tags to merge onto the resource group this template deploys into (in addition to any tags it already has). Intended for internal test/dev deployments that need a resource-group-level policy tag -- e.g. SecurityControl=Ignore to work around DeploymentScriptACIProvisioningTimeout caused by tenant security policies blocking deployment script storage access (see docs-mslearn/toolkit/help/errors.md). Not applicable to most deployments; leave empty unless you know you need it. Default: {}.')
+param resourceGroupTags object = {}
+
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array = []
 
@@ -169,6 +172,15 @@ param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 //==============================================================================
 // Resources
 //==============================================================================
+
+// Merge (not overwrite) resourceGroupTags onto the resource group's existing tags, if any were specified. Skipped
+// entirely when resourceGroupTags is empty so typical deployments don't add an unnecessary deployment operation.
+resource mergeResourceGroupTags 'Microsoft.Resources/tags@2022-09-01' = if (!empty(resourceGroupTags)) {
+  name: 'default'
+  properties: {
+    tags: union(resourceGroup().tags, resourceGroupTags)
+  }
+}
 
 module hub 'modules/hub.bicep' = {
   name: 'hub'
