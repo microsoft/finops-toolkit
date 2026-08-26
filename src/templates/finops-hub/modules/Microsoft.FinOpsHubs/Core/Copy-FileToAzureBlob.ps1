@@ -125,13 +125,16 @@ else
 }
 
 # Set or update ingestion retention
+# NOTE: Bicep always passes a value here (defaulting to 13 if the caller didn't specify one), so this script
+# cannot tell an explicit redeploy value from a silently-defaulted one. Never lower retention on redeploy --
+# shrinking silently ages out historical data the next time the purge pipeline runs (#2206); growing is safe.
 if (!($json.retention.ingestion))
 {
     $json.retention | Add-Member -Name ingestion -Value (ConvertFrom-Json "{""months"":$($env:ingestionRetentionInMonths)}") -MemberType NoteProperty
 }
 else
 {
-    $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
+    $json.retention.ingestion.months = [Math]::Max($json.retention.ingestion.months, [Int32]::Parse($env:ingestionRetentionInMonths))
 }
 
 # Set or update raw retention
@@ -144,14 +147,14 @@ else
     $json.retention.raw.days = [Int32]::Parse($env:rawRetentionInDays)
 }
 
-# Set or update final retention
+# Set or update final retention (never lower on redeploy -- see note above)
 if (!($json.retention.final))
 {
     $json.retention | Add-Member -Name final -Value (ConvertFrom-Json "{""months"":$($env:finalRetentionInMonths)}") -MemberType NoteProperty
 }
 else
 {
-    $json.retention.final.months = [Int32]::Parse($env:finalRetentionInMonths)
+    $json.retention.final.months = [Math]::Max($json.retention.final.months, [Int32]::Parse($env:finalRetentionInMonths))
 }
 
 # Updating settings
