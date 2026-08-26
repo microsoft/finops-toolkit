@@ -3086,7 +3086,161 @@
         "colorRules": []
       }
     }
-  ],
+  ,
+    {
+      "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f809102",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 22,
+        "height": 2
+      },
+      "markdownText": "On this page: &nbsp; [KPIs](?tile=b8c9d0e1-f2a3-4b4c-5d6e-7f8091021324) &nbsp;•&nbsp; [Trend](?tile=c9d0e1f2-a3b4-4c5d-6e7f-8091021324a5) &nbsp;•&nbsp; [Services](?tile=d0e1f2a3-b4c5-4d6e-7f80-91021324a5b6) &nbsp;•&nbsp; [Top Resources](?tile=e1f2a3b4-c5d6-4e7f-8091-021324a5b6c7) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK$$ftkver$$/bladeName/Hubs.Dashboard/featureName/Understand.AIBilling)",
+      "visualOptions": {}
+    },
+    {
+      "id": "a7b8c9d0-e1f2-4a3b-4c5d-6e7f80910213",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 0,
+        "y": 2,
+        "width": 22,
+        "height": 3
+      },
+      "markdownText": "# AI billing\nBilling-level costs for Azure AI services from FinOps Hub data, filtered by `ServiceCategory == 'AI and Machine Learning'` plus `Azure AI Search`. Covers Azure AI Services, Azure Machine Learning, and Azure AI Search.\n\n⬆️ [Top](?tile=f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f809102)",
+      "visualOptions": {}
+    },
+    {
+      "id": "b8c9d0e1-f2a3-4b4c-5d6e-7f8091021324",
+      "title": "AI cost KPIs",
+      "visualType": "multistat",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 0,
+        "y": 5,
+        "width": 6,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e"
+      },
+      "visualOptions": {
+        "multiStat__textSize": "large",
+        "multiStat__slot": {
+          "width": 1,
+          "height": 2
+        },
+        "crossFilterDisabled": true,
+        "drillthroughDisabled": true,
+        "crossFilter": [],
+        "drillthrough": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "c9d0e1f2-a3b4-4c5d-6e7f-8091021324a5",
+      "title": "AI cost per day",
+      "visualType": "column",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 6,
+        "y": 5,
+        "width": 16,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f"
+      },
+      "visualOptions": {
+        "yAxisMinimumValue": 0,
+        "yColumnTitle": "Effective cost",
+        "xColumnTitle": "",
+        "xColumn": "ChargePeriodStart",
+        "yColumns": [
+          "EffectiveCost"
+        ],
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "f2a3b4c5-d6e7-4f80-9102-1324a5b6c7d8",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 0,
+        "y": 13,
+        "width": 22,
+        "height": 2
+      },
+      "markdownText": "## Services\nAI cost breakdown by service and top cost-driving resources.\n\n⬆️ [Top](?tile=f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f809102)",
+      "visualOptions": {}
+    },
+    {
+      "id": "d0e1f2a3-b4c5-4d6e-7f80-91021324a5b6",
+      "title": "AI cost by service",
+      "visualType": "stackedcolumn",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 0,
+        "y": 15,
+        "width": 14,
+        "height": 5
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f80"
+      },
+      "visualOptions": {
+        "yColumnTitle": "Effective cost",
+        "xColumn": "ServiceName",
+        "yColumns": [
+          "EffectiveCost"
+        ],
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "e1f2a3b4-c5d6-4e7f-8091-021324a5b6c7",
+      "title": "Top 5 AI resources",
+      "visualType": "table",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 14,
+        "y": 15,
+        "width": 8,
+        "height": 5
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8091"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    }],
   "baseQueries": [
     { "id": "58764bcb-2ba0-4c7f-b018-e5d7f6cff688", "queryId": "43612ae4-c475-4f22-bb50-ce9d995abb8f", "variableName": "CostsThisMonth" },
     { "id": "21512220-154c-4646-a188-72e8c437d8ed", "queryId": "cb1f5404-c0b1-42fd-99fb-3cff7b08daaa", "variableName": "CostsLastMonth" },
@@ -3153,6 +3307,10 @@
     { "name": "- Data ingestion", "id": "9e099251-9658-48da-b416-80422a2a47c7" },
     { "name": "OPTIMIZE", "id": "d01a8154-8a60-4d22-96ea-54b45b1417fe" },
     { "name": "- Usage optimization", "id": "33596cbb-e820-44b3-9afd-998da101e36b" },
+    {
+      "name": "- AI billing",
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
+    },
     { "name": "- Rate optimization", "id": "306fef9a-c760-4559-a326-7c25d196b616" },
     { "id": "a4ec1d55-5b6e-49af-bb9e-4f3d136cdf05", "name": "- Licensing + SaaS" },
     { "name": "QUANTIFY", "id": "8beab65c-f5ec-4661-bc67-37b10baffb16" },
@@ -3744,5 +3902,50 @@
       "id": "f2a8c4d6-3b5e-4a7f-9c2d-8e5b1f4a7d9c",
       "usedVariables": []
     }
-  ]
+  ,
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let _isAI = (svcCat: string, svcName: string) { svcCat == 'AI and Machine Learning' or svcName == 'Azure AI Search' };\nlet aiCosts = CostsByDay | where _isAI(ServiceCategory, ServiceName);\nlet totalAI = toscalar(aiCosts | summarize round(sum(EffectiveCost), 2));\nlet totalCloud = toscalar(CostsByDay | summarize sum(EffectiveCost));\nlet aiPercent = iff(totalCloud > 0, round(totalAI / totalCloud * 100, 1), 0.0);\nlet resourceCount = toscalar(aiCosts | summarize dcount(ResourceName));\nlet currentMonthStart = startofmonth(now());\nlet priorMonthStart = startofmonth(datetime_add('month', -1, now()));\nlet currentMonthAI = toscalar(\n    CostsPlus\n    | where (ServiceCategory == 'AI and Machine Learning' or ServiceName == 'Azure AI Search')\n    | where ChargePeriodStart >= currentMonthStart\n    | summarize sum(EffectiveCost)\n);\nlet priorMonthAI = toscalar(\n    CostsPlus\n    | where (ServiceCategory == 'AI and Machine Learning' or ServiceName == 'Azure AI Search')\n    | where ChargePeriodStart >= priorMonthStart and ChargePeriodStart < currentMonthStart\n    | summarize sum(EffectiveCost)\n);\nlet momChange = iff(priorMonthAI > 0, round((currentMonthAI - priorMonthAI) / priorMonthAI * 100, 1), 0.0);\nprint\n    ['Total AI Cost'] = totalAI,\n    ['AI % of Cloud'] = aiPercent,\n    ['MoM Change %'] = momChange,\n    ['AI Resources'] = resourceCount",
+      "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "usedVariables": [
+        "CostsByDay",
+        "CostsPlus"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsByDay\n| where (ServiceCategory == 'AI and Machine Learning' or ServiceName == 'Azure AI Search')\n| summarize EffectiveCost = round(sum(EffectiveCost), 2) by bin(ChargePeriodStart, 1d)\n| order by ChargePeriodStart asc",
+      "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+      "usedVariables": [
+        "CostsByDay"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let aiCosts = CostsByMonth | where (ServiceCategory == 'AI and Machine Learning' or ServiceName == 'Azure AI Search');\nlet totalAI = toscalar(aiCosts | summarize sum(EffectiveCost));\naiCosts\n| summarize\n    EffectiveCost = round(sum(EffectiveCost), 2),\n    ResourceCount = dcount(ResourceName)\n    by ServiceName\n| extend SharePercent = iff(totalAI > 0, round(EffectiveCost / totalAI * 100, 1), 0.0)\n| order by EffectiveCost desc",
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f80",
+      "usedVariables": [
+        "CostsByMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsByDay\n| where (ServiceCategory == 'AI and Machine Learning' or ServiceName == 'Azure AI Search')\n| summarize\n    TotalCost = round(sum(EffectiveCost), 2),\n    DailyAvg = round(avg(EffectiveCost), 2)\n    by ResourceName, ServiceName\n| top 5 by TotalCost desc",
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8091",
+      "usedVariables": [
+        "CostsByDay"
+      ]
+    }]
 }
