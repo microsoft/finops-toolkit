@@ -427,7 +427,7 @@ Describe 'HubsIngestionQueries' {
             $armCopyPipelineContent | Should -Match ([regex]::Escape("contains(activity(\'Copy Raw ARM Page\').error.message, \'status code 409 Conflict\')"))
             $armCopyPipelineContent | Should -Match ([regex]::Escape('"code":"SubscriptionHasNoUsages"'))
             $armCopyPipelineContent | Should -Match "(?s)name: 'Stop Paging After ARM Request Failure'.*?variableName: 'requestUrl'.*?value: ''"
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Rethrow ARM Request Failure'.*?name: 'ARM Request Failed'.*?type: 'Fail'"
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Rethrow ARM Request Failure'.*?activity: 'Read ARM Pages'.*?'Completed'.*?name: 'ARM Request Failed'.*?type: 'Fail'"
             $armCopyPipelineContent | Should -Match "@variables\(\\'requestFailureCode\\'\)"
         }
 

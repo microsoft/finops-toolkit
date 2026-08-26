@@ -1619,7 +1619,7 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
           {
             activity: 'Read ARM Pages'
             dependencyConditions: [
-              'Succeeded'
+              'Completed'
             ]
           }
         ]
