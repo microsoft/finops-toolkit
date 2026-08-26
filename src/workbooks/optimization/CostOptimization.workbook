@@ -350,7 +350,7 @@
         "comparison": "isEqualTo",
         "value": "WorkloadOptimization"
       },
-      "name": "group - workload optimization"
+      "name": "group - usage optimization"
     },
     {
       "type": 12,
