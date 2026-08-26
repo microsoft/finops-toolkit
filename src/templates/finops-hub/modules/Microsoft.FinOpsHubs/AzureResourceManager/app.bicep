@@ -1169,6 +1169,7 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
   name: 'queries_AzureResourceManager_CopyQuery'
   parent: dataFactory
   properties: {
+    concurrency: 30
     activities: [
       {
         name: 'Set Initial Request URL'
@@ -1313,6 +1314,65 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
                   }
                 }
               ]
+            }
+            {
+              name: 'Capture ARM Request Failure'
+              description: 'Treat an empty Network usage response as no data and retain every other ARM error for rethrow.'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Copy Raw ARM Page'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestFailure'
+                value: {
+                  value: '@if(and(contains(pipeline().parameters.query, \'/providers/Microsoft.Network/locations/\'), contains(activity(\'Copy Raw ARM Page\').error.message, \'status code 409 Conflict\'), contains(activity(\'Copy Raw ARM Page\').error.message, \'"code":"SubscriptionHasNoUsages"\')), \'\', activity(\'Copy Raw ARM Page\').error.message)'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Capture ARM Request Error Code'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture ARM Request Failure'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestFailureCode'
+                value: {
+                  value: '@coalesce(activity(\'Copy Raw ARM Page\').error.errorCode, \'ArmRequestFailed\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Stop Paging After ARM Request Failure'
+              description: 'Clear the request URL so the Until activity does not repeat a failed ARM request.'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture ARM Request Error Code'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestUrl'
+                value: ''
+              }
             }
             {
               name: 'Copy Page Metadata'
@@ -1552,12 +1612,50 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
         }
       }
       {
+        name: 'Rethrow ARM Request Failure'
+        description: 'Fail the pipeline for every ARM request error except an empty Network usage response.'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Read ARM Pages'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@not(empty(variables(\'requestFailure\')))'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'ARM Request Failed'
+              type: 'Fail'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: '@variables(\'requestFailure\')'
+                  type: 'Expression'
+                }
+                errorCode: {
+                  value: '@variables(\'requestFailureCode\')'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      {
         name: 'Delete Paging Files'
         description: 'Delete this pipeline run\'s raw response and continuation files after paging completes.'
         type: 'Delete'
         dependsOn: [
           {
-            activity: 'Read ARM Pages'
+            activity: 'Rethrow ARM Request Failure'
             dependencyConditions: [
               'Succeeded'
             ]
@@ -1625,6 +1723,12 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
     }
     variables: {
       requestUrl: {
+        type: 'String'
+      }
+      requestFailure: {
+        type: 'String'
+      }
+      requestFailureCode: {
         type: 'String'
       }
       metadataPath: {

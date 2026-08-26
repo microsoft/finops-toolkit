@@ -1524,6 +1524,10 @@ Quota_transform_v1_0()
         x_SourceType =~ 'AppServiceUsage', 'Microsoft.Web/locations/usages',
         x_SourceType =~ 'ComputeUsage', 'Microsoft.Compute/locations/usages',
         x_SourceType =~ 'CognitiveServicesUsage', 'Microsoft.CognitiveServices/locations/usages',
+        x_SourceType =~ 'HDInsightUsage', 'Microsoft.HDInsight/locations/usages',
+        x_SourceType =~ 'MachineLearningUsage', 'Microsoft.MachineLearningServices/locations/usages',
+        x_SourceType =~ 'NetworkUsage', 'Microsoft.Network/locations/usages',
+        x_SourceType =~ 'PurviewUsage', 'Microsoft.Purview/locations/usages',
         x_SourceType =~ 'CapacityReservation', 'Microsoft.Compute/capacityReservationGroups',
         x_SourceType =~ 'PremiumSSDv2Disk', 'Microsoft.Compute/disks',
         x_SourceType =~ 'StorageUsage', 'Microsoft.Storage/locations/usages',
@@ -1531,13 +1535,36 @@ Quota_transform_v1_0()
         x_SourceType =~ 'AvailabilityZoneMapping', 'Microsoft.Resources/subscriptions/locations',
         ''
     ))
-    | extend ResourceId = tolower(coalesce(ResourceId, case(
-        x_SourceType in~ ('AppServiceUsage', 'ComputeUsage', 'CognitiveServicesUsage', 'StorageUsage'),
-            strcat(SubAccountId, '/providers/', tostring(split(ResourceType, '/')[0]), '/locations/', location, '/usages/', ResourceName),
-        x_SourceType =~ 'ComputeResourceSku',
-            strcat(SubAccountId, '/providers/Microsoft.Compute/locations/', location, '/skus/', ResourceName),
-        ''
-    )))
+    | extend tmp_UsageResourceId = strcat(
+        SubAccountId,
+        '/providers/',
+        tostring(split(ResourceType, '/')[0]),
+        '/locations/',
+        location,
+        '/usages/',
+        ResourceName
+    )
+    | extend ResourceId = tolower(case(
+        x_SourceType =~ 'MachineLearningUsage'
+            and ResourceId matches regex '(?i)^/subscriptions/[^/]+/usages(/[^/]+)?$',
+            tmp_UsageResourceId,
+        coalesce(ResourceId, case(
+            x_SourceType in~ (
+                'AppServiceUsage',
+                'CognitiveServicesUsage',
+                'ComputeUsage',
+                'HDInsightUsage',
+                'MachineLearningUsage',
+                'NetworkUsage',
+                'PurviewUsage',
+                'StorageUsage'
+            ),
+                tmp_UsageResourceId,
+            x_SourceType =~ 'ComputeResourceSku',
+                strcat(SubAccountId, '/providers/Microsoft.Compute/locations/', location, '/skus/', ResourceName),
+            ''
+        ))
+    ))
     | extend x_QuotaDetails = bag_merge(
         coalesce(x_QuotaDetails, dynamic({})),
         bag_pack(

@@ -34,13 +34,89 @@ Describe 'HubsIngestionQueries' {
             @{ Name = 'quota-cognitive-services-usage.kql'; SourceTypes = @('CognitiveServicesUsage'); ResourceTypes = @('Microsoft.CognitiveServices/locations/usages') }
             @{ Name = 'quota-compute-resource-skus.kql'; SourceTypes = @('ComputeResourceSku'); ResourceTypes = @('virtualMachines') }
             @{ Name = 'quota-compute-usage.kql'; SourceTypes = @('ComputeUsage'); ResourceTypes = @('Microsoft.Compute/locations/usages') }
+            @{ Name = 'quota-hdinsight-usage.kql'; SourceTypes = @('HDInsightUsage'); ResourceTypes = @('Microsoft.HDInsight/locations/usages') }
+            @{ Name = 'quota-machine-learning-usage.kql'; SourceTypes = @('MachineLearningUsage'); ResourceTypes = @('Microsoft.MachineLearningServices/locations/usages') }
+            @{ Name = 'quota-network-usage.kql'; SourceTypes = @('NetworkUsage'); ResourceTypes = @('Microsoft.Network/locations/usages') }
             @{ Name = 'quota-premium-ssd-v2-disks.kql'; SourceTypes = @('PremiumSSDv2Disk'); ResourceTypes = @('Microsoft.Compute/disks') }
+            @{ Name = 'quota-purview-usage.kql'; SourceTypes = @('PurviewUsage'); ResourceTypes = @('Microsoft.Purview/locations/usages') }
             @{ Name = 'quota-sql-subscription-usage.kql'; SourceTypes = @('SqlSubscriptionUsage'); ResourceTypes = @('Microsoft.Sql/locations/usages') }
             @{ Name = 'quota-storage-usage.kql'; SourceTypes = @('StorageUsage', 'ComputeUsage'); ResourceTypes = @('Microsoft.Storage/locations/usages', 'Microsoft.Compute/locations/usages') }
         ) | ForEach-Object {
             $_.FullName = Join-Path $repoRoot "src/queries/catalog/$($_.Name)"
             $_
         }
+        $quotaResourceIdCases = @(
+            @{
+                Name             = 'Network native provider ID'
+                SourceType       = 'NetworkUsage'
+                NativeResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Network/locations/eastus/usages/PublicIPAddresses'
+                QueryScope       = '/subscriptions/11111111-1111-1111-1111-111111111111'
+                Provider         = 'Microsoft.Network'
+                Location         = 'eastus'
+                ResourceName     = 'PublicIPAddresses'
+                Expected         = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/microsoft.network/locations/eastus/usages/publicipaddresses'
+            }
+            @{
+                Name             = 'HDInsight missing ID'
+                SourceType       = 'HDInsightUsage'
+                NativeResourceId = $null
+                QueryScope       = '/subscriptions/11111111-1111-1111-1111-111111111111'
+                Provider         = 'Microsoft.HDInsight'
+                Location         = 'westus'
+                ResourceName     = 'cores'
+                Expected         = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/microsoft.hdinsight/locations/westus/usages/cores'
+            }
+            @{
+                Name             = 'Purview empty ID'
+                SourceType       = 'PurviewUsage'
+                NativeResourceId = ''
+                QueryScope       = '/subscriptions/11111111-1111-1111-1111-111111111111'
+                Provider         = 'Microsoft.Purview'
+                Location         = 'eastus2'
+                ResourceName     = 'Purview-Account-Subscription'
+                Expected         = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/microsoft.purview/locations/eastus2/usages/purview-account-subscription'
+            }
+            @{
+                Name             = 'Machine Learning bare subscription usage ID'
+                SourceType       = 'MachineLearningUsage'
+                NativeResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/usages'
+                QueryScope       = '/subscriptions/11111111-1111-1111-1111-111111111111'
+                Provider         = 'Microsoft.MachineLearningServices'
+                Location         = 'eastus'
+                ResourceName     = 'StandardDSv2Family'
+                Expected         = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/microsoft.machinelearningservices/locations/eastus/usages/standarddsv2family'
+            }
+            @{
+                Name             = 'Machine Learning named subscription usage ID'
+                SourceType       = 'MachineLearningUsage'
+                NativeResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/usages/StandardDSv2Family'
+                QueryScope       = '/subscriptions/11111111-1111-1111-1111-111111111111'
+                Provider         = 'Microsoft.MachineLearningServices'
+                Location         = 'westus2'
+                ResourceName     = 'StandardDSv2Family'
+                Expected         = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/microsoft.machinelearningservices/locations/westus2/usages/standarddsv2family'
+            }
+            @{
+                Name             = 'Machine Learning workspace ID'
+                SourceType       = 'MachineLearningUsage'
+                NativeResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.MachineLearningServices/workspaces/ws/usages/StandardDSv2Family'
+                QueryScope       = '/subscriptions/11111111-1111-1111-1111-111111111111'
+                Provider         = 'Microsoft.MachineLearningServices'
+                Location         = 'eastus'
+                ResourceName     = 'StandardDSv2Family'
+                Expected         = '/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/rg/providers/microsoft.machinelearningservices/workspaces/ws/usages/standarddsv2family'
+            }
+            @{
+                Name             = 'Machine Learning compute ID'
+                SourceType       = 'MachineLearningUsage'
+                NativeResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.MachineLearningServices/workspaces/ws/computes/cpu-cluster/usages/StandardDSv2Family'
+                QueryScope       = '/subscriptions/11111111-1111-1111-1111-111111111111'
+                Provider         = 'Microsoft.MachineLearningServices'
+                Location         = 'westus2'
+                ResourceName     = 'StandardDSv2Family'
+                Expected         = '/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/rg/providers/microsoft.machinelearningservices/workspaces/ws/computes/cpu-cluster/usages/standarddsv2family'
+            }
+        )
     }
 
     BeforeAll {
@@ -66,6 +142,7 @@ Describe 'HubsIngestionQueries' {
         $appBicepPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Recommendations/app.bicep'
         $appBicepContent = Get-Content -Path $appBicepPath -Raw
         $recommendationGroups = @('core') + @([regex]::Matches($appBicepContent, 'param enable(\w+)Recommendations bool') | ForEach-Object { $_.Groups[1].Value.ToLower() })
+        $quotaAppBicepContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Quota/app.bicep') -Raw
 
         $ingestionQueriesContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/IngestionQueries/app.bicep') -Raw
         $argEngineContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/AzureResourceGraph/app.bicep') -Raw
@@ -84,6 +161,12 @@ Describe 'HubsIngestionQueries' {
         $portal = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/createUiDefinition.json') -Raw | ConvertFrom-Json
         $buildScriptContent = Get-Content -Path (Join-Path $repoRoot 'src/scripts/Build-HubIngestionQueries.ps1') -Raw
         $savingsPlanCatalogContent = Get-Content -Path (Join-Path $repoRoot 'src/queries/catalog/savings-plan-recommendation-breakdown.kql') -Raw
+        $queryIndexContent = Get-Content -Path (Join-Path $repoRoot 'src/queries/INDEX.md') -Raw
+        $quotaGuideContent = Get-Content -Path (Join-Path $repoRoot 'src/queries/finops-hub-database-guide.md') -Raw
+        $machineLearningSubscriptionUsageIdPattern = [regex]::Match(
+            $ingestionSetupContent,
+            "ResourceId matches regex '([^']+)'"
+        ).Groups[1].Value
         $quotaCatalogFileNames = @(
             'quota-app-service-usage.kql'
             'quota-availability-zone-mappings.kql'
@@ -91,7 +174,11 @@ Describe 'HubsIngestionQueries' {
             'quota-cognitive-services-usage.kql'
             'quota-compute-resource-skus.kql'
             'quota-compute-usage.kql'
+            'quota-hdinsight-usage.kql'
+            'quota-machine-learning-usage.kql'
+            'quota-network-usage.kql'
             'quota-premium-ssd-v2-disks.kql'
+            'quota-purview-usage.kql'
             'quota-sql-subscription-usage.kql'
             'quota-storage-usage.kql'
         )
@@ -111,6 +198,32 @@ Describe 'HubsIngestionQueries' {
             'x_SourceVersion'
             'x_IngestionTime'
         )
+
+        function Get-CanonicalQuotaResourceId
+        {
+            param(
+                [string] $SourceType,
+                [AllowNull()]
+                [AllowEmptyString()]
+                [string] $NativeResourceId,
+                [string] $QueryScope,
+                [string] $Provider,
+                [string] $Location,
+                [string] $ResourceName,
+                [string] $MachineLearningSubscriptionUsageIdPattern
+            )
+
+            $fallbackResourceId = "$QueryScope/providers/$Provider/locations/$Location/usages/$ResourceName".ToLowerInvariant()
+            if ($SourceType -eq 'MachineLearningUsage' -and $NativeResourceId -match $MachineLearningSubscriptionUsageIdPattern)
+            {
+                return $fallbackResourceId
+            }
+            if ([string]::IsNullOrEmpty($NativeResourceId))
+            {
+                return $fallbackResourceId
+            }
+            return $NativeResourceId.ToLowerInvariant()
+        }
     }
 
     Context 'Query files' {
@@ -274,6 +387,7 @@ Describe 'HubsIngestionQueries' {
 
         It 'Should match managed export query concurrency limits' {
             $ingestionQueriesContent | Should -Match 'batchCount: app\.hub\.options\.privateRouting \? 4 : 30'
+            $armCopyPipelineContent | Should -Match 'concurrency:\s+30'
         }
 
         It 'Should publish a manifest only for the current Parquet output' {
@@ -305,6 +419,16 @@ Describe 'HubsIngestionQueries' {
             $armCopyPipelineContent | Should -Not -Match "AbsoluteUrl: '\$\.nextLink'"
             $armCopyPipelineContent | Should -Not -Match 'paginationRules'
             $armCopyPipelineContent | Should -Not -Match 'additionalColumns|requestBody|additionalHeaders|queryDefinition'
+        }
+
+        It 'Should stop paging for empty Network usage responses and rethrow every other ARM error' {
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Capture ARM Request Failure'.*?activity: 'Copy Raw ARM Page'.*?'Failed'"
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("contains(pipeline().parameters.query, \'/providers/Microsoft.Network/locations/\')"))
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("contains(activity(\'Copy Raw ARM Page\').error.message, \'status code 409 Conflict\')"))
+            $armCopyPipelineContent | Should -Match ([regex]::Escape('"code":"SubscriptionHasNoUsages"'))
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Stop Paging After ARM Request Failure'.*?variableName: 'requestUrl'.*?value: ''"
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Rethrow ARM Request Failure'.*?name: 'ARM Request Failed'.*?type: 'Fail'"
+            $armCopyPipelineContent | Should -Match "@variables\(\\'requestFailureCode\\'\)"
         }
 
         It 'Should isolate and delete run-unique continuation metadata' {
@@ -435,10 +559,10 @@ Describe 'HubsIngestionQueries' {
             $savingsPlanCatalogContent | Should -Not -Match 'x_RecommendationType'
         }
 
-        It 'Should define the nine approved GET-only quota queries' {
+        It 'Should define the thirteen approved GET-only quota queries' {
             $quotaQueries = @($queryObjects | Where-Object { $_.AppName -eq 'Quota' })
 
-            $quotaQueries.Count | Should -Be 9
+            $quotaQueries.Count | Should -Be 13
             @($quotaQueries.Query.type | Sort-Object) | Should -Be @(
                 'AppServiceUsage'
                 'AvailabilityZoneMapping'
@@ -446,7 +570,11 @@ Describe 'HubsIngestionQueries' {
                 'CognitiveServicesUsage'
                 'ComputeResourceSku'
                 'ComputeUsage'
+                'HDInsightUsage'
+                'MachineLearningUsage'
+                'NetworkUsage'
                 'PremiumSSDv2Disk'
+                'PurviewUsage'
                 'SqlSubscriptionUsage'
                 'StorageUsage'
             )
@@ -455,7 +583,45 @@ Describe 'HubsIngestionQueries' {
             @($quotaQueries.Query.query | Where-Object { $_ -notmatch '^/(providers/|locations\?)' }).Count | Should -Be 0
         }
 
-        It 'Should define only the nine approved type-specific quota catalog files' {
+        It 'Should use the documented stable API for each added regional quota provider' {
+            $quotaQueries = @($queryObjects | Where-Object { $_.AppName -eq 'Quota' })
+            $expectedQueries = @{
+                HDInsightUsage      = '/providers/Microsoft.HDInsight/locations/{location}/usages?api-version=2021-06-01'
+                MachineLearningUsage = '/providers/Microsoft.MachineLearningServices/locations/{location}/usages?api-version=2025-04-01'
+                NetworkUsage        = '/providers/Microsoft.Network/locations/{location}/usages?api-version=2025-07-01'
+                PurviewUsage        = '/providers/Microsoft.Purview/locations/{location}/usages?api-version=2021-12-01'
+            }
+
+            foreach ($sourceType in $expectedQueries.Keys)
+            {
+                $query = @($quotaQueries | Where-Object { $_.Query.type -eq $sourceType })
+                $query.Count | Should -Be 1
+                $query[0].Query.query | Should -Be $expectedQueries[$sourceType]
+                $query[0].Query.version | Should -Be '1.0-usage'
+                $quotaAppBicepContent | Should -Match ([regex]::Escape("Quota-Microsoft-$sourceType"))
+            }
+        }
+
+        It 'Should keep the generated Quota query registration in manifest filename order' {
+            $quotaQueryPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Quota/queries'
+            $expectedQueryNames = @(
+                Get-ChildItem -Path $quotaQueryPath -Filter '*.json' |
+                    Sort-Object Name |
+                    Select-Object -ExpandProperty BaseName
+            )
+            $generatedBlock = [regex]::Match(
+                $quotaAppBicepContent,
+                '(?s)// <generated-query-files>.*?// </generated-query-files>'
+            ).Value
+            $actualQueryNames = @(
+                [regex]::Matches($generatedBlock, "'([^']+)': loadTextContent") |
+                    ForEach-Object { $_.Groups[1].Value }
+            )
+
+            $actualQueryNames | Should -Be $expectedQueryNames
+        }
+
+        It 'Should define only the thirteen approved type-specific quota catalog files' {
             $catalogPath = Join-Path $repoRoot 'src/queries/catalog'
             $aggregateFiles = @('quota-current-usage.kql', 'quota-headroom.kql')
             $actualFiles = @(Get-ChildItem -Path $catalogPath -Filter 'quota-*.kql' |
@@ -550,12 +716,94 @@ Describe 'HubsIngestionQueries' {
             $ingestionSetupContent | Should -Match 'bag_pack\('
             $ingestionSetupContent | Should -Match "x_SourceType !~ 'PremiumSSDv2Disk' or displayName =~ 'PremiumV2_LRS'"
             $ingestionSetupContent | Should -Match "x_SourceType =~ 'AppServiceUsage'"
+            $ingestionSetupContent | Should -Match ([regex]::Escape("x_SourceType =~ 'HDInsightUsage', 'Microsoft.HDInsight/locations/usages'"))
+            $ingestionSetupContent | Should -Match ([regex]::Escape("x_SourceType =~ 'MachineLearningUsage', 'Microsoft.MachineLearningServices/locations/usages'"))
+            $ingestionSetupContent | Should -Match ([regex]::Escape("x_SourceType =~ 'NetworkUsage', 'Microsoft.Network/locations/usages'"))
+            $ingestionSetupContent | Should -Match ([regex]::Escape("x_SourceType =~ 'PurviewUsage', 'Microsoft.Purview/locations/usages'"))
             $ingestionSetupContent | Should -Match "x_SourceType =~ 'StorageUsage'"
+            $ingestionSetupContent | Should -Match ([regex]::Escape("ResourceId matches regex '(?i)^/subscriptions/[^/]+/usages(/[^/]+)?$'"))
+            $ingestionSetupContent | Should -Match 'tmp_UsageResourceId'
+            $ingestionSetupContent | Should -Match 'coalesce\(ResourceId, case\('
+            $regionalUsageFallbackSources = [regex]::Match(
+                $ingestionSetupContent,
+                "(?s)x_SourceType in~ \((.*?)\),\s+tmp_UsageResourceId"
+            ).Groups[1].Value
+            foreach ($sourceType in @('HDInsightUsage', 'MachineLearningUsage', 'NetworkUsage', 'PurviewUsage'))
+            {
+                $regionalUsageFallbackSources | Should -Match ([regex]::Escape("'$sourceType'"))
+            }
             $ingestionSetupContent | Should -Match ([regex]::Escape("strcat(SubAccountId, '/providers/Microsoft.Compute/locations/', location, '/skus/', ResourceName)"))
             $hubSetupContent | Should -Match 'Quota_v1_0\(\)'
             $hubSetupContent | Should -Match 'ComputeQuota_v1_0\(\)'
             $hubLatestContent | Should -Match 'Quota\(\)'
             $hubLatestContent | Should -Match 'ComputeQuota\(\)'
+        }
+
+        It 'Should preserve or synthesize the canonical quota ResourceId for <Name>' -ForEach $quotaResourceIdCases {
+            $actual = Get-CanonicalQuotaResourceId `
+                -SourceType $SourceType `
+                -NativeResourceId $NativeResourceId `
+                -QueryScope $QueryScope `
+                -Provider $Provider `
+                -Location $Location `
+                -ResourceName $ResourceName `
+                -MachineLearningSubscriptionUsageIdPattern $machineLearningSubscriptionUsageIdPattern
+
+            $actual | Should -Be $Expected
+        }
+
+        It 'Should keep identical Machine Learning quota names distinct across locations' {
+            $eastUs = Get-CanonicalQuotaResourceId `
+                -SourceType 'MachineLearningUsage' `
+                -NativeResourceId '/subscriptions/11111111-1111-1111-1111-111111111111/usages' `
+                -QueryScope '/subscriptions/11111111-1111-1111-1111-111111111111' `
+                -Provider 'Microsoft.MachineLearningServices' `
+                -Location 'eastus' `
+                -ResourceName 'StandardDSv2Family' `
+                -MachineLearningSubscriptionUsageIdPattern $machineLearningSubscriptionUsageIdPattern
+            $westUs2 = Get-CanonicalQuotaResourceId `
+                -SourceType 'MachineLearningUsage' `
+                -NativeResourceId '/subscriptions/11111111-1111-1111-1111-111111111111/usages/StandardDSv2Family' `
+                -QueryScope '/subscriptions/11111111-1111-1111-1111-111111111111' `
+                -Provider 'Microsoft.MachineLearningServices' `
+                -Location 'westus2' `
+                -ResourceName 'StandardDSv2Family' `
+                -MachineLearningSubscriptionUsageIdPattern $machineLearningSubscriptionUsageIdPattern
+
+            $eastUs | Should -Not -Be $westUs2
+        }
+
+        It 'Should document the four added quota providers without expanding unrelated guide coverage' {
+            $supportedSourceTypes = [regex]::Match(
+                $quotaGuideContent,
+                '(?s)#### Supported source types.*?Use this pattern'
+            ).Value
+            $expectedCatalogQueries = @{
+                HDInsightUsage      = 'quota-hdinsight-usage'
+                MachineLearningUsage = 'quota-machine-learning-usage'
+                NetworkUsage        = 'quota-network-usage'
+                PurviewUsage        = 'quota-purview-usage'
+            }
+            $documentedSourceTypes = @(
+                [regex]::Matches($supportedSourceTypes, '(?m)^\| `([^`]+)` \|') |
+                    ForEach-Object { $_.Groups[1].Value } |
+                    Where-Object { $_ -ne 'x_SourceType' }
+            )
+
+            $documentedSourceTypes.Count | Should -Be 11
+            foreach ($sourceType in $expectedCatalogQueries.Keys)
+            {
+                $documentedSourceTypes | Should -Contain $sourceType
+                $queryIndexContent | Should -Match ([regex]::Escape($expectedCatalogQueries[$sourceType]))
+            }
+            $catalogFiles = @(Get-ChildItem (Join-Path $repoRoot 'src/queries/catalog') -Filter '*.kql')
+            $indexedCatalogQueries = @(
+                [regex]::Matches($queryIndexContent, '\./catalog/([^)]+)\.kql') |
+                    ForEach-Object { $_.Groups[1].Value } |
+                    Sort-Object -Unique
+            )
+            $indexedCatalogQueries.Count | Should -Be $catalogFiles.Count
+            $queryIndexContent | Should -Match "This catalog contains $($catalogFiles.Count) scenario-specific"
         }
 
         It 'Should use the approved four-state deployment matrix' {
