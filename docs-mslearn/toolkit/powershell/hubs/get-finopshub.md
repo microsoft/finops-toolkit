@@ -8,12 +8,12 @@ ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsHub command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the Get-FinOpsHub command in the FinOpsToolkit module.
 ---
 
 # Get-FinOpsHub command
 
-The Get-FinOpsHubs command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
+The **Get-FinOpsHub** command gets details about a FinOps hub instance using the cm-resource-parent tag to identify hub resources.
 
 <br>
 
@@ -21,8 +21,8 @@ The Get-FinOpsHubs command calls GitHub to retrieve all toolkit releases, then f
 
 ```powershell
 Get-FinOpsHub `
-    [[-Name] <string>] `
-    [-ResourceGroupName <string>] `
+    [[‑Name] <string>] `
+    [‑ResourceGroupName <string>] `
     [<CommonParameters>]
 ```
 
@@ -32,8 +32,8 @@ Get-FinOpsHub `
 
 | Name                 | Description                                                                              |
 | -------------------- | ---------------------------------------------------------------------------------------- |
-| '‑Name'              | Optional. Name of the FinOps hub instance. Supports wildcards.                           |
-| '‑ResourceGroupName' | Optional. Name of the resource group the FinOps hub was deployed to. Supports wildcards. |
+| `‑Name`              | Optional. Name of the FinOps hub instance. Supports wildcards.                           |
+| `‑ResourceGroupName` | Optional. Name of the resource group the FinOps hub was deployed to. Supports wildcards. |
 
 <br>
 

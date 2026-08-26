@@ -3,7 +3,7 @@ title: FinOps hubs automation
 description: Learn about PowerShell commands available in the FinOpsToolkit module that deploy and manage FinOps hubs.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/26/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -19,11 +19,14 @@ The FinOps hubs PowerShell commands help you deploy and manage FinOps hubs insta
 
 ## Commands
 
+- [Add-FinOpsHubScope](add-finopshubscope.md) – Adds a scope to be monitored by a FinOps hub instance.
 - [Deploy-FinOpsHub](Deploy-FinOpsHub.md) – Deploy your first hub or update to the latest version.
 - [Get-FinOpsHub](Get-FinOpsHub.md) – Get details about your FinOps hub instance.
 - [Initialize-FinOpsHubDeployment](Initialize-FinOpsHubDeployment.md) – Initializes the deployment for FinOps hubs.
+- [Initialize-FinOpsHubLocal](initialize-finopshublocal.md) – Set up a local FinOps hub in a running Kusto emulator.
 - [Register-FinOpsHubProviders](Register-FinOpsHubProviders.md) – Registers resource providers for FinOps hubs.
 - [Remove-FinOpsHub](Remove-FinOpsHub.md) – Deletes a FinOps hub instance.
+- [Remove-FinOpsHubScope](remove-finopshubscope.md) – Stops monitoring a scope within a FinOps hub instance.
 
 <br>
 

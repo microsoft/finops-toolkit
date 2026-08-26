@@ -3,7 +3,7 @@ title: Cost Management commands
 description: Learn about PowerShell commands in the FinOpsToolkit module to support Cost Management capabilities.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/26/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -19,6 +19,7 @@ The Cost Management PowerShell commands help you manage Cost Management features
 
 ## Commands
 
+- [Add-FinOpsServicePrincipal](add-finopsserviceprincipal.md) – Grants a service principal or managed identity access to an Enterprise Agreement billing account or department.
 - [Get-FinOpsCostExport](Get-FinOpsCostExport.md) – Get details about Cost Management exports.
 - [New-FinOpsCostExport](New-FinOpsCostExport.md) – Create a new Cost Management export.
 - [Remove-FinOpsCostExport](Remove-FinOpsCostExport.md) – Delete a Cost Management export and optionally data associated with the export.

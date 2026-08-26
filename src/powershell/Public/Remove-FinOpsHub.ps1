@@ -6,29 +6,30 @@
     Delete a FinOps hub instance and optionally keep the storage account hosting cost data.
 
     .DESCRIPTION
-    The Remove-FinOpsHub command deletes a FinOps Hub instance and optionally deletes the storage account hosting cost data.
+    The Remove-FinOpsHub command deletes a FinOps hub instance and optionally deletes the storage account hosting cost data.
 
     The command returns a boolean value indicating whether all resources were successfully deleted.
 
     .PARAMETER Name
-    Required when specifying Name. Name of the FinOps Hub.
+    Required if not specifying InputObject. Name of the FinOps hub instance.
 
     .PARAMETER ResourceGroupName
-    Optional when specifying Name. Resource Group Name for the FinOps Hub.
+    Optional when specifying Name. Resource group name for the FinOps hub.
 
     .PARAMETER InputObject
-    Required when specifying InputObject. Expected object is the output of Get-FinOpsHub.
+    Required if not specifying Name. Expected object is the output of Get-FinOpsHub.
 
     .PARAMETER KeepStorageAccount
-    Optional. Indicates that the storage account associated with the FinOps Hub should be retained.
+    Optional. Indicates that the storage account associated with the FinOps hub should be retained. Default = false.
 
     .PARAMETER Force
-    Optional. Deletes specified resources without asking for a confirmation.
+    Optional. Deletes specified resources without asking for a confirmation. Default = false.
 
     .EXAMPLE
     Remove-FinOpsHub -Name MyHub -ResourceGroupName MyRG -KeepStorageAccount
 
-    Deletes a FinOps Hub named MyHub and deletes all associated resources except the storage account.
+    ### Remove a FinOps hub instance
+    Deletes a FinOps hub named MyHub and deletes all associated resource except the storage account.
 #>
 
 function Remove-FinOpsHub
@@ -88,7 +89,7 @@ function Remove-FinOpsHub
             throw $script:LocalizedData.Hub_Remove_NotFound -f $Name
         }
 
-        Write-Verbose -Message "Found FinOps Hub: $Name in resource group $ResourceGroupName"
+        Write-Verbose -Message "Found FinOps hub: $Name in resource group $ResourceGroupName"
 
         $uniqueId = Get-HubIdentifier -Collection $hub.Resources.Name
 

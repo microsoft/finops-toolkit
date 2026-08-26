@@ -9,7 +9,7 @@
     The Start-FinOpsCostExport command runs a Cost Management export for the most recent period using the Run API.
 
     This command has been tested with the following API versions:
-    - 2025-03-01 (default) – Enables FocusCost and other datasets.
+    - 2025-03-01 (default) – GA version for FocusCost and other datasets.
     - 2023-07-01-preview
     - 2023-08-01
     - 2023-03-01
@@ -21,13 +21,13 @@
     Optional. Resource ID of the scope to export data for. If empty, defaults to current subscription context.
 
     .PARAMETER StartDate
-    Optional. Day to start pulling the data for. Interpreted as a UTC calendar date, so the day you specify is the day that is exported, regardless of the local time zone. If not set, the export will use the dates defined in the export configuration.
+    Optional. Day to start pulling the data for. Interpreted as a UTC calendar date, so the day you specify is the day that gets exported, regardless of your local time zone. If not set, the export uses the dates defined in the export configuration.
 
     .PARAMETER EndDate
-    Optional. Last day to pull data for. Interpreted as a UTC calendar date, so the day you specify is the day that is exported, regardless of the local time zone. If not set and -StartDate is set, -EndDate will use the last day of the month. If not set and -StartDate is not set, the export will use the dates defined in the export configuration.
+    Optional. Last day to pull data for. Interpreted as a UTC calendar date, so the day you specify is the day that gets exported, regardless of your local time zone. If not set and -StartDate is set, -EndDate uses the last day of the month. If not set and -StartDate isn't set, the export uses the dates defined in the export configuration.
 
     .PARAMETER Backfill
-    Optional. Number of months to export the data for. Make note of throttling (429) errors. This is only run once. Failed exports are not re-attempted. Default = 0.
+    Optional. Number of months to export the data for. Make note of throttling (429) errors. It only runs once. Failed exports aren't reattempted. Default = 0.
 
     .PARAMETER ApiVersion
     Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.
@@ -35,16 +35,19 @@
     .EXAMPLE
     Start-FinopsCostExport -Name 'CostExport'
 
+    ### Export configured period
     Runs an export called 'CostExport' for the configured period on the subscription configured in Get-AzContext.
 
     .EXAMPLE
     Start-FinopsCostExport -Scope '/providers/Microsoft.Billing/billingAccounts/1234' -Name 'CostExport' -StartDate '2023-01-01' -EndDate '2023-12-31'
 
+    ### Export specific dates
     Runs an export called 'CostExport' for a specific date range on the 1234 billing account.
 
     .EXAMPLE
     Start-FinopsCostExport -Scope '/providers/Microsoft.Billing/billingAccounts/1234/billingProfiles/5678' -Name 'CostExport' -Backfill 12
 
+    ### Backfill export
     Runs an export called 'CostExport' for the previous 12 months on the 5678 billing profile.
 
     .LINK

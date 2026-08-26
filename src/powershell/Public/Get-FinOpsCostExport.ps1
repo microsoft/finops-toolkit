@@ -3,7 +3,7 @@
 
 <#
     .SYNOPSIS
-    Get list of Cost Management exports.
+    Get a list of Cost Management exports for a given scope.
 
     .DESCRIPTION
     The Get-FinOpsCostExport command gets a list of Cost Management exports for a given scope.
@@ -12,6 +12,7 @@
     - 2025-03-01 (default) – GA version for FocusCost and other datasets.
     - 2023-07-01-preview
     - 2023-08-01
+    - 2023-03-01
 
     .PARAMETER Name
     Optional. Name of the export. Supports wildcards.
@@ -40,31 +41,37 @@
     .EXAMPLE
     Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
 
+    ### Get all cost exports for a subscription
     Gets all exports for a subscription. Does not include exports in nested resource groups.
 
     .EXAMPLE
     Get-FinOpsCostExport -Name mtd* -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
 
+    ### Get exports matching a wildcard name
     Gets export with name matching wildcard mtd* within the specified billing account scope. Does not include exports in nested resource groups.
 
     .EXAMPLE
     Get-FinOpsCostExport -Dataset "AmortizedCost"
 
+    ### Get all amortized cost exports
     Gets all exports within the current context subscription scope and filtered by dataset AmortizedCost.
 
     .EXAMPLE
     Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
 
+    ### Get exports using a specific storage account
     Gets all exports within the subscription scope filtered by a specific storage account.
 
     .EXAMPLE
     Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "MyContainer*"
 
+    ### Get exports using a specific container
     Gets all exports within the subscription scope for a specific container. Supports wildcard.
 
     .EXAMPLE
     Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2025-03-01"
 
+    ### Get exports using a specific API version
     Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.
 
     .LINK
@@ -237,6 +244,22 @@ function Get-FinOpsCostExport
             {
                 if ($null -eq $run) { continue }
                 $runs += [PSCustomObject]@{
+                    # .OUTPUTS FinOpsCostExportRunHistory
+                    # | Property         | Type     | JSON path                                                  |
+                    # | ---------------- | -------- | ----------------------------------------------------------- |
+                    # | `ResourceId`     | String   | `properties.runHistory.value[].id`                           |
+                    # | `RunId`          | String   | `properties.runHistory.value[].name`                         |
+                    # | `ExecutionType`  | String   | `properties.runHistory.value[].properties.executionType`     |
+                    # | `Status`         | String   | `properties.runHistory.value[].properties.status`            |
+                    # | `SubmittedBy`    | String   | `properties.runHistory.value[].properties.submittedBy`       |
+                    # | `SubmittedTime`  | DateTime | `properties.runHistory.value[].properties.submittedTime`     |
+                    # | `RunStartTime`   | DateTime | `properties.runHistory.value[].properties.processingStartTime` |
+                    # | `RunEndTime`     | DateTime | `properties.runHistory.value[].properties.processingEndTime` |
+                    # | `FileName`       | String   | `properties.runHistory.value[].properties.fileName`          |
+                    # | `QueryStartDate` | DateTime | `properties.runHistory.value[].properties.startDate`         |
+                    # | `QueryEndDate`   | DateTime | `properties.runHistory.value[].properties.endDate`           |
+                    # | `ErrorCode`      | String   | `properties.runHistory.value[].properties.error.code`        |
+                    # | `ErrorMessage`   | String   | `properties.runHistory.value[].properties.error.message`     |
                     ResourceId     = $run.id
                     RunId          = $run.name
                     ExecutionType  = $run.properties.executionType
@@ -253,6 +276,34 @@ function Get-FinOpsCostExport
                 }
             }
             $item = [PSCustomObject]@{
+                # .OUTPUTS FinOpsCostExport
+                # | Property              | Type                         | JSON path                                                                    |
+                # | --------------------- | ---------------------------- | ---------------------------------------------------------------------------- |
+                # | `Name`                | String                       | `name`                                                                       |
+                # | `Id`                  | String                       | `id`                                                                         |
+                # | `Type`                | String                       | `type`                                                                       |
+                # | `eTag`                | String                       | `eTag`                                                                       |
+                # | `Description`         | String                       | `properties.exportDescription`                                               |
+                # | `Dataset`             | String                       | `properties.definition.type`                                                 |
+                # | `DatasetVersion`      | String                       | `properties.definition.configuration.dataVersion`                            |
+                # | `DatasetFilters`      | String                       | `properties.definition.configuration.filter`                                 |
+                # | `DatasetTimeFrame`    | String                       | `properties.definition.timeframe`                                            |
+                # | `DatasetStartDate`    | DateTime                     | `properties.definition.timePeriod.from`                                      |
+                # | `DatasetEndDate`      | DateTime                     | `properties.definition.timePeriod.to`                                        |
+                # | `DatasetGranularity`  | String                       | `properties.definition.dataset.granularity`                                  |
+                # | `ScheduleStatus`      | String                       | `properties.schedule.status`                                                 |
+                # | `ScheduleRecurrence`  | String                       | `properties.schedule.recurrence`                                             |
+                # | `ScheduleStartDate`   | DateTime                     | `properties.schedule.recurrencePeriod.from`                                  |
+                # | `ScheduleEndDate`     | DateTime                     | `properties.schedule.recurrencePeriod.to`                                    |
+                # | `NextRuntimeEstimate` | DateTime                     | `properties.nextRunTimeEstimate`                                             |
+                # | `Format`              | String                       | `properties.format`                                                          |
+                # | `StorageAccountId`    | String                       | `properties.deliveryInfo.destination.resourceId`                             |
+                # | `StorageContainer`    | String                       | `properties.deliveryInfo.destination.container`                              |
+                # | `StoragePath`         | String                       | `properties.deliveryInfo.destination.rootfolderpath`                         |
+                # | `OverwriteData`       | Boolean                      | `properties.deliveryInfo.dataOverwriteBehavior` == "OverwritePreviousReport" |
+                # | `PartitionData`       | Boolean                      | `properties.deliveryInfo.partitionData`                                      |
+                # | `CompressionMode`     | String                       | `properties.deliveryInfo.compressionMode`                                    |
+                # | `RunHistory`          | FinOpsCostExportRunHistory[] | `properties.runHistory.value`                                                |
                 Name                = $export.name
                 Id                  = $export.id
                 Type                = $export.type
