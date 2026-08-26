@@ -20,9 +20,9 @@ Leverage open data to normalize and enhance your FinOps reporting.
 FinOps toolkit open data is used to transform Cost Management actual and amortized data into FOCUS. Use the same mappings to clean your FinOps datasets.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in July 2025<span class="ftk-version">v12</span></h3>
+    <h3>What's new in April 2026<span class="ftk-version">v14</span></h3>
     <p>
-        In July, open data added 20 new and 7 updated resource types and 2 new service mappings.
+        In April, open data added a new commitment discount eligibility dataset with pre-computed reservation and savings plan eligibility per meter, sourced from the Azure Retail Prices API.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -34,6 +34,12 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
 ## Download open data
 
 <div class="ftk-gallery">
+    <div class="ftk-tile">
+        <div>📐 Instance size flexibility</div>
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/InstanceSizeFlexibility.csv">Download</a>
+        <a class="btn mb-4 mb-md-0 mr-4" href="" style="visibility:hidden; width:100px">&nbsp;</a>
+        <a class="btn mb-4 mb-md-0 mr-4" href="" style="visibility:hidden; width:100px">&nbsp;</a>
+    </div>
     <div class="ftk-tile">
         <div>📏 Pricing units</div>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv">Download</a>

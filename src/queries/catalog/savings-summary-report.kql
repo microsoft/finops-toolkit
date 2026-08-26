@@ -18,9 +18,9 @@ let endDate = startofmonth(now());
 Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))  // x_AmortizationCategory != 'Principal'
-| extend x_NegotiatedDiscountSavings = iff(ListCost       < ContractedCost, decimal(0), ListCost - ContractedCost)
-| extend x_CommitmentDiscountSavings = iff(ContractedCost < EffectiveCost,  decimal(0), ContractedCost - EffectiveCost)
-| extend x_TotalSavings              = iff(ListCost       < EffectiveCost,  decimal(0), ListCost - EffectiveCost)
+| extend x_NegotiatedDiscountSavings = iff(ListCost       < ContractedCost, real(0), ListCost - ContractedCost)
+| extend x_CommitmentDiscountSavings = iff(ContractedCost < EffectiveCost,  real(0), ContractedCost - EffectiveCost)
+| extend x_TotalSavings              = iff(ListCost       < EffectiveCost,  real(0), ListCost - EffectiveCost)
 | summarize
     ListCost = todouble(sum(ListCost)),
     EffectiveCost = todouble(sum(EffectiveCost)),

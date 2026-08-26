@@ -104,13 +104,13 @@ module governance 'workbooks/governance/main.bicep' = if (includeGovernance) {
 //==============================================================================
 
 @sys.description('Optimization workbook resource ID.')
-output optimizationId string = optimization.outputs.workbookId
+output optimizationId string = includeOptimization ? optimization!.outputs.workbookId : ''
 
 @sys.description('Optimization workbook Azure portal link.')
-output optimizationUrl string = optimization.outputs.workbookUrl
+output optimizationUrl string = includeOptimization ? optimization!.outputs.workbookUrl : ''
 
 @sys.description('Governance workbook resource ID.')
-output governanceId string = governance.outputs.workbookId
+output governanceId string = includeGovernance ? governance!.outputs.workbookId : ''
 
 @sys.description('Governance workbook Azure portal link.')
-output governanceUrl string = governance.outputs.workbookUrl
+output governanceUrl string = includeGovernance ? governance!.outputs.workbookUrl : ''

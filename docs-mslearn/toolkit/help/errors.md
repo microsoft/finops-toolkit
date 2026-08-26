@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: flanakin
 ms.author: micflan
-ms.date: 05/02/2025
+ms.date: 08/26/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand and resolve common errors I might experience with the FinOps toolkit.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Troubleshoot common FinOps toolkit errors
 
 This article describes common FinOps toolkit errors and provides information about solutions. If you get an error when using FinOps toolkit solutions that you don't understand or can't resolve, find the following corresponding error code with mitigation steps to resolve the problem.
@@ -26,6 +25,23 @@ If the information provided doesn't help you, [Create a support request](/azure/
 
 <br>
 
+## 403
+
+<sup>Severity: Critical</sup>
+
+You may see this error when using [Add-FinOpsServicePrincipal](../powershell/cost/add-finopsserviceprincipal.md) to assign EA enrollment reader permissions to a service principal. The billing role assignment API returns HTTP 403 when the request is rejected.
+
+**Mitigation**:
+
+1. Confirm you are using the service principal object ID from **Enterprise applications** in the Azure portal, not the application object ID from **App registrations**. See [Assign roles to EA service principals](/azure/cost-management-billing/manage/assign-roles-azure-service-principals).
+2. Confirm your account has the **Enrollment writer** role in your Enterprise Agreement. See [Understand EA administrative roles](/azure/cost-management-billing/manage/understand-ea-roles).
+3. Confirm the billing account ID matches your EA enrollment number exactly.
+4. If the error persists, try assigning the role directly through the [Billing Role Assignments REST API](/rest/api/billing/2019-10-01-preview/role-assignments/put) using the **Try it** feature.
+
+If this is not an EA enrollment scenario, see [Access to the resource is forbidden](#access-to-the-resource-is-forbidden).
+
+<br>
+
 ## Access to the resource is forbidden
 
 <sup>Severity: Critical</sup>
@@ -33,6 +49,8 @@ If the information provided doesn't help you, [Create a support request](/azure/
 This error generally means the account you are connected with does not have access to the resource you're attempting to use.
 
 **Mitigation**: Confirm you are using the correct account in the correct Microsoft Entra ID tenant.
+
+If this is an EA enrollment scenario, see [403](#403).
 
 <br>
 
@@ -78,7 +96,7 @@ If you experience the following error, it means that Azure Resource Graph is ret
 
 There may be multiple instances of this error. The one known instance is when Key Vault returns the following error:
 
-> _A vault with the same name already exists in deleted state. You need to either recover or purge existing key vault. Follow this link https://go.microsoft.com/fwlink/?linkid=2149745 for more information on soft delete._
+> _A vault with the same name already exists in deleted state. You need to either recover or purge existing key vault. Follow this link <https://go.microsoft.com/fwlink/?linkid=2149745> for more information on soft delete._
 
 This generally means you're deploying on top of an old deployment that was deleted, but Key Vault kept the old vault instance in a recoverable delete state.
 
@@ -125,7 +143,112 @@ This error message is not related to the FinOps toolkit.
 
 Data Explorer ingestion failed. The new data will not be available for reporting.
 
-**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_ExecuteETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+### Common error: SEM0080 assert() has failed with message 'Ingestion Failed'
+
+If you see the following semantic error in the Azure Data Factory pipeline:
+
+> _Semantic error: Relop semantic error: SEM0080: assert() has failed with message: 'Ingestion Failed'_
+
+This error indicates that the Data Explorer `.ingest` command detected errors during the ingestion process. The ingestion command includes an assertion check (`assert(iff(toscalar($command_results | project-keep HasErrors) == false, true, false), "Ingestion Failed")`) that verifies the `HasErrors` column in the command results. When `HasErrors` is `true`, the assertion fails and triggers this error.
+
+**Common root causes**:
+
+- **Empty parquet file**: The parquet file contains no data rows. This is the most common cause.
+  - Cost Management export generated an empty file (no data for the time period)
+  - ETL pipeline created an empty parquet file during transformation
+  - File was created but data write operation failed
+
+- **Schema mismatch**: The parquet file schema doesn't match the ingestion mapping reference for the target table.
+  - Columns in the parquet file may have different names or data types than expected
+  - The ingestion mapping (e.g., `<table>_mapping`) may be outdated or incorrect
+  - New columns were added to the export schema that aren't in the mapping
+
+- **Corrupted or invalid parquet files**: The source file may be malformed, corrupted, or not a valid parquet file.
+
+- **Missing or incorrect ingestion mapping**: The referenced mapping (e.g., `Costs_raw_mapping`) doesn't exist or has incorrect column definitions.
+
+- **Data type conversion errors**: Data in the parquet file can't be converted to the target column types defined in the table schema.
+
+- **File access issues**: Data Explorer can't access the parquet file in storage due to permissions or network issues.
+
+**Mitigation steps**:
+
+1. **Check ingestion failures in Data Explorer**:
+
+   - Connect to your Data Explorer cluster/database
+   - Run the following query to see detailed error information:
+
+     ```kusto
+     .show ingestion failures
+     | where FailedOn > ago(4h) and Database == "<YourDatabaseName>"
+     | project FailedOn, Table, IngestionSourcePath, ErrorCode, Details
+     ```
+
+   - Review the `Details` column for specific error messages about empty files, schema mismatches, or data issues
+   - Look for error codes like `BadRequest_NoRecordsOrWrongFormat` which indicates an empty file
+
+2. **Check if the parquet file is empty**:
+
+   - Download the problematic parquet file from the ingestion container (path is in the error message)
+   - Use a parquet viewer tool or Azure Storage Explorer to inspect the file
+   - Check the file size - if it's very small (< 1KB), it's likely empty
+   - Verify the file contains data rows
+   - **If empty**: This is expected behavior when there's no data for the time period. The file can be safely deleted from the ingestion container. Cost Management may export empty files for months with no usage.
+
+3. **Verify the ingestion mapping exists and is correct**:
+
+   - Run this query in Data Explorer to check if the mapping exists:
+
+     ```kusto
+     .show table <TableName> ingestion mappings
+     ```
+
+   - If the mapping is missing, it needs to be recreated. Check the FinOps hub deployment logs for mapping creation errors.
+   - If the mapping exists, verify it matches the expected schema for your data source
+
+4. **Check for schema changes**:
+
+   - If you recently updated Cost Management exports or changed export versions (e.g., from FOCUS 1.0 to 1.2), the schema may have changed
+   - Verify the export dataset version in the manifest.json file in the msexports container
+   - Confirm FinOps hubs supports the dataset version - see [supported datasets](../hubs/data-processing.md#datasets)
+
+5. **Check Data Explorer diagnostics**:
+
+   - In the Azure portal, navigate to your Data Explorer cluster
+   - Go to **Monitoring** > **Diagnostic settings**
+   - Enable `FailedIngestion` diagnostic logs if not already enabled
+   - Review logs in Log Analytics for detailed error information
+
+6. **Redeploy FinOps hubs if mappings are missing**:
+
+   - If ingestion mappings are missing or corrupted, redeploy FinOps hubs to recreate them
+   - This will recreate all tables, mappings, and functions without data loss
+
+7. **Review Azure Data Explorer metrics**:
+
+   - Check the **Ingestion result** metric in Azure Monitor
+   - Filter by status to see success vs failure rates
+   - See [Monitor queued ingestion](/azure/data-explorer/monitor-queued-ingestion) for more details
+
+8. **Rerun ingestion after fixing the issue**:
+   - After resolving the root cause, rerun the `ingestion_ExecuteETL` pipeline
+   - Specify the folder path from the error message as the parameter
+   - Monitor the pipeline execution to confirm successful ingestion
+   - Note: Empty files do not need to be reingested - they can be safely ignored
+
+**Additional resources**:
+
+- [Azure Data Explorer ingestion error codes](/azure/data-explorer/error-codes)
+- [Ingestion behavior of invalid data](/azure/data-explorer/ingest-invalid-data)
+- [Data Explorer ingestion overview](/azure/data-explorer/ingest-data-overview)
+- [Kusto ingestion failures command](/kusto/management/ingestion-failures)
+
+If you continue to experience this error after following these steps, please [report the issue](https://aka.ms/ftk/ideas) with the following information:
+
+- Complete error message from the ADF pipeline
+- Output from the `.show ingestion failures` query
+- Dataset type and version from the manifest.json file
+- FinOps hubs version
 
 <br>
 
@@ -135,7 +258,7 @@ Data Explorer ingestion failed. The new data will not be available for reporting
 
 Data Explorer ingestion mapping could not be created for the specified table.
 
-**Mitigation**: Please fix the error and rerun ingestion for the specified folder path. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas.
+**Mitigation**: Please fix the error and rerun ingestion for the specified folder path. If you continue to see this error, please report an issue at <https://aka.ms/ftk/ideas>.
 
 <br>
 
@@ -145,7 +268,7 @@ Data Explorer ingestion mapping could not be created for the specified table.
 
 Data Explorer ingestion timed out after 2 hours while waiting for available capacity.
 
-**Mitigation**: Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas.
+**Mitigation**: Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at <https://aka.ms/ftk/ideas>.
 
 <br>
 
@@ -155,7 +278,51 @@ Data Explorer ingestion timed out after 2 hours while waiting for available capa
 
 Data Explorer post-ingestion cleanup (drop extents from the final table) failed. Data from a previous ingestion may be present in reporting, which could result in duplicated and inaccurate costs.
 
-**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the `ingestion_ExecuteETL` pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+This error can occur when:
+
+- The Data Explorer cluster is experiencing capacity issues or high resource utilization
+- The drop extents command encounters an invalid expression or syntax error
+- There are permission issues accessing the Data Explorer database
+- Network connectivity issues between Data Factory and Data Explorer
+
+**Mitigation**:
+
+1. **Review the detailed error message**: Navigate to Azure Data Factory > Monitor > Pipeline runs > Click on the failed run > View the "Post-Ingest Drop Failed Error" activity to see the specific Data Explorer error code and message.
+
+2. **Common solutions based on error type**:
+
+   - **If you see "Failed to interpret Post-Ingest Drop Failed Error fail message or error code"**: This indicates the dynamic expression in the Fail activity couldn't be evaluated. This typically means:
+
+     - The `Post-Ingest Cleanup` activity failed but didn't return error details in the expected format
+     - Check the `Post-Ingest Cleanup` activity output for the actual Data Explorer error
+     - See [ErrorCodeNotString](#errorcodenotstring) for more details on this specific error pattern
+
+   - **For capacity/resource issues**:
+
+     - Wait a few minutes and rerun the pipeline
+     - Check Data Explorer cluster metrics in Azure Monitor
+     - Consider scaling up the cluster if consistently hitting capacity limits
+
+   - **For permission issues**:
+
+     - Verify the Data Factory managed identity has proper permissions on the Data Explorer database
+     - Ensure the managed identity has at least "Database Ingestor" and "Database Admin" roles
+
+   - **For syntax/expression errors**:
+     - Review the Data Explorer command logs using `.show commands` in the Data Explorer query editor
+     - Check for recent schema changes that might affect the drop extents query
+
+3. **Rerun ingestion**: Once the issue is resolved, rerun data ingestion for the specified folder using the `ingestion_ExecuteETL` pipeline in Azure Data Factory.
+
+4. **Prevent data duplication**: If the error persists, you may need to manually clean up duplicate extents using Data Explorer commands before rerunning ingestion. Contact support for assistance.
+
+For more information, see:
+
+- [Azure Data Factory Fail activity error codes](/azure/data-factory/control-flow-fail-activity#understand-the-fail-activity-error-code)
+- [Troubleshoot Azure Data Explorer connector](/azure/data-factory/connector-troubleshoot-azure-data-explorer)
+- [Monitor Azure Data Explorer ingestion](/azure/data-explorer/monitor-data-explorer)
+
+Report unresolved issues at <https://aka.ms/ftk/ideas>.
 
 <br>
 
@@ -165,7 +332,33 @@ Data Explorer post-ingestion cleanup (drop extents from the final table) failed.
 
 Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. Ingestion was not completed.
 
-**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the `ingestion_ExecuteETL` pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+This error occurs when the Data Explorer cleanup step that runs before ingesting new data fails. This cleanup is necessary to prevent duplicate data in the raw tables.
+
+**Mitigation**:
+
+1. **Review the detailed error message**: Navigate to Azure Data Factory > Monitor > Pipeline runs > Click on the failed run > View the "Pre-Ingest Drop Failed Error" activity to see the specific Data Explorer error code and message.
+
+2. **Common solutions based on error type**:
+
+   - **If you see "Failed to interpret Pre-Ingest Drop Failed Error fail message or error code"**: See [ErrorCodeNotString](#errorcodenotstring) for troubleshooting steps.
+
+   - **For capacity/resource issues**:
+
+     - Wait a few minutes and rerun the pipeline
+     - Check Data Explorer cluster metrics in Azure Monitor
+
+   - **For permission issues**:
+
+     - Verify the Data Factory managed identity has "Database Admin" role on the Data Explorer database
+
+   - **For syntax/expression errors**:
+     - Review the Data Explorer command logs using `.show commands` in the Data Explorer query editor
+
+3. **Rerun ingestion**: Once the issue is resolved, rerun data ingestion for the specified folder using the `ingestion_ExecuteETL` pipeline in Azure Data Factory.
+
+For more information, see the mitigation steps for [DataExplorerPostIngestionDropFailed](#dataexplorerpostingestiondropfailed).
+
+Report unresolved issues at <https://aka.ms/ftk/ideas>.
 
 <br>
 
@@ -199,7 +392,7 @@ Exports weren't found in the specified storage path.
 
 This billing scope type is not supported by managed exports.
 
-**Mitigation**: Remove the unsupported billing scope from settings.json, confirm the billing scope is supported by FinOps hubs and manually create new Cost management exports for the billing scope.
+**Mitigation**: Remove the unsupported billing scope from settings.json, confirm the billing scope is supported by FinOps hubs and manually create new Cost Management exports for the billing scope.
 
 <br>
 
@@ -210,6 +403,71 @@ This billing scope type is not supported by managed exports.
 Microsoft Customer Agreements are not supported for managed exports.
 
 **Mitigation**: Remove the MCA billing scope from settings.json and manually create new Cost Management exports for each MCA billing profile for FOCUS cost, pricesheet, reservation details, reservation transactions and reservation recommendations.
+
+<br>
+
+## ErrorCodeNotString
+
+<sup>Severity: Critical</sup>
+
+This error occurs when an Azure Data Factory Fail activity cannot evaluate its dynamic error message or error code expression to a valid string. The error message typically appears as "Failed to interpret _[activity_name]_ fail message or error code" with error code `ErrorCodeNotString`.
+
+**Common scenarios**:
+
+- A parent activity (like `Post-Ingest Cleanup`, `Pre-Ingest Cleanup`, or `Ingest Data`) failed but didn't produce error output in the expected format
+- The dynamic expression tries to access a property that doesn't exist in the activity output
+- The activity output is null, empty, or not in the expected JSON structure
+
+**Mitigation**:
+
+1. **Identify the root cause activity**: Look at which activity triggered the Fail activity (e.g., if you see "Post-Ingest Drop Failed Error", check the "Post-Ingest Cleanup" activity).
+
+2. **Review the parent activity output**:
+
+   - Navigate to Azure Data Factory > Monitor > Pipeline runs
+   - Click on the failed pipeline run
+   - Find and click on the activity that ran just before the Fail activity
+   - Review the "Output" tab to see the actual error details
+   - Look for any error messages or codes that explain why the activity failed
+
+3. **Check for Data Explorer-specific issues** (for ingestion pipeline errors):
+
+   - **Resource capacity**: The Data Explorer cluster might be at capacity. Check cluster metrics in Azure Monitor.
+   - **Command syntax errors**: Review Data Explorer command history using `.show commands` in the query editor.
+   - **Permission issues**: Verify the managed identity has proper database permissions.
+   - **Network connectivity**: Ensure Data Factory can reach the Data Explorer cluster.
+
+4. **Common Data Explorer troubleshooting commands**:
+
+   ```kusto
+   // Check recent failed operations
+   .show operations
+   | where StartedOn > ago(4h) and State == "Failed"
+
+   // Check ingestion failures
+   .show ingestion failures
+   | where FailedOn > ago(4h)
+
+   // Check command history
+   .show commands
+   | where StartedOn > ago(4h)
+   ```
+
+5. **After resolving the underlying issue**: Rerun the failed pipeline from Azure Data Factory.
+
+**Related errors**: This error is often seen in conjunction with:
+
+- [DataExplorerPostIngestionDropFailed](#dataexplorerpostingestiondropfailed)
+- [DataExplorerPreIngestionDropFailed](#dataexplorerpreingestiondropfailed)
+- [DataExplorerIngestionFailed](#dataexploreringestionfailed)
+
+For more information, see:
+
+- [Azure Data Factory Fail activity documentation](/azure/data-factory/control-flow-fail-activity#understand-the-fail-activity-error-code)
+- [Troubleshoot Azure Data Factory pipelines](/azure/data-factory/data-factory-troubleshoot-guide)
+- [Azure Data Explorer troubleshooting guide](/azure/data-explorer/troubleshoot-database-table)
+
+Report unresolved issues at <https://aka.ms/ftk/ideas>.
 
 <br>
 
@@ -250,6 +508,7 @@ Microsoft Fabric Real-Time Intelligence may return an "InternalServiceError (520
 The exact reason for this error is unknown. If you experience it, please file a support request with Microsoft Fabric to investigate further.
 
 <!-- cSpell:ignore eventhouse -->
+
 **Mitigation**: As a workaround, change the minimum consumption for the Fabric eventhouse to **Medium (18 CUs)**, wait 30 minutes, and rerun the **ingestion_ExecuteETL** pipeline for that dataset and month. To learn more minimum consumption, see [Minimum consumption](/fabric/real-time-intelligence/manage-monitor-eventhouse#enable-minimum-consumption) in the eventhouse overview.
 
 <br>
@@ -348,12 +607,14 @@ FinOps hub **msexports_ExecuteETL** pipeline failed to read the Cost Management 
 
 To confirm the manifest schema (\#1) or API version (\#2):
 
+<!-- prettier-ignore-start -->
 1. Open the hub storage account in the Azure portal or storage explorer.
 2. If in the Azure portal, go to **Storage browser** in the menu.
 3. Select the **msexports** container.
 4. Navigate down the file hierarchy for the export with the issue (see the manifest location in the error message).
 5. Find the **manifest.json** file and select the menu (**⋯**), then select **View/edit**.
 6. Identify the following properties:
+
    ```json
    {
      "exportConfig": {
@@ -366,6 +627,7 @@ To confirm the manifest schema (\#1) or API version (\#2):
      ...
    }
    ```
+
 7. Confirm they're set to the following supported values:
    - **resourceId** can be any scope ID and any export name, but it must exist with the "Microsoft.CostManagement/exports" resource type. It's case-insensitive.
    - **type** must exist, but shouldn't fail with this error for any non-null value.
@@ -375,14 +637,15 @@ To confirm the manifest schema (\#1) or API version (\#2):
    1. To track adding support for the new API version, [create a change request issue in GitHub](https://aka.ms/ftk/ideas).
    2. Delete the export in Cost Management.
    3. Create an export using the [New-FinOpsCostExport PowerShell command](../powershell/cost/New-FinOpsCostExport.md) using a supported API version.
-       >[!TIP]
-       >If you consider yourself a power user, you may want to try updating the pipeline yourself for the quickest resolution. To do that, open Data Factory, navigate to Author > Pipelines > msexports_ExecuteETL, and select the applicable "Set" activities and update the **Settings** > **Value** property as needed. If you do this, you do not need to re-create the export with an older version. Please still report the issue and consider sharing the new JSON from the `{}` icon at the top-right of the pipeline designer._
+      > [!TIP]
+      > If you consider yourself a power user, you may want to try updating the pipeline yourself for the quickest resolution. To do that, open Data Factory, navigate to Author > Pipelines > msexports*ExecuteETL, and select the applicable "Set" activities and update the **Settings** > **Value** property as needed. If you do this, you do not need to re-create the export with an older version. Please still report the issue and consider sharing the new JSON from the `{}` icon at the top-right of the pipeline designer.*
 9. If you notice the properties changed for a supported API version:
    1. To track the breaking change, [create a change request issue in GitHub](https://aka.ms/ftk/ideas). Include the **type**, **dataVersion**, and **apiVersion** from your manifest.json file.
    2. File a support request with Cost Management to request their change be reverted as it breaks everyone using FinOps hubs or other custom solutions. Include the following details to help the Cost Management support team identify the issue within their system. Cost Management doesn't have context about FinOps hubs, so you should keep the details focused on Cost Management functionality. Here's an example:
       > I am using Cost Management exports to pull my cost data into ADLS. I have an ADF pipeline that is processing the data when manifest files are written. My pipeline was built on API version `<your-supported-api-version>` which expects `exportConfig.resourceId`, `exportConfig.type`, and `exportConfig.dataVersion` properties to be delivered consistently. I noticed these files are not being included in the manifest file for this API version for my export that ran on `<your-export-date>`. My expectation is that the manifest file should never change for an existing API version. Can you please revert these changes?
       >
       > To help you troubleshoot, here is my manifest file: {your-manifest-json}
+<!-- prettier-ignore-end -->
 
 If the manifest properties look good and it was a new or upgraded FinOps hub instance, confirm the deployment:
 
@@ -399,7 +662,7 @@ If the manifest properties look good and it was a new or upgraded FinOps hub ins
 6. If the error persists, create a [discussion](https://aka.ms/ftk/discuss) to see if anyone else if facing an issue or knows of a possible workaround (especially for policy issues).
 7. If the error is clearly a bug or feature gap, [create a bug or feature request issue in GitHub](https://aka.ms/ftk/ideas).
 
-We try to respond to issues and discussions within two business days.
+We try to respond to issues and discussions within three business days. Need live help? Join our [biweekly office hours](https://aka.ms/ftk/office-hours).
 
 <!--
 TODO: Consider the following ways to streamline this in the future:
@@ -507,17 +770,63 @@ Indicates that the account loading data in Power BI doesn't have the [Storage Bl
 
 <sup>Severity: Major</sup>
 
-Azure Resource Graph queries in the Governance and Workload optimization Power BI reports may return an error similar to:
+Azure Resource Graph queries in the Governance and Usage optimization Power BI reports may return an error similar to:
 
 > _OLE DB or ODBC error: [Expression.Error] Please provide below info when asking for support: timestamp = {timestamp}, correlationId = {guid}. Details: Response payload size is {number}, and has exceeded the limit of 16777216. Please consider querying less data at a time and make paginated call if needed._
 
-This error means that you have more resources than are supported in an unfiltered Resource Graph query. This happens because FinOps toolkit reports are designed to show resource-level details and are not aggregated. They are designed for small- and medium-sized environments and not designed to support organizations with millions of resources.
+Azure Resource Graph enforces a 16 MB response payload limit per query. FinOps toolkit reports automatically paginate queries in batches of subscriptions to stay within this limit, so most environments should not encounter this error. The base batch size is 100 subscriptions (set by the `ftk_ARGBatchSize` function), but some queries multiply this value for tables that return less data per resource, so the effective batch size varies by table. If you still see this error, it means the resources in a single batch of subscriptions exceed the 16 MB limit.
 
-**Mitigation**: If you experience this error, there are several options:
+**Mitigation**: Try the following options in order:
 
-- Remove columns that are not necessary for your needs.
-- Filter the query to return fewer resources based on what's most important for you (e.g., subscriptions, tags).
-- Disable the query so it doesn't block other queries from running.
+### Option 1: Reduce the batch size
+
+Reduce the base number of subscriptions queried in each batch (some tables multiply this value, so the effective batch size for those tables will still be smaller, but proportionally reduced):
+
+1. Open Power BI Desktop and select **Transform data** from the ribbon.
+2. In the **Queries** pane on the left, expand the **Functions** folder.
+3. Select the **ftk_ARGBatchSize** function.
+4. Change the return value from `100` to a smaller number (e.g., `20` or `10`).
+5. Select **Close & Apply** to save changes.
+
+### Option 2: Filter by resource group or tags
+
+Add a filter clause to the failing query to reduce the number of resources returned:
+
+1. Open Power BI Desktop and select **Transform data** from the ribbon.
+2. In the **Queries** pane on the left, expand the **Resource Graph** folder.
+3. Select the query that's failing (e.g., **NetworkSecurityGroups**, **Resources**).
+4. In the query editor, find the `query = "` section in the formula bar.
+5. Add a filter clause after the `| where type` line and before any `| extend` clauses. For example:
+
+   ```kusto
+   | where resourceGroup in~ ('rg-production', 'rg-staging')
+   ```
+
+   Or filter by tags:
+
+   ```kusto
+   | where tags.Environment =~ 'Production'
+   ```
+
+6. Select **Close & Apply** to save changes.
+
+### Option 3: Remove unnecessary columns
+
+Reduce the payload size by removing columns you don't need:
+
+1. Open the query in Power Query Editor (steps 1-3 from Option 2).
+2. In the query text, remove column names from the `extend` or `project` statements that you don't need for your analysis.
+3. Be careful not to remove columns that are used in report visuals or relationships.
+
+### Option 4: Disable the failing query
+
+If a specific query consistently fails and isn't critical to your needs:
+
+1. In Power Query Editor, right-click the failing query in the **Queries** pane.
+2. Uncheck **Enable load** to prevent the query from loading data.
+3. The query will remain in the report but won't execute during refresh.
+
+For more information about Azure Resource Graph limits, see [Working with large Azure resource data sets](/azure/governance/resource-graph/concepts/work-with-data).
 
 <br>
 
@@ -610,7 +919,7 @@ The file in hub storage doesn't look like it was exported from Cost Management. 
 
 This error code is shown in the `x_SourceChanges` column when a FOCUS version could not be identified.
 
-**Mitigation**: Validate that the FOCUS dataset is using a supported FOCUS version. Report this issue with an anonymized sample of the data at https://aka.ms/ftk/ideas to investigate further.
+**Mitigation**: Validate that the FOCUS dataset is using a supported FOCUS version. Report this issue with an anonymized sample of the data at <https://aka.ms/ftk/ideas> to investigate further.
 
 <br>
 
@@ -652,6 +961,30 @@ Open the subscription in the Azure portal, then select **Settings** > **Resource
 
 <br>
 
+## The sku {SkuName} is not supported in {region}
+
+<sup>Severity: Critical</sup>
+
+The Azure Data Explorer cluster deployment failed because the selected SKU isn't available in the target region for your subscription. Not all Data Explorer SKUs are available in every region.
+
+**Mitigation**: Check which SKUs are available in your region and choose one that's supported.
+
+Using Azure PowerShell (requires the [Az.Kusto](/powershell/module/az.kusto) module):
+
+```powershell
+Get-AzKustoSku -Location "westus"
+```
+
+Using Azure REST API:
+
+```http
+GET https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Kusto/locations/{location}/skus?api-version=2025-02-14
+```
+
+If your preferred SKU isn't listed, choose a different SKU or deploy to a region where it's available. The default dev/test SKU is `Dev(No SLA)_Standard_D11_v2`, and the lowest-cost dev/test SKU (`Dev(No SLA)_Standard_E2a_v4`) is available in most regions. For help choosing a SKU, see [Select a SKU for your Azure Data Explorer cluster](/azure/data-explorer/manage-cluster-choose-sku).
+
+<br>
+
 ## x_PricingSubcategory shows the commitment discount ID
 
 Cost Management exports before February 28, 2024 had a bug where `x_PricingSubcategory` was being set incorrectly for committed usage. You should expect to see values like `Committed Spend` and `Committed Usage`. Instead, you might see values like:
@@ -665,9 +998,9 @@ If you see these values, re-export the cost data for that month. If you need to 
 
 ## Power BI: Reports are missing data for specific dates
 
-If your report is missing all data for one or more months, check the **Number of Months**, **RangeStart**, and **RangeEnd** parameters to ensure the data isn't being filtered out. 
+If your report is missing all data for one or more months, check the **Number of Months**, **RangeStart**, and **RangeEnd** parameters to ensure the data isn't being filtered out.
 
-To check parameters, select **Transform data** > **Edit parameters** in the ribbon or select the individual parameters in the **🛠️ Setup** folder from the query editor window. 
+To check parameters, select **Transform data** > **Edit parameters** in the ribbon or select the individual parameters in the **🛠️ Setup** folder from the query editor window.
 
 - If you want to always show a specific number of recent months, set **Number of Months** to the number of closed (completed) months. The current month is an extra month in addition to the closed number of months.
 - If you want a fixed date range that doesn't change over time (for example, fiscal year reporting), set **RangeStart** and **RangeEnd**.
@@ -737,6 +1070,7 @@ This error can occur when connecting Power BI storage reports to a storage accou
    - Copy the **Data Lake Storage** URL (not the Blob service URL)
 
 For example:
+
 - ❌ Incorrect: `https://mystorageaccount.blob.core.windows.net/container`
 - ✅ Correct: `https://mystorageaccount.dfs.core.windows.net/container`
 
@@ -766,13 +1100,17 @@ If you're facing an error not listed above or need more help, file a [support re
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Toolkit/featureName/Help.DataDictionary)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

@@ -3,7 +3,7 @@ title: FinOps best practices for Web
 description: This article outlines a collection of proven FinOps practices for web services, focusing on cost optimization, efficiency improvements, and resource insights.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -11,7 +11,6 @@ ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with web services.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps best practices for Web
 
 This article outlines a collection of proven FinOps practices for web services. It provides strategies for optimizing costs, improving efficiency, and using Azure Resource Graph (ARG) queries to gain insights into your web resources. By following these practices, you can ensure that your web services are cost-effective and aligned with your organization's financial goals.
@@ -45,6 +44,38 @@ resources
     WebAppRG = resourceGroup,
     SubscriptionId = subscriptionId
 | order by id asc
+```
+
+### Remove empty App Service plans
+
+Recommendation: Remove App Service plans that have no apps or functions hosted to avoid unnecessary charges.
+
+#### About empty App Service plans
+
+App Service plans define the compute resources for your web apps. Paid plans incur charges based on their configured SKU and instance count, regardless of whether any apps are hosted on them. Empty plans can accumulate during development or when apps are moved between plans. Removing unused plans eliminates unnecessary costs.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify empty App Service plans. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify empty App Service plans
+
+Use the following ARG query to identify App Service plans with no hosted apps.
+
+```kusto
+resources
+| where type =~ 'microsoft.web/serverfarms'
+| where toint(properties.numberOfSites) == 0
+| where sku.tier !~ 'Free'
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    SKUName = tostring(sku.name),
+    SKUTier = tostring(sku.tier),
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
 ```
 
 ### Query: App Service plan details
@@ -87,13 +118,17 @@ resources
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.BestPractices/featureName/Web)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

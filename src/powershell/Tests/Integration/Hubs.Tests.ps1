@@ -6,7 +6,7 @@
 Describe 'Hubs' {
     BeforeDiscovery {
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
-        $requiredRPs = $global:ftk_InitializeTests_Hubs_RequiredRPs
+        $requiredRPs = Get-FinOpsHubRequiredResourceProvider
 
         # TODO: Automatically validate the last 3 versions only
         # TODO: Automatically validate the last 3 versions only
@@ -17,7 +17,7 @@ Describe 'Hubs' {
     BeforeAll {
         # Must be duplicated because pre-discovery vars aren't accessible
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
-        $requiredRPs = $global:ftk_InitializeTests_Hubs_RequiredRPs
+        $requiredRPs = Get-FinOpsHubRequiredResourceProvider
     }
 
     Context 'Register-FinOpsHubProviders' {
@@ -42,7 +42,7 @@ Describe 'Hubs' {
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
             $ftk_ResourceGroup = "ftk-test-integration"
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
-            $ftk_HubName = "ftk-test-DeployHub_$($env:USERNAME)"
+            $ftk_HubName = "ftk-test-DeployHub_$($env:USER ?? $env:USERNAME ?? 'unknown')"
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
             $ftk_HubRG = "ftk-test-integration"
             # TODO: Confirm lowercase/space requirement and add handling to avoid the limitation

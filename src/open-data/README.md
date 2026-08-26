@@ -4,12 +4,61 @@ Our open data solutions are pretty straightforward. Nothing to deploy. Just use 
 
 On this page:
 
+- [💰 Commitment discount eligibility](#-commitment-discount-eligibility)
+- [📐 Instance size flexibility](#-instance-size-flexibility)
 - [📏 Pricing units](#-pricing-units)
 - [🗺️ Regions](#️-regions)
 - [🗺️ Resource types](#️-resource-types)
 - [🎛️ Services](#️-services)
 
 ---
+
+## 💰 Commitment discount eligibility
+
+<sup>
+    📅 Updated: Mar 24, 2026<br>
+    ➡️ Source: Azure Retail Prices API<br>
+</sup>
+
+<br>
+
+The [CommitmentDiscountEligibility.csv](./CommitmentDiscountEligibility.csv) file lists Azure meters that are eligible for reservations or savings plans. This data is updated weekly by the [Update Commitment Discount Eligibility](../../.github/workflows/opendata-commitment-eligibility.yml) workflow, which queries the [Azure Retail Prices API](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices).
+
+To update manually:
+
+```powershell
+./src/scripts/Update-CommitmentDiscountEligibility.ps1
+```
+
+<br>
+
+## 📐 Instance size flexibility
+
+<sup>
+    📅 Updated: Jun 28, 2026<br>
+    ➡️ Source: Azure Reservations Catalogs API<br>
+</sup>
+
+<br>
+
+The [InstanceSizeFlexibility.csv](./InstanceSizeFlexibility.csv) file maps each ARM SKU to its instance size flexibility (ISF) group and ratio. ISF lets a reservation apply across multiple SKUs in the same flexibility group; the ratio is the relative weight of each SKU within its group. It covers Virtual Machines, Redis Cache, and Dedicated Host, unioned across a broad set of regions (ISF groups are region-stable, but SKU availability is not). The raw Microsoft ratios are kept as-is (they don't always start at `1` for the smallest SKU) for drop-in parity with the deprecated files; pass `-Normalize` to rescale each group so its smallest SKU is `1`. This data is updated weekly by the [Update Instance Size Flexibility](../../.github/workflows/opendata-instance-size-flexibility.yml) workflow, which queries the [Azure Reservations Catalogs API](https://learn.microsoft.com/azure/cost-management-billing/reservations/instance-size-flexibility#extract-instance-size-flexibility-ratios-using-azure-catalogs-api). Each run publishes exactly what the API returns, so records Microsoft retires from the catalog disappear from the file on the next update.
+
+This dataset replaces two deprecated static CSVs that were hosted on `ccmstorageprod.blob.core.windows.net` (`AutofitComboMeterData.csv` and `isfratioblob.csv` / `aka.ms/isf`), which Microsoft is retiring (no updates after 9 May 2026, removed 30 Aug 2026).
+
+The file uses the canonical three-column Catalogs API schema: `InstanceSizeFlexibilityGroup`, `ArmSkuName`, `Ratio`. This is a 1:1 match for the deprecated `isfratioblob.csv`. `ArmSkuName` is unique across the whole file and is safe to use as a standalone join key; both the generator and a unit test enforce this. The deprecated `AutofitComboMeterData.csv` also carried Cost Management connector columns (`ResourceLocation`, meter IDs, composite key, normalized SKU) that are not part of the Catalogs API and aren't reproducible from it; consumers that relied on them (e.g. the Power BI model's join key) should join on `ArmSkuName` instead.
+
+Block Blob storage also exposes ISF metadata in the Catalogs API, but it is intentionally excluded: its entries carry meter-style catalog names rather than real ARM SKU names, every ratio is `1`, and its groups are region-specific — which would duplicate `ArmSkuName` values and break the join-key guarantee above. Pass `-ReservedResourceType` explicitly to generate it if needed.
+
+The Catalogs API is authenticated and requires the `Microsoft.Capacity/catalogs/read` permission, so this script must run with an active Azure context. Downstream tools consume the resulting public CSV and need no Azure credentials.
+
+To update manually:
+
+```powershell
+Connect-AzAccount
+./src/scripts/Update-InstanceSizeFlexibility.ps1
+```
+
+<br>
 
 ## 📏 Pricing units
 

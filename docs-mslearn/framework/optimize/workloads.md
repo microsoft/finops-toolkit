@@ -1,32 +1,31 @@
 ---
-title: Workload optimization
-description: This article helps you understand the Workload optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+title: Usage optimization
+description: This article helps you understand the Usage optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/04/2025
+ms.date: 06/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
 ms.reviewer: kedelaro
-# customer intent: As a FinOps practitioner, I want to understand the workload optimization capability so that I can implement it in the Microsoft Cloud.
+# customer intent: As a FinOps practitioner, I want to understand the usage optimization capability so that I can implement it in the Microsoft Cloud.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
-# Workload optimization
+# Usage optimization
 
-This article helps you understand the Workload optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+This article helps you understand the Usage optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 
 <br>
 
 ## Definition
 
-**Workload optimization refers to the process of ensuring cloud services are utilized and tuned to maximize business value and minimize wasteful usage and spending.**
+**Usage optimization refers to the process of ensuring cloud services are utilized and tuned to maximize business value and minimize wasteful usage and spending.**
 
 Review how services get used and ensure each is maximizing return on investment. Evaluate and implement best practices and recommendations.
 
 Every cost should have direct or indirect traceability back to business value. Eliminate fully "optimized" resources that aren't contributing to business value.
 
-Review your resource usage patterns and determine if they can be scaled down or even shutdown (to stop billing) during off-peak hours. To reduce costs, consider cheaper alternatives. Avoid unnecessary usage and costs that don't contribute to the mission, which in turn increases return on investment and profitability.
+Review your resource usage patterns and determine if they can be scaled down or even shut down (to stop billing) during off-peak hours. To reduce costs, consider cheaper alternatives. Avoid unnecessary usage and costs that don't contribute to the mission, which in turn increases return on investment and profitability.
 
 <br>
 
@@ -91,7 +90,7 @@ At this point, you implemented all the basic cost optimization recommendations a
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Workload optimization capability](https://www.finops.org/framework/capabilities/workload-optimization/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Usage optimization capability](https://www.finops.org/framework/capabilities/usage-optimization/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
@@ -103,13 +102,17 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.Framework/featureName/Capabilities.Optimize.Workloads)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -118,7 +121,7 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [Rate optimization](./rates.md)
-- [Policy and governance](../manage/governance.md)
+- [Governance, policy, and risk](../manage/governance.md)
 
 Related products:
 

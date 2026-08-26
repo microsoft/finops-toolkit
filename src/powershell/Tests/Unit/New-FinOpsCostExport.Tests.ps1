@@ -42,8 +42,8 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @newExportParams
 
                 # Assert
-                Assert-MockCalled -CommandName 'Get-AzResourceProvider' -Times 1
-                Assert-MockCalled -CommandName 'Register-AzResourceProvider' -Times 1
+                Should -Invoke -CommandName 'Get-AzResourceProvider' -Times 1
+                Should -Invoke -CommandName 'Register-AzResourceProvider' -Times 1
             }
 
             It 'Should create export' {
@@ -52,11 +52,11 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @newExportParams
     
                 # Assert
-                Assert-MockCalled -CommandName 'Get-AzResourceProvider' -Times 1
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -Times 2
+                Should -Invoke -CommandName 'Get-AzResourceProvider' -Times 1
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -Times 2
                 # TODO: Validate request body via parameter filter in Invoke-Rest call
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Start-FinOpsCostExport' -Times 0
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Start-FinOpsCostExport' -Times 0
             }
 
             It 'Should create and run scheduled export' {
@@ -65,11 +65,11 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @newExportParams -Execute
 
                 # Assert
-                Assert-MockCalled -CommandName 'Get-AzResourceProvider' -Times 1
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -Times 2
+                Should -Invoke -CommandName 'Get-AzResourceProvider' -Times 1
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -Times 2
                 # TODO: Validate request body via parameter filter in Invoke-Rest call
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Start-FinOpsCostExport' -Times 1
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Start-FinOpsCostExport' -Times 1
             }
 
             It 'Should create and backfill scheduled export' {
@@ -80,11 +80,11 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @newExportParams -Backfill $backfillMonths
 
                 # Assert
-                Assert-MockCalled -CommandName 'Get-AzResourceProvider' -Times 1
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -Times 2
+                Should -Invoke -CommandName 'Get-AzResourceProvider' -Times 1
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -Times 2
                 # TODO: Validate request body via parameter filter in Invoke-Rest call
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Start-FinOpsCostExport' -Times 1 -ParameterFilter { $Backfill -eq $backfillMonths }
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Start-FinOpsCostExport' -Times 1 -ParameterFilter { $Backfill -eq $backfillMonths }
             }
 
             It 'Should create and run one-time export' {
@@ -93,11 +93,11 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @newExportParams -OneTime
 
                 # Assert
-                Assert-MockCalled -CommandName 'Get-AzResourceProvider' -Times 1
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -Times 2
+                Should -Invoke -CommandName 'Get-AzResourceProvider' -Times 1
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -Times 2
                 # TODO: Validate request body via parameter filter in Invoke-Rest call
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Start-FinOpsCostExport' -Times 1
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Start-FinOpsCostExport' -Times 1
             }
         }
 
@@ -108,7 +108,7 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @newExportParams
     
                 # Assert
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $Uri -match 'api-version=2025-03-01'
                 }
             }
@@ -119,7 +119,7 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @newExportParams
     
                 # Assert
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $Body.properties.definition.type -eq 'FocusCost'
                 }
             }
@@ -130,7 +130,7 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @newExportParams
     
                 # Assert
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $null -eq $Body.identity
                 }
             }
@@ -141,7 +141,7 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @newExportParams
     
                 # Assert
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $Body.properties.schedule.status -eq 'Active'
                 }
             }
@@ -161,7 +161,7 @@ InModuleScope 'FinOpsToolkit' {
                     New-FinOpsCostExport @newExportParams -Dataset $_.dataset
     
                     # Assert
-                    Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                         $Body.properties.definition.type -eq $_.dataset `
                             -and $Body.properties.schedule.recurrence -eq $_.schedule
                     }
@@ -173,7 +173,7 @@ InModuleScope 'FinOpsToolkit' {
                     New-FinOpsCostExport @newExportParams -Dataset $_.dataset
     
                     # Assert
-                    Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                         $Body.properties.definition.type -eq $_.dataset `
                             -and $Body.properties.definition.dataSet.configuration.dataVersion -eq $_.version
                     }
@@ -188,7 +188,7 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @newExportParams -SystemAssignedIdentity
     
                 # Assert
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $Body.identity.type -eq 'SystemAssigned' `
                         -and $Body.location -eq 'global'
                 }
@@ -202,9 +202,55 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @newExportParams -SystemAssignedIdentity -Location $location
 
                 # Assert
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $Body.identity.type -eq 'SystemAssigned' `
                         -and $Body.location -eq $location
+                }
+            }
+        }
+
+        Describe 'Format and compression' {
+            It 'Should default to CSV format' {
+                # Arrange
+                # Act
+                New-FinOpsCostExport @newExportParams
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.format -eq 'Csv'
+                }
+            }
+
+            It 'Should set explicit export format' {
+                # Arrange
+                # Act
+                New-FinOpsCostExport @newExportParams -Format 'Parquet'
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.format -eq 'Parquet'
+                }
+            }
+
+            It 'Should default to no compression' {
+                # Arrange
+                # Act
+                New-FinOpsCostExport @newExportParams
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.compressionMode -eq 'None'
+                }
+            }
+
+            It 'Should set explicit compression mode' {
+                # Arrange
+                # Act
+                New-FinOpsCostExport @newExportParams -CompressionMode 'Snappy'
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.compressionMode -eq 'Snappy'
                 }
             }
         }
@@ -223,8 +269,8 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @paramsWithColons
                 
                 # Assert
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
-                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq ($scopeWithColons -replace ':','-')
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq (($scopeWithColons -replace ':','-').Trim('/'))
                 }
             }
 
@@ -243,7 +289,7 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @paramsWithExplicitPath
                 
                 # Assert
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                     $Body.properties.deliveryInfo.destination.rootFolderPath -eq $explicitPathWithColons
                 }
             }
@@ -261,8 +307,8 @@ InModuleScope 'FinOpsToolkit' {
                 New-FinOpsCostExport @paramsWithoutColons
                 
                 # Assert
-                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
-                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq $scopeWithoutColons
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq $scopeWithoutColons.Trim('/')
                 }
             }
         }

@@ -613,6 +613,14 @@ table Costs
 
 		annotation SummarizationSetBy = Automatic
 
+	column x_SkuInstanceType
+		dataType: string
+		lineageTag: 34616157-7ddc-4ed4-8bda-0afea596e583
+		summarizeBy: none
+		sourceColumn: x_SkuInstanceType
+
+		annotation SummarizationSetBy = Automatic
+
 	column x_SkuLicenseStatus
 		dataType: string
 		lineageTag: 86d87994-b011-4838-a8e9-97ddb856d6fa
@@ -795,6 +803,22 @@ table Costs
 		annotation SummarizationSetBy = Automatic
 
 		annotation PBI_FormatHint = {"isCustom":true}
+
+	column CapacityReservationId
+		dataType: string
+		lineageTag: 7a3e4b1c-6f8e-4d9a-b5c1-3e2f4a7b8c9d
+		summarizeBy: none
+		sourceColumn: CapacityReservationId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CapacityReservationStatus
+		dataType: string
+		lineageTag: 8b4f5c2d-7a9f-5e0b-c6d2-4f3e5b8a9c0e
+		summarizeBy: none
+		sourceColumn: CapacityReservationStatus
+
+		annotation SummarizationSetBy = Automatic
 
 	column ChargeCategory
 		dataType: string
@@ -1494,7 +1518,7 @@ table Costs
 							// {"x_PartnerCreditApplied",  type logical}
 						}
 					),
-					OptionalFixes = if PerformDeprecatedOptimizations = false then Fixes else Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
+					OptionalFixes = if PerformDeprecatedOptimizations = false then Fixes else Table.ReplaceValue(
 						// Track all the changes we're about to make before we make them for transparency
 						Table.AddColumn(
 										Fixes,
@@ -1506,16 +1530,26 @@ table Costs
 									if ([ListCost] = null            or [ListCost] = 0)            and ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        then "MissingListCost"                  else null,
 									if ([ListUnitPrice] = null       or [ListUnitPrice] = 0)       and ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) then "MissingListUnitPrice"             else null,
 									if [PricingCategory] = "Standard" and [CommitmentDiscountId] <> null and [ChargeCategory] = "Usage"                            then "PricingCategoryShouldBeCommitted" else null,
-									if [x_SkuTerm] = "1Year" or [x_SkuTerm] = "3Years" or [x_SkuTerm] = "5Years"                                                   then "SkuTermShouldBeAnInteger"         else null
+									// Flag any non-empty text x_SkuTerm (legacy 1Year/3Years/5Years or ISO 8601 PnY/PnM) that needs integer conversion
+									if [x_SkuTerm] is text and [x_SkuTerm] <> "" then "SkuTermShouldBeAnInteger"         else null
 								}), ","),
 								output = if _isBlank(value) then null else value
 							in
 								output
 						),
-						// Fix inconsistent Microsoft x_SkuTerm values
-						"1Year",  12, Replacer.ReplaceValue, {"x_SkuTerm"}),
-						"3Years", 36, Replacer.ReplaceValue, {"x_SkuTerm"}),
-						"5Years", 60, Replacer.ReplaceValue, {"x_SkuTerm"}),
+						// Normalize x_SkuTerm to an integer count of months. Handles legacy string values
+						// (1Year/3Years/5Years), ISO 8601 durations (P1Y/P3Y/P5Y/P10Y and any future PnY/PnM),
+						// numeric strings, and coerces blank/unparseable values to null. Mirrors Prices.tmdl.
+						each [x_SkuTerm], each
+							if [x_SkuTerm] = null or [x_SkuTerm] = "" then null
+							else if [x_SkuTerm] = "1Year"  then 12
+							else if [x_SkuTerm] = "3Years" then 36
+							else if [x_SkuTerm] = "5Years" then 60
+							else if [x_SkuTerm] is text and Text.StartsWith([x_SkuTerm], "P") and Text.EndsWith([x_SkuTerm], "Y") then try Number.FromText(Text.Range([x_SkuTerm], 1, Text.Length([x_SkuTerm]) - 2)) * 12 otherwise null
+							else if [x_SkuTerm] is text and Text.StartsWith([x_SkuTerm], "P") and Text.EndsWith([x_SkuTerm], "M") then try Number.FromText(Text.Range([x_SkuTerm], 1, Text.Length([x_SkuTerm]) - 2)) otherwise null
+							else if [x_SkuTerm] is text then try Number.FromText([x_SkuTerm]) otherwise null
+							else [x_SkuTerm],
+						Replacer.ReplaceValue, {"x_SkuTerm"}),
 				
 					// Split CostDetails by what needs prices and what doesn't
 					PopulateMissingPrices = 
@@ -1648,13 +1682,13 @@ table Costs
 					// AHB columns
 				// TODO: Add SQL AHB handling
 					AHB = Table.RemoveColumns(
-						Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+						Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
 							Table.TransformColumnTypes(
 								Table.ExpandRecordColumn(
 									Table.ReplaceErrorValues(Table.AddColumn(ExtractedTags, "tmp_SkuDetails", each [x_SkuDetailsDictionary]), {{"tmp_SkuDetails", null}}),
 									"tmp_SkuDetails",
-									{"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"},
-									{"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores"}
+									{"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores",        "ServerSku"},
+									{"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores", "tmp_ServerSku"}
 								),
 								{{"tmp_VMvCPUs", Int64.Type}, {"tmp_SQLvCores", Int64.Type}}
 							),
@@ -1669,8 +1703,9 @@ table Costs
 								type number
 							),
 							"x_SkuLicenseStatus",      each if _isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Windows") or [tmp_SQLAHB] = "False" then "Not enabled" else if (_isNotBlank([x_SkuImageType]) and Text.Contains([x_SkuImageType], "Windows Server BYOL")) or [tmp_SQLAHB] = "True" or (_isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Azure Hybrid Benefit")) then "Enabled" else "Not supported"),
-							"x_CommitmentDiscountKey", each [x_SkuType] & [x_SkuMeterId]),
-						{ "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "tmp_SQLAHB", "tmp_SQLvCores", "tmp_VMName", "tmp_VMvCPUs" }
+							"x_SkuInstanceType",       each if [x_SkuType] <> null then [x_SkuType] else if [tmp_ServerSku] <> null then [tmp_ServerSku] else null),
+							"x_CommitmentDiscountKey", each if [x_SkuInstanceType] <> null then [x_SkuInstanceType] & [x_SkuMeterId] else null),
+						{ "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "tmp_SQLAHB", "tmp_ServerSku", "tmp_SQLvCores", "tmp_VMName", "tmp_VMvCPUs" }
 					),
 				
 					// Unique key for the record -- WARNING: This increases the data size significantly.

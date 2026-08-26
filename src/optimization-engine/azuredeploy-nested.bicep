@@ -257,7 +257,7 @@ var csvExportsSchedules = [
   {
     exportSchedule: priceExportsScheduleName
     exportDescription: 'Weekly Pricesheet and Reservation Prices exports'
-    exportTimeOffset: 'PT1H35M'
+    exportTimeOffset: 'PT1H05M'
     exportFrequency: 'Week'
   }
   {
@@ -562,7 +562,7 @@ var csvExports = [
     variableDescription: 'The Storage Account container where Pricesheet exports are dumped to'
     ingestSchedule: 'AzureOptimization_IngestPricesheetWeekly'
     ingestDescription: 'Weekly Pricesheet ingests'
-    ingestTimeOffset: 'PT2H'
+    ingestTimeOffset: 'PT1H35M'
     ingestFrequency: 'Week'
     ingestJobId: pricesheetIngestJobId
     exportSchedule: priceExportsScheduleName
@@ -576,7 +576,7 @@ var csvExports = [
     variableDescription: 'The Storage Account container where Reservations Prices exports are dumped to'
     ingestSchedule: 'AzureOptimization_IngestReservationsPriceWeekly'
     ingestDescription: 'Weekly Reservations Prices ingests'
-    ingestTimeOffset: 'PT2H'
+    ingestTimeOffset: 'PT1H35M'
     ingestFrequency: 'Week'
     ingestJobId: reservationPricesIngestJobId
     exportSchedule: priceExportsScheduleName
@@ -949,7 +949,7 @@ var runbooks = [
   }
   {
     name: consumptionExportsRunbookName
-    version: '2.1.1.0'
+    version: '2.1.2.0'
     description: 'Exports Azure Consumption events to Blob Storage using Azure Consumption API'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${consumptionExportsRunbookName}.ps1')
@@ -984,7 +984,7 @@ var runbooks = [
   }
   {
     name: rbacExportsRunbookName
-    version: '1.1.1.0'
+    version: '1.1.2.0'
     description: 'Exports RBAC assignments to Blob Storage using ARM and Microsoft Entra'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${rbacExportsRunbookName}.ps1')
@@ -1054,14 +1054,14 @@ var runbooks = [
   }
   {
     name: reservationsPriceExportsRunbookName
-    version: '1.0.2.0'
+    version: '1.0.3.0'
     description: 'Exports Reservations Prices to Blob Storage using the Retail Prices API'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${reservationsPriceExportsRunbookName}.ps1')
   }
   {
     name: priceSheetExportsRunbookName
-    version: '1.1.2.0'
+    version: '1.1.3.0'
     description: 'Exports Price Sheet to Blob Storage using the EA or MCA APIs'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${priceSheetExportsRunbookName}.ps1')
@@ -1075,7 +1075,7 @@ var runbooks = [
   }
   {
     name: csvIngestRunbookName
-    version: '1.6.2.0'
+    version: '2.0.0.0'
     description: 'Ingests CSV blobs as custom logs to Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${csvIngestRunbookName}.ps1')
@@ -1187,21 +1187,21 @@ var runbooks = [
   }
   {
     name: recommendationsIngestRunbookName
-    version: '1.7.1.0'
+    version: '1.7.2.0'
     description: 'Ingests JSON-based recommendations into an Azure SQL Database'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${recommendationsIngestRunbookName}.ps1')
   }
   {
     name: recommendationsLogAnalyticsIngestRunbookName
-    version: '1.1.1.0'
+    version: '2.0.0.0'
     description: 'Ingests JSON-based recommendations into Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${recommendationsLogAnalyticsIngestRunbookName}.ps1')
   }
   {
     name: suppressionsLogAnalyticsIngestRunbookName
-    version: '1.1.0.0'
+    version: '2.0.0.0'
     description: 'Ingests suppressions into Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${suppressionsLogAnalyticsIngestRunbookName}.ps1')
@@ -1274,7 +1274,7 @@ var automationVariables = [
   {
     name: 'AzureOptimization_LogAnalyticsChunkSize'
     description: 'The size (in rows) for each chunk of Log Analytics ingestion request'
-    value: 6000
+    value: 150
   }
   {
     name: 'AzureOptimization_StorageBlobsPageSize'
@@ -1570,6 +1570,17 @@ resource logAnalyticsWorkspace 'microsoft.operationalinsights/workspaces@2020-08
   }
 }
 
+resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2022-06-01' = {
+  name: '${automationAccountName}-dce'
+  location: projectLocation
+  tags: resourceTags
+  properties: {
+    networkAcls: {
+      publicNetworkAccess: 'Enabled'
+    }
+  }
+}
+
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: projectLocation
@@ -1761,7 +1772,7 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
     zoneRedundant: false
     readScale: 'Disabled'
     autoPauseDelay: 60
-    requestedBackupStorageRedundancy: 'Geo'
+    requestedBackupStorageRedundancy: 'Local'
   }
 }
 
@@ -1890,6 +1901,15 @@ resource automationVariables_LogAnalyticsWorkspaceKey 'Microsoft.Automation/auto
     description: 'The shared key for the Log Analytics Workspace where optimization data will be ingested'
     value: '"${listKeys(((!logAnalyticsReuse) ? logAnalyticsWorkspace.id : resourceId(logAnalyticsWorkspaceRG, 'microsoft.operationalinsights/workspaces', logAnalyticsWorkspaceName)), '2020-08-01').primarySharedKey}"'
     isEncrypted: true
+  }
+}
+
+resource automationVariables_DCEIngestionEndpoint 'Microsoft.Automation/automationAccounts/variables@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'AzureOptimization_DCEIngestionEndpoint'
+  properties: {
+    description: 'The Logs Ingestion endpoint URL of the Data Collection Endpoint used for DCR-based ingestion'
+    value: '"${dataCollectionEndpoint.properties.logsIngestion.endpoint}"'
   }
 }
 
@@ -2156,3 +2176,5 @@ resource contributorRoleAssignmentGuid_resource 'Microsoft.Authorization/roleAss
 }
 
 output automationPrincipalId string = reference(automationAccount.id, '2019-06-01', 'Full').identity.principalId
+output dceLogsIngestionEndpoint string = dataCollectionEndpoint.properties.logsIngestion.endpoint
+output dceResourceId string = dataCollectionEndpoint.id

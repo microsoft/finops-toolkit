@@ -26,6 +26,8 @@ Perhaps the simplest way to help make the FinOps toolkit better is simply to sha
 
 Have a question? Please ask in [Discussions](../../discussions). Avoid asking questions in issues to keep issues clean and focused on product improvements. If not sure, start a discussion and create an issue based on that discussion later, if needed.
 
+You can also join our [biweekly office hours](https://aka.ms/ftk/office-hours) to get live help from the team on Wednesdays at 8:30 AM Pacific / 4:30 PM UTC.
+
 <br>
 
 ## ℹ️ Suggesting features and reporting bugs
@@ -53,6 +55,8 @@ When possible, try to suggest code changes using **Add a suggestion** to streaml
 If you want to contribute code changes, but aren't sure where to start, scan through [existing issues](../../issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc) to find one that interests you. Use `labels` to narrow down your search.
 
 If you find an issue that's assigned to someone, add a comment to check their status – there's a chance they may not have started yet. If you find an issue that isn't assigned, you are welcome to open a PR with a fix.
+
+Want to stay connected with the team? Join our [weekly contributor sync](https://aka.ms/ftk/contrib-sync) on Wednesdays at 8 AM Pacific / 4 PM UTC.
 
 <!--
 For details about contributing code changes and submitting pull requests, see [How to contribute](../../wiki/How-to-contribute).

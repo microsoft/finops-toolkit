@@ -203,10 +203,10 @@ table Disks
 				      Redundancy,
 				      parentVM,
 				      diskType
-				  " & ftk_DemoFilter(),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  ",
+				  Source = ftk_QueryARG(query, 2),
 				  NullHandling =
-				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				    if Source = null then
 							#table(
 								{ "id", "name", "subscriptionId", "resourceGroup", "tenantId", "location", "managedBy", "osType", "skuName", "skuTier", "diskSizeGB", "diskMBpsReadWrite", "diskIOPSReadWrite", "diskState", "timeCreated", "LastOwnershipUpdateTime", "Redundancy", "parentVM", "diskType" },
 								{}

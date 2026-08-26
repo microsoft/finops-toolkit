@@ -83,19 +83,46 @@ if ($Template -ne "*" -and -not (Test-Path $relDir))
 
 function Copy-TemplateFiles()
 {
-    Write-Host "Packaging $(if ($Template) { "$Template v$version template" } else { "v$version templates" })..."
+    Write-Host "Packaging $(if ($Template -ne "*") { "$Template $version template" } else { "$version templates" })..."
 
-    Write-Verbose "Removing existing ZIP files..."
-    Remove-Item "$relDir/*.zip" -Force
+    if ($Template -eq "*")
+    {
+        Write-Verbose "Removing existing ZIP files..."
+        Remove-Item "$relDir/*.zip" -Force
+    }
 
     return Get-ChildItem "$relDir/$Template*" -Directory `
     | Where-Object { @('pbit', 'pbix', 'FinOpsToolkit') -notcontains $_.Name } `
     | ForEach-Object {
-        Write-Verbose ("Packaging $_" -replace (Get-Item $relDir).FullName, '.')
+        Write-Verbose ("Packaging $_" -replace [regex]::Escape((Get-Item $relDir).FullName), '.')
         $srcPath = $_
         $templateName = $srcPath.Name
         $versionSubFolder = (Join-Path $srcPath $version)
-        $zip = Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
+
+        # Check if template should use an unversioned ZIP filename
+        $buildConfigPath = Join-Path $PSScriptRoot ".." "templates" $templateName ".build.config"
+        $unversionedZip = $false
+        if (Test-Path $buildConfigPath)
+        {
+            try
+            {
+                $buildConfig = Get-Content $buildConfigPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+                $unversionedZip = $buildConfig.unversionedZip -eq $true
+            }
+            catch
+            {
+                Write-Warning "Failed to read .build.config for $templateName : $_"
+            }
+        }
+
+        $zip = if ($unversionedZip)
+        {
+            Join-Path (Get-Item $relDir) "$templateName.zip"
+        }
+        else
+        {
+            Join-Path (Get-Item $relDir) "$templateName-$tag.zip"
+        }
 
         Write-Verbose "Checking for a nested version folder: $versionSubFolder"
         if ((Test-Path -Path $versionSubFolder -PathType Container) -eq $true)
@@ -120,6 +147,16 @@ function Copy-TemplateFiles()
 
         function Copy-DeploymentFiles($suffix)
         {
+            function Copy-FlatDeploymentFiles()
+            {
+                if (Test-Path "$srcPath/azuredeploy.json")
+                {
+                    # Copy azuredeploy.json to docs/deploy folder
+                    Copy-Item "$srcPath/azuredeploy.json" "$deployDir/$templateName-$suffix.json"
+                    Copy-Item "$srcPath/createUiDefinition.json" "$deployDir/$templateName-$suffix.ui.json"
+                }
+            }
+
             $packageManifestPath = "$srcPath/package-manifest.json"
             if (Test-Path $packageManifestPath)
             {
@@ -131,17 +168,51 @@ function Copy-TemplateFiles()
                 & "$PSScriptRoot/New-Directory" $targetDir
 
                 # Copy files and directories
-                $packageManifest.deployment.Files | ForEach-Object { Copy-Item "$srcPath/$($_.source)" "$targetDir/$($_.destination)" -Force }
-                $packageManifest.deployment.Directories | ForEach-Object {
-                    & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
-                    Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
+                $packageManifest.deployment.Files | ForEach-Object {
+                    $destPath = $_.destination
+                    $srcFolder = "$($srcPath.FullName)/$($_.sourceFolder)/".Replace("//", "/")
+                    if (-not (Test-Path $srcFolder))
+                    {
+                        throw "Package manifest references source folder '$($_.sourceFolder)' that does not exist: $srcFolder"
+                    }
+                    $filesToCopy = @(Get-ChildItem "$srcFolder/*" -Include $_.source -Recurse:$_.recurse)
+                    Write-Debug "Found $($filesToCopy.Count) files matching '$($_.source)' in $srcFolder"
+                    $filesToCopy | ForEach-Object {
+                        Write-Debug "Copying file: $($_.Name)"
+                        if ($destPath -eq '*')
+                        {
+                            $normalizedSrc = $srcFolder.Replace('\', '/')
+                            $normalizedFull = $_.FullName.Replace('\', '/')
+                            $relativeDest = "$targetDir/$($normalizedFull.Replace($normalizedSrc, ''))"
+                            $destDir = Split-Path $relativeDest -Parent
+                            if ($destDir) { & "$PSScriptRoot/New-Directory" $destDir }
+                            Copy-Item $_ $relativeDest -Force
+                        }
+                        else
+                        {
+                            Copy-Item $_ "$targetDir/$destPath" -Force
+                        }
+                    }
                 }
+                if ($packageManifest.deployment.Directories)
+                {
+                    Write-Debug "Processing $($packageManifest.deployment.Directories.Count) directory entries"
+                    $packageManifest.deployment.Directories | ForEach-Object {
+                        Write-Debug "Copying directory: $($_.source) -> $($_.destination)"
+                        & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
+                        Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
+                    }
+                }
+                else
+                {
+                    Write-Debug "No directory entries in manifest"
+                }
+
+                Copy-FlatDeploymentFiles
             }
-            elseif (Test-Path "$srcPath/azuredeploy.json")
+            else
             {
-                # Copy azuredeploy.json to docs/deploy folder
-                Copy-Item "$srcPath/azuredeploy.json" "$deployDir/$templateName-$suffix.json"
-                Copy-Item "$srcPath/createUiDefinition.json" "$deployDir/$templateName-$suffix.ui.json"
+                Copy-FlatDeploymentFiles
             }
         }
 
@@ -155,8 +226,9 @@ function Copy-TemplateFiles()
             Copy-DeploymentFiles "latest"
         }
 
-        Write-Verbose ("Compressing $srcPath to $zip" -replace (Get-Item $relDir).FullName, '.')
-        Compress-Archive -Path "$srcPath/*" -DestinationPath $zip
+        Write-Verbose ("Compressing $srcPath to $zip" -replace [regex]::Escape((Get-Item $relDir).FullName), '.')
+        Remove-Item $zip -Force -ErrorAction SilentlyContinue
+        Get-ChildItem $srcPath -Force | Compress-Archive -DestinationPath $zip
         return $zip
     }
 }
@@ -165,7 +237,10 @@ function Copy-OpenDataFiles()
 {
     Write-Verbose "Copying open data files..."
     Copy-Item "$PSScriptRoot/../open-data/*.csv" $relDir
-    Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir
+    # Exclude *.familycounts.json: these are internal operational baselines for the
+    # eligibility completeness guard (not reference data), so they must not ship in
+    # the public release package alongside legitimate open data.
+    Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir -Exclude '*.familycounts.json'
 }
 
 function Copy-OpenDataFolders()
@@ -180,6 +255,7 @@ function Copy-OpenDataFolders()
 }
 
 $version = & "$PSScriptRoot/Get-Version"
+$tag = & "$PSScriptRoot/Get-Version" -AsTag
 
 if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
 {
@@ -202,6 +278,11 @@ if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
         Write-Verbose "Copying PBIX files..."
         Copy-Item "$PSScriptRoot/../power-bi/cm-connector/*.pbix" "$relDir" -Force
         Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../power-bi/cm-connector/*.pbix").Count) PBIX files"
+
+        # Copy calendar files
+        Write-Verbose "Copying calendar files..."
+        Copy-Item "$PSScriptRoot/../../docs/*.ics" "$relDir" -Force
+        Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../../docs/*.ics").Count) calendar files"
 
         # Update version in docs
         $docVersionPath = "$PSScriptRoot/../../docs/_includes/ftkver.txt"

@@ -41,6 +41,7 @@ The advisory council consists of the following representative seats:
 - Each Microsoft product family in the FinOps space:
   - Azure Advisor
   - Azure Carbon Optimization
+  - Azure Data Explorer
   - Azure Monitor
   - Azure Resource Manager (including Management groups, Tags, Policy, Resource Graph, etc.)
   - Commerce (including Benefits, Cost Management, Pricing, etc.)
@@ -60,6 +61,7 @@ This currently includes the following people:
 
 | Seat                                 | Member                |
 | ------------------------------------ | --------------------- |
+| Azure Data Explorer                  | Brad Watts            |
 | Azure Optimization Engine            | Helder Pinto          |
 | Bicep Registry                       | Vacant                |
 | FinOps alerts                        | Robel Mamecha         |
@@ -92,8 +94,22 @@ Individuals must meet the following criteria in order to attain a council seat:
 
 ## 📑 Meetings
 
-The advisory council does not have dedicated meetings at this time. The advisory council is expected to participate (synchronously or asynchronously) in weekly FinOps toolkit sync calls on Wednesdays at 3 PM UTC or FinOps hubs sync calls on Mondays at 3:30 PM UTC. Meetings will be recorded to support asynchronous collaboration for those not able to join. Contributors and active community members may request to join these calls or view recordings as desired.
+The advisory council does not have dedicated meetings at this time. The advisory council is expected to participate (synchronously or asynchronously) in the following meetings. Meetings are recorded to support asynchronous collaboration for those not able to join. Contributors and active community members may request to join these calls or view recordings as desired.
 
-The advisory council is also invited to the monthly governing board meetings; however, attendance is optional.
+- **Weekly contributor sync**
+
+  > The weekly contributor sync is held on Wednesdays at 8 AM Pacific / 4 PM UTC. This is the primary meeting for FinOps toolkit contributors to discuss progress, blockers, and upcoming work.
+  >
+  > [Add to calendar](https://aka.ms/ftk/contrib-sync)
+
+- **Biweekly office hours**
+
+  > Office hours are held every other Wednesday at 8:30 AM Pacific / 4:30 PM UTC. This is an open forum for anyone to ask questions, get help with issues, or discuss FinOps toolkit topics.
+  >
+  > [Add to calendar](https://aka.ms/ftk/office-hours)
+
+- **Biweekly governing board meetings**
+
+  > The advisory council is also invited to the biweekly governing board meetings; however, attendance is optional.
 
 <br>

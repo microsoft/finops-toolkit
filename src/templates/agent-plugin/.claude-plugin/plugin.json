@@ -1,0 +1,18 @@
+{
+  "name": "microsoft-finops-toolkit",
+  "version": "15.0.0",
+  "description": "Microsoft FinOps toolkit plugin for AI-powered cloud financial management.",
+  "author": {
+    "name": "FinOps Toolkit Team",
+    "url": "https://github.com/microsoft"
+  },
+  "homepage": "https://aka.ms/finops/toolkit",
+  "repository": "https://github.com/microsoft/finops-toolkit",
+  "license": "MIT",
+  "keywords": ["finops", "cost-management", "reservations", "savings-plans", "cloud-optimization", "commitments", "credits", "macc"],
+  "commands": "./commands/",
+  "skills": [
+    "./skills/"
+  ],
+  "outputStyles": "./output-styles/"
+}
