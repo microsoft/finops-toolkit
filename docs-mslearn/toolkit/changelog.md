@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/26/2026
+ms.date: 08/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -34,6 +34,7 @@ The following section lists features and enhancements that are currently in deve
   - Added a **Usage optimization** page to the Azure Data Explorer dashboard that surfaces Azure Advisor cost recommendations and the hub's built-in recommendations, with estimated savings summarized by impact, recommendation type, resource type, and subscription, plus detail tables and a collection freshness view.
   - Added the `Add-FinOpsHubResourceGraphReader` PowerShell command to grant the Data Factory managed identity Reader access to subscriptions or management groups used by Resource Graph recommendations.
 - **Changed**
+  - Clarified that the FinOps toolkit exclusively manages the FinOps hub virtual network and documented customer-managed private endpoints as the preferred private-access topology, with virtual network peering as a secondary option ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
   - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
   - Replaced whole-term `contains` matches with `has` across hub KQL and the query catalog (resource ID paths, licensing phrases, SKU description terms) and added a per-row operator-equivalence regression harness with unit test coverage ([#2220](https://github.com/microsoft/finops-toolkit/pull/2220)).
 - **Fixed**
@@ -64,6 +65,11 @@ The following section lists features and enhancements that are currently in deve
 - **Changed**
   - Switched the reservations and benefits workbooks from the retired `ccmstorageprod` isfratioblob.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 
+### [PowerShell module](powershell/powershell-commands.md)
+
+- **Fixed**
+  - Fixed [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) exporting the wrong period for anyone running in a positive UTC offset. `-StartDate` and `-EndDate` are now treated as UTC calendar dates instead of being time zone converted, so the days you request are the days that get exported. Previously, local midnight converted to the previous UTC day, which moved the period back a day and made `-Backfill` run one extra month ([#2255](https://github.com/microsoft/finops-toolkit/issues/2255)).
+
 ### [Open data](open-data.md) updates
 
 **[Instance size flexibility](open-data.md#instance-size-flexibility)**
@@ -75,6 +81,7 @@ The following section lists features and enhancements that are currently in deve
 
 - **Fixed**
   - Fixed the commitment discount eligibility dataset refresh so it is reproducible and complete; retired meters now age out and previously missed meters are included ([#2164](https://github.com/microsoft/finops-toolkit/pull/2164)).
+  - Fixed the weekly commitment discount eligibility refresh timing out before it could publish, which left the dataset unchanged since it first shipped in v14. The refresh now walks each price type directly instead of sharding by service family, and verifies completeness by comparing two independent traversals before writing ([#2251](https://github.com/microsoft/finops-toolkit/pull/2251)).
 
 -->
 
