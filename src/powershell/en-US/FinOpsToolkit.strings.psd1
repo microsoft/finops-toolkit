@@ -16,6 +16,21 @@ ConvertFrom-StringData -StringData @'
     Hub_Remove_Failed = FinOps hub could not be deleted. {0}.
     Hub_Remove_NotFound = FinOps hub '{0}' not found.
 
+    HubBillingReader_Add_AlreadyAssigned = The FinOps hub managed identity already has the Billing Reader role on billing account '{0}'.
+    HubBillingReader_Add_Assigned = Granted the Billing Reader role to the FinOps hub managed identity on billing account '{0}'.
+    HubBillingReader_Add_AssignFailed = Could not grant the Billing Reader role on billing account '{0}'. {1}.
+    HubBillingReader_Add_DataFactoryNotFound = Could not find a Data Factory for FinOps hub '{0}'. Confirm the hub is deployed and you are connected to the correct subscription.
+    HubBillingReader_Add_IdentityNotFound = Data Factory '{0}' does not have a managed identity.
+    HubBillingReader_Add_MultipleDataFactories = Found more than one Data Factory for FinOps hub '{0}'. Specify -ResourceGroupName to narrow the search.
+
+    HubResourceGraphReader_AlreadyAssigned = The FinOps hub managed identity already has the Reader role on scope '{0}'.
+    HubResourceGraphReader_Assigned = Granted the Reader role to the FinOps hub managed identity on scope '{0}'.
+    HubResourceGraphReader_AssignFailed = Could not grant the Reader role on scope '{0}'. {1}.
+    HubResourceGraphReader_DataFactoryNotFound = Could not find a Data Factory for FinOps hub '{0}'. Confirm the hub is deployed and you are connected to the correct subscription.
+    HubResourceGraphReader_IdentityNotFound = Data Factory '{0}' does not have a managed identity.
+    HubResourceGraphReader_InvalidScope = Invalid Resource Graph scope '{0}'. Use a subscription ID, subscription resource ID, or management group resource ID.
+    HubResourceGraphReader_MultipleDataFactories = Found more than one Data Factory for FinOps hub '{0}'. Specify -ResourceGroupName to narrow the search.
+
     HubLocal_Initialize_AssetEmpty = Downloaded asset '{0}' from '{1}' was empty. The release may be incomplete or the URI may not point to a valid FinOps toolkit release.
     HubLocal_Initialize_DownloadFailed = Could not download asset '{0}' from '{1}'. Check the release URI and network connectivity.
     HubLocal_Initialize_NotReachable = Could not reach the Kusto emulator at '{0}'. Start the local hub container before running this command. See https://aka.ms/finops/hubs/local.

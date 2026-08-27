@@ -84,6 +84,30 @@
     .PARAMETER DataExplorerFinalRetentionInMonths
     Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.
 
+    .PARAMETER EnableAwsFocusIngestion
+    Optional. Enable ingestion of FOCUS cost data exported from Amazon Web Services. Requires an S3 bucket with a FOCUS 1.2 export and an access key. Default: false.
+
+    .PARAMETER AwsBucketName
+    Optional. Name of the Amazon S3 bucket that contains the FOCUS export. Requires EnableAwsFocusIngestion.
+
+    .PARAMETER AwsBucketPath
+    Optional. Path to the export root folder within the S3 bucket, without leading or trailing slashes. This is the folder that contains the "data" and "metadata" subfolders. Example: "reports/focus-export". Requires EnableAwsFocusIngestion.
+
+    .PARAMETER AwsAccountId
+    Optional. Amazon Web Services account ID that owns the FOCUS export. Requires EnableAwsFocusIngestion.
+
+    .PARAMETER AwsRegion
+    Optional. Amazon Web Services region of the S3 bucket. Leave empty to use the global S3 endpoint. Requires EnableAwsFocusIngestion. Default: "" (global).
+
+    .PARAMETER AwsAccessKeyId
+    Optional. Amazon Web Services access key ID used to read the S3 bucket. Requires EnableAwsFocusIngestion.
+
+    .PARAMETER AwsSecretAccessKey
+    Optional. Amazon Web Services secret access key used to read the S3 bucket. Stored in Key Vault. Requires EnableAwsFocusIngestion.
+
+    .PARAMETER MultiCloudScheduleHour
+    Optional. Hour of the day (UTC) to collect multicloud FOCUS files. Default: 4.
+
     .PARAMETER NetworkMode
     Optional. Network mode for the hub: 'public' (default), 'vnet' (private endpoints, default outbound), or 'private' (private endpoints + NAT Gateway for controlled outbound access - required when the 'Subnets should be private' policy is enforced).
 
@@ -223,7 +247,40 @@ function Deploy-FinOpsHub
         [Parameter()]
         [ValidateRange(0, 999)]
         [int]
-        $IngestionRetentionInMonths = 13
+        $IngestionRetentionInMonths = 13,
+
+        [Parameter()]
+        [switch]
+        $EnableAwsFocusIngestion,
+
+        [Parameter()]
+        [string]
+        $AwsBucketName,
+
+        [Parameter()]
+        [string]
+        $AwsBucketPath,
+
+        [Parameter()]
+        [string]
+        $AwsAccountId,
+
+        [Parameter()]
+        [string]
+        $AwsRegion,
+
+        [Parameter()]
+        [string]
+        $AwsAccessKeyId,
+
+        [Parameter()]
+        [securestring]
+        $AwsSecretAccessKey,
+
+        [Parameter()]
+        [ValidateRange(0, 23)]
+        [int]
+        $MultiCloudScheduleHour = 4
     )
 
     # Initialize toolkitPath before try block to ensure cleanup works even if early failure occurs
@@ -327,6 +384,20 @@ function Deploy-FinOpsHub
             if ($effectiveNetworkMode -eq 'private' -and ($Version -eq 'latest' -or [version]$Version -ge '15.0'))
             {
                 $parameterSplat.TemplateParameterObject.Add('enableNatGateway', $true)
+            }
+
+            # Only pass the multicloud parameters when the feature is requested. Leaving them out
+            # keeps deployments compatible with template versions that predate the parameters.
+            if ($EnableAwsFocusIngestion -and ($Version -eq 'latest' -or [version]$Version -ge '15.0'))
+            {
+                $parameterSplat.TemplateParameterObject.Add('enableAwsFocusIngestion', $true)
+                $parameterSplat.TemplateParameterObject.Add('awsBucketName', $AwsBucketName)
+                $parameterSplat.TemplateParameterObject.Add('awsBucketPath', $AwsBucketPath)
+                $parameterSplat.TemplateParameterObject.Add('awsAccountId', $AwsAccountId)
+                $parameterSplat.TemplateParameterObject.Add('awsRegion', $AwsRegion)
+                $parameterSplat.TemplateParameterObject.Add('awsAccessKeyId', $AwsAccessKeyId)
+                $parameterSplat.TemplateParameterObject.Add('awsSecretAccessKey', $AwsSecretAccessKey)
+                $parameterSplat.TemplateParameterObject.Add('multiCloudScheduleHour', $MultiCloudScheduleHour)
             }
 
             if ($Tags -and $Tags.Keys.Count -gt 0)

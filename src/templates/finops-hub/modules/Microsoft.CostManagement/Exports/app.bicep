@@ -70,6 +70,7 @@ module schemaFiles '../../fx/hub-storage.bicep' = {
       'schemas/amortizedcost_c360-2025-04.json': loadTextContent('./schemas/amortizedcost_c360-2025-04.json')
       'schemas/focuscost_1.2.json': loadTextContent('./schemas/focuscost_1.2.json')
       'schemas/focuscost_1.2-preview.json': loadTextContent('./schemas/focuscost_1.2-preview.json')
+      'schemas/focuscost_1.2-aws.json': loadTextContent('./schemas/focuscost_1.2-aws.json')
       'schemas/focuscost_1.0r2.json': loadTextContent('./schemas/focuscost_1.0r2.json')
       'schemas/focuscost_1.0.json': loadTextContent('./schemas/focuscost_1.0.json')
       'schemas/focuscost_1.0-preview(v1).json': loadTextContent('./schemas/focuscost_1.0-preview(v1).json')

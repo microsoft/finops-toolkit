@@ -6,6 +6,354 @@
   "schema_version": "60",
   "tiles": [
     {
+      "id": "2a13803b-1f86-46d4-b506-86030f8b90de",
+      "title": "On this page",
+      "visualType": "markdownCard",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 0, "width": 22, "height": 2 },
+      "markdownText": "&nbsp; [Azure Advisor](?tile=3b45dfed-ae66-441f-8668-4cd1765fbe55)\r\n• [Where the savings are](?tile=930a193b-57b8-4377-a83b-aeda8a2cede9)\r\n• [Recommendation details](?tile=95fdc52f-bc42-4c16-ae17-b302a28e3b9d)\r\n• [FinOps hubs recommendations](?tile=01e44432-18b8-458f-b1c8-fec8a4a0327e)\r\n• [Data freshness](?tile=4206687d-7abf-4e40-9bce-c2eabe41a86b)\r\n• [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK$$ftkver$$/bladeName/Hubs.Dashboard/featureName/Optimize.UsageOptimization.Nav)\r\n",
+      "visualOptions": {}
+    },
+    {
+      "id": "3b45dfed-ae66-441f-8668-4cd1765fbe55",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 2, "width": 22, "height": 4 },
+      "markdownText": "# Azure Advisor cost recommendations\r\nCost optimization recommendations collected from Azure Advisor for the scopes monitored by this hub, based on the latest daily collection. Values are recommender estimates, not realized savings. If this section is empty, confirm the recommendations app is deployed, its daily schedule is running, and Advisor has cost recommendations in scope. See [Data freshness](?tile=4206687d-7abf-4e40-9bce-c2eabe41a86b).\r\n\r\n⬆️ [Top](?tile=2a13803b-1f86-46d4-b506-86030f8b90de) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK$$ftkver$$/bladeName/Hubs.Dashboard/featureName/Optimize.UsageOptimization.Advisor)",
+      "visualOptions": {}
+    },
+    {
+      "id": "f78a8288-316d-4980-919a-3ec168a53d59",
+      "title": "Advisor cost recommendations (latest snapshot)",
+      "visualType": "multistat",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 6, "width": 15, "height": 5 },
+      "queryRef": { "kind": "query", "queryId": "d7791e54-e5b1-4d2f-9891-07fc3d1c42c1" },
+      "visualOptions": {
+        "multiStat__textSize": "auto",
+        "multiStat__valueColumn": "Value",
+        "colorRulesDisabled": false,
+        "colorStyle": "light",
+        "multiStat__displayOrientation": "horizontal",
+        "multiStat__labelColumn": "Label",
+        "multiStat__slot": { "width": 5, "height": 1 },
+        "colorRules": [
+          {
+            "id": "2bfaa60f-1716-4974-ba1d-c9b6232482f5",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["Savings"] }],
+            "chainingOperator": "and",
+            "colorStyle": "bold",
+            "color": "green",
+            "tag": "Estimated savings",
+            "icon": null,
+            "ruleName": "Estimated savings",
+            "visualType": "multistat"
+          },
+          {
+            "id": "e5081e50-2a08-463c-9774-4d4ad0362741",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["Count"] }],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "blue",
+            "tag": "Count",
+            "icon": null,
+            "ruleName": "Count",
+            "visualType": "multistat"
+          }
+        ]
+      }
+    },
+    {
+      "id": "0880afa6-5fce-43ce-8121-7f952fb1dbcd",
+      "title": "Recommendations by impact",
+      "visualType": "pie",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 15, "y": 6, "width": 7, "height": 5 },
+      "queryRef": { "kind": "query", "queryId": "542437d4-1f4e-41d1-911e-254c796bcd23" },
+      "visualOptions": {
+        "hideLegend": false,
+        "legendLocation": "bottom",
+        "xColumn": "Impact",
+        "yColumns": null,
+        "seriesColumns": null,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "labelDisabled": false,
+        "pie__label": ["name", "percentage"],
+        "tooltipDisabled": false,
+        "pie__tooltip": ["name", "percentage", "value"],
+        "pie__orderBy": "size",
+        "pie__kind": "pie",
+        "pie__topNSlices": null,
+        "crossFilter": [],
+        "drillthrough": []
+      }
+    },
+    {
+      "id": "930a193b-57b8-4377-a83b-aeda8a2cede9",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 11, "width": 22, "height": 2 },
+      "markdownText": "## Where the savings are",
+      "visualOptions": {}
+    },
+    {
+      "id": "4c3d06e5-ef4e-40d3-82d0-c5173504c41a",
+      "title": "Top recommendations by estimated monthly savings",
+      "visualType": "bar",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 13, "width": 11, "height": 7 },
+      "queryRef": { "kind": "query", "queryId": "cf085d1b-ae69-4b44-b54d-e43acf4001b5" },
+      "visualOptions": {
+        "multipleYAxes": {
+          "base": { "id": "-1", "label": "", "columns": [], "yAxisMaximumValue": null, "yAxisMinimumValue": null, "yAxisScale": "linear", "horizontalLines": [] },
+          "additional": [],
+          "showMultiplePanels": false
+        },
+        "hideLegend": true,
+        "legendLocation": "bottom",
+        "xColumnTitle": "",
+        "xColumn": "Recommendation",
+        "yColumns": ["Savings"],
+        "seriesColumns": null,
+        "xAxisScale": "linear",
+        "verticalLine": "",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "selectedDataOnLoad": { "all": true, "limit": 10 },
+        "dataPointsTooltip": { "all": false, "limit": 1 }
+      }
+    },
+    {
+      "id": "ccb8da89-24c3-423c-a083-e223b834736a",
+      "title": "Estimated monthly savings by resource type",
+      "visualType": "bar",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 11, "y": 13, "width": 11, "height": 7 },
+      "queryRef": { "kind": "query", "queryId": "d56a9ad3-e68b-4eae-a32b-bdf0c3509414" },
+      "visualOptions": {
+        "multipleYAxes": {
+          "base": { "id": "-1", "label": "", "columns": [], "yAxisMaximumValue": null, "yAxisMinimumValue": null, "yAxisScale": "linear", "horizontalLines": [] },
+          "additional": [],
+          "showMultiplePanels": false
+        },
+        "hideLegend": true,
+        "legendLocation": "bottom",
+        "xColumnTitle": "",
+        "xColumn": "ResourceType",
+        "yColumns": ["Savings"],
+        "seriesColumns": null,
+        "xAxisScale": "linear",
+        "verticalLine": "",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "selectedDataOnLoad": { "all": true, "limit": 10 },
+        "dataPointsTooltip": { "all": false, "limit": 1 }
+      }
+    },
+    {
+      "id": "f87ce7e8-b246-45ee-a3a1-af1698751b69",
+      "title": "Estimated monthly savings by subscription",
+      "visualType": "bar",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 20, "width": 22, "height": 6 },
+      "queryRef": { "kind": "query", "queryId": "3c7816aa-8038-440b-b635-fda289580e55" },
+      "visualOptions": {
+        "multipleYAxes": {
+          "base": { "id": "-1", "label": "", "columns": [], "yAxisMaximumValue": null, "yAxisMinimumValue": null, "yAxisScale": "linear", "horizontalLines": [] },
+          "additional": [],
+          "showMultiplePanels": false
+        },
+        "hideLegend": true,
+        "legendLocation": "bottom",
+        "xColumnTitle": "",
+        "xColumn": "Subscription",
+        "yColumns": ["Savings"],
+        "seriesColumns": null,
+        "xAxisScale": "linear",
+        "verticalLine": "",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "selectedDataOnLoad": { "all": true, "limit": 10 },
+        "dataPointsTooltip": { "all": false, "limit": 1 }
+      }
+    },
+    {
+      "id": "95fdc52f-bc42-4c16-ae17-b302a28e3b9d",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 26, "width": 22, "height": 2 },
+      "markdownText": "## Recommendation details",
+      "visualOptions": {}
+    },
+    {
+      "id": "992ad351-bd07-4be6-b71c-ef4755f0402f",
+      "title": "Advisor cost recommendations",
+      "visualType": "table",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 28, "width": 22, "height": 9 },
+      "queryRef": { "kind": "query", "queryId": "6de2078e-9402-4e08-b977-5cf2d8560e96" },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": false,
+        "colorStyle": "light",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "01e44432-18b8-458f-b1c8-fec8a4a0327e",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 37, "width": 22, "height": 4 },
+      "markdownText": "# FinOps hubs recommendations\r\nBuilt-in recommendations generated by the hub itself from Azure Resource Graph, covering idle, orphaned, and legacy resources that Advisor doesn't report. Savings estimates are only available for some recommendation types.\r\n\r\n⬆️ [Top](?tile=2a13803b-1f86-46d4-b506-86030f8b90de) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK$$ftkver$$/bladeName/Hubs.Dashboard/featureName/Optimize.UsageOptimization.Hubs)",
+      "visualOptions": {}
+    },
+    {
+      "id": "18a495a3-1235-4e2e-af05-128e2470c029",
+      "title": "FinOps hubs recommendations (latest snapshot)",
+      "visualType": "multistat",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 41, "width": 15, "height": 5 },
+      "queryRef": { "kind": "query", "queryId": "58cee477-2b9c-4916-9150-17ef57be2f47" },
+      "visualOptions": {
+        "multiStat__textSize": "auto",
+        "multiStat__valueColumn": "Value",
+        "colorRulesDisabled": false,
+        "colorStyle": "light",
+        "multiStat__displayOrientation": "horizontal",
+        "multiStat__labelColumn": "Label",
+        "multiStat__slot": { "width": 5, "height": 1 },
+        "colorRules": [
+          {
+            "id": "bc532449-59d0-4838-83e7-59e328110d42",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["Savings"] }],
+            "chainingOperator": "and",
+            "colorStyle": "bold",
+            "color": "green",
+            "tag": "Estimated savings",
+            "icon": null,
+            "ruleName": "Estimated savings",
+            "visualType": "multistat"
+          },
+          {
+            "id": "bd947a63-52d3-4cb6-9816-039a8426d505",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["Count"] }],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "blue",
+            "tag": "Count",
+            "icon": null,
+            "ruleName": "Count",
+            "visualType": "multistat"
+          }
+        ]
+      }
+    },
+    {
+      "id": "169d0739-f2e7-41d4-bf3a-2fa68f571ba4",
+      "title": "FinOps hubs recommendations by type",
+      "visualType": "pie",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 15, "y": 41, "width": 7, "height": 5 },
+      "queryRef": { "kind": "query", "queryId": "4e754e2a-08d8-4b4b-bf60-7b692d09e977" },
+      "visualOptions": {
+        "hideLegend": false,
+        "legendLocation": "bottom",
+        "xColumn": "Type",
+        "yColumns": null,
+        "seriesColumns": null,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "labelDisabled": false,
+        "pie__label": ["name", "percentage"],
+        "tooltipDisabled": false,
+        "pie__tooltip": ["name", "percentage", "value"],
+        "pie__orderBy": "size",
+        "pie__kind": "pie",
+        "pie__topNSlices": null,
+        "crossFilter": [],
+        "drillthrough": []
+      }
+    },
+    {
+      "id": "beaae601-2077-44cf-b439-5c522f3f2647",
+      "title": "FinOps hubs recommendation details",
+      "visualType": "table",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 46, "width": 22, "height": 8 },
+      "queryRef": { "kind": "query", "queryId": "dda8c8c5-4561-442e-957d-e2968f6e9bf0" },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": false,
+        "colorStyle": "light",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "4206687d-7abf-4e40-9bce-c2eabe41a86b",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 54, "width": 22, "height": 2 },
+      "markdownText": "## Data freshness",
+      "visualOptions": {}
+    },
+    {
+      "id": "362857bf-c166-408b-b83d-46a94032333a",
+      "title": "Recommendation collection by source",
+      "visualType": "table",
+      "pageId": "33596cbb-e820-44b3-9afd-998da101e36b",
+      "layout": { "x": 0, "y": 56, "width": 22, "height": 6 },
+      "queryRef": { "kind": "query", "queryId": "88413f07-af1a-4ba9-afb8-61fe20eab29c" },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": false,
+        "colorStyle": "light",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
       "id": "acf2ca3d-9d8f-477f-b259-f3937bf938d4",
       "title": "Cost last month",
       "visualType": "multistat",
@@ -2175,7 +2523,7 @@
       "visualType": "markdownCard",
       "pageId": "d01a8154-8a60-4d22-96ea-54b45b1417fe",
       "layout": { "x": 5, "y": 5, "width": 5, "height": 8 },
-      "markdownText": "### Usage optimization\nUsage optimization refers to the process of ensuring cloud services are utilized and tuned to maximize business value and minimize wasteful usage and spending. With this capability, you analyze cost, usage, and carbon emissions for cloud workloads to identify opportunities to maximize efficiency. This capability usually starts with recommendations and expands into more nuanced optimization efforts based on detailed resource utilization analysis. This capability can be time and effort intensive as each cloud service has its different optimization opportunities.\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/workloads)",
+      "markdownText": "### Usage optimization\nUsage optimization refers to the process of ensuring cloud services are utilized and tuned to maximize business value and minimize wasteful usage and spending. With this capability, you analyze cost, usage, and carbon emissions for cloud workloads to identify opportunities to maximize efficiency. This capability usually starts with recommendations and expands into more nuanced optimization efforts based on detailed resource utilization analysis. This capability can be time and effort intensive as each cloud service has its different optimization opportunities.\n\n📊 [View report](#33596cbb-e820-44b3-9afd-998da101e36b)\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/workloads)",
       "visualOptions": {}
     },
     {
@@ -2738,14 +3086,169 @@
         "colorRules": []
       }
     }
-  ],
+  ,
+    {
+      "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f809102",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 22,
+        "height": 2
+      },
+      "markdownText": "On this page: &nbsp; [KPIs](?tile=b8c9d0e1-f2a3-4b4c-5d6e-7f8091021324) &nbsp;•&nbsp; [Trend](?tile=c9d0e1f2-a3b4-4c5d-6e7f-8091021324a5) &nbsp;•&nbsp; [Services](?tile=d0e1f2a3-b4c5-4d6e-7f80-91021324a5b6) &nbsp;•&nbsp; [Top Resources](?tile=e1f2a3b4-c5d6-4e7f-8091-021324a5b6c7) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK$$ftkver$$/bladeName/Hubs.Dashboard/featureName/Understand.AIBilling)",
+      "visualOptions": {}
+    },
+    {
+      "id": "a7b8c9d0-e1f2-4a3b-4c5d-6e7f80910213",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 0,
+        "y": 2,
+        "width": 22,
+        "height": 3
+      },
+      "markdownText": "# AI billing\nBilling-level costs for Azure AI services from FinOps Hub data, filtered by `ServiceCategory == 'AI and Machine Learning'` plus `Azure AI Search`. Covers Azure AI Services, Azure Machine Learning, and Azure AI Search.\n\n⬆️ [Top](?tile=f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f809102)",
+      "visualOptions": {}
+    },
+    {
+      "id": "b8c9d0e1-f2a3-4b4c-5d6e-7f8091021324",
+      "title": "AI cost KPIs",
+      "visualType": "multistat",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 0,
+        "y": 5,
+        "width": 6,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e"
+      },
+      "visualOptions": {
+        "multiStat__textSize": "large",
+        "multiStat__slot": {
+          "width": 1,
+          "height": 2
+        },
+        "crossFilterDisabled": true,
+        "drillthroughDisabled": true,
+        "crossFilter": [],
+        "drillthrough": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "c9d0e1f2-a3b4-4c5d-6e7f-8091021324a5",
+      "title": "AI cost per day",
+      "visualType": "column",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 6,
+        "y": 5,
+        "width": 16,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f"
+      },
+      "visualOptions": {
+        "yAxisMinimumValue": 0,
+        "yColumnTitle": "Effective cost",
+        "xColumnTitle": "",
+        "xColumn": "ChargePeriodStart",
+        "yColumns": [
+          "EffectiveCost"
+        ],
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "f2a3b4c5-d6e7-4f80-9102-1324a5b6c7d8",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 0,
+        "y": 13,
+        "width": 22,
+        "height": 2
+      },
+      "markdownText": "## Services\nAI cost breakdown by service and top cost-driving resources.\n\n⬆️ [Top](?tile=f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f809102)",
+      "visualOptions": {}
+    },
+    {
+      "id": "d0e1f2a3-b4c5-4d6e-7f80-91021324a5b6",
+      "title": "AI cost by service",
+      "visualType": "stackedcolumn",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 0,
+        "y": 15,
+        "width": 14,
+        "height": 5
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f80"
+      },
+      "visualOptions": {
+        "yColumnTitle": "Effective cost",
+        "xColumn": "ServiceName",
+        "yColumns": [
+          "EffectiveCost"
+        ],
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "e1f2a3b4-c5d6-4e7f-8091-021324a5b6c7",
+      "title": "Top 5 AI resources",
+      "visualType": "table",
+      "pageId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "layout": {
+        "x": 14,
+        "y": 15,
+        "width": 8,
+        "height": 5
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8091"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    }],
   "baseQueries": [
     { "id": "58764bcb-2ba0-4c7f-b018-e5d7f6cff688", "queryId": "43612ae4-c475-4f22-bb50-ce9d995abb8f", "variableName": "CostsThisMonth" },
     { "id": "21512220-154c-4646-a188-72e8c437d8ed", "queryId": "cb1f5404-c0b1-42fd-99fb-3cff7b08daaa", "variableName": "CostsLastMonth" },
     { "id": "5fa73857-4e92-4a16-8179-f94563e5f605", "queryId": "4ce0f587-2d45-436c-8f79-102c6b382439", "variableName": "CostsByMonth" },
     { "id": "4880346a-0a24-48f9-bf25-b7427df29d69", "queryId": "6b598467-8c31-4693-b1eb-7ed683fcfc3a", "variableName": "CostsByDay" },
     { "id": "8ca40660-3fbc-4a08-b12e-92e7382d9449", "queryId": "4a1973bf-08e9-4e82-b8e6-6edff81cf0a5", "variableName": "CostsByDayAHB" },
-    { "id": "48ebd897-d085-490f-8b4b-9b43d4fb2efc", "queryId": "eb9259cc-05b7-4441-a66d-a29026fe371b", "variableName": "CostsPlus" }
+    { "id": "48ebd897-d085-490f-8b4b-9b43d4fb2efc", "queryId": "eb9259cc-05b7-4441-a66d-a29026fe371b", "variableName": "CostsPlus" },
+    { "id": "d4461bd4-a159-4478-9caa-2f2581ddcf95", "queryId": "ede6c9ce-4b33-4c2e-b572-07e3361b242e", "variableName": "CostRecommendations" }
   ],
   "parameters": [
     {
@@ -2803,6 +3306,11 @@
     { "name": "- Anomaly management", "id": "5838c918-4541-44fe-90d2-77306ef1e241" },
     { "name": "- Data ingestion", "id": "9e099251-9658-48da-b416-80422a2a47c7" },
     { "name": "OPTIMIZE", "id": "d01a8154-8a60-4d22-96ea-54b45b1417fe" },
+    { "name": "- Usage optimization", "id": "33596cbb-e820-44b3-9afd-998da101e36b" },
+    {
+      "name": "- AI billing",
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
+    },
     { "name": "- Rate optimization", "id": "306fef9a-c760-4559-a326-7c25d196b616" },
     { "id": "a4ec1d55-5b6e-49af-bb9e-4f3d136cdf05", "name": "- Licensing + SaaS" },
     { "name": "QUANTIFY", "id": "8beab65c-f5ec-4661-bc67-37b10baffb16" },
@@ -2811,6 +3319,72 @@
     { "name": "- Invoicing + chargeback", "id": "f416685d-f559-4514-8e45-5e0e09aec286" }
   ],
   "queries": [
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "Recommendations()\n//\n// Only cost recommendations. Reservation and savings plan recommendations carry an empty\n// category and are covered by the Rate optimization page.\n| where x_RecommendationCategory =~ 'Cost'\n//\n// Recommendations are re-collected and appended every day, so reduce to the latest collection\n// window before aggregating; otherwise savings multiply by the number of snapshots.\n// x_RecommendationDate is commonly null, so x_IngestionTime is the only reliable time anchor.\n| where x_IngestionTime > toscalar(Recommendations() | where x_RecommendationCategory =~ 'Cost' | summarize max(x_IngestionTime)) - 1d\n//\n// Guard the dedupe key: x_RecommendationId can be empty, which would collapse unrelated rows.\n| extend RecKey = iff(isnotempty(x_RecommendationId), x_RecommendationId, strcat(ResourceId, '|', x_RecommendationDescription))\n| summarize arg_max(x_IngestionTime, *) by RecKey\n//\n// Recommendation details are normalized to x_PascalCase keys during ingestion.\n| extend\n    Source = iff(x_SourceName =~ 'Azure Advisor', 'Azure Advisor', 'FinOps hubs'),\n    Impact = tostring(x_RecommendationDetails.x_RecommendationImpact),\n    Solution = tostring(x_RecommendationDetails.x_RecommendationSolution),\n    SavingsCurrency = tostring(x_RecommendationDetails.x_SavingsCurrency)\n| extend\n    RecommendationType = coalesce(x_RecommendationDescription, x_SourceType, '(unknown)'),\n    ResourceTypeName = coalesce(ResourceType, tostring(x_RecommendationDetails.x_ResourceType), '(unknown)'),\n    SubscriptionName = coalesce(SubAccountName, SubAccountId, '(unassigned)')\n//\n// Savings are monthly estimates; rows without an estimate count as 0 instead of null.\n| extend MonthlySavings = coalesce(x_EffectiveCostSavings, todouble(0))\n//\n// Recommendations have no BillingCurrency column, so apply the currency filter defensively and\n// never drop rows that don't declare a savings currency.\n| where isempty(selectedBillingCurrency) or isempty(SavingsCurrency) or SavingsCurrency =~ selectedBillingCurrency",
+      "id": "ede6c9ce-4b33-4c2e-b572-07e3361b242e",
+      "usedVariables": ["selectedBillingCurrency"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "let data = materialize(CostRecommendations | where Source =~ 'Azure Advisor');\nlet monthlySavings = todouble(coalesce(toscalar(data | summarize sum(MonthlySavings)), 0.0));\nunion\n    (data | summarize Value = todouble(count()) | extend Order = 1, Label = 'Recommendations', Type = 'Count'),\n    (data | summarize Value = todouble(dcountif(ResourceId, isnotempty(ResourceId))) | extend Order = 2, Label = 'Impacted resources', Type = 'Count'),\n    (data | summarize Value = todouble(dcountif(SubAccountId, isnotempty(SubAccountId))) | extend Order = 3, Label = 'Subscriptions', Type = 'Count'),\n    (print Value = monthlySavings | extend Order = 4, Label = 'Est. monthly savings', Type = 'Savings'),\n    (print Value = monthlySavings * 12 | extend Order = 5, Label = 'Est. annual savings', Type = 'Savings')\n| order by Order asc\n| project Label, Value = numberstring(round(Value, 2)), Type",
+      "id": "d7791e54-e5b1-4d2f-9891-07fc3d1c42c1",
+      "usedVariables": ["CostRecommendations"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "CostRecommendations\n| where Source =~ 'Azure Advisor'\n| summarize Recommendations = count() by Impact = iff(isempty(Impact), 'Unspecified', Impact)\n| order by Recommendations desc",
+      "id": "542437d4-1f4e-41d1-911e-254c796bcd23",
+      "usedVariables": ["CostRecommendations"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "CostRecommendations\n| where Source =~ 'Azure Advisor'\n| summarize Savings = round(sum(MonthlySavings), 2) by RecommendationType\n| where Savings > 0\n| order by Savings desc\n| limit maxGroupCount\n| project Recommendation = RecommendationType, Savings",
+      "id": "cf085d1b-ae69-4b44-b54d-e43acf4001b5",
+      "usedVariables": ["CostRecommendations", "maxGroupCount"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "CostRecommendations\n| where Source =~ 'Azure Advisor'\n| summarize Savings = round(sum(MonthlySavings), 2) by ResourceTypeName\n| where Savings > 0\n| order by Savings desc\n| limit maxGroupCount\n| project ResourceType = ResourceTypeName, Savings",
+      "id": "d56a9ad3-e68b-4eae-a32b-bdf0c3509414",
+      "usedVariables": ["CostRecommendations", "maxGroupCount"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "CostRecommendations\n| where Source =~ 'Azure Advisor'\n| summarize Savings = round(sum(MonthlySavings), 2) by SubscriptionName\n| where Savings > 0\n| order by Savings desc\n| limit maxGroupCount\n| project Subscription = SubscriptionName, Savings",
+      "id": "3c7816aa-8038-440b-b635-fda289580e55",
+      "usedVariables": ["CostRecommendations", "maxGroupCount"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "CostRecommendations\n| where Source =~ 'Azure Advisor'\n| project\n    Recommendation = RecommendationType,\n    Impact = iff(isempty(Impact), 'Unspecified', Impact),\n    Resource = ResourceName,\n    ResourceType = ResourceTypeName,\n    ResourceGroup = x_ResourceGroupName,\n    Subscription = SubscriptionName,\n    Solution,\n    Currency = SavingsCurrency,\n    MonthlySavings = round(MonthlySavings, 2),\n    LastSeen = x_IngestionTime\n| order by MonthlySavings desc, Recommendation asc",
+      "id": "6de2078e-9402-4e08-b977-5cf2d8560e96",
+      "usedVariables": ["CostRecommendations"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "let data = materialize(CostRecommendations | where Source !~ 'Azure Advisor');\nlet monthlySavings = todouble(coalesce(toscalar(data | summarize sum(MonthlySavings)), 0.0));\nunion\n    (data | summarize Value = todouble(count()) | extend Order = 1, Label = 'Recommendations', Type = 'Count'),\n    (data | summarize Value = todouble(dcountif(ResourceId, isnotempty(ResourceId))) | extend Order = 2, Label = 'Impacted resources', Type = 'Count'),\n    (data | summarize Value = todouble(dcountif(x_SourceType, isnotempty(x_SourceType))) | extend Order = 3, Label = 'Recommendation types', Type = 'Count'),\n    (print Value = monthlySavings | extend Order = 4, Label = 'Est. monthly savings', Type = 'Savings'),\n    (print Value = monthlySavings * 12 | extend Order = 5, Label = 'Est. annual savings', Type = 'Savings')\n| order by Order asc\n| project Label, Value = numberstring(round(Value, 2)), Type",
+      "id": "58cee477-2b9c-4916-9150-17ef57be2f47",
+      "usedVariables": ["CostRecommendations"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "CostRecommendations\n| where Source !~ 'Azure Advisor'\n| summarize Recommendations = count() by Type = coalesce(x_SourceType, RecommendationType, '(unknown)')\n| order by Recommendations desc",
+      "id": "4e754e2a-08d8-4b4b-bf60-7b692d09e977",
+      "usedVariables": ["CostRecommendations"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "CostRecommendations\n| where Source !~ 'Azure Advisor'\n| project\n    Recommendation = RecommendationType,\n    Type = x_SourceType,\n    Resource = ResourceName,\n    ResourceType = ResourceTypeName,\n    ResourceGroup = x_ResourceGroupName,\n    Subscription = SubscriptionName,\n    MonthlySavings = round(MonthlySavings, 2),\n    LastSeen = x_IngestionTime\n| order by MonthlySavings desc, Recommendation asc",
+      "id": "dda8c8c5-4561-442e-957d-e2968f6e9bf0",
+      "usedVariables": ["CostRecommendations"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "// Reports every collection, not just the latest snapshot, so gaps and stale sources are visible.\nRecommendations()\n| summarize\n    Snapshots = dcount(bin(x_IngestionTime, 1h)),\n    Rows = count(),\n    FirstCollected = min(x_IngestionTime),\n    LastCollected = max(x_IngestionTime)\n    by Source = x_SourceName, Type = x_SourceType\n| extend AgeInDays = round((now() - LastCollected) / 1d, 1)\n| order by Source asc, Type asc",
+      "id": "88413f07-af1a-4ba9-afb8-61fe20eab29c",
+      "usedVariables": []
+    },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
       "text": "let monthname = dynamic(['(ignore)', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);\nlet costs = materialize(\n    CostsLastMonth\n    | summarize BilledCost = round(sum(BilledCost), 2), EffectiveCost = round(sum(EffectiveCost), 2) by BillingPeriodStart = startofmonth(BillingPeriodStart)\n    | extend json = todynamic(strcat('[{\"type\":\"Billed cost\", \"Cost\":', BilledCost, '}, {\"type\":\"Effective cost\", \"Cost\":', EffectiveCost, '}]'))\n    | mv-expand json\n    | project Type = strcat(json.type, ' (', monthname[monthofyear(BillingPeriodStart)], ' ', format_datetime(BillingPeriodStart, 'yyyy'), ')'), Cost = todouble(json.Cost)\n);\ncosts",
@@ -3328,5 +3902,50 @@
       "id": "f2a8c4d6-3b5e-4a7f-9c2d-8e5b1f4a7d9c",
       "usedVariables": []
     }
-  ]
+  ,
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let _isAI = (svcCat: string, svcName: string) { svcCat == 'AI and Machine Learning' or svcName == 'Azure AI Search' };\nlet aiCosts = CostsByDay | where _isAI(ServiceCategory, ServiceName);\nlet totalAI = toscalar(aiCosts | summarize round(sum(EffectiveCost), 2));\nlet totalCloud = toscalar(CostsByDay | summarize sum(EffectiveCost));\nlet aiPercent = iff(totalCloud > 0, round(totalAI / totalCloud * 100, 1), 0.0);\nlet resourceCount = toscalar(aiCosts | summarize dcount(ResourceName));\nlet currentMonthStart = startofmonth(now());\nlet priorMonthStart = startofmonth(datetime_add('month', -1, now()));\nlet currentMonthAI = toscalar(\n    CostsPlus\n    | where (ServiceCategory == 'AI and Machine Learning' or ServiceName == 'Azure AI Search')\n    | where ChargePeriodStart >= currentMonthStart\n    | summarize sum(EffectiveCost)\n);\nlet priorMonthAI = toscalar(\n    CostsPlus\n    | where (ServiceCategory == 'AI and Machine Learning' or ServiceName == 'Azure AI Search')\n    | where ChargePeriodStart >= priorMonthStart and ChargePeriodStart < currentMonthStart\n    | summarize sum(EffectiveCost)\n);\nlet momChange = iff(priorMonthAI > 0, round((currentMonthAI - priorMonthAI) / priorMonthAI * 100, 1), 0.0);\nprint\n    ['Total AI Cost'] = totalAI,\n    ['AI % of Cloud'] = aiPercent,\n    ['MoM Change %'] = momChange,\n    ['AI Resources'] = resourceCount",
+      "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "usedVariables": [
+        "CostsByDay",
+        "CostsPlus"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsByDay\n| where (ServiceCategory == 'AI and Machine Learning' or ServiceName == 'Azure AI Search')\n| summarize EffectiveCost = round(sum(EffectiveCost), 2) by bin(ChargePeriodStart, 1d)\n| order by ChargePeriodStart asc",
+      "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+      "usedVariables": [
+        "CostsByDay"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let aiCosts = CostsByMonth | where (ServiceCategory == 'AI and Machine Learning' or ServiceName == 'Azure AI Search');\nlet totalAI = toscalar(aiCosts | summarize sum(EffectiveCost));\naiCosts\n| summarize\n    EffectiveCost = round(sum(EffectiveCost), 2),\n    ResourceCount = dcount(ResourceName)\n    by ServiceName\n| extend SharePercent = iff(totalAI > 0, round(EffectiveCost / totalAI * 100, 1), 0.0)\n| order by EffectiveCost desc",
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f80",
+      "usedVariables": [
+        "CostsByMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsByDay\n| where (ServiceCategory == 'AI and Machine Learning' or ServiceName == 'Azure AI Search')\n| summarize\n    TotalCost = round(sum(EffectiveCost), 2),\n    DailyAvg = round(avg(EffectiveCost), 2)\n    by ResourceName, ServiceName\n| top 5 by TotalCost desc",
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8091",
+      "usedVariables": [
+        "CostsByDay"
+      ]
+    }]
 }
