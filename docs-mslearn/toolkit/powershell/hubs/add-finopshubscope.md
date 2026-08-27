@@ -3,7 +3,7 @@ title: Add-FinOpsHubScope command
 description: Add a scope to be monitored by a FinOps hub instance using the Add-FinOpsHubScope command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 08/26/2026
+ms.date: 08/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
