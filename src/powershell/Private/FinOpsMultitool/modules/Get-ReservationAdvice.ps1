@@ -1,0 +1,257 @@
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+###########################################################################
+# GET-RESERVATIONADVICE.PS1
+# AZURE FINOPS MULTITOOL - Reservation & Savings Plan Recommendations
+###########################################################################
+# Purpose: Pull RI (Reserved Instance) and Savings Plan recommendations
+#          from Azure Advisor and the Reservation Recommendation API.
+#
+# Rate optimization (RI/SP) is the #1 FinOps quick win - typical
+# savings are 30-72% versus pay-as-you-go pricing.
+#
+# Reference: https://learn.microsoft.com/en-us/azure/advisor/advisor-cost-recommendations
+###########################################################################
+
+function Get-ReservationAdvice {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [object[]]$Subscriptions
+    )
+
+    $allRecommendations = [System.Collections.Generic.List[PSCustomObject]]::new()
+
+    # Set to $true if an Advisor or reservation-recommendation query is
+    # forbidden (401/403) rather than simply returning no recommendations.
+    $accessDenied = $false
+
+    # Build subscription ID list and name lookup
+    $subIds = @($Subscriptions | ForEach-Object { $_.Id })
+    $subNameMap = @{}
+    foreach ($sub in $Subscriptions) { $subNameMap[$sub.Id] = $sub.Name }
+
+    # Query Advisor cost recommendations via Resource Graph (single call)
+    $query = @"
+advisorresources
+| where type == 'microsoft.advisor/recommendations'
+| where properties.category == 'Cost'
+| where properties.shortDescription.problem matches regex '(?i)reserv|savings plan|reserved instance'
+     or properties.shortDescription.solution matches regex '(?i)reserv|savings plan|reserved instance'
+| project subscriptionId,
+    shortDescriptionProblem  = tostring(properties.shortDescription.problem),
+    shortDescriptionSolution = tostring(properties.shortDescription.solution),
+    impact          = tostring(properties.impact),
+    impactedField   = tostring(properties.impactedField),
+    impactedValue   = tostring(properties.impactedValue),
+    annualSavings   = tostring(properties.extendedProperties.annualSavingsAmount),
+    savingsCurrency = tostring(properties.extendedProperties.savingsCurrency),
+    term            = tostring(properties.extendedProperties.term),
+    displaySKU      = tostring(properties.extendedProperties.displaySKU),
+    region          = tostring(properties.extendedProperties.region),
+    displayQty      = tostring(properties.extendedProperties.displayQty),
+    recName         = name
+"@
+
+    try {
+        Write-Host "  Querying RI/SP recommendations via Resource Graph..." -ForegroundColor Cyan
+        $allRows = [System.Collections.Generic.List[object]]::new()
+        $skipToken = $null
+
+        do {
+            $result = Search-AzGraphSafe -Query $query -Subscription $subIds -First 1000 -SkipToken $skipToken
+            if ($result -and $result.Data) { foreach ($r in $result.Data) { [void]$allRows.Add($r) } }
+            $skipToken = if ($result) { $result.SkipToken } else { $null }
+        } while ($skipToken)
+
+        Write-Host "  Retrieved $($allRows.Count) RI/SP recommendations." -ForegroundColor Cyan
+
+        foreach ($row in $allRows) {
+            $subId = $row.subscriptionId
+            $savings = if ($row.annualSavings) { [math]::Round([double]$row.annualSavings, 2) } else { $null }
+            $subName = if ($subNameMap.ContainsKey($subId)) { $subNameMap[$subId] } else { $subId }
+
+            # Savings Plans are subscription-scoped, flexible commitments: Advisor
+            # returns the subscription GUID as impactedValue and carries no
+            # SKU/region/qty. Resolve the GUID to the subscription name and label
+            # the flexible dimensions 'Any' so the row reads as a real scope-wide
+            # commitment rather than a bare ID with missing data. RIs keep their
+            # real SKU/region/qty. The savings come straight from Advisor.
+            $isSavingsPlan = ($row.shortDescriptionSolution -match '(?i)savings plan') -or ($row.shortDescriptionProblem -match '(?i)savings plan')
+            $isSubScope = $row.impactedField -match '(?i)subscriptions/subscriptions'
+            $resName = if ($isSubScope) { "$subName (subscription-wide)" } else { $row.impactedValue }
+            $sku = if ($row.displaySKU) { $row.displaySKU } elseif ($isSavingsPlan) { 'Any (flexible)' } else { '-' }
+            $region = if ($row.region) { $row.region }    elseif ($isSavingsPlan) { 'Any' }            else { '-' }
+            $qty = if ($row.displayQty) { $row.displayQty } elseif ($isSavingsPlan) { 'Commitment' }     else { '-' }
+
+            [void]$allRecommendations.Add([PSCustomObject]@{
+                    Subscription     = $subName
+                    SubscriptionId   = $subId
+                    Problem          = $row.shortDescriptionProblem
+                    Solution         = $row.shortDescriptionSolution
+                    Impact           = $row.impact
+                    Category         = 'Reservation / Savings Plan'
+                    ResourceType     = $row.impactedField
+                    ResourceName     = $resName
+                    SKU              = $sku
+                    Region           = $region
+                    Qty              = $qty
+                    AnnualSavings    = $savings
+                    Currency         = $row.savingsCurrency
+                    Term             = $row.term
+                    RecommendationId = $row.recName
+                })
+        }
+    }
+    catch {
+        Write-Warning "  Advisor Resource Graph query failed: $($_.Exception.Message)"
+        Write-Warning "  Falling back to per-subscription REST calls..."
+
+        foreach ($sub in $Subscriptions) {
+            try {
+                $advPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Advisor/recommendations?api-version=2023-01-01&`$filter=Category eq 'Cost'"
+                $advResp = Invoke-AzRestMethodWithRetry -Path $advPath -Method GET
+                if ($advResp.StatusCode -ne 200) {
+                    if ($advResp.StatusCode -in @(401, 403)) { $accessDenied = $true }
+                    continue
+                }
+                $advResult = ($advResp.Content | ConvertFrom-Json)
+
+                $riRecs = $advResult.value | Where-Object {
+                    $_.properties.shortDescription.problem -match 'reserv|savings plan|reserved instance' -or
+                    $_.properties.shortDescription.solution -match 'reserv|savings plan|reserved instance'
+                }
+
+                foreach ($item in $riRecs) {
+                    $rec = $item.properties
+                    $isSavingsPlan = ($rec.shortDescription.solution -match '(?i)savings plan') -or ($rec.shortDescription.problem -match '(?i)savings plan')
+                    $isSubScope = $rec.impactedField -match '(?i)subscriptions/subscriptions'
+                    $resName = if ($isSubScope) { "$($sub.Name) (subscription-wide)" } else { $rec.impactedValue }
+                    $sku = if ($rec.extendedProperties.displaySKU) { $rec.extendedProperties.displaySKU } elseif ($isSavingsPlan) { 'Any (flexible)' } else { '-' }
+                    $region = if ($rec.extendedProperties.region) { $rec.extendedProperties.region }     elseif ($isSavingsPlan) { 'Any' }            else { '-' }
+                    $qty = if ($rec.extendedProperties.displayQty) { $rec.extendedProperties.displayQty } elseif ($isSavingsPlan) { 'Commitment' }     else { '-' }
+                    [void]$allRecommendations.Add([PSCustomObject]@{
+                            Subscription     = $sub.Name
+                            SubscriptionId   = $sub.Id
+                            Problem          = $rec.shortDescription.problem
+                            Solution         = $rec.shortDescription.solution
+                            Impact           = $rec.impact
+                            Category         = 'Reservation / Savings Plan'
+                            ResourceType     = $rec.impactedField
+                            ResourceName     = $resName
+                            SKU              = $sku
+                            Region           = $region
+                            Qty              = $qty
+                            AnnualSavings    = if ($rec.extendedProperties.annualSavingsAmount) {
+                                [math]::Round([double]$rec.extendedProperties.annualSavingsAmount, 2)
+                            }
+                            else { $null }
+                            Currency         = $rec.extendedProperties.savingsCurrency
+                            Term             = $rec.extendedProperties.term
+                            RecommendationId = $item.name
+                        })
+                }
+            }
+            catch {
+                if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
+                Write-Warning "  Advisor query failed for $($sub.Name): $($_.Exception.Message)"
+            }
+        }
+    }
+
+    # -- Also try the Reservation Recommendation API --------------------
+    # Must be subscription scoped: the bare provider path returns 404
+    # InvalidResourceType. 'Shared' scope is only valid at billing-account scope
+    # and returns 422 here. resourceType defaults to VirtualMachines, so every
+    # other type has to be requested by name or it is silently absent.
+    $rrResourceTypes = @(
+        'VirtualMachines', 'SQLDatabases', 'PostgreSQL', 'ManagedDisk', 'MySQL',
+        'RedHat', 'MariaDB', 'RedisCache', 'CosmosDB', 'SqlDataWarehouse',
+        'SUSELinux', 'AppService', 'BlockBlob', 'AzureDataExplorer', 'VMwareCloudSimple'
+    )
+    $reservationRecs = [System.Collections.Generic.List[PSCustomObject]]::new()
+    foreach ($sub in $Subscriptions) {
+        foreach ($rrType in $rrResourceTypes) {
+            try {
+                $rrFilter = "properties/scope eq 'Single' and properties/resourceType eq '$rrType' and properties/lookBackPeriod eq 'Last30Days'"
+                $rrPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Consumption/reservationRecommendations?api-version=2023-05-01&`$filter=$rrFilter"
+                $rrResp = Invoke-AzRestMethodWithRetry -Path $rrPath -Method GET
+                if ($rrResp -and $rrResp.StatusCode -in @(401, 403)) { $accessDenied = $true; break }
+                if (-not $rrResp -or $rrResp.StatusCode -ne 200 -or -not $rrResp.Content) { continue }
+                $rrResult = ($rrResp.Content | ConvertFrom-Json)
+                if (-not $rrResult.value) { continue }
+
+                foreach ($item in $rrResult.value) {
+                    $props = $item.properties
+                    # Legacy records carry normalizedSize and no resourceType; modern carry skuName.
+                    $rrSku = if ($props.skuName) { $props.skuName } elseif ($props.normalizedSize) { $props.normalizedSize } else { '-' }
+                    [void]$reservationRecs.Add([PSCustomObject]@{
+                            Subscription   = $sub.Name
+                            ResourceType   = if ($props.resourceType) { $props.resourceType } else { $rrType }
+                            SKU            = $rrSku
+                            Region         = $item.location
+                            RecommendedQty = $props.recommendedQuantity
+                            Term           = $props.term
+                            CostWithoutRI  = if ($null -ne $props.costWithNoReservedInstances) { [math]::Round($props.costWithNoReservedInstances, 2) } else { $null }
+                            CostWithRI     = if ($null -ne $props.totalCostWithReservedInstances) { [math]::Round($props.totalCostWithReservedInstances, 2) } else { $null }
+                            NetSavings     = if ($null -ne $props.netSavings) { [math]::Round($props.netSavings, 2) } else { $null }
+                            Scope          = $props.scope
+                            LookBackPeriod = $props.lookBackPeriod
+                            FlexGroup      = $props.instanceFlexibilityGroup
+                        })
+                }
+            }
+            catch {
+                if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
+                Write-Verbose "Reservation recommendation query failed for $($sub.Name)/$rrType : $($_.Exception.Message)"
+            }
+        }
+    }
+    if ($reservationRecs.Count -gt 0) {
+        Write-Host "  Retrieved $($reservationRecs.Count) reservation purchase recommendations." -ForegroundColor Cyan
+    }
+
+    # -- De-duplicate Advisor records -----------------------------------
+    # Azure Advisor frequently emits several identical recommendation
+    # records that differ only by recommendation GUID (overlapping
+    # generation cycles). Collapse them on the meaningful tuple
+    # (sub + resource type + term + SKU + region + qty + savings) so the
+    # grid shows one row per distinct buy. DuplicateCount records how
+    # many Advisor records were rolled into each row, and de-duping also
+    # prevents the estimated-savings total from being inflated 3x.
+    $deduped = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $seenKeys = @{}
+    foreach ($rec in $allRecommendations) {
+        $key = '{0}|{1}|{2}|{3}|{4}|{5}|{6}' -f `
+            $rec.SubscriptionId, $rec.ResourceType, $rec.Term, $rec.SKU, $rec.Region, $rec.Qty, $rec.AnnualSavings
+        if ($seenKeys.ContainsKey($key)) {
+            $seenKeys[$key].DuplicateCount++
+        }
+        else {
+            $rec | Add-Member -NotePropertyName DuplicateCount -NotePropertyValue 1 -Force
+            $seenKeys[$key] = $rec
+            [void]$deduped.Add($rec)
+        }
+    }
+    if ($allRecommendations.Count -ne $deduped.Count) {
+        Write-Host "  Collapsed $($allRecommendations.Count) Advisor records into $($deduped.Count) distinct recommendations." -ForegroundColor Cyan
+    }
+    $allRecommendations = $deduped
+
+    # -- Aggregate savings ----------------------------------------------
+    $totalAnnualSavings = ($allRecommendations | Where-Object { $_.AnnualSavings } |
+        Measure-Object -Property AnnualSavings -Sum).Sum
+
+    $denied = ($accessDenied -and $allRecommendations.Count -eq 0 -and $reservationRecs.Count -eq 0)
+
+    return [PSCustomObject]@{
+        AdvisorRecommendations     = $allRecommendations
+        ReservationRecommendations = $reservationRecs
+        TotalAdvisorCount          = $allRecommendations.Count
+        TotalReservationCount      = $reservationRecs.Count
+        EstimatedAnnualSavings     = [math]::Round($totalAnnualSavings, 2)
+        AccessDenied               = $denied
+        Summary                    = "$($allRecommendations.Count) Advisor + $($reservationRecs.Count) reservation recommendations"
+    }
+}
