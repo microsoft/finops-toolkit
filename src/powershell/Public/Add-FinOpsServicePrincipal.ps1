@@ -2,27 +2,37 @@
     .SYNOPSIS
     Grants the specified service principal or managed identity access to an Enterprise Agreement billing account or department.
 
+    .DESCRIPTION
+    The Add-FinOpsServicePrincipal command grants the specified service principal or managed identity access to an Enterprise Agreement billing account or department.
+
+    For more information about granting roles to service principals, see [Assign Enterprise Agreement roles to service principals](/azure/cost-management-billing/manage/assign-roles-azure-service-principals). For more information about the permissions associated with each role, see [Usage and costs access by role](/azure/cost-management-billing/manage/understand-ea-roles#usage-and-costs-access-by-role).
+
     .PARAMETER ObjectId
-    The object ID of the service principal or managed identity.
+    Required. The object ID of the service principal or managed identity.
 
     .PARAMETER TenantId
-    The Azure Active Directory tenant which contains the identity.
+    Required. The Azure Active Directory tenant which contains the identity.
 
     .PARAMETER BillingAccountId
-    The billing account ID (enrollment number) to grant permissions against.
+    Required. The billing account ID (enrollment number) to grant permissions against.
 
     .PARAMETER DepartmentId
-    The department ID to grant permissions against.
+    Optional. The department ID to grant permissions against.
 
     .EXAMPLE
     Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345
 
-    Grants Enterprise Administrator (read only) permissions to the specified service principal or managed identity
+    ### Enterprise Administrator (read only)
+    Grants Enterprise Administrator (read only) permissions to the specified service principal or managed identity.
 
     .EXAMPLE
     Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345 -DepartmentId 67890
 
-    Grants Department Administrator (read only) permissions to the specified service principal or managed identity
+    ### Department Administrator (read only)
+    Grants Department Administrator (read only) permissions to the specified service principal or managed identity.
+
+    .LINK
+    https://aka.ms/ftk/Add-FinOpsServicePrincipal
 #>
 function Add-FinOpsServicePrincipal
 {

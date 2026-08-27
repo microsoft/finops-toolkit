@@ -3,12 +3,12 @@ title: Get-FinOpsResourceType command
 description: Get an Azure resource type with readable display names, preview status, description, icon, and support links using the Get-FinOpsResourceType command.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsResourceType command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the Get-FinOpsResourceType command in the FinOpsToolkit module.
 ---
 
 # Get-FinOpsResourceType command
@@ -21,8 +21,8 @@ The **Get-FinOpsResourceType** command returns an Azure resource type with reada
 
 ```powershell
 Get-FinOpsResourceType `
-    [[-ResourceType] <string>] `
-    [-IsPreview <bool>]
+    [[‑ResourceType] <string>] `
+    [‑IsPreview <bool>]
 ```
 
 <br>

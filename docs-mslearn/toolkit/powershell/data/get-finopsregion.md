@@ -3,12 +3,12 @@ title: Get-FinOpsRegion command
 description: Get an Azure region ID and name based on the specified resource location using the Get-FinOpsRegion command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsRegion command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the Get-FinOpsRegion command in the FinOpsToolkit module.
 ---
 
 # Get-FinOpsRegion command
@@ -21,20 +21,22 @@ The **Get-FinOpsRegion** command returns an Azure region ID and name based on th
 
 ```powershell
 Get-FinOpsRegion `
-    [[-ResourceLocation] <string>] `
-    [-RegionId <string>] `
-    [-RegionName <string>]
+    [[‑ResourceLocation] <string>] `
+    [‑RegionId <string>] `
+    [‑RegionName <string>] `
+    [‑IncludeResourceLocation]
 ```
 
 <br>
 
 ## Parameters
 
-| Name             | Description                                                                                                                      | Notes                                                                                                |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| ResourceLocation | Optional. Resource location value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = \* (all).      |
-| RegionId         | Optional. Azure region ID (lowercase English name without spaces). Accepts wildcards. Default = \* (all).                        |
-| RegionName       | Optional. Azure region name (title case English name with spaces). Accepts wildcards. Default = \* (all).IncludeResourceLocation | Optional. Indicates whether to include the ResourceLocation property in the output. Default = false. |
+| Name                       | Description                                                                                                                 |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `‑ResourceLocation`        | Optional. Resource location value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = \* (all). |
+| `‑RegionId`                | Optional. Azure region ID (lowercase English name without spaces). Accepts wildcards. Default = \* (all).                   |
+| `‑RegionName`              | Optional. Azure region name (title case English name with spaces). Accepts wildcards. Default = \* (all).                   |
+| `‑IncludeResourceLocation` | Optional. Indicates whether to include the ResourceLocation property in the output. Default = false.                        |
 
 <br>
 

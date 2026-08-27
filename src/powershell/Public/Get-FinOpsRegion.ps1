@@ -23,11 +23,13 @@
     .EXAMPLE
     Get-FinOpsRegion -ResourceLocation "US East"
 
+    ### Get a specific region
     Returns the region ID and name for the East US region.
 
     .EXAMPLE
     Get-FinOpsRegion -RegionId "*asia*" -IncludeResourceLocation
 
+    ### Get many regions with the original Cost Management value
     Returns all Asia regions with the original Cost Management ResourceLocation value.
 
     .LINK

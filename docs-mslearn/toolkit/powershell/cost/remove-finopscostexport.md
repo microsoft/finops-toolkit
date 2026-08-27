@@ -3,17 +3,17 @@ title: Remove-FinOpsCostExport command
 description: Delete a Cost Management export and optionally data associated with the export using the Remove-FinOpsCostExport command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what Remove-FinOpsCostExport command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the Remove-FinOpsCostExport command in the FinOpsToolkit module.
 ---
 
 # Remove-FinOpsCostExport command
 
-The **Remove-FinOpsCostExport** command deletes a Cost Management export and optionally data associated with the export.
+The **Remove-FinOpsCostExport** command deletes a Cost Management export and optionally deletes all data associated with the export from the related storage account.
 
 This command was tested with the following API versions:
 
@@ -28,22 +28,25 @@ This command was tested with the following API versions:
 
 ```powershell
 Remove-FinOpsCostExport `
-    -Name <string> `
-    -Scope <string> `
-    [-RemoveData <switch>] `
-    [-ApiVersion <string>] `
+    [‑Name] <string> `
+    [‑Scope] <string> `
+    [‑RemoveData] `
+    [[‑ApiVersion] <string>] `
+    [‑WhatIf] `
+    [<CommonParameters>]
 ```
 
 <br>
 
 ## Parameters
 
-| Name          | Description                                                                                          |
-| ------------- | ---------------------------------------------------------------------------------------------------- |
-| `‑Name`       | Required. Name of the Cost Management export.                                                        |
-| `‑Scope`      | Required. Resource ID of the scope to export data for context.                                       |
-| `‑RemoveData` | Optional. Optional. Indicates that all cost data associated with the Export scope should be deleted. |
-| `‑ApiVersion` | Optional. API version to use when calling the Cost Management exports API. Default = 2025-03-01.     |
+| Name          | Description                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------------ |
+| `‑Name`       | Required. Name of the Cost Management export to delete.                                          |
+| `‑Scope`      | Required. Resource ID of the scope to export data for.                                           |
+| `‑RemoveData` | Optional. Indicates that all cost data associated with the Export scope should be deleted.       |
+| `‑ApiVersion` | Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01. |
+| `‑WhatIf`     | Optional. Shows what would happen if the command runs without actually running it.               |
 
 <br>
 
@@ -52,10 +55,7 @@ Remove-FinOpsCostExport `
 ### Delete a Cost Management export
 
 ```powershell
-Remove-FinOpsCostExport `
-    -Name MyExport`
-    -Scope "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"`
-    -RemoveData
+Remove-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -RemoveData
 ```
 
 Deletes a Cost Management export and removes the exported data from the linked storage account.
