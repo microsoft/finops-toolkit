@@ -3,7 +3,7 @@ title: Start-FinOpsMultitool command
 description: Launch the FinOps multitool interactive terminal UI to scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 08/25/2026
+ms.date: 08/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -17,7 +17,7 @@ The **Start-FinOpsMultitool** command launches the FinOps multitool interactive 
 
 Results are rendered in the terminal. When you choose to export, the tool writes a CSV file per scan module, a `FinOpsReport.html` summary, and a `ScanSummary.txt` file. The scan modules are read-only.
 
-The command runs on PowerShell 5.1 or later on Windows, and PowerShell 7 or later on all platforms. It requires the `Az.Accounts`, `Az.ResourceGraph`, and `Az.Storage` modules. Most scans need Reader or Cost Management Reader access on the target scope. Account scans (billing structure, contract info, and MACC commitment) also need Billing Reader, or Enterprise Administrator (reader) on an Enterprise Agreement. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
+The command requires PowerShell 7 or later on Windows, macOS, and Linux. It requires the `Az.Accounts`, `Az.ResourceGraph`, and `Az.Storage` modules. Most scans need Reader or Cost Management Reader access on the target scope. Account scans (billing structure, contract info, and MACC commitment) also need Billing Reader, or Enterprise Administrator (reader) on an Enterprise Agreement. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
 
 The tool prompts for each choice by default. To run it from a pipeline or a scheduled job, use `-NonInteractive` and supply the choices as parameters.
 

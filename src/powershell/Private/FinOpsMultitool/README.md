@@ -20,7 +20,7 @@ Invoke-FinOpsMultitool -SubscriptionId '00000000-0000-0000-0000-000000000000'
 
 | Requirement           | Details                                                         |
 | --------------------- | --------------------------------------------------------------- |
-| PowerShell            | 5.1+ (Windows) or 7+ (cross-platform)                           |
+| PowerShell            | 7.0 or later (Windows, macOS, Linux)                            |
 | Az modules            | `Az.Accounts`, `Az.Resources`, `Az.ResourceGraph`, `Az.Storage` |
 | Azure RBAC            | Reader + Cost Management Reader on target scope                 |
 | FinOps Hub (optional) | Storage Blob Data Reader on Hub storage account                 |
