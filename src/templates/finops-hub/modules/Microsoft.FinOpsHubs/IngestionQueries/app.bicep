@@ -139,7 +139,6 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
   name: '${QUERIES}_ExecuteETL'
   parent: dataFactory
   properties: {
-    concurrency: 1
     activities: [
       { // Load Queries
         name: 'Load Queries'
@@ -213,7 +212,7 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
             value: '@activity(\'Load Queries\').output.value'
             type: 'Expression'
           }
-          batchCount: 50
+          batchCount: app.hub.options.privateRouting ? 4 : 30
           isSequential: false
           activities: [
             {  // Execute File Queries
@@ -418,8 +417,6 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
             value: '@activity(\'Filter Out Current Exports\').output.Value'
             type: 'Expression'
           }
-          batchCount: 50
-          isSequential: false
           activities: [
             {  // Delete Old Ingested File
               name: 'Delete Old Ingested File'
@@ -495,8 +492,8 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
       }
       { // Run Query Engine Pipeline
         name: 'Run Query Engine Pipeline'
-        description: 'Run Azure Resource Manager queries as owned child pipelines; retain REST dispatch for other engines.'
-        type: 'IfCondition'
+        description: 'Dynamically dispatch to the engine-specific Copy pipeline via ADF REST API.'
+        type: 'WebActivity'
         dependsOn: [
           {
             activity: 'Set Ingestion Path'
@@ -511,81 +508,57 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
             dependencyConditions: ['Succeeded']
           }
         ]
+        policy: {
+          timeout: '0.00:10:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          url: {
+            value: '@concat(\'${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DataFactory/factories/\', pipeline().DataFactory, \'/pipelines/queries_\', pipeline().parameters.queryEngine, \'_ExecuteQuery/createRun?api-version=2018-06-01\')'
+            type: 'Expression'
+          }
+          method: 'POST'
+          headers: {
+            'Content-Type': 'application/json'
+          }
+          body: {
+            value: '@json(concat(\'{"query":"\', pipeline().parameters.query, \'","queryScope":"\', pipeline().parameters.queryScope, \'","queryScopeTypes":\', string(pipeline().parameters.queryScopeTypes), \',"querySource":"\', pipeline().parameters.querySource, \'","queryType":"\', pipeline().parameters.queryType, \'","queryProvider":"\', pipeline().parameters.queryProvider, \'","queryVersion":"\', pipeline().parameters.queryVersion, \'","ingestionPath":"\', concat(variables(\'ingestionPath\'), pipeline().parameters.queryType, \'.parquet\'), \'","translator":\', string(activity(\'Load Schema Mappings\').output.firstRow.translator), \'}\'))'
+            type: 'Expression'
+          }
+          authentication: {
+            type: 'MSI'
+            resource: environment().resourceManager
+          }
+        }
+      }
+      { // Wait For Query Engine Pipeline
+        name: 'Wait For Query Engine Pipeline'
+        description: 'Poll for engine pipeline completion using the runId from createRun.'
+        type: 'Until'
+        dependsOn: [
+          {
+            activity: 'Run Query Engine Pipeline'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@equals(toLower(pipeline().parameters.queryEngine), \'azureresourcemanager\')'
+            value: '@or(equals(variables(\'engineRunStatus\'), \'Succeeded\'), equals(variables(\'engineRunStatus\'), \'Failed\'), equals(variables(\'engineRunStatus\'), \'Cancelled\'))'
             type: 'Expression'
           }
-          ifTrueActivities: [
-            {
-              name: 'Execute Azure Resource Manager Query'
-              type: 'ExecutePipeline'
-              dependsOn: []
-              userProperties: []
-              typeProperties: {
-                pipeline: {
-                  referenceName: 'queries_AzureResourceManager_ExecuteQuery'
-                  type: 'PipelineReference'
-                }
-                waitOnCompletion: true
-                parameters: {
-                  query: {
-                    value: '@pipeline().parameters.query'
-                    type: 'Expression'
-                  }
-                  queryDataset: {
-                    value: '@pipeline().parameters.outputDataset'
-                    type: 'Expression'
-                  }
-                  queryEngine: {
-                    value: '@pipeline().parameters.queryEngine'
-                    type: 'Expression'
-                  }
-                  queryScope: {
-                    value: '@pipeline().parameters.queryScope'
-                    type: 'Expression'
-                  }
-                  queryScopeTypes: {
-                    value: '@pipeline().parameters.queryScopeTypes'
-                    type: 'Expression'
-                  }
-                  querySource: {
-                    value: '@pipeline().parameters.querySource'
-                    type: 'Expression'
-                  }
-                  queryType: {
-                    value: '@pipeline().parameters.queryType'
-                    type: 'Expression'
-                  }
-                  queryProvider: {
-                    value: '@pipeline().parameters.queryProvider'
-                    type: 'Expression'
-                  }
-                  queryVersion: {
-                    value: '@pipeline().parameters.queryVersion'
-                    type: 'Expression'
-                  }
-                  ingestionPath: {
-                    value: '@concat(variables(\'ingestionPath\'), pipeline().parameters.queryType, \'.parquet\')'
-                    type: 'Expression'
-                  }
-                  translator: {
-                    value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-                    type: 'Expression'
-                  }
-                }
-              }
-            }
-          ]
-          ifFalseActivities: [
-            {
-              name: 'Start Other Query Engine Pipeline'
+          activities: [
+            {  // Check Query Engine Pipeline Status
+              name: 'Check Query Engine Pipeline Status'
               type: 'WebActivity'
               dependsOn: []
               policy: {
-                timeout: '0.00:10:00'
-                retry: 0
+                timeout: '0.00:05:00'
+                retry: 2
                 retryIntervalInSeconds: 30
                 secureOutput: false
                 secureInput: false
@@ -593,131 +566,84 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
               userProperties: []
               typeProperties: {
                 url: {
-                  value: '@concat(\'${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DataFactory/factories/\', pipeline().DataFactory, \'/pipelines/queries_\', pipeline().parameters.queryEngine, \'_ExecuteQuery/createRun?api-version=2018-06-01\')'
+                  value: '@concat(\'${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DataFactory/factories/\', pipeline().DataFactory, \'/pipelineruns/\', activity(\'Run Query Engine Pipeline\').output.runId, \'?api-version=2018-06-01\')'
                   type: 'Expression'
                 }
-                method: 'POST'
-                headers: {
-                  'Content-Type': 'application/json'
-                }
-                body: {
-                  value: '@json(concat(\'{"query":"\', pipeline().parameters.query, \'","queryScope":"\', pipeline().parameters.queryScope, \'","queryScopeTypes":\', string(pipeline().parameters.queryScopeTypes), \',"querySource":"\', pipeline().parameters.querySource, \'","queryType":"\', pipeline().parameters.queryType, \'","queryProvider":"\', pipeline().parameters.queryProvider, \'","queryVersion":"\', pipeline().parameters.queryVersion, \'","ingestionPath":"\', concat(variables(\'ingestionPath\'), pipeline().parameters.queryType, \'.parquet\'), \'","translator":\', string(activity(\'Load Schema Mappings\').output.firstRow.translator), \'}\'))'
-                  type: 'Expression'
-                }
+                method: 'GET'
                 authentication: {
                   type: 'MSI'
                   resource: environment().resourceManager
                 }
               }
             }
-            {
-              name: 'Wait For Other Query Engine Pipeline'
-              description: 'Poll for non-ARM engine completion using the runId from createRun.'
-              type: 'Until'
+            {  // Set Engine Run Status
+              name: 'Set Engine Run Status'
+              type: 'SetVariable'
               dependsOn: [
                 {
-                  activity: 'Start Other Query Engine Pipeline'
+                  activity: 'Check Query Engine Pipeline Status'
                   dependencyConditions: ['Succeeded']
                 }
               ]
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
               userProperties: []
               typeProperties: {
-                expression: {
-                  value: '@or(equals(variables(\'engineRunStatus\'), \'Succeeded\'), equals(variables(\'engineRunStatus\'), \'Failed\'), equals(variables(\'engineRunStatus\'), \'Cancelled\'))'
+                variableName: 'engineRunStatus'
+                value: {
+                  value: '@activity(\'Check Query Engine Pipeline Status\').output.status'
                   type: 'Expression'
                 }
-                activities: [
-                  {
-                    name: 'Check Other Query Engine Pipeline Status'
-                    type: 'WebActivity'
-                    dependsOn: []
-                    policy: {
-                      timeout: '0.00:05:00'
-                      retry: 2
-                      retryIntervalInSeconds: 30
-                      secureOutput: false
-                      secureInput: false
-                    }
-                    userProperties: []
-                    typeProperties: {
-                      url: {
-                        value: '@concat(\'${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DataFactory/factories/\', pipeline().DataFactory, \'/pipelineruns/\', activity(\'Start Other Query Engine Pipeline\').output.runId, \'?api-version=2018-06-01\')'
-                        type: 'Expression'
-                      }
-                      method: 'GET'
-                      authentication: {
-                        type: 'MSI'
-                        resource: environment().resourceManager
-                      }
-                    }
-                  }
-                  {
-                    name: 'Set Other Engine Run Status'
-                    type: 'SetVariable'
-                    dependsOn: [
-                      {
-                        activity: 'Check Other Query Engine Pipeline Status'
-                        dependencyConditions: ['Succeeded']
-                      }
-                    ]
-                    userProperties: []
-                    typeProperties: {
-                      variableName: 'engineRunStatus'
-                      value: {
-                        value: '@activity(\'Check Other Query Engine Pipeline Status\').output.status'
-                        type: 'Expression'
-                      }
-                    }
-                  }
-                  {
-                    name: 'Wait Before Other Engine Status Check'
-                    type: 'Wait'
-                    dependsOn: [
-                      {
-                        activity: 'Set Other Engine Run Status'
-                        dependencyConditions: ['Succeeded']
-                      }
-                    ]
-                    userProperties: []
-                    typeProperties: {
-                      waitTimeInSeconds: 15
-                    }
-                  }
-                ]
-                timeout: '0.00:30:00'
               }
             }
-            {
-              name: 'Verify Other Query Engine Pipeline Succeeded'
-              description: 'Fail the pipeline if the non-ARM query engine run did not succeed.'
-              type: 'IfCondition'
+            {  // Wait Before Retry
+              name: 'Wait Before Retry'
+              type: 'Wait'
               dependsOn: [
                 {
-                  activity: 'Wait For Other Query Engine Pipeline'
+                  activity: 'Set Engine Run Status'
                   dependencyConditions: ['Succeeded']
                 }
               ]
               userProperties: []
               typeProperties: {
-                expression: {
-                  value: '@not(equals(variables(\'engineRunStatus\'), \'Succeeded\'))'
+                waitTimeInSeconds: 15
+              }
+            }
+          ]
+          timeout: '0.00:30:00'
+        }
+      }
+      { // Verify Query Engine Pipeline Succeeded
+        name: 'Verify Query Engine Pipeline Succeeded'
+        description: 'Fail the pipeline if the query engine run did not succeed.'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Wait For Query Engine Pipeline'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@not(equals(variables(\'engineRunStatus\'), \'Succeeded\'))'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Query Engine Pipeline Failed'
+              type: 'Fail'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: '@concat(\'Query engine pipeline finished with status: \', variables(\'engineRunStatus\'))'
                   type: 'Expression'
                 }
-                ifTrueActivities: [
-                  {
-                    name: 'Other Query Engine Pipeline Failed'
-                    type: 'Fail'
-                    dependsOn: []
-                    userProperties: []
-                    typeProperties: {
-                      message: {
-                        value: '@concat(\'Query engine pipeline finished with status: \', variables(\'engineRunStatus\'))'
-                        type: 'Expression'
-                      }
-                      errorCode: 'QueryEnginePipelineFailed'
-                    }
-                  }
-                ]
+                errorCode: 'QueryEnginePipelineFailed'
               }
             }
           ]
@@ -767,7 +693,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
         type: 'GetMetadata'
         dependsOn: [
           {
-            activity: 'Run Query Engine Pipeline'
+            activity: 'Verify Query Engine Pipeline Succeeded'
             dependencyConditions: ['Succeeded']
           }
         ]

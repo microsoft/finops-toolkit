@@ -145,18 +145,9 @@ Describe 'HubsIngestionQueries' {
         $quotaAppBicepContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Quota/app.bicep') -Raw
 
         $ingestionQueriesContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/IngestionQueries/app.bicep') -Raw
-        $queryCoordinatorPipelineContent = [regex]::Match($ingestionQueriesContent, '(?s)resource pipeline_ExecuteQueries .*?(?=\r?\nresource pipeline_ExecuteQueries_query)').Value
-        $queryWorkerPipelineContent = [regex]::Match($ingestionQueriesContent, '(?s)resource pipeline_ExecuteQueries_query .*?(?=\r?\n//==============================================================================\r?\n// Outputs)').Value
         $argEngineContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/AzureResourceGraph/app.bicep') -Raw
         $armEngineContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/AzureResourceManager/app.bicep') -Raw
-        $armConfiguredScopesPipelineContent = [regex]::Match($armEngineContent, '(?s)resource pipeline_ExecuteConfiguredScopes.*?(?=\r?\nresource pipeline_ExecuteSubscriptionPage)').Value
-        $armSubscriptionPagePipelineContent = [regex]::Match($armEngineContent, '(?s)resource pipeline_ExecuteSubscriptionPage.*?(?=\r?\nresource pipeline_ExecuteTenant)').Value
-        $armTenantPipelineContent = [regex]::Match($armEngineContent, '(?s)resource pipeline_ExecuteTenant.*?(?=\r?\nresource pipeline_ExecuteSubscription)').Value
-        $armLocationPagePipelineContent = [regex]::Match($armEngineContent, '(?s)resource pipeline_ExecuteLocationPage.*?(?=\r?\nresource pipeline_ExecuteRegional)').Value
-        $armRegionalPipelineContent = [regex]::Match($armEngineContent, '(?s)resource pipeline_ExecuteRegional.*?(?=\r?\n\r?\n//------------------------------------------------------------------------------\r?\n// Request Copy pipeline)').Value
         $armCopyPipelineContent = [regex]::Match($armEngineContent, '(?s)resource pipeline_CopyQuery.*?(?=\r?\n\r?\n//==============================================================================)').Value
-        $armRawCopyActivityContent = [regex]::Match($armCopyPipelineContent, "(?s)name: 'Copy Raw ARM Page'.*?(?=\r?\n\s+name: 'Clear ARM Request Failure')").Value
-        $quotaUsageSchemaContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Quota/schemas/quota_1.0-usage.json') -Raw
         $settingsContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Core/settings.json') -Raw
         $rawTablesContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts/IngestionSetup_RawTables.kql') -Raw
         $ingestionSetupContent = Get-Content -Path (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts/IngestionSetup_v1_0.kql') -Raw
@@ -389,78 +380,14 @@ Describe 'HubsIngestionQueries' {
             $deploymentScriptContent | Should -Match 'forceUpdateTag: forceUpdateTag'
         }
 
-        It 'Should lifecycle-own Azure Resource Manager query execution' {
+        It 'Should keep one shared query loop without engine-specific routing' {
             [regex]::Matches($ingestionQueriesContent, "name: 'Loop Thru Queries'").Count | Should -Be 1
-            $queryWorkerPipelineContent | Should -Match "(?s)name: 'Run Query Engine Pipeline'.*?type: 'IfCondition'.*?equals\(toLower\(pipeline\(\)\.parameters\.queryEngine\), \\'azureresourcemanager\\'\)"
-            $queryWorkerPipelineContent | Should -Match "(?s)name: 'Execute Azure Resource Manager Query'.*?type: 'ExecutePipeline'.*?referenceName: 'queries_AzureResourceManager_ExecuteQuery'.*?waitOnCompletion: true"
-            $queryWorkerPipelineContent | Should -Match "(?s)name: 'Check ARM Query Staging'.*?activity: 'Run Query Engine Pipeline'.*?'Succeeded'"
-            $queryWorkerPipelineContent | Should -Not -Match "(?s)ifTrueActivities:.*?/createRun\?api-version=2018-06-01.*?ifFalseActivities:"
+            $ingestionQueriesContent | Should -Not -Match 'pipeline_(AzureResourceManager|ResourceGraph)'
         }
 
-        It 'Should admit work only at the root and CopyQuery pipeline boundaries' {
-            $queryCoordinatorPipelineContent | Should -Match 'properties:\s*\{\s*concurrency:\s+1'
-            $queryCoordinatorPipelineContent | Should -Match "(?s)name: 'Loop Thru Queries'.*?batchCount: 50"
-            $queryWorkerPipelineContent | Should -Match "(?s)name: 'Delete Old Files Loop'.*?batchCount: 50"
-            $armConfiguredScopesPipelineContent | Should -Match "(?s)name: 'ForEach Scope'.*?batchCount: 50"
-            $armSubscriptionPagePipelineContent | Should -Match "(?s)name: 'ForEach Subscription'.*?batchCount: 50"
-            $armLocationPagePipelineContent | Should -Match "(?s)name: 'ForEach Location'.*?batchCount: 50"
-            $armCopyPipelineContent | Should -Match 'properties:\s*\{\s*concurrency: app\.hub\.options\.privateRouting \? 4 : 30'
-            $queryCoordinatorPipelineContent | Should -Not -Match 'batchCount: (20|30|4)'
-            $queryWorkerPipelineContent | Should -Not -Match 'batchCount: (20|30|4)'
-            $armConfiguredScopesPipelineContent | Should -Not -Match 'batchCount: (20|30|4)'
-            $armSubscriptionPagePipelineContent | Should -Not -Match 'batchCount: (20|30|4)'
-            $armLocationPagePipelineContent | Should -Not -Match 'batchCount: (20|30|4)'
-        }
-
-        It 'Should synchronously drain each subscription page before following nextLink' {
-            $armTenantPipelineContent | Should -Match "(?s)name: 'Read Subscription Pages'.*?type: 'Until'.*?@empty\(variables\(\\'subscriptionPageUrl\\'\)\)"
-            $armTenantPipelineContent | Should -Match "(?s)name: 'Get Subscription Page'.*?type: 'WebActivity'.*?retry: 2.*?retryIntervalInSeconds: 30"
-            $armTenantPipelineContent | Should -Match ([regex]::Escape("@activity(\'Get Subscription Page\').output.value"))
-            $armTenantPipelineContent | Should -Match "(?s)name: 'Execute Subscription Page'.*?referenceName: pipeline_ExecuteSubscriptionPage\.name.*?waitOnCompletion: true"
-            $armTenantPipelineContent | Should -Match "(?s)name: 'Set Next Subscription Page URL'.*?activity: 'Execute Subscription Page'.*?'Succeeded'.*?output\.nextLink"
-            $armTenantPipelineContent | Should -Match "(?s)name: 'Capture Subscription Dispatch Failure'.*?activity: 'Execute Subscription Page'.*?'Failed'"
-            $armTenantPipelineContent | Should -Match "(?s)name: 'Rethrow Subscription Page Failure'.*?activity: 'Read Subscription Pages'.*?'Succeeded'"
-            $armTenantPipelineContent | Should -Match "(?s)name: 'Rethrow Subscription Page Loop Failure'.*?activity: 'Read Subscription Pages'.*?'Failed'"
-            $armTenantPipelineContent | Should -Not -Match "type: 'Lookup'|Subscription Inventory|_ftk-query-subscriptions"
-            $armSubscriptionPagePipelineContent | Should -Match ([regex]::Escape("@pipeline().parameters.subscriptions"))
-            $armSubscriptionPagePipelineContent | Should -Match 'batchCount: 50'
-        }
-
-        It 'Should synchronously drain each location page before following nextLink' {
-            $armRegionalPipelineContent | Should -Match "(?s)name: 'Read Location Pages'.*?type: 'Until'.*?@empty\(variables\(\\'locationPageUrl\\'\)\)"
-            $armRegionalPipelineContent | Should -Match "(?s)name: 'Get Location Page'.*?type: 'WebActivity'.*?retry: 0.*?retryIntervalInSeconds: 30"
-            $armRegionalPipelineContent | Should -Match ([regex]::Escape("@activity(\'Get Location Page\').output.value"))
-            $armRegionalPipelineContent | Should -Match "(?s)name: 'Execute Location Page'.*?referenceName: pipeline_ExecuteLocationPage\.name.*?waitOnCompletion: true"
-            $armRegionalPipelineContent | Should -Match "(?s)name: 'Set Next Location Page URL'.*?activity: 'Execute Location Page'.*?'Succeeded'.*?output\.nextLink"
-            $armRegionalPipelineContent | Should -Match "(?s)name: 'Capture Location Dispatch Failure'.*?activity: 'Execute Location Page'.*?'Failed'"
-            $armRegionalPipelineContent | Should -Match "(?s)name: 'Rethrow Location Page Failure'.*?activity: 'Read Location Pages'.*?'Succeeded'"
-            $armRegionalPipelineContent | Should -Match "(?s)name: 'Rethrow Location Page Loop Failure'.*?activity: 'Read Location Pages'.*?'Failed'"
-            $armRegionalPipelineContent | Should -Not -Match "type: 'Lookup'"
-            $armLocationPagePipelineContent | Should -Match ([regex]::Escape("@pipeline().parameters.locations"))
-            $armLocationPagePipelineContent | Should -Match ([regex]::Escape("pipeline().parameters.supportedLocations"))
-            $armLocationPagePipelineContent | Should -Match 'batchCount: 50'
-        }
-
-        It 'Should preserve page order beyond the Lookup row limit' {
-            $pages = @(
-                @{ Value = 1..2500; NextLink = 'page-2' }
-                @{ Value = 2501..5000; NextLink = 'page-3' }
-                @{ Value = 5001..6001; NextLink = '' }
-            )
-            $processed = [System.Collections.Generic.List[int]]::new()
-            $largestBufferedPage = 0
-
-            foreach ($page in $pages)
-            {
-                $largestBufferedPage = [math]::Max($largestBufferedPage, $page.Value.Count)
-                $processed.AddRange([int[]] $page.Value)
-            }
-
-            $processed.Count | Should -Be 6001
-            $processed[0] | Should -Be 1
-            $processed[-1] | Should -Be 6001
-            @(Compare-Object $processed (1..6001)).Count | Should -Be 0
-            $largestBufferedPage | Should -Be 2500
+        It 'Should match managed export query concurrency limits' {
+            $ingestionQueriesContent | Should -Match 'batchCount: app\.hub\.options\.privateRouting \? 4 : 30'
+            $armCopyPipelineContent | Should -Match 'concurrency:\s+30'
         }
 
         It 'Should publish a manifest only for the current Parquet output' {
@@ -475,20 +402,18 @@ Describe 'HubsIngestionQueries' {
             [regex]::Matches($armCopyPipelineContent, "type: 'JsonSource'").Count | Should -Be 2
             $armCopyPipelineContent | Should -Match "name: 'Read ARM Pages'"
             $armCopyPipelineContent | Should -Match "type: 'Until'"
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Validate Page URL'.*?type: 'SetVariable'.*?variableName: 'rawRequestFailure'"
-            $armCopyPipelineContent | Should -Not -Match "name: 'Reject Unsafe Page URL'"
+            $armCopyPipelineContent | Should -Match "name: 'Validate Page URL'"
+            $armCopyPipelineContent | Should -Match "name: 'Reject Unsafe Page URL'"
             $armCopyPipelineContent | Should -Match 'UnsafeArmContinuation'
             $armCopyPipelineContent | Should -Match ([regex]::Escape("startswith(toLower(variables(\'requestUrl\')), toLower(\'`$`{environment().resourceManager`}\'))"))
             $armCopyPipelineContent | Should -Match "name: 'Copy Raw ARM Page'"
-            $armRawCopyActivityContent | Should -Match "(?s)policy:\s*\{\s*timeout: '0\.00:02:30'\s*retry: 0\s*retryIntervalInSeconds: 60"
-            [regex]::Matches($armRawCopyActivityContent, 'retry:\s+\d+').Count | Should -Be 1
             $armCopyPipelineContent | Should -Match "name: 'Copy Page Metadata'"
             $armCopyPipelineContent | Should -Match ([regex]::Escape("path: '`$[\'nextLink\']'"))
             $armCopyPipelineContent | Should -Match "name: 'Lookup Page Metadata'"
             $armCopyPipelineContent | Should -Match ([regex]::Escape("activity(\'Lookup Page Metadata\').output.firstRow.nextLink"))
             $armCopyPipelineContent | Should -Match "(?s)name: 'Copy Raw ARM Page'.*?activity: 'Set Page Metadata Path'"
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Copy Page Metadata'.*?activity: 'Reset ARM Request Attempts'"
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Copy ARM Page'.*?activity: 'Lookup Page Metadata'"
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Copy Page Metadata'.*?activity: 'Copy Raw ARM Page'"
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Copy ARM Page'.*?activity: 'Copy Raw ARM Page'"
             [regex]::Matches($armCopyPipelineContent, 'dataset_msexports_manifest\.name').Count | Should -Be 3
             $armCopyPipelineContent | Should -Not -Match "type: 'WebActivity'"
             $armCopyPipelineContent | Should -Not -Match "AbsoluteUrl: '\$\.nextLink'"
@@ -496,30 +421,14 @@ Describe 'HubsIngestionQueries' {
             $armCopyPipelineContent | Should -Not -Match 'additionalColumns|requestBody|additionalHeaders|queryDefinition'
         }
 
-        It 'Should avoid retrying expected no-data and retry only transient ARM failures' {
+        It 'Should stop paging for empty Network usage responses and rethrow every other ARM error' {
             $armCopyPipelineContent | Should -Match "(?s)name: 'Capture ARM Request Failure'.*?activity: 'Copy Raw ARM Page'.*?'Failed'"
             $armCopyPipelineContent | Should -Match ([regex]::Escape("contains(pipeline().parameters.query, \'/providers/Microsoft.Network/locations/\')"))
-            $armCopyPipelineContent | Should -Match 'status code 409 Conflict'
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("contains(activity(\'Copy Raw ARM Page\').error.message, \'status code 409 Conflict\')"))
             $armCopyPipelineContent | Should -Match ([regex]::Escape('"code":"SubscriptionHasNoUsages"'))
-            $armCopyPipelineContent | Should -Match 'machinelearningusage'
-            $armCopyPipelineContent | Should -Match 'status code 400 badrequest'
-            $armCopyPipelineContent | Should -Match 'subscriptionnotfounderror'
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Classify Expected Empty ARM Response'.*?is not found in quota service.*?statuscode.*?404"
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Classify Transient ARM Response'.*?status code 429.*?status code 5.*?systemerror.*?timed out.*?connection reset"
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Select ARM Retry URL'.*?less\(length\(variables\(\\'requestAttempts\\'\)\), 3\)"
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Wait Before Transient ARM Retry'.*?@if\(empty\(variables\(\\'requestUrl\\'\)\), 0, 60\)"
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Stop Paging After ARM Request Failure'.*?variableName: 'requestUrl'.*?value: ''"
             $armCopyPipelineContent | Should -Match "(?s)name: 'Rethrow ARM Request Failure'.*?activity: 'Read ARM Pages'.*?'Completed'.*?name: 'ARM Request Failed'.*?type: 'Fail'"
-            $armCopyPipelineContent | Should -Match "not\(equals\(activity\(\\'Read ARM Pages\\'\)\.Status, \\'Succeeded\\'\)\)"
-            $armCopyPipelineContent | Should -Match "variables\(\\'requestFailureCode\\'\)"
-        }
-
-        It 'Should provide explicit Parquet types for every usage field' {
-            $schema = $quotaUsageSchemaContent | ConvertFrom-Json
-            @($schema.translator.mappings | Where-Object { -not $_.sink.type }).Count | Should -Be 0
-            ($schema.translator.mappings | Where-Object { $_.sink.name -in @('ResourceId', 'ResourceName', 'displayName', 'unit') }).sink.type | Should -Not -Contain $null
-            ($schema.translator.mappings | Where-Object { $_.sink.name -in @('currentValue', 'limit') }).sink.type | Should -Not -Contain $null
-            @($schema.translator.mappings | Where-Object { $_.sink.name -in @('ResourceId', 'ResourceName', 'displayName', 'unit') -and $_.sink.type -ne 'String' }).Count | Should -Be 0
-            @($schema.translator.mappings | Where-Object { $_.sink.name -in @('currentValue', 'limit') -and $_.sink.type -ne 'Double' }).Count | Should -Be 0
+            $armCopyPipelineContent | Should -Match "@variables\(\\'requestFailureCode\\'\)"
         }
 
         It 'Should isolate and delete run-unique continuation metadata' {
@@ -596,10 +505,9 @@ Describe 'HubsIngestionQueries' {
             $armEngineContent | Should -Match '\{location\}'
         }
 
-        It 'Should keep intermediate loops at maximum fan-out behind the CopyQuery boundary' {
+        It 'Should use the copied parallel child pipeline boundary' {
             [regex]::Matches($armEngineContent, "type: 'ForEach'").Count | Should -Be 3
-            [regex]::Matches($armEngineContent, 'batchCount: 50').Count | Should -Be 3
-            [regex]::Matches($armEngineContent, 'concurrency: app\.hub\.options\.privateRouting \? 4 : 30').Count | Should -Be 1
+            [regex]::Matches($armEngineContent, 'batchCount: app\.hub\.options\.privateRouting \? 4 : 30').Count | Should -Be 3
             $armEngineContent | Should -Not -Match 'concurrency:\s+1'
             $armEngineContent | Should -Match "(?s)type: 'ForEach'.*?activities: \[\s*\{\s*name: 'Execute"
             $armEngineContent | Should -Match 'waitOnCompletion: true'
@@ -932,121 +840,6 @@ Describe 'HubsIngestionQueries' {
     }
 
     Context 'Bicep compilation' {
-
-        It 'Azure Resource Manager pipelines should compile with owned execution and selective retries' {
-            if (-not (Get-Command 'bicep' -ErrorAction SilentlyContinue))
-            {
-                Set-ItResult -Skipped -Because 'bicep CLI not found'
-                return
-            }
-
-            $armBicep = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/AzureResourceManager/app.bicep'
-            $armTemplatePath = Join-Path $TestDrive 'azure-resource-manager.json'
-            bicep build $armBicep --outfile $armTemplatePath
-            $LASTEXITCODE | Should -Be 0
-
-            $armTemplate = Get-Content -Path $armTemplatePath -Raw | ConvertFrom-Json -Depth 100
-            $configuredScopesPipeline = $armTemplate.resources.pipeline_ExecuteConfiguredScopes
-            $tenantPipeline = $armTemplate.resources.pipeline_ExecuteTenant
-            $subscriptionPagePipeline = $armTemplate.resources.pipeline_ExecuteSubscriptionPage
-            $regionalPipeline = $armTemplate.resources.pipeline_ExecuteRegional
-            $locationPagePipeline = $armTemplate.resources.pipeline_ExecuteLocationPage
-            $copyPipeline = $armTemplate.resources.pipeline_CopyQuery
-            $readArmPages = $copyPipeline.properties.activities | Where-Object name -EQ 'Read ARM Pages'
-            $copyRawArmPage = $readArmPages.typeProperties.activities | Where-Object name -EQ 'Copy Raw ARM Page'
-            $classifyExpectedEmpty = $readArmPages.typeProperties.activities | Where-Object name -EQ 'Classify Expected Empty ARM Response'
-            $classifyTransient = $readArmPages.typeProperties.activities | Where-Object name -EQ 'Classify Transient ARM Response'
-            $selectRetryUrl = $readArmPages.typeProperties.activities | Where-Object name -EQ 'Select ARM Retry URL'
-            $waitBeforeRetry = $readArmPages.typeProperties.activities | Where-Object name -EQ 'Wait Before Transient ARM Retry'
-            $copyPageMetadata = $readArmPages.typeProperties.activities | Where-Object name -EQ 'Copy Page Metadata'
-            $copyArmPage = $readArmPages.typeProperties.activities | Where-Object name -EQ 'Copy ARM Page'
-            $rethrowArmFailure = $copyPipeline.properties.activities | Where-Object name -EQ 'Rethrow ARM Request Failure'
-
-            $readSubscriptionPages = $tenantPipeline.properties.activities | Where-Object name -EQ 'Read Subscription Pages'
-            $subscriptionPageActivities = $readSubscriptionPages.typeProperties.activities
-            $validateSubscriptionPageUrl = $subscriptionPageActivities | Where-Object name -EQ 'Validate Subscription Page URL'
-            $executeSubscriptionPage = $subscriptionPageActivities | Where-Object name -EQ 'Execute Subscription Page'
-            $setNextSubscriptionPage = $subscriptionPageActivities | Where-Object name -EQ 'Set Next Subscription Page URL'
-            $forEachSubscription = $subscriptionPagePipeline.properties.activities | Where-Object name -EQ 'ForEach Subscription'
-            $forEachScope = $configuredScopesPipeline.properties.activities | Where-Object name -EQ 'ForEach Scope'
-            ($tenantPipeline | ConvertTo-Json -Depth 100) | Should -Not -Match '"type":\s*"Lookup"'
-            $readSubscriptionPages.typeProperties.expression.value | Should -Be "@empty(variables('subscriptionPageUrl'))"
-            $validateSubscriptionPageUrl.type | Should -Be 'SetVariable'
-            $validateSubscriptionPageUrl.typeProperties.variableName | Should -Be 'subscriptionPageFailure'
-            $executeSubscriptionPage.typeProperties.waitOnCompletion | Should -BeTrue
-            $executeSubscriptionPage.typeProperties.pipeline.referenceName | Should -Be 'queries_AzureResourceManager_ExecuteSubscriptionPage'
-            $executeSubscriptionPage.typeProperties.parameters.subscriptions.value | Should -Be "@activity('Filter Enabled Subscriptions').output.value"
-            $setNextSubscriptionPage.dependsOn.activity | Should -Be 'Execute Subscription Page'
-            $setNextSubscriptionPage.typeProperties.value.value | Should -Match 'output\.nextLink'
-            $forEachSubscription.typeProperties.items.value | Should -Be '@pipeline().parameters.subscriptions'
-            $forEachScope.typeProperties.batchCount | Should -Be 50
-            $forEachSubscription.typeProperties.batchCount | Should -Be 50
-
-            $readLocationPages = $regionalPipeline.properties.activities | Where-Object name -EQ 'Read Location Pages'
-            $locationPageActivities = $readLocationPages.typeProperties.activities
-            $validateLocationPageUrl = $locationPageActivities | Where-Object name -EQ 'Validate Location Page URL'
-            $getLocationPage = $locationPageActivities | Where-Object name -EQ 'Get Location Page'
-            $executeLocationPage = $locationPageActivities | Where-Object name -EQ 'Execute Location Page'
-            $setNextLocationPage = $locationPageActivities | Where-Object name -EQ 'Set Next Location Page URL'
-            $forEachLocation = $locationPagePipeline.properties.activities | Where-Object name -EQ 'ForEach Location'
-            ($regionalPipeline | ConvertTo-Json -Depth 100) | Should -Not -Match '"type":\s*"Lookup"'
-            $readLocationPages.typeProperties.expression.value | Should -Be "@empty(variables('locationPageUrl'))"
-            $validateLocationPageUrl.type | Should -Be 'SetVariable'
-            $validateLocationPageUrl.typeProperties.variableName | Should -Be 'locationPageFailure'
-            $getLocationPage.policy.retry | Should -Be 0
-            $executeLocationPage.typeProperties.waitOnCompletion | Should -BeTrue
-            $executeLocationPage.typeProperties.pipeline.referenceName | Should -Be 'queries_AzureResourceManager_ExecuteLocationPage'
-            $executeLocationPage.typeProperties.parameters.locations.value | Should -Be "@activity('Get Location Page').output.value"
-            $setNextLocationPage.dependsOn.activity | Should -Be 'Execute Location Page'
-            $setNextLocationPage.typeProperties.value.value | Should -Match 'output\.nextLink'
-            $forEachLocation.typeProperties.items.value | Should -Be "@activity('Filter Physical Locations').output.value"
-            $forEachLocation.typeProperties.batchCount | Should -Be 50
-            $copyRawArmPage.policy.timeout | Should -Be '0.00:02:30'
-            $copyRawArmPage.policy.retry | Should -Be 0
-            $copyRawArmPage.policy.retryIntervalInSeconds | Should -Be 60
-            ($readSubscriptionPages.typeProperties.activities.type | Where-Object { $_ -in @('ForEach', 'IfCondition', 'Switch', 'Until') }) | Should -BeNullOrEmpty
-            ($readLocationPages.typeProperties.activities.type | Where-Object { $_ -in @('ForEach', 'IfCondition', 'Switch', 'Until') }) | Should -BeNullOrEmpty
-            ($readArmPages.typeProperties.activities.type | Where-Object { $_ -in @('ForEach', 'IfCondition', 'Switch', 'Until') }) | Should -BeNullOrEmpty
-            $classifyExpectedEmpty.typeProperties.value.value | Should -Match 'machinelearningusage'
-            $classifyExpectedEmpty.typeProperties.value.value | Should -Match 'status code 400 badrequest'
-            $classifyExpectedEmpty.typeProperties.value.value | Should -Match 'subscriptionnotfounderror'
-            $classifyExpectedEmpty.typeProperties.value.value | Should -Match 'is not found in quota service'
-            $classifyExpectedEmpty.typeProperties.value.value | Should -Match 'statuscode'
-            $classifyExpectedEmpty.typeProperties.value.value | Should -Match '404'
-            $classifyExpectedEmpty.typeProperties.value.value | Should -Match 'SubscriptionHasNoUsages'
-            $classifyTransient.typeProperties.value.value | Should -Match 'status code 429'
-            $classifyTransient.typeProperties.value.value | Should -Match 'status code 5'
-            $classifyTransient.typeProperties.value.value | Should -Match 'systemerror'
-            $classifyTransient.typeProperties.value.value | Should -Match 'connection reset'
-            $selectRetryUrl.typeProperties.value.value | Should -Match "less\(length\(variables\('requestAttempts'\)\), 3\)"
-            $waitBeforeRetry.typeProperties.waitTimeInSeconds.value | Should -Be "@if(empty(variables('requestUrl')), 0, 60)"
-            $copyPageMetadata.dependsOn.activity | Should -Contain 'Reset ARM Request Attempts'
-            $copyArmPage.dependsOn.activity | Should -Contain 'Lookup Page Metadata'
-            $rethrowArmFailure.typeProperties.expression.value | Should -Match "not\(equals\(activity\('Read ARM Pages'\)\.Status, 'Succeeded'\)\)"
-            $copyPipeline.properties.concurrency | Should -Match "if\(parameters\('app'\)\.hub\.options\.privateRouting, 4, 30\)"
-
-            $ingestionBicep = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/IngestionQueries/app.bicep'
-            $ingestionTemplatePath = Join-Path $TestDrive 'ingestion-queries.json'
-            bicep build $ingestionBicep --outfile $ingestionTemplatePath
-            $LASTEXITCODE | Should -Be 0
-
-            $ingestionTemplate = Get-Content -Path $ingestionTemplatePath -Raw | ConvertFrom-Json -Depth 100
-            $queryCoordinator = $ingestionTemplate.resources.pipeline_ExecuteQueries
-            $queryWorker = $ingestionTemplate.resources.pipeline_ExecuteQueries_query
-            $queryLoop = $queryCoordinator.properties.activities | Where-Object name -EQ 'Loop Thru Queries'
-            $deleteOldFilesLoop = $queryWorker.properties.activities | Where-Object name -EQ 'Delete Old Files Loop'
-            $engineDispatch = $queryWorker.properties.activities | Where-Object name -EQ 'Run Query Engine Pipeline'
-            $executeArmQuery = $engineDispatch.typeProperties.ifTrueActivities | Where-Object name -EQ 'Execute Azure Resource Manager Query'
-            $queryCoordinator.properties.concurrency | Should -Be 1
-            $queryLoop.typeProperties.batchCount | Should -Be 50
-            $deleteOldFilesLoop.typeProperties.batchCount | Should -Be 50
-            $engineDispatch.type | Should -Be 'IfCondition'
-            $engineDispatch.typeProperties.expression.value | Should -Be "@equals(toLower(pipeline().parameters.queryEngine), 'azureresourcemanager')"
-            $executeArmQuery.type | Should -Be 'ExecutePipeline'
-            $executeArmQuery.typeProperties.pipeline.referenceName | Should -Be 'queries_AzureResourceManager_ExecuteQuery'
-            $executeArmQuery.typeProperties.waitOnCompletion | Should -BeTrue
-            ($engineDispatch.typeProperties.ifTrueActivities | ConvertTo-Json -Depth 100) | Should -Not -Match 'createRun'
-        }
 
         It 'finops-hub template should compile without errors' {
             $mainBicep = Join-Path $repoRoot 'src/templates/finops-hub/main.bicep'
