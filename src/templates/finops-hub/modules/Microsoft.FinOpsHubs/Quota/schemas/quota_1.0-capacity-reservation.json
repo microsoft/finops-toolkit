@@ -8,7 +8,8 @@
           "path": "['id']"
         },
         "sink": {
-          "name": "ResourceId"
+          "name": "ResourceId",
+          "type": "String"
         }
       },
       {
@@ -16,7 +17,8 @@
           "path": "['name']"
         },
         "sink": {
-          "name": "ResourceName"
+          "name": "ResourceName",
+          "type": "String"
         }
       },
       {
@@ -24,7 +26,8 @@
           "path": "['type']"
         },
         "sink": {
-          "name": "ResourceType"
+          "name": "ResourceType",
+          "type": "String"
         }
       },
       {
@@ -32,7 +35,8 @@
           "path": "['location']"
         },
         "sink": {
-          "name": "location"
+          "name": "location",
+          "type": "String"
         }
       }
     ],

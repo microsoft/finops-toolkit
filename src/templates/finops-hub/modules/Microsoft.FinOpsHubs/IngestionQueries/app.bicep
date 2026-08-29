@@ -139,6 +139,7 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
   name: '${QUERIES}_ExecuteETL'
   parent: dataFactory
   properties: {
+    concurrency: 1
     activities: [
       { // Load Queries
         name: 'Load Queries'

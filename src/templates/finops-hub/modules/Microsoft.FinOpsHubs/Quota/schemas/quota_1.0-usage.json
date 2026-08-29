@@ -17,7 +17,8 @@
           "path": "['name']['value']"
         },
         "sink": {
-          "name": "ResourceName"
+          "name": "ResourceName",
+          "type": "String"
         }
       },
       {
@@ -25,7 +26,8 @@
           "path": "['name']['localizedValue']"
         },
         "sink": {
-          "name": "displayName"
+          "name": "displayName",
+          "type": "String"
         }
       },
       {
@@ -33,7 +35,8 @@
           "path": "['currentValue']"
         },
         "sink": {
-          "name": "currentValue"
+          "name": "currentValue",
+          "type": "Double"
         }
       },
       {
@@ -41,7 +44,8 @@
           "path": "['limit']"
         },
         "sink": {
-          "name": "limit"
+          "name": "limit",
+          "type": "Double"
         }
       },
       {
@@ -49,7 +53,8 @@
           "path": "['unit']"
         },
         "sink": {
-          "name": "unit"
+          "name": "unit",
+          "type": "String"
         }
       }
     ],

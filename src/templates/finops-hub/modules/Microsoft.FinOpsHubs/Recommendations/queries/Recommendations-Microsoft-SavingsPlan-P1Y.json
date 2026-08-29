@@ -1,7 +1,7 @@
 {
   "dataset": "Recommendations",
   "provider": "Microsoft",
-  "query": "/providers/Microsoft.CostManagement/benefitRecommendations?api-version=2026-06-01&$filter=properties/lookBackPeriod eq 'Last7Days' and properties/term eq 'P1Y'",
+  "query": "/providers/Microsoft.CostManagement/benefitRecommendations?api-version=2026-06-01&$filter=properties/lookBackPeriod eq 'Last60Days' and properties/term eq 'P1Y'",
   "queryEngine": "AzureResourceManager",
   "scope": "Configured",
   "scopeTypes": [

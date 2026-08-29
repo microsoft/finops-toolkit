@@ -385,9 +385,12 @@ Describe 'HubsIngestionQueries' {
             $ingestionQueriesContent | Should -Not -Match 'pipeline_(AzureResourceManager|ResourceGraph)'
         }
 
-        It 'Should match managed export query concurrency limits' {
+        It 'Should use native pipeline queuing at only the root and CopyQuery boundaries' {
             $ingestionQueriesContent | Should -Match 'batchCount: app\.hub\.options\.privateRouting \? 4 : 30'
-            $armCopyPipelineContent | Should -Match 'concurrency:\s+30'
+            $ingestionQueriesContent | Should -Match "(?s)resource pipeline_ExecuteQueries .*?properties: \{\s+concurrency: 1"
+            [regex]::Matches($ingestionQueriesContent, '(?m)^\s+concurrency:').Count | Should -Be 1
+            $armCopyPipelineContent | Should -Match 'concurrency: app\.hub\.options\.privateRouting \? 4 : 30'
+            [regex]::Matches($armCopyPipelineContent, '(?m)^\s+concurrency:').Count | Should -Be 1
         }
 
         It 'Should publish a manifest only for the current Parquet output' {
@@ -395,49 +398,34 @@ Describe 'HubsIngestionQueries' {
             $ingestionQueriesContent | Should -Match 'output\.childItems.*pipeline\(\)\.parameters\.ingestionId.*pipeline\(\)\.parameters\.queryType'
         }
 
-        It 'Should derive data and continuation metadata from one stored response' {
-            [regex]::Matches($armCopyPipelineContent, "type: 'Copy'").Count | Should -Be 3
+        It 'Should use one native paginated Copy followed by one failure handler' {
+            [regex]::Matches($armCopyPipelineContent, "type: 'Copy'").Count | Should -Be 1
             [regex]::Matches($armCopyPipelineContent, "type: 'RestSource'").Count | Should -Be 1
             [regex]::Matches($armCopyPipelineContent, "requestMethod: 'GET'").Count | Should -Be 1
-            [regex]::Matches($armCopyPipelineContent, "type: 'JsonSource'").Count | Should -Be 2
-            $armCopyPipelineContent | Should -Match "name: 'Read ARM Pages'"
-            $armCopyPipelineContent | Should -Match "type: 'Until'"
-            $armCopyPipelineContent | Should -Match "name: 'Validate Page URL'"
-            $armCopyPipelineContent | Should -Match "name: 'Reject Unsafe Page URL'"
-            $armCopyPipelineContent | Should -Match 'UnsafeArmContinuation'
-            $armCopyPipelineContent | Should -Match ([regex]::Escape("startswith(toLower(variables(\'requestUrl\')), toLower(\'`$`{environment().resourceManager`}\'))"))
-            $armCopyPipelineContent | Should -Match "name: 'Copy Raw ARM Page'"
-            $armCopyPipelineContent | Should -Match "name: 'Copy Page Metadata'"
-            $armCopyPipelineContent | Should -Match ([regex]::Escape("path: '`$[\'nextLink\']'"))
-            $armCopyPipelineContent | Should -Match "name: 'Lookup Page Metadata'"
-            $armCopyPipelineContent | Should -Match ([regex]::Escape("activity(\'Lookup Page Metadata\').output.firstRow.nextLink"))
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Copy Raw ARM Page'.*?activity: 'Set Page Metadata Path'"
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Copy Page Metadata'.*?activity: 'Copy Raw ARM Page'"
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Copy ARM Page'.*?activity: 'Copy Raw ARM Page'"
-            [regex]::Matches($armCopyPipelineContent, 'dataset_msexports_manifest\.name').Count | Should -Be 3
-            $armCopyPipelineContent | Should -Not -Match "type: 'WebActivity'"
-            $armCopyPipelineContent | Should -Not -Match "AbsoluteUrl: '\$\.nextLink'"
-            $armCopyPipelineContent | Should -Not -Match 'paginationRules'
+            [regex]::Matches($armCopyPipelineContent, "type: 'IfCondition'").Count | Should -Be 1
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Execute ARM Query'.*?type: 'Copy'.*?paginationRules:\s*\{\s*AbsoluteUrl: '\$\.nextLink'\s*\}"
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Rethrow Unexpected ARM Query Failure'.*?activity: 'Execute ARM Query'.*?'Completed'"
+            $armCopyPipelineContent | Should -Not -Match "name: 'Read ARM Pages'"
+            $armCopyPipelineContent | Should -Not -Match "type: 'Until'|type: 'ForEach'|type: 'ExecutePipeline'|type: 'WebActivity'"
             $armCopyPipelineContent | Should -Not -Match 'additionalColumns|requestBody|additionalHeaders|queryDefinition'
         }
 
-        It 'Should stop paging for empty Network usage responses and rethrow every other ARM error' {
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Capture ARM Request Failure'.*?activity: 'Copy Raw ARM Page'.*?'Failed'"
+        It 'Should accept only empty Network usage responses and rethrow every other Copy failure' {
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("equals(activity(\'Execute ARM Query\').Status, \'Failed\')"))
             $armCopyPipelineContent | Should -Match ([regex]::Escape("contains(pipeline().parameters.query, \'/providers/Microsoft.Network/locations/\')"))
-            $armCopyPipelineContent | Should -Match ([regex]::Escape("contains(activity(\'Copy Raw ARM Page\').error.message, \'status code 409 Conflict\')"))
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("contains(activity(\'Execute ARM Query\').error.message, \'status code 409 Conflict\')"))
             $armCopyPipelineContent | Should -Match ([regex]::Escape('"code":"SubscriptionHasNoUsages"'))
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Stop Paging After ARM Request Failure'.*?variableName: 'requestUrl'.*?value: ''"
-            $armCopyPipelineContent | Should -Match "(?s)name: 'Rethrow ARM Request Failure'.*?activity: 'Read ARM Pages'.*?'Completed'.*?name: 'ARM Request Failed'.*?type: 'Fail'"
-            $armCopyPipelineContent | Should -Match "@variables\(\\'requestFailureCode\\'\)"
+            $armCopyPipelineContent | Should -Match "(?s)name: 'Rethrow Unexpected ARM Query Failure'.*?name: 'ARM Query Failed'.*?type: 'Fail'"
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("@activity(\'Execute ARM Query\').error.message"))
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("@coalesce(activity(\'Execute ARM Query\').error.errorCode, \'ArmRequestFailed\')"))
         }
 
-        It 'Should isolate and delete run-unique continuation metadata' {
-            $armCopyPipelineContent | Should -Match ([regex]::Escape("_ftk-arm-pagination/\', pipeline().RunId"))
-            $armCopyPipelineContent | Should -Match "guid\(\)"
-            $armCopyPipelineContent | Should -Match "name: 'Delete Paging Files'"
-            $armCopyPipelineContent | Should -Match 'dataset_msexports_parquet_files\.name'
-            $armCopyPipelineContent | Should -Match ([regex]::Escape("@concat(\'_ftk-arm-pagination/\', pipeline().RunId)"))
+        It 'Should write one stable Parquet output partitioned by source and provider' {
             $armCopyPipelineContent | Should -Match '_ftk-query-staging/'
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("pipeline().parameters.querySource"))
+            $armCopyPipelineContent | Should -Match ([regex]::Escape("pipeline().parameters.queryProvider"))
+            $armCopyPipelineContent | Should -Match "type: 'ParquetSink'"
+            $armCopyPipelineContent | Should -Not -Match "guid\(\)|_ftk-arm-pagination|dataset_msexports_(manifest|parquet_files)"
         }
 
         It 'Should pass queryScope through the shared engine contract' {
@@ -499,6 +487,8 @@ Describe 'HubsIngestionQueries' {
             $armEngineContent | Should -Match 'locations\?api-version=2022-12-01'
             $armEngineContent | Should -Match 'providers/.+api-version=2021-04-01'
             $armEngineContent | Should -Match 'item\(\)\.state'
+            $armEngineContent | Should -Match 'Get Provider.+output\.registrationState'
+            $armEngineContent | Should -Match "if\(empty\(activity\(\\'Filter Provider Resource Type\\'\)\.output\.value\), json\(\\'\[\]\\'\)"
             $armEngineContent | Should -Match 'item\(\)\.metadata\.regionType'
             $armEngineContent | Should -Match 'Filter Provider Resource Type'
             $armEngineContent | Should -Match 'item\(\)\.displayName'

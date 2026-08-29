@@ -99,18 +99,6 @@ resource dataset_msexports_parquet 'Microsoft.DataFactory/factories/datasets@201
   parent: dataFactory
 }
 
-// Reference existing JSON dataset from Cost Management Exports
-resource dataset_msexports_manifest 'Microsoft.DataFactory/factories/datasets@2018-06-01' existing = {
-  name: 'msexports_manifest'
-  parent: dataFactory
-}
-
-// Reference existing Parquet folder dataset from Ingestion Queries
-resource dataset_msexports_parquet_files 'Microsoft.DataFactory/factories/datasets@2018-06-01' existing = {
-  name: 'msexports_parquet_files'
-  parent: dataFactory
-}
-
 // Reference existing configuration dataset from Core app
 resource dataset_config 'Microsoft.DataFactory/factories/datasets@2018-06-01' existing = {
   name: core.datasets.config
@@ -1019,7 +1007,7 @@ resource pipeline_ExecuteRegional 'Microsoft.DataFactory/factories/pipelines@201
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Provider\').output.resourceTypes'
+            value: '@if(equals(toLower(activity(\'Get Provider\').output.registrationState), \'registered\'), activity(\'Get Provider\').output.resourceTypes, json(\'[]\'))'
             type: 'Expression'
           }
           condition: {
@@ -1048,7 +1036,7 @@ resource pipeline_ExecuteRegional 'Microsoft.DataFactory/factories/pipelines@201
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Locations\').output.value'
+            value: '@if(empty(activity(\'Filter Provider Resource Type\').output.value), json(\'[]\'), activity(\'Get Locations\').output.value)'
             type: 'Expression'
           }
           condition: {
@@ -1169,455 +1157,78 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
   name: 'queries_AzureResourceManager_CopyQuery'
   parent: dataFactory
   properties: {
-    concurrency: 30
+    concurrency: app.hub.options.privateRouting ? 4 : 30
     activities: [
       {
-        name: 'Set Initial Request URL'
-        type: 'SetVariable'
+        name: 'Execute ARM Query'
+        description: 'Execute one paginated ARM request and write Parquet to msexports staging for pre-manifest consolidation.'
+        type: 'Copy'
         dependsOn: []
+        policy: {
+          timeout: '0.00:10:00'
+          retry: 0
+          retryIntervalInSeconds: 60
+          secureOutput: false
+          secureInput: false
+        }
         userProperties: []
         typeProperties: {
-          variableName: 'requestUrl'
-          value: {
-            value: '@concat(pipeline().parameters.queryScope, replace(pipeline().parameters.query, \'{location}\', pipeline().parameters.queryLocation))'
+          source: {
+            type: 'RestSource'
+            httpRequestTimeout: '00:02:00'
+            requestInterval: '00.00:00:00.050'
+            requestMethod: 'GET'
+            paginationRules: {
+              AbsoluteUrl: '$.nextLink'
+            }
+          }
+          sink: {
+            type: 'ParquetSink'
+            storeSettings: {
+              type: 'AzureBlobFSWriteSettings'
+            }
+            formatSettings: {
+              type: 'ParquetWriteSettings'
+            }
+          }
+          enableStaging: false
+          translator: {
+            value: '@pipeline().parameters.translator'
             type: 'Expression'
           }
         }
-      }
-      {
-        name: 'Read ARM Pages'
-        description: 'Validate each request URL before retrieving and copying one ARM response page.'
-        type: 'Until'
-        dependsOn: [
+        inputs: [
           {
-            activity: 'Set Initial Request URL'
-            dependencyConditions: [
-              'Succeeded'
-            ]
+            referenceName: dataset_azureResourceManager.name
+            type: 'DatasetReference'
+            parameters: {
+              relativeUrl: {
+                value: '@concat(pipeline().parameters.queryScope, replace(pipeline().parameters.query, \'{location}\', pipeline().parameters.queryLocation))'
+                type: 'Expression'
+              }
+            }
           }
         ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@empty(variables(\'requestUrl\'))'
-            type: 'Expression'
+        outputs: [
+          {
+            referenceName: dataset_msexports_parquet.name
+            type: 'DatasetReference'
+            parameters: {
+              blobPath: {
+                value: '@concat(\'_ftk-query-staging/\', replace(pipeline().parameters.ingestionPath, concat(pipeline().parameters.queryType, \'.parquet\'), \'\'), \'/SubAccountId=\', last(split(pipeline().parameters.queryScope, \'/\')), if(empty(pipeline().parameters.queryLocation), \'\', concat(\'/location=\', pipeline().parameters.queryLocation)), \'/x_SourceName=\', pipeline().parameters.querySource, \'/x_SourceProvider=\', pipeline().parameters.queryProvider, if(contains(string(pipeline().parameters.translator), \'x_SourceType\'), \'\', concat(\'/x_SourceType=\', pipeline().parameters.queryType)), \'/x_SourceVersion=\', pipeline().parameters.queryVersion, \'/\', pipeline().parameters.queryType, \'--\', pipeline().parameters.queryVersion, \'--\', replace(pipeline().parameters.queryScope, \'/\', \'_\'), \'--\', pipeline().parameters.queryLocation, \'.parquet\')'
+                type: 'Expression'
+              }
+            }
           }
-          activities: [
-            {
-              name: 'Validate Page URL'
-              type: 'IfCondition'
-              dependsOn: []
-              userProperties: []
-              typeProperties: {
-                expression: {
-                  value: '@and(not(empty(variables(\'requestUrl\'))), not(contains(variables(\'requestUrl\'), \'#\')), not(contains(variables(\'requestUrl\'), \'@\')), not(contains(variables(\'requestUrl\'), \'\\\')), or(and(startswith(variables(\'requestUrl\'), \'/\'), not(startswith(variables(\'requestUrl\'), \'//\')), not(contains(variables(\'requestUrl\'), \'://\')), greater(length(variables(\'requestUrl\')), 1)), and(startswith(toLower(variables(\'requestUrl\')), toLower(\'${environment().resourceManager}\')), greater(length(variables(\'requestUrl\')), length(\'${environment().resourceManager}\')))))'
-                  type: 'Expression'
-                }
-                ifFalseActivities: [
-                  {
-                    name: 'Reject Unsafe Page URL'
-                    type: 'Fail'
-                    dependsOn: []
-                    userProperties: []
-                    typeProperties: {
-                      message: 'The ARM continuation URL must use the current Azure Resource Manager authority.'
-                      errorCode: 'UnsafeArmContinuation'
-                    }
-                  }
-                ]
-              }
-            }
-            {
-              name: 'Set Page Metadata Path'
-              description: 'Create a run-unique path for this page continuation record.'
-              type: 'SetVariable'
-              dependsOn: [
-                {
-                  activity: 'Validate Page URL'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              userProperties: []
-              typeProperties: {
-                variableName: 'metadataPath'
-                value: {
-                  value: '@concat(\'_ftk-arm-pagination/\', pipeline().RunId, \'/\', guid(), \'.parquet\')'
-                  type: 'Expression'
-                }
-              }
-            }
-            {
-              name: 'Copy Raw ARM Page'
-              description: 'Stream one validated ARM response into a run-unique raw JSON file.'
-              type: 'Copy'
-              dependsOn: [
-                {
-                  activity: 'Set Page Metadata Path'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.00:10:00'
-                retry: 0
-                retryIntervalInSeconds: 60
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                source: {
-                  type: 'RestSource'
-                  httpRequestTimeout: '00:02:00'
-                  requestInterval: '00.00:00:00.050'
-                  requestMethod: 'GET'
-                }
-                sink: {
-                  type: 'JsonSink'
-                  storeSettings: {
-                    type: 'AzureBlobFSWriteSettings'
-                  }
-                  formatSettings: {
-                    type: 'JsonWriteSettings'
-                  }
-                }
-                enableStaging: false
-              }
-              inputs: [
-                {
-                  referenceName: dataset_azureResourceManager.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    relativeUrl: {
-                      value: '@if(startswith(toLower(variables(\'requestUrl\')), toLower(\'${environment().resourceManager}\')), concat(\'/\', substring(variables(\'requestUrl\'), length(\'${environment().resourceManager}\'))), variables(\'requestUrl\'))'
-                      type: 'Expression'
-                    }
-                  }
-                }
-              ]
-              outputs: [
-                {
-                  referenceName: dataset_msexports_manifest.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    folderPath: {
-                      value: '@concat(\'msexports/_ftk-arm-pagination/\', pipeline().RunId)'
-                      type: 'Expression'
-                    }
-                    fileName: {
-                      value: '@replace(last(split(variables(\'metadataPath\'), \'/\')), \'.parquet\', \'.json\')'
-                      type: 'Expression'
-                    }
-                  }
-                }
-              ]
-            }
-            {
-              name: 'Capture ARM Request Failure'
-              description: 'Treat an empty Network usage response as no data and retain every other ARM error for rethrow.'
-              type: 'SetVariable'
-              dependsOn: [
-                {
-                  activity: 'Copy Raw ARM Page'
-                  dependencyConditions: [
-                    'Failed'
-                  ]
-                }
-              ]
-              userProperties: []
-              typeProperties: {
-                variableName: 'requestFailure'
-                value: {
-                  value: '@if(and(contains(pipeline().parameters.query, \'/providers/Microsoft.Network/locations/\'), contains(activity(\'Copy Raw ARM Page\').error.message, \'status code 409 Conflict\'), contains(activity(\'Copy Raw ARM Page\').error.message, \'"code":"SubscriptionHasNoUsages"\')), \'\', activity(\'Copy Raw ARM Page\').error.message)'
-                  type: 'Expression'
-                }
-              }
-            }
-            {
-              name: 'Capture ARM Request Error Code'
-              type: 'SetVariable'
-              dependsOn: [
-                {
-                  activity: 'Capture ARM Request Failure'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              userProperties: []
-              typeProperties: {
-                variableName: 'requestFailureCode'
-                value: {
-                  value: '@coalesce(activity(\'Copy Raw ARM Page\').error.errorCode, \'ArmRequestFailed\')'
-                  type: 'Expression'
-                }
-              }
-            }
-            {
-              name: 'Stop Paging After ARM Request Failure'
-              description: 'Clear the request URL so the Until activity does not repeat a failed ARM request.'
-              type: 'SetVariable'
-              dependsOn: [
-                {
-                  activity: 'Capture ARM Request Error Code'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              userProperties: []
-              typeProperties: {
-                variableName: 'requestUrl'
-                value: ''
-              }
-            }
-            {
-              name: 'Copy Page Metadata'
-              description: 'Map only the root nextLink field from the stored response to a tiny Parquet file.'
-              type: 'Copy'
-              dependsOn: [
-                {
-                  activity: 'Copy Raw ARM Page'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.00:10:00'
-                retry: 0
-                retryIntervalInSeconds: 60
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                source: {
-                  type: 'JsonSource'
-                  storeSettings: {
-                    type: 'AzureBlobFSReadSettings'
-                    recursive: false
-                    enablePartitionDiscovery: false
-                  }
-                  formatSettings: {
-                    type: 'JsonReadSettings'
-                  }
-                }
-                sink: {
-                  type: 'ParquetSink'
-                  storeSettings: {
-                    type: 'AzureBlobFSWriteSettings'
-                  }
-                  formatSettings: {
-                    type: 'ParquetWriteSettings'
-                  }
-                }
-                enableStaging: false
-                translator: {
-                  type: 'TabularTranslator'
-                  mappings: [
-                    {
-                      source: {
-                        path: '$[\'nextLink\']'
-                      }
-                      sink: {
-                        name: 'nextLink'
-                        type: 'String'
-                      }
-                    }
-                  ]
-                }
-              }
-              inputs: [
-                {
-                  referenceName: dataset_msexports_manifest.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    folderPath: {
-                      value: '@concat(\'msexports/_ftk-arm-pagination/\', pipeline().RunId)'
-                      type: 'Expression'
-                    }
-                    fileName: {
-                      value: '@replace(last(split(variables(\'metadataPath\'), \'/\')), \'.parquet\', \'.json\')'
-                      type: 'Expression'
-                    }
-                  }
-                }
-              ]
-              outputs: [
-                {
-                  referenceName: dataset_msexports_parquet.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    blobPath: {
-                      value: '@variables(\'metadataPath\')'
-                      type: 'Expression'
-                    }
-                  }
-                }
-              ]
-            }
-            {
-              name: 'Lookup Page Metadata'
-              description: 'Read the tiny continuation record without loading the ARM response into control-flow output.'
-              type: 'Lookup'
-              dependsOn: [
-                {
-                  activity: 'Copy Page Metadata'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.00:02:00'
-                retry: 0
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                source: {
-                  type: 'ParquetSource'
-                  storeSettings: {
-                    type: 'AzureBlobFSReadSettings'
-                    recursive: false
-                    enablePartitionDiscovery: false
-                  }
-                  formatSettings: {
-                    type: 'ParquetReadSettings'
-                  }
-                }
-                dataset: {
-                  referenceName: dataset_msexports_parquet.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    blobPath: {
-                      value: '@variables(\'metadataPath\')'
-                      type: 'Expression'
-                    }
-                  }
-                }
-                firstRowOnly: true
-              }
-            }
-            {
-              name: 'Copy ARM Page'
-              description: 'Copy one validated ARM response page to Parquet staging.'
-              type: 'Copy'
-              dependsOn: [
-                {
-                  activity: 'Copy Raw ARM Page'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.00:10:00'
-                retry: 0
-                retryIntervalInSeconds: 60
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                source: {
-                  type: 'JsonSource'
-                  storeSettings: {
-                    type: 'AzureBlobFSReadSettings'
-                    recursive: false
-                    enablePartitionDiscovery: false
-                  }
-                  formatSettings: {
-                    type: 'JsonReadSettings'
-                  }
-                }
-                sink: {
-                  type: 'ParquetSink'
-                  storeSettings: {
-                    type: 'AzureBlobFSWriteSettings'
-                  }
-                  formatSettings: {
-                    type: 'ParquetWriteSettings'
-                  }
-                }
-                enableStaging: false
-                translator: {
-                  value: '@pipeline().parameters.translator'
-                  type: 'Expression'
-                }
-              }
-              inputs: [
-                {
-                  referenceName: dataset_msexports_manifest.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    folderPath: {
-                      value: '@concat(\'msexports/_ftk-arm-pagination/\', pipeline().RunId)'
-                      type: 'Expression'
-                    }
-                    fileName: {
-                      value: '@replace(last(split(variables(\'metadataPath\'), \'/\')), \'.parquet\', \'.json\')'
-                      type: 'Expression'
-                    }
-                  }
-                }
-              ]
-              outputs: [
-                {
-                  referenceName: dataset_msexports_parquet.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    blobPath: {
-                      value: '@concat(\'_ftk-query-staging/\', replace(pipeline().parameters.ingestionPath, concat(pipeline().parameters.queryType, \'.parquet\'), \'\'), \'/SubAccountId=\', last(split(pipeline().parameters.queryScope, \'/\')), if(empty(pipeline().parameters.queryLocation), \'\', concat(\'/location=\', pipeline().parameters.queryLocation)), \'/x_SourceName=\', pipeline().parameters.querySource, \'/x_SourceProvider=\', pipeline().parameters.queryProvider, if(contains(string(pipeline().parameters.translator), \'x_SourceType\'), \'\', concat(\'/x_SourceType=\', pipeline().parameters.queryType)), \'/x_SourceVersion=\', pipeline().parameters.queryVersion, \'/\', pipeline().parameters.queryType, \'--\', pipeline().parameters.queryVersion, \'--\', replace(pipeline().parameters.queryScope, \'/\', \'_\'), \'--\', pipeline().parameters.queryLocation, \'--\', substring(guid(), 0, 8), \'.parquet\')'
-                      type: 'Expression'
-                    }
-                  }
-                }
-              ]
-            }
-            {
-              name: 'Set Next Request URL'
-              type: 'SetVariable'
-              dependsOn: [
-                {
-                  activity: 'Copy ARM Page'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-                {
-                  activity: 'Lookup Page Metadata'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              userProperties: []
-              typeProperties: {
-                variableName: 'requestUrl'
-                value: {
-                  value: '@if(contains(activity(\'Lookup Page Metadata\').output, \'firstRow\'), if(contains(activity(\'Lookup Page Metadata\').output.firstRow, \'nextLink\'), coalesce(activity(\'Lookup Page Metadata\').output.firstRow.nextLink, \'\'), \'\'), \'\')'
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
-          timeout: '0.00:10:00'
-        }
+        ]
       }
       {
-        name: 'Rethrow ARM Request Failure'
-        description: 'Fail the pipeline for every ARM request error except an empty Network usage response.'
+        name: 'Rethrow Unexpected ARM Query Failure'
+        description: 'Treat an empty Network usage response as no data and rethrow every other ARM query error.'
         type: 'IfCondition'
         dependsOn: [
           {
-            activity: 'Read ARM Pages'
+            activity: 'Execute ARM Query'
             dependencyConditions: [
               'Completed'
             ]
@@ -1626,66 +1237,27 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@not(empty(variables(\'requestFailure\')))'
+            value: '@if(equals(activity(\'Execute ARM Query\').Status, \'Failed\'), not(and(contains(pipeline().parameters.query, \'/providers/Microsoft.Network/locations/\'), contains(activity(\'Execute ARM Query\').error.message, \'status code 409 Conflict\'), contains(activity(\'Execute ARM Query\').error.message, \'"code":"SubscriptionHasNoUsages"\'))), false)'
             type: 'Expression'
           }
           ifTrueActivities: [
             {
-              name: 'ARM Request Failed'
+              name: 'ARM Query Failed'
               type: 'Fail'
               dependsOn: []
               userProperties: []
               typeProperties: {
                 message: {
-                  value: '@variables(\'requestFailure\')'
+                  value: '@activity(\'Execute ARM Query\').error.message'
                   type: 'Expression'
                 }
                 errorCode: {
-                  value: '@variables(\'requestFailureCode\')'
+                  value: '@coalesce(activity(\'Execute ARM Query\').error.errorCode, \'ArmRequestFailed\')'
                   type: 'Expression'
                 }
               }
             }
           ]
-        }
-      }
-      {
-        name: 'Delete Paging Files'
-        description: 'Delete this pipeline run\'s raw response and continuation files after paging completes.'
-        type: 'Delete'
-        dependsOn: [
-          {
-            activity: 'Rethrow ARM Request Failure'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        policy: {
-          timeout: '0.00:02:00'
-          retry: 2
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          dataset: {
-            referenceName: dataset_msexports_parquet_files.name
-            type: 'DatasetReference'
-            parameters: {
-              folderPath: {
-                value: '@concat(\'_ftk-arm-pagination/\', pipeline().RunId)'
-                type: 'Expression'
-              }
-            }
-          }
-          enableLogging: false
-          storeSettings: {
-            type: 'AzureBlobFSReadSettings'
-            recursive: true
-            enablePartitionDiscovery: false
-          }
         }
       }
     ]
@@ -1720,20 +1292,6 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
     }
     policy: {
       elapsedTimeMetric: {}
-    }
-    variables: {
-      requestUrl: {
-        type: 'String'
-      }
-      requestFailure: {
-        type: 'String'
-      }
-      requestFailureCode: {
-        type: 'String'
-      }
-      metadataPath: {
-        type: 'String'
-      }
     }
     annotations: []
   }
