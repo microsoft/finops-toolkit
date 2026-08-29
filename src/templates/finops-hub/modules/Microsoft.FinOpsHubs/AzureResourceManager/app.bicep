@@ -540,7 +540,7 @@ resource pipeline_ExecuteConfiguredScopes 'Microsoft.DataFactory/factories/pipel
             type: 'Expression'
           }
           isSequential: false
-          batchCount: app.hub.options.privateRouting ? 4 : 30
+          batchCount: 50
           activities: [
             {
               name: 'Execute Request'
@@ -636,78 +636,27 @@ resource pipeline_ExecuteConfiguredScopes 'Microsoft.DataFactory/factories/pipel
   }
 }
 
-resource pipeline_ExecuteTenant 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: 'queries_AzureResourceManager_ExecuteTenant'
+resource pipeline_ExecuteSubscriptionPage 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: 'queries_AzureResourceManager_ExecuteSubscriptionPage'
   parent: dataFactory
   properties: {
-    description: 'Execute an Azure Resource Manager query for each enabled subscription'
+    description: 'Execute an Azure Resource Manager query for one page of enabled subscriptions'
     folder: {
       name: 'FinOps hub'
     }
     activities: [
       {
-        name: 'Get Subscriptions'
-        type: 'WebActivity'
-        dependsOn: []
-        policy: {
-          timeout: '0.00:02:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          method: 'GET'
-          url: '${environment().resourceManager}subscriptions?api-version=2022-12-01'
-          authentication: {
-            type: 'MSI'
-            resource: environment().resourceManager
-          }
-        }
-      }
-      {
-        name: 'Filter Enabled Subscriptions'
-        type: 'Filter'
-        dependsOn: [
-          {
-            activity: 'Get Subscriptions'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          items: {
-            value: '@activity(\'Get Subscriptions\').output.value'
-            type: 'Expression'
-          }
-          condition: {
-            value: '@equals(toLower(item().state), \'enabled\')'
-            type: 'Expression'
-          }
-        }
-      }
-      {
         name: 'ForEach Subscription'
         type: 'ForEach'
-        dependsOn: [
-          {
-            activity: 'Filter Enabled Subscriptions'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
+        dependsOn: []
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Filter Enabled Subscriptions\').output.value'
+            value: '@pipeline().parameters.subscriptions'
             type: 'Expression'
           }
           isSequential: false
-          batchCount: app.hub.options.privateRouting ? 4 : 30
+          batchCount: 50
           activities: [
             {
               name: 'Execute Subscription Query'
@@ -761,6 +710,9 @@ resource pipeline_ExecuteTenant 'Microsoft.DataFactory/factories/pipelines@2018-
       }
     ]
     parameters: {
+      subscriptions: {
+        type: 'Array'
+      }
       ingestionPath: {
         type: 'String'
       }
@@ -781,6 +733,389 @@ resource pipeline_ExecuteTenant 'Microsoft.DataFactory/factories/pipelines@2018-
       }
       translator: {
         type: 'Object'
+      }
+    }
+  }
+}
+
+resource pipeline_ExecuteTenant 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: 'queries_AzureResourceManager_ExecuteTenant'
+  parent: dataFactory
+  properties: {
+    description: 'Execute an Azure Resource Manager query for each enabled subscription'
+    folder: {
+      name: 'FinOps hub'
+    }
+    activities: [
+      {
+        name: 'Set Initial Subscription Page URL'
+        type: 'SetVariable'
+        dependsOn: []
+        userProperties: []
+        typeProperties: {
+          variableName: 'subscriptionPageUrl'
+          value: '${environment().resourceManager}subscriptions?api-version=2022-12-01'
+        }
+      }
+      {
+        name: 'Read Subscription Pages'
+        description: 'Process every ARM subscription page before following its nextLink.'
+        type: 'Until'
+        dependsOn: [
+          {
+            activity: 'Set Initial Subscription Page URL'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@empty(variables(\'subscriptionPageUrl\'))'
+            type: 'Expression'
+          }
+          activities: [
+            {
+              name: 'Validate Subscription Page URL'
+              type: 'SetVariable'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                variableName: 'subscriptionPageFailure'
+                value: {
+                  value: '@if(and(not(empty(variables(\'subscriptionPageUrl\'))), startswith(toLower(variables(\'subscriptionPageUrl\')), toLower(\'${environment().resourceManager}\')), greater(length(variables(\'subscriptionPageUrl\')), length(\'${environment().resourceManager}\')), not(contains(variables(\'subscriptionPageUrl\'), \'#\')), not(contains(variables(\'subscriptionPageUrl\'), \'@\')), not(contains(variables(\'subscriptionPageUrl\'), \'\\\'))), \'\', \'The subscription continuation URL must use the current Azure Resource Manager authority.\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Get Subscription Page'
+              type: 'WebActivity'
+              dependsOn: [
+                {
+                  activity: 'Validate Subscription Page URL'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              policy: {
+                timeout: '0.00:02:00'
+                retry: 2
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                method: 'GET'
+                url: {
+                  value: '@if(empty(variables(\'subscriptionPageFailure\')), variables(\'subscriptionPageUrl\'), concat(\'${environment().resourceManager}\', \'providers/Microsoft.FinOpsValidation/unsafe-continuation?api-version=2021-04-01\'))'
+                  type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: environment().resourceManager
+                }
+              }
+            }
+            {
+              name: 'Filter Enabled Subscriptions'
+              type: 'Filter'
+              dependsOn: [
+                {
+                  activity: 'Get Subscription Page'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                items: {
+                  value: '@activity(\'Get Subscription Page\').output.value'
+                  type: 'Expression'
+                }
+                condition: {
+                  value: '@equals(toLower(item().state), \'enabled\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Execute Subscription Page'
+              type: 'ExecutePipeline'
+              dependsOn: [
+                {
+                  activity: 'Filter Enabled Subscriptions'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                pipeline: {
+                  referenceName: pipeline_ExecuteSubscriptionPage.name
+                  type: 'PipelineReference'
+                }
+                waitOnCompletion: true
+                parameters: {
+                  subscriptions: {
+                    value: '@activity(\'Filter Enabled Subscriptions\').output.value'
+                    type: 'Expression'
+                  }
+                  query: {
+                    value: '@pipeline().parameters.query'
+                    type: 'Expression'
+                  }
+                  querySource: {
+                    value: '@pipeline().parameters.querySource'
+                    type: 'Expression'
+                  }
+                  queryProvider: {
+                    value: '@pipeline().parameters.queryProvider'
+                    type: 'Expression'
+                  }
+                  queryType: {
+                    value: '@pipeline().parameters.queryType'
+                    type: 'Expression'
+                  }
+                  queryVersion: {
+                    value: '@pipeline().parameters.queryVersion'
+                    type: 'Expression'
+                  }
+                  ingestionPath: {
+                    value: '@pipeline().parameters.ingestionPath'
+                    type: 'Expression'
+                  }
+                  translator: {
+                    value: '@pipeline().parameters.translator'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+            {
+              name: 'Set Next Subscription Page URL'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Execute Subscription Page'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'subscriptionPageUrl'
+                value: {
+                  value: '@if(contains(activity(\'Get Subscription Page\').output, \'nextLink\'), coalesce(activity(\'Get Subscription Page\').output.nextLink, \'\'), \'\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Capture Subscription Page Request Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Get Subscription Page'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'subscriptionPageFailure'
+                value: {
+                  value: '@if(not(empty(variables(\'subscriptionPageFailure\'))), variables(\'subscriptionPageFailure\'), activity(\'Get Subscription Page\').error.message)'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Stop Subscription Page Loop After Request Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture Subscription Page Request Failure'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'subscriptionPageUrl'
+                value: ''
+              }
+            }
+            {
+              name: 'Capture Subscription Filter Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Filter Enabled Subscriptions'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'subscriptionPageFailure'
+                value: {
+                  value: '@activity(\'Filter Enabled Subscriptions\').error.message'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Stop Subscription Page Loop After Filter Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture Subscription Filter Failure'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'subscriptionPageUrl'
+                value: ''
+              }
+            }
+            {
+              name: 'Capture Subscription Dispatch Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Execute Subscription Page'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'subscriptionPageFailure'
+                value: {
+                  value: '@activity(\'Execute Subscription Page\').error.message'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Stop Subscription Page Loop After Dispatch Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture Subscription Dispatch Failure'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'subscriptionPageUrl'
+                value: ''
+              }
+            }
+          ]
+          timeout: '7.00:00:00'
+        }
+      }
+      {
+        name: 'Rethrow Subscription Page Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Read Subscription Pages'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@not(empty(variables(\'subscriptionPageFailure\')))'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Subscription Page Failed'
+              type: 'Fail'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: '@variables(\'subscriptionPageFailure\')'
+                  type: 'Expression'
+                }
+                errorCode: 'SubscriptionPageFailed'
+              }
+            }
+          ]
+        }
+      }
+      {
+        name: 'Rethrow Subscription Page Loop Failure'
+        type: 'Fail'
+        dependsOn: [
+          {
+            activity: 'Read Subscription Pages'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          message: {
+            value: '@activity(\'Read Subscription Pages\').error.message'
+            type: 'Expression'
+          }
+          errorCode: 'SubscriptionPageLoopFailed'
+        }
+      }
+    ]
+    parameters: {
+      ingestionPath: {
+        type: 'String'
+      }
+      query: {
+        type: 'String'
+      }
+      querySource: {
+        type: 'String'
+      }
+      queryProvider: {
+        type: 'String'
+      }
+      queryType: {
+        type: 'String'
+      }
+      queryVersion: {
+        type: 'String'
+      }
+      translator: {
+        type: 'Object'
+      }
+    }
+    variables: {
+      subscriptionPageUrl: {
+        type: 'String'
+      }
+      subscriptionPageFailure: {
+        type: 'String'
       }
     }
   }
@@ -948,111 +1283,27 @@ resource pipeline_ExecuteSubscription 'Microsoft.DataFactory/factories/pipelines
   }
 }
 
-resource pipeline_ExecuteRegional 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: 'queries_AzureResourceManager_ExecuteRegional'
+resource pipeline_ExecuteLocationPage 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: 'queries_AzureResourceManager_ExecuteLocationPage'
   parent: dataFactory
   properties: {
-    description: 'Execute an Azure Resource Manager query for each physical region in one subscription'
+    description: 'Execute an Azure Resource Manager query for one page of physical locations'
     folder: {
       name: 'FinOps hub'
     }
     activities: [
       {
-        name: 'Get Locations'
-        type: 'WebActivity'
-        dependsOn: []
-        policy: {
-          timeout: '0.00:02:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          method: 'GET'
-          url: {
-            value: '@concat(\'${environment().resourceManager}\', pipeline().parameters.queryScope, \'/locations?api-version=2022-12-01\')'
-            type: 'Expression'
-          }
-          authentication: {
-            type: 'MSI'
-            resource: environment().resourceManager
-          }
-        }
-      }
-      {
-        name: 'Get Provider'
-        type: 'WebActivity'
-        dependsOn: []
-        policy: {
-          timeout: '0.00:02:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          method: 'GET'
-          url: {
-            value: '@concat(\'${environment().resourceManager}\', pipeline().parameters.queryScope, \'/providers/\', split(pipeline().parameters.query, \'/\')[2], \'?api-version=2021-04-01\')'
-            type: 'Expression'
-          }
-          authentication: {
-            type: 'MSI'
-            resource: environment().resourceManager
-          }
-        }
-      }
-      {
-        name: 'Filter Provider Resource Type'
-        type: 'Filter'
-        dependsOn: [
-          {
-            activity: 'Get Provider'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          items: {
-            value: '@activity(\'Get Provider\').output.resourceTypes'
-            type: 'Expression'
-          }
-          condition: {
-            value: '@equals(toLower(item().resourceType), \'locations/usages\')'
-            type: 'Expression'
-          }
-        }
-      }
-      {
         name: 'Filter Physical Locations'
         type: 'Filter'
-        dependsOn: [
-          {
-            activity: 'Get Locations'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-          {
-            activity: 'Filter Provider Resource Type'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
+        dependsOn: []
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Locations\').output.value'
+            value: '@pipeline().parameters.locations'
             type: 'Expression'
           }
           condition: {
-            value: '@and(equals(toLower(item().metadata.regionType), \'physical\'), contains(activity(\'Filter Provider Resource Type\').output.value[0].locations, item().displayName))'
+            value: '@and(equals(toLower(item().metadata.regionType), \'physical\'), contains(pipeline().parameters.supportedLocations, item().displayName))'
             type: 'Expression'
           }
         }
@@ -1075,7 +1326,7 @@ resource pipeline_ExecuteRegional 'Microsoft.DataFactory/factories/pipelines@201
             type: 'Expression'
           }
           isSequential: false
-          batchCount: app.hub.options.privateRouting ? 4 : 30
+          batchCount: 50
           activities: [
             {
               name: 'Execute Request'
@@ -1133,6 +1384,12 @@ resource pipeline_ExecuteRegional 'Microsoft.DataFactory/factories/pipelines@201
       }
     ]
     parameters: {
+      locations: {
+        type: 'Array'
+      }
+      supportedLocations: {
+        type: 'Array'
+      }
       ingestionPath: {
         type: 'String'
       }
@@ -1161,6 +1418,396 @@ resource pipeline_ExecuteRegional 'Microsoft.DataFactory/factories/pipelines@201
   }
 }
 
+resource pipeline_ExecuteRegional 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: 'queries_AzureResourceManager_ExecuteRegional'
+  parent: dataFactory
+  properties: {
+    description: 'Execute an Azure Resource Manager query for each physical region in one subscription'
+    folder: {
+      name: 'FinOps hub'
+    }
+    activities: [
+      {
+        name: 'Set Initial Location Page URL'
+        type: 'SetVariable'
+        dependsOn: []
+        userProperties: []
+        typeProperties: {
+          variableName: 'locationPageUrl'
+          value: {
+            value: '@concat(\'${environment().resourceManager}\', pipeline().parameters.queryScope, \'/locations?api-version=2022-12-01\')'
+            type: 'Expression'
+          }
+        }
+      }
+      {
+        name: 'Get Provider'
+        type: 'WebActivity'
+        dependsOn: []
+        policy: {
+          timeout: '0.00:02:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          method: 'GET'
+          url: {
+            value: '@concat(\'${environment().resourceManager}\', pipeline().parameters.queryScope, \'/providers/\', split(pipeline().parameters.query, \'/\')[2], \'?api-version=2021-04-01\')'
+            type: 'Expression'
+          }
+          authentication: {
+            type: 'MSI'
+            resource: environment().resourceManager
+          }
+        }
+      }
+      {
+        name: 'Filter Provider Resource Type'
+        type: 'Filter'
+        dependsOn: [
+          {
+            activity: 'Get Provider'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Get Provider\').output.resourceTypes'
+            type: 'Expression'
+          }
+          condition: {
+            value: '@equals(toLower(item().resourceType), \'locations/usages\')'
+            type: 'Expression'
+          }
+        }
+      }
+      {
+        name: 'Read Location Pages'
+        description: 'Process every ARM location page before following its nextLink.'
+        type: 'Until'
+        dependsOn: [
+          {
+            activity: 'Set Initial Location Page URL'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Filter Provider Resource Type'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@empty(variables(\'locationPageUrl\'))'
+            type: 'Expression'
+          }
+          activities: [
+            {
+              name: 'Validate Location Page URL'
+              type: 'SetVariable'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                variableName: 'locationPageFailure'
+                value: {
+                  value: '@if(and(not(empty(variables(\'locationPageUrl\'))), startswith(toLower(variables(\'locationPageUrl\')), toLower(\'${environment().resourceManager}\')), greater(length(variables(\'locationPageUrl\')), length(\'${environment().resourceManager}\')), not(contains(variables(\'locationPageUrl\'), \'#\')), not(contains(variables(\'locationPageUrl\'), \'@\')), not(contains(variables(\'locationPageUrl\'), \'\\\'))), \'\', \'The location continuation URL must use the current Azure Resource Manager authority.\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Get Location Page'
+              type: 'WebActivity'
+              dependsOn: [
+                {
+                  activity: 'Validate Location Page URL'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              policy: {
+                timeout: '0.00:02:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                method: 'GET'
+                url: {
+                  value: '@if(empty(variables(\'locationPageFailure\')), variables(\'locationPageUrl\'), concat(\'${environment().resourceManager}\', \'providers/Microsoft.FinOpsValidation/unsafe-continuation?api-version=2021-04-01\'))'
+                  type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: environment().resourceManager
+                }
+              }
+            }
+            {
+              name: 'Execute Location Page'
+              type: 'ExecutePipeline'
+              dependsOn: [
+                {
+                  activity: 'Get Location Page'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                pipeline: {
+                  referenceName: pipeline_ExecuteLocationPage.name
+                  type: 'PipelineReference'
+                }
+                waitOnCompletion: true
+                parameters: {
+                  locations: {
+                    value: '@activity(\'Get Location Page\').output.value'
+                    type: 'Expression'
+                  }
+                  supportedLocations: {
+                    value: '@activity(\'Filter Provider Resource Type\').output.value[0].locations'
+                    type: 'Expression'
+                  }
+                  query: {
+                    value: '@pipeline().parameters.query'
+                    type: 'Expression'
+                  }
+                  queryScope: {
+                    value: '@pipeline().parameters.queryScope'
+                    type: 'Expression'
+                  }
+                  querySource: {
+                    value: '@pipeline().parameters.querySource'
+                    type: 'Expression'
+                  }
+                  queryProvider: {
+                    value: '@pipeline().parameters.queryProvider'
+                    type: 'Expression'
+                  }
+                  queryType: {
+                    value: '@pipeline().parameters.queryType'
+                    type: 'Expression'
+                  }
+                  queryVersion: {
+                    value: '@pipeline().parameters.queryVersion'
+                    type: 'Expression'
+                  }
+                  ingestionPath: {
+                    value: '@pipeline().parameters.ingestionPath'
+                    type: 'Expression'
+                  }
+                  translator: {
+                    value: '@pipeline().parameters.translator'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+            {
+              name: 'Set Next Location Page URL'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Execute Location Page'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'locationPageUrl'
+                value: {
+                  value: '@if(contains(activity(\'Get Location Page\').output, \'nextLink\'), coalesce(activity(\'Get Location Page\').output.nextLink, \'\'), \'\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Capture Location Page Request Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Get Location Page'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'locationPageFailure'
+                value: {
+                  value: '@if(not(empty(variables(\'locationPageFailure\'))), variables(\'locationPageFailure\'), activity(\'Get Location Page\').error.message)'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Stop Location Page Loop After Request Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture Location Page Request Failure'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'locationPageUrl'
+                value: ''
+              }
+            }
+            {
+              name: 'Capture Location Dispatch Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Execute Location Page'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'locationPageFailure'
+                value: {
+                  value: '@activity(\'Execute Location Page\').error.message'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Stop Location Page Loop After Dispatch Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture Location Dispatch Failure'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'locationPageUrl'
+                value: ''
+              }
+            }
+          ]
+          timeout: '7.00:00:00'
+        }
+      }
+      {
+        name: 'Rethrow Location Page Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Read Location Pages'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@not(empty(variables(\'locationPageFailure\')))'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Location Page Failed'
+              type: 'Fail'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: '@variables(\'locationPageFailure\')'
+                  type: 'Expression'
+                }
+                errorCode: 'LocationPageFailed'
+              }
+            }
+          ]
+        }
+      }
+      {
+        name: 'Rethrow Location Page Loop Failure'
+        type: 'Fail'
+        dependsOn: [
+          {
+            activity: 'Read Location Pages'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          message: {
+            value: '@activity(\'Read Location Pages\').error.message'
+            type: 'Expression'
+          }
+          errorCode: 'LocationPageLoopFailed'
+        }
+      }
+    ]
+    parameters: {
+      ingestionPath: {
+        type: 'String'
+      }
+      query: {
+        type: 'String'
+      }
+      queryScope: {
+        type: 'String'
+      }
+      querySource: {
+        type: 'String'
+      }
+      queryProvider: {
+        type: 'String'
+      }
+      queryType: {
+        type: 'String'
+      }
+      queryVersion: {
+        type: 'String'
+      }
+      translator: {
+        type: 'Object'
+      }
+    }
+    variables: {
+      locationPageUrl: {
+        type: 'String'
+      }
+      locationPageFailure: {
+        type: 'String'
+      }
+    }
+  }
+}
+
 //------------------------------------------------------------------------------
 // Request Copy pipeline
 //------------------------------------------------------------------------------
@@ -1169,7 +1816,7 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
   name: 'queries_AzureResourceManager_CopyQuery'
   parent: dataFactory
   properties: {
-    concurrency: 30
+    concurrency: app.hub.options.privateRouting ? 4 : 30
     activities: [
       {
         name: 'Set Initial Request URL'
@@ -1205,26 +1852,15 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
           activities: [
             {
               name: 'Validate Page URL'
-              type: 'IfCondition'
+              type: 'SetVariable'
               dependsOn: []
               userProperties: []
               typeProperties: {
-                expression: {
-                  value: '@and(not(empty(variables(\'requestUrl\'))), not(contains(variables(\'requestUrl\'), \'#\')), not(contains(variables(\'requestUrl\'), \'@\')), not(contains(variables(\'requestUrl\'), \'\\\')), or(and(startswith(variables(\'requestUrl\'), \'/\'), not(startswith(variables(\'requestUrl\'), \'//\')), not(contains(variables(\'requestUrl\'), \'://\')), greater(length(variables(\'requestUrl\')), 1)), and(startswith(toLower(variables(\'requestUrl\')), toLower(\'${environment().resourceManager}\')), greater(length(variables(\'requestUrl\')), length(\'${environment().resourceManager}\')))))'
+                variableName: 'rawRequestFailure'
+                value: {
+                  value: '@if(and(not(empty(variables(\'requestUrl\'))), not(contains(variables(\'requestUrl\'), \'#\')), not(contains(variables(\'requestUrl\'), \'@\')), not(contains(variables(\'requestUrl\'), \'\\\')), or(and(startswith(variables(\'requestUrl\'), \'/\'), not(startswith(variables(\'requestUrl\'), \'//\')), not(contains(variables(\'requestUrl\'), \'://\')), greater(length(variables(\'requestUrl\')), 1)), and(startswith(toLower(variables(\'requestUrl\')), toLower(\'${environment().resourceManager}\')), greater(length(variables(\'requestUrl\')), length(\'${environment().resourceManager}\'))))), \'\', \'The ARM continuation URL must use the current Azure Resource Manager authority.\')'
                   type: 'Expression'
                 }
-                ifFalseActivities: [
-                  {
-                    name: 'Reject Unsafe Page URL'
-                    type: 'Fail'
-                    dependsOn: []
-                    userProperties: []
-                    typeProperties: {
-                      message: 'The ARM continuation URL must use the current Azure Resource Manager authority.'
-                      errorCode: 'UnsafeArmContinuation'
-                    }
-                  }
-                ]
               }
             }
             {
@@ -1261,7 +1897,7 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
                 }
               ]
               policy: {
-                timeout: '0.00:10:00'
+                timeout: '0.00:02:30'
                 retry: 0
                 retryIntervalInSeconds: 60
                 secureOutput: false
@@ -1292,7 +1928,7 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
                   type: 'DatasetReference'
                   parameters: {
                     relativeUrl: {
-                      value: '@if(startswith(toLower(variables(\'requestUrl\')), toLower(\'${environment().resourceManager}\')), concat(\'/\', substring(variables(\'requestUrl\'), length(\'${environment().resourceManager}\'))), variables(\'requestUrl\'))'
+                      value: '@if(empty(variables(\'rawRequestFailure\')), if(startswith(toLower(variables(\'requestUrl\')), toLower(\'${environment().resourceManager}\')), concat(\'/\', substring(variables(\'requestUrl\'), length(\'${environment().resourceManager}\'))), variables(\'requestUrl\')), \'/providers/Microsoft.FinOpsValidation/unsafe-continuation?api-version=2021-04-01\')'
                       type: 'Expression'
                     }
                   }
@@ -1316,8 +1952,62 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
               ]
             }
             {
+              name: 'Clear ARM Request Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Copy Raw ARM Page'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestFailure'
+                value: ''
+              }
+            }
+            {
+              name: 'Clear ARM Request Error Code'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Clear ARM Request Failure'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestFailureCode'
+                value: ''
+              }
+            }
+            {
+              name: 'Reset ARM Request Attempts'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Clear ARM Request Error Code'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestAttempts'
+                value: {
+                  value: '@json(\'[]\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
               name: 'Capture ARM Request Failure'
-              description: 'Treat an empty Network usage response as no data and retain every other ARM error for rethrow.'
+              description: 'Capture the raw ARM failure before classifying expected no-data and transient responses.'
               type: 'SetVariable'
               dependsOn: [
                 {
@@ -1329,9 +2019,9 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
               ]
               userProperties: []
               typeProperties: {
-                variableName: 'requestFailure'
+                variableName: 'rawRequestFailure'
                 value: {
-                  value: '@if(and(contains(pipeline().parameters.query, \'/providers/Microsoft.Network/locations/\'), contains(activity(\'Copy Raw ARM Page\').error.message, \'status code 409 Conflict\'), contains(activity(\'Copy Raw ARM Page\').error.message, \'"code":"SubscriptionHasNoUsages"\')), \'\', activity(\'Copy Raw ARM Page\').error.message)'
+                  value: '@if(not(empty(variables(\'rawRequestFailure\'))), variables(\'rawRequestFailure\'), activity(\'Copy Raw ARM Page\').error.message)'
                   type: 'Expression'
                 }
               }
@@ -1351,14 +2041,13 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
               typeProperties: {
                 variableName: 'requestFailureCode'
                 value: {
-                  value: '@coalesce(activity(\'Copy Raw ARM Page\').error.errorCode, \'ArmRequestFailed\')'
+                  value: '@if(equals(variables(\'rawRequestFailure\'), \'The ARM continuation URL must use the current Azure Resource Manager authority.\'), \'UnsafeArmContinuation\', coalesce(activity(\'Copy Raw ARM Page\').error.errorCode, \'ArmRequestFailed\'))'
                   type: 'Expression'
                 }
               }
             }
             {
-              name: 'Stop Paging After ARM Request Failure'
-              description: 'Clear the request URL so the Until activity does not repeat a failed ARM request.'
+              name: 'Capture ARM Request Failure Type'
               type: 'SetVariable'
               dependsOn: [
                 {
@@ -1370,8 +2059,153 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
               ]
               userProperties: []
               typeProperties: {
+                variableName: 'requestFailureType'
+                value: {
+                  value: '@if(equals(variables(\'rawRequestFailure\'), \'The ARM continuation URL must use the current Azure Resource Manager authority.\'), \'\', coalesce(activity(\'Copy Raw ARM Page\').error.failureType, \'\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Record ARM Request Attempt'
+              type: 'AppendVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture ARM Request Failure Type'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestAttempts'
+                value: {
+                  value: '@variables(\'rawRequestFailure\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Classify Expected Empty ARM Response'
+              description: 'Treat only the established Network and Machine Learning no-data contracts as successful empty responses.'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Record ARM Request Attempt'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'isExpectedEmptyResponse'
+                value: {
+                  value: '@or(and(contains(pipeline().parameters.query, \'/providers/Microsoft.Network/locations/\'), contains(variables(\'rawRequestFailure\'), \'status code 409 Conflict\'), contains(variables(\'rawRequestFailure\'), \'"code":"SubscriptionHasNoUsages"\')), and(equals(toLower(pipeline().parameters.queryType), \'machinelearningusage\'), contains(toLower(variables(\'rawRequestFailure\')), \'status code 400 badrequest\'), contains(toLower(variables(\'rawRequestFailure\')), \'subscriptionnotfounderror\'), contains(toLower(variables(\'rawRequestFailure\')), \'is not found in quota service\'), contains(toLower(variables(\'rawRequestFailure\')), \'statuscode\'), contains(toLower(variables(\'rawRequestFailure\')), \'404\')))'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Classify Transient ARM Response'
+              description: 'Retry only throttling, server, timeout, and connection failures.'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Classify Expected Empty ARM Response'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'isTransientResponse'
+                value: {
+                  value: '@or(contains(toLower(variables(\'rawRequestFailure\')), \'status code 429\'), contains(toLower(variables(\'rawRequestFailure\')), \'status code 5\'), equals(toLower(variables(\'requestFailureType\')), \'systemerror\'), contains(toLower(variables(\'rawRequestFailure\')), \'timed out\'), contains(toLower(variables(\'rawRequestFailure\')), \'timeout\'), contains(toLower(variables(\'rawRequestFailure\')), \'connection reset\'), contains(toLower(variables(\'rawRequestFailure\')), \'connection was closed\'), contains(toLower(variables(\'rawRequestFailure\')), \'connection refused\'), contains(toLower(variables(\'rawRequestFailure\')), \'remote name could not be resolved\'), contains(toLower(variables(\'rawRequestFailure\')), \'name resolution\'), contains(toLower(variables(\'rawRequestFailure\')), \'temporarily unavailable\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Normalize ARM Request Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Classify Transient ARM Response'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestFailure'
+                value: {
+                  value: '@if(variables(\'isExpectedEmptyResponse\'), \'\', variables(\'rawRequestFailure\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Select ARM Retry URL'
+              description: 'Retain the same page URL only while a transient failure has retry budget remaining.'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Normalize ARM Request Failure'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'retryRequestUrl'
+                value: {
+                  value: '@if(and(not(variables(\'isExpectedEmptyResponse\')), variables(\'isTransientResponse\'), less(length(variables(\'requestAttempts\')), 3)), variables(\'requestUrl\'), \'\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Apply ARM Retry URL'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Select ARM Retry URL'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
                 variableName: 'requestUrl'
-                value: ''
+                value: {
+                  value: '@variables(\'retryRequestUrl\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Wait Before Transient ARM Retry'
+              type: 'Wait'
+              dependsOn: [
+                {
+                  activity: 'Apply ARM Retry URL'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                waitTimeInSeconds: {
+                  value: '@if(empty(variables(\'requestUrl\')), 0, 60)'
+                  type: 'Expression'
+                }
               }
             }
             {
@@ -1380,7 +2214,7 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
               type: 'Copy'
               dependsOn: [
                 {
-                  activity: 'Copy Raw ARM Page'
+                  activity: 'Reset ARM Request Attempts'
                   dependencyConditions: [
                     'Succeeded'
                   ]
@@ -1461,6 +2295,63 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
               ]
             }
             {
+              name: 'Capture Page Metadata Copy Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Copy Page Metadata'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestFailure'
+                value: {
+                  value: '@activity(\'Copy Page Metadata\').error.message'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Capture Page Metadata Copy Error Code'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture Page Metadata Copy Failure'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestFailureCode'
+                value: {
+                  value: '@coalesce(activity(\'Copy Page Metadata\').error.errorCode, \'ArmPageMetadataCopyFailed\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Stop Paging After Page Metadata Copy Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture Page Metadata Copy Error Code'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestUrl'
+                value: ''
+              }
+            }
+            {
               name: 'Lookup Page Metadata'
               description: 'Read the tiny continuation record without loading the ARM response into control-flow output.'
               type: 'Lookup'
@@ -1506,12 +2397,69 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
               }
             }
             {
+              name: 'Capture Page Metadata Lookup Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Lookup Page Metadata'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestFailure'
+                value: {
+                  value: '@activity(\'Lookup Page Metadata\').error.message'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Capture Page Metadata Lookup Error Code'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture Page Metadata Lookup Failure'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestFailureCode'
+                value: {
+                  value: '@coalesce(activity(\'Lookup Page Metadata\').error.errorCode, \'ArmPageMetadataLookupFailed\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Stop Paging After Page Metadata Lookup Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture Page Metadata Lookup Error Code'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestUrl'
+                value: ''
+              }
+            }
+            {
               name: 'Copy ARM Page'
               description: 'Copy one validated ARM response page to Parquet staging.'
               type: 'Copy'
               dependsOn: [
                 {
-                  activity: 'Copy Raw ARM Page'
+                  activity: 'Lookup Page Metadata'
                   dependencyConditions: [
                     'Succeeded'
                   ]
@@ -1582,6 +2530,63 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
               ]
             }
             {
+              name: 'Capture ARM Page Copy Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Copy ARM Page'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestFailure'
+                value: {
+                  value: '@activity(\'Copy ARM Page\').error.message'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Capture ARM Page Copy Error Code'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture ARM Page Copy Failure'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestFailureCode'
+                value: {
+                  value: '@coalesce(activity(\'Copy ARM Page\').error.errorCode, \'ArmPageCopyFailed\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Stop Paging After ARM Page Copy Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Capture ARM Page Copy Error Code'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'requestUrl'
+                value: ''
+              }
+            }
+            {
               name: 'Set Next Request URL'
               type: 'SetVariable'
               dependsOn: [
@@ -1607,13 +2612,30 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
                 }
               }
             }
+            {
+              name: 'Complete Failed ARM Page Processing'
+              description: 'Complete the handled failure branch when the page-success leaf was skipped.'
+              type: 'Wait'
+              dependsOn: [
+                {
+                  activity: 'Set Next Request URL'
+                  dependencyConditions: [
+                    'Skipped'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                waitTimeInSeconds: 0
+              }
+            }
           ]
           timeout: '0.00:10:00'
         }
       }
       {
         name: 'Rethrow ARM Request Failure'
-        description: 'Fail the pipeline for every ARM request error except an empty Network usage response.'
+        description: 'Fail for every unhandled ARM request or page-processing error and never convert a page-loop timeout into success.'
         type: 'IfCondition'
         dependsOn: [
           {
@@ -1626,7 +2648,7 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@not(empty(variables(\'requestFailure\')))'
+            value: '@or(not(empty(variables(\'requestFailure\'))), not(equals(activity(\'Read ARM Pages\').Status, \'Succeeded\')))'
             type: 'Expression'
           }
           ifTrueActivities: [
@@ -1637,11 +2659,11 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
               userProperties: []
               typeProperties: {
                 message: {
-                  value: '@variables(\'requestFailure\')'
+                  value: '@if(not(empty(variables(\'requestFailure\'))), variables(\'requestFailure\'), activity(\'Read ARM Pages\').error.message)'
                   type: 'Expression'
                 }
                 errorCode: {
-                  value: '@variables(\'requestFailureCode\')'
+                  value: '@if(not(empty(variables(\'requestFailureCode\'))), variables(\'requestFailureCode\'), \'ArmPageLoopFailed\')'
                   type: 'Expression'
                 }
               }
@@ -1729,6 +2751,27 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
         type: 'String'
       }
       requestFailureCode: {
+        type: 'String'
+      }
+      rawRequestFailure: {
+        type: 'String'
+      }
+      requestFailureType: {
+        type: 'String'
+      }
+      requestAttempts: {
+        type: 'Array'
+        defaultValue: []
+      }
+      isExpectedEmptyResponse: {
+        type: 'Bool'
+        defaultValue: false
+      }
+      isTransientResponse: {
+        type: 'Bool'
+        defaultValue: false
+      }
+      retryRequestUrl: {
         type: 'String'
       }
       metadataPath: {
