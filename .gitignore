@@ -392,6 +392,13 @@ release/scloud-occurrence-report.md
 
 # Local knowledge-graph tool output
 graphify-out/
+.graphifyignore
+
+# codebase-memory-mcp: generated index state and local scoping config
+.codebase-memory/
+.codebase-memory.json
+.cbmignore
+.cbmpathwhitelist
 
 # Impeccable design hook local cache
 .impeccable/
