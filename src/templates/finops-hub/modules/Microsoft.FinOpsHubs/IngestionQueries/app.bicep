@@ -213,7 +213,6 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
             value: '@activity(\'Load Queries\').output.value'
             type: 'Expression'
           }
-          batchCount: app.hub.options.privateRouting ? 4 : 30
           isSequential: false
           activities: [
             {  // Execute File Queries

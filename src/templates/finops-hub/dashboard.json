@@ -2737,6 +2737,1003 @@
         "table__renderLinks": [],
         "colorRules": []
       }
+    },
+    {
+      "id": "cbf6fb24-5f1b-4d90-85b8-c76e03498e03",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 22,
+        "height": 4
+      },
+      "markdownText": "# AI & emerging workloads\n**AI as a 2026 FinOps Technology Scope** — the full AI/ML estate, not just tokens: foundation models, cognitive services, ML platform & compute, AI Search/retrieval, and GPU/accelerated compute. Tokens are one unit-economic layer. Latest closed month vs prior; effective cost. **Honest gaps (not in FOCUS, so out of scope here):** GPU utilization-per-token, retry/orchestration overhead, request/inference counts, and business-value denominators — so cost-per-inference and AI ROI need non-FOCUS telemetry. GPU posture, commitment posture, and allocation gaps below are query-backed and render neutral/honest when the underlying data is absent.",
+      "visualOptions": {}
+    },
+    {
+      "id": "3bd1d3f4-0168-40ec-8cbd-0e206ef00d17",
+      "title": "AI/ML estate spend",
+      "visualType": "multistat",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 0,
+        "y": 12,
+        "width": 5,
+        "height": 9
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "c37cff83-e0f6-431a-8afb-cc7669844698"
+      },
+      "visualOptions": {
+        "multiStat__textSize": "large",
+        "multiStat__valueColumn": "Value",
+        "colorRulesDisabled": false,
+        "multiStat__displayOrientation": "vertical",
+        "multiStat__labelColumn": "Metric",
+        "multiStat__slot": {
+          "width": 1,
+          "height": 3
+        },
+        "colorRules": [
+          {
+            "id": "9cba153f-95d8-4b3f-aea0-d862a07e4c9c",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "ok"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "green",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          },
+          {
+            "id": "146f2598-7e1b-4907-8004-05ef4f60cb11",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "warn"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "yellow",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          },
+          {
+            "id": "f7c0ed78-1b03-4b4a-9441-c523d7b47a9a",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "bad"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "red",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          }
+        ]
+      }
+    },
+    {
+      "id": "f37863b9-611c-46c5-b6b8-c386388d604e",
+      "title": "ML & GPU compute",
+      "visualType": "multistat",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 5,
+        "y": 12,
+        "width": 4,
+        "height": 9
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "b509a1be-5e9d-4487-a2d0-4e40858a61d7"
+      },
+      "visualOptions": {
+        "multiStat__textSize": "large",
+        "multiStat__valueColumn": "Value",
+        "colorRulesDisabled": false,
+        "multiStat__displayOrientation": "vertical",
+        "multiStat__labelColumn": "Metric",
+        "multiStat__slot": {
+          "width": 1,
+          "height": 3
+        },
+        "colorRules": [
+          {
+            "id": "3d2949b8-17dc-4879-aa84-01558c4eb45e",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "ok"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "green",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          },
+          {
+            "id": "b6852d95-9ac3-495d-8d93-95555a0b1670",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "warn"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "yellow",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          },
+          {
+            "id": "43498e6b-a855-41c4-a060-f0c7665f52ba",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "bad"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "red",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          }
+        ]
+      }
+    },
+    {
+      "id": "e17cbb32-51c8-446f-9fce-91f1cbd8881b",
+      "title": "Token volume",
+      "visualType": "multistat",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 9,
+        "y": 12,
+        "width": 4,
+        "height": 9
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "e16045ca-afb3-472d-9f2a-ceb6020b778e"
+      },
+      "visualOptions": {
+        "multiStat__textSize": "large",
+        "multiStat__valueColumn": "Value",
+        "colorRulesDisabled": false,
+        "multiStat__displayOrientation": "vertical",
+        "multiStat__labelColumn": "Metric",
+        "multiStat__slot": {
+          "width": 1,
+          "height": 3
+        },
+        "colorRules": [
+          {
+            "id": "89681c80-e678-452f-be6f-318ebc1fec4b",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "ok"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "green",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          },
+          {
+            "id": "f9c6f428-18ac-4908-ba5d-8840dbdf679d",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "warn"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "yellow",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          },
+          {
+            "id": "63f66a84-2e00-4de0-8b59-a56a43ea4d9f",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "bad"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "red",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6bdfea18-763b-4e13-a325-86d2fcbe1f34",
+      "title": "Cost per 1M tokens (CPMT)",
+      "visualType": "multistat",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 13,
+        "y": 12,
+        "width": 4,
+        "height": 9
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "82135579-638e-47bb-bb1b-afe01f9e5a7c"
+      },
+      "visualOptions": {
+        "multiStat__textSize": "large",
+        "multiStat__valueColumn": "Value",
+        "colorRulesDisabled": false,
+        "multiStat__displayOrientation": "vertical",
+        "multiStat__labelColumn": "Metric",
+        "multiStat__slot": {
+          "width": 1,
+          "height": 3
+        },
+        "colorRules": [
+          {
+            "id": "b713901f-a7a6-467c-8a3d-4e0b137a2d6d",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "ok"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "green",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          },
+          {
+            "id": "b008c465-ebe2-4788-aa82-de78567ce39a",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "warn"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "yellow",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          },
+          {
+            "id": "bcf6064c-9b2d-4064-b1b0-36fe100f64ea",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "bad"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "red",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          }
+        ]
+      }
+    },
+    {
+      "id": "948078ee-613a-4911-bb89-0b146f42f4da",
+      "title": "AI allocation coverage",
+      "visualType": "multistat",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 17,
+        "y": 12,
+        "width": 5,
+        "height": 9
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "c7e34829-e9b6-4ab2-b69e-275bf0e5d02e"
+      },
+      "visualOptions": {
+        "multiStat__textSize": "large",
+        "multiStat__valueColumn": "Value",
+        "colorRulesDisabled": false,
+        "multiStat__displayOrientation": "vertical",
+        "multiStat__labelColumn": "Metric",
+        "multiStat__slot": {
+          "width": 1,
+          "height": 3
+        },
+        "colorRules": [
+          {
+            "id": "97631604-96b4-43d8-8a51-b7e690bf326e",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "ok"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "green",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          },
+          {
+            "id": "95491107-61a0-4a20-ab1f-6ae0a4f6bc4c",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "warn"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "yellow",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          },
+          {
+            "id": "c9595a1b-6369-415a-a0e1-8d38397d76ef",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "Status",
+                "values": [
+                  "bad"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "red",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "multistat"
+          }
+        ]
+      }
+    },
+    {
+      "id": "66516c6d-2efa-40d6-a7ad-268f2bceec2d",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 0,
+        "y": 21,
+        "width": 22,
+        "height": 2
+      },
+      "markdownText": "## Detail",
+      "visualOptions": {}
+    },
+    {
+      "id": "097a461c-b1e8-4e66-aeeb-70fbbd85e69b",
+      "title": "AI/ML estate by capability (last month)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 0,
+        "y": 23,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "48dc7f18-30bb-4974-b8f4-94673dfc53ed"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "1ec3972b-10c1-45cd-a1d8-31c78d542c62",
+      "title": "AI/ML spend by service (last month)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 11,
+        "y": 23,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "1802026e-9026-41a8-8f59-2d81f6287016"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "d237e768-7b73-4c41-bd0d-5a1aaae45ff7",
+      "title": "AI Search / retrieval meters (last month)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 0,
+        "y": 31,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "bb9df569-f917-474b-89f2-0913b477d9e8"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "5cb1af82-2c17-48ea-84bc-915c82e8215d",
+      "title": "ML & GPU compute breakdown (last month)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 11,
+        "y": 31,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "6c1867b3-f030-44e0-afa8-b7556e7df080"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "0fee601a-6c73-4cee-b767-f5250d3ed9ed",
+      "title": "ML compute unit economics (last month)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 0,
+        "y": 39,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "f901e685-6220-4ef6-b94d-16f73cccb682"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "8f1eefa6-dbf8-4dd7-8421-f3a83b2d6319",
+      "title": "Foundation model benchmark — CPMT by model (last month)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 11,
+        "y": 39,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "cb94cd3a-3524-4972-8fe4-ba0922a5b134"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "2c79e37e-1df6-4758-9279-d8eb6a222a82",
+      "title": "Token direction — input / cached / output / embedding (last month)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 0,
+        "y": 47,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "c1a19851-5337-4758-9114-0b5d4d52561a"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "598f1149-e01f-4588-b051-f7e8f7959363",
+      "title": "Cognitive & specialized AI services (last month)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 11,
+        "y": 47,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "a446247a-5047-4a6d-a3d9-47a5742520f4"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "91807af4-33e2-49b3-b09e-ca6c7ab996eb",
+      "title": "AI allocation coverage by dimension (last month)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 0,
+        "y": 55,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "36ea7e65-5992-4e26-a99b-e7bae2198b6b"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "796f77bd-01f7-4507-bce2-dec07a8bb976",
+      "title": "AI spend by owner / cost center (last month)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 11,
+        "y": 55,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "3bfbc923-2b3a-4504-88d3-a982e87f8653"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "3be54858-394b-495a-9db3-5120056b5fd5",
+      "title": "AI commitment & optimization posture (query-backed)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 0,
+        "y": 63,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "ef50088f-c744-4939-ab2b-2ff27ffc9710"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "0d310387-7758-4a68-adb4-8a367a9af5fb",
+      "title": "Top AI cost drivers to review (MoM)",
+      "visualType": "table",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 11,
+        "y": 63,
+        "width": 11,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "b1d2d5ad-4311-4344-b2d0-1845ada027d2"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "0518e204-d883-426b-a4f6-bd4483a58946",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 0,
+        "y": 4,
+        "width": 22,
+        "height": 2
+      },
+      "markdownText": "## Trends",
+      "visualOptions": {}
+    },
+    {
+      "id": "c665d887-cc73-4156-9963-3f2f6511674a",
+      "title": "AI/ML estate by capability (monthly trend)",
+      "visualType": "stackedcolumn",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 0,
+        "y": 6,
+        "width": 8,
+        "height": 6
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "d90deac9-9549-4cb9-bee3-413e607fb1c5"
+      },
+      "visualOptions": {
+        "multipleYAxes": {
+          "base": {
+            "id": "-1",
+            "label": "",
+            "columns": [],
+            "yAxisMaximumValue": null,
+            "yAxisMinimumValue": null,
+            "yAxisScale": "linear",
+            "horizontalLines": []
+          },
+          "additional": [],
+          "showMultiplePanels": false
+        },
+        "hideLegend": false,
+        "legendLocation": "bottom",
+        "xColumnTitle": "",
+        "xColumn": null,
+        "yColumns": null,
+        "seriesColumns": null,
+        "xAxisScale": "linear",
+        "verticalLine": "",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "selectedDataOnLoad": {
+          "all": true,
+          "limit": 10
+        },
+        "dataPointsTooltip": {
+          "all": false,
+          "limit": 1
+        }
+      }
+    },
+    {
+      "id": "3fa98ae0-a647-4668-9f45-0d449b238bf5",
+      "title": "Token demand — volume in millions (monthly trend)",
+      "visualType": "area",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 8,
+        "y": 6,
+        "width": 7,
+        "height": 6
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "9fbea579-ec65-453a-aa45-ff210b1a22e0"
+      },
+      "visualOptions": {
+        "multipleYAxes": {
+          "base": {
+            "id": "-1",
+            "label": "",
+            "columns": [],
+            "yAxisMaximumValue": null,
+            "yAxisMinimumValue": null,
+            "yAxisScale": "linear",
+            "horizontalLines": []
+          },
+          "additional": [],
+          "showMultiplePanels": false
+        },
+        "hideLegend": true,
+        "legendLocation": "bottom",
+        "xColumnTitle": "",
+        "xColumn": null,
+        "yColumns": null,
+        "seriesColumns": null,
+        "xAxisScale": "linear",
+        "verticalLine": "",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "selectedDataOnLoad": {
+          "all": true,
+          "limit": 10
+        },
+        "dataPointsTooltip": {
+          "all": false,
+          "limit": 1
+        }
+      }
+    },
+    {
+      "id": "6c8e0982-80a7-4fee-9e20-2f0b495efe8c",
+      "title": "Unit price — cost per 1M tokens (monthly trend)",
+      "visualType": "line",
+      "pageId": "968cb4d6-9194-4cb1-9864-244539038013",
+      "layout": {
+        "x": 15,
+        "y": 6,
+        "width": 7,
+        "height": 6
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "ecd40cda-6420-4982-9e3b-3691cdbe3a2e"
+      },
+      "visualOptions": {
+        "multipleYAxes": {
+          "base": {
+            "id": "-1",
+            "label": "",
+            "columns": [],
+            "yAxisMaximumValue": null,
+            "yAxisMinimumValue": null,
+            "yAxisScale": "linear",
+            "horizontalLines": []
+          },
+          "additional": [],
+          "showMultiplePanels": false
+        },
+        "hideLegend": true,
+        "legendLocation": "bottom",
+        "xColumnTitle": "",
+        "xColumn": null,
+        "yColumns": null,
+        "seriesColumns": null,
+        "xAxisScale": "linear",
+        "verticalLine": "",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "selectedDataOnLoad": {
+          "all": true,
+          "limit": 10
+        },
+        "dataPointsTooltip": {
+          "all": false,
+          "limit": 1
+        }
+      }
     }
   ],
   "baseQueries": [
@@ -2800,6 +3797,7 @@
     { "name": "About", "id": "969ddf4c-8f2a-4ec4-9588-bb2f39473c9f" },
     { "name": "UNDERSTAND", "id": "ea47329e-0bc9-4c11-b110-534878dbb3ad" },
     { "id": "f8ee3008-df7e-442f-825e-2e3b46e4c185", "name": "- Summary" },
+    {"name":"- AI & emerging workloads","id":"968cb4d6-9194-4cb1-9864-244539038013"},
     { "name": "- Anomaly management", "id": "5838c918-4541-44fe-90d2-77306ef1e241" },
     { "name": "- Data ingestion", "id": "9e099251-9658-48da-b416-80422a2a47c7" },
     { "name": "OPTIMIZE", "id": "d01a8154-8a60-4d22-96ea-54b45b1417fe" },
@@ -3327,6 +4325,234 @@
       "text": "let months = toscalar(database('Ingestion').HubSettings | project toint(retention.final.months));\nlet currencies = Costs_v1_2\n    | where ChargePeriodStart >= monthsago(iff(isempty(months), 24, months))\n    | where isnotempty(BillingCurrency)\n    | distinct BillingCurrency;\nlet currencyCount = toscalar(currencies | count);\ncurrencies\n| extend Label = BillingCurrency, _Order = 1\n| union (\n    print BillingCurrency = '', Label = '⚠️ All', _Order = 0\n    | where currencyCount > 1\n)\n| order by _Order asc, Label asc\n| project BillingCurrency, Label\n",
       "id": "f2a8c4d6-3b5e-4a7f-9c2d-8e5b1f4a7d9c",
       "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let _last = startofmonth(startofmonth(now()) - 1d);\nlet _prev = startofmonth(_last - 1d);\nlet monthly = materialize(\n    CostsByMonth\n    | extend _gpu = strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'\n    | extend _ai = ServiceCategory =~ 'AI and Machine Learning' or ServiceName in~ ('Azure AI Search', 'Azure Databricks') or _gpu\n    | summarize Cloud = sum(EffectiveCost), Estate = sumif(EffectiveCost, _ai) by Month = startofmonth(ChargePeriodStart)\n);\nlet cur = toscalar(monthly | where Month == _last | project Estate);\nlet prev = toscalar(monthly | where Month == _prev | project Estate);\nlet cloud = toscalar(monthly | where Month == _last | project Cloud);\nunion\n    (print _order = 1, Metric = 'AI/ML spend', Value = round(cur, 2), Status = ''),\n    (print _order = 2, Metric = 'MoM change', Value = iff(isnull(prev) or prev == 0, real(null), round((cur - prev) / prev * 100.0, 2)), Status = ''),\n    (print _order = 3, Metric = 'Share of cloud %', Value = iff(isnull(cloud) or cloud == 0, real(null), round(cur / cloud * 100.0, 2)), Status = '')\n| order by _order asc\n| project Metric, Value, Status",
+      "id": "c37cff83-e0f6-431a-8afb-cc7669844698",
+      "usedVariables": [
+        "CostsByMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let _last = startofmonth(startofmonth(now()) - 1d);\nlet _prev = startofmonth(_last - 1d);\nlet monthly = materialize(\n    CostsByMonth\n    | extend _gpu = strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'\n    | summarize MlGpu = sumif(EffectiveCost, ServiceName =~ 'Azure Machine Learning' or _gpu) by Month = startofmonth(ChargePeriodStart)\n);\nlet cur = toscalar(monthly | where Month == _last | project MlGpu);\nlet prev = toscalar(monthly | where Month == _prev | project MlGpu);\nunion\n    (print _order = 1, Metric = 'Compute cost', Value = round(cur, 2), Status = ''),\n    (print _order = 2, Metric = 'MoM change', Value = iff(isnull(prev) or prev == 0, real(null), round((cur - prev) / prev * 100.0, 2)), Status = ''),\n    (print _order = 3, Metric = 'Prior month', Value = round(prev, 2), Status = '')\n| order by _order asc\n| project Metric, Value, Status",
+      "id": "b509a1be-5e9d-4487-a2d0-4e40858a61d7",
+      "usedVariables": [
+        "CostsByMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let _last = startofmonth(startofmonth(now()) - 1d);\nlet _prev = startofmonth(_last - 1d);\nlet monthly = materialize(\n    CostsByMonth\n    | extend _tokens = x_SkuMeterCategory =~ 'Foundry Models' and PricingUnit =~ 'Units'\n    | summarize Tokens = sumif(ConsumedQuantity, _tokens) by Month = startofmonth(ChargePeriodStart)\n);\nlet cur = toscalar(monthly | where Month == _last | project Tokens);\nlet prev = toscalar(monthly | where Month == _prev | project Tokens);\nunion\n    (print _order = 1, Metric = 'Tokens (M)', Value = round(cur / 1000000.0, 2), Status = ''),\n    (print _order = 2, Metric = 'MoM change', Value = iff(isnull(prev) or prev == 0, real(null), round((cur - prev) / prev * 100.0, 2)), Status = ''),\n    (print _order = 3, Metric = 'Tokens', Value = round(cur, 2), Status = '')\n| order by _order asc\n| project Metric, Value, Status",
+      "id": "e16045ca-afb3-472d-9f2a-ceb6020b778e",
+      "usedVariables": [
+        "CostsByMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let _last = startofmonth(startofmonth(now()) - 1d);\nlet _prev = startofmonth(_last - 1d);\nlet monthly = materialize(\n    CostsByMonth\n    | where x_SkuMeterCategory =~ 'Foundry Models' and PricingUnit =~ 'Units'\n    | summarize Cost = sum(EffectiveCost), Tokens = sum(ConsumedQuantity) by Month = startofmonth(ChargePeriodStart)\n    | extend Cpmt = iff(Tokens == 0, real(null), Cost / Tokens * 1000000.0)\n);\nlet cur = toscalar(monthly | where Month == _last | project Cpmt);\nlet currentCost = toscalar(monthly | where Month == _last | project Cost);\nlet prev = toscalar(monthly | where Month == _prev | project Cpmt);\nunion\n    (print _order = 1, Metric = 'Cost per 1M tokens', Value = round(cur, 2), Status = ''),\n    (print _order = 2, Metric = 'MoM change', Value = iff(isnull(prev) or prev == 0, real(null), round((cur - prev) / prev * 100.0, 2)), Status = ''),\n    (print _order = 3, Metric = 'Token cost', Value = round(currentCost, 2), Status = '')\n| order by _order asc\n| project Metric, Value, Status",
+      "id": "82135579-638e-47bb-bb1b-afe01f9e5a7c",
+      "usedVariables": [
+        "CostsByMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let ai = materialize(\n    CostsLastMonth\n    | extend _gpu = strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'\n    | where ServiceCategory =~ 'AI and Machine Learning' or ServiceName in~ ('Azure AI Search', 'Azure Databricks') or _gpu\n);\nlet total = toscalar(ai | summarize sum(EffectiveCost));\nlet coverage = materialize(\n    ai\n    | extend tagKeys = coalesce(bag_keys(Tags), dynamic([]))\n    | extend HasApp = array_length(set_intersect(tagKeys, dynamic(['application', 'app', 'workload', 'product', 'service']))) > 0\n    | extend HasOwner = array_length(set_intersect(tagKeys, dynamic(['owner', 'team', 'createdby']))) > 0\n    | extend HasCostCenter = isnotempty(x_CostCenter)\n    | summarize Allocated = sumif(EffectiveCost, HasApp or HasOwner or HasCostCenter), CostCenter = sumif(EffectiveCost, HasCostCenter)\n    | extend AllocatedPercent = iff(total == 0, real(null), round(Allocated / total * 100.0, 2))\n);\nunion\n    (coverage | project _order = 1, Metric = 'Allocated %', Value = AllocatedPercent, Status = case(AllocatedPercent >= 85, 'ok', AllocatedPercent >= 65, 'warn', isnull(AllocatedPercent), '', 'bad')),\n    (coverage | project _order = 2, Metric = 'Cost-center %', Value = iff(total == 0, real(null), round(CostCenter / total * 100.0, 2)), Status = ''),\n    (coverage | project _order = 3, Metric = 'Unallocated cost', Value = round(total - Allocated, 2), Status = '')\n| order by _order asc\n| project Metric, Value, Status",
+      "id": "c7e34829-e9b6-4ab2-b69e-275bf0e5d02e",
+      "usedVariables": [
+        "CostsLastMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let ai = materialize(\n    CostsLastMonth\n    | extend _gpu = strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'\n    | where ServiceCategory =~ 'AI and Machine Learning' or ServiceName in~ ('Azure AI Search', 'Azure Databricks') or _gpu\n    | extend Capability = case(\n        _gpu, 'GPU / accelerated compute',\n        x_SkuMeterCategory =~ 'Foundry Models' or x_SkuMeterSubcategory has_any ('OpenAI', 'Deepseek', 'GPT'), 'Foundation models (LLM)',\n        ServiceName =~ 'Azure AI Search', 'AI Search / retrieval',\n        ServiceName =~ 'Azure Machine Learning', 'ML platform & compute',\n        ServiceName =~ 'Azure Databricks', 'ML / analytics platform',\n        ServiceName =~ 'Azure AI Video Indexer' or x_SkuMeterSubcategory has_any ('Vision', 'Speech', 'Translator', 'Content Understanding', 'Video Indexer', 'Bing', 'Content Safety', 'Phi'), 'Cognitive services',\n        ServiceName =~ 'Azure AI Bot Service', 'Bot & agents',\n        'Other AI/ML')\n);\nlet total = toscalar(ai | summarize sum(EffectiveCost));\nai\n| summarize ['Effective cost'] = round(sum(EffectiveCost), 2), Services = dcount(ServiceName) by Capability\n| extend ['Share %'] = iff(total == 0, real(null), round(['Effective cost'] / total * 100.0, 2))\n| order by ['Effective cost'] desc",
+      "id": "48dc7f18-30bb-4974-b8f4-94673dfc53ed",
+      "usedVariables": [
+        "CostsLastMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsLastMonth\n| extend _gpu = strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'\n| where ServiceCategory =~ 'AI and Machine Learning' or ServiceName in~ ('Azure AI Search', 'Azure Databricks') or _gpu\n| summarize ['Effective cost'] = round(sum(EffectiveCost), 2), Meters = dcount(x_SkuMeterSubcategory) by Service = ServiceName, Category = ServiceCategory\n| where ['Effective cost'] > 0\n| top maxGroupCount by ['Effective cost'] desc",
+      "id": "1802026e-9026-41a8-8f59-2d81f6287016",
+      "usedVariables": [
+        "CostsLastMonth",
+        "maxGroupCount"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsLastMonth\n| where ServiceName =~ 'Azure AI Search'\n| summarize ['Effective cost'] = round(sum(EffectiveCost), 2), Quantity = round(sum(ConsumedQuantity), 2) by Meter = tostring(SkuMeter), Unit = PricingUnit\n| where ['Effective cost'] > 0\n| top maxGroupCount by ['Effective cost'] desc",
+      "id": "bb9df569-f917-474b-89f2-0913b477d9e8",
+      "usedVariables": [
+        "CostsLastMonth",
+        "maxGroupCount"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsLastMonth\n| extend _gpu = strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'\n| where ServiceName =~ 'Azure Machine Learning' or _gpu\n| summarize ['Effective cost'] = round(sum(EffectiveCost), 2), Quantity = round(sum(PricingQuantity), 2) by ['Compute component'] = x_SkuMeterSubcategory, Unit = PricingUnit\n| where ['Effective cost'] > 0\n| top maxGroupCount by ['Effective cost'] desc",
+      "id": "6c1867b3-f030-44e0-afa8-b7556e7df080",
+      "usedVariables": [
+        "CostsLastMonth",
+        "maxGroupCount"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsLastMonth\n| where ServiceName =~ 'Azure Machine Learning' and x_SkuMeterCategory =~ 'Virtual Machines'\n| extend CoreHours = todouble(coalesce(x_SkuCoreCount, 0)) * PricingQuantity\n| summarize Cost = round(sum(EffectiveCost), 2), VmHours = round(sum(PricingQuantity), 2), CoreHours = round(sum(CoreHours), 2) by ['VM series'] = x_SkuMeterSubcategory\n| where VmHours > 0\n| extend ['Effective cost'] = Cost, ['VM-hours'] = VmHours, ['Core-hours'] = CoreHours, ['Cost/VM-hour'] = round(Cost / VmHours, 2), ['Cost/1K core-hours'] = iff(CoreHours > 0, round(Cost / CoreHours * 1000.0, 2), real(null))\n| project ['VM series'], ['Effective cost'], ['VM-hours'], ['Core-hours'], ['Cost/VM-hour'], ['Cost/1K core-hours']\n| top maxGroupCount by ['Effective cost'] desc",
+      "id": "f901e685-6220-4ef6-b94d-16f73cccb682",
+      "usedVariables": [
+        "CostsLastMonth",
+        "maxGroupCount"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsLastMonth\n| where x_SkuMeterCategory =~ 'Foundry Models' and PricingUnit =~ 'Units'\n| extend Family = iff(SkuMeter matches regex @'(?i)embed', 'Embeddings', x_SkuMeterSubcategory)\n| summarize Tokens = sum(ConsumedQuantity), Cost = round(sum(EffectiveCost), 2) by ['Model family'] = Family\n| where Tokens > 0\n| extend ['Tokens (M)'] = round(Tokens / 1000000.0, 2), CPMT = round(Cost / Tokens * 1000000.0, 2)\n| project ['Model family'], ['Tokens (M)'], ['Effective cost'] = Cost, CPMT\n| top maxGroupCount by ['Effective cost'] desc",
+      "id": "cb94cd3a-3524-4972-8fe4-ba0922a5b134",
+      "usedVariables": [
+        "CostsLastMonth",
+        "maxGroupCount"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsLastMonth\n| where x_SkuMeterCategory =~ 'Foundry Models' and PricingUnit =~ 'Units'\n| extend Direction = case(\n    SkuMeter matches regex @'(?i)embed', 'Embedding',\n    SkuMeter matches regex @'(?i)\\bcd\\s+wr', 'Cached write',\n    SkuMeter has_any ('cchd', 'cached') or SkuMeter matches regex @'(?i)\\bcd\\s+inp', 'Cached input',\n    SkuMeter matches regex @'(?i)\\b(out|opt)', 'Output',\n    SkuMeter matches regex @'(?i)\\binp', 'Input',\n    'Other')\n| summarize Tokens = sum(ConsumedQuantity), Cost = round(sum(EffectiveCost), 2) by Direction\n| where Tokens > 0\n| extend ['Tokens (M)'] = round(Tokens / 1000000.0, 2), CPMT = round(Cost / Tokens * 1000000.0, 2)\n| project Direction, ['Tokens (M)'], ['Effective cost'] = Cost, CPMT\n| order by ['Tokens (M)'] desc",
+      "id": "c1a19851-5337-4758-9114-0b5d4d52561a",
+      "usedVariables": [
+        "CostsLastMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsLastMonth\n| where ServiceName in~ ('Azure AI Services', 'Azure AI Video Indexer') and x_SkuMeterCategory !~ 'Foundry Models'\n| summarize ['Effective cost'] = round(sum(EffectiveCost), 2), ['Calls/units'] = round(sum(ConsumedQuantity), 2) by ['Cognitive service'] = x_SkuMeterSubcategory\n| where ['Effective cost'] > 0\n| top maxGroupCount by ['Effective cost'] desc",
+      "id": "a446247a-5047-4a6d-a3d9-47a5742520f4",
+      "usedVariables": [
+        "CostsLastMonth",
+        "maxGroupCount"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let ai = materialize(\n    CostsLastMonth\n    | extend _gpu = strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'\n    | where ServiceCategory =~ 'AI and Machine Learning' or ServiceName in~ ('Azure AI Search', 'Azure Databricks') or _gpu\n);\nlet total = toscalar(ai | summarize sum(EffectiveCost));\nlet appCoverage = toscalar(ai | extend keys = coalesce(bag_keys(Tags), dynamic([])) | summarize sumif(EffectiveCost, array_length(set_intersect(keys, dynamic(['application', 'app', 'workload', 'product', 'service']))) > 0));\nlet ownerCoverage = toscalar(ai | extend keys = coalesce(bag_keys(Tags), dynamic([])) | summarize sumif(EffectiveCost, array_length(set_intersect(keys, dynamic(['owner', 'team', 'createdby']))) > 0));\nlet costCenterCoverage = toscalar(ai | summarize sumif(EffectiveCost, isnotempty(x_CostCenter)));\nlet resourceGroupCoverage = toscalar(ai | summarize sumif(EffectiveCost, isnotempty(x_ResourceGroupName)));\nunion\n    (print _order = 1, ['Allocation dimension'] = 'Application / workload tag', ['Allocated cost'] = round(appCoverage, 2), ['Coverage %'] = iff(total == 0, real(null), round(appCoverage / total * 100.0, 2)), ['Unallocated cost'] = round(total - appCoverage, 2)),\n    (print _order = 2, ['Allocation dimension'] = 'Owner / team tag', ['Allocated cost'] = round(ownerCoverage, 2), ['Coverage %'] = iff(total == 0, real(null), round(ownerCoverage / total * 100.0, 2)), ['Unallocated cost'] = round(total - ownerCoverage, 2)),\n    (print _order = 3, ['Allocation dimension'] = 'Cost center', ['Allocated cost'] = round(costCenterCoverage, 2), ['Coverage %'] = iff(total == 0, real(null), round(costCenterCoverage / total * 100.0, 2)), ['Unallocated cost'] = round(total - costCenterCoverage, 2)),\n    (print _order = 4, ['Allocation dimension'] = 'Resource group', ['Allocated cost'] = round(resourceGroupCoverage, 2), ['Coverage %'] = iff(total == 0, real(null), round(resourceGroupCoverage / total * 100.0, 2)), ['Unallocated cost'] = round(total - resourceGroupCoverage, 2))\n| order by _order asc\n| project-away _order",
+      "id": "36ea7e65-5992-4e26-a99b-e7bae2198b6b",
+      "usedVariables": [
+        "CostsLastMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let ai = materialize(\n    CostsLastMonth\n    | extend _gpu = strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'\n    | where ServiceCategory =~ 'AI and Machine Learning' or ServiceName in~ ('Azure AI Search', 'Azure Databricks') or _gpu\n);\nlet total = toscalar(ai | summarize sum(EffectiveCost));\nai\n| extend Owner = coalesce(tostring(Tags['owner']), tostring(Tags['team']), x_CostCenter, x_ResourceGroupName, '(unassigned)')\n| summarize Cost = sum(EffectiveCost) by Owner\n| where Cost > 0\n| summarize Cost = sum(Cost), Variants = dcount(Owner), (TopCost, Owner) = arg_max(Cost, Owner) by OwnerKey = tolower(Owner)\n| project ['Owner / cost center'] = Owner, ['Effective cost'] = round(Cost, 2), ['Share %'] = iff(total == 0, real(null), round(Cost / total * 100.0, 2))\n| top maxGroupCount by ['Effective cost'] desc",
+      "id": "3bfbc923-2b3a-4504-88d3-a982e87f8653",
+      "usedVariables": [
+        "CostsLastMonth",
+        "maxGroupCount"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let ai = materialize(\n    CostsLastMonth\n    | extend _gpu = strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'\n    | where ServiceCategory =~ 'AI and Machine Learning' or ServiceName in~ ('Azure AI Search', 'Azure Databricks') or _gpu\n);\nlet total = toscalar(ai | summarize sum(EffectiveCost));\nlet committed = toscalar(ai | summarize sumif(EffectiveCost, isnotempty(CommitmentDiscountCategory)));\nlet recommendations = toscalar(\n    Recommendations()\n    | where ResourceType has_any ('MachineLearning', 'CognitiveServices', 'Search/search', 'Databricks', 'BotService', 'VideoIndexer')\n        or x_RecommendationDescription has_any ('AI', 'OpenAI', 'GPU', 'machine learning', 'cognitive')\n    | count\n);\nlet transactions = toscalar(\n    Transactions()\n    | where ChargeDescription has_any ('NC', 'ND', 'NV', 'NG', 'GPU', 'Machine Learning', 'Cognitive', 'OpenAI', 'Databricks', 'AI Search')\n    | count\n);\nunion\n    (print _order = 1, Signal = 'AI on-demand spend', Value = round(total - committed, 2), State = 'baseline'),\n    (print _order = 2, Signal = 'AI commitment-covered spend', Value = round(committed, 2), State = iff(committed > 0, 'active', 'none in data')),\n    (print _order = 3, Signal = 'Commitment coverage (%)', Value = iff(total == 0, real(null), round(committed / total * 100.0, 2)), State = 'informational'),\n    (print _order = 4, Signal = 'AI rate recommendations', Value = todouble(recommendations), State = iff(recommendations > 0, 'review', 'none in data')),\n    (print _order = 5, Signal = 'AI commitment transactions', Value = todouble(transactions), State = iff(transactions > 0, 'present', 'none in data'))\n| order by _order asc\n| project Signal, Value, State",
+      "id": "ef50088f-c744-4939-ab2b-2ff27ffc9710",
+      "usedVariables": [
+        "CostsLastMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "let _last = startofmonth(startofmonth(now()) - 1d);\nlet _prev = startofmonth(_last - 1d);\nCostsByMonth\n| extend _gpu = strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'\n| where ServiceCategory =~ 'AI and Machine Learning' or ServiceName in~ ('Azure AI Search', 'Azure Databricks') or _gpu\n| where ChargePeriodStart >= _prev and ChargePeriodStart < startofmonth(now())\n| summarize Cost = sumif(EffectiveCost, ChargePeriodStart >= _last), Prev = sumif(EffectiveCost, ChargePeriodStart < _last) by Service = ServiceName, Meter = x_SkuMeterSubcategory\n| where Cost > 0 or Prev > 0\n| extend ['MoM change'] = round(Cost - Prev, 2)\n| project Service, Meter, ['Effective cost'] = round(Cost, 2), ['Prior month'] = round(Prev, 2), ['MoM change']\n| top maxGroupCount by ['Effective cost'] desc",
+      "id": "b1d2d5ad-4311-4344-b2d0-1845ada027d2",
+      "usedVariables": [
+        "CostsByMonth",
+        "maxGroupCount"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsByMonth\n| where ChargePeriodStart < startofmonth(now())\n| extend _gpu = strcat(' ', ServiceName, ' ', x_SkuMeterCategory, ' ', x_SkuMeterSubcategory, ' ', x_SkuInstanceType, ' ', tostring(SkuMeter), ' ') matches regex @'(?i)(^|[^a-z0-9])(nc|nd|nv|ng)[a-z0-9_\\-]*'\n| where ServiceCategory =~ 'AI and Machine Learning' or ServiceName in~ ('Azure AI Search', 'Azure Databricks') or _gpu\n| extend Capability = case(\n    _gpu, 'GPU / accelerated compute',\n    x_SkuMeterCategory =~ 'Foundry Models' or x_SkuMeterSubcategory has_any ('OpenAI', 'Deepseek', 'GPT'), 'Foundation models (LLM)',\n    ServiceName =~ 'Azure AI Search', 'AI Search / retrieval',\n    ServiceName =~ 'Azure Machine Learning', 'ML platform & compute',\n    ServiceName =~ 'Azure Databricks', 'ML / analytics platform',\n    ServiceName =~ 'Azure AI Video Indexer' or x_SkuMeterSubcategory has_any ('Vision', 'Speech', 'Translator', 'Content Understanding', 'Video Indexer', 'Bing', 'Content Safety', 'Phi'), 'Cognitive services',\n    ServiceName =~ 'Azure AI Bot Service', 'Bot & agents',\n    'Other AI/ML')\n| summarize ['Effective cost'] = round(sum(EffectiveCost), 2) by Month = startofmonth(ChargePeriodStart), Capability\n| order by Month asc",
+      "id": "d90deac9-9549-4cb9-bee3-413e607fb1c5",
+      "usedVariables": [
+        "CostsByMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsByMonth\n| where ChargePeriodStart < startofmonth(now())\n| where x_SkuMeterCategory =~ 'Foundry Models' and PricingUnit =~ 'Units'\n| summarize ['Tokens (M)'] = round(sum(ConsumedQuantity) / 1000000.0, 2) by Month = startofmonth(ChargePeriodStart)\n| order by Month asc",
+      "id": "9fbea579-ec65-453a-aa45-ff210b1a22e0",
+      "usedVariables": [
+        "CostsByMonth"
+      ]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsByMonth\n| where ChargePeriodStart < startofmonth(now())\n| where x_SkuMeterCategory =~ 'Foundry Models' and PricingUnit =~ 'Units'\n| summarize Cost = sum(EffectiveCost), Tokens = sum(ConsumedQuantity) by Month = startofmonth(ChargePeriodStart)\n| where Tokens > 0\n| extend CPMT = round(Cost / Tokens * 1000000.0, 2)\n| project Month, CPMT\n| order by Month asc",
+      "id": "ecd40cda-6420-4982-9e3b-3691cdbe3a2e",
+      "usedVariables": [
+        "CostsByMonth"
+      ]
     }
   ]
 }

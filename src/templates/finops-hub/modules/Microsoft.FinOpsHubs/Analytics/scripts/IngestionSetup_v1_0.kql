@@ -1519,7 +1519,7 @@ Quota_transform_v1_0()
         x_SourceProvider = coalesce(x_SourceProvider, 'Microsoft'),
         x_SourceType = coalesce(x_SourceType, tmp_QueryType),
         x_SourceVersion = coalesce(x_SourceVersion, tmp_QueryVersion)
-    | where x_SourceType !~ 'PremiumSSDv2Disk' or displayName =~ 'PremiumV2_LRS'
+    | extend ResourceName = iff(x_SourceType =~ 'AvailabilityZoneMapping' and isempty(ResourceName), location, ResourceName)
     | extend ResourceType = coalesce(ResourceType, case(
         x_SourceType =~ 'AppServiceUsage', 'Microsoft.Web/locations/usages',
         x_SourceType =~ 'ComputeUsage', 'Microsoft.Compute/locations/usages',
@@ -1528,8 +1528,6 @@ Quota_transform_v1_0()
         x_SourceType =~ 'MachineLearningUsage', 'Microsoft.MachineLearningServices/locations/usages',
         x_SourceType =~ 'NetworkUsage', 'Microsoft.Network/locations/usages',
         x_SourceType =~ 'PurviewUsage', 'Microsoft.Purview/locations/usages',
-        x_SourceType =~ 'CapacityReservation', 'Microsoft.Compute/capacityReservationGroups',
-        x_SourceType =~ 'PremiumSSDv2Disk', 'Microsoft.Compute/disks',
         x_SourceType =~ 'StorageUsage', 'Microsoft.Storage/locations/usages',
         x_SourceType =~ 'ComputeResourceSku', 'Microsoft.Compute/skus',
         x_SourceType =~ 'AvailabilityZoneMapping', 'Microsoft.Resources/subscriptions/locations',

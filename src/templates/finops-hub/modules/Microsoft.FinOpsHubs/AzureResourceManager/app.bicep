@@ -107,6 +107,24 @@ resource dataset_config 'Microsoft.DataFactory/factories/datasets@2018-06-01' ex
 
 //------------------------------------------------------------------------------
 // Engine pipeline
+//
+// Scope expansion is split across five pipelines rather than nested loops:
+//
+//   ExecuteQuery              entry point, validates and routes by scope
+//   ├── ExecuteConfiguredScopes   fans out configured billing scopes
+//   ├── ExecuteTenant             fans out enabled subscriptions
+//   └── ExecuteSubscription       routes direct or regional
+//       └── ExecuteRegional       fans out physical locations
+//           └── CopyQuery         executes one ARM request
+//
+// ADF does not allow control-flow containers to nest. A ForEach cannot contain
+// another ForEach, and neither can contain a Switch or IfCondition that itself
+// contains a loop. Expanding scopes and locations in a single pipeline is
+// therefore not expressible, and chaining ExecutePipeline with
+// waitOnCompletion is the only shape ADF accepts.
+//
+// Adding a new expansion axis means adding a new pipeline, not a nested loop.
+// Do not attempt to collapse these pipelines together.
 //------------------------------------------------------------------------------
 
 resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
@@ -528,7 +546,6 @@ resource pipeline_ExecuteConfiguredScopes 'Microsoft.DataFactory/factories/pipel
             type: 'Expression'
           }
           isSequential: false
-          batchCount: app.hub.options.privateRouting ? 4 : 30
           activities: [
             {
               name: 'Execute Request'
@@ -695,7 +712,6 @@ resource pipeline_ExecuteTenant 'Microsoft.DataFactory/factories/pipelines@2018-
             type: 'Expression'
           }
           isSequential: false
-          batchCount: app.hub.options.privateRouting ? 4 : 30
           activities: [
             {
               name: 'Execute Subscription Query'
@@ -1063,7 +1079,6 @@ resource pipeline_ExecuteRegional 'Microsoft.DataFactory/factories/pipelines@201
             type: 'Expression'
           }
           isSequential: false
-          batchCount: app.hub.options.privateRouting ? 4 : 30
           activities: [
             {
               name: 'Execute Request'
@@ -1151,113 +1166,191 @@ resource pipeline_ExecuteRegional 'Microsoft.DataFactory/factories/pipelines@201
 
 //------------------------------------------------------------------------------
 // Request Copy pipeline
+//
+// This is the only pipeline that calls ARM or writes a file. Everything above it
+// exists to expand one query definition into concrete (scope, location) pairs.
+//
+// Empty-result handling follows the AzureResourceGraph app: check whether the query
+// returns results before running the Copy, so an empty result set never produces a
+// file. See 'Check Query Has Results' and 'If Query Has Results' below.
 //------------------------------------------------------------------------------
 
 resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
   name: 'queries_AzureResourceManager_CopyQuery'
   parent: dataFactory
   properties: {
+    // CopyQuery is the leaf admission boundary for query fan-out. Private routing
+    // lowers the ceiling because a managed VNet integration runtime has less capacity.
     concurrency: app.hub.options.privateRouting ? 4 : 30
     activities: [
       {
-        name: 'Execute ARM Query'
-        description: 'Execute one paginated ARM request and write Parquet to msexports staging for pre-manifest consolidation.'
-        type: 'Copy'
+        name: 'Check Query Has Results'
+        description: 'Run the query to check if there are any results before attempting the full copy.'
+        type: 'WebActivity'
         dependsOn: []
         policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 60
+          timeout: '0.00:05:00'
+          retry: 1
+          retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
         }
         userProperties: []
         typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00.00:00:00.050'
-            requestMethod: 'GET'
-            paginationRules: {
-              AbsoluteUrl: '$.nextLink'
-            }
-          }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@pipeline().parameters.translator'
+          url: {
+            value: '@concat(\'${environment().resourceManager}\', substring(pipeline().parameters.queryScope, 1, sub(length(pipeline().parameters.queryScope), 1)), replace(pipeline().parameters.query, \'{location}\', pipeline().parameters.queryLocation))'
             type: 'Expression'
           }
+          method: 'GET'
+          authentication: {
+            type: 'MSI'
+            resource: environment().resourceManager
+          }
         }
-        inputs: [
-          {
-            referenceName: dataset_azureResourceManager.name
-            type: 'DatasetReference'
-            parameters: {
-              relativeUrl: {
-                value: '@concat(pipeline().parameters.queryScope, replace(pipeline().parameters.query, \'{location}\', pipeline().parameters.queryLocation))'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-        outputs: [
-          {
-            referenceName: dataset_msexports_parquet.name
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@concat(\'_ftk-query-staging/\', replace(pipeline().parameters.ingestionPath, concat(pipeline().parameters.queryType, \'.parquet\'), \'\'), \'/SubAccountId=\', last(split(pipeline().parameters.queryScope, \'/\')), if(empty(pipeline().parameters.queryLocation), \'\', concat(\'/location=\', pipeline().parameters.queryLocation)), \'/x_SourceName=\', pipeline().parameters.querySource, \'/x_SourceProvider=\', pipeline().parameters.queryProvider, if(contains(string(pipeline().parameters.translator), \'x_SourceType\'), \'\', concat(\'/x_SourceType=\', pipeline().parameters.queryType)), \'/x_SourceVersion=\', pipeline().parameters.queryVersion, \'/\', pipeline().parameters.queryType, \'--\', pipeline().parameters.queryVersion, \'--\', replace(pipeline().parameters.queryScope, \'/\', \'_\'), \'--\', pipeline().parameters.queryLocation, \'.parquet\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
       }
       {
-        name: 'Rethrow Unexpected ARM Query Failure'
-        description: 'Treat an empty Network usage response as no data and rethrow every other ARM query error.'
+        name: 'If Query Has Results'
+        description: 'Only run the copy if the query returned results to avoid schema mapping errors on empty result sets.'
         type: 'IfCondition'
         dependsOn: [
           {
-            activity: 'Execute ARM Query'
-            dependencyConditions: [
-              'Completed'
-            ]
+            activity: 'Check Query Has Results'
+            dependencyConditions: ['Succeeded']
           }
         ]
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@if(equals(activity(\'Execute ARM Query\').Status, \'Failed\'), not(and(contains(pipeline().parameters.query, \'/providers/Microsoft.Network/locations/\'), contains(activity(\'Execute ARM Query\').error.message, \'status code 409 Conflict\'), contains(activity(\'Execute ARM Query\').error.message, \'"code":"SubscriptionHasNoUsages"\'))), false)'
+            value: '@greater(length(activity(\'Check Query Has Results\').output.value), 0)'
             type: 'Expression'
           }
           ifTrueActivities: [
             {
-              name: 'ARM Query Failed'
-              type: 'Fail'
+              name: 'Execute ARM Query'
+              description: 'Execute one paginated ARM request and write Parquet to msexports staging for pre-manifest consolidation.'
+              type: 'Copy'
               dependsOn: []
+              policy: {
+                timeout: '0.00:10:00'
+                retry: 0
+                retryIntervalInSeconds: 60
+                secureOutput: false
+                secureInput: false
+              }
               userProperties: []
               typeProperties: {
-                message: {
-                  value: '@activity(\'Execute ARM Query\').error.message'
-                  type: 'Expression'
+                source: {
+                  type: 'RestSource'
+                  httpRequestTimeout: '00:02:00'
+                  requestInterval: '00.00:00:00.050'
+                  requestMethod: 'GET'
+                  // Native ADF pagination. This replaced a manual paging loop that used a
+                  // second Copy to extract nextLink into a metadata Parquet file, a Lookup
+                  // to read it, and a run-scoped _ftk-arm-pagination/{runId} folder. That
+                  // design could not nest inside the scope-expansion loops, because ADF
+                  // does not allow control-flow containers to nest. Do not reintroduce it.
+                  paginationRules: {
+                    AbsoluteUrl: '$.nextLink'
+                  }
                 }
-                errorCode: {
-                  value: '@coalesce(activity(\'Execute ARM Query\').error.errorCode, \'ArmRequestFailed\')'
+                sink: {
+                  type: 'ParquetSink'
+                  storeSettings: {
+                    type: 'AzureBlobFSWriteSettings'
+                  }
+                  formatSettings: {
+                    type: 'ParquetWriteSettings'
+                  }
+                }
+                enableStaging: false
+                translator: {
+                  value: '@pipeline().parameters.translator'
                   type: 'Expression'
                 }
               }
+              inputs: [
+                {
+                  referenceName: dataset_azureResourceManager.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    relativeUrl: {
+                      value: '@concat(pipeline().parameters.queryScope, replace(pipeline().parameters.query, \'{location}\', pipeline().parameters.queryLocation))'
+                      type: 'Expression'
+                    }
+                  }
+                }
+              ]
+              outputs: [
+                {
+                  referenceName: dataset_msexports_parquet.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    blobPath: {
+                      value: '@concat(\'_ftk-query-staging/\', replace(pipeline().parameters.ingestionPath, concat(pipeline().parameters.queryType, \'.parquet\'), \'\'), \'/SubAccountId=\', last(split(pipeline().parameters.queryScope, \'/\')), if(empty(pipeline().parameters.queryLocation), \'\', concat(\'/location=\', pipeline().parameters.queryLocation)), \'/x_SourceName=\', pipeline().parameters.querySource, \'/x_SourceProvider=\', pipeline().parameters.queryProvider, if(contains(string(pipeline().parameters.translator), \'x_SourceType\'), \'\', concat(\'/x_SourceType=\', pipeline().parameters.queryType)), \'/x_SourceVersion=\', pipeline().parameters.queryVersion, \'/\', pipeline().parameters.queryType, \'--\', pipeline().parameters.queryVersion, \'--\', replace(pipeline().parameters.queryScope, \'/\', \'_\'), \'--\', pipeline().parameters.queryLocation, \'.parquet\')'
+                      type: 'Expression'
+                    }
+                  }
+                }
+              ]
+            }
+            {
+              name: 'Handle Query Copy Failure'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Execute ARM Query'
+                  dependencyConditions: ['Failed']
+                }
+              ]
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'copyFailureHandled'
+                value: true
+              }
             }
           ]
+        }
+      }
+      {
+        name: 'Handle Query Probe Failure'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Check Query Has Results'
+            dependencyConditions: ['Failed']
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'probeFailureHandled'
+          value: true
+        }
+      }
+      {
+        name: 'Complete Skipped Query Path'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'If Query Has Results'
+            dependencyConditions: ['Skipped']
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'skippedQueryPathCompleted'
+          value: true
         }
       }
     ]
@@ -1288,6 +1381,20 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
       }
       translator: {
         type: 'Object'
+      }
+    }
+    variables: {
+      copyFailureHandled: {
+        type: 'Boolean'
+        defaultValue: false
+      }
+      probeFailureHandled: {
+        type: 'Boolean'
+        defaultValue: false
+      }
+      skippedQueryPathCompleted: {
+        type: 'Boolean'
+        defaultValue: false
       }
     }
     policy: {

@@ -41,14 +41,12 @@ param ingestionQueries IngestionQueriesMetadata
 var coreQueryFiles = {
   'Quota-Microsoft-AppServiceUsage': loadTextContent('queries/Quota-Microsoft-AppServiceUsage.json')
   'Quota-Microsoft-AvailabilityZoneMapping': loadTextContent('queries/Quota-Microsoft-AvailabilityZoneMapping.json')
-  'Quota-Microsoft-CapacityReservation': loadTextContent('queries/Quota-Microsoft-CapacityReservation.json')
   'Quota-Microsoft-CognitiveServicesUsage': loadTextContent('queries/Quota-Microsoft-CognitiveServicesUsage.json')
   'Quota-Microsoft-ComputeResourceSku': loadTextContent('queries/Quota-Microsoft-ComputeResourceSku.json')
   'Quota-Microsoft-ComputeUsage': loadTextContent('queries/Quota-Microsoft-ComputeUsage.json')
   'Quota-Microsoft-HDInsightUsage': loadTextContent('queries/Quota-Microsoft-HDInsightUsage.json')
   'Quota-Microsoft-MachineLearningUsage': loadTextContent('queries/Quota-Microsoft-MachineLearningUsage.json')
   'Quota-Microsoft-NetworkUsage': loadTextContent('queries/Quota-Microsoft-NetworkUsage.json')
-  'Quota-Microsoft-PremiumSSDv2Disk': loadTextContent('queries/Quota-Microsoft-PremiumSSDv2Disk.json')
   'Quota-Microsoft-PurviewUsage': loadTextContent('queries/Quota-Microsoft-PurviewUsage.json')
   'Quota-Microsoft-SqlSubscriptionUsage': loadTextContent('queries/Quota-Microsoft-SqlSubscriptionUsage.json')
   'Quota-Microsoft-StorageUsage': loadTextContent('queries/Quota-Microsoft-StorageUsage.json')
@@ -59,9 +57,7 @@ var queryFiles = coreQueryFiles
 
 // Load schema files
 var schemaFiles = {
-  'quota_1.0-capacity-reservation': loadTextContent('schemas/quota_1.0-capacity-reservation.json')
   'quota_1.0-compute-sku': loadTextContent('schemas/quota_1.0-compute-sku.json')
-  'quota_1.0-disk': loadTextContent('schemas/quota_1.0-disk.json')
   'quota_1.0-sql': loadTextContent('schemas/quota_1.0-sql.json')
   'quota_1.0-usage': loadTextContent('schemas/quota_1.0-usage.json')
   'quota_1.0-zone-mapping': loadTextContent('schemas/quota_1.0-zone-mapping.json')
