@@ -26,6 +26,7 @@ This document provides a comprehensive overview of how to query and analyze data
   - [Table reference](#table-reference)
     - [Costs()](#costs)
     - [Prices()](#prices)
+    - [Quota()](#quota)
     - [Recommendations()](#recommendations)
     - [Transactions()](#transactions)
   - [Glossary](#glossary)
@@ -612,6 +613,59 @@ The following table lists the columns produced in the `All available columns` qu
 
 ---
 
+### Quota()
+
+The `Quota()` function returns normalized quota usage and resource inventory observations from configured FinOps hub queries. A resource can have more than one snapshot. Select the newest `x_IngestionTime` for each `ResourceId` before you use the data as current state.
+
+| Column Name | Data Type | Description |
+|-------------|-----------|-------------|
+| `ProviderName` | string | Name of the cloud provider. |
+| `ResourceId` | string | Canonical key for the quota or inventory object. Some usage sources use a synthetic resource ID. |
+| `ResourceName` | string | Provider-defined quota or resource name. |
+| `ResourceType` | string | Azure resource type or usage endpoint type. |
+| `SubAccountId` | string | Subscription resource ID that the query used. |
+| `displayName` | string | Provider-defined display name. |
+| `location` | string | Azure region for the observation. |
+| `currentValue` | real | Current usage value. For Premium SSD v2 disks, this value is the disk size in GiB. |
+| `limit` | real | Quota limit when the source supplies one. Inventory sources can leave this value empty. |
+| `unit` | string | Unit for `currentValue` and `limit` when the source supplies one. |
+| `x_QuotaDetails` | dynamic | Source details and normalized query metadata. |
+| `x_SourceName` | string | Source name recorded by the ingestion process. |
+| `x_SourceProvider` | string | Source provider recorded by the ingestion process. |
+| `x_SourceType` | string | Source object type. Use this column to select one quota dataset. |
+| `x_SourceVersion` | string | Version of the source contract. |
+| `x_IngestionTime` | datetime | Time when the snapshot entered the normalized table. |
+
+#### Supported source types
+
+| `x_SourceType` | Source version | Observation | Canonical key |
+|----------------|----------------|-------------|---------------|
+| `AppServiceUsage` | `1.0-usage` | App Service regional quota usage | Synthetic `ResourceId` |
+| `CapacityReservation` | `1.0-capacity-reservation` | Capacity reservation group inventory | Native ARM `ResourceId` |
+| `CognitiveServicesUsage` | `1.0-usage` | Azure AI services regional quota usage | Synthetic `ResourceId` |
+| `ComputeUsage` | `1.0-usage` | Compute regional quota usage | Synthetic `ResourceId` |
+| `HDInsightUsage` | `1.0-usage` | HDInsight regional quota usage | Synthetic `ResourceId` |
+| `MachineLearningUsage` | `1.0-usage` | Machine Learning regional quota usage | Native scoped or synthetic regional `ResourceId` |
+| `NetworkUsage` | `1.0-usage` | Network regional quota usage | Native or synthetic `ResourceId` |
+| `PremiumSSDv2Disk` | `1.0-disk` | Premium SSD v2 disk inventory | Native ARM `ResourceId` |
+| `PurviewUsage` | `1.0-usage` | Purview regional quota usage | Synthetic `ResourceId` |
+| `SqlSubscriptionUsage` | `1.0-sql` | Azure SQL regional quota usage | Native ARM `ResourceId` |
+| `StorageUsage` | `1.0-usage` | Storage regional quota usage | Synthetic `ResourceId` |
+
+Use this pattern to return one current row for each object:
+
+```kusto
+Quota()
+| where x_SourceType =~ 'ComputeUsage'
+| summarize arg_max(x_IngestionTime, *) by ResourceId
+```
+
+Capacity reservations and Premium SSD v2 disks are inventory observations. Their `limit` and `unit` values can be empty. Do not calculate quota headroom or percentage used for these rows. For Premium SSD v2 disks, `currentValue` contains the disk size in GiB.
+
+PostgreSQL quota is not supported. Its regional endpoint does not match the current query pipeline contract.
+
+---
+
 ### Recommendations()
 
 > **Sparsely-populated columns:**
@@ -716,6 +770,7 @@ The following table lists the columns produced in the `All available columns` qu
 | 2025-05-16 | 1.1     | FinOps Toolkit Team | Expanded schema, glossary, references                                                                                                                                                                                                                                                                                                                                                              |
 | 2026-05-28 | 1.2     | Sprint 3000 UAT     | Live-Hub schema audit: `Costs()`, `Prices()`, `Recommendations()` numeric columns retyped from `decimal` to `real` to match deployed Hub schema (cause of SEM0019 errors). `Recommendations()` table expanded from 12 to 20 columns to add the 8 columns present in the live schema. `x_RecommendationDate` documented as commonly-null in live Hubs (root cause of T-3000.13). |
 | 2026-08-04 | 1.3     | FinOps Toolkit Team | Added KQL language rules (case-insensitive operators, explicit join kinds, `lookup` for dimension enrichment) distilled from the project coding guidelines so query-writing agents load them alongside the schema.                                                                                                                                                                                 |
+| 2026-08-23 | 1.4     | FinOps Toolkit Team | Added the `Quota()` reference, source-type matrix, latest-state guidance, and inventory-source caveats.                                                                                                                                                                                                                                                                                              |
 
 ---
 

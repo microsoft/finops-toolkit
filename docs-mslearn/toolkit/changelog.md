@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/22/2026
+ms.date: 08/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -29,6 +29,8 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Added VNet and private network modes, including opt-in NAT Gateway support for private mode; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
+  - Added a repository-scoped FinOps hub dashboard canvas with separate capacity views for App Service, Azure AI, Compute, Azure SQL, Storage, capacity reservations, and Premium SSD v2. The Compute view adds an estate-wide VM family by region heatmap that reads supply restrictions and quota utilization as separate signals ([#2277](https://github.com/microsoft/finops-toolkit/pull/2277)).
+  - Added an AI and emerging workloads view to the FinOps hub dashboard canvas, covering estate composition, token and model economics, workload detail, allocation coverage, and commitment and rate posture. Month-over-month comparisons anchor to the last closed month so a partially ingested month cannot report a false decline ([#2277](https://github.com/microsoft/finops-toolkit/pull/2277)).
 - **Changed**
   - Clarified that the FinOps toolkit exclusively manages the FinOps hub virtual network and documented customer-managed private endpoints as the preferred private-access topology, with virtual network peering as a secondary option ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
   - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).

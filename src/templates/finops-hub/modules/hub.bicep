@@ -50,6 +50,9 @@ param enableManagedExports bool = true
 @description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The Data Factory managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
 param enableRecommendations bool = false
 
+@description('Optional. Enable quota and capacity data ingestion from Azure Resource Manager. The Data Factory managed identity requires Reader role on the subscriptions to scan. Default: false.')
+param enableQuota bool = false
+
 @description('Optional. Enable Azure Hybrid Benefit recommendations that flag VMs and SQL VMs without Azure Hybrid Benefit enabled. May generate noise if your organization does not have on-premises licenses. Requires enableRecommendations. Default: false.')
 param enableAHBRecommendations bool = false
 
@@ -318,7 +321,7 @@ module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || u
 // Ingestion queries
 //------------------------------------------------------------------------------
 
-module ingestionQueries 'Microsoft.FinOpsHubs/IngestionQueries/app.bicep' = if (enableRecommendations) {
+module ingestionQueries 'Microsoft.FinOpsHubs/IngestionQueries/app.bicep' = if (enableRecommendations || enableQuota) {
   name: 'Microsoft.FinOpsHubs.IngestionQueries'
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'IngestionQueries')
@@ -334,6 +337,18 @@ module azureResourceGraph 'Microsoft.FinOpsHubs/AzureResourceGraph/app.bicep' = 
   }
 }
 
+module azureResourceManager 'Microsoft.FinOpsHubs/AzureResourceManager/app.bicep' = if (enableRecommendations || enableQuota) {
+  name: 'Microsoft.FinOpsHubs.AzureResourceManager'
+  dependsOn: [
+    cmExports
+    ingestionQueries
+  ]
+  params: {
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'AzureResourceManager')
+    core: core.outputs.metadata
+  }
+}
+
 //------------------------------------------------------------------------------
 // Custom recommendations
 //------------------------------------------------------------------------------
@@ -342,6 +357,7 @@ module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (en
   name: 'Microsoft.FinOpsHubs.Recommendations'
   dependsOn: [
     azureResourceGraph
+    azureResourceManager
   ]
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'Recommendations')
@@ -349,6 +365,18 @@ module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (en
     ingestionQueries: ingestionQueries!.outputs.metadata // Safe: guarded by same enableRecommendations condition
     enableAHBRecommendations: enableAHBRecommendations
     enableSpotRecommendations: enableSpotRecommendations
+  }
+}
+
+module quota 'Microsoft.FinOpsHubs/Quota/app.bicep' = if (enableQuota) {
+  name: 'Microsoft.FinOpsHubs.Quota'
+  dependsOn: [
+    azureResourceManager
+  ]
+  params: {
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'Quota')
+    core: core.outputs.metadata
+    ingestionQueries: ingestionQueries!.outputs.metadata // Safe: guarded by the same enableQuota condition
   }
 }
 
@@ -400,6 +428,7 @@ module startTriggers 'fx/hub-initialize.bicep' = {
   dependsOn: [
     analytics
     recommendations
+    quota
     deleteOldResources
     remoteHub
     cmManagedExports

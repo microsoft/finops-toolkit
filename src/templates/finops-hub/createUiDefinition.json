@@ -703,20 +703,27 @@
       },
       {
         "name": "recommendations",
-        "label": "🆕 Recommendations",
+        "label": "Recommendations and quota",
         "elements": [
           {
             "name": "recommendationsIntro",
             "type": "Microsoft.Common.TextBlock",
             "visible": true,
             "options": {
-              "text": "Uncover hidden savings with FinOps hubs recommendations. FinOps hubs can automatically scan your environment using Azure Resource Graph to surface cost optimization opportunities like idle resources and missed discounts that aren't available in Microsoft Cost Management or Azure Advisor."
+              "text": "Scan your environment for cost optimization recommendations, quota usage, and available capacity."
             }
           },
           {
             "name": "enableRecommendations",
             "type": "Microsoft.Common.CheckBox",
-            "label": "Enable hubs recommendations (preview)"
+            "label": "Enable hubs recommendations (preview)",
+            "toolTip": "Scan Azure Resource Graph and Azure Resource Manager for cost optimization recommendations, including Azure savings plan recommendations."
+          },
+          {
+            "name": "enableQuota",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable quota and capacity ingestion (preview)",
+            "toolTip": "Collect compute, AI service, SQL, disk, and capacity reservation usage and capacity data from Azure Resource Manager."
           },
           {
             "name": "included",
@@ -738,6 +745,14 @@
                 "visible": true,
                 "options": {
                   "text": "✅  Azure Advisor cost recommendations"
+                }
+              },
+              {
+                "name": "savingsPlans",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  1-year and 3-year Azure savings plan recommendations"
                 }
               },
               {
@@ -819,17 +834,89 @@
             ]
           },
           {
+            "name": "quota",
+            "type": "Microsoft.Common.Section",
+            "label": "Quota and capacity data",
+            "visible": "[steps('recommendations').enableQuota]",
+            "elements": [
+              {
+                "name": "quotaIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Collect current usage, limits, and available capacity for:"
+                }
+              },
+              {
+                "name": "quotaDataTypes",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Compute quota"
+                }
+              },
+              {
+                "name": "quotaAzureAI",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Azure AI service quota"
+                }
+              },
+              {
+                "name": "quotaAzureSQL",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Azure SQL quota"
+                }
+              },
+              {
+                "name": "quotaAppService",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Azure App Service quota"
+                }
+              },
+              {
+                "name": "quotaPremiumSSDv2",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Premium SSD v2 disks"
+                }
+              },
+              {
+                "name": "quotaStorage",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Azure Storage account quota"
+                }
+              },
+              {
+                "name": "quotaCapacityReservations",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Capacity reservations"
+                }
+              }
+            ]
+          },
+          {
             "name": "permissions",
             "type": "Microsoft.Common.Section",
             "label": "Required permissions",
-            "visible": "[steps('recommendations').enableRecommendations]",
+            "visible": "[or(steps('recommendations').enableRecommendations, steps('recommendations').enableQuota)]",
             "elements": [
               {
                 "name": "permissionsNote",
                 "type": "Microsoft.Common.TextBlock",
                 "visible": true,
                 "options": {
-                  "text": "The Data Factory managed identity requires Reader role on the management groups or subscriptions you want to scan. After deployment, grant the hub's managed identity Reader access to the desired scopes."
+                  "text": "The Data Factory managed identity requires the Reader role on the management groups or subscriptions to scan. After deployment, grant the hub's managed identity Reader access to each scope."
                 }
               }
             ]
@@ -1000,6 +1087,7 @@
       "enableInfrastructureEncryption": "[steps('advanced').storage.enableInfrastructureEncryption]",
       "enableManagedExports": "[steps('advanced').managedExports.enableManagedExports]",
       "enableRecommendations": "[steps('recommendations').enableRecommendations]",
+      "enableQuota": "[steps('recommendations').enableQuota]",
       "enableAHBRecommendations": "[steps('recommendations').optional.enableAHBRecommendations]",
       "enableSpotRecommendations": "[steps('recommendations').optional.enableSpotRecommendations]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",

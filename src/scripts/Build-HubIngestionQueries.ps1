@@ -6,9 +6,10 @@
     Generates Bicep loadTextContent entries for ingestion query files.
 
     .DESCRIPTION
-    Scans query JSON files in the Recommendations app and generates the corresponding
-    Bicep variable blocks in app.bicep. Each query file specifies an opt-in group via
-    an optional "group" field. Files without a group are added to the core set.
+    Scans query JSON files in the Recommendations and Quota apps and generates the
+    corresponding Bicep variable blocks in each app.bicep. Each query file specifies
+    an opt-in group via an optional "group" field. Files without a group are added to
+    the core set.
 
     This script runs as a post-copy build step, modifying the release copy of app.bicep
     rather than the source files. The source app.bicep contains placeholder markers that
@@ -20,7 +21,8 @@
     .EXAMPLE
     ./Build-HubIngestionQueries.ps1 -DestDir ./release/finops-hub
 
-    Regenerates the loadTextContent entries in the release copy of Recommendations/app.bicep.
+    Regenerates the loadTextContent entries in the release copies of the Recommendations
+    and Quota app.bicep files.
 
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md
@@ -31,8 +33,16 @@ param(
     [Parameter(Mandatory)][string]$DestDir
 )
 
-$queriesPath = Join-Path $DestDir 'modules/Microsoft.FinOpsHubs/Recommendations/queries'
-$appBicepPath = Join-Path $DestDir 'modules/Microsoft.FinOpsHubs/Recommendations/app.bicep'
+function Update-HubIngestionQueriesApp
+{
+    param(
+        [Parameter(Mandatory)][string]$AppName,
+        [Parameter(Mandatory)][hashtable]$GroupConfig,
+        [Parameter(Mandatory)][string[]]$GroupOrder
+    )
+
+$queriesPath = Join-Path $DestDir "modules/Microsoft.FinOpsHubs/$AppName/queries"
+$appBicepPath = Join-Path $DestDir "modules/Microsoft.FinOpsHubs/$AppName/app.bicep"
 
 if (-not (Test-Path $queriesPath))
 {
@@ -42,7 +52,7 @@ if (-not (Test-Path $queriesPath))
 
 if (-not (Test-Path $appBicepPath))
 {
-    Write-Warning "Recommendations app.bicep not found at $appBicepPath; skipping"
+    Write-Warning "$AppName app.bicep not found at $appBicepPath; skipping"
     return
 }
 
@@ -91,13 +101,6 @@ function Format-BicepVar($varName, $files, $conditional)
     return $lines -join "`n"
 }
 
-# Known group-to-variable mappings with their conditional expressions
-$groupConfig = @{
-    'core'    = @{ VarName = 'coreQueryFiles'; Conditional = $null }
-    'ahb'     = @{ VarName = 'ahbQueryFiles'; Conditional = 'enableAHBRecommendations ?' }
-    'spot'    = @{ VarName = 'spotQueryFiles'; Conditional = 'enableSpotRecommendations ?' }
-}
-
 # Build the generated block
 $startMarker = '// <generated-query-files>'
 $endMarker = '// </generated-query-files>'
@@ -105,44 +108,40 @@ $endMarker = '// </generated-query-files>'
 $generatedLines = @($startMarker)
 $varNames = @()
 
-foreach ($groupName in @('core', 'ahb', 'spot'))
+foreach ($groupName in $GroupOrder)
 {
     if (-not $groups.ContainsKey($groupName)) { continue }
 
-    $config = $groupConfig[$groupName]
+    $config = $GroupConfig[$groupName]
     $varNames += $config.VarName
 
     if ($generatedLines.Count -gt 1) { $generatedLines += '' }
 
-    # Add comment for non-core groups
-    switch ($groupName)
+    switch ("$AppName/$groupName")
     {
-        'core' { $generatedLines += '// Load query files -- core recommendations are always included' }
-        'ahb' { $generatedLines += '// Optional: Azure Hybrid Benefit recommendations (may generate noise without on-premises licenses)' }
-        'spot' { $generatedLines += '// Optional: Spot VM recommendations (may generate noise for non-interruptible workloads)' }
+        'Recommendations/core' { $generatedLines += '// Load query files -- core recommendations are always included' }
+        'Recommendations/ahb' { $generatedLines += '// Optional: Azure Hybrid Benefit recommendations (may generate noise without on-premises licenses)' }
+        'Recommendations/spot' { $generatedLines += '// Optional: Spot VM recommendations (may generate noise for non-interruptible workloads)' }
+        'Quota/core' { $generatedLines += '// Load query files -- quota queries are always included' }
     }
 
     $generatedLines += Format-BicepVar $config.VarName $groups[$groupName] $config.Conditional
 }
 
-# Handle any unknown groups
 foreach ($groupName in ($groups.Keys | Sort-Object))
 {
-    if ($groupConfig.ContainsKey($groupName)) { continue }
-
-    Write-Warning "Unknown query group '$groupName' found; adding as opt-in variable"
-    $varName = "${groupName}QueryFiles"
-    $paramName = "enable$($groupName.Substring(0,1).ToUpper())$($groupName.Substring(1))Recommendations"
-    $varNames += $varName
-
-    $generatedLines += ''
-    $generatedLines += "// Optional: $groupName recommendations"
-    $generatedLines += Format-BicepVar $varName $groups[$groupName] "$paramName ?"
+    if ($GroupConfig.ContainsKey($groupName)) { continue }
+    throw "Unknown query group '$groupName' in $AppName. Expected groups: $($GroupOrder -join ', ')"
 }
 
 # Add the union line
 $generatedLines += ''
-$generatedLines += "var queryFiles = union($($varNames -join ', '))"
+$generatedLines += if ($varNames.Count -eq 1) {
+    "var queryFiles = $($varNames[0])"
+}
+else {
+    "var queryFiles = union($($varNames -join ', '))"
+}
 $generatedLines += $endMarker
 
 $generatedBlock = $generatedLines -join "`n"
@@ -170,3 +169,20 @@ else
     Write-Warning "Could not find generated section markers in app.bicep; manual update required"
     Write-Warning "Expected markers: $startMarker ... $endMarker"
 }
+}
+
+Update-HubIngestionQueriesApp `
+    -AppName 'Recommendations' `
+    -GroupConfig @{
+        'core' = @{ VarName = 'coreQueryFiles'; Conditional = $null }
+        'ahb'  = @{ VarName = 'ahbQueryFiles'; Conditional = 'enableAHBRecommendations ?' }
+        'spot' = @{ VarName = 'spotQueryFiles'; Conditional = 'enableSpotRecommendations ?' }
+    } `
+    -GroupOrder @('core', 'ahb', 'spot')
+
+Update-HubIngestionQueriesApp `
+    -AppName 'Quota' `
+    -GroupConfig @{
+        'core' = @{ VarName = 'coreQueryFiles'; Conditional = $null }
+    } `
+    -GroupOrder @('core')

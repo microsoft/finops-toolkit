@@ -1,0 +1,18 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+//
+// NAME: Quota schema
+// DESCRIPTION: Lists the columns and data types exposed by the latest Quota function.
+// CATEGORY: Governance
+// FEATURE: Quota
+// REGION: All
+// TECH: KQL
+//
+// SOURCE: Quota()
+//
+
+Quota()
+| getschema
+| project ColumnName, ColumnType
+| order by ColumnName asc
+| take 200

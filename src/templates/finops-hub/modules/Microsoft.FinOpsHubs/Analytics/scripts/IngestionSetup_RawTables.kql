@@ -888,6 +888,90 @@
 .alter table Recommendations_raw policy streamingingestion disable
 
 
+//===| Quota |==========================================================================================================
+// Supported versions:
+// - Microsoft Azure Resource Manager: 1.0
+//======================================================================================================================
+
+// Quota_raw table -- Create the table if it doesn't exist
+.create-merge table Quota_raw ( ignore: string )
+
+// Quota_raw table -- Remove all columns to allow changing column types
+.alter table Quota_raw ( ignore: string )
+
+// Quota_raw table -- Redefine all columns
+.alter table Quota_raw (
+    ProviderName:    string,
+    ResourceId:      string,
+    ResourceName:    string,
+    ResourceType:    string,
+    SubAccountId:    string,
+    displayName:     string,
+    location:        string,
+    currentValue:    real,
+    limit:           real,
+    unit:            string,
+    x_QuotaDetails:  dynamic,
+    x_SourceName:    string,
+    x_SourceProvider:string,
+    x_SourceType:    string,
+    x_SourceVersion: string,
+    x_AvailabilityZoneMappings: string,
+    x_Capabilities:             string,
+    x_Family:                   string,
+    x_Kind:                     string,
+    x_LocationInfo:             string,
+    x_LocationMetadata:         string,
+    x_Locations:                string,
+    x_RegionalDisplayName:      string,
+    x_Restrictions:             string,
+    x_Size:                     string,
+    x_Tier:                     string
+)
+
+// Quota_raw ingestion mapping
+.create-or-alter table Quota_raw ingestion parquet mapping "Quota_raw_mapping"
+```
+[
+    { "Column": "ProviderName",     "Properties": { "Field": "ProviderName" } },
+    { "Column": "ResourceId",       "Properties": { "Field": "ResourceId" } },
+    { "Column": "ResourceName",     "Properties": { "Field": "ResourceName" } },
+    { "Column": "ResourceType",     "Properties": { "Field": "ResourceType" } },
+    { "Column": "SubAccountId",     "Properties": { "Field": "SubAccountId" } },
+    { "Column": "displayName",      "Properties": { "Field": "displayName" } },
+    { "Column": "location",         "Properties": { "Field": "location" } },
+    { "Column": "currentValue",     "Properties": { "Field": "currentValue" } },
+    { "Column": "limit",            "Properties": { "Field": "limit" } },
+    { "Column": "unit",             "Properties": { "Field": "unit" } },
+    { "Column": "x_QuotaDetails",   "Properties": { "Field": "x_QuotaDetails" } },
+    { "Column": "x_SourceName",     "Properties": { "Field": "x_SourceName" } },
+    { "Column": "x_SourceProvider", "Properties": { "Field": "x_SourceProvider" } },
+    { "Column": "x_SourceType",     "Properties": { "Field": "x_SourceType" } },
+    { "Column": "x_SourceVersion",  "Properties": { "Field": "x_SourceVersion" } },
+    { "Column": "x_AvailabilityZoneMappings", "Properties": { "Field": "x_AvailabilityZoneMappings" } },
+    { "Column": "x_Capabilities",             "Properties": { "Field": "x_Capabilities" } },
+    { "Column": "x_Family",                   "Properties": { "Field": "x_Family" } },
+    { "Column": "x_Kind",                     "Properties": { "Field": "x_Kind" } },
+    { "Column": "x_LocationInfo",             "Properties": { "Field": "x_LocationInfo" } },
+    { "Column": "x_LocationMetadata",         "Properties": { "Field": "x_LocationMetadata" } },
+    { "Column": "x_Locations",                "Properties": { "Field": "x_Locations" } },
+    { "Column": "x_RegionalDisplayName",      "Properties": { "Field": "x_RegionalDisplayName" } },
+    { "Column": "x_Restrictions",             "Properties": { "Field": "x_Restrictions" } },
+    { "Column": "x_Size",                     "Properties": { "Field": "x_Size" } },
+    { "Column": "x_Tier",                     "Properties": { "Field": "x_Tier" } }
+]
+```
+
+// Quota_raw retention policy (clear historical data)
+.alter-merge table Quota_raw policy retention softdelete = 0d recoverability = disabled
+
+// Quota_raw retention policy (set the user-defined retention period)
+.alter-merge table Quota_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
+
+// Disable Quota_raw streaming ingestion (required for Fabric)
+.alter table Quota_raw policy streamingingestion disable
+
+
 //===| Transactions |===================================================================================================
 // Supported versions:
 // - MS CM EA reservation transactions: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-ea
@@ -985,4 +1069,3 @@
 
 // Disable Transactions_raw streaming ingestion (required for Fabric)
 .alter table Transactions_raw policy streamingingestion disable
-

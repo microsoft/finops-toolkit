@@ -1,0 +1,36 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+//
+// NAME: Machine Learning quota usage
+// DESCRIPTION: Rehydrates the latest Machine Learning quota usage records for each subscription and region.
+// CATEGORY: Governance
+// FEATURE: Quota
+// REGION: All
+// TECH: KQL
+//
+// RESOURCE TYPES: Microsoft.MachineLearningServices/locations/usages
+//
+// SOURCE: Quota()
+//
+
+Quota()
+| where x_SourceType =~ 'MachineLearningUsage'
+| where ResourceType =~ 'Microsoft.MachineLearningServices/locations/usages'
+| where isnotempty(ResourceName)
+| summarize arg_max(x_IngestionTime, *) by ResourceId
+| project
+    ProviderName,
+    ResourceId,
+    ResourceName,
+    ResourceType,
+    SubAccountId,
+    displayName,
+    location,
+    currentValue,
+    limit,
+    unit,
+    x_QuotaDetails,
+    x_SourceType,
+    x_SourceVersion,
+    x_IngestionTime
+| order by SubAccountId asc, location asc, ResourceName asc

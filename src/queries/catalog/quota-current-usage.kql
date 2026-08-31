@@ -1,0 +1,30 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+//
+// NAME: Current quota usage
+// DESCRIPTION: Shows the latest quota and capacity observations across subscriptions and regions.
+// CATEGORY: Governance
+// FEATURE: Quota
+// REGION: All
+// TECH: KQL
+//
+// SOURCE: Quota()
+//
+
+Quota()
+| summarize arg_max(x_IngestionTime, *) by ResourceId
+| project
+    ProviderName,
+    ResourceId,
+    ResourceName,
+    ResourceType,
+    SubAccountId,
+    displayName,
+    location,
+    currentValue,
+    limit,
+    unit,
+    x_SourceType,
+    x_SourceVersion,
+    x_IngestionTime
+| order by SubAccountId asc, location asc, ResourceType asc, ResourceName asc

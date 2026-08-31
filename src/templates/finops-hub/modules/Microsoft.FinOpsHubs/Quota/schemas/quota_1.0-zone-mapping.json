@@ -1,0 +1,73 @@
+{
+  "additionalColumns": [],
+  "translator": {
+    "type": "TabularTranslator",
+    "mappings": [
+      {
+        "source": {
+          "path": "['id']"
+        },
+        "sink": {
+          "name": "ResourceId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['name']"
+        },
+        "sink": {
+          "name": "location",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['displayName']"
+        },
+        "sink": {
+          "name": "displayName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['regionalDisplayName']"
+        },
+        "sink": {
+          "name": "x_RegionalDisplayName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['type']"
+        },
+        "sink": {
+          "name": "ResourceType",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['availabilityZoneMappings']"
+        },
+        "sink": {
+          "name": "x_AvailabilityZoneMappings",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['metadata']"
+        },
+        "sink": {
+          "name": "x_LocationMetadata",
+          "type": "String"
+        }
+      }
+    ],
+    "collectionReference": "$['value']",
+    "mapComplexValuesToString": true
+  }
+}

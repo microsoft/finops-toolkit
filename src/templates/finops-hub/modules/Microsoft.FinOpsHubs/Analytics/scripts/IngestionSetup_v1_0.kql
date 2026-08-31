@@ -1490,6 +1490,155 @@ Recommendations_transform_v1_0()
 ```
 
 
+//===| Quota |==========================================================================================================
+// Supported versions:
+// - Microsoft Azure Resource Manager: 1.0
+//======================================================================================================================
+
+// Quota_transform_v1_0 function
+.create-or-alter function
+with (docstring='Transforms Quota_raw into the Quota 1.0 contract.', folder='Quota')
+Quota_transform_v1_0()
+{
+    Quota_raw
+    | extend x_IngestionTime = ingestion_time()
+    | extend tmp_SourcePath = extract(@'"drop-by:(Quota/[^"]+)"', 1, tostring(extent_tags()))
+    | extend tmp_OriginalFileName = tostring(split(tmp_SourcePath, '/')[-1])
+    | extend tmp_FileParts = split(tmp_OriginalFileName, '--')
+    | extend
+        tmp_QueryType = tostring(tmp_FileParts[0]),
+        tmp_QueryVersion = tostring(tmp_FileParts[1]),
+        tmp_QueryScope = replace_string(tostring(tmp_FileParts[2]), '_', '/'),
+        tmp_QueryLocation = replace_string(tostring(tmp_FileParts[3]), '.parquet', '')
+    | extend
+        ProviderName = coalesce(ProviderName, 'Microsoft'),
+        SubAccountId = tolower(coalesce(tmp_QueryScope, SubAccountId)),
+        displayName = coalesce(displayName, ResourceName),
+        location = coalesce(location, tmp_QueryLocation),
+        x_SourceName = coalesce(x_SourceName, 'Azure Resource Manager'),
+        x_SourceProvider = coalesce(x_SourceProvider, 'Microsoft'),
+        x_SourceType = coalesce(x_SourceType, tmp_QueryType),
+        x_SourceVersion = coalesce(x_SourceVersion, tmp_QueryVersion)
+    | extend ResourceName = iff(x_SourceType =~ 'AvailabilityZoneMapping' and isempty(ResourceName), location, ResourceName)
+    | extend ResourceType = coalesce(ResourceType, case(
+        x_SourceType =~ 'AppServiceUsage', 'Microsoft.Web/locations/usages',
+        x_SourceType =~ 'ComputeUsage', 'Microsoft.Compute/locations/usages',
+        x_SourceType =~ 'CognitiveServicesUsage', 'Microsoft.CognitiveServices/locations/usages',
+        x_SourceType =~ 'HDInsightUsage', 'Microsoft.HDInsight/locations/usages',
+        x_SourceType =~ 'MachineLearningUsage', 'Microsoft.MachineLearningServices/locations/usages',
+        x_SourceType =~ 'NetworkUsage', 'Microsoft.Network/locations/usages',
+        x_SourceType =~ 'PurviewUsage', 'Microsoft.Purview/locations/usages',
+        x_SourceType =~ 'StorageUsage', 'Microsoft.Storage/locations/usages',
+        x_SourceType =~ 'ComputeResourceSku', 'Microsoft.Compute/skus',
+        x_SourceType =~ 'AvailabilityZoneMapping', 'Microsoft.Resources/subscriptions/locations',
+        ''
+    ))
+    | extend tmp_UsageResourceId = strcat(
+        SubAccountId,
+        '/providers/',
+        tostring(split(ResourceType, '/')[0]),
+        '/locations/',
+        location,
+        '/usages/',
+        ResourceName
+    )
+    | extend ResourceId = tolower(case(
+        x_SourceType =~ 'MachineLearningUsage'
+            and ResourceId matches regex '(?i)^/subscriptions/[^/]+/usages(/[^/]+)?$',
+            tmp_UsageResourceId,
+        coalesce(ResourceId, case(
+            x_SourceType in~ (
+                'AppServiceUsage',
+                'CognitiveServicesUsage',
+                'ComputeUsage',
+                'HDInsightUsage',
+                'MachineLearningUsage',
+                'NetworkUsage',
+                'PurviewUsage',
+                'StorageUsage'
+            ),
+                tmp_UsageResourceId,
+            x_SourceType =~ 'ComputeResourceSku',
+                strcat(SubAccountId, '/providers/Microsoft.Compute/locations/', location, '/skus/', ResourceName),
+            ''
+        ))
+    ))
+    | extend x_QuotaDetails = bag_merge(
+        coalesce(x_QuotaDetails, dynamic({})),
+        bag_pack(
+            'DisplayName', displayName,
+            'Location', location,
+            'CurrentValue', currentValue,
+            'Limit', limit,
+            'Unit', unit,
+            'QueryScope', SubAccountId,
+            'QueryType', x_SourceType,
+            'QueryVersion', x_SourceVersion,
+            'AvailabilityZoneMappings', todynamic(x_AvailabilityZoneMappings),
+            'Capabilities', todynamic(x_Capabilities),
+            'Family', x_Family,
+            'Kind', x_Kind,
+            'LocationInfo', todynamic(x_LocationInfo),
+            'LocationMetadata', todynamic(x_LocationMetadata),
+            'Locations', todynamic(x_Locations),
+            'RegionalDisplayName', x_RegionalDisplayName,
+            'Restrictions', todynamic(x_Restrictions),
+            'Size', x_Size,
+            'Tier', x_Tier
+        )
+    )
+    | project
+        ProviderName,
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        SubAccountId,
+        displayName,
+        location,
+        currentValue,
+        limit,
+        unit,
+        x_QuotaDetails,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion,
+        x_IngestionTime
+}
+
+// Quota_final_v1_0 table
+.create-merge table Quota_final_v1_0 (
+    ProviderName:     string,
+    ResourceId:       string,
+    ResourceName:     string,
+    ResourceType:     string,
+    SubAccountId:     string,
+    displayName:      string,
+    location:         string,
+    currentValue:     real,
+    limit:            real,
+    unit:             string,
+    x_QuotaDetails:   dynamic,
+    x_SourceName:     string,
+    x_SourceProvider: string,
+    x_SourceType:     string,
+    x_SourceVersion:  string,
+    x_IngestionTime:  datetime
+)
+
+// Update policy for Quota_raw -> Quota_final_v1_0 table
+.alter table Quota_final_v1_0 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "Quota_raw",
+    "Query": "Quota_transform_v1_0()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
+
+
 //===| Transactions |===================================================================================================
 // Supported versions:
 // - MS CM EA reservation transactions: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-ea

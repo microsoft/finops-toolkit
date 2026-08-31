@@ -1,0 +1,64 @@
+{
+  "additionalColumns": [],
+  "translator": {
+    "type": "TabularTranslator",
+    "mappings": [
+      {
+        "source": {
+          "path": "['id']"
+        },
+        "sink": {
+          "name": "ResourceId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['name']['value']"
+        },
+        "sink": {
+          "name": "ResourceName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['name']['localizedValue']"
+        },
+        "sink": {
+          "name": "displayName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "path": "['currentValue']"
+        },
+        "sink": {
+          "name": "currentValue",
+          "type": "Double"
+        }
+      },
+      {
+        "source": {
+          "path": "['limit']"
+        },
+        "sink": {
+          "name": "limit",
+          "type": "Double"
+        }
+      },
+      {
+        "source": {
+          "path": "['unit']"
+        },
+        "sink": {
+          "name": "unit",
+          "type": "String"
+        }
+      }
+    ],
+    "collectionReference": "$['value']",
+    "mapComplexValuesToString": true
+  }
+}

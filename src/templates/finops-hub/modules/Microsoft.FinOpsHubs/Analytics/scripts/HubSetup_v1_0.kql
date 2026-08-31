@@ -331,6 +331,108 @@ Recommendations_v1_0()
 }
 
 
+// Quota_final_v1_0
+.create-or-alter function
+with (docstring = 'Gets all quota records aligned to the Quota 1.0 contract.', folder = 'Quota')
+Quota_v1_0()
+{
+    database('Ingestion').Quota_final_v1_0
+    | project
+        ProviderName,
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        SubAccountId,
+        displayName,
+        location,
+        currentValue,
+        limit,
+        unit,
+        x_QuotaDetails,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion,
+        x_IngestionTime
+}
+
+
+// Compute quota by VM family and availability zone
+.create-or-alter function
+with (docstring = 'Gets Compute quota by subscription, region, VM family, and subscription-specific physical availability zone.', folder = 'Quota')
+ComputeQuota_v1_0()
+{
+    let LatestQuota = database('Ingestion').Quota_final_v1_0
+        | summarize arg_max(x_IngestionTime, *) by SubAccountId, x_SourceType, ResourceName, location;
+    let ZoneMappings = LatestQuota
+        | where x_SourceType =~ 'AvailabilityZoneMapping'
+        | mv-expand tmp_Mapping = todynamic(x_QuotaDetails.AvailabilityZoneMappings)
+        | project
+            SubscriptionId = SubAccountId,
+            Location = location,
+            LogicalZone = tostring(tmp_Mapping.logicalZone),
+            PhysicalZone = tostring(tmp_Mapping.physicalZone);
+    let SkuRestrictions = LatestQuota
+        | where x_SourceType =~ 'ComputeResourceSku' and ResourceType =~ 'virtualMachines'
+        | mv-expand tmp_LocationInfo = todynamic(x_QuotaDetails.LocationInfo)
+        | extend
+            Location = tostring(tmp_LocationInfo.location),
+            ZonesPresentSku = todynamic(tmp_LocationInfo.zones),
+            tmp_Restrictions = todynamic(x_QuotaDetails.Restrictions)
+        | extend tmp_Restrictions = iif(coalesce(array_length(tmp_Restrictions), 0) == 0, dynamic([{}]), tmp_Restrictions)
+        | mv-expand tmp_Restriction = tmp_Restrictions
+        | extend
+            tmp_RestrictionType = tostring(tmp_Restriction.type),
+            tmp_RestrictedZones = iif(tostring(tmp_Restriction.type) =~ 'Zone', todynamic(tmp_Restriction.restrictionInfo.zones), dynamic([]))
+        | extend tmp_RestrictedZones = array_concat(tmp_RestrictedZones, dynamic(['']))
+        | mv-expand tmp_RestrictedZone = tmp_RestrictedZones to typeof(string)
+        | summarize
+            RegionRestrictedSku = countif(tmp_RestrictionType =~ 'Location') > 0,
+            ZonesRestrictedSku = make_set_if(tmp_RestrictedZone, isnotempty(tmp_RestrictedZone)),
+            ZonesPresentSku = take_any(ZonesPresentSku)
+          by SubscriptionId = SubAccountId, Location, FamilyKey = tostring(x_QuotaDetails.Family), Size = ResourceName;
+    let FamilyRegions = SkuRestrictions
+        | summarize RegionRestricted = countif(not(RegionRestrictedSku)) == 0
+          by SubscriptionId, Location, FamilyKey;
+    let FamilyZones = SkuRestrictions
+        | mv-expand LogicalZone = ZonesPresentSku to typeof(string)
+        | summarize ZoneRestricted = countif(not(RegionRestrictedSku) and not(set_has_element(ZonesRestrictedSku, LogicalZone))) == 0
+          by SubscriptionId, Location, FamilyKey, LogicalZone
+        | join kind=leftouter ZoneMappings on SubscriptionId, Location, LogicalZone
+        | summarize
+            LogicalZonesPresent = make_set(LogicalZone),
+            LogicalZonesRestricted = make_set_if(LogicalZone, ZoneRestricted),
+            PhysicalZonesPresent = make_set_if(PhysicalZone, isnotempty(PhysicalZone)),
+            PhysicalZonesRestricted = make_set_if(PhysicalZone, ZoneRestricted and isnotempty(PhysicalZone))
+          by SubscriptionId, Location, FamilyKey;
+    LatestQuota
+    | where x_SourceType =~ 'ComputeUsage'
+    | project
+        SubscriptionId = SubAccountId,
+        Location = location,
+        FamilyKey = ResourceName,
+        Family = displayName,
+        CoresUsed = currentValue,
+        CoresTotal = limit,
+        x_IngestionTime
+    | join kind=inner FamilyRegions on SubscriptionId, Location, FamilyKey
+    | join kind=leftouter FamilyZones on SubscriptionId, Location, FamilyKey
+    | project
+        SubscriptionId,
+        Location,
+        Family,
+        FamilyKey,
+        RegionRestricted,
+        LogicalZonesPresent,
+        LogicalZonesRestricted,
+        PhysicalZonesPresent,
+        PhysicalZonesRestricted,
+        CoresUsed,
+        CoresTotal,
+        x_IngestionTime
+}
+
+
 // Transactions_final_v1_0
 .create-or-alter function
 with (docstring = 'Gets all transactions aligned to FOCUS 1.0.', folder = 'Transactions')

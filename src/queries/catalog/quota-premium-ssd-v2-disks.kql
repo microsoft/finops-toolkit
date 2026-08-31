@@ -1,0 +1,39 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+//
+// NAME: Premium SSD v2 disks
+// DESCRIPTION: Rehydrates the latest Premium SSD v2 disk inventory for each subscription.
+// CATEGORY: Governance
+// FEATURE: Quota
+// REGION: All
+// TECH: KQL
+//
+// RESOURCE TYPES: Microsoft.Compute/disks
+//
+// SOURCE: Quota()
+//
+// NOTES:
+// - Premium SSD v2 disks are inventory observations. currentValue contains disk size in GiB, and limit may be empty.
+//
+
+Quota()
+| where x_SourceType =~ 'PremiumSSDv2Disk'
+| where ResourceType =~ 'Microsoft.Compute/disks'
+| where isnotempty(ResourceName) and displayName =~ 'PremiumV2_LRS'
+| summarize arg_max(x_IngestionTime, *) by ResourceId
+| project
+    ProviderName,
+    ResourceId,
+    ResourceName,
+    ResourceType,
+    SubAccountId,
+    displayName,
+    location,
+    currentValue,
+    limit,
+    unit,
+    x_QuotaDetails,
+    x_SourceType,
+    x_SourceVersion,
+    x_IngestionTime
+| order by SubAccountId asc, location asc, ResourceName asc

@@ -1,0 +1,14 @@
+{
+  "dataset": "Recommendations",
+  "provider": "Microsoft",
+  "query": "/providers/Microsoft.CostManagement/benefitRecommendations?api-version=2026-06-01&$filter=properties/lookBackPeriod eq 'Last60Days' and properties/term eq 'P3Y'",
+  "queryEngine": "AzureResourceManager",
+  "scope": "Configured",
+  "scopeTypes": [
+    "Microsoft.Billing/billingAccounts",
+    "Microsoft.Billing/billingAccounts/billingProfiles"
+  ],
+  "source": "Cost Management",
+  "type": "Microsoft-SavingsPlan-P3Y",
+  "version": "1.1"
+}

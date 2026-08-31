@@ -374,6 +374,7 @@ env/
 # AI
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+.copilot-tracking/
 
 # Internal planning docs
 /TODO.md
@@ -388,3 +389,19 @@ src/templates/finops-hub-copilot-studio/knowledge/query-catalog.md
 todo/
 done/
 release/scloud-occurrence-report.md
+
+# Local knowledge-graph tool output
+graphify-out/
+.graphifyignore
+
+# codebase-memory-mcp: generated index state and local scoping config
+.codebase-memory/
+.codebase-memory.json
+.cbmignore
+.cbmpathwhitelist
+
+# Impeccable design hook local cache
+.impeccable/
+
+# Local Azure Developer CLI (azd) deployment artifacts
+.azure/

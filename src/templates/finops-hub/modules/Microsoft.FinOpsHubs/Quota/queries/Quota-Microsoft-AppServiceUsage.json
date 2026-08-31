@@ -1,0 +1,10 @@
+{
+  "dataset": "Quota",
+  "provider": "Microsoft",
+  "query": "/providers/Microsoft.Web/locations/{location}/usages?api-version=2024-11-01",
+  "queryEngine": "AzureResourceManager",
+  "scope": "Tenant",
+  "source": "Azure Resource Manager",
+  "type": "AppServiceUsage",
+  "version": "1.0-usage"
+}

@@ -1,0 +1,26 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+//
+// NAME: Compute quota collection coverage
+// DESCRIPTION: Summarizes collected Compute quota observations, resource keys, snapshot days, and units.
+// CATEGORY: Governance
+// FEATURE: Quota
+// REGION: All
+// TECH: KQL
+//
+// RESOURCE TYPES: Microsoft.Compute/locations/usages
+//
+// SOURCE: Quota()
+//
+
+Quota()
+| where x_SourceType =~ 'ComputeUsage'
+| where ResourceType =~ 'Microsoft.Compute/locations/usages'
+| where ResourceName endswith 'Family' or ResourceName in~ ('cores', 'lowPriorityCores', 'dedicatedVCpus')
+| summarize
+    Observations = count(),
+    Resources = dcount(ResourceId),
+    DistinctDays = dcount(startofday(x_IngestionTime)),
+    FirstObservation = min(x_IngestionTime),
+    LastObservation = max(x_IngestionTime),
+    Units = make_set(unit, 64)

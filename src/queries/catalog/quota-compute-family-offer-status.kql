@@ -1,0 +1,71 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+//
+// NAME: Compute VM family offer status
+// DESCRIPTION: Shows region and availability zone restrictions from the smallest VM SKU in each family.
+// CATEGORY: Governance
+// FEATURE: Quota
+// REGION: All
+// TECH: KQL
+//
+// RESOURCE TYPES: virtualMachines
+//
+// SOURCE: Quota()
+//
+
+Quota()
+| where x_SourceType =~ 'ComputeResourceSku'
+| where ResourceType =~ 'virtualMachines'
+| where isnotempty(ResourceName) and isnotempty(location)
+| summarize arg_max(x_IngestionTime, *) by ResourceId
+| extend
+    SubscriptionId = SubAccountId,
+    FamilyKey = tostring(x_QuotaDetails.Family),
+    Location = tolower(location),
+    Capabilities = todynamic(x_QuotaDetails.Capabilities),
+    LocationInfo = todynamic(x_QuotaDetails.LocationInfo),
+    Restrictions = todynamic(x_QuotaDetails.Restrictions)
+| where isnotempty(SubscriptionId) and isnotempty(FamilyKey)
+| mv-apply Capability = Capabilities to typeof(dynamic) on (
+    summarize RepresentativeVcpus = minif(
+        todouble(Capability.value),
+        tostring(Capability.name) =~ 'vCPUs'
+    )
+)
+| where isnotnull(RepresentativeVcpus)
+| sort by
+    SubscriptionId asc,
+    FamilyKey asc,
+    Location asc,
+    RepresentativeVcpus asc,
+    ResourceName asc
+| serialize
+| extend FamilySkuRank = row_number(
+    1,
+    SubscriptionId != prev(SubscriptionId)
+        or FamilyKey != prev(FamilyKey)
+        or Location != prev(Location)
+)
+| where FamilySkuRank == 1
+| extend
+    ZonesPresent = array_sort_asc(todynamic(LocationInfo[0].zones)),
+    RestrictionRows = iff(array_length(Restrictions) > 0, Restrictions, dynamic([{}]))
+| mv-apply Restriction = RestrictionRows to typeof(dynamic) on (
+    summarize
+        RegionRestricted = countif(tostring(Restriction.type) =~ 'Location') > 0,
+        ZonesRestricted = make_list_if(
+            todynamic(Restriction.restrictionInfo.zones),
+            tostring(Restriction.type) =~ 'Zone'
+        )
+)
+| project
+    SubscriptionId,
+    FamilyKey,
+    Location,
+    RepresentativeSku = ResourceName,
+    RepresentativeVcpus,
+    RegionRestricted,
+    ZonesPresent,
+    ZonesRestricted,
+    x_IngestionTime
+| order by SubscriptionId asc, Location asc, FamilyKey asc

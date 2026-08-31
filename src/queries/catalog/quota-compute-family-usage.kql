@@ -1,0 +1,39 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+//
+// NAME: Compute VM family quota usage
+// DESCRIPTION: Shows the latest VM family vCPU quota, usage, headroom, and utilization for each subscription and region.
+// CATEGORY: Governance
+// FEATURE: Quota
+// REGION: All
+// TECH: KQL
+//
+// RESOURCE TYPES: Microsoft.Compute/locations/usages
+//
+// SOURCE: Quota()
+//
+
+Quota()
+| where x_SourceType =~ 'ComputeUsage'
+| where ResourceType =~ 'Microsoft.Compute/locations/usages'
+| where ResourceName endswith 'Family'
+| summarize arg_max(x_IngestionTime, *) by ResourceId
+| extend
+    HeadroomCores = iff(limit >= 0, limit - currentValue, real(null)),
+    PercentUsed = iff(limit > 0, round(100.0 * currentValue / limit, 1), real(null))
+| project
+    ProviderName,
+    ResourceId,
+    SubscriptionId = SubAccountId,
+    Location = location,
+    Family = displayName,
+    FamilyKey = ResourceName,
+    CoresUsed = currentValue,
+    CoresTotal = limit,
+    HeadroomCores,
+    PercentUsed,
+    unit,
+    x_SourceType,
+    x_SourceVersion,
+    x_IngestionTime
+| order by SubscriptionId asc, Location asc, FamilyKey asc

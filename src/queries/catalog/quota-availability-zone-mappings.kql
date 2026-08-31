@@ -1,0 +1,36 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+//
+// NAME: Availability zone mappings
+// DESCRIPTION: Rehydrates the latest subscription-specific logical-to-physical availability zone mappings.
+// CATEGORY: Governance
+// FEATURE: Quota
+// REGION: All
+// TECH: KQL
+//
+// RESOURCE TYPES: Region
+//
+// SOURCE: Quota()
+//
+
+Quota()
+| where x_SourceType =~ 'AvailabilityZoneMapping'
+| where ResourceType =~ 'Region'
+| where isnotempty(ResourceName) and array_length(x_QuotaDetails.AvailabilityZoneMappings) > 0
+| summarize arg_max(x_IngestionTime, *) by ResourceId
+| project
+    ProviderName,
+    ResourceId,
+    ResourceName,
+    ResourceType,
+    SubAccountId,
+    displayName,
+    location,
+    currentValue,
+    limit,
+    unit,
+    x_QuotaDetails,
+    x_SourceType,
+    x_SourceVersion,
+    x_IngestionTime
+| order by SubAccountId asc, location asc, ResourceName asc
