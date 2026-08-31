@@ -7,13 +7,17 @@
 
 import { randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
-const DEFAULT_TIMEOUT_MS = 20000;
+const DEFAULT_TIMEOUT_MS = 300000;
 const TOKEN_TIMEOUT_MS = 15000;
 const TOKEN_MAX_BUFFER = 1024 * 1024;
 const TOKEN_REFRESH_SKEW_MS = 2 * 60 * 1000;
+const REMOTE_QUERY_CONCURRENCY = 1;
+const REMOTE_FETCH_ATTEMPTS = 3;
+const REMOTE_FETCH_RETRY_MS = 250;
 export const MAX_RESPONSE_BYTES = 4 * 1024 * 1024;
 export const ALLOWED_FILTER_COLUMNS = new Set([
     "ServiceName",
@@ -29,10 +33,38 @@ export const CAPACITY_LIMITS = Object.freeze({
     selectorKeys: 500,
     dailyPoints: 430,
     heatmapCells: 500,
-    familyCells: 4000,
+    familyCells: 12000,
 });
 export const COMPUTE_SUBSCRIPTION_PAGE_SIZE = 50;
 export const CAPACITY_FRESHNESS_HOURS = 48;
+
+const QUERY_CATALOG_ROOT = new URL("../../../src/queries/catalog/", import.meta.url);
+
+function loadCatalogQuery(fileName) {
+    if (!/^[a-z0-9-]+\.kql$/.test(fileName)) {
+        throw new Error(`Invalid query catalog file '${fileName}'.`);
+    }
+    return readFileSync(new URL(fileName, QUERY_CATALOG_ROOT), "utf8").trim();
+}
+
+function catalogDeclaration(name, query) {
+    return `let ${name} = (
+${query}
+);`;
+}
+
+function catalogDataset(name, query) {
+    return `${catalogDeclaration(name, query)}
+${name}`;
+}
+
+const QUOTA_SCHEMA_CATALOG_QUERY = loadCatalogQuery("quota-schema.kql");
+const APP_SERVICE_QUOTA_USAGE_CATALOG_QUERY = loadCatalogQuery("quota-app-service-usage.kql");
+const AZURE_SQL_QUOTA_USAGE_CATALOG_QUERY = loadCatalogQuery("quota-sql-subscription-usage.kql");
+const COMPUTE_QUOTA_USAGE_CATALOG_QUERY = loadCatalogQuery("quota-compute-usage.kql");
+const COMPUTE_QUOTA_COVERAGE_CATALOG_QUERY = loadCatalogQuery("quota-compute-collection-coverage.kql");
+const COMPUTE_FAMILY_USAGE_CATALOG_QUERY = loadCatalogQuery("quota-compute-family-usage.kql");
+const COMPUTE_FAMILY_OFFER_STATUS_CATALOG_QUERY = loadCatalogQuery("quota-compute-family-offer-status.kql");
 
 const CAPACITY_SOURCE_TYPES = Object.freeze([
     "AppServiceUsage",
@@ -43,6 +75,41 @@ const CAPACITY_SOURCE_TYPES = Object.freeze([
     "CapacityReservation",
     "PremiumSSDv2Disk",
 ]);
+
+export const AZURE_SQL_QUOTA_METRICS = Object.freeze([
+    Object.freeze({
+        resourceName: "RegionalVCoreQuotaForSQLDBAndDW",
+        label: "Azure SQL Database and Synapse vCores",
+        unitLabel: "vCores",
+        metricRole: "sql-database-vcore",
+    }),
+    Object.freeze({
+        resourceName: "ServerQuota",
+        label: "Logical servers",
+        unitLabel: "servers",
+        metricRole: "logical-server",
+    }),
+    Object.freeze({
+        resourceName: "SubscriptionSQLManagedInstanceStandardSeriesVCoreQuota",
+        label: "SQL MI standard-series vCores",
+        unitLabel: "vCores",
+        metricRole: "sql-mi-standard-vcore",
+    }),
+    Object.freeze({
+        resourceName: "SubscriptionSQLManagedInstancePremiumSeriesVCoreQuota",
+        label: "SQL MI premium-series vCores",
+        unitLabel: "vCores",
+        metricRole: "sql-mi-premium-vcore",
+    }),
+    Object.freeze({
+        resourceName: "SubscriptionSQLManagedInstancePremiumSeriesMemoryOptimizedVCoreQuota",
+        label: "SQL MI memory-optimized premium vCores",
+        unitLabel: "vCores",
+        metricRole: "sql-mi-memory-optimized-premium-vcore",
+    }),
+]);
+
+const CAPACITY_MATRIX_CLASS_IDS = new Set(["compute", "app-service", "azure-sql"]);
 
 export const CAPACITY_CLASS_REGISTRY = Object.freeze({
     "app-service": Object.freeze({
@@ -76,7 +143,6 @@ export const CAPACITY_CLASS_REGISTRY = Object.freeze({
         quotaType: "quota",
         sourceNote: "Provider-reported compute quota — point-in-time",
         emptyLabel: "No Compute quota observations were ingested; deployment capacity is unknown.",
-        demandPredicateId: "compute-cost",
     }),
     "azure-sql": Object.freeze({
         id: "azure-sql",
@@ -147,14 +213,59 @@ export const CAPACITY_METRIC_REGISTRY = Object.freeze({
         heatmapMode: "regional-percent",
         sourceNote: "Regional low-priority or Spot vCPU quota",
     }),
-    "computeusage|virtualmachines|count": Object.freeze({
-        metricRole: "virtual-machine-count",
+    "computeusage|dedicatedvcpus|count": Object.freeze({
+        metricRole: "dedicated-vcpu",
         direction: "higher-is-worse",
         limitMode: "positive-denominator",
         zeroLimitMode: "no-entitlement",
         historyMode: "quota-series",
         heatmapMode: "regional-percent",
-        sourceNote: "Regional virtual machine count quota",
+        sourceNote: "Regional dedicated vCPU quota",
+    }),
+    "sqlsubscriptionusage|regionalvcorequotaforsqldbanddw|count": Object.freeze({
+        metricRole: "sql-database-vcore",
+        direction: "higher-is-worse",
+        limitMode: "positive-denominator",
+        zeroLimitMode: "no-entitlement",
+        historyMode: "quota-series",
+        heatmapMode: "regional-percent",
+        sourceNote: "Regional Azure SQL Database and Synapse vCore quota",
+    }),
+    "sqlsubscriptionusage|serverquota|count": Object.freeze({
+        metricRole: "logical-server",
+        direction: "higher-is-worse",
+        limitMode: "positive-denominator",
+        zeroLimitMode: "no-entitlement",
+        historyMode: "quota-series",
+        heatmapMode: "regional-percent",
+        sourceNote: "Regional Azure SQL logical-server quota",
+    }),
+    "sqlsubscriptionusage|subscriptionsqlmanagedinstancestandardseriesvcorequota|subscriptionsqlmanagedinstancestandardseriesvcorequota": Object.freeze({
+        metricRole: "sql-mi-standard-vcore",
+        direction: "higher-is-worse",
+        limitMode: "positive-denominator",
+        zeroLimitMode: "no-entitlement",
+        historyMode: "quota-series",
+        heatmapMode: "regional-percent",
+        sourceNote: "Regional SQL Managed Instance standard-series vCore quota",
+    }),
+    "sqlsubscriptionusage|subscriptionsqlmanagedinstancepremiumseriesvcorequota|subscriptionsqlmanagedinstancepremiumseriesvcorequota": Object.freeze({
+        metricRole: "sql-mi-premium-vcore",
+        direction: "higher-is-worse",
+        limitMode: "positive-denominator",
+        zeroLimitMode: "no-entitlement",
+        historyMode: "quota-series",
+        heatmapMode: "regional-percent",
+        sourceNote: "Regional SQL Managed Instance premium-series vCore quota",
+    }),
+    "sqlsubscriptionusage|subscriptionsqlmanagedinstancepremiumseriesmemoryoptimizedvcorequota|subscriptionsqlmanagedinstancepremiumseriesmemoryoptimizedvcorequota": Object.freeze({
+        metricRole: "sql-mi-memory-optimized-premium-vcore",
+        direction: "higher-is-worse",
+        limitMode: "positive-denominator",
+        zeroLimitMode: "no-entitlement",
+        historyMode: "quota-series",
+        heatmapMode: "regional-percent",
+        sourceNote: "Regional SQL Managed Instance memory-optimized premium-series vCore quota",
     }),
 });
 
@@ -166,10 +277,6 @@ export const CAPACITY_DEMAND_REGISTRY = Object.freeze({
     "azure-ai": Object.freeze({
         units: Object.freeze(["Units", "Seconds", "Minutes", "Hours"]),
         label: "Billed Azure AI usage — daily {unit}, meter-specific; not requests, tokens, or quota unless named by the meter",
-    }),
-    compute: Object.freeze({
-        units: Object.freeze(["Hours", "Units/Hour", "GB", "Units/Month", "Units", "GB/Month"]),
-        label: "Billed compute usage — {unit}, meter-specific; not peak cores or capacity availability",
     }),
     "azure-sql": Object.freeze({
         units: Object.freeze(["Units/Day", "Hours", "GB/Month", "Units/Hour", "Units/Month"]),
@@ -189,17 +296,48 @@ export const CAPACITY_DEMAND_REGISTRY = Object.freeze({
     }),
 });
 
-let cachedToken = null;
-let tokenInFlight = null;
+const TENANT_ID_PATTERN = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
+const cachedTokens = new Map();
+const tokensInFlight = new Map();
+const remoteQueryQueue = [];
+let activeRemoteQueries = 0;
 
-export function normalizeConnection(clusterUri, database = "Hub") {
-    if (typeof clusterUri !== "string" || !clusterUri.trim()) {
+async function acquireRemoteQuerySlot() {
+    if (activeRemoteQueries >= REMOTE_QUERY_CONCURRENCY) {
+        await new Promise((resolve) => remoteQueryQueue.push(resolve));
+    } else {
+        activeRemoteQueries++;
+    }
+    let released = false;
+    return () => {
+        if (released) return;
+        released = true;
+        const next = remoteQueryQueue.shift();
+        if (next) next();
+        else activeRemoteQueries--;
+    };
+}
+
+function normalizeTenantId(tenantId) {
+    if (tenantId == null || tenantId === "") return null;
+    if (typeof tenantId !== "string" || !TENANT_ID_PATTERN.test(tenantId.trim())) {
+        throw new Error("Tenant ID must be a valid Microsoft Entra tenant GUID.");
+    }
+    return tenantId.trim().toLowerCase();
+}
+
+export function normalizeConnection(clusterUri, database = "Hub", tenantId = null) {
+    const input = clusterUri && typeof clusterUri === "object"
+        ? clusterUri
+        : { clusterUri, database, tenantId };
+    const rawClusterUri = input.clusterUri;
+    if (typeof rawClusterUri !== "string" || !rawClusterUri.trim()) {
         throw new Error("Cluster URI is required.");
     }
 
     let url;
     try {
-        url = new URL(clusterUri.trim());
+        url = new URL(rawClusterUri.trim());
     } catch {
         throw new Error("Cluster URI must be a valid absolute URL.");
     }
@@ -223,14 +361,19 @@ export function normalizeConnection(clusterUri, database = "Hub") {
         throw new Error("Use loopback HTTP for a local hub or HTTPS for a *.kusto.windows.net cluster.");
     }
 
-    const normalizedDatabase = typeof database === "string" ? database.trim() : "";
+    const rawDatabase = input.database ?? database;
+    const normalizedDatabase = typeof rawDatabase === "string" ? rawDatabase.trim() : "";
     if (!normalizedDatabase || normalizedDatabase.length > 256 || /[\u0000-\u001f\u007f]/.test(normalizedDatabase)) {
         throw new Error("Database must be a non-empty name of at most 256 characters.");
     }
+    const normalizedTenantId = mode === "remote"
+        ? normalizeTenantId(input.tenantId ?? tenantId)
+        : null;
 
     return {
         clusterUri: url.origin,
         database: normalizedDatabase,
+        tenantId: normalizedTenantId,
         mode,
         authentication: mode === "remote" ? "azure-cli" : "none",
     };
@@ -245,11 +388,24 @@ function tokenExpiryMs(value) {
     return Number.isFinite(parsed) ? parsed : NaN;
 }
 
-async function acquireAzureCliToken() {
+export function azureCliTokenArgs(tenantId) {
+    const normalizedTenantId = normalizeTenantId(tenantId);
+    if (!normalizedTenantId) {
+        throw new Error("Tenant ID is required for remote hubs.");
+    }
+    return [
+        "account", "get-access-token",
+        "--resource", "https://api.kusto.windows.net",
+        "--tenant", normalizedTenantId,
+        "--output", "json",
+    ];
+}
+
+async function acquireAzureCliToken(tenantId) {
     try {
         const { stdout } = await execFileAsync(
             "az",
-            ["account", "get-access-token", "--resource", "https://api.kusto.windows.net", "--output", "json"],
+            azureCliTokenArgs(tenantId),
             { timeout: TOKEN_TIMEOUT_MS, maxBuffer: TOKEN_MAX_BUFFER, windowsHide: true }
         );
         return JSON.parse(stdout);
@@ -258,37 +414,39 @@ async function acquireAzureCliToken() {
     }
 }
 
-async function getRemoteToken(tokenProvider = acquireAzureCliToken) {
+async function getRemoteToken(tenantId, tokenProvider = acquireAzureCliToken) {
     const now = Date.now();
+    const cachedToken = cachedTokens.get(tenantId);
     if (cachedToken && cachedToken.expiresOnMs - TOKEN_REFRESH_SKEW_MS > now) {
         return cachedToken.accessToken;
     }
-    if (!tokenInFlight) {
-        tokenInFlight = Promise.resolve()
-            .then(() => tokenProvider())
+    if (!tokensInFlight.has(tenantId)) {
+        const tokenInFlight = Promise.resolve()
+            .then(() => tokenProvider(tenantId))
             .then((result) => {
                 const accessToken = result?.accessToken ?? result?.access_token;
                 const expiresOnMs = tokenExpiryMs(result?.expiresOnMs ?? result?.expires_on);
                 if (typeof accessToken !== "string" || !accessToken || !Number.isFinite(expiresOnMs) || expiresOnMs <= Date.now()) {
                     throw new Error("Azure CLI returned an invalid or expired Kusto token.");
                 }
-                cachedToken = { accessToken, expiresOnMs };
+                cachedTokens.set(tenantId, { accessToken, expiresOnMs });
                 return accessToken;
             })
             .catch(() => {
-                cachedToken = null;
+                cachedTokens.delete(tenantId);
                 throw new Error("Azure CLI could not acquire a Kusto token. Run az login and retry.");
             })
             .finally(() => {
-                tokenInFlight = null;
+                tokensInFlight.delete(tenantId);
             });
+        tokensInFlight.set(tenantId, tokenInFlight);
     }
-    return tokenInFlight;
+    return tokensInFlight.get(tenantId);
 }
 
 export function resetKustoAuthForTests() {
-    cachedToken = null;
-    tokenInFlight = null;
+    cachedTokens.clear();
+    tokensInFlight.clear();
 }
 
 export async function readBoundedBody(response, maxBytes = MAX_RESPONSE_BYTES) {
@@ -354,6 +512,12 @@ export async function runQuery(clusterUri, database, csl, options = {}) {
         maxResponseBytes = MAX_RESPONSE_BYTES,
     } = options;
     const connection = normalizeConnection(clusterUri, database);
+    if (connection.mode === "remote" && !connection.tenantId) {
+        throw new Error("Tenant ID is required for remote hubs.");
+    }
+    const releaseRemoteQuery = connection.mode === "remote"
+        ? await acquireRemoteQuerySlot()
+        : null;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     let res, text;
@@ -365,15 +529,29 @@ export async function runQuery(clusterUri, database, csl, options = {}) {
             "x-ms-client-request-id": `FinOpsToolkit.FtkDashboard;${randomUUID()}`,
         };
         if (connection.mode === "remote") {
-            headers.Authorization = `Bearer ${await getRemoteToken(tokenProvider)}`;
+            headers.Authorization = `Bearer ${await getRemoteToken(connection.tenantId, tokenProvider)}`;
         }
-        res = await fetchImpl(`${connection.clusterUri}/v1/rest/query`, {
+        const request = {
             method: "POST",
             headers,
             body: JSON.stringify({ db: connection.database, csl }),
             signal: controller.signal,
-        });
-        text = await readBoundedBody(res, maxResponseBytes);
+        };
+        const attempts = connection.mode === "remote" ? REMOTE_FETCH_ATTEMPTS : 1;
+        for (let attempt = 1; attempt <= attempts; attempt++) {
+            try {
+                res = await fetchImpl(`${connection.clusterUri}/v1/rest/query`, request);
+                text = await readBoundedBody(res, maxResponseBytes);
+                break;
+            } catch (err) {
+                const retryable = connection.mode === "remote" &&
+                    attempt < attempts &&
+                    err?.name !== "AbortError" &&
+                    !/Kusto response exceeded/.test(err?.message || "");
+                if (!retryable) throw err;
+                await new Promise((resolve) => setTimeout(resolve, REMOTE_FETCH_RETRY_MS * attempt));
+            }
+        }
     } catch (err) {
         if (err?.name === "AbortError") {
             throw new Error(`Timed out after ${timeoutMs}ms reaching ${connection.clusterUri}`);
@@ -382,6 +560,7 @@ export async function runQuery(clusterUri, database, csl, options = {}) {
         throw new Error(`Could not reach Kusto at ${connection.clusterUri}: ${err?.message ?? err}`);
     } finally {
         clearTimeout(timer);
+        releaseRemoteQuery?.();
     }
 
     if (!res.ok) {
@@ -746,6 +925,13 @@ function buildCapacityWhere(filters, target = "quota") {
         .join("\n");
 }
 
+function buildQuotaSourceWhere(contract) {
+    const resourceType = contract.id === "compute"
+        ? "\n| where ResourceType =~ 'Microsoft.Compute/locations/usages'"
+        : "";
+    return `| where x_SourceType =~ ${JSON.stringify(contract.sourceType)}${resourceType}`;
+}
+
 function demandPredicate(predicateId) {
     switch (predicateId) {
         case "app-service-cost":
@@ -756,10 +942,6 @@ function demandPredicate(predicateId) {
             return `| where ProviderName =~ 'Microsoft' and ChargeCategory =~ 'Usage'
 | where x_ResourceType in~ ('microsoft.cognitiveservices/accounts','microsoft.cognitiveservices/accounts/projects')
 | where ConsumedUnit in~ ('Units','Seconds','Minutes','Hours')`;
-        case "compute-cost":
-            return `| where ProviderName =~ 'Microsoft' and ChargeCategory =~ 'Usage'
-| where x_ResourceType in~ ('microsoft.compute/virtualmachines','microsoft.compute/virtualmachinescalesets','microsoft.compute/virtualmachinescalesets/virtualmachines')
-| where ConsumedUnit in~ ('Hours','Units/Hour','GB','Units/Month','Units','GB/Month')`;
         case "azure-sql-cost":
             return `| where ProviderName =~ 'Microsoft' and ChargeCategory =~ 'Usage'
 | where x_ResourceType startswith 'microsoft.sql/'
@@ -806,7 +988,7 @@ export function buildCapacityHomeQuery() {
 
 export function buildCapacitySchemaQuery(source) {
     if (source === "Quota") {
-        return `Quota() | getschema | project ColumnName, ColumnType | order by ColumnName asc | take 200`;
+        return QUOTA_SCHEMA_CATALOG_QUERY;
     }
     if (source === "Costs") {
         return `Costs() | getschema | project ColumnName, ColumnType | order by ColumnName asc | take 500`;
@@ -816,9 +998,15 @@ export function buildCapacitySchemaQuery(source) {
 
 export function buildCapacityCoverageQuery(classId, filters = {}) {
     const contract = capacityClass(classId);
+    if (contract.id === "compute") {
+        if (Object.keys(validateCapacityFilters(filters)).length) {
+            throw new Error("Filtered Compute coverage requires a catalog query that defines those filters.");
+        }
+        return COMPUTE_QUOTA_COVERAGE_CATALOG_QUERY;
+    }
     const where = buildCapacityWhere(filters);
     return `Quota()
-| where x_SourceType =~ ${JSON.stringify(contract.sourceType)}
+${buildQuotaSourceWhere(contract)}
 ${where}
 | summarize
     Observations=count(),
@@ -831,6 +1019,9 @@ ${where}
 
 export function buildCapacityDemandCoverageQuery(classId, filters = {}) {
     const contract = capacityClass(classId);
+    if (contract.id === "compute") {
+        throw new Error("Compute billed-demand queries are not supported; use ComputeUsage quota rows.");
+    }
     const costWhere = buildCapacityWhere(filters, "cost");
     return `Costs()
 | where ChargePeriodStart >= startofday(now()-430d)
@@ -847,8 +1038,13 @@ ${costWhere}
 export function buildCapacityCurrentQuery(classId, filters = {}) {
     const contract = capacityClass(classId);
     const where = buildCapacityWhere(filters);
+    if (contract.id === "compute") {
+        return `${catalogDataset("ComputeQuotaUsage", COMPUTE_QUOTA_USAGE_CATALOG_QUERY)}
+${where}
+| take ${CAPACITY_LIMITS.primaryRows + 1}`;
+    }
     return `Quota()
-| where x_SourceType =~ ${JSON.stringify(contract.sourceType)}
+${buildQuotaSourceWhere(contract)}
 ${where}
 | summarize arg_max(x_IngestionTime, *) by ResourceId
 | project ProviderName, ResourceId, ResourceName, ResourceType, SubAccountId, displayName, location, currentValue, limit, unit, x_SourceType, x_SourceVersion, x_IngestionTime
@@ -860,8 +1056,7 @@ export function buildCapacitySelectorQuery(classId, filters = {}) {
     const contract = capacityClass(classId);
     const where = buildCapacityWhere(filters);
     if (contract.id === "compute") {
-        return `Quota()
-| where x_SourceType =~ ${JSON.stringify(contract.sourceType)}
+        return `${catalogDataset("ComputeQuotaUsage", COMPUTE_QUOTA_USAGE_CATALOG_QUERY)}
 ${where}
 | summarize displayName=take_any(displayName), x_IngestionTime=max(x_IngestionTime)
     by ResourceName, unit, x_SourceType, x_SourceVersion
@@ -870,7 +1065,7 @@ ${where}
 | take ${CAPACITY_LIMITS.selectorKeys + 1}`;
     }
     return `Quota()
-| where x_SourceType =~ ${JSON.stringify(contract.sourceType)}
+${buildQuotaSourceWhere(contract)}
 ${where}
 | summarize arg_max(x_IngestionTime, *) by ResourceId
 | project SubAccountId, location, ResourceId, ResourceName, displayName, unit, x_SourceType, x_SourceVersion, x_IngestionTime
@@ -880,6 +1075,9 @@ ${where}
 
 export function buildCapacityHistoryQuery(classId, selection) {
     const contract = capacityClass(classId);
+    if (contract.id === "compute") {
+        throw new Error("Compute history queries are not supported until a catalog query defines them.");
+    }
     const identity = contract.quotaType === "inventory"
         ? exactWhere(selection, [["resourceId", "ResourceId"]])
         : exactWhere(selection, [
@@ -890,7 +1088,7 @@ export function buildCapacityHistoryQuery(classId, selection) {
             ["sourceVersion", "x_SourceVersion"],
         ]);
     return `Quota()
-| where x_SourceType =~ ${JSON.stringify(contract.sourceType)}
+${buildQuotaSourceWhere(contract)}
 ${identity}
 | extend Day=startofday(x_IngestionTime)
 | summarize arg_max(x_IngestionTime, *) by Day, ResourceId
@@ -904,7 +1102,7 @@ export function buildCapacityHeatmapQuery(classId, selection, filters = {}) {
     const where = buildCapacityWhere(filters);
     if (contract.quotaType === "inventory") {
         return `Quota()
-| where x_SourceType =~ ${JSON.stringify(contract.sourceType)}
+${buildQuotaSourceWhere(contract)}
 ${where}
 | summarize arg_max(x_IngestionTime, *) by ResourceId
 | summarize
@@ -920,8 +1118,16 @@ ${where}
         ["unit", "unit"],
         ["sourceVersion", "x_SourceVersion"],
     ]);
+    if (contract.id === "compute") {
+        return `${catalogDataset("ComputeQuotaUsage", COMPUTE_QUOTA_USAGE_CATALOG_QUERY)}
+${metric}
+${where}
+| project SubAccountId, location, ResourceId, ResourceName, currentValue, limit, unit, x_SourceType, x_SourceVersion, x_IngestionTime
+| order by SubAccountId asc, location asc
+| take ${CAPACITY_LIMITS.heatmapCells + 1}`;
+    }
     return `Quota()
-| where x_SourceType =~ ${JSON.stringify(contract.sourceType)}
+${buildQuotaSourceWhere(contract)}
 ${metric}
 ${where}
 | summarize arg_max(x_IngestionTime, *) by ResourceId
@@ -930,43 +1136,144 @@ ${where}
 | take ${CAPACITY_LIMITS.heatmapCells + 1}`;
 }
 
-// Estate-wide Compute supply and demand at VM family and region grain.
-// Regional core quota is never duplicated across zones; zones stay descriptive.
+// Estate-wide Compute quota with offer status from the smallest SKU in each family.
 export function buildComputeFamilyQuery(filters = {}) {
     const where = buildCapacityWhere(filters, "family");
-    return `let base = ComputeQuota()
+    return `${catalogDeclaration("ComputeFamilyUsage", COMPUTE_FAMILY_USAGE_CATALOG_QUERY)}
+${catalogDeclaration("ComputeFamilyOfferStatus", COMPUTE_FAMILY_OFFER_STATUS_CATALOG_QUERY)}
+ComputeFamilyUsage
+| join kind=leftouter ComputeFamilyOfferStatus on SubscriptionId, FamilyKey, Location
 ${where}
-;
-let zonesPresent = base
-| mv-expand PhysicalZone = PhysicalZonesPresent to typeof(string)
-| where isnotempty(PhysicalZone)
-| summarize ZonesPresent=make_set(PhysicalZone) by Location, FamilyKey;
-let zonesRestricted = base
-| mv-expand PhysicalZone = PhysicalZonesRestricted to typeof(string)
-| where isnotempty(PhysicalZone)
-| summarize ZonesRestricted=make_set(PhysicalZone) by Location, FamilyKey;
-base
 | summarize
+    Family=take_any(Family),
     CoresUsed=sum(CoresUsed),
     CoresTotal=sum(CoresTotal),
     Subscriptions=dcount(SubscriptionId),
-    RestrictedSubscriptions=countif(RegionRestricted),
-    x_IngestionTime=max(x_IngestionTime)
-    by Family, FamilyKey, Location
-| join kind=leftouter zonesPresent on Location, FamilyKey
-| join kind=leftouter zonesRestricted on Location, FamilyKey
-| project Family, FamilyKey, Location, CoresUsed, CoresTotal, Subscriptions, RestrictedSubscriptions, ZonesPresent, ZonesRestricted, x_IngestionTime
+    OfferSubscriptions=dcountif(SubscriptionId, isnotempty(RepresentativeSku)),
+    RegionRestrictedSubscriptions=dcountif(SubscriptionId, RegionRestricted),
+    ZoneRestrictedSubscriptions=dcountif(SubscriptionId, array_length(ZonesRestricted) > 0),
+    RepresentativeSkus=make_set_if(RepresentativeSku, isnotempty(RepresentativeSku), 100),
+    RepresentativeVcpus=min(RepresentativeVcpus),
+    ZonesPresent=make_list_if(ZonesPresent, array_length(ZonesPresent) > 0, 100),
+    ZonesRestricted=make_list_if(ZonesRestricted, array_length(ZonesRestricted) > 0, 100),
+    x_IngestionTime=max(x_IngestionTime),
+    OfferIngestionTime=max(x_IngestionTime1)
+    by FamilyKey, Location
+| project
+    Family,
+    FamilyKey,
+    Location,
+    CoresUsed,
+    CoresTotal,
+    Subscriptions,
+    OfferSubscriptions,
+    RegionRestrictedSubscriptions,
+    ZoneRestrictedSubscriptions,
+    RepresentativeSkus,
+    RepresentativeVcpus,
+    ZonesPresent,
+    ZonesRestricted,
+    x_IngestionTime,
+    OfferIngestionTime
 | order by Location asc, FamilyKey asc
 | take ${CAPACITY_LIMITS.familyCells + 1}`;
 }
 
-function normalizeComputeSubscriptionOptions(options = {}) {
+export function buildAppServiceSkuQuery(filters = {}) {
+    const where = buildCapacityWhere(filters);
+    return `${catalogDeclaration("AppServiceQuotaUsage", APP_SERVICE_QUOTA_USAGE_CATALOG_QUERY)}
+AppServiceQuotaUsage
+${where}
+| summarize
+    Sku=take_any(displayName),
+    UsedInstances=sum(currentValue),
+    QuotaInstances=sum(limit),
+    Subscriptions=dcount(SubAccountId),
+    InUseSubscriptions=dcountif(SubAccountId, currentValue > 0),
+    AtLimitSubscriptions=dcountif(SubAccountId, limit > 0 and currentValue >= limit),
+    QuotaSubscriptions=dcountif(SubAccountId, limit > 0),
+    NoQuotaSubscriptions=dcountif(SubAccountId, coalesce(limit, 0.0) <= 0),
+    x_IngestionTime=max(x_IngestionTime)
+    by SkuKey=ResourceName, Unit=unit, Location=location
+| project
+    Sku=iff(SkuKey == '*', 'Total Regional VMs', Sku),
+    SkuKey,
+    Unit,
+    Location,
+    UsedInstances,
+    QuotaInstances,
+    Subscriptions,
+    InUseSubscriptions,
+    AtLimitSubscriptions,
+    QuotaSubscriptions,
+    NoQuotaSubscriptions,
+    x_IngestionTime
+| order by Location asc, SkuKey asc
+| take ${CAPACITY_LIMITS.familyCells + 1}`;
+}
+
+function azureSqlMetricPredicate(column = "ResourceName") {
+    return `${column} in~ (${AZURE_SQL_QUOTA_METRICS
+        .map((metric) => kqlString(metric.resourceName, "Azure SQL quota metric"))
+        .join(", ")})`;
+}
+
+function azureSqlMetricLabelExpression(column = "ResourceName") {
+    return `case(
+        ${AZURE_SQL_QUOTA_METRICS
+        .map((metric) => `${column} =~ ${kqlString(metric.resourceName, "Azure SQL quota metric")}, ${kqlString(metric.label, "Azure SQL quota label")}`)
+        .join(",\n        ")},
+        ${column})`;
+}
+
+export function buildAzureSqlQuotaQuery(filters = {}) {
+    const where = buildCapacityWhere(filters);
+    return `${catalogDeclaration("AzureSqlQuotaUsage", AZURE_SQL_QUOTA_USAGE_CATALOG_QUERY)}
+AzureSqlQuotaUsage
+${where}
+| where ${azureSqlMetricPredicate()}
+| extend QuotaMetric=${azureSqlMetricLabelExpression()}
+| summarize
+    Metric=take_any(QuotaMetric),
+    Used=sumif(currentValue, limit > 0),
+    Quota=sumif(limit, limit > 0),
+    Subscriptions=dcount(SubAccountId),
+    InUseSubscriptions=dcountif(SubAccountId, limit > 0 and currentValue > 0),
+    AtLimitSubscriptions=dcountif(SubAccountId, limit > 0 and currentValue >= limit),
+    QuotaSubscriptions=dcountif(SubAccountId, limit > 0),
+    NoQuotaSubscriptions=dcountif(SubAccountId, coalesce(limit, 0.0) <= 0),
+    NegativeLimitSubscriptions=dcountif(SubAccountId, limit < 0),
+    x_IngestionTime=max(x_IngestionTime)
+    by MetricKey=ResourceName, Unit=unit, Location=location
+| project
+    Metric,
+    MetricKey,
+    Unit,
+    Location,
+    Used,
+    Quota,
+    Subscriptions,
+    InUseSubscriptions,
+    AtLimitSubscriptions,
+    QuotaSubscriptions,
+    NoQuotaSubscriptions,
+    NegativeLimitSubscriptions,
+    x_IngestionTime
+| order by Location asc, MetricKey asc
+| take ${CAPACITY_LIMITS.familyCells + 1}`;
+}
+
+function normalizeCapacitySubscriptionOptions(options = {}) {
     if (!options || typeof options !== "object" || Array.isArray(options)) {
-        throw new Error("Compute subscription options must be an object.");
+        throw new Error("Capacity subscription options must be an object.");
     }
-    const status = options.status || "in-use";
-    if (!["in-use", "restricted", "no-quota", "all"].includes(status)) {
-        throw new Error(`Unsupported Compute subscription status '${status}'.`);
+    const classId = normalizeCapacityClassId(options.classId || "compute");
+    if (!CAPACITY_MATRIX_CLASS_IDS.has(classId)) {
+        throw new Error(`Subscription detail is not supported for '${classId}'.`);
+    }
+    const status = options.status || "all";
+    if (!["in-use", "at-limit", "no-quota", "all"].includes(status)) {
+        throw new Error(`Unsupported capacity subscription status '${status}'.`);
     }
     const cleanText = (value, name) => {
         const text = String(value ?? "").trim();
@@ -977,23 +1284,24 @@ function normalizeComputeSubscriptionOptions(options = {}) {
     };
     const inputRegions = options.regions || [];
     if (!Array.isArray(inputRegions)) {
-        throw new Error("Compute subscription regions must be an array.");
+        throw new Error("Capacity subscription regions must be an array.");
     }
     const regions = [...new Set(inputRegions.map((value) => String(value).trim()))];
     if (regions.length > 64 || regions.some((value) => !value || value.length > 128)) {
-        throw new Error("Compute subscription regions must contain at most 64 non-empty values.");
+        throw new Error("Capacity subscription regions must contain at most 64 non-empty values.");
     }
     const page = Number(options.page || 1);
     const pageSize = Number(options.pageSize || COMPUTE_SUBSCRIPTION_PAGE_SIZE);
     if (!Number.isInteger(page) || page < 1 || page > 100000) {
-        throw new Error("Compute subscription page must be an integer from 1 to 100000.");
+        throw new Error("Capacity subscription page must be an integer from 1 to 100000.");
     }
     if (!Number.isInteger(pageSize) || pageSize < 10 || pageSize > 100) {
-        throw new Error("Compute subscription page size must be an integer from 10 to 100.");
+        throw new Error("Capacity subscription page size must be an integer from 10 to 100.");
     }
     return {
+        classId,
         status,
-        familySearch: cleanText(options.familySearch, "familySearch"),
+        resourceSearch: cleanText(options.resourceSearch ?? options.familySearch ?? options.skuSearch, "resourceSearch"),
         subscriptionSearch: cleanText(options.subscriptionSearch, "subscriptionSearch"),
         regions,
         page,
@@ -1002,17 +1310,17 @@ function normalizeComputeSubscriptionOptions(options = {}) {
 }
 
 export function buildComputeSubscriptionQuery(options = {}) {
-    const normalized = normalizeComputeSubscriptionOptions(options);
+    const normalized = normalizeCapacitySubscriptionOptions({ ...options, classId: "compute" });
     const statusWhere = normalized.status === "in-use"
         ? "| where CoresUsed > 0"
-        : normalized.status === "restricted"
-            ? "| where RegionRestricted or ZoneRestrictions > 0"
+        : normalized.status === "at-limit"
+            ? "| where CoresTotal > 0 and CoresUsed >= CoresTotal"
             : normalized.status === "no-quota"
                 ? "| where CoresTotal <= 0"
                 : "";
     // The client search is substring-based so operators can enter partial family names.
-    const familyWhere = normalized.familySearch
-        ? `| where Family contains ${kqlString(normalized.familySearch, "familySearch")} or FamilyKey contains ${kqlString(normalized.familySearch, "familySearch")}`
+    const familyWhere = normalized.resourceSearch
+        ? `| where Family contains ${kqlString(normalized.resourceSearch, "resourceSearch")} or FamilyKey contains ${kqlString(normalized.resourceSearch, "resourceSearch")}`
         : "";
     const regionWhere = normalized.regions.length
         ? `| where Location in~ (${normalized.regions.map((value) => kqlString(value, "region")).join(", ")})`
@@ -1022,9 +1330,9 @@ export function buildComputeSubscriptionQuery(options = {}) {
         : "";
     const firstRow = (normalized.page - 1) * normalized.pageSize + 1;
     const lastRow = firstRow + normalized.pageSize - 1;
-    return `let scoped = ComputeQuota()
+    return `${catalogDeclaration("ComputeFamilyUsage", COMPUTE_FAMILY_USAGE_CATALOG_QUERY)}
+let scoped = ComputeFamilyUsage
 | where isnotempty(SubscriptionId)
-| extend ZoneRestrictions=coalesce(array_length(PhysicalZonesRestricted), 0)
 ${statusWhere}
 ${familyWhere}
 ${regionWhere}
@@ -1034,7 +1342,6 @@ ${subscriptionWhere}
     CoresTotal=sum(CoresTotal),
     Families=dcount(FamilyKey),
     Regions=dcount(Location),
-    RestrictedRows=countif(RegionRestricted or ZoneRestrictions > 0),
     LastIngestion=max(x_IngestionTime)
     by SubscriptionId;
 let total = toscalar(scoped | count);
@@ -1043,15 +1350,16 @@ scoped
 | serialize RowNumber=row_number()
 | where RowNumber between (${firstRow} .. ${lastRow})
 | extend HeadroomCores=iff(CoresTotal > 0, CoresTotal - CoresUsed, real(null)), TotalSubscriptions=total
-| project SubscriptionId, Families, Regions, CoresUsed, CoresTotal, HeadroomCores, RestrictedRows, LastIngestion, RowNumber, TotalSubscriptions
+| project SubscriptionId, Families, Regions, CoresUsed, CoresTotal, HeadroomCores, LastIngestion, RowNumber, TotalSubscriptions
 | take ${normalized.pageSize}`;
 }
 
 export async function getComputeSubscriptionPage(clusterUri, database, options = {}) {
-    const normalized = normalizeComputeSubscriptionOptions(options);
+    const normalized = normalizeCapacitySubscriptionOptions({ ...options, classId: "compute" });
     const rows = await runQuery(clusterUri, database, buildComputeSubscriptionQuery(normalized));
     const totalSubscriptions = Number(rows[0]?.TotalSubscriptions || 0);
     return {
+        classId: "compute",
         rows: rows.map(({ TotalSubscriptions: _total, RowNumber: _row, ...row }) => row),
         page: normalized.page,
         pageSize: normalized.pageSize,
@@ -1060,40 +1368,183 @@ export async function getComputeSubscriptionPage(clusterUri, database, options =
     };
 }
 
-// Regional quota drives the state. Supply restrictions never fabricate headroom.
+export function buildAppServiceSubscriptionQuery(options = {}) {
+    const normalized = normalizeCapacitySubscriptionOptions({ ...options, classId: "app-service" });
+    const statusWhere = normalized.status === "in-use"
+        ? "| where currentValue > 0"
+        : normalized.status === "at-limit"
+            ? "| where limit > 0 and currentValue >= limit"
+            : normalized.status === "no-quota"
+                ? "| where coalesce(limit, 0.0) <= 0"
+                : "";
+    const skuWhere = normalized.resourceSearch
+        ? `| where ResourceName contains ${kqlString(normalized.resourceSearch, "resourceSearch")} or displayName contains ${kqlString(normalized.resourceSearch, "resourceSearch")}`
+        : "";
+    const regionWhere = normalized.regions.length
+        ? `| where location in~ (${normalized.regions.map((value) => kqlString(value, "region")).join(", ")})`
+        : "";
+    const subscriptionWhere = normalized.subscriptionSearch
+        ? `| where SubAccountId startswith ${kqlString(normalized.subscriptionSearch, "subscriptionSearch")}`
+        : "";
+    const firstRow = (normalized.page - 1) * normalized.pageSize + 1;
+    const lastRow = firstRow + normalized.pageSize - 1;
+    return `${catalogDeclaration("AppServiceQuotaUsage", APP_SERVICE_QUOTA_USAGE_CATALOG_QUERY)}
+let scoped = AppServiceQuotaUsage
+| where isnotempty(SubAccountId)
+${statusWhere}
+${skuWhere}
+${regionWhere}
+${subscriptionWhere}
+| summarize
+    Skus=dcount(ResourceName),
+    Regions=dcount(location),
+    SkuRegionPairs=count(),
+    InUsePairs=countif(currentValue > 0),
+    AtLimitPairs=countif(limit > 0 and currentValue >= limit),
+    NoQuotaPairs=countif(coalesce(limit, 0.0) <= 0),
+    LastIngestion=max(x_IngestionTime)
+    by SubscriptionId=SubAccountId;
+let total = toscalar(scoped | count);
+scoped
+| order by AtLimitPairs desc, NoQuotaPairs desc, InUsePairs desc, SubscriptionId asc
+| serialize RowNumber=row_number()
+| where RowNumber between (${firstRow} .. ${lastRow})
+| extend TotalSubscriptions=total
+| project SubscriptionId, Skus, Regions, SkuRegionPairs, InUsePairs, AtLimitPairs, NoQuotaPairs, LastIngestion, RowNumber, TotalSubscriptions
+| take ${normalized.pageSize}`;
+}
+
+export function buildAzureSqlSubscriptionQuery(options = {}) {
+    const normalized = normalizeCapacitySubscriptionOptions({ ...options, classId: "azure-sql" });
+    const statusWhere = normalized.status === "in-use"
+        ? "| where limit > 0 and currentValue > 0"
+        : normalized.status === "at-limit"
+            ? "| where limit > 0 and currentValue >= limit"
+            : normalized.status === "no-quota"
+                ? "| where coalesce(limit, 0.0) <= 0"
+                : "";
+    const metricWhere = normalized.resourceSearch
+        ? `| where ResourceName contains ${kqlString(normalized.resourceSearch, "resourceSearch")} or displayName contains ${kqlString(normalized.resourceSearch, "resourceSearch")}`
+        : "";
+    const regionWhere = normalized.regions.length
+        ? `| where location in~ (${normalized.regions.map((value) => kqlString(value, "region")).join(", ")})`
+        : "";
+    const subscriptionWhere = normalized.subscriptionSearch
+        ? `| where SubAccountId startswith ${kqlString(normalized.subscriptionSearch, "subscriptionSearch")}`
+        : "";
+    const firstRow = (normalized.page - 1) * normalized.pageSize + 1;
+    const lastRow = firstRow + normalized.pageSize - 1;
+    return `${catalogDeclaration("AzureSqlQuotaUsage", AZURE_SQL_QUOTA_USAGE_CATALOG_QUERY)}
+let scoped = AzureSqlQuotaUsage
+| where isnotempty(SubAccountId)
+| where ${azureSqlMetricPredicate()}
+${statusWhere}
+${metricWhere}
+${regionWhere}
+${subscriptionWhere}
+| summarize
+    Metrics=dcount(ResourceName),
+    Regions=dcount(location),
+    MetricRegionPairs=count(),
+    InUsePairs=countif(limit > 0 and currentValue > 0),
+    AtLimitPairs=countif(limit > 0 and currentValue >= limit),
+    NoQuotaPairs=countif(coalesce(limit, 0.0) <= 0),
+    NegativeLimitPairs=countif(limit < 0),
+    LastIngestion=max(x_IngestionTime)
+    by SubscriptionId=SubAccountId;
+let total = toscalar(scoped | count);
+scoped
+| order by AtLimitPairs desc, NoQuotaPairs desc, InUsePairs desc, SubscriptionId asc
+| serialize RowNumber=row_number()
+| where RowNumber between (${firstRow} .. ${lastRow})
+| extend TotalSubscriptions=total
+| project SubscriptionId, Metrics, Regions, MetricRegionPairs, InUsePairs, AtLimitPairs, NoQuotaPairs, NegativeLimitPairs, LastIngestion, RowNumber, TotalSubscriptions
+| take ${normalized.pageSize}`;
+}
+
+export async function getCapacitySubscriptionPage(clusterUri, database, options = {}) {
+    const normalized = normalizeCapacitySubscriptionOptions(options);
+    if (normalized.classId === "compute") {
+        return getComputeSubscriptionPage(clusterUri, database, normalized);
+    }
+    const query = normalized.classId === "app-service"
+        ? buildAppServiceSubscriptionQuery(normalized)
+        : buildAzureSqlSubscriptionQuery(normalized);
+    const rows = await runQuery(clusterUri, database, query);
+    const totalSubscriptions = Number(rows[0]?.TotalSubscriptions || 0);
+    return {
+        classId: normalized.classId,
+        rows: rows.map(({ TotalSubscriptions: _total, RowNumber: _row, ...row }) => row),
+        page: normalized.page,
+        pageSize: normalized.pageSize,
+        totalSubscriptions,
+        totalPages: Math.ceil(totalSubscriptions / normalized.pageSize),
+    };
+}
+
+function normalizeComputeValues(value) {
+    const values = Array.isArray(value) ? value.flat(Infinity) : value == null ? [] : [value];
+    return [...new Set(values.map((item) => String(item).trim()).filter(Boolean))]
+        .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
+}
+
+// Quota state comes from ComputeUsage. Offer state comes from one representative SKU.
 export function computeFamilyCell(row = {}) {
     const total = Number(row.CoresTotal);
     const used = Number(row.CoresUsed);
-    const subscriptions = Number(row.Subscriptions || 0);
-    const restricted = Number(row.RestrictedSubscriptions || 0);
-    const regionRestricted = subscriptions > 0 && restricted >= subscriptions;
-    const zonesRestricted = Array.isArray(row.ZonesRestricted) ? row.ZonesRestricted.length : 0;
-    const zonesPresent = Array.isArray(row.ZonesPresent) ? row.ZonesPresent.length : 0;
-    // Every zone restricted is not a partial constraint. Regional placement may still
-    // work, so it stays distinct from a region restriction, but it never reads healthy.
-    const allZonesRestricted = zonesPresent > 0 && zonesRestricted >= zonesPresent;
     const hasQuota = Number.isFinite(total) && Number.isFinite(used) && total > 0 && used >= 0;
-    // Supply answers "can this land here", demand answers "how close to my limit".
-    // They are independent, so a blocked region never inherits a healthy utilization.
+    const offerReported = Number(row.OfferSubscriptions) > 0;
+    const regionRestricted = Number(row.RegionRestrictedSubscriptions) > 0;
+    const zonesPresent = normalizeComputeValues(row.ZonesPresent);
+    const zonesRestricted = normalizeComputeValues(row.ZonesRestricted);
+    const zoneRestricted = zonesRestricted.length > 0;
     const supply =
-        regionRestricted || allZonesRestricted ? "blocked" :
-        !hasQuota ? "none" :
-        zonesRestricted > 0 ? "partial" :
+        !hasQuota || !offerReported ? "none" :
+        regionRestricted ? "blocked" :
+        zoneRestricted ? "partial" :
         "open";
+    const offerState =
+        !hasQuota ? "no-quota" :
+        !offerReported ? "not-reported" :
+        regionRestricted ? "region-restricted" :
+        zoneRestricted ? "zone-restricted" :
+        "available";
+    const offerText =
+        offerState === "no-quota" ? "No quota reported" :
+        offerState === "not-reported" ? "Offer status not reported" :
+        offerState === "region-restricted" ? "Region restricted" :
+        offerState === "zone-restricted" ? `${zonesRestricted.length} AZ restricted` :
+        "Region available";
+    const allZones = normalizeComputeValues([...zonesPresent, ...zonesRestricted]);
+    const zoneStates = allZones.map((zone) => ({
+        zone,
+        restricted: regionRestricted || zonesRestricted.includes(zone),
+    }));
+    const offer = {
+        supply,
+        offerState,
+        offerText,
+        offerReported,
+        regionRestricted,
+        zonesPresent,
+        zonesRestricted,
+        zoneStates,
+        representativeSkus: normalizeComputeValues(row.RepresentativeSkus),
+        representativeVcpus: Number.isFinite(Number(row.RepresentativeVcpus))
+            ? Number(row.RepresentativeVcpus)
+            : null,
+    };
     if (!hasQuota) {
         return {
             utilizationPercent: null,
             headroomCores: null,
-            regionRestricted,
-            supply,
-            state: regionRestricted ? "restricted" : allZonesRestricted ? "zone-restricted" : "no-entitlement",
-            text: regionRestricted ? "Restricted" : allZonesRestricted ? "Zones restricted" : "No quota",
+            state: "no-entitlement",
+            text: "No quota",
+            ...offer,
         };
     }
     const utilizationPercent = 100 * used / total;
     const state =
-        regionRestricted ? "restricted" :
-        allZonesRestricted ? "zone-restricted" :
         utilizationPercent >= 100 ? "exhausted" :
         utilizationPercent >= 90 ? "action" :
         utilizationPercent >= 80 ? "watch" :
@@ -1101,17 +1552,14 @@ export function computeFamilyCell(row = {}) {
     return {
         utilizationPercent,
         headroomCores: total - used,
-        regionRestricted,
-        supply,
         state,
         text: `${utilizationPercent.toFixed(1)}%`,
+        ...offer,
     };
 }
 
 export function annotateComputeFamilyRows(rows = []) {
     return rows.map((row) => {
-        const zonesPresent = Array.isArray(row.ZonesPresent) ? row.ZonesPresent : [];
-        const zonesRestricted = Array.isArray(row.ZonesRestricted) ? row.ZonesRestricted : [];
         return {
             Family: row.Family,
             FamilyKey: row.FamilyKey,
@@ -1119,17 +1567,136 @@ export function annotateComputeFamilyRows(rows = []) {
             CoresUsed: row.CoresUsed,
             CoresTotal: row.CoresTotal,
             Subscriptions: row.Subscriptions,
-            RestrictedSubscriptions: row.RestrictedSubscriptions,
-            ZonesPresentCount: zonesPresent.length,
-            ZonesRestricted: zonesRestricted,
+            OfferSubscriptions: row.OfferSubscriptions,
+            RegionRestrictedSubscriptions: row.RegionRestrictedSubscriptions,
+            ZoneRestrictedSubscriptions: row.ZoneRestrictedSubscriptions,
+            RepresentativeSkus: normalizeComputeValues(row.RepresentativeSkus),
+            RepresentativeVcpus: row.RepresentativeVcpus,
+            ZonesPresent: normalizeComputeValues(row.ZonesPresent),
+            ZonesRestricted: normalizeComputeValues(row.ZonesRestricted),
             x_IngestionTime: row.x_IngestionTime,
+            OfferIngestionTime: row.OfferIngestionTime,
             semantic: computeFamilyCell(row),
         };
     });
 }
 
+export function appServiceSkuCell(row = {}) {
+    const used = Number(row.UsedInstances);
+    const total = Number(row.QuotaInstances);
+    const subscriptions = Number(row.Subscriptions);
+    const quotaSubscriptions = Number(row.QuotaSubscriptions);
+    const noQuotaSubscriptions = Number(row.NoQuotaSubscriptions);
+    const atLimitSubscriptions = Number(row.AtLimitSubscriptions);
+    const hasQuota = Number.isFinite(used) && used >= 0 && Number.isFinite(total) && total > 0 && quotaSubscriptions > 0;
+    const supply =
+        !hasQuota ? "none" :
+        atLimitSubscriptions > 0 ? "blocked" :
+        noQuotaSubscriptions > 0 ? "partial" :
+        "open";
+    const quotaText =
+        !hasQuota ? "No quota reported" :
+        atLimitSubscriptions > 0 ? `${atLimitSubscriptions} ${atLimitSubscriptions === 1 ? "subscription" : "subscriptions"} at limit` :
+        noQuotaSubscriptions > 0 ? `${noQuotaSubscriptions} ${noQuotaSubscriptions === 1 ? "subscription" : "subscriptions"} without quota` :
+        subscriptions > 1 ? "Quota reported for all subscriptions" :
+        "Quota reported";
+    if (!hasQuota) {
+        return {
+            utilizationPercent: null,
+            headroomInstances: null,
+            state: "no-entitlement",
+            text: "No quota",
+            supply,
+            quotaText,
+        };
+    }
+    const utilizationPercent = 100 * used / total;
+    const state =
+        utilizationPercent >= 100 || atLimitSubscriptions > 0 ? "exhausted" :
+        utilizationPercent >= 90 ? "action" :
+        utilizationPercent >= 80 ? "watch" :
+        "healthy";
+    return {
+        utilizationPercent,
+        headroomInstances: total - used,
+        state,
+        text: `${utilizationPercent.toFixed(1)}%`,
+        supply,
+        quotaText,
+    };
+}
+
+export function annotateAppServiceSkuRows(rows = []) {
+    return rows.map((row) => ({
+        ...row,
+        semantic: appServiceSkuCell(row),
+    }));
+}
+
+export function azureSqlQuotaCell(row = {}) {
+    const used = Number(row.Used);
+    const total = Number(row.Quota);
+    const subscriptions = Number(row.Subscriptions);
+    const quotaSubscriptions = Number(row.QuotaSubscriptions);
+    const noQuotaSubscriptions = Number(row.NoQuotaSubscriptions);
+    const negativeLimitSubscriptions = Number(row.NegativeLimitSubscriptions);
+    const atLimitSubscriptions = Number(row.AtLimitSubscriptions);
+    const metric = AZURE_SQL_QUOTA_METRICS.find((item) =>
+        item.resourceName.toLowerCase() === String(row.MetricKey || "").toLowerCase()
+    );
+    const hasQuota = Number.isFinite(used) && used >= 0 && Number.isFinite(total) && total > 0 && quotaSubscriptions > 0;
+    const supply =
+        !hasQuota ? "none" :
+        atLimitSubscriptions > 0 ? "blocked" :
+        noQuotaSubscriptions > 0 ? "partial" :
+        "open";
+    const quotaText =
+        !hasQuota && negativeLimitSubscriptions > 0 ? "Provider returned an unsupported negative limit" :
+        !hasQuota ? "No quota reported" :
+        atLimitSubscriptions > 0 ? `${atLimitSubscriptions} ${atLimitSubscriptions === 1 ? "subscription" : "subscriptions"} at limit` :
+        noQuotaSubscriptions > 0 ? `${noQuotaSubscriptions} ${noQuotaSubscriptions === 1 ? "subscription has" : "subscriptions have"} no usable quota` :
+        subscriptions > 1 ? "Quota reported for all subscriptions" :
+        "Quota reported";
+    if (!hasQuota) {
+        return {
+            utilizationPercent: null,
+            headroomUnits: null,
+            unitLabel: metric?.unitLabel || "units",
+            state: "no-entitlement",
+            text: "No quota",
+            supply,
+            quotaText,
+        };
+    }
+    const utilizationPercent = 100 * used / total;
+    const state =
+        utilizationPercent >= 100 || atLimitSubscriptions > 0 ? "exhausted" :
+        utilizationPercent >= 90 ? "action" :
+        utilizationPercent >= 80 ? "watch" :
+        "healthy";
+    return {
+        utilizationPercent,
+        headroomUnits: total - used,
+        unitLabel: metric?.unitLabel || "units",
+        state,
+        text: `${utilizationPercent.toFixed(1)}%`,
+        supply,
+        quotaText,
+    };
+}
+
+export function annotateAzureSqlQuotaRows(rows = []) {
+    return rows.map((row) => ({
+        ...row,
+        semantic: azureSqlQuotaCell(row),
+    }));
+}
+
 export function buildCapacityDemandSelectorQuery(classId, filters = {}) {
     const contract = capacityClass(classId);
+    if (contract.id === "compute") {
+        throw new Error("Compute billed-demand queries are not supported; use ComputeUsage quota rows.");
+    }
     const costWhere = buildCapacityWhere(filters, "cost");
     if (contract.id === "premium-ssd-v2") {
         return `let disks = Quota()
@@ -1172,6 +1739,9 @@ ${costWhere}
 
 export function buildCapacityDemandHistoryQuery(classId, selection, filters = {}) {
     const contract = capacityClass(classId);
+    if (contract.id === "compute") {
+        throw new Error("Compute billed-demand queries are not supported; use ComputeUsage quota rows.");
+    }
     const costWhere = buildCapacityWhere(filters, "cost");
     const commonSelection = exactWhere(selection, [
         ["meterCategory", "x_SkuMeterCategory"],
@@ -1399,17 +1969,31 @@ export async function getCapacity(clusterUri, database, classId = "home", option
 
     const contract = capacityClass(normalizedClassId);
     const filters = options.filters ?? {};
-    const costSchemaRows = await runQuery(clusterUri, database, buildCapacitySchemaQuery("Costs"));
-    const costSchema = assessSchema(costSchemaRows, requiredCostFields(normalizedClassId), "Costs");
+    const demandEnabled = !CAPACITY_MATRIX_CLASS_IDS.has(normalizedClassId);
+    const costSchema = demandEnabled
+        ? assessSchema(
+            await runQuery(clusterUri, database, buildCapacitySchemaQuery("Costs")),
+            requiredCostFields(normalizedClassId),
+            "Costs"
+        )
+        : null;
     const baseQueries = {};
     if (quotaSchema.available) {
-        if (normalizedClassId !== "compute") {
+        if (!CAPACITY_MATRIX_CLASS_IDS.has(normalizedClassId)) {
             baseQueries.current = buildCapacityCurrentQuery(normalizedClassId, filters);
         }
-        baseQueries.selectors = buildCapacitySelectorQuery(normalizedClassId, filters);
+        if (!CAPACITY_MATRIX_CLASS_IDS.has(normalizedClassId)) {
+            baseQueries.selectors = buildCapacitySelectorQuery(normalizedClassId, filters);
+        }
+        if (normalizedClassId === "app-service") {
+            baseQueries.appServiceMatrix = buildAppServiceSkuQuery(filters);
+        }
+        if (normalizedClassId === "azure-sql") {
+            baseQueries.azureSqlMatrix = buildAzureSqlQuotaQuery(filters);
+        }
         baseQueries.coverage = buildCapacityCoverageQuery(normalizedClassId, filters);
     }
-    if (costSchema.available && (normalizedClassId !== "premium-ssd-v2" || quotaSchema.available)) {
+    if (costSchema?.available && (normalizedClassId !== "premium-ssd-v2" || quotaSchema.available)) {
         baseQueries.demandSelectors = buildCapacityDemandSelectorQuery(normalizedClassId, filters);
         baseQueries.demandCoverage = buildCapacityDemandCoverageQuery(normalizedClassId, filters);
     }
@@ -1423,7 +2007,9 @@ export async function getCapacity(clusterUri, database, classId = "home", option
 
     validateQuotaSelection(contract, data.selectors, options.quotaSelection, "series");
     validateQuotaSelection(contract, data.selectors, options.metricSelection, "metric");
-    validateDemandSelection(normalizedClassId, data.demandSelectors, options.demandSelection);
+    if (demandEnabled) {
+        validateDemandSelection(normalizedClassId, data.demandSelectors, options.demandSelection);
+    }
 
     const selectedQueries = {};
     if (quotaSchema.available && options.quotaSelection) {
@@ -1435,10 +2021,10 @@ export async function getCapacity(clusterUri, database, classId = "home", option
     if (quotaSchema.available && normalizedClassId === "compute") {
         selectedQueries.familyHeatmap = buildComputeFamilyQuery(filters);
     }
-    if (costSchema.available && options.demandSelection) {
+    if (costSchema?.available && options.demandSelection) {
         selectedQueries.demandHistory = buildCapacityDemandHistoryQuery(normalizedClassId, options.demandSelection, filters);
     }
-    if (quotaSchema.available && costSchema.available && normalizedClassId === "capacity-reservations") {
+    if (quotaSchema.available && costSchema?.available && normalizedClassId === "capacity-reservations") {
         selectedQueries.reconciliation = buildCapacityReservationReconciliationQuery(filters);
     }
 
@@ -1468,15 +2054,31 @@ export async function getCapacity(clusterUri, database, classId = "home", option
         ? boundedCollection(annotateComputeFamilyRows(data.familyHeatmap), CAPACITY_LIMITS.familyCells, "disable")
         : null;
     if (familyBounds?.status === "disabled") familyBounds.status = "heatmap-disabled";
+    const appServiceBounds = data.appServiceMatrix
+        ? boundedCollection(annotateAppServiceSkuRows(data.appServiceMatrix), CAPACITY_LIMITS.familyCells, "disable")
+        : null;
+    if (appServiceBounds?.status === "disabled") appServiceBounds.status = "heatmap-disabled";
+    const azureSqlBounds = data.azureSqlMatrix
+        ? boundedCollection(annotateAzureSqlQuotaRows(data.azureSqlMatrix), CAPACITY_LIMITS.familyCells, "disable")
+        : null;
+    if (azureSqlBounds?.status === "disabled") azureSqlBounds.status = "heatmap-disabled";
     const coverageRow = data.coverage?.[0] ?? {};
     const demandCoverageRow = data.demandCoverage?.[0] ?? {};
     const enabledRows = normalizedClassId === "compute"
         ? (familyBounds?.rows?.length || 0)
-        : currentRows.filter((row) => row.semantic.capability === "enabled").length;
+        : normalizedClassId === "app-service"
+            ? (appServiceBounds?.rows?.length || 0)
+            : normalizedClassId === "azure-sql"
+                ? (azureSqlBounds?.rows?.length || 0)
+                : currentRows.filter((row) => row.semantic.capability === "enabled").length;
     const classCapability = !quotaSchema.available
         ? { mode: "disabled", reasonCode: quotaSchema.reasonCode, sourceNote: "Quota source fields are unavailable" }
-        : enabledRows > 0 && normalizedClassId === "compute"
-            ? { mode: "enabled", reasonCode: "registered-metrics-present", sourceNote: contract.sourceNote }
+        : enabledRows > 0 && CAPACITY_MATRIX_CLASS_IDS.has(normalizedClassId)
+            ? {
+                mode: "enabled",
+                reasonCode: normalizedClassId === "compute" ? "registered-metrics-present" : "catalog-quota-present",
+                sourceNote: contract.sourceNote,
+            }
             : { mode: "descriptive-only", reasonCode: "fail-closed-class-view", sourceNote: contract.sourceNote };
     const firstHistory = data.history?.[0]?.Day ?? null;
     const lastHistory = data.history?.at(-1)?.Day ?? null;
@@ -1505,7 +2107,7 @@ export async function getCapacity(clusterUri, database, classId = "home", option
             lastObservation: coverageRow.LastObservation ?? null,
             units: coverageRow.Units ?? [],
         },
-        schema: { quota: quotaSchema, costs: costSchema },
+        schema: { quota: quotaSchema, ...(costSchema ? { costs: costSchema } : {}) },
         table: { ...table, rowLimit: CAPACITY_LIMITS.primaryRows },
         current: table,
         selectors: { ...selectorBounds, items: selectorBounds.rows, itemLimit: CAPACITY_LIMITS.selectorKeys },
@@ -1542,7 +2144,29 @@ export async function getCapacity(clusterUri, database, classId = "home", option
             limit: CAPACITY_LIMITS.familyCells,
             reasonCode: normalizedClassId === "compute" ? quotaSchema.reasonCode : "class-has-no-family-grain",
         },
-        series: seriesBounds
+        appServiceHeatmap: appServiceBounds ?? {
+            status: normalizedClassId === "app-service" ? "unavailable" : "not-applicable",
+            rows: [],
+            limit: CAPACITY_LIMITS.familyCells,
+            reasonCode: normalizedClassId === "app-service" ? quotaSchema.reasonCode : "class-has-no-app-service-grain",
+        },
+        azureSqlHeatmap: azureSqlBounds ?? {
+            status: normalizedClassId === "azure-sql" ? "unavailable" : "not-applicable",
+            rows: [],
+            limit: CAPACITY_LIMITS.familyCells,
+            reasonCode: normalizedClassId === "azure-sql" ? quotaSchema.reasonCode : "class-has-no-azure-sql-grain",
+        },
+        series: !demandEnabled
+            ? {
+                status: "not-applicable",
+                rows: [],
+                points: [],
+                pointLimit: CAPACITY_LIMITS.dailyPoints,
+                unit: null,
+                meterKey: null,
+                reasonCode: "class-uses-quota-only",
+            }
+            : seriesBounds
             ? {
                 ...seriesBounds,
                 points: seriesBounds.rows,
@@ -1551,19 +2175,35 @@ export async function getCapacity(clusterUri, database, classId = "home", option
                 meterKey,
             }
             : {
-                status: costSchema.available ? "no-selection" : "disabled",
+                status: costSchema?.available ? "no-selection" : "disabled",
                 rows: [],
                 points: [],
                 pointLimit: CAPACITY_LIMITS.dailyPoints,
                 unit: null,
                 meterKey: null,
-                reasonCode: costSchema.available ? "select-exact-series" : costSchema.reasonCode,
+                reasonCode: costSchema?.available ? "select-exact-series" : costSchema?.reasonCode,
             },
-        demand: {
+        demand: !demandEnabled
+            ? {
+                contract: null,
+                capability: { mode: "disabled", reasonCode: "class-uses-quota-only", sourceNote: `${contract.title} uses provider-reported quota only` },
+                coverage: {
+                    state: "not-applicable",
+                    reasonCode: "class-uses-quota-only",
+                    observations: 0,
+                    distinctDays: 0,
+                    firstObservation: null,
+                    lastObservation: null,
+                    units: [],
+                },
+                selectors: { ...demandSelectorBounds, items: [], itemLimit: CAPACITY_LIMITS.selectorKeys },
+                history: { status: "not-applicable", rows: [], reasonCode: "class-uses-quota-only" },
+            }
+            : {
             contract: CAPACITY_DEMAND_REGISTRY[normalizedClassId],
-            capability: costSchema.available
+            capability: costSchema?.available
                 ? { mode: "parallel", reasonCode: "billed-demand-available", sourceNote: CAPACITY_DEMAND_REGISTRY[normalizedClassId].label }
-                : { mode: "disabled", reasonCode: costSchema.reasonCode, sourceNote: "Required cost source fields are unavailable" },
+                : { mode: "disabled", reasonCode: costSchema?.reasonCode, sourceNote: "Required cost source fields are unavailable" },
             coverage: {
                 state: Number(demandCoverageRow.Observations ?? 0) > 0 ? "observed" : "not-reported",
                 reasonCode: Number(demandCoverageRow.Observations ?? 0) > 0 ? null : "no-billed-demand-available",

@@ -8,6 +8,7 @@ process.env.FTK_LOCAL_DASHBOARD_TEST = "1";
 const kusto = await import("../kusto.mjs");
 const extension = await import("../extension.mjs");
 const app = await import("../public/app.js");
+const ui = await import("../public/ui.js");
 
 const QUOTA_SCHEMA_FIELDS = [
   "ResourceId", "ResourceName", "SubAccountId", "location", "currentValue",
@@ -38,7 +39,7 @@ async function startCapacityServer(t, options = {}) {
     let body = "";
     for await (const chunk of req) body += chunk;
     const { csl } = JSON.parse(body);
-    const fields = csl.startsWith("Quota() | getschema")
+    const fields = csl.includes("Quota()") && csl.includes("| getschema")
       ? quotaFields
       : csl.startsWith("Costs() | getschema")
         ? costFields
@@ -59,11 +60,34 @@ async function startCapacityServer(t, options = {}) {
 test("connection validation permits only local loopback or remote Kusto origins", () => {
   assert.deepEqual(
     kusto.normalizeConnection("http://LOCALHOST:8082/", " Hub "),
-    { clusterUri: "http://localhost:8082", database: "Hub", mode: "local", authentication: "none" }
+    { clusterUri: "http://localhost:8082", database: "Hub", tenantId: null, mode: "local", authentication: "none" }
   );
-  assert.equal(
-    kusto.normalizeConnection("https://example-cluster.westus.kusto.windows.net", "Hub").mode,
-    "remote"
+  assert.deepEqual(
+    kusto.normalizeConnection(
+      "https://example-cluster.westus.kusto.windows.net",
+      "Hub",
+      "72F988BF-86F1-41AF-91AB-2D7CD011DB47"
+    ),
+    {
+      clusterUri: "https://example-cluster.westus.kusto.windows.net",
+      database: "Hub",
+      tenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47",
+      mode: "remote",
+      authentication: "azure-cli",
+    }
+  );
+  assert.throws(
+    () => kusto.normalizeConnection("https://example-cluster.westus.kusto.windows.net", "Hub", "not-a-tenant"),
+    /valid Microsoft Entra tenant GUID/
+  );
+  assert.deepEqual(
+    kusto.azureCliTokenArgs("72F988BF-86F1-41AF-91AB-2D7CD011DB47"),
+    [
+      "account", "get-access-token",
+      "--resource", "https://api.kusto.windows.net",
+      "--tenant", "72f988bf-86f1-41af-91ab-2d7cd011db47",
+      "--output", "json",
+    ]
   );
   for (const uri of [
     "http://example.com",
@@ -108,10 +132,11 @@ test("local dashboard semantics stay unauthenticated and preserve the payload sh
 
 test("remote requests deduplicate tokens, add read-only headers, and recover after failure", async () => {
   kusto.resetKustoAuthForTests();
-  let providerCalls = 0;
+  const tenantId = "72f988bf-86f1-41af-91ab-2d7cd011db47";
+  const providerCalls = [];
   let release;
-  const provider = async () => {
-    providerCalls++;
+  const provider = async (requestedTenantId) => {
+    providerCalls.push(requestedTenantId);
     await new Promise((resolve) => { release = resolve; });
     return { accessToken: "secret-token", expires_on: Math.floor(Date.now() / 1000) + 3600 };
   };
@@ -120,26 +145,43 @@ test("remote requests deduplicate tokens, add read-only headers, and recover aft
     seen.push(options.headers);
     return kustoResponse([{ Ready: 1 }]);
   };
-  const first = kusto.runQuery("https://cluster.westus.kusto.windows.net", "Hub", "print Ready=1", { tokenProvider: provider, fetchImpl });
-  const second = kusto.runQuery("https://cluster.westus.kusto.windows.net", "Hub", "print Ready=1", { tokenProvider: provider, fetchImpl });
+  const connection = { clusterUri: "https://cluster.westus.kusto.windows.net", tenantId };
+  const first = kusto.runQuery(connection, "Hub", "print Ready=1", { tokenProvider: provider, fetchImpl });
+  const second = kusto.runQuery(connection, "Hub", "print Ready=1", { tokenProvider: provider, fetchImpl });
   await new Promise((resolve) => setImmediate(resolve));
   release();
   await Promise.all([first, second]);
-  assert.equal(providerCalls, 1);
+  assert.deepEqual(providerCalls, [tenantId]);
   assert.equal(seen.length, 2);
   assert.ok(seen.every((headers) => headers.Authorization === "Bearer secret-token"));
   assert.ok(seen.every((headers) => headers["x-ms-readonly"] === "true"));
   assert.notEqual(seen[0]["x-ms-client-request-id"], seen[1]["x-ms-client-request-id"]);
 
+  const otherTenantId = "91700184-c314-4dc9-bb7e-a411df456a1e";
+  const otherTenantCalls = [];
+  await kusto.runQuery(
+    { clusterUri: connection.clusterUri, tenantId: otherTenantId },
+    "Hub",
+    "print Ready=1",
+    {
+      tokenProvider: async (requestedTenantId) => {
+        otherTenantCalls.push(requestedTenantId);
+        return { accessToken: "other-secret-token", expires_on: Math.floor(Date.now() / 1000) + 3600 };
+      },
+      fetchImpl,
+    }
+  );
+  assert.deepEqual(otherTenantCalls, [otherTenantId]);
+
   kusto.resetKustoAuthForTests();
   await assert.rejects(() => kusto.runQuery(
-    "https://cluster.westus.kusto.windows.net",
+    connection,
     "Hub",
     "print Ready=1",
     { tokenProvider: async () => { throw new Error("temporary"); }, fetchImpl }
   ));
   await kusto.runQuery(
-    "https://cluster.westus.kusto.windows.net",
+    connection,
     "Hub",
     "print Ready=1",
     {
@@ -147,6 +189,62 @@ test("remote requests deduplicate tokens, add read-only headers, and recover aft
       fetchImpl,
     }
   );
+});
+
+test("remote transport bounds concurrent Kusto requests", async () => {
+  kusto.resetKustoAuthForTests();
+  const connection = {
+    clusterUri: "https://cluster.westus.kusto.windows.net",
+    tenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47",
+  };
+  let active = 0;
+  let maximum = 0;
+  const fetchImpl = async () => {
+    active++;
+    maximum = Math.max(maximum, active);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    active--;
+    return kustoResponse([{ Ready: 1 }]);
+  };
+  await Promise.all(Array.from({ length: 12 }, (_, index) => kusto.runQuery(
+    connection,
+    "Hub",
+    `print Ready=${index}`,
+    {
+      tokenProvider: async () => ({
+        accessToken: "secret-token",
+        expires_on: Math.floor(Date.now() / 1000) + 3600,
+      }),
+      fetchImpl,
+    }
+  )));
+  assert.equal(maximum, 1);
+});
+
+test("remote transport retries transient fetch failures", async () => {
+  kusto.resetKustoAuthForTests();
+  let attempts = 0;
+  const result = await kusto.runQuery(
+    {
+      clusterUri: "https://cluster.westus.kusto.windows.net",
+      tenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    },
+    "Hub",
+    "print Ready=1",
+    {
+      tokenProvider: async () => ({
+        accessToken: "secret-token",
+        expires_on: Math.floor(Date.now() / 1000) + 3600,
+      }),
+      fetchImpl: async () => {
+        attempts++;
+        if (attempts < 3) throw new TypeError("fetch failed");
+        return kustoResponse([{ Ready: 1 }]);
+      },
+    }
+  );
+  assert.equal(attempts, 3);
+  assert.deepEqual(result, [{ Ready: 1 }]);
 });
 
 test("transport errors are actionable and authentication failures redact provider output", async () => {
@@ -159,7 +257,14 @@ test("transport errors are actionable and authentication failures redact provide
 
   kusto.resetKustoAuthForTests();
   await assert.rejects(
-    () => kusto.runQuery("https://cluster.westus.kusto.windows.net", "Hub", "print Ready=1", {
+    () => kusto.runQuery("https://cluster.westus.kusto.windows.net", "Hub", "print Ready=1"),
+    /Tenant ID is required for remote hubs/
+  );
+  await assert.rejects(
+    () => kusto.runQuery({
+      clusterUri: "https://cluster.westus.kusto.windows.net",
+      tenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    }, "Hub", "print Ready=1", {
       tokenProvider: async () => { throw new Error("secret-token-value"); },
       fetchImpl: async () => assert.fail("fetch must not run without a token"),
     }),
@@ -205,7 +310,7 @@ test("filter encoding keeps adversarial values inside one Kusto string literal",
 
 test("capacity registry is exact, versioned, and fail-closed", () => {
   assert.equal(Object.keys(kusto.CAPACITY_CLASS_REGISTRY).length, 7);
-  assert.equal(Object.keys(kusto.CAPACITY_METRIC_REGISTRY).length, 3);
+  assert.equal(Object.keys(kusto.CAPACITY_METRIC_REGISTRY).length, 8);
 
   const enabled = kusto.resolveCapacityMetric({
     x_SourceType: " computeusage ",
@@ -215,6 +320,14 @@ test("capacity registry is exact, versioned, and fail-closed", () => {
   });
   assert.equal(enabled.capability, "enabled");
   assert.equal(enabled.metricRole, "total-regional-vcpu");
+  const sqlEnabled = kusto.resolveCapacityMetric({
+    x_SourceType: "SqlSubscriptionUsage",
+    x_SourceVersion: "1.0-sql",
+    ResourceName: "RegionalVCoreQuotaForSQLDBAndDW",
+    unit: "Count",
+  });
+  assert.equal(sqlEnabled.capability, "enabled");
+  assert.equal(sqlEnabled.metricRole, "sql-database-vcore");
 
   assert.deepEqual(
     kusto.resolveCapacityMetric({
@@ -277,7 +390,8 @@ test("capacity observation precedence handles invalid, stale, unclassified, and 
     ResourceName: "RegionalVCoreQuotaForSQLDBAndDW",
     limit: -1,
   }, now);
-  assert.equal(sqlNegative.state, "unclassified");
+  assert.equal(sqlNegative.state, "invalid");
+  assert.equal(sqlNegative.reasonCode, "unexpected-negative-limit");
   assert.match(sqlNegative.sourceNote, /interpretation unverified/i);
 });
 
@@ -318,32 +432,89 @@ test("capacity KQL is bounded and preserves semantic dimensions", () => {
     page: 2,
     pageSize: 50,
   });
+  const appService = kusto.buildAppServiceSkuQuery({ SubAccountId: ["abc"], location: ["eastus"] });
+  const appServiceSubscriptions = kusto.buildAppServiceSubscriptionQuery({
+    status: "no-quota",
+    skuSearch: "P1v4",
+    regions: ["eastus"],
+    subscriptionSearch: "64e3",
+    page: 2,
+    pageSize: 50,
+  });
+  const azureSql = kusto.buildAzureSqlQuotaQuery({ SubAccountId: ["abc"], location: ["eastus"] });
+  const azureSqlSubscriptions = kusto.buildAzureSqlSubscriptionQuery({
+    status: "no-quota",
+    resourceSearch: "vCore",
+    regions: ["eastus"],
+    subscriptionSearch: "64e3",
+    page: 2,
+    pageSize: 50,
+  });
   const heatmap = kusto.buildCapacityHeatmapQuery("compute", {
     resourceName: "cores",
     unit: "Count",
     sourceVersion: "1.0-usage",
   });
-  const demand = kusto.buildCapacityDemandSelectorQuery("compute");
   const reconciliation = kusto.buildCapacityReservationReconciliationQuery();
   const disk = kusto.buildCapacityDemandSelectorQuery("premium-ssd-v2");
 
   assert.match(current, /\| take 251$/);
   assert.match(selectors, /\| take 501$/);
   assert.match(selectors, /summarize displayName=take_any\(displayName\).+by ResourceName, unit, x_SourceType, x_SourceVersion/s);
-  assert.doesNotMatch(selectors, /by ResourceId/);
+  assert.match(selectors, /NAME: Compute quota usage/);
   assert.match(subscriptions, /where CoresUsed > 0/);
   assert.match(subscriptions, /Family contains "Dsv5"/);
   assert.match(subscriptions, /Location in~ \("eastus"\)/);
   assert.match(subscriptions, /SubscriptionId startswith "64e3"/);
+  assert.match(subscriptions, /NAME: Compute VM family quota usage/);
+  assert.doesNotMatch(subscriptions, /ComputeQuota\(\)|Costs\(\)/);
   assert.match(subscriptions, /RowNumber between \(51 \.\. 100\)/);
   assert.match(subscriptions, /real\(null\)/);
   assert.match(subscriptions, /\| take 50$/);
   assert.throws(() => kusto.buildComputeSubscriptionQuery({ regions: "eastus" }), /must be an array/);
+  assert.match(appService, /NAME: App Service quota usage/);
+  assert.match(appService, /SkuKey=ResourceName, Unit=unit, Location=location/);
+  assert.match(appService, /NoQuotaSubscriptions=dcountif\(SubAccountId, coalesce\(limit, 0\.0\) <= 0\)/);
+  assert.match(appService, /where SubAccountId in~ \("abc"\)/);
+  assert.match(appService, /where location in~ \("eastus"\)/);
+  assert.match(appService, new RegExp(`take ${kusto.CAPACITY_LIMITS.familyCells + 1}`));
+  assert.match(appServiceSubscriptions, /coalesce\(limit, 0\.0\) <= 0/);
+  assert.match(appServiceSubscriptions, /ResourceName contains "P1v4"/);
+  assert.match(appServiceSubscriptions, /location in~ \("eastus"\)/);
+  assert.match(appServiceSubscriptions, /SubAccountId startswith "64e3"/);
+  assert.match(appServiceSubscriptions, /RowNumber between \(51 \.\. 100\)/);
+  assert.match(appServiceSubscriptions, /\| take 50$/);
+  assert.doesNotMatch(appServiceSubscriptions, /Costs\(\)/);
+  assert.doesNotMatch(appServiceSubscriptions, /sum\(currentValue\)|sum\(limit\)|HeadroomInstances/);
+  assert.match(appServiceSubscriptions, /SkuRegionPairs=count\(\)/);
+  assert.match(azureSql, /NAME: SQL subscription quota usage/);
+  assert.match(azureSql, /Metric=take_any\(QuotaMetric\)/);
+  assert.match(azureSql, /Used=sumif\(currentValue, limit > 0\)/);
+  assert.match(azureSql, /NegativeLimitSubscriptions=dcountif\(SubAccountId, limit < 0\)/);
+  assert.match(azureSql, /where SubAccountId in~ \("abc"\)/);
+  assert.match(azureSql, /where location in~ \("eastus"\)/);
+  assert.match(azureSql, new RegExp(`take ${kusto.CAPACITY_LIMITS.familyCells + 1}`));
+  assert.match(azureSqlSubscriptions, /coalesce\(limit, 0\.0\) <= 0/);
+  assert.match(azureSqlSubscriptions, /ResourceName contains "vCore"/);
+  assert.match(azureSqlSubscriptions, /location in~ \("eastus"\)/);
+  assert.match(azureSqlSubscriptions, /SubAccountId startswith "64e3"/);
+  assert.match(azureSqlSubscriptions, /MetricRegionPairs=count\(\)/);
+  assert.match(azureSqlSubscriptions, /RowNumber between \(51 \.\. 100\)/);
+  assert.match(azureSqlSubscriptions, /\| take 50$/);
+  assert.doesNotMatch(azureSqlSubscriptions, /Costs\(\)/);
   assert.match(heatmap, /\| take 501$/);
-  assert.match(demand, /\| take 501$/);
-  for (const dimension of ["ConsumedUnit", "x_SkuMeterCategory", "x_SkuMeterSubcategory", "SkuMeter", "SkuPriceId", "BillingCurrency"]) {
-    assert.ok(demand.includes(dimension));
-  }
+  assert.throws(
+    () => kusto.buildCapacityDemandSelectorQuery("compute"),
+    /Compute billed-demand queries are not supported/
+  );
+  assert.throws(
+    () => kusto.buildCapacityDemandHistoryQuery("compute", {}),
+    /Compute billed-demand queries are not supported/
+  );
+  assert.throws(
+    () => kusto.buildCapacityDemandCoverageQuery("compute"),
+    /Compute billed-demand queries are not supported/
+  );
   assert.match(reconciliation, /\| join kind=fullouter billed on GroupKey/);
   assert.match(reconciliation, /inventory-only/);
   assert.match(reconciliation, /cost-only/);
@@ -358,7 +529,13 @@ test("all seven capacity classes return the bounded payload contract", async (t)
     assert.equal(payload.classId, classId);
     assert.equal(payload.contract.id, classId);
     assert.equal(payload.schema.quota.available, true);
-    assert.equal(payload.schema.costs.available, true);
+    if (["compute", "app-service", "azure-sql"].includes(classId)) {
+      assert.equal(payload.schema.costs, undefined);
+      assert.equal(payload.series.status, "not-applicable");
+      assert.equal(payload.demand.capability.reasonCode, "class-uses-quota-only");
+    } else {
+      assert.equal(payload.schema.costs.available, true);
+    }
     assert.equal(payload.table.rowLimit, 250);
     assert.equal(payload.selectors.itemLimit, 500);
     assert.equal(payload.history.pointLimit, 430);
@@ -374,15 +551,23 @@ test("missing schema fields disable only panels that depend on that source", asy
   });
   const quotaPayload = await kusto.getCapacity(missingQuota, "Hub", "compute");
   assert.equal(quotaPayload.schema.quota.available, false);
-  assert.equal(quotaPayload.schema.costs.available, true);
+  assert.equal(quotaPayload.schema.costs, undefined);
   assert.equal(quotaPayload.capability.mode, "disabled");
   assert.equal(quotaPayload.history.status, "disabled");
-  assert.equal(quotaPayload.demand.capability.mode, "parallel");
+  assert.equal(quotaPayload.demand.capability.mode, "disabled");
+  assert.equal(quotaPayload.demand.capability.reasonCode, "class-uses-quota-only");
 
   const missingCost = await startCapacityServer(t, {
     costFields: COST_SCHEMA_FIELDS.filter((field) => field !== "BillingCurrency"),
   });
-  const costPayload = await kusto.getCapacity(missingCost, "Hub", "compute");
+  const appServicePayload = await kusto.getCapacity(missingCost, "Hub", "app-service");
+  assert.equal(appServicePayload.schema.quota.available, true);
+  assert.equal(appServicePayload.schema.costs, undefined);
+  assert.equal(appServicePayload.history.status, "no-selection");
+  assert.equal(appServicePayload.demand.capability.reasonCode, "class-uses-quota-only");
+  assert.equal(appServicePayload.series.status, "not-applicable");
+
+  const costPayload = await kusto.getCapacity(missingCost, "Hub", "azure-ai");
   assert.equal(costPayload.schema.quota.available, true);
   assert.equal(costPayload.schema.costs.available, false);
   assert.equal(costPayload.capability.mode, "descriptive-only");
@@ -465,31 +650,71 @@ test("capacity navigation, selection, and heatmap helpers preserve accessible te
   });
 });
 
-test("capacity markup retains module loading, tab semantics, and visible text states", async () => {
-  const [html, source, css] = await Promise.all([
+test("capacity markup retains module loading, shared controls, and visible text states", async () => {
+  const [html, source, uiSource, extensionSource, css, uiCss] = await Promise.all([
     readFile(new URL("../public/index.html", import.meta.url), "utf8"),
     readFile(new URL("../public/app.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/ui.js", import.meta.url), "utf8"),
+    readFile(new URL("../extension.mjs", import.meta.url), "utf8"),
     readFile(new URL("../public/app.css", import.meta.url), "utf8"),
+    readFile(new URL("../public/ui.css", import.meta.url), "utf8"),
   ]);
   assert.match(html, /data-tab="capacity"/);
+  assert.match(html, /<link rel="stylesheet" href="\/ui\.css"\s*\/>/);
   assert.match(html, /<script type="module" src="\/app\.js"><\/script>/);
-  assert.match(source, /role="tablist"/);
-  assert.match(source, /aria-selected=/);
+  assert.match(extensionSource, /"\/ui\.css": \["ui\.css", "text\/css; charset=utf-8"\]/);
+  assert.match(extensionSource, /"\/ui\.js": \["ui\.js", "application\/javascript; charset=utf-8"\]/);
+  assert.match(uiSource, /role="tablist"/);
+  assert.match(uiSource, /aria-selected=/);
   assert.match(source, /Every colored cell includes the same value and state in text/);
-  assert.match(source, /data-capacity-detail-tab="subscriptions"/);
-  assert.match(source, /data-capacity-subscription-search/);
-  assert.match(source, /data-capacity-family-page/);
-  assert.match(source, /Filtered capacity detail/);
+  assert.match(uiSource, /data-ui-tab=/);
+  assert.match(uiSource, /data-ui-search=/);
+  assert.match(uiSource, /data-ui-page=/);
+  assert.match(source, /Filtered quota detail/);
   assert.match(source, /row\.HeadroomCores != null/);
   assert.match(source, /invalidateCapacitySubscriptions\(\);\s*\n\s*load\(\);/);
   assert.match(source, /id="capacity-subscription-summary"[^>]*tabindex="-1"/);
+  assert.match(source, /querySelector\("#capacity-subscription-search"\)/);
   assert.match(source, /state\.capacitySelections = next;[\s\S]*?}\s*\n\s*\nfunction setCapacityDetailTab/);
-  assert.match(source, /payload\.classId === "compute" \? "" : capacityPanel\("Observed history"/);
+  assert.match(source, /matrixClass \? "" : capacityPanel\("Observed history"/);
   assert.match(css, /\*:focus-visible/);
+  assert.match(uiCss, /\.ui-segment:focus-visible/);
   assert.match(css, /\.capacity-panel--wide\s*\{\s*grid-column:\s*span 12/);
   // The horizontal-scroll rule is shared with the generic `.table-scroll`
   // wrapper, so match the grouped selector rather than a lone one.
   assert.match(css, /\.capacity-table-scroll,\s*\.table-scroll\s*\{[^}]*overflow-x:\s*auto/s);
+});
+
+test("shared UI helpers escape data, expose state in text, and reject invalid control names", () => {
+  const segments = ui.uiSegmentedControl({
+    name: "matrix-status",
+    label: "Status <all>",
+    labelId: "status-label",
+    selected: "all",
+    items: [
+      { value: "all", label: "All", count: 4 },
+      { value: 'at-"limit"', label: "At limit", count: 1 },
+    ],
+  });
+  assert.match(segments, /role="radiogroup"/);
+  assert.match(segments, /Status &lt;all&gt;/);
+  assert.match(segments, /data-ui-value="all"[\s\S]*aria-checked="true" tabindex="0"/);
+  assert.match(segments, /data-ui-value="at-&quot;limit&quot;"/);
+
+  const toggles = ui.uiToggleList({
+    name: "matrix-region",
+    label: "Region",
+    labelId: "region-label",
+    selected: ["eastus"],
+    items: [{ value: "eastus", label: "East US" }, { value: "westus", label: "West US" }],
+  });
+  assert.match(toggles, /data-ui-value="eastus"[\s\S]*aria-pressed="true"/);
+  assert.match(toggles, /data-ui-value="westus"[\s\S]*aria-pressed="false"/);
+
+  const pagination = ui.uiPagination({ name: "matrix", page: 1, totalPages: 3, label: "Matrix pages" });
+  assert.match(pagination, /data-ui-value="0" disabled/);
+  assert.match(pagination, /Page 1 of 3/);
+  assert.throws(() => ui.uiSearchField({ name: "Bad name", id: "x", label: "X" }), /Invalid UI control name/);
 });
 
 test("read-only KQL guard ignores strings and comments but rejects management commands", () => {
@@ -560,11 +785,13 @@ test("connection changes probe and persist before mutating shared state", async 
   const entry = {
     clusterUri: "http://localhost:8082",
     database: "Hub",
+    tenantId: null,
     canvasState: { tab: "overview", preset: "all", filters: {}, revision: 0 },
   };
   await assert.rejects(() => extension.changeConnection(entry, {
     clusterUri: "https://cluster.westus.kusto.windows.net",
     database: "Hub",
+    tenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47",
   }, {
     runQueryFn: async () => { throw new Error("probe failed"); },
     persistConfig: async () => assert.fail("must not persist after a failed probe"),
@@ -574,12 +801,28 @@ test("connection changes probe and persist before mutating shared state", async 
   await assert.rejects(() => extension.changeConnection(entry, {
     clusterUri: "https://cluster.westus.kusto.windows.net",
     database: "Hub",
+    tenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47",
   }, {
     runQueryFn: async () => [],
     persistConfig: async () => { throw new Error("disk failed"); },
   }));
   assert.equal(entry.clusterUri, "http://localhost:8082");
   assert.equal(entry.canvasState.revision, 0);
+
+  let persisted;
+  let probed;
+  const connection = await extension.changeConnection(entry, {
+    clusterUri: "https://cluster.westus.kusto.windows.net",
+    database: "Hub",
+    tenantId: "72F988BF-86F1-41AF-91AB-2D7CD011DB47",
+  }, {
+    runQueryFn: async (target) => { probed = target; return []; },
+    persistConfig: async (next) => { persisted = next; },
+  });
+  assert.equal(connection.tenantId, "72f988bf-86f1-41af-91ab-2d7cd011db47");
+  assert.equal(probed.tenantId, connection.tenantId);
+  assert.equal(persisted.tenantId, connection.tenantId);
+  assert.equal(entry.tenantId, connection.tenantId);
 });
 
 test("canvas definition exposes collaborative actions on the one shared database", async () => {
@@ -587,6 +830,7 @@ test("canvas definition exposes collaborative actions on the one shared database
   const entry = {
     clusterUri: "http://localhost:8082",
     database: "SharedHub",
+    tenantId: null,
     canvasState: { tab: "overview", preset: "all", filters: {}, revision: 0 },
   };
   const canvas = extension.createDashboardCanvas({
@@ -602,38 +846,246 @@ test("canvas definition exposes collaborative actions on the one shared database
   for (const name of ["get_build_info", "get_connection", "set_connection", "get_canvas_state", "set_canvas_state", "get_view", "run_query"]) {
     assert.ok(names.includes(name));
   }
+  assert.ok(canvas.inputSchema.properties.tenantId);
+  assert.ok(canvas.actions.find((action) => action.name === "set_connection").inputSchema.properties.tenantId);
   assert.deepEqual(
     await canvas.actions.find((action) => action.name === "get_build_info").handler({ input: {} }),
     { buildId: "ftk-local-dashboard-capacity-v1", sourceScope: "project" }
   );
   const result = await canvas.actions.find((action) => action.name === "run_query").handler({ input: { kql: "print Value=1" } });
+  assert.equal(calls[0].clusterUri.tenantId, null);
   assert.equal(calls[0].database, "SharedHub");
   assert.equal(result.rows.length, 500);
   assert.equal(result.truncated, true);
   assert.equal(result.rowLimit, 500);
 });
 
-test("estate Compute family view keeps regional quota at family grain and states joins explicitly", () => {
+test("estate Compute family view joins family quota to the smallest-SKU offer status", async () => {
   const query = kusto.buildComputeFamilyQuery({});
-  // Regional core quota must never be duplicated across zones.
-  assert.match(query, /by Family, FamilyKey, Location/);
-  assert.doesNotMatch(query, /by [^\n]*PhysicalZone[^\n]*,\s*CoresTotal/);
-  // Repository rule: never a bare join.
-  for (const join of query.match(/\|\s*join[^\n]*/g) || []) {
-    assert.match(join, /kind=/, `join without explicit kind: ${join}`);
-  }
+  const [quotaCatalog, offerCatalog] = await Promise.all([
+    readFile(new URL("../../../../src/queries/catalog/quota-compute-family-usage.kql", import.meta.url), "utf8"),
+    readFile(new URL("../../../../src/queries/catalog/quota-compute-family-offer-status.kql", import.meta.url), "utf8"),
+  ]);
+  assert.ok(query.includes(quotaCatalog.trim()));
+  assert.ok(query.includes(offerCatalog.trim()));
+  assert.match(query, /x_SourceType =~ 'ComputeUsage'/);
+  assert.match(query, /ResourceType =~ 'Microsoft\.Compute\/locations\/usages'/);
+  assert.match(query, /summarize arg_max\(x_IngestionTime, \*\) by ResourceId/);
+  assert.match(query, /ResourceName endswith 'Family'/);
+  assert.match(offerCatalog, /RepresentativeVcpus = minif/);
+  assert.match(offerCatalog, /RepresentativeVcpus asc,\s*ResourceName asc/s);
+  assert.match(offerCatalog, /FamilySkuRank = row_number/);
+  assert.match(offerCatalog, /where FamilySkuRank == 1/);
+  assert.match(query, /join kind=leftouter ComputeFamilyOfferStatus/);
+  assert.match(query, /RegionRestrictedSubscriptions=dcountif/);
+  assert.match(query, /by FamilyKey, Location/);
+  assert.doesNotMatch(query, /ComputeQuota\(\)|Costs\(\)|PhysicalZone/);
   // Bounded output.
   assert.match(query, new RegExp(`take ${kusto.CAPACITY_LIMITS.familyCells + 1}`));
-  // Zone sets are descriptive only and drop empty sentinels.
-  assert.match(query, /where isnotempty\(PhysicalZone\)/);
-
   const filtered = kusto.buildComputeFamilyQuery({ SubAccountId: ["abc"], location: ["eastus"] });
   assert.match(filtered, /where SubscriptionId in~ \("abc"\)/);
   assert.match(filtered, /where Location in~ \("eastus"\)/);
-  assert.doesNotMatch(filtered, /SubAccountId in~/);
 });
 
-test("Compute family cells classify supply and demand without fabricating headroom", () => {
+test("App Service matrix uses exact plan SKU quota and stays separate from billed demand", async () => {
+  const query = kusto.buildAppServiceSkuQuery({});
+  const catalog = await readFile(
+    new URL("../../../../src/queries/catalog/quota-app-service-usage.kql", import.meta.url),
+    "utf8"
+  );
+  assert.ok(query.includes(catalog.trim()));
+  assert.match(query, /SkuKey=ResourceName, Unit=unit, Location=location/);
+  assert.match(query, /Sku=iff\(SkuKey == '\*', 'Total Regional VMs', Sku\)/);
+  assert.doesNotMatch(query, /Costs\(\)|PhysicalZone|Offer/);
+});
+
+test("App Service cells expose quota status separately from utilization text", () => {
+  const open = kusto.appServiceSkuCell({
+    UsedInstances: 3, QuotaInstances: 30, Subscriptions: 1,
+    QuotaSubscriptions: 1, NoQuotaSubscriptions: 0, AtLimitSubscriptions: 0,
+  });
+  assert.equal(open.supply, "open");
+  assert.equal(open.state, "healthy");
+  assert.equal(open.text, "10.0%");
+  assert.equal(open.headroomInstances, 27);
+  assert.equal(open.quotaText, "Quota reported");
+
+  const partial = kusto.appServiceSkuCell({
+    UsedInstances: 3, QuotaInstances: 30, Subscriptions: 2,
+    QuotaSubscriptions: 1, NoQuotaSubscriptions: 1, AtLimitSubscriptions: 0,
+  });
+  assert.equal(partial.supply, "partial");
+  assert.equal(partial.quotaText, "1 subscription without quota");
+
+  const blocked = kusto.appServiceSkuCell({
+    UsedInstances: 30, QuotaInstances: 30, Subscriptions: 1,
+    QuotaSubscriptions: 1, NoQuotaSubscriptions: 0, AtLimitSubscriptions: 1,
+  });
+  assert.equal(blocked.supply, "blocked");
+  assert.equal(blocked.state, "exhausted");
+  assert.equal(blocked.quotaText, "1 subscription at limit");
+
+  const none = kusto.appServiceSkuCell({
+    UsedInstances: 0, QuotaInstances: 0, Subscriptions: 1,
+    QuotaSubscriptions: 0, NoQuotaSubscriptions: 1, AtLimitSubscriptions: 0,
+  });
+  assert.equal(none.supply, "none");
+  assert.equal(none.state, "no-entitlement");
+  assert.equal(none.utilizationPercent, null);
+  assert.equal(none.headroomInstances, null);
+  assert.equal(none.quotaText, "No quota reported");
+});
+
+test("App Service payload and subscription detail are quota-only and paged", async (t) => {
+  const clusterUri = await startCapacityServer(t, {
+    rows: (query) => {
+      if (query.includes("Sku=take_any(displayName)")) {
+        return [{
+          Sku: "Premium V4 P1V4", SkuKey: "P1v4", Unit: "Instances", Location: "eastus",
+          UsedInstances: 3, QuotaInstances: 30, Subscriptions: 1, InUseSubscriptions: 1,
+          AtLimitSubscriptions: 0, QuotaSubscriptions: 1, NoQuotaSubscriptions: 0,
+        }];
+      }
+      if (query.includes("SkuRegionPairs=count()")) {
+        return [{
+          SubscriptionId: "sub-1", Skus: 2, Regions: 1, SkuRegionPairs: 2,
+          InUsePairs: 1, AtLimitPairs: 0, NoQuotaPairs: 1,
+          TotalSubscriptions: 1, RowNumber: 1,
+        }];
+      }
+      return [];
+    },
+  });
+  const payload = await kusto.getCapacity(clusterUri, "Hub", "app-service");
+  assert.equal(payload.schema.costs, undefined);
+  assert.equal(payload.capability.mode, "enabled");
+  assert.equal(payload.capability.reasonCode, "catalog-quota-present");
+  assert.equal(payload.appServiceHeatmap.rows.length, 1);
+  assert.equal(payload.appServiceHeatmap.rows[0].semantic.supply, "open");
+  assert.equal(payload.demand.capability.reasonCode, "class-uses-quota-only");
+
+  const page = await kusto.getCapacitySubscriptionPage(clusterUri, "Hub", {
+    classId: "app-service",
+    page: 1,
+    pageSize: 50,
+  });
+  assert.equal(page.classId, "app-service");
+  assert.equal(page.totalSubscriptions, 1);
+  assert.equal(page.totalPages, 1);
+  assert.equal(page.rows[0].SubscriptionId, "sub-1");
+  assert.equal(page.rows[0].SkuRegionPairs, 2);
+  assert.equal(page.rows[0].InUsePairs, 1);
+  assert.equal(page.rows[0].TotalSubscriptions, undefined);
+  assert.equal(page.rows[0].RowNumber, undefined);
+});
+
+test("Azure SQL matrix includes only current regional quota contracts", async () => {
+  const query = kusto.buildAzureSqlQuotaQuery({});
+  const catalog = await readFile(
+    new URL("../../../../src/queries/catalog/quota-sql-subscription-usage.kql", import.meta.url),
+    "utf8"
+  );
+  assert.ok(query.includes(catalog.trim()));
+  assert.equal(kusto.AZURE_SQL_QUOTA_METRICS.length, 5);
+  for (const metric of kusto.AZURE_SQL_QUOTA_METRICS) {
+    assert.match(query, new RegExp(metric.resourceName));
+  }
+  assert.doesNotMatch(query, /FreeLimitQuota|SubscriptionFreeDatabaseDaysLeft|SubnetQuota|"VCoreQuota"/);
+  assert.doesNotMatch(query, /Costs\(\)|PhysicalZone|Offer/);
+});
+
+test("Azure SQL cells keep quota coverage separate from utilization", () => {
+  const open = kusto.azureSqlQuotaCell({
+    MetricKey: "ServerQuota", Used: 3, Quota: 250, Subscriptions: 1,
+    QuotaSubscriptions: 1, NoQuotaSubscriptions: 0, NegativeLimitSubscriptions: 0,
+    AtLimitSubscriptions: 0,
+  });
+  assert.equal(open.supply, "open");
+  assert.equal(open.state, "healthy");
+  assert.equal(open.text, "1.2%");
+  assert.equal(open.headroomUnits, 247);
+  assert.equal(open.unitLabel, "servers");
+  assert.equal(open.quotaText, "Quota reported");
+
+  const partial = kusto.azureSqlQuotaCell({
+    MetricKey: "SubscriptionSQLManagedInstanceStandardSeriesVCoreQuota",
+    Used: 80, Quota: 320, Subscriptions: 2,
+    QuotaSubscriptions: 1, NoQuotaSubscriptions: 1, NegativeLimitSubscriptions: 0,
+    AtLimitSubscriptions: 0,
+  });
+  assert.equal(partial.supply, "partial");
+  assert.equal(partial.text, "25.0%");
+  assert.equal(partial.quotaText, "1 subscription has no usable quota");
+
+  const blocked = kusto.azureSqlQuotaCell({
+    MetricKey: "RegionalVCoreQuotaForSQLDBAndDW",
+    Used: 2000, Quota: 2000, Subscriptions: 1,
+    QuotaSubscriptions: 1, NoQuotaSubscriptions: 0, NegativeLimitSubscriptions: 0,
+    AtLimitSubscriptions: 1,
+  });
+  assert.equal(blocked.supply, "blocked");
+  assert.equal(blocked.state, "exhausted");
+  assert.equal(blocked.quotaText, "1 subscription at limit");
+
+  const negative = kusto.azureSqlQuotaCell({
+    MetricKey: "RegionalVCoreQuotaForSQLDBAndDW",
+    Used: 0, Quota: 0, Subscriptions: 1,
+    QuotaSubscriptions: 0, NoQuotaSubscriptions: 1, NegativeLimitSubscriptions: 1,
+    AtLimitSubscriptions: 0,
+  });
+  assert.equal(negative.supply, "none");
+  assert.equal(negative.state, "no-entitlement");
+  assert.equal(negative.utilizationPercent, null);
+  assert.equal(negative.headroomUnits, null);
+  assert.match(negative.quotaText, /unsupported negative limit/i);
+});
+
+test("Azure SQL payload and subscription detail are quota-only and paged", async (t) => {
+  const clusterUri = await startCapacityServer(t, {
+    rows: (query) => {
+      if (query.includes("Metric=take_any(QuotaMetric)")) {
+        return [{
+          Metric: "Logical servers", MetricKey: "ServerQuota", Unit: "Count", Location: "eastus",
+          Used: 3, Quota: 250, Subscriptions: 1, InUseSubscriptions: 1,
+          AtLimitSubscriptions: 0, QuotaSubscriptions: 1, NoQuotaSubscriptions: 0,
+          NegativeLimitSubscriptions: 0,
+        }];
+      }
+      if (query.includes("MetricRegionPairs=count()")) {
+        return [{
+          SubscriptionId: "sub-1", Metrics: 5, Regions: 1, MetricRegionPairs: 5,
+          InUsePairs: 1, AtLimitPairs: 0, NoQuotaPairs: 1, NegativeLimitPairs: 1,
+          TotalSubscriptions: 1, RowNumber: 1,
+        }];
+      }
+      return [];
+    },
+  });
+  const payload = await kusto.getCapacity(clusterUri, "Hub", "azure-sql");
+  assert.equal(payload.schema.costs, undefined);
+  assert.equal(payload.capability.mode, "enabled");
+  assert.equal(payload.capability.reasonCode, "catalog-quota-present");
+  assert.equal(payload.azureSqlHeatmap.rows.length, 1);
+  assert.equal(payload.azureSqlHeatmap.rows[0].semantic.supply, "open");
+  assert.equal(payload.azureSqlHeatmap.rows[0].semantic.unitLabel, "servers");
+  assert.equal(payload.demand.capability.reasonCode, "class-uses-quota-only");
+
+  const page = await kusto.getCapacitySubscriptionPage(clusterUri, "Hub", {
+    classId: "azure-sql",
+    page: 1,
+    pageSize: 50,
+  });
+  assert.equal(page.classId, "azure-sql");
+  assert.equal(page.totalSubscriptions, 1);
+  assert.equal(page.totalPages, 1);
+  assert.equal(page.rows[0].SubscriptionId, "sub-1");
+  assert.equal(page.rows[0].MetricRegionPairs, 5);
+  assert.equal(page.rows[0].NegativeLimitPairs, 1);
+  assert.equal(page.rows[0].TotalSubscriptions, undefined);
+  assert.equal(page.rows[0].RowNumber, undefined);
+});
+
+test("Compute family cells classify only provider-reported quota values", () => {
   const healthy = kusto.computeFamilyCell({ CoresUsed: 10, CoresTotal: 100, Subscriptions: 1 });
   assert.equal(healthy.state, "healthy");
   assert.equal(healthy.headroomCores, 90);
@@ -648,19 +1100,6 @@ test("Compute family cells classify supply and demand without fabricating headro
   assert.equal(none.state, "no-entitlement");
   assert.equal(none.utilizationPercent, null);
   assert.equal(none.headroomCores, null);
-
-  // Restriction only applies when every contributing subscription is restricted.
-  const restricted = kusto.computeFamilyCell({ CoresUsed: 0, CoresTotal: 0, Subscriptions: 2, RestrictedSubscriptions: 2 });
-  assert.equal(restricted.state, "restricted");
-  assert.equal(restricted.regionRestricted, true);
-  const partial = kusto.computeFamilyCell({ CoresUsed: 0, CoresTotal: 0, Subscriptions: 2, RestrictedSubscriptions: 1 });
-  assert.equal(partial.regionRestricted, false);
-
-  // A restriction never invents headroom on a family that still holds quota.
-  const restrictedWithQuota = kusto.computeFamilyCell({ CoresUsed: 5, CoresTotal: 50, Subscriptions: 1, RestrictedSubscriptions: 1 });
-  assert.equal(restrictedWithQuota.state, "restricted");
-  assert.equal(restrictedWithQuota.regionRestricted, true);
-  assert.equal(restrictedWithQuota.text, "10.0%", "demand is still reported, it just does not drive the bar");
 
   assert.deepEqual(
     kusto.annotateComputeFamilyRows([{ CoresUsed: 1, CoresTotal: 4, Subscriptions: 1 }])[0].semantic.text,
@@ -682,38 +1121,37 @@ test("dashboard speaks capacity vocabulary and never says evidence", async () =>
   assert.match(contract.sourceNote, /quota/i);
 });
 
-test("family rows stay lean and keep the region restriction visible alongside real quota", () => {
+test("family rows keep family quota separate from representative-SKU offer status", () => {
   const [withQuota] = kusto.annotateComputeFamilyRows([{
     Family: "Standard Dv5 Family vCPUs", FamilyKey: "standardDv5Family", Location: "eastus",
-    CoresUsed: 10, CoresTotal: 100, Subscriptions: 1, RestrictedSubscriptions: 1,
-    ZonesPresent: ["eastus-az1", "eastus-az2"], ZonesRestricted: ["eastus-az2"],
+    CoresUsed: 10, CoresTotal: 100, Subscriptions: 1,
+    OfferSubscriptions: 1, RegionRestrictedSubscriptions: 0, ZoneRestrictedSubscriptions: 1,
+    RepresentativeSkus: ["Standard_D2s_v5"], RepresentativeVcpus: 2,
+    ZonesPresent: [["1", "2", "3"]], ZonesRestricted: [["3"]],
     x_IngestionTime: "2026-08-24T00:00:00Z",
   }]);
-  // Zone name arrays are not shipped wholesale; only the count survives.
-  assert.equal(withQuota.ZonesPresentCount, 2);
-  assert.equal(withQuota.ZonesPresent, undefined);
-  assert.deepEqual(withQuota.ZonesRestricted, ["eastus-az2"]);
-  // Real quota keeps its own demand reading, and the restriction now drives the state.
-  assert.equal(withQuota.semantic.state, "restricted");
-  assert.equal(withQuota.semantic.supply, "blocked");
+  assert.deepEqual(withQuota.ZonesPresent, ["1", "2", "3"]);
+  assert.deepEqual(withQuota.ZonesRestricted, ["3"]);
+  assert.deepEqual(withQuota.RepresentativeSkus, ["Standard_D2s_v5"]);
+  assert.equal(withQuota.semantic.state, "healthy");
+  assert.equal(withQuota.semantic.supply, "partial");
+  assert.equal(withQuota.semantic.offerText, "1 AZ restricted");
   assert.equal(withQuota.semantic.text, "10.0%");
-  assert.equal(withQuota.semantic.regionRestricted, true);
   assert.equal(withQuota.semantic.headroomCores, 90);
 });
 
-test("family matrix filters reduce a lookup-scale grid without stranding the operator", () => {
+test("shared matrix filters reduce Compute, App Service, and Azure SQL grids without dead ends", () => {
   const rows = [
     { Family: "Standard Dv5 Family vCPUs", FamilyKey: "dv5", Location: "eastus", CoresUsed: 10, CoresTotal: 100, semantic: {} },
     { Family: "Standard Ev5 Family vCPUs", FamilyKey: "ev5", Location: "westus", CoresUsed: 0, CoresTotal: 200, semantic: {} },
-    { Family: "Standard NC Family vCPUs", FamilyKey: "nc", Location: "eastus", CoresUsed: 0, CoresTotal: 0, semantic: { regionRestricted: true } },
-    { Family: "Standard Fsv2 Family vCPUs", FamilyKey: "fsv2", Location: "westus", CoresUsed: 0, CoresTotal: 50, ZonesRestricted: ["westus-az1"], semantic: {} },
+    { Family: "Standard NC Family vCPUs", FamilyKey: "nc", Location: "eastus", CoresUsed: 0, CoresTotal: 0, semantic: {} },
+    { Family: "Standard Fsv2 Family vCPUs", FamilyKey: "fsv2", Location: "westus", CoresUsed: 50, CoresTotal: 50, semantic: {} },
   ];
-  const ids = (filter) => app.filterFamilyRows(rows, filter).map((row) => row.FamilyKey);
+  const ids = (filter) => app.filterCapacityMatrixRows(rows, "compute", filter).map((row) => row.FamilyKey);
 
   // The default lens answers "what do we actually run", not "show me everything".
-  assert.deepEqual(ids({ status: "in-use" }), ["dv5"]);
-  // A region restriction and a zone restriction are both supply constraints.
-  assert.deepEqual(ids({ status: "restricted" }), ["nc", "fsv2"]);
+  assert.deepEqual(ids({ status: "in-use" }), ["dv5", "fsv2"]);
+  assert.deepEqual(ids({ status: "at-limit" }), ["fsv2"]);
   assert.deepEqual(ids({ status: "no-quota" }), ["nc"]);
   assert.equal(ids({ status: "all" }).length, 4);
 
@@ -726,15 +1164,54 @@ test("family matrix filters reduce a lookup-scale grid without stranding the ope
   // An unmatched needle returns nothing rather than falling back to everything.
   assert.deepEqual(ids({ status: "all", search: "nosuchfamily" }), []);
   // Every lens is reachable and counted, so no lens can become a dead end.
-  assert.deepEqual(app.FAMILY_STATUS_FILTERS.map((lens) => lens.id), ["in-use", "restricted", "no-quota", "all"]);
+  assert.deepEqual(app.MATRIX_STATUS_FILTERS.map((lens) => lens.id), ["in-use", "at-limit", "no-quota", "all"]);
+
+  const appServiceRows = [
+    {
+      Sku: "Premium V4 P1V4", SkuKey: "P1v4", Location: "eastus",
+      UsedInstances: 0, QuotaInstances: 30, AtLimitSubscriptions: 0, QuotaSubscriptions: 1,
+    },
+    {
+      Sku: "Standard S1", SkuKey: "S1", Location: "westus",
+      UsedInstances: 1, QuotaInstances: 1, AtLimitSubscriptions: 1, QuotaSubscriptions: 1,
+    },
+    {
+      Sku: "Total Regional VMs", SkuKey: "*", Location: "eastus",
+      UsedInstances: 0, QuotaInstances: 0, AtLimitSubscriptions: 0, QuotaSubscriptions: 0,
+    },
+  ];
+  const skuIds = (filter) => app.filterCapacityMatrixRows(appServiceRows, "app-service", filter).map((row) => row.SkuKey);
+  assert.deepEqual(skuIds({ status: "at-limit" }), ["S1"]);
+  assert.deepEqual(skuIds({ status: "no-quota" }), ["*"]);
+  assert.deepEqual(skuIds({ status: "all", search: "premium", regions: ["eastus"] }), ["P1v4"]);
+
+  const azureSqlRows = [
+    {
+      Metric: "Logical servers", MetricKey: "ServerQuota", Location: "eastus",
+      Used: 3, Quota: 250, AtLimitSubscriptions: 0, QuotaSubscriptions: 1,
+    },
+    {
+      Metric: "Azure SQL Database and Synapse vCores", MetricKey: "RegionalVCoreQuotaForSQLDBAndDW",
+      Location: "westus", Used: 2000, Quota: 2000, AtLimitSubscriptions: 1, QuotaSubscriptions: 1,
+    },
+    {
+      Metric: "SQL MI premium-series vCores", MetricKey: "SubscriptionSQLManagedInstancePremiumSeriesVCoreQuota",
+      Location: "eastus", Used: 0, Quota: 0, AtLimitSubscriptions: 0, QuotaSubscriptions: 0,
+    },
+  ];
+  const sqlIds = (filter) => app.filterCapacityMatrixRows(azureSqlRows, "azure-sql", filter).map((row) => row.MetricKey);
+  assert.deepEqual(sqlIds({ status: "in-use" }), ["ServerQuota", "RegionalVCoreQuotaForSQLDBAndDW"]);
+  assert.deepEqual(sqlIds({ status: "at-limit" }), ["RegionalVCoreQuotaForSQLDBAndDW"]);
+  assert.deepEqual(sqlIds({ status: "no-quota" }), ["SubscriptionSQLManagedInstancePremiumSeriesVCoreQuota"]);
+  assert.deepEqual(sqlIds({ status: "all", search: "server", regions: ["eastus"] }), ["ServerQuota"]);
 });
 
-test("family matrix keeps both scrollbars and its frozen panes reachable", async () => {
+test("shared matrix keeps both scrollbars and its frozen panes reachable", async () => {
   const [css, js] = await Promise.all([
-    readFile(new URL("../public/app.css", import.meta.url), "utf8"),
-    readFile(new URL("../public/app.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/ui.css", import.meta.url), "utf8"),
+    readFile(new URL("../public/ui.js", import.meta.url), "utf8"),
   ]);
-  const matrix = css.slice(css.indexOf(".capacity-matrix {"));
+  const matrix = css.slice(css.indexOf(".ui-matrix-viewport {"));
 
   // A bounded viewport is what keeps the horizontal bar on screen; without the
   // height cap the table outgrows the window and the bar sits below the fold.
@@ -745,63 +1222,59 @@ test("family matrix keeps both scrollbars and its frozen panes reachable", async
   assert.match(matrix, /scrollbar-color:/);
 
   // Frozen panes on both axes: region header, family column, and the corner.
-  assert.match(css, /\.capacity-heatmap--family thead th\s*\{[^}]*position:\s*sticky[^}]*top:\s*0/s);
-  assert.match(css, /\.capacity-heatmap--family tbody th:first-child\s*\{[^}]*position:\s*sticky[^}]*left:\s*0/s);
-  assert.match(css, /\.capacity-heatmap--family thead th:first-child\s*\{[^}]*z-index:\s*3/s);
+  assert.match(css, /\.ui-matrix thead th\s*\{[^}]*position:\s*sticky[^}]*top:\s*0/s);
+  assert.match(css, /\.ui-matrix tbody th:first-child\s*\{[^}]*position:\s*sticky[^}]*left:\s*0/s);
+  assert.match(css, /\.ui-matrix thead th:first-child\s*\{[^}]*z-index:\s*3/s);
 
   // The scroll region is keyboard reachable and named for assistive tech.
-  assert.match(js, /class="capacity-matrix" tabindex="0" role="region" aria-label="[^"]+"/);
+  assert.match(js, /class="ui-matrix-viewport" tabindex="0" role="region" aria-label=/);
   // Filter controls carry state in markup, not colour alone.
   assert.match(js, /role="radiogroup"/);
-  assert.match(js, /aria-checked="\$\{filter\.status === lens\.id/);
-  assert.match(js, /aria-pressed="\$\{filter\.regions\.includes\(region\)/);
+  assert.match(js, /aria-checked="\$\{active\}"/);
+  assert.match(js, /aria-pressed="\$\{selectedValues\.has/);
   // The count summary tells the operator how much of the grid is hidden.
-  assert.match(js, /capacity-filter-summary" role="status"/);
+  assert.match(js, /ui-filter-summary" role="status"/);
 });
 
-test("a restricted region never reads as healthy headroom", () => {
-  // The defect this guards: supply used to inherit the utilization state, so a
-  // region nobody can deploy into rendered green whenever quota sat untouched.
-  const blocked = kusto.computeFamilyCell({
-    CoresTotal: 1000, CoresUsed: 30, Subscriptions: 2, RestrictedSubscriptions: 2,
-  });
-  assert.equal(blocked.supply, "blocked");
-  assert.equal(blocked.state, "restricted");
-  assert.notEqual(blocked.state, "healthy");
-  assert.equal(blocked.text, "3.0%", "demand is still reported, it is just not the bar");
-  assert.equal(blocked.regionRestricted, true);
-
-  const partial = kusto.computeFamilyCell({
-    CoresTotal: 1000, CoresUsed: 30, Subscriptions: 2, RestrictedSubscriptions: 0,
-    ZonesPresent: ["1", "2", "3"], ZonesRestricted: ["1"],
-  });
-  assert.equal(partial.supply, "partial", "some zones restricted is a real but partial constraint");
-  assert.equal(partial.state, "healthy", "partial supply does not overwrite demand");
-
-  // Every zone restricted is not partial. Regional placement may still work, so it
-  // stays distinct from a region restriction, but it must never read as healthy.
-  const allZones = kusto.computeFamilyCell({
-    CoresTotal: 1000, CoresUsed: 30, Subscriptions: 2, RestrictedSubscriptions: 0,
-    ZonesPresent: ["1", "2"], ZonesRestricted: ["1", "2"],
-  });
-  assert.equal(allZones.supply, "blocked");
-  assert.equal(allZones.state, "zone-restricted");
-  assert.notEqual(allZones.state, "healthy");
-  assert.equal(allZones.regionRestricted, false, "a zone block is not a region block");
-  assert.equal(allZones.text, "3.0%");
-
+test("offer status uses the representative SKU while utilization uses family quota", () => {
   const open = kusto.computeFamilyCell({
-    CoresTotal: 1000, CoresUsed: 950, Subscriptions: 2, RestrictedSubscriptions: 0,
+    CoresTotal: 1000, CoresUsed: 950, Subscriptions: 2, OfferSubscriptions: 2,
   });
   assert.equal(open.supply, "open");
   assert.equal(open.state, "action", "open supply still escalates on demand");
+  assert.equal(open.offerText, "Region available");
 
-  const none = kusto.computeFamilyCell({ CoresTotal: 0, CoresUsed: 0, Subscriptions: 1, RestrictedSubscriptions: 0 });
+  const zoneRestricted = kusto.computeFamilyCell({
+    CoresTotal: 100, CoresUsed: 0, OfferSubscriptions: 1,
+    RegionRestrictedSubscriptions: 0, ZonesPresent: ["1", "2", "3"], ZonesRestricted: ["2"],
+  });
+  assert.equal(zoneRestricted.supply, "partial");
+  assert.equal(zoneRestricted.offerText, "1 AZ restricted");
+  assert.deepEqual(zoneRestricted.zoneStates, [
+    { zone: "1", restricted: false },
+    { zone: "2", restricted: true },
+    { zone: "3", restricted: false },
+  ]);
+
+  const regionRestricted = kusto.computeFamilyCell({
+    CoresTotal: 100, CoresUsed: 0, OfferSubscriptions: 1,
+    RegionRestrictedSubscriptions: 1, ZonesPresent: ["1", "2", "3"], ZonesRestricted: [],
+  });
+  assert.equal(regionRestricted.supply, "blocked");
+  assert.equal(regionRestricted.offerText, "Region restricted");
+  assert.ok(regionRestricted.zoneStates.every((zone) => zone.restricted));
+
+  const none = kusto.computeFamilyCell({ CoresTotal: 0, CoresUsed: 0, Subscriptions: 1, OfferSubscriptions: 1 });
   assert.equal(none.supply, "none");
   assert.equal(none.state, "no-entitlement");
+  assert.equal(none.offerText, "No quota reported");
+
+  const exhausted = kusto.computeFamilyCell({ CoresTotal: 100, CoresUsed: 100, Subscriptions: 1, OfferSubscriptions: 1 });
+  assert.equal(exhausted.supply, "open", "quota exhaustion does not change offer status");
+  assert.equal(exhausted.state, "exhausted");
 });
 
-test("the high-water mark moves the demand alarm without losing the exhausted case", () => {
+test("the high-water mark moves the utilization alarm without losing the exhausted case", () => {
   assert.equal(app.DEFAULT_HIGH_WATER_MARK, 70);
   assert.deepEqual(app.HIGH_WATER_MARKS, [60, 70, 80, 90]);
 
@@ -819,21 +1292,26 @@ test("the high-water mark moves the demand alarm without losing the exhausted ca
   assert.equal(app.familyDemandTier(NaN), "none");
 });
 
-test("supply and demand stay separate channels in the rendered matrix", async () => {
-  const css = await readFile(new URL("../public/app.css", import.meta.url), "utf8");
-  const js = await readFile(new URL("../public/app.js", import.meta.url), "utf8");
+test("quota status and utilization stay separate channels in the rendered matrix", async () => {
+  const [css, uiCss, js, html] = await Promise.all([
+    readFile(new URL("../public/app.css", import.meta.url), "utf8"),
+    readFile(new URL("../public/ui.css", import.meta.url), "utf8"),
+    readFile(new URL("../public/app.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/index.html", import.meta.url), "utf8"),
+  ]);
 
-  // Supply owns the bar, demand owns the number. Neither may borrow the other's channel.
+  // Offer status owns the bar, utilization owns the number.
   for (const supply of ["open", "partial", "blocked", "none"]) {
-    assert.match(css, new RegExp(`\\.capacity-supply--${supply}\\b`), `${supply} needs a bar`);
+    assert.match(uiCss, new RegExp(`\\.capacity-supply--${supply}\\b`), `${supply} needs a bar`);
   }
-  assert.match(css, /\.capacity-supply--blocked\s*\{[^}]*inset 3px 0 0 var\(--neg\)/s);
+  assert.match(uiCss, /\.ui-matrix-cell\.capacity-supply--blocked\s*\{[^}]*inset 3px 0 0 var\(--neg\)/s);
+  assert.match(uiCss, /\.ui-matrix-cell--missing,\s*\.ui-matrix-cell\.capacity-supply--none\s*\{[^}]*inset 3px 0 0 color-mix/s);
   assert.doesNotMatch(
-    css,
+    uiCss,
     /capacity-heatmap--family[^\n]*capacity-state--healthy[^\n]*border-right-color/,
     "utilization must not colour the supply bar again",
   );
-  assert.match(css, /\.capacity-demand--over strong\s*\{[^}]*var\(--neg-ink\)/s);
+  assert.match(uiCss, /\.ui-matrix-cell\.capacity-demand--over strong\s*\{[^}]*var\(--neg-ink\)/s);
   assert.match(css, /--neg-ink:\s*color-mix/, "alert text needs an AA-safe token, not raw --neg");
 
   // Colour is never the only channel: crossing the mark is also stated in words.
@@ -841,7 +1319,16 @@ test("supply and demand stay separate channels in the rendered matrix", async ()
   assert.match(js, /Quota exhausted/);
   assert.match(js, /capacity-supply--\$\{esc\(semantic\.supply/);
   assert.match(js, /capacity-demand--\$\{esc\(tier\)\}/);
-  assert.match(js, /data-family-mark=/, "the mark must be the operator's to set");
+  assert.match(js, /name: "matrix-mark"/, "the mark must be the operator's to set");
+  assert.match(js, /Offer status" : "Quota status"\}, the left bar/);
+  assert.match(js, /Quota utilization, the percentage/);
+  assert.match(js, /AZ \$\{esc\(item\.zone\)\}/);
+  assert.match(js, /capacityMatrixFilters: \{/, "shared matrix state must exist");
+  assert.match(js, /status: "all"/, "the zero-usage estate must not start with every cell hidden");
+  assert.match(uiCss, /\.ui-matrix-cell \.capacity-zone--restricted\s*\{[^}]*var\(--warn-ink\)/s);
+  assert.match(uiCss, /\.ui-cell-status--danger\s*\{[^}]*var\(--neg-ink\)/s);
+  assert.match(uiCss, /\.ui-cell-status--warning\s*\{[^}]*var\(--warn-ink\)/s);
+  assert.match(html, /data-tab="capacity"[^>]*>Supply<\/button>/);
 });
 
 test("last closed month skips a partial ingestion month", () => {

@@ -20,7 +20,7 @@ import {
   getUsage,
   getAnomaly,
   getCapacity,
-  getComputeSubscriptionPage,
+  getCapacitySubscriptionPage,
   getAi,
   normalizeConnection,
   normalizeCapacityClassId,
@@ -85,6 +85,7 @@ async function loadPersistedConfig() {
     return {
       clusterUri: typeof parsed.clusterUri === "string" ? parsed.clusterUri : undefined,
       database: typeof parsed.database === "string" ? parsed.database : undefined,
+      tenantId: typeof parsed.tenantId === "string" ? parsed.tenantId : undefined,
       lastQuery: typeof parsed.lastQuery === "string" ? parsed.lastQuery : undefined,
     };
   } catch {
@@ -94,7 +95,7 @@ async function loadPersistedConfig() {
 
 // Merges `patch` onto whatever is currently on disk instead of overwriting the
 // whole file, so saving the query editor's text can't clobber the persisted
-// clusterUri/database (and vice versa) -- the two are updated independently
+// connection settings (and vice versa) -- the two are updated independently
 // and on different cadences (query text on every edit; connection on Settings
 // dialog submit). Writes are serialized onto a single chained promise: two
 // concurrent callers (e.g. a Settings-dialog POST landing while the query
@@ -146,6 +147,8 @@ const STATIC = {
   "/index.html": ["index.html", "text/html; charset=utf-8"],
   "/app.css": ["app.css", "text/css; charset=utf-8"],
   "/app.js": ["app.js", "application/javascript; charset=utf-8"],
+  "/ui.css": ["ui.css", "text/css; charset=utf-8"],
+  "/ui.js": ["ui.js", "application/javascript; charset=utf-8"],
 };
 
 // This canvas has no legitimate multi-instance use case -- it's one live
@@ -156,18 +159,19 @@ const STATIC = {
 // (connection settings, in-progress query text). A singleton removes the
 // possibility entirely: every open(), regardless of instanceId, resolves to
 // the same server/port/state, so duplicate panels can never diverge.
-let singleton = null; // { server, url, clusterUri, database, lastQuery, canvasState, openInstances: Set<string> }
+let singleton = null; // { server, url, clusterUri, database, tenantId, lastQuery, canvasState, openInstances: Set<string> }
 
-async function getOrCreateSingleton(clusterUri, database) {
+async function getOrCreateSingleton(clusterUri, database, tenantId) {
   if (!singleton) {
-    const connection = normalizeConnection(clusterUri, database);
+    const connection = normalizeConnection(clusterUri, database, tenantId);
     singleton = {
       clusterUri: connection.clusterUri,
       database: connection.database,
+      tenantId: connection.tenantId,
       lastQuery: persisted.lastQuery ?? DEFAULT_QUERY,
       canvasState: {
         tab: "overview",
-        preset: "all",
+        preset: "3m",
         filters: {},
         capacityClass: "home",
         capacitySelections: {},
@@ -192,12 +196,21 @@ function parseFilters(url) {
 }
 
 function connectionInfo(entry) {
-  const normalized = normalizeConnection(entry.clusterUri, entry.database);
+  const normalized = normalizeConnection(entry.clusterUri, entry.database, entry.tenantId);
   return {
     clusterUri: normalized.clusterUri,
     database: normalized.database,
+    tenantId: normalized.tenantId,
     mode: normalized.mode,
     authentication: normalized.authentication,
+  };
+}
+
+function queryConnection(entry) {
+  return {
+    clusterUri: entry.clusterUri,
+    database: entry.database,
+    tenantId: entry.tenantId,
   };
 }
 
@@ -334,11 +347,12 @@ async function readJsonBody(req) {
 export async function changeConnection(entry, input, dependencies = {}) {
   const query = dependencies.runQueryFn || runQuery;
   const persist = dependencies.persistConfig || savePersistedConfig;
-  const next = normalizeConnection(input?.clusterUri, input?.database || "Hub");
-  await query(next.clusterUri, next.database, "Costs() | take 0");
-  await persist({ clusterUri: next.clusterUri, database: next.database });
+  const next = normalizeConnection(input?.clusterUri, input?.database || "Hub", input?.tenantId);
+  await query(next, next.database, "Costs() | take 0");
+  await persist({ clusterUri: next.clusterUri, database: next.database, tenantId: next.tenantId });
   entry.clusterUri = next.clusterUri;
   entry.database = next.database;
+  entry.tenantId = next.tenantId;
   entry.canvasState = { ...entry.canvasState, revision: entry.canvasState.revision + 1 };
   return connectionInfo(entry);
 }
@@ -489,7 +503,7 @@ async function handleRequest(entry, req, res) {
   // `.show schema as json` object, not generic query rows).
   if (path === "/api/schema") {
     try {
-      const rows = await runQuery(entry.clusterUri, entry.database, ".show schema as json");
+      const rows = await runQuery(queryConnection(entry), entry.database, ".show schema as json");
       const cell = rows[0] ? Object.values(rows[0])[0] : null;
       const schema = typeof cell === "string" ? JSON.parse(cell) : cell;
       sendJson(res, 200, { schema, clusterUri: entry.clusterUri, database: entry.database });
@@ -504,7 +518,7 @@ async function handleRequest(entry, req, res) {
       const preset = url.searchParams.get("preset") || "all";
       if (!VALID_PRESETS.includes(preset)) throw new Error(`Unknown time preset '${preset}'.`);
       const filters = parseFilters(url);
-      const payload = await getDashboard(entry.clusterUri, entry.database, preset, filters);
+      const payload = await getDashboard(queryConnection(entry), entry.database, preset, filters);
       sendJson(res, 200, payload);
     } catch (err) {
       sendQueryError(res, entry, "overview", err);
@@ -517,7 +531,7 @@ async function handleRequest(entry, req, res) {
       const preset = url.searchParams.get("preset") || "all";
       if (!VALID_PRESETS.includes(preset)) throw new Error(`Unknown time preset '${preset}'.`);
       const filters = parseFilters(url);
-      const payload = await getTokenomics(entry.clusterUri, entry.database, preset, filters);
+      const payload = await getTokenomics(queryConnection(entry), entry.database, preset, filters);
       sendJson(res, 200, payload);
     } catch (err) {
       sendQueryError(res, entry, "tokenomics", err);
@@ -537,8 +551,8 @@ async function handleRequest(entry, req, res) {
       const { name, preset, filters, capacityClass, capacitySelections } = validateViewInput(input);
       const getter = GETTERS[name];
       const payload = name === "capacity"
-        ? await getter(entry.clusterUri, entry.database, capacityClass, capacitySelections)
-        : await getter(entry.clusterUri, entry.database, preset, filters);
+        ? await getter(queryConnection(entry), entry.database, capacityClass, capacitySelections)
+        : await getter(queryConnection(entry), entry.database, preset, filters);
       sendJson(res, 200, payload);
     } catch (err) {
       sendQueryError(res, entry, "view", err);
@@ -548,8 +562,8 @@ async function handleRequest(entry, req, res) {
 
   if (path === "/api/capacity-subscriptions" && req.method === "POST") {
     try {
-      const payload = await getComputeSubscriptionPage(
-        entry.clusterUri,
+      const payload = await getCapacitySubscriptionPage(
+        queryConnection(entry),
         entry.database,
         await readJsonBody(req)
       );
@@ -567,7 +581,7 @@ async function handleRequest(entry, req, res) {
       const kql = validateReadOnlyQuery(body.kql);
       entry.lastQuery = kql;
       void savePersistedConfig({ lastQuery: kql }).catch((err) => logError("Could not persist query text", err));
-      const rows = await runQuery(entry.clusterUri, entry.database, kql);
+      const rows = await runQuery(queryConnection(entry), entry.database, kql);
       sendJson(res, 200, {
         rows: rows.slice(0, QUERY_ROW_LIMIT),
         truncated: rows.length > QUERY_ROW_LIMIT,
@@ -743,6 +757,7 @@ export function createDashboardCanvas(dependencies = {}) {
       properties: {
         clusterUri: { type: "string", description: `Local loopback or remote Kusto cluster origin. Seeds only the first run before a connection is persisted; defaults to ${HARDCODED_CLUSTER}.` },
         database: { type: "string", description: "Database name. Default Hub." },
+        tenantId: { type: "string", description: "Microsoft Entra tenant ID for remote Kusto authentication." },
       },
     },
     actions: [
@@ -768,6 +783,7 @@ export function createDashboardCanvas(dependencies = {}) {
           properties: {
             clusterUri: { type: "string" },
             database: { type: "string", default: "Hub" },
+            tenantId: { type: "string", description: "Microsoft Entra tenant ID. Required for remote hubs." },
           },
         },
         handler: async (ctx) => {
@@ -840,8 +856,8 @@ export function createDashboardCanvas(dependencies = {}) {
               capacitySelections: ctx.input?.capacitySelections,
             });
             return input.name === "capacity"
-              ? await getters[input.name](entry.clusterUri, entry.database, input.capacityClass, input.capacitySelections)
-              : await getters[input.name](entry.clusterUri, entry.database, input.preset, input.filters);
+              ? await getters[input.name](queryConnection(entry), entry.database, input.capacityClass, input.capacitySelections)
+              : await getters[input.name](queryConnection(entry), entry.database, input.preset, input.filters);
           } catch (err) {
             return queryFailure(`Could not query ${ctx.input?.view}`, err);
           }
@@ -860,7 +876,7 @@ export function createDashboardCanvas(dependencies = {}) {
           const entry = requireEntry();
           try {
             const kql = validateReadOnlyQuery(ctx.input?.kql);
-            const rows = await query(entry.clusterUri, entry.database, kql);
+            const rows = await query(queryConnection(entry), entry.database, kql);
             return { rows: rows.slice(0, QUERY_ROW_LIMIT), truncated: rows.length > QUERY_ROW_LIMIT, rowLimit: QUERY_ROW_LIMIT };
           } catch (err) {
             return queryFailure("Could not run custom KQL", err);
@@ -878,7 +894,7 @@ export function createDashboardCanvas(dependencies = {}) {
         handler: async (ctx) => {
           const entry = requireEntry();
           try {
-            return headline(await getters.overview(entry.clusterUri, entry.database, ctx.input?.preset || "all"));
+            return headline(await getters.overview(queryConnection(entry), entry.database, ctx.input?.preset || "all"));
           } catch (err) {
             return queryFailure("Could not query summary", err);
           }
@@ -895,7 +911,7 @@ export function createDashboardCanvas(dependencies = {}) {
         handler: async (ctx) => {
           const entry = requireEntry();
           try {
-            return tokenHeadline(await getters.tokenomics(entry.clusterUri, entry.database, ctx.input?.preset || "all"));
+            return tokenHeadline(await getters.tokenomics(queryConnection(entry), entry.database, ctx.input?.preset || "all"));
           } catch (err) {
             return queryFailure("Could not query tokenomics", err);
           }
@@ -906,7 +922,8 @@ export function createDashboardCanvas(dependencies = {}) {
       try {
         const clusterUri = persisted.clusterUri || ctx.input?.clusterUri || DEFAULT_CLUSTER;
         const database = persisted.database || ctx.input?.database || DEFAULT_DB;
-        const entry = await getOrCreateSingleton(clusterUri, database);
+        const tenantId = persisted.clusterUri ? persisted.tenantId : ctx.input?.tenantId;
+        const entry = await getOrCreateSingleton(clusterUri, database, tenantId);
         entry.openInstances.add(ctx.instanceId);
         const connection = connectionInfo(entry);
         return {

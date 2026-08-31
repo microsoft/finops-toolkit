@@ -402,3 +402,6 @@ graphify-out/
 
 # Impeccable design hook local cache
 .impeccable/
+
+# Local Azure Developer CLI (azd) deployment artifacts
+.azure/

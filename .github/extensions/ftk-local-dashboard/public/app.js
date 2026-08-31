@@ -4,6 +4,16 @@
 
 "use strict";
 
+import {
+  uiDataMatrix,
+  uiFilterBar,
+  uiPagination,
+  uiSearchField,
+  uiSegmentedControl,
+  uiTabList,
+  uiToggleList,
+} from "./ui.js";
+
 const PALETTE = [
   "#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444", "#06b6d4",
   "#ec4899", "#84cc16", "#f97316", "#6366f1", "#14b8a6", "#a855f7",
@@ -26,16 +36,20 @@ export const CAPACITY_TABS = Object.freeze([
 ]);
 
 const state = {
-  preset: "all",
+  preset: "3m",
   tab: "overview",
   loading: false,
   cache: {},
   filters: {},
   capacityClass: "home",
   capacitySelections: {},
-  familyFilter: { status: "in-use", search: "", regions: [], mark: 70 },
-  capacityDetailTab: "families",
-  capacityFamilyPage: 1,
+  capacityMatrixFilters: {
+    compute: { status: "all", search: "", regions: [], mark: 70 },
+    "app-service": { status: "all", search: "", regions: [], mark: 70 },
+    "azure-sql": { status: "all", search: "", regions: [], mark: 70 },
+  },
+  capacityDetailTab: "matrix",
+  capacityMatrixPage: 1,
   capacitySubscriptionSearch: "",
   capacitySubscriptionPage: 1,
   capacitySubscriptionData: null,
@@ -243,7 +257,9 @@ async function pollCanvasState() {
     if (!Number.isInteger(next.revision) || next.revision <= state.revision) return;
     const previous = window.__cfg || {};
     const config = await fetch("/api/config").then((response) => response.json());
-    const connectionChanged = config.clusterUri !== previous.clusterUri || config.database !== previous.database;
+    const connectionChanged = config.clusterUri !== previous.clusterUri ||
+      config.database !== previous.database ||
+      config.tenantId !== previous.tenantId;
     window.__cfg = config;
     applySharedCanvasState(next, { forceReload: connectionChanged });
   } catch {
@@ -1025,8 +1041,8 @@ function selectCapacityClass(classId, options = {}) {
 
 function resetCapacityDetail() {
   invalidateCapacitySubscriptions();
-  state.capacityDetailTab = "families";
-  state.capacityFamilyPage = 1;
+  state.capacityDetailTab = "matrix";
+  state.capacityMatrixPage = 1;
   state.capacitySubscriptionSearch = "";
 }
 
@@ -1040,36 +1056,41 @@ function invalidateCapacitySubscriptions() {
   state.capacitySubscriptionError = null;
 }
 
-// The family matrix filters run against the payload already in memory, so they
-// re-render without a round trip. Re-rendering replaces the search input, so its
-// focus and caret are restored by hand.
-function setFamilyFilter(patch) {
-  state.familyFilter = { ...state.familyFilter, ...patch };
-  state.capacityFamilyPage = 1;
+function capacityMatrixFilter(classId = state.capacityClass) {
+  return state.capacityMatrixFilters[classId] || { status: "all", search: "", regions: [], mark: 70 };
+}
+
+// Matrix filters run against the payload in memory. Restore focus because each
+// update replaces the rendered controls.
+function setCapacityMatrixFilter(patch) {
+  const current = capacityMatrixFilter();
+  const next = { ...current, ...patch };
+  state.capacityMatrixFilters = { ...state.capacityMatrixFilters, [state.capacityClass]: next };
+  state.capacityMatrixPage = 1;
   state.capacitySubscriptionPage = 1;
   state.capacitySubscriptionData = null;
   const active = document.activeElement;
-  const search = document.getElementById("family-search");
+  const search = document.querySelector('[data-ui-search="matrix"]');
   const hadSearchFocus = search && active === search;
   const caret = hadSearchFocus ? search.selectionStart : null;
-  const lensFocus = !hadSearchFocus && active?.dataset?.familyStatus ? state.familyFilter.status : null;
-  const regionFocus = !hadSearchFocus && active?.dataset?.familyRegion ? active.dataset.familyRegion : null;
-  const markFocus = !hadSearchFocus && active?.dataset?.familyMark ? String(state.familyFilter.mark) : null;
+  const lensFocus = !hadSearchFocus && active?.dataset?.uiSegment === "matrix-status" ? next.status : null;
+  const regionFocus = !hadSearchFocus && active?.dataset?.uiToggle === "matrix-region" ? active.dataset.uiValue : null;
+  const markFocus = !hadSearchFocus && active?.dataset?.uiSegment === "matrix-mark" ? String(next.mark) : null;
   render();
   if (state.capacityDetailTab === "subscriptions") {
     queueMicrotask(() => void loadCapacitySubscriptions());
   }
   if (hadSearchFocus) {
-    const next = document.getElementById("family-search");
-    if (!next) return;
-    next.focus();
-    if (caret !== null) next.setSelectionRange(caret, caret);
+    const nextSearch = document.querySelector('[data-ui-search="matrix"]');
+    if (!nextSearch) return;
+    nextSearch.focus();
+    if (caret !== null) nextSearch.setSelectionRange(caret, caret);
     return;
   }
   const selector = lensFocus
-    ? `[data-family-status="${CSS.escape(lensFocus)}"]`
-    : regionFocus ? `[data-family-region="${CSS.escape(regionFocus)}"]`
-    : markFocus ? `[data-family-mark="${CSS.escape(markFocus)}"]` : null;
+    ? `[data-ui-segment="matrix-status"][data-ui-value="${CSS.escape(lensFocus)}"]`
+    : regionFocus ? `[data-ui-toggle="matrix-region"][data-ui-value="${CSS.escape(regionFocus)}"]`
+    : markFocus ? `[data-ui-segment="matrix-mark"][data-ui-value="${CSS.escape(markFocus)}"]` : null;
   if (selector) document.querySelector(selector)?.focus();
 }
 
@@ -1101,27 +1122,29 @@ function applyCapacitySelection(kind, value) {
 }
 
 function setCapacityDetailTab(tab) {
-  if (!["families", "subscriptions"].includes(tab) || tab === state.capacityDetailTab) return;
+  if (!["matrix", "subscriptions"].includes(tab) || tab === state.capacityDetailTab) return;
   state.capacityDetailTab = tab;
   render();
-  document.querySelector(`[data-capacity-detail-tab="${CSS.escape(tab)}"]`)?.focus();
+  document.querySelector(`[data-ui-tab="capacity-detail"][data-ui-value="${CSS.escape(tab)}"]`)?.focus();
   if (tab === "subscriptions" && !state.capacitySubscriptionData) {
     void loadCapacitySubscriptions();
   }
 }
 
 function renderPreservingSubscriptionSearchFocus() {
-  const search = document.querySelector("[data-capacity-subscription-search]");
+  const search = document.querySelector("#capacity-subscription-search");
   const focused = search && document.activeElement === search;
-  const detailTab = document.activeElement?.dataset?.capacityDetailTab;
+  const detailTab = document.activeElement?.dataset?.uiTab === "capacity-detail"
+    ? document.activeElement.dataset.uiValue
+    : null;
   const caret = focused ? search.selectionStart : null;
   render();
   if (focused) {
-    const next = document.querySelector("[data-capacity-subscription-search]");
+    const next = document.querySelector("#capacity-subscription-search");
     next?.focus();
     if (caret !== null) next?.setSelectionRange(caret, caret);
   } else if (detailTab) {
-    document.querySelector(`[data-capacity-detail-tab="${CSS.escape(detailTab)}"]`)?.focus();
+    document.querySelector(`[data-ui-tab="capacity-detail"][data-ui-value="${CSS.escape(detailTab)}"]`)?.focus();
   } else if (_capacitySubscriptionFocusResults) {
     const results = document.querySelector("#capacity-subscription-summary, #capacity-detail-panel [role=alert]");
     if (results) {
@@ -1132,7 +1155,7 @@ function renderPreservingSubscriptionSearchFocus() {
 }
 
 async function loadCapacitySubscriptions() {
-  if (state.capacityClass !== "compute" || state.capacityDetailTab !== "subscriptions") return;
+  if (!CAPACITY_MATRIX_CONFIG[state.capacityClass] || state.capacityDetailTab !== "subscriptions") return;
   if (_capacitySubscriptionAbort) _capacitySubscriptionAbort.abort();
   const controller = new AbortController();
   _capacitySubscriptionAbort = controller;
@@ -1140,13 +1163,15 @@ async function loadCapacitySubscriptions() {
   state.capacitySubscriptionError = null;
   renderPreservingSubscriptionSearchFocus();
   try {
+    const filter = capacityMatrixFilter();
     const response = await fetch("/api/capacity-subscriptions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        status: state.familyFilter.status,
-        familySearch: state.familyFilter.search,
-        regions: state.familyFilter.regions,
+        classId: state.capacityClass,
+        status: filter.status,
+        resourceSearch: filter.search,
+        regions: filter.regions,
         subscriptionSearch: state.capacitySubscriptionSearch,
         page: state.capacitySubscriptionPage,
         pageSize: 50,
@@ -2180,7 +2205,7 @@ const CAPACITY_ACTIONS = Object.freeze({
   "app-service": "Validate region access and SKU availability separately before requesting an exact SKU quota increase.",
   "azure-ai": "Validate model availability, deployment scope, and actual capacity separately from the provider quota row.",
   compute: "Check both total regional and applicable VM-family vCPU quota, then validate SKU, zone, and physical capacity separately.",
-  "azure-sql": "Use the exact SQL metric and service workflow. Do not treat countdown or negative-limit rows as generic utilization.",
+  "azure-sql": "Use the exact SQL metric and service workflow. Validate region and zone-redundant access separately; do not treat countdown or negative-limit rows as generic utilization.",
   storage: "Validate ingestion and expected subscription-region coverage before drawing a Storage quota conclusion.",
   "capacity-reservations": "Inspect reservation quantity, SKU, zones, sharing, associations, and utilization in Azure; inventory count is not reserved capacity.",
   "premium-ssd-v2": "Inspect disk zone, attachment, IOPS, throughput, and service quota separately; observed GiB is inventory, not quota.",
@@ -2376,239 +2401,392 @@ function capacityHeatmap(payload) {
   </table></div>`;
 }
 
-// A family and region pair is only meaningful to a capacity manager through one
-// of these lenses. Counts are always computed over the unfiltered set so a lens
-// can never become a dead end.
-export const FAMILY_STATUS_FILTERS = [
-  { id: "in-use", label: "In use", match: (row) => Number(row.CoresUsed || 0) > 0 },
-  {
-    id: "restricted",
-    label: "Restricted",
-    match: (row) => Boolean(row.semantic?.regionRestricted)
-      || (Array.isArray(row.ZonesRestricted) && row.ZonesRestricted.length > 0),
-  },
-  { id: "no-quota", label: "No quota", match: (row) => Number(row.CoresTotal || 0) <= 0 },
-  { id: "all", label: "All", match: () => true },
-];
+export const MATRIX_STATUS_FILTERS = Object.freeze([
+  { id: "in-use", label: "In use" },
+  { id: "at-limit", label: "At limit" },
+  { id: "no-quota", label: "No quota" },
+  { id: "all", label: "All" },
+]);
 
 export const HIGH_WATER_MARKS = [60, 70, 80, 90];
 export const DEFAULT_HIGH_WATER_MARK = 70;
 
-// Demand is a separate channel from supply. The mark is where the operator wants
-// to start reacting, so crossing it is the alarm and 100% stays visibly distinct.
-export function familyDemandTier(utilizationPercent, mark = DEFAULT_HIGH_WATER_MARK) {
+const CAPACITY_MATRIX_CONFIG = Object.freeze({
+  compute: Object.freeze({
+    payloadKey: "familyHeatmap",
+    rowHeader: "VM family",
+    searchLabel: "VM family",
+    searchPlaceholder: "Filter by family, such as Dsv5",
+    pairLabel: "family and region combinations",
+    panelTitle: "Estate quota by VM family and region",
+    panelSubtitle: "Provider-reported usage, quota, and headroom from ComputeUsage rows.",
+    detailTab: "Family and region",
+    description: "VM family quota by region across the estate. The left bar and AZ labels use the smallest-vCPU SKU in each family. The percentage is provider-reported family quota utilization. Values are summed across subscriptions.",
+    ariaLabel: "VM family by region matrix, scrollable",
+    empty: "No Compute family quota was reported for this scope. Check ComputeUsage ingestion.",
+    disabled: "Family view disabled.",
+    key: (row) => row.FamilyKey,
+    label: (row) => row.Family || row.FamilyKey,
+    searchText: (row) => `${row.Family || ""} ${row.FamilyKey || ""}`,
+    used: (row) => Number(row.CoresUsed || 0),
+    total: (row) => Number(row.CoresTotal || 0),
+  }),
+  "app-service": Object.freeze({
+    payloadKey: "appServiceHeatmap",
+    rowHeader: "App Service plan SKU",
+    searchLabel: "Plan SKU",
+    searchPlaceholder: "Filter by SKU, such as P1v4",
+    pairLabel: "SKU and region combinations",
+    panelTitle: "Estate quota by plan SKU and region",
+    panelSubtitle: "Provider-reported App Service instance usage, quota, and headroom.",
+    detailTab: "SKU and region",
+    description: "App Service quota by exact plan SKU and region across the estate. Total Regional VMs and the selected SKU both constrain deployment. Quota does not prove physical capacity.",
+    ariaLabel: "App Service plan SKU by region matrix, scrollable",
+    empty: "No App Service SKU quota was reported for this scope. Check AppServiceUsage ingestion.",
+    disabled: "App Service view disabled.",
+    key: (row) => row.SkuKey,
+    label: (row) => row.Sku || row.SkuKey,
+    searchText: (row) => `${row.Sku || ""} ${row.SkuKey || ""} ${row.Unit || ""}`,
+    used: (row) => Number(row.UsedInstances || 0),
+    total: (row) => Number(row.QuotaInstances || 0),
+    subscriptionCoverage: true,
+  }),
+  "azure-sql": Object.freeze({
+    payloadKey: "azureSqlHeatmap",
+    rowHeader: "Azure SQL quota",
+    searchLabel: "Quota",
+    searchPlaceholder: "Filter by quota, such as vCore or server",
+    pairLabel: "quota and region combinations",
+    panelTitle: "Estate quota by Azure SQL metric and region",
+    panelSubtitle: "Provider-reported regional quota for Azure SQL Database, Synapse, and SQL Managed Instance.",
+    detailTab: "Quota and region",
+    description: "Current regional quota only. Legacy subnet and single-vCore counters and subscription-wide free-offer counters are excluded. A zero or negative limit does not receive utilization arithmetic. Quota doesn't prove region or zone-redundant access.",
+    ariaLabel: "Azure SQL quota by region matrix, scrollable",
+    empty: "No supported Azure SQL regional quota was reported for this scope. Check SqlSubscriptionUsage ingestion.",
+    disabled: "Azure SQL view disabled.",
+    key: (row) => row.MetricKey,
+    label: (row) => row.Metric || row.MetricKey,
+    searchText: (row) => `${row.Metric || ""} ${row.MetricKey || ""} ${row.Unit || ""}`,
+    used: (row) => Number(row.Used || 0),
+    total: (row) => Number(row.Quota || 0),
+    subscriptionCoverage: true,
+  }),
+});
+
+function matrixStatusMatches(row, classId, status) {
+  const config = CAPACITY_MATRIX_CONFIG[classId];
+  if (!config || status === "all") return true;
+  if (status === "in-use") return config.used(row) > 0;
+  if (status === "at-limit") {
+    return config.subscriptionCoverage
+      ? Number(row.AtLimitSubscriptions || 0) > 0
+      : config.total(row) > 0 && config.used(row) >= config.total(row);
+  }
+  return status === "no-quota"
+    ? config.subscriptionCoverage
+      ? Number(row.QuotaSubscriptions || 0) <= 0
+      : config.total(row) <= 0
+    : true;
+}
+
+export const FAMILY_STATUS_FILTERS = MATRIX_STATUS_FILTERS.map((lens) => ({
+  ...lens,
+  match: (row) => matrixStatusMatches(row, "compute", lens.id),
+}));
+
+export function capacityDemandTier(utilizationPercent, mark = DEFAULT_HIGH_WATER_MARK) {
   if (!Number.isFinite(utilizationPercent)) return "none";
   if (utilizationPercent >= 100) return "exhausted";
   return utilizationPercent >= mark ? "over" : "under";
 }
 
-export function filterFamilyRows(rows, filter = {}) {
+export function familyDemandTier(utilizationPercent, mark = DEFAULT_HIGH_WATER_MARK) {
+  return capacityDemandTier(utilizationPercent, mark);
+}
+
+export function filterCapacityMatrixRows(rows, classId, filter = {}) {
+  const config = CAPACITY_MATRIX_CONFIG[classId];
+  if (!config) return [];
   const list = Array.isArray(rows) ? rows : [];
-  const lens = FAMILY_STATUS_FILTERS.find((item) => item.id === filter.status) || FAMILY_STATUS_FILTERS[0];
+  const status = MATRIX_STATUS_FILTERS.some((item) => item.id === filter.status) ? filter.status : "all";
   const needle = String(filter.search || "").trim().toLowerCase();
   const regions = Array.isArray(filter.regions) ? filter.regions : [];
   return list.filter((row) => {
-    if (!lens.match(row)) return false;
+    if (!matrixStatusMatches(row, classId, status)) return false;
     if (regions.length && !regions.includes(row.Location || "Unknown region")) return false;
-    if (!needle) return true;
-    return `${row.Family || ""} ${row.FamilyKey || ""}`.toLowerCase().includes(needle);
+    return !needle || config.searchText(row).toLowerCase().includes(needle);
   });
 }
 
-function familyFilterBar(rows, filter, shownCells) {
-  const counts = new Map(FAMILY_STATUS_FILTERS.map((lens) => [lens.id, rows.filter(lens.match).length]));
-  const lensButtons = FAMILY_STATUS_FILTERS.map((lens) => `<button type="button" role="radio"
-      class="capacity-segment" data-family-status="${esc(lens.id)}"
-      aria-checked="${filter.status === lens.id ? "true" : "false"}"
-      tabindex="${filter.status === lens.id ? "0" : "-1"}">${esc(lens.label)}
-      <span class="capacity-segment-count">${fmtInt(counts.get(lens.id) || 0)}</span></button>`).join("");
-
-  // Region chips list only the regions the active lens and search can still reach.
-  const reachable = filterFamilyRows(rows, { ...filter, regions: [] });
-  const regions = [...new Set(reachable.map((row) => row.Location || "Unknown region"))].sort();
-  const regionButtons = regions.map((region) => `<button type="button"
-      class="capacity-segment" data-family-region="${esc(region)}"
-      aria-pressed="${filter.regions.includes(region) ? "true" : "false"}">${esc(region)}</button>`).join("");
-
-  const mark = Number(filter.mark) || DEFAULT_HIGH_WATER_MARK;
-  const markButtons = HIGH_WATER_MARKS.map((value) => {
-    const over = rows.filter((row) => familyDemandTier(row.semantic?.utilizationPercent, value) !== "under"
-      && Number.isFinite(row.semantic?.utilizationPercent)).length;
-    return `<button type="button" role="radio"
-      class="capacity-segment" data-family-mark="${value}"
-      aria-checked="${mark === value ? "true" : "false"}"
-      tabindex="${mark === value ? "0" : "-1"}">${value}%
-      <span class="capacity-segment-count">${fmtInt(over)}</span></button>`;
-  }).join("");
-
-  const filtered = filter.status !== "all" || filter.search || filter.regions.length;
-  return `<div class="capacity-filters" role="group" aria-label="Family matrix filters">
-    <div class="capacity-filter-group">
-      <span class="capacity-filter-label" id="family-lens-label">Show</span>
-      <div class="capacity-segments" role="radiogroup" aria-labelledby="family-lens-label">${lensButtons}</div>
-    </div>
-    <div class="capacity-filter-group">
-      <label class="capacity-filter-label" for="family-search">VM family</label>
-      <input id="family-search" class="capacity-filter-search" type="search" data-family-search
-        value="${esc(filter.search || "")}" placeholder="Filter by family, such as Dsv5"
-        autocomplete="off" spellcheck="false">
-    </div>
-    ${regions.length > 1 ? `<div class="capacity-filter-group">
-      <span class="capacity-filter-label" id="family-region-label">Region</span>
-      <div class="capacity-segments capacity-segments--regions" role="group" aria-labelledby="family-region-label">${regionButtons}</div>
-    </div>` : ""}
-    <div class="capacity-filter-group">
-      <span class="capacity-filter-label" id="family-mark-label">High-water mark</span>
-      <div class="capacity-segments" role="radiogroup" aria-labelledby="family-mark-label">${markButtons}</div>
-    </div>
-    <p class="capacity-filter-summary" role="status">${fmtInt(shownCells)} of ${fmtInt(rows.length)} cells
-      ${filtered ? `<button type="button" class="capacity-filter-reset" data-family-reset>Clear filters</button>` : ""}</p>
-  </div>`;
+export function filterFamilyRows(rows, filter = {}) {
+  return filterCapacityMatrixRows(rows, "compute", filter);
 }
 
-function familyMatrixLegend(mark) {
-  const supply = [
-    ["open", "Open"],
-    ["partial", "Some zones restricted"],
-    ["blocked", "Region or all zones restricted"],
-    ["none", "No quota"],
-  ].map(([id, label]) => `<li><span class="capacity-legend-bar capacity-legend-bar--${id}" aria-hidden="true"></span>${esc(label)}</li>`).join("");
+function matrixFilterBar(rows, classId, config, filter, shownCells) {
+  const counts = new Map(MATRIX_STATUS_FILTERS.map((lens) => [
+    lens.id,
+    rows.filter((row) => matrixStatusMatches(row, classId, lens.id)).length,
+  ]));
+  const status = uiSegmentedControl({
+    name: "matrix-status",
+    label: "Show",
+    labelId: `${classId}-matrix-status-label`,
+    selected: filter.status,
+    items: MATRIX_STATUS_FILTERS.map((lens) => ({
+      value: lens.id,
+      label: lens.label,
+      count: fmtInt(counts.get(lens.id) || 0),
+    })),
+  });
+  const search = uiSearchField({
+    name: "matrix",
+    id: `${classId}-matrix-search`,
+    label: config.searchLabel,
+    value: filter.search,
+    placeholder: config.searchPlaceholder,
+  });
+  const reachable = filterCapacityMatrixRows(rows, classId, { ...filter, regions: [] });
+  const regions = [...new Set(reachable.map((row) => row.Location || "Unknown region"))].sort();
+  const regionControl = regions.length > 1
+    ? uiToggleList({
+      name: "matrix-region",
+      label: "Region",
+      labelId: `${classId}-matrix-region-label`,
+      selected: filter.regions,
+      items: regions.map((region) => ({ value: region, label: region })),
+    })
+    : "";
+  const mark = Number(filter.mark) || DEFAULT_HIGH_WATER_MARK;
+  const markControl = uiSegmentedControl({
+    name: "matrix-mark",
+    label: "High-water mark",
+    labelId: `${classId}-matrix-mark-label`,
+    selected: mark,
+    items: HIGH_WATER_MARKS.map((value) => ({
+      value,
+      label: `${value}%`,
+      count: fmtInt(rows.filter((row) => Number.isFinite(row.semantic?.utilizationPercent)
+        && capacityDemandTier(row.semantic.utilizationPercent, value) !== "under").length),
+    })),
+  });
+  const filtered = filter.status !== "all" || filter.search || filter.regions.length;
+  return uiFilterBar({
+    ariaLabel: `${config.rowHeader} matrix filters`,
+    controls: `${status}${search}${regionControl}${markControl}`,
+    summary: `${fmtInt(shownCells)} of ${fmtInt(rows.length)} cells`,
+    resetLabel: filtered ? "Clear filters" : null,
+    resetAction: "matrix-reset",
+  });
+}
+
+function matrixLegend(classId, mark) {
+  const supplyItems = classId === "compute"
+    ? [
+      ["open", "Region and AZ available"],
+      ["partial", "One or more AZs restricted"],
+      ["blocked", "Region restricted"],
+      ["none", "No quota or offer status"],
+    ]
+    : classId === "app-service" ? [
+      ["open", "All subscriptions have SKU quota"],
+      ["partial", "One or more subscriptions lack quota"],
+      ["blocked", "One or more subscriptions are at limit"],
+      ["none", "No SKU quota reported"],
+    ] : [
+      ["open", "All subscriptions have usable quota"],
+      ["partial", "One or more subscriptions lack usable quota"],
+      ["blocked", "One or more subscriptions are at limit"],
+      ["none", "No usable quota reported"],
+    ];
+  const supply = supplyItems.map(([id, label]) =>
+    `<li><span class="ui-legend-bar ui-legend-bar--${id}" aria-hidden="true"></span>${esc(label)}</li>`
+  ).join("");
   const demand = [
     ["under", `Under ${mark}%`],
     ["over", `Over ${mark}% mark`],
     ["exhausted", "At or over 100%"],
-  ].map(([id, label]) => `<li><span class="capacity-legend-ink capacity-demand--${id}" aria-hidden="true">00%</span>${esc(label)}</li>`).join("");
-  return `<div class="capacity-legend">
-    <div class="capacity-legend-group"><span class="capacity-legend-title">Supply, the left bar</span><ul>${supply}</ul></div>
-    <div class="capacity-legend-group"><span class="capacity-legend-title">Demand, the percentage</span><ul>${demand}</ul></div>
+  ].map(([id, label]) =>
+    `<li><span class="ui-legend-ink capacity-demand--${id}" aria-hidden="true">00%</span>${esc(label)}</li>`
+  ).join("");
+  return `<div class="ui-legend">
+    <div class="ui-legend-group"><span class="ui-legend-title">${classId === "compute" ? "Offer status" : "Quota status"}, the left bar</span><ul>${supply}</ul></div>
+    <div class="ui-legend-group"><span class="ui-legend-title">Quota utilization, the percentage</span><ul>${demand}</ul></div>
   </div>`;
 }
 
-function computeFamilyHeatmap(payload) {
-  const family = payload.familyHeatmap || {};
-  if (family.status === "not-applicable") return "";
-  if (family.status === "heatmap-disabled") {
-    return `<div class="capacity-notice capacity-notice--warning"><strong>Family view disabled.</strong> More than ${fmtInt(family.limit)} family and region pairs matched. Narrow the subscription or region filter.</div>`;
+function matrixAlarm(semantic, mark) {
+  const tier = capacityDemandTier(semantic.utilizationPercent, mark);
+  const note = tier === "over" ? `<span class="capacity-cell-detail capacity-cell-mark">Over ${mark}% mark</span>`
+    : tier === "exhausted" ? `<span class="capacity-cell-detail capacity-cell-mark">Quota exhausted</span>`
+    : "";
+  return { tier, note };
+}
+
+function computeMatrixCell(row, label, region, mark) {
+  const semantic = row.semantic || {};
+  const detail = Number.isFinite(semantic.headroomCores) ? `${fmtInt(semantic.headroomCores)} cores free` : "";
+  const { tier, note } = matrixAlarm(semantic, mark);
+  const statusClass = semantic.offerState === "region-restricted" ? "danger"
+    : semantic.offerState === "zone-restricted" ? "warning"
+      : semantic.offerState === "available" ? "available"
+        : "muted";
+  const zones = (semantic.zoneStates || []).map((item) =>
+    `<span class="capacity-zone capacity-zone--${item.restricted ? "restricted" : "available"}">AZ ${esc(item.zone)} · ${item.restricted ? "Restricted" : "Available"}</span>`
+  ).join("");
+  const representative = semantic.representativeSkus?.length ? semantic.representativeSkus.join(", ") : "not reported";
+  const title = `${label} · ${region} · ${fmtInt(row.CoresUsed)} of ${fmtInt(row.CoresTotal)} cores · ${semantic.offerText} · Representative SKU: ${representative}`;
+  return `<td class="ui-matrix-cell capacity-supply--${esc(semantic.supply || "none")} capacity-demand--${esc(tier)}" title="${esc(title)}">
+    <strong>${esc(semantic.text || "Not reported")}</strong>
+    <span class="ui-cell-status ui-cell-status--${statusClass}">${esc(semantic.offerText || "Offer status not reported")}</span>
+    ${zones}${note}<span class="capacity-cell-detail">${esc(detail)}</span>
+  </td>`;
+}
+
+function appServiceMatrixCell(row, label, region, mark) {
+  const semantic = row.semantic || {};
+  const detail = Number.isFinite(semantic.headroomInstances) ? `${fmtInt(semantic.headroomInstances)} instances free` : "";
+  const { tier, note } = matrixAlarm(semantic, mark);
+  const statusClass = semantic.supply === "blocked" ? "danger"
+    : semantic.supply === "partial" ? "warning"
+      : semantic.supply === "open" ? "available"
+        : "muted";
+  const title = `${label} · ${region} · ${fmtInt(row.UsedInstances)} of ${fmtInt(row.QuotaInstances)} instances · ${semantic.quotaText}`;
+  return `<td class="ui-matrix-cell capacity-supply--${esc(semantic.supply || "none")} capacity-demand--${esc(tier)}" title="${esc(title)}">
+    <strong>${esc(semantic.text || "Not reported")}</strong>
+    <span class="ui-cell-status ui-cell-status--${statusClass}">${esc(semantic.quotaText || "Quota not reported")}</span>
+    ${note}<span class="capacity-cell-detail">${esc(detail)}</span>
+  </td>`;
+}
+
+function azureSqlMatrixCell(row, label, region, mark) {
+  const semantic = row.semantic || {};
+  const detail = Number.isFinite(semantic.headroomUnits)
+    ? `${fmtInt(semantic.headroomUnits)} ${semantic.unitLabel || "units"} free`
+    : "";
+  const { tier, note } = matrixAlarm(semantic, mark);
+  const statusClass = semantic.supply === "blocked" ? "danger"
+    : semantic.supply === "partial" ? "warning"
+      : semantic.supply === "open" ? "available"
+        : "muted";
+  const title = `${label} · ${region} · ${fmtInt(row.Used)} of ${fmtInt(row.Quota)} ${semantic.unitLabel || "units"} · ${semantic.quotaText}`;
+  return `<td class="ui-matrix-cell capacity-supply--${esc(semantic.supply || "none")} capacity-demand--${esc(tier)}" title="${esc(title)}">
+    <strong>${esc(semantic.text || "Not reported")}</strong>
+    <span class="ui-cell-status ui-cell-status--${statusClass}">${esc(semantic.quotaText || "Quota not reported")}</span>
+    ${note}<span class="capacity-cell-detail">${esc(detail)}</span>
+  </td>`;
+}
+
+function capacityMatrix(payload) {
+  const config = CAPACITY_MATRIX_CONFIG[payload.classId];
+  const matrix = payload[config.payloadKey] || {};
+  if (matrix.status === "heatmap-disabled") {
+    return `<div class="capacity-notice capacity-notice--warning"><strong>${esc(config.disabled)}</strong> More than ${fmtInt(matrix.limit)} ${esc(config.pairLabel)} matched. Narrow the subscription or region filter.</div>`;
   }
-  const rows = family.rows || [];
-  if (!rows.length) {
-    return `<div class="capacity-notice">No Compute family quota was reported for this scope. Check ingestion for ComputeUsage and ComputeResourceSku.</div>`;
-  }
-  const filter = state.familyFilter;
-  const visible = filterFamilyRows(rows, filter);
-  const filterBar = familyFilterBar(rows, filter, visible.length);
+  const rows = matrix.rows || [];
+  if (!rows.length) return `<div class="capacity-notice">${esc(config.empty)}</div>`;
+  const filter = capacityMatrixFilter(payload.classId);
+  const visible = filterCapacityMatrixRows(rows, payload.classId, filter);
+  const filterBar = matrixFilterBar(rows, payload.classId, config, filter, visible.length);
   if (!visible.length) {
-    return `${filterBar}<div class="capacity-notice">No family and region pair matches these filters. Clear them to see all ${fmtInt(rows.length)} cells.</div>`;
+    return `${filterBar}<div class="capacity-notice">No ${esc(config.pairLabel)} match these filters. Clear them to see all ${fmtInt(rows.length)} cells.</div>`;
   }
-  const families = [...new Map(visible.map((row) => [row.FamilyKey, row.Family || row.FamilyKey])).entries()]
-    .sort((a, b) => String(a[1]).localeCompare(String(b[1])));
+  const matrixRows = [...new Map(visible.map((row) => [
+    config.key(row),
+    { key: config.key(row), label: trunc(config.label(row), 28), title: config.key(row) },
+  ])).values()].sort((left, right) => left.label.localeCompare(right.label));
   const regions = [...new Set(visible.map((row) => row.Location || "Unknown region"))].sort();
-  const cells = new Map(visible.map((row) => [`${row.FamilyKey}|${row.Location || "Unknown region"}`, row]));
+  const cells = new Map(visible.map((row) => [`${config.key(row)}|${row.Location || "Unknown region"}`, row]));
   const mark = Number(filter.mark) || DEFAULT_HIGH_WATER_MARK;
+  const noteId = `${payload.classId}-matrix-note`;
   return `${filterBar}
-  <p class="capacity-matrix-note" id="family-matrix-note">VM family by region across the estate. The left bar is supply, meaning whether a deployment can land at all. The percentage is demand against your own quota, and it turns red past the ${mark}% mark. Regional core quota is summed across subscriptions and is never duplicated across zones.</p>
-  ${familyMatrixLegend(mark)}
-  <div class="capacity-matrix" tabindex="0" role="region" aria-label="VM family by region matrix, scrollable">
-  <table class="capacity-heatmap capacity-heatmap--family" aria-describedby="family-matrix-note">
-    <thead><tr><th scope="col">VM family</th>${regions.map((region) => `<th scope="col">${esc(region)}</th>`).join("")}</tr></thead>
-    <tbody>${families.map(([key, label]) => `<tr>
-      <th scope="row" title="${esc(key)}">${esc(trunc(label, 28))}</th>
-      ${regions.map((region) => {
-        const row = cells.get(`${key}|${region}`);
-        if (!row) return `<td class="capacity-cell capacity-state--missing">Not reported</td>`;
-        const semantic = row.semantic || {};
-        const restrictedZones = row.ZonesRestricted || [];
-        const zonesPresent = Number(row.ZonesPresentCount || 0);
-        const zoneNote = zonesPresent
-          ? (restrictedZones.length
-            ? `${restrictedZones.length} of ${zonesPresent} zones restricted`
-            : `${zonesPresent} zones open`)
-          : "No zone mapping";
-        const detail = Number.isFinite(semantic.headroomCores)
-          ? `${fmtInt(semantic.headroomCores)} cores free`
-          : "";
-        // A region restriction is supply news even when quota still exists.
-        const supplyNote = semantic.regionRestricted && semantic.state !== "restricted"
-          ? `<span class="capacity-cell-flag">Region restricted</span>`
-          : "";
-        const tier = familyDemandTier(semantic.utilizationPercent, mark);
-        // Colour never carries the alarm alone, so crossing the mark is spelled out.
-        const markNote = tier === "over" ? `<span class="capacity-cell-detail capacity-cell-mark">Over ${mark}% mark</span>`
-          : tier === "exhausted" ? `<span class="capacity-cell-detail capacity-cell-mark">Quota exhausted</span>`
-          : "";
-        const title = `${label} · ${region} · ${fmtInt(row.CoresUsed)} of ${fmtInt(row.CoresTotal)} cores · ${zoneNote}`
-          + (restrictedZones.length ? ` · restricted: ${restrictedZones.join(", ")}` : "")
-          + (semantic.regionRestricted ? " · every SKU in this family is restricted for the subscription" : "");
-        return `<td class="capacity-cell capacity-state--${esc(semantic.state || "unclassified")} capacity-supply--${esc(semantic.supply || "none")} capacity-demand--${esc(tier)}" title="${esc(title)}">
-          <strong>${esc(semantic.text || "Not reported")}</strong>
-          <span>${esc(CAPACITY_STATE_LABELS[semantic.state] || semantic.state || "Unknown")}</span>
-          ${supplyNote}
-          ${markNote}
-          <span class="capacity-cell-detail">${esc(detail)}</span>
-          <span class="capacity-cell-detail">${esc(zoneNote)}</span>
-        </td>`;
-      }).join("")}
-    </tr>`).join("")}</tbody>
-  </table></div>`;
+    <p class="ui-matrix-note" id="${esc(noteId)}">${esc(config.description)}</p>
+    ${matrixLegend(payload.classId, mark)}
+    ${uiDataMatrix({
+      ariaLabel: config.ariaLabel,
+      descriptionId: noteId,
+      rowHeader: config.rowHeader,
+      rows: matrixRows,
+      columns: regions,
+      renderCell: (matrixRow, region) => {
+        const row = cells.get(`${matrixRow.key}|${region}`);
+        if (!row) return "";
+        if (payload.classId === "compute") return computeMatrixCell(row, matrixRow.label, region, mark);
+        if (payload.classId === "app-service") return appServiceMatrixCell(row, matrixRow.label, region, mark);
+        return azureSqlMatrixCell(row, matrixRow.label, region, mark);
+      },
+    })}`;
 }
 
-function familySupplyLabel(row) {
-  const supply = row.semantic?.supply;
-  if (supply === "blocked") return row.semantic?.regionRestricted ? "Region restricted" : "All zones restricted";
-  if (supply === "partial") return "Some zones restricted";
-  if (supply === "open") return "Open";
-  return "No quota";
-}
-
-function familyZoneLabel(row) {
-  const present = Number(row.ZonesPresentCount || 0);
-  const restricted = Array.isArray(row.ZonesRestricted) ? row.ZonesRestricted.length : 0;
-  if (!present) return "Not mapped";
-  return restricted ? `${restricted} of ${present} restricted` : `${present} open`;
-}
-
-function computeFamilyDetail(payload) {
-  const rows = filterFamilyRows(payload.familyHeatmap?.rows || [], state.familyFilter);
-  if (!rows.length) {
-    return `<div class="capacity-notice">No family and region combination matches the filters above.</div>`;
-  }
+function capacityMatrixDetail(payload) {
+  const config = CAPACITY_MATRIX_CONFIG[payload.classId];
+  const rows = filterCapacityMatrixRows(payload[config.payloadKey]?.rows || [], payload.classId, capacityMatrixFilter(payload.classId));
+  if (!rows.length) return `<div class="capacity-notice">No ${esc(config.pairLabel)} match the filters above.</div>`;
   const pageSize = 50;
   const totalPages = Math.ceil(rows.length / pageSize);
-  const page = Math.min(state.capacityFamilyPage, totalPages);
+  const page = Math.min(state.capacityMatrixPage, totalPages);
   const pageRows = rows.slice((page - 1) * pageSize, page * pageSize);
-  const table = `<div class="capacity-table-scroll">${tableHtml([
-    { label: "VM family", align: "left", get: (row) => esc(row.Family || row.FamilyKey || "—") },
-    { label: "Region", align: "left", get: (row) => esc(row.Location || "—") },
-    { label: "Used cores", get: (row) => fmtInt(row.CoresUsed) },
-    { label: "Quota", get: (row) => fmtInt(row.CoresTotal) },
-    { label: "Headroom", get: (row) => Number.isFinite(row.semantic?.headroomCores) ? fmtInt(row.semantic.headroomCores) : "—" },
-    { label: "Subscriptions", get: (row) => fmtInt(row.Subscriptions) },
-    { label: "Supply", align: "left", get: (row) => esc(familySupplyLabel(row)) },
-    { label: "Zones", align: "left", get: (row) => esc(familyZoneLabel(row)) },
-  ], pageRows, "No family and region combination matches the filters above.")}</div>`;
-  const pagination = totalPages > 1
-    ? `<div class="capacity-detail-pagination" aria-label="Family and region pages">
-        <button type="button" class="capacity-filter-reset" data-capacity-family-page="${page - 1}"${page <= 1 ? " disabled" : ""}>Previous</button>
-        <span>Page ${fmtInt(page)} of ${fmtInt(totalPages)}</span>
-        <button type="button" class="capacity-filter-reset" data-capacity-family-page="${page + 1}"${page >= totalPages ? " disabled" : ""}>Next</button>
-      </div>`
-    : "";
-  return `<div id="capacity-family-summary" class="capacity-detail-summary" role="status" tabindex="-1">${fmtInt(rows.length)} matching family and region combinations</div>${table}${pagination}`;
+  const columns = payload.classId === "compute"
+    ? [
+      { label: "VM family", align: "left", get: (row) => esc(row.Family || row.FamilyKey || "—") },
+      { label: "Region", align: "left", get: (row) => esc(row.Location || "—") },
+      { label: "Used cores", get: (row) => fmtInt(row.CoresUsed) },
+      { label: "Quota", get: (row) => fmtInt(row.CoresTotal) },
+      { label: "Headroom", get: (row) => Number.isFinite(row.semantic?.headroomCores) ? fmtInt(row.semantic.headroomCores) : "—" },
+      { label: "Subscriptions", get: (row) => fmtInt(row.Subscriptions) },
+      { label: "Utilization", get: (row) => esc(row.semantic?.text || "—") },
+      { label: "Quota status", align: "left", get: (row) => capacityStateToken(row.semantic) },
+      { label: "Offer status", align: "left", get: (row) => esc(row.semantic?.offerText || "Not reported") },
+      { label: "Availability zones", align: "left", get: (row) => esc((row.semantic?.zoneStates || []).map((item) => `AZ ${item.zone} ${item.restricted ? "Restricted" : "Available"}`).join(", ") || "None") },
+      { label: "Representative SKU", align: "left", get: (row) => esc(row.semantic?.representativeSkus?.join(", ") || "Not reported") },
+    ]
+    : payload.classId === "app-service" ? [
+      { label: "Plan SKU", align: "left", get: (row) => esc(row.Sku || row.SkuKey || "—") },
+      { label: "Region", align: "left", get: (row) => esc(row.Location || "—") },
+      { label: "Used instances", get: (row) => fmtInt(row.UsedInstances) },
+      { label: "Quota", get: (row) => fmtInt(row.QuotaInstances) },
+      { label: "Headroom", get: (row) => Number.isFinite(row.semantic?.headroomInstances) ? fmtInt(row.semantic.headroomInstances) : "—" },
+      { label: "Subscriptions", get: (row) => fmtInt(row.Subscriptions) },
+      { label: "At limit", get: (row) => fmtInt(row.AtLimitSubscriptions) },
+      { label: "No quota", get: (row) => fmtInt(row.NoQuotaSubscriptions) },
+      { label: "Utilization", get: (row) => esc(row.semantic?.text || "—") },
+      { label: "Quota coverage", align: "left", get: (row) => esc(row.semantic?.quotaText || "Not reported") },
+    ] : [
+      { label: "Quota metric", align: "left", get: (row) => esc(row.Metric || row.MetricKey || "—") },
+      { label: "Region", align: "left", get: (row) => esc(row.Location || "—") },
+      { label: "Used", get: (row) => fmtInt(row.Used) },
+      { label: "Quota", get: (row) => fmtInt(row.Quota) },
+      { label: "Headroom", get: (row) => Number.isFinite(row.semantic?.headroomUnits) ? fmtInt(row.semantic.headroomUnits) : "—" },
+      { label: "Unit", align: "left", get: (row) => esc(row.semantic?.unitLabel || row.Unit || "—") },
+      { label: "Subscriptions", get: (row) => fmtInt(row.Subscriptions) },
+      { label: "At limit", get: (row) => fmtInt(row.AtLimitSubscriptions) },
+      { label: "No usable quota", get: (row) => fmtInt(row.NoQuotaSubscriptions) },
+      { label: "Negative limit", get: (row) => fmtInt(row.NegativeLimitSubscriptions) },
+      { label: "Utilization", get: (row) => esc(row.semantic?.text || "—") },
+      { label: "Quota coverage", align: "left", get: (row) => esc(row.semantic?.quotaText || "Not reported") },
+    ];
+  const table = `<div class="capacity-table-scroll">${tableHtml(columns, pageRows, `No ${config.pairLabel} match the filters above.`)}</div>`;
+  const pagination = uiPagination({
+    name: "matrix",
+    page,
+    totalPages,
+    label: `${config.detailTab} pages`,
+  });
+  return `<div id="capacity-matrix-summary" class="capacity-detail-summary" role="status" tabindex="-1">${fmtInt(rows.length)} matching ${esc(config.pairLabel)}</div>${table}${pagination}`;
 }
 
-function computeSubscriptionDetail() {
+function capacitySubscriptionDetail(payload) {
+  const config = CAPACITY_MATRIX_CONFIG[payload.classId];
   const search = `<div class="capacity-detail-toolbar">
-    <label class="capacity-filter-group" for="capacity-subscription-search">
-      <span class="capacity-filter-label">Subscription</span>
-      <input id="capacity-subscription-search" class="capacity-filter-search" type="search"
-        data-capacity-subscription-search value="${esc(state.capacitySubscriptionSearch)}"
-        placeholder="Search by subscription ID" autocomplete="off" spellcheck="false">
-    </label>
-    <span class="capacity-detail-hint">Matches the Show, VM family, and region filters above.</span>
+    ${uiSearchField({
+      name: "subscription",
+      id: "capacity-subscription-search",
+      label: "Subscription",
+      value: state.capacitySubscriptionSearch,
+      placeholder: "Search by subscription ID",
+    })}
+    <span class="capacity-detail-hint">Matches the Show, ${esc(config.searchLabel)}, and region filters above.</span>
   </div>`;
-  if (state.capacitySubscriptionLoading) {
-    return `${search}<div class="capacity-notice" role="status">Loading matching subscriptions…</div>`;
-  }
+  if (state.capacitySubscriptionLoading) return `${search}<div class="capacity-notice" role="status">Loading matching subscriptions…</div>`;
   if (state.capacitySubscriptionError) {
     return `${search}<div class="capacity-notice capacity-notice--warning" role="alert" tabindex="-1"><strong>Subscriptions unavailable.</strong> ${esc(state.capacitySubscriptionError)}</div>`;
   }
@@ -2617,42 +2795,60 @@ function computeSubscriptionDetail() {
   const rows = data.rows || [];
   const totalPages = Number(data.totalPages || 0);
   const summary = `<div id="capacity-subscription-summary" class="capacity-detail-summary" role="status" tabindex="-1">${fmtInt(data.totalSubscriptions)} matching subscriptions</div>`;
-  if (!rows.length) {
-    return `${search}${summary}<div class="capacity-notice">No subscription matches these filters.</div>`;
-  }
-  const table = `<div class="capacity-table-scroll">${tableHtml([
-    { label: "Subscription ID", align: "left", get: (row) => `<span title="${esc(row.SubscriptionId || "")}">${esc(row.SubscriptionId || "—")}</span>` },
-    { label: "Families", get: (row) => fmtInt(row.Families) },
-    { label: "Regions", get: (row) => fmtInt(row.Regions) },
-    { label: "Used cores", get: (row) => fmtInt(row.CoresUsed) },
-    { label: "Quota", get: (row) => fmtInt(row.CoresTotal) },
-    { label: "Headroom", get: (row) => row.HeadroomCores != null && Number.isFinite(Number(row.HeadroomCores)) ? fmtInt(row.HeadroomCores) : "—" },
-    { label: "Restrictions", get: (row) => fmtInt(row.RestrictedRows) },
-    { label: "Last ingested", get: (row) => row.LastIngestion ? esc(fmtRelativeTime(new Date(row.LastIngestion))) : "—" },
-  ], rows, "No subscription matches these filters.")}</div>`;
-  const page = Number(data.page || 1);
-  return `${search}
-    ${summary}
-    ${table}
-    <div class="capacity-detail-pagination" aria-label="Subscription pages">
-      <button type="button" class="capacity-filter-reset" data-capacity-subscription-page="${page - 1}"${page <= 1 ? " disabled" : ""}>Previous</button>
-      <span>Page ${fmtInt(page)} of ${fmtInt(totalPages)}</span>
-      <button type="button" class="capacity-filter-reset" data-capacity-subscription-page="${page + 1}"${page >= totalPages ? " disabled" : ""}>Next</button>
-    </div>`;
+  if (!rows.length) return `${search}${summary}<div class="capacity-notice">No subscription matches these filters.</div>`;
+  const columns = payload.classId === "compute"
+    ? [
+      { label: "Subscription ID", align: "left", get: (row) => `<span title="${esc(row.SubscriptionId || "")}">${esc(row.SubscriptionId || "—")}</span>` },
+      { label: "Families", get: (row) => fmtInt(row.Families) },
+      { label: "Regions", get: (row) => fmtInt(row.Regions) },
+      { label: "Used cores", get: (row) => fmtInt(row.CoresUsed) },
+      { label: "Quota", get: (row) => fmtInt(row.CoresTotal) },
+      { label: "Headroom", get: (row) => row.HeadroomCores != null && Number.isFinite(Number(row.HeadroomCores)) ? fmtInt(row.HeadroomCores) : "—" },
+      { label: "Last ingested", get: (row) => row.LastIngestion ? esc(fmtRelativeTime(new Date(row.LastIngestion))) : "—" },
+    ]
+    : payload.classId === "app-service" ? [
+      { label: "Subscription ID", align: "left", get: (row) => `<span title="${esc(row.SubscriptionId || "")}">${esc(row.SubscriptionId || "—")}</span>` },
+      { label: "SKUs", get: (row) => fmtInt(row.Skus) },
+      { label: "Regions", get: (row) => fmtInt(row.Regions) },
+      { label: "SKU-region pairs", get: (row) => fmtInt(row.SkuRegionPairs) },
+      { label: "In use", get: (row) => fmtInt(row.InUsePairs) },
+      { label: "At limit", get: (row) => fmtInt(row.AtLimitPairs) },
+      { label: "No quota", get: (row) => fmtInt(row.NoQuotaPairs) },
+      { label: "Last ingested", get: (row) => row.LastIngestion ? esc(fmtRelativeTime(new Date(row.LastIngestion))) : "—" },
+    ] : [
+      { label: "Subscription ID", align: "left", get: (row) => `<span title="${esc(row.SubscriptionId || "")}">${esc(row.SubscriptionId || "—")}</span>` },
+      { label: "Quotas", get: (row) => fmtInt(row.Metrics) },
+      { label: "Regions", get: (row) => fmtInt(row.Regions) },
+      { label: "Quota-region pairs", get: (row) => fmtInt(row.MetricRegionPairs) },
+      { label: "In use", get: (row) => fmtInt(row.InUsePairs) },
+      { label: "At limit", get: (row) => fmtInt(row.AtLimitPairs) },
+      { label: "No usable quota", get: (row) => fmtInt(row.NoQuotaPairs) },
+      { label: "Negative limit", get: (row) => fmtInt(row.NegativeLimitPairs) },
+      { label: "Last ingested", get: (row) => row.LastIngestion ? esc(fmtRelativeTime(new Date(row.LastIngestion))) : "—" },
+    ];
+  const table = `<div class="capacity-table-scroll">${tableHtml(columns, rows, "No subscription matches these filters.")}</div>`;
+  return `${search}${summary}${table}${uiPagination({
+    name: "subscriptions",
+    page: Number(data.page || 1),
+    totalPages,
+    label: "Subscription pages",
+  })}`;
 }
 
-function computeCapacityDetail(payload) {
+function capacityMatrixDetailTabs(payload) {
+  const config = CAPACITY_MATRIX_CONFIG[payload.classId];
   const tab = state.capacityDetailTab;
-  return `<div class="capacity-detail-tabs" role="tablist" aria-label="Capacity detail">
-      <button id="capacity-detail-tab-families" type="button" class="capacity-segment" role="tab"
-        data-capacity-detail-tab="families" aria-selected="${tab === "families"}"
-        aria-controls="capacity-detail-panel" tabindex="${tab === "families" ? "0" : "-1"}">Family and region</button>
-      <button id="capacity-detail-tab-subscriptions" type="button" class="capacity-segment" role="tab"
-        data-capacity-detail-tab="subscriptions" aria-selected="${tab === "subscriptions"}"
-        aria-controls="capacity-detail-panel" tabindex="${tab === "subscriptions" ? "0" : "-1"}">Subscriptions</button>
-    </div>
-    <div id="capacity-detail-panel" role="tabpanel"
-      aria-labelledby="capacity-detail-tab-${tab}">${tab === "subscriptions" ? computeSubscriptionDetail() : computeFamilyDetail(payload)}</div>`;
+  return uiTabList({
+    name: "capacity-detail",
+    label: `${payload.contract?.title || payload.classId} detail`,
+    tabs: [
+      { id: "matrix", label: config.detailTab },
+      { id: "subscriptions", label: "Subscriptions" },
+    ],
+    active: tab,
+    panelId: "capacity-detail-panel",
+    panel: tab === "subscriptions" ? capacitySubscriptionDetail(payload) : capacityMatrixDetail(payload),
+  });
 }
 
 function capacityHistory(payload) {
@@ -2738,13 +2934,30 @@ function renderCapacity(payload) {
   const quotaSelectors = payload.selectors?.items || [];
   const demandSelectors = payload.demand?.selectors?.items || [];
   const familyRows = payload.familyHeatmap?.rows || [];
+  const appServiceRows = payload.appServiceHeatmap?.rows || [];
+  const azureSqlRows = payload.azureSqlHeatmap?.rows || [];
+  const matrixClass = Boolean(CAPACITY_MATRIX_CONFIG[payload.classId]);
   const kpis = payload.classId === "compute"
     ? [
       kpiCard("Family-region pairs", fmtInt(familyRows.length), "Estate totals; subscriptions are aggregated before display"),
       kpiCard("In use", fmtInt(familyRows.filter(FAMILY_STATUS_FILTERS[0].match).length), "Family and region pairs using cores"),
-      kpiCard("Restricted", fmtInt(familyRows.filter(FAMILY_STATUS_FILTERS[1].match).length), "Region or zone restrictions"),
+      kpiCard("At limit", fmtInt(familyRows.filter(FAMILY_STATUS_FILTERS[1].match).length), "Provider-reported usage is at or over quota"),
       kpiCard("No quota", fmtInt(familyRows.filter(FAMILY_STATUS_FILTERS[2].match).length), "No regional family quota"),
     ].join("")
+    : payload.classId === "app-service"
+      ? [
+        kpiCard("Quota-region pairs", fmtInt(appServiceRows.length), "Exact plan SKU and Total Regional VMs rows"),
+        kpiCard("In use", fmtInt(appServiceRows.filter((row) => matrixStatusMatches(row, "app-service", "in-use")).length), "SKU and region pairs using instances"),
+        kpiCard("At limit", fmtInt(appServiceRows.filter((row) => matrixStatusMatches(row, "app-service", "at-limit")).length), "One or more subscriptions are at quota"),
+        kpiCard("No quota", fmtInt(appServiceRows.filter((row) => matrixStatusMatches(row, "app-service", "no-quota")).length), "No subscription has quota for the SKU and region"),
+      ].join("")
+      : payload.classId === "azure-sql"
+        ? [
+          kpiCard("Quota-region pairs", fmtInt(azureSqlRows.length), "Current supported regional quota metrics"),
+          kpiCard("In use", fmtInt(azureSqlRows.filter((row) => matrixStatusMatches(row, "azure-sql", "in-use")).length), "Quota and region pairs with provider-reported usage"),
+          kpiCard("At limit", fmtInt(azureSqlRows.filter((row) => matrixStatusMatches(row, "azure-sql", "at-limit")).length), "One or more subscriptions are at quota"),
+          kpiCard("No usable quota", fmtInt(azureSqlRows.filter((row) => matrixStatusMatches(row, "azure-sql", "no-quota")).length), "Only zero, negative, or missing limits were reported"),
+        ].join("")
     : [
       kpiCard("Observations", fmtInt(coverage.observations), `${fmtInt(coverage.resources)} current resource keys`, undefined, undefined, "reference"),
       kpiCard("Snapshot days", fmtInt(coverage.distinctDays), coverage.distinctDays < 2 ? "No trend can be inferred" : "Compatible history is evaluated per exact key"),
@@ -2753,6 +2966,12 @@ function renderCapacity(payload) {
       kpiCard("Unclassified", fmtInt(statusCounts.unclassified), "Raw rows retained; registry review required"),
       kpiCard("Stale", fmtInt(statusCounts.stale), "Older than 48 hours; arithmetic disabled"),
     ].join("");
+  const selectors = payload.classId === "compute"
+    ? capacitySelectorHtml("metric", payload.classId, quotaSelectors, state.capacitySelections.metricSelection)
+    : matrixClass
+      ? ""
+      : `${capacitySelectorHtml("quota", payload.classId, quotaSelectors, state.capacitySelections.quotaSelection)}
+        ${capacitySelectorHtml("demand", payload.classId, demandSelectors, state.capacitySelections.demandSelection)}`;
 
   content.innerHTML = `${nav}<section id="capacity-panel" role="tabpanel" aria-labelledby="capacity-tab-${esc(payload.classId)}">
     <div class="capacity-header">
@@ -2762,21 +2981,17 @@ function renderCapacity(payload) {
     ${notReported}${schemaNotice}
     <div class="capacity-notice"><strong>Next action:</strong> ${esc(CAPACITY_ACTIONS[payload.classId] || "Review the source rows before taking action.")}</div>
     <div class="kpi-grid">${kpis}</div>
-    <div class="capacity-selectors">
-      ${capacitySelectorHtml(payload.classId === "compute" ? "metric" : "quota", payload.classId, quotaSelectors,
-        payload.classId === "compute" ? state.capacitySelections.metricSelection : state.capacitySelections.quotaSelection)}
-      ${capacitySelectorHtml("demand", payload.classId, demandSelectors, state.capacitySelections.demandSelection)}
-    </div>
+    ${selectors ? `<div class="capacity-selectors">${selectors}</div>` : ""}
     <div class="capacity-layout">
-      ${payload.classId === "compute"
-        ? capacityPanel("Estate capacity by VM family and region", "Supply and demand at family grain. Zone restrictions are descriptive; they never change regional core quota.", computeFamilyHeatmap(payload), true)
+      ${matrixClass
+        ? capacityPanel(CAPACITY_MATRIX_CONFIG[payload.classId].panelTitle, CAPACITY_MATRIX_CONFIG[payload.classId].panelSubtitle, capacityMatrix(payload), true)
         : ""}
-      ${payload.classId === "compute"
-        ? capacityPanel("Filtered capacity detail", "Every row matches the matrix controls above. Switch to Subscriptions for server-paged detail across the full estate.", computeCapacityDetail(payload), true)
+      ${matrixClass
+        ? capacityPanel("Filtered quota detail", "Every row matches the matrix controls above. Switch to Subscriptions for server-paged detail across the full estate.", capacityMatrixDetailTabs(payload), true)
         : capacityPanel("Current quota", `${payload.table?.rowLimit || 250}-row bound${payload.table?.truncated ? " reached" : ""}. Raw rows remain visible when calculations are disabled.`, capacityCurrentTable(payload))}
-      ${payload.classId === "compute" ? "" : capacityPanel("Observed history", "Ingestion time is ADX arrival time. Missing days are not inferred.", capacityHistory(payload))}
-      ${capacityPanel("Subscription × region", "Quota color is available only for exact enabled metrics. Inventory uses neutral density.", capacityHeatmap(payload))}
-      ${capacityPanel("Parallel billed demand", payload.demand?.capability?.sourceNote || "Billed usage stays separate from quota.", capacityDemandHistory(payload))}
+      ${matrixClass ? "" : capacityPanel("Observed history", "Ingestion time is ADX arrival time. Missing days are not inferred.", capacityHistory(payload))}
+      ${["app-service", "azure-sql"].includes(payload.classId) ? "" : capacityPanel("Subscription × region", "Quota color is available only for exact enabled metrics. Inventory uses neutral density.", capacityHeatmap(payload))}
+      ${matrixClass ? "" : capacityPanel("Parallel billed demand", payload.demand?.capability?.sourceNote || "Billed usage stays separate from quota.", capacityDemandHistory(payload))}
       ${payload.classId === "capacity-reservations"
         ? capacityPanel("Inventory and billing reconciliation", "Used and Unused are accounting statuses, not reserved-capacity utilization.", capacityReconciliation(payload))
         : ""}
@@ -3085,7 +3300,7 @@ async function load() {
   }
   updateChrome();
   render();
-  if (tab === "capacity" && state.capacityClass === "compute" &&
+  if (tab === "capacity" && ["compute", "app-service"].includes(state.capacityClass) &&
     state.capacityDetailTab === "subscriptions" && !state.capacitySubscriptionData) {
     void loadCapacitySubscriptions();
   }
@@ -3153,6 +3368,7 @@ function updateChrome() {
 function openSettingsDialog() {
   el("settings-cluster").value = window.__cfg?.clusterUri || "";
   el("settings-database").value = window.__cfg?.database || "";
+  el("settings-tenant").value = window.__cfg?.tenantId || "";
   el("settings-error").textContent = "";
   el("settings-dialog").showModal();
   el("settings-cluster").focus();
@@ -3162,6 +3378,7 @@ function openSettingsDialog() {
 async function saveSettings() {
   const clusterUri = el("settings-cluster").value.trim();
   const database = el("settings-database").value.trim();
+  const tenantId = el("settings-tenant").value.trim();
   if (!clusterUri) {
     el("settings-error").textContent = "Cluster URI is required.";
     return;
@@ -3174,7 +3391,7 @@ async function saveSettings() {
     const res = await fetch("/api/config", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ clusterUri, database: database || "Hub" }),
+      body: JSON.stringify({ clusterUri, database: database || "Hub", tenantId }),
     });
     const body = await res.json();
     if (!res.ok || body.error) throw new Error(body.error || "Save failed");
@@ -3207,7 +3424,7 @@ function wireControls() {
   el("refresh").addEventListener("click", () => {
     if (state.loading) return;
     if (state.cache[state.tab]) delete state.cache[state.tab][cacheKey()]; // force re-query
-    if (state.tab === "capacity" && state.capacityClass === "compute") invalidateCapacitySubscriptions();
+    if (state.tab === "capacity" && ["compute", "app-service"].includes(state.capacityClass)) invalidateCapacitySubscriptions();
     load();
   });
 
@@ -3252,46 +3469,46 @@ function wireControls() {
     // reset all
     if (e.target.closest("#filter-reset")) clearFilters();
 
-    const lens = e.target.closest("[data-family-status]");
-    if (lens) {
-      setFamilyFilter({ status: lens.dataset.familyStatus });
+    const matrixStatus = e.target.closest('[data-ui-segment="matrix-status"]');
+    if (matrixStatus) {
+      setCapacityMatrixFilter({ status: matrixStatus.dataset.uiValue });
       return;
     }
-    const regionChip = e.target.closest("[data-family-region]");
+    const regionChip = e.target.closest('[data-ui-toggle="matrix-region"]');
     if (regionChip) {
-      const region = regionChip.dataset.familyRegion;
-      const current = state.familyFilter.regions;
-      setFamilyFilter({
+      const region = regionChip.dataset.uiValue;
+      const current = capacityMatrixFilter().regions;
+      setCapacityMatrixFilter({
         regions: current.includes(region) ? current.filter((item) => item !== region) : [...current, region],
       });
       return;
     }
-    const markChip = e.target.closest("[data-family-mark]");
+    const markChip = e.target.closest('[data-ui-segment="matrix-mark"]');
     if (markChip) {
-      setFamilyFilter({ mark: Number(markChip.dataset.familyMark) });
+      setCapacityMatrixFilter({ mark: Number(markChip.dataset.uiValue) });
       return;
     }
-    if (e.target.closest("[data-family-reset]")) {
-      setFamilyFilter({ status: "all", search: "", regions: [] });
+    if (e.target.closest('[data-ui-action="matrix-reset"]')) {
+      setCapacityMatrixFilter({ status: "all", search: "", regions: [] });
       return;
     }
-    const detailTab = e.target.closest("[data-capacity-detail-tab]");
+    const detailTab = e.target.closest('[data-ui-tab="capacity-detail"]');
     if (detailTab) {
-      setCapacityDetailTab(detailTab.dataset.capacityDetailTab);
+      setCapacityDetailTab(detailTab.dataset.uiValue);
       return;
     }
-    const subscriptionPage = e.target.closest("[data-capacity-subscription-page]");
+    const subscriptionPage = e.target.closest('[data-ui-page="subscriptions"]');
     if (subscriptionPage && !subscriptionPage.disabled) {
-      state.capacitySubscriptionPage = Number(subscriptionPage.dataset.capacitySubscriptionPage);
+      state.capacitySubscriptionPage = Number(subscriptionPage.dataset.uiValue);
       _capacitySubscriptionFocusResults = true;
       void loadCapacitySubscriptions();
       return;
     }
-    const familyPage = e.target.closest("[data-capacity-family-page]");
-    if (familyPage && !familyPage.disabled) {
-      state.capacityFamilyPage = Number(familyPage.dataset.capacityFamilyPage);
+    const matrixPage = e.target.closest('[data-ui-page="matrix"]');
+    if (matrixPage && !matrixPage.disabled) {
+      state.capacityMatrixPage = Number(matrixPage.dataset.uiValue);
       render();
-      document.querySelector("#capacity-family-summary")?.focus();
+      document.querySelector("#capacity-matrix-summary")?.focus();
     }
   });
 
@@ -3300,17 +3517,17 @@ function wireControls() {
     if (selector) applyCapacitySelection(selector.dataset.capacitySelector, selector.value);
   });
 
-  let familySearchTimer;
+  let matrixSearchTimer;
   let subscriptionSearchTimer;
   document.addEventListener("input", (e) => {
-    const search = e.target.closest("[data-family-search]");
+    const search = e.target.closest('[data-ui-search="matrix"]');
     if (search) {
-      clearTimeout(familySearchTimer);
+      clearTimeout(matrixSearchTimer);
       const value = search.value;
-      familySearchTimer = setTimeout(() => setFamilyFilter({ search: value }), 160);
+      matrixSearchTimer = setTimeout(() => setCapacityMatrixFilter({ search: value }), 160);
       return;
     }
-    const subscriptionSearch = e.target.closest("[data-capacity-subscription-search]");
+    const subscriptionSearch = e.target.closest('[data-ui-search="subscription"]');
     if (subscriptionSearch) {
       clearTimeout(subscriptionSearchTimer);
       const value = subscriptionSearch.value;
@@ -3324,11 +3541,11 @@ function wireControls() {
 
   // Keyboard activation and roving focus for interactive data controls.
   document.addEventListener("keydown", (e) => {
-    const detailTab = e.target.closest("[data-capacity-detail-tab]");
+    const detailTab = e.target.closest('[data-ui-tab="capacity-detail"]');
     if (detailTab && ["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) {
       e.preventDefault();
-      const tabs = ["families", "subscriptions"];
-      const current = tabs.indexOf(detailTab.dataset.capacityDetailTab);
+      const tabs = ["matrix", "subscriptions"];
+      const current = tabs.indexOf(detailTab.dataset.uiValue);
       const next = e.key === "Home" ? 0
         : e.key === "End" ? tabs.length - 1
           : e.key === "ArrowRight" ? (current + 1) % tabs.length
@@ -3336,21 +3553,22 @@ function wireControls() {
       setCapacityDetailTab(tabs[next]);
       return;
     }
-    const lens = e.target.closest("[data-family-status]");
-    if (lens && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) {
+    const segment = e.target.closest("[data-ui-segment]");
+    if (segment && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) {
       e.preventDefault();
-      const order = FAMILY_STATUS_FILTERS.map((item) => item.id);
-      const index = order.indexOf(lens.dataset.familyStatus);
+      const order = segment.dataset.uiSegment === "matrix-status"
+        ? MATRIX_STATUS_FILTERS.map((item) => item.id)
+        : segment.dataset.uiSegment === "matrix-mark"
+          ? HIGH_WATER_MARKS.map(String)
+          : [];
+      if (!order.length) return;
+      const index = order.indexOf(segment.dataset.uiValue);
       const next = nextCapacityTabIndex(index, e.key, order.length);
-      if (next >= 0) setFamilyFilter({ status: order[next] });
-      return;
-    }
-    const markKey = e.target.closest("[data-family-mark]");
-    if (markKey && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) {
-      e.preventDefault();
-      const index = HIGH_WATER_MARKS.indexOf(Number(markKey.dataset.familyMark));
-      const next = nextCapacityTabIndex(index, e.key, HIGH_WATER_MARKS.length);
-      if (next >= 0) setFamilyFilter({ mark: HIGH_WATER_MARKS[next] });
+      if (next >= 0) {
+        setCapacityMatrixFilter(segment.dataset.uiSegment === "matrix-status"
+          ? { status: order[next] }
+          : { mark: Number(order[next]) });
+      }
       return;
     }
     const capacityTab = e.target.closest("[data-capacity-class]");

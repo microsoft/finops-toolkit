@@ -11,6 +11,7 @@
   --border-muted: var(--border-color-muted, rgba(128, 128, 128, 0.3));
   /* Mixing toward the host text colour keeps alert text at AA in light and dark themes. */
   --neg-ink: color-mix(in srgb, var(--neg) 70%, var(--text-color-default, #1f2328));
+  --warn-ink: color-mix(in srgb, var(--warn) 72%, var(--text-color-default, #1f2328));
 }
 
 * { box-sizing: border-box; }
@@ -48,10 +49,12 @@ body {
   font-weight: var(--font-weight-semibold, 600);
   letter-spacing: -0.01em;
 }
+.title-block { min-width: 0; max-width: 100%; }
 .title-block .sub {
   margin: 4px 0 0;
   font-size: 12.5px;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 .title-block .sub code {
   font-family: var(--font-mono, ui-monospace, monospace);
@@ -1087,214 +1090,6 @@ svg .hbar-selected text.name { font-weight: 700; fill: var(--accent); }
   color: var(--muted);
 }
 
-.capacity-heatmap--family th:first-child { min-width: 200px; }
-
-/* Family matrix: a bounded viewport so both scrollbars stay pinned to the panel
-   edge. Without the height cap the table grows past the window and the
-   horizontal bar sits thousands of pixels below the fold. */
-.capacity-matrix {
-  max-height: min(70vh, 620px);
-  overflow: auto;
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
-  border: 1px solid var(--grid);
-  border-radius: var(--radius);
-  scrollbar-width: auto;
-  scrollbar-color: color-mix(in srgb, var(--muted) 45%, transparent) transparent;
-}
-/* macOS overlay scrollbars fade out when idle. The matrix has to advertise its
-   own scroll range, so the bars are drawn permanently. */
-.capacity-matrix::-webkit-scrollbar { width: 12px; height: 12px; }
-.capacity-matrix::-webkit-scrollbar-track {
-  background: color-mix(in srgb, var(--muted) 10%, transparent);
-}
-.capacity-matrix::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--muted) 45%, transparent);
-  border: 3px solid var(--card-bg);
-  border-radius: 999px;
-}
-.capacity-matrix::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--muted) 70%, transparent);
-}
-.capacity-matrix::-webkit-scrollbar-corner { background: var(--card-bg); }
-
-/* Frozen panes. Gapless cells keep the sticky edges opaque and raise density. */
-.capacity-heatmap--family { border-spacing: 0; width: auto; }
-.capacity-heatmap--family thead th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: var(--card-bg);
-  border-bottom: 1px solid var(--grid);
-  white-space: nowrap;
-}
-.capacity-heatmap--family tbody th:first-child {
-  position: sticky;
-  left: 0;
-  z-index: 1;
-  background: var(--card-bg);
-  border-right: 1px solid var(--grid);
-  border-bottom: 1px solid var(--grid);
-}
-.capacity-heatmap--family thead th:first-child {
-  z-index: 3;
-  border-right: 1px solid var(--grid);
-}
-.capacity-heatmap--family .capacity-cell {
-  border-radius: 0;
-  border-width: 0 1px 1px 0;
-  border-style: solid;
-  border-color: var(--grid);
-}
-/* Supply is the left bar: whether a deployment can land here at all. */
-.capacity-heatmap--family .capacity-supply--open { box-shadow: inset 3px 0 0 color-mix(in srgb, var(--pos) 55%, transparent); }
-.capacity-heatmap--family .capacity-supply--partial { box-shadow: inset 3px 0 0 var(--warn); }
-.capacity-heatmap--family .capacity-supply--blocked {
-  box-shadow: inset 3px 0 0 var(--neg);
-  background: color-mix(in srgb, var(--neg) 7%, var(--card-bg));
-}
-.capacity-heatmap--family .capacity-supply--none { box-shadow: inset 3px 0 0 color-mix(in srgb, var(--muted) 35%, transparent); }
-
-/* Demand is the number: how close this is to your own quota. */
-.capacity-heatmap--family .capacity-cell strong { font-variant-numeric: tabular-nums; }
-.capacity-demand--over strong { color: var(--neg-ink); font-weight: 700; }
-.capacity-demand--exhausted strong {
-  color: var(--neg-ink);
-  font-weight: 700;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 2px;
-}
-.capacity-cell-mark { color: var(--neg-ink); font-weight: 600; }
-
-.capacity-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 28px;
-  margin: 0 0 10px;
-  font-size: 11px;
-  color: var(--muted);
-}
-.capacity-legend-group { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
-.capacity-legend-title { font-weight: 600; color: var(--text-color-default, #1f2328); }
-.capacity-legend ul { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 0; list-style: none; }
-.capacity-legend li { display: flex; align-items: center; gap: 5px; }
-.capacity-legend-bar { width: 3px; height: 12px; border-radius: 1px; background: var(--grid); }
-.capacity-legend-bar--open { background: color-mix(in srgb, var(--pos) 55%, transparent); }
-.capacity-legend-bar--partial { background: var(--warn); }
-.capacity-legend-bar--blocked { background: var(--neg); }
-.capacity-legend-bar--none { background: color-mix(in srgb, var(--muted) 35%, transparent); }
-.capacity-legend-ink { font-variant-numeric: tabular-nums; font-size: 11px; }
-.capacity-legend-ink.capacity-demand--under { color: var(--text-color-default, #1f2328); }
-.capacity-legend-ink.capacity-demand--over,
-.capacity-legend-ink.capacity-demand--exhausted { color: var(--neg-ink); font-weight: 700; }
-.capacity-legend-ink.capacity-demand--exhausted { text-decoration: underline; text-decoration-thickness: 2px; }
-
-.capacity-matrix-note {
-  margin: 0 0 8px;
-  color: var(--muted);
-  font-size: 11.5px;
-}
-
-/* Filter bar. 183 families by 19 regions is a lookup problem, not a browse
-   problem, so the reducer sits above the matrix rather than inside it. */
-.capacity-filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 10px 16px;
-  margin-bottom: 12px;
-}
-.capacity-filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
-}
-.capacity-filter-label {
-  color: var(--muted);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.capacity-segments { display: flex; flex-wrap: wrap; gap: 4px; }
-/* Nineteen region chips wrap into a wall on a narrow panel and push the matrix
-   off screen. The group scrolls instead of growing. */
-.capacity-segments--regions {
-  max-height: 74px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-}
-.capacity-segment {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  min-height: 28px;
-  padding: 4px 10px;
-  border: 1px solid var(--grid);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: 11.5px;
-  cursor: pointer;
-}
-.capacity-segment:hover { border-color: var(--muted); }
-.capacity-segment[aria-checked="true"],
-.capacity-segment[aria-pressed="true"],
-.capacity-segment[aria-selected="true"] {
-  border-color: var(--accent, var(--text));
-  background: color-mix(in srgb, var(--muted) 14%, transparent);
-  font-weight: 600;
-}
-.capacity-segment .capacity-segment-count {
-  color: var(--muted);
-  font-size: 10.5px;
-  font-variant-numeric: tabular-nums;
-}
-.capacity-segment[aria-checked="true"] .capacity-segment-count,
-.capacity-segment[aria-pressed="true"] .capacity-segment-count,
-.capacity-segment[aria-selected="true"] .capacity-segment-count { color: inherit; }
-.capacity-segment:focus-visible,
-.capacity-filter-search:focus-visible { outline: 2px solid var(--accent, var(--text)); outline-offset: 2px; }
-.capacity-filter-search {
-  min-height: 28px;
-  min-width: 190px;
-  padding: 4px 9px;
-  border: 1px solid var(--grid);
-  border-radius: 6px;
-  background: var(--card-bg);
-  color: var(--text);
-  font: inherit;
-  font-size: 12px;
-}
-.capacity-filter-summary {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: 11.5px;
-  font-variant-numeric: tabular-nums;
-}
-.capacity-filter-reset {
-  min-height: 28px;
-  padding: 4px 10px;
-  border: 1px solid var(--grid);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: 11.5px;
-  cursor: pointer;
-}
-.capacity-filter-reset:hover { border-color: var(--muted); }
-.capacity-filter-reset:disabled { opacity: 0.45; cursor: not-allowed; }
-
-.capacity-detail-tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 12px;
-}
 .capacity-detail-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -1303,20 +1098,11 @@ svg .hbar-selected text.name { font-weight: 700; fill: var(--accent); }
   margin-bottom: 10px;
 }
 .capacity-detail-hint,
-.capacity-detail-summary,
-.capacity-detail-pagination {
+.capacity-detail-summary {
   color: var(--muted);
   font-size: 11.5px;
 }
 .capacity-detail-summary { margin-bottom: 8px; }
-.capacity-detail-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-  font-variant-numeric: tabular-nums;
-}
 
 @media (max-width: 900px) {
   .capacity-panel { grid-column: span 12; }

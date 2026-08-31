@@ -10,7 +10,7 @@ FinOps practitioners, cloud engineers, and consultants who need to analyze Azure
 
 ## Product Purpose
 
-A FinOps hub dashboard that connects to a local Kusto emulator or a remote Azure Data Explorer cluster. It provides cost, allocation, rate optimization, usage, anomaly, AI token, and capacity views. The Capacity workspace keeps quota, billed demand, inventory, physical supply, and pricing commitments as separate quota areas. Success means that a practitioner can load hub data, select a view, and find the quota answer they need in one session.
+A FinOps hub dashboard that connects to a local Kusto emulator or a remote Azure Data Explorer cluster. It provides cost, allocation, rate optimization, usage, anomaly, AI token, and supply views. The Supply workspace keeps quota, billed demand, inventory, physical supply, and pricing commitments as separate quota areas. Success means that a practitioner can load hub data, select a view, and find the quota answer they need in one session.
 
 ## Brand Personality
 

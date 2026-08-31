@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>FinOps hub dashboard</title>
+    <link rel="stylesheet" href="/ui.css" />
     <link rel="stylesheet" href="/app.css" />
   </head>
   <body>
@@ -14,10 +15,10 @@
       </div>
       <div class="controls">
         <div class="seg" id="preset" role="group" aria-label="Time range">
-          <button data-preset="3m">3M</button>
+          <button data-preset="3m" class="active">3M</button>
           <button data-preset="6m">6M</button>
           <button data-preset="12m">12M</button>
-          <button data-preset="all" class="active">All</button>
+          <button data-preset="all">All</button>
         </div>
         <button id="refresh" class="btn" title="Re-run queries">↻ Refresh</button>
         <button id="settings-open" class="btn" title="Connection settings" aria-haspopup="dialog">⚙ Settings</button>
@@ -32,7 +33,7 @@
       <button data-tab="anomaly" role="tab" aria-selected="false" aria-controls="content">Anomalies &amp; forecast</button>
       <button data-tab="tokenomics" role="tab" aria-selected="false" aria-controls="content">Tokenomics</button>
       <button data-tab="ai" role="tab" aria-selected="false" aria-controls="content" title="AI, machine learning, and GPU-accelerated workload spend">AI &amp; emerging workloads</button>
-      <button data-tab="capacity" role="tab" aria-selected="false" aria-controls="content">Capacity</button>
+      <button data-tab="capacity" role="tab" aria-selected="false" aria-controls="content">Supply</button>
       <button data-tab="monaco" role="tab" aria-selected="false" aria-controls="content" title="Experimental: KQL query editor with autocomplete">Query editor</button>
     </nav>
 
@@ -83,7 +84,11 @@
             <span>Database</span>
             <input id="settings-database" type="text" spellcheck="false" autocomplete="off" placeholder="Hub" />
           </label>
-          <p class="settings-hint">Use a local loopback HTTP endpoint or a remote <code>*.kusto.windows.net</code> HTTPS cluster. Remote hubs use your current Azure CLI sign-in. Credentials are never saved.</p>
+          <label class="settings-row" for="settings-tenant">
+            <span>Tenant ID</span>
+            <input id="settings-tenant" type="text" spellcheck="false" autocomplete="off" placeholder="00000000-0000-0000-0000-000000000000" />
+          </label>
+          <p class="settings-hint">Tenant ID is required for remote <code>*.kusto.windows.net</code> clusters. The dashboard requests a Kusto token for this tenant from Azure CLI. Credentials are never saved.</p>
         </div>
         <p id="settings-error" class="kql-dialog-error" role="alert"></p>
         <div class="kql-dialog-footer">
