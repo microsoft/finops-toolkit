@@ -1239,7 +1239,6 @@ const KPI_TIPS = {
   "Effective savings rate": "Negotiated + commitment savings as % of list price. Higher = better. Enterprise customers typically target ≥15–20%.",
   "Commitment coverage": "Compute spend covered by RIs or savings plans. Target: ≥60% for steady workloads. Higher coverage → lower effective rate.",
   "Compute coverage": "On-demand core-hours offset by commitments. Target: ≥60%. Tracks whether savings plan scope is sufficient.",
-  "MACC burn rate": "Microsoft Azure Consumption Commitment utilization. Target: ≥90% to avoid forfeiting unused balance at term end.",
   "Anomaly days": "Days where daily cost deviated significantly from the expected baseline (STL decomposition). Review flagged dates for unexpected spend.",
   "Hourly cost / core": "Compute effective cost per core-hour actually consumed this period — the real, paid-for unit rate.",
   "Effective cost / core": "Compute effective cost per core-hour, including unused commitment waste spread across usage — the fully-loaded unit cost if that waste is charged back.",
@@ -1358,8 +1357,6 @@ function renderOverview(p) {
   const momTxt = k.mom == null ? "—" : `${k.mom > 0 ? "▲" : "▼"} ${fmtPct(Math.abs(k.mom))}`;
 
   const partialHtml = isPartialMonth() ? ` · <span class="warn">partial month</span>` : "";
-  const maccRow = p.data.macc?.[0] || { ConsumptionAmount: 0, CommitmentAmount: 0, CommitmentBurnPercent: 0 };
-
   const kpis = [
     // primary KPIs first
     kpiCard("Untagged cost", fmtPct(k.untaggedPct),
@@ -1377,15 +1374,6 @@ function renderOverview(p) {
       `${fmtInt(k.services)} services · ${fmtInt(k.subscriptions)} subs · ${fmtInt(k.regions)} regions`, PALETTE[2]),
     kpiCard("Latest month", k.lastMonthVal == null ? "—" : fmtMoney(k.lastMonthVal),
       k.mom == null ? (k.lastMonthLabel ? `${esc(k.lastMonthLabel)}${partialHtml}` : (isPartialMonth() ? `<span class="warn">partial month</span>` : "")) : `<span class="${momClass}">${momTxt}</span> vs prior · ${esc(k.lastMonthLabel)}${partialHtml}`, PALETTE[4]),
-    // macc-consumption-vs-commitment — MACC burn rate. Demote to reference
-    // tier when unconfigured (N/A) so an empty card doesn't take full
-    // primary-grid visual weight.
-    kpiCard("MACC burn rate",
-      maccRow.CommitmentAmount > 0 ? fmtPct(maccRow.CommitmentBurnPercent / 100) : "N/A",
-      maccRow.CommitmentAmount > 0
-        ? `${fmtMoney(maccRow.ConsumptionAmount)} of ${fmtMoney(maccRow.CommitmentAmount)} committed`
-        : "No Microsoft Azure Consumption Commitment data",
-      PALETTE[7], undefined, maccRow.CommitmentAmount > 0 ? undefined : "reference"),
   ].join("");
 
   const d = p.data;

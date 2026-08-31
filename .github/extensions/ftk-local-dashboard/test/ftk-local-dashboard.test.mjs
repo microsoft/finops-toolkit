@@ -99,9 +99,9 @@ test("local dashboard semantics stay unauthenticated and preserve the payload sh
   assert.equal(payload.empty, false);
   assert.deepEqual(Object.keys(payload.data), [
     "summary", "tagged", "pricing", "trend", "serviceCategory",
-    "topServices", "topResourceGroups", "topRegions", "chargeCategory", "macc",
+    "topServices", "topResourceGroups", "topRegions", "chargeCategory",
   ]);
-  assert.equal(requests.length, 11);
+  assert.equal(requests.length, 10);
   assert.ok(requests.every((headers) => headers.authorization === undefined));
   assert.ok(requests.every((headers) => headers["x-ms-readonly"] === "true"));
 });

@@ -1617,11 +1617,6 @@ export async function getDashboard(clusterUri, database, preset = "all", filters
         topRegions: `Costs() ${period} | where isnotempty(RegionId) | summarize Cost=sum(EffectiveCost) by RegionId | top 12 by Cost desc`,
         // Charge category mix (Usage / Purchase / Adjustment)
         chargeCategory: `Costs() ${period} | summarize Cost=sum(EffectiveCost) by ChargeCategory | where Cost != 0 | order by Cost desc`,
-        // macc-consumption-vs-commitment — MACC burn rate (graceful: returns CommitmentAmount=0 if no MACC data)
-        macc: `let con = toscalar(Costs() ${period} | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory)) | summarize sum(EffectiveCost));
-let com = toscalar(Transactions() | where isnotnull(x_MonetaryCommitment) | summarize sum(x_MonetaryCommitment));
-let com0 = coalesce(todouble(com), 0.0);
-print ConsumptionAmount=con, CommitmentAmount=com0, CommitmentBurnPercent=iff(com0 > 0, con / com0 * 100.0, 0.0)`,
     };
 
     const entries = Object.entries(queries);
