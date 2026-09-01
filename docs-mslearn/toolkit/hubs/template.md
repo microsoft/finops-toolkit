@@ -3,7 +3,7 @@ title: FinOps hub template
 description: Learn about what's included in the FinOps hub template including parameters, resources, and outputs.
 author: flanakin
 ms.author: micflan
-ms.date: 06/03/2026
+ms.date: 08/26/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
