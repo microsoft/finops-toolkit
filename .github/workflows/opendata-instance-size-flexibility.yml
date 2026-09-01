@@ -57,9 +57,10 @@ jobs:
             exit 0
           fi
 
-          # run_number keeps a re-run on the same day from colliding with the branch
-          # the earlier run already pushed.
-          BRANCH="opendata/instance-size-flexibility-$(date +%Y%m%d)-${{ github.run_number }}"
+          # run_number keeps a re-run on the same day from colliding with the branch an
+          # earlier run already pushed; run_attempt does the same for a re-run of this
+          # run, which keeps run_number and only increments the attempt.
+          BRANCH="opendata/instance-size-flexibility-$(date +%Y%m%d)-${{ github.run_number }}.${{ github.run_attempt }}"
           git checkout -b "$BRANCH"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
