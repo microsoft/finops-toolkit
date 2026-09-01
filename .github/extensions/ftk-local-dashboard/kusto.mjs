@@ -61,6 +61,7 @@ ${name}`;
 const QUOTA_SCHEMA_CATALOG_QUERY = loadCatalogQuery("quota-schema.kql");
 const APP_SERVICE_QUOTA_USAGE_CATALOG_QUERY = loadCatalogQuery("quota-app-service-usage.kql");
 const AZURE_SQL_QUOTA_USAGE_CATALOG_QUERY = loadCatalogQuery("quota-sql-subscription-usage.kql");
+const AZURE_AI_QUOTA_USAGE_CATALOG_QUERY = loadCatalogQuery("quota-cognitive-services-usage.kql");
 const COMPUTE_QUOTA_USAGE_CATALOG_QUERY = loadCatalogQuery("quota-compute-usage.kql");
 const COMPUTE_QUOTA_COVERAGE_CATALOG_QUERY = loadCatalogQuery("quota-compute-collection-coverage.kql");
 const COMPUTE_FAMILY_USAGE_CATALOG_QUERY = loadCatalogQuery("quota-compute-family-usage.kql");
@@ -109,7 +110,7 @@ export const AZURE_SQL_QUOTA_METRICS = Object.freeze([
     }),
 ]);
 
-const CAPACITY_MATRIX_CLASS_IDS = new Set(["compute", "app-service", "azure-sql"]);
+const CAPACITY_MATRIX_CLASS_IDS = new Set(["compute", "app-service", "azure-sql", "azure-ai"]);
 
 export const CAPACITY_CLASS_REGISTRY = Object.freeze({
     "app-service": Object.freeze({
@@ -1263,6 +1264,43 @@ ${where}
 | take ${CAPACITY_LIMITS.familyCells + 1}`;
 }
 
+// Azure AI quota pools are named per model and deployment tier (for example
+// "AIServices.GlobalStandard.gpt-4o"), not a small fixed metric list like Azure
+// SQL, so this groups directly on the provider-reported ResourceName the same
+// way App Service groups on plan SKU.
+export function buildAzureAiModelQuery(filters = {}) {
+    const where = buildCapacityWhere(filters);
+    return `${catalogDeclaration("AzureAiQuotaUsage", AZURE_AI_QUOTA_USAGE_CATALOG_QUERY)}
+AzureAiQuotaUsage
+${where}
+| summarize
+    Model=take_any(displayName),
+    Used=sum(currentValue),
+    Quota=sum(limit),
+    Subscriptions=dcount(SubAccountId),
+    InUseSubscriptions=dcountif(SubAccountId, currentValue > 0),
+    AtLimitSubscriptions=dcountif(SubAccountId, limit > 0 and currentValue >= limit),
+    QuotaSubscriptions=dcountif(SubAccountId, limit > 0),
+    NoQuotaSubscriptions=dcountif(SubAccountId, coalesce(limit, 0.0) <= 0),
+    x_IngestionTime=max(x_IngestionTime)
+    by ModelKey=ResourceName, Unit=unit, Location=location
+| project
+    Model,
+    ModelKey,
+    Unit,
+    Location,
+    Used,
+    Quota,
+    Subscriptions,
+    InUseSubscriptions,
+    AtLimitSubscriptions,
+    QuotaSubscriptions,
+    NoQuotaSubscriptions,
+    x_IngestionTime
+| order by Location asc, ModelKey asc
+| take ${CAPACITY_LIMITS.familyCells + 1}`;
+}
+
 function normalizeCapacitySubscriptionOptions(options = {}) {
     if (!options || typeof options !== "object" || Array.isArray(options)) {
         throw new Error("Capacity subscription options must be an object.");
@@ -1462,6 +1500,52 @@ scoped
 | take ${normalized.pageSize}`;
 }
 
+export function buildAzureAiSubscriptionQuery(options = {}) {
+    const normalized = normalizeCapacitySubscriptionOptions({ ...options, classId: "azure-ai" });
+    const statusWhere = normalized.status === "in-use"
+        ? "| where currentValue > 0"
+        : normalized.status === "at-limit"
+            ? "| where limit > 0 and currentValue >= limit"
+            : normalized.status === "no-quota"
+                ? "| where coalesce(limit, 0.0) <= 0"
+                : "";
+    const modelWhere = normalized.resourceSearch
+        ? `| where ResourceName contains ${kqlString(normalized.resourceSearch, "resourceSearch")} or displayName contains ${kqlString(normalized.resourceSearch, "resourceSearch")}`
+        : "";
+    const regionWhere = normalized.regions.length
+        ? `| where location in~ (${normalized.regions.map((value) => kqlString(value, "region")).join(", ")})`
+        : "";
+    const subscriptionWhere = normalized.subscriptionSearch
+        ? `| where SubAccountId startswith ${kqlString(normalized.subscriptionSearch, "subscriptionSearch")}`
+        : "";
+    const firstRow = (normalized.page - 1) * normalized.pageSize + 1;
+    const lastRow = firstRow + normalized.pageSize - 1;
+    return `${catalogDeclaration("AzureAiQuotaUsage", AZURE_AI_QUOTA_USAGE_CATALOG_QUERY)}
+let scoped = AzureAiQuotaUsage
+| where isnotempty(SubAccountId)
+${statusWhere}
+${modelWhere}
+${regionWhere}
+${subscriptionWhere}
+| summarize
+    Models=dcount(ResourceName),
+    Regions=dcount(location),
+    ModelRegionPairs=count(),
+    InUsePairs=countif(currentValue > 0),
+    AtLimitPairs=countif(limit > 0 and currentValue >= limit),
+    NoQuotaPairs=countif(coalesce(limit, 0.0) <= 0),
+    LastIngestion=max(x_IngestionTime)
+    by SubscriptionId=SubAccountId;
+let total = toscalar(scoped | count);
+scoped
+| order by AtLimitPairs desc, NoQuotaPairs desc, InUsePairs desc, SubscriptionId asc
+| serialize RowNumber=row_number()
+| where RowNumber between (${firstRow} .. ${lastRow})
+| extend TotalSubscriptions=total
+| project SubscriptionId, Models, Regions, ModelRegionPairs, InUsePairs, AtLimitPairs, NoQuotaPairs, LastIngestion, RowNumber, TotalSubscriptions
+| take ${normalized.pageSize}`;
+}
+
 export async function getCapacitySubscriptionPage(clusterUri, database, options = {}) {
     const normalized = normalizeCapacitySubscriptionOptions(options);
     if (normalized.classId === "compute") {
@@ -1469,7 +1553,9 @@ export async function getCapacitySubscriptionPage(clusterUri, database, options 
     }
     const query = normalized.classId === "app-service"
         ? buildAppServiceSubscriptionQuery(normalized)
-        : buildAzureSqlSubscriptionQuery(normalized);
+        : normalized.classId === "azure-ai"
+            ? buildAzureAiSubscriptionQuery(normalized)
+            : buildAzureSqlSubscriptionQuery(normalized);
     const rows = await runQuery(clusterUri, database, query);
     const totalSubscriptions = Number(rows[0]?.TotalSubscriptions || 0);
     return {
@@ -1689,6 +1775,64 @@ export function annotateAzureSqlQuotaRows(rows = []) {
     return rows.map((row) => ({
         ...row,
         semantic: azureSqlQuotaCell(row),
+    }));
+}
+
+// Azure AI has no fixed metric registry like Azure SQL — each model/tier reports
+// its own quota pool under a provider-defined unit (tokens per minute, requests
+// per minute, provisioned throughput units, deployment counts, and so on), so
+// this reports a generic unit label rather than guessing a per-metric one.
+export function azureAiModelCell(row = {}) {
+    const used = Number(row.Used);
+    const total = Number(row.Quota);
+    const subscriptions = Number(row.Subscriptions);
+    const quotaSubscriptions = Number(row.QuotaSubscriptions);
+    const noQuotaSubscriptions = Number(row.NoQuotaSubscriptions);
+    const atLimitSubscriptions = Number(row.AtLimitSubscriptions);
+    const hasQuota = Number.isFinite(used) && used >= 0 && Number.isFinite(total) && total > 0 && quotaSubscriptions > 0;
+    const supply =
+        !hasQuota ? "none" :
+        atLimitSubscriptions > 0 ? "blocked" :
+        noQuotaSubscriptions > 0 ? "partial" :
+        "open";
+    const quotaText =
+        !hasQuota ? "No quota reported" :
+        atLimitSubscriptions > 0 ? `${atLimitSubscriptions} ${atLimitSubscriptions === 1 ? "subscription" : "subscriptions"} at limit` :
+        noQuotaSubscriptions > 0 ? `${noQuotaSubscriptions} ${noQuotaSubscriptions === 1 ? "subscription has" : "subscriptions have"} no usable quota` :
+        subscriptions > 1 ? "Quota reported for all subscriptions" :
+        "Quota reported";
+    if (!hasQuota) {
+        return {
+            utilizationPercent: null,
+            headroomUnits: null,
+            unitLabel: "units",
+            state: "no-entitlement",
+            text: "No quota",
+            supply,
+            quotaText,
+        };
+    }
+    const utilizationPercent = 100 * used / total;
+    const state =
+        utilizationPercent >= 100 || atLimitSubscriptions > 0 ? "exhausted" :
+        utilizationPercent >= 90 ? "action" :
+        utilizationPercent >= 80 ? "watch" :
+        "healthy";
+    return {
+        utilizationPercent,
+        headroomUnits: total - used,
+        unitLabel: "units",
+        state,
+        text: `${utilizationPercent.toFixed(1)}%`,
+        supply,
+        quotaText,
+    };
+}
+
+export function annotateAzureAiModelRows(rows = []) {
+    return rows.map((row) => ({
+        ...row,
+        semantic: azureAiModelCell(row),
     }));
 }
 
@@ -1991,6 +2135,9 @@ export async function getCapacity(clusterUri, database, classId = "home", option
         if (normalizedClassId === "azure-sql") {
             baseQueries.azureSqlMatrix = buildAzureSqlQuotaQuery(filters);
         }
+        if (normalizedClassId === "azure-ai") {
+            baseQueries.azureAiMatrix = buildAzureAiModelQuery(filters);
+        }
         baseQueries.coverage = buildCapacityCoverageQuery(normalizedClassId, filters);
     }
     if (costSchema?.available && (normalizedClassId !== "premium-ssd-v2" || quotaSchema.available)) {
@@ -2062,6 +2209,10 @@ export async function getCapacity(clusterUri, database, classId = "home", option
         ? boundedCollection(annotateAzureSqlQuotaRows(data.azureSqlMatrix), CAPACITY_LIMITS.familyCells, "disable")
         : null;
     if (azureSqlBounds?.status === "disabled") azureSqlBounds.status = "heatmap-disabled";
+    const azureAiBounds = data.azureAiMatrix
+        ? boundedCollection(annotateAzureAiModelRows(data.azureAiMatrix), CAPACITY_LIMITS.familyCells, "disable")
+        : null;
+    if (azureAiBounds?.status === "disabled") azureAiBounds.status = "heatmap-disabled";
     const coverageRow = data.coverage?.[0] ?? {};
     const demandCoverageRow = data.demandCoverage?.[0] ?? {};
     const enabledRows = normalizedClassId === "compute"
@@ -2070,7 +2221,9 @@ export async function getCapacity(clusterUri, database, classId = "home", option
             ? (appServiceBounds?.rows?.length || 0)
             : normalizedClassId === "azure-sql"
                 ? (azureSqlBounds?.rows?.length || 0)
-                : currentRows.filter((row) => row.semantic.capability === "enabled").length;
+                : normalizedClassId === "azure-ai"
+                    ? (azureAiBounds?.rows?.length || 0)
+                    : currentRows.filter((row) => row.semantic.capability === "enabled").length;
     const classCapability = !quotaSchema.available
         ? { mode: "disabled", reasonCode: quotaSchema.reasonCode, sourceNote: "Quota source fields are unavailable" }
         : enabledRows > 0 && CAPACITY_MATRIX_CLASS_IDS.has(normalizedClassId)
@@ -2155,6 +2308,12 @@ export async function getCapacity(clusterUri, database, classId = "home", option
             rows: [],
             limit: CAPACITY_LIMITS.familyCells,
             reasonCode: normalizedClassId === "azure-sql" ? quotaSchema.reasonCode : "class-has-no-azure-sql-grain",
+        },
+        azureAiHeatmap: azureAiBounds ?? {
+            status: normalizedClassId === "azure-ai" ? "unavailable" : "not-applicable",
+            rows: [],
+            limit: CAPACITY_LIMITS.familyCells,
+            reasonCode: normalizedClassId === "azure-ai" ? quotaSchema.reasonCode : "class-has-no-azure-ai-grain",
         },
         series: !demandEnabled
             ? {

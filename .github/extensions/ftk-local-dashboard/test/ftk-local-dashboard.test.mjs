@@ -529,7 +529,7 @@ test("all seven capacity classes return the bounded payload contract", async (t)
     assert.equal(payload.classId, classId);
     assert.equal(payload.contract.id, classId);
     assert.equal(payload.schema.quota.available, true);
-    if (["compute", "app-service", "azure-sql"].includes(classId)) {
+    if (["compute", "app-service", "azure-sql", "azure-ai"].includes(classId)) {
       assert.equal(payload.schema.costs, undefined);
       assert.equal(payload.series.status, "not-applicable");
       assert.equal(payload.demand.capability.reasonCode, "class-uses-quota-only");
@@ -567,7 +567,7 @@ test("missing schema fields disable only panels that depend on that source", asy
   assert.equal(appServicePayload.demand.capability.reasonCode, "class-uses-quota-only");
   assert.equal(appServicePayload.series.status, "not-applicable");
 
-  const costPayload = await kusto.getCapacity(missingCost, "Hub", "azure-ai");
+  const costPayload = await kusto.getCapacity(missingCost, "Hub", "storage");
   assert.equal(costPayload.schema.quota.available, true);
   assert.equal(costPayload.schema.costs.available, false);
   assert.equal(costPayload.capability.mode, "descriptive-only");
@@ -1085,6 +1085,100 @@ test("Azure SQL payload and subscription detail are quota-only and paged", async
   assert.equal(page.rows[0].RowNumber, undefined);
 });
 
+test("Azure AI matrix groups by exact model/tier resource name, not a fixed metric registry", async () => {
+  const query = kusto.buildAzureAiModelQuery({});
+  const catalog = await readFile(
+    new URL("../../../../src/queries/catalog/quota-cognitive-services-usage.kql", import.meta.url),
+    "utf8"
+  );
+  assert.ok(query.includes(catalog.trim()));
+  assert.match(query, /Model=take_any\(displayName\)/);
+  assert.match(query, /by ModelKey=ResourceName, Unit=unit, Location=location/);
+  assert.doesNotMatch(query, /Costs\(\)|PhysicalZone|Offer/);
+});
+
+test("Azure AI cells keep quota coverage separate from utilization", () => {
+  const open = kusto.azureAiModelCell({
+    ModelKey: "OpenAI.GlobalStandard.gpt-4o", Used: 30, Quota: 300, Subscriptions: 1,
+    QuotaSubscriptions: 1, NoQuotaSubscriptions: 0, AtLimitSubscriptions: 0,
+  });
+  assert.equal(open.supply, "open");
+  assert.equal(open.state, "healthy");
+  assert.equal(open.text, "10.0%");
+  assert.equal(open.headroomUnits, 270);
+  assert.equal(open.unitLabel, "units");
+  assert.equal(open.quotaText, "Quota reported");
+
+  const partial = kusto.azureAiModelCell({
+    ModelKey: "AIServices.GlobalStandard.Codestral-2501", Used: 30, Quota: 300, Subscriptions: 2,
+    QuotaSubscriptions: 1, NoQuotaSubscriptions: 1, AtLimitSubscriptions: 0,
+  });
+  assert.equal(partial.supply, "partial");
+  assert.equal(partial.quotaText, "1 subscription has no usable quota");
+
+  const blocked = kusto.azureAiModelCell({
+    ModelKey: "AIServices.GlobalProvisionedManaged", Used: 300, Quota: 300, Subscriptions: 1,
+    QuotaSubscriptions: 1, NoQuotaSubscriptions: 0, AtLimitSubscriptions: 1,
+  });
+  assert.equal(blocked.supply, "blocked");
+  assert.equal(blocked.state, "exhausted");
+  assert.equal(blocked.quotaText, "1 subscription at limit");
+
+  const none = kusto.azureAiModelCell({
+    ModelKey: "OpenAI.GlobalStandard.o3", Used: 0, Quota: 0, Subscriptions: 1,
+    QuotaSubscriptions: 0, NoQuotaSubscriptions: 1, AtLimitSubscriptions: 0,
+  });
+  assert.equal(none.supply, "none");
+  assert.equal(none.state, "no-entitlement");
+  assert.equal(none.utilizationPercent, null);
+  assert.equal(none.headroomUnits, null);
+  assert.equal(none.quotaText, "No quota reported");
+});
+
+test("Azure AI payload and subscription detail are quota-only and paged", async (t) => {
+  const clusterUri = await startCapacityServer(t, {
+    rows: (query) => {
+      if (query.includes("Model=take_any(displayName)")) {
+        return [{
+          Model: "Tokens Per Minute (thousands) - gpt-4o", ModelKey: "OpenAI.GlobalStandard.gpt-4o",
+          Unit: "Count", Location: "eastus",
+          Used: 30, Quota: 300, Subscriptions: 1, InUseSubscriptions: 1,
+          AtLimitSubscriptions: 0, QuotaSubscriptions: 1, NoQuotaSubscriptions: 0,
+        }];
+      }
+      if (query.includes("ModelRegionPairs=count()")) {
+        return [{
+          SubscriptionId: "sub-1", Models: 2, Regions: 1, ModelRegionPairs: 2,
+          InUsePairs: 1, AtLimitPairs: 0, NoQuotaPairs: 1,
+          TotalSubscriptions: 1, RowNumber: 1,
+        }];
+      }
+      return [];
+    },
+  });
+  const payload = await kusto.getCapacity(clusterUri, "Hub", "azure-ai");
+  assert.equal(payload.schema.costs, undefined);
+  assert.equal(payload.capability.mode, "enabled");
+  assert.equal(payload.capability.reasonCode, "catalog-quota-present");
+  assert.equal(payload.azureAiHeatmap.rows.length, 1);
+  assert.equal(payload.azureAiHeatmap.rows[0].semantic.supply, "open");
+  assert.equal(payload.demand.capability.reasonCode, "class-uses-quota-only");
+
+  const page = await kusto.getCapacitySubscriptionPage(clusterUri, "Hub", {
+    classId: "azure-ai",
+    page: 1,
+    pageSize: 50,
+  });
+  assert.equal(page.classId, "azure-ai");
+  assert.equal(page.totalSubscriptions, 1);
+  assert.equal(page.totalPages, 1);
+  assert.equal(page.rows[0].SubscriptionId, "sub-1");
+  assert.equal(page.rows[0].ModelRegionPairs, 2);
+  assert.equal(page.rows[0].InUsePairs, 1);
+  assert.equal(page.rows[0].TotalSubscriptions, undefined);
+  assert.equal(page.rows[0].RowNumber, undefined);
+});
+
 test("Compute family cells classify only provider-reported quota values", () => {
   const healthy = kusto.computeFamilyCell({ CoresUsed: 10, CoresTotal: 100, Subscriptions: 1 });
   assert.equal(healthy.state, "healthy");
@@ -1140,7 +1234,7 @@ test("family rows keep family quota separate from representative-SKU offer statu
   assert.equal(withQuota.semantic.headroomCores, 90);
 });
 
-test("shared matrix filters reduce Compute, App Service, and Azure SQL grids without dead ends", () => {
+test("shared matrix filters reduce Compute, App Service, Azure SQL, and Azure AI grids without dead ends", () => {
   const rows = [
     { Family: "Standard Dv5 Family vCPUs", FamilyKey: "dv5", Location: "eastus", CoresUsed: 10, CoresTotal: 100, semantic: {} },
     { Family: "Standard Ev5 Family vCPUs", FamilyKey: "ev5", Location: "westus", CoresUsed: 0, CoresTotal: 200, semantic: {} },
@@ -1204,6 +1298,27 @@ test("shared matrix filters reduce Compute, App Service, and Azure SQL grids wit
   assert.deepEqual(sqlIds({ status: "at-limit" }), ["RegionalVCoreQuotaForSQLDBAndDW"]);
   assert.deepEqual(sqlIds({ status: "no-quota" }), ["SubscriptionSQLManagedInstancePremiumSeriesVCoreQuota"]);
   assert.deepEqual(sqlIds({ status: "all", search: "server", regions: ["eastus"] }), ["ServerQuota"]);
+
+  const azureAiRows = [
+    {
+      Model: "Tokens Per Minute (thousands) - gpt-4o", ModelKey: "OpenAI.GlobalStandard.gpt-4o",
+      Location: "eastus", Used: 30, Quota: 300, AtLimitSubscriptions: 0, QuotaSubscriptions: 1,
+    },
+    {
+      Model: "Tokens Per Minute (thousands) - Codestral-2501", ModelKey: "AIServices.GlobalStandard.Codestral-2501",
+      Location: "westus", Used: 300, Quota: 300, AtLimitSubscriptions: 1, QuotaSubscriptions: 1,
+    },
+    {
+      Model: "Provisioned Managed Throughput Units", ModelKey: "AIServices.GlobalProvisionedManaged",
+      Location: "eastus", Used: 0, Quota: 0, AtLimitSubscriptions: 0, QuotaSubscriptions: 0,
+    },
+  ];
+  const modelIds = (filter) => app.filterCapacityMatrixRows(azureAiRows, "azure-ai", filter).map((row) => row.ModelKey);
+  assert.deepEqual(modelIds({ status: "in-use" }), ["OpenAI.GlobalStandard.gpt-4o", "AIServices.GlobalStandard.Codestral-2501"]);
+  assert.deepEqual(modelIds({ status: "at-limit" }), ["AIServices.GlobalStandard.Codestral-2501"]);
+  assert.deepEqual(modelIds({ status: "no-quota" }), ["AIServices.GlobalProvisionedManaged"]);
+  assert.deepEqual(modelIds({ status: "all", search: "gpt-4o" }), ["OpenAI.GlobalStandard.gpt-4o"]);
+  assert.deepEqual(modelIds({ status: "all", search: "standard", regions: ["westus"] }), ["AIServices.GlobalStandard.Codestral-2501"]);
 });
 
 test("shared matrix keeps both scrollbars and its frozen panes reachable", async () => {

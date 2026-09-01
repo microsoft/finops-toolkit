@@ -2471,6 +2471,26 @@ const CAPACITY_MATRIX_CONFIG = Object.freeze({
     total: (row) => Number(row.Quota || 0),
     subscriptionCoverage: true,
   }),
+  "azure-ai": Object.freeze({
+    payloadKey: "azureAiHeatmap",
+    rowHeader: "Azure AI model quota",
+    searchLabel: "Model",
+    searchPlaceholder: "Filter by model or tier, such as gpt-4o or GlobalStandard",
+    pairLabel: "model and region combinations",
+    panelTitle: "Estate quota by Azure AI model and region",
+    panelSubtitle: "Provider-reported quota per model deployment tier from Azure AI Foundry and Cognitive Services.",
+    detailTab: "Model and region",
+    description: "Quota by exact model, deployment tier, and region across the estate. Each model/tier pool is independent, so quota is never summed across models. Units vary by model (tokens per minute, requests per minute, provisioned throughput units, and similar); the reported percentage is that model's own utilization.",
+    ariaLabel: "Azure AI model by region matrix, scrollable",
+    empty: "No Azure AI quota was reported for this scope. Check CognitiveServicesUsage ingestion.",
+    disabled: "Azure AI view disabled.",
+    key: (row) => row.ModelKey,
+    label: (row) => row.Model || row.ModelKey,
+    searchText: (row) => `${row.Model || ""} ${row.ModelKey || ""} ${row.Unit || ""}`,
+    used: (row) => Number(row.Used || 0),
+    total: (row) => Number(row.Quota || 0),
+    subscriptionCoverage: true,
+  }),
 });
 
 function matrixStatusMatches(row, classId, status) {
@@ -2676,6 +2696,24 @@ function azureSqlMatrixCell(row, label, region, mark) {
   </td>`;
 }
 
+function azureAiMatrixCell(row, label, region, mark) {
+  const semantic = row.semantic || {};
+  const detail = Number.isFinite(semantic.headroomUnits)
+    ? `${fmtInt(semantic.headroomUnits)} ${semantic.unitLabel || "units"} free`
+    : "";
+  const { tier, note } = matrixAlarm(semantic, mark);
+  const statusClass = semantic.supply === "blocked" ? "danger"
+    : semantic.supply === "partial" ? "warning"
+      : semantic.supply === "open" ? "available"
+        : "muted";
+  const title = `${label} · ${region} · ${fmtInt(row.Used)} of ${fmtInt(row.Quota)} ${semantic.unitLabel || "units"} · ${semantic.quotaText}`;
+  return `<td class="ui-matrix-cell capacity-supply--${esc(semantic.supply || "none")} capacity-demand--${esc(tier)}" title="${esc(title)}">
+    <strong>${esc(semantic.text || "Not reported")}</strong>
+    <span class="ui-cell-status ui-cell-status--${statusClass}">${esc(semantic.quotaText || "Quota not reported")}</span>
+    ${note}<span class="capacity-cell-detail">${esc(detail)}</span>
+  </td>`;
+}
+
 function capacityMatrix(payload) {
   const config = CAPACITY_MATRIX_CONFIG[payload.classId];
   const matrix = payload[config.payloadKey] || {};
@@ -2712,6 +2750,7 @@ function capacityMatrix(payload) {
         if (!row) return "";
         if (payload.classId === "compute") return computeMatrixCell(row, matrixRow.label, region, mark);
         if (payload.classId === "app-service") return appServiceMatrixCell(row, matrixRow.label, region, mark);
+        if (payload.classId === "azure-ai") return azureAiMatrixCell(row, matrixRow.label, region, mark);
         return azureSqlMatrixCell(row, matrixRow.label, region, mark);
       },
     })}`;
@@ -2750,7 +2789,7 @@ function capacityMatrixDetail(payload) {
       { label: "No quota", get: (row) => fmtInt(row.NoQuotaSubscriptions) },
       { label: "Utilization", get: (row) => esc(row.semantic?.text || "—") },
       { label: "Quota coverage", align: "left", get: (row) => esc(row.semantic?.quotaText || "Not reported") },
-    ] : [
+    ] : payload.classId === "azure-sql" ? [
       { label: "Quota metric", align: "left", get: (row) => esc(row.Metric || row.MetricKey || "—") },
       { label: "Region", align: "left", get: (row) => esc(row.Location || "—") },
       { label: "Used", get: (row) => fmtInt(row.Used) },
@@ -2761,6 +2800,17 @@ function capacityMatrixDetail(payload) {
       { label: "At limit", get: (row) => fmtInt(row.AtLimitSubscriptions) },
       { label: "No usable quota", get: (row) => fmtInt(row.NoQuotaSubscriptions) },
       { label: "Negative limit", get: (row) => fmtInt(row.NegativeLimitSubscriptions) },
+      { label: "Utilization", get: (row) => esc(row.semantic?.text || "—") },
+      { label: "Quota coverage", align: "left", get: (row) => esc(row.semantic?.quotaText || "Not reported") },
+    ] : [
+      { label: "Model", align: "left", get: (row) => esc(row.Model || row.ModelKey || "—") },
+      { label: "Region", align: "left", get: (row) => esc(row.Location || "—") },
+      { label: "Used", get: (row) => fmtInt(row.Used) },
+      { label: "Quota", get: (row) => fmtInt(row.Quota) },
+      { label: "Headroom", get: (row) => Number.isFinite(row.semantic?.headroomUnits) ? fmtInt(row.semantic.headroomUnits) : "—" },
+      { label: "Subscriptions", get: (row) => fmtInt(row.Subscriptions) },
+      { label: "At limit", get: (row) => fmtInt(row.AtLimitSubscriptions) },
+      { label: "No usable quota", get: (row) => fmtInt(row.NoQuotaSubscriptions) },
       { label: "Utilization", get: (row) => esc(row.semantic?.text || "—") },
       { label: "Quota coverage", align: "left", get: (row) => esc(row.semantic?.quotaText || "Not reported") },
     ];
@@ -2815,7 +2865,7 @@ function capacitySubscriptionDetail(payload) {
       { label: "At limit", get: (row) => fmtInt(row.AtLimitPairs) },
       { label: "No quota", get: (row) => fmtInt(row.NoQuotaPairs) },
       { label: "Last ingested", get: (row) => row.LastIngestion ? esc(fmtRelativeTime(new Date(row.LastIngestion))) : "—" },
-    ] : [
+    ] : payload.classId === "azure-sql" ? [
       { label: "Subscription ID", align: "left", get: (row) => `<span title="${esc(row.SubscriptionId || "")}">${esc(row.SubscriptionId || "—")}</span>` },
       { label: "Quotas", get: (row) => fmtInt(row.Metrics) },
       { label: "Regions", get: (row) => fmtInt(row.Regions) },
@@ -2824,6 +2874,15 @@ function capacitySubscriptionDetail(payload) {
       { label: "At limit", get: (row) => fmtInt(row.AtLimitPairs) },
       { label: "No usable quota", get: (row) => fmtInt(row.NoQuotaPairs) },
       { label: "Negative limit", get: (row) => fmtInt(row.NegativeLimitPairs) },
+      { label: "Last ingested", get: (row) => row.LastIngestion ? esc(fmtRelativeTime(new Date(row.LastIngestion))) : "—" },
+    ] : [
+      { label: "Subscription ID", align: "left", get: (row) => `<span title="${esc(row.SubscriptionId || "")}">${esc(row.SubscriptionId || "—")}</span>` },
+      { label: "Models", get: (row) => fmtInt(row.Models) },
+      { label: "Regions", get: (row) => fmtInt(row.Regions) },
+      { label: "Model-region pairs", get: (row) => fmtInt(row.ModelRegionPairs) },
+      { label: "In use", get: (row) => fmtInt(row.InUsePairs) },
+      { label: "At limit", get: (row) => fmtInt(row.AtLimitPairs) },
+      { label: "No usable quota", get: (row) => fmtInt(row.NoQuotaPairs) },
       { label: "Last ingested", get: (row) => row.LastIngestion ? esc(fmtRelativeTime(new Date(row.LastIngestion))) : "—" },
     ];
   const table = `<div class="capacity-table-scroll">${tableHtml(columns, rows, "No subscription matches these filters.")}</div>`;
@@ -2936,6 +2995,7 @@ function renderCapacity(payload) {
   const familyRows = payload.familyHeatmap?.rows || [];
   const appServiceRows = payload.appServiceHeatmap?.rows || [];
   const azureSqlRows = payload.azureSqlHeatmap?.rows || [];
+  const azureAiRows = payload.azureAiHeatmap?.rows || [];
   const matrixClass = Boolean(CAPACITY_MATRIX_CONFIG[payload.classId]);
   const kpis = payload.classId === "compute"
     ? [
@@ -2958,6 +3018,13 @@ function renderCapacity(payload) {
           kpiCard("At limit", fmtInt(azureSqlRows.filter((row) => matrixStatusMatches(row, "azure-sql", "at-limit")).length), "One or more subscriptions are at quota"),
           kpiCard("No usable quota", fmtInt(azureSqlRows.filter((row) => matrixStatusMatches(row, "azure-sql", "no-quota")).length), "Only zero, negative, or missing limits were reported"),
         ].join("")
+        : payload.classId === "azure-ai"
+          ? [
+            kpiCard("Model-region pairs", fmtInt(azureAiRows.length), "Exact model, deployment tier, and region rows"),
+            kpiCard("In use", fmtInt(azureAiRows.filter((row) => matrixStatusMatches(row, "azure-ai", "in-use")).length), "Model and region pairs with provider-reported usage"),
+            kpiCard("At limit", fmtInt(azureAiRows.filter((row) => matrixStatusMatches(row, "azure-ai", "at-limit")).length), "One or more subscriptions are at quota"),
+            kpiCard("No usable quota", fmtInt(azureAiRows.filter((row) => matrixStatusMatches(row, "azure-ai", "no-quota")).length), "No subscription reported usable quota for the model and region"),
+          ].join("")
     : [
       kpiCard("Observations", fmtInt(coverage.observations), `${fmtInt(coverage.resources)} current resource keys`, undefined, undefined, "reference"),
       kpiCard("Snapshot days", fmtInt(coverage.distinctDays), coverage.distinctDays < 2 ? "No trend can be inferred" : "Compatible history is evaluated per exact key"),
