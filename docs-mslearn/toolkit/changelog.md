@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 08/24/2026
+ms.date: 09/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -39,6 +39,7 @@ The following section lists features and enhancements that are currently in deve
   - Fixed the `ContractedCost` recompute guard to compare with a null-safe tolerance instead of exact float equality, eliminating millions of no-op rewrites that polluted the `x_SourceValues` audit trail while preserving the null-cost backfill and no longer overwriting an existing cost when the unit price is missing ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
   - Fixed the SQL VMs without Azure Hybrid Benefit recommendation query to join on the SQL VM `virtualMachineResourceId` instead of a case-sensitive VM name match that skipped VMs with uppercase names and dropped duplicate names, and made all Azure Resource Graph join kinds explicit so no query relies on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
   - Switched dimension enrichment in the v1_0/v1_2 ingestion transforms (`PricingUnits`, `Regions`, `ResourceTypes`, `Services`) from `join` to the broadcast-optimized `lookup` operator and deduplicated the `Services` mapping per resource type to prevent cost row fan-out ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+  - Fixed the v1_0 and v1_2 price transforms setting `x_CommitmentDiscountSpendEligibility` from reservation meters and `x_CommitmentDiscountUsageEligibility` from savings plan meters, the opposite of the FOCUS `CommitmentDiscountCategory` value the same transform assigns. The spend column now reports savings plan pricing and the usage column reports reservation pricing. Prices ingested after upgrading carry the corrected values; rows ingested earlier keep the old values until they are reingested ([#2279](https://github.com/microsoft/finops-toolkit/issues/2279)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md)
 
@@ -79,6 +80,7 @@ The following section lists features and enhancements that are currently in deve
 - **Fixed**
   - Fixed the commitment discount eligibility dataset refresh so it is reproducible and complete; retired meters now age out and previously missed meters are included ([#2164](https://github.com/microsoft/finops-toolkit/pull/2164)).
   - Fixed the weekly commitment discount eligibility refresh timing out before it could publish, which left the dataset unchanged since it first shipped in v14. The refresh now walks each price type directly instead of sharding by service family, and verifies completeness by comparing two independent traversals before writing ([#2251](https://github.com/microsoft/finops-toolkit/pull/2251)).
+  - Fixed `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` carrying each other's values. FOCUS classifies a reservation as a usage commitment (committed to a quantity of usage) and a savings plan as a spend commitment (committed to an amount of money), so the spend column now reports savings plan pricing and the usage column reports reservation pricing. The dataset shipped with the two reversed from v14 ([#2279](https://github.com/microsoft/finops-toolkit/issues/2279)).
 
 -->
 

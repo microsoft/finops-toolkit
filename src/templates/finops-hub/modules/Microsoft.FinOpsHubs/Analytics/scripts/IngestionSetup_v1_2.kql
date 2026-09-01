@@ -92,11 +92,16 @@ Prices_transform_v1_2()
         ''
     )
     //
-    // Calculate commitment discount eligibility
+    // Calculate commitment discount eligibility. FOCUS categorizes a reservation as a
+    // "Usage" commitment (committed to a quantity of usage) and a savings plan as a "Spend"
+    // commitment (committed to an amount of money), matching the CommitmentDiscountCategory
+    // value this transform assigns, so reservation meters set the usage column and savings plan
+    // meters set the spend column.
+    // Reservation price rows are excluded from their own eligibility: the column describes what
+    // an on-demand charge could be covered by, not the commitment row itself.
     // TODO: Would a join be faster?
-    // TODO: Check this to ensure it's correct
-    | extend x_CommitmentDiscountSpendEligibility = iff(x_SkuMeterId in (riMeters) and x_SkuPriceType != 'ReservedInstance', 'Eligible', 'Not Eligible')
-    | extend x_CommitmentDiscountUsageEligibility = iff(x_SkuMeterId in (spMeters), 'Eligible', 'Not Eligible')
+    | extend x_CommitmentDiscountSpendEligibility = iff(x_SkuMeterId in (spMeters), 'Eligible', 'Not Eligible')
+    | extend x_CommitmentDiscountUsageEligibility = iff(x_SkuMeterId in (riMeters) and x_SkuPriceType != 'ReservedInstance', 'Eligible', 'Not Eligible')
     //
     // TODO: Implement x_CommitmentDiscountNormalizedRatio
     | extend x_CommitmentDiscountNormalizedRatio = real(null)
