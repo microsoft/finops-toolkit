@@ -91,6 +91,7 @@ _Released November 2026_
   - Fixed FinOps hub deployments failing when Data Factory has leftover triggers from older versions (for example, v0.7) with an invalid time zone. Deployment now only starts the triggers the hub creates ([#1995](https://github.com/microsoft/finops-toolkit/issues/1995)).
   - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
   - Fixed the `monthly-cost-change-percentage` query returning `inf` when the prior month's cost was zero, which can happen when a month is fully covered by commitment discounts. The change percentage is now empty when there's no prior month or the prior month's cost was zero ([#2323](https://github.com/microsoft/finops-toolkit/issues/2323)).
+  - Fixed `ListCost`/`ContractedCost` never being repaired for rows without a Microsoft meter or offer ID (for example, third-party Marketplace/ISV purchases), which left `ListCost` at 0 despite a real `EffectiveCost` and corrupted Effective Savings Rate reporting; also cleared the `MissingListCost` data-quality flag once a row is successfully repaired instead of leaving it flagged as broken ([#2214](https://github.com/microsoft/finops-toolkit/issues/2214), [#2235](https://github.com/microsoft/finops-toolkit/issues/2235)).
 
 ### [Power BI reports](power-bi/reports.md) v16
 
