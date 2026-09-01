@@ -1312,6 +1312,27 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
                 value: true
               }
             }
+            {
+              // Propagate the failure. Without this, the SetVariable above is the only
+              // leaf activity on this branch, so ADF reports the pipeline as Succeeded
+              // even though the ARM copy failed and no data was written for this scope.
+              name: 'Fail Query Copy'
+              type: 'Fail'
+              dependsOn: [
+                {
+                  activity: 'Handle Query Copy Failure'
+                  dependencyConditions: ['Succeeded']
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: 'ARM query copy failed for scope @{pipeline().parameters.queryScope}, location @{pipeline().parameters.queryLocation}, query @{pipeline().parameters.query}.'
+                  type: 'Expression'
+                }
+                errorCode: 'ArmQueryCopyFailed'
+              }
+            }
           ]
         }
       }
@@ -1332,6 +1353,27 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
         typeProperties: {
           variableName: 'probeFailureHandled'
           value: true
+        }
+      }
+      {
+        // Propagate the failure. Without this, the SetVariable above is the only leaf
+        // activity on this branch, so ADF reports the pipeline as Succeeded even though
+        // the results probe failed (auth error, throttling, malformed response, etc.).
+        name: 'Fail Query Probe'
+        type: 'Fail'
+        dependsOn: [
+          {
+            activity: 'Handle Query Probe Failure'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          message: {
+            value: 'ARM query results probe failed for scope @{pipeline().parameters.queryScope}, location @{pipeline().parameters.queryLocation}, query @{pipeline().parameters.query}.'
+            type: 'Expression'
+          }
+          errorCode: 'ArmQueryProbeFailed'
         }
       }
       {

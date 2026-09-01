@@ -2,7 +2,7 @@
 
 > **Note:** Refer to the [FinOps hub database documentation](./finops-hub-database-guide.md) for table and column definitions.
 
-This catalog contains 57 scenario-specific FinOps hub KQL queries used by the FinOps Toolkit agents and the Azure SRE Agent recipe.
+This catalog contains 56 scenario-specific FinOps hub KQL queries used by the FinOps Toolkit agents and the Azure SRE Agent recipe.
 
 > **Tip:** Prefer the narrowest scenario-specific query that answers the question. Use [`costs-enriched-base`](./catalog/costs-enriched-base.kql) when you need an enriched row-level baseline for scoped custom analysis or repeated drill-downs.
 

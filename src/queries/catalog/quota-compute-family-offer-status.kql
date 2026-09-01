@@ -47,8 +47,13 @@ Quota()
         or Location != prev(Location)
 )
 | where FamilySkuRank == 1
+// LocationInfo carries one entry per region the SKU is offered in. Match it to
+// this row's own Location instead of blindly taking index 0, otherwise a SKU
+// available in multiple regions reports zone data from the wrong region.
+| mv-expand LocationInfoEntry = LocationInfo
+| where tolower(tostring(LocationInfoEntry.location)) == Location
 | extend
-    ZonesPresent = array_sort_asc(todynamic(LocationInfo[0].zones)),
+    ZonesPresent = array_sort_asc(todynamic(LocationInfoEntry.zones)),
     RestrictionRows = iff(array_length(Restrictions) > 0, Restrictions, dynamic([{}]))
 | mv-apply Restriction = RestrictionRows to typeof(dynamic) on (
     summarize

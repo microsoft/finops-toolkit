@@ -140,7 +140,7 @@ const persisted = TEST_MODE ? {} : await loadPersistedConfig();
 // deliberate choice back to whatever input the panel first opened with.
 const DEFAULT_CLUSTER = persisted.clusterUri || process.env.FTK_LOCAL_CLUSTER_URI || HARDCODED_CLUSTER;
 const DEFAULT_DB = persisted.database || process.env.FTK_LOCAL_DATABASE || HARDCODED_DB;
-const DEFAULT_QUERY = "Costs\n| take 20";
+const DEFAULT_QUERY = "Costs()\n| take 20";
 
 const STATIC = {
   "/": ["index.html", "text/html; charset=utf-8"],

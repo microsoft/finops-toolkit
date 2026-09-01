@@ -23,7 +23,7 @@ Describe 'HubsIngestionQueries' {
         $schemasPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Recommendations/schemas'
         $queryFileCount = @(Get-ChildItem -Path $queriesPath -Filter '*.json' -ErrorAction SilentlyContinue).Count
         $schemaFileCount = @(Get-ChildItem -Path $schemasPath -Filter '*.json' -ErrorAction SilentlyContinue).Count
-        $knownEngines = @('ResourceGraph')
+        $knownEngines = @('ResourceGraph', 'AzureResourceManager')
         $requiredQueryFields = @('dataset', 'provider', 'query', 'queryEngine', 'scope', 'source', 'type', 'version')
 
         # Derive known groups from Recommendations/app.bicep parameters.
@@ -65,7 +65,9 @@ Describe 'HubsIngestionQueries' {
         }
 
         It 'Should match naming convention: <Name>' -ForEach $queryFiles {
-            $Name | Should -Match '^[A-Za-z]+-[A-Za-z]+-[A-Za-z0-9]+\.json$' -Because "query file '$Name' should follow the '{Dataset}-{Provider}-{Name}.json' naming convention"
+            # The {Name} segment may itself contain hyphens (e.g. 'SavingsPlan-P1Y') to express
+            # compound recommendation/query types; {Dataset} and {Provider} stay single tokens.
+            $Name | Should -Match '^[A-Za-z]+-[A-Za-z]+-[A-Za-z0-9-]+\.json$' -Because "query file '$Name' should follow the '{Dataset}-{Provider}-{Name}.json' naming convention"
         }
 
         It 'Should use a known query group: <Name>' -ForEach $queryFiles {

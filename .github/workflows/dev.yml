@@ -7,6 +7,10 @@ on:
       # KQL sources are covered by unit tests (HubsKqlOperators.Tests.ps1)
       - 'src/templates/finops-hub/**/*.kql'
       - 'src/queries/**/*.kql'
+      # ARM/Quota/Recommendations Bicep apps and their query/schema manifests are
+      # covered by unit tests (HubsIngestionQueries.Tests.ps1)
+      - 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/**/*.bicep'
+      - 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/**/*.json'
       # ADF trigger time zone mappings are covered by unit tests (HubsAdfTriggerTimeZones.Tests.ps1)
       - 'src/templates/finops-hub/**/timeZones.bicep'
       - 'docs/deploy/finops-hub-latest.json'

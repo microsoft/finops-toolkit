@@ -880,27 +880,11 @@
                 }
               },
               {
-                "name": "quotaPremiumSSDv2",
-                "type": "Microsoft.Common.TextBlock",
-                "visible": true,
-                "options": {
-                  "text": "✅  Premium SSD v2 disks"
-                }
-              },
-              {
                 "name": "quotaStorage",
                 "type": "Microsoft.Common.TextBlock",
                 "visible": true,
                 "options": {
                   "text": "✅  Azure Storage account quota"
-                }
-              },
-              {
-                "name": "quotaCapacityReservations",
-                "type": "Microsoft.Common.TextBlock",
-                "visible": true,
-                "options": {
-                  "text": "✅  Capacity reservations"
                 }
               }
             ]
@@ -916,7 +900,7 @@
                 "type": "Microsoft.Common.TextBlock",
                 "visible": true,
                 "options": {
-                  "text": "The Data Factory managed identity requires the Reader role on the management groups or subscriptions to scan. After deployment, grant the hub's managed identity Reader access to each scope."
+                  "text": "The Data Factory managed identity requires the Reader role on the management groups or subscriptions to scan. After deployment, grant the hub's managed identity Reader access to each scope. Savings Plan recommendations also require Reader access on each configured billing account or billing profile scope."
                 }
               }
             ]

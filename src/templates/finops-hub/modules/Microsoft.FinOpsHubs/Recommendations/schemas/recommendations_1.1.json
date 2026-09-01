@@ -8,7 +8,7 @@
           "path": "['id']"
         },
         "sink": {
-          "name": "ResourceId",
+          "path": "ResourceId",
           "type": "String"
         }
       },
@@ -17,7 +17,7 @@
           "path": "['properties']['armSkuName']"
         },
         "sink": {
-          "name": "ResourceName",
+          "path": "ResourceName",
           "type": "String"
         }
       },
@@ -26,7 +26,7 @@
           "path": "['type']"
         },
         "sink": {
-          "name": "ResourceType",
+          "path": "ResourceType",
           "type": "String"
         }
       },
@@ -35,7 +35,7 @@
           "path": "['properties']['costWithoutBenefit']"
         },
         "sink": {
-          "name": "x_EffectiveCostBefore",
+          "path": "x_EffectiveCostBefore",
           "type": "Double"
         }
       },
@@ -44,7 +44,7 @@
           "path": "['properties']['recommendationDetails']['totalCost']"
         },
         "sink": {
-          "name": "x_EffectiveCostAfter",
+          "path": "x_EffectiveCostAfter",
           "type": "Double"
         }
       },
@@ -53,7 +53,7 @@
           "path": "['properties']['recommendationDetails']['savingsAmount']"
         },
         "sink": {
-          "name": "x_EffectiveCostSavings",
+          "path": "x_EffectiveCostSavings",
           "type": "Double"
         }
       },
@@ -62,7 +62,7 @@
           "path": "['properties']['firstConsumptionDate']"
         },
         "sink": {
-          "name": "x_RecommendationDate",
+          "path": "x_RecommendationDate",
           "type": "String"
         }
       },
@@ -71,7 +71,7 @@
           "path": "['properties']"
         },
         "sink": {
-          "name": "x_RecommendationDetails",
+          "path": "x_RecommendationDetails",
           "type": "String"
         }
       },
@@ -80,7 +80,7 @@
           "path": "['kind']"
         },
         "sink": {
-          "name": "x_SourceType",
+          "path": "x_SourceType",
           "type": "String"
         }
       }

@@ -641,13 +641,13 @@ The `Quota()` function returns normalized quota usage and resource inventory obs
 | `x_SourceType` | Source version | Observation | Canonical key |
 |----------------|----------------|-------------|---------------|
 | `AppServiceUsage` | `1.0-usage` | App Service regional quota usage | Synthetic `ResourceId` |
-| `CapacityReservation` | `1.0-capacity-reservation` | Capacity reservation group inventory | Native ARM `ResourceId` |
+| `AvailabilityZoneMapping` | `1.0-zone-mapping` | Region to physical availability zone mapping | Native ARM `ResourceId` |
 | `CognitiveServicesUsage` | `1.0-usage` | Azure AI services regional quota usage | Synthetic `ResourceId` |
+| `ComputeResourceSku` | `1.0-compute-sku` | Compute SKU regional restriction and capability inventory | Synthetic `ResourceId` |
 | `ComputeUsage` | `1.0-usage` | Compute regional quota usage | Synthetic `ResourceId` |
 | `HDInsightUsage` | `1.0-usage` | HDInsight regional quota usage | Synthetic `ResourceId` |
 | `MachineLearningUsage` | `1.0-usage` | Machine Learning regional quota usage | Native scoped or synthetic regional `ResourceId` |
 | `NetworkUsage` | `1.0-usage` | Network regional quota usage | Native or synthetic `ResourceId` |
-| `PremiumSSDv2Disk` | `1.0-disk` | Premium SSD v2 disk inventory | Native ARM `ResourceId` |
 | `PurviewUsage` | `1.0-usage` | Purview regional quota usage | Synthetic `ResourceId` |
 | `SqlSubscriptionUsage` | `1.0-sql` | Azure SQL regional quota usage | Native ARM `ResourceId` |
 | `StorageUsage` | `1.0-usage` | Storage regional quota usage | Synthetic `ResourceId` |
