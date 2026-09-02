@@ -30,11 +30,11 @@ Get-FinOpsCommitmentDiscountEligibility `
 
 ## Parameters
 
-| Name             | Description                                                                                                                     |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| MeterId           | Optional. The meter ID to look up. Accepts wildcards. Default = \* (all).                                                        |
-| SpendEligibility  | Optional. Filters to meters with the specified reservation (spend-based commitment) eligibility. Expected values: Eligible, Not Eligible. Default = null (all). |
-| UsageEligibility  | Optional. Filters to meters with the specified savings plan (usage-based commitment) eligibility. Expected values: Eligible, Not Eligible. Default = null (all). |
+| Name             | Description                                                                                                                                                                                                                                                |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MeterId          | Optional. The meter ID to look up. Accepts wildcards. Default = \* (all).                                                                                                                                                                                  |
+| SpendEligibility | Optional. Filters to meters with the specified savings plan (spend commitment) eligibility. FOCUS classifies a savings plan as a spend commitment because you commit to an amount of money. Expected values: Eligible, Not Eligible. Default = null (all). |
+| UsageEligibility | Optional. Filters to meters with the specified reservation (usage commitment) eligibility. FOCUS classifies a reservation as a usage commitment because you commit to a quantity of usage. Expected values: Eligible, Not Eligible. Default = null (all).  |
 
 <br>
 
@@ -53,7 +53,7 @@ Returns commitment discount eligibility for the specified meter.
 ### Get meters eligible for reservations
 
 ```powershell
-Get-FinOpsCommitmentDiscountEligibility -SpendEligibility "Eligible"
+Get-FinOpsCommitmentDiscountEligibility -UsageEligibility "Eligible"
 ```
 
 Returns all meters eligible for reservations.
