@@ -112,7 +112,11 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         recurrence: {
           frequency: 'Hour'
           interval: 24
-          startTime: '2023-01-01T01:01:00'
+          // Data Factory requires a trailing 'Z' on startTime when timeZone resolves to 'UTC' (the
+          // fallback for regions not in timeZones.bicep's map); a missing 'Z' fails trigger activation
+          // with InvalidWorkflowTriggerRecurrence. Mapped, non-UTC regions must keep the no-'Z' format
+          // so they continue scheduling on local wall-clock time.
+          startTime: timeZones.outputs.Timezone == 'UTC' ? '2023-01-01T01:01:00Z' : '2023-01-01T01:01:00'
           timeZone: timeZones.outputs.Timezone
         }
       }
@@ -138,7 +142,8 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         recurrence: {
           frequency: 'Month'
           interval: 1
-          startTime: '2023-01-05T01:11:00'
+          // See trigger_DailySchedule above for why the 'Z' suffix is conditional on the UTC fallback.
+          startTime: timeZones.outputs.Timezone == 'UTC' ? '2023-01-05T01:11:00Z' : '2023-01-05T01:11:00'
           timeZone: timeZones.outputs.Timezone
           schedule: {
             monthDays: [
