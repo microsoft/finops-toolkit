@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 07/30/2026
+ms.date: 09/01/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -162,13 +162,13 @@ Sample data:
 | MeterId                              | x_CommitmentDiscountSpendEligibility | x_CommitmentDiscountUsageEligibility |
 | ------------------------------------ | ------------------------------------ | ------------------------------------ |
 | 00003b45-e996-5b04-b673-a2db710f9237 | Eligible                             | Eligible                             |
-| 00020329-e657-5687-9d1a-0be9876e5116 | Eligible                             | Not Eligible                         |
-| 0003c425-b1df-551f-a855-9c95a08cb4ae | Not Eligible                         | Eligible                             |
+| 00020329-e657-5687-9d1a-0be9876e5116 | Not Eligible                         | Eligible                             |
+| 0003c425-b1df-551f-a855-9c95a08cb4ae | Eligible                             | Not Eligible                         |
 
 A few important notes about the data:
 
-- `x_CommitmentDiscountSpendEligibility` indicates whether the meter has Reserved Instance pricing.
-- `x_CommitmentDiscountUsageEligibility` indicates whether the meter has Savings Plan pricing.
+- `x_CommitmentDiscountSpendEligibility` indicates whether the meter has savings plan pricing. FOCUS classifies a savings plan as a spend commitment because you commit to an amount of money.
+- `x_CommitmentDiscountUsageEligibility` indicates whether the meter has reservation pricing. FOCUS classifies a reservation as a usage commitment because you commit to a quantity of usage.
 - Only primary meter regions are included to avoid duplicates.
 - Data is updated weekly via a GitHub Actions workflow.
 
