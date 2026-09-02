@@ -9,10 +9,10 @@
     Optional. The meter ID to look up. Accepts wildcards. Default = * (all).
 
     .PARAMETER SpendEligibility
-    Optional. Filters to meters with the specified reservation (spend-based commitment) eligibility. Expected values: Eligible, Not Eligible. Default = null (all).
+    Optional. Filters to meters with the specified savings plan (spend commitment) eligibility. FOCUS classifies a savings plan as a spend commitment because you commit to an amount of money. Expected values: Eligible, Not Eligible. Default = null (all).
 
     .PARAMETER UsageEligibility
-    Optional. Filters to meters with the specified savings plan (usage-based commitment) eligibility. Expected values: Eligible, Not Eligible. Default = null (all).
+    Optional. Filters to meters with the specified reservation (usage commitment) eligibility. FOCUS classifies a reservation as a usage commitment because you commit to a quantity of usage. Expected values: Eligible, Not Eligible. Default = null (all).
 
     .DESCRIPTION
     The Get-FinOpsCommitmentDiscountEligibility command returns a pre-computed lookup of which meters are eligible for commitment-based discounts (reservations and savings plans), sourced from the Azure Retail Prices API.
@@ -23,7 +23,7 @@
     Returns commitment discount eligibility for the specified meter.
 
     .EXAMPLE
-    Get-FinOpsCommitmentDiscountEligibility -SpendEligibility "Eligible"
+    Get-FinOpsCommitmentDiscountEligibility -UsageEligibility "Eligible"
 
     Returns all meters eligible for reservations.
 

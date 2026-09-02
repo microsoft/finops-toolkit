@@ -29,9 +29,9 @@ Get-FinOpsInstanceSizeFlexibility `
 
 ## Parameters
 
-| Name                         | Description                                                                                |
-| ---------------------------- | ------------------------------------------------------------------------------------------- |
-| ArmSkuName                   | Optional. The ARM SKU name to look up. Accepts wildcards. Default = \* (all).               |
+| Name                         | Description                                                                                            |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
+| ArmSkuName                   | Optional. The ARM SKU name to look up. Accepts wildcards. Default = \* (all).                          |
 | InstanceSizeFlexibilityGroup | Optional. The instance size flexibility group to find SKUs for. Accepts wildcards. Default = \* (all). |
 
 <br>
