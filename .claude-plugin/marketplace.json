@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "microsoft-finops-toolkit",
-      "version": "15.0.0",
+      "version": "15.0",
       "source": "./plugins/microsoft-finops-toolkit",
       "description": "Microsoft FinOps toolkit plugin for AI-powered cloud financial management.",
       "category": "finops",
