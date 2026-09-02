@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 09/01/2026
+ms.date: 09/02/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
