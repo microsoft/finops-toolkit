@@ -262,6 +262,10 @@
           items:
             - name: Open data commands
               href: toolkit/powershell/data/open-data-commands.md
+            - name: Get-FinOpsCommitmentDiscountEligibility
+              href: toolkit/powershell/data/get-finopscommitmentdiscounteligibility.md
+            - name: Get-FinOpsInstanceSizeFlexibility
+              href: toolkit/powershell/data/get-finopsinstancesizeflexibility.md
             - name: Get-FinOpsPricingUnit
               href: toolkit/powershell/data/get-finopspricingunit.md
             - name: Get-FinOpsRegion

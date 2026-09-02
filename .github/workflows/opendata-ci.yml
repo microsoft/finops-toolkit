@@ -42,7 +42,8 @@ jobs:
         {
           git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
           git config --global user.email "finopstoolkit@users.noreply.github.com"
-          git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git add -A
+          git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push
         }
     # Build-OpenData.ps1 -Test calls Test-PowerShell.ps1, which requires Pester 6 (#2254):
