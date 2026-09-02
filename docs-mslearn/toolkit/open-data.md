@@ -175,6 +175,8 @@ A few important notes about the data:
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscountEligibility.csv)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopscommitmentdiscounteligibility.md)
 <!-- prettier-ignore-end -->
 
 <br>
@@ -201,6 +203,8 @@ A few important notes about the data:
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/InstanceSizeFlexibility.csv)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopsinstancesizeflexibility.md)
 <!-- prettier-ignore-end -->
 
 <br>
