@@ -43,14 +43,24 @@ Describe 'Agent plugin manifest' {
         Join-Path $script:Plugin ($root.agents -replace '^\./', '') | Should -Exist
     }
 
-    It 'Loads MCP servers from .mcp.json in the plugin root' {
+    It 'Lets Claude auto-discover .mcp.json from the plugin root' {
         $root = Get-Content (Join-Path $script:Plugin 'plugin.json') -Raw | ConvertFrom-Json
         $claude = Get-Content (Join-Path $script:Plugin '.claude-plugin/plugin.json') -Raw | ConvertFrom-Json
 
         $root.mcpServers | Should -Be '.mcp.json'
         $claude.mcpServers | Should -BeNullOrEmpty
-        $claude.agents | Should -BeNullOrEmpty
         Join-Path $script:Plugin '.mcp.json' | Should -Exist
+    }
+
+    It 'Declares resolvable paths for every Claude component' {
+        $claude = Get-Content (Join-Path $script:Plugin '.claude-plugin/plugin.json') -Raw | ConvertFrom-Json
+        $paths = @($claude.commands) + @($claude.skills) + @($claude.outputStyles)
+
+        $paths.Count | Should -BeGreaterOrEqual 3
+        $paths | ForEach-Object {
+            $_ | Should -Not -BeNullOrEmpty
+            Join-Path $script:Plugin $_ | Should -Exist
+        }
     }
 
     It 'Uses unpinned Azure MCP latest package in .mcp.json' {
@@ -64,15 +74,23 @@ Describe 'Agent plugin manifest' {
 }
 
 Describe 'Agent plugin components' {
-    It 'Ships agent definitions as NAME.agent.md files' {
-        $agents = Get-ChildItem (Join-Path $script:Plugin 'agents') -Filter '*.agent.md'
+    It 'Ships agent definitions as Claude-compatible NAME.md files' {
+        $agents = Get-ChildItem (Join-Path $script:Plugin 'agents') -Filter '*.md'
+
         $agents.Count | Should -BeGreaterThan 0
+        $agents.Name | ForEach-Object {
+            $_ | Should -Not -Match '\.agent\.md$'
+        }
     }
 
     It 'Gives every agent a name and description in front matter' {
-        Get-ChildItem (Join-Path $script:Plugin 'agents') -Filter '*.agent.md' | ForEach-Object {
+        Get-ChildItem (Join-Path $script:Plugin 'agents') -Filter '*.md' | ForEach-Object {
             $content = Get-Content $_.FullName -Raw
+            $name = [regex]::Match($content, '(?m)^name:\s*(?<name>\S+)\s*$')
+
             $content | Should -Match '(?ms)^---\s.*^name:\s*\S.*^description:\s*\S.*^---'
+            $name.Success | Should -BeTrue
+            $_.BaseName | Should -Be $name.Groups['name'].Value
         }
     }
 
@@ -164,17 +182,21 @@ Describe 'Plugin discovery and marketplaces' {
         Join-Path $pluginRoot 'plugin.json' | Should -Exist
     }
 
-    It 'Uses repository-root-relative marketplace sources' {
-        $marketplaces = @{
-            '.github/plugin/marketplace.json' = './plugins/microsoft-finops-toolkit'
-            '.claude-plugin/marketplace.json' = './plugins/microsoft-finops-toolkit'
-        }
+    It 'Uses a cross-platform source path in both marketplaces' {
+        $marketplaces = @('.github/plugin/marketplace.json', '.claude-plugin/marketplace.json')
 
-        foreach ($marketplace in $marketplaces.Keys)
+        foreach ($marketplace in $marketplaces)
         {
             $json = Get-Content (Join-Path $script:RepoRoot $marketplace) -Raw | ConvertFrom-Json
             $entry = $json.plugins | Where-Object { $_.name -eq 'microsoft-finops-toolkit' }
-            $entry.source | Should -Be $marketplaces[$marketplace]
+            $entry.source | Should -Be './src/templates/agent-plugin'
         }
+    }
+
+    It 'Enables strict mode explicitly for the Claude plugin' {
+        $json = Get-Content (Join-Path $script:RepoRoot '.claude-plugin/marketplace.json') -Raw | ConvertFrom-Json
+        $entry = $json.plugins | Where-Object { $_.name -eq 'microsoft-finops-toolkit' }
+
+        $entry.strict | Should -BeTrue
     }
 }
