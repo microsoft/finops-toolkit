@@ -16,6 +16,9 @@ param location string = resourceGroup().location
 @sys.description('Optional. Workbook description.')
 param description string = ''
 
+@sys.description('Optional. Azure resource ID that provides the Workbook resource context. Default: Azure Monitor.')
+param sourceId string = 'Azure Monitor'
+
 @sys.description('Optional. Tags for all resources.')
 param tags object = {}
 
@@ -84,7 +87,7 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
     description: description
     displayName: displayName
     serializedData: workbookJson
-    sourceId: 'Azure Monitor'
+    sourceId: sourceId
     version: version
   }
 }
@@ -97,4 +100,4 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
 output workbookId string = workbook.id
 
 @sys.description('Link to the workbook in the Azure portal.')
-output workbookUrl string = '${environment().portal}/#view/AppInsightsExtension/UsageNotebookBlade/ComponentId/Azure%20Monitor/ConfigurationId/${uriComponent(workbook.id)}/Type/${workbook.properties.category}/WorkbookTemplateName/${uriComponent(workbook.properties.displayName)}'
+output workbookUrl string = '${environment().portal}/#view/AppInsightsExtension/UsageNotebookBlade/ComponentId/${uriComponent(sourceId)}/ConfigurationId/${uriComponent(workbook.id)}/Type/${workbook.properties.category}/WorkbookTemplateName/${uriComponent(workbook.properties.displayName)}'

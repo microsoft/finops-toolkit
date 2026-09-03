@@ -1,0 +1,14 @@
+{
+  "main.bicep": {
+    "displayName": "FinOps hub",
+    "description": "Analyze cost, usage, rates, AI workloads, agents, and cloud supply from a FinOps hub.",
+    "workbookId": "f0h"
+  },
+  "metadata.json": {
+    "itemDisplayName": "FinOps hub workbook",
+    "summary": "Create a FinOps hub workbook",
+    "description": "This template creates an Azure Monitor workbook for FinOps hub reporting.",
+    "githubUsername": "MSBrett",
+    "dateUpdated": "2026-09-23"
+  }
+}
