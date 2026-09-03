@@ -159,6 +159,11 @@ function sourceTileToWorkbookItem(tile, width) {
             queryType: 9,
             visualization: workbookVisualization(tile.visualType),
             showExportToExcel: tile.visualType.toLowerCase() === "table",
+            ...(tile.visualType.toLowerCase() === "table" ? {
+                gridSettings: {
+                    rowLimit: 10000,
+                },
+            } : {}),
         },
         doNotRunWhenHidden: true,
         ...common,
@@ -170,6 +175,10 @@ function sourceRowWidths(tiles) {
     if (tiles.length === 2) {
         const total = tiles[0].layout.width + tiles[1].layout.width;
         const left = Math.round((tiles[0].layout.width / total) * 100);
+        const firstIsStat = ["card", "multistat"].includes(tiles[0].visualType.toLowerCase());
+        const secondIsStat = ["card", "multistat"].includes(tiles[1].visualType.toLowerCase());
+        if (firstIsStat && left >= 25 && left < 33) return [33, 66];
+        if (secondIsStat && left > 66 && left <= 75) return [66, 33];
         const pairs = [[25, 75], [33, 66], [50, 50], [66, 33], [75, 25]];
         return pairs.reduce((best, pair) => (
             Math.abs(pair[0] - left) < Math.abs(best[0] - left) ? pair : best
@@ -181,13 +190,19 @@ function sourceRowWidths(tiles) {
     throw new Error(`Unsupported source row with ${tiles.length} tiles.`);
 }
 
-function kustoItem(name, title, query, visualization = "table", width = "100") {
+function kustoItem(name, title, query, visualization = "table", width = "100", options = {}) {
+    const gridSettings = visualization === "table"
+        ? {
+            rowLimit: 10000,
+            ...(options.gridSettings ?? {}),
+        }
+        : undefined;
     return {
         type: 3,
         content: {
             version: "KqlItem/1.0",
             query: adxQuery(query),
-            size: 1,
+            size: options.size ?? 1,
             title,
             timeContext: {
                 durationMs: 0,
@@ -195,6 +210,15 @@ function kustoItem(name, title, query, visualization = "table", width = "100") {
             queryType: 9,
             visualization,
             showExportToExcel: visualization === "table",
+            ...(gridSettings ? { gridSettings } : {}),
+            ...(options.tileSettings ? { tileSettings: options.tileSettings } : {}),
+            ...(options.chartSettings ? { chartSettings: options.chartSettings } : {}),
+            ...(options.noDataMessage ? { noDataMessage: options.noDataMessage } : {}),
+            ...(options.exportParameterName ? {
+                exportFieldName: options.exportFieldName,
+                exportParameterName: options.exportParameterName,
+                exportDefaultValue: options.exportDefaultValue,
+            } : {}),
         },
         doNotRunWhenHidden: true,
         customWidth: width,
@@ -217,6 +241,9 @@ function argItem(name, title, query, width = "100") {
             ],
             visualization: "table",
             showExportToExcel: true,
+            gridSettings: {
+                rowLimit: 10000,
+            },
         },
         doNotRunWhenHidden: true,
         customWidth: width,
@@ -242,6 +269,9 @@ function logsItem(name, title, query, width = "100") {
             ],
             visualization: "table",
             showExportToExcel: true,
+            gridSettings: {
+                rowLimit: 10000,
+            },
         },
         doNotRunWhenHidden: true,
         customWidth: width,
@@ -278,7 +308,7 @@ function groupItem(name, key, items) {
         content: {
             version: "NotebookGroup/1.0",
             groupType: "editable",
-            loadType: "always",
+            loadType: "lazy",
             items,
         },
         conditionalVisibility: pageCondition(key),
@@ -306,7 +336,7 @@ function nestedGroupItem(name, parameterName, value, items) {
         content: {
             version: "NotebookGroup/1.0",
             groupType: "editable",
-            loadType: "always",
+            loadType: "lazy",
             items,
         },
         conditionalVisibility: {
@@ -317,6 +347,221 @@ function nestedGroupItem(name, parameterName, value, items) {
         name: guid(name),
     };
 }
+
+function parameterControlItem(name, controls) {
+    return {
+        type: 9,
+        content: {
+            version: "KqlParameterItem/1.0",
+            parameters: controls.map((control) => ({
+                id: guid(`parameter:${control.name}`),
+                version: "KqlParameterItem/1.0",
+                name: control.name,
+                ...(control.label ? { label: control.label } : {}),
+                type: control.hidden || control.text ? 1 : 2,
+                isRequired: !control.hidden && !control.text,
+                ...(control.hidden ? {
+                    value: control.value,
+                    isHiddenWhenLocked: true,
+                } : control.text ? {
+                    value: control.value,
+                } : {
+                    query: adxQuery(control.query),
+                    queryType: 9,
+                    typeSettings: {
+                        additionalResourceOptions: [],
+                        showDefault: false,
+                    },
+                }),
+            })),
+            style: "standard",
+            queryType: 9,
+        },
+        customWidth: "100",
+        name: guid(name),
+    };
+}
+
+function parameterNavigationItem(name, parameterName, tabs) {
+    return {
+        type: 11,
+        content: {
+            version: "LinkItem/1.0",
+            style: "tabs",
+            links: tabs.map((tab) => ({
+                id: guid(`${name}:${tab.id}`),
+                cellValue: parameterName,
+                linkTarget: "parameter",
+                linkLabel: tab.label,
+                subTarget: tab.id,
+                style: "link",
+            })),
+        },
+        name: guid(name),
+    };
+}
+
+const thresholdFormatter = (columnMatch, thresholds) => ({
+    columnMatch,
+    formatter: 18,
+    formatOptions: {
+        thresholdsOptions: "colors",
+        thresholdsGrid: [
+            ...thresholds.map(([thresholdValue, representation]) => ({
+                operator: "==",
+                thresholdValue,
+                representation,
+                text: "{0}{1}",
+            })),
+            {
+                operator: "Default",
+                thresholdValue: null,
+                representation: "gray",
+                text: "{0}{1}",
+            },
+        ],
+    },
+});
+
+const capacityStatusFormatter = thresholdFormatter("QuotaStatus|EvidenceState", [
+    ["Healthy", "green"],
+    ["Watch", "yellow"],
+    ["Action", "orange"],
+    ["Exhausted", "red"],
+    ["Invalid", "red"],
+    ["Stale", "gray"],
+    ["No quota", "gray"],
+    ["Observed", "green"],
+    ["Observed inventory", "blue"],
+    ["Unknown or unclassified", "gray"],
+    ["Not reported - collection outcome unknown", "gray"],
+]);
+const supplyStatusFormatter = thresholdFormatter("SupplyStatus|OfferStatus", [
+    ["Open", "green"],
+    ["Partial", "yellow"],
+    ["Blocked", "red"],
+    ["Not reported", "gray"],
+]);
+const reconciliationFormatter = thresholdFormatter("ReconciliationState", [
+    ["Matched", "green"],
+    ["Inventory only", "yellow"],
+    ["Cost only", "red"],
+]);
+const historyFormatter = thresholdFormatter("HistoryMode", [
+    ["Compatible daily history", "green"],
+    ["Provisional trend - low confidence", "yellow"],
+    ["Observed delta - insufficient trend points", "yellow"],
+    ["Collecting history - trends are disabled", "gray"],
+    ["Observed inventory history - runway is not applicable", "blue"],
+]);
+
+function supplyGridSettings(panel) {
+    const formatters = [];
+    if (panel.role === "matrix") {
+        formatters.push({
+            columnMatch: `^(?!${panel.matrixDimension}$|Unit$).+`,
+            formatter: 18,
+            formatOptions: {
+                thresholdsOptions: "colors",
+                thresholdsGrid: [
+                    {
+                        operator: "==",
+                        thresholdValue: "-1",
+                        representation: "gray",
+                        text: "Not observed",
+                    },
+                    {
+                        operator: ">=",
+                        thresholdValue: "100",
+                        representation: "redBright",
+                        text: "{0}{1}",
+                    },
+                    {
+                        operator: ">=",
+                        thresholdValue: "90",
+                        representation: "orange",
+                        text: "{0}{1}",
+                    },
+                    {
+                        operator: ">=",
+                        thresholdValue: "80",
+                        representation: "yellow",
+                        text: "{0}{1}",
+                    },
+                    {
+                        operator: ">=",
+                        thresholdValue: "0",
+                        representation: "green",
+                        text: "{0}{1}",
+                    },
+                    {
+                        operator: "Default",
+                        thresholdValue: null,
+                        representation: "gray",
+                        text: "{0}{1}",
+                    },
+                ],
+                customColumnWidthSetting: "18ch",
+            },
+            numberFormat: {
+                unit: 1,
+                options: {
+                    style: "decimal",
+                    maximumFractionDigits: 1,
+                },
+            },
+        });
+    }
+    if (["coverage", "coverage-index", "current", "detail"].includes(panel.role)) {
+        formatters.push(capacityStatusFormatter);
+    }
+    if (panel.role === "detail") {
+        formatters.push(
+            supplyStatusFormatter,
+            {
+                columnMatch: "UtilizationPercent",
+                formatter: 8,
+                formatOptions: {
+                    min: 0,
+                    max: 100,
+                    palette: "greenRed",
+                    customColumnWidthSetting: "18ch",
+                },
+            }
+        );
+    }
+    if (panel.role === "history") formatters.push(historyFormatter);
+    if (panel.role === "reconciliation") formatters.push(reconciliationFormatter);
+    return {
+        ...(formatters.length ? { formatters } : {}),
+        ...(panel.rowLimit ? { rowLimit: panel.rowLimit } : {}),
+    };
+}
+
+const supplyTileSettings = {
+    titleContent: {
+        columnMatch: "Metric",
+        formatter: 1,
+    },
+    leftContent: {
+        columnMatch: "Value",
+        formatter: 12,
+        formatOptions: {
+            palette: "auto",
+        },
+        numberFormat: {
+            unit: 17,
+            options: {
+                style: "decimal",
+                maximumFractionDigits: 1,
+                maximumSignificantDigits: 4,
+            },
+        },
+    },
+    showBorder: false,
+    rowLimit: 6,
+    size: "auto",
+};
 
 const sourcePages = dashboard.pages.map((page) => ({
     ...page,
@@ -357,6 +602,7 @@ const hubClusterNameQuery = `resources
 | project value=strcat(name, '.', location), label=strcat(name, '.', location), selected=true`;
 const foundryAccountsQuery = `resources
 | where type =~ 'microsoft.cognitiveservices/accounts'
+| where kind in~ ('OpenAI', 'AIServices')
 | project
     value=id,
     label=strcat(name, ' (', resourceGroup, ', ', location, ')'),
@@ -391,6 +637,7 @@ const parameterItem = {
                 name: "SelectedTab",
                 type: 1,
                 value: sourcePages[0].key,
+                isGlobal: true,
                 isHiddenWhenLocked: true,
             },
             {
@@ -399,6 +646,7 @@ const parameterItem = {
                 name: "SelectedSupplyTab",
                 type: 1,
                 value: supplyViews[0].id,
+                isGlobal: true,
                 isHiddenWhenLocked: true,
             },
             {
@@ -645,6 +893,106 @@ const supplyNavigation = {
     name: guid("supply-navigation"),
 };
 
+function supplyPanelItem(view, panel) {
+    return kustoItem(
+        `supply:${view.id}:${panel.id}`,
+        panel.title,
+        panel.query,
+        panel.visualization ?? "table",
+        panel.width ?? "100",
+        {
+            size: panel.size ?? 1,
+            gridSettings: supplyGridSettings(panel),
+            tileSettings: panel.visualization === "tiles" ? supplyTileSettings : undefined,
+            noDataMessage: panel.noDataMessage,
+            exportFieldName: panel.exportFieldName,
+            exportParameterName: panel.exportParameterName,
+            exportDefaultValue: panel.exportDefaultValue,
+        }
+    );
+}
+
+function supplyViewItems(view) {
+    if (view.kind === "home") {
+        return [
+            textItem(
+                "supply:home:guidance",
+                "Select a row to open that Supply class. Evidence is independent; missing observations remain unknown."
+            ),
+            ...view.panels.map((panel) => supplyPanelItem(view, panel)),
+        ];
+    }
+
+    const panelByRole = new Map(view.panels.map((panel) => [panel.role, panel]));
+    const items = [
+        textItem(
+            `supply:${view.id}:heading`,
+            `### ${view.title}\n\n${view.description}\n\n` +
+            `**Evidence:** ${view.sourceNote}\n\n` +
+            `**Next action:** ${view.nextAction}`
+        ),
+    ];
+
+    if (view.controls?.length) {
+        items.push(parameterControlItem(`supply:${view.id}:controls`, view.controls));
+    }
+
+    const summary = panelByRole.get("summary");
+    const coverage = panelByRole.get("coverage");
+    if (summary && coverage) {
+        items.push(supplyPanelItem(view, summary));
+    }
+
+    if (view.kind === "matrix") {
+        const offerRestrictions = panelByRole.get("offer-restrictions");
+        if (offerRestrictions) {
+            items.push(supplyPanelItem(view, offerRestrictions));
+        }
+        items.push(supplyPanelItem(view, panelByRole.get("matrix")));
+        const detailControl = view.controls.find((control) => control.hidden);
+        items.push(parameterNavigationItem(
+            `supply:${view.id}:detail-navigation`,
+            detailControl.name,
+            view.detailTabs
+        ));
+        for (const detailTab of view.detailTabs) {
+            const panel = view.panels.find((candidate) => candidate.id === detailTab.id);
+            const detailControls = view.detailControls
+                ?.find((item) => item.detailValue === detailTab.id)
+                ?.controls ?? [];
+            items.push(nestedGroupItem(
+                `supply:${view.id}:${detailTab.id}`,
+                detailControl.name,
+                detailTab.id,
+                [
+                    ...(detailControls.length
+                        ? [parameterControlItem(`supply:${view.id}:${detailTab.id}:controls`, detailControls)]
+                        : []),
+                    supplyPanelItem(view, panel),
+                ]
+            ));
+        }
+        for (const panel of view.panels.filter((candidate) => candidate.role === "demand")) {
+            items.push(supplyPanelItem(view, panel));
+        }
+        items.push(supplyPanelItem(view, coverage));
+        return items;
+    }
+
+    items.push(supplyPanelItem(view, panelByRole.get("current")));
+    items.push(rowGroupItem(`supply:${view.id}:evidence-row`, [
+        supplyPanelItem(view, panelByRole.get("history")),
+        supplyPanelItem(view, panelByRole.get("heatmap")),
+    ]));
+    for (const role of ["demand", "reconciliation"]) {
+        if (panelByRole.has(role)) {
+            items.push(supplyPanelItem(view, panelByRole.get(role)));
+        }
+    }
+    items.push(supplyPanelItem(view, coverage));
+    return items;
+}
+
 const supplyItems = [
     textItem(
         "supply:introduction",
@@ -655,10 +1003,7 @@ const supplyItems = [
         `supply:${view.id}`,
         "SelectedSupplyTab",
         view.id,
-        [
-            textItem(`supply:${view.id}:heading`, `### ${view.title}\n\n${view.description}`),
-            kustoItem(`supply:${view.id}:dataset`, view.title, view.query),
-        ]
+        supplyViewItems(view)
     )),
 ];
 
@@ -687,7 +1032,11 @@ const sourceTileCount = sourceItems.length;
 const sourceQueryCount = sourceItems.filter((item) => item.type === 3).length;
 const workspaceLiterals = JSON.stringify(workbook)
     .match(/\/providers\/microsoft\.operationalinsights\/workspaces\//gi) ?? [];
-const unboundedTake = [foundryCostQuery, supplyQuery, ...supplyViews.map((view) => view.query)]
+const supplyQueries = supplyViews.flatMap((view) => [
+    ...(view.controls ?? []).flatMap((control) => control.query ? [control.query] : []),
+    ...view.panels.map((panel) => panel.query),
+]);
+const unboundedTake = [foundryCostQuery, supplyQuery, ...supplyQueries]
     .some((query) => /\|\s*(take|limit)\s+\d+/i.test(query));
 
 if (sourcePages.length !== 13 || sourceTileCount !== 158 || sourceQueryCount !== 99) {
