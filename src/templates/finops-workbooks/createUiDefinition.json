@@ -51,26 +51,6 @@
             "toolTip": "Select to include the governance workbook for queries to support the Well-Architected Framework governance pillar.",
             "type": "Microsoft.Common.CheckBox",
             "defaultValue": true
-          },
-          {
-            "name": "includeFinOpsHub",
-            "label": "FinOps hub",
-            "toolTip": "Select to include the FinOps hub workbook for cost, usage, rates, AI workloads, agents, and cloud supply.",
-            "type": "Microsoft.Common.CheckBox",
-            "defaultValue": false
-          },
-          {
-            "name": "finOpsHubSource",
-            "type": "Microsoft.Solutions.ResourceSelector",
-            "label": "FinOps hub Data Explorer cluster",
-            "resourceType": "Microsoft.Kusto/clusters",
-            "options": {
-              "filter": {
-                "subscription": "onBasics",
-                "location": "all"
-              }
-            },
-            "visible": "[steps('workbooks').includeFinOpsHub]"
           }
         ]
       }
@@ -79,8 +59,6 @@
       "displayNamePrefix": "[basics('displayNamePrefix')]",
       "includeOptimization": "[steps('workbooks').includeOptimization]",
       "includeGovernance": "[steps('workbooks').includeGovernance]",
-      "includeFinOpsHub": "[steps('workbooks').includeFinOpsHub]",
-      "finOpsHubSourceId": "[if(steps('workbooks').includeFinOpsHub, steps('workbooks').finOpsHubSource.id, '')]",
       "location": "[location()]"
     }
   }

@@ -16,9 +16,6 @@ param location string = resourceGroup().location
 @sys.description('Optional. Workbook description.')
 param description string = ''
 
-@sys.description('Optional. Azure resource ID that provides the Workbook resource context. Default: Azure Monitor.')
-param sourceId string = 'Azure Monitor'
-
 @sys.description('Optional. Tags for all resources.')
 param tags object = {}
 
@@ -30,41 +27,7 @@ param enableDefaultTelemetry bool = true
 //------------------------------------------------------------------------------
 
 var version = ''
-var workbookDefinition = loadJsonContent('workbook.json')
-var workbookJsonSource = string(workbookDefinition)
-var workbookUsesKustoQueryUri = contains(workbookJsonSource, '__KUSTO_QUERY_URI__')
-var sourceIdSegments = split(sourceId, '/')
-var sourceSubscriptionId = workbookUsesKustoQueryUri ? sourceIdSegments[2] : subscription().subscriptionId
-var sourceResourceGroupName = workbookUsesKustoQueryUri ? sourceIdSegments[4] : resourceGroup().name
-var sourceClusterName = workbookUsesKustoQueryUri ? sourceIdSegments[8] : 'unused'
-var kustoProxyGroupIndex = 16
-var kustoProxyGroup = workbookDefinition.items[kustoProxyGroupIndex]
-var kustoProxyQueryIndex = 1
-var kustoProxyQuery = any(kustoProxyGroup.content.items[kustoProxyQueryIndex])
-var patchedKustoProxyQuery = union(kustoProxyQuery, {
-  content: union(kustoProxyQuery.content, {
-    query: replace(kustoProxyQuery.content.query, '__KUSTO_QUERY_URI__', sourceCluster!.properties.uri)
-  })
-})
-var patchedKustoProxyGroup = union(kustoProxyGroup, {
-  content: union(kustoProxyGroup.content, {
-    items: concat(
-      take(kustoProxyGroup.content.items, kustoProxyQueryIndex),
-      [patchedKustoProxyQuery],
-      skip(kustoProxyGroup.content.items, kustoProxyQueryIndex + 1)
-    )
-  })
-})
-var patchedWorkbookDefinition = union(workbookDefinition, {
-  items: concat(
-    take(workbookDefinition.items, kustoProxyGroupIndex),
-    [patchedKustoProxyGroup],
-    skip(workbookDefinition.items, kustoProxyGroupIndex + 1)
-  )
-})
-var workbookJson = workbookUsesKustoQueryUri
-  ? string(patchedWorkbookDefinition)
-  : workbookJsonSource
+var workbookJson = string(loadJsonContent('workbook.json'))
 
 // The last segment of the telemetryId is used to identify this module
 var workbookId = '000'
@@ -111,11 +74,6 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 // Workbook
 //------------------------------------------------------------------------------
 
-resource sourceCluster 'Microsoft.Kusto/clusters@2023-08-15' existing = if (workbookUsesKustoQueryUri) {
-  scope: resourceGroup(sourceSubscriptionId, sourceResourceGroupName)
-  name: sourceClusterName
-}
-
 resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
   name: guid(resourceGroup().id, 'Microsoft.Insights/workbooks', displayName)
   location: location
@@ -126,7 +84,7 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
     description: description
     displayName: displayName
     serializedData: workbookJson
-    sourceId: sourceId
+    sourceId: 'Azure Monitor'
     version: version
   }
 }
@@ -139,4 +97,4 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
 output workbookId string = workbook.id
 
 @sys.description('Link to the workbook in the Azure portal.')
-output workbookUrl string = '${environment().portal}/#view/AppInsightsExtension/UsageNotebookBlade/ComponentId/${uriComponent(sourceId)}/ConfigurationId/${uriComponent(workbook.id)}/Type/${workbook.properties.category}/WorkbookTemplateName/${uriComponent(workbook.properties.displayName)}'
+output workbookUrl string = '${environment().portal}/#view/AppInsightsExtension/UsageNotebookBlade/ComponentId/Azure%20Monitor/ConfigurationId/${uriComponent(workbook.id)}/Type/${workbook.properties.category}/WorkbookTemplateName/${uriComponent(workbook.properties.displayName)}'
