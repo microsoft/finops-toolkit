@@ -1,0 +1,975 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_AZURE_MONITOR",
+      "label": "Azure Monitor",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "grafana-azure-monitor-datasource",
+      "pluginName": "Azure Monitor"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "geomap",
+      "name": "Geomap",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.6.3"
+    },
+    {
+      "type": "datasource",
+      "id": "grafana-azure-monitor-datasource",
+      "name": "Azure Monitor",
+      "version": "11.6.4"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "id": "text",
+      "name": "Text",
+      "type": "panel",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "FinOps hub dashboard for AKS Container Insights. Global AKS Container Insights overview. Aggregates Azure Monitor Container Insights data from multiple AKS clusters and regions in a single view. Panels include: a geomap of total Running pod counts by Azure region, a Pods inventory table with status and restart highlights, and a Containers inventory table with image and lifecycle timestamps. Uses Azure Log Analytics (Kusto) via the Azure Monitor data source and supports subscription and Log Analytics workspace template variables. Default time range is last 3h; adjust as needed for investigations.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Doc",
+      "tooltip": "Documentation",
+      "type": "link",
+      "url": "https://github.com/1w2w3y/grafana-dashboards/blob/master/aks-pods-az-monitor/README.md"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "FinOps hubs",
+      "tooltip": "FinOps hubs documentation",
+      "type": "link",
+      "url": "https://aka.ms/finops/hubs"
+    }
+  ],
+  "panels": [
+    {
+      "description": "FinOps hub dashboard identity.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "# FinOps hub | AKS Container Insights\n\nOperational data for FinOps analysis. [Learn about FinOps hubs](https://aka.ms/finops/hubs).",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.6.3",
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${DS_AZURE_MONITOR}"
+      },
+      "description": "Geomap of total Running pod count per Azure region across all selected AKS clusters. Data is aggregated from KubePodInventory joined with KubeNodeInventory, filtered to exclude system namespaces, and sized by PodCount. Use mouse zoom and legend to locate hotspots and verify regional distribution. Only pods with Status == Running are counted; marker size reflects relative totals.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 6,
+      "maxDataPoints": 1,
+      "options": {
+        "basemap": {
+          "name": "Basemap",
+          "type": "default"
+        },
+        "controls": {
+          "mouseWheelZoom": false,
+          "showAttribution": true,
+          "showDebug": false,
+          "showMeasure": false,
+          "showScale": false,
+          "showZoom": true
+        },
+        "layers": [
+          {
+            "config": {
+              "showLegend": true,
+              "style": {
+                "color": {
+                  "field": "PodCount",
+                  "fixed": "dark-green"
+                },
+                "opacity": 0.7,
+                "rotation": {
+                  "fixed": 0,
+                  "max": 360,
+                  "min": -360,
+                  "mode": "mod"
+                },
+                "size": {
+                  "field": "PodCount",
+                  "fixed": 5,
+                  "max": 30,
+                  "min": 10
+                },
+                "symbol": {
+                  "fixed": "img/icons/marker/circle.svg",
+                  "mode": "fixed"
+                },
+                "symbolAlign": {
+                  "horizontal": "center",
+                  "vertical": "center"
+                },
+                "textConfig": {
+                  "fontSize": 12,
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "textAlign": "center",
+                  "textBaseline": "middle"
+                }
+              }
+            },
+            "location": {
+              "mode": "auto"
+            },
+            "name": "Pod count",
+            "tooltip": true,
+            "type": "markers"
+          }
+        ],
+        "tooltip": {
+          "mode": "details"
+        },
+        "view": {
+          "allLayers": true,
+          "id": "coords",
+          "lat": 42.046551,
+          "lon": -39.629196,
+          "zoom": 3
+        }
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "appInsights": {
+            "dimension": "none",
+            "metricName": "select",
+            "rawQuery": false,
+            "rawQueryString": "",
+            "timeColumn": "timestamp",
+            "timeGrain": "auto",
+            "valueColumn": ""
+          },
+          "azureLogAnalytics": {
+            "dashboardTime": false,
+            "query": "let regionCoordinate = datatable (ClusterRegion:string, regionDisplayName:string, latitude:double, longitude:double)\n[\"eastasia\", \"East Asia\", 22.267, 114.188,\n\"southeastasia\", \"Southeast Asia\", 1.283, 103.833,\n\"centralus\", \"Central US\", 41.5908, -93.6208,\n\"eastus\", \"East US\", 37.3719, -79.8164,\n\"eastus2\", \"East US 2\", 36.6681, -78.3889,\n\"westus\", \"West US\", 37.783, -122.417,\n\"westus2\", \"West US 2\", 47.233, -119.852,\n\"westcentralus\", \"West Central US\", 40.890, -110.234,\n\"northcentralus\", \"North Central US\", 41.8819, -87.6278,\n\"southcentralus\", \"South Central US\", 29.4167, -98.5,\n\"northeurope\", \"North Europe\", 53.3478, -6.2597,\n\"westeurope\", \"West Europe\", 52.3676, 4.9041,\n\"australiaeast\", \"Australia East\", -33.8688, 151.2093,\n\"australiasoutheast\", \"Australia Southeast\", -37.8136, 144.9631,\n\"canadacentral\", \"Canada Central\", 43.6532, -79.3832,\n\"canadaeast\", \"Canada East\", 46.8139, -71.2082,\n\"uksouth\", \"UK South\", 51.5074, -0.1278,\n\"ukwest\", \"UK West\", 53.4808, -2.2426,\n\"eastus2euap\", \"East US 2 EUAP\", 36.6681, -78.3889,\n\"centraluseuap\", \"Central US EUAP\", 41.5908, -93.6208,\n\"westus3\", \"West US 3\", 36.7783, -119.4179,\n\"southcentralus2\", \"South Central US 2\", 29.4167, -98.5,\n\"brazilsouth\", \"Brazil South\", -23.5505, -46.6333,\n\"brazilsoutheast\", \"Brazil Southeast\", -22.9068, -43.1729,\n\"chilecentral\", \"Chile Central\", -33.4489, -70.6693,\n\"mexicocentral\", \"Mexico Central\", 19.4326, -99.1332,\n\"austriaeast\", \"Austria East\", 48.2082, 16.3738,\n\"francecentral\", \"France Central\", 48.8566, 2.3522,\n\"francesouth\", \"France South\", 43.6047, 1.4442,\n\"swedencentral\", \"Sweden Central\", 59.3293, 18.0686,\n\"swedensouth\", \"Sweden South\", 55.6049, 13.0038,\n\"switzerlandnorth\", \"Switzerland North\", 47.3769, 8.5417,\n\"switzerlandwest\", \"Switzerland West\", 46.2044, 6.1432,\n\"germanynorth\", \"Germany North\", 53.5511, 9.9937,\n\"germanynortheast\", \"Germany Northeast\", 52.52, 13.405,\n\"germanycentral\", \"Germany Central\", 50.1109, 8.6821,\n\"germanywestcentral\", \"Germany West Central\", 51.1657, 10.4515,\n\"norwaywest\", \"Norway West\", 60.392, 5.3221,\n\"norwayeast\", \"Norway East\", 59.9139, 10.7522,\n\"italynorth\", \"Italy North\", 45.4642, 9.19,\n\"polandcentral\", \"Poland Central\", 52.2297, 21.0122,\n\"spaincentral\", \"Spain Central\", 40.4168, -3.7038,\n\"japaneast\", \"Japan East\", 35.6895, 139.6917,\n\"japanwest\", \"Japan West\", 34.6937, 135.5023,\n\"australiacentral\", \"Australia Central\", -35.2809, 149.13,\n\"australiacentral2\", \"Australia Central 2\", -35.2809, 149.13,\n\"newzealandnorth\", \"New Zealand North\", -36.8485, 174.7633,\n\"centralindia\", \"Central India\", 18.5204, 73.8567,\n\"southindia\", \"South India\", 12.9716, 77.5946,\n\"westindia\", \"West India\", 19.076, 72.8777,\n\"jioindiacentral\", \"Jio India Central\", 21.1458, 79.0882,\n\"jioindiawest\", \"Jio India West\", 19.076, 72.8777,\n\"koreasouth\", \"Korea South\", 35.1796, 129.0756,\n\"koreacentral\", \"Korea Central\", 37.5665, 126.978,\n\"taiwannorth\", \"Taiwan North\", 25.033, 121.5654,\n\"taiwannorthwest\", \"Taiwan Northwest\", 24.8138, 120.9675,\n\"indonesiacentral\", \"Indonesia Central\", -6.1751, 106.8272,\n\"malaysiawest\", \"Malaysia West\", 3.139, 101.6869,\n\"uaecentral\", \"UAE Central\", 24.4539, 54.3773,\n\"uaenorth\", \"UAE North\", 25.276987, 55.296249,\n\"southafricanorth\", \"South Africa North\", -25.7479, 28.2293,\n\"southafricawest\", \"South Africa West\", -33.9249, 18.4241,\n\"qatarcentral\", \"Qatar Central\", 25.276987, 51.520008,\n\"israelcentral\", \"Israel Central\", 31.0461, 34.8516,\n\"israelnorthwest\", \"Israel Northwest\", 32.7767, 35.0231,\n\"chinanorth\", \"China North\", 39.9042, 116.4074,\n\"chinanorth2\", \"China North 2\", 39.9042, 116.4074,\n\"chinanorth3\", \"China North 3\", 39.9042, 116.4074,\n\"chinaeast\", \"China East\", 31.2304, 121.4737,\n\"chinaeast2\", \"China East 2\", 31.2304, 121.4737,\n\"chinaeast3\", \"China East 3\", 31.2304, 121.4737];\nlet podTable = KubePodInventory\n| where $__timeFilter(TimeGenerated)  \n| where isnotempty(ClusterName)\n| where isnotempty(Namespace)\n| where isnotempty(Computer)\n| where Namespace != \"monitoring\" and Namespace != \"aad-pod-id\" and Namespace != \"kube-system\" \n| summarize arg_max(TimeGenerated, *) by Name\n| project TimeGenerated, PodName=Name, Node=Computer, PodType=ControllerKind, PodStatus, PodRestart=PodRestartCount, PodCreationTimeStamp, ClusterName, Namespace;\nlet clusterTable = KubeNodeInventory\n| where $__timeFilter(TimeGenerated) \n| summarize arg_max(TimeGenerated, *) by ClusterId\n| extend ClusterRegion = tostring(parse_json(Labels)[0].[\"topology.kubernetes.io/region\"])\n| project ClusterId, ClusterName, ClusterRegion;\nlet podCountTable = podTable\n| join kind=inner clusterTable on ClusterName\n| project Name=PodName, Status=PodStatus, ClusterRegion, ClusterName, Node, Restarts=PodRestart, Age=now()-PodCreationTimeStamp, Namespace, ClusterId, PodCreationTimeStamp, TimeGenerated\n| summarize PodCount=count() by ClusterRegion, Status, ClusterName;\npodCountTable\n| summarize TotalPodCount=sum(PodCount) by ClusterName\n| join kind=inner podCountTable on ClusterName\n| project-away ClusterName1\n| summarize PodNumber=sum(PodCount), Total=sum(TotalPodCount) by ClusterRegion, Status \n| where Status == \"Running\"\n| join kind=inner regionCoordinate on ClusterRegion\n| project PodCount=Total, latitude, longitude, regionDisplayName\n",
+            "resources": [
+              "$logAnalyticsResourceId"
+            ],
+            "resultFormat": "table",
+            "workspace": "361ee3fb-61db-4e4a-a0fb-215783eb1c14"
+          },
+          "azureMonitor": {
+            "aggOptions": [],
+            "dimensionFilter": "*",
+            "metricDefinition": "select",
+            "metricName": "select",
+            "metricNamespace": "select",
+            "resources": [
+              {
+                "resourceGroup": "select",
+                "resourceName": "select"
+              }
+            ],
+            "timeGrain": "auto",
+            "timeGrains": [],
+            "top": "10"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A",
+          "subscription": "eebfbfdb-4167-49f6-be43-466a6709609f"
+        }
+      ],
+      "title": "Pod count world map",
+      "type": "geomap"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${DS_AZURE_MONITOR}"
+      },
+      "description": "Inventory of pods across all selected clusters/regions. Data is sourced from KubePodInventory joined with KubeNodeInventory, excluding system namespaces (monitoring, aad-pod-id, kube-system). Columns include ClusterName, PodStatus, ContainerStatus/Reason, Node, Restarts (thresholds: 0-2 green, >=3 orange, >=10 red), Age, Namespace. Use to quickly find failing/CrashLooping pods and high-restart workloads.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Namespace"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ClusterId"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ClusterRegion"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PodCreationTimeStamp"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Restarts"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.align"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#73BF69"
+                    },
+                    {
+                      "color": "#FF9830",
+                      "value": 3
+                    },
+                    {
+                      "color": "#F2495C",
+                      "value": 10
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "TimeGenerated"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Node"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 2,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "appInsights": {
+            "dimension": "none",
+            "metricName": "select",
+            "rawQuery": false,
+            "rawQueryString": "",
+            "timeColumn": "timestamp",
+            "timeGrain": "auto",
+            "valueColumn": ""
+          },
+          "azureLogAnalytics": {
+            "dashboardTime": false,
+            "query": "let podTable = KubePodInventory\r\n| where $__timeFilter(TimeGenerated)\r\n| where isnotempty(ClusterName)\r\n| where isnotempty(Namespace)\r\n| where isnotempty(Computer)\r\n| where Namespace != \"monitoring\" and Namespace != \"aad-pod-id\" and Namespace != \"kube-system\" \r\n| summarize arg_max(TimeGenerated, *) by Name\r\n| project TimeGenerated, PodName=Name, Node=Computer, PodType=ControllerKind, PodStatus, ContainerStatus, ContainerStatusReason, PodRestart=PodRestartCount, PodCreationTimeStamp, ClusterName, Namespace;\r\nlet clusterTable = KubeNodeInventory\r\n| where $__timeFilter(TimeGenerated) \r\n| summarize arg_max(TimeGenerated, *) by ClusterId\r\n| extend ClusterRegion = tostring(parse_json(Labels)[0].[\"topology.kubernetes.io/region\"])\r\n| project ClusterId, ClusterName, ClusterRegion;\r\npodTable\r\n| join kind=inner clusterTable on ClusterName\r\n| project PodName, ClusterName, PodStatus, ContainerStatus, ContainerStatusReason, ClusterRegion, Node, Restarts=PodRestart, Age=now()-PodCreationTimeStamp, Namespace, ClusterId, PodCreationTimeStamp, TimeGenerated",
+            "resources": [
+              "$logAnalyticsResourceId"
+            ],
+            "resultFormat": "table",
+            "workspace": "361ee3fb-61db-4e4a-a0fb-215783eb1c14"
+          },
+          "azureMonitor": {
+            "aggOptions": [],
+            "dimensionFilter": "*",
+            "metricDefinition": "select",
+            "metricName": "select",
+            "metricNamespace": "select",
+            "resources": [
+              {
+                "resourceGroup": "select",
+                "resourceName": "select"
+              }
+            ],
+            "timeGrain": "auto",
+            "timeGrains": [],
+            "top": "10"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A",
+          "subscription": "eebfbfdb-4167-49f6-be43-466a6709609f"
+        }
+      ],
+      "title": "Pods",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${DS_AZURE_MONITOR}"
+      },
+      "description": "Inventory of containers across all selected clusters/regions. Joins KubePodInventory (latest per container) with ContainerInventory and cluster metadata; excludes system namespaces. Shows ContainerName, Status, Pod, Image/Tag/Repository, Node, Region/Cluster, and lifecycle timestamps (Created, Started, Finished). Useful for image provenance checks, rollout verification, and identifying terminated/failed containers.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CreatedTime"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FinishedTime"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PodCreationTimeStamp"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ClusterId"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "EnvironmentVar"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ClusterRegion"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Repository"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Node"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "TimeGenerated"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "StartedTime"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "unit",
+                "value": "time: YYYY-MM-DD HH:mm:ss"
+              },
+              {
+                "id": "custom.align"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 4,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "appInsights": {
+            "dimension": "none",
+            "metricName": "select",
+            "rawQuery": false,
+            "rawQueryString": "",
+            "timeColumn": "timestamp",
+            "timeGrain": "auto",
+            "valueColumn": ""
+          },
+          "azureLogAnalytics": {
+            "dashboardTime": false,
+            "query": "let podTable = KubePodInventory\r\n| where $__timeFilter(TimeGenerated)\n| where isnotempty(ClusterName)\r\n| where isnotempty(Namespace)\r\n| where isnotempty(Computer)\r\n| where Namespace != \"monitoring\" and Namespace != \"aad-pod-id\" and Namespace != \"kube-system\" \r\n| summarize arg_max(TimeGenerated, *) by Name\r\n| project TimeGenerated, PodName=Name, Node=Computer, PodType=ControllerKind, PodStatus, PodRestart=PodRestartCount, PodCreationTimeStamp, ClusterName, Namespace;\r\nlet clusterTable = KubeNodeInventory\n| where $__timeFilter(TimeGenerated) \n| summarize arg_max(TimeGenerated, *) by ClusterId\n| extend ClusterRegion = tostring(parse_json(Labels)[0].[\"topology.kubernetes.io/region\"])\n| project ClusterId, ClusterName, ClusterRegion;\nlet podInfo = podTable\r\n| join kind=inner clusterTable on ClusterName\r\n| project PodName, PodStatus, ClusterRegion, ClusterName, Node, PodRestart, ClusterId, PodCreationTimeStamp;\r\nlet containerTable = \r\n(KubePodInventory\r\n| where $__timeFilter(TimeGenerated)\n| where isnotempty(ClusterName)\r\n| where isnotempty(Namespace)\r\n| where isnotempty(Computer)\r\n| where Namespace != \"monitoring\" and Namespace != \"aad-pod-id\" and Namespace != \"kube-system\" \r\n| summarize arg_max(TimeGenerated, *) by ContainerID\r\n| project ContainerID, PodUid, PodName=tostring(Name), Namespace)\r\n| join kind=inner\r\n(ContainerInventory\r\n| where $__timeFilter(TimeGenerated)\n| summarize arg_max(TimeGenerated, *) by ContainerID\r\n| extend ContainerName=Name) on ContainerID\r\n| project-away ContainerID1;\ncontainerTable\r\n| join kind=inner podInfo on PodName\r\n| project ContainerName, Status=ContainerState, Pod=PodName, Namespace, Image, ImageTag, ClusterName, CreatedTime, StartedTime, FinishedTime, PodCreationTimeStamp, ClusterRegion, Node, ClusterId, EnvironmentVar, Repository, TimeGenerated",
+            "resources": [
+              "$logAnalyticsResourceId"
+            ],
+            "resultFormat": "table",
+            "workspace": "361ee3fb-61db-4e4a-a0fb-215783eb1c14"
+          },
+          "azureMonitor": {
+            "aggOptions": [],
+            "dimensionFilter": "*",
+            "metricDefinition": "select",
+            "metricName": "select",
+            "metricNamespace": "select",
+            "resources": [
+              {
+                "resourceGroup": "select",
+                "resourceName": "select"
+              }
+            ],
+            "timeGrain": "auto",
+            "timeGrains": [],
+            "top": "10"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A",
+          "subscription": "eebfbfdb-4167-49f6-be43-466a6709609f"
+        }
+      ],
+      "title": "Containers",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 41,
+  "tags": [
+    "Azure Monitor",
+    "AKS",
+    "AKS Container Insights",
+    "FinOps",
+    "FinOps hub",
+    "FinOps Toolkit"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
+        "definition": "",
+        "description": "Subscription of the Log Analytics Workspace",
+        "includeAll": false,
+        "label": "Subscription",
+        "name": "subscriptionId",
+        "options": [],
+        "query": {
+          "grafanaTemplateVariableFn": {
+            "kind": "SubscriptionsQuery",
+            "rawQuery": "subscriptions()"
+          },
+          "queryType": "Azure Subscriptions",
+          "refId": "A"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
+        "definition": "",
+        "includeAll": false,
+        "label": "Log Analytics Workspace",
+        "name": "logAnalyticsResourceId",
+        "options": [],
+        "query": {
+          "azureResourceGraph": {
+            "query": "resources\r\n| where [\"type\"] =~ \"microsoft.operationalinsights/workspaces\"\r\n| distinct id"
+          },
+          "queryType": "Azure Resource Graph",
+          "refId": "A",
+          "subscriptions": [
+            "$subscriptionId"
+          ]
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 5,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "browser",
+  "title": "FinOps hub | AKS Container Insights",
+  "uid": "finops-hub-aks-pods-az-mon",
+  "version": 17,
+  "weekStart": ""
+}

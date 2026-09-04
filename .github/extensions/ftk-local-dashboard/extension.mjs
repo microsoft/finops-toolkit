@@ -22,12 +22,18 @@ import {
   getCapacity,
   getCapacitySubscriptionPage,
   getAi,
+  getFoundryPriceCatalog,
   normalizeConnection,
   normalizeCapacityClassId,
   validateFilters,
   ALLOWED_FILTER_COLUMNS,
   CAPACITY_CLASS_REGISTRY,
 } from "./kusto.mjs";
+import {
+  FOUNDRY_PRESETS,
+  getAgentsDashboard,
+  getFoundryDashboard,
+} from "./azure-monitor.mjs";
 
 const TEST_MODE = process.env.FTK_LOCAL_DASHBOARD_TEST === "1";
 let joinSession, createCanvas, CanvasError;
@@ -52,18 +58,21 @@ const GETTERS = {
   usage: getUsage,
   anomaly: getAnomaly,
   capacity: getCapacity,
+  foundry: getFoundryDashboard,
+  agents: getAgentsDashboard,
 };
 
 const PUBLIC_DIR = new URL("./public/", import.meta.url);
 const HARDCODED_CLUSTER = "http://localhost:8082";
 const HARDCODED_DB = "Hub";
 const VALID_PRESETS = ["all", "12m", "6m", "3m"];
+const VALID_FOUNDRY_PRESETS = Object.keys(FOUNDRY_PRESETS);
 const DASHBOARD_TABS = Object.keys(GETTERS);
 const VALID_TABS = [...DASHBOARD_TABS, "monaco"];
 const QUERY_MAX_LENGTH = 65536;
 const QUERY_ROW_LIMIT = 500;
 const REQUEST_BODY_LIMIT = 128 * 1024;
-const BUILD_ID = "ftk-local-dashboard-capacity-v1";
+const BUILD_ID = "ftk-local-dashboard-agents-v1";
 const SOURCE_SCOPE = import.meta.url.includes("/.github/extensions/") ? "project" : "user";
 
 // Use stable, scope-specific ports so the project source can run beside an
@@ -78,16 +87,20 @@ const DASHBOARD_PORT = Number(process.env.FTK_LOCAL_DASHBOARD_PORT) || DEFAULT_D
 const CONFIG_DIR = join(process.env.COPILOT_HOME || join(homedir(), ".copilot"), "extensions", "ftk-local-dashboard", "artifacts");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
+export function normalizePersistedConfig(parsed) {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+  return {
+    clusterUri: typeof parsed.clusterUri === "string" ? parsed.clusterUri : undefined,
+    database: typeof parsed.database === "string" ? parsed.database : undefined,
+    tenantId: typeof parsed.tenantId === "string" ? parsed.tenantId : undefined,
+    lastQuery: typeof parsed.lastQuery === "string" ? parsed.lastQuery : undefined,
+  };
+}
+
 async function loadPersistedConfig() {
   try {
     const raw = await readFile(CONFIG_FILE, "utf8");
-    const parsed = JSON.parse(raw);
-    return {
-      clusterUri: typeof parsed.clusterUri === "string" ? parsed.clusterUri : undefined,
-      database: typeof parsed.database === "string" ? parsed.database : undefined,
-      tenantId: typeof parsed.tenantId === "string" ? parsed.tenantId : undefined,
-      lastQuery: typeof parsed.lastQuery === "string" ? parsed.lastQuery : undefined,
-    };
+    return normalizePersistedConfig(JSON.parse(raw));
   } catch {
     return {};
   }
@@ -175,6 +188,8 @@ async function getOrCreateSingleton(clusterUri, database, tenantId) {
         filters: {},
         capacityClass: "home",
         capacitySelections: {},
+        foundryPreset: "7d",
+        foundryAccountId: null,
         revision: Date.now(),
       },
       openInstances: new Set(),
@@ -260,7 +275,10 @@ export function validateCapacitySelections(input = {}) {
 
 export function validateCanvasStatePatch(input = {}) {
   if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("Canvas state must be an object.");
-  const allowed = new Set(["tab", "preset", "filters", "capacityClass", "capacitySelections", "expectedRevision"]);
+  const allowed = new Set([
+    "tab", "preset", "filters", "capacityClass", "capacitySelections",
+    "foundryPreset", "foundryAccountId", "expectedRevision",
+  ]);
   for (const key of Object.keys(input)) {
     if (!allowed.has(key)) throw new Error(`Unsupported canvas state property '${key}'.`);
   }
@@ -276,6 +294,22 @@ export function validateCanvasStatePatch(input = {}) {
   if ("filters" in input) patch.filters = validateFilters(input.filters);
   if ("capacityClass" in input) patch.capacityClass = normalizeCapacityClassId(input.capacityClass);
   if ("capacitySelections" in input) patch.capacitySelections = validateCapacitySelections(input.capacitySelections);
+  if ("foundryPreset" in input) {
+    if (!VALID_FOUNDRY_PRESETS.includes(input.foundryPreset)) {
+      throw new Error(`Unknown AI Foundry time preset '${input.foundryPreset}'.`);
+    }
+    patch.foundryPreset = input.foundryPreset;
+  }
+  if ("foundryAccountId" in input) {
+    if (input.foundryAccountId !== null && (
+      typeof input.foundryAccountId !== "string" ||
+      !/^\/subscriptions\/[0-9a-f-]+\/resourcegroups\/[^/]+\/providers\/microsoft\.cognitiveservices\/accounts\/[^/]+$/i.test(input.foundryAccountId) ||
+      input.foundryAccountId.length > 2048
+    )) {
+      throw new Error("AI Foundry account ID must be a valid Cognitive Services account resource ID.");
+    }
+    patch.foundryAccountId = input.foundryAccountId;
+  }
   if ("expectedRevision" in input && (!Number.isInteger(input.expectedRevision) || input.expectedRevision < 0)) {
     throw new Error("expectedRevision must be a non-negative integer.");
   }
@@ -349,11 +383,19 @@ export async function changeConnection(entry, input, dependencies = {}) {
   const persist = dependencies.persistConfig || savePersistedConfig;
   const next = normalizeConnection(input?.clusterUri, input?.database || "Hub", input?.tenantId);
   await query(next, next.database, "Costs() | take 0");
-  await persist({ clusterUri: next.clusterUri, database: next.database, tenantId: next.tenantId });
+  await persist({
+    clusterUri: next.clusterUri,
+    database: next.database,
+    tenantId: next.tenantId,
+  });
   entry.clusterUri = next.clusterUri;
   entry.database = next.database;
   entry.tenantId = next.tenantId;
-  entry.canvasState = { ...entry.canvasState, revision: entry.canvasState.revision + 1 };
+  entry.canvasState = {
+    ...entry.canvasState,
+    foundryAccountId: null,
+    revision: entry.canvasState.revision + 1,
+  };
   return connectionInfo(entry);
 }
 
@@ -382,12 +424,23 @@ export function validateLoopbackRequest(entry, req, path) {
 
 export function validateViewInput(input = {}) {
   const name = input.name || "overview";
-  const preset = input.preset || "all";
   if (!DASHBOARD_TABS.includes(name)) throw new Error(`Unknown view '${name}'.`);
-  if (!VALID_PRESETS.includes(preset)) throw new Error(`Unknown time preset '${preset}'.`);
+  const azureOperationalView = name === "foundry" || name === "agents";
+  const preset = input.preset || (azureOperationalView ? "7d" : "all");
+  const validPresets = azureOperationalView ? VALID_FOUNDRY_PRESETS : VALID_PRESETS;
+  if (!validPresets.includes(preset)) throw new Error(`Unknown time preset '${preset}'.`);
   const capacityClass = normalizeCapacityClassId(input.capacityClass || "home");
   const capacitySelections = validateCapacitySelections(input.capacitySelections || {});
-  return { name, preset, filters: validateFilters(input.filters || {}), capacityClass, capacitySelections };
+  const accountId = input.accountId ?? null;
+  if (accountId !== null && (
+    typeof accountId !== "string" ||
+    !/^\/subscriptions\/[0-9a-f-]+\/resourcegroups\/[^/]+\/providers\/microsoft\.cognitiveservices\/accounts\/[^/]+$/i.test(accountId) ||
+    accountId.length > 2048
+  )) {
+    throw new Error("AI Foundry account ID must be a valid Cognitive Services account resource ID.");
+  }
+  const forceRefresh = input.forceRefresh === true;
+  return { name, preset, filters: validateFilters(input.filters || {}), capacityClass, capacitySelections, accountId, forceRefresh };
 }
 
 function sendJson(res, status, obj) {
@@ -543,14 +596,40 @@ async function handleRequest(entry, req, res) {
     try {
       const input = req.method === "POST"
         ? await readJsonBody(req)
-        : {
-          name: url.searchParams.get("name") || "overview",
-          preset: url.searchParams.get("preset") || "all",
-          filters: parseFilters(url),
-        };
-      const { name, preset, filters, capacityClass, capacitySelections } = validateViewInput(input);
+        : (() => {
+          const name = url.searchParams.get("name") || "overview";
+          const azureOperationalView = name === "foundry" || name === "agents";
+          return {
+            name,
+            preset: url.searchParams.get("preset") || (azureOperationalView ? "7d" : "all"),
+            filters: parseFilters(url),
+            accountId: url.searchParams.get("accountId") || null,
+            forceRefresh: url.searchParams.get("forceRefresh") === "true",
+          };
+        })();
+      const { name, preset, filters, capacityClass, capacitySelections, accountId, forceRefresh } = validateViewInput(input);
       const getter = GETTERS[name];
-      const payload = name === "capacity"
+      const payload = name === "agents"
+        ? await getter({
+          connection: queryConnection(entry),
+          database: entry.database,
+          tenantId: entry.tenantId,
+          preset,
+          accountId,
+          runQuery,
+          options: { bypassAgentCache: forceRefresh },
+        })
+        : name === "foundry"
+        ? await getter({
+          connection: queryConnection(entry),
+          database: entry.database,
+          tenantId: entry.tenantId,
+          preset,
+          accountId,
+          getPrices: getFoundryPriceCatalog,
+          options: { bypassFoundryCache: forceRefresh },
+        })
+        : name === "capacity"
         ? await getter(queryConnection(entry), entry.database, capacityClass, capacitySelections)
         : await getter(queryConnection(entry), entry.database, preset, filters);
       sendJson(res, 200, payload);
@@ -750,14 +829,14 @@ export function createDashboardCanvas(dependencies = {}) {
   return canvasFactory({
     id: "ftk-local-dashboard",
     displayName: "FinOps hub dashboard",
-    description: "Live FinOps dashboard for local and remote hubs with cost, allocation, rate, usage, anomaly, AI tokenomics, AI and emerging workload, and capacity views.",
+    description: "Live FinOps dashboard for local and remote hubs with cost, allocation, rate, usage, anomaly, AI tokenomics, AI Foundry platform, agent operations, AI and emerging workload, and capacity views.",
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
         clusterUri: { type: "string", description: `Local loopback or remote Kusto cluster origin. Seeds only the first run before a connection is persisted; defaults to ${HARDCODED_CLUSTER}.` },
         database: { type: "string", description: "Database name. Default Hub." },
-        tenantId: { type: "string", description: "Microsoft Entra tenant ID for remote Kusto authentication." },
+        tenantId: { type: "string", description: "Microsoft Entra tenant ID for remote Kusto authentication and Azure resource discovery." },
       },
     },
     actions: [
@@ -783,7 +862,7 @@ export function createDashboardCanvas(dependencies = {}) {
           properties: {
             clusterUri: { type: "string" },
             database: { type: "string", default: "Hub" },
-            tenantId: { type: "string", description: "Microsoft Entra tenant ID. Required for remote hubs." },
+            tenantId: { type: "string", description: "Microsoft Entra tenant ID. Required for remote hubs and AI Foundry operations." },
           },
         },
         handler: async (ctx) => {
@@ -814,6 +893,8 @@ export function createDashboardCanvas(dependencies = {}) {
             filters: FILTER_SCHEMA,
             capacityClass: { type: "string", enum: ["home", ...Object.keys(CAPACITY_CLASS_REGISTRY)] },
             capacitySelections: CAPACITY_SELECTION_SCHEMA,
+            foundryPreset: { type: "string", enum: VALID_FOUNDRY_PRESETS },
+            foundryAccountId: { type: ["string", "null"], maxLength: 2048 },
             expectedRevision: { type: "integer", minimum: 0 },
           },
         },
@@ -839,10 +920,12 @@ export function createDashboardCanvas(dependencies = {}) {
           required: ["view"],
           properties: {
             view: { type: "string", enum: DASHBOARD_TABS },
-            preset: { type: "string", enum: VALID_PRESETS, default: "all" },
+            preset: { type: "string", enum: [...VALID_PRESETS, ...VALID_FOUNDRY_PRESETS], default: "all" },
             filters: FILTER_SCHEMA,
             capacityClass: { type: "string", enum: ["home", ...Object.keys(CAPACITY_CLASS_REGISTRY)], default: "home" },
             capacitySelections: CAPACITY_SELECTION_SCHEMA,
+            accountId: { type: ["string", "null"], maxLength: 2048 },
+            forceRefresh: { type: "boolean" },
           },
         },
         handler: async (ctx) => {
@@ -854,8 +937,30 @@ export function createDashboardCanvas(dependencies = {}) {
               filters: ctx.input?.filters,
               capacityClass: ctx.input?.capacityClass,
               capacitySelections: ctx.input?.capacitySelections,
+              accountId: ctx.input?.accountId,
+              forceRefresh: ctx.input?.forceRefresh,
             });
-            return input.name === "capacity"
+            return input.name === "agents"
+              ? await getters[input.name]({
+                connection: queryConnection(entry),
+                database: entry.database,
+                tenantId: entry.tenantId,
+                preset: input.preset,
+                accountId: input.accountId,
+                runQuery: query,
+                options: { bypassAgentCache: input.forceRefresh },
+              })
+              : input.name === "foundry"
+              ? await getters[input.name]({
+                connection: queryConnection(entry),
+                database: entry.database,
+                tenantId: entry.tenantId,
+                preset: input.preset,
+                accountId: input.accountId,
+                getPrices: dependencies.getFoundryPrices || getFoundryPriceCatalog,
+                options: { bypassFoundryCache: input.forceRefresh },
+              })
+              : input.name === "capacity"
               ? await getters[input.name](queryConnection(entry), entry.database, input.capacityClass, input.capacitySelections)
               : await getters[input.name](queryConnection(entry), entry.database, input.preset, input.filters);
           } catch (err) {
@@ -922,7 +1027,7 @@ export function createDashboardCanvas(dependencies = {}) {
       try {
         const clusterUri = persisted.clusterUri || ctx.input?.clusterUri || DEFAULT_CLUSTER;
         const database = persisted.database || ctx.input?.database || DEFAULT_DB;
-        const tenantId = persisted.clusterUri ? persisted.tenantId : ctx.input?.tenantId;
+        const tenantId = persisted.tenantId ?? ctx.input?.tenantId;
         const entry = await getOrCreateSingleton(clusterUri, database, tenantId);
         entry.openInstances.add(ctx.instanceId);
         const connection = connectionInfo(entry);

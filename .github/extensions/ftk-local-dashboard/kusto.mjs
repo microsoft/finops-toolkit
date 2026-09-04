@@ -367,9 +367,9 @@ export function normalizeConnection(clusterUri, database = "Hub", tenantId = nul
     if (!normalizedDatabase || normalizedDatabase.length > 256 || /[\u0000-\u001f\u007f]/.test(normalizedDatabase)) {
         throw new Error("Database must be a non-empty name of at most 256 characters.");
     }
-    const normalizedTenantId = mode === "remote"
-        ? normalizeTenantId(input.tenantId ?? tenantId)
-        : null;
+    // Local Hub queries do not authenticate, but the tenant still scopes
+    // Azure resource discovery for views such as AI Foundry operations.
+    const normalizedTenantId = normalizeTenantId(input.tenantId ?? tenantId);
 
     return {
         clusterUri: url.origin,
@@ -483,8 +483,16 @@ function rowsFromTable(table) {
     return table.Rows.map((r) => Object.fromEntries(cols.map((c, i) => [c, r[i]])));
 }
 
-export function parseKustoResponse(json) {
-    if (json?.error || json?.Exceptions || json?.OneApiErrors) {
+function partialFailureMessage(value) {
+    const text = String(value || "");
+    if (/429|throttl/i.test(text)) {
+        return "One or more remote workspaces throttled the federated query. Results are partial.";
+    }
+    return "One or more remote workspaces failed during the federated query. Results are partial.";
+}
+
+export function parseKustoResponse(json, options = {}) {
+    if (json?.error || json?.OneApiErrors) {
         const msg = json?.error?.["@message"] || JSON.stringify(json).slice(0, 300);
         throw new Error(`Kusto query error: ${msg}`);
     }
@@ -494,10 +502,23 @@ export function parseKustoResponse(json) {
         return names.has("Severity") && names.has("StatusCode") && names.has("StatusDescription");
     });
     const failure = rowsFromTable(statusTable).find((row) => Number(row.StatusCode) !== 0 || Number(row.Severity) <= 2);
+    const exceptions = Array.isArray(json?.Exceptions) ? json.Exceptions : [];
+    const resultRows = rowsFromTable(tables[0]);
+    if ((exceptions.length || failure) && options.allowPartialResults && tables[0]) {
+        const warnings = [...new Set([
+            ...exceptions.map(partialFailureMessage),
+            ...(failure ? [partialFailureMessage(failure.StatusDescription)] : []),
+        ])];
+        Object.defineProperty(resultRows, "queryWarnings", { value: warnings, enumerable: false });
+        return resultRows;
+    }
+    if (exceptions.length) {
+        throw new Error(`Kusto query error: ${JSON.stringify(json).slice(0, 300)}`);
+    }
     if (failure) {
         throw new Error(`Kusto query failed: ${failure.StatusDescription || `status ${failure.StatusCode}`}`);
     }
-    return rowsFromTable(tables[0]);
+    return resultRows;
 }
 
 /**
@@ -574,7 +595,7 @@ export async function runQuery(clusterUri, database, csl, options = {}) {
     } catch {
         throw new Error("Kusto returned an invalid JSON response.");
     }
-    return parseKustoResponse(json);
+    return parseKustoResponse(json, options);
 }
 
 // --- date helpers (work in UTC to match Kusto datetimes) ----------------------
@@ -888,6 +909,257 @@ function kqlString(value, fieldName) {
         throw new Error(`${fieldName} must be 1-512 printable characters.`);
     }
     return JSON.stringify(string);
+}
+
+function foundrySubscriptions(values) {
+    const subscriptions = (Array.isArray(values) ? values : [values])
+        .map((value) => String(value ?? "").trim().toLowerCase())
+        .filter(Boolean);
+    const unique = [...new Set(subscriptions)];
+    if (unique.length > 500 || unique.some((value) =>
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value))) {
+        throw new Error("AI Foundry pricing requires at most 500 valid subscription GUIDs.");
+    }
+    return unique;
+}
+
+function foundryAccountIds(values = []) {
+    const accountIds = values
+        .map((value) => String(value ?? "").trim().replace(/\/+$/, "").toLowerCase())
+        .filter(Boolean);
+    const unique = [...new Set(accountIds)];
+    if (unique.length > 500 || unique.some((value) =>
+        value.length > 1024
+        || /[\u0000-\u001f\u007f]/.test(value)
+        || !/^\/subscriptions\/[0-9a-f-]+\/resourcegroups\/[^/]+\/providers\/microsoft\.cognitiveservices\/accounts\/[^/]+$/.test(value))) {
+        throw new Error("AI Foundry pricing requires at most 500 valid account resource IDs.");
+    }
+    return unique;
+}
+
+function foundryRegions(values = []) {
+    const regions = values
+        .map((value) => String(value ?? "").trim().toLowerCase())
+        .filter(Boolean);
+    const unique = [...new Set(regions)];
+    if (unique.length > 100 || unique.some((value) => !/^[a-z0-9-]+$/.test(value))) {
+        throw new Error("AI Foundry pricing requires at most 100 valid Azure regions.");
+    }
+    return unique;
+}
+
+function foundryPriceModelPredicate(models = []) {
+    const termSets = [...new Set(models.map((model) => String(model || "").trim().toLowerCase()))]
+        .filter(Boolean)
+        .map((model) => model.replace(/^gpt[-_\s]+/, ""))
+        .map((model) => model.split(/[-_\s]+/).filter(Boolean))
+        .filter((terms) => terms.length);
+    if (!termSets.length) return "";
+    return termSets.map((terms) => {
+        const values = terms.map((term) => kqlString(term, "model")).join(", ");
+        return `(SkuMeter has_all (${values}) or x_SkuDescription has_all (${values}) or x_SkuMeterSubcategory has_all (${values}))`;
+    }).join(" or ");
+}
+
+export function buildFoundryAgentCostsQuery(options = {}) {
+    const start = new Date(options.start);
+    const end = new Date(options.end);
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || start >= end) {
+        throw new Error("Agent cost attribution requires a valid start and end time.");
+    }
+    const costStart = new Date(start.getTime() - (end.getTime() - start.getTime()));
+
+    return `let ActivityEnd = datetime(${end.toISOString()});
+let CostStart = datetime(${costStart.toISOString()});
+Costs()
+| where ChargePeriodStart >= CostStart and ChargePeriodStart < ActivityEnd
+| where x_SkuMeterSubcategory has 'Agent'
+| extend AgentResourceId = tolower(ResourceId)
+| summarize
+    EffectiveCost = sum(EffectiveCost),
+    BilledCost = sum(BilledCost),
+    ConsumedQuantity = sum(ConsumedQuantity),
+    Meter = take_any(x_SkuMeterSubcategory)
+    by AgentResourceId, BillingCurrency
+| project
+    AgentResourceId,
+    Meter,
+    ConsumedQuantity,
+    EffectiveCost,
+    BilledCost,
+    BillingCurrency`;
+}
+
+export async function getFoundryAgentCosts(connection, database, options = {}) {
+    return runQuery(
+        connection,
+        database,
+        buildFoundryAgentCostsQuery(options),
+        options
+    );
+}
+
+export function buildFoundryPriceCatalogQuery(subscriptionIds, options = {}) {
+    const targetSubscriptions = foundrySubscriptions(subscriptionIds);
+    const targetResourceIds = foundryAccountIds(options.accountIds);
+    const targetRegions = foundryRegions(options.regions);
+    const start = new Date(options.start);
+    const end = new Date(options.end);
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || start >= end) {
+        throw new Error("AI Foundry pricing requires a valid metric start and end time.");
+    }
+    const modelPredicate = foundryPriceModelPredicate(options.models);
+    const variantPredicate = options.includeCached
+        ? "Variant in ('Standard', 'Cached')"
+        : "Variant == 'Standard'";
+    const costSource = options.costSource || "Costs()";
+    if (costSource !== "Costs()" && !/^[A-Za-z][A-Za-z0-9_]*$/.test(costSource)) {
+        throw new Error("AI Foundry pricing cost source is invalid.");
+    }
+    const resultName = options.resultName || "";
+    if (resultName && !/^[A-Za-z][A-Za-z0-9_]*$/.test(resultName)) {
+        throw new Error("AI Foundry pricing result name is invalid.");
+    }
+    const activeMeters = targetResourceIds.length
+        ? `let activeMeters = pricingCosts
+| extend AccountResourceId=tolower(ResourceId)
+| where AccountResourceId in (targetResourceIds)
+| where isnotempty(x_SkuMeterId)
+| summarize LastUsed=max(ChargePeriodStart)
+    by SubAccountId=ScopeSubAccountId, AccountResourceId, x_SkuMeterId;`
+        : "";
+    const activeMeterJoin = targetResourceIds.length
+        ? `| join kind=inner (
+    activeMeters
+    | project SubAccountId, AccountResourceId, x_SkuMeterId
+) on SubAccountId, x_SkuMeterId`
+        : "| extend AccountResourceId=''";
+    return `let targetSubscriptions = dynamic(${JSON.stringify(targetSubscriptions)});
+let targetResourceIds = dynamic(${JSON.stringify(targetResourceIds)});
+let targetRegions = dynamic(${JSON.stringify(targetRegions)});
+let metricStart = datetime(${JSON.stringify(start.toISOString())});
+let metricEnd = datetime(${JSON.stringify(end.toISOString())});
+let pricingCosts = materialize(
+${costSource}
+| where ChargePeriodStart >= ago(400d)
+| extend ScopeSubAccountId=tolower(iff(
+    SubAccountId startswith '/',
+    tostring(split(SubAccountId, '/')[2]),
+    SubAccountId))
+| where ScopeSubAccountId in (targetSubscriptions)
+);
+let scope = pricingCosts
+| summarize arg_max(
+    ChargePeriodStart,
+    BillingCurrency,
+    BillingAccountId,
+    x_BillingAccountId,
+    x_BillingProfileId)
+    by ScopeSubAccountId
+| project
+    SubAccountId=ScopeSubAccountId,
+    ScopeBillingAccountId=tolower(coalesce(x_BillingAccountId, BillingAccountId)),
+    ScopeBillingProfileId=tolower(coalesce(x_BillingProfileId, x_BillingAccountId, BillingAccountId)),
+    ScopeCurrency=BillingCurrency,
+    ScopeMatch=true;
+${activeMeters}
+let regions = union
+    (Region() | project PriceRegionKey=tolower(ResourceLocation), PriceRegionId=tolower(RegionId)),
+    (Region() | project PriceRegionKey=tolower(RegionName), PriceRegionId=tolower(RegionId)),
+    (Region() | project PriceRegionKey=tolower(RegionId), PriceRegionId=tolower(RegionId))
+| where isnotempty(PriceRegionKey)
+| summarize PriceRegionId=take_any(PriceRegionId) by PriceRegionKey;
+${resultName ? `let ${resultName} = ` : ""}Prices()
+| where ChargeCategory =~ 'Usage'
+| where PricingCategory =~ 'Standard'
+| where x_SkuPriceType =~ 'Consumption'
+| where x_SkuMeterCategory has 'OpenAI'
+    or x_SkuMeterCategory has 'Foundry'
+    or x_SkuMeterSubcategory has 'OpenAI'
+    or x_SkuDescription has 'OpenAI'
+| where PricingUnit has 'Tokens'
+    or x_PricingUnitDescription has 'Tokens'
+    or SkuMeter has 'Tokens'
+    or x_SkuDescription has 'Tokens'
+| where x_EffectivePeriodStart < metricEnd
+| where isnull(x_EffectivePeriodEnd)
+    or metricStart < datetime_add('month', 1, x_EffectivePeriodEnd)
+${modelPredicate ? `| where ${modelPredicate}` : ""}
+| summarize arg_max(x_IngestionTime, *)
+    by x_BillingAccountId, x_BillingProfileId, x_SkuMeterId, x_EffectivePeriodStart
+| extend PriceRegionKey=tolower(x_SkuRegion)
+| lookup kind=leftouter regions on PriceRegionKey
+| extend PriceRegionId=iff(isempty(x_SkuRegion), 'global', PriceRegionId)
+| where array_length(targetRegions) == 0 or PriceRegionId == 'global' or PriceRegionId in (targetRegions)
+| extend
+    PriceBillingAccountId=tolower(coalesce(x_BillingAccountId, BillingAccountId)),
+    PriceBillingProfileId=tolower(coalesce(x_BillingProfileId, x_BillingAccountId, BillingAccountId))
+| lookup kind=inner scope on
+    $left.PriceBillingAccountId == $right.ScopeBillingAccountId,
+    $left.PriceBillingProfileId == $right.ScopeBillingProfileId
+${activeMeterJoin}
+| extend
+    Direction=case(
+        SkuMeter has_any ('Input', 'Prompt', 'Inp') or x_SkuDescription has_any ('Input', 'Prompt', 'Inp'), 'Input',
+        SkuMeter has_any ('Output', 'Completion', 'Outp', 'Opt') or x_SkuDescription has_any ('Output', 'Completion', 'Outp', 'Opt'), 'Output',
+        ''),
+    Variant=case(
+        SkuMeter has 'Batch', 'Batch',
+        SkuMeter has 'LongCo', 'LongContext',
+        SkuMeter has 'PP', 'Priority',
+        SkuMeter has_any ('FineTuned', 'Fine-tuned', 'Training'), 'Fine-tuned',
+        SkuMeter has_any ('Audio', 'Image', 'Video'), 'Multimodal',
+        SkuMeter has_any ('Cached', 'Cache', 'Cd', 'Wr'), 'Cached',
+        'Standard'),
+    ModelText=strcat(SkuMeter, ' ', x_SkuDescription, ' ', x_SkuMeterSubcategory),
+    PricingCurrency=coalesce(PricingCurrency, BillingCurrency),
+    SelectedUnitPrice=coalesce(ContractedUnitPrice, ListUnitPrice),
+    PriceSource=iff(isnotnull(ContractedUnitPrice), 'Contracted', 'List'),
+    ScopeMatch=coalesce(ScopeMatch, false)
+| where ScopeMatch and PricingCurrency =~ ScopeCurrency
+| extend PriceScope=case(
+    SkuMeter has_all ('Data', 'Zone') or SkuMeter has 'DZ', 'DataZone',
+    SkuMeter has 'Global' or SkuMeter has 'Gl', 'Global',
+    'Regional')
+| where Direction in ('Input', 'Output') and ${variantPredicate}
+| project
+    SubAccountId,
+    AccountResourceId,
+    BillingAccountId,
+    x_BillingAccountId,
+    x_BillingProfileId,
+    BillingCurrency,
+    PricingCurrency,
+    PricingUnit,
+    x_SkuMeterId,
+    SelectedUnitPrice,
+    PriceSource,
+    x_PricingBlockSize,
+    SkuMeter,
+    x_SkuDescription,
+    x_SkuMeterSubcategory,
+    x_SkuRegion,
+    PriceRegionId,
+    Direction,
+    Variant,
+    PriceScope,
+    ModelText,
+    ScopeMatch,
+    ScopeCurrency,
+    x_EffectivePeriodStart,
+    x_EffectivePeriodEnd
+| order by ScopeMatch desc, x_EffectivePeriodStart desc
+| take 10000${resultName ? ";" : ""}`;
+}
+
+export async function getFoundryPriceCatalog(connection, database, subscriptionIds, options = {}) {
+    return runQuery(
+        connection,
+        database,
+        `set query_results_cache_max_age = time(30s);
+${buildFoundryPriceCatalogQuery(subscriptionIds, options)}`,
+        options
+    );
 }
 
 function validateCapacityFilters(filters = {}) {
@@ -1310,8 +1582,11 @@ function normalizeCapacitySubscriptionOptions(options = {}) {
         throw new Error(`Subscription detail is not supported for '${classId}'.`);
     }
     const status = options.status || "all";
-    if (!["in-use", "at-limit", "no-quota", "all"].includes(status)) {
+    if (!["in-use", "at-limit", "available", "restricted", "no-quota", "all"].includes(status)) {
         throw new Error(`Unsupported capacity subscription status '${status}'.`);
+    }
+    if (status === "restricted" && classId !== "compute") {
+        throw new Error(`Capacity subscription status 'restricted' is not supported for '${classId}'.`);
     }
     const cleanText = (value, name) => {
         const text = String(value ?? "").trim();
@@ -1353,9 +1628,13 @@ export function buildComputeSubscriptionQuery(options = {}) {
         ? "| where CoresUsed > 0"
         : normalized.status === "at-limit"
             ? "| where CoresTotal > 0 and CoresUsed >= CoresTotal"
-            : normalized.status === "no-quota"
-                ? "| where CoresTotal <= 0"
-                : "";
+            : normalized.status === "available"
+                ? "| where CoresTotal > CoresUsed and isnotempty(RepresentativeSku) and coalesce(RegionRestricted, false) == false and coalesce(array_length(ZonesRestricted), 0) == 0"
+                : normalized.status === "restricted"
+                    ? "| where coalesce(RegionRestricted, false) or coalesce(array_length(ZonesRestricted), 0) > 0"
+                    : normalized.status === "no-quota"
+                        ? "| where CoresTotal <= 0"
+                        : "";
     // The client search is substring-based so operators can enter partial family names.
     const familyWhere = normalized.resourceSearch
         ? `| where Family contains ${kqlString(normalized.resourceSearch, "resourceSearch")} or FamilyKey contains ${kqlString(normalized.resourceSearch, "resourceSearch")}`
@@ -1369,7 +1648,9 @@ export function buildComputeSubscriptionQuery(options = {}) {
     const firstRow = (normalized.page - 1) * normalized.pageSize + 1;
     const lastRow = firstRow + normalized.pageSize - 1;
     return `${catalogDeclaration("ComputeFamilyUsage", COMPUTE_FAMILY_USAGE_CATALOG_QUERY)}
+${catalogDeclaration("ComputeFamilyOfferStatus", COMPUTE_FAMILY_OFFER_STATUS_CATALOG_QUERY)}
 let scoped = ComputeFamilyUsage
+| join kind=leftouter ComputeFamilyOfferStatus on SubscriptionId, FamilyKey, Location
 | where isnotempty(SubscriptionId)
 ${statusWhere}
 ${familyWhere}
@@ -1412,9 +1693,11 @@ export function buildAppServiceSubscriptionQuery(options = {}) {
         ? "| where currentValue > 0"
         : normalized.status === "at-limit"
             ? "| where limit > 0 and currentValue >= limit"
-            : normalized.status === "no-quota"
-                ? "| where coalesce(limit, 0.0) <= 0"
-                : "";
+            : normalized.status === "available"
+                ? "| where limit > 0 and currentValue < limit"
+                : normalized.status === "no-quota"
+                    ? "| where coalesce(limit, 0.0) <= 0"
+                    : "";
     const skuWhere = normalized.resourceSearch
         ? `| where ResourceName contains ${kqlString(normalized.resourceSearch, "resourceSearch")} or displayName contains ${kqlString(normalized.resourceSearch, "resourceSearch")}`
         : "";
@@ -1458,9 +1741,11 @@ export function buildAzureSqlSubscriptionQuery(options = {}) {
         ? "| where limit > 0 and currentValue > 0"
         : normalized.status === "at-limit"
             ? "| where limit > 0 and currentValue >= limit"
-            : normalized.status === "no-quota"
-                ? "| where coalesce(limit, 0.0) <= 0"
-                : "";
+            : normalized.status === "available"
+                ? "| where limit > 0 and currentValue < limit"
+                : normalized.status === "no-quota"
+                    ? "| where coalesce(limit, 0.0) <= 0"
+                    : "";
     const metricWhere = normalized.resourceSearch
         ? `| where ResourceName contains ${kqlString(normalized.resourceSearch, "resourceSearch")} or displayName contains ${kqlString(normalized.resourceSearch, "resourceSearch")}`
         : "";
@@ -1506,9 +1791,11 @@ export function buildAzureAiSubscriptionQuery(options = {}) {
         ? "| where currentValue > 0"
         : normalized.status === "at-limit"
             ? "| where limit > 0 and currentValue >= limit"
-            : normalized.status === "no-quota"
-                ? "| where coalesce(limit, 0.0) <= 0"
-                : "";
+            : normalized.status === "available"
+                ? "| where limit > 0 and currentValue < limit"
+                : normalized.status === "no-quota"
+                    ? "| where coalesce(limit, 0.0) <= 0"
+                    : "";
     const modelWhere = normalized.resourceSearch
         ? `| where ResourceName contains ${kqlString(normalized.resourceSearch, "resourceSearch")} or displayName contains ${kqlString(normalized.resourceSearch, "resourceSearch")}`
         : "";

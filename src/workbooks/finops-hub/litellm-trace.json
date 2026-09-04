@@ -1,0 +1,667 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_AZURE_MONITOR",
+      "label": "Azure Monitor",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "grafana-azure-monitor-datasource",
+      "pluginName": "Azure Monitor"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.6.3"
+    },
+    {
+      "type": "datasource",
+      "id": "grafana-azure-monitor-datasource",
+      "name": "Azure Monitor",
+      "version": "11.6.4"
+    },
+    {
+      "type": "panel",
+      "id": "marcusolsson-dynamictext-panel",
+      "name": "Business Text",
+      "version": "5.7.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "traces",
+      "name": "Traces",
+      "version": ""
+    },
+    {
+      "id": "text",
+      "name": "Text",
+      "type": "panel",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "FinOps hub dashboard for LiteLLM Trace. Detailed diagnostics view for a single LiteLLM request trace. Use the Trace Id variable to load a specific call and analyze its end-to-end behavior including spans, token usage, model details, completion output, and the full prompt conversation. Data is sourced from Azure Application Insights via the Azure Monitor datasource.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Doc",
+      "tooltip": "Documentation",
+      "type": "link",
+      "url": "https://github.com/1w2w3y/grafana-dashboards/blob/master/litellm-trace/README.md"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "FinOps hubs",
+      "tooltip": "FinOps hubs documentation",
+      "type": "link",
+      "url": "https://aka.ms/finops/hubs"
+    }
+  ],
+  "panels": [
+    {
+      "description": "FinOps hub dashboard identity.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "# FinOps hub | LiteLLM Trace\n\nOperational data for FinOps analysis. [Learn about FinOps hubs](https://aka.ms/finops/hubs).",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.6.3",
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 9,
+      "panels": [
+        {
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "description": "Recent LLM calls",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "links": [
+                {
+                  "targetBlank": false,
+                  "title": "Open trace",
+                  "url": "/d/litellm-trace/litellm-trace-details?var-litellmTraceId=${__data.fields[TraceId]}"
+                }
+              ],
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Token"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 439
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "request_route"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 193
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "model"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 189
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "timestamp"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 209
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "duration"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "ms"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 20,
+            "x": 0,
+            "y": 1
+          },
+          "id": 10,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "11.6.3",
+          "targets": [
+            {
+              "azureLogAnalytics": {
+                "dashboardTime": true,
+                "query": "dependencies\r\n| where name == \"litellm_request\"\r\n| extend request_route = tostring(customDimensions.[\"metadata.user_api_key_request_route\"])\r\n| extend gen_ai_request_model = tostring(customDimensions.[\"gen_ai.request.model\"])\r\n| extend gen_ai_system = tostring(customDimensions.[\"gen_ai.system\"])\r\n| extend gen_ai_usage_completion_tokens = tostring(customDimensions.[\"gen_ai.usage.completion_tokens\"])\r\n| extend gen_ai_usage_prompt_tokens = tostring(customDimensions.[\"gen_ai.usage.prompt_tokens\"])\r\n| extend llm_usage_total_tokens = toint(customDimensions.[\"llm.usage.total_tokens\"])\r\n| project timestamp, model=gen_ai_request_model, request_route, duration, Token=llm_usage_total_tokens, TraceId=operation_Id\r\n| order by timestamp desc ",
+                "resources": [
+                  "$applicationInsightsResourceId"
+                ],
+                "resultFormat": "logs",
+                "timeColumn": "timestamp"
+              },
+              "datasource": {
+                "type": "grafana-azure-monitor-datasource",
+                "uid": "${DS_AZURE_MONITOR}"
+              },
+              "queryType": "Azure Log Analytics",
+              "refId": "A"
+            }
+          ],
+          "title": "",
+          "type": "table"
+        }
+      ],
+      "title": "Select a trace",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 8,
+      "panels": [],
+      "title": "Details",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${DS_AZURE_MONITOR}"
+      },
+      "description": "Summarized request details and LLM output for the trace. Shows model name, total tokens, and the first completion content with its finish reason. Data is derived from dependencies where name == \"litellm_request\" filtered by the selected Trace Id.",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "gen_ai_request_model"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "llm_usage_total_tokens"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "completion_content"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "completion_finish_reason"
+            },
+            "properties": []
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 20,
+        "x": 0,
+        "y": 5
+      },
+      "id": 6,
+      "options": {
+        "afterRender": "",
+        "content": "**Model:**\r\n{{gen_ai_request_model}}\r\n\r\n**Total tokens:**\r\n{{llm_usage_total_tokens}}\r\n\r\n# LLM output\r\n{{{completion_content}}}",
+        "contentPartials": [],
+        "defaultContent": "The query didn't return any results.",
+        "editor": {
+          "format": "auto",
+          "language": "markdown"
+        },
+        "editors": [],
+        "externalStyles": [],
+        "helpers": "",
+        "renderMode": "everyRow",
+        "styles": "",
+        "wrap": true
+      },
+      "pluginVersion": "5.7.0",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\r\n| where name == \"litellm_request\"\r\n// optional filter, keep/remove as needed\r\n| where operation_Id == \"$litellmTraceId\"\r\n| extend cd = customDimensions\r\n| extend gen_ai_request_model = tostring(cd.[\"gen_ai.request.model\"])\r\n     , gen_ai_system = tostring(cd.[\"gen_ai.system\"])\r\n     , gen_ai_usage_completion_tokens = toint(cd.[\"gen_ai.usage.completion_tokens\"])\r\n     , gen_ai_usage_prompt_tokens = toint(cd.[\"gen_ai.usage.prompt_tokens\"])\r\n     , llm_usage_total_tokens = toint(cd.[\"llm.usage.total_tokens\"])\r\n     , completion_content = tostring(cd.[\"gen_ai.completion.0.content\"])\r\n     , completion_finish_reason = tostring(cd.[\"gen_ai.completion.0.finish_reason\"])\r\n     , completion_role = tostring(cd.[\"gen_ai.completion.0.role\"])\r\n     , customDimensions_str = tostring(cd)\r\n// expand prompt keys\r\n| mv-expand k = bag_keys(cd)\r\n| extend k_str = tostring(k)\r\n| extend v = tostring(cd[k_str])\r\n| where k_str matches regex @\"^gen_ai\\.prompt\\.(\\d+)\\.(role|content)$\"\r\n| extend index = toint(extract(@\"^gen_ai\\.prompt\\.(\\d+)\\.\", 1, k_str))\r\n| extend field = extract(@\"^gen_ai\\.prompt\\.\\d+\\.(role|content)$\", 1, k_str)\r\n// one object per prompt index\r\n| summarize prompt_obj = make_bag(pack(field, v))\r\n    by timestamp, gen_ai_request_model, gen_ai_system,\r\n       gen_ai_usage_completion_tokens, gen_ai_usage_prompt_tokens, llm_usage_total_tokens,\r\n       completion_content, completion_finish_reason, completion_role,\r\n       index, customDimensions_str\r\n| project timestamp, gen_ai_request_model, gen_ai_system,\r\n          gen_ai_usage_completion_tokens, gen_ai_usage_prompt_tokens, llm_usage_total_tokens,\r\n          completion_content, completion_finish_reason, completion_role,\r\n          customDimensions_str,\r\n          index,\r\n          role   = tostring(prompt_obj.role),\r\n          content= tostring(prompt_obj.content)\r\n// regroup prompts per request\r\n| summarize prompts = make_list(pack(\"index\", index, \"role\", role, \"content\", content))\r\n    by timestamp, gen_ai_request_model, gen_ai_system,\r\n       gen_ai_usage_completion_tokens, gen_ai_usage_prompt_tokens, llm_usage_total_tokens,\r\n       completion_content, completion_finish_reason, completion_role,\r\n       customDimensions_str\r\n// count and build body markdown\r\n| extend promptCount = array_length(prompts)\r\n| mv-apply p = prompts on (\r\n    order by toint(p.index) asc\r\n    | extend line = strcat(\"**#\", tostring(p.index), \" [\", tostring(p.role), \"]**:\\n\\n\", tostring(p.content))\r\n    | summarize bodyMarkdown = strcat_array(make_list(line), \"\\n\\n---\\n\\n\")\r\n)\r\n// prepend header with total turns\r\n| extend promptMarkdown = strcat(\"### Conversation (\", tostring(promptCount), \" turns)\", \"\\n\\n\", bodyMarkdown)\r\n// final projection\r\n| project timestamp,\r\n          gen_ai_request_model,\r\n          gen_ai_system,\r\n          gen_ai_usage_prompt_tokens,\r\n          gen_ai_usage_completion_tokens,\r\n          llm_usage_total_tokens,\r\n          completion_role,\r\n          completion_finish_reason,\r\n          completion_content,\r\n          promptCount,\r\n          promptMarkdown\r\n| limit 1\r\n",
+            "resources": [
+              "$applicationInsightsResourceId"
+            ],
+            "resultFormat": "logs",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "hide": false,
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "type": "marcusolsson-dynamictext-panel"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${DS_AZURE_MONITOR}"
+      },
+      "description": "Distributed trace viewer for the selected LiteLLM request (operation_Id=$litellmTraceId). Visualizes the end-to-end span timeline including requests, dependencies, exceptions, and custom events to diagnose latency, errors, and downstream calls.",
+      "gridPos": {
+        "h": 17,
+        "w": 20,
+        "x": 0,
+        "y": 15
+      },
+      "id": 7,
+      "options": {
+        "spanFilters": {
+          "criticalPathOnly": false,
+          "matchesOnly": false,
+          "serviceNameOperator": "=",
+          "spanNameOperator": "=",
+          "tags": [
+            {
+              "id": "e8cd1fc5-737",
+              "operator": "="
+            }
+          ]
+        }
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "azureTraces": {
+            "operationId": "$litellmTraceId",
+            "resources": [
+              "$applicationInsightsResourceId"
+            ],
+            "resultFormat": "trace",
+            "traceTypes": [
+              "availabilityResults",
+              "dependencies",
+              "customEvents",
+              "exceptions",
+              "pageViews",
+              "requests",
+              "traces"
+            ]
+          },
+          "queryType": "Azure Traces",
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          }
+        }
+      ],
+      "type": "traces"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 5,
+      "panels": [],
+      "title": "Prompts",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${DS_AZURE_MONITOR}"
+      },
+      "description": "Renders the full conversation turns (role and content) extracted from gen_ai.prompt.N.* in customDimensions, ordered by index, to help review the prompt/response flow for the selected Trace Id.",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "gen_ai_request_model"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "llm_usage_total_tokens"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "completion_content"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "completion_finish_reason"
+            },
+            "properties": []
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 20,
+        "x": 0,
+        "y": 33
+      },
+      "id": 2,
+      "options": {
+        "afterRender": "",
+        "content": "{{{promptMarkdown}}}",
+        "contentPartials": [],
+        "defaultContent": "The query didn't return any results.",
+        "editor": {
+          "format": "auto",
+          "language": "markdown"
+        },
+        "editors": [],
+        "externalStyles": [],
+        "helpers": "",
+        "renderMode": "everyRow",
+        "styles": "",
+        "wrap": true
+      },
+      "pluginVersion": "5.7.0",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\r\n| where name == \"litellm_request\"\r\n// optional filter, keep/remove as needed\r\n| where operation_Id == \"$litellmTraceId\"\r\n| extend cd = customDimensions\r\n| extend gen_ai_request_model = tostring(cd.[\"gen_ai.request.model\"])\r\n     , gen_ai_system = tostring(cd.[\"gen_ai.system\"])\r\n     , gen_ai_usage_completion_tokens = toint(cd.[\"gen_ai.usage.completion_tokens\"])\r\n     , gen_ai_usage_prompt_tokens = toint(cd.[\"gen_ai.usage.prompt_tokens\"])\r\n     , llm_usage_total_tokens = toint(cd.[\"llm.usage.total_tokens\"])\r\n     , completion_content = tostring(cd.[\"gen_ai.completion.0.content\"])\r\n     , completion_finish_reason = tostring(cd.[\"gen_ai.completion.0.finish_reason\"])\r\n     , completion_role = tostring(cd.[\"gen_ai.completion.0.role\"])\r\n     , customDimensions_str = tostring(cd)\r\n// expand prompt keys\r\n| mv-expand k = bag_keys(cd)\r\n| extend k_str = tostring(k)\r\n| extend v = tostring(cd[k_str])\r\n| where k_str matches regex @\"^gen_ai\\.prompt\\.(\\d+)\\.(role|content)$\"\r\n| extend index = toint(extract(@\"^gen_ai\\.prompt\\.(\\d+)\\.\", 1, k_str))\r\n| extend field = extract(@\"^gen_ai\\.prompt\\.\\d+\\.(role|content)$\", 1, k_str)\r\n// one object per prompt index\r\n| summarize prompt_obj = make_bag(pack(field, v))\r\n    by timestamp, gen_ai_request_model, gen_ai_system,\r\n       gen_ai_usage_completion_tokens, gen_ai_usage_prompt_tokens, llm_usage_total_tokens,\r\n       completion_content, completion_finish_reason, completion_role,\r\n       index, customDimensions_str\r\n| project timestamp, gen_ai_request_model, gen_ai_system,\r\n          gen_ai_usage_completion_tokens, gen_ai_usage_prompt_tokens, llm_usage_total_tokens,\r\n          completion_content, completion_finish_reason, completion_role,\r\n          customDimensions_str,\r\n          index,\r\n          role   = tostring(prompt_obj.role),\r\n          content= tostring(prompt_obj.content)\r\n// regroup prompts per request\r\n| summarize prompts = make_list(pack(\"index\", index, \"role\", role, \"content\", content))\r\n    by timestamp, gen_ai_request_model, gen_ai_system,\r\n       gen_ai_usage_completion_tokens, gen_ai_usage_prompt_tokens, llm_usage_total_tokens,\r\n       completion_content, completion_finish_reason, completion_role,\r\n       customDimensions_str\r\n// count and build body markdown\r\n| extend promptCount = array_length(prompts)\r\n| mv-apply p = prompts on (\r\n    order by toint(p.index) asc\r\n    | extend line = strcat(\"**#\", tostring(p.index), \" [\", tostring(p.role), \"]**:\\n\\n\", tostring(p.content))\r\n    | summarize bodyMarkdown = strcat_array(make_list(line), \"\\n\\n---\\n\\n\")\r\n)\r\n// prepend header with total turns\r\n| extend promptMarkdown = strcat(\"### Conversation (\", tostring(promptCount), \" turns)\", \"\\n\\n\", bodyMarkdown)\r\n// final projection\r\n| project timestamp,\r\n          gen_ai_request_model,\r\n          gen_ai_system,\r\n          gen_ai_usage_prompt_tokens,\r\n          gen_ai_usage_completion_tokens,\r\n          llm_usage_total_tokens,\r\n          completion_role,\r\n          completion_finish_reason,\r\n          completion_content,\r\n          promptCount,\r\n          promptMarkdown\r\n| limit 1\r\n",
+            "resources": [
+              "$applicationInsightsResourceId"
+            ],
+            "resultFormat": "logs",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "hide": false,
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "type": "marcusolsson-dynamictext-panel"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 41,
+  "tags": [
+    "Application Insights",
+    "Azure Monitor",
+    "LiteLLM",
+    "FinOps",
+    "FinOps hub",
+    "FinOps Toolkit"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
+        "definition": "",
+        "description": "Subscription of the Application Insights",
+        "includeAll": false,
+        "label": "Subscription",
+        "name": "subscriptionId",
+        "options": [],
+        "query": {
+          "grafanaTemplateVariableFn": {
+            "kind": "SubscriptionsQuery",
+            "rawQuery": "subscriptions()"
+          },
+          "queryType": "Azure Subscriptions",
+          "refId": "A"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
+        "definition": "",
+        "description": "Application Insights Resource Id",
+        "label": "Application Insights",
+        "name": "applicationInsightsResourceId",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "query": "",
+            "resources": []
+          },
+          "azureResourceGraph": {
+            "query": "resources\r\n| where [\"type\"] =~ \"microsoft.insights/components\"\r\n| distinct id"
+          },
+          "queryType": "Azure Resource Graph",
+          "refId": "A",
+          "subscriptions": [
+            "$subscriptionId"
+          ]
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "definition": "",
+        "description": "Trace Id of the LLM call",
+        "label": "Trace Id",
+        "name": "litellmTraceId",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\r\n| distinct operation_Id",
+            "resources": [
+              "$applicationInsightsResourceId"
+            ],
+            "timeColumn": "timestamp"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A",
+          "subscription": "CED61727-2249-45AC-9149-FE9D0AC99A17"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "FinOps hub | LiteLLM Trace",
+  "uid": "finops-hub-litellm-trace",
+  "version": 68,
+  "weekStart": ""
+}

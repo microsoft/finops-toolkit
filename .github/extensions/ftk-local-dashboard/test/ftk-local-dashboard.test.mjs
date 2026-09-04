@@ -6,6 +6,7 @@ import test from "node:test";
 process.env.FTK_LOCAL_DASHBOARD_TEST = "1";
 
 const kusto = await import("../kusto.mjs");
+const azureMonitor = await import("../azure-monitor.mjs");
 const extension = await import("../extension.mjs");
 const app = await import("../public/app.js");
 const ui = await import("../public/ui.js");
@@ -76,6 +77,14 @@ test("connection validation permits only local loopback or remote Kusto origins"
       authentication: "azure-cli",
     }
   );
+  assert.equal(
+    kusto.normalizeConnection(
+      "http://localhost:8082",
+      "Hub",
+      "72F988BF-86F1-41AF-91AB-2D7CD011DB47"
+    ).tenantId,
+    "72f988bf-86f1-41af-91ab-2d7cd011db47"
+  );
   assert.throws(
     () => kusto.normalizeConnection("https://example-cluster.westus.kusto.windows.net", "Hub", "not-a-tenant"),
     /valid Microsoft Entra tenant GUID/
@@ -99,6 +108,886 @@ test("connection validation permits only local loopback or remote Kusto origins"
   ]) {
     assert.throws(() => kusto.normalizeConnection(uri, "Hub"));
   }
+});
+
+test("AI Foundry Azure CLI tokens are tenant-scoped and resource-bound", () => {
+  const tenant = "72F988BF-86F1-41AF-91AB-2D7CD011DB47";
+  assert.deepEqual(
+    azureMonitor.azureMonitorTokenArgs("https://metrics.monitor.azure.com/", tenant),
+    [
+      "account", "get-access-token",
+      "--resource", "https://metrics.monitor.azure.com/",
+      "--tenant", tenant.toLowerCase(),
+      "--output", "json",
+    ]
+  );
+  assert.ok(
+    azureMonitor.azureMonitorTokenArgs("https://management.azure.com/", tenant)
+      .includes("https://management.azure.com/")
+  );
+  assert.ok(
+    azureMonitor.azureMonitorTokenArgs("https://api.loganalytics.io", tenant)
+      .includes("https://api.loganalytics.io")
+  );
+  assert.throws(() => azureMonitor.normalizeAzureTenantId("organizations"), /tenant GUID/);
+  assert.throws(
+    () => azureMonitor.azureMonitorTokenArgs("https://management.core.windows.net/", tenant),
+    /Unsupported Azure token resource/
+  );
+});
+
+test("persisted configuration ignores the retired Azure Monitor tenant field", () => {
+  assert.equal(
+    extension.normalizePersistedConfig({ monitorTenantId: "11111111-2222-4333-8444-555555555555" }).monitorTenantId,
+    undefined
+  );
+  assert.equal(extension.normalizePersistedConfig({ tenantId: "11111111-2222-4333-8444-555555555555" }).tenantId,
+    "11111111-2222-4333-8444-555555555555");
+});
+
+test("AI Foundry metrics preserve dimensions, reconcile TotalTokens, and price explicit blocks", () => {
+  const metric = (name, metadata, data, valueKey = "total") => ({
+    name: { value: name },
+    errorCode: "Success",
+    timeseries: [{
+      metadatavalues: Object.entries(metadata).map(([key, value]) => ({ name: { value: key }, value })),
+      data: data.map(([timeStamp, value]) => ({ timeStamp, [valueKey]: value })),
+    }],
+  });
+  const identity = { ModelDeploymentName: "chat-prod" };
+  const timestamp = "2026-03-01T00:00:00Z";
+  const subscriptionId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+  const accountId = `/subscriptions/${subscriptionId}/resourceGroups/ai-rg/providers/Microsoft.CognitiveServices/accounts/foundry`;
+  const resource = (value) => ({ resourceid: accountId, value });
+  const payloads = [
+    {
+      group: "tokens",
+      payload: {
+        values: [resource([
+            metric("InputTokens", identity, [[timestamp, 1000]]),
+            metric("OutputTokens", identity, [[timestamp, 500]]),
+            metric("TotalTokens", identity, [[timestamp, 1500]]),
+        ])],
+      },
+    },
+    {
+      group: "requests",
+      payload: {
+        values: [resource([metric("ModelRequests", identity, [[timestamp, 12]])])],
+      },
+    },
+    {
+      group: "request-errors",
+      payload: {
+        values: [resource([metric("ModelRequests", { StatusCode: "429" }, [[timestamp, 2]])])],
+      },
+    },
+    {
+      group: "latency",
+      payload: {
+        values: [resource([
+            metric("TimeToLastByte", identity, [[timestamp, 250]], "average"),
+            metric("AzureOpenAITTLTInMS", identity, [[timestamp, 275]], "average"),
+        ])],
+      },
+    },
+    {
+      group: "throughput",
+      payload: {
+        values: [resource([
+          metric("AzureOpenAITokenPerSecond", identity, [[timestamp, 40]], "average"),
+        ])],
+      },
+    },
+  ];
+  const prices = [
+    {
+      SubAccountId: subscriptionId,
+      Direction: "Input",
+      Variant: "Standard",
+      ModelText: "GPT-4o 2024-08-06 input tokens",
+      PriceRegionId: "eastus",
+      PriceScope: "Regional",
+      SelectedUnitPrice: 0.002,
+      x_PricingBlockSize: 1000,
+      PricingCurrency: "USD",
+      PriceSource: "Contracted",
+      ScopeMatch: true,
+      ScopeCurrency: "USD",
+      x_EffectivePeriodStart: "2026-01-01T00:00:00Z",
+      x_EffectivePeriodEnd: null,
+    },
+    {
+      SubAccountId: subscriptionId,
+      Direction: "Output",
+      Variant: "Standard",
+      ModelText: "GPT-4o 2024-08-06 output tokens",
+      PriceRegionId: "eastus",
+      PriceScope: "Regional",
+      SelectedUnitPrice: 0.008,
+      x_PricingBlockSize: 1000,
+      PricingCurrency: "USD",
+      PriceSource: "Contracted",
+      ScopeMatch: true,
+      ScopeCurrency: "USD",
+      x_EffectivePeriodStart: "2026-01-01T00:00:00Z",
+      x_EffectivePeriodEnd: null,
+    },
+  ];
+  const flattened = azureMonitor.flattenMetricBatch(payloads);
+  const account = {
+    id: accountId,
+    name: "foundry",
+    resourceGroup: "ai-rg",
+    subscriptionId,
+    location: "eastus",
+    kind: "AIServices",
+    sku: "S0",
+  };
+  const deployment = {
+    name: "chat-prod",
+    skuName: "Standard",
+    modelName: "gpt-4o",
+    modelVersion: "2024-08-06",
+  };
+  const result = azureMonitor.summarizeFoundryMetrics(
+    flattened,
+    [account],
+    new Map([[accountId.toLowerCase(), [deployment]]]),
+    new Map([[subscriptionId, prices]])
+  );
+  assert.equal(result.summary.TotalTokens, 1500);
+  assert.equal(result.summary.InputTokens, 1000);
+  assert.equal(result.summary.OutputTokens, 500);
+  assert.equal(result.summary.Requests, 12);
+  assert.equal(result.summary.Errors, 2);
+  assert.equal(result.summary.ErrorRate, 2 / 12);
+  assert.equal(result.summary.EstimatedCost, 0.006);
+  assert.equal(result.summary.InputEstimatedCost, 0.002);
+  assert.equal(result.summary.OutputEstimatedCost, 0.004);
+  assert.equal(result.summary.PriceCoverage, 1);
+  assert.equal(result.stats.inputTokens[0].EstimatedCost, 0.002);
+  assert.equal(result.stats.outputTokens[0].EstimatedCost, 0.004);
+  assert.equal(result.charts.inputTokens[0].Points[0].Cost, 0.002);
+  assert.equal(result.charts.outputTokens[0].Points[0].Cost, 0.004);
+  assert.equal(result.charts.totalTokens[0].Points[0].Cost, 0.006);
+  assert.equal(result.charts.latency.find((series) => series.Name.includes("Time to last byte")).Points[0].Value, 250);
+  assert.equal(result.charts.tokensPerSecond[0].Points[0].Value, 40);
+});
+
+test("AI Foundry price matching rejects specialized, missing-block, and disagreeing rates", () => {
+  const base = {
+    Direction: "Input",
+    Variant: "Standard",
+    ModelText: "GPT-4o 2024-08-06 input tokens",
+    PriceRegionId: "eastus",
+    PriceScope: "Regional",
+    SelectedUnitPrice: 0.002,
+    x_PricingBlockSize: 1000,
+    PricingCurrency: "USD",
+    ScopeMatch: true,
+    ScopeCurrency: "USD",
+    x_EffectivePeriodStart: "2026-01-01T00:00:00Z",
+    x_EffectivePeriodEnd: null,
+  };
+  const deployment = {
+    name: "chat-prod",
+    skuName: "Standard",
+    modelName: "gpt-4o",
+    modelVersion: "2024-08-06",
+  };
+  assert.equal(
+    azureMonitor.matchFoundryPrice("gpt-4o", "2024-08-06", "Input", "eastus", [{ ...base, Variant: "Batch" }], deployment, "2026-03-01T00:00:00Z").status,
+    "unmatched"
+  );
+  assert.equal(
+    azureMonitor.matchFoundryPrice("gpt-4o", "2024-08-06", "Input", "eastus", [{ ...base, x_PricingBlockSize: null }], deployment, "2026-03-01T00:00:00Z").status,
+    "unmatched"
+  );
+  assert.equal(
+    azureMonitor.matchFoundryPrice("gpt-4o", "2024-08-06", "Input", "eastus", [
+      base,
+      { ...base, SelectedUnitPrice: 0.003, BillingAccountId: "different" },
+    ], deployment, "2026-03-01T00:00:00Z").status,
+    "ambiguous"
+  );
+  assert.equal(
+    azureMonitor.matchFoundryPrice("gpt-4o", "", "Input", "eastus", [base], deployment, "2026-03-01T00:00:00Z").status,
+    "unmatched"
+  );
+  assert.equal(
+    azureMonitor.matchFoundryPrice("gpt-4o", "2024-08-06", "Input", "eastus", [
+      { ...base, ScopeMatch: false },
+    ], deployment, "2026-03-01T00:00:00Z").status,
+    "unmatched"
+  );
+  assert.equal(
+    azureMonitor.matchFoundryPrice(
+      "gpt-4.1",
+      "2025-04-14",
+      "Input",
+      "eastus",
+      [{ ...base, ModelText: "GPT-4.1-mini 2025-04-14 input tokens" }],
+      { ...deployment, modelName: "gpt-4.1", modelVersion: "2025-04-14" },
+      "2026-03-01T00:00:00Z"
+    ).status,
+    "unmatched",
+    "a base model must not use a suffixed model's price"
+  );
+  const previousMonth = {
+    ...base,
+    x_EffectivePeriodStart: "2026-08-01T00:00:00Z",
+    x_EffectivePeriodEnd: "2026-09-01T00:00:00Z",
+  };
+  const fallback = azureMonitor.matchFoundryPrice(
+    "gpt-4o",
+    "2024-08-06",
+    "Input",
+    "eastus",
+    [previousMonth],
+    deployment,
+    "2026-09-02T00:00:00Z"
+  );
+  assert.equal(fallback.status, "matched");
+  assert.equal(fallback.rateBasis, "previous-month");
+  assert.match(fallback.reason, /previous month's rate/);
+  assert.equal(
+    azureMonitor.matchFoundryPrice(
+      "gpt-4o",
+      "2024-08-06",
+      "Input",
+      "eastus",
+      [previousMonth],
+      deployment,
+      "2026-10-01T00:00:00Z"
+    ).status,
+    "unmatched",
+    "the fallback must not use a price sheet older than the previous month"
+  );
+  const currentMonth = {
+    ...base,
+    SelectedUnitPrice: 0.003,
+    x_EffectivePeriodStart: "2026-09-01T00:00:00Z",
+    x_EffectivePeriodEnd: "2026-10-01T00:00:00Z",
+  };
+  const current = azureMonitor.matchFoundryPrice(
+    "gpt-4o",
+    "2024-08-06",
+    "Input",
+    "eastus",
+    [previousMonth, currentMonth],
+    deployment,
+    "2026-09-02T00:00:00Z"
+  );
+  assert.equal(current.status, "matched");
+  assert.equal(current.rateBasis, "active");
+  assert.equal(current.unitPricePerToken, 0.000003);
+  const cached = azureMonitor.matchFoundryPrice(
+    "gpt-4o",
+    "2024-08-06",
+    "Cached input",
+    "eastus",
+    [{ ...base, Variant: "Cached", ModelText: "GPT-4o 2024-08-06 cached input tokens", SelectedUnitPrice: 0.0005 }],
+    deployment,
+    "2026-03-01T00:00:00Z"
+  );
+  assert.equal(cached.status, "matched");
+  assert.equal(cached.unitPricePerToken, 0.0000005);
+  assert.equal(
+    azureMonitor.matchFoundryPrice(
+      "gpt-4o",
+      "2024-08-06",
+      "Cached input",
+      "eastus",
+      [{
+        ...base,
+        Variant: "Cached",
+        ModelText: "GPT-4o 2024-08-06 LongCo Cd Inp tokens",
+        SkuMeter: "GPT-4o 2024-08-06 LongCo Cd Inp tokens",
+      }],
+      deployment,
+      "2026-03-01T00:00:00Z"
+    ).status,
+    "unmatched",
+    "cached-input estimates must not mix in long-context cache meters"
+  );
+
+  const lunaDeployment = {
+    name: "gpt-5.6-luna",
+    skuName: "GlobalStandard",
+    modelName: "gpt-5.6-luna",
+    modelVersion: "2026-07-09",
+  };
+  const lunaPrice = {
+    Direction: "Input",
+    Variant: "Standard",
+    ModelText: "5.6 luna ShortCo Inp Std Gl 1M Tokens",
+    SkuMeter: "5.6 luna ShortCo Inp Std Gl 1M Tokens",
+    PriceScope: "Global",
+    SelectedUnitPrice: 2,
+    x_PricingBlockSize: 10000000,
+    PricingCurrency: "USD",
+    ScopeMatch: true,
+    ScopeCurrency: "USD",
+    x_EffectivePeriodStart: "2026-08-01T00:00:00Z",
+    x_EffectivePeriodEnd: "2026-09-01T00:00:00Z",
+  };
+  const luna = azureMonitor.matchFoundryPrice(
+    "gpt-5.6-luna",
+    "2026-07-09",
+    "Input",
+    "eastus",
+    [lunaPrice],
+    lunaDeployment,
+    "2026-09-02T00:00:00Z"
+  );
+  assert.equal(luna.status, "matched");
+  assert.equal(luna.rateBasis, "previous-month");
+  assert.equal(luna.unitPricePerToken, 0.0000002);
+  assert.equal(
+    azureMonitor.matchFoundryPrice(
+      "gpt-5.6-luna",
+      "2026-07-09",
+      "Input",
+      "eastus",
+      [{ ...lunaPrice, ModelText: "5.6 luna LongCo Inp Std Gl 1M Tokens", SkuMeter: "5.6 luna LongCo Inp Std Gl 1M Tokens" }],
+      lunaDeployment,
+      "2026-09-02T00:00:00Z"
+    ).status,
+    "unmatched",
+    "the canonical estimate must not mix long-context rates into undifferentiated token metrics"
+  );
+});
+
+test("agent token pricing reports partial coverage without treating estimates as billed cost", () => {
+  const account = {
+    id: "/subscriptions/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee/resourceGroups/ai/providers/Microsoft.CognitiveServices/accounts/foundry",
+    subscriptionId: "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+    location: "eastus",
+  };
+  const deployment = {
+    name: "chat-prod", skuName: "Standard", modelName: "gpt-4o", modelVersion: "2024-08-06",
+  };
+  const price = {
+    Direction: "Input", Variant: "Standard", ModelText: "GPT-4o 2024-08-06 input tokens",
+    PriceRegionId: "eastus", PriceScope: "Regional", SelectedUnitPrice: 0.002,
+    x_PricingBlockSize: 1000, PricingCurrency: "USD", ScopeMatch: true, ScopeCurrency: "USD",
+    x_EffectivePeriodStart: "2026-01-01T00:00:00Z", x_EffectivePeriodEnd: null,
+  };
+  const result = azureMonitor.priceAgentTokenUsage(
+    {
+      AccountId: account.id, Model: "chat-prod", InputTokens: 1000,
+      CachedInputTokens: 0, OutputTokens: 500,
+    },
+    [account],
+    new Map([[account.id.toLowerCase(), [deployment]]]),
+    new Map([[account.subscriptionId, [price]]]),
+    "2026-03-01T00:00:00Z"
+  );
+  assert.equal(result.PriceStatus, "partial");
+  assert.equal(result.PriceCoverage, 2 / 3);
+  assert.equal(result.EstimatedCost, 0.002);
+  assert.equal("BilledCost" in result, false);
+});
+
+test("AI Foundry dashboard batches platform metrics and supports estate drill-down", async () => {
+  const tenantId = "11111111-2222-4333-8444-555555555555";
+  const subscriptionId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+  const accountA = `/subscriptions/${subscriptionId}/resourceGroups/ai-rg/providers/Microsoft.CognitiveServices/accounts/foundry-a`;
+  const accountB = `/subscriptions/${subscriptionId}/resourceGroups/ai-rg/providers/Microsoft.CognitiveServices/accounts/foundry-b`;
+  const accounts = [
+    { id: accountA, name: "foundry-a", resourceGroup: "ai-rg", subscriptionId, location: "eastus", kind: "AIServices", sku: "S0" },
+    { id: accountB, name: "foundry-b", resourceGroup: "ai-rg", subscriptionId, location: "eastus", kind: "AIServices", sku: "S0" },
+  ];
+  const tokenCalls = [];
+  const fetchCalls = [];
+  const execFileFn = async (_file, args) => {
+    tokenCalls.push(args);
+    return {
+      stdout: JSON.stringify({
+        accessToken: `token-${tokenCalls.length}`,
+        expires_on: Math.floor(Date.now() / 1000) + 3600,
+      }),
+    };
+  };
+  const metricPayload = (url, resourceIds) => {
+    const parsed = new URL(url);
+    const metricNames = parsed.searchParams.get("metricnames").split(",");
+    const filter = parsed.searchParams.get("filter");
+    return {
+      values: resourceIds.map((resourceId, accountIndex) => ({
+        resourceid: resourceId,
+        value: metricNames.map((metricName) => {
+          const base = accountIndex + 1;
+          const modelName = accountIndex ? "gpt-4o-mini" : "gpt-4o";
+          const modelVersion = accountIndex ? "2024-07-18" : "2024-08-06";
+          const values = {
+            InputTokens: 1000 * base,
+            OutputTokens: 500 * base,
+            TotalTokens: 1500 * base,
+            TimeToLastByte: 200 * base,
+            AzureOpenAITTLTInMS: 250 * base,
+            AzureOpenAITokenPerSecond: 40 * base,
+            AzureOpenAIContextTokensCacheMatchRate: 80,
+          };
+          const metadata = [
+            { name: { value: "ModelDeploymentName" }, value: "chat-prod" },
+            { name: { value: "ModelName" }, value: modelName },
+            { name: { value: "ModelVersion" }, value: modelVersion },
+          ];
+          const timeseries = metricName === "ModelRequests"
+            ? [
+              {
+                metadatavalues: [...metadata, { name: { value: "StatusCode" }, value: "200" }],
+                data: [{ timeStamp: "2026-03-01T12:00:00Z", total: 9 * base }],
+              },
+              {
+                metadatavalues: [...metadata, { name: { value: "StatusCode" }, value: "429" }],
+                data: [{ timeStamp: "2026-03-01T12:00:00Z", total: base }],
+              },
+            ]
+            : [{
+              metadatavalues: metadata,
+              data: [{
+                timeStamp: "2026-03-01T12:00:00Z",
+                [["InputTokens", "OutputTokens", "TotalTokens"].includes(metricName) ? "total" : "average"]:
+                  values[metricName],
+              }],
+            }];
+          return {
+            name: { value: metricName },
+            timeseries,
+          };
+        }),
+      })),
+    };
+  };
+  const fetchFn = async (url, init = {}) => {
+    const target = String(url);
+    fetchCalls.push({ url: target, init });
+    if (target.includes("Microsoft.ResourceGraph")) {
+      return Response.json({ data: accounts });
+    }
+    if (target.includes("/batch?")) {
+      const requests = JSON.parse(init.body).requests;
+      return Response.json({
+        responses: requests.map((request, index) => ({
+          httpStatusCode: 200,
+          content: {
+            value: [{
+              name: "chat-prod",
+              sku: { name: "GlobalStandard" },
+              properties: {
+                model: {
+                  name: index ? "gpt-4o-mini" : "gpt-4o",
+                  version: index ? "2024-07-18" : "2024-08-06",
+                  format: "OpenAI",
+                },
+                provisioningState: "Succeeded",
+              },
+            }],
+          },
+        })),
+      });
+    }
+    if (target.includes(".metrics.monitor.azure.com/")) {
+      return Response.json(metricPayload(target, JSON.parse(init.body).resourceids));
+    }
+    throw new Error(`Unexpected test URL: ${url}`);
+  };
+  const priceRows = [
+    {
+      SubAccountId: subscriptionId,
+      Direction: "Input",
+      Variant: "Standard",
+      ModelText: "GPT-4o 2024-08-06 input tokens",
+      PriceScope: "Global",
+      SelectedUnitPrice: 0.002,
+      x_PricingBlockSize: 1000,
+      PricingCurrency: "USD",
+      ScopeMatch: true,
+      ScopeCurrency: "USD",
+      x_EffectivePeriodStart: "2026-03-01T00:00:00Z",
+      x_EffectivePeriodEnd: "2026-04-01T00:00:00Z",
+    },
+    {
+      SubAccountId: subscriptionId,
+      Direction: "Output",
+      Variant: "Standard",
+      ModelText: "GPT-4o 2024-08-06 output tokens",
+      PriceScope: "Global",
+      SelectedUnitPrice: 0.008,
+      x_PricingBlockSize: 1000,
+      PricingCurrency: "USD",
+      ScopeMatch: true,
+      ScopeCurrency: "USD",
+      x_EffectivePeriodStart: "2026-03-01T00:00:00Z",
+      x_EffectivePeriodEnd: "2026-04-01T00:00:00Z",
+    },
+    {
+      SubAccountId: subscriptionId,
+      Direction: "Input",
+      Variant: "Standard",
+      ModelText: "GPT-4o-mini 2024-07-18 input tokens",
+      PriceScope: "Global",
+      SelectedUnitPrice: 0.002,
+      x_PricingBlockSize: 1000,
+      PricingCurrency: "USD",
+      ScopeMatch: true,
+      ScopeCurrency: "USD",
+      x_EffectivePeriodStart: "2026-03-01T00:00:00Z",
+      x_EffectivePeriodEnd: "2026-04-01T00:00:00Z",
+    },
+    {
+      SubAccountId: subscriptionId,
+      Direction: "Output",
+      Variant: "Standard",
+      ModelText: "GPT-4o-mini 2024-07-18 output tokens",
+      PriceScope: "Global",
+      SelectedUnitPrice: 0.008,
+      x_PricingBlockSize: 1000,
+      PricingCurrency: "USD",
+      ScopeMatch: true,
+      ScopeCurrency: "USD",
+      x_EffectivePeriodStart: "2026-03-01T00:00:00Z",
+      x_EffectivePeriodEnd: "2026-04-01T00:00:00Z",
+    },
+  ];
+  const priceCalls = [];
+  const common = {
+    connection: {},
+    database: "Hub",
+    tenantId,
+    preset: "24h",
+    getPrices: async (_connection, _database, subscriptionIds, options) => {
+      priceCalls.push({ subscriptionIds, models: options.models });
+      return priceRows;
+    },
+    options: { execFileFn, fetchFn, now: "2026-03-02T00:00:00Z" },
+  };
+  const payload = await azureMonitor.getFoundryDashboard(common);
+  assert.equal(payload.selectedAccountId, null);
+  assert.equal(payload.accounts.length, 2);
+  assert.equal(payload.panels.length, 11);
+  assert.equal(payload.data.summary.InputTokens, 3000);
+  assert.equal(payload.data.summary.OutputTokens, 1500);
+  assert.equal(payload.data.summary.TotalTokens, 4500);
+  assert.equal(payload.data.summary.Requests, 30);
+  assert.equal(payload.data.summary.Errors, 3);
+  assert.ok(Math.abs(payload.data.summary.EstimatedCost - 0.018) < 1e-12);
+  assert.equal(payload.data.summary.PriceCoverage, 1);
+  assert.equal(payload.data.charts.modelRequests.length, 2);
+  assert.equal(payload.data.charts.requestErrors[0].Points[0].Value, 3);
+  assert.equal(payload.data.charts.latency.length, 4);
+  assert.equal(payload.data.charts.tokensPerSecond.length, 2);
+  assert.equal(payload.data.charts.cacheMatchRate.length, 2);
+  assert.deepEqual(payload.data.stats.costs.map((row) => row.Model).sort(), ["gpt-4o", "gpt-4o-mini"]);
+  assert.equal("agents" in payload, false);
+  assert.deepEqual(priceCalls, [{
+    subscriptionIds: [subscriptionId],
+    models: ["gpt-4o", "gpt-4o-mini"],
+  }]);
+  assert.equal(tokenCalls.length, 2);
+  assert.ok(tokenCalls.some((args) => args.includes("https://management.azure.com/")));
+  assert.ok(tokenCalls.some((args) => args.includes("https://metrics.monitor.azure.com/")));
+  assert.equal(fetchCalls.filter((call) => call.url.includes(".metrics.monitor.azure.com/")).length, 1);
+  assert.equal(fetchCalls.filter((call) => call.url.includes("/batch?")).length, 1);
+  assert.ok(fetchCalls.filter((call) => call.url.includes(".metrics.monitor.azure.com/"))
+    .every((call) => JSON.parse(call.init.body).resourceids.length === 2));
+  assert.ok(fetchCalls.every((call) => !call.url.includes("applicationinsights")));
+  assert.ok(fetchCalls.every((call) => !call.url.includes("loganalytics")));
+
+  const scoped = await azureMonitor.getFoundryDashboard({ ...common, accountId: accountB });
+  assert.equal(scoped.selectedAccountId, accountB);
+  assert.equal(scoped.data.summary.AccountCount, 1);
+  assert.equal(scoped.data.summary.TotalTokens, 3000);
+  assert.ok(scoped.data.charts.modelRequests.every((series) => !series.Name.includes(" / ")));
+  assert.equal(fetchCalls.filter((call) => call.url.includes(".metrics.monitor.azure.com/")).length, 1);
+});
+
+test("AI Foundry panel contract matches the canonical Grafana export", () => {
+  assert.deepEqual(
+    azureMonitor.FOUNDRY_PANEL_CONTRACT.map(({ id, title, type, gridPos, unit, style, fillOpacity }) =>
+      ({ id, title, type, gridPos, unit, style, fillOpacity })),
+    [
+      { id: 13, title: "Estimated Cost", type: "stat", gridPos: { h: 4, w: 24, x: 0, y: 0 }, unit: "currency", style: undefined, fillOpacity: undefined },
+      { id: 11, title: "Input Tokens (total)", type: "stat", gridPos: { h: 5, w: 24, x: 0, y: 4 }, unit: "short", style: undefined, fillOpacity: undefined },
+      { id: 12, title: "Output Tokens (total)", type: "stat", gridPos: { h: 5, w: 24, x: 0, y: 9 }, unit: "short", style: undefined, fillOpacity: undefined },
+      { id: 2, title: "Model Requests", type: "timeseries", gridPos: { h: 10, w: 12, x: 0, y: 14 }, unit: "short", style: "bars", fillOpacity: 60 },
+      { id: 16, title: "Non-200 Model Requests (Throttling & Errors)", type: "timeseries", gridPos: { h: 10, w: 12, x: 12, y: 14 }, unit: "short", style: "bars", fillOpacity: 80 },
+      { id: 7, title: "Average Latency (Time to Last Byte)", type: "timeseries", gridPos: { h: 10, w: 12, x: 0, y: 24 }, unit: "ms", style: "lines", fillOpacity: 21 },
+      { id: 17, title: "Tokens per Second (OpenAI models)", type: "timeseries", gridPos: { h: 10, w: 12, x: 12, y: 24 }, unit: "short", style: "lines", fillOpacity: 10 },
+      { id: 4, title: "Input Tokens", type: "timeseries", gridPos: { h: 10, w: 12, x: 0, y: 34 }, unit: "short", style: "bars", fillOpacity: 60 },
+      { id: 5, title: "Output Tokens", type: "timeseries", gridPos: { h: 10, w: 12, x: 12, y: 34 }, unit: "short", style: "bars", fillOpacity: 60 },
+      { id: 8, title: "Total Tokens", type: "timeseries", gridPos: { h: 10, w: 12, x: 0, y: 44 }, unit: "short", style: "bars", fillOpacity: 60 },
+      { id: 14, title: "Token Cache Match Rate (OpenAI models)", type: "timeseries", gridPos: { h: 10, w: 12, x: 12, y: 44 }, unit: "percent", style: "lines", fillOpacity: 21 },
+    ]
+  );
+});
+
+test("AI Foundry Hub price query is bounded and preserves pricing identity", async () => {
+  let query = "";
+  await kusto.getFoundryPriceCatalog(
+    { clusterUri: "http://localhost:8082", database: "Hub" },
+    "Hub",
+    [
+      "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+      "11111111-2222-4333-8444-555555555555",
+    ],
+    {
+      fetchImpl: async (_url, init) => {
+        query = JSON.parse(init.body).csl;
+        return kustoResponse([]);
+      },
+      start: "2026-01-01T00:00:00Z",
+      end: "2026-03-01T00:00:00Z",
+      models: ["gpt-5.6-luna"],
+    }
+  );
+  assert.match(query, /Prices\(\)/);
+  assert.match(query, /x_PricingBlockSize/);
+  assert.match(query, /lookup kind=leftouter regions/);
+  assert.match(query, /lookup kind=inner scope/);
+  assert.match(query, /ResourceLocation/);
+  assert.match(query, /ScopeSubAccountId in \(targetSubscriptions\)/);
+  assert.match(query, /PricingUnit has 'Tokens'/);
+  assert.match(query, /SkuMeter has_all \("5\.6", "luna"\)/);
+  assert.doesNotMatch(query, /OriginalValue|x_SkuMeterName|x_PricingCurrency/);
+  assert.match(query, /x_SkuPriceType =~ 'Consumption'/);
+  assert.match(query, /Variant=case/);
+  assert.match(query, /SkuMeter has_any \('Cached', 'Cache', 'Cd', 'Wr'\), 'Cached'/);
+  assert.ok(
+    query.indexOf("SkuMeter has 'LongCo', 'LongContext'") <
+      query.indexOf("SkuMeter has_any ('Cached', 'Cache', 'Cd', 'Wr'), 'Cached'"),
+    "specialized meters must be classified before generic cached-input meters"
+  );
+  assert.match(query, /PriceScope=case/);
+  assert.match(query, /SkuMeter has 'Gl'/);
+  assert.match(query, /'Opt'\), 'Output'/);
+  assert.match(query, /ScopeCurrency/);
+  assert.match(query, /where ScopeMatch and PricingCurrency =~ ScopeCurrency/);
+  assert.match(query, /x_SkuMeterId/);
+  assert.match(query, /x_EffectivePeriodStart < metricEnd/);
+  assert.match(query, /metricStart < datetime_add\('month', 1, x_EffectivePeriodEnd\)/);
+  assert.match(query, /ScopeBillingAccountId/);
+  assert.match(query, /ScopeBillingProfileId/);
+  assert.match(query, /x_BillingAccountId/);
+  assert.match(query, /x_BillingProfileId/);
+  assert.match(query, /take 10000/);
+  assert.doesNotMatch(query, /\|\s*join(?!\s+kind=)/);
+});
+
+test("AI Foundry agent cost query keeps Hub work bounded", () => {
+  const query = kusto.buildFoundryAgentCostsQuery({
+    start: "2026-02-01T00:00:00Z",
+    end: "2026-03-01T00:00:00Z",
+  });
+  assert.match(query, /Costs\(\)/);
+  assert.match(query, /ChargePeriodStart >= CostStart and ChargePeriodStart < ActivityEnd/);
+  assert.match(query, /x_SkuMeterSubcategory has 'Agent'/);
+  assert.match(query, /by AgentResourceId, BillingCurrency/);
+  assert.doesNotMatch(query, /AppTraces|AppDependencies|macro-expand|\|\s*join(?!\s+kind=)/);
+  assert.throws(
+    () => kusto.buildFoundryAgentCostsQuery({
+      start: "invalid",
+      end: "2026-03-01T00:00:00Z",
+    }),
+    /valid start and end time/
+  );
+});
+
+test("Foundry agents dashboard shares rich telemetry across account scopes and keeps billed cost separate", async () => {
+  const tenantId = "99999999-2222-4333-8444-555555555555";
+  const subscriptionId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+  const accountId = `/subscriptions/${subscriptionId}/resourceGroups/ai-rg/providers/Microsoft.CognitiveServices/accounts/foundry-a`;
+  const projectId = `${accountId}/projects/finops`;
+  const workspaceId = `/subscriptions/${subscriptionId}/resourceGroups/monitor-rg/providers/Microsoft.OperationalInsights/workspaces/law-prod`;
+  const discoveryRows = [
+    {
+      ResourceKind: "account", id: accountId, name: "foundry-a", resourceGroup: "ai-rg",
+      subscriptionId, location: "eastus", kind: "AIServices", sku: "S0",
+    },
+    {
+      ResourceKind: "deployment", id: `${accountId}/deployments/chat-prod`, name: "foundry-a/chat-prod",
+      subscriptionId, location: "eastus", sku: "GlobalStandard", modelName: "gpt-4o",
+      modelVersion: "2024-08-06", modelFormat: "OpenAI", provisioningState: "Succeeded",
+    },
+    {
+      ResourceKind: "project", id: projectId, name: "finops",
+      subscriptionId, location: "eastus",
+    },
+    {
+      ResourceKind: "workspace", id: workspaceId, name: "law-prod", resourceGroup: "monitor-rg",
+      subscriptionId, location: "westus", customerId: "11111111-2222-4333-8444-555555555555",
+    },
+    {
+      ResourceKind: "workspace", id: workspaceId.toLowerCase(), name: "law-prod", resourceGroup: "monitor-rg",
+      subscriptionId, location: "westus", customerId: "11111111-2222-4333-8444-555555555555",
+    },
+    {
+      ResourceKind: "application-insights",
+      id: `/subscriptions/${subscriptionId}/resourceGroups/monitor-rg/providers/Microsoft.Insights/components/appi-prod`,
+      name: "appi-prod",
+      workspaceResourceId: workspaceId,
+    },
+  ];
+  const priceRows = [
+    {
+      RowType: "Price", SubAccountId: subscriptionId,
+      Direction: "Input", Variant: "Standard", ModelText: "GPT-4o 2024-08-06 input tokens",
+      PriceScope: "Global", SelectedUnitPrice: 0.002, x_PricingBlockSize: 1000,
+      PricingCurrency: "USD", ScopeMatch: true, ScopeCurrency: "USD",
+      x_EffectivePeriodStart: "2026-02-01T00:00:00Z", x_EffectivePeriodEnd: null,
+    },
+    {
+      RowType: "Price", SubAccountId: subscriptionId,
+      Direction: "Input", Variant: "Cached", ModelText: "GPT-4o 2024-08-06 cached input tokens",
+      PriceScope: "Global", SelectedUnitPrice: 0.0005, x_PricingBlockSize: 1000,
+      PricingCurrency: "USD", ScopeMatch: true, ScopeCurrency: "USD",
+      x_EffectivePeriodStart: "2026-02-01T00:00:00Z", x_EffectivePeriodEnd: null,
+    },
+    {
+      RowType: "Price", SubAccountId: subscriptionId,
+      Direction: "Output", Variant: "Standard", ModelText: "GPT-4o 2024-08-06 output tokens",
+      PriceScope: "Global", SelectedUnitPrice: 0.008, x_PricingBlockSize: 1000,
+      PricingCurrency: "USD", ScopeMatch: true, ScopeCurrency: "USD",
+      x_EffectivePeriodStart: "2026-02-01T00:00:00Z", x_EffectivePeriodEnd: null,
+    },
+  ];
+  const telemetryRows = [
+    {
+      RowType: "AgentSummary", AgentKey: "finops-hub-demo-foundry-agent:3",
+      AgentName: "foundry-agent", AgentId: "finops-hub-demo-foundry-agent:3",
+      FoundryProjectId: projectId, ActivityEvents: 20, Operations: 1, Successes: 1, Errors: 0,
+      TotalDurationMs: 400, AverageLatencyMs: 400, P95LatencyMs: 400,
+      InputTokens: 1000, CachedInputTokens: 200, OutputTokens: 300, LastSeen: "2026-03-01T23:56:00Z",
+    },
+    {
+      RowType: "TokenBucket", BucketStart: "2026-03-01T23:00:00Z", AgentKey: "finops-hub-demo-foundry-agent:3",
+      AgentName: "foundry-agent", AgentId: "finops-hub-demo-foundry-agent:3", FoundryProjectId: projectId,
+      Model: "gpt-4o-2024-08-06", InputTokens: 1000, CachedInputTokens: 200, OutputTokens: 300,
+    },
+    {
+      RowType: "ModelUsage", AgentKey: "finops-hub-demo-foundry-agent:3", AgentName: "foundry-agent",
+      AgentId: "finops-hub-demo-foundry-agent:3", FoundryProjectId: projectId, Model: "gpt-4o-2024-08-06",
+      Chats: 1, InputTokens: 1000, CachedInputTokens: 200, OutputTokens: 300,
+      AverageLatencyMs: 300, P95LatencyMs: 300, LastSeen: "2026-03-01T23:56:00Z",
+    },
+    {
+      RowType: "Run", Timestamp: "2026-03-01T23:56:00Z", TraceId: "trace-1",
+      AgentKey: "finops-hub-demo-foundry-agent:3", AgentName: "foundry-agent",
+      AgentId: "finops-hub-demo-foundry-agent:3", FoundryProjectId: projectId, Model: "gpt-4o-2024-08-06",
+      InputTokens: 1000, CachedInputTokens: 200, OutputTokens: 300, DurationMs: 400, Success: true,
+    },
+    {
+      RowType: "FinishReason", AgentKey: "finops-hub-demo-foundry-agent:3", AgentName: "foundry-agent",
+      FoundryProjectId: projectId, FinishReason: "[\"stop\"]", Count: 1,
+    },
+    {
+      RowType: "Tool", AgentKey: "finops-hub-demo-foundry-agent:3", AgentName: "foundry-agent",
+      FoundryProjectId: projectId, ToolName: "Costs", Calls: 2, Errors: 0, AverageLatencyMs: 50,
+    },
+    ...priceRows,
+  ];
+  let discoveryCalls = 0;
+  let connectionCalls = 0;
+  let kustoCalls = 0;
+  const fetchFn = async (url, init = {}) => {
+    const target = String(url);
+    if (target.includes("Microsoft.ResourceGraph")) {
+      const query = JSON.parse(init.body).query;
+      discoveryCalls += 1;
+      assert.match(query, /microsoft\.cognitiveservices\/accounts\/deployments/);
+      assert.match(query, /microsoft\.cognitiveservices\/accounts\/projects/);
+      assert.doesNotMatch(query, /microsoft\.app\/agents/);
+      assert.match(query, /microsoft\.insights\/components/);
+      assert.match(query, /microsoft\.operationalinsights\/workspaces/);
+      return Response.json({ data: discoveryRows });
+    }
+    if (target.includes("management.azure.com/batch")) {
+      const requests = JSON.parse(init.body).requests;
+      connectionCalls += 1;
+      assert.equal(requests.length, 1);
+      assert.match(requests[0].relativeUrl, /\/projects\/finops\/connections\?category=AppInsights&api-version=2025-06-01$/);
+      return Response.json({
+        responses: [{
+          httpStatusCode: 200,
+          content: {
+            value: [{
+              properties: {
+                category: "AppInsights",
+                target: `/subscriptions/${subscriptionId}/resourceGroups/monitor-rg/providers/Microsoft.Insights/components/appi-prod`,
+              },
+            }],
+          },
+        }],
+      });
+    }
+    throw new Error(`Unexpected test URL: ${url}`);
+  };
+  const runQuery = async (_connection, _database, query, queryOptions) => {
+    kustoCalls += 1;
+    assert.match(query, /^set query_results_cache_max_age = time\(30s\);/);
+    assert.match(query, /let MonitorWorkspaces = entity_group/);
+    assert.match(query, /macro-expand kind=inner isfuzzy=true MonitorWorkspaces/);
+    assert.match(query, /let Base = materialize\(/);
+    assert.match(query, /isnotempty\(AgentKey\) and isnotempty\(FoundryProjectId\)/);
+    assert.match(query, /adx\.monitor\.azure\.com\/subscriptions/);
+    assert.match(query, /SourceTable endswith 'AppDependencies'/);
+    assert.match(query, /OperationName =~ 'chat'/);
+    assert.match(query, /OperationName =~ 'execute_tool'/);
+    assert.match(query, /join kind=leftouter RunModels/);
+    assert.match(query, /let CostRows = materialize\(/);
+    assert.match(query, /let BilledCostRows = CostRows/);
+    assert.match(query, /let PriceRows = Prices\(\)/);
+    assert.match(query, /ScopeBillingAccountId/);
+    assert.match(query, /ScopeBillingProfileId/);
+    assert.match(query, /union AgentRows, BilledCostRows/);
+    assert.equal(queryOptions.maxResponseBytes, 16 * 1024 * 1024);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    return telemetryRows;
+  };
+  const common = {
+    connection: { clusterUri: "http://localhost:8082", database: "Hub" },
+    database: "Hub",
+    tenantId,
+    preset: "7d",
+    runQuery,
+    options: {
+      fetchFn,
+      execFileFn: async () => ({
+        stdout: JSON.stringify({ accessToken: "token", expires_on: Math.floor(Date.now() / 1000) + 3600 }),
+      }),
+      now: "2026-03-02T00:00:00Z",
+      agentCacheTtlMs: 1000,
+    },
+  };
+  const [estate, account] = await Promise.all([
+    azureMonitor.getAgentsDashboard(common),
+    azureMonitor.getAgentsDashboard({ ...common, accountId }),
+  ]);
+  assert.equal(discoveryCalls, 1);
+  assert.equal(connectionCalls, 1);
+  assert.equal(kustoCalls, 1);
+  assert.equal(estate.workspaceCount, 1);
+  assert.equal(estate.summary.AgentCount, 1);
+  assert.equal(account.summary.AgentCount, 1);
+  assert.equal(account.agents[0].AgentName, "foundry-agent");
+  assert.equal(account.recentRuns[0].TraceId, "trace-1");
+  assert.ok(Math.abs(account.recentRuns[0].EstimatedCost - 0.0041) < 1e-12);
+  assert.equal(account.recentRuns[0].UncachedInputTokens, 800);
+  assert.ok(Math.abs(account.recentRuns[0].UncachedInputCost - 0.0016) < 1e-12);
+  assert.ok(Math.abs(account.recentRuns[0].CachedInputCost - 0.0001) < 1e-12);
+  assert.ok(Math.abs(account.recentRuns[0].OutputCost - 0.0024) < 1e-12);
+  assert.equal(account.recentRuns[0].PriceCoverage, 1);
+  assert.ok(Math.abs(account.summary.UncachedInputCost - 0.0016) < 1e-12);
+  assert.ok(Math.abs(account.summary.CachedInputCost - 0.0001) < 1e-12);
+  assert.ok(Math.abs(account.summary.OutputCost - 0.0024) < 1e-12);
+  assert.ok(Math.abs(account.agents[0].UncachedInputCost - 0.0016) < 1e-12);
+  assert.ok(Math.abs(account.models[0].CachedInputCost - 0.0001) < 1e-12);
+  assert.ok(Math.abs(account.charts.tokens[0].OutputCost - 0.0024) < 1e-12);
+  assert.equal(account.agents[0].BilledCostStatus, "Not an ARM resource identity");
+  assert.equal(estate.agents[0].AgentType, "Microsoft Foundry agent");
 });
 
 test("local dashboard semantics stay unauthenticated and preserve the payload shape", async (t) => {
@@ -273,7 +1162,7 @@ test("transport errors are actionable and authentication failures redact provide
 });
 
 test("response parsing detects partial failures and enforces the byte limit before parsing", async () => {
-  assert.throws(() => kusto.parseKustoResponse({
+  const partialResponse = {
     Tables: [
       { TableName: "Table_0", Columns: [{ ColumnName: "Value" }], Rows: [[1]] },
       {
@@ -286,7 +1175,13 @@ test("response parsing detects partial failures and enforces the byte limit befo
         Rows: [[2, -1, "Partial query failure"]],
       },
     ],
-  }), /Partial query failure/);
+  };
+  assert.throws(() => kusto.parseKustoResponse(partialResponse), /Partial query failure/);
+  const partialRows = kusto.parseKustoResponse(partialResponse, { allowPartialResults: true });
+  assert.deepEqual(partialRows, [{ Value: 1 }]);
+  assert.deepEqual(partialRows.queryWarnings, [
+    "One or more remote workspaces failed during the federated query. Results are partial.",
+  ]);
   await assert.rejects(() => kusto.readBoundedBody(new Response("12345"), 4), /4-byte limit/);
 });
 
@@ -786,7 +1681,7 @@ test("connection changes probe and persist before mutating shared state", async 
     clusterUri: "http://localhost:8082",
     database: "Hub",
     tenantId: null,
-    canvasState: { tab: "overview", preset: "all", filters: {}, revision: 0 },
+    canvasState: { tab: "overview", preset: "all", filters: {}, foundryAccountId: "/old-account", revision: 0 },
   };
   await assert.rejects(() => extension.changeConnection(entry, {
     clusterUri: "https://cluster.westus.kusto.windows.net",
@@ -823,6 +1718,7 @@ test("connection changes probe and persist before mutating shared state", async 
   assert.equal(probed.tenantId, connection.tenantId);
   assert.equal(persisted.tenantId, connection.tenantId);
   assert.equal(entry.tenantId, connection.tenantId);
+  assert.equal(entry.canvasState.foundryAccountId, null);
 });
 
 test("canvas definition exposes collaborative actions on the one shared database", async () => {
@@ -830,8 +1726,15 @@ test("canvas definition exposes collaborative actions on the one shared database
   const entry = {
     clusterUri: "http://localhost:8082",
     database: "SharedHub",
-    tenantId: null,
-    canvasState: { tab: "overview", preset: "all", filters: {}, revision: 0 },
+    tenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    canvasState: {
+      tab: "overview",
+      preset: "all",
+      filters: {},
+      foundryPreset: "7d",
+      foundryAccountId: null,
+      revision: 0,
+    },
   };
   const canvas = extension.createDashboardCanvas({
     canvasFactory: (definition) => definition,
@@ -847,13 +1750,17 @@ test("canvas definition exposes collaborative actions on the one shared database
     assert.ok(names.includes(name));
   }
   assert.ok(canvas.inputSchema.properties.tenantId);
+  assert.equal(canvas.inputSchema.properties.monitorTenantId, undefined);
   assert.ok(canvas.actions.find((action) => action.name === "set_connection").inputSchema.properties.tenantId);
+  assert.equal(canvas.actions.find((action) => action.name === "set_connection").inputSchema.properties.monitorTenantId, undefined);
+  assert.ok(canvas.actions.find((action) => action.name === "set_canvas_state").inputSchema.properties.foundryAccountId);
+  assert.ok(canvas.actions.find((action) => action.name === "get_view").inputSchema.properties.view.enum.includes("agents"));
   assert.deepEqual(
     await canvas.actions.find((action) => action.name === "get_build_info").handler({ input: {} }),
-    { buildId: "ftk-local-dashboard-capacity-v1", sourceScope: "project" }
+    { buildId: "ftk-local-dashboard-agents-v1", sourceScope: "project" }
   );
   const result = await canvas.actions.find((action) => action.name === "run_query").handler({ input: { kql: "print Value=1" } });
-  assert.equal(calls[0].clusterUri.tenantId, null);
+  assert.equal(calls[0].clusterUri.tenantId, "72f988bf-86f1-41af-91ab-2d7cd011db47");
   assert.equal(calls[0].database, "SharedHub");
   assert.equal(result.rows.length, 500);
   assert.equal(result.truncated, true);
@@ -1236,16 +2143,18 @@ test("family rows keep family quota separate from representative-SKU offer statu
 
 test("shared matrix filters reduce Compute, App Service, Azure SQL, and Azure AI grids without dead ends", () => {
   const rows = [
-    { Family: "Standard Dv5 Family vCPUs", FamilyKey: "dv5", Location: "eastus", CoresUsed: 10, CoresTotal: 100, semantic: {} },
-    { Family: "Standard Ev5 Family vCPUs", FamilyKey: "ev5", Location: "westus", CoresUsed: 0, CoresTotal: 200, semantic: {} },
-    { Family: "Standard NC Family vCPUs", FamilyKey: "nc", Location: "eastus", CoresUsed: 0, CoresTotal: 0, semantic: {} },
-    { Family: "Standard Fsv2 Family vCPUs", FamilyKey: "fsv2", Location: "westus", CoresUsed: 50, CoresTotal: 50, semantic: {} },
+    { Family: "Standard Dv5 Family vCPUs", FamilyKey: "dv5", Location: "eastus", CoresUsed: 10, CoresTotal: 100, semantic: { offerState: "available" } },
+    { Family: "Standard Ev5 Family vCPUs", FamilyKey: "ev5", Location: "westus", CoresUsed: 0, CoresTotal: 200, semantic: { offerState: "zone-restricted", zonesRestricted: ["1"] } },
+    { Family: "Standard NC Family vCPUs", FamilyKey: "nc", Location: "eastus", CoresUsed: 0, CoresTotal: 0, semantic: { offerState: "no-quota" } },
+    { Family: "Standard Fsv2 Family vCPUs", FamilyKey: "fsv2", Location: "westus", CoresUsed: 50, CoresTotal: 50, semantic: { offerState: "available" } },
   ];
   const ids = (filter) => app.filterCapacityMatrixRows(rows, "compute", filter).map((row) => row.FamilyKey);
 
   // The default lens answers "what do we actually run", not "show me everything".
   assert.deepEqual(ids({ status: "in-use" }), ["dv5", "fsv2"]);
   assert.deepEqual(ids({ status: "at-limit" }), ["fsv2"]);
+  assert.deepEqual(ids({ status: "available" }), ["dv5"]);
+  assert.deepEqual(ids({ status: "restricted" }), ["ev5"]);
   assert.deepEqual(ids({ status: "no-quota" }), ["nc"]);
   assert.equal(ids({ status: "all" }).length, 4);
 
@@ -1258,7 +2167,8 @@ test("shared matrix filters reduce Compute, App Service, Azure SQL, and Azure AI
   // An unmatched needle returns nothing rather than falling back to everything.
   assert.deepEqual(ids({ status: "all", search: "nosuchfamily" }), []);
   // Every lens is reachable and counted, so no lens can become a dead end.
-  assert.deepEqual(app.MATRIX_STATUS_FILTERS.map((lens) => lens.id), ["in-use", "at-limit", "no-quota", "all"]);
+  assert.deepEqual(app.MATRIX_STATUS_FILTERS.map((lens) => lens.id), ["in-use", "at-limit", "available", "all"]);
+  assert.deepEqual(app.FAMILY_STATUS_FILTERS.map((lens) => lens.id), ["in-use", "at-limit", "available", "restricted", "all"]);
 
   const appServiceRows = [
     {
@@ -1276,6 +2186,7 @@ test("shared matrix filters reduce Compute, App Service, Azure SQL, and Azure AI
   ];
   const skuIds = (filter) => app.filterCapacityMatrixRows(appServiceRows, "app-service", filter).map((row) => row.SkuKey);
   assert.deepEqual(skuIds({ status: "at-limit" }), ["S1"]);
+  assert.deepEqual(skuIds({ status: "available" }), ["P1v4"]);
   assert.deepEqual(skuIds({ status: "no-quota" }), ["*"]);
   assert.deepEqual(skuIds({ status: "all", search: "premium", regions: ["eastus"] }), ["P1v4"]);
 
@@ -1296,6 +2207,7 @@ test("shared matrix filters reduce Compute, App Service, Azure SQL, and Azure AI
   const sqlIds = (filter) => app.filterCapacityMatrixRows(azureSqlRows, "azure-sql", filter).map((row) => row.MetricKey);
   assert.deepEqual(sqlIds({ status: "in-use" }), ["ServerQuota", "RegionalVCoreQuotaForSQLDBAndDW"]);
   assert.deepEqual(sqlIds({ status: "at-limit" }), ["RegionalVCoreQuotaForSQLDBAndDW"]);
+  assert.deepEqual(sqlIds({ status: "available" }), ["ServerQuota"]);
   assert.deepEqual(sqlIds({ status: "no-quota" }), ["SubscriptionSQLManagedInstancePremiumSeriesVCoreQuota"]);
   assert.deepEqual(sqlIds({ status: "all", search: "server", regions: ["eastus"] }), ["ServerQuota"]);
 
@@ -1316,6 +2228,7 @@ test("shared matrix filters reduce Compute, App Service, Azure SQL, and Azure AI
   const modelIds = (filter) => app.filterCapacityMatrixRows(azureAiRows, "azure-ai", filter).map((row) => row.ModelKey);
   assert.deepEqual(modelIds({ status: "in-use" }), ["OpenAI.GlobalStandard.gpt-4o", "AIServices.GlobalStandard.Codestral-2501"]);
   assert.deepEqual(modelIds({ status: "at-limit" }), ["AIServices.GlobalStandard.Codestral-2501"]);
+  assert.deepEqual(modelIds({ status: "available" }), ["OpenAI.GlobalStandard.gpt-4o"]);
   assert.deepEqual(modelIds({ status: "no-quota" }), ["AIServices.GlobalProvisionedManaged"]);
   assert.deepEqual(modelIds({ status: "all", search: "gpt-4o" }), ["OpenAI.GlobalStandard.gpt-4o"]);
   assert.deepEqual(modelIds({ status: "all", search: "standard", regions: ["westus"] }), ["AIServices.GlobalStandard.Codestral-2501"]);
@@ -1517,6 +2430,121 @@ test("AI tab is wired end to end and every panel can show its query", async () =
   for (const id of panelIds) {
     assert.ok(mapped.includes(`"${id}"`), `PANEL_QUERY is missing '${id}'`);
   }
+});
+
+test("AI Foundry tab renders the canonical platform-metrics dashboard", async () => {
+  const [html, source, styles] = await Promise.all([
+    readFile(new URL("../public/index.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/app.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/app.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(html, /data-tab="foundry"/);
+  assert.doesNotMatch(html, /settings-monitor-tenant/);
+  assert.match(html, /This tenant ID controls remote Hub authentication and tenant-wide AI Foundry resource discovery/);
+  assert.match(source, /state\.tab === "foundry"\) renderFoundry\(p\)/);
+  assert.match(source, /Azure Monitor platform metrics/);
+  assert.match(source, /Hub Prices\(\) estimate/);
+  assert.match(source, /Costs\(\) remains authoritative/);
+  assert.match(source, /Prices can't be estimated for AI resources outside this Hub's billing scope/);
+  assert.match(source, /companion:\s*\[4,\s*5,\s*8\]\.includes\(panel\.id\)\s*\?\s*\{\s*label:\s*"Estimated cost"\s*\}/);
+  assert.match(source, /foundry-dashboard-grid/);
+  assert.match(source, /data-foundry-account/);
+  assert.match(source, /previous month's price sheet/);
+  assert.match(source, /state\.foundryPreset = sharedState\.foundryPreset/);
+  const foundryRenderer = source.slice(source.indexOf("function renderFoundry"), source.indexOf("function renderAgents"));
+  assert.doesNotMatch(foundryRenderer, /Agents|agent telemetry|dependency spans|Costs\(\) matches/);
+  assert.match(styles, /\.foundry-dashboard-grid\s*\{[^}]*grid-template-rows:\s*repeat\(54,\s*36px\)/s);
+  assert.match(styles, /\.foundry-panel-content\s*\{[^}]*overflow:\s*hidden/s);
+  assert.match(
+    app.foundryMetricChart(
+      [{
+        Name: "chat-prod",
+        Points: [{
+          Bucket: "2026-03-01T00:00:00Z",
+          Value: 3,
+          Cost: 0.004,
+          Currency: "USD",
+        }],
+      }],
+      {
+        title: "Total Tokens",
+        unit: "short",
+        style: "bars",
+        fillOpacity: 0.6,
+        calculations: ["Sum", "Mean", "Max"],
+        companion: { label: "Estimated cost" },
+      }
+    ),
+    /Estimated cost[\s\S]*\$0\.004/
+  );
+  const lineChart = app.foundryMetricChart(
+    [{
+      Name: "chat-prod",
+      Points: [
+        { Bucket: "2026-03-01T00:00:00Z", Value: 3 },
+        { Bucket: "2026-03-01T00:05:00Z", Value: 4 },
+      ],
+    }],
+    { title: "Latency", unit: "ms", style: "lines", fillOpacity: 0.21, calculations: ["Mean", "Max"] }
+  );
+  assert.match(lineChart, /fill-opacity="0\.21"/);
+  assert.match(lineChart, /--foundry-legend-calcs:2/);
+  assert.equal(extension.validateViewInput({ name: "foundry", preset: "7d" }).name, "foundry");
+  assert.throws(() => extension.validateViewInput({ name: "foundry", preset: "6m" }), /Unknown time preset/);
+  const accountId = "/subscriptions/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee/resourceGroups/ai-rg/providers/Microsoft.CognitiveServices/accounts/foundry";
+  assert.deepEqual(
+    extension.validateCanvasStatePatch({ foundryPreset: "30d", foundryAccountId: accountId }).patch,
+    { foundryPreset: "30d", foundryAccountId: accountId }
+  );
+  assert.throws(
+    () => extension.validateViewInput({
+      name: "foundry",
+      preset: "7d",
+      accountId: "/subscriptions/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee/resourceGroups/monitor-rg/providers/Microsoft.Insights/components/monitor",
+    }),
+    /Cognitive Services account resource ID/
+  );
+});
+
+test("Foundry agents tab is a complete separate operational dashboard", async () => {
+  const [html, source, styles, readme, product] = await Promise.all([
+    readFile(new URL("../public/index.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/app.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/app.css", import.meta.url), "utf8"),
+    readFile(new URL("../README.md", import.meta.url), "utf8"),
+    readFile(new URL("../PRODUCT.md", import.meta.url), "utf8"),
+  ]);
+  assert.match(html, /data-tab="foundry"[\s\S]*data-tab="agents"/);
+  assert.match(html, /data-tab="agents"[^>]*>Foundry agents</);
+  assert.match(source, /state\.tab === "agents"\) renderAgents\(p\)/);
+  assert.match(source, /Estimated run cost/);
+  assert.match(source, /Authoritative billed cost/);
+  assert.match(source, /Uncached input[\s\S]*Est\. input[\s\S]*Cached input[\s\S]*Est\. cache[\s\S]*Output[\s\S]*Est\. output/);
+  assert.match(source, /Trace ID/);
+  assert.match(source, /Cached input tokens/);
+  assert.match(source, /Tool usage leaderboard/);
+  assert.match(source, /Chat finish reasons/);
+  assert.match(source, /Every panel and control derives from the same cached tenant and time-range result/);
+  assert.match(styles, /\.agents-dashboard-grid\s*\{[^}]*grid-template-columns:\s*repeat\(12,/s);
+  assert.match(styles, /\.agent-kpis\s*\{[^}]*grid-template-columns:\s*repeat\(4,/s);
+  assert.equal(extension.validateViewInput({ name: "agents", preset: "30d" }).name, "agents");
+  assert.throws(() => extension.validateViewInput({ name: "agents", preset: "6m" }), /Unknown time preset/);
+  assert.match(readme, /Token charts and agent, model, and recent-run tables show each token class beside its estimated cost/);
+  assert.match(readme, /Input, output, and total token tiles and charts also show the corresponding estimated cost/);
+  assert.match(product, /separate Foundry agents view/);
+  assert.equal(azureMonitor.AGENT_PANEL_CONTRACT.length, 12);
+});
+
+test("dashboard canvas is desktop only", async () => {
+  const [html, appStyles, uiStyles] = await Promise.all([
+    readFile(new URL("../public/index.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/app.css", import.meta.url), "utf8"),
+    readFile(new URL("../public/ui.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(html, /meta name="viewport" content="width=1280"/);
+  assert.match(appStyles, /--canvas-min-width:\s*1280px/);
+  assert.match(appStyles, /html,\s*body\s*\{[^}]*min-width:\s*var\(--canvas-min-width\)/s);
+  assert.doesNotMatch(`${appStyles}\n${uiStyles}`, /@media\s*\(max-width:/);
 });
 
 test("unit rates keep precision instead of rounding to zero dollars", () => {

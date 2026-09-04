@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=1280" />
     <title>FinOps hub dashboard</title>
     <link rel="stylesheet" href="/ui.css" />
     <link rel="stylesheet" href="/app.css" />
@@ -32,6 +32,8 @@
       <button data-tab="usage" role="tab" aria-selected="false" aria-controls="content">Usage &amp; unit economics</button>
       <button data-tab="anomaly" role="tab" aria-selected="false" aria-controls="content">Anomalies &amp; forecast</button>
       <button data-tab="tokenomics" role="tab" aria-selected="false" aria-controls="content">Tokenomics</button>
+      <button data-tab="foundry" role="tab" aria-selected="false" aria-controls="content">AI Foundry</button>
+      <button data-tab="agents" role="tab" aria-selected="false" aria-controls="content">Foundry agents</button>
       <button data-tab="ai" role="tab" aria-selected="false" aria-controls="content" title="AI, machine learning, and GPU-accelerated workload spend">AI &amp; emerging workloads</button>
       <button data-tab="capacity" role="tab" aria-selected="false" aria-controls="content">Supply</button>
       <button data-tab="monaco" role="tab" aria-selected="false" aria-controls="content" title="Experimental: KQL query editor with autocomplete">Query editor</button>
@@ -88,7 +90,7 @@
             <span>Tenant ID</span>
             <input id="settings-tenant" type="text" spellcheck="false" autocomplete="off" placeholder="00000000-0000-0000-0000-000000000000" />
           </label>
-          <p class="settings-hint">Tenant ID is required for remote <code>*.kusto.windows.net</code> clusters. The dashboard requests a Kusto token for this tenant from Azure CLI. Credentials are never saved.</p>
+          <p class="settings-hint">This tenant ID controls remote Hub authentication and tenant-wide AI Foundry resource discovery. Local Hub queries do not authenticate, but AI Foundry operations still use this tenant. The dashboard requests tenant-specific tokens from Azure CLI. Credentials are never saved.</p>
         </div>
         <p id="settings-error" class="kql-dialog-error" role="alert"></p>
         <div class="kql-dialog-footer">

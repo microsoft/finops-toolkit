@@ -55,6 +55,9 @@ const state = {
   capacitySubscriptionData: null,
   capacitySubscriptionLoading: false,
   capacitySubscriptionError: null,
+  foundryPreset: "7d",
+  foundryAccountId: null,
+  forceRefresh: false,
   revision: 0,
 };
 const queryState = { rows: 0, health: "ok", refreshedAt: null, dataset: "Hub database" };
@@ -146,6 +149,9 @@ function cacheKey() {
   if (state.tab === "capacity") {
     return `${state.capacityClass}|${JSON.stringify(state.capacitySelections || {})}`;
   }
+  if (state.tab === "foundry" || state.tab === "agents") {
+    return `${state.foundryPreset}|${state.foundryAccountId || "estate"}`;
+  }
   return state.preset + filterKey();
 }
 
@@ -191,7 +197,7 @@ function syncCanvasControls() {
   revealActiveTab();
   const isTool = TOOL_TABS.has(state.tab);
   const isCapacity = state.tab === "capacity";
-  el("preset").hidden = isTool || isCapacity;
+  el("preset").hidden = isTool || isCapacity || state.tab === "foundry" || state.tab === "agents";
   el("refresh").hidden = isTool;
   el("app-footer").hidden = isTool;
   renderFilterBar();
@@ -203,6 +209,8 @@ function applySharedCanvasState(next, options = {}) {
   const previousCapacityClass = state.capacityClass;
   const changed = next.tab !== state.tab || next.preset !== state.preset ||
     next.capacityClass !== state.capacityClass ||
+    next.foundryPreset !== state.foundryPreset ||
+    next.foundryAccountId !== state.foundryAccountId ||
     JSON.stringify(next.capacitySelections || {}) !== JSON.stringify(state.capacitySelections) ||
     JSON.stringify(next.filters || {}) !== JSON.stringify(state.filters);
   state.tab = next.tab;
@@ -210,6 +218,8 @@ function applySharedCanvasState(next, options = {}) {
   state.filters = next.filters || {};
   state.capacityClass = next.capacityClass || "home";
   state.capacitySelections = next.capacitySelections || {};
+  state.foundryPreset = next.foundryPreset || "7d";
+  state.foundryAccountId = next.foundryAccountId || null;
   state.revision = next.revision;
   if (previousCapacityClass !== state.capacityClass) resetCapacityDetail();
   syncCanvasControls();
@@ -271,7 +281,7 @@ function renderFilterBar() {
   const bar = document.getElementById("filter-bar");
   const chips = document.getElementById("filter-chips");
   if (!bar || !chips) return;
-  const entries = state.tab === "capacity"
+  const entries = state.tab === "capacity" || state.tab === "foundry" || state.tab === "agents"
     ? []
     : Object.entries(state.filters).filter(([, arr]) => arr && arr.length > 0);
   if (entries.length === 0) {
@@ -320,6 +330,22 @@ function fmtTokens(n) {
   if (a >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
   if (a >= 1e3) return `${(n / 1e3).toFixed(1)}K`;
   return `${Math.round(n)}`;
+}
+function fmtCurrency(n, currency) {
+  if (n == null || isNaN(n) || !currency) return "—";
+  try {
+    return Number(n).toLocaleString("en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: Number(n) < 10 ? 4 : 2,
+    });
+  } catch {
+    return `${Number(n).toFixed(2)} ${currency}`;
+  }
+}
+function fmtDurationMs(n) {
+  if (n == null || isNaN(n)) return "—";
+  return n >= 1000 ? `${(n / 1000).toFixed(2)} s` : `${Math.round(n)} ms`;
 }
 function fmtPerM(costPer1K) {
   // costPer1K is $ per 1,000 tokens -> show $ per 1,000,000 tokens
@@ -560,6 +586,7 @@ function hbar(rows, nameKey, valKey, opts = {}) {
   const W = 540, H = data.length * rowH + 6;
   const barX = nameW + 8, barW = W - barX - padR;
   const valFmt = opts.valFmt || fmtMoney;
+  const titleFmt = opts.titleFmt || (opts.valFmt ? valFmt : fmtMoneyFull);
   // filterDim: by default use nameKey; pass null to opt-out of filtering
   const filterDim = "filterDim" in opts ? opts.filterDim : nameKey;
   const activeVals = filterDim && state.filters[filterDim];
@@ -584,7 +611,7 @@ function hbar(rows, nameKey, valKey, opts = {}) {
       : ` tabindex="0" aria-label="${esc(d.name)}, ${valFmt(d.val)}"`;
     g += `<g class="${cls}"${dimAttr}${interactiveAttrs}>`;
     g += `<text class="name${isTruncated ? " name--truncated" : ""}" x="0" y="${cy + 4}">${esc(trunc(d.name, nameChars))}<title>${esc(d.name)}</title></text>`;
-    g += `<rect class="hbar" x="${barX}" y="${cy - 9}" width="${w}" height="18" rx="4" fill="${color}"><title>${esc(d.name)}\n${fmtMoneyFull(d.val)} · ${fmtPct(pct)}</title></rect>`;
+    g += `<rect class="hbar" x="${barX}" y="${cy - 9}" width="${w}" height="18" rx="4" fill="${color}"><title>${esc(d.name)}\n${titleFmt(d.val)} · ${fmtPct(pct)}</title></rect>`;
     g += `<text class="val" x="${W}" y="${cy + 4}" text-anchor="end">${valFmt(d.val)}</text>`;
     g += `</g>`;
   });
@@ -716,6 +743,7 @@ function tokenTrendChart(rows) {
     g += `<text class="tick" x="${m.l - 8}" y="${yy + 4}" text-anchor="end">${fmtTokens((tokMax / ticks) * t)}</text>`;
     g += `<text class="tick" x="${W - m.r + 8}" y="${yy + 4}" text-anchor="start">${fmtMoney((costMax / ticks) * t)}</text>`;
   }
+
   // token bars (left axis)
   rows.forEach((r, i) => {
     const top = yTok(r.Tokens || 0);
@@ -735,6 +763,124 @@ function tokenTrendChart(rows) {
     { label: "AI effective cost", color: PALETTE[3] },
   ]);
   return svgEl(W, H, g, "AI token volume and cost trend") + legend;
+}
+
+function foundryTimeLabels(buckets, x, H) {
+  if (!buckets.length) return "";
+  const count = Math.min(8, buckets.length);
+  const indexes = [...new Set(Array.from({ length: count }, (_, index) =>
+    Math.round(index * (buckets.length - 1) / Math.max(1, count - 1))
+  ))];
+  return indexes.map((index) => {
+    const date = new Date(buckets[index]);
+    const label = date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      ...(buckets.length <= 96 ? { hour: "numeric" } : {}),
+      timeZone: "UTC",
+    });
+    return `<text class="tick" x="${x(index)}" y="${H - 10}" text-anchor="middle">${esc(label)}</text>`;
+  }).join("");
+}
+
+function foundryValue(value, unit) {
+  if (unit === "ms") return fmtDurationMs(value);
+  if (unit === "percent") return `${Number(value || 0).toFixed(0)}%`;
+  if (unit === "rate") return `${fmtTokens(value)}/s`;
+  return fmtTokens(value);
+}
+
+function foundryLegend(series, unit, calculations, companion = null) {
+  if (!series.length) return "";
+  const companionColumns = companion ? 1 : 0;
+  return `<div class="foundry-legend-table" role="table" style="--foundry-legend-calcs:${calculations.length + companionColumns}">
+    <div class="foundry-legend-row foundry-legend-head" role="row">
+      <span>Series</span>${calculations.map((calculation) => `<span>${esc(calculation)}</span>`).join("")}
+      ${companion ? `<span>${esc(companion.label)}</span>` : ""}
+    </div>
+    ${series.map((item, index) => {
+      const values = item.Points.map((point) => Number(point.Value) || 0);
+      const sum = values.reduce((total, value) => total + value, 0);
+      const mean = values.length ? sum / values.length : 0;
+      const stats = {
+        Sum: sum,
+        Mean: mean,
+        Max: values.length ? Math.max(...values) : 0,
+        Last: values.at(-1) || 0,
+      };
+      const costPoints = item.Points.filter((point) => point.Cost != null);
+      const currencies = new Set(costPoints.map((point) => point.Currency).filter(Boolean));
+      const companionValue = costPoints.length && currencies.size <= 1
+        ? fmtCurrency(
+          costPoints.reduce((total, point) => total + Number(point.Cost || 0), 0),
+          currencies.size === 1 ? [...currencies][0] : null
+        )
+        : "—";
+      return `<div class="foundry-legend-row" role="row">
+        <span><i style="background:${PALETTE[index % PALETTE.length]}"></i>${esc(item.Name)}</span>
+        ${calculations.map((calculation) => `<span>${esc(foundryValue(stats[calculation], unit))}</span>`).join("")}
+        ${companion ? `<span>${esc(companionValue)}</span>` : ""}
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
+export function foundryMetricChart(series, options = {}) {
+  const data = series || [];
+  const W = 760, H = 190;
+  const m = { l: 58, r: 18, t: 12, b: 36 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const buckets = [...new Set(data.flatMap((item) => item.Points.map((point) => point.Bucket)))].sort();
+  if (!buckets.length) return emptyChart(W, H, `${options.title || "AI Foundry metric"} — no data`);
+
+  const pointBySeries = data.map((item) => new Map(item.Points.map((point) => [point.Bucket, point])));
+  const stackedMax = buckets.map((bucket) =>
+    pointBySeries.reduce((sum, points) => sum + (Number(points.get(bucket)?.Value) || 0), 0)
+  );
+  const lineMax = data.flatMap((item) => item.Points.map((point) => Number(point.Value) || 0));
+  const max = Math.max(...(options.style === "bars" ? stackedMax : lineMax), 1);
+  const yMax = niceMax(max, 4);
+  const x = (index) => m.l + (buckets.length === 1 ? iw / 2 : index / (buckets.length - 1) * iw);
+  const y = (value) => m.t + ih - (value / yMax) * ih;
+  const fillOpacity = Math.max(0, Math.min(1, Number(options.fillOpacity) || 0));
+  let body = yAxisGrid(m, W, ih, yMax, 4, (value) => foundryValue(value, options.unit));
+
+  if (options.style === "bars") {
+    const barWidth = Math.max(1, Math.min(18, iw / buckets.length * 0.74));
+    buckets.forEach((bucket, bucketIndex) => {
+      let base = 0;
+      data.forEach((item, seriesIndex) => {
+        const point = pointBySeries[seriesIndex].get(bucket);
+        const value = Number(point?.Value) || 0;
+        const top = base + value;
+        const companionText = options.companion && point?.Cost != null
+          ? `\n${options.companion.label}: ${fmtCurrency(point.Cost, point.Currency)}`
+          : "";
+        body += `<rect class="bar" x="${x(bucketIndex) - barWidth / 2}" y="${y(top)}" width="${barWidth}" height="${Math.max(0, y(base) - y(top))}" fill="${PALETTE[seriesIndex % PALETTE.length]}" fill-opacity="${fillOpacity}"><title>${esc(item.Name)}\n${esc(bucket)}\n${esc(foundryValue(value, options.unit))}${esc(companionText)}</title></rect>`;
+        base = top;
+      });
+    });
+  } else {
+    data.forEach((item, seriesIndex) => {
+      const points = item.Points.map((point) => {
+        const bucketIndex = buckets.indexOf(point.Bucket);
+        return `${x(bucketIndex)},${y(Number(point.Value) || 0)}`;
+      });
+      if (fillOpacity > 0 && points.length > 1) {
+        body += `<path d="M${points[0]} L${points.slice(1).join(" L")} L${x(buckets.indexOf(item.Points.at(-1).Bucket))},${y(0)} L${x(buckets.indexOf(item.Points[0].Bucket))},${y(0)} Z" fill="${PALETTE[seriesIndex % PALETTE.length]}" fill-opacity="${fillOpacity}"/>`;
+      }
+      body += `<path d="M${points.join(" L")}" fill="none" stroke="${PALETTE[seriesIndex % PALETTE.length]}" stroke-width="2"/>`;
+    });
+  }
+
+  body += foundryTimeLabels(buckets, x, H);
+  return svgEl(W, H, body, options.title || "AI Foundry metric") +
+    foundryLegend(
+      data,
+      options.unit,
+      options.calculations || ["Mean", "Max", "Last"],
+      options.companion
+    );
 }
 
 // Fixed capability colors so the stacked chart, its legend, and the capability
@@ -969,7 +1115,7 @@ function kpiThreshold(pct, greenMax, amberMax) {
   return "threshold-red";
 }
 
-const VALID_TABS = ["overview", "allocation", "rate", "usage", "anomaly", "tokenomics", "ai", "capacity", "monaco"];
+const VALID_TABS = ["overview", "allocation", "rate", "usage", "anomaly", "tokenomics", "foundry", "agents", "ai", "capacity", "monaco"];
 
 // "Tool" tabs are experiments that don't follow the KPI dashboard pipeline
 // (no preset/filter-driven queries, no response caching) — they render their
@@ -987,7 +1133,7 @@ function switchTab(tabId, opts = {}) {
   });
   revealActiveTab();
   const isTool = TOOL_TABS.has(tabId);
-  el("preset").hidden = isTool || tabId === "capacity";
+  el("preset").hidden = isTool || tabId === "capacity" || tabId === "foundry" || tabId === "agents";
   el("refresh").hidden = isTool;
   el("app-footer").hidden = isTool;
   if (isTool) el("filter-bar").hidden = true;
@@ -1056,8 +1202,15 @@ function invalidateCapacitySubscriptions() {
   state.capacitySubscriptionError = null;
 }
 
-function capacityMatrixFilter(classId = state.capacityClass) {
-  return state.capacityMatrixFilters[classId] || { status: "all", search: "", regions: [], mark: 70 };
+function capacityMatrixFilter(classId = state.capacityClass, rows = []) {
+  const current = state.capacityMatrixFilters[classId];
+  if (current) return current;
+  const status = classId === "azure-ai" && rows.some((row) => matrixStatusMatches(row, classId, "in-use"))
+    ? "in-use"
+    : "all";
+  const initial = { status, search: "", regions: [], mark: 70 };
+  state.capacityMatrixFilters = { ...state.capacityMatrixFilters, [classId]: initial };
+  return initial;
 }
 
 // Matrix filters run against the payload in memory. Restore focus because each
@@ -1570,6 +1723,382 @@ function aiByAppTable(rows) {
       </tr>`;
     }).join("")}</tbody>
   </table>`;
+}
+
+function foundryAccountLabel(account) {
+  return `${account.name} · ${account.location} · ${account.resourceGroup}`;
+}
+
+function foundryPriceMetadata(payload) {
+  const summary = payload.data.summary;
+  const billingScopeNote = "Prices can't be estimated for AI resources outside this Hub's billing scope.";
+  if (payload.pricing?.status === "unavailable") {
+    return `Hub Prices() unavailable. Operational metrics are unaffected; no cost estimate was calculated. ${billingScopeNote}`;
+  }
+  if (payload.pricing?.status === "partial") {
+    return `Partial Hub Prices() coverage: ${fmtPct(summary.PriceCoverage)} of estimated tokens. ${billingScopeNote}`;
+  }
+  if (payload.pricing?.status === "empty") {
+    return `No current or previous-month Hub token rates matched. Operational metrics are unaffected. ${billingScopeNote}`;
+  }
+  if (summary.PreviousMonthEstimatedTokens > 0) {
+    return `Provisional Hub estimate: ${fmtPct(summary.PriceCoverage)} coverage; ${fmtPct(summary.PreviousMonthPriceCoverage)} uses the previous month's price sheet. ${billingScopeNote}`;
+  }
+  return `Hub Prices() estimate: ${fmtPct(summary.PriceCoverage)} token coverage. Costs() remains authoritative for billed and effective cost. ${billingScopeNote}`;
+}
+
+function foundryTiles(tiles, unit, currency) {
+  const data = tiles || [];
+  if (!data.length) return `<div class="foundry-stat-empty">—</div>`;
+  return `<div class="foundry-stat-grid">${data.map((tile, index) => {
+    const tileValue = tile.EstimatedCost ?? tile.Value;
+    const tileLabel = tile.Model ?? tile.Name;
+    const value = unit === "currency"
+      ? fmtCurrency(tileValue, tile.Currency || currency)
+      : foundryValue(tileValue, unit);
+    const hasCostCompanion = unit !== "currency" && "EstimatedCost" in tile;
+    const companion = tile.EstimatedCost == null
+      ? "Estimated cost —"
+      : `Estimated cost ${fmtCurrency(tile.EstimatedCost, tile.Currency || currency)}`;
+    const coverage = tile.PriceCoverage != null && tile.PriceCoverage < 1
+      ? ` · ${fmtPct(tile.PriceCoverage)} priced`
+      : "";
+    return `<div class="foundry-stat" style="--foundry-series:${PALETTE[index % PALETTE.length]}">
+      <span title="${esc(tileLabel)}">${esc(tileLabel)}</span>
+      <strong>${esc(value)}</strong>
+      ${hasCostCompanion ? `<small title="${esc(tile.PriceReason || "")}">${esc(companion + coverage)}</small>` : ""}
+    </div>`;
+  }).join("")}</div>`;
+}
+
+function foundryPanel(panel, body, footer = "") {
+  const grid = panel.gridPos;
+  const style = `grid-column:${grid.x + 1} / span ${grid.w};grid-row:${grid.y + 1} / span ${grid.h}`;
+  return `<section class="foundry-panel foundry-panel--${esc(panel.type)}" style="${style}" aria-label="${esc(panel.title)}">
+    <header><h2>${esc(panel.title)}</h2></header>
+    <div class="foundry-panel-content">${body}</div>
+    ${footer ? `<p class="foundry-panel-note">${esc(footer)}</p>` : ""}
+  </section>`;
+}
+
+function foundryChartOptions(panel) {
+  const calculations = {
+    2: ["Sum", "Mean", "Max"],
+    16: ["Sum", "Max"],
+    7: ["Mean", "Max", "Last"],
+    17: ["Mean", "Max", "Last"],
+    4: ["Sum", "Mean", "Max"],
+    5: ["Sum", "Mean", "Max"],
+    8: ["Sum", "Mean", "Max"],
+    14: ["Mean", "Max", "Last"],
+  };
+  return {
+    title: panel.title,
+    unit: panel.unit,
+    style: panel.style === "bars" ? "bars" : "lines",
+    fillOpacity: (Number(panel.fillOpacity) || 0) / 100,
+    calculations: calculations[panel.id] || ["Mean", "Max", "Last"],
+    companion: [4, 5, 8].includes(panel.id) ? { label: "Estimated cost" } : null,
+  };
+}
+
+function agentAuthoritativeCostSummary(costs = []) {
+  if (!costs.length) return "—";
+  return costs.map((cost) => fmtCurrency(cost.BilledCost, cost.BillingCurrency)).join(" · ");
+}
+
+function agentTimestamp(value) {
+  const date = new Date(value || "");
+  if (!Number.isFinite(date.getTime())) return "—";
+  return `<span title="${esc(date.toISOString())}">${esc(fmtRelativeTime(date))}</span>`;
+}
+
+function foundryScopeToolbar(payload, label) {
+  const accountOptions = [
+    `<option value=""${payload.selectedAccountId ? "" : " selected"}>Entire estate · ${fmtInt(payload.accounts.length)} Foundry resources</option>`,
+    ...payload.accounts.map((account) =>
+      `<option value="${esc(account.id)}"${account.id === payload.selectedAccountId ? " selected" : ""}>${esc(foundryAccountLabel(account))}</option>`
+    ),
+  ].join("");
+  const presetButtons = [
+    ["24h", "24H"],
+    ["7d", "7D"],
+    ["30d", "30D"],
+    ["93d", "93D"],
+  ].map(([id, text]) =>
+    `<button type="button" data-foundry-preset="${id}" class="${state.foundryPreset === id ? "active" : ""}" aria-pressed="${state.foundryPreset === id}">${text}</button>`
+  ).join("");
+  return `<div class="foundry-toolbar" aria-label="${esc(label)}">
+    <label class="capacity-selector" for="foundry-account">
+      <span>Foundry resource</span>
+      <select id="foundry-account" data-foundry-account>${accountOptions}</select>
+    </label>
+    <div class="foundry-window">
+      <span>Time range</span>
+      <div class="seg" role="group" aria-label="${esc(label)} time range">${presetButtons}</div>
+    </div>
+  </div>`;
+}
+
+function agentTrendSeries(rows, valueField, nameField = "AgentName") {
+  const series = new Map();
+  for (const row of rows || []) {
+    const bucket = row.BucketStart;
+    if (!bucket) continue;
+    const name = String(row[nameField] || "All agents");
+    const current = series.get(name) || new Map();
+    current.set(bucket, (current.get(bucket) || 0) + Number(row[valueField] || 0));
+    series.set(name, current);
+  }
+  return [...series].map(([Name, points]) => ({
+    Name,
+    Points: [...points].map(([Bucket, Value]) => ({ Bucket, Value }))
+      .sort((left, right) => left.Bucket.localeCompare(right.Bucket)),
+  }));
+}
+
+function agentTokenTrendSeries(rows) {
+  const components = [
+    ["Uncached input tokens", "UncachedInputTokens", "UncachedInputCost"],
+    ["Cached input tokens", "CachedInputTokens", "CachedInputCost"],
+    ["Output tokens", "OutputTokens", "OutputCost"],
+  ];
+  return components.map(([Name, tokenField, costField]) => {
+    const buckets = new Map();
+    for (const row of rows || []) {
+      const current = buckets.get(row.BucketStart) || {
+        Value: 0,
+        Cost: 0,
+        HasCost: false,
+        Currencies: new Set(),
+      };
+      const tokens = tokenField === "UncachedInputTokens"
+        ? Math.max(0, Number(row.InputTokens || 0) - Number(row.CachedInputTokens || 0))
+        : Number(row[tokenField] || 0);
+      current.Value += tokens;
+      if (row[costField] != null) {
+        current.Cost += Number(row[costField]);
+        current.HasCost = true;
+        if (row.Currency) current.Currencies.add(row.Currency);
+      }
+      buckets.set(row.BucketStart, current);
+    }
+    return {
+      Name,
+      Points: [...buckets].map(([Bucket, bucket]) => ({
+        Bucket,
+        Value: bucket.Value,
+        Cost: bucket.HasCost && bucket.Currencies.size <= 1 ? bucket.Cost : null,
+        Currency: bucket.Currencies.size === 1 ? [...bucket.Currencies][0] : null,
+      }))
+        .sort((left, right) => left.Bucket.localeCompare(right.Bucket)),
+    };
+  });
+}
+
+function agentDailyCostSeries(rows) {
+  return agentTrendSeries((rows || []).map((row) => ({
+    ...row,
+    BucketStart: row.BucketStart ? `${String(row.BucketStart).slice(0, 10)}T00:00:00Z` : null,
+  })), "EstimatedCost");
+}
+
+function agentPanel(title, body, wide = false, note = "") {
+  return `<section class="agent-panel${wide ? " agent-panel--wide" : ""}" aria-label="${esc(title)}">
+    <header><h2>${esc(title)}</h2></header>
+    <div class="agent-panel-content">${body}</div>
+    ${note ? `<p class="agent-panel-note">${esc(note)}</p>` : ""}
+  </section>`;
+}
+
+function agentEstimatedComponent(row, field) {
+  return row?.[field] == null ? "—" : fmtCurrency(row[field], row.Currency);
+}
+
+function renderFoundry(payload) {
+  const content = el("content");
+  if (!payload) return;
+  if (payload.error) return renderError(payload);
+  if (payload.empty) {
+    content.innerHTML = `<div class="error"><h2>No AI Foundry resources</h2><p>Azure Resource Graph found no accessible Cognitive Services accounts in the configured tenant.</p></div>`;
+    return;
+  }
+
+  const d = payload.data;
+  const currency = d.summary?.Currency;
+
+  const panelData = {
+    13: d.stats.costs,
+    11: d.stats.inputTokens,
+    12: d.stats.outputTokens,
+    2: d.charts.modelRequests,
+    16: d.charts.requestErrors,
+    7: d.charts.latency,
+    17: d.charts.tokensPerSecond,
+    4: d.charts.inputTokens,
+    5: d.charts.outputTokens,
+    8: d.charts.totalTokens,
+    14: d.charts.cacheMatchRate,
+  };
+  const panels = payload.panels.map((panel) => {
+    if (panel.id === 13) {
+      return foundryPanel(
+        panel,
+        foundryTiles(panelData[panel.id], panel.unit, currency),
+        foundryPriceMetadata(payload)
+      );
+    }
+    if (panel.id === 11 || panel.id === 12) {
+      return foundryPanel(panel, foundryTiles(panelData[panel.id], panel.unit, currency));
+    }
+    return foundryPanel(
+      panel,
+      foundryMetricChart(panelData[panel.id], foundryChartOptions(panel))
+    );
+  }).join("");
+
+  content.innerHTML = `
+    ${foundryScopeToolbar(payload, "AI Foundry metric scope")}
+    <div class="foundry-dashboard-grid">${panels}</div>
+  `;
+}
+
+function renderAgents(payload) {
+  const content = el("content");
+  if (!payload) return;
+  if (payload.error) return renderError(payload);
+  const summary = payload.summary || {};
+  const estimate = summary.EstimatedCost == null
+    ? "—"
+    : fmtCurrency(summary.EstimatedCost, summary.Currency);
+  const agentRows = payload.agents || [];
+  const tokenRows = payload.charts?.tokens || [];
+  const costRows = payload.charts?.estimatedCost || [];
+  const latencyRows = payload.charts?.latency || [];
+  const operationsRows = payload.charts?.throughput || [];
+  const successRows = payload.charts?.success || [];
+  const costSeries = agentDailyCostSeries(costRows);
+  const resultSeries = [
+    ...agentTrendSeries(successRows, "Successes").map((row) => ({ ...row, Name: `${row.Name} · success` })),
+    ...agentTrendSeries(successRows, "Errors").map((row) => ({ ...row, Name: `${row.Name} · errors` })),
+  ];
+  const kpis = [
+    [estimate, "Estimated run cost", `Prices() · ${fmtPct(summary.PriceCoverage || 0)} coverage`],
+    [agentAuthoritativeCostSummary(summary.AuthoritativeCosts), "Authoritative billed cost", "Exact Costs() matches only"],
+    [fmtInt(summary.Operations || 0), "Agent operations", `${fmtInt(summary.AgentCount || 0)} discovered agents`],
+    [fmtPct(summary.SuccessRate || 0), "Success rate", `${fmtInt(summary.Errors || 0)} errors`],
+    [foundryValue(summary.AverageLatencyMs || 0, "ms"), "Average run latency", "Invoke-agent spans"],
+    [fmtInt(Math.max(0, Number(summary.InputTokens || 0) - Number(summary.CachedInputTokens || 0))),
+      "Uncached input tokens", `Estimated ${agentEstimatedComponent(summary, "UncachedInputCost")}`],
+    [fmtInt(summary.CachedInputTokens || 0), "Cached input tokens",
+      `Estimated ${agentEstimatedComponent(summary, "CachedInputCost")} · ${fmtPct(summary.CacheRate || 0)} of input`],
+    [fmtInt(summary.OutputTokens || 0), "Output tokens",
+      `Estimated ${agentEstimatedComponent(summary, "OutputCost")}`],
+  ].map(([value, label, meta]) => `<div><strong>${esc(value)}</strong><span>${esc(label)}</span><small>${esc(meta)}</small></div>`).join("");
+
+  const agentTable = agentRows.length
+    ? `<div class="table-scroll agent-table-scroll"><table class="dtable agent-table">
+        <thead><tr><th>Agent</th><th>Type</th><th>Operations</th><th>Success</th><th>p95 latency</th>
+          <th>Uncached input</th><th>Est. input</th><th>Cached input</th><th>Est. cache</th>
+          <th>Output</th><th>Est. output</th><th>Estimated run cost</th><th>Price coverage</th><th>Billed cost (exact)</th></tr></thead>
+        <tbody>${agentRows.map((row) => `<tr>
+          <td><span class="foundry-agent-identity"><strong>${nameCell(row.AgentName || row.AgentKey, 34)}</strong><span title="${esc(row.AgentId || row.AgentKey || "")}">${esc(trunc(row.AgentId || row.AgentKey || "—", 48))}</span></span></td>
+          <td>${esc(row.AgentType || "—")}</td>
+          <td>${fmtInt(row.Operations)}</td>
+          <td>${fmtPct(row.Operations > 0 ? row.Successes / row.Operations : 0)}</td>
+          <td>${foundryValue(row.P95LatencyMs, "ms")}</td>
+          <td>${fmtInt(row.UncachedInputTokens)}</td><td>${esc(agentEstimatedComponent(row, "UncachedInputCost"))}</td>
+          <td>${fmtInt(row.CachedInputTokens)}</td><td>${esc(agentEstimatedComponent(row, "CachedInputCost"))}</td>
+          <td>${fmtInt(row.OutputTokens)}</td><td>${esc(agentEstimatedComponent(row, "OutputCost"))}</td>
+          <td>${row.EstimatedCost == null ? "—" : fmtCurrency(row.EstimatedCost, row.Currency)}</td>
+          <td><span class="agent-price-status agent-price-status--${esc(row.PriceStatus)}">${esc(row.PriceStatus)} · ${fmtPct(row.PriceCoverage || 0)}</span></td>
+          <td title="${esc(row.BilledCostStatus)}">${esc(agentAuthoritativeCostSummary(row.AuthoritativeCosts))}</td>
+        </tr>`).join("")}</tbody>
+      </table></div>`
+    : `<div class="foundry-agent-state"><strong>No Foundry agent telemetry</strong><span>No Foundry agent identity was found in the selected scope and time range.</span></div>`;
+
+  const modelTable = (payload.models || []).length
+    ? `<div class="table-scroll"><table class="dtable"><thead><tr><th>Agent</th><th>Model</th><th>Chats</th>
+        <th>Uncached input</th><th>Est. input</th><th>Cached input</th><th>Est. cache</th>
+        <th>Output</th><th>Est. output</th><th>p95 latency</th><th>Estimated cost</th><th>Pricing</th></tr></thead>
+        <tbody>${payload.models.map((row) => `<tr>
+          <td>${nameCell(row.AgentName || row.AgentKey, 28)}</td><td>${nameCell(row.Model, 28)}</td>
+          <td>${fmtInt(row.Chats)}</td><td>${fmtInt(row.UncachedInputTokens)}</td>
+          <td>${esc(agentEstimatedComponent(row, "UncachedInputCost"))}</td>
+          <td>${fmtInt(row.CachedInputTokens)}</td><td>${esc(agentEstimatedComponent(row, "CachedInputCost"))}</td>
+          <td>${fmtInt(row.OutputTokens)}</td><td>${esc(agentEstimatedComponent(row, "OutputCost"))}</td>
+          <td>${foundryValue(row.P95LatencyMs, "ms")}</td>
+          <td>${row.EstimatedCost == null ? "—" : fmtCurrency(row.EstimatedCost, row.Currency)}</td>
+          <td title="${esc(row.PriceReason || "")}">${esc(row.PriceStatus)} · ${fmtPct(row.PriceCoverage || 0)}</td>
+        </tr>`).join("")}</tbody></table></div>`
+    : `<div class="foundry-agent-state"><strong>No chat model usage</strong><span>Chat spans did not report model and token fields.</span></div>`;
+
+  const finishTable = (payload.finishReasons || []).length
+    ? `<table class="dtable"><thead><tr><th>Finish reason</th><th>Agent</th><th>Chats</th></tr></thead>
+        <tbody>${payload.finishReasons.slice(0, 12).map((row) => `<tr><td>${nameCell(row.FinishReason, 32)}</td>
+          <td>${nameCell(row.AgentName || row.AgentKey, 28)}</td><td>${fmtInt(row.Count)}</td></tr>`).join("")}</tbody></table>`
+    : `<div class="foundry-agent-state"><strong>No finish reasons</strong><span>This field wasn't reported by chat spans.</span></div>`;
+  const toolTable = (payload.tools || []).length
+    ? `<table class="dtable"><thead><tr><th>Tool</th><th>Agent</th><th>Calls</th><th>Errors</th><th>Average latency</th></tr></thead>
+        <tbody>${payload.tools.slice(0, 15).map((row) => `<tr><td>${nameCell(row.ToolName, 30)}</td>
+          <td>${nameCell(row.AgentName || row.AgentKey, 26)}</td><td>${fmtInt(row.Calls)}</td>
+          <td>${fmtInt(row.Errors)}</td><td>${foundryValue(row.AverageLatencyMs, "ms")}</td></tr>`).join("")}</tbody></table>`
+    : `<div class="foundry-agent-state"><strong>No tool spans</strong><span>No execute_tool operations were reported.</span></div>`;
+
+  const recentRuns = (payload.recentRuns || []).length
+    ? `<div class="table-scroll agent-runs-scroll"><table class="dtable agent-runs"><thead><tr><th>Trace ID</th><th>Agent</th>
+        <th>When</th><th>Model</th><th>Uncached input</th><th>Est. input</th><th>Cached input</th><th>Est. cache</th>
+        <th>Output</th><th>Est. output</th><th>Duration</th><th>Result</th><th>Estimated run cost</th></tr></thead>
+        <tbody>${payload.recentRuns.map((row) => {
+          const uncached = Math.max(0, Number(row.InputTokens || 0) - Number(row.CachedInputTokens || 0));
+          return `<tr><td><code title="${esc(row.TraceId || "")}">${esc(trunc(row.TraceId || "—", 24))}</code></td>
+            <td>${nameCell(row.AgentName || row.AgentKey, 28)}</td><td>${agentTimestamp(row.Timestamp)}</td>
+            <td>${nameCell(row.Model, 26)}</td><td>${fmtInt(uncached)}</td>
+            <td>${esc(agentEstimatedComponent(row, "UncachedInputCost"))}</td>
+            <td>${fmtInt(row.CachedInputTokens)}</td><td>${esc(agentEstimatedComponent(row, "CachedInputCost"))}</td>
+            <td>${fmtInt(row.OutputTokens)}</td><td>${esc(agentEstimatedComponent(row, "OutputCost"))}</td>
+            <td>${foundryValue(row.DurationMs, "ms")}</td><td>${row.Success === false ? "Error" : "Success"}</td>
+            <td title="${esc(row.PriceReason || "")}">${row.EstimatedCost == null ? `— · ${esc(row.PriceStatus)}` : fmtCurrency(row.EstimatedCost, row.Currency)}</td></tr>`;
+        }).join("")}</tbody></table></div>`
+    : `<div class="foundry-agent-state"><strong>No recent runs</strong><span>No invoke_agent operations were reported.</span></div>`;
+
+  const recentErrors = (payload.recentErrors || []).length
+    ? `<div class="table-scroll"><table class="dtable"><thead><tr><th>Trace ID</th><th>Agent</th><th>When</th><th>Error type</th><th>Duration</th></tr></thead>
+        <tbody>${payload.recentErrors.map((row) => `<tr><td><code title="${esc(row.TraceId || "")}">${esc(trunc(row.TraceId || "—", 28))}</code></td>
+          <td>${nameCell(row.AgentName || row.AgentKey, 28)}</td><td>${agentTimestamp(row.Timestamp)}</td>
+          <td>${nameCell(row.ErrorType, 40)}</td><td>${foundryValue(row.DurationMs, "ms")}</td></tr>`).join("")}</tbody></table></div>`
+    : `<div class="foundry-agent-state"><strong>No recent errors</strong><span>No failed invoke_agent operations were found.</span></div>`;
+
+  content.innerHTML = `
+    ${foundryScopeToolbar(payload, "Agent telemetry scope")}
+    <section class="agent-kpis" aria-label="Agent summary statistics">${kpis}</section>
+    <p class="agent-cost-note"><strong>Estimated run cost</strong> uses trace token usage and Hub Prices() rates. <strong>Authoritative billed cost</strong> is shown separately only for exact Costs() resource matches.</p>
+    <div class="agents-dashboard-grid">
+      ${agentPanel("Token consumption over time", foundryMetricChart(agentTokenTrendSeries(tokenRows), {
+        title: "Token consumption over time", unit: "short", style: "bars", fillOpacity: 0.58, calculations: ["Sum", "Mean", "Max"],
+        companion: { label: "Estimated cost" },
+      }))}
+      ${agentPanel("Daily estimated run cost", foundryMetricChart(costSeries, {
+        title: "Daily estimated run cost", unit: "currency", style: "bars", fillOpacity: 0.65, calculations: ["Sum", "Mean", "Max"],
+      }), false, "Price-sheet estimate from chat token spans. This is not Costs().")}
+      ${agentPanel("Agent response time trends", foundryMetricChart(agentTrendSeries(latencyRows, "AverageLatencyMs"), {
+        title: "Agent response time trends", unit: "ms", style: "lines", fillOpacity: 0.14, calculations: ["Mean", "Max", "Last"],
+      }))}
+      ${agentPanel("Success, errors, and throughput", foundryMetricChart([
+        ...agentTrendSeries(operationsRows, "Operations"),
+        ...resultSeries,
+      ], {
+        title: "Success, errors, and throughput", unit: "short", style: "lines", fillOpacity: 0.12, calculations: ["Sum", "Mean", "Max"],
+      }))}
+      ${agentPanel("Agent performance", agentTable, true)}
+      ${agentPanel("Model, latency, and cache insights", modelTable, true)}
+      ${agentPanel("Chat finish reasons", finishTable)}
+      ${agentPanel("Tool usage leaderboard", toolTable)}
+      ${agentPanel("Recent runs", recentRuns, true)}
+      ${agentPanel("Recent errors", recentErrors, true)}
+    </div>
+    <p class="foundry-agent-note">${fmtInt(payload.workspaceCount || 0)} accessible workspaces queried. Every panel and control derives from the same cached tenant and time-range result.</p>
+  `;
 }
 
 /* --------------------------------------------- AI & emerging workloads render */
@@ -2404,8 +2933,15 @@ function capacityHeatmap(payload) {
 export const MATRIX_STATUS_FILTERS = Object.freeze([
   { id: "in-use", label: "In use" },
   { id: "at-limit", label: "At limit" },
-  { id: "no-quota", label: "No quota" },
+  { id: "available", label: "Available" },
   { id: "all", label: "All" },
+]);
+const COMPUTE_MATRIX_STATUS_FILTERS = Object.freeze([
+  MATRIX_STATUS_FILTERS[0],
+  MATRIX_STATUS_FILTERS[1],
+  MATRIX_STATUS_FILTERS[2],
+  { id: "restricted", label: "Restricted" },
+  MATRIX_STATUS_FILTERS[3],
 ]);
 
 export const HIGH_WATER_MARKS = [60, 70, 80, 90];
@@ -2502,6 +3038,17 @@ function matrixStatusMatches(row, classId, status) {
       ? Number(row.AtLimitSubscriptions || 0) > 0
       : config.total(row) > 0 && config.used(row) >= config.total(row);
   }
+  if (status === "available") {
+    return classId === "compute"
+      ? row.semantic?.offerState === "available" && config.total(row) > config.used(row)
+      : Number(row.QuotaSubscriptions || 0) > Number(row.AtLimitSubscriptions || 0);
+  }
+  if (status === "restricted") {
+    return classId === "compute" && (
+      Boolean(row.semantic?.regionRestricted)
+      || (Array.isArray(row.semantic?.zonesRestricted) && row.semantic.zonesRestricted.length > 0)
+    );
+  }
   return status === "no-quota"
     ? config.subscriptionCoverage
       ? Number(row.QuotaSubscriptions || 0) <= 0
@@ -2509,7 +3056,46 @@ function matrixStatusMatches(row, classId, status) {
     : true;
 }
 
-export const FAMILY_STATUS_FILTERS = MATRIX_STATUS_FILTERS.map((lens) => ({
+function compareCapacityMatrixRows(left, right, classId) {
+  const config = CAPACITY_MATRIX_CONFIG[classId];
+  const priority = (row) => {
+    if (matrixStatusMatches(row, classId, "at-limit")) return 0;
+    if (matrixStatusMatches(row, classId, "restricted")) return 1;
+    if (matrixStatusMatches(row, classId, "in-use")) return 2;
+    if (matrixStatusMatches(row, classId, "available")) return 3;
+    if (matrixStatusMatches(row, classId, "no-quota")) return 4;
+    return 5;
+  };
+  const priorityOrder = priority(left) - priority(right);
+  if (priorityOrder) return priorityOrder;
+  const leftUtilization = Number.isFinite(left.semantic?.utilizationPercent)
+    ? left.semantic.utilizationPercent
+    : -1;
+  const rightUtilization = Number.isFinite(right.semantic?.utilizationPercent)
+    ? right.semantic.utilizationPercent
+    : -1;
+  if (leftUtilization !== rightUtilization) return rightUtilization - leftUtilization;
+  const usedOrder = config.used(right) - config.used(left);
+  if (usedOrder) return usedOrder;
+  const labelOrder = config.label(left).localeCompare(config.label(right), undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
+  return labelOrder || String(left.Location || "").localeCompare(String(right.Location || ""), undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
+}
+
+function sortCapacityMatrixRows(rows, classId) {
+  return [...rows].sort((left, right) => compareCapacityMatrixRows(left, right, classId));
+}
+
+function matrixStatusFilters(classId) {
+  return classId === "compute" ? COMPUTE_MATRIX_STATUS_FILTERS : MATRIX_STATUS_FILTERS;
+}
+
+export const FAMILY_STATUS_FILTERS = COMPUTE_MATRIX_STATUS_FILTERS.map((lens) => ({
   ...lens,
   match: (row) => matrixStatusMatches(row, "compute", lens.id),
 }));
@@ -2528,7 +3114,9 @@ export function filterCapacityMatrixRows(rows, classId, filter = {}) {
   const config = CAPACITY_MATRIX_CONFIG[classId];
   if (!config) return [];
   const list = Array.isArray(rows) ? rows : [];
-  const status = MATRIX_STATUS_FILTERS.some((item) => item.id === filter.status) ? filter.status : "all";
+  const status = ["in-use", "at-limit", "available", "restricted", "no-quota", "all"].includes(filter.status)
+    ? filter.status
+    : "all";
   const needle = String(filter.search || "").trim().toLowerCase();
   const regions = Array.isArray(filter.regions) ? filter.regions : [];
   return list.filter((row) => {
@@ -2543,7 +3131,8 @@ export function filterFamilyRows(rows, filter = {}) {
 }
 
 function matrixFilterBar(rows, classId, config, filter, shownCells) {
-  const counts = new Map(MATRIX_STATUS_FILTERS.map((lens) => [
+  const lenses = matrixStatusFilters(classId);
+  const counts = new Map(lenses.map((lens) => [
     lens.id,
     rows.filter((row) => matrixStatusMatches(row, classId, lens.id)).length,
   ]));
@@ -2552,7 +3141,7 @@ function matrixFilterBar(rows, classId, config, filter, shownCells) {
     label: "Show",
     labelId: `${classId}-matrix-status-label`,
     selected: filter.status,
-    items: MATRIX_STATUS_FILTERS.map((lens) => ({
+    items: lenses.map((lens) => ({
       value: lens.id,
       label: lens.label,
       count: fmtInt(counts.get(lens.id) || 0),
@@ -2722,16 +3311,19 @@ function capacityMatrix(payload) {
   }
   const rows = matrix.rows || [];
   if (!rows.length) return `<div class="capacity-notice">${esc(config.empty)}</div>`;
-  const filter = capacityMatrixFilter(payload.classId);
-  const visible = filterCapacityMatrixRows(rows, payload.classId, filter);
+  const filter = capacityMatrixFilter(payload.classId, rows);
+  const visible = sortCapacityMatrixRows(
+    filterCapacityMatrixRows(rows, payload.classId, filter),
+    payload.classId,
+  );
   const filterBar = matrixFilterBar(rows, payload.classId, config, filter, visible.length);
   if (!visible.length) {
     return `${filterBar}<div class="capacity-notice">No ${esc(config.pairLabel)} match these filters. Clear them to see all ${fmtInt(rows.length)} cells.</div>`;
   }
   const matrixRows = [...new Map(visible.map((row) => [
     config.key(row),
-    { key: config.key(row), label: trunc(config.label(row), 28), title: config.key(row) },
-  ])).values()].sort((left, right) => left.label.localeCompare(right.label));
+    { key: config.key(row), label: config.label(row), title: config.key(row) },
+  ])).values()];
   const regions = [...new Set(visible.map((row) => row.Location || "Unknown region"))].sort();
   const cells = new Map(visible.map((row) => [`${config.key(row)}|${row.Location || "Unknown region"}`, row]));
   const mark = Number(filter.mark) || DEFAULT_HIGH_WATER_MARK;
@@ -2758,7 +3350,10 @@ function capacityMatrix(payload) {
 
 function capacityMatrixDetail(payload) {
   const config = CAPACITY_MATRIX_CONFIG[payload.classId];
-  const rows = filterCapacityMatrixRows(payload[config.payloadKey]?.rows || [], payload.classId, capacityMatrixFilter(payload.classId));
+  const rows = sortCapacityMatrixRows(
+    filterCapacityMatrixRows(payload[config.payloadKey]?.rows || [], payload.classId, capacityMatrixFilter(payload.classId)),
+    payload.classId,
+  );
   if (!rows.length) return `<div class="capacity-notice">No ${esc(config.pairLabel)} match the filters above.</div>`;
   const pageSize = 50;
   const totalPages = Math.ceil(rows.length / pageSize);
@@ -2821,7 +3416,7 @@ function capacityMatrixDetail(payload) {
     totalPages,
     label: `${config.detailTab} pages`,
   });
-  return `<div id="capacity-matrix-summary" class="capacity-detail-summary" role="status" tabindex="-1">${fmtInt(rows.length)} matching ${esc(config.pairLabel)}</div>${table}${pagination}`;
+  return `<div id="capacity-matrix-summary" class="capacity-detail-summary" role="status" tabindex="-1">${fmtInt(rows.length)} matching ${esc(config.pairLabel)} · Highest risk and utilization first</div>${table}${pagination}`;
 }
 
 function capacitySubscriptionDetail(payload) {
@@ -3000,9 +3595,9 @@ function renderCapacity(payload) {
   const kpis = payload.classId === "compute"
     ? [
       kpiCard("Family-region pairs", fmtInt(familyRows.length), "Estate totals; subscriptions are aggregated before display"),
-      kpiCard("In use", fmtInt(familyRows.filter(FAMILY_STATUS_FILTERS[0].match).length), "Family and region pairs using cores"),
-      kpiCard("At limit", fmtInt(familyRows.filter(FAMILY_STATUS_FILTERS[1].match).length), "Provider-reported usage is at or over quota"),
-      kpiCard("No quota", fmtInt(familyRows.filter(FAMILY_STATUS_FILTERS[2].match).length), "No regional family quota"),
+      kpiCard("In use", fmtInt(familyRows.filter((row) => matrixStatusMatches(row, "compute", "in-use")).length), "Family and region pairs using cores"),
+      kpiCard("At limit", fmtInt(familyRows.filter((row) => matrixStatusMatches(row, "compute", "at-limit")).length), "Provider-reported usage is at or over quota"),
+      kpiCard("No quota", fmtInt(familyRows.filter((row) => matrixStatusMatches(row, "compute", "no-quota")).length), "No regional family quota"),
     ].join("")
     : payload.classId === "app-service"
       ? [
@@ -3067,6 +3662,17 @@ function renderCapacity(payload) {
 }
 
 function renderError(p) {
+  if (state.tab === "foundry" || state.tab === "agents") {
+    el("content").innerHTML = `<div class="error">
+      <h2>Can’t load Azure AI operations</h2>
+      <p>Set the tenant ID in Settings, then sign in to that tenant with Azure CLI.</p>
+      <details class="error-detail">
+        <summary class="muted" style="cursor:pointer;font-size:12px;">Show error detail</summary>
+        <pre>${esc(p.error)}</pre>
+      </details>
+    </div>`;
+    return;
+  }
   el("content").innerHTML = `<div class="error">
     <h2>Can’t reach the FinOps hub</h2>
     <p>The dashboard queried <code>${esc(p.clusterUri || "")}</code> (database <code>${esc(p.database || "Hub")}</code>) but the request failed.</p>
@@ -3306,6 +3912,8 @@ function render() {
     else if (state.tab === "usage") renderUsage(p);
     else if (state.tab === "anomaly") renderAnomaly(p);
     else if (state.tab === "capacity") renderCapacity(p);
+    else if (state.tab === "foundry") renderFoundry(p);
+    else if (state.tab === "agents") renderAgents(p);
     else renderOverview(p);
   } catch (err) {
     console.error("[ftk-dashboard] render error:", err);
@@ -3347,11 +3955,13 @@ async function load() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: tab,
-        preset: state.preset,
+        preset: tab === "foundry" || tab === "agents" ? state.foundryPreset : state.preset,
         filters: state.filters,
         ...(tab === "capacity"
           ? { capacityClass: state.capacityClass, capacitySelections: state.capacitySelections }
           : {}),
+        ...(tab === "foundry" || tab === "agents" ? { accountId: state.foundryAccountId } : {}),
+        ...(tab === "agents" ? { forceRefresh: state.forceRefresh } : {}),
       }),
       signal,
     });
@@ -3359,8 +3969,13 @@ async function load() {
   } catch (err) {
     if (err.name === "AbortError") return; // superseded by a newer load(); discard silently
     console.error("[ftk-dashboard] fetch failed:", err);
-    state.cache[tab][key] = { error: "Could not load data. Check the FinOps hub connection and authentication." };
+    state.cache[tab][key] = {
+      error: tab === "foundry" || tab === "agents"
+        ? "Could not load Azure AI operational data. Check the tenant ID and Azure CLI authentication."
+        : "Could not load data. Check the FinOps hub connection and authentication.",
+    };
   } finally {
+    if (tab === "agents") state.forceRefresh = false;
     state.loading = false;
     setRefreshSpinning(false);
     el("content")?.setAttribute("aria-busy", "false");
@@ -3399,7 +4014,34 @@ function renderDiagnosticRail() {
 function updateChrome() {
   const p = currentPayload();
   const w = p && p.window;
-  if (w && w.dataMin) {
+  if (p && state.tab === "agents" && !p.error) {
+    el("source-line").innerHTML =
+      `Microsoft Foundry agent traces · Hub <code>Prices()</code> estimates · exact <code>Costs()</code> matches shown separately`;
+    el("footer-meta").textContent = `${w?.start || ""} → ${w?.end || ""} · ${p.workspaceCount || 0} workspaces`;
+    queryState.rows = (p.agents?.length || 0) + (p.recentRuns?.length || 0) + (p.recentErrors?.length || 0);
+    queryState.health = p.diagnostics?.length ? "warn" : "ok";
+    queryState.refreshedAt = p.generatedAt ? new Date(p.generatedAt) : new Date();
+    queryState.dataset = "Agent operations";
+    renderDiagnosticRail();
+  } else if (p && state.tab === "foundry" && !p.error && !p.empty) {
+    el("source-line").innerHTML =
+      `Azure Monitor platform metrics · Hub <code>Prices()</code> estimates · ${p.selectedAccountId ? "one Foundry resource" : "Foundry estate"}`;
+    el("footer-meta").textContent = `${w?.start || ""} → ${w?.end || ""} · ${w?.interval || ""}`;
+    queryState.rows = Object.values(p.data?.charts || {}).reduce((sum, series) =>
+      sum + series.reduce((seriesSum, item) => seriesSum + item.Points.length, 0), 0);
+    queryState.health = p.data?.diagnostics?.length ? "warn" : "ok";
+    queryState.refreshedAt = p.generatedAt ? new Date(p.generatedAt) : new Date();
+    queryState.dataset = "AI Foundry operations";
+    renderDiagnosticRail();
+  } else if (p && state.tab === "foundry" && p.empty) {
+    el("source-line").textContent = "Azure Resource Graph · no AI Foundry resources found.";
+    el("footer-meta").textContent = "";
+    queryState.rows = 0;
+    queryState.health = "warn";
+    queryState.refreshedAt = p.generatedAt ? new Date(p.generatedAt) : new Date();
+    queryState.dataset = "AI Foundry account discovery";
+    renderDiagnosticRail();
+  } else if (w && w.dataMin) {
     el("source-line").innerHTML =
       `Hub database · <code>${esc(window.__cfg?.clusterUri || "localhost:8082")}</code>`;
     queryState.dataset = `Hub database · ${fmtDayRange(w.dataMin, w.dataMax)}`;
@@ -3414,7 +4056,7 @@ function updateChrome() {
     queryState.rows = 0;
     queryState.health = "error";
     queryState.refreshedAt = new Date();
-    queryState.dataset = "Hub database";
+    queryState.dataset = state.tab === "foundry" || state.tab === "agents" ? "Azure Monitor" : "Hub database";
     renderDiagnosticRail();
   } else if (p && state.tab === "capacity") {
     const observations = p.classId === "home"
@@ -3492,6 +4134,7 @@ function wireControls() {
     if (state.loading) return;
     if (state.cache[state.tab]) delete state.cache[state.tab][cacheKey()]; // force re-query
     if (state.tab === "capacity" && ["compute", "app-service"].includes(state.capacityClass)) invalidateCapacitySubscriptions();
+    if (state.tab === "agents") state.forceRefresh = true;
     load();
   });
 
@@ -3512,6 +4155,13 @@ function wireControls() {
 
   // KQL escape-hatch buttons (event delegation — buttons injected by panelHtml)
   document.addEventListener("click", (e) => {
+    const foundryPreset = e.target.closest("[data-foundry-preset]");
+    if (foundryPreset && !state.loading) {
+      state.foundryPreset = foundryPreset.dataset.foundryPreset;
+      void publishCanvasState({ foundryPreset: state.foundryPreset });
+      load();
+      return;
+    }
     const capacityTab = e.target.closest("[data-capacity-class]");
     if (capacityTab) {
       selectCapacityClass(capacityTab.dataset.capacityClass);
@@ -3580,6 +4230,13 @@ function wireControls() {
   });
 
   document.addEventListener("change", (e) => {
+    const foundryAccount = e.target.closest("select[data-foundry-account]");
+    if (foundryAccount && !state.loading) {
+      state.foundryAccountId = foundryAccount.value || null;
+      void publishCanvasState({ foundryAccountId: state.foundryAccountId });
+      load();
+      return;
+    }
     const selector = e.target.closest("select[data-capacity-selector]");
     if (selector) applyCapacitySelection(selector.dataset.capacitySelector, selector.value);
   });
@@ -3624,7 +4281,7 @@ function wireControls() {
     if (segment && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) {
       e.preventDefault();
       const order = segment.dataset.uiSegment === "matrix-status"
-        ? MATRIX_STATUS_FILTERS.map((item) => item.id)
+        ? matrixStatusFilters(state.capacityClass).map((item) => item.id)
         : segment.dataset.uiSegment === "matrix-mark"
           ? HIGH_WATER_MARKS.map(String)
           : [];
@@ -3678,6 +4335,8 @@ async function init() {
       state.filters = sharedState.filters || {};
       state.capacityClass = sharedState.capacityClass || "home";
       state.capacitySelections = sharedState.capacitySelections || {};
+      state.foundryPreset = sharedState.foundryPreset || "7d";
+      state.foundryAccountId = sharedState.foundryAccountId || null;
       state.revision = sharedState.revision;
     }
   } catch { window.__cfg = {}; }

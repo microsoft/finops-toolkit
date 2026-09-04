@@ -264,8 +264,3 @@
 .ui-cell-status--warning { color: var(--warn-ink) !important; }
 .ui-cell-status--available,
 .ui-cell-status--muted { color: var(--muted); }
-
-@media (max-width: 640px) {
-  .ui-filter-summary { width: 100%; margin-left: 0; }
-  .ui-search { min-width: min(100%, 260px); }
-}
