@@ -64,6 +64,9 @@ The following section lists features and enhancements that are currently in deve
   - Added a comprehensive [Azure Optimization Engine reference](optimization-engine/reference.md) for runbooks, schedules, variables, Log Analytics tables, and SQL Database tables ([#1271](https://github.com/microsoft/finops-toolkit/issues/1271)).
 - **Changed**
   - Switched the reservations and benefits workbooks from the retired `ccmstorageprod` isfratioblob.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+- **Fixed**
+  - Fixed regression in the AzureConsutmpionV1_CL schema breaking the Reservations Usage workbook
+  ([#2301](https://github.com/microsoft/finops-toolkit/issues/2301)).
 
 ### [PowerShell module](powershell/powershell-commands.md)
 
