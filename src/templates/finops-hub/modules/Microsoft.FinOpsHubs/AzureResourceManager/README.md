@@ -6,15 +6,15 @@ Query engine for Azure Resource Manager. Implements the `queries_{engineName}_Ex
 
 - **`azureResourceManager` dataset** — ADF REST dataset for a query-provided Azure Resource Manager relative URL
 - **`queries_AzureResourceManager_ExecuteQuery` pipeline** — Entry point that implements the engine contract
-- **Four scope-expansion pipelines** — `ExecuteConfiguredScopes`, `ExecuteTenant`, `ExecuteSubscription`, and `ExecuteRegional`
+- **Three scope-expansion pipelines** — `ExecuteConfiguredScopes`, `ExecuteTenant`, and `ExecuteRegional`
 - **`queries_AzureResourceManager_CopyQuery` pipeline** — Performs the authenticated request and writes Parquet to the ingestion container
 
 ## How it works
 
 1. IngestionQueries dispatches to `ExecuteQuery` through the engine contract.
 2. `ExecuteQuery` validates the scope as an Azure resource ID, including hexadecimal subscription GUIDs, and validates the query as an ARM-relative path.
-3. Scope expansion runs across the four expansion pipelines, chained by `ExecutePipeline`. Each level expands one dimension: configured billing scopes, tenant, subscription, then region. Configured billing scopes are filtered against each query's `scopeTypes`.
-4. The chain exists because ADF containers cannot nest. A `ForEach` cannot contain another `ForEach`, so each additional dimension requires its own pipeline.
+3. Scope expansion runs across the three expansion pipelines, chained by `ExecutePipeline`. Each pipeline expands one looping dimension: configured billing scopes, then tenant/subscription, then region. Configured billing scopes are filtered against each query's `scopeTypes`. The direct-vs-regional routing per subscription is a non-looping `IfCondition`, so it's inlined in `ExecuteTenant` rather than given its own pipeline.
+4. The chain exists because ADF containers cannot nest. A `ForEach` cannot contain another `ForEach`, so each additional looping dimension requires its own pipeline.
 5. The innermost level invokes `CopyQuery` once per fully-resolved scope.
 6. `CopyQuery` first sends the query as an authenticated GET from a `Web` activity. An `If` condition then runs the Copy activity only when that response contains at least one item. An empty result set therefore never produces a file. This is the same check the AzureResourceGraph app performs before its Copy activity.
 7. A single Copy activity performs the request and writes Parquet. Multi-page responses are followed by the REST source's native `paginationRules` on `$.nextLink`. There is no manual paging loop.

@@ -214,6 +214,12 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
             type: 'Expression'
           }
           isSequential: false
+          // Capped at 4 regardless of routing mode: this loop is shared by every query
+          // provider, and up to 11 Azure Resource Manager tenant-scope query types can run
+          // concurrently here, each fanning out across subscriptions (batchCount 30/4) into
+          // the shared CopyQuery pipeline. 11 x 30 = 330 would exceed CopyQuery's capacity
+          // (concurrency 30 + 100 queued = 130); 11 x 4 = 44 stays well inside it.
+          batchCount: 4
           activities: [
             {  // Execute File Queries
               name: 'Execute File Queries'

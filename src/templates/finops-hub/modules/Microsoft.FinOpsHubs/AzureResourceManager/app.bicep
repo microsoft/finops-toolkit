@@ -108,12 +108,13 @@ resource dataset_config 'Microsoft.DataFactory/factories/datasets@2018-06-01' ex
 //------------------------------------------------------------------------------
 // Engine pipeline
 //
-// Scope expansion is split across five pipelines rather than nested loops:
+// Scope expansion is split across four pipelines rather than nested loops:
 //
 //   ExecuteQuery              entry point, validates and routes by scope
 //   ├── ExecuteConfiguredScopes   fans out configured billing scopes
-//   ├── ExecuteTenant             fans out enabled subscriptions
-//   └── ExecuteSubscription       routes direct or regional
+//   └── ExecuteTenant             fans out enabled subscriptions, then routes
+//       │                         each one direct or regional inline (no loop,
+//       │                         so it stays in this pipeline)
 //       └── ExecuteRegional       fans out physical locations
 //           └── CopyQuery         executes one ARM request
 //
@@ -121,10 +122,13 @@ resource dataset_config 'Microsoft.DataFactory/factories/datasets@2018-06-01' ex
 // another ForEach, and neither can contain a Switch or IfCondition that itself
 // contains a loop. Expanding scopes and locations in a single pipeline is
 // therefore not expressible, and chaining ExecutePipeline with
-// waitOnCompletion is the only shape ADF accepts.
+// waitOnCompletion is the only shape ADF accepts for each additional loop.
 //
-// Adding a new expansion axis means adding a new pipeline, not a nested loop.
-// Do not attempt to collapse these pipelines together.
+// A direct/regional IfCondition router has no loop of its own, so it belongs
+// inline in the caller rather than as its own pipeline (see ExecuteTenant's
+// "ForEach Subscription" activities). Adding a new expansion axis that itself
+// needs to loop means adding a new pipeline; adding branching logic that
+// doesn't loop does not.
 //------------------------------------------------------------------------------
 
 resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
@@ -546,6 +550,7 @@ resource pipeline_ExecuteConfiguredScopes 'Microsoft.DataFactory/factories/pipel
             type: 'Expression'
           }
           isSequential: false
+          batchCount: 1 // only Subscription throttles admission into the shared CopyQuery pipeline; every other loop above/below it must serialize or the fan-outs multiply and overrun CopyQuery's capacity
           activities: [
             {
               name: 'Execute Request'
@@ -712,52 +717,129 @@ resource pipeline_ExecuteTenant 'Microsoft.DataFactory/factories/pipelines@2018-
             type: 'Expression'
           }
           isSequential: false
+          batchCount: app.hub.options.privateRouting ? 4 : 30 // so we don't overload the managed runtime
           activities: [
             {
-              name: 'Execute Subscription Query'
-              type: 'ExecutePipeline'
+              name: 'If Direct Query'
+              type: 'IfCondition'
               dependsOn: []
               userProperties: []
               typeProperties: {
-                pipeline: {
-                  referenceName: pipeline_ExecuteSubscription.name
-                  type: 'PipelineReference'
+                expression: {
+                  value: '@not(contains(pipeline().parameters.query, \'{location}\'))'
+                  type: 'Expression'
                 }
-                waitOnCompletion: true
-                parameters: {
-                  query: {
-                    value: '@pipeline().parameters.query'
-                    type: 'Expression'
+                ifTrueActivities: [
+                  {
+                    name: 'Execute Request'
+                    type: 'ExecutePipeline'
+                    dependsOn: []
+                    userProperties: []
+                    typeProperties: {
+                      pipeline: {
+                        referenceName: pipeline_CopyQuery.name
+                        type: 'PipelineReference'
+                      }
+                      waitOnCompletion: true
+                      parameters: {
+                        query: {
+                          value: '@pipeline().parameters.query'
+                          type: 'Expression'
+                        }
+                        queryScope: {
+                          value: '@item().id'
+                          type: 'Expression'
+                        }
+                        querySource: {
+                          value: '@pipeline().parameters.querySource'
+                          type: 'Expression'
+                        }
+                        queryProvider: {
+                          value: '@pipeline().parameters.queryProvider'
+                          type: 'Expression'
+                        }
+                        queryLocation: ''
+                        queryType: {
+                          value: '@pipeline().parameters.queryType'
+                          type: 'Expression'
+                        }
+                        queryVersion: {
+                          value: '@pipeline().parameters.queryVersion'
+                          type: 'Expression'
+                        }
+                        ingestionPath: {
+                          value: '@pipeline().parameters.ingestionPath'
+                          type: 'Expression'
+                        }
+                        translator: {
+                          value: '@pipeline().parameters.translator'
+                          type: 'Expression'
+                        }
+                      }
+                    }
                   }
-                  queryScope: {
-                    value: '@item().id'
-                    type: 'Expression'
-                  }
-                  querySource: {
-                    value: '@pipeline().parameters.querySource'
-                    type: 'Expression'
-                  }
-                  queryProvider: {
-                    value: '@pipeline().parameters.queryProvider'
-                    type: 'Expression'
-                  }
-                  queryType: {
-                    value: '@pipeline().parameters.queryType'
-                    type: 'Expression'
-                  }
-                  queryVersion: {
-                    value: '@pipeline().parameters.queryVersion'
-                    type: 'Expression'
-                  }
-                  ingestionPath: {
-                    value: '@pipeline().parameters.ingestionPath'
-                    type: 'Expression'
-                  }
-                  translator: {
-                    value: '@pipeline().parameters.translator'
-                    type: 'Expression'
-                  }
+                ]
+              }
+            }
+            {
+              name: 'If Regional Query'
+              type: 'IfCondition'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@contains(pipeline().parameters.query, \'{location}\')'
+                  type: 'Expression'
                 }
+                ifTrueActivities: [
+                  {
+                    name: 'Execute Regional Query'
+                    type: 'ExecutePipeline'
+                    dependsOn: []
+                    userProperties: []
+                    typeProperties: {
+                      pipeline: {
+                        referenceName: pipeline_ExecuteRegional.name
+                        type: 'PipelineReference'
+                      }
+                      waitOnCompletion: true
+                      parameters: {
+                        query: {
+                          value: '@pipeline().parameters.query'
+                          type: 'Expression'
+                        }
+                        queryScope: {
+                          value: '@item().id'
+                          type: 'Expression'
+                        }
+                        querySource: {
+                          value: '@pipeline().parameters.querySource'
+                          type: 'Expression'
+                        }
+                        queryProvider: {
+                          value: '@pipeline().parameters.queryProvider'
+                          type: 'Expression'
+                        }
+                        queryType: {
+                          value: '@pipeline().parameters.queryType'
+                          type: 'Expression'
+                        }
+                        queryVersion: {
+                          value: '@pipeline().parameters.queryVersion'
+                          type: 'Expression'
+                        }
+                        ingestionPath: {
+                          value: '@pipeline().parameters.ingestionPath'
+                          type: 'Expression'
+                        }
+                        translator: {
+                          value: '@pipeline().parameters.translator'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  }
+                ]
               }
             }
           ]
@@ -769,168 +851,6 @@ resource pipeline_ExecuteTenant 'Microsoft.DataFactory/factories/pipelines@2018-
         type: 'String'
       }
       query: {
-        type: 'String'
-      }
-      querySource: {
-        type: 'String'
-      }
-      queryProvider: {
-        type: 'String'
-      }
-      queryType: {
-        type: 'String'
-      }
-      queryVersion: {
-        type: 'String'
-      }
-      translator: {
-        type: 'Object'
-      }
-    }
-  }
-}
-
-resource pipeline_ExecuteSubscription 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: 'queries_AzureResourceManager_ExecuteSubscription'
-  parent: dataFactory
-  properties: {
-    description: 'Execute a direct or regional Azure Resource Manager query for one subscription'
-    folder: {
-      name: 'FinOps hub'
-    }
-    activities: [
-      {
-        name: 'If Direct Query'
-        type: 'IfCondition'
-        dependsOn: []
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@not(contains(pipeline().parameters.query, \'{location}\'))'
-            type: 'Expression'
-          }
-          ifTrueActivities: [
-            {
-              name: 'Execute Request'
-              type: 'ExecutePipeline'
-              dependsOn: []
-              userProperties: []
-              typeProperties: {
-                pipeline: {
-                  referenceName: pipeline_CopyQuery.name
-                  type: 'PipelineReference'
-                }
-                waitOnCompletion: true
-                parameters: {
-                  query: {
-                    value: '@pipeline().parameters.query'
-                    type: 'Expression'
-                  }
-                  queryScope: {
-                    value: '@pipeline().parameters.queryScope'
-                    type: 'Expression'
-                  }
-                  querySource: {
-                    value: '@pipeline().parameters.querySource'
-                    type: 'Expression'
-                  }
-                  queryProvider: {
-                    value: '@pipeline().parameters.queryProvider'
-                    type: 'Expression'
-                  }
-                  queryLocation: ''
-                  queryType: {
-                    value: '@pipeline().parameters.queryType'
-                    type: 'Expression'
-                  }
-                  queryVersion: {
-                    value: '@pipeline().parameters.queryVersion'
-                    type: 'Expression'
-                  }
-                  ingestionPath: {
-                    value: '@pipeline().parameters.ingestionPath'
-                    type: 'Expression'
-                  }
-                  translator: {
-                    value: '@pipeline().parameters.translator'
-                    type: 'Expression'
-                  }
-                }
-              }
-            }
-          ]
-        }
-      }
-      {
-        name: 'If Regional Query'
-        type: 'IfCondition'
-        dependsOn: []
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@contains(pipeline().parameters.query, \'{location}\')'
-            type: 'Expression'
-          }
-          ifTrueActivities: [
-            {
-              name: 'Execute Regional Query'
-              type: 'ExecutePipeline'
-              dependsOn: []
-              userProperties: []
-              typeProperties: {
-                pipeline: {
-                  referenceName: pipeline_ExecuteRegional.name
-                  type: 'PipelineReference'
-                }
-                waitOnCompletion: true
-                parameters: {
-                  query: {
-                    value: '@pipeline().parameters.query'
-                    type: 'Expression'
-                  }
-                  queryScope: {
-                    value: '@pipeline().parameters.queryScope'
-                    type: 'Expression'
-                  }
-                  querySource: {
-                    value: '@pipeline().parameters.querySource'
-                    type: 'Expression'
-                  }
-                  queryProvider: {
-                    value: '@pipeline().parameters.queryProvider'
-                    type: 'Expression'
-                  }
-                  queryType: {
-                    value: '@pipeline().parameters.queryType'
-                    type: 'Expression'
-                  }
-                  queryVersion: {
-                    value: '@pipeline().parameters.queryVersion'
-                    type: 'Expression'
-                  }
-                  ingestionPath: {
-                    value: '@pipeline().parameters.ingestionPath'
-                    type: 'Expression'
-                  }
-                  translator: {
-                    value: '@pipeline().parameters.translator'
-                    type: 'Expression'
-                  }
-                }
-              }
-            }
-          ]
-        }
-      }
-    ]
-    parameters: {
-      ingestionPath: {
-        type: 'String'
-      }
-      query: {
-        type: 'String'
-      }
-      queryScope: {
         type: 'String'
       }
       querySource: {
@@ -1079,6 +999,7 @@ resource pipeline_ExecuteRegional 'Microsoft.DataFactory/factories/pipelines@201
             type: 'Expression'
           }
           isSequential: false
+          batchCount: 1 // only Subscription throttles admission into the shared CopyQuery pipeline; region must serialize or subscription x region fan-out overruns CopyQuery's capacity
           activities: [
             {
               name: 'Execute Request'
