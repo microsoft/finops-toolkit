@@ -3,7 +3,7 @@ title: Upgrade your FinOps hubs
 description: Learn how to upgrade your existing FinOps hub instance to the latest version, including necessary steps and considerations.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 09/07/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -161,6 +161,8 @@ Replace the use of deprecated columns and functions:
 | 0.7        | 0.8     | `parse_resourceid(ResourceId).ResourceType` | `resource_type(x_ResourceType).SingularDisplayName` |
 | 0.7        | N/A     | `daterange()`                               | `datestring(datetime, [datetime])`                  |
 | 0.7        | N/A     | `monthsago()`                               | `startofmonth(datetime, [offset])`                  |
+
+As of FinOps hubs v15, `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` were fixed to use the correct values. In previous releases, they were accurate, but swapped. `x_CommitmentDiscountSpendEligibility` now represents savings plan eligibility correctly and `x_CommitmentDiscountUsageEligibility` represents reservation eligibility. Before v15, the values were saved to the wrong columns. Prices ingested before upgrading keep the old values. You will need to re-ingest older months to fix these rows.
 
 If using unversioned functions or updating from the `v1_0` schema version, review your code for any explicit use of the `decimal` data type and replace it with `real`. As of FinOps hubs v12 (schema version `v1_2`), all `decimal` data types changed to `real` to improve performance. To learn more about schema versions, see [About schema versions](data-model.md#schema-version).
 

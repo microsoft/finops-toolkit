@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 08/14/2026
+ms.date: 09/07/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -227,159 +227,159 @@ FinOps hubs does not support directly pulling data from other clouds, but if dat
 
 Columns in the **Costs** managed dataset include:
 
-| Column                                   | Type      | Notes                                                  |
-| ---------------------------------------- | --------- | ------------------------------------------------------ |
-| AvailabilityZone                         | String    |                                                        |
-| BilledCost                               | Real      |                                                        |
-| BillingAccountId                         | String    |                                                        |
-| BillingAccountName                       | String    |                                                        |
-| BillingAccountType                       | String    |                                                        |
-| BillingCurrency                          | String    |                                                        |
-| BillingPeriodEnd                         | Date/time |                                                        |
-| BillingPeriodStart                       | Date/time |                                                        |
-| CapacityReservationId                    | String    | New in FOCUS 1.2.                                      |
-| CapacityReservationStatus                | String    | New in FOCUS 1.2.                                      |
-| ChargeCategory                           | String    |                                                        |
-| ChargeClass                              | String    |                                                        |
-| ChargeDescription                        | String    |                                                        |
-| ChargeFrequency                          | String    |                                                        |
-| ChargePeriodEnd                          | Date/time |                                                        |
-| ChargePeriodStart                        | Date/time |                                                        |
-| CommitmentDiscountCategory               | String    |                                                        |
-| CommitmentDiscountId                     | String    |                                                        |
-| CommitmentDiscountName                   | String    |                                                        |
-| CommitmentDiscountQuantity               | Real      | New in FOCUS 1.2.                                      |
-| CommitmentDiscountStatus                 | String    |                                                        |
-| CommitmentDiscountType                   | String    |                                                        |
-| CommitmentDiscountUnit                   | String    | New in FOCUS 1.2.                                      |
-| ConsumedQuantity                         | Real      |                                                        |
-| ConsumedUnit                             | String    |                                                        |
-| ContractedCost                           | Real      |                                                        |
-| ContractedUnitPrice                      | Real      |                                                        |
-| EffectiveCost                            | Real      |                                                        |
-| InvoiceId                                | String    | New in FOCUS 1.2. Renamed from x_InvoiceId.            |
-| InvoiceIssuerName                        | String    |                                                        |
-| ListCost                                 | Real      |                                                        |
-| ListUnitPrice                            | Real      |                                                        |
-| PricingCategory                          | String    |                                                        |
-| PricingCurrency                          | String    | New in FOCUS 1.2. Renamed from x_PricingCurrency.      |
-| PricingQuantity                          | Real      |                                                        |
-| PricingUnit                              | String    |                                                        |
-| ProviderName                             | String    |                                                        |
-| PublisherName                            | String    |                                                        |
-| RegionId                                 | String    |                                                        |
-| RegionName                               | String    |                                                        |
-| ResourceId                               | String    |                                                        |
-| ResourceName                             | String    |                                                        |
-| ResourceType                             | String    |                                                        |
-| ServiceCategory                          | String    |                                                        |
-| ServiceName                              | String    |                                                        |
-| ServiceSubcategory                       | String    | New in FOCUS 1.2.                                      |
-| SkuId                                    | String    |                                                        |
-| SkuMeter                                 | String    | New in FOCUS 1.2. Renamed from x_SkuMeterName.         |
-| SkuPriceDetails                          | Dynamic   | New in FOCUS 1.2. Transformed version of x_SkuDetails. |
-| SkuPriceId                               | String    |                                                        |
-| SubAccountId                             | String    |                                                        |
-| SubAccountName                           | String    |                                                        |
-| SubAccountType                           | String    |                                                        |
-| Tags                                     | Dynamic   |                                                        |
-| x_AccountId                              | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_AccountName                            | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_AccountOwnerId                         | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_AmortizationClass                      | String    | Source: Microsoft 1.2-preview+.                        |
-| x_BilledCostInUsd                        | Real      | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_BilledUnitPrice                        | Real      | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_BillingAccountAgreement                | String    | Source: Hubs add-on.                                   |
-| x_BillingAccountId                       | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_BillingAccountName                     | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_BillingExchangeRate                    | Real      | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_BillingExchangeRateDate                | Date/time | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_BillingItemCode                        | String    | Source: Alibaba 1.0.                                   |
-| x_BillingItemName                        | String    | Source: Alibaba 1.0.                                   |
-| x_BillingProfileId                       | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_BillingProfileName                     | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_ChargeId                               | String    | Source: Microsoft 1.0-preview(v1) only.                |
-| x_CommitmentDiscountNormalizedRatio      | Real      | Source: Microsoft 1.2-preview+.                        |
-| x_CommitmentDiscountPercent              | String    | Source: Hubs add-on.                                   |
-| x_CommitmentDiscountSavings              | String    | Source: Hubs add-on.                                   |
-| x_CommitmentDiscountSpendEligibility     | String    | Source: Hubs add-on.                                   |
-| x_CommitmentDiscountUsageEligibility     | String    | Source: Hubs add-on.                                   |
-| x_CommitmentDiscountUtilizationAmount    | String    | Source: Hubs add-on.                                   |
-| x_CommitmentDiscountUtilizationPotential | String    | Source: Hubs add-on.                                   |
-| x_CommodityCode                          | String    | Source: Alibaba 1.0.                                   |
-| x_CommodityName                          | String    | Source: Alibaba 1.0.                                   |
-| x_ConsumedCoreHours                      | Real      | Source: Hubs add-on.                                   |
-| x_ContractedCostInUsd                    | Real      | Source: Microsoft 1.0+.                                |
-| x_CostAllocationRuleName                 | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_CostCategories                         | Dynamic   | Source: AWS 1.0 (JSON).                                |
-| x_CostCenter                             | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_CostType                               | String    | Source: GCP Jan 2024.                                  |
-| x_Credits                                | Dynamic   | Source: GCP Jan 2024.                                  |
-| x_CurrencyConversionRate                 | Real      | Source: GCP Jun 2024.                                  |
-| x_CustomerId                             | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_CustomerName                           | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_Discount                               | Dynamic   | Source: AWS 1.0 (JSON).                                |
-| x_EffectiveCostInUsd                     | Real      | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_EffectiveUnitPrice                     | Real      | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_ExportTime                             | Date/time | Source: GCP Jan 2024.                                  |
-| x_IngestionTime                          | Date/time | Source: Hubs add-on.                                   |
-| x_InstanceID                             | String    | Source: Alibaba 1.0.                                   |
-| x_InvoiceIssuerId                        | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_InvoiceSectionId                       | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_InvoiceSectionName                     | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_ListCostInUsd                          | Real      | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_Location                               | String    | Source: GCP Jan 2024.                                  |
-| x_NegotiatedDiscountSavings              | String    | Source: Hubs add-on.                                   |
-| x_NegotiatedDiscountPercent              | String    | Source: Hubs add-on.                                   |
-| x_Operation                              | String    | Source: AWS 1.0.                                       |
-| x_PartnerCreditApplied                   | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_PartnerCreditRate                      | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_PricingBlockSize                       | Real      | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_PricingSubcategory                     | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_PricingUnitDescription                 | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_Project                                | String    | Source: GCP Jan 2024.                                  |
-| x_PublisherCategory                      | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_PublisherId                            | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_ResellerId                             | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_ResellerName                           | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_ResourceGroupName                      | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_ResourceType                           | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_ServiceCode                            | String    | Source: AWS 1.0.                                       |
-| x_ServiceId                              | String    | Source: GCP Jan 2024.                                  |
-| x_ServiceModel                           | String    | Source: Microsoft 1.2-preview+.                        |
-| x_ServicePeriodEnd                       | Date/time | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_ServicePeriodStart                     | Date/time | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuCoreCount                           | String    | Source: Hubs add-on.                                   |
-| x_SkuDescription                         | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuDetails                             | Dynamic   | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuInstanceType                        | String    | Source: Hubs add-on.                                   |
-| x_SkuIsCreditEligible                    | Bool      | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuLicenseQuantity                     | String    | Source: Hubs add-on.                                   |
-| x_SkuLicenseStatus                       | String    | Source: Hubs add-on.                                   |
-| x_SkuLicenseType                         | String    | Source: Hubs add-on.                                   |
-| x_SkuLicenseUnit                         | String    | Source: Hubs add-on.                                   |
-| x_SkuMeterCategory                       | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuMeterId                             | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuMeterSubcategory                    | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuOfferId                             | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuOperatingSystem                     | String    | Source: Hubs add-on.                                   |
-| x_SkuOrderId                             | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuOrderName                           | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuPartNumber                          | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuPlanName                            | String    | Source: Microsoft 1.2-preview+.                        |
-| x_SkuRegion                              | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuServiceFamily                       | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuTerm                                | Int       | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SkuTier                                | String    | Source: Microsoft 1.0-preview(v1)+.                    |
-| x_SourceChanges                          | String    | Source: Hubs add-on.                                   |
-| x_SourceName                             | String    | Source: Hubs add-on.                                   |
-| x_SourceProvider                         | String    | Source: Hubs add-on.                                   |
-| x_SourceType                             | String    | Source: Hubs add-on.                                   |
-| x_SourceValues                           | Dynamic   | Source: Hubs add-on.                                   |
-| x_SourceVersion                          | String    | Source: Hubs add-on.                                   |
-| x_TotalDiscountPercent                   | String    | Source: Hubs add-on.                                   |
-| x_TotalSavings                           | String    | Source: Hubs add-on.                                   |
-| x_UsageType                              | String    | Source: AWS 1.0.                                       |
+| Column                                   | Type      | Notes                                                        |
+| ---------------------------------------- | --------- | ------------------------------------------------------------ |
+| AvailabilityZone                         | String    |                                                              |
+| BilledCost                               | Real      |                                                              |
+| BillingAccountId                         | String    |                                                              |
+| BillingAccountName                       | String    |                                                              |
+| BillingAccountType                       | String    |                                                              |
+| BillingCurrency                          | String    |                                                              |
+| BillingPeriodEnd                         | Date/time |                                                              |
+| BillingPeriodStart                       | Date/time |                                                              |
+| CapacityReservationId                    | String    | New in FOCUS 1.2.                                            |
+| CapacityReservationStatus                | String    | New in FOCUS 1.2.                                            |
+| ChargeCategory                           | String    |                                                              |
+| ChargeClass                              | String    |                                                              |
+| ChargeDescription                        | String    |                                                              |
+| ChargeFrequency                          | String    |                                                              |
+| ChargePeriodEnd                          | Date/time |                                                              |
+| ChargePeriodStart                        | Date/time |                                                              |
+| CommitmentDiscountCategory               | String    |                                                              |
+| CommitmentDiscountId                     | String    |                                                              |
+| CommitmentDiscountName                   | String    |                                                              |
+| CommitmentDiscountQuantity               | Real      | New in FOCUS 1.2.                                            |
+| CommitmentDiscountStatus                 | String    |                                                              |
+| CommitmentDiscountType                   | String    |                                                              |
+| CommitmentDiscountUnit                   | String    | New in FOCUS 1.2.                                            |
+| ConsumedQuantity                         | Real      |                                                              |
+| ConsumedUnit                             | String    |                                                              |
+| ContractedCost                           | Real      |                                                              |
+| ContractedUnitPrice                      | Real      |                                                              |
+| EffectiveCost                            | Real      |                                                              |
+| InvoiceId                                | String    | New in FOCUS 1.2. Renamed from x_InvoiceId.                  |
+| InvoiceIssuerName                        | String    |                                                              |
+| ListCost                                 | Real      |                                                              |
+| ListUnitPrice                            | Real      |                                                              |
+| PricingCategory                          | String    |                                                              |
+| PricingCurrency                          | String    | New in FOCUS 1.2. Renamed from x_PricingCurrency.            |
+| PricingQuantity                          | Real      |                                                              |
+| PricingUnit                              | String    |                                                              |
+| ProviderName                             | String    |                                                              |
+| PublisherName                            | String    |                                                              |
+| RegionId                                 | String    |                                                              |
+| RegionName                               | String    |                                                              |
+| ResourceId                               | String    |                                                              |
+| ResourceName                             | String    |                                                              |
+| ResourceType                             | String    |                                                              |
+| ServiceCategory                          | String    |                                                              |
+| ServiceName                              | String    |                                                              |
+| ServiceSubcategory                       | String    | New in FOCUS 1.2.                                            |
+| SkuId                                    | String    |                                                              |
+| SkuMeter                                 | String    | New in FOCUS 1.2. Renamed from x_SkuMeterName.               |
+| SkuPriceDetails                          | Dynamic   | New in FOCUS 1.2. Transformed version of x_SkuDetails.       |
+| SkuPriceId                               | String    |                                                              |
+| SubAccountId                             | String    |                                                              |
+| SubAccountName                           | String    |                                                              |
+| SubAccountType                           | String    |                                                              |
+| Tags                                     | Dynamic   |                                                              |
+| x_AccountId                              | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_AccountName                            | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_AccountOwnerId                         | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_AmortizationClass                      | String    | Source: Microsoft 1.2-preview+.                              |
+| x_BilledCostInUsd                        | Real      | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_BilledUnitPrice                        | Real      | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_BillingAccountAgreement                | String    | Source: Hubs add-on.                                         |
+| x_BillingAccountId                       | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_BillingAccountName                     | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_BillingExchangeRate                    | Real      | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_BillingExchangeRateDate                | Date/time | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_BillingItemCode                        | String    | Source: Alibaba 1.0.                                         |
+| x_BillingItemName                        | String    | Source: Alibaba 1.0.                                         |
+| x_BillingProfileId                       | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_BillingProfileName                     | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_ChargeId                               | String    | Source: Microsoft 1.0-preview(v1) only.                      |
+| x_CommitmentDiscountNormalizedRatio      | Real      | Source: Microsoft 1.2-preview+.                              |
+| x_CommitmentDiscountPercent              | String    | Source: Hubs add-on.                                         |
+| x_CommitmentDiscountSavings              | String    | Source: Hubs add-on.                                         |
+| x_CommitmentDiscountSpendEligibility     | String    | Reports savings plan pricing as of v15. Source: Hubs add-on. |
+| x_CommitmentDiscountUsageEligibility     | String    | Reports reservation pricing as of v15. Source: Hubs add-on.  |
+| x_CommitmentDiscountUtilizationAmount    | String    | Source: Hubs add-on.                                         |
+| x_CommitmentDiscountUtilizationPotential | String    | Source: Hubs add-on.                                         |
+| x_CommodityCode                          | String    | Source: Alibaba 1.0.                                         |
+| x_CommodityName                          | String    | Source: Alibaba 1.0.                                         |
+| x_ConsumedCoreHours                      | Real      | Source: Hubs add-on.                                         |
+| x_ContractedCostInUsd                    | Real      | Source: Microsoft 1.0+.                                      |
+| x_CostAllocationRuleName                 | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_CostCategories                         | Dynamic   | Source: AWS 1.0 (JSON).                                      |
+| x_CostCenter                             | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_CostType                               | String    | Source: GCP Jan 2024.                                        |
+| x_Credits                                | Dynamic   | Source: GCP Jan 2024.                                        |
+| x_CurrencyConversionRate                 | Real      | Source: GCP Jun 2024.                                        |
+| x_CustomerId                             | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_CustomerName                           | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_Discount                               | Dynamic   | Source: AWS 1.0 (JSON).                                      |
+| x_EffectiveCostInUsd                     | Real      | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_EffectiveUnitPrice                     | Real      | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_ExportTime                             | Date/time | Source: GCP Jan 2024.                                        |
+| x_IngestionTime                          | Date/time | Source: Hubs add-on.                                         |
+| x_InstanceID                             | String    | Source: Alibaba 1.0.                                         |
+| x_InvoiceIssuerId                        | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_InvoiceSectionId                       | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_InvoiceSectionName                     | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_ListCostInUsd                          | Real      | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_Location                               | String    | Source: GCP Jan 2024.                                        |
+| x_NegotiatedDiscountSavings              | String    | Source: Hubs add-on.                                         |
+| x_NegotiatedDiscountPercent              | String    | Source: Hubs add-on.                                         |
+| x_Operation                              | String    | Source: AWS 1.0.                                             |
+| x_PartnerCreditApplied                   | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_PartnerCreditRate                      | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_PricingBlockSize                       | Real      | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_PricingSubcategory                     | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_PricingUnitDescription                 | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_Project                                | String    | Source: GCP Jan 2024.                                        |
+| x_PublisherCategory                      | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_PublisherId                            | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_ResellerId                             | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_ResellerName                           | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_ResourceGroupName                      | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_ResourceType                           | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_ServiceCode                            | String    | Source: AWS 1.0.                                             |
+| x_ServiceId                              | String    | Source: GCP Jan 2024.                                        |
+| x_ServiceModel                           | String    | Source: Microsoft 1.2-preview+.                              |
+| x_ServicePeriodEnd                       | Date/time | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_ServicePeriodStart                     | Date/time | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuCoreCount                           | String    | Source: Hubs add-on.                                         |
+| x_SkuDescription                         | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuDetails                             | Dynamic   | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuInstanceType                        | String    | Source: Hubs add-on.                                         |
+| x_SkuIsCreditEligible                    | Bool      | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuLicenseQuantity                     | String    | Source: Hubs add-on.                                         |
+| x_SkuLicenseStatus                       | String    | Source: Hubs add-on.                                         |
+| x_SkuLicenseType                         | String    | Source: Hubs add-on.                                         |
+| x_SkuLicenseUnit                         | String    | Source: Hubs add-on.                                         |
+| x_SkuMeterCategory                       | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuMeterId                             | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuMeterSubcategory                    | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuOfferId                             | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuOperatingSystem                     | String    | Source: Hubs add-on.                                         |
+| x_SkuOrderId                             | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuOrderName                           | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuPartNumber                          | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuPlanName                            | String    | Source: Microsoft 1.2-preview+.                              |
+| x_SkuRegion                              | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuServiceFamily                       | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuTerm                                | Int       | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SkuTier                                | String    | Source: Microsoft 1.0-preview(v1)+.                          |
+| x_SourceChanges                          | String    | Source: Hubs add-on.                                         |
+| x_SourceName                             | String    | Source: Hubs add-on.                                         |
+| x_SourceProvider                         | String    | Source: Hubs add-on.                                         |
+| x_SourceType                             | String    | Source: Hubs add-on.                                         |
+| x_SourceValues                           | Dynamic   | Source: Hubs add-on.                                         |
+| x_SourceVersion                          | String    | Source: Hubs add-on.                                         |
+| x_TotalDiscountPercent                   | String    | Source: Hubs add-on.                                         |
+| x_TotalSavings                           | String    | Source: Hubs add-on.                                         |
+| x_UsageType                              | String    | Source: AWS 1.0.                                             |
 
 <br>
 
@@ -539,12 +539,12 @@ parse_resourceid('/subscriptions/###/resourceGroups/foo/providers/Microsoft.Comp
 
 ```json
 {
-    "ResourceId": "/subscriptions/###/resourceGroups/foo/providers/Microsoft.Compute/virtualMachines/bar",
-    "ResourceName": "bar",
-    "SubAccountId": "###",
-    "x_ResourceGroupName": "foo",
-    "x_ResourceProvider": "Microsoft.Compute",
-    "x_ResourceType": "microsoft.compute/virtualmachines"
+  "ResourceId": "/subscriptions/###/resourceGroups/foo/providers/Microsoft.Compute/virtualMachines/bar",
+  "ResourceName": "bar",
+  "SubAccountId": "###",
+  "x_ResourceGroupName": "foo",
+  "x_ResourceProvider": "Microsoft.Compute",
+  "x_ResourceType": "microsoft.compute/virtualmachines"
 }
 ```
 
@@ -555,8 +555,8 @@ parse_resourceid('/subscriptions/###/resourceGroups/foo/providers/Microsoft.Comp
 The **percent(table: (Count: long))** function in Data Explorer calculates the percentage of each record based on a required Count column.
 
 {
-    let total = todouble(toscalar(t | summarize sum(Count)));
-    percentOfTotal(t, total)
+let total = todouble(toscalar(t | summarize sum(Count)));
+percentOfTotal(t, total)
 }
 
 <br>
@@ -581,12 +581,12 @@ Examples:
 
 ## plusminus() KQL function
 
-The ****plusminus KQL function in Data Explorer a +/- sign based on the direction of the number.
-plusminus(val: string)
-{
-    let neg = substring(val, 0, 1) == '-';
-    iff(neg, val, strcat('+', val))
-}
+The **plusminus()** KQL function in Data Explorer returns a +/- sign based on the direction of the number.
+
+Examples:
+
+- `plusminus(0.5)` = "+0.5"
+- `plusminus(-0.5)` = "-0.5"
 
 <br>
 
@@ -630,63 +630,63 @@ The **Prices_raw** table supports Microsoft Cost Management export schemas for E
 
 Columns in the **Prices** managed dataset include:
 
-| Column                               | Type      | Notes                                             |
-| ------------------------------------ | --------- | ------------------------------------------------- |
-| BillingAccountId                     | String    |                                                   |
-| BillingAccountName                   | String    |                                                   |
-| BillingCurrency                      | String    |                                                   |
-| ChargeCategory                       | String    |                                                   |
-| CommitmentDiscountCategory           | String    |                                                   |
-| CommitmentDiscountType               | String    |                                                   |
-| CommitmentDiscountUnit               | String    |                                                   |
-| ContractedUnitPrice                  | Real      |                                                   |
-| ListUnitPrice                        | Real      |                                                   |
-| PricingCategory                      | String    |                                                   |
-| PricingCurrency                      | String    | New in FOCUS 1.2. Renamed from x_PricingCurrency. |
-| PricingUnit                          | String    |                                                   |
-| SkuId                                | String    |                                                   |
-| SkuMeter                             | String    | New in FOCUS 1.2. Renamed from x_SkuMeterName.    |
-| SkuPriceId                           | String    |                                                   |
-| SkuPriceIdv2                         | String    | Source: Hubs add-on.                              |
-| x_BaseUnitPrice                      | Real      | Source: Microsoft.                                |
-| x_BillingAccountAgreement            | String    | Source: Hubs add-on.                              |
-| x_BillingAccountId                   | String    | Source: Microsoft, MCA only.                      |
-| x_BillingProfileId                   | String    | Source: Microsoft, MCA only.                      |
-| x_CommitmentDiscountNormalizedRatio  | Real      | Source: Hubs add-on.                              |
-| x_CommitmentDiscountSpendEligibility | String    | Source: Hubs add-on.                              |
-| x_CommitmentDiscountUsageEligibility | String    | Source: Hubs add-on.                              |
-| x_ContractedUnitPriceDiscount        | Real      | Source: Hubs add-on.                              |
-| x_ContractedUnitPriceDiscountPercent | Real      | Source: Hubs add-on.                              |
-| x_EffectivePeriodEnd                 | Date/time | Source: Microsoft.                                |
-| x_EffectivePeriodStart               | Date/time | Source: Microsoft.                                |
-| x_EffectiveUnitPrice                 | Real      | Source: Microsoft.                                |
-| x_EffectiveUnitPriceDiscount         | Real      | Source: Hubs add-on.                              |
-| x_EffectiveUnitPriceDiscountPercent  | Real      | Source: Hubs add-on.                              |
-| x_IngestionTime                      | Date/time | Source: Hubs add-on.                              |
-| x_PricingBlockSize                   | Real      | Source: Hubs add-on.                              |
-| x_PricingSubcategory                 | String    | Source: Hubs add-on.                              |
-| x_PricingUnitDescription             | String    | Source: Microsoft.                                |
-| x_SkuDescription                     | String    | Source: Microsoft.                                |
-| x_SkuId                              | String    | Source: Microsoft.                                |
-| x_SkuIncludedQuantity                | Real      | Source: Microsoft, EA only.                       |
-| x_SkuMeterCategory                   | String    | Source: Microsoft.                                |
-| x_SkuMeterId                         | String    | Source: Microsoft.                                |
-| x_SkuMeterSubcategory                | String    | Source: Microsoft.                                |
-| x_SkuMeterType                       | String    | Source: Microsoft.                                |
-| x_SkuPriceType                       | String    | Source: Microsoft.                                |
-| x_SkuProductId                       | String    | Source: Microsoft.                                |
-| x_SkuRegion                          | String    | Source: Microsoft.                                |
-| x_SkuServiceFamily                   | String    | Source: Microsoft.                                |
-| x_SkuOfferId                         | String    | Source: Microsoft, EA only.                       |
-| x_SkuPartNumber                      | String    | Source: Microsoft, EA only.                       |
-| x_SkuTerm                            | Int       | Source: Microsoft.                                |
-| x_SkuTier                            | Real      | Source: Microsoft, MCA only.                      |
-| x_SourceName                         | String    | Source: Hubs add-on.                              |
-| x_SourceProvider                     | String    | Source: Hubs add-on.                              |
-| x_SourceType                         | String    | Source: Hubs add-on.                              |
-| x_SourceVersion                      | String    | Source: Hubs add-on.                              |
-| x_TotalUnitPriceDiscount             | Real      | Source: Hubs add-on.                              |
-| x_TotalUnitPriceDiscountPercent      | Real      | Source: Hubs add-on.                              |
+| Column                               | Type      | Notes                                                        |
+| ------------------------------------ | --------- | ------------------------------------------------------------ |
+| BillingAccountId                     | String    |                                                              |
+| BillingAccountName                   | String    |                                                              |
+| BillingCurrency                      | String    |                                                              |
+| ChargeCategory                       | String    |                                                              |
+| CommitmentDiscountCategory           | String    |                                                              |
+| CommitmentDiscountType               | String    |                                                              |
+| CommitmentDiscountUnit               | String    |                                                              |
+| ContractedUnitPrice                  | Real      |                                                              |
+| ListUnitPrice                        | Real      |                                                              |
+| PricingCategory                      | String    |                                                              |
+| PricingCurrency                      | String    | New in FOCUS 1.2. Renamed from x_PricingCurrency.            |
+| PricingUnit                          | String    |                                                              |
+| SkuId                                | String    |                                                              |
+| SkuMeter                             | String    | New in FOCUS 1.2. Renamed from x_SkuMeterName.               |
+| SkuPriceId                           | String    |                                                              |
+| SkuPriceIdv2                         | String    | Source: Hubs add-on.                                         |
+| x_BaseUnitPrice                      | Real      | Source: Microsoft.                                           |
+| x_BillingAccountAgreement            | String    | Source: Hubs add-on.                                         |
+| x_BillingAccountId                   | String    | Source: Microsoft, MCA only.                                 |
+| x_BillingProfileId                   | String    | Source: Microsoft, MCA only.                                 |
+| x_CommitmentDiscountNormalizedRatio  | Real      | Source: Hubs add-on.                                         |
+| x_CommitmentDiscountSpendEligibility | String    | Reports savings plan pricing as of v15. Source: Hubs add-on. |
+| x_CommitmentDiscountUsageEligibility | String    | Reports reservation pricing as of v15. Source: Hubs add-on.  |
+| x_ContractedUnitPriceDiscount        | Real      | Source: Hubs add-on.                                         |
+| x_ContractedUnitPriceDiscountPercent | Real      | Source: Hubs add-on.                                         |
+| x_EffectivePeriodEnd                 | Date/time | Source: Microsoft.                                           |
+| x_EffectivePeriodStart               | Date/time | Source: Microsoft.                                           |
+| x_EffectiveUnitPrice                 | Real      | Source: Microsoft.                                           |
+| x_EffectiveUnitPriceDiscount         | Real      | Source: Hubs add-on.                                         |
+| x_EffectiveUnitPriceDiscountPercent  | Real      | Source: Hubs add-on.                                         |
+| x_IngestionTime                      | Date/time | Source: Hubs add-on.                                         |
+| x_PricingBlockSize                   | Real      | Source: Hubs add-on.                                         |
+| x_PricingSubcategory                 | String    | Source: Hubs add-on.                                         |
+| x_PricingUnitDescription             | String    | Source: Microsoft.                                           |
+| x_SkuDescription                     | String    | Source: Microsoft.                                           |
+| x_SkuId                              | String    | Source: Microsoft.                                           |
+| x_SkuIncludedQuantity                | Real      | Source: Microsoft, EA only.                                  |
+| x_SkuMeterCategory                   | String    | Source: Microsoft.                                           |
+| x_SkuMeterId                         | String    | Source: Microsoft.                                           |
+| x_SkuMeterSubcategory                | String    | Source: Microsoft.                                           |
+| x_SkuMeterType                       | String    | Source: Microsoft.                                           |
+| x_SkuPriceType                       | String    | Source: Microsoft.                                           |
+| x_SkuProductId                       | String    | Source: Microsoft.                                           |
+| x_SkuRegion                          | String    | Source: Microsoft.                                           |
+| x_SkuServiceFamily                   | String    | Source: Microsoft.                                           |
+| x_SkuOfferId                         | String    | Source: Microsoft, EA only.                                  |
+| x_SkuPartNumber                      | String    | Source: Microsoft, EA only.                                  |
+| x_SkuTerm                            | Int       | Source: Microsoft.                                           |
+| x_SkuTier                            | Real      | Source: Microsoft, MCA only.                                 |
+| x_SourceName                         | String    | Source: Hubs add-on.                                         |
+| x_SourceProvider                     | String    | Source: Hubs add-on.                                         |
+| x_SourceType                         | String    | Source: Hubs add-on.                                         |
+| x_SourceVersion                      | String    | Source: Hubs add-on.                                         |
+| x_TotalUnitPriceDiscount             | Real      | Source: Hubs add-on.                                         |
+| x_TotalUnitPriceDiscountPercent      | Real      | Source: Hubs add-on.                                         |
 
 <br>
 

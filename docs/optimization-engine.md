@@ -20,9 +20,9 @@ Optimize your Azure environment.
 The Azure Optimization Engine (AOE) is an extensible solution designed to generate optimization recommendations for your Azure environment. See it like a fully customizable Azure Advisor.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in August 2026<span class="ftk-version">v15</span></h3>
+    <h3>What's new in September 2026<span class="ftk-version">v15</span></h3>
     <p>
-        In August, Azure Optimization Engine migrated Log Analytics ingestion to a Data Collection Rule-based solution, switched to the new Instance size flexibility open dataset, and removed a deprecated Azure Classic administrators API call.
+        In September, Azure Optimization Engine added a comprehensive reference for runbooks, schedules, variables, and tables, migrated Log Analytics ingestion to a Data Collection Rule-based solution, switched to the new Instance size flexibility open dataset, and removed a deprecated Azure Classic administrators API call.
     </p>
     <p class="mt-2 mb-0 ftk-externallink"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

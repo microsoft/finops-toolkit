@@ -20,7 +20,7 @@ Bring AI-powered cloud financial management to Claude Code and GitHub Copilot CL
 The FinOps toolkit agent plugin pairs role-specific agents, ready-to-run commands, and a FinOps hubs query skill with a read-only Azure MCP server, so you can analyze cost data, review recommendations, and manage FinOps hubs without leaving your terminal.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in August 2026<span class="ftk-version">v15</span></h3>
+    <h3>What's new in September 2026<span class="ftk-version">v15</span></h3>
     <p>
         The FinOps toolkit agent plugin is new this release: a shared plugin for Claude Code and GitHub Copilot CLI with 5 agents (CFO, FinOps practitioner, database query, hubs agent, and Azure capacity manager), 4 commands, a FinOps hubs KQL skill, and a read-only Azure MCP server.
     </p>

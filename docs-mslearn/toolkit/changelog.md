@@ -31,22 +31,18 @@ The following section lists features and enhancements that are currently in deve
 
 ## v15
 
-_Released August 2026_
+_Released September 2026_
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v15
 
 - **Added**
-
   - Added a [FinOps toolkit ecosystem page](https://microsoft.github.io/finops-toolkit/ecosystem) listing independent tools and organizations that build on or support the FinOps toolkit.
-
 - **Changed**
-
   - Aligned FinOps Framework capability names and links across guidance to current FinOps Framework terminology, including Usage optimization and Governance, policy, and risk ([#2170](https://github.com/microsoft/finops-toolkit/pull/2170)).
-
 - **Fixed**
   - Corrected stale and incorrect descriptions for `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal` in the [data dictionary](help/data-dictionary.md) to align with FOCUS 1.2.
 
-### FinOps toolkit agent plugins v15
+### [FinOps toolkit agent plugins](agent-plugin/finops-toolkit-agent-plugin-overview.md) v15
 
 - **Added**
   - Added a shared FinOps Toolkit plugin for Claude Code and GitHub Copilot CLI with 5 agents (CFO, FinOps practitioner, database query, hubs agent, and Azure capacity manager), 4 commands (`/ftk/hubs-connect`, `/ftk/hubs-health-check`, `/ftk/mom-report`, and `/ftk/ytd-report`), a FinOps hubs KQL skill, and a read-only Azure MCP server.
@@ -63,13 +59,12 @@ _Released August 2026_
   - Clarified that the FinOps toolkit exclusively manages the FinOps hub virtual network and documented customer-managed private endpoints as the preferred private-access topology, with virtual network peering as a secondary option ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
   - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
   - Replaced whole-term `contains` matches with `has` across hub KQL and the query catalog (resource ID paths, licensing phrases, SKU description terms) and added a per-row operator-equivalence regression harness with unit test coverage ([#2220](https://github.com/microsoft/finops-toolkit/pull/2220)).
-  - Switched dimension enrichment in the v1_0/v1_2 ingestion transforms (`PricingUnits`, `Regions`, `ResourceTypes`, `Services`) from `join` to the broadcast-optimized `lookup` operator and deduplicated the `Services` mapping per resource type to prevent cost row fan-out.
+  - Switched dimension enrichment in the v1_0/v1_2 ingestion transforms (`PricingUnits`, `Regions`, `ResourceTypes`, `Services`) from `join` to the broadcast-optimized `lookup` operator and deduplicated the `Services` mapping per resource type to prevent cost row fan-out ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
 - **Fixed**
   - Fixed Data Factory ingestion memory pressure during emptiness filtering.
-    - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
-  - Hardened the reservation price backfill to select the highest on-demand price (`max()` instead of `min()`) when duplicate price rows collapse under a single reservation price lookup key, preventing understated commitment discount savings.
+  - Hardened the reservation price backfill to select the highest on-demand price (`max()` instead of `min()`) when duplicate price rows collapse under a single reservation price lookup key, preventing understated commitment discount savings ([#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
   - Fixed the `ContractedCost` recompute guard to compare with a null-safe tolerance instead of exact float equality, eliminating millions of no-op rewrites that polluted the `x_SourceValues` audit trail while preserving the null-cost backfill and no longer overwriting an existing cost when the unit price is missing ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
-  - Fixed the SQL VMs without Azure Hybrid Benefit recommendation query to join on the SQL VM `virtualMachineResourceId` instead of a case-sensitive VM name match that skipped VMs with uppercase names and dropped duplicate names, and made all Azure Resource Graph join kinds explicit so no query relies on the `innerunique` default.
+  - Fixed the SQL VMs without Azure Hybrid Benefit recommendation query to join on the SQL VM `virtualMachineResourceId` instead of a case-sensitive VM name match that skipped VMs with uppercase names and dropped duplicate names, and made all Azure Resource Graph join kinds explicit so no query relies on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
   - Fixed managed exports failing with an `Unauthorized` error because the Role Based Access Control Administrator role was never assigned to the Data Factory identity. Roles requested by a hub app are now assigned on the publisher storage account even when the app doesn't create the storage account itself ([#2253](https://github.com/microsoft/finops-toolkit/issues/2253)).
   - Fixed private-network deployments that Azure Policy blocked when `defaultOutboundAccess` was omitted. Private mode subnets now set it to `false`, while an Azure Files private endpoint supports deployment-script storage and the NAT Gateway provides required container egress ([#2258](https://github.com/microsoft/finops-toolkit/issues/2258), [#2259](https://github.com/microsoft/finops-toolkit/pull/2259)).
   - Fixed the v1_0 and v1_2 price transforms setting `x_CommitmentDiscountSpendEligibility` from reservation meters and `x_CommitmentDiscountUsageEligibility` from savings plan meters, the opposite of the FOCUS `CommitmentDiscountCategory` value the same transform assigns. The spend column now reports savings plan pricing and the usage column reports reservation pricing. Prices ingested after upgrading carry the corrected values; rows ingested earlier keep the old values until they are reingested ([#2279](https://github.com/microsoft/finops-toolkit/issues/2279)).
@@ -81,7 +76,9 @@ _Released August 2026_
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
   - Fixed Power BI storage report refresh errors caused by ISO 8601 duration `x_SkuTerm` values (like `P3Y`) and empty strings in cost exports ([#2174](https://github.com/microsoft/finops-toolkit/issues/2174)).
-  - Paginate Azure Resource Graph queries by subscription to mitigate [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) errors in the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)). Queries still surface a payload size error (rather than silently returning truncated results) if a single batch of subscriptions exceeds the limit; see [Reduce the batch size](help/errors.md#option-1-reduce-the-batch-size) for the mitigation. As part of this change, the `AdvisorRecommendations` and `AdvisorReservationRecommendations` tables now return complete (non-truncated) results per batch, matching every other batched table; previously these two tables silently dropped rows beyond the payload limit instead of erroring.
+  - Paginated Azure Resource Graph queries by subscription to mitigate [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) errors in the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)).
+    - The `AdvisorRecommendations` and `AdvisorReservationRecommendations` tables now return complete results per batch instead of silently dropping rows beyond the payload limit.
+    - A batch that still exceeds the limit surfaces an error rather than truncating; see [Reduce the batch size](help/errors.md#option-1-reduce-the-batch-size).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v15
 
@@ -95,7 +92,7 @@ _Released August 2026_
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v15
 
 - **Fixed**
-  - Made the idle application gateway and idle public IP query join kinds explicit so they no longer rely on the `innerunique` default.
+  - Made the idle application gateway and idle public IP query join kinds explicit so they no longer rely on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
 
 ### [Optimization engine](optimization-engine/overview.md) v15
 
@@ -106,6 +103,7 @@ _Released August 2026_
   - Switched the reservations and benefits workbooks from the retired `ccmstorageprod` isfratioblob.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
   - Removed call to Azure Classic administrators endpoint (deprecated on May 1, 2026) from Azure RBAC assignments exports ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
+  - Fixed a regression in the `AzureOptimizationConsumptionV1_CL` schema that was breaking the Reservations Usage workbook ([#2301](https://github.com/microsoft/finops-toolkit/issues/2301)).
 
 ### [PowerShell module](powershell/powershell-commands.md) v15
 

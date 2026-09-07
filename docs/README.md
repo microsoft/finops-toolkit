@@ -18,9 +18,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in August 2026<span class="ftk-version">v15</span></h3>
+    <h3>What's new in September 2026<span class="ftk-version">v15</span></h3>
     <p>
-        August adds a shared FinOps Toolkit plugin for Claude Code and GitHub Copilot CLI, private networking support for FinOps hubs, a new Instance size flexibility open dataset, several KQL performance and correctness fixes across hubs, workbooks, and alerts, and minor improvements in Power BI, the Optimization Engine, and the PowerShell module.
+        September adds a shared FinOps Toolkit plugin for Claude Code and GitHub Copilot CLI, private networking support for FinOps hubs, a new Instance size flexibility open dataset, several KQL performance and correctness fixes across hubs, workbooks, and alerts, and minor improvements in Power BI, the Optimization Engine, and the PowerShell module.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
