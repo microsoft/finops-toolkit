@@ -516,6 +516,51 @@ function Get-FamilyShortfall
     return $violations
 }
 
+function New-EligibilityRow
+{
+    <#
+        .SYNOPSIS
+        Builds one CSV row for a meter, mapping each price type to the FOCUS commitment discount category it belongs to.
+
+        .DESCRIPTION
+        FOCUS defines CommitmentDiscountCategory with two values: "Usage" means the commitment is
+        made against a quantity of usage (an Azure reservation) and "Spend" means it is made
+        against an amount of money (an Azure savings plan). The eligibility columns follow that
+        definition:
+
+            x_CommitmentDiscountSpendEligibility -> the meter has savings plan pricing
+            x_CommitmentDiscountUsageEligibility -> the meter has reservation pricing
+
+        The dataset published the two reversed from v14 through v15 (#2279). The mapping lives in
+        this function, rather than inline in the write loop, so a unit test can pin it.
+    #>
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $MeterId,
+
+        # $true when the Retail Prices API returns ReservedInstance pricing for this meter.
+        [Parameter(Mandatory = $true)]
+        [bool]
+        $HasReservationPricing,
+
+        # $true when the Retail Prices API returns SavingsPlan pricing for this meter.
+        [Parameter(Mandatory = $true)]
+        [bool]
+        $HasSavingsPlanPricing
+    )
+
+    $spendEligibility = if ($HasSavingsPlanPricing) { 'Eligible' } else { 'Not Eligible' }
+    $usageEligibility = if ($HasReservationPricing) { 'Eligible' } else { 'Not Eligible' }
+
+    return [PSCustomObject]@{
+        MeterId                              = $MeterId
+        x_CommitmentDiscountSpendEligibility = $spendEligibility
+        x_CommitmentDiscountUsageEligibility = $usageEligibility
+    }
+}
+
 # -----------------------------------------------------------------------
 # Step 1: Load the previously published CSV. Used only for the completeness-guard
 # baseline and a change summary -- its rows are NOT preserved. Meters not seen this
@@ -629,19 +674,17 @@ $unchanged = 0
 $rows = [System.Collections.ArrayList]::new($sortedIds.Count)
 foreach ($meterId in $sortedIds)
 {
-    $ri = if ($riMeters.ContainsKey($meterId)) { 'Eligible' } else { 'Not Eligible' }
-    $sp = if ($spMeters.ContainsKey($meterId)) { 'Eligible' } else { 'Not Eligible' }
-    $val = "$ri|$sp"
+    $row = New-EligibilityRow -MeterId $meterId -HasReservationPricing $riMeters.ContainsKey($meterId) -HasSavingsPlanPricing $spMeters.ContainsKey($meterId)
+
+    # Built in the same column order as the cached lookup above, so the two stay comparable
+    # if the mapping inside New-EligibilityRow ever moves again.
+    $val = "$($row.x_CommitmentDiscountSpendEligibility)|$($row.x_CommitmentDiscountUsageEligibility)"
 
     if (-not $cached.ContainsKey($meterId)) { $added++ }
     elseif ($cached[$meterId] -ne $val) { $changed++ }
     else { $unchanged++ }
 
-    $null = $rows.Add([PSCustomObject]@{
-            MeterId                              = $meterId
-            x_CommitmentDiscountSpendEligibility = $ri
-            x_CommitmentDiscountUsageEligibility = $sp
-        })
+    $null = $rows.Add($row)
 }
 
 $removed = 0
