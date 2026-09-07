@@ -25,8 +25,9 @@ These constraints are binding. Read them before changing this app.
 
 - **Use the existing art exclusively.** Every pipeline pattern here must already exist in a sibling app, in `IngestionQueries`, or in `Microsoft.CostManagement`. Do not introduce a pattern that has no precedent in this repository, and do not adapt a pattern beyond what the precedent already does.
 - The empty-result check is the AzureResourceGraph pattern: a `Web` activity, then an `If` condition, then the Copy activity. Do not replace it with a write-then-delete guard, a row count, a fault-tolerance setting, or a `Fail` activity.
-- Concurrency multiplies across the expansion chain. The `batchCount` on each `ForEach` and the `concurrency` on `CopyQuery` are set to the same value for that reason. Change them together or not at all.
+- `CopyQuery` has no pipeline-level `concurrency` setting, matching AzureResourceGraph. It is invoked from three independent fan-out points (`ForEach Scope`, the direct-query branch of `ForEach Subscription`, `ForEach Location`); a shared cap there makes their `batchCount`s multiply against one budget instead of scaling independently, which is what previously forced `ForEach Location` down to 1. Tune each `ForEach`'s own `batchCount` instead; do not add a `concurrency` value back to `CopyQuery`.
 - The authority comes from `environment().resourceManager` in every request URL. Do not accept an authority from a query file.
+- `ForEach Location`'s `batchCount: 8` is proven against a single-subscription tenant only (see `pipeline_ExecuteRegional`'s comment). `ForEach Subscription`'s existing `batchCount: 30` has never run concurrently against it at scale — a tenant with 30 subscriptions in flight at once, each fanning out to 8 regions, would produce up to 240 simultaneous `CopyQuery` calls, over double what's been verified safe. Do not assume this scales linearly to multi-subscription tenants without testing against one.
 
 ## Dependencies
 
@@ -39,3 +40,4 @@ These constraints are binding. Read them before changing this app.
 - Query files cannot configure the HTTP method, headers, body, authority, or authentication resource.
 - The empty-result check reads the `value` array on the response. A provider that returns its results under a different property is not supported.
 - A provider that fails rather than returning an empty array, such as the Network provider returning `SubscriptionHasNoUsages`, fails the pipeline. The check does not suppress errors.
+- The empty-result check performs the same GET as the real request via a `Web` activity, which has a fixed ~4 MB response-size ceiling independent of the Copy activity's own limits. A query whose full response exceeds that size (observed live: `Microsoft.Compute/skus`, the tenant-wide VM SKU catalog) fails the check with error code `2001` before the Copy activity ever runs. This is a pre-existing limitation, not something introduced by the concurrency changes above, and is unresolved.

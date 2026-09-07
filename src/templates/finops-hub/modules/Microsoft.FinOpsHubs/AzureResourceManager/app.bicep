@@ -129,6 +129,12 @@ resource dataset_config 'Microsoft.DataFactory/factories/datasets@2018-06-01' ex
 // "ForEach Subscription" activities). Adding a new expansion axis that itself
 // needs to loop means adding a new pipeline; adding branching logic that
 // doesn't loop does not.
+//
+// CopyQuery has no pipeline-level concurrency cap (see pipeline_CopyQuery). It's
+// invoked from three independent fan-out points (ForEach Scope, ForEach
+// Subscription's direct-query branch, ForEach Location); a shared cap makes
+// their batchCounts multiply against one budget rather than scale
+// independently. Each ForEach's own batchCount is the real throughput lever.
 //------------------------------------------------------------------------------
 
 resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
@@ -550,7 +556,12 @@ resource pipeline_ExecuteConfiguredScopes 'Microsoft.DataFactory/factories/pipel
             type: 'Expression'
           }
           isSequential: false
-          batchCount: 1 // only Subscription throttles admission into the shared CopyQuery pipeline; every other loop above/below it must serialize or the fan-outs multiply and overrun CopyQuery's capacity
+          // Kept conservative: this repo has no configured billing scopes to load-test
+          // against on a live hub, so unlike ForEach Location this value hasn't been
+          // proven at a higher batchCount. CopyQuery no longer has a shared concurrency
+          // cap (see pipeline_CopyQuery), so raising this is safe to try once there's
+          // real scope data to validate against.
+          batchCount: 1
           activities: [
             {
               name: 'Execute Request'
@@ -999,7 +1010,22 @@ resource pipeline_ExecuteRegional 'Microsoft.DataFactory/factories/pipelines@201
             type: 'Expression'
           }
           isSequential: false
-          batchCount: 1 // only Subscription throttles admission into the shared CopyQuery pipeline; region must serialize or subscription x region fan-out overruns CopyQuery's capacity
+          // Proven live against Trey, a single-subscription tenant (30-100+
+          // physical regions depending on provider): CopyQuery's old shared
+          // concurrency cap forced this to 1. With that cap removed, 8
+          // (matching ccm_datafactory's proven ForEach batchCount) ran cleanly
+          // with zero throttling across 100+ concurrent CopyQuery calls in one
+          // subscription's regional fan-out.
+          //
+          // CAVEAT: Trey has exactly one subscription, so this proves intra-
+          // subscription (region) concurrency only. ForEach Subscription's
+          // batchCount of 30 (in ExecuteTenant) has never been exercised
+          // concurrently against this batchCount of 8 - a tenant with 30
+          // subscriptions running at once, each fanning out to 8 regions,
+          // would produce up to 240 simultaneous CopyQuery calls, more than
+          // double what has been proven safe here. Multi-subscription-scale
+          // ARM throttling behavior at that concurrency remains unverified.
+          batchCount: 8
           activities: [
             {
               name: 'Execute Request'
@@ -1100,9 +1126,15 @@ resource pipeline_CopyQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-0
   name: 'queries_AzureResourceManager_CopyQuery'
   parent: dataFactory
   properties: {
-    // CopyQuery is the leaf admission boundary for query fan-out. Private routing
-    // lowers the ceiling because a managed VNet integration runtime has less capacity.
-    concurrency: app.hub.options.privateRouting ? 4 : 30
+    // No pipeline-level concurrency cap, matching AzureResourceGraph's proven
+    // pattern. CopyQuery is invoked from three independent fan-out points
+    // (ForEach Scope, the direct-query branch of ForEach Subscription, and
+    // ForEach Location); a shared cap here makes their batchCounts multiply
+    // against one budget instead of scaling independently (batchCount * batchCount
+    // <= cap forces the innermost loop toward 1). ADF's own default admission
+    // ceiling (~10,000 concurrent pipeline runs) and real ARM/IR throughput are
+    // the actual constraints; each ForEach's own batchCount is what should be
+    // tuned per loop.
     activities: [
       {
         name: 'Check Query Has Results'
