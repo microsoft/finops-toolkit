@@ -65,8 +65,7 @@ The following section lists features and enhancements that are currently in deve
 - **Changed**
   - Switched the reservations and benefits workbooks from the retired `ccmstorageprod` isfratioblob.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
-  - Fixed regression in the `AzureConsumptionV1_CL` schema breaking the Reservations Usage workbook
-  ([#2301](https://github.com/microsoft/finops-toolkit/issues/2301)).
+  - Fixed a regression in the `AzureOptimizationConsumptionV1_CL` schema that was breaking the Reservations Usage workbook ([#2301](https://github.com/microsoft/finops-toolkit/issues/2301)).
 
 ### [PowerShell module](powershell/powershell-commands.md)
 
