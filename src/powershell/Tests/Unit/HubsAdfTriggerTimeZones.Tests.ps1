@@ -21,6 +21,16 @@
     (docs/deploy/finops-hub-latest.json and finops-hub-preview.json), because those are regenerated at
     release time and can lag a src fix (see the #2236 review discussion). Older versioned templates are
     historical artifacts and intentionally not covered.
+
+    Separately, regression coverage for the ADF trigger startTime Z-suffix fix (issue #2157, PR #2291):
+    Data Factory requires a trailing 'Z' on a trigger's startTime whenever timeZone resolves to the 'UTC'
+    fallback; without it, activation fails with the same InvalidWorkflowTriggerRecurrence error. The three
+    affected triggers in ManagedExports/app.bicep and IngestionQueries/app.bicep make the 'Z' conditional
+    on the resolved timeZone, and finops-hub-14.0.json carries the same fix compiled to an ARM if(equals(...))
+    expression. These tests pin that pairing so it cannot silently regress. finops-hub-latest.json and
+    finops-hub-preview.json are intentionally not covered here (see the #2291 review discussion) - they
+    still ship the pre-fix, unconditional startTime and are expected to pick up the fix when regenerated
+    at the next release.
 #>
 
 Describe 'HubsAdfTriggerTimeZones' {
@@ -68,6 +78,38 @@ Describe 'HubsAdfTriggerTimeZones' {
                         $deployMappings += @{ File = $templateName; Region = $pair.Groups[1].Value; TimeZoneId = $pair.Groups[2].Value }
                     }
                 }
+            }
+        }
+
+        # Extract every trigger startTime from the two src files fixed by #2291, keyed by the raw line
+        # so a failure points straight at the offending statement instead of just a file name.
+        $startTimeSrcFiles = @(
+            'src/templates/finops-hub/modules/Microsoft.CostManagement/ManagedExports/app.bicep'
+            'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/IngestionQueries/app.bicep'
+        )
+        $startTimeSrcLines = @()
+        foreach ($relativePath in $startTimeSrcFiles)
+        {
+            foreach ($line in (Get-Content -Path (Join-Path $repoRoot $relativePath)))
+            {
+                if ($line -match '^\s*startTime:')
+                {
+                    $startTimeSrcLines += @{ File = $relativePath; Line = $line.Trim() }
+                }
+            }
+        }
+
+        # Same pairing, compiled to the ARM if(equals(...)) form, in the one shipped deploy artifact
+        # patched alongside the src fix (finops-hub-14.0.json). finops-hub-latest.json and
+        # finops-hub-preview.json are excluded - they still ship the pre-fix startTime and pick up the
+        # fix at the next release regen.
+        $startTimeDeployFile = 'finops-hub-14.0.json'
+        $startTimeDeployLines = @()
+        foreach ($line in (Get-Content -Path (Join-Path $repoRoot "docs/deploy/$startTimeDeployFile")))
+        {
+            if ($line -match '"startTime":')
+            {
+                $startTimeDeployLines += @{ File = $startTimeDeployFile; Line = $line.Trim() }
             }
         }
     }
@@ -140,6 +182,24 @@ Describe 'HubsAdfTriggerTimeZones' {
         It "Pins the fallback to the valid Windows ID 'UTC'" {
             # 'UTC' is a real Windows time zone ID; the display name 'Universal Coordinated Time' is not.
             $bicepContent | Should -Match "\?\?\s*'UTC'"
+        }
+    }
+
+    Context 'startTime UTC suffix' {
+        It 'Pairs a Z-suffixed and bare startTime around the UTC fallback in <File>: <Line>' -TestCases $startTimeSrcLines {
+            # Data Factory requires the trailing 'Z' only when timeZone resolves to the 'UTC' fallback;
+            # a bare 'Z' or an unconditional literal would silently reintroduce #2157 or change scheduling
+            # behavior for every mapped, non-UTC region.
+            $matched = $Line -match "^startTime:\s*timeZones\.outputs\.Timezone == 'UTC' \? '([0-9T:-]+)Z' : '([0-9T:-]+)'$"
+            $matched | Should -BeTrue -Because "startTime should be conditional on the UTC fallback, got: $Line"
+            $Matches[1] | Should -BeExactly $Matches[2] -Because 'the UTC and non-UTC branches must use the same timestamp, differing only by the trailing Z'
+        }
+
+        It 'Pairs a Z-suffixed and bare startTime around the UTC fallback in <File>: <Line>' -TestCases $startTimeDeployLines {
+            # Same invariant, compiled to the ARM if(equals(...)) form shipped in the patched deploy artifact.
+            $matched = $Line -match "^`"startTime`":\s*`"\[if\(equals\(reference\('timeZones'\)\.outputs\.Timezone\.value, 'UTC'\), '([0-9T:-]+)Z', '([0-9T:-]+)'\)\]`",?$"
+            $matched | Should -BeTrue -Because "startTime should be conditional on the UTC fallback, got: $Line"
+            $Matches[1] | Should -BeExactly $Matches[2] -Because 'the UTC and non-UTC branches must use the same timestamp, differing only by the trailing Z'
         }
     }
 }
