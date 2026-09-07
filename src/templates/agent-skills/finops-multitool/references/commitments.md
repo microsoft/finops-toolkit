@@ -2,7 +2,7 @@
 
 Reservations, savings plans, and the analysis around them: what to buy, whether existing commitments are being used, and what they've actually saved.
 
-`azure-cost-management` documents the underlying APIs in `references/azure-reservations.md`, `references/azure-savings-plans.md`, and `references/azure-commitment-discount-decision.md`. This page covers the sequencing and the places the raw data misleads.
+This page covers the sequencing for reservations and savings plans, and the places the raw data misleads.
 
 ## Purchase recommendations
 
@@ -62,7 +62,7 @@ Low utilization has three usual causes, in order of frequency: the reservation i
 
 What commitments have already delivered, versus on-demand rates. This is the number FinOps teams report upward, and it's distinct from _projected_ savings in a recommendation.
 
-Sources: cost data with `pricingModel` or `benefitId` populated, compared against retail rates from the Retail Prices API (`azure-cost-management` → `references/azure-retail-prices.md`).
+Sources: cost data with `pricingModel` or `benefitId` populated, compared against retail rates from the Retail Prices API.
 
 Report realized savings and projected savings separately and label them clearly. Blending "we saved $X" with "we could save $Y" is how a savings number loses credibility.
 
@@ -70,7 +70,7 @@ The FinOps multitool reports this figure as an estimate and labels it as one. It
 
 ## MACC
 
-Microsoft Azure Consumption Commitment burn-down is documented fully in `azure-cost-management` → `references/azure-macc.md`, including the critical detail that `closedBalance` is the **remaining** balance, not the consumed amount.
+Microsoft Azure Consumption Commitment burn-down reads from the Consumption lots API. The critical detail: `closedBalance` is the **remaining** balance, not the consumed amount.
 
 Consumed is `originalAmount - closedBalance`. Reporting `closedBalance` as spend inverts the number.
 
@@ -89,4 +89,3 @@ Leading with purchase recommendations before checking utilization is the most co
 
 - `rate-optimization-portfolio` for portfolio mix and purchase planning
 - `unit-economics` for effective savings rate and coverage KPIs
-- `azure-cost-management` → `references/azure-commitment-discount-decision.md` for reservations vs savings plans

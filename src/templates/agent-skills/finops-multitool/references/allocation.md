@@ -126,4 +126,4 @@ Then decide what happens to it:
 
 - `cost-allocation` skill for the showback/chargeback model and tag strategy
 - `tags-and-policy.md` for the tag coverage that native allocation depends on
-- `azure-cost-management` → `references/azure-cost-exports.md` for the underlying cost data
+- [cost-analysis.md](cost-analysis.md) for choosing the underlying cost data path

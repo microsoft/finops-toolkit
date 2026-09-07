@@ -2,7 +2,7 @@
 
 Spend, forecast, trend, and cost broken down by resource or tag — plus the data-source decision that determines whether any of it scales.
 
-`azure-cost-management` documents the Cost Management APIs themselves. This page covers choosing the data path and reading the results correctly.
+This page covers choosing the data path and reading the results correctly.
 
 ## Choose the data path first
 
@@ -91,4 +91,3 @@ Reporting "cost rose 40%" without identifying which of these is the driver isn't
 - `forecasting-budgeting` for forecast method and budget design
 - `anomaly-investigation` for root-causing a spike
 - `finops-toolkit` for the hub Kusto query catalog
-- `azure-cost-management` → `references/azure-cost-exports.md` for scheduled FOCUS exports

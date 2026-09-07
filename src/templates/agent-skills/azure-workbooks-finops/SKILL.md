@@ -43,7 +43,7 @@ Deploy via the toolkit's workbook template (ARM/Bicep) into a resource group, th
 ## Customizing
 
 - Workbook tiles are Resource Graph (KQL-for-ARG) or Azure Monitor queries — edit the query behind a tile to change what it shows.
-- ARG query language overlaps with the patterns in `azure-orphaned-resources` (in the `azure-cost-management` skill) — reuse those queries for new waste tiles.
+- ARG query language overlaps with the orphan patterns in the `finops-multitool` waste-detection reference — reuse those queries for new waste tiles.
 - Add a parameter for tag key/value to make governance tiles allocation-aware (ties into the `cost-allocation` skill).
 - Save customized workbooks as a new shared workbook so toolkit upgrades don't overwrite them.
 

@@ -172,7 +172,8 @@ function Invoke-FinOpsMultitool {
         # Version comes from the toolkit so the TUI and the module cannot drift.
         # Get-VersionNumber is a sibling private function, absent when this script runs standalone.
         if (-not (Get-Command -Name Get-VersionNumber -ErrorAction SilentlyContinue)) {
-            $verFile = Join-Path -Path $PSScriptRoot -ChildPath '..' -AdditionalChildPath 'Get-VersionNumber.ps1'
+            # Nested Join-Path, not -AdditionalChildPath: that parameter is PowerShell 7+ only.
+            $verFile = Join-Path -Path (Join-Path -Path $PSScriptRoot -ChildPath '..') -ChildPath 'Get-VersionNumber.ps1'
             if (Test-Path -Path $verFile) { . $verFile }
         }
         $verText = if (Get-Command -Name Get-VersionNumber -ErrorAction SilentlyContinue) { "v$(Get-VersionNumber)" } else { '' }

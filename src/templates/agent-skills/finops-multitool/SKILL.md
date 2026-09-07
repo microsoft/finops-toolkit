@@ -46,7 +46,7 @@ Scope every query explicitly when the user only cares about one subscription. An
 | Should we buy reservations or savings plans?  | Purchase recommendations             | [references/commitments.md](references/commitments.md)                             |
 | Are we using what we already bought?          | Commitment utilization               | [references/commitments.md](references/commitments.md)                             |
 | What have commitments actually saved us?      | Realized savings                     | [references/commitments.md](references/commitments.md)                             |
-| How is our MACC tracking?                     | Consumption commitment burn-down     | `azure-cost-management` → `references/azure-macc.md`                               |
+| How is our MACC tracking?                     | Consumption commitment burn-down     | [references/commitments.md](references/commitments.md)                             |
 | What are we spending? What's the forecast?    | Cost summary and trend               | [references/cost-analysis.md](references/cost-analysis.md)                         |
 | Which resources cost the most?                | Resource cost ranking                | [references/cost-analysis.md](references/cost-analysis.md)                         |
 | Split cost by team / app / cost center        | Cost by tag                          | [references/cost-analysis.md](references/cost-analysis.md)                         |
@@ -59,11 +59,11 @@ Scope every query explicitly when the user only cares about one subscription. An
 | Split shared hub or platform cost             | Shared and telemetry-keyed splitting | [references/allocation.md](references/allocation.md)                               |
 | Why did cost spike?                           | Anomaly root cause                   | `anomaly-investigation` skill                                                      |
 | Are we on budget?                             | Budget status                        | `forecasting-budgeting` skill                                                      |
-| Advisor cost recommendations                  | Advisor query                        | `azure-cost-management` → `references/azure-advisor.md`                            |
+| Advisor cost recommendations                  | Advisor query                        | [references/commitments.md](references/commitments.md)                             |
 | Design a showback or chargeback model         | Allocation modelling                 | `cost-allocation` skill                                                            |
 | What's our carbon footprint?                  | Emissions and waste co-benefit       | `sustainability-carbon` skill                                                      |
 
-When `azure-cost-management` already documents an API, use it rather than duplicating the call here. This skill adds the sequencing and interpretation on top.
+The reference pages carry the API calls, the sequencing, and the interpretation rules together.
 
 ## Interpreting common results
 
@@ -107,7 +107,6 @@ Once an investigation surfaces a finding, hand off to the skill that turns it in
 | A cost spike                                   | `anomaly-investigation`       | Root-cause down to the resource and change                              |
 | Waste findings                                 | `sustainability-carbon`       | Carbon co-benefit of removing waste                                     |
 | Deep KQL against a FinOps hub                  | `finops-toolkit`              | Kusto analytics on the hub database                                     |
-| Single-instrument API mechanics                | `azure-cost-management`       | Reservations, savings plans, budgets, exports, MACC detail              |
 | Cost data looks wrong or incomplete            | `focus-data-quality`          | FOCUS conformance, completeness, mapping                                |
 | A finding the user wants written up            | `finops-reporting`            | Executive summaries, QBRs, variance narratives                          |
 

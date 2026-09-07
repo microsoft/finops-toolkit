@@ -2,7 +2,7 @@
 name: rate-optimization-portfolio
 description: Use when the user manages commitment discounts as a portfolio over time — deciding the right mix of reservations, savings plans, and Azure Hybrid Benefit, planning purchases against coverage gaps, tracking utilization and expirations, and maximizing Effective Savings Rate across the whole estate rather than one instrument at a time.
 license: MIT
-compatibility: Requires Cost Management read access (or a FinOps hub) for usage, recommendations, and commitment data. Purchase actions need Billing/Reservation permissions. Pairs with the finops-multitool skill and the azure-cost-management skill.
+compatibility: Requires Cost Management read access (or a FinOps hub) for usage, recommendations, and commitment data. Purchase actions need Billing/Reservation permissions. Pairs with the finops-multitool skill.
 metadata:
   author: microsoft
   version: "1.0"
@@ -14,7 +14,7 @@ Getting the best *rate* is a portfolio problem, not a one-off purchase. This ski
 
 ## When to use this skill
 
-Use it when the user asks about reservations vs savings plans, commitment strategy, coverage gaps, utilization, expirations, or "are we paying the best rate." For a single instrument's mechanics defer to the `azure-cost-management` skill (azure-reservations, azure-savings-plans, azure-commitment-discount-decision); use *this* skill for the portfolio-level view across all of them.
+Use it when the user asks about reservations vs savings plans, commitment strategy, coverage gaps, utilization, expirations, or "are we paying the best rate." For a single instrument's mechanics see the `finops-multitool` commitments reference; use *this* skill for the portfolio-level view across all of them.
 
 ## The instruments
 
@@ -54,7 +54,6 @@ Layer them: AHB first (license), then RIs for the stable base, then a savings pl
 
 ## Hand-offs
 
-- Single-instrument mechanics / decision criteria → `azure-cost-management` skill.
 - Coverage/utilization/AHB data → `finops-multitool` scans.
 - Express the result as ESR / coverage KPIs → `unit-economics`.
 - Recommendation breakdown from hub data → `finops-toolkit` (`reservation-recommendation-breakdown.kql`).

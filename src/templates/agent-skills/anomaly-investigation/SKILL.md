@@ -15,7 +15,7 @@ Detection tells you a cost moved; this skill tells you *why* and what to do. It'
 
 ## When to use this skill
 
-Use it when the user reports a spike, an unexpected bill, an anomaly alert, or "why did cost jump." Confirm/quantify the anomaly first (anomaly alerts, cost trend, `cost-anomaly-detection.kql`), then drill here. For *setting up* detection/alerts, use `forecasting-budgeting` or the `azure-cost-management` anomaly-alerts skill instead.
+Use it when the user reports a spike, an unexpected bill, an anomaly alert, or "why did cost jump." Confirm/quantify the anomaly first (anomaly alerts, cost trend, `cost-anomaly-detection.kql`), then drill here. For *setting up* detection/alerts, use `forecasting-budgeting` instead.
 
 ## Root-cause drill-down
 

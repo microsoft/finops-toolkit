@@ -117,9 +117,9 @@ az monitor metrics list --resource <vmResourceId> \
 
 Classification used by the terminal UI:
 
-| Verdict | Criteria |
-| ------- | -------- |
-| Idle | average CPU < 5% **and** total network < 14 MB over 14 days |
+| Verdict       | Criteria                                                      |
+| ------------- | ------------------------------------------------------------- |
+| Idle          | average CPU < 5% **and** total network < 14 MB over 14 days   |
 | Underutilized | average CPU < 10% **and** total network < 140 MB over 14 days |
 
 **Use both signals.** CPU alone misclassifies a busy file server or a network appliance as idle. A VM moving traffic is doing work regardless of processor load.
@@ -193,16 +193,14 @@ resources
 
 Marker summary:
 
-| Resource type | Property | Value meaning AHB is on |
-| ------------- | -------- | ----------------------- |
-| Windows VM | `licenseType` | `Windows_Server` (or `Windows_Client`) |
-| SQL Server VM | `sqlServerLicenseType` | `AHUB` |
-| SQL Database / MI | `licenseType` | `BasePrice` |
+| Resource type     | Property               | Value meaning AHB is on                |
+| ----------------- | ---------------------- | -------------------------------------- |
+| Windows VM        | `licenseType`          | `Windows_Server` (or `Windows_Client`) |
+| SQL Server VM     | `sqlServerLicenseType` | `AHUB`                                 |
+| SQL Database / MI | `licenseType`          | `BasePrice`                            |
 
-**Eligibility is a licensing question, not a technical one.** These queries find resources that *could* use the benefit. Whether the customer owns qualifying licenses with Software Assurance is something only they can confirm. Present the findings as an opportunity to verify, never as guaranteed savings.
+**Eligibility is a licensing question, not a technical one.** These queries find resources that _could_ use the benefit. Whether the customer owns qualifying licenses with Software Assurance is something only they can confirm. Present the findings as an opportunity to verify, never as guaranteed savings.
 
 ## Related
 
-- `azure-cost-management` → `references/azure-orphaned-resources.md` for additional orphan query patterns
-- `azure-cost-management` → `references/azure-vm-rightsizing.md` for SKU downsizing analysis
 - `sustainability-carbon` for the emissions co-benefit of removing waste
