@@ -135,6 +135,26 @@ resource dataset_config 'Microsoft.DataFactory/factories/datasets@2018-06-01' ex
 // Subscription's direct-query branch, ForEach Location); a shared cap makes
 // their batchCounts multiply against one budget rather than scale
 // independently. Each ForEach's own batchCount is the real throughput lever.
+//
+// ExecuteTenant's subscription list is paginated (Set Subscriptions Url / Get
+// All Subscription Pages / ...), not a single WebActivity call, because the
+// Subscriptions - List API paginates via nextLink once a tenant has enough
+// subscriptions; a single call would silently under-count at scale. Two ADF
+// expression-language constraints shaped this loop and are easy to
+// reintroduce if it's ever "simplified":
+//   - A SetVariable cannot read the same variable it writes ("self reference
+//     is not supported"), so the array is merged into a scratch variable
+//     (subscriptionsArrayNext) and copied back in a second, non-self-
+//     referencing SetVariable rather than unioned in place.
+//   - ARM omits the nextLink property entirely on the last page rather than
+//     returning it as null, and ADF throws evaluating a property path that
+//     doesn't exist at all - coalesce() does not protect against that. The
+//     next-page URL is set via an IfCondition gated on contains(activity(...)
+//     .output, 'nextLink') so the possibly-absent property is only read once
+//     its presence is confirmed, not via a single eagerly-evaluated
+//     expression. Both were proven live against Trey (single-subscription
+//     tenant, so the loop terminates after one page: contains() correctly
+//     returns false and the false branch runs).
 //------------------------------------------------------------------------------
 
 resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
@@ -667,24 +687,146 @@ resource pipeline_ExecuteTenant 'Microsoft.DataFactory/factories/pipelines@2018-
     }
     activities: [
       {
-        name: 'Get Subscriptions'
-        type: 'WebActivity'
+        name: 'Set Subscriptions Url'
+        description: 'Seed the paging URL with the first page of the tenant subscription list.'
+        type: 'SetVariable'
         dependsOn: []
-        policy: {
-          timeout: '0.00:02:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
         userProperties: []
         typeProperties: {
-          method: 'GET'
-          url: '${environment().resourceManager}subscriptions?api-version=2022-12-01'
-          authentication: {
-            type: 'MSI'
-            resource: environment().resourceManager
+          variableName: 'nextUrl'
+          value: '${environment().resourceManager}subscriptions?api-version=2022-12-01'
+        }
+      }
+      { // Get All Subscription Pages
+        name: 'Get All Subscription Pages'
+        description: 'The subscriptions list API paginates via nextLink once a tenant has enough subscriptions; a single WebActivity call only returns the first page and would silently under-count subscriptions at scale. Loop until the response stops returning a nextLink.'
+        type: 'Until'
+        dependsOn: [
+          {
+            activity: 'Set Subscriptions Url'
+            dependencyConditions: ['Succeeded']
           }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@equals(variables(\'nextUrl\'), \'\')'
+            type: 'Expression'
+          }
+          timeout: '0.01:00:00'
+          activities: [
+            {
+              name: 'Get Subscriptions Page'
+              type: 'WebActivity'
+              dependsOn: []
+              policy: {
+                timeout: '0.00:02:00'
+                retry: 2
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                method: 'GET'
+                url: {
+                  value: '@variables(\'nextUrl\')'
+                  type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: environment().resourceManager
+                }
+              }
+            }
+            { // ADF rejects a SetVariable expression that reads the same variable it writes ("self reference is not
+              // supported"), so accumulate into a scratch variable first, then copy the scratch value across in a
+              // second, non-self-referencing SetVariable.
+              name: 'Merge Subscriptions Page'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Get Subscriptions Page'
+                  dependencyConditions: ['Succeeded']
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'subscriptionsArrayNext'
+                value: {
+                  value: '@union(variables(\'subscriptionsArray\'), activity(\'Get Subscriptions Page\').output.value)'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Append Subscriptions Page'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Merge Subscriptions Page'
+                  dependencyConditions: ['Succeeded']
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'subscriptionsArray'
+                value: {
+                  value: '@variables(\'subscriptionsArrayNext\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            { // The ARM subscriptions list response omits the nextLink property entirely on the final page (it isn't
+              // present-but-null), and ADF's expression evaluator throws when a property path doesn't exist at all -
+              // coalesce() does not protect against that. Guard the read behind an IfCondition (real control-flow
+              // branching) so activity('...').output.nextLink is only evaluated once contains() has already proven
+              // the key exists.
+              name: 'Set Next Subscriptions Url'
+              description: 'ARM returns nextLink only while another page remains; the property is absent (not null) on the last page, so branch on contains() before reading it.'
+              type: 'IfCondition'
+              dependsOn: [
+                {
+                  activity: 'Get Subscriptions Page'
+                  dependencyConditions: ['Succeeded']
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@contains(activity(\'Get Subscriptions Page\').output, \'nextLink\')'
+                  type: 'Expression'
+                }
+                ifTrueActivities: [
+                  {
+                    name: 'Set Next Subscriptions Url From NextLink'
+                    type: 'SetVariable'
+                    dependsOn: []
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'nextUrl'
+                      value: {
+                        value: '@activity(\'Get Subscriptions Page\').output.nextLink'
+                        type: 'Expression'
+                      }
+                    }
+                  }
+                ]
+                ifFalseActivities: [
+                  {
+                    name: 'Clear Next Subscriptions Url'
+                    type: 'SetVariable'
+                    dependsOn: []
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'nextUrl'
+                      value: ''
+                    }
+                  }
+                ]
+              }
+            }
+          ]
         }
       }
       {
@@ -692,7 +834,7 @@ resource pipeline_ExecuteTenant 'Microsoft.DataFactory/factories/pipelines@2018-
         type: 'Filter'
         dependsOn: [
           {
-            activity: 'Get Subscriptions'
+            activity: 'Get All Subscription Pages'
             dependencyConditions: [
               'Succeeded'
             ]
@@ -701,7 +843,7 @@ resource pipeline_ExecuteTenant 'Microsoft.DataFactory/factories/pipelines@2018-
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Subscriptions\').output.value'
+            value: '@variables(\'subscriptionsArray\')'
             type: 'Expression'
           }
           condition: {
@@ -878,6 +1020,17 @@ resource pipeline_ExecuteTenant 'Microsoft.DataFactory/factories/pipelines@2018-
       }
       translator: {
         type: 'Object'
+      }
+    }
+    variables: {
+      nextUrl: {
+        type: 'String'
+      }
+      subscriptionsArray: {
+        type: 'Array'
+      }
+      subscriptionsArrayNext: {
+        type: 'Array'
       }
     }
   }
