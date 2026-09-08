@@ -268,7 +268,8 @@ function Get-IsfRecords
         # Optimization Engine's benefits simulation does exactly that -- so drop it rather than
         # publish a division by zero. The API returns one today (Azure Redis Cache Isolated).
         $parsedRatio = 0.0
-        if ($flexGroup -and $armSkuName -and [double]::TryParse($ratio, [ref]$parsedRatio) -and $parsedRatio -gt 0)
+        $parsed = [double]::TryParse($ratio, [Globalization.NumberStyles]::Float, [Globalization.CultureInfo]::InvariantCulture, [ref]$parsedRatio)
+        if ($flexGroup -and $armSkuName -and $parsed -and $parsedRatio -gt 0)
         {
             $null = $records.Add([PSCustomObject]@{
                     InstanceSizeFlexibilityGroup = [string]$flexGroup
@@ -333,7 +334,7 @@ function Import-IsfCsv
     foreach ($row in $rows)
     {
         $ratio = 0.0
-        if (-not [double]::TryParse($row.Ratio, [ref]$ratio)) { continue }
+        if (-not [double]::TryParse($row.Ratio, [Globalization.NumberStyles]::Float, [Globalization.CultureInfo]::InvariantCulture, [ref]$ratio)) { continue }
         if ($ratio -le 0) { continue }
         if (-not $groupsPerSku.ContainsKey($row.ArmSkuName)) { $groupsPerSku[$row.ArmSkuName] = @{} }
         $groupsPerSku[$row.ArmSkuName][$row.InstanceSizeFlexibilityGroup] = $true
@@ -342,7 +343,7 @@ function Import-IsfCsv
     foreach ($row in $rows)
     {
         $ratio = 0.0
-        if (-not [double]::TryParse($row.Ratio, [ref]$ratio)) { continue }
+        if (-not [double]::TryParse($row.Ratio, [Globalization.NumberStyles]::Float, [Globalization.CultureInfo]::InvariantCulture, [ref]$ratio)) { continue }
         if ($ratio -le 0) { continue }
         if ($groupsPerSku[$row.ArmSkuName].Count -gt 1) { continue }
         # Same placeholder filter the API path applies, so a retired file's placeholder rows
@@ -513,7 +514,12 @@ if ($Normalize)
     $allRecords = Get-NormalizedRecords -Records $allRecords
 }
 
-$rows = $allRecords | Sort-Object InstanceSizeFlexibilityGroup, ArmSkuName
+# Ratio is formatted invariantly rather than left to Export-Csv, which uses the current culture:
+# on a comma-decimal machine it would publish "2,1" and break every consumer of the file.
+$rows = $allRecords |
+    Sort-Object InstanceSizeFlexibilityGroup, ArmSkuName |
+    Select-Object InstanceSizeFlexibilityGroup, ArmSkuName,
+        @{ Name = 'Ratio'; Expression = { $_.Ratio.ToString([Globalization.CultureInfo]::InvariantCulture) } }
 
 $rows | Export-Csv -Path $OutputPath -UseQuotes Always -NoTypeInformation -Encoding utf8
 Write-Host "Wrote $($rows.Count) SKUs to $OutputPath"

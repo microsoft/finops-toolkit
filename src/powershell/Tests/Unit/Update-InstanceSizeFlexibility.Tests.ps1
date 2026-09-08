@@ -167,6 +167,32 @@ Describe 'Update-InstanceSizeFlexibility' {
             @(Import-Csv $outFile).ArmSkuName | Should -Be 'Standard_D2'
         }
 
+        It 'Parses and writes ratios independently of the current culture' {
+            # On a comma-decimal culture, culture-aware parsing turns "2.1" into 21 (de-DE) or
+            # drops the row outright (fr-CH), and Export-Csv writes "2,1" back out, which breaks
+            # every consumer of the published file.
+            $originalCulture = [System.Threading.Thread]::CurrentThread.CurrentCulture
+            try
+            {
+                [System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::new('de-DE')
+                @([PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Av2 Series'; ArmSkuName = 'Standard_A2_v2'; Ratio = '2.1' }) `
+                | Export-Csv $outFile -NoTypeInformation
+                Mock Invoke-AzRestMethod {
+                    New-CatalogResponse -Items @((New-CatalogItem -Sku 'Standard_D2' -Group 'DSeries' -Ratio '4.5'))
+                }
+
+                Invoke-Generator $baseParams
+
+                $raw = Get-Content $outFile -Raw
+                $raw | Should -BeLike '*"Standard_A2_v2","2.1"*'   # carried forward, not 21
+                $raw | Should -BeLike '*"Standard_D2","4.5"*'      # from the API, not 45
+            }
+            finally
+            {
+                [System.Threading.Thread]::CurrentThread.CurrentCulture = $originalCulture
+            }
+        }
+
         It 'Skips items without ISF group or ratio properties' {
             Mock Invoke-AzRestMethod {
                 New-CatalogResponse -Items @(
