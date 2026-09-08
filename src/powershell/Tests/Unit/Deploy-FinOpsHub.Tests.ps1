@@ -268,5 +268,59 @@ InModuleScope 'FinOpsToolkit' {
                 } -Times 1
             }
         }
+
+        Context 'Version parsing' {
+            BeforeAll {
+                Mock -CommandName 'Get-AzResourceGroup' -MockWith { return @{ ResourceGroupName = $rgName } }
+                Mock -CommandName 'New-AzResourceGroup'
+                Mock -CommandName 'Save-FinOpsHubTemplate'
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
+                $templateFile = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOps/finops-hub-v1.0.0/main.bicep'
+                Mock -CommandName 'Get-ChildItem' -MockWith { return @{ FullName = $templateFile } }
+            }
+
+            BeforeEach {
+                $script:capturedParams = $null
+                Mock -CommandName 'New-AzResourceGroupDeployment' -MockWith { $script:capturedParams = $TemplateParameterObject }
+            }
+
+            It 'Should not throw for a single-component version like "13"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '13' } | Should -Not -Throw
+            }
+
+            It 'Should pass the raw single-component version to Save-FinOpsHubTemplate' {
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '13'
+                Should -Invoke -CommandName 'Save-FinOpsHubTemplate' -ParameterFilter { $Version -eq '13' } -Times 1
+            }
+
+            It 'Should produce the same parameter set for "13" as for "13.0"' {
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '13'
+                $shortKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '13.0'
+                $dottedKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                $shortKeys | Should -Be $dottedKeys
+                $shortKeys | Should -Match 'enablePurgeProtection'
+            }
+
+            It 'Should produce the same parameter set for "12" as for "12.0"' {
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '12'
+                $shortKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '12.0'
+                $dottedKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                $shortKeys | Should -Be $dottedKeys
+                $shortKeys | Should -Match 'enableManagedExports'
+                $shortKeys | Should -Not -Match 'enablePurgeProtection'
+            }
+
+            It 'Should not break an already-dotted version like "0.4"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '0.4' } | Should -Not -Throw
+                $script:capturedParams.Keys | Should -Contain 'remoteHubStorageUri'
+                $script:capturedParams.Keys | Should -Not -Contain 'enableInfrastructureEncryption'
+            }
+        }
     }
 }
