@@ -261,8 +261,13 @@ function Deploy-FinOpsHub
         $effectiveNetworkMode = if ($NetworkMode) { $NetworkMode } elseif ($DisablePublicAccess) { 'vnet' } else { 'public' }
         if (-not $NetworkMode -and $DisablePublicAccess) { Write-Warning "-DisablePublicAccess is deprecated; use -NetworkMode 'vnet' or -NetworkMode 'private'." }
 
+        # Normalize the version for [version] comparisons below. GitHub release tags are single-
+        # component (e.g. "13"), but [version] requires at least major.minor and throws otherwise.
+        # The raw $Version is still used for Save-FinOpsHubTemplate so the release tag lookup works.
+        $normalizedVersion = ConvertTo-NormalizedVersion -Version $Version
+
         # Private network mode (NAT Gateway) requires hub template version 15.0 or later
-        if ($effectiveNetworkMode -eq 'private' -and $Version -ne 'latest' -and [version]$Version -lt '15.0')
+        if ($effectiveNetworkMode -eq 'private' -and $Version -ne 'latest' -and [version]$normalizedVersion -lt '15.0')
         {
             throw "NAT Gateway / private network mode requires hub template version 15.0 or later. Current version: $Version"
         }
@@ -285,13 +290,13 @@ function Deploy-FinOpsHub
                 }
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '0.4')
+            if ($Version -eq 'latest' -or [version]$normalizedVersion -ge '0.4')
             {
                 $parameterSplat.TemplateParameterObject.Add('remoteHubStorageUri', $RemoteHubStorageUri)
                 $parameterSplat.TemplateParameterObject.Add('remoteHubStorageKey', $RemoteHubStorageKey)
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '0.7')
+            if ($Version -eq 'latest' -or [version]$normalizedVersion -ge '0.7')
             {
                 $parameterSplat.TemplateParameterObject.Add('enableInfrastructureEncryption', $EnableInfrastructureEncryption.IsPresent)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerName', $DataExplorerName)
@@ -306,25 +311,25 @@ function Deploy-FinOpsHub
                 $parameterSplat.TemplateParameterObject.Add('scopesToMonitor', $ScopesToMonitor)
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '0.10')
+            if ($Version -eq 'latest' -or [version]$normalizedVersion -ge '0.10')
             {
                 $parameterSplat.TemplateParameterObject.Add('fabricQueryUri', $FabricQueryUri)
                 $parameterSplat.TemplateParameterObject.Add('fabricCapacityUnits', $FabricCapacityUnits)
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '12.0')
+            if ($Version -eq 'latest' -or [version]$normalizedVersion -ge '12.0')
             {
                 $parameterSplat.TemplateParameterObject.Add('enableManagedExports', $EnableManagedExports.IsPresent)
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '13.0')
+            if ($Version -eq 'latest' -or [version]$normalizedVersion -ge '13.0')
             {
                 $parameterSplat.TemplateParameterObject.Add('enablePurgeProtection', $EnablePurgeProtection.IsPresent)
             }
 
             # Only pass enableNatGateway when private mode is requested. This keeps public/vnet
             # deployments compatible with template versions that predate the parameter.
-            if ($effectiveNetworkMode -eq 'private' -and ($Version -eq 'latest' -or [version]$Version -ge '15.0'))
+            if ($effectiveNetworkMode -eq 'private' -and ($Version -eq 'latest' -or [version]$normalizedVersion -ge '15.0'))
             {
                 $parameterSplat.TemplateParameterObject.Add('enableNatGateway', $true)
             }
