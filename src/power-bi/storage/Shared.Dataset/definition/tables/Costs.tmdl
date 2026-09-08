@@ -1683,14 +1683,15 @@ table Costs
 				// TODO: Add SQL AHB handling
 					AHB = Table.RemoveColumns(
 						Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
-							Table.TransformColumnTypes(
+							Table.TransformColumns(
 								Table.ExpandRecordColumn(
 									Table.ReplaceErrorValues(Table.AddColumn(ExtractedTags, "tmp_SkuDetails", each [x_SkuDetailsDictionary]), {{"tmp_SkuDetails", null}}),
 									"tmp_SkuDetails",
 									{"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores",        "ServerSku"},
 									{"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores", "tmp_ServerSku"}
 								),
-								{{"tmp_VMvCPUs", Int64.Type}, {"tmp_SQLvCores", Int64.Type}}
+								// Coerce to Int64, degrading any non-numeric/unexpected VCPUs/vCores value (e.g. on a Marketplace, reservation, or other non-VM/SQL charge row) to null instead of throwing a type mismatch error on refresh
+								{{"tmp_VMvCPUs", each try Int64.From(_) otherwise null, Int64.Type}, {"tmp_SQLvCores", each try Int64.From(_) otherwise null, Int64.Type}}
 							),
 							"x_ResourceMachineName",   each if _isNotBlank([tmp_VMName]) then [tmp_VMName] else null),
 							"x_SkuCoreCount",               each if [tmp_VMvCPUs] <> null then [tmp_VMvCPUs] else if [tmp_SQLvCores] <> null then [tmp_SQLvCores] else null, Int64.Type),
