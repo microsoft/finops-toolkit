@@ -1,0 +1,86 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+// Run on any Kusto database. PASS = zero rows. No table access or writes.
+// HubsIngestionQueries.Tests.ps1 checks that the filter and projection match the ingestion transform.
+let Source = datatable(
+    ResourceId:string, tmp_SourcePath:string, SubAccountId:string, location:string,
+    x_SourceType:string, ResourceType:string, ResourceName:string, Family:string, Capabilities:dynamic, Keep:bool
+) [
+    'large', 'snapshot1', 'sub1', 'westus', 'ComputeResourceSku', 'virtualMachines', 'Standard_D16_v5', 'standardDv5Family', dynamic([{"name":"vCPUs","value":"16"}]), false,
+    'small', 'snapshot1', 'sub1', 'westus', 'ComputeResourceSku', 'virtualMachines', 'Standard_D2_v5', 'standardDv5Family', dynamic([{"name":"MemoryGB","value":"8"},{"name":"vCPUs","value":"2"}]), true,
+    'tie', 'snapshot1', 'sub1', 'westus', 'ComputeResourceSku', 'virtualMachines', 'Standard_D2_v5_Z', 'standardDv5Family', dynamic([{"name":"vCPUs","value":"2"}]), false,
+    'unknown', 'snapshot1', 'sub1', 'westus', 'ComputeResourceSku', 'virtualMachines', 'Standard_D1_unknown', 'standardDv5Family', dynamic([]), false,
+    'region', 'snapshot1', 'sub1', 'eastus', 'ComputeResourceSku', 'virtualMachines', 'Standard_D4_v5', 'standardDv5Family', dynamic([{"name":"vCPUs","value":"4"}]), true,
+    'subscription', 'snapshot1', 'sub2', 'westus', 'ComputeResourceSku', 'virtualMachines', 'Standard_D4_v5', 'standardDv5Family', dynamic([{"name":"vCPUs","value":"4"}]), true,
+    'family', 'snapshot1', 'sub1', 'westus', 'ComputeResourceSku', 'virtualMachines', 'Standard_E2_v5', 'standardEv5Family', dynamic([{"name":"vCPUs","value":"2"}]), true,
+    'snapshot', 'snapshot2', 'sub1', 'westus', 'ComputeResourceSku', 'virtualMachines', 'Standard_D4_v5', 'standardDv5Family', dynamic([{"name":"vCPUs","value":"4"}]), true,
+    'case-small', 'snapshot1', 'sub1', 'westus', 'COMPUTERESOURCESKU', 'VIRTUALMACHINES', 'Standard_F2', 'standardFFamily', dynamic([{"name":"VCPUS","value":"2"}]), true,
+    'case-large', 'snapshot1', 'sub1', 'westus', 'COMPUTERESOURCESKU', 'VIRTUALMACHINES', 'Standard_F4', 'standardFFamily', dynamic([{"name":"VCPUS","value":"4"}]), false,
+    'missing-family-a', 'snapshot1', 'sub1', 'westus', 'ComputeResourceSku', 'virtualMachines', 'Unknown_A', '', dynamic([]), true,
+    'missing-family-b', 'snapshot1', 'sub1', 'westus', 'ComputeResourceSku', 'virtualMachines', 'Unknown_B', '', dynamic(null), true,
+    'missing-cpus-a', 'snapshot1', 'sub1', 'westus', 'ComputeResourceSku', 'virtualMachines', 'Unknown_A', 'unknownFamily', dynamic([]), true,
+    'missing-cpus-b', 'snapshot1', 'sub1', 'westus', 'ComputeResourceSku', 'virtualMachines', 'Unknown_B', 'unknownFamily', dynamic([{"name":"vCPUs","value":"invalid"}]), false,
+    'usage', 'snapshot1', 'sub1', 'westus', 'ComputeUsage', 'Microsoft.Compute/locations/usages', 'standardDv5Family', 'standardDv5Family', dynamic([]), true,
+    'network', 'snapshot1', 'sub1', 'westus', 'NetworkUsage', 'Microsoft.Network/locations/usages', 'PublicIPAddresses', '', dynamic(null), true,
+    'disk', 'snapshot1', 'sub1', 'westus', 'ComputeResourceSku', 'disks', 'Premium_LRS', 'standardDv5Family', dynamic([]), true,
+    'host', 'snapshot1', 'sub1', 'westus', 'ComputeResourceSku', 'hostGroups/hosts', 'DSv3-Type1', 'standardDv5Family', dynamic([]), true,
+    'zones', 'snapshot1', 'sub1', 'westus', 'AvailabilityZoneMapping', 'Microsoft.Resources/subscriptions/locations', 'westus', '', dynamic([]), true
+]
+| extend
+    ProviderName = 'Microsoft', displayName = ResourceName,
+    currentValue = real(5), limit = real(350), unit = 'Count',
+    x_SourceName = 'Azure Resource Manager', x_SourceProvider = 'Microsoft', x_SourceVersion = '1.0-compute-sku',
+    x_IngestionTime = datetime(2026-09-06),
+    x_QuotaDetails = bag_pack('Family', Family, 'Capabilities', Capabilities,
+        'Size', ResourceName, 'Restrictions', dynamic([{"type":"Location","reasonCode":"NotAvailableForSubscription"}]),
+        'LocationInfo', dynamic([{"location":"westus","zones":["1","2"]}]), 'Marker', ResourceId);
+// Duplicate usage rows must not be deduplicated by the Compute SKU filter.
+let Quota = union Source, (Source | where ResourceId == 'usage');
+let Actual = () {
+    // Keep the smallest VM SKU per source snapshot, subscription, region, and family without changing its metadata.
+    let ComputeSkuRows = Quota
+        | where x_SourceType =~ 'ComputeResourceSku' and ResourceType =~ 'virtualMachines'
+        | where isnotempty(tostring(x_QuotaDetails.Family));
+    Quota
+    | where not(x_SourceType =~ 'ComputeResourceSku' and ResourceType =~ 'virtualMachines' and isnotempty(tostring(x_QuotaDetails.Family)))
+    | union (
+        ComputeSkuRows
+        | extend tmp_Family = tostring(x_QuotaDetails.Family)
+        | mv-apply tmp_Capability = todynamic(x_QuotaDetails.Capabilities) on (
+            summarize tmp_Vcpus = minif(todouble(tmp_Capability.value), tostring(tmp_Capability.name) =~ 'vCPUs')
+        )
+        // Unknown vCPU counts sort last; the SKU name breaks ties.
+        | sort by tmp_SourcePath asc, SubAccountId asc, location asc, tmp_Family asc, tmp_Vcpus asc nulls last, ResourceName asc
+        | extend tmp_FamilySkuRank = row_number(1,
+            tmp_SourcePath != prev(tmp_SourcePath)
+                or SubAccountId != prev(SubAccountId)
+                or location != prev(location)
+                or tmp_Family != prev(tmp_Family)
+        )
+        | where tmp_FamilySkuRank == 1
+    )
+    | project
+        ProviderName,
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        SubAccountId,
+        displayName,
+        location,
+        currentValue,
+        limit,
+        unit,
+        x_QuotaDetails,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion,
+        x_IngestionTime
+};
+union (Quota | where Keep | extend Side = 'expected'), (Actual() | extend Side = 'actual')
+| extend Row = tostring(pack_array(ProviderName, ResourceId, ResourceName, ResourceType, SubAccountId,
+    displayName, location, currentValue, limit, unit, x_QuotaDetails,
+    x_SourceName, x_SourceProvider, x_SourceType, x_SourceVersion, x_IngestionTime))
+| summarize Expected = countif(Side == 'expected'), Actual = countif(Side == 'actual') by ResourceId, Row
+| where Expected != Actual

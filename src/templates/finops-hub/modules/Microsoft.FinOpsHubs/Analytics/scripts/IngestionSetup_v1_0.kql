@@ -1500,7 +1500,7 @@ Recommendations_transform_v1_0()
 with (docstring='Transforms Quota_raw into the Quota 1.0 contract.', folder='Quota')
 Quota_transform_v1_0()
 {
-    Quota_raw
+    let Quota = Quota_raw
     | extend x_IngestionTime = ingestion_time()
     | extend tmp_SourcePath = extract(@'"drop-by:(Quota/[^"]+)"', 1, tostring(extent_tags()))
     | extend tmp_OriginalFileName = tostring(split(tmp_SourcePath, '/')[-1])
@@ -1586,6 +1586,28 @@ Quota_transform_v1_0()
             'Size', x_Size,
             'Tier', x_Tier
         )
+    );
+    // Keep the smallest VM SKU per source snapshot, subscription, region, and family without changing its metadata.
+    let ComputeSkuRows = Quota
+        | where x_SourceType =~ 'ComputeResourceSku' and ResourceType =~ 'virtualMachines'
+        | where isnotempty(tostring(x_QuotaDetails.Family));
+    Quota
+    | where not(x_SourceType =~ 'ComputeResourceSku' and ResourceType =~ 'virtualMachines' and isnotempty(tostring(x_QuotaDetails.Family)))
+    | union (
+        ComputeSkuRows
+        | extend tmp_Family = tostring(x_QuotaDetails.Family)
+        | mv-apply tmp_Capability = todynamic(x_QuotaDetails.Capabilities) on (
+            summarize tmp_Vcpus = minif(todouble(tmp_Capability.value), tostring(tmp_Capability.name) =~ 'vCPUs')
+        )
+        // Unknown vCPU counts sort last; the SKU name breaks ties.
+        | sort by tmp_SourcePath asc, SubAccountId asc, location asc, tmp_Family asc, tmp_Vcpus asc nulls last, ResourceName asc
+        | extend tmp_FamilySkuRank = row_number(1,
+            tmp_SourcePath != prev(tmp_SourcePath)
+                or SubAccountId != prev(SubAccountId)
+                or location != prev(location)
+                or tmp_Family != prev(tmp_Family)
+        )
+        | where tmp_FamilySkuRank == 1
     )
     | project
         ProviderName,

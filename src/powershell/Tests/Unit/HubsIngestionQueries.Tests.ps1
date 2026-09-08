@@ -130,6 +130,19 @@ Describe 'HubsIngestionQueries' {
         }
     }
 
+    Context 'Compute SKU ingestion' {
+
+        It 'Should keep the executable regression harness aligned with the transform' {
+            $transform = Get-Content (Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts/IngestionSetup_v1_0.kql') -Raw
+            $harness = Get-Content (Join-Path $repoRoot 'src/powershell/Tests/assets/ComputeSkuIngestion.kql') -Raw
+            $pattern = '(?s)    // Keep the smallest VM SKU.*?        x_IngestionTime'
+            $filter = [regex]::Match($transform, $pattern).Value
+            $filter | Should -Not -BeNullOrEmpty
+            [regex]::Match($harness, $pattern).Value.Replace("`r`n", "`n") |
+                Should -BeExactly $filter.Replace("`r`n", "`n") -Because 'the Kusto harness must exercise the production filter and final column projection'
+        }
+    }
+
     Context 'Bicep compilation' {
 
         It 'finops-hub template should compile without errors' {
