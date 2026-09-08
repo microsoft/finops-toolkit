@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 09/07/2026
+ms.date: 09/08/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -71,6 +71,7 @@ The following section lists features and enhancements that are currently in deve
 
 - **Fixed**
   - Fixed [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) exporting the wrong period for anyone running in a positive UTC offset. `-StartDate` and `-EndDate` are now treated as UTC calendar dates instead of being time zone converted, so the days you request are the days that get exported. Previously, local midnight converted to the previous UTC day, which moved the period back a day and made `-Backfill` run one extra month ([#2255](https://github.com/microsoft/finops-toolkit/issues/2255)).
+  - Fixed [Deploy-FinOpsHub](powershell/hubs/deploy-finopshub.md) throwing `Cannot convert value "13" to type "System.Version"` when `-Version` was a single-component release tag (e.g. `"13"`, matching this repo's GitHub release tag format). Single-component version strings are now normalized before being compared, while the raw value is still used to resolve and download the release ([#2293](https://github.com/microsoft/finops-toolkit/issues/2293)).
 
 ### [Open data](open-data.md) updates
 
