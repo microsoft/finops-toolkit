@@ -54,9 +54,9 @@ param dataExplorerName string = ''
 // https://learn.microsoft.com/azure/templates/microsoft.kusto/clusters?pivots=deployment-language-bicep#azuresku
 @description('Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_D11_v2".')
 @allowed([
-  'Dev(No SLA)_Standard_E2a_v4' // 2 CPU, 16GB RAM, 24GB cache, $110/mo
-  'Dev(No SLA)_Standard_D11_v2' // 2 CPU, 14GB RAM, 78GB cache, $121/mo
-  'Standard_D11_v2'             // 2 CPU, 14GB RAM, 78GB cache, $245/mo
+  'Dev(No SLA)_Standard_E2a_v4' // 2 CPU, 16GB RAM, 24GB cache, ~$115/mo
+  'Dev(No SLA)_Standard_D11_v2' // 2 CPU, 14GB RAM, 78GB cache, ~$135/mo
+  'Standard_D11_v2'             // 2 CPU, 14GB RAM, 78GB cache, ~$295/mo
   'Standard_D12_v2'
   'Standard_D13_v2'
   'Standard_D14_v2'
@@ -67,7 +67,7 @@ param dataExplorerName string = ''
   'Standard_DS13_v2+2TB_PS'
   'Standard_DS14_v2+3TB_PS'
   'Standard_DS14_v2+4TB_PS'
-  'Standard_E2a_v4'            // 2 CPU, 14GB RAM, 78GB cache, $220/mo
+  'Standard_E2a_v4'            // 2 CPU, 14GB RAM, 78GB cache, ~$275/mo
   'Standard_E2ads_v5'
   'Standard_E2d_v4'
   'Standard_E2d_v5'

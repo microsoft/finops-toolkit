@@ -3,7 +3,7 @@ title: Choose a Power BI data source
 description: Learn about different ways to connect Power BI to your data to analyze and report on cloud costs, including connectors and exports.
 author: flanakin
 ms.author: micflan
-ms.date: 09/06/2026
+ms.date: 04/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -49,7 +49,7 @@ The following table outlines the supported features by each data source option. 
 
 | Capabilities                                     |           Connector           |                 Storage                  |  FinOps hubs + Data Explorer  |         Fabric OneLake         | Fabric RTI (via FinOps hubs)  |
 | ------------------------------------------------ | :---------------------------: | :--------------------------------------: | :---------------------------: | :----------------------------: | :---------------------------: |
-| Monthly Azure cost (based on list prices)        |              $0               |              ~$3-5 per $1M¹              | Starts at $160 + ~$10 per $1M |         Starts at $310         | Starts at $310 + ~$10 per $1M |
+| Monthly Azure cost (based on list prices)        |              $0               |              ~$3-5 per $1M¹              | Starts at $120 + ~$10 per $1M |         Starts at $300         | Starts at $300 + ~$10 per $1M |
 | Monthly Power BI cost (based on list prices)     |         $20 per user          |               $20 per user               |    $20 per user (optional)    |               $0               |              $0               |
 | Data storage                                     |           Power BI            |            Data Lake Storage             |         Data Explorer         |            OneLake             |    Real-Time Intelligence     |
 | Est. max cost data                               |          Up to $2M²           | Up to $2M/mo<br>with incremental refresh |              N/A              |              N/A               |              N/A              |
