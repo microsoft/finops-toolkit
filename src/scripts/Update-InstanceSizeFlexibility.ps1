@@ -67,7 +67,7 @@
     ratios are kept.
 
     Note that raw API ratios are NOT on the same scale as the retired isfratioblob.csv: the blob
-    normalized each group to smallest-SKU-=-1, the API returns vCPU-scaled values, and the two
+    normalized each group to smallest-SKU-=-1, the API returns unnormalized values, and the two
     differ by a per-group constant (usually 2x -- e.g. Standard_DS11_v2 is 1 in the blob and 2 in
     the API). The published dataset was migrated onto the API scale once, so ratios are the API's
     verbatim wherever it has an opinion. Ratios are only ever compared within a flexibility group.
@@ -400,7 +400,7 @@ function Assert-IsfScale
         Fails the run if a carried-forward group sits on a different ratio scale than the API.
 
         .DESCRIPTION
-        The Catalogs API reports ratios as absolute vCPU counts, while the ratio files it replaced
+        The Catalogs API returns unnormalized ratios, while the ratio files it replaced
         normalized each group so its smallest SKU was 1. Both encode the same proportions in
         different units, differing by a per-group constant. Those units were reconciled once, in a
         one-time migration, so every published record now sits on the API scale.
