@@ -60,6 +60,9 @@ The following section lists features and enhancements that are currently in deve
 
 ### [Optimization Engine](optimization-engine/overview.md)
 
+- **Fixed**
+  - Fixed reservations disappearing from the reservation workbooks when their SKU is no longer sold. The instance size flexibility joins required a match, so an active reservation on a retired size was dropped from the report entirely rather than shown with its utilization ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
+
 - **Added**
   - Added a comprehensive [Azure Optimization Engine reference](optimization-engine/reference.md) for runbooks, schedules, variables, Log Analytics tables, and SQL Database tables ([#1271](https://github.com/microsoft/finops-toolkit/issues/1271)).
 - **Changed**
@@ -80,8 +83,8 @@ The following section lists features and enhancements that are currently in deve
   - Added a new [Instance size flexibility](open-data.md#instance-size-flexibility) dataset that maps each ARM SKU to its instance size flexibility group and ratio, sourced from the Azure Reservations Catalogs API. It replaces the deprecated ISF ratio files hosted on `ccmstorageprod.blob.core.windows.net` ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
   - Fixed the instance size flexibility generator sweeping a hardcoded list of 26 regions, which omitted SKUs that launch in only a handful of regions. It now enumerates every physical region from the ARM locations API, 63 at the time of the change ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
-  - Fixed ratios being parsed and written with the current culture. On a comma-decimal machine `2.1` was read as `21` or rejected, and written back as `2,1`, which would break every consumer of the file ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
-  - Fixed the dataset publishing a SKU whose ratio is `0`, which the Optimization Engine's benefits simulation divides by. Non-positive ratios are now dropped ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
+  - Fixed ratios being parsed and written with the current culture. On a comma-decimal machine `2.1` was read as `21` or rejected, and written back as `2,1`, which would break every consumer of the file ([#2308](https://github.com/microsoft/finops-toolkit/pull/2308)).
+  - Fixed the dataset publishing a SKU whose ratio is `0`, which the Optimization Engine's benefits simulation divides by. Non-positive ratios are now dropped ([#2308](https://github.com/microsoft/finops-toolkit/pull/2308)).
 
 **[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**
 
