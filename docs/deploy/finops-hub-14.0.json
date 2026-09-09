@@ -14033,7 +14033,7 @@
                           "recurrence": {
                             "frequency": "Hour",
                             "interval": 24,
-                            "startTime": "2023-01-01T01:01:00",
+                            "startTime": "[if(equals(reference('timeZones').outputs.Timezone.value, 'UTC'), '2023-01-01T01:01:00Z', '2023-01-01T01:01:00')]",
                             "timeZone": "[reference('timeZones').outputs.Timezone.value]"
                           }
                         }
@@ -14064,7 +14064,7 @@
                           "recurrence": {
                             "frequency": "Month",
                             "interval": 1,
-                            "startTime": "2023-01-05T01:11:00",
+                            "startTime": "[if(equals(reference('timeZones').outputs.Timezone.value, 'UTC'), '2023-01-05T01:11:00Z', '2023-01-05T01:11:00')]",
                             "timeZone": "[reference('timeZones').outputs.Timezone.value]",
                             "schedule": {
                               "monthDays": [
@@ -23925,7 +23925,7 @@
                           "recurrence": {
                             "frequency": "Hour",
                             "interval": 24,
-                            "startTime": "2023-01-01T01:01:00",
+                            "startTime": "[if(equals(reference('timeZones').outputs.Timezone.value, 'UTC'), '2023-01-01T01:01:00Z', '2023-01-01T01:01:00')]",
                             "timeZone": "[reference('timeZones').outputs.Timezone.value]"
                           }
                         }
