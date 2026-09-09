@@ -308,6 +308,8 @@ function Get-SharedCostAllocation {
             Note    = 'Provide spokes - the subscription IDs that share the hub resources.'
         }
     }
+    # A repeated subscription ID would inflate $nSpokes and dilute every spoke's fixed share.
+    $Spokes = @($Spokes | Select-Object -Unique)
     if ($FixedRatio -lt 0) { $FixedRatio = 0 }
     if ($FixedRatio -gt 1) { $FixedRatio = 1 }
 

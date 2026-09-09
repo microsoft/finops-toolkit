@@ -83,12 +83,13 @@ function Search-AzGraphSafe {
         if (-not ($is429 -or $isTransient)) { return $result }
         if ($attempt -eq $MaxRetries) { return $result }
 
-        # Throttling backs off harder than a transient server error.
+        # Throttling backs off harder than a transient server error. Both are
+        # jittered so parallel scans do not retry in lockstep.
         $retryAfter = if ($is429) {
-            [math]::Min(10 * [math]::Pow(2, $attempt), 30)
+            Get-JitteredDelay -BaseSeconds ([math]::Min(10 * [math]::Pow(2, $attempt), 30))
         }
         else {
-            [math]::Min(2 * [math]::Pow(2, $attempt), 15)
+            Get-JitteredDelay -BaseSeconds ([math]::Min(2 * [math]::Pow(2, $attempt), 15))
         }
         $friendly = if ($is429) {
             if (Get-Command Get-NextThrottleMessage -ErrorAction SilentlyContinue) { Get-NextThrottleMessage } else { 'Fetching numbers......' }

@@ -160,19 +160,20 @@ function Invoke-AzRestMethodWithRetry {
         if (-not ($isThrottled -or $isServerErr)) { return $resp }
         if ($attempt -eq $MaxRetries) { return $resp }
 
-        # Parse Retry-After header or default to exponential backoff
-        $retryAfter = 10
+        # Parse Retry-After header or default to exponential backoff. Both paths
+        # are jittered so parallel scans do not retry in lockstep.
+        $retryAfter = Get-JitteredDelay -BaseSeconds 10
         if ($isThrottled -and $resp.Headers -and $resp.Headers['Retry-After']) {
             $parsed = 0
             if ([int]::TryParse($resp.Headers['Retry-After'], [ref]$parsed)) {
-                $retryAfter = [math]::Max($parsed, 5)
+                $retryAfter = Get-JitteredDelay -RetryAfterSeconds ([math]::Max($parsed, 5))
             }
         }
         elseif ($isServerErr) {
-            $retryAfter = [math]::Min(2 * [math]::Pow(2, $attempt), 30)
+            $retryAfter = Get-JitteredDelay -BaseSeconds ([math]::Min(2 * [math]::Pow(2, $attempt), 30))
         }
         else {
-            $retryAfter = [math]::Min(10 * [math]::Pow(2, $attempt), 60)
+            $retryAfter = Get-JitteredDelay -BaseSeconds ([math]::Min(10 * [math]::Pow(2, $attempt), 60))
         }
         $friendly = if ($isThrottled) { Get-NextThrottleMessage } else { "Azure returned $($resp.StatusCode) - retrying..." }
         Write-Host "  $friendly" -ForegroundColor Yellow

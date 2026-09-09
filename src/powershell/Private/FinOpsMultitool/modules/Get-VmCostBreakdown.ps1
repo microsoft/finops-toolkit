@@ -105,6 +105,7 @@ resources
           osDiskId,
           dataDisks = properties.storageProfile.dataDisks,
           nics = properties.networkProfile.networkInterfaces
+| order by id asc
 "@
 
     $res = Search-AzGraphSafe -Query $vmQuery -Subscription $SubscriptionIds -First 50
@@ -112,6 +113,7 @@ resources
     if ($rows.Count -eq 0) { return $null }
 
     $ambiguous = $rows.Count -gt 1
+    # Rows are ordered by id, so an ambiguous name resolves to the same VM every run.
     $vm = $rows[0]
 
     $assoc = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)

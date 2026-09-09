@@ -159,14 +159,13 @@ function Get-TagRecommendations {
         }
     }
 
-    $missingRequired    = @($analysis | Where-Object { $_.Status -eq 'Missing' -and $_.Priority -eq 'Required' })
-    $missingRecommended = @($analysis | Where-Object { $_.Status -eq 'Missing' -and $_.Priority -eq 'Recommended' })
-    $present            = @($analysis | Where-Object { $_.Status -ne 'Missing' })
+    # Every catalog entry is Required, so there is no Recommended tier to report.
+    $missingRequired = @($analysis | Where-Object { $_.Status -eq 'Missing' -and $_.Priority -eq 'Required' })
+    $present = @($analysis | Where-Object { $_.Status -ne 'Missing' })
 
     return [PSCustomObject]@{
         Analysis            = $analysis
         MissingRequired     = $missingRequired
-        MissingRecommended  = $missingRecommended
         Present             = $present
         CompliancePercent   = [math]::Round(($present.Count / $analysis.Count) * 100, 0)
     }
