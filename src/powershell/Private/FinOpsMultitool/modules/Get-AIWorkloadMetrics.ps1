@@ -150,6 +150,8 @@ resources
 
     $aiCost = 0.0
     $currency = 'USD'
+    # A tenant can bill subscriptions in different currencies; keep them all.
+    $currenciesSeen = @{}
     $costByAcct = @{}   # resourceId(lower) -> cost
     $costOk = $false
 
@@ -292,7 +294,7 @@ resources
                         foreach ($row in $cdata.properties.rows) {
                             $amount = if ($iCost -ge 0) { [double]$row[$iCost] } else { [double]$row[0] }
                             $rid = if ($iRes -ge 0) { [string]$row[$iRes] } else { '' }
-                            if ($iCur -ge 0 -and $row[$iCur]) { $currency = [string]$row[$iCur] }
+                            if ($iCur -ge 0 -and $row[$iCur]) { Add-CurrencySeen -Seen $currenciesSeen -Currency ([string]$row[$iCur]) }
                             $aiCost += $amount
                             if ($rid) { $costByAcct[$rid.ToLowerInvariant()] = $amount }
                         }
@@ -377,7 +379,7 @@ resources
         TotalTokens          = [long]$totalTokens
         TotalRequests        = [long]$totalReq
         TotalAICost          = [math]::Round($aiCost, 2)
-        Currency             = $currency
+        Currency             = if (@($currenciesSeen.Keys).Count -gt 0) { Resolve-CurrencyLabel -Seen $currenciesSeen } else { $currency }
         CostPer1KTokens      = $costPer1kTokens
         CostPerRequest       = $costPerRequest
         ByModel              = $byModel

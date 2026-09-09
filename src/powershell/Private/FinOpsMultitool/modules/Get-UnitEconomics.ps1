@@ -79,7 +79,7 @@ function Add-MeterCosts {
         [string]$Content,
         [ref]$ComputeRef,
         [ref]$StorageRef,
-        [ref]$CurrencyRef
+        [hashtable]$CurrencySeen
     )
     $any = $false
     try {
@@ -89,7 +89,7 @@ function Add-MeterCosts {
                 $any = $true
                 $amount = [double]$row[0]
                 $category = [string]$row[1]
-                if ($row.Count -ge 3 -and $row[2]) { $CurrencyRef.Value = [string]$row[2] }
+                if ($row.Count -ge 3 -and $row[2]) { Add-CurrencySeen -Seen $CurrencySeen -Currency ([string]$row[2]) }
                 switch -Wildcard ($category) {
                     'Virtual Machines*' { $ComputeRef.Value += $amount }
                     'Storage*' { $StorageRef.Value += $amount }
@@ -98,7 +98,9 @@ function Add-MeterCosts {
             }
         }
     }
-    catch { }
+    catch {
+        Write-Verbose "Meter cost parse failed: $($_.Exception.Message)"
+    }
     return $any
 }
 
@@ -246,7 +248,8 @@ resources
     # -- 3: Amortized cost by meter category (sub-scoped, with fallback) --
     $computeCost = 0.0
     $storageCost = 0.0
-    $currency = 'USD'
+    # A tenant can bill subscriptions in different currencies; keep them all.
+    $currenciesSeen = @{}
     $costOk = $false
     $costScope = 'none'
     $mgFailed = $false
@@ -276,7 +279,7 @@ resources
                 Set-MgCostScopeFailed
             }
             elseif ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
-                if (Add-MeterCosts -Content $resp.Content -ComputeRef ([ref]$computeCost) -StorageRef ([ref]$storageCost) -CurrencyRef ([ref]$currency)) {
+                if (Add-MeterCosts -Content $resp.Content -ComputeRef ([ref]$computeCost) -StorageRef ([ref]$storageCost) -CurrencySeen $currenciesSeen) {
                     $costOk = $true
                     $costScope = "mg:$mgScopeId"
                 }
@@ -309,7 +312,7 @@ resources
                 $path = "/subscriptions/$sid/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
                 $resp = Invoke-AzRestMethodWithRetry -Path $path -Method POST -Payload $body
                 if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
-                    if (Add-MeterCosts -Content $resp.Content -ComputeRef ([ref]$computeCost) -StorageRef ([ref]$storageCost) -CurrencyRef ([ref]$currency)) {
+                    if (Add-MeterCosts -Content $resp.Content -ComputeRef ([ref]$computeCost) -StorageRef ([ref]$storageCost) -CurrencySeen $currenciesSeen) {
                         $costOk = $true
                         $costScope = 'per-sub'
                     }
@@ -356,7 +359,7 @@ resources
 
     return [PSCustomObject]@{
         HasData         = $hasData
-        Currency        = $currency
+        Currency        = Resolve-CurrencyLabel -Seen $currenciesSeen
         ComputeCost     = [math]::Round($computeCost, 2)
         StorageCost     = [math]::Round($storageCost, 2)
         ComputeSharePct = $computeSharePct

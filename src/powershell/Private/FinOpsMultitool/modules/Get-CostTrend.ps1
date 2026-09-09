@@ -173,8 +173,10 @@ function Get-CostTrend {
                 }
                 $key = $e.MonthDate.ToString('yyyy-MM')
                 if (-not $agg.ContainsKey($key)) {
-                    $agg[$key] = @{ Cost = 0; Date = $e.MonthDate; Currency = $e.Currency }
+                    # Track every currency in the month, not just the first seen.
+                    $agg[$key] = @{ Cost = 0; Date = $e.MonthDate; Currencies = @{} }
                 }
+                Add-CurrencySeen -Seen $agg[$key].Currencies -Currency $e.Currency
                 $agg[$key].Cost += $e.Cost
             }
             foreach ($k in @($bySubscription.Keys)) {
@@ -185,7 +187,7 @@ function Get-CostTrend {
                     Month     = $entry.Value.Date.ToString('MMM yyyy')
                     MonthDate = $entry.Value.Date
                     Cost      = [math]::Round($entry.Value.Cost, 2)
-                    Currency  = $entry.Value.Currency
+                    Currency  = Resolve-CurrencyLabel -Seen $entry.Value.Currencies
                 })
             }
         }
