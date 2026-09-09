@@ -895,7 +895,7 @@
                 "name": "enableManagedExports",
                 "type": "Microsoft.Common.CheckBox",
                 "label": "Enable managed exports",
-                "toolTip": "Creating exports in Cost Management requires the User Access Administrator role. You must have access to grant User Access Administrator to your FinOps hub to enable managed exports."
+                "toolTip": "Creating exports in Cost Management requires the ability to grant access to the export destination. You must have access to grant the Role Based Access Control Administrator role to your FinOps hub to enable managed exports."
               }
             ],
             "visible": true

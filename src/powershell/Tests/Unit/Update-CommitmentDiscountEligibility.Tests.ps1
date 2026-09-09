@@ -10,7 +10,7 @@ Describe 'Update-CommitmentDiscountEligibility helpers' {
     BeforeAll {
         $scriptPath = Join-Path (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName 'src/scripts/Update-CommitmentDiscountEligibility.ps1'
         $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
-        foreach ($name in 'Get-FamilyShortfall', 'Get-RetryDelay', 'Get-EligibleMeter', 'ConvertTo-SortedMap', 'Get-VerifiedEligibleMeter')
+        foreach ($name in 'Get-FamilyShortfall', 'Get-RetryDelay', 'Get-EligibleMeter', 'ConvertTo-SortedMap', 'Get-VerifiedEligibleMeter', 'New-EligibilityRow')
         {
             $fn = $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name }, $true) | Select-Object -First 1
             if (-not $fn) { throw "Function $name not found in $scriptPath" }
@@ -392,6 +392,48 @@ Describe 'Update-CommitmentDiscountEligibility helpers' {
             # Only pass 1 consumed, and the second (disagreeing) pass never ran.
             $script:passIndex | Should -Be 1
             $r.Keys.Count | Should -Be 1
+        }
+    }
+
+    Context 'New-EligibilityRow' {
+        # The published dataset had these two columns reversed from v14 through v15 (#2279):
+        # FOCUS calls a reservation a "Usage" commitment (a quantity of usage) and a savings plan
+        # a "Spend" commitment (an amount of money), and the columns said the opposite. These
+        # tests pin the direction so a future edit cannot quietly swap it back.
+        It 'reports a reservation-only meter as usage eligible, not spend eligible' {
+            $row = New-EligibilityRow -MeterId 'm1' -HasReservationPricing $true -HasSavingsPlanPricing $false
+
+            $row.x_CommitmentDiscountUsageEligibility | Should -Be 'Eligible'
+            $row.x_CommitmentDiscountSpendEligibility | Should -Be 'Not Eligible'
+        }
+
+        It 'reports a savings plan-only meter as spend eligible, not usage eligible' {
+            $row = New-EligibilityRow -MeterId 'm1' -HasReservationPricing $false -HasSavingsPlanPricing $true
+
+            $row.x_CommitmentDiscountSpendEligibility | Should -Be 'Eligible'
+            $row.x_CommitmentDiscountUsageEligibility | Should -Be 'Not Eligible'
+        }
+
+        It 'reports a meter with both price types as eligible for both' {
+            $row = New-EligibilityRow -MeterId 'm1' -HasReservationPricing $true -HasSavingsPlanPricing $true
+
+            $row.x_CommitmentDiscountSpendEligibility | Should -Be 'Eligible'
+            $row.x_CommitmentDiscountUsageEligibility | Should -Be 'Eligible'
+        }
+
+        It 'reports a meter with neither price type as eligible for neither' {
+            $row = New-EligibilityRow -MeterId 'm1' -HasReservationPricing $false -HasSavingsPlanPricing $false
+
+            $row.x_CommitmentDiscountSpendEligibility | Should -Be 'Not Eligible'
+            $row.x_CommitmentDiscountUsageEligibility | Should -Be 'Not Eligible'
+        }
+
+        It 'emits the meter id and the published column order' {
+            # Export-Csv writes columns in property order, so this is the CSV header contract.
+            $row = New-EligibilityRow -MeterId 'meter-1' -HasReservationPricing $true -HasSavingsPlanPricing $true
+
+            $row.MeterId | Should -Be 'meter-1'
+            @($row.PSObject.Properties.Name) | Should -Be @('MeterId', 'x_CommitmentDiscountSpendEligibility', 'x_CommitmentDiscountUsageEligibility')
         }
     }
 }
