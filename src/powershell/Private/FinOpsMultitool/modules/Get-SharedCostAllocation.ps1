@@ -222,13 +222,13 @@ function Get-AllocationCostMaps {
             $path = "/subscriptions/$sub/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
             try {
                 $resp = Invoke-AzRestMethodWithRetry -Path $path -Method POST -Payload $body
-                if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
-                    $data = $resp.Content | ConvertFrom-Json
+                if (-not $bySub.ContainsKey($sub)) { $bySub[$sub] = 0.0 }
+                foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -Context "shared cost for $sub")) {
+                    $data = $page.Content | ConvertFrom-Json
                     $cols = @($data.properties.columns.name)
                     $iCost = [array]::IndexOf($cols, 'Cost')
                     $iRes = [array]::IndexOf($cols, 'ResourceId')
                     $iCur = [array]::IndexOf($cols, 'Currency')
-                    if (-not $bySub.ContainsKey($sub)) { $bySub[$sub] = 0.0 }
                     foreach ($row in @($data.properties.rows)) {
                         $amount = if ($iCost -ge 0) { [double]$row[$iCost] } else { 0 }
                         $rid = if ($iRes -ge 0) { [string]$row[$iRes] } else { '' }

@@ -345,15 +345,18 @@ resources
                 if (-not $costPeriodLabel) { $costPeriodLabel = $usedLabel }
                 $costQueried++
 
-                $costResult = ($costResp.Content | ConvertFrom-Json)
-                $costCols = @{}
-                for ($cIdx = 0; $cIdx -lt $costResult.properties.columns.Count; $cIdx++) {
-                    $costCols[$costResult.properties.columns[$cIdx].name] = $cIdx
-                }
-                foreach ($costRow in $costResult.properties.rows) {
-                    $rid = [string]$costRow[$costCols['ResourceId']]
-                    # Resource Graph and Cost Management disagree on ID casing.
-                    if ($rid) { $costMap[$rid.ToLowerInvariant()] = [math]::Round([double]$costRow[$costCols['Cost']], 2) }
+                # Follow nextLink: one page only would leave later orphans uncosted.
+                foreach ($page in (Get-CostQueryResponsePage -FirstResponse $costResp -Context "orphan cost for $($sub.Name)")) {
+                    $costResult = ($page.Content | ConvertFrom-Json)
+                    $costCols = @{}
+                    for ($cIdx = 0; $cIdx -lt $costResult.properties.columns.Count; $cIdx++) {
+                        $costCols[$costResult.properties.columns[$cIdx].name] = $cIdx
+                    }
+                    foreach ($costRow in $costResult.properties.rows) {
+                        $rid = [string]$costRow[$costCols['ResourceId']]
+                        # Resource Graph and Cost Management disagree on ID casing.
+                        if ($rid) { $costMap[$rid.ToLowerInvariant()] = [math]::Round([double]$costRow[$costCols['Cost']], 2) }
+                    }
                 }
             }
             catch {

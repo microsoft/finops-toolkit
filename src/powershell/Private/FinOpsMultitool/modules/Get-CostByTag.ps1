@@ -439,7 +439,11 @@ function Get-CostByTag {
                     $subResp = $pj.Result
                     if ($subResp.StatusCode -eq 200) {
                         $subsQueried++
-                        $rows = Parse-ResourceIdRows -ResponseContent $subResp.Content
+                        # Follow nextLink: one page only would understate a large subscription.
+                        $rows = @()
+                        foreach ($page in (Get-CostQueryResponsePage -FirstResponse $subResp -Context "cost-by-tag for $($pj.SubName)")) {
+                            $rows += Parse-ResourceIdRows -ResponseContent $page.Content
+                        }
                         foreach ($row in $rows) {
                             $cost = $row.Cost
                             $grandTotal += $cost
