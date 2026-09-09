@@ -123,7 +123,7 @@ function Get-PolicyRecommendations {
         # === ALLOWED STORAGE ACCOUNT SKUS (CAF) ===
         [PSCustomObject]@{
             PolicyDefId  = '/providers/Microsoft.Authorization/policyDefinitions/7433c107-6db4-4ad1-b57a-a76dce0154a1'
-            DisplayName  = 'Allowed storage account SKUs'
+            DisplayName  = 'Storage accounts should be limited by allowed SKUs'
             Category     = 'Storage'
             Pillar       = 'Optimize'
             Priority     = 'Recommended'
@@ -181,20 +181,6 @@ function Get-PolicyRecommendations {
             Reference    = 'https://learn.microsoft.com/en-us/azure/governance/policy/samples/built-in-policies#general'
             Parameters   = @(
                 @{ Name = 'listOfResourceTypesNotAllowed'; Label = 'Resource types to block (comma-separated, e.g. Microsoft.Sql/servers,Microsoft.HDInsight/clusters)'; Required = $true; IsArray = $true }
-            )
-        }
-        [PSCustomObject]@{
-            PolicyDefId  = '/providers/Microsoft.Authorization/policyDefinitions/7433c107-6db4-4ad1-b57a-a76dce0154a1'
-            DisplayName  = 'Storage accounts should be limited by allowed SKUs'
-            Category     = 'Storage'
-            Pillar       = 'Optimize'
-            Priority     = 'Recommended'
-            DefaultEffect = 'Deny'
-            AllowedEffects = @('Audit','Deny','Disabled')
-            Purpose      = 'Prevent Premium storage where Standard suffices to reduce storage costs'
-            Reference    = 'https://learn.microsoft.com/en-us/azure/governance/policy/samples/built-in-policies#storage'
-            Parameters   = @(
-                @{ Name = 'listOfAllowedSKUs'; Label = 'Allowed storage SKUs (comma-separated, e.g. Standard_LRS,Standard_GRS)'; Required = $true; IsArray = $true }
             )
         }
         [PSCustomObject]@{

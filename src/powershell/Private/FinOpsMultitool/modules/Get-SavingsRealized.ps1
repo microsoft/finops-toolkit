@@ -301,7 +301,9 @@ function Get-SavingsRealized {
 
                             if ($pricingModel -match 'Reservation') {
                                 # Amortized RI cost — the actual RI spend
-                                $riSavings += $cost * 0.4  # Approximate: RIs typically save ~40% vs PAYG
+                                # Same factor as the main path: savings is the gap up
+                                # to PAYG, not a share of what was paid.
+                                $riSavings += $cost * $script:FinOpsRiSavingsFactor
                                 $committedAmort += $cost
                                 [void]$details.Add([PSCustomObject]@{
                                         Subscription = $sub.Name
@@ -311,7 +313,7 @@ function Get-SavingsRealized {
                                     })
                             }
                             elseif ($pricingModel -match 'SavingsPlan') {
-                                $spSavings += $cost * 0.25  # Approximate: SPs save ~25% on average
+                                $spSavings += $cost * $script:FinOpsSpSavingsFactor
                                 $committedAmort += $cost
                                 [void]$details.Add([PSCustomObject]@{
                                         Subscription = $sub.Name

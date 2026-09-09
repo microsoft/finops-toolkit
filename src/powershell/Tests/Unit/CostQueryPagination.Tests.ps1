@@ -60,4 +60,31 @@ Describe 'Cost Management query pagination' {
         $parsed = $pages[0].Content | ConvertFrom-Json
         @($parsed.properties.rows).Count | Should -Be 3
     }
+
+    Context 'nextLink validation' {
+        # nextLink is service-supplied. A relative or malformed value yields an
+        # empty PathAndQuery rather than throwing, and a foreign host would be
+        # rewritten onto the ARM host, so both are rejected.
+        It 'Accepts <Case>' -ForEach @(
+            @{ Case = 'an absolute ARM url'; Link = 'https://management.azure.com/subscriptions/x/q?api-version=2023-11-01' }
+            @{ Case = 'a rooted relative path'; Link = '/subscriptions/x/q?api-version=2023-11-01' }
+        ) {
+            Resolve-NextLinkPath -NextLink $Link | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Rejects <Case>' -ForEach @(
+            @{ Case = 'a foreign host'; Link = 'https://evil.example.com/steal?a=1' }
+            @{ Case = 'a non-https scheme'; Link = 'http://management.azure.com/x' }
+            @{ Case = 'a malformed value'; Link = 'not a url' }
+            @{ Case = 'an empty value'; Link = '' }
+            @{ Case = 'a null value'; Link = $null }
+        ) {
+            Resolve-NextLinkPath -NextLink $Link | Should -BeNullOrEmpty
+        }
+
+        It 'Strips the host so the request stays on the ARM endpoint' {
+            Resolve-NextLinkPath -NextLink 'https://management.azure.com/subscriptions/x/q?a=1' |
+                Should -Be '/subscriptions/x/q?a=1'
+        }
+    }
 }

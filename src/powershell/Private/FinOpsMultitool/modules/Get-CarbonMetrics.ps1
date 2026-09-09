@@ -70,8 +70,15 @@ function Get-CarbonMetrics {
         }
 
         if ($probe -and $probe.StatusCode -eq 200) {
-            $window = @{ Start = $startMonth; End = $endMonth }
-            break
+            # A 200 with an empty value array means the window published no data.
+            # Accepting it would lock onto an empty month and never try older ones.
+            $probeRows = 0
+            try { $probeRows = @(($probe.Content | ConvertFrom-Json).value).Count }
+            catch { $probeRows = 0 }
+            if ($probeRows -gt 0) {
+                $window = @{ Start = $startMonth; End = $endMonth }
+                break
+            }
         }
 
         # 404/400 here usually means "no data for that window" or the
