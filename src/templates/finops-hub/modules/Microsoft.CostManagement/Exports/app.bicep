@@ -75,6 +75,7 @@ module schemaFiles '../../fx/hub-storage.bicep' = {
       'schemas/focuscost_1.0-preview(v1).json': loadTextContent('./schemas/focuscost_1.0-preview(v1).json')
       'schemas/pricesheet_2023-05-01_ea.json': loadTextContent('./schemas/pricesheet_2023-05-01_ea.json')
       'schemas/pricesheet_2023-05-01_mca.json': loadTextContent('./schemas/pricesheet_2023-05-01_mca.json')
+      'schemas/pricesheet_2024-08-01_mca.json': loadTextContent('./schemas/pricesheet_2024-08-01_mca.json')
       'schemas/reservationdetails_2023-03-01.json': loadTextContent('./schemas/reservationdetails_2023-03-01.json')
       'schemas/reservationrecommendations_2023-05-01_ea.json': loadTextContent('./schemas/reservationrecommendations_2023-05-01_ea.json')
       'schemas/reservationrecommendations_2023-05-01_mca.json': loadTextContent('./schemas/reservationrecommendations_2023-05-01_mca.json')

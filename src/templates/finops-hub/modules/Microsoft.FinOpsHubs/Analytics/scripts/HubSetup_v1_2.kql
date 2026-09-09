@@ -434,6 +434,7 @@ Prices_v1_2()
         x_SkuRegion,
         x_SkuServiceFamily,
         x_SkuOfferId,
+        x_SkuOrderName,
         x_SkuPartNumber,
         x_SkuTerm,
         x_SkuTier,
