@@ -378,7 +378,7 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
   tags: getHubTags(hub, 'Microsoft.Storage/storageAccounts')
   properties: {
     supportsHttpsTrafficOnly: true
-    allowSharedKeyAccess: true
+    allowSharedKeyAccess: !hub.options.disableStorageSharedKeyAccess
     isHnsEnabled: false
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
