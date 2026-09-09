@@ -1799,9 +1799,9 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-ContractInfo' {
                     $rows = @($data) | ForEach-Object {
-                        [PSCustomObject]@{ Account = $_.AccountName; Agreement = $_.AgreementType; Type = $_.FriendlyType; Currency = $_.Currency; Status = $_.AccountStatus }
+                        [PSCustomObject]@{ Account = $_.AccountName; Agreement = $_.AgreementType; Type = $_.FriendlyType; Country = $_.SoldToCountry; Status = $_.AccountStatus }
                     }
-                    $cols = @('Account', 'Agreement', 'Type', 'Currency', 'Status')
+                    $cols = @('Account', 'Agreement', 'Type', 'Country', 'Status')
                 }
                 'Get-MaccCommitment' {
                     if (-not $data.Applicable) {
@@ -2967,8 +2967,8 @@ tr:hover td { background: var(--surface); }
                         $htmlCols = @('Account', 'Agreement', 'Type', 'Status')
                     }
                     'Get-ContractInfo' {
-                        $htmlRows = @($data) | ForEach-Object { [PSCustomObject]@{ Account = $_.AccountName; Agreement = $_.AgreementType; Type = $_.FriendlyType; Currency = $_.Currency; Status = $_.AccountStatus } }
-                        $htmlCols = @('Account', 'Agreement', 'Type', 'Currency', 'Status')
+                        $htmlRows = @($data) | ForEach-Object { [PSCustomObject]@{ Account = $_.AccountName; Agreement = $_.AgreementType; Type = $_.FriendlyType; Country = $_.SoldToCountry; Status = $_.AccountStatus } }
+                        $htmlCols = @('Account', 'Agreement', 'Type', 'Country', 'Status')
                     }
                     'Get-BudgetHistory' {
                         $htmlRows = @($data) | Where-Object { $_ } | ForEach-Object {

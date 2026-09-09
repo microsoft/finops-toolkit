@@ -178,7 +178,8 @@ resources
     return [PSCustomObject]@{
         HasData         = ($allLegacy.Count -gt 0)
         TotalCount      = $allLegacy.Count
-        LegacyResources = @($allLegacy | Sort-Object @{ Expression = 'Impact'; Descending = $true }, Category)
+        # Rank explicitly: a descending string sort puts 'Low' ahead of 'High'.
+        LegacyResources = @($allLegacy | Sort-Object @{ Expression = { switch ([string]$_.Impact) { 'High' { 0 } 'Medium' { 1 } 'Low' { 2 } default { 3 } } } }, Category)
         ByCategory      = $byCategory
         ScannedSubs     = $Subscriptions.Count
     }

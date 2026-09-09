@@ -76,7 +76,7 @@ function Get-FOHubScopeClause {
     $guids = @($SubscriptionIds | Where-Object { $_ -match '^[0-9a-fA-F-]{36}$' } | ForEach-Object { $_.ToLower() })
     if ($guids.Count -eq 0) { return '' }
     $arr = ($guids | ForEach-Object { '"' + $_ + '"' }) -join ', '
-    return "| where tolower(SubAccountId) has_any (dynamic([$arr]))"
+    return "| where SubAccountId has_any (dynamic([$arr]))"
 }
 
 # -- Private: run a query through the resolved provider --------------------

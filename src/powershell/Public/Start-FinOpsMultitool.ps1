@@ -13,11 +13,11 @@
     and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly
     alerts, and policy compliance.
 
-    Results are rendered in the terminal with export options for Excel, CSV, JSON, and
-    Power BI.
+    Results are rendered in the terminal. Exports are one CSV file per scan module, an
+    HTML report, and a text summary.
 
-    The scan modules are read-only. The TUI runs on PowerShell 5.1+ (Windows) or
-    PowerShell 7+ (cross-platform) and requires the Az modules (Az.Accounts,
+    The scan modules are read-only. The TUI requires PowerShell 7 or later on Windows,
+    macOS, and Linux, the Az modules (Az.Accounts,
     Az.ResourceGraph, Az.Storage) and Reader access on the target scope.
 
     Consoles that cannot drive the arrow-key menus, such as remoting sessions and some

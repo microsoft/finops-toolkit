@@ -130,7 +130,8 @@ function Get-ContractInfo {
                 AgreementType = $props.agreementType
                 FriendlyType  = $friendlyType
                 AccountStatus = $props.accountStatus
-                Currency      = if ($props.soldTo) { $props.soldTo.country } else { 'Unknown' }
+                    # soldTo is a billing mailing address, so this is a country, not a currency.
+                    SoldToCountry = if ($props.soldTo) { $props.soldTo.country } else { 'Unknown' }
             })
         }
     } catch {
