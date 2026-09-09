@@ -84,6 +84,7 @@ The following section lists features and enhancements that are currently in deve
 - **Fixed**
   - Fixed the instance size flexibility generator sweeping a hardcoded list of 26 regions, which omitted SKUs that launch in only a handful of regions. It now enumerates every physical region from the ARM locations API, 63 at the time of the change ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
   - Fixed ratios being parsed and written with the current culture. On a comma-decimal machine `2.1` was read as `21` or rejected, and written back as `2,1`, which would break every consumer of the file ([#2308](https://github.com/microsoft/finops-toolkit/pull/2308)).
+  - Fixed the dataset publishing unnormalized ratios. The Catalogs API leaves them unnormalized, so a group's smallest SKU is usually not `1`, while the retired ratio file it replaced was normalized and the Optimization Engine converts quantities into units of a group's smallest SKU. Absolute quantities in the reservation workbooks were inflated by a per-group constant as a result. Each group is now normalized, matching the retired file for 1,223 of the 1,291 rows they share ([#2309](https://github.com/microsoft/finops-toolkit/issues/2309)).
   - Fixed the dataset publishing a SKU whose ratio is `0`, which the Optimization Engine's benefits simulation divides by. Non-positive ratios are now dropped ([#2308](https://github.com/microsoft/finops-toolkit/pull/2308)).
 
 **[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**

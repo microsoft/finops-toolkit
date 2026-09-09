@@ -176,16 +176,17 @@ Describe 'Update-InstanceSizeFlexibility' {
                 [System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::new('de-DE')
                 Mock Invoke-AzRestMethod {
                     New-CatalogResponse -Items @(
-                        (New-CatalogItem -Sku 'Standard_A2_v2' -Group 'Av2 Series' -Ratio '2.1'),
-                        (New-CatalogItem -Sku 'Standard_D2' -Group 'DSeries' -Ratio '4.5')
+                        (New-CatalogItem -Sku 'Standard_A1_v2' -Group 'Av2 Series' -Ratio '2'),
+                        (New-CatalogItem -Sku 'Standard_A2_v2' -Group 'Av2 Series' -Ratio '2.1')
                     )
                 }
 
                 Invoke-Generator $baseParams
 
+                # 2.1 / 2 = 1.05. Culture-aware parsing reads "2.1" as 21 and would write "10,5".
                 $raw = Get-Content $outFile -Raw
-                $raw | Should -BeLike '*"Standard_A2_v2","2.1"*'
-                $raw | Should -BeLike '*"Standard_D2","4.5"*'
+                $raw | Should -BeLike '*"Standard_A1_v2","1"*'
+                $raw | Should -BeLike '*"Standard_A2_v2","1.05"*'
             }
             finally
             {
@@ -341,6 +342,16 @@ Describe 'Update-InstanceSizeFlexibility' {
             $duplicates.Name | Should -BeNullOrEmpty
         }
 
+        It 'Has every flexibility group normalized to a smallest ratio of 1' {
+            $csv = Import-Csv "$PSScriptRoot/../../../open-data/InstanceSizeFlexibility.csv"
+            $notNormalized = @(
+                $csv | Group-Object InstanceSizeFlexibilityGroup | Where-Object {
+                    [Math]::Abs((($_.Group.Ratio | ForEach-Object { [double]$_ } | Measure-Object -Minimum).Minimum) - 1) -gt 0.0001
+                }
+            )
+            $notNormalized.Name | Should -BeNullOrEmpty
+        }
+
         It 'Has no zero or negative ratios' {
             # Consumers multiply and divide by Ratio, so a non-positive value is unusable.
             $csv = Import-Csv "$PSScriptRoot/../../../open-data/InstanceSizeFlexibility.csv"
@@ -354,7 +365,7 @@ Describe 'Update-InstanceSizeFlexibility' {
     }
 
     Context 'Normalization' {
-        It 'Rescales each group so the smallest ratio is 1 when -Normalize is set' {
+        It 'Rescales each group so the smallest ratio is 1 by default' {
             Mock Invoke-AzRestMethod {
                 New-CatalogResponse -Items @(
                     (New-CatalogItem -Sku 'Standard_B1s' -Group 'BS Series' -Ratio '0.25'),
@@ -363,10 +374,7 @@ Describe 'Update-InstanceSizeFlexibility' {
                     (New-CatalogItem -Sku 'Standard_D4' -Group 'DSeries' -Ratio '2')
                 )
             }
-            $params = $baseParams.Clone()
-            $params.Normalize = $true
-
-            Invoke-Generator $params
+            Invoke-Generator $baseParams
 
             $rows = @(Import-Csv $outFile)
             ($rows | Where-Object ArmSkuName -eq 'Standard_B1s').Ratio | Should -Be '1'
@@ -375,7 +383,7 @@ Describe 'Update-InstanceSizeFlexibility' {
             ($rows | Where-Object ArmSkuName -eq 'Standard_D4').Ratio | Should -Be '2'
         }
 
-        It 'Keeps raw ratios by default' {
+        It 'Keeps the API ratios verbatim when -Raw is set' {
             Mock Invoke-AzRestMethod {
                 New-CatalogResponse -Items @(
                     (New-CatalogItem -Sku 'Standard_B1s' -Group 'BS Series' -Ratio '0.25'),
@@ -383,7 +391,10 @@ Describe 'Update-InstanceSizeFlexibility' {
                 )
             }
 
-            Invoke-Generator $baseParams
+            $params = $baseParams.Clone()
+            $params.Raw = $true
+
+            Invoke-Generator $params
 
             $rows = @(Import-Csv $outFile)
             ($rows | Where-Object ArmSkuName -eq 'Standard_B1s').Ratio | Should -Be '0.25'

@@ -54,11 +54,21 @@
     .PARAMETER ApiVersion
     Catalogs API version. Default = 2022-03-01.
 
-    .PARAMETER Normalize
-    Normalize ratios so the smallest SKU in each flexibility group has a ratio of 1. The raw API
-    ratios don't always start at 1 (e.g. BS Series starts at 0.25). When omitted, the raw Microsoft
-    ratios are kept for drop-in parity with the deprecated isfratioblob.csv /
-    AutofitComboMeterData.csv files that downstream tools (Power BI, Optimization Engine) expect.
+    .PARAMETER Raw
+    Publish the Catalogs API ratios verbatim instead of normalizing them.
+
+    By default each flexibility group is normalized so its smallest SKU has a ratio of 1. The API
+    leaves ratios unnormalized -- only 52 of 211 groups start at 1, and Microsoft's own
+    documentation calls this out (BS Series starts at 0.25, Ddsv5 Series at 2) and publishes a
+    normalization step alongside it. Both forms carry identical proportions within a group and
+    differ by a per-group constant.
+
+    Normalized is the form the retired isfratioblob.csv published and the form downstream tools
+    assume: the Optimization Engine converts quantities into units of a group's smallest SKU, and
+    a ratio scale that doesn't start at 1 silently inflates those absolute figures. Ratios are only
+    ever meaningful within their group, so normalizing loses nothing.
+
+    See https://learn.microsoft.com/azure/cost-management-billing/reservations/instance-size-flexibility#normalize-isf-ratios
 
     .EXAMPLE
     ./Update-InstanceSizeFlexibility.ps1
@@ -84,7 +94,7 @@ param(
 
     [string]$LocationApiVersion = '2022-12-01',
 
-    [switch]$Normalize
+    [switch]$Raw
 )
 
 $ErrorActionPreference = 'Stop'
@@ -332,7 +342,7 @@ if ($duplicateSkus)
 # -----------------------------------------------------------------------
 # Step 2: Normalize, sort, and write output
 # -----------------------------------------------------------------------
-if ($Normalize)
+if (-not $Raw)
 {
     Write-Host "Normalizing ratios (smallest SKU per group = 1)..."
     $allRecords = Get-NormalizedRecords -Records $allRecords
