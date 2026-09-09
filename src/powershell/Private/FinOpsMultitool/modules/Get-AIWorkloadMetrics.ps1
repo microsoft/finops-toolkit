@@ -56,6 +56,8 @@ function Get-AIWorkloadMetrics {
     $mlWorkspaceCount = 0
     $searchCount = 0
     $gpuVmCount = 0
+    $detectionFailed = $false
+    $metricFailures = [System.Collections.Generic.List[string]]::new()
 
     try {
         $gateQuery = @"
@@ -92,6 +94,8 @@ resources
         }
     }
     catch {
+        # A failed probe cannot prove absence, so record it and say so below.
+        $detectionFailed = $true
         Write-Warning "  AI detection query failed: $($_.Exception.Message)"
     }
 
@@ -105,12 +109,23 @@ resources
 
     $anyAI = ($openAiAccounts.Count + $aiServiceCount + $mlWorkspaceCount + $searchCount + $gpuVmCount) -gt 0
     if (-not $anyAI) {
-        Write-Host "    No AI workloads detected - skipping AI KPIs." -ForegroundColor Gray
+        if ($detectionFailed) {
+            Write-Warning "    AI detection did not complete - cannot confirm whether AI workloads exist."
+        }
+        else {
+            Write-Host "    No AI workloads detected - skipping AI KPIs." -ForegroundColor Gray
+        }
         return [PSCustomObject]@{
             HasData     = $false
             AIFootprint = $footprint
             ScannedSubs = $Subscriptions.Count
-            Note        = 'No AI workloads detected in the scanned subscriptions.'
+            DetectionFailed = $detectionFailed
+            Note        = if ($detectionFailed) {
+                'AI detection query failed, so the absence of AI workloads is unverified.'
+            }
+            else {
+                'No AI workloads detected in the scanned subscriptions.'
+            }
         }
     }
 
@@ -227,8 +242,9 @@ resources
                     }
                 }
                 catch {
-                    # Metrics unavailable for this account (no usage yet, or
-                    # not an OpenAI-capable kind) - skip it.
+                    # "No usage yet" and "the call failed" both land here, so record it
+                    # rather than letting a throttled account read as zero tokens.
+                    [void]$metricFailures.Add("$acctKey : $($_.Exception.Message)")
                 }
             }
         }
@@ -348,6 +364,11 @@ resources
         $note = 'AI footprint detected (ML/Search/GPU); no token-metered Azure OpenAI usage to price.'
     }
 
+    if ($metricFailures.Count -gt 0) {
+        Write-Warning "  Metrics unavailable for $($metricFailures.Count) AI account(s); token and cost totals exclude them."
+        foreach ($f in ($metricFailures | Select-Object -First 3)) { Write-Verbose "    $f" }
+    }
+
     return [PSCustomObject]@{
         HasData              = $hasData
         AIFootprint          = $footprint
@@ -364,6 +385,10 @@ resources
         Period               = 'MonthToDate'
         Source               = if ($fromHub) { 'FinOpsHub' } else { 'API' }
         ScannedSubs          = $Subscriptions.Count
+        DetectionFailed      = $detectionFailed
+        # Accounts whose metrics could not be read; token totals exclude them.
+        MetricFailures       = $metricFailures.Count
+        MetricFailureDetail  = @($metricFailures)
         Note                 = $note
     }
 }

@@ -21,6 +21,7 @@ function Get-StorageTierAdvice {
 
     $subIds = $Subscriptions | ForEach-Object { $_.Id }
     $results = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $metricFailures = [System.Collections.Generic.List[string]]::new()
 
     # -- 1: Find all storage accounts on Hot default tier -----------------
     try {
@@ -116,8 +117,15 @@ resources
             }
         }
         catch {
-            # Metrics not available (classic account, no blob service, etc.) — skip
+            # A classic account with no blob service is expected; a throttled or
+            # unauthorized call is not. Count both rather than reporting neither.
+            [void]$metricFailures.Add("$($sa.name): $($_.Exception.Message)")
         }
+    }
+
+    if ($metricFailures.Count -gt 0) {
+        Write-Warning "    Metrics unavailable for $($metricFailures.Count) of $($hotAccounts.Count) storage account(s); those accounts were not evaluated."
+        foreach ($f in ($metricFailures | Select-Object -First 3)) { Write-Verbose "      $f" }
     }
 
     Write-Host "    Storage tier recommendations: $($results.Count)" -ForegroundColor Gray
@@ -127,5 +135,9 @@ resources
         TotalHotAccounts = $hotAccounts.Count
         Count            = $results.Count
         HasData          = ($results.Count -gt 0)
+        # Evaluated excludes accounts whose metrics could not be read.
+        EvaluatedAccounts = ($hotAccounts.Count - $metricFailures.Count)
+        MetricFailures   = $metricFailures.Count
+        MetricFailureDetail = @($metricFailures)
     }
 }

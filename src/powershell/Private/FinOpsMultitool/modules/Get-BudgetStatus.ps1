@@ -39,8 +39,11 @@ function Get-BudgetStatus {
     if ($subCount -gt 50) {
         $sampleSize = [math]::Min(10, $subCount)
         Write-Host "  Large tenant: sampling $sampleSize of $subCount subs for budgets..." -ForegroundColor Yellow
-        $sampleSubs = $Subscriptions | Select-Object -First $sampleSize
+        # Random rather than the first N: subscription order is not arbitrary, so
+        # the head of the list is not a representative sample.
+        $sampleSubs = @($Subscriptions | Get-Random -Count $sampleSize)
         $sampleHits = 0
+        $sampleErrors = 0
         foreach ($sub in $sampleSubs) {
             try {
                 $budgetPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Consumption/budgets?api-version=2023-05-01"
@@ -49,15 +52,23 @@ function Get-BudgetStatus {
                     $sampleBudgets = ($resp.Content | ConvertFrom-Json).value
                     if ($sampleBudgets -and $sampleBudgets.Count -gt 0) { $sampleHits++ }
                 }
+                else { $sampleErrors++ }
             }
-            catch { }
+            catch {
+                $sampleErrors++
+                Write-Verbose "Budget sample failed for $($sub.Name): $($_.Exception.Message)"
+            }
         }
 
-        if ($sampleHits -eq 0) {
+        if ($sampleHits -eq 0 -and $sampleErrors -eq 0) {
+            # Only skip the tenant when every probe actually answered.
             Write-Host "  No budgets found in sample of $sampleSize subs - skipping remaining" -ForegroundColor Yellow
             $sampled = $true
             $subsWithoutBudget = $subCount
             $subsToQuery = @()   # Skip the main loop
+        }
+        elseif ($sampleHits -eq 0) {
+            Write-Warning "  Budget sample inconclusive ($sampleErrors of $sampleSize probes failed); querying all $subCount subs instead of assuming none."
         }
         else {
             Write-Host "  Budgets found in sample ($sampleHits/$sampleSize), querying all $subCount subs..." -ForegroundColor Cyan

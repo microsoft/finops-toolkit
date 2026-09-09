@@ -126,46 +126,62 @@ function Get-PolicyInventory {
     try {
         Write-Host "  Querying policy assignments via ARM REST API..." -ForegroundColor Cyan
         $seenIds = @{}
+        $subFailures = [System.Collections.Generic.List[string]]::new()
         foreach ($sub in $Subscriptions) {
-            $subName = $sub.Name
-            $nextLink = "/subscriptions/$($sub.Id)/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01"
-            while ($nextLink) {
-                $resp = Invoke-AzRestMethodWithRetry -Path $nextLink -Method GET
-                if ($resp.StatusCode -ne 200) { break }
-                $body = $resp.Content | ConvertFrom-Json
-                foreach ($a in $body.value) {
-                    # De-duplicate (same MG assignment appears under each sub)
-                    if ($seenIds.ContainsKey($a.id)) { continue }
-                    $seenIds[$a.id] = $true
-
-                    $props = $a.properties
-                    $defId = $props.policyDefinitionId
-                    $origin = if ($defId -match '/policySetDefinitions/') { 'Initiative' }
-                    elseif ($defId -match '/providers/Microsoft\.Authorization/policyDefinitions/') { 'BuiltIn' }
-                    else { 'Custom' }
-                    $scope = if ($a.id -match '^(.*)/providers/Microsoft\.Authorization/policyAssignments/') {
-                        $Matches[1]
+            # Scoped per subscription: a transient failure on one must not abandon
+            # the rest of the tenant and leave a partial result looking complete.
+            try {
+                $subName = $sub.Name
+                $nextLink = "/subscriptions/$($sub.Id)/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01"
+                while ($nextLink) {
+                    $resp = Invoke-AzRestMethodWithRetry -Path $nextLink -Method GET
+                    if ($resp.StatusCode -ne 200) {
+                        [void]$subFailures.Add("$($sub.Name): HTTP $($resp.StatusCode)")
+                        break
                     }
-                    else { '' }
+                    $body = $resp.Content | ConvertFrom-Json
+                    foreach ($a in $body.value) {
+                        # De-duplicate (same MG assignment appears under each sub)
+                        if ($seenIds.ContainsKey($a.id)) { continue }
+                        $seenIds[$a.id] = $true
 
-                    [void]$allAssignments.Add([PSCustomObject]@{
-                            AssignmentName  = if ($props.displayName) { $props.displayName } else { $a.name }
-                            AssignmentId    = $a.id
-                            PolicyDefId     = $defId
-                            Scope           = $scope
-                            Effect          = if ($props.parameters -and $props.parameters.effect) { $props.parameters.effect.value } else { '-' }
-                            EnforcementMode = if ($props.enforcementMode) { $props.enforcementMode } else { 'Default' }
-                            Origin          = $origin
-                            Subscription    = $subName
-                            Description     = if ($props.description) { $props.description } else { '' }
-                        })
+                        $props = $a.properties
+                        $defId = $props.policyDefinitionId
+                        $origin = if ($defId -match '/policySetDefinitions/') { 'Initiative' }
+                        elseif ($defId -match '/providers/Microsoft\.Authorization/policyDefinitions/') { 'BuiltIn' }
+                        else { 'Custom' }
+                        $scope = if ($a.id -match '^(.*)/providers/Microsoft\.Authorization/policyAssignments/') {
+                            $Matches[1]
+                        }
+                        else { '' }
+
+                        [void]$allAssignments.Add([PSCustomObject]@{
+                                AssignmentName  = if ($props.displayName) { $props.displayName } else { $a.name }
+                                AssignmentId    = $a.id
+                                PolicyDefId     = $defId
+                                Scope           = $scope
+                                Effect          = if ($props.parameters -and $props.parameters.effect) { $props.parameters.effect.value } else { '-' }
+                                EnforcementMode = if ($props.enforcementMode) { $props.enforcementMode } else { 'Default' }
+                                Origin          = $origin
+                                Subscription    = $subName
+                                Description     = if ($props.description) { $props.description } else { '' }
+                            })
+                    }
+                    # Handle pagination via nextLink
+                    $nextLink = if ($body.nextLink) {
+                        $body.nextLink -replace '^https://management\.azure\.com', ''
+                    }
+                    else { $null }
                 }
-                # Handle pagination via nextLink
-                $nextLink = if ($body.nextLink) {
-                    $body.nextLink -replace '^https://management\.azure\.com', ''
-                }
-                else { $null }
             }
+            catch {
+                [void]$subFailures.Add("$($sub.Name): $($_.Exception.Message)")
+            }
+        }
+
+        if ($subFailures.Count -gt 0) {
+            Write-Warning "  Policy assignments could not be read for $($subFailures.Count) of $subCount subscription(s); the inventory below is partial."
+            foreach ($f in ($subFailures | Select-Object -First 3)) { Write-Verbose "    $f" }
         }
 
         if ($allAssignments.Count -gt 0) {

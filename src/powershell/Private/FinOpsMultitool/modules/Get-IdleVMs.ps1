@@ -21,6 +21,7 @@ function Get-IdleVMs {
 
     $subIds = $Subscriptions | ForEach-Object { $_.Id }
     $results = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $metricFailures = [System.Collections.Generic.List[string]]::new()
 
     # -- 1: Find all running VMs ------------------------------------------
     # Pull every VM with its power state so we can distinguish "no VMs at all"
@@ -64,6 +65,10 @@ resources
             ScannedVMs     = 0
             TotalVMs       = $totalVMs
             DeallocatedVMs = $deallocatedCount
+            # Same shape as the main return so callers can read these on either path.
+            EvaluatedVMs   = 0
+            MetricFailures = 0
+            MetricFailureDetail = @()
             Note           = $note
         }
     }
@@ -151,18 +156,30 @@ resources
             }
         }
         catch {
-            # Metrics not available — skip this VM
+            # A throttled or unauthorized metrics call is not the same as a busy VM,
+            # so count it rather than letting it read as "nothing to report".
+            [void]$metricFailures.Add("$($vm.name): $($_.Exception.Message)")
         }
+    }
+
+    if ($metricFailures.Count -gt 0) {
+        Write-Warning "    Metrics unavailable for $($metricFailures.Count) of $($runningVMs.Count) VM(s); those VMs were not evaluated."
+        foreach ($f in ($metricFailures | Select-Object -First 3)) { Write-Verbose "      $f" }
     }
 
     Write-Host "    Idle/underutilized VMs: $($results.Count)" -ForegroundColor Gray
 
     [PSCustomObject]@{
-        IdleVMs        = @($results)
-        Count          = $results.Count
-        HasData        = ($results.Count -gt 0)
-        ScannedVMs     = $runningVMs.Count
-        TotalVMs       = $totalVMs
-        DeallocatedVMs = $deallocatedCount
+        IdleVMs         = @($results)
+        Count           = $results.Count
+        HasData         = ($results.Count -gt 0)
+        ScannedVMs      = $runningVMs.Count
+        TotalVMs        = $totalVMs
+        DeallocatedVMs  = $deallocatedCount
+        # Evaluated excludes VMs whose metrics could not be read, so a caller can
+        # tell a clean result from a partial one.
+        EvaluatedVMs    = ($runningVMs.Count - $metricFailures.Count)
+        MetricFailures  = $metricFailures.Count
+        MetricFailureDetail = @($metricFailures)
     }
 }

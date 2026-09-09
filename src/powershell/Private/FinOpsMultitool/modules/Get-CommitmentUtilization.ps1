@@ -23,6 +23,7 @@ function Get-CommitmentUtilization {
     Write-Host "  Querying commitment utilization..." -ForegroundColor Cyan
 
     $reservations = @()
+    $utilFailures = [System.Collections.Generic.List[string]]::new()
     $savingsPlans = @()
     $subIds = $Subscriptions | ForEach-Object { $_.Id }
 
@@ -57,7 +58,9 @@ function Get-CommitmentUtilization {
                             $bpResult = ($bpResp.Content | ConvertFrom-Json)
                             foreach ($bp in $bpResult.value) { $billingProfileIds += $bp.id }
                         }
-                    } catch { }
+                    } catch {
+                        Write-Verbose "Billing profile lookup failed: $($_.Exception.Message)"
+                    }
                 }
             }
         } catch {
@@ -171,7 +174,11 @@ function Get-CommitmentUtilization {
                                             }
                                         }
                                     }
-                                } catch { }
+                                } catch {
+                                    # Dropping this reservation silently would understate
+                                    # the count and read as better coverage than reality.
+                                    [void]$utilFailures.Add("$($ri.id.Split('/')[-1]): $($_.Exception.Message)")
+                                }
                             }
                         }
                     }
@@ -275,6 +282,11 @@ function Get-CommitmentUtilization {
         "$riCount reservation(s) avg $riAvgUtil% util; $spCount savings plan(s) avg $spAvgUtil% util."
     }
 
+    if ($utilFailures.Count -gt 0) {
+        Write-Warning "  Utilization unavailable for $($utilFailures.Count) reservation(s); counts below exclude them."
+        foreach ($f in ($utilFailures | Select-Object -First 3)) { Write-Verbose "    $f" }
+    }
+
     return [PSCustomObject]@{
         Reservations      = $reservations
         SavingsPlans      = $savingsPlans
@@ -286,5 +298,8 @@ function Get-CommitmentUtilization {
         HasData           = ($riCount -gt 0 -or $spCount -gt 0)
         AccessDenied      = $denied
         Note              = $note
+        # Reservations excluded because their utilization could not be read.
+        UtilizationFailures = $utilFailures.Count
+        UtilizationFailureDetail = @($utilFailures)
     }
 }
