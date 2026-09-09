@@ -1731,9 +1731,24 @@ table Costs
 					*/
 				
 					// Sort columns alphabetically
-					Output = Table.ReorderColumns(AHB, List.Sort(Table.ColumnNames(AHB)))
+					Output = Table.ReorderColumns(AHB, List.Sort(Table.ColumnNames(AHB))),
+
+					// Filter to the configured RangeStart/RangeEnd so Power BI's Incremental refresh and archive
+					// settings dialog can detect and be configured for this table. ftk_Storage() above already
+					// skips whole parquet files outside the range for performance (file-level pruning); this
+					// step re-applies the same bounds at the row level, since Power BI only detects incremental
+					// refresh support when RangeStart/RangeEnd are used directly in a Table.SelectRows step on
+					// the table's own query (not just inside a shared function it calls). Null-checks preserve
+					// normal (non-incremental) refresh behavior, since RangeStart/RangeEnd default to null
+					// until incremental refresh is configured and published. ChargePeriodStart is normalized to
+					// datetime here (it may be datetimezone coming out of Fixes above) so the comparison always
+					// matches the datetime-typed RangeStart/RangeEnd parameters.
+					IncrementalRefreshRange = Table.SelectRows(Output, each
+						(RangeStart = null or DateTime.From([ChargePeriodStart]) >= RangeStart) and
+						(RangeEnd   = null or DateTime.From([ChargePeriodStart]) < RangeEnd)
+					)
 				in
-					Output
+					IncrementalRefreshRange
 				```
 
 	annotation PBI_ResultType = Table

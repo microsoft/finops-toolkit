@@ -105,9 +105,13 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
        4. Append the container and export path, if applicable.
    - **Number of Months** &ndash; Optional number of closed months you would like to report on if you want to always show a specific number of recent months. If not specified, the report will include all data in storage.
    - **RangeStart** / **RangeEnd** &ndash; Optional date range you would like to limit to. If not specified, the report will include all data in storage.
-     - We generally recommend leaving these dates empty. They are included to support incremental refresh.
-     - If you need to configure incremental refresh, consider using [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer instead.
-     - FinOps hubs with Data Explorer offers improved performance and is recommended for anyone monitoring over $100,000 in total spend.
+     - We generally recommend leaving these dates empty for normal use. Power BI sets them automatically once incremental refresh is configured (see below).
+     - The **Costs** table's query already filters on `RangeStart`/`RangeEnd`, so incremental refresh works out of the box &ndash; no need to edit the query in Power Query first. To enable it:
+       1. In Power BI Desktop, switch to **Report** view.
+       2. Right-click the **Costs** table in the **Data** pane and select **Incremental refresh and archive settings**.
+       3. Turn on **Incremental refresh**, configure your archive and refresh periods, then select **Apply**.
+       4. Publish the report to the Power BI service. The service applies `RangeStart`/`RangeEnd` per refresh partition automatically.
+     - FinOps hubs with Data Explorer still offers improved performance and is recommended for anyone monitoring over $100,000 in total spend.
      - Storage reports only support ~$2 million of data without incremental refresh and ~$2 million per month in raw cost details. To learn more, see [Configure incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy).
 
 5. Authorize each data source:
