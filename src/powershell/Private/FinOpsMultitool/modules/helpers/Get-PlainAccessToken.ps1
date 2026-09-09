@@ -5,7 +5,9 @@
 # public URL breaks Azure Government and Azure China.
 function Get-FinOpsArmEndpoint {
     $url = $null
-    try { $url = (Get-AzContext).Environment.ResourceManagerUrl } catch { }
+    try { $url = (Get-AzContext).Environment.ResourceManagerUrl } catch {
+        Write-Verbose "Non-fatal: $($_.Exception.Message)"
+    }
     if ([string]::IsNullOrWhiteSpace($url)) { $url = 'https://management.azure.com' }
     return $url.TrimEnd('/')
 }

@@ -31,7 +31,9 @@ function Get-ContractInfo {
     # QuotaId is always scoped to the correct tenant when using passed subs
     $subsToCheck = if ($Subscriptions) { @($Subscriptions | Select-Object -First 3) } else { @() }
     if ($subsToCheck.Count -eq 0) {
-        try { $subsToCheck = @(Get-AzSubscription -ErrorAction SilentlyContinue | Select-Object -First 3) } catch { }
+        try { $subsToCheck = @(Get-AzSubscription -ErrorAction SilentlyContinue | Select-Object -First 3) } catch {
+            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        }
     }
 
     foreach ($sub in $subsToCheck) {
@@ -63,7 +65,9 @@ function Get-ContractInfo {
                     break
                 }
             }
-        } catch { }
+        } catch {
+            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        }
     }
 
     # -- Step 2: Try billing accounts API, filtered by inferred type -----
@@ -107,7 +111,9 @@ function Get-ContractInfo {
                             }
                             if ($owns) { $matchedAccount = $cand; break }
                         }
-                    } catch { }
+                    } catch {
+                        Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                    }
                 }
                 # No account could be confirmed to own the scanned subscription -
                 # fall through to the subscription-accurate quotaId inference.

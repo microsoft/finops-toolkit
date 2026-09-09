@@ -158,6 +158,7 @@ resources
     }
     catch {
         # Discovery failed - fall through to None (storage fallback).
+        Write-Verbose "Non-fatal: $($_.Exception.Message)"
     }
 
     return @{ Found = $false; Mode = 'None'; ClusterUri = $null; Database = $null; UseAuth = $false; HubVersion = $null; Source = 'None' }

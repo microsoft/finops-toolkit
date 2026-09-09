@@ -153,7 +153,9 @@ function Get-StorageBlobList {
         }
         foreach ($b in $nodes) {
             $lm = $null
-            if ($b.Properties.'Last-Modified') { try { $lm = [datetime]$b.Properties.'Last-Modified' } catch { } }
+            if ($b.Properties.'Last-Modified') { try { $lm = [datetime]$b.Properties.'Last-Modified' } catch {
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            } }
             [void]$out.Add([PSCustomObject]@{ Name = $b.Name; LastModified = $lm })
         }
         $marker = $null
@@ -338,7 +340,9 @@ function Find-CostExport {
                     }
                 }
             }
-            catch { }
+            catch {
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            }
 
             [void]$found.Add([PSCustomObject]@{
                     Name              = $exp.name

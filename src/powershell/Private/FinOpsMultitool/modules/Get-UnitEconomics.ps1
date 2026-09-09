@@ -60,7 +60,9 @@ function Get-VmSizeCapability {
                 $pages++
             }
         }
-        catch { }
+        catch {
+            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        }
         $Cache[$Location] = $map
     }
     $m = $Cache[$Location]
@@ -152,7 +154,9 @@ resources
                 }
             }
         }
-        catch { }
+        catch {
+            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        }
     }
     return [math]::Round($totalBytes / 1GB, 1)
 }

@@ -80,7 +80,9 @@ function Get-FinOpsBillingScope {
                 }
             }
         }
-        catch { }
+        catch {
+            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        }
     }
 
     foreach ($ba in $accounts) {
@@ -104,7 +106,9 @@ function Get-FinOpsBillingScope {
                     }
                 }
             }
-            catch { }
+            catch {
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            }
         }
     }
 

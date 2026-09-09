@@ -112,14 +112,18 @@ function Invoke-FOHubKustoQuery {
                 $reader.Dispose()
             }
         }
-        catch { }
+        catch {
+            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        }
         if ($detail) {
             try {
                 $err = $detail | ConvertFrom-Json -ErrorAction Stop
                 if ($err.error -and $err.error.'@message') { $msg = $err.error.'@message' }
                 elseif ($err.error -and $err.error.message) { $msg = $err.error.message }
             }
-            catch { }
+            catch {
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            }
         }
         return @{ Ok = $false; Rows = @(); RowCount = 0; Error = "Kusto query failed: $msg" }
     }

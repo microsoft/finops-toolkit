@@ -346,7 +346,9 @@ function Get-CostByTag {
         # Cleanup any timed-out jobs
         foreach ($job in $pendingJobs) {
             if ($null -eq $job.Result) {
-                try { $job.PS.Stop() } catch { }
+                try { $job.PS.Stop() } catch {
+                    Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                }
                 $job.PS.Dispose()
                 $job.Result = [PSCustomObject]@{ StatusCode = 408; Content = '{"error":{"message":"Timeout"}}'; Headers = @{} }
             }

@@ -259,6 +259,7 @@ function Get-CostData {
             }
             catch {
                 # Forecast not available for this sub
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
             }
         }
         Write-Host "  Per-sub forecast: got data for $hitCount of $subCount subscriptions" -ForegroundColor $(if ($hitCount -gt 0) { 'Green' } else { 'Yellow' })
@@ -363,6 +364,7 @@ function Get-CostDataPerSubscription {
                 }
                 catch {
                     # Forecast not available for all account types
+                    Write-Verbose "Non-fatal: $($_.Exception.Message)"
                 }
             }
         }

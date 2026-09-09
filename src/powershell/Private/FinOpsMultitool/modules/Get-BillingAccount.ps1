@@ -52,7 +52,9 @@ function Get-BillingAccount {
     if ($status -ne 200) {
         $msg = "Could not list billing accounts (HTTP $status)."
         if ($resp -and $resp.Content) {
-            try { $e = $resp.Content | ConvertFrom-Json -ErrorAction Stop; if ($e.error.message) { $msg += " $($e.error.message)" } } catch { }
+            try { $e = $resp.Content | ConvertFrom-Json -ErrorAction Stop; if ($e.error.message) { $msg += " $($e.error.message)" } } catch {
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            }
         }
         return [PSCustomObject]@{
             HasData  = $false
@@ -62,7 +64,9 @@ function Get-BillingAccount {
     }
 
     $payload = $null
-    try { $payload = $resp.Content | ConvertFrom-Json -ErrorAction Stop } catch { }
+    try { $payload = $resp.Content | ConvertFrom-Json -ErrorAction Stop } catch {
+        Write-Verbose "Non-fatal: $($_.Exception.Message)"
+    }
     $raw = @()
     if ($payload -and $payload.value) { $raw = @($payload.value) }
 

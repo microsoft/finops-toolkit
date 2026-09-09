@@ -354,6 +354,7 @@ function Get-ResourceCosts {
                 }
                 catch {
                     # Forecast not available for all account types
+                    Write-Verbose "Non-fatal: $($_.Exception.Message)"
                 }
             }
 

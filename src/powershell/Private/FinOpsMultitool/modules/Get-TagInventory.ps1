@@ -139,7 +139,9 @@ resources
             if ($tcRows.Count -gt 0 -and $null -ne $tcRows[0].TotalCount) {
                 $totalCount = [int]$tcRows[0].TotalCount
             }
-        } catch { }
+        } catch {
+            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        }
     }
 
     # Fallback: derive counts from detail data if REST queries failed
@@ -227,7 +229,9 @@ resources
                 $tagCountRows = @(($tagCountResp.Content | ConvertFrom-Json).data)
                 if ($tagCountRows.Count -gt 0) { $taggedFromArg = [int]$tagCountRows[0].TaggedCount }
             }
-        } catch { }
+        } catch {
+            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        }
         if ($untaggedCount -eq 0 -and $untaggedResources.Count -gt 0) { $untaggedCount = $untaggedResources.Count }
         if (($taggedFromArg + $untaggedCount) -gt 0) {
             $totalCount = $taggedFromArg + $untaggedCount

@@ -86,6 +86,7 @@ function Resolve-CostDataSource {
     }
     catch {
         # Non-fatal — fall back to a subscription-only estimate
+        Write-Verbose "Non-fatal: $($_.Exception.Message)"
     }
 
     # ~10s base per subscription (MG attempt + per-sub fallback + throttle
@@ -108,6 +109,7 @@ Resources
     }
     catch {
         # Detection failed — treat as no hub
+        Write-Verbose "Non-fatal: $($_.Exception.Message)"
     }
 
     if (-not $hub) {
@@ -395,10 +397,14 @@ function Get-HubCoverage {
                         $d = [datetime]$end
                         if (-not $latestDate -or $d -gt $latestDate) { $latestDate = $d }
                     }
-                    catch { }
+                    catch {
+                        Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                    }
                 }
             }
-            catch { }
+            catch {
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            }
             finally {
                 Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
             }
@@ -409,6 +415,7 @@ function Get-HubCoverage {
     }
     catch {
         # Coverage stays empty (unknown) on any failure.
+        Write-Verbose "Non-fatal: $($_.Exception.Message)"
     }
 
     return $out
@@ -473,7 +480,9 @@ function Resolve-GenericExportSource {
             $storageExports = @(Find-CostExportFromStorage -Subscriptions $subObjs -KnownKeys $knownKeys)
             if ($storageExports.Count -gt 0) { $exports = @($exports) + $storageExports }
         }
-        catch { }
+        catch {
+            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        }
     }
 
     if ($exports.Count -eq 0) { return $out }

@@ -56,7 +56,9 @@ function Resolve-CostMgId {
             }
         }
     }
-    catch { }
+    catch {
+        Write-Verbose "Non-fatal: $($_.Exception.Message)"
+    }
 
     # Tenant root as a last-resort candidate (covers orgs where the cost role
     # is assigned at the root management group).

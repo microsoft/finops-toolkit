@@ -280,7 +280,9 @@ function Invoke-FinOpsMultitool {
                     break
                 }
             }
-            catch { }
+            catch {
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            }
         }
 
         if ($Preselected) {
@@ -327,7 +329,9 @@ function Invoke-FinOpsMultitool {
                         # rows into PowerShell.
                         $hubSubIds = @($Subscriptions | ForEach-Object { $_.Id })
                         $prov = $null
-                        try { $prov = Resolve-FOHubProvider -Subscriptions $hubSubIds } catch { }
+                        try { $prov = Resolve-FOHubProvider -Subscriptions $hubSubIds } catch {
+                            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                        }
                         if ($prov -and $prov.Found) {
                             # A scalable Kusto path exists - no warning needed.
                             return @{ Source = 'Hub'; HubStorage = $hubStorage }
@@ -338,7 +342,9 @@ function Invoke-FinOpsMultitool {
                         # warning.
                         $hubSize = @{ Known = $false; Reachable = $true; IsLarge = $true; Display = 'unknown size'; Issue = $null }
                         if ($hubStorage -and $hubStorage.name) {
-                            try { $hubSize = Measure-FinOpsHubSize -StorageAccountName $hubStorage.name } catch { }
+                            try { $hubSize = Measure-FinOpsHubSize -StorageAccountName $hubStorage.name } catch {
+                                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                            }
                         }
 
                         if (-not $hubSize.Reachable) {
@@ -1032,7 +1038,9 @@ function Invoke-FinOpsMultitool {
                                         }
                                     }
                                 }
-                                catch { }
+                                catch {
+                                    Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                                }
                             }
                             if ($fctHits -gt 0) { Write-Host "  Forecast data loaded for $fctHits subscription(s)" -ForegroundColor Green }
                         }

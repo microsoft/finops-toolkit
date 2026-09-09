@@ -532,6 +532,7 @@ function Read-FinOpsHubData {
             }
             catch {
                 # Path doesn't exist yet — that's OK
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
             }
         }
 
@@ -939,7 +940,9 @@ function ConvertTo-TagInventoryFromHub {
         $tagsJson = if ($props -contains 'Tags') { $row.Tags } else { $null }
         $tagDict = $null
         if ($tagsJson -and $tagsJson.Trim() -ne '' -and $tagsJson.Trim() -ne '{}') {
-            try { $tagDict = ConvertTo-HashtableFromJson -Json $tagsJson } catch { }
+            try { $tagDict = ConvertTo-HashtableFromJson -Json $tagsJson } catch {
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            }
         }
 
         if ($tagDict -and $tagDict.Count -gt 0) {
@@ -1041,7 +1044,9 @@ function ConvertTo-CostByTagFromHub {
         $tagsJson = if ($props -contains 'Tags') { $row.Tags } else { $null }
         $tagDict = $null
         if ($tagsJson -and $tagsJson.Trim() -ne '' -and $tagsJson.Trim() -ne '{}') {
-            try { $tagDict = ConvertTo-HashtableFromJson -Json $tagsJson } catch { }
+            try { $tagDict = ConvertTo-HashtableFromJson -Json $tagsJson } catch {
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            }
         }
 
         if ($targetTags.Count -eq 0 -and $tagDict -and $tagDict.Count -gt 0) {
