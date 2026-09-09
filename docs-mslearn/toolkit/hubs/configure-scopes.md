@@ -116,7 +116,7 @@ Cost Management provides the following 5 types of exports:
 FinOps hubs support the following dataset types, versions, and API versions:
 
 - FocusCost: 1.2-preview, 1.0r2, 1.0, 1.0-preview(v1)
-- PriceSheet: 2023-05-01
+- PriceSheet: 2023-05-01 (EA and MCA), 2024-08-01 (MCA only)
 - ReservationDetails: 2023-03-01
 - ReservationRecommendations: 2023-05-01
 - ReservationTransactions: 2023-05-01
