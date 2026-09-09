@@ -37,6 +37,9 @@
     .PARAMETER EnableKeyVaultRbacAuthorization
     Optional. Switch the Key Vault from access policies to Azure RBAC authorization. Required for CAF/Enterprise-Scale landing zone compliance. Switching an existing vault from access policies to RBAC removes all access policies immediately; any access granted outside the template must be recreated as role assignments. Default = false.
 
+    .PARAMETER DisableStorageSharedKeyAccess
+    Optional. Disable Shared Key (storage account key) authentication on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. Data Factory already authenticates using managed identity and RBAC, so this does not affect data ingestion. Default = false.
+
     .PARAMETER RemoteHubStorageUri
     Optional. Storage account to push data to for ingestion into a remote hub.
 
@@ -151,6 +154,10 @@ function Deploy-FinOpsHub
         [Parameter()]
         [switch]
         $EnableKeyVaultRbacAuthorization,
+
+        [Parameter()]
+        [switch]
+        $DisableStorageSharedKeyAccess,
 
         [Parameter()]
         [string]
@@ -287,6 +294,11 @@ function Deploy-FinOpsHub
             throw "-EnableKeyVaultRbacAuthorization requires hub template version 16.0 or later. Current version: $Version"
         }
 
+        if ($DisableStorageSharedKeyAccess -and $Version -ne 'latest' -and $templateVersion -lt '16.0')
+        {
+            throw "-DisableStorageSharedKeyAccess requires hub template version 16.0 or later. Current version: $Version"
+        }
+
         # Download template
         if (Test-ShouldProcess $PSCmdlet $Version 'DownloadTemplate')
         {
@@ -359,6 +371,11 @@ function Deploy-FinOpsHub
             if ($EnableKeyVaultRbacAuthorization -and ($Version -eq 'latest' -or $templateVersion -ge '16.0'))
             {
                 $parameterSplat.TemplateParameterObject.Add('enableKeyVaultRbacAuthorization', $true)
+            }
+
+            if ($DisableStorageSharedKeyAccess -and ($Version -eq 'latest' -or $templateVersion -ge '16.0'))
+            {
+                $parameterSplat.TemplateParameterObject.Add('disableStorageSharedKeyAccess', $true)
             }
 
             # Only pass enableNatGateway when private mode is requested. This keeps public/vnet
