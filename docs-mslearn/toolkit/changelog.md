@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 09/08/2026
+ms.date: 09/07/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -79,10 +79,9 @@ The following section lists features and enhancements that are currently in deve
 - **Added**
   - Added a new [Instance size flexibility](open-data.md#instance-size-flexibility) dataset that maps each ARM SKU to its instance size flexibility group and ratio, sourced from the Azure Reservations Catalogs API. It replaces the deprecated ISF ratio files hosted on `ccmstorageprod.blob.core.windows.net` ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
-  - Fixed the instance size flexibility dataset omitting SKUs that are no longer available to purchase. The Catalogs API only returns purchasable SKUs, so retired series that reservations still cover (Av2, D, DS, Dv2, Dv3, Ev3, F, G, H, LS, NC, NV, and others) were missing. The dataset is now additive and backfilled from the retired ratio file, growing from 211 to 318 flexibility groups and from 1,353 to 2,573 SKUs ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
-  - Fixed the generator sweeping a hardcoded list of 26 regions, which silently omitted SKUs that launch only in regions outside the list. It now enumerates every physical region from the ARM locations API, 63 at the time of the change ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
+  - Fixed the instance size flexibility generator sweeping a hardcoded list of 26 regions, which omitted SKUs that launch in only a handful of regions. It now enumerates every physical region from the ARM locations API, 63 at the time of the change ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
+  - Fixed ratios being parsed and written with the current culture. On a comma-decimal machine `2.1` was read as `21` or rejected, and written back as `2,1`, which would break every consumer of the file ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
   - Fixed the dataset publishing a SKU whose ratio is `0`, which the Optimization Engine's benefits simulation divides by. Non-positive ratios are now dropped ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
-  - Fixed ratios from the retired files sitting on a different scale than the Catalogs API. The retired files normalized each group so its smallest SKU was `1`; the API returns them unnormalized, so a group's smallest SKU usually isn't `1`. Because Azure retires individual sizes rather than whole families, the API covers only part of many groups, so combining the two left single groups holding both units. The backfilled rows were converted onto the API scale, and the generator now fails rather than publishing a group in two units ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
 
 **[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**
 

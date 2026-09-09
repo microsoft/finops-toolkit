@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 09/08/2026
+ms.date: 09/09/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -195,9 +195,8 @@ A few important notes about the data:
 
 - It covers Virtual Machines, Redis Cache, and Dedicated Host across every physical Azure region.
 - `ArmSkuName` is unique across the file and can be used as a join key on its own.
-- Ratios are the Microsoft values within each group (the smallest SKU isn't always `1`). Compare ratios only within a flexibility group.
-- The retired ratio files normalized each group so its smallest SKU was `1`, while the Catalogs API returns them unnormalized, so a group's smallest SKU usually isn't `1`. Both express the same proportions. Rows carried over from the retired files were converted onto the API scale, except for the fully retired groups that the API doesn't cover, which keep the normalized scale.
-- Data is updated weekly via a GitHub Actions workflow. The dataset is additive: the Catalogs API only returns SKUs you can still purchase, so SKUs it no longer returns are kept because reservations might still cover them.
+- Ratios are the raw Microsoft values within each group (the smallest SKU isn't always `1`).
+- Data is updated weekly via a GitHub Actions workflow and always reflects the current API catalog, so retired SKUs are removed automatically.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
