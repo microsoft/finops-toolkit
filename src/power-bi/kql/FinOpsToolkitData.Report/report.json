@@ -1,0 +1,608 @@
+{
+  "config": "{\"version\":\"5.50\",\"themeCollection\":{\"baseTheme\":{\"name\":\"CY19SU06\",\"version\":\"5.5\",\"type\":2},\"customTheme\":{\"name\":\"Microsoft_FinOps_light_theme6448607457324711.json\",\"version\":\"5.61\",\"type\":1}},\"activeSectionIndex\":0,\"bookmarks\":[{\"displayName\":\"Get started\",\"name\":\"bf9700f850ff7b51baa6\",\"explorationState\":{\"version\":\"1.3\",\"activeSection\":\"68b4e430c81cc04008ad\",\"filters\":{\"byExpr\":[{\"name\":\"Filter077be543c5f39dd293aa\",\"type\":\"Advanced\",\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"Costs\",\"Type\":0}],\"Where\":[{\"Condition\":{\"Comparison\":{\"ComparisonKind\":0,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"x_CostAllocationRuleName\"}},\"Right\":{\"Literal\":{\"Value\":\"''\"}}}}}]},\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"Costs\"}},\"Property\":\"x_CostAllocationRuleName\"}},\"howCreated\":1}]},\"sections\":{\"68b4e430c81cc04008ad\":{\"visualContainers\":{\"3fcd8c2f36e3af8580c4\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"a071d96852205b19ef37\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"baf9d1fe7f9086884005\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"ad5e62ecf686180722f1\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"7ee25e754d6b6dfe782d\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"e222c8e7afd357d1db37\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"7e536659318f0aaddb2f\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"248e0b0515c54d9dd540\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"b016f6231feda619aa88\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"7673bcc2f811097f4a56\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"5179fa1b65706fc27bd3\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"df6f11564012c5014dcd\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"55642c45036461b52537\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"e25566c2b0ad3cc1c806\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"2788b696f63d4af128c4\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"52f1bc9e8d1699c91a10\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"d858d2f5093f5c8df615\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"04bab2290741bf18d2ba\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"412a45c43add03a785a2\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"e2e6be635a23f9e95d43\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"0091bb6030b3feb7f21e\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"dd95d21cac00296b6af8\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"9356e35b7683896d0b52\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"c06195f26eeddece4e8e\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"9d59b3501ea083e854af\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"75c670deb043826b5116\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"d82f8f3109066b838c12\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"64aea501de6a54eccb86\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"ad1c8cdca0e40156221f\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"9d946176eef8aba2cbec\":{\"singleVisual\":{\"visualType\":\"image\",\"objects\":{}}},\"ad009229dad590a70fe2\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"96fa031e3fda6bec5788\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"4a4dd826f3118f0cc0da\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"847e83e18fbbe5a9a3f4\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"e7bdd81ea0a87d2af271\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"117425ca6e59dad9089c\":{\"singleVisual\":{\"visualType\":\"image\",\"objects\":{}}},\"30b5bad7cbd392bb6e54\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"28385ebc48e23eb480ad\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"eae328b0e4c574c69efe\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"daa73b99ed4f89d03383\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"e301b0f679947856e27e\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"cda5ff1f89ee411a38cd\":{\"singleVisual\":{\"visualType\":\"image\",\"objects\":{}}},\"3d39b9d6c5d3fad34f0b\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"a0f589f1a9e5e2ce472b\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"266d27780c9ef731e738\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"198c62f261010e9a2031\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"f9303287409926d991ca\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"08ce37dca7f1ec25cf34\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"ff4f34ae4413b2ab1c80\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"86cf9925712386c02dca\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}}},\"visualContainerGroups\":{\"02bc2b96e6d8e8317e6b\":{\"isHidden\":true},\"ff0e7ae1d9d11589bbd8\":{\"isHidden\":false},\"e9277735d3fa47c4a194\":{\"isHidden\":true},\"81e76f6b427626de7fed\":{\"isHidden\":false},\"2db9d494be01f5d72c02\":{\"isHidden\":false},\"7c5ed4b7f28bd45e2f3a\":{\"isHidden\":true}}}},\"objects\":{\"merge\":{\"outspacePane\":[{\"properties\":{\"expanded\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}}},\"options\":{\"targetVisualNames\":[\"28385ebc48e23eb480ad\"]}},{\"displayName\":\"Get started - Connect\",\"name\":\"0338b9337a644ca11e3b\",\"explorationState\":{\"version\":\"1.3\",\"activeSection\":\"68b4e430c81cc04008ad\",\"filters\":{\"byExpr\":[{\"name\":\"Filter077be543c5f39dd293aa\",\"type\":\"Advanced\",\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"Costs\",\"Type\":0}],\"Where\":[{\"Condition\":{\"Comparison\":{\"ComparisonKind\":0,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"x_CostAllocationRuleName\"}},\"Right\":{\"Literal\":{\"Value\":\"''\"}}}}}]},\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"Costs\"}},\"Property\":\"x_CostAllocationRuleName\"}},\"howCreated\":1}]},\"sections\":{\"68b4e430c81cc04008ad\":{\"visualContainers\":{\"3fcd8c2f36e3af8580c4\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"a071d96852205b19ef37\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"baf9d1fe7f9086884005\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"ad5e62ecf686180722f1\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"7ee25e754d6b6dfe782d\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"e222c8e7afd357d1db37\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"7e536659318f0aaddb2f\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"248e0b0515c54d9dd540\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"b016f6231feda619aa88\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"7673bcc2f811097f4a56\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"5179fa1b65706fc27bd3\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"df6f11564012c5014dcd\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"55642c45036461b52537\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"e25566c2b0ad3cc1c806\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"2788b696f63d4af128c4\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"52f1bc9e8d1699c91a10\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"d858d2f5093f5c8df615\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"04bab2290741bf18d2ba\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"412a45c43add03a785a2\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"e2e6be635a23f9e95d43\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"0091bb6030b3feb7f21e\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"dd95d21cac00296b6af8\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"9356e35b7683896d0b52\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"c06195f26eeddece4e8e\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"9d59b3501ea083e854af\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"75c670deb043826b5116\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"d82f8f3109066b838c12\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"64aea501de6a54eccb86\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"ad1c8cdca0e40156221f\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"9d946176eef8aba2cbec\":{\"singleVisual\":{\"visualType\":\"image\",\"objects\":{}}},\"ad009229dad590a70fe2\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"96fa031e3fda6bec5788\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"4a4dd826f3118f0cc0da\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"847e83e18fbbe5a9a3f4\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"e7bdd81ea0a87d2af271\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"117425ca6e59dad9089c\":{\"singleVisual\":{\"visualType\":\"image\",\"objects\":{}}},\"30b5bad7cbd392bb6e54\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"28385ebc48e23eb480ad\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"eae328b0e4c574c69efe\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"daa73b99ed4f89d03383\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"e301b0f679947856e27e\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"cda5ff1f89ee411a38cd\":{\"singleVisual\":{\"visualType\":\"image\",\"objects\":{}}},\"3d39b9d6c5d3fad34f0b\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"a0f589f1a9e5e2ce472b\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"266d27780c9ef731e738\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"198c62f261010e9a2031\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"f9303287409926d991ca\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"08ce37dca7f1ec25cf34\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"ff4f34ae4413b2ab1c80\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"86cf9925712386c02dca\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}}},\"visualContainerGroups\":{\"02bc2b96e6d8e8317e6b\":{\"isHidden\":true},\"ff0e7ae1d9d11589bbd8\":{\"isHidden\":true},\"e9277735d3fa47c4a194\":{\"isHidden\":false},\"81e76f6b427626de7fed\":{\"isHidden\":true},\"2db9d494be01f5d72c02\":{\"isHidden\":true},\"7c5ed4b7f28bd45e2f3a\":{\"isHidden\":true}}}},\"objects\":{\"merge\":{\"outspacePane\":[{\"properties\":{\"expanded\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}}},\"options\":{\"targetVisualNames\":[]}},{\"displayName\":\"Get started - Help\",\"name\":\"9882785c36c2ec058d8d\",\"explorationState\":{\"version\":\"1.3\",\"activeSection\":\"68b4e430c81cc04008ad\",\"filters\":{\"byExpr\":[{\"name\":\"Filter077be543c5f39dd293aa\",\"type\":\"Advanced\",\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"Costs\",\"Type\":0}],\"Where\":[{\"Condition\":{\"Comparison\":{\"ComparisonKind\":0,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"x_CostAllocationRuleName\"}},\"Right\":{\"Literal\":{\"Value\":\"''\"}}}}}]},\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"Costs\"}},\"Property\":\"x_CostAllocationRuleName\"}},\"howCreated\":1}]},\"sections\":{\"68b4e430c81cc04008ad\":{\"visualContainers\":{\"3fcd8c2f36e3af8580c4\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"a071d96852205b19ef37\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"baf9d1fe7f9086884005\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"ad5e62ecf686180722f1\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"7ee25e754d6b6dfe782d\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"e222c8e7afd357d1db37\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"7e536659318f0aaddb2f\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"248e0b0515c54d9dd540\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"b016f6231feda619aa88\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"7673bcc2f811097f4a56\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"5179fa1b65706fc27bd3\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"df6f11564012c5014dcd\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"55642c45036461b52537\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"e25566c2b0ad3cc1c806\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"2788b696f63d4af128c4\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"52f1bc9e8d1699c91a10\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"d858d2f5093f5c8df615\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"04bab2290741bf18d2ba\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"412a45c43add03a785a2\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"e2e6be635a23f9e95d43\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"0091bb6030b3feb7f21e\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"dd95d21cac00296b6af8\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"9356e35b7683896d0b52\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"c06195f26eeddece4e8e\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"9d59b3501ea083e854af\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"75c670deb043826b5116\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"d82f8f3109066b838c12\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"64aea501de6a54eccb86\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"ad1c8cdca0e40156221f\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"9d946176eef8aba2cbec\":{\"singleVisual\":{\"visualType\":\"image\",\"objects\":{}}},\"ad009229dad590a70fe2\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"96fa031e3fda6bec5788\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"4a4dd826f3118f0cc0da\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"847e83e18fbbe5a9a3f4\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"e7bdd81ea0a87d2af271\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"117425ca6e59dad9089c\":{\"singleVisual\":{\"visualType\":\"image\",\"objects\":{}}},\"30b5bad7cbd392bb6e54\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"28385ebc48e23eb480ad\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"eae328b0e4c574c69efe\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"daa73b99ed4f89d03383\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"e301b0f679947856e27e\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"cda5ff1f89ee411a38cd\":{\"singleVisual\":{\"visualType\":\"image\",\"objects\":{}}},\"3d39b9d6c5d3fad34f0b\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"a0f589f1a9e5e2ce472b\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"266d27780c9ef731e738\":{\"singleVisual\":{\"visualType\":\"shape\",\"objects\":{}}},\"198c62f261010e9a2031\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"f9303287409926d991ca\":{\"singleVisual\":{\"visualType\":\"textbox\",\"objects\":{}}},\"08ce37dca7f1ec25cf34\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"ff4f34ae4413b2ab1c80\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}},\"86cf9925712386c02dca\":{\"singleVisual\":{\"visualType\":\"actionButton\",\"objects\":{}}}},\"visualContainerGroups\":{\"02bc2b96e6d8e8317e6b\":{\"isHidden\":true},\"ff0e7ae1d9d11589bbd8\":{\"isHidden\":true},\"e9277735d3fa47c4a194\":{\"isHidden\":true},\"81e76f6b427626de7fed\":{\"isHidden\":true},\"2db9d494be01f5d72c02\":{\"isHidden\":true},\"7c5ed4b7f28bd45e2f3a\":{\"isHidden\":false}}}},\"objects\":{\"merge\":{\"outspacePane\":[{\"properties\":{\"expanded\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}}},\"options\":{\"targetVisualNames\":[\"7c5ed4b7f28bd45e2f3a\",\"a0f589f1a9e5e2ce472b\",\"266d27780c9ef731e738\",\"198c62f261010e9a2031\",\"f9303287409926d991ca\",\"08ce37dca7f1ec25cf34\",\"ff4f34ae4413b2ab1c80\",\"86cf9925712386c02dca\"]}}],\"tags\":{\"serviceAppObjectId\":\"f24eab2c-a736-4aa1-af7c-2729d34249bc\"},\"defaultDrillFilterOtherVisuals\":true,\"slowDataSourceSettings\":{\"isCrossHighlightingDisabled\":false,\"isSlicerSelectionsButtonEnabled\":false,\"isFilterSelectionsButtonEnabled\":false,\"isFieldWellButtonEnabled\":false,\"isApplyAllButtonEnabled\":false},\"linguisticSchemaSyncVersion\":2,\"settings\":{\"useStylableVisualContainerHeader\":true,\"exportDataMode\":1,\"useNewFilterPaneExperience\":true,\"allowChangeFilterTypes\":true,\"allowDataPointLassoSelect\":true,\"useEnhancedTooltips\":true},\"objects\":{\"section\":[{\"properties\":{\"verticalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'Top'\"}}}}}],\"outspacePane\":[{\"properties\":{\"expanded\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}}",
+  "filters": "[{\"name\":\"Filter077be543c5f39dd293aa\",\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"Costs\"}},\"Property\":\"x_CostAllocationRuleName\"}},\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"Costs\",\"Type\":0}],\"Where\":[{\"Condition\":{\"Comparison\":{\"ComparisonKind\":0,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"x_CostAllocationRuleName\"}},\"Right\":{\"Literal\":{\"Value\":\"''\"}}}}}]},\"type\":\"Advanced\",\"howCreated\":1,\"objects\":{}}]",
+  "layoutOptimization": 0,
+  "publicCustomVisuals": [],
+  "resourcePackages": [
+    {
+      "resourcePackage": {
+        "disabled": false,
+        "items": [
+          {
+            "name": "Bug9076115215259053.svg",
+            "path": "Bug9076115215259053.svg",
+            "type": 100
+          },
+          {
+            "name": "Close-White9525936596282278.svg",
+            "path": "Close-White9525936596282278.svg",
+            "type": 100
+          },
+          {
+            "name": "Close-White9813616349546728.svg",
+            "path": "Close-White9813616349546728.svg",
+            "type": 100
+          },
+          {
+            "name": "Close9574438897237076.svg",
+            "path": "Close9574438897237076.svg",
+            "type": 100
+          },
+          {
+            "name": "ExternalLink292390249589896.svg",
+            "path": "ExternalLink292390249589896.svg",
+            "type": 100
+          },
+          {
+            "name": "ExternalLink7990467786314797.svg",
+            "path": "ExternalLink7990467786314797.svg",
+            "type": 100
+          },
+          {
+            "name": "Feedback010740419814817104.svg",
+            "path": "Feedback010740419814817104.svg",
+            "type": 100
+          },
+          {
+            "name": "GetStarted-AddData17914943068990197.png",
+            "path": "GetStarted-AddData17914943068990197.png",
+            "type": 100
+          },
+          {
+            "name": "GetStarted-ConnectData7243700207572936.png",
+            "path": "GetStarted-ConnectData7243700207572936.png",
+            "type": 100
+          },
+          {
+            "name": "GetStarted-CustomizeReport5477659270158559.png",
+            "path": "GetStarted-CustomizeReport5477659270158559.png",
+            "type": 100
+          },
+          {
+            "name": "Microsoft_FinOps_light_theme6448607457324711.json",
+            "path": "Microsoft_FinOps_light_theme6448607457324711.json",
+            "type": 201
+          },
+          {
+            "name": "Question-Circled40465909342341844.svg",
+            "path": "Question-Circled40465909342341844.svg",
+            "type": 100
+          },
+          {
+            "name": "Toolbox3204520726329514.svg",
+            "path": "Toolbox3204520726329514.svg",
+            "type": 100
+          }
+        ],
+        "name": "RegisteredResources",
+        "type": 1
+      }
+    },
+    {
+      "resourcePackage": {
+        "disabled": false,
+        "items": [
+          {
+            "name": "CY19SU06",
+            "path": "BaseThemes/CY19SU06.json",
+            "type": 202
+          }
+        ],
+        "name": "SharedResources",
+        "type": 2
+      }
+    }
+  ],
+  "sections": [
+    {
+      "config": "{}",
+      "displayName": "Get started",
+      "displayOption": 1,
+      "filters": "[]",
+      "height": 720.00,
+      "name": "68b4e430c81cc04008ad",
+      "visualContainers": [
+        {
+          "config": "{\"name\":\"0091bb6030b3feb7f21e\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":1056,\"y\":0,\"z\":1000,\"tabOrder\":15000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 12'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 1056.00,
+          "y": 0.00,
+          "z": 1000.00
+        },
+        {
+          "config": "{\"name\":\"02bc2b96e6d8e8317e6b\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":1232,\"x\":24,\"y\":16,\"z\":0,\"tabOrder\":11000}}],\"singleVisualGroup\":{\"displayName\":\"Layout grid\",\"groupMode\":0,\"isHidden\":true}}",
+          "height": 696.00,
+          "width": 1232.00,
+          "x": 24.00,
+          "y": 16.00,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"04bab2290741bf18d2ba\",\"layouts\":[{\"id\":0,\"position\":{\"height\":80,\"width\":1232,\"x\":0,\"y\":576,\"z\":13000,\"tabOrder\":11000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Row 7'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 80.00,
+          "width": 1232.00,
+          "x": 0.00,
+          "y": 576.00,
+          "z": 13000.00
+        },
+        {
+          "config": "{\"name\":\"08ce37dca7f1ec25cf34\",\"layouts\":[{\"id\":0,\"position\":{\"height\":32,\"width\":32,\"x\":784,\"y\":48,\"z\":5000,\"tabOrder\":6000}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'custom'\"}}},\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Close.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Close9574438897237076.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}},\"iconSize\":{\"expr\":{\"Literal\":{\"Value\":\"12D\"}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}}},\"selector\":{\"id\":\"default\"}},{\"properties\":{\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Close-White.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Close-White9813616349546728.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}}},\"selector\":{\"id\":\"hover\"}},{\"properties\":{\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Close-White.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Close-White9525936596282278.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}}},\"selector\":{\"id\":\"selected\"}}],\"shape\":[{\"properties\":{\"roundEdge\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}}},\"selector\":{\"id\":\"default\"}}],\"fill\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"Literal\":{\"Value\":\"'#BA141A'\"}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}}},\"selector\":{\"id\":\"hover\"}},{\"properties\":{\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}},\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"Literal\":{\"Value\":\"'#750D10'\"}}}}}},\"selector\":{\"id\":\"selected\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'Bookmark'\"}}},\"bookmark\":{\"expr\":{\"Literal\":{\"Value\":\"'bf9700f850ff7b51baa6'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Close button'\"}}}}}],\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"7c5ed4b7f28bd45e2f3a\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 32.00,
+          "width": 32.00,
+          "x": 784.00,
+          "y": 48.00,
+          "z": 5000.00
+        },
+        {
+          "config": "{\"name\":\"117425ca6e59dad9089c\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":0,\"z\":3000,\"width\":272,\"height\":176,\"tabOrder\":3000}}],\"singleVisual\":{\"visualType\":\"image\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"imageUrl\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"GetStarted-ConnectData7243700207572936.png\"}}}}}],\"imageScaling\":[{\"properties\":{\"imageScalingType\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}}]}},\"parentGroupName\":\"81e76f6b427626de7fed\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 176.00,
+          "width": 272.00,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 3000.00
+        },
+        {
+          "config": "{\"name\":\"198c62f261010e9a2031\",\"layouts\":[{\"id\":0,\"position\":{\"height\":48,\"width\":736,\"x\":40,\"y\":40,\"z\":6000,\"tabOrder\":4000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Help + support\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontFamily\":\"Segoe UI Light\",\"fontSize\":\"20pt\"}}]}]}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Header'\"}}}}}],\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"7c5ed4b7f28bd45e2f3a\"}",
+          "filters": "[]",
+          "height": 48.00,
+          "width": 736.00,
+          "x": 40.00,
+          "y": 40.00,
+          "z": 6000.00
+        },
+        {
+          "config": "{\"name\":\"248e0b0515c54d9dd540\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":0,\"y\":0,\"z\":12000,\"tabOrder\":10000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 1'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 12000.00
+        },
+        {
+          "config": "{\"name\":\"266d27780c9ef731e738\",\"layouts\":[{\"id\":0,\"position\":{\"height\":560.5479452054796,\"width\":852.3287671232878,\"x\":0,\"y\":0,\"z\":0,\"tabOrder\":5000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangleRounded'\"}}},\"rectangleRoundedCurve\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}}},\"selector\":{\"id\":\"default\"}}],\"shadow\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"60D\"}}},\"shadowPositionPreset\":{\"expr\":{\"Literal\":{\"Value\":\"'custom'\"}}},\"angle\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}},\"shadowDistance\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}},\"shadowBlur\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Dialog container'\"}}}}}],\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"7c5ed4b7f28bd45e2f3a\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 560.55,
+          "width": 852.33,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"2788b696f63d4af128c4\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":288,\"y\":0,\"z\":9000,\"tabOrder\":3000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 4'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 288.00,
+          "y": 0.00,
+          "z": 9000.00
+        },
+        {
+          "config": "{\"name\":\"28385ebc48e23eb480ad\",\"layouts\":[{\"id\":0,\"position\":{\"height\":24,\"width\":144,\"x\":0.2160493827160508,\"y\":288,\"z\":1000,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'rightArrow'\"}}},\"lineColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}},\"placement\":{\"expr\":{\"Literal\":{\"Value\":\"'right'\"}}},\"lineWeight\":{\"expr\":{\"Literal\":{\"Value\":\"1L\"}}},\"leftMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}}},\"selector\":{\"id\":\"default\"}},{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"text\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Connect your data'\"}}},\"fontColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}},\"leftMargin\":{\"expr\":{\"Literal\":{\"Value\":\"16L\"}}},\"rightMargin\":{\"expr\":{\"Literal\":{\"Value\":\"16L\"}}},\"verticalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'top'\"}}},\"topMargin\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}},\"bottomMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}}},\"selector\":{\"id\":\"default\"}}],\"fill\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}}},\"selector\":{\"id\":\"default\"}}],\"shape\":[{\"properties\":{\"roundEdge\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'Bookmark'\"}}},\"bookmark\":{\"expr\":{\"Literal\":{\"Value\":\"'0338b9337a644ca11e3b'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"81e76f6b427626de7fed\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 24.00,
+          "width": 144.00,
+          "x": 0.22,
+          "y": 288.00,
+          "z": 1000.00
+        },
+        {
+          "config": "{\"name\":\"2db9d494be01f5d72c02\",\"layouts\":[{\"id\":0,\"position\":{\"x\":792,\"y\":304,\"z\":6000,\"width\":272,\"height\":368,\"tabOrder\":7000}}],\"singleVisualGroup\":{\"displayName\":\"Customize copy\",\"groupMode\":0,\"isHidden\":false}}",
+          "height": 368.00,
+          "width": 272.00,
+          "x": 792.00,
+          "y": 304.00,
+          "z": 6000.00
+        },
+        {
+          "config": "{\"name\":\"30b5bad7cbd392bb6e54\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0.03600823045266566,\"y\":192,\"z\":0,\"width\":256,\"height\":176,\"tabOrder\":1000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Connect your data\",\"textStyle\":{\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"Connect to data across billing accounts and subscriptions to get started.\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Troubleshooting tips\",\"textStyle\":{\"color\":\"#6f4bb2\"},\"url\":\"https://learn.microsoft.com/cloud-computing/finops/toolkit/help/data-dictionary\"}]}]}}]}},\"parentGroupName\":\"81e76f6b427626de7fed\"}",
+          "filters": "[]",
+          "height": 176.00,
+          "width": 256.00,
+          "x": 0.04,
+          "y": 192.00,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"3d39b9d6c5d3fad34f0b\",\"layouts\":[{\"id\":0,\"position\":{\"height\":176,\"width\":272,\"x\":0,\"y\":0,\"z\":2000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangleRounded'\"}}},\"rectangleRoundedCurve\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":-0.1}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"50D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Grey bg'\"}}}}}]}},\"parentGroupName\":\"2db9d494be01f5d72c02\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 176.00,
+          "width": 272.00,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 2000.00
+        },
+        {
+          "config": "{\"name\":\"3fcd8c2f36e3af8580c4\",\"layouts\":[{\"id\":0,\"position\":{\"x\":213.33333333333334,\"y\":8.333333333333334,\"z\":10000,\"width\":194.16666666666669,\"height\":46.66666666666667,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"FinOps toolkit\",\"textStyle\":{\"fontSize\":\"20pt\",\"color\":\"#a6a6a6\"}}]}]}}]},\"vcObjects\":{\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'FTK label'\"}}}}}]}}}",
+          "filters": "[]",
+          "height": 46.67,
+          "width": 194.17,
+          "x": 213.33,
+          "y": 8.33,
+          "z": 10000.00
+        },
+        {
+          "config": "{\"name\":\"412a45c43add03a785a2\",\"layouts\":[{\"id\":0,\"position\":{\"height\":80,\"width\":1232,\"x\":0,\"y\":192,\"z\":17000,\"tabOrder\":5000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Row 3'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 80.00,
+          "width": 1232.00,
+          "x": 0.00,
+          "y": 192.00,
+          "z": 17000.00
+        },
+        {
+          "config": "{\"name\":\"4a4dd826f3118f0cc0da\",\"layouts\":[{\"id\":0,\"position\":{\"height\":560.5479452054796,\"width\":852.3287671232878,\"x\":0,\"y\":0,\"z\":0,\"tabOrder\":2000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangleRounded'\"}}},\"rectangleRoundedCurve\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}}},\"selector\":{\"id\":\"default\"}}],\"shadow\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"60D\"}}},\"shadowPositionPreset\":{\"expr\":{\"Literal\":{\"Value\":\"'custom'\"}}},\"angle\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}},\"shadowDistance\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}},\"shadowBlur\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Dialog container'\"}}}}}],\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"e9277735d3fa47c4a194\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 560.55,
+          "width": 852.33,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"5179fa1b65706fc27bd3\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":864,\"y\":0,\"z\":3000,\"tabOrder\":2000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 10'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 864.00,
+          "y": 0.00,
+          "z": 3000.00
+        },
+        {
+          "config": "{\"name\":\"52f1bc9e8d1699c91a10\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":768,\"y\":0,\"z\":4000,\"tabOrder\":18000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 9'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 768.00,
+          "y": 0.00,
+          "z": 4000.00
+        },
+        {
+          "config": "{\"name\":\"55642c45036461b52537\",\"layouts\":[{\"id\":0,\"position\":{\"height\":80,\"width\":1232,\"x\":0,\"y\":480,\"z\":14000,\"tabOrder\":16000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Row 6'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 80.00,
+          "width": 1232.00,
+          "x": 0.00,
+          "y": 480.00,
+          "z": 14000.00
+        },
+        {
+          "config": "{\"name\":\"64aea501de6a54eccb86\",\"layouts\":[{\"id\":0,\"position\":{\"height\":176,\"width\":272,\"x\":0,\"y\":0,\"z\":2000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangleRounded'\"}}},\"rectangleRoundedCurve\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":-0.1}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"50D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Grey bg'\"}}}}}]}},\"parentGroupName\":\"ff0e7ae1d9d11589bbd8\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 176.00,
+          "width": 272.00,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 2000.00
+        },
+        {
+          "config": "{\"name\":\"75c670deb043826b5116\",\"layouts\":[{\"id\":0,\"position\":{\"height\":80,\"width\":1232,\"x\":0,\"y\":0,\"z\":19000,\"tabOrder\":14000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Row 1'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 80.00,
+          "width": 1232.00,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 19000.00
+        },
+        {
+          "config": "{\"name\":\"7673bcc2f811097f4a56\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":672,\"y\":0,\"z\":5000,\"tabOrder\":8000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 8'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 672.00,
+          "y": 0.00,
+          "z": 5000.00
+        },
+        {
+          "config": "{\"name\":\"7c5ed4b7f28bd45e2f3a\",\"layouts\":[{\"id\":0,\"position\":{\"x\":214.8655587817734,\"y\":112.00000371107124,\"z\":11000,\"width\":852.3287671232878,\"height\":560.5479452054796,\"tabOrder\":12000}}],\"singleVisualGroup\":{\"displayName\":\"Help dialog\",\"groupMode\":0,\"isHidden\":true}}",
+          "height": 560.55,
+          "width": 852.33,
+          "x": 214.87,
+          "y": 112.00,
+          "z": 11000.00
+        },
+        {
+          "config": "{\"name\":\"7e536659318f0aaddb2f\",\"layouts\":[{\"id\":0,\"position\":{\"x\":216,\"y\":112.00000000000001,\"z\":8000,\"width\":848,\"height\":176,\"tabOrder\":1000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"The \"},{\"value\":\"Data only report\",\"textStyle\":{\"fontWeight\":\"bold\",\"color\":\"#6f4bb2\"}},{\"value\":\" brings all FinOps toolkit datasets into a single semantic model. Connect to your data once, setup one refresh schedule, and link all reports to this one a single data source to streamline report maintenance.\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Learn more\",\"textStyle\":{\"color\":\"#6f4bb2\"},\"url\":\"https://aka.ms/ftk/pbi/DataOnly\"}]}]}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Description'\"}}}}}]}}}",
+          "filters": "[]",
+          "height": 176.00,
+          "width": 848.00,
+          "x": 216.00,
+          "y": 112.00,
+          "z": 8000.00
+        },
+        {
+          "config": "{\"name\":\"7ee25e754d6b6dfe782d\",\"layouts\":[{\"id\":0,\"position\":{\"x\":1160,\"y\":688,\"z\":1000,\"width\":112.00000000000001,\"height\":32,\"tabOrder\":3000}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'custom'\"}}},\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Feedback.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Feedback010740419814817104.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"topMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}},\"placement\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}}},\"selector\":{\"id\":\"default\"}}],\"text\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'  Give feedback'\"}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}},\"fontColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"8D\"}}},\"underline\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'WebUrl'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}},\"webUrl\":{\"expr\":{\"Literal\":{\"Value\":\"'https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Workload%20optimization%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Workload%20optimization%20report%3F/surveyId/FTK$$ftkver$$/bladeName/PowerBI.DataOnly/featureName/KQL.GetStarted'\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Feedback'\"}}}}}]}},\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 32.00,
+          "width": 112.00,
+          "x": 1160.00,
+          "y": 688.00,
+          "z": 1000.00
+        },
+        {
+          "config": "{\"name\":\"81e76f6b427626de7fed\",\"layouts\":[{\"id\":0,\"position\":{\"x\":216,\"y\":304,\"z\":7000,\"width\":272,\"height\":368,\"tabOrder\":8000}}],\"singleVisualGroup\":{\"displayName\":\"Connect copy\",\"groupMode\":0,\"isHidden\":false}}",
+          "height": 368.00,
+          "width": 272.00,
+          "x": 216.00,
+          "y": 304.00,
+          "z": 7000.00
+        },
+        {
+          "config": "{\"name\":\"847e83e18fbbe5a9a3f4\",\"layouts\":[{\"id\":0,\"position\":{\"height\":424,\"width\":776,\"x\":40,\"y\":96,\"z\":1000,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"FinOps toolkit reports include preconfigured visuals, but aren't connected to your data. This report uses FinOps hubs with Data Explorer for cost and Azure Resource Graph for resource configuration and recommendation details. If your data is in a storage account and not in Data Explorer, please \"},{\"value\":\"download storage reports\",\"textStyle\":{\"color\":\"#6f4bb2\"},\"url\":\"https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip\"},{\"value\":\".\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Use the following steps to connect to Azure Resource Graph and your Data Explorer cluster:\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"1. Deploy FinOps hubs\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"If you have not deployed FinOps hubs with the Data Explorer cluster option, please do so now. Data Explorer is required for KQL reports. \",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Learn more\",\"textStyle\":{\"color\":\"#6f4bb2\"},\"url\":\"https://aka.ms/finops/hubs\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"2. Configure Cost Management exports\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Once FinOps hubs is deployed, either configure managed exports for your hub instance or manually create new exports in Cost Management to initiate data ingestion. If creating exports manually, remember to run at least one export manually to load an initial dataset. The following Cost Management datasets are recommended:\",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Cost and usage (FOCUS) \"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Price sheet – Required to calculate accurate and complete savings.\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Reservation recommendations\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"The following Cost Management datasets are supported but not directly used by FinOps toolkit reports:\",\"textStyle\":{\"fontSize\":\"12px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Reservation transactions\",\"textStyle\":{\"fontFamily\":\"inherit\"}}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Reservation details\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Learn more\",\"textStyle\":{\"color\":\"#6f4bb2\"},\"url\":\"https://aka.ms/finops/hubs/configure\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"3. Connect to your FinOps hub instance\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"From this page, select \",\"textStyle\":{\"fontSize\":\"13.3333px\"}},{\"value\":\"Home\",\"textStyle\":{\"fontWeight\":\"bold\"}},{\"value\":\" > \"},{\"value\":\"Transform data ∨\",\"textStyle\":{\"fontWeight\":\"bold\"}},{\"value\":\" > \"},{\"value\":\"Edit parameters\",\"textStyle\":{\"fontWeight\":\"bold\"}},{\"value\":\" above and set the following parameters:\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Cluster URL\",\"textStyle\":{\"fontWeight\":\"bold\"}}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Open the \"},{\"value\":\"list of resource groups\",\"textStyle\":{\"color\":\"#6f4bb2\"},\"url\":\"https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups\"},{\"value\":\" in the Azure portal.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Select the hub resource group.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Select Deployments in the menu.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Select the hub deployment.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Select Outputs.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Copy the value for \"},{\"value\":\"clusterUri\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"13.6px\"}},{\"value\":\".\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Storage URL\",\"textStyle\":{\"fontWeight\":\"bold\"}}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Open the \"},{\"value\":\"list of resource groups\",\"textStyle\":{\"color\":\"#6f4bb2\"},\"url\":\"https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups\"},{\"value\":\" in the Azure portal.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Select the hub resource group.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Select Deployments in the menu.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Select the hub deployment.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Select Outputs.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Copy the value for \"},{\"value\":\"storageUrlForPowerBI\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"13.6px\"}},{\"value\":\".\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"Number of Months\",\"textStyle\":{\"fontWeight\":\"bold\"}},{\"value\":\" – Optional number of closed months to show. Leave empty to show all data.\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Default Granularity \",\"textStyle\":{\"fontWeight\":\"bold\"}},{\"value\":\"– Select whether you want charts to show \"},{\"value\":\"Daily\",\"textStyle\":{\"fontWeight\":\"bold\"}},{\"value\":\" or \"},{\"value\":\"Monthly\",\"textStyle\":{\"fontWeight\":\"bold\"}},{\"value\":\" data.\"}],\"listType\":\"bullet\",\"indent\":1},{\"textRuns\":[{\"value\":\"NOTE: When customizing charts, use x_ReportingDate to align to this setting. Otherwise, use ChargePeriodStart for daily and x_ChargeMonth for monthly data.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Apply changes to refresh the report. This report uses DirectQuery for cost data, which means that data is refreshed every time you open a page and not from a scheduled refresh process.\",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"4. Authorize data sources\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"FinOps toolkit reports connect to one or more of the following data sources. Use these settings to configure authorization:\",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Azure Data Explorer (Kusto) – Use an account that has at least viewer access to the Hub and Ingestion databases.\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"(your storage account) – Use a SAS token or an account that has Storage Blob Data Reader or greater access.\"}],\"listType\":\"bullet\",\"indent\":1},{\"textRuns\":[{\"value\":\"Azure Resource Graph – Use an account that has direct access to any subscriptions you would like to report on.\",\"textStyle\":{\"fontFamily\":\"inherit\"}}],\"listType\":\"bullet\",\"indent\":1},{\"textRuns\":[{\"value\":\"https://ccmstorageprod... – Anonymous access. This URL is used for reservation size flexibility data.\",\"textStyle\":{\"fontFamily\":\"inherit\"}}],\"listType\":\"bullet\",\"indent\":1},{\"textRuns\":[{\"value\":\"https://github.com/... – Anonymous access. This URL is used for FinOps toolkit open data files.\",\"textStyle\":{\"fontFamily\":\"inherit\"}}],\"listType\":\"bullet\",\"indent\":1},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"5. Troubleshoot common issues\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"If you do not see any data after connecting to your account, check the following:\",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Confirm data was ingested into the desired tables. You can do this by going to \"},{\"value\":\"dataexplorer.azure.com\",\"textStyle\":{\"color\":\"#6f4bb2\"},\"url\":\"https://dataexplorer.azure.com/\"},{\"value\":\", connecting to your cluster, and running a \"},{\"value\":\"Costs | limit 100\",\"textStyle\":{\"fontWeight\":\"bold\"}},{\"value\":\" query.\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Check the currency filter to ensure the correct currency is selected.\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Check the date picker at the top-left of each page to ensure the data you exported is within the same time frame.\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"For additional guidance, refer to the \",\"textStyle\":{\"fontSize\":\"13.3333px\"}},{\"value\":\"Troubleshooting guide\",\"textStyle\":{\"color\":\"#6f4bb2\"},\"url\":\"https://aka.ms/ftk/trouble\"},{\"value\":\".\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]}]}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Steps'\"}}}}}],\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"e9277735d3fa47c4a194\"}",
+          "filters": "[]",
+          "height": 424.00,
+          "width": 776.00,
+          "x": 40.00,
+          "y": 96.00,
+          "z": 1000.00
+        },
+        {
+          "config": "{\"name\":\"86cf9925712386c02dca\",\"layouts\":[{\"id\":0,\"position\":{\"x\":241.1344412182266,\"y\":487.99999628892874,\"z\":1000,\"width\":96,\"height\":32,\"tabOrder\":2000}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'custom'\"}}},\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Bug.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Bug9076115215259053.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"topMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}},\"placement\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"lineColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"lineWeight\":{\"expr\":{\"Literal\":{\"Value\":\"1L\"}}}},\"selector\":{\"id\":\"default\"}}],\"text\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'  Report a bug'\"}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}},\"fontColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"8D\"}}},\"underline\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}},\"selector\":{\"id\":\"default\"}}],\"fill\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}},{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"lineColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"weight\":{\"expr\":{\"Literal\":{\"Value\":\"1D\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'WebUrl'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}},\"webUrl\":{\"expr\":{\"Literal\":{\"Value\":\"'https://aka.ms/ftk/ideas'\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'New issue'\"}}}}}]}},\"parentGroupName\":\"7c5ed4b7f28bd45e2f3a\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 32.00,
+          "width": 96.00,
+          "x": 241.13,
+          "y": 488.00,
+          "z": 1000.00
+        },
+        {
+          "config": "{\"name\":\"9356e35b7683896d0b52\",\"layouts\":[{\"id\":0,\"position\":{\"height\":80,\"width\":1232,\"x\":0,\"y\":288,\"z\":16000,\"tabOrder\":4000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Row 4'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 80.00,
+          "width": 1232.00,
+          "x": 0.00,
+          "y": 288.00,
+          "z": 16000.00
+        },
+        {
+          "config": "{\"name\":\"96fa031e3fda6bec5788\",\"layouts\":[{\"id\":0,\"position\":{\"height\":48,\"width\":736,\"x\":40,\"y\":40,\"z\":3000,\"tabOrder\":1000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Connect this report to your environment\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontFamily\":\"Segoe UI Light\",\"fontSize\":\"20pt\"}}]}]}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Header'\"}}}}}],\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"e9277735d3fa47c4a194\"}",
+          "filters": "[]",
+          "height": 48.00,
+          "width": 736.00,
+          "x": 40.00,
+          "y": 40.00,
+          "z": 3000.00
+        },
+        {
+          "config": "{\"name\":\"9d59b3501ea083e854af\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":479.99999999999994,\"y\":0,\"z\":7000,\"tabOrder\":1000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 6'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 480.00,
+          "y": 0.00,
+          "z": 7000.00
+        },
+        {
+          "config": "{\"name\":\"9d946176eef8aba2cbec\",\"layouts\":[{\"id\":0,\"position\":{\"height\":176,\"width\":272,\"x\":0,\"y\":0,\"z\":3000}}],\"singleVisual\":{\"visualType\":\"image\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"imageUrl\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"GetStarted-AddData17914943068990197.png\"}}}}}],\"imageScaling\":[{\"properties\":{\"imageScalingType\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}}]}},\"parentGroupName\":\"ff0e7ae1d9d11589bbd8\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 176.00,
+          "width": 272.00,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 3000.00
+        },
+        {
+          "config": "{\"name\":\"a071d96852205b19ef37\",\"layouts\":[{\"id\":0,\"position\":{\"x\":8,\"y\":687.9999999999999,\"z\":4000,\"width\":96.00000000000001,\"height\":32,\"tabOrder\":6000}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'custom'\"}}},\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Toolbox.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Toolbox3204520726329514.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"topMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}},\"placement\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}}},\"selector\":{\"id\":\"default\"}}],\"text\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'  FinOps toolkit'\"}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}},\"fontColor\":{\"solid\":{\"color\":{\"expr\":{\"Literal\":{\"Value\":\"'#6F4BB2'\"}}}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"8D\"}}},\"underline\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'WebUrl'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"webUrl\":{\"expr\":{\"Literal\":{\"Value\":\"'https://aka.ms/finops/toolkit'\"}}},\"tooltip\":{\"expr\":{\"Literal\":{\"Value\":\"'This report is part of the Microsoft FinOps toolkit, an open-source collection of FinOps solutions that help you manage and optimize your cost, usage, and carbon.'\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'FTK link'\"}}}}}]}},\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 32.00,
+          "width": 96.00,
+          "x": 8.00,
+          "y": 688.00,
+          "z": 4000.00
+        },
+        {
+          "config": "{\"name\":\"a0f589f1a9e5e2ce472b\",\"layouts\":[{\"id\":0,\"position\":{\"x\":137.1344412182266,\"y\":487.99999628892874,\"z\":2000,\"width\":96,\"height\":32,\"tabOrder\":1000}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'qna'\"}}},\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Question-Circled.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Question-Circled40465909342341844.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"topMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}},\"placement\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"lineColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"lineWeight\":{\"expr\":{\"Literal\":{\"Value\":\"1L\"}}}},\"selector\":{\"id\":\"default\"}}],\"text\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'  Ask question'\"}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}},\"fontColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"8D\"}}},\"underline\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}},\"selector\":{\"id\":\"default\"}}],\"fill\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}},{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"lineColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"weight\":{\"expr\":{\"Literal\":{\"Value\":\"1D\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'WebUrl'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}},\"webUrl\":{\"expr\":{\"Literal\":{\"Value\":\"'https://aka.ms/'\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Question'\"}}}}}]}},\"parentGroupName\":\"7c5ed4b7f28bd45e2f3a\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 32.00,
+          "width": 96.00,
+          "x": 137.13,
+          "y": 488.00,
+          "z": 2000.00
+        },
+        {
+          "config": "{\"name\":\"ad009229dad590a70fe2\",\"layouts\":[{\"id\":0,\"position\":{\"height\":24,\"width\":152,\"x\":0,\"y\":288,\"z\":1000}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'custom'\"}}},\"lineColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}},\"placement\":{\"expr\":{\"Literal\":{\"Value\":\"'right'\"}}},\"lineWeight\":{\"expr\":{\"Literal\":{\"Value\":\"1L\"}}},\"leftMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}},\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'ExternalLink.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"ExternalLink292390249589896.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}}},\"selector\":{\"id\":\"default\"}}],\"text\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'How to add data  '\"}}},\"fontColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}},\"leftMargin\":{\"expr\":{\"Literal\":{\"Value\":\"16L\"}}},\"rightMargin\":{\"expr\":{\"Literal\":{\"Value\":\"16L\"}}},\"verticalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'top'\"}}},\"topMargin\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}},\"bottomMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}}},\"selector\":{\"id\":\"default\"}}],\"fill\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}}},\"selector\":{\"id\":\"default\"}}],\"shape\":[{\"properties\":{\"roundEdge\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}}},\"selector\":{\"id\":\"default\"}}],\"glow\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'WebUrl'\"}}},\"webUrl\":{\"expr\":{\"Literal\":{\"Value\":\"'https://aka.ms/ftk/pbi/getdata'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"ff0e7ae1d9d11589bbd8\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 24.00,
+          "width": 152.00,
+          "x": 0.00,
+          "y": 288.00,
+          "z": 1000.00
+        },
+        {
+          "config": "{\"name\":\"ad1c8cdca0e40156221f\",\"layouts\":[{\"id\":0,\"position\":{\"height\":96,\"width\":272,\"x\":1.1368683772161603e-13,\"y\":192.00000000000006,\"z\":0}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Add business context\",\"textStyle\":{\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"Join cost with business data to align with your organization and quantify business value.\"}]}]}}]}},\"parentGroupName\":\"ff0e7ae1d9d11589bbd8\"}",
+          "filters": "[]",
+          "height": 96.00,
+          "width": 272.00,
+          "x": 0.00,
+          "y": 192.00,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"ad5e62ecf686180722f1\",\"layouts\":[{\"id\":0,\"position\":{\"x\":211.66666666666669,\"y\":24.166666666666668,\"z\":9000,\"width\":852.5,\"height\":85.83333333333334,\"tabOrder\":2000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Data only report\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"42pt\"}}]}]}}]},\"vcObjects\":{\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Report name'\"}}}}}]}}}",
+          "filters": "[]",
+          "height": 85.83,
+          "width": 852.50,
+          "x": 211.67,
+          "y": 24.17,
+          "z": 9000.00
+        },
+        {
+          "config": "{\"name\":\"b016f6231feda619aa88\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":384,\"y\":0,\"z\":8000,\"tabOrder\":12000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 5'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 384.00,
+          "y": 0.00,
+          "z": 8000.00
+        },
+        {
+          "config": "{\"name\":\"baf9d1fe7f9086884005\",\"layouts\":[{\"id\":0,\"position\":{\"x\":104,\"y\":688,\"z\":3000,\"width\":240,\"height\":32,\"tabOrder\":5000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"$$ftkver$$  ·  $$build-date$$  ·  KQL\",\"textStyle\":{\"fontSize\":\"8pt\",\"color\":\"#808080\"}}]}]}}]},\"vcObjects\":{\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Version info'\"}}}}}],\"padding\":[{\"properties\":{\"top\":{\"expr\":{\"Literal\":{\"Value\":\"7D\"}}},\"left\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}}}}]}}}",
+          "filters": "[]",
+          "height": 32.00,
+          "width": 240.00,
+          "x": 104.00,
+          "y": 688.00,
+          "z": 3000.00
+        },
+        {
+          "config": "{\"name\":\"c06195f26eeddece4e8e\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":192,\"y\":0,\"z\":10000,\"tabOrder\":6000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 3'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 192.00,
+          "y": 0.00,
+          "z": 10000.00
+        },
+        {
+          "config": "{\"name\":\"cda5ff1f89ee411a38cd\",\"layouts\":[{\"id\":0,\"position\":{\"height\":176,\"width\":272,\"x\":0,\"y\":0,\"z\":3000}}],\"singleVisual\":{\"visualType\":\"image\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"imageUrl\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"GetStarted-CustomizeReport5477659270158559.png\"}}}}}],\"imageScaling\":[{\"properties\":{\"imageScalingType\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}}]}},\"parentGroupName\":\"2db9d494be01f5d72c02\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 176.00,
+          "width": 272.00,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 3000.00
+        },
+        {
+          "config": "{\"name\":\"d82f8f3109066b838c12\",\"layouts\":[{\"id\":0,\"position\":{\"height\":80,\"width\":1232,\"x\":0,\"y\":384,\"z\":15000,\"tabOrder\":9000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Row 5'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 80.00,
+          "width": 1232.00,
+          "x": 0.00,
+          "y": 384.00,
+          "z": 15000.00
+        },
+        {
+          "config": "{\"name\":\"d858d2f5093f5c8df615\",\"layouts\":[{\"id\":0,\"position\":{\"height\":80,\"width\":1232,\"x\":0,\"y\":96,\"z\":18000,\"tabOrder\":13000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Row 2'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 80.00,
+          "width": 1232.00,
+          "x": 0.00,
+          "y": 96.00,
+          "z": 18000.00
+        },
+        {
+          "config": "{\"name\":\"daa73b99ed4f89d03383\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":288,\"z\":1000,\"width\":160,\"height\":24}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'custom'\"}}},\"lineColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}},\"placement\":{\"expr\":{\"Literal\":{\"Value\":\"'right'\"}}},\"lineWeight\":{\"expr\":{\"Literal\":{\"Value\":\"1L\"}}},\"leftMargin\":{\"expr\":{\"Literal\":{\"Value\":\"10L\"}}},\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'ExternalLink.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"ExternalLink7990467786314797.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}}},\"selector\":{\"id\":\"default\"}},{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"text\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Connect your reports'\"}}},\"fontColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}},\"leftMargin\":{\"expr\":{\"Literal\":{\"Value\":\"16L\"}}},\"rightMargin\":{\"expr\":{\"Literal\":{\"Value\":\"16L\"}}},\"verticalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'top'\"}}},\"topMargin\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}},\"bottomMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}}},\"selector\":{\"id\":\"default\"}}],\"fill\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}}},\"selector\":{\"id\":\"default\"}}],\"shape\":[{\"properties\":{\"roundEdge\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'Bookmark'\"}}},\"webUrl\":{\"expr\":{\"Literal\":{\"Value\":\"'https://aka.ms/ftk/pbi/customize'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"2db9d494be01f5d72c02\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 24.00,
+          "width": 160.00,
+          "x": 0.00,
+          "y": 288.00,
+          "z": 1000.00
+        },
+        {
+          "config": "{\"name\":\"dd95d21cac00296b6af8\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":1152,\"y\":0,\"z\":0,\"tabOrder\":19000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 13'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 1152.00,
+          "y": 0.00,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"df6f11564012c5014dcd\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":96,\"y\":0,\"z\":11000,\"tabOrder\":7000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 2'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 96.00,
+          "y": 0.00,
+          "z": 11000.00
+        },
+        {
+          "config": "{\"name\":\"e222c8e7afd357d1db37\",\"layouts\":[{\"id\":0,\"position\":{\"x\":1064,\"y\":688,\"z\":2000,\"width\":88,\"height\":32,\"tabOrder\":4000}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'custom'\"}}},\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Question-Circled.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Question-Circled40465909342341844.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"topMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}},\"placement\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}}},\"selector\":{\"id\":\"default\"}}],\"text\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'  Get help'\"}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}},\"fontColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"8D\"}}},\"underline\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'Bookmark'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}},\"webUrl\":{\"expr\":{\"Literal\":{\"Value\":\"'https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/surveyId/FTK$$ftkver$$/bladeName/PowerBI.WorkloadOptimization.GetStarted/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Rate%20optimization%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Rate%20optimization%20report%3F/featureName/PowerBI.WorkloadOptimization.GetStarted'\"}}},\"bookmark\":{\"expr\":{\"Literal\":{\"Value\":\"'9882785c36c2ec058d8d'\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Help'\"}}}}}]}},\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 32.00,
+          "width": 88.00,
+          "x": 1064.00,
+          "y": 688.00,
+          "z": 2000.00
+        },
+        {
+          "config": "{\"name\":\"e25566c2b0ad3cc1c806\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":576,\"y\":0,\"z\":6000,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 7'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 576.00,
+          "y": 0.00,
+          "z": 6000.00
+        },
+        {
+          "config": "{\"name\":\"e2e6be635a23f9e95d43\",\"layouts\":[{\"id\":0,\"position\":{\"height\":696,\"width\":80,\"x\":960.0000000000001,\"y\":0,\"z\":2000,\"tabOrder\":17000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 11'\"}}}}}]}},\"parentGroupName\":\"02bc2b96e6d8e8317e6b\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 696.00,
+          "width": 80.00,
+          "x": 960.00,
+          "y": 0.00,
+          "z": 2000.00
+        },
+        {
+          "config": "{\"name\":\"e301b0f679947856e27e\",\"layouts\":[{\"id\":0,\"position\":{\"height\":176,\"width\":247.99999999999997,\"x\":0,\"y\":192,\"z\":0}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Connect from your reports\",\"textStyle\":{\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"Publish this report and connect to its semantic model from other reports to streamline setup.\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]}]}}]}},\"parentGroupName\":\"2db9d494be01f5d72c02\"}",
+          "filters": "[]",
+          "height": 176.00,
+          "width": 248.00,
+          "x": 0.00,
+          "y": 192.00,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"e7bdd81ea0a87d2af271\",\"layouts\":[{\"id\":0,\"position\":{\"height\":32,\"width\":32,\"x\":784,\"y\":48,\"z\":2000,\"tabOrder\":3000}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'custom'\"}}},\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Close.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Close9574438897237076.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}},\"iconSize\":{\"expr\":{\"Literal\":{\"Value\":\"12D\"}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}}},\"selector\":{\"id\":\"default\"}},{\"properties\":{\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Close-White.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Close-White9813616349546728.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}}},\"selector\":{\"id\":\"hover\"}},{\"properties\":{\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Close-White.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Close-White9525936596282278.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}}},\"selector\":{\"id\":\"selected\"}}],\"shape\":[{\"properties\":{\"roundEdge\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}}},\"selector\":{\"id\":\"default\"}}],\"fill\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"Literal\":{\"Value\":\"'#BA141A'\"}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}}},\"selector\":{\"id\":\"hover\"}},{\"properties\":{\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}},\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"Literal\":{\"Value\":\"'#750D10'\"}}}}}},\"selector\":{\"id\":\"selected\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'Bookmark'\"}}},\"bookmark\":{\"expr\":{\"Literal\":{\"Value\":\"'bf9700f850ff7b51baa6'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Close button'\"}}}}}],\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"e9277735d3fa47c4a194\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 32.00,
+          "width": 32.00,
+          "x": 784.00,
+          "y": 48.00,
+          "z": 2000.00
+        },
+        {
+          "config": "{\"name\":\"e9277735d3fa47c4a194\",\"layouts\":[{\"id\":0,\"position\":{\"x\":216,\"y\":113,\"z\":12000,\"width\":852.3287671232878,\"height\":560.5479452054796,\"tabOrder\":10000}}],\"singleVisualGroup\":{\"displayName\":\"Connect dialog\",\"groupMode\":0,\"isHidden\":true}}",
+          "height": 560.55,
+          "width": 852.33,
+          "x": 216.00,
+          "y": 113.00,
+          "z": 12000.00
+        },
+        {
+          "config": "{\"name\":\"eae328b0e4c574c69efe\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":0,\"z\":2000,\"width\":272,\"height\":176,\"tabOrder\":2000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangleRounded'\"}}},\"rectangleRoundedCurve\":{\"expr\":{\"Literal\":{\"Value\":\"2L\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":-0.1}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"50D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Grey bg'\"}}}}}]}},\"parentGroupName\":\"81e76f6b427626de7fed\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 176.00,
+          "width": 272.00,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 2000.00
+        },
+        {
+          "config": "{\"name\":\"f9303287409926d991ca\",\"layouts\":[{\"id\":0,\"position\":{\"x\":40,\"y\":96,\"z\":4000,\"width\":776,\"height\":384,\"tabOrder\":3000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Sorry to hear that you're experiencing issues. We're here to help!\",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Please note Microsoft Support does not handle support requests for FinOps toolkit. However, the underlying products sued by tools in the toolkit are officially supported. Use the following steps if you run into an issue:\",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Before you begin\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"If you aren't seeing data after connecting and syncing successfully, try the following troubleshooting steps:\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Clear all filters (see the button below).\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Clear RangeStart, RangeEnd, Number of Months date parameters and refresh data.\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Confirm data is loading by navigating to Home > Transform Data > Queries > Costs.\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"If data is in this view, then there is a filter causing the data to not render in the report.\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"If using raw exports (not FinOps hubs):\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Confirm there are CSV or parquet files in the specified storage path.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"If not, confirm Cost Management exports were configured correctly, have no failures, and run them again.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"If using FinOps hubs:\"}],\"listType\":\"bullet\"},{\"textRuns\":[{\"value\":\"Confirm there are parquet files in the ingestion container in the storage account.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"If not, check for CSV or parquet files in the msexports container.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"If not, confirm Cost Management exports were configured correctly, have no failed runs, and run them again.\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"If data is in msexports, check the Data Factory triggers to confirm they are all started. You may need to register the Microsoft.EventGrid resource provider, restart the triggers, then re-run the exports (or manually retry the failed pipeline runs).\"}],\"listType\":\"ordered\",\"indent\":1},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"This is a condensed version of the troubleshooting guide. If these did not help, continue with the list below and run through the full troubleshooting guide, if needed.\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"1. Report security issues securely\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"If you believe you've found a security vulnerability, refer to \",\"textStyle\":{\"fontSize\":\"13.3333px\"}},{\"value\":\"Reporting security issues\",\"textStyle\":{\"fontSize\":\"13.3333px\"},\"url\":\"https://github.com/microsoft/finops-toolkit/blob/dev/SECURITY.md\"},{\"value\":\". \",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"2. Confirm all setup instructions were completed in order\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"9 out of 10 issues are due to missing steps. Please review and follow the instructions carefully. For this report, close this dialog and select the \",\"textStyle\":{\"fontSize\":\"13.3333px\"}},{\"value\":\"Connect your data\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"13.3333px\"}},{\"value\":\" button.\",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"3. Walk through the troubleshooting guide\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"The most common issues and their solutions are documented and should be able to be resolved independently. If you have a specific error code, refer to \",\"textStyle\":{\"fontSize\":\"13.3333px\"}},{\"value\":\"Common errors\",\"textStyle\":{\"fontSize\":\"13.3333px\"},\"url\":\"https://learn.microsoft.com/cloud-computing/finops/toolkit/help/errors\"},{\"value\":\". For a guided walk through, refer to the \",\"textStyle\":{\"fontSize\":\"13.3333px\"}},{\"value\":\"Troubleshooting guide\",\"textStyle\":{\"fontSize\":\"13.3333px\"},\"url\":\"https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting\"},{\"value\":\".\",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"4. Identify the source of the issue\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"For error message, what product is showing the error? Does the error refer to another product? For missing or incorrect data, is the data generated in a Power BI report or does it come directly from a product, like Cost Management?\",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"5. Create support requests for product issues\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"If the source of the issue is a managed product (including data from Cost Management), create a Microsoft support request for that specific product. Refer to the data dictionary to identify whether a specific column is sourced from Cost Management or is created or updated by the FinOps toolkit. If you're not sure about the source, ask in the \",\"textStyle\":{\"fontSize\":\"13.3333px\"}},{\"value\":\"discussion forum\",\"textStyle\":{\"fontSize\":\"13.3333px\"},\"url\":\"https://github.com/microsoft/finops-toolkit/discussions/categories/q-a\"},{\"value\":\".\",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"6. Create an issue in GitHub\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"14pt\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"Whether you submit a support request or not, we recommend \",\"textStyle\":{\"fontSize\":\"13.3333px\"}},{\"value\":\"creating an issue in GitHub\",\"textStyle\":{\"fontSize\":\"13.3333px\"},\"url\":\"https://aka.ms/ftk/ideas\"},{\"value\":\" to let us know about the problems you're facing. Even if the issue is a product bug, we would like to document it to help others.\",\"textStyle\":{\"fontSize\":\"13.3333px\"}}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"We try to respond to issues and discussions within two business days but there can sometimes be unanticipated delays. If you completed all of the preceding steps and the issue wasn't resolved within a week, we should set up a Teams call for you. Then you can share your screen so we can troubleshoot the issue together.\"}]},{\"textRuns\":[{\"value\":\"\"}]},{\"textRuns\":[{\"value\":\"\"}]}]}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Steps'\"}}}}}],\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"7c5ed4b7f28bd45e2f3a\"}",
+          "filters": "[]",
+          "height": 384.00,
+          "width": 776.00,
+          "x": 40.00,
+          "y": 96.00,
+          "z": 4000.00
+        },
+        {
+          "config": "{\"name\":\"ff0e7ae1d9d11589bbd8\",\"layouts\":[{\"id\":0,\"position\":{\"x\":504,\"y\":304,\"z\":5000,\"width\":272.0000000000001,\"height\":312,\"tabOrder\":9000}}],\"singleVisualGroup\":{\"displayName\":\"Get data copy\",\"groupMode\":0,\"isHidden\":false}}",
+          "height": 312.00,
+          "width": 272.00,
+          "x": 504.00,
+          "y": 304.00,
+          "z": 5000.00
+        },
+        {
+          "config": "{\"name\":\"ff4f34ae4413b2ab1c80\",\"layouts\":[{\"id\":0,\"position\":{\"x\":41.13444121822661,\"y\":487.99999628892874,\"z\":3000,\"width\":88,\"height\":32,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'clearAllSlicers'\"}}},\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"''\"}}},\"url\":{\"expr\":{\"Literal\":{\"Value\":\"''\"}}}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"topMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}},\"placement\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"lineColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"lineWeight\":{\"expr\":{\"Literal\":{\"Value\":\"1L\"}}}},\"selector\":{\"id\":\"default\"}},{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}],\"text\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'  Clear filters'\"}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}},\"fontColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"8D\"}}},\"underline\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"lineColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"weight\":{\"expr\":{\"Literal\":{\"Value\":\"1D\"}}}},\"selector\":{\"id\":\"default\"}}],\"fill\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}},{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":2,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'ClearAllSlicers'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}},\"webUrl\":{\"expr\":{\"Literal\":{\"Value\":\"'https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/surveyId/FTK$$ftkver$$/bladeName/PowerBI.WorkloadOptimization.GetStarted/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Rate%20optimization%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Rate%20optimization%20report%3F/featureName/PowerBI.WorkloadOptimization.GetStarted'\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Clear filters'\"}}}}}]}},\"parentGroupName\":\"7c5ed4b7f28bd45e2f3a\",\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 32.00,
+          "width": 88.00,
+          "x": 41.13,
+          "y": 488.00,
+          "z": 3000.00
+        }
+      ],
+      "width": 1280.00
+    }
+  ],
+  "theme": "Microsoft_FinOps_light_theme6448607457324711.json"
+}
