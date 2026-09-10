@@ -3,17 +3,17 @@ title: Get-FinOpsToolkitVersion command
 description: Get available versions from published FinOps toolkit releases using the Get-FinOpsToolkitVersion command.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the Get-FinOpsToolkitVersion PowerShell command.
+#customer intent: As a FinOps user, I want to understand how to use the Get-FinOpsToolkitVersion command in the FinOpsToolkit module.
 ---
 
 # Get-FinOpsToolkitVersion command
 
-The Get-FinOpsToolkitVersions command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
+The **Get-FinOpsToolkitVersion** command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
 
 <br>
 
@@ -21,8 +21,8 @@ The Get-FinOpsToolkitVersions command calls GitHub to retrieve all toolkit relea
 
 ```powershell
 Get-FinOpsToolkitVersion `
-    [-Latest] `
-    [-Preview] `
+    [‑Latest] `
+    [‑Preview] `
     [<CommonParameters>]
 ```
 
@@ -30,10 +30,10 @@ Get-FinOpsToolkitVersion `
 
 ## Parameters
 
-| Name    | Description                                                                                |
-| ------- | ------------------------------------------------------------------------------------------ |
-| Latest  | Optional. Indicates that only the most recent release should be returned. Default = false. |
-| Preview | Optional. Indicates that preview releases should also be included. Default = false.        |
+| Name       | Description                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------ |
+| `‑Latest`  | Optional. Indicates that only the most recent release should be returned. Default = false. |
+| `‑Preview` | Optional. Indicates that preview releases should also be included. Default = false.        |
 
 <br>
 

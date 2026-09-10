@@ -1,29 +1,37 @@
 <#
     .SYNOPSIS
-    Adds an export scope configuration to the specified Resource group.
+    Adds a scope to be monitored by a FinOps hub instance.
+
+    .DESCRIPTION
+    The Add-FinOpsHubScope command adds a scope to the settings.json configuration file used by a FinOps hub instance so the scope can be monitored going forward. This command doesn't create the Cost Management export for the scope; use New-FinOpsCostExport to create the export.
 
     .PARAMETER HubName
-    The name of the resource group.
+    Required. Name of the FinOps hub instance.
 
     .PARAMETER Scope
-    The export scope to add to the FinOps Hub configuration.
+    Required. Resource ID of the scope to add to the FinOps hub configuration.
 
     .EXAMPLE
     Add-FinOpsHubScope -HubName ftk-FinOps-Hub -Scope "/providers/Microsoft.Billing/billingAccounts/1234567"
 
-    Adds an export scope configuration to the specified Resource group.
+    ### Add a billing account scope
+    Adds the specified billing account scope to the ftk-FinOps-Hub hub configuration.
+
+    .LINK
+    https://aka.ms/ftk/Add-FinOpsHubScope
 #>
 Function Add-FinOpsHubScope
 {
     [CmdletBinding()]
     param (
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
         [string]
-        [ValidateNotNullOrEmpty()]
         $HubName,
-        [Parameter()]
-        [String]
+
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
+        [string]
         $Scope
     )
 

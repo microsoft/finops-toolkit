@@ -1,4 +1,4 @@
-# Copyright (c) Microsoft Corporation.
+﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
 <#
@@ -9,7 +9,7 @@
     The New-FinOpsCostExport command creates a new Cost Management export for the specified scope.
 
     This command has been tested with the following API versions:
-    - 2025-03-01 (default)
+    - 2025-03-01 (default) – GA version for FocusCost and other datasets.
     - 2023-07-01-preview
     - 2023-08-01
 
@@ -94,7 +94,8 @@
         -StartDate "2023-07-01" `
         -EndDate "2023-07-31"
 
-    Creates a new one time export called 'July2023OneTime from 2023-07-01 to 2023-07-31 with Dataset = Actual and execute it once.
+    ### Create one time export
+    Creates a new one time export called 'July2023OneTime' from **2023-07-01** to **2023-07-31** with Dataset = Actual and execute it once.
 
     .EXAMPLE
     New-FinopsCostExport -Name 'DailyMTD' `
@@ -104,7 +105,8 @@
         -EndDate "2024-12-31" `
         -Execute
 
-    Creates a new scheduled export called Daily-MTD with StartDate = DateTime.Now and EndDate = 2024-12-31. Export is run immediately after creation.
+    ### Create and run a daily export
+    Creates a new scheduled export called **Daily-MTD** with StartDate = DateTime.Now and EndDate = 2024-12-31. Export is run immediately after creation.
 
     .EXAMPLE
     New-FinopsCostExport -Name 'Monthly-Report' `
@@ -116,7 +118,8 @@
         -Monthly `
         -Execute
 
-    Creates a new monthly export called Monthly-Report with StartDate = 1 day from DateTime.Now and EndDate 2024-08-15. Export is run immediately after creation.
+    ### Create a monthly export
+    Creates a new monthly export called **Monthly-Report** with StartDate = 1 day from DateTime.Now and EndDate **2024-08-15**. Export is run immediately after creation.
 
     .EXAMPLE
     New-FinopsCostExport -Name 'Daily--MTD' `
@@ -127,7 +130,8 @@
         -Backfill 4 `
         -Execute
 
-    Creates a new daily export called Daily-MTD with StartDate = DateTime.Now and EndDate 5 years from StartDate. Additiionally, export cost data for the previous 4 months and save all results in costreports container of the specified storage account.
+    ### Create daily export and backfill four months
+    Creates a new daily export called **Daily-MTD** with StartDate = DateTime.Now and EndDate 5 years from StartDate. Additionally, export cost data for the previous four months and save all results in `costreports` container of the specified storage account.
 
     .LINK
     https://aka.ms/ftk/New-FinOpsCostExport
@@ -184,10 +188,12 @@ function New-FinOpsCostExport
         [int]
         $CommitmentDiscountLookback = 30,
 
+        # .PARAMETERSET Create a new daily/monthly export
         [Parameter(ParameterSetName = "Scheduled")]
         [switch]
         $Monthly,
 
+        # .PARAMETERSET Create a new one-time export
         [Parameter(ParameterSetName = "OneTime")]
         [switch]
         $OneTime,

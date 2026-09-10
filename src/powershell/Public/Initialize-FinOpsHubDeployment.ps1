@@ -8,10 +8,11 @@
     .EXAMPLE
     Initialize-FinOpsHubDeployment -WhatIf
 
+    ### Test FinOps hub deployment initialization
     Shows what would happen if the command runs without actually running it.
 
     .DESCRIPTION
-    The Initialize-FinOpsHubDeployment command performs any initialization tasks required for a resource group contributor to be able to deploy a FinOps hub instance in Azure, like registering resource providers. To view the full list of tasks performed, run the command with the -WhatIf option.
+    The Initialize-FinOpsHubDeployment command performs any initialization tasks required for a resource group contributor to be able to deploy a FinOps hub instance in Azure, like registering resource providers. To view the full list of tasks performed, run the command with the `-WhatIf` option.
 
     .LINK
     https://aka.ms/ftk/Initialize-FinOpsHubDeployment

@@ -9,20 +9,22 @@
     Optional. Azure resource type value. Accepts wildcards. Default = * (all).
 
     .PARAMETER IsPreview
-    Optional. Indicates whether to include or exclude resource types that are in preview. Note: Not all resource types self-identify as being in preview, so this may not be completely accurate. Default = null (include all).
+    Optional. Indicates whether to include or exclude resource types that are in preview. Not all resource types self-identify as being in preview, so this information might not be accurate. Default = null (include all).
 
     .DESCRIPTION
-    The Get-FinOpsResourceType command returns an Azure resource type with readable display names, a flag to indicate if the resource provider identified this as a preview resource type, a description, an icon, and help and support links.
+    The Get-FinOpsResourceType command returns an Azure resource type with readable display names, a flag to indicate if the resource provider identified it as a preview resource type, a description, an icon, and help and support links.
 
     .EXAMPLE
     Get-FinOpsResourceType -ResourceType "microsoft.compute/virtualmachines"
 
+    ### Get resource type details
     Returns the resource type details for virtual machines.
 
     .EXAMPLE
     Get-FinOpsResourceType -Preview $false
 
-    Returns all resource types that are not in preview.
+    ### Get non-preview resource types
+    Returns all resource types that aren't in preview.
 
     .LINK
     https://aka.ms/ftk/Get-FinOpsResourceType

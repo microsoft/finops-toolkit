@@ -17,22 +17,26 @@
     .EXAMPLE
     Get-FinOpsHub
 
+    ### Get all hubs
     Returns all FinOps hubs for the selected subscription.
 
     .EXAMPLE
     Get-FinOpsHub -Name foo*
 
-    Returns all FinOps hubs that start with 'foo'.
+    ### Get named hubs
+    Returns all FinOps hubs that start with `foo`.
 
     .EXAMPLE
     Get-FinOpsHub -ResourceGroupName foo
 
-    Returns all resources associated with a FinOps hub in the 'foo' resource group.
+    ### Get hubs in a resource group
+    Returns all hubs in the `foo` resource group.
 
     .EXAMPLE
     Get-FinOpsHub -Name foo -ResourceGroupName bar
 
-    Returns all FinOps hubs named 'foo' in the 'bar' resource group.
+    ### Get named hubs in a resource group
+    Returns all FinOps hubs named `foo` in the `bar` resource group.
 
     .LINK
     https://aka.ms/ftk/Get-FinOpsHub
