@@ -3,7 +3,7 @@ title: Open data commands
 description: Learn about PowerShell commands available in the FinOpsToolkit module to work with FinOps open data and integrate datasets into your workflow.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 09/02/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -19,6 +19,8 @@ The FinOps toolkit open data PowerShell commands help you integrate datasets int
 
 ## Commands
 
+- [Get-FinOpsCommitmentDiscountEligibility](Get-FinOpsCommitmentDiscountEligibility.md) – Gets commitment discount eligibility for a meter.
+- [Get-FinOpsInstanceSizeFlexibility](Get-FinOpsInstanceSizeFlexibility.md) – Gets the instance size flexibility group and ratio for an ARM SKU.
 - [Get-FinOpsPricingUnit](Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
 - [Get-FinOpsRegion](Get-FinOpsRegion.md) – Gets an Azure region ID and name.
 - [Get-FinOpsResourceType](Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
