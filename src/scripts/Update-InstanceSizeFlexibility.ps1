@@ -99,6 +99,64 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+function Invoke-ArmRequest
+{
+    <#
+        .SYNOPSIS
+        Issues a GET against ARM, retrying transient failures with exponential backoff.
+
+        .DESCRIPTION
+        Retries network exceptions and 429/5xx responses; non-retryable 4xx throws immediately.
+        Every ARM call in this script goes through here -- a single transient failure on any one
+        of them fails the whole weekly refresh, and the next scheduled attempt is a week away.
+
+        .PARAMETER Description
+        What the call is doing, used verbatim in error and progress messages, e.g. 'enumerating
+        regions' or 'on VirtualMachines/eastus page 3'.
+    #>
+    param(
+        [string]$Uri,
+        [string]$Description,
+        [int]$MaxRetries = 5
+    )
+
+    $retries = 0
+
+    while ($true)
+    {
+        try
+        {
+            $response = Invoke-AzRestMethod -Uri $Uri -Method GET
+        }
+        catch
+        {
+            $retries++
+            if ($retries -gt $MaxRetries) { throw "Failed after $MaxRetries retries $Description`: $_" }
+            $wait = [Math]::Pow(2, $retries) * 5
+            Write-Host "  Error $Description, retrying in ${wait}s (attempt $retries/$MaxRetries)"
+            Start-Sleep -Seconds $wait
+            continue
+        }
+
+        if ($response.StatusCode -eq 429 -or $response.StatusCode -ge 500)
+        {
+            $retries++
+            if ($retries -gt $MaxRetries) { throw "Failed after $MaxRetries retries $Description (HTTP $($response.StatusCode))" }
+            $wait = [Math]::Pow(2, $retries) * 5
+            Write-Host "  HTTP $($response.StatusCode) $Description, retrying in ${wait}s (attempt $retries/$MaxRetries)"
+            Start-Sleep -Seconds $wait
+            continue
+        }
+
+        if ($response.StatusCode -ge 400)
+        {
+            throw "HTTP $($response.StatusCode) $Description`: $($response.Content)"
+        }
+
+        return $response
+    }
+}
+
 # -----------------------------------------------------------------------
 # Step 0: Validate the Azure context (the Catalogs API is authenticated)
 # -----------------------------------------------------------------------
@@ -124,11 +182,7 @@ if (-not $Location)
     # Az.Accounts is the only module the workflow installs, so this uses the REST API rather than
     # Get-AzLocation, which lives in Az.Resources.
     $locationsUri = "https://management.azure.com/subscriptions/$SubscriptionId/locations?api-version=$LocationApiVersion"
-    $locationsResponse = Invoke-AzRestMethod -Uri $locationsUri -Method GET
-    if ($locationsResponse.StatusCode -ge 400)
-    {
-        throw "HTTP $($locationsResponse.StatusCode) enumerating regions: $($locationsResponse.Content)"
-    }
+    $locationsResponse = Invoke-ArmRequest -Uri $locationsUri -Description 'enumerating regions'
 
     $Location = @(
         ($locationsResponse.Content | ConvertFrom-Json -Depth 20).value |
@@ -166,44 +220,10 @@ function Invoke-CatalogsApi
     while ($uri)
     {
         $page++
-        $retries = 0
-        $maxRetries = 5
 
-        # Retry transient failures (network exceptions and 429/5xx) on the SAME page, without
-        # advancing the paging loop, so $page counts and the retry cap stay correct.
-        $response = $null
-        while ($true)
-        {
-            try
-            {
-                $response = Invoke-AzRestMethod -Uri $uri -Method GET
-            }
-            catch
-            {
-                $retries++
-                if ($retries -gt $maxRetries) { throw "Failed after $maxRetries retries on $ResourceType/$Region page $page`: $_" }
-                $wait = [Math]::Pow(2, $retries) * 5
-                Write-Host "  Error on $ResourceType/$Region page $page, retrying in ${wait}s (attempt $retries/$maxRetries)"
-                Start-Sleep -Seconds $wait
-                continue
-            }
-
-            if ($response.StatusCode -eq 429 -or $response.StatusCode -ge 500)
-            {
-                $retries++
-                if ($retries -gt $maxRetries) { throw "Failed after $maxRetries retries on $ResourceType/$Region page $page (HTTP $($response.StatusCode))" }
-                $wait = [Math]::Pow(2, $retries) * 5
-                Write-Host "  HTTP $($response.StatusCode) on $ResourceType/$Region page $page, retrying in ${wait}s (attempt $retries/$maxRetries)"
-                Start-Sleep -Seconds $wait
-                continue
-            }
-            if ($response.StatusCode -ge 400)
-            {
-                throw "HTTP $($response.StatusCode) on $ResourceType/$Region page $page`: $($response.Content)"
-            }
-
-            break
-        }
+        # Transient failures are retried on the SAME page, without advancing the paging loop, so
+        # $page counts and the retry cap stay correct.
+        $response = Invoke-ArmRequest -Uri $uri -Description "on $ResourceType/$Region page $page"
 
         $json = $response.Content | ConvertFrom-Json -Depth 100
 

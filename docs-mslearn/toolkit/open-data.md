@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 09/09/2026
+ms.date: 09/11/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -185,11 +185,11 @@ Instance size flexibility (ISF) lets a reservation apply across multiple SKUs in
 
 Sample data:
 
-| InstanceSizeFlexibilityGroup | ArmSkuName     | Ratio |
-| ---------------------------- | -------------- | ----- |
-| Av2 Series                   | Standard_A1_v2 | 1     |
-| Av2 Series                   | Standard_A2_v2 | 2.1   |
-| Av2 Series                   | Standard_A4_v2 | 4.44  |
+| InstanceSizeFlexibilityGroup         | ArmSkuName        | Ratio |
+| ------------------------------------ | ----------------- | ----- |
+| Virtual Machines Dadsv6-series Linux | Standard_D2ads_v6 | 1     |
+| Virtual Machines Dadsv6-series Linux | Standard_D4ads_v6 | 2     |
+| Virtual Machines Dadsv6-series Linux | Standard_D8ads_v6 | 4     |
 
 A few important notes about the data:
 

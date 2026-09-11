@@ -333,6 +333,36 @@ Describe 'Update-InstanceSizeFlexibility' {
 
             { Invoke-Generator @{ OutputPath = $outFile } } | Should -Throw -ExpectedMessage '*HTTP 403 enumerating regions*'
         }
+
+        It 'Retries a transient failure when enumerating regions instead of failing the run' {
+            # Region enumeration is a hard prerequisite for every catalog call, so a single 429 or
+            # 5xx here would otherwise fail the whole weekly refresh before it fetched anything.
+            $script:locationsCallCount = 0
+            Mock Invoke-AzRestMethod {
+                if ($Uri -like '*/locations?*')
+                {
+                    $script:locationsCallCount++
+                    if ($script:locationsCallCount -eq 1)
+                    {
+                        New-LocationsResponse -Locations @() -StatusCode 503
+                    }
+                    else
+                    {
+                        New-LocationsResponse -Locations @(@{ name = 'eastus'; metadata = @{ regionType = 'Physical' } })
+                    }
+                }
+                else
+                {
+                    New-CatalogResponse -Items @((New-CatalogItem -Sku 'Standard_D2' -Group 'DSeries' -Ratio '1'))
+                }
+            }
+
+            Invoke-Generator @{ OutputPath = $outFile; ReservedResourceType = @('VirtualMachines') }
+
+            @(Import-Csv $outFile).ArmSkuName | Should -Be 'Standard_D2'
+            Should -Invoke Invoke-AzRestMethod -Exactly -Times 2 -ParameterFilter { $Uri -like '*/locations?*' }
+            Should -Invoke Invoke-AzRestMethod -Exactly -Times 1 -ParameterFilter { $Uri -like '*location=eastus*' }
+        }
     }
 
     Context 'Published dataset' {
