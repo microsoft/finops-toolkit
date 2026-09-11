@@ -52,7 +52,7 @@ Describe 'Agent plugin manifest' {
         Join-Path $script:Plugin '.mcp.json' | Should -Exist
     }
 
-    It 'Declares resolvable paths for every Claude component' {
+    It 'Declares resolvable paths for every explicitly declared Claude component' {
         $claude = Get-Content (Join-Path $script:Plugin '.claude-plugin/plugin.json') -Raw | ConvertFrom-Json
         $paths = @($claude.commands) + @($claude.skills) + @($claude.outputStyles)
 
@@ -182,21 +182,24 @@ Describe 'Plugin discovery and marketplaces' {
         Join-Path $pluginRoot 'plugin.json' | Should -Exist
     }
 
-    It 'Uses a cross-platform source path in both marketplaces' {
+    It 'Uses relative, non-symlink sources that contain plugin manifests in both marketplaces' {
         $marketplaces = @('.github/plugin/marketplace.json', '.claude-plugin/marketplace.json')
 
         foreach ($marketplace in $marketplaces)
         {
             $json = Get-Content (Join-Path $script:RepoRoot $marketplace) -Raw | ConvertFrom-Json
             $entry = $json.plugins | Where-Object { $_.name -eq 'microsoft-finops-toolkit' }
-            $entry.source | Should -Be './src/templates/agent-plugin'
+            $entry | Should -Not -BeNullOrEmpty
+            $entry.source | Should -BeOfType [string]
+            $entry.source | Should -Match '^\.[\\/]'
+
+            $relativeSource = $entry.source -replace '^\.[\\/]', ''
+            $relativeSource | Should -Not -Match '(^|[\\/])\.\.([\\/]|$)'
+
+            $source = Get-Item -LiteralPath (Join-Path $script:RepoRoot $relativeSource)
+            $source.PSIsContainer | Should -BeTrue
+            $source.LinkType | Should -BeNullOrEmpty
+            Join-Path $source.FullName 'plugin.json' | Should -Exist
         }
-    }
-
-    It 'Enables strict mode explicitly for the Claude plugin' {
-        $json = Get-Content (Join-Path $script:RepoRoot '.claude-plugin/marketplace.json') -Raw | ConvertFrom-Json
-        $entry = $json.plugins | Where-Object { $_.name -eq 'microsoft-finops-toolkit' }
-
-        $entry.strict | Should -BeTrue
     }
 }

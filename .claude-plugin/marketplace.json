@@ -10,7 +10,6 @@
       "name": "microsoft-finops-toolkit",
       "version": "15.0.0",
       "source": "./src/templates/agent-plugin",
-      "strict": true,
       "description": "Microsoft FinOps toolkit plugin for AI-powered cloud financial management.",
       "category": "finops",
       "homepage": "https://aka.ms/finops/toolkit"
