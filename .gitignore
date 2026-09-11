@@ -388,3 +388,6 @@ src/templates/finops-hub-copilot-studio/knowledge/query-catalog.md
 todo/
 done/
 release/scloud-occurrence-report.md
+
+# FinOps multitool scan output (contains live tenant cost data)
+FinOpsResults/

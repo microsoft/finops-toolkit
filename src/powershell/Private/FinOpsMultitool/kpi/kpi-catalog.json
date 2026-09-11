@@ -1,0 +1,338 @@
+{
+  "_comment": "FinOps Foundation KPI correlation catalog (Phase 1). Curated subset of https://www.finops.org/finops-kpis/ that the scan output can inform. Each entry maps one or more source tools to a KPI. 'compute' = the server can calculate a value; 'informational' = the scan relates to the KPI but the value needs the field below or external input. Keep this honest: never claim a value we cannot derive.",
+  "version": "1.0.0",
+  "learnMoreBase": "https://www.finops.org/finops-kpis/",
+  "domains": [
+    {
+      "id": "Understand",
+      "name": "Understand usage and cost",
+      "summary": "Data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption.",
+      "detail": "This domain is about observability and business intelligence. It brings the data that stakeholders need together (ingestion) into a meaningful breakdown for the organization (allocation). That data can then be reported on (reporting) and monitored to proactively identify and react to issues (anomalies).",
+      "capabilities": "Data ingestion, Allocation, Reporting and analytics, Anomaly management"
+    },
+    {
+      "id": "Quantify",
+      "name": "Quantify business value",
+      "summary": "Identifying and breaking down cost, usage, and carbon emissions to stay aligned with organizational plans and measure the return on investment from cloud computing efforts.",
+      "detail": "This domain is about measuring and maximizing the business value each team and workload gets from the cloud to maximize future potential.",
+      "capabilities": "Planning and estimating, Forecasting, Budgeting, Benchmarking, Unit economics"
+    },
+    {
+      "id": "Optimize",
+      "name": "Optimize usage and cost",
+      "summary": "Designing and optimizing solutions for efficiency to ensure you get the most out of your cloud investments.",
+      "detail": "Rate optimization lowers the price paid for resources already in use, through commitment discounts and licensing benefits. Usage optimization reduces what is consumed, by removing waste and rightsizing what remains.",
+      "capabilities": "Architecting for the cloud, Usage optimization, Rate optimization, Licensing and SaaS, Cloud sustainability"
+    },
+    {
+      "id": "Manage",
+      "name": "Manage the FinOps practice",
+      "summary": "Establishing a clear and consistent vision of FinOps and driving cultural adoption across your organization.",
+      "detail": "Unlike domains that focus on FinOps tasks to drive efficiency and maximize value, this domain emphasizes managing and supporting your FinOps practice.",
+      "capabilities": "FinOps education and enablement, FinOps practice operations, Onboarding workloads, Governance, policy, and risk, Invoicing and chargeback, FinOps assessment, FinOps tools and services, Intersecting frameworks"
+    }
+  ],
+  "kpis": [
+    {
+      "id": "cost-per-gb-stored",
+      "name": "Cost per Gigabyte Stored",
+      "domain": "Quantify",
+      "definition": "Average cost per GB stored, influenced by storage tiers and data life-cycle management.",
+      "sourceTool": "scan_unit_economics",
+      "compute": true,
+      "field": "CostPerGb",
+      "unit": "per GB / month",
+      "plainLanguage": "What you pay for each GB of stored data this month.",
+      "exploreHint": "Run the Storage Tier Advice scan to see if moving cold data to Cool or Archive lowers this."
+    },
+    {
+      "id": "hourly-cost-per-cpu-core",
+      "name": "Hourly Cost per CPU Core",
+      "domain": "Quantify",
+      "definition": "Average cost per CPU core, giving unit-cost insight for compute.",
+      "sourceTool": "scan_unit_economics",
+      "compute": true,
+      "field": "CostPerVCpu",
+      "divideBy": 730,
+      "unit": "per vCPU / hour",
+      "plainLanguage": "Roughly what one CPU core costs you per hour.",
+      "exploreHint": "Run the Optimization Advice or Idle VMs scan to find rightsizing that lowers this."
+    },
+    {
+      "id": "effective-avg-compute-cost-per-core",
+      "name": "Effective Average Compute Cost per Core",
+      "domain": "Quantify",
+      "definition": "Average cost per core per month after amortizing unused commitment discounts.",
+      "sourceTool": "scan_unit_economics",
+      "compute": true,
+      "field": "CostPerVCpu",
+      "unit": "per vCPU / month",
+      "plainLanguage": "Average monthly cost of one CPU core across your fleet.",
+      "exploreHint": "Pair with the Commitment Utilization scan to amortize unused reservation and savings plan cost."
+    },
+    {
+      "id": "pct-costs-untagged",
+      "name": "Percentage of Costs Associated with Untagged Resources",
+      "domain": "Understand",
+      "definition": "Percentage of cloud cost on resources missing a required tag, per your tagging policy.",
+      "sourceTool": "scan_cost_by_tag",
+      "compute": true,
+      "unit": "%",
+      "plainLanguage": "How much of your spend lands on resources that are not tagged.",
+      "exploreHint": "Run the Tag Recommendations scan to see which CAF tags to backfill and where."
+    },
+    {
+      "id": "pct-costs-unallocated",
+      "name": "Percentage of Costs Associated with Unallocated Resources",
+      "domain": "Understand",
+      "definition": "Percentage of spend that cannot be attributed to a team, project, or application.",
+      "sourceTool": "scan_cost_by_tag",
+      "compute": true,
+      "unit": "%",
+      "plainLanguage": "Share of your bill you cannot yet assign to an owner.",
+      "exploreHint": "Backfill allocation tags (Customer/project/CostCenter), then re-run the Cost by Tag scan."
+    },
+    {
+      "id": "tagging-policy-compliant",
+      "name": "Percentage of Costs that are Tagging Policy Compliant",
+      "domain": "Manage",
+      "definition": "Share of cost on resources that satisfy your organizational tagging policy.",
+      "sourceTool": "scan_cost_by_tag",
+      "compute": true,
+      "unit": "%",
+      "plainLanguage": "How much of your spend is on properly tagged resources.",
+      "exploreHint": "Run the Policy Recommendations scan to deploy tag-enforcement policy."
+    },
+    {
+      "id": "commitment-utilization-score",
+      "name": "Commitment Utilization Score",
+      "domain": "Optimize",
+      "definition": "Burndown of pre-purchased commitment capacity against actual consumption. ~100% is healthy; lower signals shelfware.",
+      "sourceTool": "scan_commitment_utilization",
+      "compute": true,
+      "unit": "%",
+      "plainLanguage": "How much of your reserved/committed capacity you are actually using.",
+      "exploreHint": "Run the Reservation Advice scan to right-size future commitments."
+    },
+    {
+      "id": "pct-commitment-discount-waste",
+      "name": "Percentage of Commitment Discount Waste",
+      "domain": "Optimize",
+      "definition": "Percentage of commitment capacity not applied to on-demand spend (wasted).",
+      "sourceTool": "scan_commitment_utilization",
+      "compute": true,
+      "unit": "%",
+      "plainLanguage": "The slice of your reservations/savings plans you paid for but did not use.",
+      "exploreHint": "100% minus your utilization. Investigate underused commitments for renewal changes."
+    },
+    {
+      "id": "pct-compute-covered-by-commitment",
+      "name": "Percent of Compute Spend Covered by Commitment Discounts",
+      "domain": "Optimize",
+      "definition": "Percentage of compute cost (excluding Spot) covered by commitment discounts.",
+      "sourceTool": "scan_savings_realized",
+      "compute": true,
+      "unit": "%",
+      "plainLanguage": "How much of your eligible spend rides on a discounted commitment (reservation or savings plan) versus full on-demand. Computed from amortized cost by pricing model, excluding Spot from the eligible base.",
+      "exploreHint": "Raise coverage by buying reservations or savings plans for steady-state workloads."
+    },
+    {
+      "id": "percent-unused-resources",
+      "name": "Percent of Unused Resources",
+      "domain": "Optimize",
+      "definition": "Measure of unused resources such as unattached disks, idle NICs, and orphaned public IPs.",
+      "sourceTool": "scan_orphaned_resources",
+      "compute": true,
+      "unit": "count / cost",
+      "plainLanguage": "Resources you are paying for that nothing is using. Shown as the orphaned-resource count found by the scan.",
+      "exploreHint": "Confirm nothing depends on them, then delete them in the Azure portal or with Azure CLI."
+    },
+    {
+      "id": "computational-waste",
+      "name": "Computational Waste Percentage",
+      "domain": "Optimize",
+      "definition": "Spend that provided zero business utility, e.g. idle resources before suspension or over-provisioning.",
+      "sourceTool": "scan_idle_vms",
+      "compute": true,
+      "unit": "count / cost",
+      "plainLanguage": "Compute you are running and paying for but barely using. Shown as the share of running VMs flagged idle or underutilized.",
+      "exploreHint": "Deallocate confirmed idle VMs in the Azure portal or with Azure CLI. Deallocating is reversible; the disks keep billing."
+    },
+    {
+      "id": "percent-storage-frequent-tier",
+      "name": "Percent Storage on Frequent Access Tier",
+      "domain": "Optimize",
+      "definition": "Percentage of object storage held on a frequent (Hot) access tier.",
+      "sourceTool": "scan_storage_tier_advice",
+      "compute": false,
+      "unit": "%",
+      "plainLanguage": "How much of your storage sits on the most expensive Hot tier.",
+      "exploreHint": "Flagged Hot accounts with low activity are candidates for Cool or Archive."
+    },
+    {
+      "id": "storage-decay-ratio",
+      "name": "Storage Decay Ratio",
+      "domain": "Optimize",
+      "definition": "Storage cost attributed to data not accessed within a set window (dark data).",
+      "sourceTool": "scan_storage_tier_advice",
+      "compute": false,
+      "unit": "%",
+      "plainLanguage": "Share of storage spend on data nobody has touched recently.",
+      "exploreHint": "Low-activity accounts in this scan approximate dark data; apply lifecycle policy."
+    },
+    {
+      "id": "budget-burn-rate",
+      "name": "CSP Cloud Budget Burn Rate",
+      "domain": "Manage",
+      "definition": "The rate at which an organization is consuming its allocated cloud budget.",
+      "sourceTool": "scan_budget_status",
+      "compute": true,
+      "unit": "%",
+      "plainLanguage": "How fast you are spending against your budget this period. Shown as the average percent of budget consumed across all budgets.",
+      "exploreHint": "Risk levels in the scan flag budgets trending over. Adjust thresholds or spend."
+    },
+    {
+      "id": "variance-budget-vs-actual",
+      "name": "Percentage Variance of Budgeted vs. Actual Spend",
+      "domain": "Manage",
+      "definition": "Difference between budgeted cost and actual cost incurred.",
+      "sourceTool": "scan_budget_status",
+      "compute": true,
+      "unit": "%",
+      "plainLanguage": "How far your actual spend is from what you planned. Shown as total actual vs total budgeted across all budgets.",
+      "exploreHint": "Compare budget amount vs actual in the scan rows."
+    },
+    {
+      "id": "anomaly-detection-rate",
+      "name": "Anomaly Detection Rate",
+      "domain": "Manage",
+      "definition": "Frequency and cost impact of detected spending anomalies.",
+      "sourceTool": "scan_anomaly_alerts",
+      "compute": true,
+      "unit": "count",
+      "plainLanguage": "How often unusual cost spikes are being caught. Shown as a proxy: anomaly alerts triggered plus the number of detection rules configured (a true rate needs the count of anomalies that occurred, which Azure does not expose).",
+      "exploreHint": "Configure anomaly alert rules so spikes are caught proactively."
+    },
+    {
+      "id": "effective-savings-rate",
+      "name": "Effective Savings Rate Percentage",
+      "domain": "Quantify",
+      "definition": "Return-on-investment metric across all commitment discounts and optimizations.",
+      "sourceTool": "scan_savings_realized",
+      "compute": true,
+      "unit": "%",
+      "plainLanguage": "How much you are actually saving versus paying full on-demand rates. Shown as realized monthly savings from RIs, Savings Plans and AHB (a true rate also needs total on-demand-equivalent spend).",
+      "exploreHint": "Realized savings from RIs, Savings Plans and AHB appear in this scan."
+    },
+    {
+      "id": "pct-legacy-resource",
+      "name": "Percentage of Legacy Resource",
+      "domain": "Optimize",
+      "definition": "Percentage of resources running on older generation types vs modern equivalents.",
+      "sourceTool": "scan_legacy_resources",
+      "compute": false,
+      "unit": "%",
+      "plainLanguage": "How much of your estate runs on older, less efficient resource types.",
+      "exploreHint": "Modernizing to newer SKUs usually improves price-performance."
+    },
+    {
+      "id": "carbon-per-unit-spend",
+      "name": "Carbon per Unit of Cloud Spend",
+      "domain": "Quantify",
+      "definition": "Carbon emissions (CO2e) per unit of cloud spend, ideally drillable by service category.",
+      "sourceTool": "scan_carbon",
+      "compute": false,
+      "unit": "CO2e / spend",
+      "plainLanguage": "How much carbon each dollar of cloud spend produces.",
+      "exploreHint": "Carbon-efficient regions and modern SKUs reduce this."
+    },
+    {
+      "id": "token-consumption-metrics",
+      "name": "Token Consumption Metrics",
+      "domain": "Quantify",
+      "definition": "Cost of token-based models based on input/output token usage.",
+      "sourceTool": "scan_ai_workloads",
+      "compute": true,
+      "unit": "tokens / cost",
+      "plainLanguage": "How many tokens your AI workloads burn and what they cost.",
+      "exploreHint": "Prompt engineering and model choice move this number."
+    },
+    {
+      "id": "cost-per-api-call",
+      "name": "Cost per API Call",
+      "domain": "Quantify",
+      "definition": "Average cost for each API call made to AI services.",
+      "sourceTool": "scan_ai_workloads",
+      "compute": true,
+      "unit": "per call",
+      "plainLanguage": "What each AI service request costs you on average.",
+      "exploreHint": "High per-call cost can signal an inefficient model or call pattern."
+    },
+    {
+      "id": "pct-unallocated-shared-cost",
+      "name": "Percentage of Unallocated Shared Cost",
+      "domain": "Understand",
+      "definition": "Shared expenses that cannot be directly attributed to a specific team or project.",
+      "sourceTool": "scan_allocate_shared_cost",
+      "compute": false,
+      "unit": "%",
+      "plainLanguage": "Shared platform cost not yet split across its consumers.",
+      "exploreHint": "Split it with a shared cost allocation or usage-proportional allocation scan."
+    },
+    {
+      "id": "allocation-accuracy-index",
+      "name": "Allocation Accuracy Index (AAI)",
+      "domain": "Understand",
+      "definition": "Percentage of total cost directly and accurately attributed to responsible owners.",
+      "sourceTool": "scan_usage_allocation",
+      "compute": false,
+      "unit": "%",
+      "plainLanguage": "How reliably your costs map to the right team or project.",
+      "exploreHint": "Improve tagging and shared-cost rules to raise this."
+    },
+    {
+      "id": "tco-per-workload",
+      "name": "Total Cost of Ownership per Workload",
+      "domain": "Quantify",
+      "definition": "Average full-lifecycle cost of running an individual workload (compute, storage, network, etc.).",
+      "sourceTool": "scan_vm_cost_breakdown",
+      "compute": false,
+      "unit": "cost / workload",
+      "plainLanguage": "The true all-in cost of one workload, not just its compute line.",
+      "exploreHint": "The VM cost breakdown scan decomposes a VM into all its billed meters."
+    },
+    {
+      "id": "frequency-of-data-updates",
+      "name": "Frequency of Data Updates",
+      "domain": "Manage",
+      "definition": "Time between updates of cost data (e.g. since the last export refresh).",
+      "sourceTool": "detect_cost_data_source",
+      "compute": false,
+      "unit": "freshness date",
+      "plainLanguage": "How current the cost data behind your answers is.",
+      "exploreHint": "The Freshness date in this tool is your data-update recency."
+    },
+    {
+      "id": "cost-visibility-delay",
+      "name": "Cost Visibility Delay",
+      "domain": "Manage",
+      "definition": "Time between a cost occurring and it being ingested, normalized, and visible.",
+      "sourceTool": "detect_cost_data_source",
+      "compute": false,
+      "unit": "days",
+      "plainLanguage": "The lag between spending money and seeing it in reports.",
+      "exploreHint": "Export-based reads are typically a day behind; live API is near-real-time."
+    },
+    {
+      "id": "unified-cost-usage-visibility",
+      "name": "Unified Cost & Usage Visibility",
+      "domain": "Understand",
+      "definition": "Extent to which all relevant cost and usage sources are integrated into one reporting system.",
+      "sourceTool": "detect_cost_data_source",
+      "compute": false,
+      "unit": "%",
+      "plainLanguage": "How much of your estate is covered by one unified cost view.",
+      "exploreHint": "CoveragePct in this tool reflects how much of scope the hub/export covers."
+    }
+  ]
+}
