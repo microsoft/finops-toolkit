@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 09/09/2026
+ms.date: 09/11/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -67,6 +67,7 @@ The following section lists features and enhancements that are currently in deve
   - Switched the reservations and benefits workbooks from the retired `ccmstorageprod` isfratioblob.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
   - Fixed a regression in the `AzureOptimizationConsumptionV1_CL` schema that was breaking the Reservations Usage workbook ([#2301](https://github.com/microsoft/finops-toolkit/issues/2301)).
+  - Fixed reservations disappearing from the reservation workbooks when their SKU is no longer sold. The instance size flexibility joins required a match, so an active reservation on a retired size was dropped from the report entirely rather than shown with its utilization. Unmatched SKUs now fall back to their own name as the flexibility group and a ratio of 1. The fallback applies to the reserved resource types that have instance size flexibility: virtual machines, Redis Cache, and dedicated hosts ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
 
 ### [PowerShell module](powershell/powershell-commands.md)
 
@@ -79,6 +80,9 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Added a new [Instance size flexibility](open-data.md#instance-size-flexibility) dataset that maps each ARM SKU to its instance size flexibility group and ratio, sourced from the Azure Reservations Catalogs API. It replaces the deprecated ISF ratio files hosted on `ccmstorageprod.blob.core.windows.net` ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+    - Ratios use the same scale as the retired isfratioblob.csv: each flexibility group is normalized so its smallest SKU is `1`, matching the retired file for 1,223 of the 1,291 rows the two share. The Catalogs API publishes them unnormalized, and the Optimization Engine converts quantities into units of a group's smallest SKU ([#2309](https://github.com/microsoft/finops-toolkit/issues/2309)).
+    - Covers every physical Azure region instead of a fixed region list, so SKUs that launch in only a handful of regions are included.
+    - Refreshes weekly from the live catalog, so newly released SKUs appear and retired SKUs age out without anyone republishing the file.
 
 **[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**
 
