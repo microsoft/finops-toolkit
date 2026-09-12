@@ -672,6 +672,7 @@
 // Supported versions:
 // - MS EA 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-ea
 // - MS MCA 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
+// - MS MCA 2024-08-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
 //======================================================================================================================
 
 // Prices_raw table -- Create the table if it doesn't exist
@@ -708,6 +709,7 @@
     Product:            string,   // Azure EA + MCA
     ProductId:          string,   // Azure MCA
     ProductID:          string,   // Azure EA
+    ProductOrderName:   string,   // Azure MCA 2024-08-01+
     ServiceFamily:      string,   // Azure EA + MCA
     SkuId:              string,   // Azure MCA
     SkuID:              string,   // Azure EA
@@ -751,6 +753,7 @@
     { "Column": "Product",            "Properties": { "Field": "Product" } },
     { "Column": "ProductId",          "Properties": { "Field": "ProductId" } },
     { "Column": "ProductID",          "Properties": { "Field": "ProductID" } },
+    { "Column": "ProductOrderName",   "Properties": { "Field": "ProductOrderName" } },
     { "Column": "ServiceFamily",      "Properties": { "Field": "ServiceFamily" } },
     { "Column": "SkuId",              "Properties": { "Field": "SkuId" } },
     { "Column": "SkuID",              "Properties": { "Field": "SkuID" } },
