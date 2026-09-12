@@ -110,15 +110,17 @@ Status icons:
     > _This step is optional, but can catch issues earlier. You can also add the `-Build` parameter to the publish command in the next step._
   - Ensure all tests pass: `<root>/src/scripts/Test-PowerShell -Unit -Integration`
 - [ ] <!-- release:package --> Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
-- [ ] Package Power BI files
-  - [ ] Run `Package-Toolkit.ps1 -OpenPBI` script.
+- [ ] Package Power BI files: `<root>/src/scripts/Package-PowerBI.ps1`
+  > _This command is resumable. Run it, do what it asks, then run it again. It reports what's done, what's left, and checks the saved PBIX files for missed steps._
+  - [ ] Run `Package-PowerBI.ps1 -Open` to open the projects that need to be saved.
   - [ ] Save and close each Power BI project:
-    - Select the `<root>/release/pbix` folder.
-    - Change the file extension to PBIX.
+    - Refresh the report so demo data is loaded.
+    - Select **File** > **Save as**, keep the `<root>/release/pbix` folder, and change the file type to PBIX.
     - When prompted, set the sensitivity to "Public".
-    - Manually remove unused queries based on what's documented in Build-PowerBI.ps1 ~line 120.
     - Verify all pages, switch to the Get started page, and save again.
-  - [ ] Run `Package-Toolkit -ZipPBI` script.
+    > _Queries are already trimmed to what each report needs. There is nothing to remove by hand._
+  - [ ] Run `Package-PowerBI.ps1` to validate the saved files and create PowerBI-demo.zip.
+  - [ ] Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
 - [ ] Check the docs for broken links:
   - Create a personal fork of the main repo.
   - If you already have one, update it to the latest.

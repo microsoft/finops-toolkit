@@ -132,16 +132,19 @@ The Build-PowerShell script calls an Invoke-Build task internally.
 
 ### Building Power BI reports
 
-Power BI reports cannot be built automatically. Generating PBIT and PBIX files must be done manually:
+Run [Build-PowerBI](../src/scripts/README.md#-build-powerbi) to generate the Power BI release artifacts:
 
-1. Open the desired Power BI report.
-2. Save the report as a `.pbix` file using the same name in the `releases` folder.
-3. Remove unnecessary queries.
-4. Remove setup instructions for unnecessary parameters.
-5. Remove unnecessary parameters.
-6. Save the report again.
-7. Copy the first paragraph description from the main page.
-8. Save the report as a `.pbit` file using the copied description and add "To learn more, see https://aka.ms/ftk/<report-name-no-spaces>".
+```powershell
+cd <root>/src/scripts
+./Build-PowerBI
+```
+
+This generates two things from a single prune, so the template and the demo report can't drift:
+
+- PBIT templates in `release/pbit`, zipped into `PowerBI-kql.zip` and `PowerBI-storage.zip`.
+- PBIP projects in `release/pbix`, each containing only the tables, relationships, and queries that report needs.
+
+Power BI Desktop has to load and save the demo PBIX files, so that step is still manual. Use [Package-PowerBI](../src/scripts/README.md#-package-powerbi), which reports what's left to do and validates the saved files.
 
 ### Building documentation
 

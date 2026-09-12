@@ -121,21 +121,25 @@ Once the above requirements have been met, the feature branch can be merged into
 
       > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](../actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
-   6. Run `Package-Toolkit -Build -PowerBI` script.
-      - For each Power BI report:
-        1. Save the file as a PBIX file to the release folder.
-        2. Change the sensitivity to **Public**. If the option is disabled, close the file and reopen it.
-           > ⚠️ _Power BI does not remember the sensitivity setting for Power BI projects so this needs to be done for each release. If not done, the report will not open for anyone outside of Microsoft._
-        3. Update the version on the **Get started** tab.
-        4. For the Cost summary and Data ingestion reports, remove the following from the Transform data (query editor):
-           1. Delete both **Recommendations\*** queries.
-           2. Delete the **InstanceSizeFlexibility** query.
-           3. Open the **▶️ START HERE** query in the advanced editor and remove connector settings and generated rows in the table from the separator line to the end.
-        5. For the Cost summary and Rate optimization reports, remove the following from the Transform data (query editor):
-           1. Delete all **Hub\*** queries.
-        6. Save PBIX again in the release folder.
-           > ⚠️ _**DO NOT** save the above changes back to the Power BI project files!_
-        7. Copy the first paragraph from the **Get started** page and export a template (PBIT file) in the release folder. Use the copied text for the description and add "Learn more at https://aka.ms/ftk/{report-name}" as a separate paragraph in the description.
+   6. Package the Power BI files:
+
+      ```powershell
+      cd <root>/src/scripts
+      ./Package-PowerBI
+      ```
+
+      > _This command is resumable. Run it, do what it asks, then run it again. It reports what's done, what's left, and checks the saved PBIX files for missed steps._
+
+      1. Run `./Package-PowerBI -Open` to open the projects that still need to be saved.
+      2. For each Power BI project that opens:
+         1. Refresh the report so demo data is loaded.
+         2. Select **File** > **Save as**, keep the `<root>/release/pbix` folder, and change the file type to PBIX.
+         3. Change the sensitivity to **Public**. If the option is disabled, close the file and reopen it.
+            > ⚠️ _Power BI does not remember the sensitivity setting for Power BI projects so this needs to be done for each release. If not done, the report will not open for anyone outside of Microsoft._
+         4. Verify all pages, switch to the **Get started** page, and save again.
+            > _Queries are already trimmed to what each report needs. There is nothing to remove by hand, and the version is already stamped._
+      3. Run `./Package-PowerBI` again to validate the saved files and create PowerBI-demo.zip.
+      4. Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
    7. Tag and publish a [new release](../releases/new):
       1. Create a tag on publish using the "vX.X" format.
       2. Set the **Target** to `main`.

@@ -18,10 +18,10 @@
     Optional. Indicates whether to copy templates and open data files. Default = false.
 
     .PARAMETER OpenPBI
-    Optional. Indicates that Power BI storage projects should be opened so they can be manually saved as *.storage.pbix files. Default = false.
+    Optional. Opens the generated Power BI projects so they can be saved as *.storage.pbix files. Equivalent to Package-PowerBI -Open. Default = false.
 
     .PARAMETER ZipPBI
-    Optional. Indicates that demo PBIX files should be packaged into PowerBI-demo.zip. Default = false.
+    Optional. Validates the saved PBIX files and packages them into PowerBI-demo.zip. Equivalent to Package-PowerBI. Default = false.
 
     .PARAMETER Preview
     Optional. Indicates that the template(s) should be saved as a preview only. Does not package other files. Default = false.
@@ -44,7 +44,7 @@
     .EXAMPLE
     ./Package-Toolkit -ZipPBI
 
-    Generates the PowerBI-demo.zip file. Must be run after -OpenPBI.
+    Validates the saved PBIX files and generates the PowerBI-demo.zip file. Must be run after -OpenPBI.
 #>
 param(
     [Parameter(Position = 0)][string]$Template = "*",
@@ -88,7 +88,9 @@ function Copy-TemplateFiles()
     if ($Template -eq "*")
     {
         Write-Verbose "Removing existing ZIP files..."
-        Remove-Item "$relDir/*.zip" -Force
+        # Power BI ZIP files are managed by Build-PowerBI and Package-PowerBI. Deleting them here
+        # would throw away the templates that -Build just generated.
+        Remove-Item "$relDir/*.zip" -Force -Exclude 'PowerBI-*.zip'
     }
 
     return Get-ChildItem "$relDir/$Template*" -Directory `
@@ -300,74 +302,20 @@ if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
     }
 }
 
-# Open or zip Power BI storage reports to generate PowerBI-demo.zip
-$pbip = Get-ChildItem -Path "$PSScriptRoot/../power-bi/storage" -Include "*.pbip" -Recurse
-if (-not ($OpenPBI -or $ZipPBI))
+# Power BI files are packaged by Package-PowerBI, which reports what's left to do
+if ($OpenPBI)
 {
-    Write-Host "⚠️ $($pbip.Count) Power BI projects must be manually saved as *.storage.pbix!"
-    Write-Host '     To open them, run: ' -NoNewline
-    Write-Host './Package-Toolkit -OpenPBI' -ForegroundColor Cyan
-}
-elseif ($OpenPBI)
-{
-    # Create temp pbix folder and remove existing storage/demo reports
-    & "$PSScriptRoot/New-Directory" "$relDir/pbix"
-    Remove-Item -Path "$relDir/pbix/*.storage.pbix" -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path "$relDir/pbix/*.demo.pbix" -Recurse -Force -ErrorAction SilentlyContinue
-
-    # Open Power BI projects
-    Write-Host "ℹ️ $($pbip.Count) Power BI projects must be saved as PBIX first... Opening..."
-    $pbip | Invoke-Item
-    Write-Host '     Save as *.storage.pbix then run: ' -NoNewline
-    Write-Host './Package-Toolkit -ZipPBI' -ForegroundColor Cyan
+    & "$PSScriptRoot/Package-PowerBI.ps1" -Open
 }
 elseif ($ZipPBI)
 {
-    $pbixFiles = Get-ChildItem -Path "$relDir/pbix/*.storage.pbix"
-
-    # TODO: Confirm all files are ready
-    if ($pbip.Count -ne $pbixFiles.Count)
-    {
-        Write-Host "⚠️ Found $($pbip.Count) Power BI projects but $($pbixFiles.Count) *.storage.pbix files. Please confirm all projects are saved as PBIX files first."
-        return
-    }
-
-    # Clean PBIX files
-    Write-Verbose "Processing $($pbixFiles.Count) *.storage.pbix files..."
-    $pbixFiles | ForEach-Object {
-        # Expand PBIX files for cleanup
-        $pbix = $_
-        $pbixDir = $pbix.FullName.Replace('.storage.pbix', '.demo')
-        Write-Verbose "Expanding $pbixDir..."
-        Remove-Item -Path $pbixDir -Recurse -Force -ErrorAction SilentlyContinue
-        Expand-Archive -Path $pbix -DestinationPath $pbixDir
-
-        # Remove _rels, docProps
-        Remove-Item -Path "$pbixDir/_rels" -Recurse -Force -ErrorAction SilentlyContinue
-        Remove-Item -Path "$pbixDir/docProps" -Recurse -Force -ErrorAction SilentlyContinue
-
-        # Remove docProps from Content_Types
-        $contentTypes = [xml](Get-Content "$pbixDir/?Content_Types?.xml" -Raw)
-        $contentTypes.Types.Override | Where-Object {
-            $_.PartName -eq '/docProps/custom.xml' } | ForEach-Object { $contentTypes.Types.RemoveChild($_) | Out-Null
-        }
-        $contentTypes.Save("$pbixDir/[Content_Types].xml") | Out-Null
-
-        # Remove unneeded tables
-        # $diagramLayout = Get-Content "$pbixDir/DiagramLayout" -Raw | ConvertFrom-Json -Depth 100
-        # $diagramLayout.diagrams.nodes | Where-Object { $metadata.Tables -contains $_.nodeIndex }
-        # TODO: Save as UTF-16LE -- $diagramLayout | ConvertTo-Json -Depth 100
-
-        # TODO: Remove tables from data model
-        # pbi-tools extract $pbix
-        # TODO: Remove tables
-        # pbi-tools compile $pbixDir $pbix
-
-        # Zip as PBIX for demo
-        Write-Verbose "Saving demo $pbixDir.pbix..."
-        Remove-Item -Path "$pbixDir.pbix" -Recurse -Force -ErrorAction SilentlyContinue
-        Compress-Archive -Path $pbixDir -DestinationPath "$pbixDir.pbix"
-    }
+    & "$PSScriptRoot/Package-PowerBI.ps1"
+}
+elseif (-not $Preview)
+{
+    & "$PSScriptRoot/Package-PowerBI.ps1" -Status
+    Write-Host '     To continue, run: ' -NoNewline
+    Write-Host './Package-PowerBI' -ForegroundColor Cyan
 }
 
 Write-Host '...done!'

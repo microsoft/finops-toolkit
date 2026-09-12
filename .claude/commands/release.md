@@ -148,13 +148,26 @@ pwsh -Command "./src/scripts/Package-Toolkit.ps1 -Build -CopyFiles"
 
 If it fails, show the error and ask whether to investigate or skip.
 
+### Package Power BI
+
+Power BI packaging is resumable and reports its own state. Run:
+
+```bash
+pwsh -Command "./src/scripts/Package-PowerBI.ps1"
+```
+
+Relay its status output verbatim — it says exactly which step is next. When it reports projects that still need to be saved, tell the user to run `Package-PowerBI.ps1 -Open`, save each project as PBIX (refresh, Save as PBIX in `release/pbix`, sensitivity "Public", end on the Get started page), then say "done" so you can rerun the command to validate and package.
+
+If validation fails, show the reported issues verbatim. Each one names the file and the fix; don't guess at causes.
+
+Do not proceed until all three files exist: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
+
 ### Manual steps reminder
 
 After packaging succeeds, inform the user of remaining manual steps documented in the release checklist issue (include a link):
 
-1. Power BI packaging
-2. Publish release
-3. Publish announcements
+1. Publish release
+2. Publish announcements
 
 ### Final issue update
 
