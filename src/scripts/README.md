@@ -14,6 +14,8 @@ On this page:
 - [🏷️ Get-Version](#️-get-version)
 - [🏷️ Update-Version](#️-update-version)
 - [🚚 Publish-Toolkit](#-publish-toolkit)
+- [📊 Build-PowerBI](#-build-powerbi)
+- [📊 Package-PowerBI](#-package-powerbi)
 - [📦 Package-Toolkit](#-package-toolkit)
 - [©️ Add-CopyrightHeader](#️-add-copyrightheader)
 - [📁 New-Directory](#-new-directory)
@@ -454,6 +456,70 @@ Examples:
 
 <br>
 
+## 📊 Build-PowerBI
+
+[Build-PowerBI.ps1](./Build-PowerBI.ps1) generates the Power BI release artifacts:
+
+- One PBIT template per report in `release/pbit`, zipped into `PowerBI-kql.zip` and `PowerBI-storage.zip`.
+- One PBIP project per report in `release/pbix`, containing only the tables, relationships, and queries that report needs.
+
+Both come from a single prune, so the template and the demo report always match. Open the generated project from `release/pbix` to save a demo PBIX — there are no queries to remove by hand.
+
+Templates ship with the data source parameters set to null. The generated projects keep the demo values so demo reports can still refresh.
+
+| Parameter   | Description                                                                                                            |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `‑Name`     | Optional. Name of the report to build. Wildcards supported. Default = \* (all).                                        |
+| `‑KQL`      | Optional. Builds the KQL reports. Default = false (builds all if no types are selected).                               |
+| `‑Storage`  | Optional. Builds the storage reports. Default = false (builds all if no types are selected).                           |
+| `‑NoPbip`   | Optional. Skips generating PBIP projects and only builds PBIT templates. Default = false.                              |
+
+Examples:
+
+- Generate all templates and projects.
+
+  ```powershell
+  ./Build-PowerBI
+  ```
+
+- Generate the Cost summary storage template and project.
+
+  ```powershell
+  ./Build-PowerBI CostSummary -Storage
+  ```
+
+<br>
+
+## 📊 Package-PowerBI
+
+[Package-PowerBI.ps1](./Package-PowerBI.ps1) packages the three Power BI release files and reports what's left to do.
+
+Power BI Desktop has to load and save the demo PBIX files, so this command is resumable: run it, save the projects it opens, then run it again. It works out which steps are already done, does the next one, and validates the result.
+
+Saved PBIX files are checked for the mistakes that are easy to make by hand — saved without data, saved from the unpruned source project, saved on the wrong page, or saved from a stale build — so a missed step fails here instead of shipping.
+
+| Parameter  | Description                                                                                    |
+| ---------- | ---------------------------------------------------------------------------------------------- |
+| `‑Open`    | Optional. Opens the projects that still need to be saved as PBIX files. Default = false.       |
+| `‑Build`   | Optional. Rebuilds the templates and projects even if they already exist. Default = false.     |
+| `‑Status`  | Optional. Reports what's done and what's left without changing anything. Default = false.      |
+
+Examples:
+
+- Build whatever is missing and report the next step.
+
+  ```powershell
+  ./Package-PowerBI
+  ```
+
+- Open the projects that still need to be saved as PBIX files.
+
+  ```powershell
+  ./Package-PowerBI -Open
+  ```
+
+<br>
+
 ## 📦 Package-Toolkit
 
 [Package-Toolkit.ps1](./Package-Toolkit.ps1) packages all toolkit templates as ZIP files for release.
@@ -462,7 +528,9 @@ Examples:
 | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `‑Template` | Optional. Name of the template or module to package. Default = \* (all).                                                   |
 | `‑Build`    | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.                           |
-| `‑PowerBI`  | Optional. Indicates whether to open Power BI files as part of the packaging process. Default = false.                      |
+| `‑CopyFiles` | Optional. Indicates whether to copy templates and open data files. Default = false.                                       |
+| `‑OpenPBI`  | Optional. Opens the generated Power BI projects to be saved as PBIX files. Same as `Package-PowerBI -Open`. Default = false. |
+| `‑ZipPBI`   | Optional. Validates the saved PBIX files and packages PowerBI-demo.zip. Same as `Package-PowerBI`. Default = false.        |
 | `‑Preview`  | Optional. Indicates that the template(s) should be saved as a preview only. Does not package other files. Default = false. |
 
 Examples:
