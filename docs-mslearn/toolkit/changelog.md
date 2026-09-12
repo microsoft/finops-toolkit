@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 09/09/2026
+ms.date: 09/12/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -129,8 +129,11 @@ _Released June 2026_
 - **Changed**
   - Updated report labels and documentation to use current FinOps Framework capability names, including Usage optimization and Governance, policy, and risk ([#2170](https://github.com/microsoft/finops-toolkit/pull/2170)).
 - **Fixed**
+  - Fixed report templates opening with a preconfigured demo data source. Storage and cluster settings are now empty when you open a template.
   - Fixed Power BI storage report refresh errors caused by ISO 8601 duration `x_SkuTerm` values (like `P3Y`) and empty strings in cost exports ([#2174](https://github.com/microsoft/finops-toolkit/issues/2174)).
   - Paginate Azure Resource Graph queries by subscription to mitigate [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) errors in the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)). Queries still surface a payload size error (rather than silently returning truncated results) if a single batch of subscriptions exceeds the limit; see [Reduce the batch size](help/errors.md#option-1-reduce-the-batch-size) for the mitigation. As part of this change, the `AdvisorRecommendations` and `AdvisorReservationRecommendations` tables now return complete (non-truncated) results per batch, matching every other batched table; previously these two tables silently dropped rows beyond the payload limit instead of erroring.
+  - Fixed the [Governance](power-bi/governance.md) report template missing the policy definitions query.
+  - Fixed report templates showing tables in the model diagram that the report doesn't use.
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v15
 
