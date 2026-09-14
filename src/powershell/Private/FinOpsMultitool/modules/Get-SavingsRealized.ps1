@@ -343,7 +343,7 @@ resources
 | project vmSize = tostring(properties.hardwareProfile.vmSize), location
 "@
         $subIds = $Subscriptions | ForEach-Object { $_.Id }
-        $ahbResult = Search-AzGraphSafe -Query $ahbQuery -Subscription $subIds
+        $ahbResult = Search-AzGraphSafe -Query $ahbQuery -Subscription $subIds -All
         $ahbVMs = if ($ahbResult.Data) { @($ahbResult.Data) } else { @() }
         if ($ahbVMs.Count -gt 0) {
             $ahbSavings = 0

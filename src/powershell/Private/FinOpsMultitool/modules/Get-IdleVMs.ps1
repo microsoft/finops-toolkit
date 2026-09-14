@@ -39,7 +39,7 @@ resources
           osType = properties.storageProfile.osDisk.osType,
           powerState
 "@
-        $result = Search-AzGraphSafe -Query $query -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $query -Subscription $subIds -First 1000 -All
         $allVMs = if ($result) { @($result.Data) } else { @() }
         $totalVMs = $allVMs.Count
         $runningVMs = @($allVMs | Where-Object { $_.powerState -eq 'PowerState/running' })

@@ -17,8 +17,73 @@ function Search-AzGraphSafe {
         [int]$First = 1000,
         [string]$SkipToken,
         [int]$TimeoutSeconds = 60,
+        [int]$MaxRetries = 2,
+        [switch]$All,
+        [int]$MaxPages = 100
+    )
+
+    if (-not $All) {
+        return Invoke-AzGraphQueryPage -Query $Query -Subscription $Subscription -First $First `
+            -SkipToken $SkipToken -TimeoutSeconds $TimeoutSeconds -MaxRetries $MaxRetries
+    }
+
+    # Resource Graph caps a response at $First rows and hands back a continuation
+    # token. A caller that totals rows without following that token reports a
+    # truncated set as a complete one, which reads as "fewer resources" rather
+    # than as an error. -All follows the token and returns every row.
+    $rows = [System.Collections.Generic.List[object]]::new()
+    $token = $SkipToken
+    $pageCount = 0
+
+    do {
+        $usedToken = $token
+        $page = Invoke-AzGraphQueryPage -Query $Query -Subscription $Subscription -First $First `
+            -SkipToken $usedToken -TimeoutSeconds $TimeoutSeconds -MaxRetries $MaxRetries
+
+        if (-not $page) {
+            # A first-page failure keeps the existing contract: callers treat
+            # $null as "the query failed". Losing a later page is different -
+            # we have partial data, so say so rather than total it silently.
+            if ($pageCount -eq 0) { return $null }
+            Write-Warning "  Resource Graph continuation failed after $pageCount page(s); results are incomplete."
+            break
+        }
+
+        if ($page.Data) { $rows.AddRange(@($page.Data)) }
+        $token = $page.SkipToken
+        $pageCount++
+
+        # A token that does not advance would re-request the page we just added.
+        if ($token -and $usedToken -and $token -eq $usedToken) {
+            Write-Warning "  Resource Graph returned the same continuation token twice; stopping rather than repeating a page. Results are incomplete."
+            break
+        }
+
+        if ($token -and $pageCount -ge $MaxPages) {
+            Write-Warning "  Resource Graph query stopped after $MaxPages pages ($($rows.Count) rows); results are incomplete."
+            break
+        }
+    } while ($token)
+
+    return [PSCustomObject]@{
+        Data      = @($rows)
+        SkipToken = $null
+        Count     = $rows.Count
+    }
+}
+
+# A single Resource Graph request with retry and backoff. Kept separate from the
+# paging loop so that loop can be exercised without issuing live queries.
+function Invoke-AzGraphQueryPage {
+    param(
+        [Parameter(Mandatory)][string]$Query,
+        [string[]]$Subscription,
+        [int]$First = 1000,
+        [string]$SkipToken,
+        [int]$TimeoutSeconds = 60,
         [int]$MaxRetries = 2
     )
+
     for ($attempt = 0; $attempt -le $MaxRetries; $attempt++) {
         $ps = [powershell]::Create()
         $ps.RunspacePool = $script:RunspacePool

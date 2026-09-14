@@ -39,7 +39,7 @@ resources
 | where vmSize matches regex @'(?i)^(Basic_A[0-9]+|Standard_A[0-7]|Standard_D[0-9]+|Standard_DS[0-9]+|Standard_F[0-9]+|Standard_G[0-9]+|Standard_GS[0-9]+)$'
 | project name, resourceGroup, subscriptionId, location, vmSize
 "@
-        $result = Search-AzGraphSafe -Query $vmQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $vmQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allLegacy.Add([PSCustomObject]@{
@@ -67,7 +67,7 @@ resources
 | project name, resourceGroup, subscriptionId, location,
           vhd = tostring(properties.storageProfile.osDisk.vhd.uri)
 "@
-        $result = Search-AzGraphSafe -Query $vhdQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $vhdQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allLegacy.Add([PSCustomObject]@{
@@ -96,7 +96,7 @@ resources
 | project name, resourceGroup, subscriptionId, location,
           diskSizeGb = properties.diskSizeGB, sku = sku.name
 "@
-        $result = Search-AzGraphSafe -Query $hddQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $hddQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allLegacy.Add([PSCustomObject]@{
@@ -123,7 +123,7 @@ resources
 | where tostring(sku.name) =~ 'Basic'
 | project name, resourceGroup, subscriptionId, location, sku = sku.name
 "@
-        $result = Search-AzGraphSafe -Query $pipQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $pipQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allLegacy.Add([PSCustomObject]@{
@@ -150,7 +150,7 @@ resources
 | where tostring(sku.name) =~ 'Basic'
 | project name, resourceGroup, subscriptionId, location, sku = sku.name
 "@
-        $result = Search-AzGraphSafe -Query $lbQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $lbQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allLegacy.Add([PSCustomObject]@{

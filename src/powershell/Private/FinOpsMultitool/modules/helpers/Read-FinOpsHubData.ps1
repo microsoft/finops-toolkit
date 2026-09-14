@@ -12,7 +12,9 @@
 # Reads FOCUS-schema cost data from a Hub storage account.
 # Prefers parquet from the ingestion container (normalized FOCUS);
 # falls back to CSV from msexports if ingestion is empty.
-# Parquet.Net + all transitive deps are auto-installed via nuget.exe.
+# Parquet.Net + all transitive deps are restored with whichever NuGet client the
+# host has (nuget.exe on Windows, the dotnet SDK elsewhere), honouring the
+# machine's configured feeds.
 #
 # 1. Checks ingestion container for parquet (preferred)
 # 2. Falls back to msexports CSV if no parquet found
@@ -52,7 +54,10 @@ function Get-ParquetPayloadFile {
     $roots = @((Join-Path $BasePath 'lib'), (Join-Path $BasePath 'runtimes'))
     $files = foreach ($r in $roots) {
         if (Test-Path -LiteralPath $r) {
-            Get-ChildItem -LiteralPath $r -Filter '*.dll' -Recurse -File -ErrorAction SilentlyContinue
+            # Native payloads are .dll on Windows but .so/.dylib elsewhere, and a
+            # .dll-only filter would leave those unhashed on Linux and macOS.
+            Get-ChildItem -LiteralPath $r -Recurse -File -ErrorAction SilentlyContinue |
+                Where-Object { $_.Name -match '\.(dll|dylib|so)(\.\d+)*$' }
         }
     }
     return @($files | Sort-Object FullName)
@@ -108,7 +113,7 @@ function Test-ParquetManifest {
 # TLS alone only proves who we talked to, not that the payload is authentic.
 function Assert-NuGetPackageSignature {
     param(
-        [Parameter(Mandatory)][string]$NuGetExe,
+        [Parameter(Mandatory)][object]$Client,
         [Parameter(Mandatory)][string]$PackageDir
     )
     $nupkgs = @(Get-ChildItem -LiteralPath $PackageDir -Filter '*.nupkg' -Recurse -File -ErrorAction SilentlyContinue)
@@ -116,11 +121,142 @@ function Assert-NuGetPackageSignature {
         throw "No .nupkg files were retained for signature verification. Refusing to load unverified assemblies."
     }
     foreach ($pkg in $nupkgs) {
-        $output = & $NuGetExe verify -Signatures $pkg.FullName 2>&1
+        $output = if ($Client.Kind -eq 'dotnet') {
+            & $Client.Path nuget verify $pkg.FullName --all 2>&1
+        }
+        else {
+            & $Client.Path verify -Signatures $pkg.FullName 2>&1
+        }
         if ($LASTEXITCODE -ne 0) {
             throw "NuGet signature verification failed for $($pkg.Name): $($output -join ' ')"
         }
     }
+}
+
+# Runtime identifier for the native payload: IronCompress ships a separate
+# native library per RID, so the host's own RID decides which one to stage.
+function Get-FinOpsNativeRid {
+    $isWin = if ($null -ne $IsWindows) { $IsWindows } else { $true }
+    $os = if ($isWin) { 'win' } elseif ($IsMacOS) { 'osx' } else { 'linux' }
+    $arch = try {
+        [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
+    }
+    catch {
+        if ([Environment]::Is64BitOperatingSystem) { 'x64' } else { 'x86' }
+    }
+    return "$os-$arch"
+}
+
+# Picks a package client that reads the machine's NuGet configuration, so a
+# corporate feed proxy, mirror or credential provider keeps working. nuget.exe
+# is a Windows binary, so on macOS and Linux it is neither downloaded nor run.
+function Resolve-NuGetClient {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$CachePath)
+
+    $isWin = if ($null -ne $IsWindows) { $IsWindows } else { $true }
+
+    if (-not $isWin) {
+        $dotnet = Get-Command dotnet -CommandType Application -ErrorAction SilentlyContinue
+        if (-not $dotnet) {
+            return [PSCustomObject]@{ Kind = $null; Path = $null; Reason = 'the .NET SDK is not installed (dotnet is not on PATH)' }
+        }
+        # A runtime-only install still answers 'dotnet' but cannot restore, and
+        # an SDK older than the restore project's target framework fails late
+        # with a confusing error, so both are rejected up front.
+        $sdks = @(& $dotnet.Source --list-sdks 2>$null)
+        if ($sdks.Count -eq 0) {
+            return [PSCustomObject]@{ Kind = $null; Path = $null; Reason = 'only the .NET runtime is present and restoring packages needs the .NET SDK' }
+        }
+        $hasSupportedSdk = $false
+        foreach ($line in $sdks) {
+            if ([string]$line -match '^\s*(\d+)\.' -and [int]$matches[1] -ge 8) { $hasSupportedSdk = $true; break }
+        }
+        if (-not $hasSupportedSdk) {
+            return [PSCustomObject]@{ Kind = $null; Path = $null; Reason = 'the installed .NET SDK is older than 8.0, which the Parquet packages target' }
+        }
+        return [PSCustomObject]@{ Kind = 'dotnet'; Path = $dotnet.Source; Reason = $null }
+    }
+
+    $nugetExe = Join-Path $CachePath 'nuget.exe'
+    if (-not (Test-Path -LiteralPath $nugetExe)) {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-WebRequest -Uri 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe' -OutFile $nugetExe -UseBasicParsing
+    }
+
+    # Validated on every use, not just on download: a cached copy in a writable
+    # path can be replaced between runs. The download URL is mutable ('/latest/')
+    # too, so a tampered or unsigned binary is deleted and refused rather than
+    # executed. The subject is matched as a whole RDN so a crafted value such as
+    # 'O=Not Microsoft Corporation Ltd' cannot satisfy it.
+    $sig = Get-AuthenticodeSignature -FilePath $nugetExe
+    $signerSubject = if ($sig.SignerCertificate) { $sig.SignerCertificate.Subject } else { '<unsigned>' }
+    $signerOk = $sig.SignerCertificate -and ($signerSubject -match '(^|,\s*)O=Microsoft Corporation(\s*,|$)')
+    if ($sig.Status -ne 'Valid' -or -not $signerOk) {
+        Remove-Item $nugetExe -Force -ErrorAction SilentlyContinue
+        throw "nuget.exe failed Authenticode validation (status: $($sig.Status); signer: $signerSubject). Refusing to execute it."
+    }
+
+    return [PSCustomObject]@{ Kind = 'nuget.exe'; Path = $nugetExe; Reason = $null }
+}
+
+# Restores a package and its transitive dependencies with whichever client was
+# resolved. Neither branch names a feed: the host's NuGet configuration decides.
+function Invoke-NuGetRestore {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][object]$Client,
+        [Parameter(Mandatory)][string]$PackageId,
+        [Parameter(Mandatory)][string]$Version,
+        [Parameter(Mandatory)][string]$PackageDir,
+        [Parameter(Mandatory)][string]$WorkingPath
+    )
+
+    if ($Client.Kind -eq 'dotnet') {
+        $projDir = Join-Path $WorkingPath 'restore'
+        New-Item -ItemType Directory -Path $projDir -Force | Out-Null
+        $proj = Join-Path $projDir 'parquet-restore.csproj'
+        @"
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="$PackageId" Version="$Version" />
+  </ItemGroup>
+</Project>
+"@ | Set-Content -LiteralPath $proj -Encoding UTF8
+        $output = & $Client.Path restore $proj --packages $PackageDir 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "dotnet restore failed for $PackageId $Version : $($output -join ' ')"
+        }
+    }
+    else {
+        $output = & $Client.Path install $PackageId -Version $Version -OutputDirectory $PackageDir -Framework net8.0 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "nuget.exe install failed for $PackageId $Version : $($output -join ' ')"
+        }
+    }
+}
+
+# nuget.exe stages <id>.<version>/, dotnet restore stages <id>/<version>/, so a
+# package root is any directory that directly holds lib/ or runtimes/.
+function Get-RestoredPackageRoot {
+    param([Parameter(Mandatory)][string]$PackageDir)
+    $roots = [System.Collections.Generic.List[string]]::new()
+    foreach ($d in @(Get-ChildItem -LiteralPath $PackageDir -Directory -ErrorAction SilentlyContinue)) {
+        if ((Test-Path -LiteralPath (Join-Path $d.FullName 'lib')) -or (Test-Path -LiteralPath (Join-Path $d.FullName 'runtimes'))) {
+            [void]$roots.Add($d.FullName)
+            continue
+        }
+        foreach ($v in @(Get-ChildItem -LiteralPath $d.FullName -Directory -ErrorAction SilentlyContinue)) {
+            if ((Test-Path -LiteralPath (Join-Path $v.FullName 'lib')) -or (Test-Path -LiteralPath (Join-Path $v.FullName 'runtimes'))) {
+                [void]$roots.Add($v.FullName)
+            }
+        }
+    }
+    return @($roots)
 }
 
 function Install-ParquetReader {
@@ -154,71 +290,72 @@ function Install-ParquetReader {
         }
     }
 
+    $script:FinOpsParquetUnavailableReason = $null
+    $client = $null
+    try {
+        New-Item -ItemType Directory -Path $parquetDir -Force | Out-Null
+        $client = Resolve-NuGetClient -CachePath $parquetDir
+    }
+    catch {
+        $script:FinOpsParquetUnavailableReason = $_.Exception.Message
+        Write-Warning "Failed to prepare the Parquet reader: $($_.Exception.Message)"
+        return $false
+    }
+
+    # No usable client is a reportable outcome, not a silent downgrade: the
+    # caller states the reason before it changes where the numbers come from.
+    if (-not $client.Kind) {
+        $script:FinOpsParquetUnavailableReason = $client.Reason
+        return $false
+    }
+
     Write-Host "    Installing Parquet reader (one-time setup)..." -ForegroundColor DarkGray
 
     try {
-        New-Item -ItemType Directory -Path $parquetDir -Force | Out-Null
-
-        # Download nuget.exe if needed
-        $nugetExe = Join-Path $parquetDir 'nuget.exe'
-        if (-not (Test-Path $nugetExe)) {
-            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-            Invoke-WebRequest -Uri 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe' -OutFile $nugetExe -UseBasicParsing
-
-            # Verify the downloaded nuget.exe is Authenticode-signed by Microsoft
-            # and the signature is Valid BEFORE executing it. The download URL is
-            # mutable ('/latest/'), so a tampered or unsigned binary (hijacked
-            # endpoint, MITM past TLS, cache poisoning) is deleted and refused
-            # rather than run. On non-Windows, Authenticode is not applicable and
-            # nuget.exe is not executed, so the check is skipped.
-            $isWin = if ($null -ne $IsWindows) { $IsWindows } else { $true }
-            if ($isWin) {
-                $sig = Get-AuthenticodeSignature -FilePath $nugetExe
-                $signerSubject = if ($sig.SignerCertificate) { $sig.SignerCertificate.Subject } else { '<unsigned>' }
-                $signerOk = $sig.SignerCertificate -and ($signerSubject -match 'O=Microsoft Corporation')
-                if ($sig.Status -ne 'Valid' -or -not $signerOk) {
-                    Remove-Item $nugetExe -Force -ErrorAction SilentlyContinue
-                    throw "Downloaded nuget.exe failed Authenticode validation (status: $($sig.Status); signer: $signerSubject). Refusing to execute it."
-                }
-            }
-        }
-
-        # Use nuget.exe to resolve ALL transitive dependencies
         $pkgDir = Join-Path $parquetDir 'packages'
-        & $nugetExe install Parquet.Net -Version 4.24.0 -OutputDirectory $pkgDir -Framework net8.0 2>&1 | Out-Null
+        Invoke-NuGetRestore -Client $client -PackageId 'Parquet.Net' -Version '4.24.0' -PackageDir $pkgDir -WorkingPath $parquetDir
 
         # Verify nuget.org signatures on the fetched packages before any of
         # their assemblies are copied or loaded into this process.
-        Assert-NuGetPackageSignature -NuGetExe $nugetExe -PackageDir $pkgDir
+        Assert-NuGetPackageSignature -Client $client -PackageDir $pkgDir
 
         # Copy managed DLLs to flat directory (prefer net8.0 > net6.0 > netstandard2.0)
         $libDir = Join-Path $parquetDir 'lib'
         New-Item -ItemType Directory -Path $libDir -Force | Out-Null
 
         $fxPriority = @('net8.0', 'net6.0', 'netstandard2.1', 'netstandard2.0')
-        $packages = Get-ChildItem $pkgDir -Directory
-        foreach ($pkg in $packages) {
-            $libRoot = Join-Path $pkg.FullName 'lib'
-            if (-not (Test-Path $libRoot)) { continue }
-            $copied = $false
-            foreach ($fx in $fxPriority) {
-                $fxDir = Join-Path $libRoot $fx
-                if (Test-Path $fxDir) {
-                    Get-ChildItem $fxDir -Filter '*.dll' | ForEach-Object {
-                        Copy-Item $_.FullName $libDir -Force
+        $rid = Get-FinOpsNativeRid
+        $ridCandidates = @($rid, "$($rid.Split('-')[0])-x64") | Select-Object -Unique
+        # Matches what the integrity manifest hashes, including versioned names
+        # such as libfoo.so.1 - a plain *.so filter would skip those and stage
+        # an incomplete set.
+        $nativePattern = if ($rid.StartsWith('win')) { '\.dll$' } elseif ($rid.StartsWith('osx')) { '\.dylib(\.\d+)*$' } else { '\.so(\.\d+)*$' }
+
+        foreach ($pkgRoot in (Get-RestoredPackageRoot -PackageDir $pkgDir)) {
+            $libRoot = Join-Path $pkgRoot 'lib'
+            if (Test-Path -LiteralPath $libRoot) {
+                foreach ($fx in $fxPriority) {
+                    $fxDir = Join-Path $libRoot $fx
+                    if (Test-Path -LiteralPath $fxDir) {
+                        Get-ChildItem -LiteralPath $fxDir -Filter '*.dll' -File | ForEach-Object {
+                            Copy-Item $_.FullName $libDir -Force
+                        }
+                        break
                     }
-                    $copied = $true
-                    break
                 }
             }
-            # Copy native runtimes (IronCompress needs nironcompress.dll)
-            $nativeDir = Join-Path $pkg.FullName 'runtimes\win-x64\native'
-            if (Test-Path $nativeDir) {
-                $targetNative = Join-Path $parquetDir 'runtimes\win-x64\native'
+
+            # IronCompress ships one native library per RID; stage the one this
+            # host can actually load rather than assuming win-x64.
+            foreach ($candidate in $ridCandidates) {
+                $nativeDir = Join-Path (Join-Path (Join-Path $pkgRoot 'runtimes') $candidate) 'native'
+                if (-not (Test-Path -LiteralPath $nativeDir)) { continue }
+                $targetNative = Join-Path (Join-Path (Join-Path $parquetDir 'runtimes') $candidate) 'native'
                 New-Item -ItemType Directory -Path $targetNative -Force | Out-Null
-                Get-ChildItem $nativeDir -Filter '*.dll' | ForEach-Object {
+                Get-ChildItem -LiteralPath $nativeDir -File | Where-Object { $_.Name -match $nativePattern } | ForEach-Object {
                     Copy-Item $_.FullName $targetNative -Force
                 }
+                break
             }
         }
 
@@ -231,6 +368,7 @@ function Install-ParquetReader {
         return $true
     }
     catch {
+        $script:FinOpsParquetUnavailableReason = $_.Exception.Message
         Write-Warning "Failed to install Parquet reader: $($_.Exception.Message)"
         return $false
     }
@@ -508,7 +646,10 @@ function Read-FinOpsHubData {
                     if ($allData.Count -eq 0) {
                         $hasParquet = Install-ParquetReader
                         if (-not $hasParquet) {
-                            Write-Warning "Parquet reader failed — falling back to CSV exports"
+                            # Name the cause and the change of source: a bare
+                            # "falling back" line reads like a clean scan.
+                            $why = if ($script:FinOpsParquetUnavailableReason) { $script:FinOpsParquetUnavailableReason } else { 'the Parquet reader could not be installed' }
+                            Write-Warning "Reading Hub CSV exports instead of Parquet because $why. Figures come from msexports rather than normalized ingestion."
                             break
                         }
                     }

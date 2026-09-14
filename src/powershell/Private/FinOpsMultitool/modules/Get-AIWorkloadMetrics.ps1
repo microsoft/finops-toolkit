@@ -70,7 +70,7 @@ resources
         and tostring(properties.hardwareProfile.vmSize) matches regex @'(?i)^Standard_N')
 | project id, name, type, lkind, subscriptionId, location
 "@
-        $result = Search-AzGraphSafe -Query $gateQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $gateQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
 
         foreach ($r in $rows) {

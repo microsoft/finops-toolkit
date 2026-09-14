@@ -35,7 +35,7 @@ resources
           creationTime = properties.creationTime,
           blobCount = properties.primaryEndpoints.blob
 "@
-        $result = Search-AzGraphSafe -Query $query -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $query -Subscription $subIds -First 1000 -All
         $hotAccounts = if ($result) { @($result.Data) } else { @() }
         Write-Host "    Hot-tier storage accounts: $($hotAccounts.Count)" -ForegroundColor Gray
     }

@@ -141,7 +141,7 @@ resources
 | where subscriptionId in~ ($spokeList)
 | summarize c = count() by subscriptionId
 "@
-            $res = Search-AzGraphSafe -Query $query -Subscription $Spokes -First 1000
+            $res = Search-AzGraphSafe -Query $query -Subscription $Spokes -First 1000 -All
             foreach ($r in @($res.Data)) {
                 $sid = [string]$r.subscriptionId
                 if ($weights.ContainsKey($sid)) { $weights[$sid] = [double]$r.c }

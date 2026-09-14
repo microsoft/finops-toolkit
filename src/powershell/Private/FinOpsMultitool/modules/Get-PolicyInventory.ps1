@@ -262,7 +262,7 @@ policyresources
     by subscriptionId
 "@
         $subIds = $Subscriptions | ForEach-Object { $_.Id }
-        $compResult = Search-AzGraphSafe -Query $compQuery -Subscription $subIds -First 1000
+        $compResult = Search-AzGraphSafe -Query $compQuery -Subscription $subIds -First 1000 -All
 
         if ($compResult -and $compResult.Data -and $compResult.Data.Count -gt 0) {
             foreach ($row in $compResult.Data) {

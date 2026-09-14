@@ -35,7 +35,7 @@ resources
           sku = sku.name, diskState = properties.diskState,
           type = 'Orphaned Disk'
 "@
-        $result = Search-AzGraphSafe -Query $diskQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $diskQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allOrphans.Add([PSCustomObject]@{
@@ -87,7 +87,7 @@ resources
 | project id, name, resourceGroup, subscriptionId, location, sku, allocationMethod,
           ipAddress, ipConfigId, natGw, nicName, vmName, vmPower
 "@
-        $result = Search-AzGraphSafe -Query $pipQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $pipQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         $pipUnattached = 0
         $pipStoppedVm = 0
@@ -143,7 +143,7 @@ resources
           enableAcceleratedNetworking = properties.enableAcceleratedNetworking,
           type = 'Unattached NIC'
 "@
-        $result = Search-AzGraphSafe -Query $nicQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $nicQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allOrphans.Add([PSCustomObject]@{
@@ -177,7 +177,7 @@ resources
           dataDisks = properties.storageProfile.dataDisks,
           type = 'Deallocated VM'
 "@
-        $result = Search-AzGraphSafe -Query $vmQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $vmQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             # A stopped VM bills nothing itself; the spend sits on its managed disks.
@@ -217,7 +217,7 @@ resources
           workers = properties.numberOfWorkers,
           type = 'Empty App Service Plan'
 "@
-        $result = Search-AzGraphSafe -Query $aspQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $aspQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allOrphans.Add([PSCustomObject]@{
@@ -249,7 +249,7 @@ resources
           timeCreated = properties.timeCreated,
           type = 'Old Snapshot'
 "@
-        $result = Search-AzGraphSafe -Query $snapQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $snapQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             [void]$allOrphans.Add([PSCustomObject]@{

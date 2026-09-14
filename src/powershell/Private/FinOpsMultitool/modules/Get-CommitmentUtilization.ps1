@@ -10,6 +10,23 @@
 #          CFO question: "Are we wasting what we already bought?"
 ###########################################################################
 
+# Compares two usageDate values so only the newest period per commitment is
+# kept. The API returns an ISO string; an unparsable value falls back to an
+# ordinal compare, and a missing existing value always loses.
+function Test-UsageDateIsNewer {
+    param($Candidate, $Existing)
+
+    if ($null -eq $Existing) { return $true }
+    if ($null -eq $Candidate) { return $false }
+
+    $c = [datetime]::MinValue
+    $e = [datetime]::MinValue
+    if ([datetime]::TryParse([string]$Candidate, [ref]$c) -and [datetime]::TryParse([string]$Existing, [ref]$e)) {
+        return ($c -gt $e)
+    }
+    return ([string]$Candidate -gt [string]$Existing)
+}
+
 function Get-CommitmentUtilization {
     [CmdletBinding()]
     param(
@@ -106,7 +123,27 @@ function Get-CommitmentUtilization {
 
     # For EA / fallback: query at subscription scope
     if ($reservations.Count -eq 0) {
-        foreach ($sub in $Subscriptions | Select-Object -First 10) {
+        # Every selected subscription is queried. Stopping at the first one that
+        # answers, or at an arbitrary first N, hides reservations that only the
+        # remaining subscriptions can see.
+        #
+        # Two different duplications have to be collapsed before the summary
+        # stats are computed. A reservation is reported by every subscription
+        # that consumed it, and reservationSummaries returns one record per
+        # usage period. Keying on the reservation alone - and keeping only its
+        # newest period - leaves exactly one row per commitment, so RICount
+        # counts reservations rather than API records and the average is not
+        # weighted towards whichever reservation happens to span more months.
+        $latestReservation = @{}
+        $subTotal = @($Subscriptions).Count
+        $subIdx = 0
+        foreach ($sub in $Subscriptions) {
+            $subIdx++
+            if ($subIdx -eq 1 -or $subIdx -eq $subTotal -or ($subTotal -gt 5 -and $subIdx % [math]::Max(1, [int]($subTotal / 10)) -eq 0)) {
+                if (Get-Command Update-ScanStatus -ErrorAction SilentlyContinue) {
+                    Update-ScanStatus "Querying reservations ($subIdx/$subTotal subs)..."
+                }
+            }
             try {
                 $summaryPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Consumption/reservationSummaries?grain=monthly&api-version=2023-05-01&`$filter=properties/usageDate ge '$(((Get-Date).AddDays(-30)).ToString('yyyy-MM-dd'))'"
                 $resp = Invoke-AzRestMethodWithRetry -Path $summaryPath -Method GET
@@ -115,7 +152,11 @@ function Get-CommitmentUtilization {
                     if ($data.value) {
                         foreach ($item in $data.value) {
                             $p = $item.properties
-                            $reservations += [PSCustomObject]@{
+                            $key = "$($p.reservationOrderId)/$($p.reservationId)"
+                            if ([string]::IsNullOrWhiteSpace(($key -replace '/', ''))) { continue }
+                            $existing = $latestReservation[$key]
+                            if ($existing -and -not (Test-UsageDateIsNewer -Candidate $p.usageDate -Existing $existing.UsageDate)) { continue }
+                            $latestReservation[$key] = [PSCustomObject]@{
                                 ReservationOrderId = $p.reservationOrderId
                                 ReservationId      = $p.reservationId
                                 SkuName            = $p.skuName
@@ -128,7 +169,6 @@ function Get-CommitmentUtilization {
                                 UsageDate          = $p.usageDate
                             }
                         }
-                        break  # Got data from one sub, don't repeat
                     }
                 }
                 elseif ($resp.StatusCode -in @(401, 403)) { $accessDenied = $true }
@@ -137,6 +177,7 @@ function Get-CommitmentUtilization {
                 Write-Warning "  Reservation summaries query failed for $($sub.Name): $($_.Exception.Message)"
             }
         }
+        $reservations += @($latestReservation.Values)
     }
 
     # -- Step 2: Try the Reservation Orders API at billing scope --
@@ -205,7 +246,8 @@ function Get-CommitmentUtilization {
                             $p = $item.properties
                             if ($p.benefitType -eq 'SavingsPlan') {
                                 $savingsPlans += [PSCustomObject]@{
-                                    BenefitId       = $p.benefitOrderId
+                                    BenefitId       = $p.benefitId
+                                    BenefitOrderId  = $p.benefitOrderId
                                     BenefitType     = $p.benefitType
                                     AvgUtilization  = [math]::Round([double]$p.avgUtilizationPercentage, 1)
                                     UsageDate       = $p.usageDate
@@ -224,33 +266,56 @@ function Get-CommitmentUtilization {
 
     # Fallback: subscription scope (EA, PAYG, etc.)
     if ($savingsPlans.Count -eq 0) {
-        try {
-            foreach ($sub in $Subscriptions | Select-Object -First 5) {
-            $spPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/benefitUtilizationSummaries?api-version=2023-11-01&filter=properties/usageDate ge '$(((Get-Date).AddDays(-30)).ToString('yyyy-MM-dd'))'&grain=Monthly"
-            $spResp = Invoke-AzRestMethodWithRetry -Path $spPath -Method GET
-            if ($spResp.StatusCode -eq 200) {
-                $spData = ($spResp.Content | ConvertFrom-Json)
-                if ($spData.value) {
-                    foreach ($item in $spData.value) {
-                        $p = $item.properties
-                        if ($p.benefitType -eq 'SavingsPlan') {
-                            $savingsPlans += [PSCustomObject]@{
-                                BenefitId       = $p.benefitOrderId
-                                BenefitType     = $p.benefitType
-                                AvgUtilization  = [math]::Round([double]$p.avgUtilizationPercentage, 1)
-                                UsageDate       = $p.usageDate
+        # Same coverage rule as reservations: query every selected subscription
+        # and de-duplicate, rather than sampling a few and stopping at the first
+        # hit. The try sits inside the loop so one unreadable subscription does
+        # not abandon the ones after it.
+        #
+        # Keyed on benefitId, not benefitOrderId: one order can contain several
+        # savings plans, so ordering alone would collapse distinct plans into
+        # one and drop real commitments. Only the newest period per plan is
+        # kept, so SPCount counts plans rather than monthly records.
+        $latestSavingsPlan = @{}
+        $spTotal = @($Subscriptions).Count
+        $spIdx = 0
+        foreach ($sub in $Subscriptions) {
+            $spIdx++
+            if ($spIdx -eq 1 -or $spIdx -eq $spTotal -or ($spTotal -gt 5 -and $spIdx % [math]::Max(1, [int]($spTotal / 10)) -eq 0)) {
+                if (Get-Command Update-ScanStatus -ErrorAction SilentlyContinue) {
+                    Update-ScanStatus "Querying savings plans ($spIdx/$spTotal subs)..."
+                }
+            }
+            try {
+                $spPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/benefitUtilizationSummaries?api-version=2023-11-01&filter=properties/usageDate ge '$(((Get-Date).AddDays(-30)).ToString('yyyy-MM-dd'))'&grain=Monthly"
+                $spResp = Invoke-AzRestMethodWithRetry -Path $spPath -Method GET
+                if ($spResp.StatusCode -eq 200) {
+                    $spData = ($spResp.Content | ConvertFrom-Json)
+                    if ($spData.value) {
+                        foreach ($item in $spData.value) {
+                            $p = $item.properties
+                            if ($p.benefitType -eq 'SavingsPlan') {
+                                $key = if ($p.benefitId) { [string]$p.benefitId } else { [string]$p.benefitOrderId }
+                                if ([string]::IsNullOrWhiteSpace($key)) { continue }
+                                $existing = $latestSavingsPlan[$key]
+                                if ($existing -and -not (Test-UsageDateIsNewer -Candidate $p.usageDate -Existing $existing.UsageDate)) { continue }
+                                $latestSavingsPlan[$key] = [PSCustomObject]@{
+                                    BenefitId       = $p.benefitId
+                                    BenefitOrderId  = $p.benefitOrderId
+                                    BenefitType     = $p.benefitType
+                                    AvgUtilization  = [math]::Round([double]$p.avgUtilizationPercentage, 1)
+                                    UsageDate       = $p.usageDate
+                                }
                             }
                         }
                     }
-                    if ($savingsPlans.Count -gt 0) { break }
                 }
+                elseif ($spResp.StatusCode -in @(401, 403)) { $accessDenied = $true }
+            } catch {
+                if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
+                Write-Warning "  Savings plan utilization query failed for $($sub.Name): $($_.Exception.Message)"
             }
-            elseif ($spResp.StatusCode -in @(401, 403)) { $accessDenied = $true }
-            }
-        } catch {
-            if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
-            Write-Warning "  Savings plan utilization query failed: $($_.Exception.Message)"
         }
+        $savingsPlans += @($latestSavingsPlan.Values)
     }
 
     # -- Step 4: Calculate summary stats --

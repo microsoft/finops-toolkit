@@ -1759,7 +1759,12 @@ function Invoke-FinOpsMultitool {
                     Write-Host "At risk: $($data.AtRiskCount)" -ForegroundColor $(if ($data.AtRiskCount -gt 0) { 'Yellow' } else { 'Green' }) -NoNewline
                     Write-Host "  |  " -ForegroundColor White -NoNewline
                     Write-Host "Over budget: $($data.OverBudgetCount)" -ForegroundColor $(if ($data.OverBudgetCount -gt 0) { 'Red' } else { 'Green' }) -NoNewline
-                    Write-Host "  |  Coverage: $($data.BudgetCoverage)%" -ForegroundColor White
+                    if ($data.CoverageIncomplete) {
+                        Write-Host "  |  Coverage: unverified (sampled $($data.ScannedSubs) of $($data.TotalSubs) subs)" -ForegroundColor Yellow
+                    }
+                    else {
+                        Write-Host "  |  Coverage: $($data.BudgetCoverage)%" -ForegroundColor White
+                    }
                     $rows = $data.Budgets | ForEach-Object {
                         [PSCustomObject]@{
                             Budget  = $_.BudgetName
@@ -2340,6 +2345,12 @@ function Invoke-FinOpsMultitool {
                         $guidanceItems = @(
                             @{ Severity = 'Yellow'; Message = "$atRisk budget(s) at risk of overrun. Review forecasted spend vs. remaining budget." }
                             @{ Severity = 'Yellow'; Message = "FinOps Practice: Proactive budget monitoring prevents end-of-period surprises. Consider cost reduction now." }
+                        )
+                    }
+                    elseif ($data.CoverageIncomplete) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "No budgets found in a sample of $($data.ScannedSubs) of $($data.TotalSubs) subscriptions. Coverage across the rest is unverified." }
+                            @{ Severity = 'Yellow'; Message = "Re-run against a narrower subscription set to measure budget coverage exactly."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets' }
                         )
                     }
                     elseif ($bCoverage -lt 50) {
@@ -2936,7 +2947,11 @@ tr:hover td { background: var(--surface); }
                         [void]$htmlSb.Append("<p>RI: <span class=`"money`">$($data.RISavingsMonthly.ToString('C0'))</span> &nbsp;|&nbsp; SP: <span class=`"money`">$($data.SPSavingsMonthly.ToString('C0'))</span> &nbsp;|&nbsp; AHB: <span class=`"money`">$($data.AHBSavingsMonthly.ToString('C0'))</span> &nbsp;|&nbsp; Total: <span class=`"money`">$($data.TotalMonthly.ToString('C0'))/mo</span></p>")
                     }
                     'Get-BudgetStatus' {
-                        [void]$htmlSb.Append("<p>Budgets: $($data.TotalBudgets) &nbsp;|&nbsp; At risk: $($data.AtRiskCount) &nbsp;|&nbsp; Over budget: $($data.OverBudgetCount) &nbsp;|&nbsp; Coverage: $($data.BudgetCoverage)%</p>")
+                        $htmlCoverage = if ($data.CoverageIncomplete) {
+                            "unverified (sampled $($data.ScannedSubs) of $($data.TotalSubs) subs)"
+                        }
+                        else { "$($data.BudgetCoverage)%" }
+                        [void]$htmlSb.Append("<p>Budgets: $($data.TotalBudgets) &nbsp;|&nbsp; At risk: $($data.AtRiskCount) &nbsp;|&nbsp; Over budget: $($data.OverBudgetCount) &nbsp;|&nbsp; Coverage: $htmlCoverage</p>")
                         $htmlRows = $data.Budgets | ForEach-Object {
                             $riskClass = switch ($_.Risk) { 'Over Budget' { 'severity-red' } 'Forecast Over' { 'severity-yellow' } 'At Risk' { 'severity-yellow' } 'Watch' { 'severity-yellow' } default { 'severity-green' } }
                             [PSCustomObject]@{ Budget = $_.BudgetName; Amount = '{0:C0}' -f [double]$_.Amount; Spent = '{0:C0}' -f [double]$_.ActualSpend; PctUsed = "$($_.PctUsed)%"; Risk = $_.Risk; _riskClass = $riskClass }

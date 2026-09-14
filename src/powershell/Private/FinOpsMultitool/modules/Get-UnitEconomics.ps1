@@ -122,7 +122,7 @@ resources
 | where type =~ 'microsoft.storage/storageaccounts'
 | project id
 "@
-        $result = Search-AzGraphSafe -Query $saQuery -Subscription $SubIds -First 1000
+        $result = Search-AzGraphSafe -Query $saQuery -Subscription $SubIds -First 1000 -All
         $accounts = if ($result) { @($result.Data) } else { @() }
     }
     catch {
@@ -189,7 +189,7 @@ resources
 | extend vmSize = tostring(properties.hardwareProfile.vmSize), loc = tostring(location), subId = tostring(subscriptionId)
 | summarize cnt = count() by vmSize, loc, subId
 "@
-        $result = Search-AzGraphSafe -Query $vmQuery -Subscription $subIds -First 1000
+        $result = Search-AzGraphSafe -Query $vmQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             $count = [int]$r.cnt
