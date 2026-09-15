@@ -3,7 +3,7 @@ title: FinOps multitool overview
 description: FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from a terminal UI, with agent skills so AI assistants can run the same analysis.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 09/14/2026
+ms.date: 09/15/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -21,19 +21,26 @@ FinOps multitool runs 30 scan modules against the subscriptions you select and r
 
 - **Interactive scanning** <br> Choose the subscriptions and scan modules you want, then review results in the terminal. Findings can be exported to CSV, an HTML report, and a text summary. Consoles that can't render the arrow-key menus fall back to numbered prompts, and a non-interactive mode runs the same scans from a pipeline or a scheduled job.
 
-- **AI agent support** <br> A companion set of agent skills teaches AI assistants the same investigations, the queries behind them, and how to read the results, so they can answer cost questions grounded in your environment instead of general guidance.
+- **AI agent support** <br> Agent skills describe the same investigations, the queries behind them, and how to read the results, so AI assistants can answer cost questions from your environment's data.
 
-- **Scales with your data** <br> When a [FinOps hub](../hubs/finops-hubs-overview.md) is available, cost scans query the hub's Azure Data Explorer or Microsoft Fabric database and push aggregation into the engine, returning only summarized results. A storage reader covers smaller datasets, and the Cost Management API is used when no hub is present.
+- **Cost data sources** <br> When a [FinOps hub](../hubs/finops-hubs-overview.md) is available, cost scans query the hub's Azure Data Explorer or Microsoft Fabric database and push aggregation into the engine, returning only summarized results. A storage reader covers smaller datasets, and the Cost Management API is used when no hub is present.
 
-- **Read-only** <br> Every scan reads your environment and reports what it finds. The multitool never creates, changes, or deletes a resource.
+- **Read-only** <br> The multitool never creates, changes, or deletes a resource.
 
 ## Benefits
 
-Instead of checking Azure Advisor, Cost Analysis, Resource Graph, and the budgets blade separately, you run one scan and get the findings together, scoped to the subscriptions you select.
+FinOps multitool provides the following benefits:
+
+- Run 30 scans across optimization, governance, cost analysis, commitments, monitoring, and sustainability in a single pass.
+- Scope each scan to the subscriptions you select.
+- Export findings to a CSV file per scan, an HTML report, and a text summary.
+- Read cost data from a FinOps hub, the Cost Management API, or Azure Resource Graph.
+- Run the same scans from a pipeline or a scheduled job with `-NonInteractive`.
+- Run the same investigations from an AI assistant through agent skills.
 
 ## Why FinOps multitool?
 
-[FinOps workbooks](../workbooks/finops-workbooks-overview.md) and the [Azure Optimization Engine](../optimization-engine/overview.md) surface optimization opportunities in the Azure portal. FinOps multitool brings the same class of insight to the terminal and to AI agents, so engineers can scan an environment during a working session without switching context, and agents can ground their answers in real resource state.
+[FinOps workbooks](../workbooks/finops-workbooks-overview.md) and the [Azure Optimization Engine](../optimization-engine/overview.md) surface optimization opportunities in the Azure portal. FinOps multitool reports the same kinds of findings in the terminal and through AI agent skills, so you can scan an environment during a working session without leaving the command line.
 
 ## Required permissions
 
