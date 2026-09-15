@@ -49,9 +49,11 @@ For an over/under, decompose the gap:
 
 Report each driver with its $ contribution so the variance is explained, not just stated.
 
+For the month-by-month picture, run **Budget History** from `finops-multitool` rather than rebuilding the series from cost trend — it returns actuals per budget per month, which is the series variance analysis needs.
+
 ## Hand-offs
 
-- History + current budgets → `finops-multitool` (cost trend, budget status) / `finops-toolkit` KQL.
+- History + current budgets → `finops-multitool` (cost trend, budget status, budget history) / `finops-toolkit` KQL.
 - Rate-driven variance → `rate-optimization-portfolio` and `unit-economics`.
 - Sudden unexpected spike → `anomaly-investigation` skill.
 - Write up the variance → `finops-reporting`.
