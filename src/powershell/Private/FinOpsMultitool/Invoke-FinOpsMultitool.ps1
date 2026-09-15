@@ -240,6 +240,21 @@ function Invoke-FinOpsMultitool {
         return $rich
     }
 
+    # Repositioning can still fail after the capability probe passes, for example
+    # when the buffer shrinks mid-render, so a failure re-renders lower rather
+    # than surfacing a .NET stack trace.
+    function Move-FinOpsCursorLine {
+        param([int]$LinesUp = 0)
+        try {
+            $top = [Console]::CursorTop
+            if ($LinesUp -gt 0) { $top = [math]::Max(0, $top - $LinesUp) }
+            [Console]::SetCursorPosition(0, $top)
+        }
+        catch {
+            Write-Verbose "Cursor repositioning unavailable: $($_.Exception.Message)"
+        }
+    }
+
     # Read-Host returns an empty string in a host that cannot prompt, which would
     # spin a validation loop forever, so every caller needs an attempt ceiling.
     function Read-FinOpsAnswer {
@@ -504,7 +519,7 @@ function Invoke-FinOpsMultitool {
 
             while ($true) {
                 $tWidth = Get-MenuWidth 85
-                [Console]::SetCursorPosition(0, [Console]::CursorTop)
+                Move-FinOpsCursorLine
                 for ($t = 0; $t -lt $tenants.Count; $t++) {
                     $tPrefix = if ($t -eq $tCursor) { '  > ' } else { '    ' }
                     $tColor = if ($t -eq $tCursor) { 'Green' } else { 'Gray' }
@@ -549,7 +564,7 @@ function Invoke-FinOpsMultitool {
 
                 # Move cursor back up to re-render
                 $tLinesToClear = $tenants.Count + 2
-                [Console]::SetCursorPosition(0, [math]::Max(0, [Console]::CursorTop - $tLinesToClear))
+                Move-FinOpsCursorLine -LinesUp $tLinesToClear
             }
             Write-Host ""
         }
@@ -621,7 +636,7 @@ function Invoke-FinOpsMultitool {
             $renderStart = $offset
             $renderEnd = [math]::Min($offset + $pageSize, $allSubs.Count) - 1
             $width = Get-MenuWidth 75
-            [Console]::SetCursorPosition(0, [Console]::CursorTop)
+            Move-FinOpsCursorLine
 
             for ($i = $renderStart; $i -le $renderEnd; $i++) {
                 $prefix = if ($i -eq $cursor) { '  > ' } else { '    ' }
@@ -656,7 +671,7 @@ function Invoke-FinOpsMultitool {
 
             # Move cursor back up to re-render
             $linesToClear = ($renderEnd - $renderStart + 1) + 2
-            [Console]::SetCursorPosition(0, [math]::Max(0, [Console]::CursorTop - $linesToClear))
+            Move-FinOpsCursorLine -LinesUp $linesToClear
         }
     }
 

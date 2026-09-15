@@ -284,6 +284,15 @@ function Get-BudgetHistory {
         }
     }
 
+    # History reports on a fixed window, so cached trend data is only usable when
+    # it covers that whole window. Cost Trend may hold fewer months than
+    # -MonthsBack asks for, and the uncovered months would otherwise be filled
+    # with zero spend and reported as being under budget.
+    $requiredMonths = [System.Collections.Generic.List[string]]::new()
+    for ($m = $MonthsBack; $m -ge 1; $m--) {
+        [void]$requiredMonths.Add((Get-Date).AddMonths(-$m).ToString('yyyy-MM'))
+    }
+
     # Group budgets by subscription to minimize API calls
     $bySubId = $Budgets | Group-Object SubscriptionId
 
@@ -292,12 +301,18 @@ function Get-BudgetHistory {
         $subName = $subGroup.Group[0].Subscription
 
         # Prefer reusing Cost Trend data (zero extra API calls). Fall back to a
-        # live per-sub Cost Management query only when trend data is missing.
+        # live per-sub Cost Management query when trend data is missing or does
+        # not reach as far back as this report does.
         $monthlyCosts = $null
         if ($trendBySub.ContainsKey($subId)) {
-            $monthlyCosts = $trendBySub[$subId]
+            $cached = $trendBySub[$subId]
+            $covered = $true
+            foreach ($rm in $requiredMonths) {
+                if (-not $cached.ContainsKey($rm)) { $covered = $false; break }
+            }
+            if ($covered) { $monthlyCosts = $cached }
         }
-        else {
+        if (-not $monthlyCosts) {
             # Query monthly costs for this sub over the last N months
             $startDate = (Get-Date).AddMonths(-$MonthsBack).ToString('yyyy-MM-01')
             $endDate = (Get-Date -Day 1).AddDays(-1).ToString('yyyy-MM-dd')  # Last day of previous month

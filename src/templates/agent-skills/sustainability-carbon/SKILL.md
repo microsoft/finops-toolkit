@@ -21,11 +21,14 @@ Use it when the user mentions carbon, emissions, sustainability, ESG, green/effi
 | Tool                                 | Provides                                                                                                                          |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
 | **carbon** (finops-multitool) | kgCO2e totals, month-over-month change, 12-month trend, and per-subscription breakdown. Start here in a multitool-driven session. |
-| **Emissions Impact Dashboard (EID)** | Scope 1/2/3 emissions for the Microsoft Cloud footprint, by service/subscription/time                                             |
-| **Azure carbon optimization**        | Per-resource emissions estimates and reduction recommendations in the portal                                                      |
-| **Cloud for Sustainability**         | Broader org-level sustainability data model                                                                                       |
+| **Azure carbon optimization** (preview) | Per-resource emissions estimates and reduction recommendations in the portal. This is the forward-looking source. |
+| **Emissions Impact Dashboard (EID)** | Scope 1/2/3 emissions for the Microsoft Cloud footprint, by service/subscription/time. The Power BI-hosted Azure dashboard retires March 31, 2027, so treat it as historical reporting and export anything you need to keep. |
+| **Microsoft Sustainability Manager**  | Broader org-level sustainability data model. Its EID for Azure connector is deprecated on the same date.                          |
 
-Reference: https://learn.microsoft.com/azure/carbon-optimization/
+References:
+
+- [Carbon optimization in Azure](https://learn.microsoft.com/azure/carbon-optimization/)
+- [Emissions Impact Dashboard retirement notice](https://learn.microsoft.com/power-bi/connect-data/service-connect-to-emissions-impact-dashboard)
 
 ## Cost and carbon overlap
 

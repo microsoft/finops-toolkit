@@ -90,4 +90,56 @@ Describe 'Budget coverage reporting' {
         $r.BudgetCoverage | Should -Be 50
         $r.Note | Should -BeNullOrEmpty
     }
+
+    Context 'Budget history month coverage' {
+
+        BeforeAll {
+            $script:HistBudget = @(
+                [PSCustomObject]@{
+                    SubscriptionId = $script:SubA
+                    Subscription   = 'Sub A'
+                    BudgetName     = 'monthly-budget'
+                    Amount         = 100
+                    TimeGrain      = 'Monthly'
+                }
+            )
+
+            $script:Trend2 = [PSCustomObject]@{
+                BySubscription = @{ $script:SubA = @(2, 1 | ForEach-Object {
+                            [PSCustomObject]@{ MonthDate = (Get-Date).AddMonths(-$_); Cost = 10 }
+                        })
+                }
+            }
+
+            $script:Trend6 = [PSCustomObject]@{
+                BySubscription = @{ $script:SubA = @(6, 5, 4, 3, 2, 1 | ForEach-Object {
+                            [PSCustomObject]@{ MonthDate = (Get-Date).AddMonths(-$_); Cost = 10 }
+                        })
+                }
+            }
+        }
+
+        It 'Queries live cost when cached trend is shorter than the requested window' {
+            Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+                [PSCustomObject]@{ StatusCode = 403; Content = '{}' }
+            }
+
+            $null = Get-BudgetHistory -Budgets $script:HistBudget -MonthsBack 6 -CostTrend $script:Trend2 -WarningAction SilentlyContinue
+
+            # Without the coverage check the four uncovered months would be
+            # reported as zero spend and therefore as being under budget.
+            Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 1 -Exactly
+        }
+
+        It 'Reuses cached trend when it covers the requested window' {
+            Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+                [PSCustomObject]@{ StatusCode = 403; Content = '{}' }
+            }
+
+            $rows = Get-BudgetHistory -Budgets $script:HistBudget -MonthsBack 6 -CostTrend $script:Trend6 -WarningAction SilentlyContinue
+
+            Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+            @($rows).Count | Should -Be 6
+        }
+    }
 }
