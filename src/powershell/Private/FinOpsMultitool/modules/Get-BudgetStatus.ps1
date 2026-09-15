@@ -35,6 +35,9 @@ function Get-BudgetStatus {
     $sampled = $false
     $scannedSubs = $subCount
     $coverageIncomplete = $false
+    # Subscriptions whose budget query never answered. Counting these as "no
+    # budget" would turn missing access into a confident coverage percentage.
+    $unreadableSubs = 0
 
     # -- For large tenants, sample first to see if budgets exist --------
     $subsToQuery = $Subscriptions
@@ -191,12 +194,12 @@ function Get-BudgetStatus {
                 }
             }
             else {
-                $subsWithoutBudget++
+                $unreadableSubs++
             }
         }
         catch {
             Write-Warning "  Budget query failed for $($sub.Name): $($_.Exception.Message)"
-            $subsWithoutBudget++
+            $unreadableSubs++
         }
     }
 
@@ -206,24 +209,35 @@ function Get-BudgetStatus {
     $overBudget = @($budgets | Where-Object { $_.Risk -eq 'Over Budget' }).Count
     $atRisk = @($budgets | Where-Object { $_.Risk -in @('Forecast Over', 'At Risk') }).Count
 
+    # Either an unqueried sample or an unreadable subscription leaves coverage
+    # unmeasured, so both suppress the percentage rather than rounding down.
+    if ($unreadableSubs -gt 0) { $coverageIncomplete = $true }
+    $readSubs = $scannedSubs - $unreadableSubs
+
+    $note = if ($sampled) {
+        "Sampled $scannedSubs of $subCount subscriptions and none had a budget. Budgets may still exist in the subscriptions that were not queried, so coverage is unverified."
+    }
+    elseif ($unreadableSubs -gt 0) {
+        "$unreadableSubs of $subCount subscriptions could not be queried for budgets, so coverage is unverified. They are not counted as being without a budget."
+    }
+    else { $null }
+
     return [PSCustomObject]@{
         Budgets            = @($budgets)
         TotalBudgets       = $budgets.Count
         SubsWithBudget     = $subsWithBudget
         SubsWithoutBudget  = $subsWithoutBudget
+        UnreadableSubs     = $unreadableSubs
         OverBudgetCount    = $overBudget
         AtRiskCount        = $atRisk
         HasData            = ($budgets.Count -gt 0)
         Sampled            = $sampled
-        ScannedSubs        = $scannedSubs
+        ScannedSubs        = $readSubs
         TotalSubs          = $subCount
         CoverageIncomplete = $coverageIncomplete
-        Note               = if ($coverageIncomplete) {
-            "Sampled $scannedSubs of $subCount subscriptions and none had a budget. Budgets may still exist in the subscriptions that were not queried, so coverage is unverified."
-        }
-        else { $null }
-        # Left null when incomplete: a percentage derived from a sample would be
-        # read as a measured coverage figure for the whole tenant.
+        Note               = $note
+        # Left null when incomplete: a percentage derived from a partial read
+        # would be taken as a measured figure for the whole tenant.
         BudgetCoverage     = if ($coverageIncomplete) { $null }
         elseif ($Subscriptions.Count -gt 0) {
             [math]::Round(($subsWithBudget / $Subscriptions.Count) * 100, 1)

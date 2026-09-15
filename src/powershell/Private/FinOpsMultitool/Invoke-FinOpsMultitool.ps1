@@ -1760,7 +1760,7 @@ function Invoke-FinOpsMultitool {
                     Write-Host "  |  " -ForegroundColor White -NoNewline
                     Write-Host "Over budget: $($data.OverBudgetCount)" -ForegroundColor $(if ($data.OverBudgetCount -gt 0) { 'Red' } else { 'Green' }) -NoNewline
                     if ($data.CoverageIncomplete) {
-                        Write-Host "  |  Coverage: unverified (sampled $($data.ScannedSubs) of $($data.TotalSubs) subs)" -ForegroundColor Yellow
+                        Write-Host "  |  Coverage: unverified (read $($data.ScannedSubs) of $($data.TotalSubs) subs)" -ForegroundColor Yellow
                     }
                     else {
                         Write-Host "  |  Coverage: $($data.BudgetCoverage)%" -ForegroundColor White
@@ -2349,8 +2349,8 @@ function Invoke-FinOpsMultitool {
                     }
                     elseif ($data.CoverageIncomplete) {
                         $guidanceItems = @(
-                            @{ Severity = 'Yellow'; Message = "No budgets found in a sample of $($data.ScannedSubs) of $($data.TotalSubs) subscriptions. Coverage across the rest is unverified." }
-                            @{ Severity = 'Yellow'; Message = "Re-run against a narrower subscription set to measure budget coverage exactly."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets' }
+                            @{ Severity = 'Yellow'; Message = "Budgets were read for $($data.ScannedSubs) of $($data.TotalSubs) subscriptions, so coverage across the rest is unverified." }
+                            @{ Severity = 'Yellow'; Message = "Re-run against a narrower subscription set, or resolve the access gap, to measure budget coverage exactly."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets' }
                         )
                     }
                     elseif ($bCoverage -lt 50) {
@@ -2948,7 +2948,7 @@ tr:hover td { background: var(--surface); }
                     }
                     'Get-BudgetStatus' {
                         $htmlCoverage = if ($data.CoverageIncomplete) {
-                            "unverified (sampled $($data.ScannedSubs) of $($data.TotalSubs) subs)"
+                            "unverified (read $($data.ScannedSubs) of $($data.TotalSubs) subs)"
                         }
                         else { "$($data.BudgetCoverage)%" }
                         [void]$htmlSb.Append("<p>Budgets: $($data.TotalBudgets) &nbsp;|&nbsp; At risk: $($data.AtRiskCount) &nbsp;|&nbsp; Over budget: $($data.OverBudgetCount) &nbsp;|&nbsp; Coverage: $htmlCoverage</p>")
