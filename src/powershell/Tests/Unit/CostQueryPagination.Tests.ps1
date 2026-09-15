@@ -61,6 +61,33 @@ Describe 'Cost Management query pagination' {
         @($parsed.properties.rows).Count | Should -Be 3
     }
 
+    Context 'Root-level nextLink' {
+        # The Consumption and benefit list APIs return nextLink at the root,
+        # while the Cost Management query API nests it under properties.
+        BeforeAll {
+            $script:RootLinkResponse = [PSCustomObject]@{
+                StatusCode = 200
+                Content    = (@{ value = @(1); nextLink = 'https://management.azure.com/next?page=2' } | ConvertTo-Json)
+            }
+        }
+
+        It 'Follows it when RootNextLink is requested' {
+            Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+                [PSCustomObject]@{ StatusCode = 200; Content = (@{ value = @(2) } | ConvertTo-Json) }
+            }
+
+            $pages = @(Get-CostQueryResponsePage -FirstResponse $script:RootLinkResponse -RootNextLink)
+
+            $pages.Count | Should -Be 2
+        }
+
+        It 'Ignores it by default so the query API behaviour is unchanged' {
+            $pages = @(Get-CostQueryResponsePage -FirstResponse $script:RootLinkResponse)
+
+            $pages.Count | Should -Be 1
+        }
+    }
+
     Context 'nextLink validation' {
         # nextLink is service-supplied. A relative or malformed value yields an
         # empty PathAndQuery rather than throwing, and a foreign host would be

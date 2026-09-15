@@ -64,7 +64,12 @@ function Get-CostQueryResponsePage {
         [string]$Context = 'cost query',
 
         [Parameter()]
-        [int]$MaxPages = 50
+        [int]$MaxPages = 50,
+
+        # The Cost Management query API nests nextLink under properties, while
+        # the Consumption and benefit list APIs return it at the root.
+        [Parameter()]
+        [switch]$RootNextLink
     )
 
     $pages = [System.Collections.Generic.List[object]]::new()
@@ -76,7 +81,10 @@ function Get-CostQueryResponsePage {
         $pageCount++
 
         $next = $null
-        try { $next = ($resp.Content | ConvertFrom-Json).properties.nextLink }
+        try {
+            $parsed = $resp.Content | ConvertFrom-Json
+            $next = if ($RootNextLink) { $parsed.nextLink } else { $parsed.properties.nextLink }
+        }
         catch { $next = $null }
         if ([string]::IsNullOrWhiteSpace($next)) { break }
 
