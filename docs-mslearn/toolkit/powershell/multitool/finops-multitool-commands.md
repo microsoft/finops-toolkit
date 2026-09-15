@@ -3,7 +3,7 @@ title: FinOps multitool commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 08/22/2026
+ms.date: 09/14/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -44,7 +44,9 @@ The multitool includes 30 scan modules across the following categories:
 - **AI and ML** – Azure AI workload spend.
 - **Sustainability** – Carbon emissions.
 
-Analysis scans are read-only. Most need Reader or Cost Management Reader access. Account scans also need Billing Reader, or Enterprise Administrator (reader) on an Enterprise Agreement. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
+Analysis scans are read-only. Most need Reader or Cost Management Reader access. Account scans also need Billing Reader, or Enterprise Administrator (reader) on an Enterprise Agreement. Commitment utilization reads reservation and savings plan usage at billing account or billing profile scope, so it needs that same billing access. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
+
+When a scan can't read every subscription you selected, it tells you instead of treating the gap as a result. Budget status reports coverage as unverified rather than a percentage.
 
 <br>
 
@@ -53,7 +55,7 @@ Analysis scans are read-only. Most need Reader or Cost Management Reader access.
 When a [FinOps hub](../../hubs/finops-hubs-overview.md) is present, cost scans read from the hub and choose the path automatically:
 
 - **Kusto database (recommended for large environments)** – When the hub has an Azure Data Explorer or Microsoft Fabric cluster, the multitool discovers it through Azure Resource Graph and pushes aggregation into the engine, returning only summarized results. This scales to large datasets without loading raw cost rows into PowerShell. To query a local hub on your own hardware, set the `FINOPS_HUB_KUSTO_URI` environment variable to a local Kusto endpoint (optionally set `FINOPS_HUB_KUSTO_DB`, which defaults to `Hub`).
-- **Storage reader (small-dataset fallback)** – When no Kusto cluster is reachable, the multitool reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets.
+- **Storage reader (small-dataset fallback)** – When no Kusto cluster is reachable, the multitool reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets. Reading Parquet exports installs a reader the first time you read one, using NuGet on Windows and .NET SDK 8 or later on macOS and Linux. If neither is available, the multitool reads the CSV exports instead and tells you why.
 
 If no hub is available, cost scans use the live Cost Management API.
 

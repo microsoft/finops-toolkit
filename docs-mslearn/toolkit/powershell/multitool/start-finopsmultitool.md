@@ -3,7 +3,7 @@ title: Start-FinOpsMultitool command
 description: Launch the FinOps multitool interactive terminal UI to scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 08/27/2026
+ms.date: 09/14/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -17,7 +17,7 @@ The **Start-FinOpsMultitool** command launches the FinOps multitool interactive 
 
 Results are rendered in the terminal. When you choose to export, the tool writes a CSV file per scan module, a `FinOpsReport.html` summary, and a `ScanSummary.txt` file. The scan modules are read-only.
 
-The command requires PowerShell 7 or later on Windows, macOS, and Linux. It requires the `Az.Accounts`, `Az.ResourceGraph`, and `Az.Storage` modules. Most scans need Reader or Cost Management Reader access on the target scope. Account scans (billing structure, contract info, and MACC commitment) also need Billing Reader, or Enterprise Administrator (reader) on an Enterprise Agreement. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
+The command requires PowerShell 7 or later on Windows, macOS, and Linux. It requires the `Az.Accounts`, `Az.ResourceGraph`, and `Az.Storage` modules. Most scans need Reader or Cost Management Reader access on the target scope. Account scans (billing structure, contract info, and MACC commitment) also need Billing Reader, or Enterprise Administrator (reader) on an Enterprise Agreement. Commitment utilization reads at billing account or billing profile scope, so it needs that same billing access. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
 
 The tool prompts for each choice by default. To run it from a pipeline or a scheduled job, use `-NonInteractive` and supply the choices as parameters.
 
@@ -103,6 +103,8 @@ Use `-NonInteractive` when nothing can answer a prompt, such as a build agent.
 ## FinOps hub data paths
 
 When a [FinOps hub](../../hubs/finops-hubs-overview.md) is present, choosing the **FinOps Hub** data source prefers the hub's Azure Data Explorer or Microsoft Fabric Kusto database. Aggregation is pushed into the engine and only summarized results are returned, so large hubs are never loaded into PowerShell. To query a local hub on your own hardware, set `FINOPS_HUB_KUSTO_URI` to a local Kusto endpoint. When no Kusto cluster is reachable, the multitool falls back to reading the hub storage export, which is intended for smaller datasets. For more information, see [FinOps multitool commands](finops-multitool-commands.md).
+
+Reading Parquet exports installs a reader the first time you read one, using NuGet on Windows and .NET SDK 8 or later on macOS and Linux. If neither is available, the multitool reads the CSV exports instead and tells you why.
 
 <br>
 

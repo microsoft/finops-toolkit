@@ -3,7 +3,7 @@ title: FinOps multitool overview
 description: FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from a terminal UI, with agent skills so AI assistants can run the same analysis.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 08/25/2026
+ms.date: 09/14/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -37,7 +37,11 @@ Instead of checking Azure Advisor, Cost Analysis, Resource Graph, and the budget
 
 ## Required permissions
 
-Most scans need [Reader](/azure/role-based-access-control/built-in-roles#reader) or [Cost Management Reader](/azure/role-based-access-control/built-in-roles#cost-management-reader) on the target scope. Account scans (billing structure, contract info, and Microsoft Azure Consumption Commitment balance) also need [Billing Reader](/azure/role-based-access-control/built-in-roles#billing-reader), or Enterprise Administrator (reader) on an Enterprise Agreement. The carbon scan needs Reader or [Carbon Optimization Reader](/azure/carbon-optimization/permissions) assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
+Most scans need [Reader](/azure/role-based-access-control/built-in-roles#reader) or [Cost Management Reader](/azure/role-based-access-control/built-in-roles#cost-management-reader) on the target scope. Account scans (billing structure, contract info, and Microsoft Azure Consumption Commitment balance) also need [Billing Reader](/azure/role-based-access-control/built-in-roles#billing-reader), or Enterprise Administrator (reader) on an Enterprise Agreement.
+
+Commitment utilization reads reservation and savings plan usage at billing account or billing profile scope, so it needs the same access as account scans. Reader on a subscription isn't enough. Without it, the scan tells you it couldn't reach a billing scope instead of showing zero commitments.
+
+The carbon scan needs Reader or [Carbon Optimization Reader](/azure/carbon-optimization/permissions) assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
 
 ## Give feedback
 
