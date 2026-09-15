@@ -46,7 +46,10 @@ function Get-AhbVmRates {
 
     $result = $null
     try {
-        $filter = "armRegionName eq '$Region' and armSkuName eq '$VmSize' and priceType eq 'Consumption' and serviceName eq 'Virtual Machines'"
+        # OData escapes a single quote by doubling it.
+        $safeRegion = $Region.Replace("'", "''")
+        $safeSize = $VmSize.Replace("'", "''")
+        $filter = "armRegionName eq '$safeRegion' and armSkuName eq '$safeSize' and priceType eq 'Consumption' and serviceName eq 'Virtual Machines'"
         $url = "https://prices.azure.com/api/retail/prices?`$filter=$([uri]::EscapeDataString($filter))"
         $resp = Invoke-RestMethod -Uri $url -Method GET -TimeoutSec 20
         $items = @($resp.Items) | Where-Object {

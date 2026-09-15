@@ -125,7 +125,7 @@ function Get-TelemetryWeighting {
 
     $dimName = if ($DimensionName) { $DimensionName } elseif ($def) { $def.DefaultDimension } else { '' }
     $kql = if ($Query) { $Query } else { $def.Query }
-    $kql = $kql.Replace('{lb}', "$lb").Replace('{dim}', $dimName)
+    $kql = $kql.Replace('{lb}', "$lb").Replace('{dim}', (ConvertTo-KqlLiteral $dimName))
 
     $consumerDim = if ($def) { $def.ConsumerDimension } else { 'Custom' }
     $source = if ($def) { $def.Source } else { 'Custom query (Log Analytics)' }

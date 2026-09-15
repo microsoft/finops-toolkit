@@ -247,6 +247,18 @@ function Get-GuidFromString {
     if ($m.Success) { return $m.Value } else { return $null }
 }
 
+# Export amounts are always invariant-culture. Parsing them under the operator's
+# culture reads "123.45" as 12345 wherever '.' is the thousands separator.
+function ConvertTo-ExportAmount {
+    param([string]$Value)
+    $parsed = 0.0
+    $styles = [System.Globalization.NumberStyles]::Float -bor [System.Globalization.NumberStyles]::AllowThousands
+    if ([double]::TryParse($Value, $styles, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$parsed)) {
+        return $parsed
+    }
+    return 0.0
+}
+
 # -- Canonical export column resolver -------------------------------------
 # Cost Management exports vary in schema (classic ActualCost vs FOCUS). Map
 # the columns we need to whatever synonym the export actually used.
@@ -661,7 +673,7 @@ function ConvertTo-CostDataFromExport {
         $g = Get-GuidFromString -Value $rawSub
         if (-not $g) { continue }
         $key = if ($guidToKey.ContainsKey($g.ToLower())) { $guidToKey[$g.ToLower()] } else { $g }
-        $cost = 0.0; [double]::TryParse("$($r.$($cm.Cost))", [ref]$cost) | Out-Null
+        $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
         if (-not $costMap.ContainsKey($key)) {
             $costMap[$key] = @{ Actual = 0; Forecast = 0; Currency = $ExportData.Currency }
         }
@@ -697,7 +709,7 @@ function ConvertTo-ResourceCostsFromExport {
     foreach ($r in $ExportData.Rows) {
         $rid = if ($cm.ResourceId) { "$($r.$($cm.ResourceId))".Trim() } else { '' }
         if (-not $rid) { continue }
-        $cost = 0.0; [double]::TryParse("$($r.$($cm.Cost))", [ref]$cost) | Out-Null
+        $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
         $key = $rid.ToLower()
         if (-not $agg.ContainsKey($key)) {
             $subId = ''
@@ -757,7 +769,7 @@ function ConvertTo-CostByTagFromExport {
     foreach ($r in $ExportData.Rows) {
         $raw = "$($r.$($cm.Tags))"
         if ([string]::IsNullOrWhiteSpace($raw)) { continue }
-        $cost = 0.0; [double]::TryParse("$($r.$($cm.Cost))", [ref]$cost) | Out-Null
+        $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
         if ($cost -eq 0) { continue }
         $tags = ConvertFrom-ExportTagString -Raw $raw
         foreach ($tk in $tags.Keys) {
@@ -806,7 +818,7 @@ function ConvertTo-CostTrendFromExport {
     foreach ($r in $ExportData.Rows) {
         $dt = $null
         try { $dt = [datetime]"$($r.$($cm.Date))" } catch { continue }
-        $cost = 0.0; [double]::TryParse("$($r.$($cm.Cost))", [ref]$cost) | Out-Null
+        $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
         $firstOfMo = Get-Date -Year $dt.Year -Month $dt.Month -Day 1 -Hour 0 -Minute 0 -Second 0
         $key = $dt.ToString('yyyy-MM')
 

@@ -39,7 +39,9 @@ function Get-VmSizeCapability {
     if (-not $Cache.ContainsKey($Location)) {
         $map = @{}
         try {
-            $next = "/subscriptions/$SubId/providers/Microsoft.Compute/skus?api-version=2021-07-01&`$filter=location eq '$Location'"
+            # OData escapes a single quote by doubling it.
+            $safeLocation = $Location.Replace("'", "''")
+            $next = "/subscriptions/$SubId/providers/Microsoft.Compute/skus?api-version=2021-07-01&`$filter=location eq '$safeLocation'"
             $pages = 0
             while ($next -and $pages -lt 6) {
                 $resp = Invoke-AzRestMethodWithRetry -Path $next -Method GET

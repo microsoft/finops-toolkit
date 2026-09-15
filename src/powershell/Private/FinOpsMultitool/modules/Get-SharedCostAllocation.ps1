@@ -255,6 +255,42 @@ function Get-AllocationCostMaps {
     }
 }
 
+# Whole percentages that sum to exactly 100.00; the rounding residual lands on
+# the largest share so the set stays paste-ready for an allocation rule.
+function ConvertTo-AllocationPercentage {
+    param([object[]]$Targets)
+
+    $raw = @(foreach ($t in $Targets) {
+            if (-not $t.subscriptionId) { continue }
+            [PSCustomObject]@{ Name = [string]$t.subscriptionId; Value = [double]$t.allocatedShared }
+        })
+
+    if ($raw.Count -eq 0) {
+        return @{ Ok = $false; Error = 'No usable targets: each one needs subscriptionId and allocatedShared.'; Values = @() }
+    }
+
+    $sum = ($raw | Measure-Object -Property Value -Sum).Sum
+    if ($sum -le 0) {
+        return @{ Ok = $false; Error = ('Allocated shares sum to {0}; cannot build percentages.' -f $sum); Values = @() }
+    }
+
+    $scaled = @(foreach ($r in $raw) {
+            [PSCustomObject]@{ Name = $r.Name; Percentage = [math]::Round(($r.Value / $sum) * 100, 2) }
+        })
+
+    $residual = [math]::Round(100 - ($scaled | Measure-Object -Property Percentage -Sum).Sum, 2)
+    if ($residual -ne 0) {
+        $top = $scaled | Sort-Object -Property Percentage -Descending | Select-Object -First 1
+        $top.Percentage = [math]::Round($top.Percentage + $residual, 2)
+    }
+
+    return @{
+        Ok     = $true
+        Error  = $null
+        Values = @($scaled | ForEach-Object { @{ name = $_.Name; percentage = $_.Percentage } })
+    }
+}
+
 # -- Main: allocate shared cost across spokes ------------------------------
 function Get-SharedCostAllocation {
     [CmdletBinding()]
@@ -399,7 +435,7 @@ function Get-SharedCostAllocation {
     $ruleTargets = @()
     if ($poolTotal -gt 0 -and @($allocations).Count -gt 0) {
         $rtInput = @($allocations | ForEach-Object { @{ subscriptionId = $_.Spoke; allocatedShared = $_.AllocatedShared } })
-        $rt = ConvertTo-AllocationPercentages -Targets $rtInput -TargetDimension 'SubscriptionId'
+        $rt = ConvertTo-AllocationPercentage -Targets $rtInput
         if ($rt.Ok) {
             $ruleTargets = @($rt.Values | ForEach-Object { [PSCustomObject]@{ subscriptionId = $_.name; percentage = $_.percentage } })
             $notes += 'RuleTargets is ready to paste straight into set_cost_allocation_rule (targets); percentages already sum to 100.'
