@@ -137,6 +137,22 @@ Describe 'Agent plugin components' {
         $docs.Count | Should -BeGreaterThan 0
         $docs.Extension | Select-Object -Unique | Should -Be @('.md')
     }
+
+    It 'Materializes linked agent skills into real directories' {
+        $bundle = Join-Path $TestDrive 'agent-plugin-skills'
+        $skills = Join-Path $bundle 'skills'
+        New-Item $skills -ItemType Directory -Force | Out-Null
+
+        # Mirrors how git checks the link out where core.symlinks is disabled:
+        # a plain file holding the relative target rather than a directory.
+        Set-Content -LiteralPath (Join-Path $skills 'cost-allocation') -Value '../../agent-skills/cost-allocation' -NoNewline
+
+        & (Join-Path $script:RepoRoot 'src/scripts/Build-AgentPlugin.ps1') -DestDir $bundle
+
+        $materialized = Join-Path $skills 'cost-allocation'
+        (Get-Item $materialized).PSIsContainer | Should -BeTrue
+        Join-Path $materialized 'SKILL.md' | Should -Exist
+    }
 }
 
 Describe 'Deprecated azure-cost-management skill' {
