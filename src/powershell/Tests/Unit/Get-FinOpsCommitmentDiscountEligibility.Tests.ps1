@@ -59,6 +59,17 @@ InModuleScope 'FinOpsToolkit' {
                 $expected.Count | Should -BeGreaterThan 0
                 $actual.Count | Should -Be $expected.Count
             }
+            It 'Should return all rows when SpendEligibility or UsageEligibility is explicitly $null' {
+                # Arrange
+                $expected = $allRows
+
+                # Act
+                $actual = Get-FinOpsCommitmentDiscountEligibility -SpendEligibility $null -UsageEligibility $null
+
+                # Assert
+                $expected.Count | Should -BeGreaterThan 0
+                $actual.Count | Should -Be $expected.Count
+            }
         }
     }
 }

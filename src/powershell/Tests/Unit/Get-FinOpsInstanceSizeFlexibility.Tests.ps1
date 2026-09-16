@@ -6,8 +6,8 @@
 InModuleScope 'FinOpsToolkit' {
     Describe 'Get-FinOpsInstanceSizeFlexibility' {
         BeforeAll {
-            $allRows = Get-OpenDataInstanceSizeFlexibility `
-            | Select-Object -Property * -Unique
+            # ArmSkuName is already unique per row in the source data, so no de-duplication is needed here.
+            $allRows = Get-OpenDataInstanceSizeFlexibility
         }
         Context "No parameters" {
             It 'Should return all rows by default' {

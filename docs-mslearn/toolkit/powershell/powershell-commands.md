@@ -72,7 +72,7 @@ The FinOps toolkit PowerShell module includes commands to manage FinOps solution
 
 - [Get-FinOpsCommitmentDiscountEligibility](data/Get-FinOpsCommitmentDiscountEligibility.md) – Gets commitment discount eligibility for a meter.
 - [Get-FinOpsInstanceSizeFlexibility](data/Get-FinOpsInstanceSizeFlexibility.md) – Gets the instance size flexibility group and ratio for an ARM SKU.
-- [Get-FinOpsPricingUnit](data/Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
+- [Get-FinOpsPricingUnit](data/Get-FinOpsPricingUnit.md) – Gets a pricing unit with its corresponding distinct unit and block size.
 - [Get-FinOpsRegion](data/Get-FinOpsRegion.md) – Gets an Azure region ID and name.
 - [Get-FinOpsResourceType](data/Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
 - [Get-FinOpsService](data/Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.

@@ -318,6 +318,8 @@ Official Microsoft documentation for FinOps and the FinOps toolkit. Source: [lea
 | File | Description |
 |------|-------------|
 | [open-data-commands.md](references/docs-mslearn/toolkit/powershell/data/open-data-commands.md) | Open data commands overview |
+| [get-finopscommitmentdiscounteligibility.md](references/docs-mslearn/toolkit/powershell/data/get-finopscommitmentdiscounteligibility.md) | Get-FinOpsCommitmentDiscountEligibility |
+| [get-finopsinstancesizeflexibility.md](references/docs-mslearn/toolkit/powershell/data/get-finopsinstancesizeflexibility.md) | Get-FinOpsInstanceSizeFlexibility |
 | [get-finopspricingunit.md](references/docs-mslearn/toolkit/powershell/data/get-finopspricingunit.md) | Get-FinOpsPricingUnit |
 | [get-finopsregion.md](references/docs-mslearn/toolkit/powershell/data/get-finopsregion.md) | Get-FinOpsRegion |
 | [get-finopsresourcetype.md](references/docs-mslearn/toolkit/powershell/data/get-finopsresourcetype.md) | Get-FinOpsResourceType |

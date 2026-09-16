@@ -21,7 +21,7 @@ The FinOps toolkit open data PowerShell commands help you integrate datasets int
 
 - [Get-FinOpsCommitmentDiscountEligibility](Get-FinOpsCommitmentDiscountEligibility.md) – Gets commitment discount eligibility for a meter.
 - [Get-FinOpsInstanceSizeFlexibility](Get-FinOpsInstanceSizeFlexibility.md) – Gets the instance size flexibility group and ratio for an ARM SKU.
-- [Get-FinOpsPricingUnit](Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
+- [Get-FinOpsPricingUnit](Get-FinOpsPricingUnit.md) – Gets a pricing unit with its corresponding distinct unit and block size.
 - [Get-FinOpsRegion](Get-FinOpsRegion.md) – Gets an Azure region ID and name.
 - [Get-FinOpsResourceType](Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
 - [Get-FinOpsService](Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
