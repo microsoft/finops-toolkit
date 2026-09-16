@@ -153,6 +153,10 @@ function Get-CommitmentUtilization {
     $reservations += @($latestReservation.Values)
 
     # -- Step 2: Try the Reservation Orders API at billing scope --
+    # This endpoint is tenant-wide and cannot be filtered to the requested
+    # subscriptions, so anything it returns is flagged as unscoped rather than
+    # presented as belonging to the scan scope.
+    $unscopedFallback = $false
     if ($reservations.Count -eq 0) {
         try {
             $roPath = "/providers/Microsoft.Capacity/reservationOrders?api-version=2022-11-01"
@@ -201,6 +205,12 @@ function Get-CommitmentUtilization {
         } catch {
             if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
             Write-Warning "  Reservation orders query failed: $($_.Exception.Message)"
+        }
+        # This block only runs when the scoped queries returned nothing, so
+        # anything present now came from the tenant-wide endpoint.
+        if ($reservations.Count -gt 0) {
+            $unscopedFallback = $true
+            Write-Warning "  Commitments were read from every reservation order this account can see; they are not limited to the scanned subscriptions."
         }
     }
 
@@ -301,7 +311,13 @@ function Get-CommitmentUtilization {
         HasData           = ($riCount -gt 0 -or $spCount -gt 0)
         AccessDenied      = $denied
         ScopesQueried     = @($commitmentScopes).Count
-        Note              = $note
+        # True when the figures came from the tenant-wide reservation order
+        # endpoint, which cannot be filtered to the scanned subscriptions.
+        UnscopedFallback  = $unscopedFallback
+        Note              = if ($unscopedFallback) {
+            'No commitments were readable at the resolved billing scopes, so these figures come from every reservation order this account can see and are not limited to the scanned subscriptions.'
+        }
+        else { $note }
         # Reservations excluded because their utilization could not be read.
         UtilizationFailures = $utilFailures.Count
         UtilizationFailureDetail = @($utilFailures)

@@ -216,20 +216,27 @@ function Get-StorageContainerList {
 # Newer Cost Management exports can write '.csv.gz' parts. Invoke-RestMethod
 # hands these back as bytes (or a mojibake string); gunzip into UTF-8 text.
 function Expand-GzipText {
-    param($Content)
+    param($Content, [long]$MaxBytes = 512MB)
     $inStream = $null; $gzip = $null; $outStream = $null
     try {
         $bytes = if ($Content -is [byte[]]) { $Content }
         elseif ($Content -is [string]) { [System.Text.Encoding]::GetEncoding('ISO-8859-1').GetBytes($Content) }
         elseif ($Content -is [System.Collections.IEnumerable]) { [byte[]]@($Content) }
         else { return $null }
-        # CopyTo a buffer (rather than StreamReader.ReadToEnd) because the
-        # latter can return empty on large GZipStreams, and CopyTo also reads
-        # all members of a concatenated/multi-member gzip.
+        # Read in bounded chunks (rather than StreamReader.ReadToEnd) because the
+        # latter can return empty on large GZipStreams, and this also reads all
+        # members of a concatenated/multi-member gzip. The ceiling stops a
+        # highly compressed blob in the container from exhausting memory.
         $inStream = New-Object System.IO.MemoryStream(, $bytes)
         $gzip = New-Object System.IO.Compression.GZipStream($inStream, [System.IO.Compression.CompressionMode]::Decompress)
         $outStream = New-Object System.IO.MemoryStream
-        $gzip.CopyTo($outStream)
+        $buffer = [byte[]]::new(81920)
+        while (($read = $gzip.Read($buffer, 0, $buffer.Length)) -gt 0) {
+            if (($outStream.Length + $read) -gt $MaxBytes) {
+                throw "Decompressed export part exceeded the $MaxBytes byte ceiling."
+            }
+            $outStream.Write($buffer, 0, $read)
+        }
         $outBytes = $outStream.ToArray()
         return [System.Text.Encoding]::UTF8.GetString($outBytes)
     }

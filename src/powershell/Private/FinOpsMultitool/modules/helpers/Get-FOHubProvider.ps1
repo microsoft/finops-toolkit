@@ -75,11 +75,22 @@ function Get-FOHubWindowClause {
 
 function Get-FOHubScopeClause {
     # Restrict to specific subscriptions (FOCUS SubAccountId is
-    # /subscriptions/{guid}). Only valid GUIDs are injected (no KQL injection).
+    # /subscriptions/{guid}). Parsing every id keeps the interpolation to hex
+    # and hyphens, and an unparseable one fails rather than dropping the filter
+    # and silently returning every subscription in the hub.
     param([string[]]$SubscriptionIds)
-    $guids = @($SubscriptionIds | Where-Object { $_ -match '^[0-9a-fA-F-]{36}$' } | ForEach-Object { $_.ToLower() })
-    if ($guids.Count -eq 0) { return '' }
-    $arr = ($guids | ForEach-Object { '"' + $_ + '"' }) -join ', '
+
+    if (-not $SubscriptionIds -or @($SubscriptionIds).Count -eq 0) { return '' }
+
+    $guids = foreach ($id in $SubscriptionIds) {
+        $parsed = [guid]::Empty
+        if (-not [guid]::TryParse($id, [ref]$parsed)) {
+            throw "'$id' is not a subscription GUID. Refusing to drop the scope filter."
+        }
+        $parsed.ToString()
+    }
+
+    $arr = (@($guids) | ForEach-Object { '"' + $_ + '"' }) -join ', '
     return "| where SubAccountId has_any (dynamic([$arr]))"
 }
 

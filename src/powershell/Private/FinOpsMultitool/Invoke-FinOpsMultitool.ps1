@@ -1288,20 +1288,32 @@ function Invoke-FinOpsMultitool {
         }
     }
 
+    # A cell opening with =, +, -, @, tab, or CR is treated as a formula by
+    # spreadsheet apps, and resource names, tags, and policy display names are
+    # all controlled by whoever created the resource.
+    function Protect-FinOpsExportText {
+        param([string]$Text)
+        if ($Text -match '^[=+\-@\t\r]') { return "'" + $Text }
+        return $Text
+    }
+
     # CSV cells must be scalars. Anything else lands as "System.Collections.Hashtable"
     # or "System.Object[]" in the file.
     function ConvertTo-FinOpsExportCell {
         param($Value)
 
         if ($null -eq $Value) { return '' }
-        if ($Value -is [string] -or $Value -is [ValueType]) { return $Value }
+        # Numbers, booleans, and dates carry no formula risk, and prefixing one
+        # would stop a negative cost being read as a number.
+        if ($Value -is [ValueType]) { return $Value }
+        if ($Value -is [string]) { return Protect-FinOpsExportText $Value }
         if ($Value -is [System.Collections.IDictionary]) {
-            return (($Value.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join '; ')
+            return Protect-FinOpsExportText ((($Value.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join '; '))
         }
         if ($Value -is [System.Collections.IEnumerable]) {
-            return ((@($Value) | ForEach-Object { [string]$_ }) -join '; ')
+            return Protect-FinOpsExportText (((@($Value) | ForEach-Object { [string]$_ }) -join '; '))
         }
-        return [string]$Value
+        return Protect-FinOpsExportText ([string]$Value)
     }
 
     # Scan results are wrapper objects whose payload is a nested collection or a

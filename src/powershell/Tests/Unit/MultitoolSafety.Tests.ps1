@@ -139,4 +139,53 @@ Describe 'FinOps Multitool safety' {
             $escaped | Should -BeExactly "abc\\\' or 1==1 //"
         }
     }
+
+    Context 'Hub subscription scope clause' {
+
+        It 'Returns no clause only when no subscription was requested' {
+            Get-FOHubScopeClause -SubscriptionIds @() | Should -BeNullOrEmpty
+        }
+
+        It 'Scopes the query to the requested subscriptions' {
+            $clause = Get-FOHubScopeClause -SubscriptionIds @('00000000-0000-0000-0000-00000000000a')
+            $clause | Should -Match 'SubAccountId has_any'
+            $clause | Should -Match '00000000-0000-0000-0000-00000000000a'
+        }
+
+        It 'Fails rather than dropping the filter for an unparseable id' {
+            # The old character-class check passed 36 hyphens, then an empty
+            # clause returned every subscription in the hub.
+            { Get-FOHubScopeClause -SubscriptionIds @('------------------------------------') } |
+            Should -Throw -ExpectedMessage '*not a subscription GUID*'
+            { Get-FOHubScopeClause -SubscriptionIds @('/subscriptions/00000000-0000-0000-0000-00000000000a') } |
+            Should -Throw
+        }
+    }
+
+    Context 'Gzip expansion is bounded' {
+
+        It 'Round-trips content that fits the budget' {
+            $text = 'hello world'
+            $raw = [System.Text.Encoding]::UTF8.GetBytes($text)
+            $ms = [System.IO.MemoryStream]::new()
+            $gz = [System.IO.Compression.GZipStream]::new($ms, [System.IO.Compression.CompressionMode]::Compress)
+            $gz.Write($raw, 0, $raw.Length)
+            $gz.Dispose()
+
+            Expand-GzipText -Content $ms.ToArray() | Should -Be $text
+        }
+
+        It 'Refuses to expand past the byte ceiling' {
+            # Highly compressible input stands in for a hostile blob in the
+            # export container.
+            $raw = [byte[]]::new(1MB)
+            $ms = [System.IO.MemoryStream]::new()
+            $gz = [System.IO.Compression.GZipStream]::new($ms, [System.IO.Compression.CompressionMode]::Compress)
+            $gz.Write($raw, 0, $raw.Length)
+            $gz.Dispose()
+
+            Expand-GzipText -Content $ms.ToArray() -MaxBytes 1024 -WarningAction SilentlyContinue |
+            Should -BeNullOrEmpty
+        }
+    }
 }
