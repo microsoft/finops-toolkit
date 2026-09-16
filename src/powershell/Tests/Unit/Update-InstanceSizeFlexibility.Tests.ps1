@@ -365,6 +365,62 @@ Describe 'Update-InstanceSizeFlexibility' {
         }
     }
 
+    Context 'Sort order' {
+        # Culture-aware collation interleaves case and orders "Dasv4 Series" before
+        # "DCadsv5-series DedicatedHost"; an ordinal comparison puts the uppercase letter first.
+        # Sorting with the current culture makes the same records reorder between hosts, turning
+        # a no-op regeneration into a few hundred lines of diff that bury any real change.
+        It 'Orders flexibility groups ordinally rather than by the current culture' {
+            Mock Invoke-AzRestMethod {
+                New-CatalogResponse -Items @(
+                    (New-CatalogItem -Sku 'Standard_D2as_v4' -Group 'Dasv4 Series' -Ratio '1'),
+                    (New-CatalogItem -Sku 'dcadsv5 type 1' -Group 'DCadsv5-series DedicatedHost' -Ratio '1')
+                )
+            }
+
+            Invoke-Generator $baseParams
+
+            @(Import-Csv $outFile).InstanceSizeFlexibilityGroup |
+                Should -Be @('DCadsv5-series DedicatedHost', 'Dasv4 Series')
+        }
+
+        It 'Orders SKUs within a group ordinally' {
+            Mock Invoke-AzRestMethod {
+                New-CatalogResponse -Items @(
+                    (New-CatalogItem -Sku 'Standard_Dadsv5' -Group 'Dadsv5 Series' -Ratio '1'),
+                    (New-CatalogItem -Sku 'Standard_DC2ads_v5' -Group 'Dadsv5 Series' -Ratio '1')
+                )
+            }
+
+            Invoke-Generator $baseParams
+
+            @(Import-Csv $outFile).ArmSkuName | Should -Be @('Standard_DC2ads_v5', 'Standard_Dadsv5')
+        }
+
+        It 'Orders identically under a culture with different collation rules' {
+            $originalCulture = [System.Threading.Thread]::CurrentThread.CurrentCulture
+            try
+            {
+                [System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::new('de-DE')
+                Mock Invoke-AzRestMethod {
+                    New-CatalogResponse -Items @(
+                        (New-CatalogItem -Sku 'Standard_D2as_v4' -Group 'Dasv4 Series' -Ratio '1'),
+                        (New-CatalogItem -Sku 'dcadsv5 type 1' -Group 'DCadsv5-series DedicatedHost' -Ratio '1')
+                    )
+                }
+
+                Invoke-Generator $baseParams
+
+                @(Import-Csv $outFile).InstanceSizeFlexibilityGroup |
+                    Should -Be @('DCadsv5-series DedicatedHost', 'Dasv4 Series')
+            }
+            finally
+            {
+                [System.Threading.Thread]::CurrentThread.CurrentCulture = $originalCulture
+            }
+        }
+    }
+
     Context 'Published dataset' {
         It 'Has globally unique ArmSkuName values' {
             $csv = Import-Csv "$PSScriptRoot/../../../open-data/InstanceSizeFlexibility.csv"
@@ -386,6 +442,21 @@ Describe 'Update-InstanceSizeFlexibility' {
             # Consumers multiply and divide by Ratio, so a non-positive value is unusable.
             $csv = Import-Csv "$PSScriptRoot/../../../open-data/InstanceSizeFlexibility.csv"
             @($csv | Where-Object { [double]$_.Ratio -le 0 }).ArmSkuName | Should -BeNullOrEmpty
+        }
+
+        It 'Is written in ordinal sort order' {
+            # Catches a file regenerated on a host whose culture collates differently, which
+            # reorders hundreds of rows without changing a single value.
+            $csv = @(Import-Csv "$PSScriptRoot/../../../open-data/InstanceSizeFlexibility.csv")
+            $sorted = [Collections.Generic.List[object]]::new([object[]]$csv)
+            $sorted.Sort([Comparison[object]] {
+                    param($x, $y)
+                    $byGroup = [string]::CompareOrdinal($x.InstanceSizeFlexibilityGroup, $y.InstanceSizeFlexibilityGroup)
+                    if ($byGroup -ne 0) { return $byGroup }
+                    [string]::CompareOrdinal($x.ArmSkuName, $y.ArmSkuName)
+                })
+
+            ($sorted.ArmSkuName -join "`n") | Should -BeExactly ($csv.ArmSkuName -join "`n")
         }
 
         It 'Has the documented three-column schema' {
