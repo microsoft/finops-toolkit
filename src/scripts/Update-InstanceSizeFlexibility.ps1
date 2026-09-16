@@ -31,8 +31,17 @@
 
     .PARAMETER Location
     One or more Azure regions to query and union ISF ratios from. ISF group/ratio relationships
-    are region-stable, but not every SKU is available in every region, so the default unions a
-    broad region set to maximize SKU coverage.
+    are region-stable, but not every SKU is available in every region, so the results are unioned
+    across regions to maximize SKU coverage.
+
+    Defaults to every physical region the subscription's cloud exposes, enumerated from the ARM
+    locations API. A hardcoded list has to be hand-maintained as Azure adds regions, and new GPU
+    and specialty SKUs routinely launch in a handful of regions first, so any SKU that lands
+    outside the list is missing from the dataset until someone notices. Pass an explicit list to
+    narrow the sweep (tests do).
+
+    .PARAMETER LocationApiVersion
+    ARM locations API version, used only when -Location is not supplied. Default = 2022-12-01.
 
     .PARAMETER ReservedResourceType
     One or more reserved resource types to extract ISF ratios for. Default is VirtualMachines,
@@ -45,11 +54,21 @@
     .PARAMETER ApiVersion
     Catalogs API version. Default = 2022-03-01.
 
-    .PARAMETER Normalize
-    Normalize ratios so the smallest SKU in each flexibility group has a ratio of 1. The raw API
-    ratios don't always start at 1 (e.g. BS Series starts at 0.25). When omitted, the raw Microsoft
-    ratios are kept for drop-in parity with the deprecated isfratioblob.csv /
-    AutofitComboMeterData.csv files that downstream tools (Power BI, Optimization Engine) expect.
+    .PARAMETER Raw
+    Publish the Catalogs API ratios verbatim instead of normalizing them.
+
+    By default each flexibility group is normalized so its smallest SKU has a ratio of 1. The API
+    leaves ratios unnormalized -- only 52 of 211 groups start at 1, and Microsoft's own
+    documentation calls this out (BS Series starts at 0.25, Ddsv5 Series at 2) and publishes a
+    normalization step alongside it. Both forms carry identical proportions within a group and
+    differ by a per-group constant.
+
+    Normalized is the form the retired isfratioblob.csv published and the form downstream tools
+    assume: the Optimization Engine converts quantities into units of a group's smallest SKU, and
+    a ratio scale that doesn't start at 1 silently inflates those absolute figures. Ratios are only
+    ever meaningful within their group, so normalizing loses nothing.
+
+    See https://learn.microsoft.com/azure/cost-management-billing/reservations/instance-size-flexibility#normalize-isf-ratios
 
     .EXAMPLE
     ./Update-InstanceSizeFlexibility.ps1
@@ -64,14 +83,8 @@ param(
 
     [string]$SubscriptionId,
 
-    # ISF group/ratio relationships are region-stable, but SKU availability is not, so a broad
-    # region set is unioned to maximize coverage.
-    [string[]]$Location = @(
-        'eastus', 'eastus2', 'westus', 'westus2', 'westus3', 'centralus', 'southcentralus', 'northcentralus',
-        'westeurope', 'northeurope', 'uksouth', 'francecentral', 'germanywestcentral', 'swedencentral', 'norwayeast',
-        'southeastasia', 'eastasia', 'japaneast', 'japanwest', 'australiaeast', 'koreacentral', 'centralindia',
-        'canadacentral', 'brazilsouth', 'southafricanorth', 'uaenorth'
-    ),
+    # Defaults to every physical region the subscription's cloud exposes -- see the parameter help.
+    [string[]]$Location,
 
     # The reserved resource types that expose usable ISF ratios (ReservationsAutofitGroup/Ratio).
     # BlockBlob is excluded by default -- see the parameter help above.
@@ -79,10 +92,70 @@ param(
 
     [string]$ApiVersion = '2022-03-01',
 
-    [switch]$Normalize
+    [string]$LocationApiVersion = '2022-12-01',
+
+    [switch]$Raw
 )
 
 $ErrorActionPreference = 'Stop'
+
+function Invoke-ArmRequest
+{
+    <#
+        .SYNOPSIS
+        Issues a GET against ARM, retrying transient failures with exponential backoff.
+
+        .DESCRIPTION
+        Retries network exceptions and 429/5xx responses; non-retryable 4xx throws immediately.
+        Every ARM call in this script goes through here -- a single transient failure on any one
+        of them fails the whole weekly refresh, and the next scheduled attempt is a week away.
+
+        .PARAMETER Description
+        What the call is doing, used verbatim in error and progress messages, e.g. 'enumerating
+        regions' or 'on VirtualMachines/eastus page 3'.
+    #>
+    param(
+        [string]$Uri,
+        [string]$Description,
+        [int]$MaxRetries = 5
+    )
+
+    $retries = 0
+
+    while ($true)
+    {
+        try
+        {
+            $response = Invoke-AzRestMethod -Uri $Uri -Method GET
+        }
+        catch
+        {
+            $retries++
+            if ($retries -gt $MaxRetries) { throw "Failed after $MaxRetries retries $Description`: $_" }
+            $wait = [Math]::Pow(2, $retries) * 5
+            Write-Host "  Error $Description, retrying in ${wait}s (attempt $retries/$MaxRetries)"
+            Start-Sleep -Seconds $wait
+            continue
+        }
+
+        if ($response.StatusCode -eq 429 -or $response.StatusCode -ge 500)
+        {
+            $retries++
+            if ($retries -gt $MaxRetries) { throw "Failed after $MaxRetries retries $Description (HTTP $($response.StatusCode))" }
+            $wait = [Math]::Pow(2, $retries) * 5
+            Write-Host "  HTTP $($response.StatusCode) $Description, retrying in ${wait}s (attempt $retries/$MaxRetries)"
+            Start-Sleep -Seconds $wait
+            continue
+        }
+
+        if ($response.StatusCode -ge 400)
+        {
+            throw "HTTP $($response.StatusCode) $Description`: $($response.Content)"
+        }
+
+        return $response
+    }
+}
 
 # -----------------------------------------------------------------------
 # Step 0: Validate the Azure context (the Catalogs API is authenticated)
@@ -101,6 +174,31 @@ if (-not $SubscriptionId)
 {
     throw "No subscription found in the current Azure context. Pass -SubscriptionId or run Set-AzContext."
 }
+if (-not $Location)
+{
+    # Physical regions only: the response also carries logical groupings ('global', 'unitedstates',
+    # 'europe', 'asiapacific'), which are not valid catalog scopes -- 46 of the 109 entries at the
+    # time of writing. Note regionType is nested under metadata, not at the top level.
+    # Az.Accounts is the only module the workflow installs, so this uses the REST API rather than
+    # Get-AzLocation, which lives in Az.Resources.
+    $locationsUri = "https://management.azure.com/subscriptions/$SubscriptionId/locations?api-version=$LocationApiVersion"
+    $locationsResponse = Invoke-ArmRequest -Uri $locationsUri -Description 'enumerating regions'
+
+    $Location = @(
+        ($locationsResponse.Content | ConvertFrom-Json -Depth 20).value |
+            Where-Object { $_.metadata.regionType -eq 'Physical' } |
+            Select-Object -ExpandProperty name
+    )
+
+    # Sweeping fewer regions than intended silently drops SKUs, so treat an empty result as fatal
+    # rather than falling back to a partial sweep.
+    if (-not $Location)
+    {
+        throw "Region enumeration returned no physical regions for subscription $SubscriptionId. Pass -Location explicitly to override."
+    }
+    Write-Host "Enumerated $($Location.Count) physical region(s) from the ARM locations API"
+}
+
 Write-Host "Using subscription $SubscriptionId, $($Location.Count) region(s), types: $($ReservedResourceType -join ', ')"
 
 function Invoke-CatalogsApi
@@ -122,44 +220,10 @@ function Invoke-CatalogsApi
     while ($uri)
     {
         $page++
-        $retries = 0
-        $maxRetries = 5
 
-        # Retry transient failures (network exceptions and 429/5xx) on the SAME page, without
-        # advancing the paging loop, so $page counts and the retry cap stay correct.
-        $response = $null
-        while ($true)
-        {
-            try
-            {
-                $response = Invoke-AzRestMethod -Uri $uri -Method GET
-            }
-            catch
-            {
-                $retries++
-                if ($retries -gt $maxRetries) { throw "Failed after $maxRetries retries on $ResourceType/$Region page $page`: $_" }
-                $wait = [Math]::Pow(2, $retries) * 5
-                Write-Host "  Error on $ResourceType/$Region page $page, retrying in ${wait}s (attempt $retries/$maxRetries)"
-                Start-Sleep -Seconds $wait
-                continue
-            }
-
-            if ($response.StatusCode -eq 429 -or $response.StatusCode -ge 500)
-            {
-                $retries++
-                if ($retries -gt $maxRetries) { throw "Failed after $maxRetries retries on $ResourceType/$Region page $page (HTTP $($response.StatusCode))" }
-                $wait = [Math]::Pow(2, $retries) * 5
-                Write-Host "  HTTP $($response.StatusCode) on $ResourceType/$Region page $page, retrying in ${wait}s (attempt $retries/$maxRetries)"
-                Start-Sleep -Seconds $wait
-                continue
-            }
-            if ($response.StatusCode -ge 400)
-            {
-                throw "HTTP $($response.StatusCode) on $ResourceType/$Region page $page`: $($response.Content)"
-            }
-
-            break
-        }
+        # Transient failures are retried on the SAME page, without advancing the paging loop, so
+        # $page counts and the retry cap stay correct.
+        $response = Invoke-ArmRequest -Uri $uri -Description "on $ResourceType/$Region page $page"
 
         $json = $response.Content | ConvertFrom-Json -Depth 100
 
@@ -214,12 +278,18 @@ function Get-IsfRecords
         # 'arm_sku_name_placeholder'); skip them so they don't leak into the public CSV.
         if ($armSkuName -like '*placeholder*') { continue }
 
-        if ($flexGroup -and $ratio -and $armSkuName)
+        # Parsed with the invariant culture: the API returns "2.1", which a comma-decimal culture
+        # reads as 21 (de-DE) or rejects outright (fr-CH). A ratio of 0 carries no flexibility
+        # information and consumers divide by it -- the Optimization Engine's benefits simulation
+        # does exactly that -- so drop it rather than publish a division by zero.
+        $parsedRatio = 0.0
+        $parsed = [double]::TryParse($ratio, [Globalization.NumberStyles]::Float, [Globalization.CultureInfo]::InvariantCulture, [ref]$parsedRatio)
+        if ($flexGroup -and $armSkuName -and $parsed -and $parsedRatio -gt 0)
         {
             $null = $records.Add([PSCustomObject]@{
                     InstanceSizeFlexibilityGroup = [string]$flexGroup
                     ArmSkuName                   = [string]$armSkuName
-                    Ratio                        = [double]$ratio
+                    Ratio                        = $parsedRatio
                 })
         }
     }
@@ -292,13 +362,18 @@ if ($duplicateSkus)
 # -----------------------------------------------------------------------
 # Step 2: Normalize, sort, and write output
 # -----------------------------------------------------------------------
-if ($Normalize)
+if (-not $Raw)
 {
     Write-Host "Normalizing ratios (smallest SKU per group = 1)..."
     $allRecords = Get-NormalizedRecords -Records $allRecords
 }
 
-$rows = $allRecords | Sort-Object InstanceSizeFlexibilityGroup, ArmSkuName
+# Ratio is formatted invariantly rather than left to Export-Csv, which uses the current culture:
+# on a comma-decimal machine it would publish "2,1" and break every consumer of the file.
+$rows = $allRecords |
+    Sort-Object InstanceSizeFlexibilityGroup, ArmSkuName |
+    Select-Object InstanceSizeFlexibilityGroup, ArmSkuName,
+        @{ Name = 'Ratio'; Expression = { $_.Ratio.ToString([Globalization.CultureInfo]::InvariantCulture) } }
 
 $rows | Export-Csv -Path $OutputPath -UseQuotes Always -NoTypeInformation -Encoding utf8
 Write-Host "Wrote $($rows.Count) SKUs to $OutputPath"
