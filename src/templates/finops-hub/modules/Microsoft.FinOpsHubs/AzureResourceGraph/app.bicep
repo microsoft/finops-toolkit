@@ -102,115 +102,245 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
   properties: {
     activities: [
       {
-        name: 'Check Query Has Results'
-        description: 'Run the query with | count to check if there are any results before attempting the full copy.'
-        type: 'WebActivity'
+        name: 'Page Through ARG Results'
+        description: 'Azure Resource Graph caps a single response at 1000 rows and returns a $skipToken when more rows are available. Loop until no token comes back, writing each page to its own Parquet file.'
+        type: 'Until'
         dependsOn: []
-        policy: {
-          timeout: '0.00:05:00'
-          retry: 1
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          url: '${environment().resourceManager}providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01'
-          method: 'POST'
-          headers: {
-            'Content-Type': 'application/json'
-          }
-          body: {
-            value: '@concat(\'{ "query": "\', pipeline().parameters.query, \' | count" }\')'
-            type: 'Expression'
-          }
-          authentication: {
-            type: 'MSI'
-            resource: environment().resourceManager
-          }
-        }
-      }
-      {
-        name: 'If Query Has Results'
-        description: 'Only run the copy if the query returned results to avoid schema mapping errors on empty result sets.'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Check Query Has Results'
-            dependencyConditions: ['Succeeded']
-          }
-        ]
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@greater(int(activity(\'Check Query Has Results\').output.data[0].Count), 0)'
+            value: '@equals(variables(\'hasMorePages\'), false)'
             type: 'Expression'
           }
-          ifTrueActivities: [
+          activities: [
             {
-              name: 'Execute ARG Query'
-              description: 'Execute a single ARG query and write the result to the ingestion container as Parquet.'
-              type: 'Copy'
+              name: 'Build Query Request Body'
+              description: 'Compose the ARG request body for the current page. $skipToken is only included once a continuation token is available.'
+              type: 'SetVariable'
               dependsOn: []
               policy: {
-                timeout: '0.00:10:00'
-                retry: 0
-                retryIntervalInSeconds: 60
                 secureOutput: false
                 secureInput: false
               }
               userProperties: []
               typeProperties: {
-                source: {
-                  type: 'RestSource'
-                  httpRequestTimeout: '00:02:00'
-                  requestInterval: '00.00:00:00.050'
-                  requestMethod: 'POST'
+                variableName: 'requestBody'
+                value: {
                   // Query text is from trusted config/queries/*.json files; no escaping needed.
-                  requestBody: {
-                    value: '@concat(\'{ "query": "\', pipeline().parameters.query, \' | extend x_SourceName=\\"\', pipeline().parameters.querySource, \'\\", x_SourceType=\\"\', pipeline().parameters.queryType, \'\\", x_SourceProvider=\\"\', pipeline().parameters.queryProvider, \'\\", x_SourceVersion=\\"\', pipeline().parameters.queryVersion, \'\\"" }\')'
-                    type: 'Expression'
-                  }
-                  additionalHeaders: {
-                    'Content-Type': 'application/json'
-                  }
-                }
-                sink: {
-                  type: 'ParquetSink'
-                  storeSettings: {
-                    type: 'AzureBlobFSWriteSettings'
-                  }
-                  formatSettings: {
-                    type: 'ParquetWriteSettings'
-                  }
-                }
-                enableStaging: false
-                translator: {
-                  value: '@pipeline().parameters.translator'
+                  value: '@concat(\'{ "query": "\', pipeline().parameters.query, \' | extend x_SourceName=\\"\', pipeline().parameters.querySource, \'\\", x_SourceType=\\"\', pipeline().parameters.queryType, \'\\", x_SourceProvider=\\"\', pipeline().parameters.queryProvider, \'\\", x_SourceVersion=\\"\', pipeline().parameters.queryVersion, \'\\""\', if(equals(variables(\'skipToken\'), \'\'), \'\', concat(\', "options": { "$skipToken": "\', variables(\'skipToken\'), \'" }\')), \' }\')'
                   type: 'Expression'
                 }
               }
-              inputs: [
+            }
+            {
+              name: 'Fetch ARG Page'
+              description: 'Run the current page of the query directly (not via the Copy activity) so the response body is available to read $skipToken from. The REST connector\'s paginationRules cannot inject a continuation token into a POST body, so the page is re-run below via Copy to write it.'
+              type: 'WebActivity'
+              dependsOn: [
                 {
-                  referenceName: dataset_azureResourceGraph.name
-                  type: 'DatasetReference'
-                  parameters: {}
+                  activity: 'Build Query Request Body'
+                  dependencyConditions: ['Succeeded']
                 }
               ]
-              outputs: [
+              policy: {
+                timeout: '0.00:05:00'
+                retry: 1
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                url: '${environment().resourceManager}providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01'
+                method: 'POST'
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+                body: {
+                  value: '@variables(\'requestBody\')'
+                  type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: environment().resourceManager
+                }
+              }
+            }
+            {
+              name: 'Set Has Results'
+              type: 'SetVariable'
+              dependsOn: [
                 {
-                  referenceName: dataset_ingestion.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    blobPath: {
-                      value: '@pipeline().parameters.ingestionPath'
-                      type: 'Expression'
+                  activity: 'Fetch ARG Page'
+                  dependencyConditions: ['Succeeded']
+                }
+              ]
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'hasResults'
+                value: {
+                  value: '@greater(length(activity(\'Fetch ARG Page\').output.data), 0)'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Set Skip Token'
+              description: 'Read the continuation token for the next page, if any.'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Set Has Results'
+                  dependencyConditions: ['Succeeded']
+                }
+              ]
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'skipToken'
+                value: {
+                  value: '@if(contains(activity(\'Fetch ARG Page\').output, \'$skipToken\'), activity(\'Fetch ARG Page\').output[\'$skipToken\'], \'\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Set Has More Pages'
+              description: 'Stop the loop once a page comes back empty or Resource Graph stops returning a continuation token.'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Set Skip Token'
+                  dependencyConditions: ['Succeeded']
+                }
+              ]
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'hasMorePages'
+                value: {
+                  value: '@and(variables(\'hasResults\'), not(equals(variables(\'skipToken\'), \'\')))'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'If Page Has Results'
+              description: 'Only write the page if it returned results, to avoid schema mapping errors on empty result sets.'
+              type: 'IfCondition'
+              dependsOn: [
+                {
+                  activity: 'Set Has More Pages'
+                  dependencyConditions: ['Succeeded']
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@variables(\'hasResults\')'
+                  type: 'Expression'
+                }
+                ifTrueActivities: [
+                  {
+                    name: 'Write ARG Page'
+                    description: 'Re-run the current page and write the result to the ingestion container as Parquet.'
+                    type: 'Copy'
+                    dependsOn: []
+                    policy: {
+                      timeout: '0.00:10:00'
+                      retry: 0
+                      retryIntervalInSeconds: 60
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      source: {
+                        type: 'RestSource'
+                        httpRequestTimeout: '00:02:00'
+                        requestInterval: '00.00:00:00.050'
+                        requestMethod: 'POST'
+                        requestBody: {
+                          value: '@variables(\'requestBody\')'
+                          type: 'Expression'
+                        }
+                        additionalHeaders: {
+                          'Content-Type': 'application/json'
+                        }
+                      }
+                      sink: {
+                        type: 'ParquetSink'
+                        storeSettings: {
+                          type: 'AzureBlobFSWriteSettings'
+                        }
+                        formatSettings: {
+                          type: 'ParquetWriteSettings'
+                        }
+                      }
+                      enableStaging: false
+                      translator: {
+                        value: '@pipeline().parameters.translator'
+                        type: 'Expression'
+                      }
+                    }
+                    inputs: [
+                      {
+                        referenceName: dataset_azureResourceGraph.name
+                        type: 'DatasetReference'
+                        parameters: {}
+                      }
+                    ]
+                    outputs: [
+                      {
+                        referenceName: dataset_ingestion.name
+                        type: 'DatasetReference'
+                        parameters: {
+                          blobPath: {
+                            // Insert a "_<page number>" suffix before the ".parquet" extension so each page gets a unique file in the same ingestion folder.
+                            value: '@concat(substring(pipeline().parameters.ingestionPath, 0, sub(length(pipeline().parameters.ingestionPath), 8)), \'_\', variables(\'pageNumber\'), \'.parquet\')'
+                            type: 'Expression'
+                          }
+                        }
+                      }
+                    ]
+                  }
+                  {
+                    name: 'Increment Page Number'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Write ARG Page'
+                        dependencyConditions: ['Succeeded']
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'pageNumber'
+                      value: {
+                        value: '@string(add(int(variables(\'pageNumber\')), 1))'
+                        type: 'Expression'
+                      }
                     }
                   }
-                }
-              ]
+                ]
+              }
             }
           ]
+          timeout: '0.02:00:00'
         }
       }
     ]
@@ -235,6 +365,28 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
       }
       translator: {
         type: 'Object'
+      }
+    }
+    variables: {
+      skipToken: {
+        type: 'String'
+        defaultValue: ''
+      }
+      hasMorePages: {
+        type: 'Bool'
+        defaultValue: true
+      }
+      hasResults: {
+        type: 'Bool'
+        defaultValue: false
+      }
+      pageNumber: {
+        type: 'String'
+        defaultValue: '1'
+      }
+      requestBody: {
+        type: 'String'
+        defaultValue: ''
       }
     }
     policy: {
