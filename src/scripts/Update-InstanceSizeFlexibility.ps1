@@ -368,10 +368,22 @@ if (-not $Raw)
     $allRecords = Get-NormalizedRecords -Records $allRecords
 }
 
+# Sorted ordinally rather than with Sort-Object, whose comparer follows the current culture.
+# Culture-aware collation orders "DCadsv5-series DedicatedHost" after "Dasv4 Series" while an
+# ordinal comparison puts it before, so the same records regenerated on a differently configured
+# host produce a few hundred lines of pure reordering that bury any real change in review.
+$sortedRecords = [Collections.Generic.List[object]]::new()
+if ($allRecords) { $sortedRecords.AddRange([object[]]@($allRecords)) }  # an empty sweep leaves $allRecords null
+$sortedRecords.Sort([Comparison[object]] {
+        param($x, $y)
+        $byGroup = [string]::CompareOrdinal($x.InstanceSizeFlexibilityGroup, $y.InstanceSizeFlexibilityGroup)
+        if ($byGroup -ne 0) { return $byGroup }
+        [string]::CompareOrdinal($x.ArmSkuName, $y.ArmSkuName)
+    })
+
 # Ratio is formatted invariantly rather than left to Export-Csv, which uses the current culture:
 # on a comma-decimal machine it would publish "2,1" and break every consumer of the file.
-$rows = $allRecords |
-    Sort-Object InstanceSizeFlexibilityGroup, ArmSkuName |
+$rows = $sortedRecords |
     Select-Object InstanceSizeFlexibilityGroup, ArmSkuName,
         @{ Name = 'Ratio'; Expression = { $_.Ratio.ToString([Globalization.CultureInfo]::InvariantCulture) } }
 
