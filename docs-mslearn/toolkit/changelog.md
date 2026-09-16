@@ -49,6 +49,7 @@ _Released November 2026_
 - **Fixed**
   - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
     - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
+  - Fixed the `monthly-cost-change-percentage` query returning `inf` when the prior month's cost was zero, which can happen when a month is fully covered by commitment discounts ([#2323](https://github.com/microsoft/finops-toolkit/issues/2323)).
 
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
