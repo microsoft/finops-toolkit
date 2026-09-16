@@ -168,9 +168,9 @@ The PowerShell-based build system:
 
 ### Git Operations Policy
 
-This repository supports production infrastructure managing significant revenue. All git operations must be non-destructive and preserve full commit history.
+This repository supports production infrastructure managing significant revenue. All git operations on shared branches must be non-destructive and preserve full commit history. Personal branches may use history-rewriting operations, as described below, to keep PR history clean against `origin/dev`.
 
-**What counts as "shared":** `main`, `dev`, and `features/*` branches. A personal `{username}/{branch}` branch is not shared, regardless of review or comment activity on it.
+**What counts as "shared":** `main`, `dev`, and `features/*` branches — branches multiple people commit to and pull from directly. A personal `{username}/{branch}` branch is not shared, even once it has an open PR with review or comment activity, since only its owner pushes to it.
 
 **Permitted operations:**
 
