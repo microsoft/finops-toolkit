@@ -39,6 +39,7 @@ function Get-FinOpsInstanceSizeFlexibility()
         $InstanceSizeFlexibilityGroup = "*"
     )
 
+    # ArmSkuName is already unique per row in the source data, so no de-duplication is needed here.
     return Get-OpenDataInstanceSizeFlexibility `
     | Where-Object {
         $_.ArmSkuName -like $ArmSkuName `
@@ -50,6 +51,5 @@ function Get-FinOpsInstanceSizeFlexibility()
             ArmSkuName                   = $_.ArmSkuName
             Ratio                        = $_.Ratio
         }
-    } `
-    | Select-Object -Property * -Unique
+    }
 }
