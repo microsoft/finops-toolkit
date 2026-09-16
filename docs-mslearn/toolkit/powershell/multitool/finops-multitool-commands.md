@@ -3,7 +3,7 @@ title: FinOps multitool commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 09/15/2026
+ms.date: 09/16/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

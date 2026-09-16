@@ -3,7 +3,7 @@ title: FinOps multitool overview
 description: FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from a terminal UI, with agent skills so AI assistants can run the same analysis.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 09/15/2026
+ms.date: 09/16/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
