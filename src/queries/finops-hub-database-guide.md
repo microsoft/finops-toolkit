@@ -16,6 +16,9 @@ This document provides a comprehensive overview of how to query and analyze data
   - [Query best practices](#query-best-practices)
     - [KQL language rules](#kql-language-rules)
   - [Key enrichment columns](#key-enrichment-columns)
+  - [Column relationships](#column-relationships)
+    - [Organization](#organization)
+    - [Service](#service)
   - [Example queries](#example-queries)
     - [Example query: Cost by billing profile, invoice section, team, product, application](#example-query-cost-by-billing-profile-invoice-section-team-product-application)
     - [Example query: Reservation recommendation breakdown](#example-query-reservation-recommendation-breakdown)
@@ -135,6 +138,56 @@ Columns prefixed with `x_` are toolkit enrichments. Some of the most useful are:
 | x_CommitmentDiscountSavings | Realized savings from commitment discounts (actual savings applied to your bill) |
 | x_TotalSavings              | Realized total savings (negotiated + commitment, as actually applied)            |
 | x_ResourceGroupName         | Resource group name (parsed from ResourceId)                                     |
+
+---
+
+## Column relationships
+
+The table reference below defines each column on its own. This section covers how they nest, which
+is what a drill-down needs.
+
+### Organization
+
+A strict tree. Each level partitions the one above it, so drilling down in this order is safe:
+
+```
+BillingAccountName -> SubAccountName -> x_ResourceGroupName -> ResourceName
+```
+
+### Service
+
+Two **parallel** classifications, not one tree:
+
+```
+FOCUS:  ServiceCategory -> ServiceSubcategory -> ServiceName
+Azure:  x_SkuMeterCategory -> x_SkuMeterSubcategory -> SkuMeter
+```
+
+The Azure meter chain does not sit underneath the FOCUS chain. A single meter category can appear
+under several service categories, so drilling from `ServiceCategory` into `x_SkuMeterCategory` does
+not partition the category, and a meter category's total is not a subset of any one service
+category.
+
+To see this on your own data:
+
+```kusto
+Costs()
+| where ChargePeriodStart >= startofmonth(ago(30d))
+| summarize ServiceCategories = dcount(ServiceCategory) by x_SkuMeterCategory
+| where ServiceCategories > 1
+| order by ServiceCategories desc
+```
+
+Pick one chain and stay on it within a single breakdown. When a question spans both, say which one
+the numbers came from.
+
+`x_SkuMeterCategory` is usually the more actionable axis for a cost breakdown; `ServiceCategory` is
+the coarser one and the one that is portable across providers.
+
+> **Note:**
+> `ServiceSubcategory` and `SkuMeter` are FOCUS 1.2 columns. On a hub whose exports predate 1.2 they
+> are present but empty on every row, so an empty level means "not in this export", not "no spend".
+> Check a level is populated before grouping by it.
 
 ---
 
