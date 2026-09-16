@@ -499,6 +499,13 @@ function Invoke-FinOpsMultitool {
                 Write-Host ""
                 return @($sub)
             }
+            # Widening an explicit request to every accessible subscription would
+            # put other tenants' cost data in a report scoped to one of them. A host
+            # that cannot prompt has to fail the same way -NonInteractive does,
+            # because an unanswered prompt further down reads as "scan everything".
+            if ($NonInteractive -or -not (Test-FinOpsRichConsole)) {
+                throw "Subscription '$PreselectedId' could not be resolved in any accessible tenant. Refusing to widen the scan to all subscriptions."
+            }
             Write-Host "  Subscription $PreselectedId not found in any accessible tenant, showing picker..." -ForegroundColor Yellow
         }
 
