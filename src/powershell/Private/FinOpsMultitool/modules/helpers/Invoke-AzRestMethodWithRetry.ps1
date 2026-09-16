@@ -1,6 +1,9 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+param()
+
 # -- Shared Runspace Pool --------------------------------------------------
 # Created once at module load. Reused by Invoke-AzRestMethodWithRetry and
 # Search-AzGraphSafe to avoid the ~1-2s cold-start per runspace creation.
@@ -24,7 +27,7 @@ function Test-WpfLoaded {
         $dispatcher = [System.Windows.Threading.Dispatcher]::CurrentDispatcher
         return ($null -ne $dispatcher -and
             -not $dispatcher.HasShutdownStarted -and
-            [System.Windows.Application]::Current -ne $null)
+            $null -ne [System.Windows.Application]::Current)
     }
     catch { return $false }
 }

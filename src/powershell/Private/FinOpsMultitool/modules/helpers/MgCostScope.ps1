@@ -1,6 +1,10 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Read-only: resolves a scope and changes no state.')]
+param()
+
 # -- MG-Scope State --------------------------------------------------------
 # First cost module that gets 401/403 at MG scope sets this to $true.
 # All subsequent modules check it and skip to per-sub immediately.

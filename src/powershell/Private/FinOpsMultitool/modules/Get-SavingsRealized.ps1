@@ -1,6 +1,10 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Read-only: builds in-memory objects and changes no state.')]
+param()
+
 ###########################################################################
 # GET-SAVINGSREALIZED.PS1
 # AZURE FINOPS MULTITOOL - Estimated Savings from Commitments

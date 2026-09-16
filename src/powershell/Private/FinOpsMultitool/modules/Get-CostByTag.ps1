@@ -1,6 +1,11 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Private helper named for the collection it processes.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = 'Accepted for signature parity; the dispatcher passes -TenantId to every scan module.')]
+param()
+
 ###########################################################################
 # GET-COSTBYTAG.PS1
 # AZURE FINOPS MULTITOOL - Cost Breakdown by Tag
@@ -175,7 +180,7 @@ function Get-CostByTag {
     # Helper: parse a ResourceId-grouped Cost Management response into rows of
     # @{ ResourceId; Cost; Currency }. Rows with an empty ResourceId represent
     # non-resource charges (reservations, marketplace, refunds/credits).
-    function Parse-ResourceIdRows {
+    function ConvertFrom-ResourceIdRow {
         param($ResponseContent)
         $parsed = [System.Collections.Generic.List[PSCustomObject]]::new()
         $result = ($ResponseContent | ConvertFrom-Json)
@@ -204,7 +209,7 @@ function Get-CostByTag {
     }
 
     # Helper: parse Cost Management query response using column headers
-    function Parse-CostRows {
+    function ConvertFrom-TagCostRow {
         param($ResponseContent)
         $parsed = [System.Collections.Generic.List[PSCustomObject]]::new()
         $result = ($ResponseContent | ConvertFrom-Json)
@@ -241,7 +246,7 @@ function Get-CostByTag {
     }
 
     # Helper: parse batched TagKey+TagValue response into per-tag results
-    function Parse-BatchedCostRows {
+    function ConvertFrom-BatchedCostRow {
         param($ResponseContent)
         $perTag = @{}
         $result = ($ResponseContent | ConvertFrom-Json)
@@ -444,7 +449,7 @@ function Get-CostByTag {
                         # Follow nextLink: one page only would understate a large subscription.
                         $rows = @()
                         foreach ($page in (Get-CostQueryResponsePage -FirstResponse $subResp -Context "cost-by-tag for $($pj.SubName)")) {
-                            $rows += Parse-ResourceIdRows -ResponseContent $page.Content
+                            $rows += ConvertFrom-ResourceIdRow -ResponseContent $page.Content
                         }
                         foreach ($row in $rows) {
                             $cost = $row.Cost

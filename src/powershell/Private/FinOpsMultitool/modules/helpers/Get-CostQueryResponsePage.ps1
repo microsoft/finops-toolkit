@@ -1,6 +1,9 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Justification = 'Private helper; the returned shape varies by scan and is not a declared contract.')]
+param()
+
 ###########################################################################
 # GET-COSTQUERYRESPONSEPAGE.PS1
 # COST MANAGEMENT QUERY PAGINATION

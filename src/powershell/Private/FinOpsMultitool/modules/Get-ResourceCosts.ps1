@@ -1,6 +1,11 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Justification = 'Private helper; the returned shape varies by scan and is not a declared contract.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Private helper named for the collection it processes.')]
+param()
+
 ###########################################################################
 # GET-RESOURCECOSTS.PS1
 # AZURE FINOPS MULTITOOL - Per-Resource Cost Breakdown
@@ -135,10 +140,8 @@ function Get-ResourceCosts {
                             $rg = $row[$cols['ResourceGroupName']]
 
                             $resType = 'Unknown'
-                            $resName = $resourceId
                             if ($resourceId -match '/providers/(.+)/([^/]+)$') {
                                 $providerType = $Matches[1].ToLower()
-                                $resName = $Matches[2]
                                 $resType = if ($typeMap.ContainsKey($providerType)) { $typeMap[$providerType] } else { $providerType -replace 'microsoft\.', '' }
                             }
 
@@ -266,10 +269,8 @@ function Get-ResourceCosts {
 
                                 # Extract resource type from ARM ID
                                 $resType = 'Unknown'
-                                $resName = $resourceId
                                 if ($resourceId -match '/providers/(.+)/([^/]+)$') {
                                     $providerType = $Matches[1].ToLower()
-                                    $resName = $Matches[2]
                                     $resType = if ($typeMap.ContainsKey($providerType)) { $typeMap[$providerType] } else { $providerType -replace 'microsoft\.', '' }
                                 }
 

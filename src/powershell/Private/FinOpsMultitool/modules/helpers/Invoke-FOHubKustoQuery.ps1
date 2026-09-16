@@ -1,6 +1,9 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Justification = 'Private helper; the returned shape varies by query and is not a declared contract.')]
+param()
+
 ###########################################################################
 # INVOKE-FOHUBKUSTOQUERY.PS1
 # FINOPS HUB - KUSTO (ADX / FABRIC / FTKLOCAL) QUERY TRANSPORT

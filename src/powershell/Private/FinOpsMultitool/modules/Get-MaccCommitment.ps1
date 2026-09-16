@@ -1,6 +1,9 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+param()
+
 ###########################################################################
 # GET-MACCCOMMITMENT.PS1
 # AZURE FINOPS MULTITOOL - MACC Consumption Commitment Tracking

@@ -1,6 +1,9 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Justification = 'Private helper; the returned shape varies by input and is not a declared contract.')]
+param()
+
 ###########################################################################
 # RESOLVE-CURRENCYLABEL.PS1
 # MIXED-CURRENCY DETECTION FOR COST AGGREGATION

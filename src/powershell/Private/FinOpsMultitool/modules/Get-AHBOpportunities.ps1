@@ -1,6 +1,10 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Private helper named for the collection it processes.')]
+param()
+
 ###########################################################################
 # GET-AHBOPPORTUNITIES.PS1
 # AZURE FINOPS MULTITOOL - Azure Hybrid Benefit Gap Detection
@@ -43,7 +47,8 @@ resources
 "@
         $result = Search-AzGraphSafe -Query $vmQuery -Subscription $subIds -First 1000 -All
         $windowsVMs = if ($result) { @($result.Data) } else { @() }
-    } catch {
+    }
+    catch {
         Write-Warning "Windows VM AHB scan failed: $($_.Exception.Message)"
     }
 
@@ -72,7 +77,8 @@ resources
 "@
         $result = Search-AzGraphSafe -Query $sqlVMQuery -Subscription $subIds -First 1000 -All
         $sqlVMs = if ($result) { @($result.Data) } else { @() }
-    } catch {
+    }
+    catch {
         Write-Warning "SQL VM AHB scan failed: $($_.Exception.Message)"
     }
 
@@ -93,7 +99,8 @@ resources
 "@
         $result = Search-AzGraphSafe -Query $sqlDBQuery -Subscription $subIds -First 1000 -All
         $sqlDBs = if ($result) { @($result.Data) } else { @() }
-    } catch {
+    }
+    catch {
         Write-Warning "SQL Database AHB scan failed: $($_.Exception.Message)"
     }
 

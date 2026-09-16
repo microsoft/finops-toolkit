@@ -1,6 +1,10 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Private helper named for the collection it processes.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = 'Accepted for signature parity; callers pass -Catalog across the KPI helper family.')]
+param()
+
 ###########################################################################
 # GET-KPIINSIGHTS.PS1
 # FINOPS KPI CORRELATION LAYER
@@ -288,13 +292,13 @@ function Add-KpiInsights {
     elseif ($Result.PSObject.Properties['tool']) { $toolName = $Result.tool }
     if (-not $toolName) { return $Result }
 
-    $matches = @($catalog.kpis | Where-Object { $_.sourceTool -eq $toolName })
-    if ($matches.Count -eq 0) { return $Result }
+    $matched = @($catalog.kpis | Where-Object { $_.sourceTool -eq $toolName })
+    if ($matched.Count -eq 0) { return $Result }
 
     $data = if ($Result -is [hashtable]) { $Result['data'] } else { $Result.data }
 
     $insights = @()
-    foreach ($kpi in $matches) {
+    foreach ($kpi in $matched) {
         $value = $null
         if ($kpi.compute) { $value = Get-KpiComputedValue -KpiId $kpi.id -Data $data -Catalog $catalog }
         $status = if ($value) { 'computed' } else { 'informational' }

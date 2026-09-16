@@ -1,6 +1,10 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Read-only: builds in-memory objects and changes no state.')]
+param()
+
 ###########################################################################
 # GET-COSTTREND.PS1
 # AZURE FINOPS MULTITOOL - 6-Month Cost Trend Data
@@ -76,7 +80,7 @@ function Get-CostTrend {
     } | ConvertTo-Json -Depth 10
 
     # Helper: parse cost query rows into month entries
-    function Parse-CostRows {
+    function ConvertFrom-TrendCostRow {
         param($Rows, $Columns)
         $entries = [System.Collections.Generic.List[PSCustomObject]]::new()
         if (-not $Rows) { return $entries }
@@ -133,7 +137,7 @@ function Get-CostTrend {
 
     try {
         # Parse a SubscriptionId-grouped Monthly response into per-sub entries.
-        function Parse-GroupedCostRows {
+        function ConvertFrom-GroupedCostRow {
             param($Rows, $Columns)
             $out = [System.Collections.Generic.List[PSCustomObject]]::new()
             if (-not $Rows) { return $out }
@@ -220,7 +224,7 @@ function Get-CostTrend {
             if ($subResp.StatusCode -eq 200) {
                 $paged = Get-AllCostRow -FirstResponse $subResp -Context "cost trend for $($only.Name)"
                 if ($paged.Rows.Count -gt 0) {
-                    $months = Parse-CostRows -Rows $paged.Rows -Columns $paged.Columns
+                    $months = ConvertFrom-TrendCostRow -Rows $paged.Rows -Columns $paged.Columns
                     $bySubscription[$only.Id] = @($months | Sort-Object MonthDate)
                 }
             } else {
@@ -244,7 +248,7 @@ function Get-CostTrend {
                 if ($response.StatusCode -eq 200) {
                     $paged = Get-AllCostRow -FirstResponse $response -Context 'management-group cost trend'
                     if ($paged.Rows.Count -gt 0) {
-                        $entries = Parse-GroupedCostRows -Rows $paged.Rows -Columns $paged.Columns
+                        $entries = ConvertFrom-GroupedCostRow -Rows $paged.Rows -Columns $paged.Columns
                         Set-TrendFromGrouped -Entries $entries
                         $groupedOk = ($months.Count -gt 0)
                     }
@@ -276,7 +280,7 @@ function Get-CostTrend {
                     if ($subResp.StatusCode -eq 200) {
                         $paged = Get-AllCostRow -FirstResponse $subResp -Context "cost trend for $($sub.Name)"
                         if ($paged.Rows.Count -gt 0) {
-                            $subMonths = Parse-CostRows -Rows $paged.Rows -Columns $paged.Columns
+                            $subMonths = ConvertFrom-TrendCostRow -Rows $paged.Rows -Columns $paged.Columns
                             $bySubscription[$sub.Id] = @($subMonths | Sort-Object MonthDate)
 
                             foreach ($sm in $subMonths) {

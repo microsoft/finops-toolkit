@@ -1,6 +1,12 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Private helper named for the collection it processes.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = 'Accepted for signature parity; callers pass these uniformly across the scan family.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Justification = 'Scan results are published to the caller session by design.')]
+param()
+
 ###########################################################################
 # INVOKE-FINOPSMULTITOOL.PS1
 # INTERACTIVE TERMINAL LAUNCHER FOR FINOPS MULTITOOL
@@ -735,7 +741,6 @@ function Invoke-FinOpsMultitool {
             # Build display lines grouped by category
             $lines = @()
             $lineToIndex = @{}  # map display line -> module index
-            $moduleIdx = 0
 
             foreach ($cat in $categories) {
                 $lines += "  ── $cat ──"
@@ -1769,7 +1774,6 @@ function Invoke-FinOpsMultitool {
                     Write-Host "    Compliance: $($data.CompliancePct)%" -ForegroundColor White
                 }
                 'Get-BudgetStatus' {
-                    $bSumColor = if ($data.OverBudgetCount -gt 0) { 'Red' } elseif ($data.AtRiskCount -gt 0) { 'Yellow' } else { 'Green' }
                     Write-Host "    Budgets: $($data.TotalBudgets)  |  " -ForegroundColor White -NoNewline
                     Write-Host "At risk: $($data.AtRiskCount)" -ForegroundColor $(if ($data.AtRiskCount -gt 0) { 'Yellow' } else { 'Green' }) -NoNewline
                     Write-Host "  |  " -ForegroundColor White -NoNewline

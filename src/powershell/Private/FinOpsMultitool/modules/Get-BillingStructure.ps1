@@ -1,6 +1,9 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+param()
+
 ###########################################################################
 # GET-BILLINGSTRUCTURE.PS1
 # AZURE FINOPS MULTITOOL - Billing Profiles, Invoice Sections & Cost Allocation

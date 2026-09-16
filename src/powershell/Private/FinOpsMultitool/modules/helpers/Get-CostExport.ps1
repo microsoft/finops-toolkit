@@ -1,6 +1,11 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Justification = 'Private helper; the returned shape varies by export schema and is not a declared contract.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Private helper named for the collection it processes.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = 'Accepted for signature parity across the export converter family.')]
+param()
+
 ###########################################################################
 # GET-COSTEXPORT.PS1
 # COST MANAGEMENT EXPORT DETECTION & FAST READ
@@ -555,7 +560,6 @@ function Get-CostExportData {
 
     $blobs = [System.Collections.Generic.List[PSCustomObject]]::new()
     $csvBlobs = @()
-    $usedPrefix = $null
     $anyListed = $false
     $seen = @{}
     foreach ($prefix in $candidates) {
@@ -567,7 +571,7 @@ function Get-CostExportData {
         $blobs = $listed.Blobs
 
         $csvBlobs = @($blobs | Where-Object { $_.Name -match '\.csv(\.gz)?$' })
-        if ($csvBlobs.Count -gt 0) { $usedPrefix = $prefix; break }
+        if ($csvBlobs.Count -gt 0) { break }
     }
 
     if (-not $anyListed) {

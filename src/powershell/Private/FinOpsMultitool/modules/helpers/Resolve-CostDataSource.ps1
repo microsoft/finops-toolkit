@@ -1,6 +1,10 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Justification = 'Private helper; the returned shape varies by source and is not a declared contract.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = 'Accepted for signature parity; the dispatcher passes -TenantId to every scan module.')]
+param()
+
 ###########################################################################
 # RESOLVE-COSTDATASOURCE.PS1
 # COST DATA SOURCE RESOLVER (EXPORT-FIRST ROUTING)

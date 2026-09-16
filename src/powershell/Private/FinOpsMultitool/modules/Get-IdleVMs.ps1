@@ -1,6 +1,10 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Private helper named for the collection it processes.')]
+param()
+
 ###########################################################################
 # GET-IDLEVMS.PS1
 # AZURE FINOPS MULTITOOL - Idle & Underutilized VM Detection
@@ -111,7 +115,7 @@ resources
                     foreach ($dp in $ts.data) {
                         switch ($metricName) {
                             'Percentage CPU' {
-                                if ($dp.average -ne $null) { $avgCpu = $dp.average }
+                                if ($null -ne $dp.average) { $avgCpu = $dp.average }
                             }
                             'Network In Total' {
                                 if ($dp.total) { $totalNetIn += $dp.total }
@@ -130,11 +134,11 @@ resources
             $isIdle = $false
             $classification = $null
 
-            if ($avgCpu -ne $null -and $avgCpu -lt $cpuThreshold -and $totalNetwork -lt $networkThreshold14d) {
+            if ($null -ne $avgCpu -and $avgCpu -lt $cpuThreshold -and $totalNetwork -lt $networkThreshold14d) {
                 $isIdle = $true
                 $classification = 'Idle'
             }
-            elseif ($avgCpu -ne $null -and $avgCpu -lt 10 -and $totalNetwork -lt ($networkThreshold14d * 10)) {
+            elseif ($null -ne $avgCpu -and $avgCpu -lt 10 -and $totalNetwork -lt ($networkThreshold14d * 10)) {
                 $isIdle = $true
                 $classification = 'Underutilized'
             }

@@ -1,6 +1,9 @@
 ﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+param()
+
 # Escapes a caller-supplied value for safe use inside a single-quoted KQL
 # string literal. KQL uses backslash escapes, so \ and ' must both be escaped
 # or a crafted value could terminate the literal and alter query semantics.
