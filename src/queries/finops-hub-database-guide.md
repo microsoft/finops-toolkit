@@ -154,6 +154,11 @@ A strict tree. Each level partitions the one above it, so drilling down in this 
 BillingAccountName -> SubAccountName -> x_ResourceGroupName -> ResourceName
 ```
 
+The first three levels are identity columns. `ResourceName` is a display name: two resources of
+different types can carry the same name in one resource group, and the same name recurs across
+subscriptions. Keep it as the label, but group a resource-level breakdown by `ResourceId`, which is
+globally unique, or by `ResourceNameUnique`, which appends the resource type.
+
 ### Service
 
 Two **parallel** classifications, not one tree:
@@ -173,6 +178,7 @@ To see this on your own data:
 ```kusto
 Costs()
 | where ChargePeriodStart >= startofmonth(ago(30d))
+| where isnotempty(x_SkuMeterCategory) and isnotempty(ServiceCategory)
 | summarize ServiceCategories = dcount(ServiceCategory) by x_SkuMeterCategory
 | where ServiceCategories > 1
 | order by ServiceCategories desc
@@ -185,9 +191,19 @@ the numbers came from.
 the coarser one and the one that is portable across providers.
 
 > **Note:**
-> `ServiceSubcategory` and `SkuMeter` are FOCUS 1.2 columns. On a hub whose exports predate 1.2 they
-> are present but empty on every row, so an empty level means "not in this export", not "no spend".
-> Check a level is populated before grouping by it.
+> `ServiceSubcategory` and `SkuMeter` are FOCUS 1.2 columns, but rows from older exports are not
+> simply blank. `Costs()` backfills both on the pre-1.2 path: `SkuMeter` is renamed from
+> `x_SkuMeterName`, and `ServiceSubcategory` is looked up from the `Services` reference table on
+> `x_ResourceType`. Treat them as sparse rather than universally empty — `SkuMeter` is empty only
+> where the legacy meter name was, and `ServiceSubcategory` is empty wherever `x_ResourceType` has
+> no match, which covers purchases and other non-resource charges. Either way an empty level is a
+> gap in coverage, not a category, so measure it before grouping by it:
+>
+> ```kusto
+> Costs()
+> | where ChargePeriodStart >= startofmonth(ago(30d))
+> | summarize Cost = sum(EffectiveCost) by IsPopulated = isnotempty(ServiceSubcategory)
+> ```
 
 ---
 
