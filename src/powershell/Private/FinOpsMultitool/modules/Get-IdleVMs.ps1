@@ -101,7 +101,9 @@ resources
         $scope = "/subscriptions/$($vm.subscriptionId)/resourceGroups/$($vm.resourceGroup)/providers/Microsoft.Compute/virtualMachines/$($vm.name)"
         try {
             # Query CPU + Network In + Network Out in a single call
-            $metricUri = "$armBase$scope/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=Percentage CPU,Network In Total,Network Out Total&timespan=$fourteenDaysAgo/$nowStr&aggregation=Average,Total&interval=P14D"
+                # FULL is the only way to get one datapoint for the whole span:
+                # P14D is not a published timegrain and the API rejects it.
+                $metricUri = "$armBase$scope/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=Percentage CPU,Network In Total,Network Out Total&timespan=$fourteenDaysAgo/$nowStr&aggregation=Average,Total&interval=FULL"
             $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
             $metricData = ($resp.Content | ConvertFrom-Json)
 

@@ -59,7 +59,9 @@ resources
         $scope = "/subscriptions/$($sa.subscriptionId)/resourceGroups/$($sa.resourceGroup)/providers/Microsoft.Storage/storageAccounts/$($sa.name)"
         try {
             # Query transaction count (Blob service) over last 30 days
-            $metricUri = "$armBase$scope/blobServices/default/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=Transactions&timespan=$thirtyDaysAgo/$nowStr&aggregation=Total&interval=P30D"
+            # FULL is the only way to get one datapoint for the whole span:
+            # P30D is not a published timegrain and the API rejects it.
+            $metricUri = "$armBase$scope/blobServices/default/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=Transactions&timespan=$thirtyDaysAgo/$nowStr&aggregation=Total&interval=FULL"
             $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
             $metricData = ($resp.Content | ConvertFrom-Json)
 
@@ -72,9 +74,11 @@ resources
                 }
             }
 
-            # Also query used capacity
-            $capacityUri = "$armBase$scope/blobServices/default/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=BlobCapacity&timespan=$thirtyDaysAgo/$nowStr&aggregation=Average&interval=P30D"
-            $capResp = Invoke-WebRequest -Uri $capacityUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -ErrorAction SilentlyContinue
+            # Also query used capacity. Every recommendation below requires a
+            # capacity reading, so a silent failure here would suppress the
+            # recommendation instead of reporting the account as unevaluated.
+            $capacityUri = "$armBase$scope/blobServices/default/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=BlobCapacity&timespan=$thirtyDaysAgo/$nowStr&aggregation=Average&interval=FULL"
+            $capResp = Invoke-WebRequest -Uri $capacityUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
             $capacityBytes = 0
             if ($capResp) {
                 $capData = ($capResp.Content | ConvertFrom-Json)
