@@ -457,6 +457,8 @@ The following table lists the columns produced in the `All available columns` qu
 | BillingCurrency                          | string    | Currency used for billing.                                                        |
 | BillingPeriodEnd                         | datetime  | End date of the billing period.                                                   |
 | BillingPeriodStart                       | datetime  | Start date of the billing period.                                                 |
+| CapacityReservationId                    | string    | New in FOCUS 1.2.                                                                 |
+| CapacityReservationStatus                | string    | New in FOCUS 1.2.                                                                 |
 | ChargeCategory                           | string    | Category of the charge (e.g., Usage, Purchase).                                   |
 | ChargeClass                              | string    | Class of the charge (e.g., Service, Tax).                                         |
 | ChargeDescription                        | string    | Description of the charge.                                                        |
@@ -466,17 +468,22 @@ The following table lists the columns produced in the `All available columns` qu
 | CommitmentDiscountCategory               | string    | Type of commitment discount (e.g., Reserved Instance, Savings Plan).              |
 | CommitmentDiscountId                     | string    | Unique identifier for the commitment discount.                                    |
 | CommitmentDiscountName                   | string    | Name of the commitment discount.                                                  |
+| CommitmentDiscountNameUnique             | string    | Unique name for the commitment discount.                                          |
+| CommitmentDiscountQuantity               | real      | New in FOCUS 1.2.                                                                 |
 | CommitmentDiscountStatus                 | string    | Status of the commitment discount (e.g., Used, Unused).                           |
 | CommitmentDiscountType                   | string    | The specific type of discount (e.g., RI, SP).                                     |
+| CommitmentDiscountUnit                   | string    | New in FOCUS 1.2.                                                                 |
 | ConsumedQuantity                         | real      | Amount of resource usage consumed.                                                |
 | ConsumedUnit                             | string    | Unit of measure for consumed quantity.                                            |
 | ContractedCost                           | real      | Negotiated cost for the resource or usage.                                        |
 | ContractedUnitPrice                      | real      | Negotiated unit price for the resource.                                           |
 | EffectiveCost                            | real      | Actual cost after all discounts and credits.                                      |
+| InvoiceId                                | string    | New in FOCUS 1.2. Renamed from x_InvoiceId.                                       |
 | InvoiceIssuerName                        | string    | Name of the invoice issuer.                                                       |
 | ListCost                                 | real      | List (retail) cost for the resource or usage.                                     |
 | ListUnitPrice                            | real      | List (retail) unit price for the resource.                                        |
 | PricingCategory                          | string    | Category of pricing (e.g., Standard, Spot).                                       |
+| PricingCurrency                          | string    | New in FOCUS 1.2. Renamed from x_PricingCurrency.                                 |
 | PricingQuantity                          | real      | Quantity used for pricing.                                                        |
 | PricingUnit                              | string    | Unit of measure for pricing.                                                      |
 | ProviderName                             | string    | Name of the cloud provider.                                                       |
@@ -485,18 +492,25 @@ The following table lists the columns produced in the `All available columns` qu
 | RegionName                               | string    | Name of the region.                                                               |
 | ResourceId                               | string    | Unique identifier for the resource.                                               |
 | ResourceName                             | string    | Name of the resource.                                                             |
+| ResourceNameUnique                       | string    | Unique name for the resource.                                                     |
 | ResourceType                             | string    | Type of resource (e.g., Virtual Machine, SQL Database).                           |
 | ServiceCategory                          | string    | High-level service category (e.g., Compute, Storage).                             |
 | ServiceName                              | string    | Name of the Azure service.                                                        |
+| ServiceSubcategory                       | string    | New in FOCUS 1.2.                                                                 |
 | SkuId                                    | string    | Unique identifier for the SKU.                                                    |
+| SkuMeter                                 | string    | New in FOCUS 1.2. Renamed from x_SkuMeterName.                                    |
+| SkuPriceDetails                          | dynamic   | New in FOCUS 1.2. Transformed version of x_SkuDetails.                            |
 | SkuPriceId                               | string    | Unique identifier for the SKU price.                                              |
 | SubAccountId                             | string    | Identifier for the sub-account or subscription.                                   |
 | SubAccountName                           | string    | Name of the sub-account or subscription.                                          |
+| SubAccountNameUnique                     | string    | Unique name for the sub-account.                                                  |
 | SubAccountType                           | string    | Type of sub-account.                                                              |
 | Tags                                     | dynamic   | Resource tags as a dynamic object.                                                |
 | x_AccountId                              | string    | Enriched account identifier.                                                      |
 | x_AccountName                            | string    | Enriched account name.                                                            |
 | x_AccountOwnerId                         | string    | Owner ID for the account.                                                         |
+| x_AmortizationCategory                   | string    | Amortization category (e.g., Principal, Amortized Charge).                        |
+| x_AmortizationClass                      | string    | Source: Microsoft 1.2-preview+.                                                   |
 | x_BilledCostInUsd                        | real      | Billed cost converted to USD.                                                     |
 | x_BilledUnitPrice                        | real      | Billed unit price.                                                                |
 | x_BillingAccountAgreement                | string    | Billing agreement reference.                                                      |
@@ -504,15 +518,32 @@ The following table lists the columns produced in the `All available columns` qu
 | x_BillingAccountName                     | string    | Enriched billing account name.                                                    |
 | x_BillingExchangeRate                    | real      | Exchange rate used for billing.                                                   |
 | x_BillingExchangeRateDate                | datetime  | Date of the exchange rate.                                                        |
+| x_BillingItemCode                        | string    | Source: Alibaba 1.0.                                                              |
+| x_BillingItemName                        | string    | Source: Alibaba 1.0.                                                              |
 | x_BillingProfileId                       | string    | Billing profile identifier.                                                       |
 | x_BillingProfileName                     | string    | Name of the billing profile.                                                      |
+| x_CapacityReservationId                  | string    | Capacity reservation identifier.                                                  |
 | x_ChargeId                               | string    | Unique identifier for the charge.                                                 |
+| x_ChargeMonth                            | datetime  | Normalized month for charge period.                                               |
+| x_CommitmentDiscountKey                  | string    | Key for commitment discount utilization.                                          |
+| x_CommitmentDiscountNormalizedRatio      | real      | Source: Microsoft 1.2-preview+.                                                   |
+| x_CommitmentDiscountPercent              | real      | Percent savings from commitment discount.                                         |
+| x_CommitmentDiscountSavings              | real      | Realized savings from commitment discounts (actual savings applied to your bill). |
+| x_CommitmentDiscountSpendEligibility     | string    | Source: Hubs add-on.                                                              |
+| x_CommitmentDiscountUsageEligibility     | string    | Source: Hubs add-on.                                                              |
+| x_CommitmentDiscountUtilizationAmount    | real      | Actual utilization amount for commitment discount.                                |
+| x_CommitmentDiscountUtilizationPotential | real      | Potential utilization for commitment discount.                                    |
+| x_CommodityCode                          | string    | Source: Alibaba 1.0.                                                              |
+| x_CommodityName                          | string    | Source: Alibaba 1.0.                                                              |
+| x_ComponentName                          | string    | Sub-resource component name. Tencent only.                                        |
+| x_ComponentType                          | string    | Sub-resource component type. Tencent only.                                        |
+| x_ConsumedCoreHours                      | real      | Total core hours consumed.                                                        |
 | x_ContractedCostInUsd                    | real      | Contracted cost converted to USD.                                                 |
 | x_CostAllocationRuleName                 | string    | Name of the cost allocation rule.                                                 |
 | x_CostCategories                         | dynamic   | Cost categories as a dynamic object.                                              |
 | x_CostCenter                             | string    | Cost center for the transaction.                                                  |
-| x_Credits                                | dynamic   | Credits applied as a dynamic object.                                              |
 | x_CostType                               | string    | Type of cost (e.g., Amortized, Principal).                                        |
+| x_Credits                                | dynamic   | Credits applied as a dynamic object.                                              |
 | x_CurrencyConversionRate                 | real      | Currency conversion rate used.                                                    |
 | x_CustomerId                             | string    | Customer identifier.                                                              |
 | x_CustomerName                           | string    | Name of the customer.                                                             |
@@ -520,18 +551,21 @@ The following table lists the columns produced in the `All available columns` qu
 | x_EffectiveCostInUsd                     | real      | Effective cost converted to USD.                                                  |
 | x_EffectiveUnitPrice                     | real      | Final unit price after all discounts.                                             |
 | x_ExportTime                             | datetime  | Time the record was exported.                                                     |
+| x_FreeReason                             | string    | Reason why the cost is zero.                                                      |
 | x_IngestionTime                          | datetime  | Timestamp when the record was ingested.                                           |
-| x_InvoiceId                              | string    | Invoice identifier.                                                               |
+| x_InstanceID                             | string    | Source: Alibaba 1.0.                                                              |
 | x_InvoiceIssuerId                        | string    | Invoice issuer identifier.                                                        |
 | x_InvoiceSectionId                       | string    | Invoice section identifier.                                                       |
 | x_InvoiceSectionName                     | string    | Invoice section name.                                                             |
 | x_ListCostInUsd                          | real      | List cost converted to USD.                                                       |
 | x_Location                               | string    | Location of the resource.                                                         |
+| x_NegotiatedDiscountPercent              | real      | Percent savings from negotiated discount.                                         |
+| x_NegotiatedDiscountSavings              | real      | Realized savings from negotiated discounts (actual savings applied to your bill). |
 | x_Operation                              | string    | Operation performed.                                                              |
+| x_OwnerAccountID                         | string    | Account owner for CSP scenarios. Tencent only.                                    |
 | x_PartnerCreditApplied                   | string    | Whether partner credit was applied.                                               |
 | x_PartnerCreditRate                      | string    | Partner credit rate.                                                              |
 | x_PricingBlockSize                       | real      | Block size for pricing.                                                           |
-| x_PricingCurrency                        | string    | Currency for pricing.                                                             |
 | x_PricingSubcategory                     | string    | Subcategory for pricing.                                                          |
 | x_PricingUnitDescription                 | string    | Description of the pricing unit.                                                  |
 | x_Project                                | string    | Project name or identifier.                                                       |
@@ -540,65 +574,55 @@ The following table lists the columns produced in the `All available columns` qu
 | x_ResellerId                             | string    | Reseller identifier.                                                              |
 | x_ResellerName                           | string    | Name of the reseller.                                                             |
 | x_ResourceGroupName                      | string    | Name of the resource group.                                                       |
+| x_ResourceGroupNameUnique                | string    | Unique name for the resource group.                                               |
+| x_ResourceParentId                       | string    | Resource parent identifier.                                                       |
+| x_ResourceParentName                     | string    | Resource parent name.                                                             |
+| x_ResourceParentType                     | string    | Resource parent type.                                                             |
 | x_ResourceType                           | string    | Enriched resource type.                                                           |
 | x_ServiceCode                            | string    | Service code.                                                                     |
 | x_ServiceId                              | string    | Service identifier.                                                               |
+| x_ServiceModel                           | string    | Source: Microsoft 1.2-preview+.                                                   |
 | x_ServicePeriodEnd                       | datetime  | End of the service period.                                                        |
 | x_ServicePeriodStart                     | datetime  | Start of the service period.                                                      |
+| x_SkuCoreCount                           | int       | Number of cores for the SKU.                                                      |
 | x_SkuDescription                         | string    | Description of the SKU.                                                           |
 | x_SkuDetails                             | dynamic   | Details of the SKU as a dynamic object.                                           |
+| x_SkuImageType                           | string    | Image type for the SKU.                                                           |
+| x_SkuInstanceType                        | string    | Source: Hubs add-on.                                                              |
 | x_SkuIsCreditEligible                    | bool      | Whether the SKU is credit eligible.                                               |
+| x_SkuLicenseQuantity                     | int       | License quantity for the SKU.                                                     |
+| x_SkuLicenseStatus                       | string    | License status for the SKU.                                                       |
+| x_SkuLicenseType                         | string    | License type for the SKU.                                                         |
+| x_SkuLicenseUnit                         | string    | License unit for the SKU.                                                         |
+| x_SkuLicenseUnusedQuantity               | long      | Unused license quantity for the SKU.                                              |
 | x_SkuMeterCategory                       | string    | Meter category for the SKU.                                                       |
 | x_SkuMeterId                             | string    | Meter ID for the SKU.                                                             |
-| x_SkuMeterName                           | string    | Meter name for the SKU.                                                           |
 | x_SkuMeterSubcategory                    | string    | Meter subcategory for the SKU.                                                    |
 | x_SkuOfferId                             | string    | Offer ID for the SKU.                                                             |
+| x_SkuOperatingSystem                     | string    | Source: Hubs add-on.                                                              |
 | x_SkuOrderId                             | string    | Order ID for the SKU.                                                             |
 | x_SkuOrderName                           | string    | Name of the SKU order.                                                            |
 | x_SkuPartNumber                          | string    | Part number for the SKU.                                                          |
+| x_SkuPlanName                            | string    | Source: Microsoft 1.2-preview+.                                                   |
 | x_SkuRegion                              | string    | Region for the SKU.                                                               |
 | x_SkuServiceFamily                       | string    | Service family for the SKU.                                                       |
 | x_SkuTerm                                | int       | Term length for the SKU (months).                                                 |
+| x_SkuTermLabel                           | string    | Human-readable label for SKU term.                                                |
 | x_SkuTier                                | string    | Tier for the SKU (e.g., Standard, Premium).                                       |
+| x_SkuType                                | string    | Service type for the SKU.                                                         |
+| x_SkuUsageType                           | string    | Usage type for the SKU.                                                           |
 | x_SourceChanges                          | string    | Source changes or notes.                                                          |
 | x_SourceName                             | string    | Name of the data source.                                                          |
 | x_SourceProvider                         | string    | Provider of the data source.                                                      |
 | x_SourceType                             | string    | Type of data source.                                                              |
+| x_SourceValues                           | dynamic   | Source: Hubs add-on.                                                              |
 | x_SourceVersion                          | string    | Version of the data source.                                                       |
-| x_UsageType                              | string    | Usage type for the resource.                                                      |
-| x_ChargeMonth                            | datetime  | Normalized month for charge period.                                               |
-| x_CapacityReservationId                  | string    | Capacity reservation identifier.                                                  |
-| x_SkuCoreCount                           | int       | Number of cores for the SKU.                                                      |
-| x_SkuUsageType                           | string    | Usage type for the SKU.                                                           |
-| x_SkuImageType                           | string    | Image type for the SKU.                                                           |
-| x_SkuType                                | string    | Service type for the SKU.                                                         |
-| x_ConsumedCoreHours                      | real      | Total core hours consumed.                                                        |
-| x_SkuLicenseStatus                       | string    | License status for the SKU.                                                       |
-| x_SkuLicenseType                         | string    | License type for the SKU.                                                         |
-| x_SkuLicenseQuantity                     | long      | License quantity for the SKU.                                                     |
-| x_SkuLicenseUnit                         | string    | License unit for the SKU.                                                         |
-| x_SkuLicenseUnusedQuantity               | long      | Unused license quantity for the SKU.                                              |
-| x_CommitmentDiscountKey                  | string    | Key for commitment discount utilization.                                          |
-| x_CommitmentDiscountUtilizationPotential | real      | Potential utilization for commitment discount.                                    |
-| x_CommitmentDiscountUtilizationAmount    | real      | Actual utilization amount for commitment discount.                                |
-| x_SkuTermLabel                           | string    | Human-readable label for SKU term.                                                |
-| x_AmortizationCategory                   | string    | Amortization category (e.g., Principal, Amortized Charge).                        |
-| x_CommitmentDiscountSavings              | real      | Realized savings from commitment discounts (actual savings applied to your bill). |
-| x_NegotiatedDiscountSavings              | real      | Realized savings from negotiated discounts (actual savings applied to your bill). |
-| x_TotalSavings                           | real      | Realized total savings (negotiated + commitment, as actually applied).            |
-| x_CommitmentDiscountPercent              | real      | Percent savings from commitment discount.                                         |
-| x_NegotiatedDiscountPercent              | real      | Percent savings from negotiated discount.                                         |
-| x_TotalDiscountPercent                   | real      | Total percent savings.                                                            |
+| x_SubproductName                         | string    | Sub-product within the service. Tencent only.                                     |
 | x_ToolkitTool                            | string    | Toolkit tool name.                                                                |
 | x_ToolkitVersion                         | string    | Toolkit version.                                                                  |
-| x_ResourceParentId                       | string    | Resource parent identifier.                                                       |
-| x_ResourceParentName                     | string    | Resource parent name.                                                             |
-| x_ResourceParentType                     | string    | Resource parent type.                                                             |
-| CommitmentDiscountNameUnique             | string    | Unique name for the commitment discount.                                          |
-| ResourceNameUnique                       | string    | Unique name for the resource.                                                     |
-| x_ResourceGroupNameUnique                | string    | Unique name for the resource group.                                               |
-| SubAccountNameUnique                     | string    | Unique name for the sub-account.                                                  |
-| x_FreeReason                             | string    | Reason why the cost is zero.                                                      |
+| x_TotalDiscountPercent                   | real      | Total percent savings.                                                            |
+| x_TotalSavings                           | real      | Realized total savings (negotiated + commitment, as actually applied).            |
+| x_UsageType                              | string    | Usage type for the resource.                                                      |
 
 > **Note:**
 > The savings columns (`x_CommitmentDiscountSavings`, `x_NegotiatedDiscountSavings`, `x_TotalSavings`) represent realized savings—these are the actual discounts and savings that have been applied to your costs, not just potential or theoretical savings.
