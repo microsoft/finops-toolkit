@@ -3,7 +3,7 @@ title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 09/09/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -188,7 +188,7 @@ Transforms:
 
 Supported datasets:
 
-- Microsoft PriceSheet: `2023-05-01` (EA and MCA)
+- Microsoft PriceSheet: `2023-05-01` (EA and MCA), `2024-08-01` (MCA only)
 
 Transforms:
 
@@ -217,6 +217,10 @@ Transforms:
     - Renamed `x_SkuMeterName` to `SkuMeter`.
   - Implemented the following columns when not set by Cost Management:
     - `CommitmentDiscountUnit`
+- v16+:
+  - Added support for the MCA `2024-08-01` price sheet schema, which replaces `discount` and `includedQuantity` with `productOrderName` ([#2311](https://github.com/microsoft/finops-toolkit/issues/2311)).
+    - Added `x_SkuOrderName` from `productOrderName`, matching the `ProductOrderName` -> `x_SkuOrderName` mapping already used for cost details.
+    - EA price sheet exports are unaffected and remain on the `2023-05-01` schema.
 
 ### Recommendation data transforms
 
@@ -351,7 +355,7 @@ To ingest CSV file from Cost Management exports, save files in a specific folder
 <a name="datasets"></a>FinOps hubs support the following dataset types, versions, and API versions:
 
 - FocusCost: `1.2-preview`, `1.0r2`, `1.0`, `1.0-preview(v1)`
-- PriceSheet: `2023-05-01`
+- PriceSheet: `2023-05-01` (EA and MCA), `2024-08-01` (MCA only)
 - ReservationDetails: `2023-03-01`
 - ReservationRecommendations: `2023-05-01`
 - ReservationTransactions: `2023-05-01`

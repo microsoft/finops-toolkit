@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 09/09/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -672,6 +672,7 @@ Columns in the **Prices** managed dataset include:
 | x_SkuRegion                          | String    | Source: Microsoft.                                |
 | x_SkuServiceFamily                   | String    | Source: Microsoft.                                |
 | x_SkuOfferId                         | String    | Source: Microsoft, EA only.                       |
+| x_SkuOrderName                       | String    | Source: Microsoft, MCA 2024-08-01+ only.          |
 | x_SkuPartNumber                      | String    | Source: Microsoft, EA only.                       |
 | x_SkuTerm                            | Int       | Source: Microsoft.                                |
 | x_SkuTier                            | Real      | Source: Microsoft, MCA only.                      |
