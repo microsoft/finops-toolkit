@@ -189,3 +189,183 @@ Describe 'FinOps Multitool safety' {
         }
     }
 }
+
+Describe 'FinOps Multitool cost math' {
+
+    BeforeAll {
+        $script:ModuleRoot = Join-Path $PSScriptRoot '../../Private/FinOpsMultitool'
+        Import-Module (Join-Path $script:ModuleRoot 'FinOpsMultitool.psm1') -Force
+    }
+
+    AfterAll {
+        Remove-Module FinOpsMultitool -ErrorAction SilentlyContinue
+    }
+
+    Context 'Cost column resolution' {
+
+        It 'Resolves Cost and not CostStatus when both are present' {
+            InModuleScope FinOpsMultitool {
+                $columns = @(
+                    [pscustomobject]@{ name = 'Cost' }
+                    [pscustomobject]@{ name = 'SubscriptionId' }
+                    [pscustomobject]@{ name = 'CostStatus' }
+                )
+                Get-CostColumnIndex -Columns $columns -Names @('cost', 'pretaxcost', 'costusd') |
+                Should -Be 0
+            }
+        }
+
+        It 'Reports -1 rather than guessing when the column is absent' {
+            InModuleScope FinOpsMultitool {
+                $columns = @([pscustomobject]@{ name = 'CostStatus' })
+                Get-CostColumnIndex -Columns $columns -Names @('cost') | Should -Be -1
+            }
+        }
+    }
+
+    Context 'Forecast requests' {
+
+        It 'Requests the full month before summing actual and forecast rows (<QueryPath>)' -ForEach @(
+            @{ QueryPath = 'PerSubscription' }
+            @{ QueryPath = 'ManagementGroup' }
+            @{ QueryPath = 'ManagementGroupFallback' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ QueryPath = $QueryPath } {
+                param($QueryPath)
+
+                Mock Get-Date { [datetime]'2026-09-16T12:00:00Z' }
+                Mock Get-Date { [datetime]'2026-09-01T00:00:00' } -ParameterFilter { $Day -eq 1 }
+                Mock Resolve-CostMgId { 'mock-management-group' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*forecast*') {
+                        if ($QueryPath -eq 'ManagementGroupFallback' -and $Path -like '/providers/Microsoft.Management/*') {
+                            return [pscustomobject]@{ StatusCode = 503; Content = '{}' }
+                        }
+                        $forecastRequest = $Payload | ConvertFrom-Json
+                        $forecastRows = @(, @(250.0, 'Forecast', '11111111-1111-1111-1111-111111111111', 'USD'))
+                        if ($forecastRequest.timePeriod.from -eq '2026-09-01') {
+                            $forecastRows = @(
+                                @(100.0, 'Actual', '11111111-1111-1111-1111-111111111111', 'USD'),
+                                @(250.0, 'Forecast', '11111111-1111-1111-1111-111111111111', 'USD')
+                            )
+                        }
+                        $body = @{
+                            properties = @{
+                                columns = @(@{ name = 'Cost' }, @{ name = 'CostStatus' }, @{ name = 'SubscriptionId' }, @{ name = 'Currency' })
+                                rows    = $forecastRows
+                            }
+                        }
+                    }
+                    else {
+                        $body = @{
+                            properties = @{
+                                columns = @(@{ name = 'Cost' }, @{ name = 'Currency' }, @{ name = 'SubscriptionId' })
+                                rows    = @(, @(100.0, 'USD', '11111111-1111-1111-1111-111111111111'))
+                            }
+                        }
+                    }
+                    [pscustomobject]@{
+                        StatusCode = 200
+                        Content    = ($body | ConvertTo-Json -Depth 10)
+                    }
+                }
+
+                $subs = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'test' })
+                $result = if ($QueryPath -eq 'PerSubscription') {
+                    Get-CostDataPerSubscription -Subscriptions $subs
+                }
+                else {
+                    Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subs
+                }
+
+                $entry = $result['11111111-1111-1111-1111-111111111111']
+                $entry.Actual | Should -Be 100
+                $entry.Forecast | Should -Be 350
+                $entry.ForecastSource | Should -Be 'Forecast'
+                $forecastCalls = if ($QueryPath -eq 'ManagementGroupFallback') { 2 } else { 1 }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times $forecastCalls -Exactly -ParameterFilter {
+                    $request = $Payload | ConvertFrom-Json
+                    $Path -like '*forecast*' -and $Method -eq 'POST' -and
+                    $request.timePeriod.from -eq '2026-09-01' -and
+                    $request.timePeriod.to -eq '2026-09-30' -and
+                    $request.includeActualCost -eq $true
+                }
+            }
+        }
+
+        It 'Flags the fallback when no forecast is available' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*forecast*') {
+                        return [pscustomobject]@{ StatusCode = 404; Content = '{}' }
+                    }
+                    $body = @{
+                        properties = @{
+                            columns = @(@{ name = 'Cost' }, @{ name = 'Currency' })
+                            rows    = @(, @(100.0, 'USD'))
+                        }
+                    }
+                    [pscustomobject]@{
+                        StatusCode = 200
+                        Content    = ($body | ConvertTo-Json -Depth 10)
+                    }
+                }
+
+                $subs = @([pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'test' })
+                $result = Get-CostDataPerSubscription -Subscriptions $subs
+
+                $result['22222222-2222-2222-2222-222222222222'].ForecastSource | Should -Be 'Actual'
+            }
+        }
+    }
+
+    Context 'Export scope' {
+
+        It 'Ignores rows for subscriptions that were not selected' {
+            InModuleScope FinOpsMultitool {
+                $selected = '44444444-4444-4444-4444-444444444444'
+                $other = '55555555-5555-5555-5555-555555555555'
+
+                $exportData = [pscustomobject]@{
+                    Currency = 'USD'
+                    ColMap   = [pscustomobject]@{ Cost = 'Cost'; SubscriptionId = 'SubscriptionId'; ResourceId = $null }
+                    Rows     = @(
+                        [pscustomobject]@{ SubscriptionId = $selected; Cost = '10.00' }
+                        [pscustomobject]@{ SubscriptionId = $other; Cost = '999.00' }
+                    )
+                }
+                $subs = @([pscustomobject]@{ Id = $selected; Name = 'selected' })
+
+                $map = ConvertTo-CostDataFromExport -ExportData $exportData -Subscriptions $subs
+
+                $map.Keys | Should -Not -Contain $other
+                @($map.Keys).Count | Should -Be 1
+                $map[$selected].Actual | Should -Be 10
+            }
+        }
+    }
+
+    Context 'Commitment utilization' {
+
+        It 'Ignores a family that has no commitments' {
+            InModuleScope FinOpsMultitool {
+                $data = [pscustomobject]@{ RICount = 10; RIAvgUtilization = 100; SPCount = 0; SPAvgUtilization = 0 }
+                @(Get-CommitmentUtilizationValue -Data $data) | Should -Be @(100)
+            }
+        }
+
+        It 'Keeps a real 0% when commitments exist' {
+            InModuleScope FinOpsMultitool {
+                $data = [pscustomobject]@{ RICount = 3; RIAvgUtilization = 0; SPCount = 0; SPAvgUtilization = 0 }
+                @(Get-CommitmentUtilizationValue -Data $data) | Should -Be @(0)
+            }
+        }
+
+        It 'Reports nothing when no commitments were found at all' {
+            InModuleScope FinOpsMultitool {
+                $data = [pscustomobject]@{ RICount = 0; RIAvgUtilization = 0; SPCount = 0; SPAvgUtilization = 0 }
+                @(Get-CommitmentUtilizationValue -Data $data).Count | Should -Be 0
+            }
+        }
+    }
+}

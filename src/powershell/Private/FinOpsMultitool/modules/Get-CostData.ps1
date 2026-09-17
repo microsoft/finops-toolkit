@@ -19,6 +19,16 @@ param()
 # Reference: https://learn.microsoft.com/en-us/rest/api/cost-management/query/usage
 ###########################################################################
 
+function Get-CostColumnIndex {
+    param($Columns, [string[]]$Names)
+
+    if (-not $Columns) { return -1 }
+    for ($columnIndex = 0; $columnIndex -lt $Columns.Count; $columnIndex++) {
+        if (([string]$Columns[$columnIndex].name).ToLower() -in $Names) { return $columnIndex }
+    }
+    return -1
+}
+
 function Get-CostData {
     [CmdletBinding()]
     param(
@@ -92,24 +102,18 @@ function Get-CostData {
         # Resolve column indices by name. The MG-scope response is not contractually
         # ordered, and a reorder would silently attribute cost to the wrong sub.
         $aCols = $result.properties.columns
-        $aCostIdx = -1; $aSubIdx = -1; $aCurIdx = -1
-        if ($aCols) {
-            for ($ci = 0; $ci -lt $aCols.Count; $ci++) {
-                $cn = ([string]$aCols[$ci].name).ToLower()
-                if ($cn -eq 'subscriptionid') { $aSubIdx = $ci }
-                elseif ($cn -eq 'currency') { $aCurIdx = $ci }
-                elseif ($cn -match 'cost|pretaxcost') { $aCostIdx = $ci }
-            }
+        $aSubIdx = Get-CostColumnIndex -Columns $aCols -Names @('subscriptionid')
+        $aCurIdx = Get-CostColumnIndex -Columns $aCols -Names @('currency')
+        $aCostIdx = Get-CostColumnIndex -Columns $aCols -Names @('cost', 'pretaxcost', 'costusd')
+        if ($aCostIdx -lt 0 -or $aSubIdx -lt 0) {
+            throw "Actual cost response did not expose the expected Cost and SubscriptionId columns."
         }
-        if ($aCostIdx -eq -1) { $aCostIdx = 0 }
-        if ($aSubIdx -eq -1) { $aSubIdx = 1 }
-        if ($aCurIdx -eq -1) { $aCurIdx = 2 }
 
         if ($result.properties.rows) {
             foreach ($row in $result.properties.rows) {
                 $subId = $row[$aSubIdx]
                 $amount = [math]::Round($row[$aCostIdx], 2)
-                $currency = $row[$aCurIdx]
+                $currency = if ($aCurIdx -ge 0) { $row[$aCurIdx] } else { 'USD' }
 
                 if ($selectedSubs -and -not $selectedSubs.Contains([string]$subId)) { continue }
 
@@ -133,14 +137,14 @@ function Get-CostData {
     $forecastSuccess = $false
     try {
         Write-Host "  Querying forecast costs (MG scope)..." -ForegroundColor Cyan
-        $now = Get-Date
+        $now = (Get-Date).ToUniversalTime()
         $monthEnd = (Get-Date -Year $now.Year -Month $now.Month -Day 1).AddMonths(1).AddDays(-1)
 
         $forecastBody = @{
             type                    = 'Usage'
             timeframe               = 'Custom'
             timePeriod              = @{
-                from = $now.ToString('yyyy-MM-dd')
+                from = $now.AddDays(1 - $now.Day).ToString('yyyy-MM-dd')
                 to   = $monthEnd.ToString('yyyy-MM-dd')
             }
             dataset                 = $(
@@ -177,16 +181,11 @@ function Get-CostData {
             # columns differently and adds a CostStatus column, so positional
             # access can mistake "Forecast"/"Actual" text for a subscription ID.
             $fCols = $fResult.properties.columns
-            $fCostIdx = -1; $fSubIdx = -1
-            if ($fCols) {
-                for ($ci = 0; $ci -lt $fCols.Count; $ci++) {
-                    $cn = ([string]$fCols[$ci].name).ToLower()
-                    if ($cn -eq 'subscriptionid') { $fSubIdx = $ci }
-                    elseif ($cn -match 'cost|pretaxcost') { $fCostIdx = $ci }
-                }
+            $fSubIdx = Get-CostColumnIndex -Columns $fCols -Names @('subscriptionid')
+            $fCostIdx = Get-CostColumnIndex -Columns $fCols -Names @('cost', 'pretaxcost', 'costusd')
+            if ($fCostIdx -lt 0 -or $fSubIdx -lt 0) {
+                throw "Forecast response did not expose the expected Cost and SubscriptionId columns."
             }
-            if ($fCostIdx -eq -1) { $fCostIdx = 0 }
-            if ($fSubIdx -eq -1) { $fSubIdx = 1 }
 
             $forecastSums = @{}
             foreach ($row in $fResult.properties.rows) {
@@ -217,7 +216,7 @@ function Get-CostData {
 
     # Per-subscription forecast fallback
     if (-not $forecastSuccess -and $Subscriptions) {
-        $now = Get-Date
+        $now = (Get-Date).ToUniversalTime()
         $monthEnd = (Get-Date -Year $now.Year -Month $now.Month -Day 1).AddMonths(1).AddDays(-1)
         $subCount = $Subscriptions.Count
         $i = 0
@@ -234,7 +233,7 @@ function Get-CostData {
                     type                    = 'Usage'
                     timeframe               = 'Custom'
                     timePeriod              = @{
-                        from = $now.ToString('yyyy-MM-dd')
+                        from = $now.AddDays(1 - $now.Day).ToString('yyyy-MM-dd')
                         to   = $monthEnd.ToString('yyyy-MM-dd')
                     }
                     dataset                 = @{
@@ -270,9 +269,13 @@ function Get-CostData {
     }
 
     # Ensure any subs without forecast data default to actual
-    foreach ($subId in $costMap.Keys) {
+    foreach ($subId in @($costMap.Keys)) {
+        if (-not $costMap[$subId].ContainsKey('ForecastSource')) {
+            $costMap[$subId].ForecastSource = 'Forecast'
+        }
         if ($costMap[$subId].Forecast -eq 0 -and $costMap[$subId].Actual -gt 0) {
             $costMap[$subId].Forecast = $costMap[$subId].Actual
+            $costMap[$subId].ForecastSource = 'Actual'
         }
     }
 
@@ -333,18 +336,18 @@ function Get-CostDataPerSubscription {
                 }
             }
 
-            $costMap[$sub.Id] = @{ Actual = $actual; Forecast = $actual; Currency = $currency }
+            $costMap[$sub.Id] = @{ Actual = $actual; Forecast = $actual; Currency = $currency; ForecastSource = 'Actual' }
 
             # Per-sub forecast (skipped for large tenants)
             if (-not $skipForecast) {
                 try {
-                    $now = Get-Date
+                    $now = (Get-Date).ToUniversalTime()
                     $monthEnd = (Get-Date -Year $now.Year -Month $now.Month -Day 1).AddMonths(1).AddDays(-1)
                     $fBody = @{
                         type                    = 'Usage'
                         timeframe               = 'Custom'
                         timePeriod              = @{
-                            from = $now.ToString('yyyy-MM-dd')
+                            from = $now.AddDays(1 - $now.Day).ToString('yyyy-MM-dd')
                             to   = $monthEnd.ToString('yyyy-MM-dd')
                         }
                         dataset                 = @{
@@ -361,8 +364,15 @@ function Get-CostDataPerSubscription {
                     if ($fResp.StatusCode -eq 200) {
                         $fRes = ($fResp.Content | ConvertFrom-Json)
                         if ($fRes.properties.rows -and $fRes.properties.rows.Count -gt 0) {
-                            $fAmount = [math]::Round($fRes.properties.rows[0][0], 2)
-                            $costMap[$sub.Id].Forecast = $actual + $fAmount
+                            $fcIdx = Get-CostColumnIndex -Columns $fRes.properties.columns -Names @('cost', 'pretaxcost', 'costusd')
+                            if ($fcIdx -ge 0) {
+                                $total = 0.0
+                                foreach ($fRow in $fRes.properties.rows) {
+                                    $total += [double]$fRow[$fcIdx]
+                                }
+                                $costMap[$sub.Id].Forecast = [math]::Round($total, 2)
+                                $costMap[$sub.Id].ForecastSource = 'Forecast'
+                            }
                         }
                     }
                 }

@@ -76,6 +76,21 @@ function New-KpiValue {
     [PSCustomObject]@{ Display = $Display; Value = $Value }
 }
 
+function Get-CommitmentUtilizationValue {
+    param($Data)
+
+    $vals = @()
+    if ([int](Get-ScanField $Data 'RICount') -gt 0) {
+        $ri = Get-ScanField $Data 'RIAvgUtilization'
+        if ($null -ne $ri) { $vals += [double]$ri }
+    }
+    if ([int](Get-ScanField $Data 'SPCount') -gt 0) {
+        $sp = Get-ScanField $Data 'SPAvgUtilization'
+        if ($null -ne $sp) { $vals += [double]$sp }
+    }
+    return $vals
+}
+
 function Get-KpiComputedValue {
     param([string]$KpiId, $Data, $Catalog)
 
@@ -99,9 +114,7 @@ function Get-KpiComputedValue {
             if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$cur $v per vCPU / month" ([double]$v)) }
         }
         'commitment-utilization-score' {
-            $ri = Get-ScanField $Data 'RIAvgUtilization'
-            $sp = Get-ScanField $Data 'SPAvgUtilization'
-            $vals = @($ri, $sp) | Where-Object { $null -ne $_ -and $_ -gt 0 }
+            $vals = @(Get-CommitmentUtilizationValue -Data $Data)
             if ($vals.Count -gt 0) {
                 $avg = [math]::Round(($vals | Measure-Object -Average).Average, 1)
                 return (New-KpiValue "$avg%" $avg)
@@ -218,9 +231,7 @@ function Get-KpiComputedValue {
             }
         }
         'pct-commitment-discount-waste' {
-            $ri = Get-ScanField $Data 'RIAvgUtilization'
-            $sp = Get-ScanField $Data 'SPAvgUtilization'
-            $vals = @($ri, $sp) | Where-Object { $null -ne $_ -and $_ -gt 0 }
+            $vals = @(Get-CommitmentUtilizationValue -Data $Data)
             if ($vals.Count -gt 0) {
                 $avg = ($vals | Measure-Object -Average).Average
                 $waste = [math]::Round(100 - $avg, 1)

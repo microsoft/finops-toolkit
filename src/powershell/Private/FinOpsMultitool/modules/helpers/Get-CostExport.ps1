@@ -676,6 +676,7 @@ function ConvertTo-CostDataFromExport {
     # Seed every selected sub so the UI shows them even at $0
     foreach ($s in $Subscriptions) { $costMap[$s.Id] = @{ Actual = 0; Forecast = 0; Currency = $ExportData.Currency } }
 
+    $skippedRows = 0
     foreach ($r in $ExportData.Rows) {
         # SubscriptionId may be a bare GUID (classic) or a /subscriptions/<guid>
         # path (FOCUS SubAccountId). Fall back to ResourceId when absent.
@@ -683,12 +684,17 @@ function ConvertTo-CostDataFromExport {
         if ([string]::IsNullOrWhiteSpace($rawSub) -and $cm.ResourceId) { $rawSub = "$($r.$($cm.ResourceId))" }
         $g = Get-GuidFromString -Value $rawSub
         if (-not $g) { continue }
-        $key = if ($guidToKey.ContainsKey($g.ToLower())) { $guidToKey[$g.ToLower()] } else { $g }
+        if (-not $guidToKey.ContainsKey($g.ToLower())) { $skippedRows++; continue }
+        $key = $guidToKey[$g.ToLower()]
         $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
         if (-not $costMap.ContainsKey($key)) {
             $costMap[$key] = @{ Actual = 0; Forecast = 0; Currency = $ExportData.Currency }
         }
         $costMap[$key].Actual += $cost
+    }
+
+    if ($skippedRows -gt 0) {
+        Write-Verbose "  Export covers a wider scope: ignored $skippedRows row(s) for unselected subscriptions."
     }
 
     # Linear month-to-date projection for a sensible forecast
