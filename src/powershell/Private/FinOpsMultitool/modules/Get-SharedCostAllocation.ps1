@@ -183,7 +183,7 @@ function Get-AllocationCostMaps {
 
     $byResource = @{}
     $bySub = @{}
-    $currency = 'USD'
+    $currency = $null
     $source = 'LiveApi'
 
     $fromHub = ($HubData -and @($HubData).Count -gt 0)
@@ -191,9 +191,12 @@ function Get-AllocationCostMaps {
     if ($fromHub) {
         $source = 'FinOpsHub'
         $props = $HubData[0].PSObject.Properties.Name
+        $costSchema = Get-HubCostSchema -HubData $HubData -CostBasis 'AmortizedCost'
+        $costCol = $costSchema.CostColumn
+        $currency = $costSchema.Currency
         foreach ($row in $HubData) {
             $rid = [string](Get-HubRowValue -Row $row -Names @('ResourceId', 'x_ResourceId', 'InstanceId') -Props $props)
-            $cost = [double](Get-HubRowValue -Row $row -Names @('CostInBillingCurrency', 'BilledCost', 'EffectiveCost', 'Cost') -Props $props)
+            $cost = Get-HubCostValue -Row $row -Column $costCol
             $sub = [string](Get-HubRowValue -Row $row -Names @('SubAccountId', 'SubscriptionId', 'x_SubscriptionId', 'SubscriptionGuid') -Props $props)
             $cur = [string](Get-HubRowValue -Row $row -Names @('BillingCurrency', 'BillingCurrencyCode', 'Currency') -Props $props)
             if ($cur) { $currency = $cur }
@@ -234,10 +237,17 @@ function Get-AllocationCostMaps {
                     $iCost = [array]::IndexOf($cols, 'Cost')
                     $iRes = [array]::IndexOf($cols, 'ResourceId')
                     $iCur = [array]::IndexOf($cols, 'Currency')
+                    if ($data.properties.rows.Count -gt 0 -and ($iCost -lt 0 -or $iRes -lt 0 -or $iCur -lt 0)) {
+                        throw 'Cost, resource, or currency columns are missing; allocation cost coverage is incomplete.'
+                    }
                     foreach ($row in @($data.properties.rows)) {
                         $amount = if ($iCost -ge 0) { [double]$row[$iCost] } else { 0 }
                         $rid = if ($iRes -ge 0) { [string]$row[$iRes] } else { '' }
-                        if ($iCur -ge 0 -and $row[$iCur]) { $currency = [string]$row[$iCur] }
+                        $rowCurrency = ([string]$row[$iCur]).Trim().ToUpperInvariant()
+                        if (-not $rowCurrency -or ($currency -and $rowCurrency -ne $currency)) {
+                            throw 'Allocation cost currency is missing or mixed; cost coverage is incomplete.'
+                        }
+                        $currency = $rowCurrency
                         $bySub[$sub] += $amount
                         if ($rid) {
                             if (-not $byResource.ContainsKey($rid)) { $byResource[$rid] = 0.0 }
@@ -257,6 +267,7 @@ function Get-AllocationCostMaps {
         BySub      = $bySub
         Currency   = $currency
         Source     = $source
+        Period     = if ($fromHub) { $costSchema.Period } else { 'MonthToDate' }
     }
 }
 
@@ -374,7 +385,7 @@ function Get-SharedCostAllocation {
     $costSubs = @($hubSubs + $Spokes | Select-Object -Unique)
     $maps = Get-AllocationCostMaps -SubscriptionIds $costSubs -HubData $HubData
 
-    # -- Size the shared pool from billed cost ----------------------------
+    # -- Size the shared pool from amortized cost -------------------------
     $poolTotal = 0.0
     $poolResources = @()
     foreach ($p in $pool) {
@@ -432,7 +443,7 @@ function Get-SharedCostAllocation {
         }
     }
     if ($maps.Source -eq 'LiveApi') {
-        $notes += 'Costs are live Cost Management actuals (month-to-date). Per-spoke ExpressRoute attribution cannot come from billing - it relies on the weighting key.'
+        $notes += 'Costs are live Cost Management amortized costs (month-to-date). Per-spoke ExpressRoute attribution cannot come from billing - it relies on the weighting key.'
     }
 
     # Ready-to-paste targets for set_cost_allocation_rule: each spoke's share of
@@ -449,7 +460,7 @@ function Get-SharedCostAllocation {
 
     return [PSCustomObject]@{
         HasData         = $true
-        Period          = 'MonthToDate'
+        Period          = $maps.Period
         Source          = $maps.Source
         Currency        = $maps.Currency
         WeightingMethod = $WeightingMethod

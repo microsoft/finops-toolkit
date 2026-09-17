@@ -129,8 +129,9 @@ Describe 'FinOps Hub Kusto provider' {
                         RowCount = 2
                         Error    = $null
                         Rows     = @(
+                            [PSCustomObject]@{ _CostValidation = $true; _InvalidCosts = 0; _CurrencyCount = 1; _SourceRows = 2; _MissingSubscriptions = 0 }
                             [PSCustomObject]@{ _sub = 'aaaaaaaa-1111-2222-3333-444444444444'; Actual = 123.456; Currency = 'USD' }
-                            [PSCustomObject]@{ _sub = 'bbbbbbbb-1111-2222-3333-444444444444'; Actual = 10.0; Currency = 'EUR' }
+                            [PSCustomObject]@{ _sub = 'bbbbbbbb-1111-2222-3333-444444444444'; Actual = 10.0; Currency = 'USD' }
                         )
                     }
                 }
@@ -140,9 +141,13 @@ Describe 'FinOps Hub Kusto provider' {
                 $map | Should -BeOfType ([hashtable])
                 $map.Keys.Count | Should -Be 2
                 $map['aaaaaaaa-1111-2222-3333-444444444444'].Actual | Should -Be 123.46
-                $map['aaaaaaaa-1111-2222-3333-444444444444'].Forecast | Should -Be 0.0
+                $map['aaaaaaaa-1111-2222-3333-444444444444'].Forecast | Should -BeNullOrEmpty
                 $map['aaaaaaaa-1111-2222-3333-444444444444'].Currency | Should -Be 'USD'
-                $map['bbbbbbbb-1111-2222-3333-444444444444'].Currency | Should -Be 'EUR'
+                $map['bbbbbbbb-1111-2222-3333-444444444444'].Currency | Should -Be 'USD'
+                Should -Invoke Invoke-FOHubKustoQuery -Times 1 -Exactly -ParameterFilter {
+                    $Query.Contains('todouble(BilledCost)') -and -not $Query.Contains('EffectiveCost') -and
+                    $Query.Contains('isnull(_cost) or not(isfinite(_cost))')
+                }
             }
         }
 
@@ -165,6 +170,7 @@ Describe 'FinOps Hub Kusto provider' {
                         RowCount = 2
                         Error    = $null
                         Rows     = @(
+                            [PSCustomObject]@{ _CostValidation = $true; _InvalidCosts = 0; _CurrencyCount = 1; _SourceRows = 2; _MissingSubscriptions = 0 }
                             [PSCustomObject]@{ Subscription = 'Sub A'; ResourceGroup = 'rg1'; ResourceType = 'Microsoft.Compute/virtualMachines'; ResourcePath = '/subscriptions/x/rg1/vm1'; Actual = 50.0; Currency = 'USD' }
                             [PSCustomObject]@{ Subscription = 'Sub A'; ResourceGroup = 'rg2'; ResourceType = 'Microsoft.Storage/storageAccounts'; ResourcePath = '/subscriptions/x/rg2/sa1'; Actual = 200.0; Currency = 'USD' }
                         )
@@ -177,12 +183,50 @@ Describe 'FinOps Hub Kusto provider' {
                 $rows[0].PSObject.Properties.Name | Should -Contain 'ResourcePath'
                 $rows[0].PSObject.Properties.Name | Should -Contain 'Forecast'
                 $rows[0].Actual | Should -Be 200.0
-                $rows[0].Forecast | Should -Be 0.0
+                $rows[0].Forecast | Should -BeNullOrEmpty
             }
         }
     }
 
     Context 'Get-FOHubCostByTag shape' {
+        It 'Preserves tag value case and negative untagged credits' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-FOHubKustoQuery {
+                    @{ Ok = $true; Rows = @(
+                        [pscustomobject]@{ _CostValidation = $true; _InvalidCosts = 0; _CurrencyCount = 1; _SourceRows = 3; _MissingSubscriptions = 0 }
+                        [pscustomobject]@{ TagKey = '*TOTAL*'; Cost = 100; Currency = 'USD' }
+                        [pscustomobject]@{ TagKey = 'env'; TagValue = 'Prod'; Cost = 50; Currency = 'USD' }
+                        [pscustomobject]@{ TagKey = 'env'; TagValue = 'prod'; Cost = 70; Currency = 'USD' }
+                    ) }
+                }
+                $provider = @{ UseAuth = $false; ClusterUri = 'http://localhost:8082'; Database = 'Hub' }
+
+                $result = Get-FOHubCostByTag -Provider $provider -TagKeys @('env')
+
+                @($result.CostByTag.env).Count | Should -Be 3
+                ($result.CostByTag.env | Where-Object { $_.TagValue -ceq 'Prod' }).Cost | Should -Be 50
+                ($result.CostByTag.env | Where-Object { $_.TagValue -ceq 'prod' }).Cost | Should -Be 70
+                ($result.CostByTag.env | Where-Object TagValue -EQ '(untagged)').Cost | Should -Be -20
+                ($result.CostByTag.env | Measure-Object Cost -Sum).Sum | Should -Be 100
+            }
+        }
+
+        It 'Validates coverage even when no tags are discovered' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-FOHubKustoQuery {
+                    if ($Query.Contains('_CostValidation')) {
+                        return @{ Ok = $true; Rows = @([pscustomobject]@{ _CostValidation = $true; _InvalidCosts = 0; _CurrencyCount = 0; _SourceRows = 0; _MissingSubscriptions = 1 }) }
+                    }
+                    @{ Ok = $true; Rows = @() }
+                }
+                $provider = @{ UseAuth = $false; ClusterUri = 'http://localhost:8082'; Database = 'Hub' }
+
+                $result = Get-FOHubCostByTag -Provider $provider -SubscriptionIds @('44444444-4444-4444-4444-444444444444')
+
+                $result.Error | Should -BeLike '*validation failed*'
+            }
+        }
+
         It 'Derives (untagged) cost per key from the TOTAL sentinel' {
             InModuleScope FinOpsMultitool {
                 Mock Invoke-FOHubKustoQuery {
@@ -191,6 +235,7 @@ Describe 'FinOps Hub Kusto provider' {
                         RowCount = 3
                         Error    = $null
                         Rows     = @(
+                            [PSCustomObject]@{ _CostValidation = $true; _InvalidCosts = 0; _CurrencyCount = 1; _SourceRows = 3; _MissingSubscriptions = 0 }
                             [PSCustomObject]@{ TagKey = '*TOTAL*'; TagValue = '*TOTAL*'; Cost = 1000.0; Currency = 'USD' }
                             [PSCustomObject]@{ TagKey = 'env'; TagValue = 'prod'; Cost = 600.0; Currency = 'USD' }
                             [PSCustomObject]@{ TagKey = 'env'; TagValue = 'dev'; Cost = 300.0; Currency = 'USD' }
@@ -208,6 +253,29 @@ Describe 'FinOps Hub Kusto provider' {
                 ($envEntries | Where-Object { $_.TagValue -eq '(untagged)' }).Cost | Should -Be 100.0
                 # Sorted descending: prod (600) first.
                 $envEntries[0].TagValue | Should -Be 'prod'
+            }
+        }
+    }
+
+    It 'Rejects failed whole-scope cost validation (<Case>)' -ForEach @(
+        @{ Case = 'unknown charge date'; InvalidCosts = 1; CurrencyCount = 1; MissingSubscriptions = 0 }
+        @{ Case = 'invalid amount outside top results'; InvalidCosts = 1; CurrencyCount = 1; MissingSubscriptions = 0 }
+        @{ Case = 'mixed currencies'; InvalidCosts = 0; CurrencyCount = 2; MissingSubscriptions = 0 }
+        @{ Case = 'missing selected subscription'; InvalidCosts = 0; CurrencyCount = 1; MissingSubscriptions = 1 }
+    ) {
+        InModuleScope FinOpsMultitool -Parameters @{ InvalidCosts = $InvalidCosts; CurrencyCount = $CurrencyCount; MissingSubscriptions = $MissingSubscriptions } {
+            param($InvalidCosts, $CurrencyCount, $MissingSubscriptions)
+            $validationRow = [pscustomobject]@{ _CostValidation = $true; _InvalidCosts = $InvalidCosts; _CurrencyCount = $CurrencyCount; _SourceRows = 10; _MissingSubscriptions = $MissingSubscriptions }
+            Mock Invoke-FOHubKustoQuery {
+                @{ Ok = $true; Rows = @($validationRow, [pscustomobject]@{ Actual = 100; Currency = 'USD'; _sub = 'aaaaaaaa-1111-2222-3333-444444444444' }) }
+            }
+            $provider = @{ UseAuth = $false; ClusterUri = 'http://localhost:8082'; Database = 'Hub' }
+            (Get-FOHubCostSummary -Provider $provider).Error | Should -BeLike '*validation failed*'
+            (Get-FOHubResourceCosts -Provider $provider -Top 1).Error | Should -BeLike '*validation failed*'
+            (Get-FOHubCostByTag -Provider $provider -TagKeys @('env')).Error | Should -BeLike '*validation failed*'
+            Should -Invoke Invoke-FOHubKustoQuery -Times 3 -Exactly -ParameterFilter {
+                $Query.Contains('where isnull(ChargePeriodStart) or') -and
+                $Query.Contains('or isnull(ChargePeriodStart))')
             }
         }
     }

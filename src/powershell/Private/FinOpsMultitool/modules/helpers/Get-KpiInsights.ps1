@@ -76,6 +76,9 @@ function New-KpiValue {
     [PSCustomObject]@{ Display = $Display; Value = $Value }
 }
 
+# Returns the utilization figures that were actually measured. A family with no
+# commitments reports 0, which would otherwise read as a measured 0% and halve
+# the average for anyone who owns reservations but no savings plans.
 function Get-CommitmentUtilizationValue {
     param($Data)
 
@@ -89,6 +92,55 @@ function Get-CommitmentUtilizationValue {
         if ($null -ne $sp) { $vals += [double]$sp }
     }
     return $vals
+}
+
+function Get-BudgetKpiData {
+    param($Data)
+
+    $budgets = @(Get-ScanField $Data 'Budgets')
+    if (-not $budgets -or (Get-ScanField $Data 'CoverageIncomplete')) {
+        return @{ Error = 'Unavailable: budget inventory is incomplete.' }
+    }
+    $currency = $null
+    $timeGrain = $null
+    $subscriptions = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $percentages = [System.Collections.Generic.List[double]]::new()
+    $totalBudget = 0.0
+    $totalActual = 0.0
+    $now = (Get-Date).ToUniversalTime()
+    $monthStart = $now.Date.AddDays(1 - $now.Day)
+    foreach ($budget in $budgets) {
+        if ($budget.Category -ne 'Cost' -or -not $budget.Currency -or -not $budget.TimeGrain -or
+            $budget.SpendSource -eq 'Unavailable' -or -not $budget.SubscriptionId) {
+            return @{ Error = 'Unavailable: budget amounts, scope, units, or current spend are unknown.' }
+        }
+        try {
+            if ($budget.TimeGrain -ne 'Monthly' -or -not $budget.TimePeriod.startDate -or
+                ([datetime]$budget.TimePeriod.startDate).ToUniversalTime() -gt $monthStart -or
+                ($budget.TimePeriod.endDate -and ([datetime]$budget.TimePeriod.endDate).ToUniversalTime() -lt $now)) {
+                return @{ Error = 'Unavailable: budgets do not have a verified common current-month window.' }
+            }
+        }
+        catch { return @{ Error = 'Unavailable: a budget reporting period is invalid.' } }
+        if (($currency -and $currency -ne $budget.Currency) -or ($timeGrain -and $timeGrain -ne $budget.TimeGrain)) {
+            return @{ Error = 'Unavailable: budget currencies or reporting periods differ.' }
+        }
+        if (-not $subscriptions.Add([string]$budget.SubscriptionId)) {
+            return @{ Error = 'Unavailable: multiple budgets can overlap within a subscription.' }
+        }
+        try {
+            $amount = Get-HubCostValue -Row $budget -Column 'Amount'
+            $actual = Get-HubCostValue -Row $budget -Column 'ActualSpend'
+            if ($amount -le 0) { throw 'Budget amount must be positive.' }
+        }
+        catch { return @{ Error = 'Unavailable: a budget amount or current spend is invalid.' } }
+        $currency = $budget.Currency
+        $timeGrain = $budget.TimeGrain
+        $totalBudget += $amount
+        $totalActual += $actual
+        [void]$percentages.Add(100 * $actual / $amount)
+    }
+    return @{ Error = $null; Currency = $currency; TotalBudget = $totalBudget; TotalActual = $totalActual; Percentages = $percentages.ToArray() }
 }
 
 function Get-KpiComputedValue {
@@ -122,9 +174,15 @@ function Get-KpiComputedValue {
         'effective-avg-compute-cost-per-core' {
             $v = Get-ScanField $Data 'CostPerVCpu'
             $cur = Get-ScanField $Data 'Currency'
+            # Month-to-date, not a full month, so say so rather than implying a run rate.
             if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$cur $v per vCPU (month-to-date)" ([double]$v)) }
         }
         'commitment-utilization-score' {
+            # Get-CommitmentUtilization seeds both averages to 0 and only fills the
+            # ones it found, so 0 usually means "none of this kind" (or access
+            # denied) rather than a measured 0%. Gate on the counts: a real 0% with
+            # commitments present still counts, an absent family does not drag the
+            # average down.
             $vals = @(Get-CommitmentUtilizationValue -Data $Data)
             if ($vals.Count -gt 0) {
                 $avg = [math]::Round(($vals | Measure-Object -Average).Average, 1)
@@ -166,34 +224,24 @@ function Get-KpiComputedValue {
             }
         }
         'budget-burn-rate' {
-            # Unweighted mean of per-budget percentages, so a large budget does not dominate.
-            $budgets = Get-ScanField $Data 'Budgets'
-            if ($budgets) {
-                $pcts = @($budgets | ForEach-Object { $_.PctUsed } | Where-Object { $null -ne $_ })
-                if ($pcts.Count -gt 0) {
-                    $avg = [math]::Round(($pcts | Measure-Object -Average).Average, 1)
-                    $word = if ($pcts.Count -eq 1) { 'budget' } else { 'budgets' }
-                    return (New-KpiValue "$avg% of budget consumed (average of $($pcts.Count) $word)" $avg)
-                }
-            }
+            $budgetData = Get-BudgetKpiData -Data $Data
+            if ($budgetData.Error) { return (New-KpiValue $budgetData.Error) }
+            $pcts = $budgetData.Percentages
+            $avg = [math]::Round(($pcts | Measure-Object -Average).Average, 1)
+            $word = if ($pcts.Count -eq 1) { 'budget' } else { 'budgets' }
+            return (New-KpiValue "$avg% of budget consumed (average of $($pcts.Count) comparable $word)" $avg)
         }
         'variance-budget-vs-actual' {
-            # Weighted by budget size, unlike budget-burn-rate which averages percentages.
-            $budgets = Get-ScanField $Data 'Budgets'
-            if ($budgets) {
-                $totBudget = ($budgets | Measure-Object -Property Amount -Sum).Sum
-                $totActual = ($budgets | Measure-Object -Property ActualSpend -Sum).Sum
-                $cur = Get-ScanField $Data 'Currency'
-                if (-not $cur) { $cur = 'USD' }
-                if ($totBudget -and $totBudget -gt 0) {
-                    $pctOfPlan = [math]::Round(100 * $totActual / $totBudget, 1)
-                    $spend = '{0:N0}' -f [math]::Round([double]$totActual, 0)
-                    $plan = '{0:N0}' -f [math]::Round([double]$totBudget, 0)
-                    # Score on distance from plan in either direction.
-                    $variance = [math]::Abs([math]::Round(100 * ($totActual - $totBudget) / $totBudget, 1))
-                    return (New-KpiValue "Actual is $pctOfPlan% of planned ($cur $spend of $cur $plan, all budgets combined)" $variance)
-                }
-            }
+            $budgetData = Get-BudgetKpiData -Data $Data
+            if ($budgetData.Error) { return (New-KpiValue $budgetData.Error) }
+            $totBudget = $budgetData.TotalBudget
+            $totActual = $budgetData.TotalActual
+            $cur = $budgetData.Currency
+            $pctOfPlan = [math]::Round(100 * $totActual / $totBudget, 1)
+            $spend = '{0:N0}' -f [math]::Round([double]$totActual, 0)
+            $plan = '{0:N0}' -f [math]::Round([double]$totBudget, 0)
+            $variance = [math]::Abs([math]::Round(100 * ($totActual - $totBudget) / $totBudget, 1))
+            return (New-KpiValue "Actual is $pctOfPlan% of planned ($cur $spend of $cur $plan, comparable budgets)" $variance)
         }
         'effective-savings-rate' {
             # Realized monthly savings from commitments + AHB (proxy: a true rate
@@ -229,8 +277,11 @@ function Get-KpiComputedValue {
             $cur = Get-ScanField $Data 'Currency'
             if (-not $cur) { $cur = 'USD' }
             if ($null -ne $tokens -and [long]$tokens -gt 0) {
-                $costStr = if ($null -ne $cost -and [double]$cost -gt 0) { " for $cur $([math]::Round([double]$cost, 2)) (MTD)" } else { '' }
-                return (New-KpiValue "$('{0:N0}' -f [long]$tokens) tokens$costStr" ([long]$tokens))
+                $costStr = if ($null -ne $cost -and [double]$cost -gt 0) { " for $cur $([math]::Round([double]$cost, 2))" } else { '' }
+                $period = Get-ScanField $Data 'Period'
+                if ($period -eq 'MonthToDate') { $period = 'Month to date' }
+                elseif (-not $period) { $period = 'Unknown period' }
+                return (New-KpiValue "$('{0:N0}' -f [long]$tokens) tokens$costStr ($period)" ([long]$tokens))
             }
         }
         'cost-per-api-call' {
@@ -323,7 +374,7 @@ function Add-KpiInsights {
     foreach ($kpi in $matched) {
         $value = $null
         if ($kpi.compute) { $value = Get-KpiComputedValue -KpiId $kpi.id -Data $data -Catalog $catalog }
-        $status = if ($value) { 'computed' } else { 'informational' }
+        $status = if ($value -and $null -ne $value.Value) { 'computed' } elseif ($value) { 'unavailable' } else { 'informational' }
         $insights += [PSCustomObject]@{
             kpiId         = $kpi.id
             kpiName       = $kpi.name

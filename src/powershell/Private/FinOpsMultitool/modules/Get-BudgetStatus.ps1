@@ -14,6 +14,17 @@ param()
 #          subscriptions at risk of overrun.
 ###########################################################################
 
+function Format-BudgetAmount {
+    param($Value, [string]$Currency)
+
+    if ($null -eq $Value -or [string]::IsNullOrWhiteSpace($Currency)) { return 'Unavailable' }
+    try {
+        $amount = Get-HubCostValue -Row ([pscustomobject]@{ Value = $Value }) -Column 'Value'
+        return '{0} {1:N2}' -f $Currency, $amount
+    }
+    catch { return 'Unavailable' }
+}
+
 function Get-BudgetStatus {
     [CmdletBinding()]
     param(
@@ -58,7 +69,9 @@ function Get-BudgetStatus {
                 $budgetPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Consumption/budgets?api-version=2023-05-01"
                 $resp = Invoke-AzRestMethodWithRetry -Path $budgetPath -Method GET
                 if ($resp.StatusCode -eq 200) {
-                    $sampleBudgets = ($resp.Content | ConvertFrom-Json).value
+                    $sampleBudgets = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -RootNextLink -Context "budget sample for $($sub.Name)")) {
+                        ($page.Content | ConvertFrom-Json -ErrorAction Stop).value
+                    })
                     if ($sampleBudgets -and $sampleBudgets.Count -gt 0) { $sampleHits++ }
                 }
                 else { $sampleErrors++ }
@@ -102,38 +115,64 @@ function Get-BudgetStatus {
             $resp = Invoke-AzRestMethodWithRetry -Path $budgetPath -Method GET
 
             if ($resp.StatusCode -eq 200) {
-                $data = ($resp.Content | ConvertFrom-Json)
-                if ($data.value -and $data.value.Count -gt 0) {
+                $budgetRows = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -RootNextLink -Context "budgets for $($sub.Name)")) {
+                    ($page.Content | ConvertFrom-Json -ErrorAction Stop).value
+                })
+                if ($budgetRows.Count -gt 0) {
                     $subsWithBudget++
-                    foreach ($budget in $data.value) {
+                    foreach ($budget in $budgetRows) {
                         $bp = $budget.properties
-                        $amount = [math]::Round([double]$bp.amount, 2)
+                        $issues = [System.Collections.Generic.List[string]]::new()
+                        $amount = $null
+                        try {
+                            $value = Get-HubCostValue -Row $bp -Column 'amount'
+                            if ($value -le 0) { throw 'Budget amount must be positive.' }
+                            $amount = $value
+                        }
+                        catch { [void]$issues.Add('Budget amount is missing or invalid.') }
                         $timeGrain = $bp.timeGrain
                         $category = $bp.category
 
-                        # Current spend from our existing cost data
-                        $actualSpend = 0
-                        $forecast = 0
-                        $spendKnown = ($CostData -and $CostData.ContainsKey($sub.Id))
-                        if ($spendKnown) {
-                            $actualSpend = [math]::Round($CostData[$sub.Id].Actual, 2)
-                            $forecast = [math]::Round($CostData[$sub.Id].Forecast, 2)
+                        $actualSpend = $null
+                        $forecast = $null
+                        $spendKnown = $false
+                        $spendSource = 'Unavailable'
+                        $forecastSource = 'Unavailable'
+                        $spendCurrency = $null
+                        $actualUnit = ([string]$bp.currentSpend.unit).Trim().ToUpperInvariant()
+                        $forecastUnit = ([string]$bp.forecastSpend.unit).Trim().ToUpperInvariant()
+                        if ($actualUnit) { $spendCurrency = $actualUnit }
+                        elseif ($forecastUnit) { $spendCurrency = $forecastUnit }
+
+                        if ($bp.currentSpend -and $actualUnit) {
+                            try {
+                                $actualSpend = Get-HubCostValue -Row $bp.currentSpend -Column 'amount'
+                                $spendKnown = $true
+                                $spendSource = 'Budget'
+                            }
+                            catch { [void]$issues.Add('Current spend amount is missing or invalid.') }
                         }
+                        else { [void]$issues.Add('Current spend or its unit is unavailable.') }
+                        if ($bp.forecastSpend -and $forecastUnit -and $forecastUnit -eq $spendCurrency) {
+                            try {
+                                $forecast = Get-HubCostValue -Row $bp.forecastSpend -Column 'amount'
+                                $forecastSource = 'Budget'
+                            }
+                            catch { [void]$issues.Add('Forecast amount is missing or invalid.') }
+                        }
+                        elseif ($bp.forecastSpend) { [void]$issues.Add('Forecast unit is missing or does not match the budget unit.') }
+                        else { [void]$issues.Add('Budget forecast is unavailable.') }
 
-                        # Calculate % used
-                        $pctUsed = if ($amount -gt 0) { [math]::Round(($actualSpend / $amount) * 100, 1) } else { 0 }
-                        $pctForecast = if ($amount -gt 0) { [math]::Round(($forecast / $amount) * 100, 1) } else { 0 }
+                        $pctUsed = if ($spendKnown -and $null -ne $amount) { [math]::Round(($actualSpend / $amount) * 100, 1) } else { $null }
+                        $pctForecast = if ($forecastSource -ne 'Unavailable' -and $null -ne $amount) { [math]::Round(($forecast / $amount) * 100, 1) } else { $null }
 
-                        # Risk level
-                        # 'Unknown' means we could not read current spend for this
-                        # subscription, so we must NOT claim the budget is On Track.
-                        # 'Over Budget' means actual spend has already exceeded the budget.
-                        # 'Forecast Over' means actual is still within budget but the
-                        # month-end forecast is projected to exceed it (early warning).
-                        $risk = if (-not $spendKnown) { 'Unknown' }
+                        $risk = if ($null -eq $amount) { 'Unknown' }
                         elseif ($pctUsed -gt 100) { 'Over Budget' }
                         elseif ($pctForecast -gt 100) { 'Forecast Over' }
+                        elseif (-not $spendKnown) { 'Unknown' }
                         elseif ($pctForecast -gt 90) { 'At Risk' }
+                        elseif ($pctUsed -gt 90) { 'Near Limit' }
+                        elseif ($forecastSource -eq 'Unavailable') { 'Forecast unavailable' }
                         elseif ($pctForecast -gt 75) { 'Watch' }
                         else { 'On Track' }
 
@@ -182,6 +221,8 @@ function Get-BudgetStatus {
                                 Category       = $category
                                 ActualSpend    = $actualSpend
                                 Forecast       = $forecast
+                                SpendSource    = $spendSource
+                                ForecastSource = $forecastSource
                                 PctUsed        = $pctUsed
                                 PctForecast    = $pctForecast
                                 Risk           = $risk
@@ -189,7 +230,11 @@ function Get-BudgetStatus {
                                 ContactEmails  = (($contactEmails | Select-Object -Unique) -join ', ')
                                 ContactRoles   = (($contactRoles  | Select-Object -Unique) -join ', ')
                                 TagFilter      = $tagFilterStr
-                                Currency       = if ($CostData -and $CostData.ContainsKey($sub.Id)) { $CostData[$sub.Id].Currency } else { 'USD' }
+                                Filter         = $bp.filter
+                                TimePeriod     = $bp.timePeriod
+                                Scope          = "/subscriptions/$($sub.Id)"
+                                Currency       = $spendCurrency
+                                Note           = ($issues -join ' ')
                             })
                     }
                 }
@@ -211,7 +256,7 @@ function Get-BudgetStatus {
     # OverBudgetCount = actual spend already exceeded budget (urgent / red).
     # AtRiskCount = forecast-driven warnings (projected over, or trending high).
     $overBudget = @($budgets | Where-Object { $_.Risk -eq 'Over Budget' }).Count
-    $atRisk = @($budgets | Where-Object { $_.Risk -in @('Forecast Over', 'At Risk') }).Count
+    $atRisk = @($budgets | Where-Object { $_.Risk -in @('Forecast Over', 'At Risk', 'Near Limit') }).Count
 
     # Either an unqueried sample or an unreadable subscription leaves coverage
     # unmeasured, so both suppress the percentage rather than rounding down.
@@ -257,6 +302,7 @@ function Get-BudgetHistory {
         [object[]]$Budgets,
 
         [Parameter()]
+        [ValidateRange(1, 36)]
         [int]$MonthsBack = 6,
 
         # Optional Cost Trend result (from Get-CostTrend). When supplied, its
@@ -269,156 +315,113 @@ function Get-BudgetHistory {
     if (-not $Budgets -or $Budgets.Count -eq 0) { return @() }
 
     $history = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $now = (Get-Date).ToUniversalTime()
+    $monthStart = $now.Date.AddDays(1 - $now.Day)
+    $monthDates = @(for ($monthsAgo = $MonthsBack; $monthsAgo -ge 1; $monthsAgo--) { $monthStart.AddMonths(-$monthsAgo) })
+    $costCache = @{}
 
-    # Build a sub -> { 'yyyy-MM' = cost } lookup from Cost Trend so Budget
-    # History can avoid hitting Cost Management again. Cost Trend already
-    # fetched the last 6 months of monthly spend per subscription — exactly the
-    # data Budget History needs — so reusing it eliminates the redundant,
-    # 429-prone per-sub queries that were leaving history empty under throttle.
-    $trendBySub = @{}
-    if ($CostTrend -and $CostTrend.BySubscription) {
-        foreach ($k in @($CostTrend.BySubscription.Keys)) {
-            $lookup = @{}
-            foreach ($m in $CostTrend.BySubscription[$k]) {
-                if ($m.MonthDate -is [datetime]) {
-                    $lookup[$m.MonthDate.ToString('yyyy-MM')] = [math]::Round([double]$m.Cost, 2)
-                }
-            }
-            if ($lookup.Count -gt 0) { $trendBySub[$k] = $lookup }
+    foreach ($budget in $Budgets) {
+        $reason = $null
+        $budgetAmount = $null
+        $periodStart = $null
+        $periodEnd = [datetime]::MaxValue
+        $subId = [string]$budget.SubscriptionId
+        if ($budget.Filter -or $budget.TagFilter) { $reason = 'Filtered budget history requires costs for the same filter.' }
+        elseif ($budget.Category -ne 'Cost' -or $budget.TimeGrain -ne 'Monthly') { $reason = 'Subscription monthly costs cannot reconstruct this budget category or period.' }
+        elseif (-not $budget.Currency) { $reason = 'Budget currency is unavailable.' }
+        elseif ($budget.Scope -and $budget.Scope -ne "/subscriptions/$subId") { $reason = 'Budget scope differs from the subscription cost scope.' }
+        try {
+            $budgetAmount = Get-HubCostValue -Row $budget -Column 'Amount'
+            if ($budgetAmount -le 0) { throw 'Budget amount must be positive.' }
         }
-    }
+        catch { $budgetAmount = $null; $reason = 'Budget amount is missing or invalid.' }
+        try {
+            if (-not $budget.TimePeriod.startDate) { throw 'Missing start date.' }
+            $periodStart = ([datetime]$budget.TimePeriod.startDate).ToUniversalTime()
+            if ($budget.TimePeriod.endDate) { $periodEnd = ([datetime]$budget.TimePeriod.endDate).ToUniversalTime().Date.AddDays(1) }
+        }
+        catch { $reason = 'Budget validity period is unavailable.' }
+        $activeMonths = if (-not $reason) { @($monthDates | Where-Object { $_ -ge $periodStart -and $_.AddMonths(1) -le $periodEnd }) } else { @() }
 
-    # History reports on a fixed window, so cached trend data is only usable when
-    # it covers that whole window. Cost Trend may hold fewer months than
-    # -MonthsBack asks for, and the uncovered months would otherwise be filled
-    # with zero spend and reported as being under budget.
-    $requiredMonths = [System.Collections.Generic.List[string]]::new()
-    for ($m = $MonthsBack; $m -ge 1; $m--) {
-        [void]$requiredMonths.Add((Get-Date).AddMonths(-$m).ToString('yyyy-MM'))
-    }
-
-    # Group budgets by subscription to minimize API calls
-    $bySubId = $Budgets | Group-Object SubscriptionId
-
-    foreach ($subGroup in $bySubId) {
-        $subId = $subGroup.Name
-        $subName = $subGroup.Group[0].Subscription
-
-        # Prefer reusing Cost Trend data (zero extra API calls). Fall back to a
-        # live per-sub Cost Management query when trend data is missing or does
-        # not reach as far back as this report does.
-        $monthlyCosts = $null
-        if ($trendBySub.ContainsKey($subId)) {
-            $cached = $trendBySub[$subId]
+        if (-not $reason -and $activeMonths.Count -gt 0 -and -not $costCache.ContainsKey($subId)) {
+            $monthlyCosts = @{}
+            if ($CostTrend -and $CostTrend.BySubscription -and $CostTrend.BySubscription[$subId]) {
+                try {
+                    foreach ($entry in $CostTrend.BySubscription[$subId]) {
+                        if ($entry.MonthDate -isnot [datetime] -or -not $entry.Currency) { throw 'Cached cost date or currency is missing.' }
+                        $key = $entry.MonthDate.ToString('yyyy-MM')
+                        $amount = Get-HubCostValue -Row $entry -Column 'Cost'
+                        if (-not $monthlyCosts.ContainsKey($key)) { $monthlyCosts[$key] = @{ Cost = 0.0; Currency = $entry.Currency } }
+                        if ($monthlyCosts[$key].Currency -ne $entry.Currency) { throw 'Cached monthly costs have mixed currencies.' }
+                        $monthlyCosts[$key].Cost += $amount
+                    }
+                }
+                catch { $monthlyCosts.Clear() }
+            }
             $covered = $true
-            foreach ($rm in $requiredMonths) {
-                if (-not $cached.ContainsKey($rm)) { $covered = $false; break }
-            }
-            if ($covered) { $monthlyCosts = $cached }
-        }
-        if (-not $monthlyCosts) {
-            # Query monthly costs for this sub over the last N months
-            $startDate = (Get-Date).AddMonths(-$MonthsBack).ToString('yyyy-MM-01')
-            $endDate = (Get-Date -Day 1).AddDays(-1).ToString('yyyy-MM-dd')  # Last day of previous month
-
-            $body = @{
-                type       = 'ActualCost'
-                timeframe  = 'Custom'
-                timePeriod = @{ from = $startDate; to = $endDate }
-                dataset    = @{
-                    granularity = 'Monthly'
-                    aggregation = @{
-                        totalCost = @{ name = 'Cost'; function = 'Sum' }
-                    }
+            foreach ($month in $monthDates) { if (-not $monthlyCosts.ContainsKey($month.ToString('yyyy-MM'))) { $covered = $false } }
+            if (-not $covered) {
+                $body = @{
+                    type = 'ActualCost'; timeframe = 'Custom'
+                    timePeriod = @{ from = $monthDates[0].ToString('yyyy-MM-dd'); to = $monthStart.AddDays(-1).ToString('yyyy-MM-dd') }
+                    dataset = @{ granularity = 'Monthly'; aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } } }
+                } | ConvertTo-Json -Depth 10
+                $costPath = "/subscriptions/$subId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+                $response = Invoke-AzRestMethodWithRetry -Path $costPath -Method POST -Payload $body
+                $result = Get-CostQueryResult -FirstResponse $response -Payload $body -Context "budget history for $($budget.Subscription)"
+                $costIndex = Get-CostColumnIndex -Columns $result.properties.columns -Names @('cost', 'totalcost', 'pretaxcost')
+                $dateIndex = Get-CostColumnIndex -Columns $result.properties.columns -Names @('billingmonth', 'usagedate')
+                $currencyIndex = Get-CostColumnIndex -Columns $result.properties.columns -Names @('currency', 'billingcurrency')
+                if ($result.properties.rows.Count -gt 0 -and ($costIndex -lt 0 -or $dateIndex -lt 0 -or $currencyIndex -lt 0)) {
+                    throw 'Budget history is missing required cost columns; results are incomplete.'
                 }
-            } | ConvertTo-Json -Depth 10
-
-            $costPath = "/subscriptions/$subId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
-            try {
-                $resp = Invoke-AzRestMethodWithRetry -Path $costPath -Method POST -Payload $body
-
-                $result = Get-CostQueryResult -FirstResponse $resp -Payload $body -Context "budget history for $subName"
-                if (-not $result.properties -or -not $result.properties.rows) { continue }
-
-                # Parse columns
-                $cols = $result.properties.columns
-                $costIdx = -1; $dateIdx = -1; $currIdx = -1
-                for ($i = 0; $i -lt $cols.Count; $i++) {
-                    $n = $cols[$i].name.ToLower()
-                    if ($n -eq 'cost' -or $n -eq 'totalcost' -or $n -match 'pretaxcost') { $costIdx = $i }
-                    elseif ($n -match 'billingmonth|usagedate') { $dateIdx = $i }
-                    elseif ($n -match 'currency|billingcurrency') { $currIdx = $i }
-                }
-                if ($costIdx -eq -1) { $costIdx = 0 }
-                if ($dateIdx -eq -1) { $dateIdx = 1 }
-                if ($currIdx -eq -1) { $currIdx = 2 }
-
-                # Build month → cost lookup
-                $monthlyCosts = @{}
+                $monthlyCosts.Clear()
+                foreach ($month in $monthDates) { $monthlyCosts[$month.ToString('yyyy-MM')] = @{ Cost = 0.0; Currency = $null } }
                 foreach ($row in $result.properties.rows) {
-                    $cost = [math]::Round([double]$row[$costIdx], 2)
-                    $rawDate = $row[$dateIdx]
-                    # Parse date robustly — API may return a [datetime], a YYYYMMDD
-                    # integer (e.g. 20260101), or a locale-formatted string
-                    # (e.g. "1/1/2026 12:00:00 AM"). Avoid substring slicing, which
-                    # mangles non-ISO date formats and zeroes out actual spend.
-                    $parsed = $null
-                    if ($rawDate -is [datetime]) {
-                        $parsed = $rawDate
+                    $rawDate = $row[$dateIndex]
+                    try {
+                        $date = if ($rawDate -is [datetime]) { $rawDate }
+                        elseif ([string]$rawDate -match '^\d{8}$') { [datetime]::ParseExact([string]$rawDate, 'yyyyMMdd', [cultureinfo]::InvariantCulture) }
+                        else { [datetime]::Parse([string]$rawDate, [cultureinfo]::InvariantCulture) }
                     }
-                    else {
-                        $dateStr = "$rawDate"
-                        $digitsOnly = $dateStr -replace '[^0-9]', ''
-                        if ($digitsOnly.Length -eq 8 -and $dateStr -notmatch '[/\-:]') {
-                            $parsed = [datetime]::ParseExact($digitsOnly, 'yyyyMMdd', $null)
-                        }
-                        else {
-                            try { $parsed = [datetime]::Parse($dateStr) } catch { continue }
-                        }
+                    catch { throw 'Budget history contains an invalid date; results are incomplete.' }
+                    $key = $date.ToString('yyyy-MM')
+                    $currency = [string]$row[$currencyIndex]
+                    if (-not $monthlyCosts.ContainsKey($key) -or [string]::IsNullOrWhiteSpace($currency) -or
+                        ($monthlyCosts[$key].Currency -and $monthlyCosts[$key].Currency -ne $currency)) {
+                        throw 'Budget history has an invalid period or mixed currencies; results are incomplete.'
                     }
-                    $monthKey = $parsed.ToString('yyyy-MM')
-                    $monthlyCosts[$monthKey] = $cost
+                    $monthlyCosts[$key].Currency = $currency
+                    $monthlyCosts[$key].Cost += [double]$row[$costIndex]
                 }
             }
-            catch {
-                throw "Budget history query failed for $subName : $($_.Exception.Message)"
-            }
+            $costCache[$subId] = $monthlyCosts
         }
 
-        if (-not $monthlyCosts -or $monthlyCosts.Count -eq 0) { continue }
-
-        # Now create history rows per budget per month
-        foreach ($budget in $subGroup.Group) {
-            $budgetAmount = [double]$budget.Amount
-            # For quarterly/annual budgets, pro-rate to monthly equivalent
-            $monthlyAmount = switch ($budget.TimeGrain) {
-                'Quarterly' { [math]::Round($budgetAmount / 3, 2) }
-                'Annually' { [math]::Round($budgetAmount / 12, 2) }
-                default { $budgetAmount }
+        foreach ($month in $monthDates) {
+            $key = $month.ToString('yyyy-MM')
+            $rowReason = $reason
+            $actual = $null
+            $pctUsed = $null
+            $status = 'Unavailable'
+            if (-not $rowReason -and ($month -lt $periodStart -or $month.AddMonths(1) -gt $periodEnd)) {
+                $rowReason = 'The budget was not active for this full month.'
             }
-
-            for ($m = $MonthsBack; $m -ge 1; $m--) {
-                $monthDate = (Get-Date).AddMonths(-$m)
-                $monthKey = $monthDate.ToString('yyyy-MM')
-                $monthLabel = $monthDate.ToString('MMM yyyy')
-                $actual = if ($monthlyCosts.ContainsKey($monthKey)) { $monthlyCosts[$monthKey] } else { 0 }
-                $pctUsed = if ($monthlyAmount -gt 0) { [math]::Round(($actual / $monthlyAmount) * 100, 1) } else { 0 }
-                $status = if ($pctUsed -gt 100) { 'Over' }
-                elseif ($pctUsed -gt 90) { 'Near Limit' }
-                else { 'Under' }
-
-                [void]$history.Add([PSCustomObject]@{
-                        Subscription = $subName
-                        BudgetName   = $budget.BudgetName
-                        Month        = $monthLabel
-                        MonthSort    = $monthKey
-                        BudgetAmount = $monthlyAmount
-                        ActualSpend  = $actual
-                        PctUsed      = $pctUsed
-                        Status       = $status
-                        Currency     = $budget.Currency
-                    })
+            if (-not $rowReason) {
+                $cost = $costCache[$subId][$key]
+                if ($cost.Currency -and $cost.Currency -ne $budget.Currency) { $rowReason = 'Cost currency does not match the budget currency.' }
+                else {
+                    $actual = [math]::Round($cost.Cost, 2)
+                    $pctUsed = [math]::Round(100 * $actual / $budgetAmount, 1)
+                    $status = if ($pctUsed -gt 100) { 'Over' } elseif ($pctUsed -gt 90) { 'Near Limit' } else { 'Under' }
+                }
             }
+            [void]$history.Add([PSCustomObject]@{
+                Subscription = $budget.Subscription; BudgetName = $budget.BudgetName; Month = $month.ToString('MMM yyyy'); MonthSort = $key
+                BudgetAmount = if ($budget.TimeGrain -eq 'Monthly') { $budgetAmount } else { $null }
+                ActualSpend = $actual; PctUsed = $pctUsed; Status = $status; Currency = $budget.Currency
+                Note = if ($rowReason) { $rowReason } else { 'Compared with the current budget amount; prior budget revisions are unavailable.' }
+            })
         }
     }
 

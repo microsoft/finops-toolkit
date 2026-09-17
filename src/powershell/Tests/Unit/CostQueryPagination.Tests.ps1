@@ -600,7 +600,10 @@ Describe 'Cost Management query pagination' {
                 if ($scanName -eq 'TrendPartial') {
                     $subscriptions += [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'second' }
                 }
-                $budgets = @([pscustomobject]@{ SubscriptionId = $subscriptions[0].Id; Subscription = 'first'; Amount = 1000; BudgetName = 'test'; TimeGrain = 'Monthly' })
+                $budgets = @([pscustomobject]@{
+                    SubscriptionId = $subscriptions[0].Id; Subscription = 'first'; Amount = 1000; BudgetName = 'test'; TimeGrain = 'Monthly'
+                    Category = 'Cost'; Currency = 'USD'; TimePeriod = @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-2) }
+                })
 
                 {
                     switch ($scanName) {

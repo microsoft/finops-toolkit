@@ -863,6 +863,7 @@ function Invoke-FinOpsMultitool {
         $hubRaw = $null
         $hubTagInventory = $null
         $hubCostByTag = $null
+        $hubScanErrors = @{}
 
         # Scalable Kusto path: when a FinOps Hub Kusto database is reachable
         # (a FINOPS_HUB_KUSTO_URI override for an ftklocal emulator or a pinned
@@ -888,15 +889,15 @@ function Invoke-FinOpsMultitool {
             $hubOk = 0
 
             $cs = Get-FOHubCostSummary -Provider $kustoProvider -SubscriptionIds $subIdsForDisco
-            if ($cs -is [System.Collections.IDictionary] -and $cs.Contains('Error') -and $cs.Error) { $hubErrors.Add("cost summary: $($cs.Error)") }
+            if ($cs -is [System.Collections.IDictionary] -and $cs.Contains('Error') -and $cs.Error) { $hubErrors.Add("cost summary: $($cs.Error)"); $hubScanErrors['Get-CostData'] = $cs.Error }
             else { $hubCostData = $cs; $hubOk++ }
 
             $rc = Get-FOHubResourceCosts -Provider $kustoProvider -SubscriptionIds $subIdsForDisco
-            if ($rc -is [System.Collections.IDictionary] -and $rc.Contains('Error') -and $rc.Error) { $hubErrors.Add("resource costs: $($rc.Error)") }
+            if ($rc -is [System.Collections.IDictionary] -and $rc.Contains('Error') -and $rc.Error) { $hubErrors.Add("resource costs: $($rc.Error)"); $hubScanErrors['Get-ResourceCosts'] = $rc.Error }
             else { $hubResourceCosts = $rc; $hubOk++ }
 
             $ct = Get-FOHubCostByTag -Provider $kustoProvider -SubscriptionIds $subIdsForDisco
-            if ($ct -is [System.Collections.IDictionary] -and $ct.Contains('Error') -and $ct.Error) { $hubErrors.Add("cost by tag: $($ct.Error)") }
+            if ($ct -is [System.Collections.IDictionary] -and $ct.Contains('Error') -and $ct.Error) { $hubErrors.Add("cost by tag: $($ct.Error)"); $hubScanErrors['Get-CostByTag'] = $ct.Error }
             else { $hubCostByTag = $ct; $hubOk++ }
 
             if ($hubOk -gt 0) {
@@ -906,9 +907,7 @@ function Invoke-FinOpsMultitool {
                 Write-Host "  Hub query failed - $e" -ForegroundColor Yellow
             }
             if ($hubOk -eq 0) {
-                # Nothing came back from the hub, so the numbers below are Cost
-                # Management API results. Say so rather than labelling them Hub.
-                Write-Host "  No Hub results. Falling back to the Cost Management API - results are NOT from the FinOps Hub." -ForegroundColor Yellow
+                Write-Host '  Hub cost results are unavailable. Select API as the data source to run a separate live scan.' -ForegroundColor Yellow
             }
         }
         elseif ($DataSource.HubStorage) {
@@ -928,6 +927,9 @@ function Invoke-FinOpsMultitool {
             }
             catch {
                 Write-Host "  Hub data load failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                if ($DataSource.Source -eq 'Hub') {
+                    foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-AIWorkloadMetrics')) { $hubScanErrors[$scan] = $_.Exception.Message }
+                }
                 $hubRaw = $null
             }
             if ($hubRaw -and @($hubRaw).Count -gt 0) {
@@ -978,102 +980,34 @@ function Invoke-FinOpsMultitool {
                 }
 
                 if ($DataSource.Source -eq 'Hub') {
-                    $hubCostData = ConvertTo-CostDataFromHub -HubData $hubRaw
-                    $hubResourceCosts = ConvertTo-ResourceCostsFromHub -HubData $hubRaw
-
-                    # Hub exports are historical actuals — enrich with live forecast from Cost Management API
                     try {
-                        Write-Host "  Fetching forecast data from Cost Management API..." -ForegroundColor DarkGray
-                        $now = Get-Date
-                        $monthEnd = (Get-Date -Year $now.Year -Month $now.Month -Day 1).AddMonths(1).AddDays(-1)
-                        $forecastFilled = $false
-
-                        # Try MG-scope forecast first
-                        $fctTenantId = (Get-AzContext).Tenant.Id
-                        if ($fctTenantId) {
-                            $fctBody = @{
-                                type                    = 'Usage'
-                                timeframe               = 'Custom'
-                                timePeriod              = @{
-                                    from = $now.ToString('yyyy-MM-dd')
-                                    to   = $monthEnd.ToString('yyyy-MM-dd')
-                                }
-                                dataset                 = @{
-                                    granularity = 'None'
-                                    aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
-                                    grouping    = @(@{ type = 'Dimension'; name = 'SubscriptionId' })
-                                }
-                                includeActualCost       = $false
-                                includeFreshPartialCost = $false
-                            } | ConvertTo-Json -Depth 10
-
-                            $fctPath = "/providers/Microsoft.Management/managementGroups/$fctTenantId/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01"
-                            $fctResp = Invoke-AzRestMethodWithRetry -Path $fctPath -Method POST -Payload $fctBody
-                            if ($fctResp.StatusCode -eq 200) {
-                                $fctResult = ($fctResp.Content | ConvertFrom-Json)
-                                if ($fctResult.properties.rows -and $fctResult.properties.rows.Count -gt 0) {
-                                    $fctSums = @{}
-                                    foreach ($row in $fctResult.properties.rows) {
-                                        $subId = $row[1]
-                                        if (-not $fctSums.ContainsKey($subId)) { $fctSums[$subId] = 0 }
-                                        $fctSums[$subId] += [double]$row[0]
-                                    }
-                                    foreach ($subId in $fctSums.Keys) {
-                                        if ($hubCostData.ContainsKey($subId)) {
-                                            # Full-month projection = actual MTD + remaining forecast
-                                            $actual = $hubCostData[$subId].Actual
-                                            $hubCostData[$subId].Forecast = [math]::Round($actual + $fctSums[$subId], 2)
-                                        }
-                                    }
-                                    $forecastFilled = $true
-                                    Write-Host "  Forecast data loaded for $($fctSums.Count) subscription(s)" -ForegroundColor Green
-                                }
-                            }
-                        }
-
-                        # Per-subscription fallback if MG-scope failed
-                        if (-not $forecastFilled -and $Subscriptions) {
-                            $fctHits = 0
-                            foreach ($sub in $Subscriptions) {
-                                try {
-                                    $fBody = @{
-                                        type                    = 'Usage'
-                                        timeframe               = 'Custom'
-                                        timePeriod              = @{
-                                            from = $now.ToString('yyyy-MM-dd')
-                                            to   = $monthEnd.ToString('yyyy-MM-dd')
-                                        }
-                                        dataset                 = @{
-                                            granularity = 'None'
-                                            aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
-                                        }
-                                        includeActualCost       = $false
-                                        includeFreshPartialCost = $false
-                                    } | ConvertTo-Json -Depth 10
-                                    $fResp = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01" -Method POST -Payload $fBody
-                                    if ($fResp.StatusCode -eq 200) {
-                                        $fRes = ($fResp.Content | ConvertFrom-Json)
-                                        if ($fRes.properties.rows -and $fRes.properties.rows.Count -gt 0) {
-                                            $fctTotal = 0
-                                            foreach ($row in $fRes.properties.rows) { $fctTotal += [double]$row[0] }
-                                            if ($hubCostData.ContainsKey($sub.Id)) {
-                                                # Full-month projection = actual MTD + remaining forecast
-                                                $actual = $hubCostData[$sub.Id].Actual
-                                                $hubCostData[$sub.Id].Forecast = [math]::Round($actual + $fctTotal, 2)
-                                                $fctHits++
-                                            }
-                                        }
-                                    }
-                                }
-                                catch {
-                                    Write-Verbose "Non-fatal: $($_.Exception.Message)"
-                                }
-                            }
-                            if ($fctHits -gt 0) { Write-Host "  Forecast data loaded for $fctHits subscription(s)" -ForegroundColor Green }
-                        }
+                        $hubCostData = ConvertTo-CostDataFromHub -HubData $hubRaw
+                        $hubResourceCosts = ConvertTo-ResourceCostsFromHub -HubData $hubRaw
                     }
                     catch {
-                        Write-Host "  Forecast data unavailable: $($_.Exception.Message)" -ForegroundColor DarkGray
+                        foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag')) { $hubScanErrors[$scan] = $_.Exception.Message }
+                        $hubCostData = $null
+                        $hubResourceCosts = $null
+                    }
+                    $currentMonth = (Get-Date).ToUniversalTime()
+                    $currentMonth = $currentMonth.Date.AddDays(1 - $currentMonth.Day)
+                    $forecastSubscriptions = @($Subscriptions | Where-Object {
+                        $entry = if ($hubCostData) { $hubCostData[$_.Id] } else { $null }
+                        $entry -and $null -ne $entry.ActualPeriodStart -and $null -ne $entry.ActualPeriodEnd -and
+                        $entry.ActualPeriodStart -ge $currentMonth -and $entry.ActualPeriodEnd -lt $currentMonth.AddMonths(1)
+                    })
+                    if ($hubCostData -and $forecastSubscriptions.Count -gt 0) {
+                        try {
+                            $liveCost = Get-CostData -TenantId $TenantId -Subscriptions $forecastSubscriptions -RestrictToSelected
+                            foreach ($subId in $forecastSubscriptions.Id) {
+                                $forecast = $liveCost[$subId]
+                                if ($forecast -and $forecast.ForecastSource -eq 'Forecast' -and $forecast.Currency -eq $hubCostData[$subId].Currency) {
+                                    $hubCostData[$subId].Forecast = $forecast.Forecast
+                                    $hubCostData[$subId].ForecastSource = 'Cost Management API (current month)'
+                                }
+                            }
+                        }
+                        catch { Write-Host "  Live forecast unavailable; hub actuals remain available. $($_.Exception.Message)" -ForegroundColor Yellow }
                     }
 
                     Write-Host "  Hub data loaded: $(@($hubRaw).Count) cost records, $($hubTagInventory.TagCount) tags, $($hubTagInventory.TagCoverage)% coverage" -ForegroundColor Green
@@ -1085,8 +1019,10 @@ function Invoke-FinOpsMultitool {
             else {
                 $hubRaw = $null
                 if ($DataSource.Source -eq 'Hub') {
-                    Write-Host "  No Hub data found — falling back to Cost Management API" -ForegroundColor Yellow
-                    $DataSource.Source = 'API'
+                    foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-AIWorkloadMetrics')) {
+                        if (-not $hubScanErrors.ContainsKey($scan)) { $hubScanErrors[$scan] = 'No hub data is available; cost coverage is incomplete.' }
+                    }
+                    Write-Host '  Hub data is unavailable. Select API as the data source to run a separate live scan.' -ForegroundColor Yellow
                 }
             }
             if ($DataSource.Source -eq 'Hub') { Write-Host "" }
@@ -1113,6 +1049,7 @@ function Invoke-FinOpsMultitool {
             try {
                 $fn = $mod.Fn
                 $output = $null
+                if ($hubScanErrors.ContainsKey($fn)) { throw $hubScanErrors[$fn] }
 
                 # Route parameters based on what each function expects
                 # Hub shortcut: return pre-loaded Hub data for cost/tag modules
@@ -1199,6 +1136,9 @@ function Invoke-FinOpsMultitool {
                         # spend + token volume come from the export, not the
                         # Monitor + Cost Management APIs.
                         $aiParams = @{ TenantId = $TenantId; Subscriptions = $Subscriptions }
+                        if ($DataSource.Source -eq 'Hub' -and (-not $hubRaw -or @($hubRaw).Count -eq 0)) {
+                            throw 'AI metrics are unavailable for the selected Kusto hub source. Select API as the data source for a separate live scan.'
+                        }
                         if ($DataSource.Source -eq 'Hub' -and $hubRaw -and @($hubRaw).Count -gt 0) {
                             $aiParams['HubData'] = $hubRaw
                         }
@@ -1634,12 +1574,14 @@ function Invoke-FinOpsMultitool {
                             else { $_.Key.Substring(0, [Math]::Min(36, $_.Key.Length)) }
                             [PSCustomObject]@{
                                 Subscription = $subLabel
-                                Actual       = '{0:C0}' -f [double]$_.Value.Actual
-                                Forecast     = '{0:C0}' -f [double]$_.Value.Forecast
+                                Actual       = Format-BudgetAmount -Value $_.Value.Actual -Currency $_.Value.Currency
+                                ActualPeriod = if ($_.Value.ActualPeriod) { $_.Value.ActualPeriod } else { 'Current month' }
+                                Forecast     = if ($_.Value.ForecastSource -eq 'Actual') { 'Unavailable' } else { Format-BudgetAmount -Value $_.Value.Forecast -Currency $_.Value.Currency }
+                                ForecastSource = if ($_.Value.ForecastSource) { $_.Value.ForecastSource } else { 'Unavailable' }
                                 Currency     = $_.Value.Currency
                             }
                         }
-                        $cols = @('Subscription', 'Actual', 'Forecast', 'Currency')
+                        $cols = @('Subscription', 'Actual', 'ActualPeriod', 'Forecast', 'ForecastSource', 'Currency')
                     }
                 }
                 'Get-ResourceCosts' {
@@ -1649,7 +1591,7 @@ function Invoke-FinOpsMultitool {
                             Resource      = $resName
                             ResourceGroup = $_.ResourceGroup
                             ResourceType  = ($_.ResourceType -split '/')[-1]
-                            Cost          = '{0:C2}' -f [double]$_.Actual
+                            Cost          = Format-BudgetAmount -Value $_.Actual -Currency $_.Currency
                         }
                     }
                     $cols = @('Resource', 'ResourceGroup', 'ResourceType', 'Cost')
@@ -1663,7 +1605,7 @@ function Invoke-FinOpsMultitool {
                         $rows = foreach ($tag in $data.CostByTag.GetEnumerator()) {
                             foreach ($v in $tag.Value) {
                                 $displayVal = if ($v.TagValue.Length -gt 40) { $v.TagValue.Substring(0, 37) + '...' } else { $v.TagValue }
-                                [PSCustomObject]@{ Tag = $tag.Key; Value = $displayVal; Cost = '{0:C0}' -f [double]$v.Cost }
+                                [PSCustomObject]@{ Tag = $tag.Key; Value = $displayVal; Cost = Format-BudgetAmount -Value $v.Cost -Currency $v.Currency }
                             }
                         }
                         $cols = @('Tag', 'Value', 'Cost')
@@ -1696,7 +1638,7 @@ function Invoke-FinOpsMultitool {
                             $subName = if ($subNameLookup.ContainsKey($subEntry.Key)) { $subNameLookup[$subEntry.Key] } else { $subEntry.Key }
                             Write-Host "    $subName" -ForegroundColor White
                             $subRows = $subEntry.Value | ForEach-Object {
-                                [PSCustomObject]@{ Month = $_.Month; Cost = '{0:C0}' -f [double]$_.Cost; Currency = $_.Currency }
+                                [PSCustomObject]@{ Month = $_.Month; Cost = Format-BudgetAmount -Value $_.Cost -Currency $_.Currency; Currency = $_.Currency }
                             }
                             @($subRows) | Format-Table -AutoSize | Out-String | ForEach-Object {
                                 $lines = $_.TrimEnd() -split "`n" | Where-Object { $_.Trim() }
@@ -1806,13 +1748,15 @@ function Invoke-FinOpsMultitool {
                     $rows = $data.Budgets | ForEach-Object {
                         [PSCustomObject]@{
                             Budget  = $_.BudgetName
-                            Amount  = '{0:C0}' -f [double]$_.Amount
-                            Spent   = '{0:C0}' -f [double]$_.ActualSpend
-                            PctUsed = "$($_.PctUsed)%"
+                            Amount  = Format-BudgetAmount -Value $_.Amount -Currency $_.Currency
+                            Spent   = Format-BudgetAmount -Value $_.ActualSpend -Currency $_.Currency
+                            Forecast = Format-BudgetAmount -Value $_.Forecast -Currency $_.Currency
+                            PctUsed = if ($null -ne $_.PctUsed) { "$($_.PctUsed)%" } else { 'Unavailable' }
                             Risk    = $_.Risk
+                            Note    = $_.Note
                         }
                     }
-                    $cols = @('Budget', 'Amount', 'Spent', 'PctUsed', 'Risk')
+                    $cols = @('Budget', 'Amount', 'Spent', 'Forecast', 'PctUsed', 'Risk', 'Note')
                 }
                 'Get-BudgetHistory' {
                     if ($data -and @($data).Count -gt 0) {
@@ -1821,13 +1765,14 @@ function Invoke-FinOpsMultitool {
                                 Subscription = $_.Subscription
                                 Budget       = $_.BudgetName
                                 Month        = $_.Month
-                                Budgeted     = '{0:C0}' -f [double]$_.BudgetAmount
-                                Actual       = '{0:C0}' -f [double]$_.ActualSpend
-                                PctUsed      = "$($_.PctUsed)%"
+                                Budgeted     = Format-BudgetAmount -Value $_.BudgetAmount -Currency $_.Currency
+                                Actual       = Format-BudgetAmount -Value $_.ActualSpend -Currency $_.Currency
+                                PctUsed      = if ($null -ne $_.PctUsed) { "$($_.PctUsed)%" } else { 'Unavailable' }
                                 Status       = $_.Status
+                                Note         = $_.Note
                             }
                         }
-                        $cols = @('Subscription', 'Budget', 'Month', 'Budgeted', 'Actual', 'PctUsed', 'Status')
+                        $cols = @('Subscription', 'Budget', 'Month', 'Budgeted', 'Actual', 'PctUsed', 'Status', 'Note')
                     }
                     else {
                         Write-Host "    No budget history available (no budgets configured, or no cost data for the period)." -ForegroundColor DarkGray
@@ -1935,9 +1880,11 @@ function Invoke-FinOpsMultitool {
                     }
                     else {
                         $fp = $data.AIFootprint
+                        $periodLabel = if ($data.Period -eq 'MonthToDate') { 'Month to date' } elseif ($data.Period) { [string]$data.Period } else { 'Unknown period' }
                         Write-ColorizedLine -Text "    AI footprint — OpenAI/AIServices: $($fp.OpenAIAccounts + $fp.AIServices)  ML workspaces: $($fp.MLWorkspaces)  AI Search: $($fp.SearchServices)  GPU VMs: $($fp.GpuVmCount)" -DefaultColor 'White'
-                        Write-ColorizedLine -Text "    Tokens (MTD): $($data.TotalTokens) total ($($data.TotalPromptTokens) in / $($data.TotalGeneratedTokens) out) over $($data.TotalRequests) requests" -DefaultColor 'White'
-                        Write-ColorizedLine -Text "    AI spend (MTD): $($data.Currency) $($data.TotalAICost)  |  $($data.Currency) $($data.CostPer1KTokens)/1K tokens  |  $($data.Currency) $($data.CostPerRequest)/request" -DefaultColor 'White'
+                        Write-ColorizedLine -Text "    Period: $periodLabel" -DefaultColor 'White'
+                        Write-ColorizedLine -Text "    Tokens: $($data.TotalTokens) total ($($data.TotalPromptTokens) in / $($data.TotalGeneratedTokens) out) over $($data.TotalRequests) requests" -DefaultColor 'White'
+                        Write-ColorizedLine -Text "    AI spend: $($data.Currency) $($data.TotalAICost)  |  $($data.Currency) $($data.CostPer1KTokens)/1K tokens  |  $($data.Currency) $($data.CostPerRequest)/request" -DefaultColor 'White'
                         if ($data.Note) { Write-Host "    $($data.Note)" -ForegroundColor DarkGray }
                         if ($data.ByModel -and @($data.ByModel).Count -gt 0) {
                             $rows = $data.ByModel
@@ -2391,6 +2338,11 @@ function Invoke-FinOpsMultitool {
                             @{ Severity = 'Yellow'; Message = "Re-run against a narrower subscription set, or resolve the access gap, to measure budget coverage exactly."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets' }
                         )
                     }
+                    elseif (@($data.Budgets | Where-Object { $null -eq $_.Amount -or $null -eq $_.ActualSpend -or $null -eq $_.Forecast -or $_.Risk -in @('Unknown', 'Forecast unavailable') }).Count -gt 0) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = 'Budget health is unverified because an amount, current spend, or forecast is unavailable. Review the notes for each budget.' }
+                        )
+                    }
                     elseif ($bCoverage -lt 50) {
                         $guidanceItems = @(
                             @{ Severity = 'Red'; Message = "Budget coverage is only $bCoverage%. Most subscriptions have no budget — spending is untracked." }
@@ -2520,21 +2472,24 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-AIWorkloadMetrics' {
+                    $periodLabel = if ($data.Period -eq 'MonthToDate') { 'Month to date' } elseif ($data.Period) { [string]$data.Period } else { 'Unknown period' }
                     if (-not $data.HasData) {
                         $guidanceItems = @(
                             @{ Severity = 'Green'; Message = "No AI/LLM workloads detected. No AI-specific cost optimization needed right now." }
                         )
                     }
                     elseif ($data.CostPer1KTokens -gt 0) {
+                        $periodLabel = if ($data.Period -eq 'MonthToDate') { 'Month to date' } elseif ($data.Period) { [string]$data.Period } else { 'Unknown period' }
                         $guidanceItems = @(
-                            @{ Severity = 'Yellow'; Message = "Effective AI rate: $($data.Currency) $($data.CostPer1KTokens) per 1K tokens across $($data.TotalTokens) tokens (MTD). Track this as your core AI unit-economics KPI." }
+                            @{ Severity = 'Yellow'; Message = "Effective AI rate: $($data.Currency) $($data.CostPer1KTokens) per 1K tokens across $($data.TotalTokens) tokens ($periodLabel). Track this as your core AI unit-economics KPI." }
                             @{ Severity = 'Yellow'; Message = "Compare model deployments above — shift high-volume traffic to cheaper SKUs (e.g., gpt-4o-mini) and reserve premium models for tasks that need them." }
                             @{ Severity = 'Yellow'; Message = "For steady, predictable token volume, evaluate Provisioned Throughput Units (PTUs) — they can beat pay-as-you-go at scale."; Docs = 'https://learn.microsoft.com/azure/ai-services/openai/concepts/provisioned-throughput' }
                         )
                     }
                     elseif ($data.TotalTokens -gt 0) {
+                        $periodLabel = if ($data.Period -eq 'MonthToDate') { 'Month to date' } elseif ($data.Period) { [string]$data.Period } else { 'Unknown period' }
                         $guidanceItems = @(
-                            @{ Severity = 'Yellow'; Message = "Token usage detected ($($data.TotalTokens) MTD) but cost could not be mapped. Grant Cost Management Reader to compute cost per 1K tokens." }
+                            @{ Severity = 'Yellow'; Message = "Token usage detected ($($data.TotalTokens), $periodLabel) but cost could not be mapped. Grant Cost Management Reader to compute cost per 1K tokens." }
                         )
                     }
                     else {
@@ -2891,14 +2846,21 @@ tr:hover td { background: var(--surface); }
                         if ($data -is [hashtable]) {
                             $htmlRows = $data.GetEnumerator() | ForEach-Object {
                                 $sl = if ($subNameLookup.ContainsKey($_.Key)) { $subNameLookup[$_.Key] } else { $_.Key }
-                                [PSCustomObject]@{ Subscription = $sl; Actual = '{0:C0}' -f [double]$_.Value.Actual; Forecast = '{0:C0}' -f [double]$_.Value.Forecast; Currency = $_.Value.Currency }
+                                [PSCustomObject]@{
+                                    Subscription = $sl
+                                    Actual = Format-BudgetAmount -Value $_.Value.Actual -Currency $_.Value.Currency
+                                    ActualPeriod = if ($_.Value.ActualPeriod) { $_.Value.ActualPeriod } else { 'Current month' }
+                                    Forecast = if ($_.Value.ForecastSource -eq 'Actual') { 'Unavailable' } else { Format-BudgetAmount -Value $_.Value.Forecast -Currency $_.Value.Currency }
+                                    ForecastSource = if ($_.Value.ForecastSource) { $_.Value.ForecastSource } else { 'Unavailable' }
+                                    Currency = $_.Value.Currency
+                                }
                             }
-                            $htmlCols = @('Subscription', 'Actual', 'Forecast', 'Currency')
+                            $htmlCols = @('Subscription', 'Actual', 'ActualPeriod', 'Forecast', 'ForecastSource', 'Currency')
                         }
                     }
                     'Get-ResourceCosts' {
                         $htmlRows = @($data) | Sort-Object { $_.Actual } -Descending | Select-Object -First 50 | ForEach-Object {
-                            [PSCustomObject]@{ ResourceGroup = $_.ResourceGroup; ResourceType = ($_.ResourceType -split '/')[-1]; Cost = '{0:C2}' -f [double]$_.Actual }
+                            [PSCustomObject]@{ ResourceGroup = $_.ResourceGroup; ResourceType = ($_.ResourceType -split '/')[-1]; Cost = Format-BudgetAmount -Value $_.Actual -Currency $_.Currency }
                         }
                         $htmlCols = @('ResourceGroup', 'ResourceType', 'Cost')
                     }
@@ -2906,7 +2868,7 @@ tr:hover td { background: var(--surface); }
                         if ($data.CostByTag) {
                             $htmlRows = foreach ($tag in $data.CostByTag.GetEnumerator()) {
                                 foreach ($v in $tag.Value) {
-                                    [PSCustomObject]@{ Tag = $tag.Key; Value = $v.TagValue; Cost = '{0:C0}' -f [double]$v.Cost }
+                                    [PSCustomObject]@{ Tag = $tag.Key; Value = $v.TagValue; Cost = Format-BudgetAmount -Value $v.Cost -Currency $v.Currency }
                                 }
                             }
                             $htmlCols = @('Tag', 'Value', 'Cost')
@@ -2915,7 +2877,7 @@ tr:hover td { background: var(--surface); }
                     }
                     'Get-CostTrend' {
                         if ($data.Months) {
-                            $htmlRows = $data.Months | ForEach-Object { [PSCustomObject]@{ Month = $_.Month; Cost = '{0:C0}' -f [double]$_.Cost; Currency = $_.Currency } }
+                            $htmlRows = $data.Months | ForEach-Object { [PSCustomObject]@{ Month = $_.Month; Cost = Format-BudgetAmount -Value $_.Cost -Currency $_.Currency; Currency = $_.Currency } }
                             $htmlCols = @('Month', 'Cost', 'Currency')
                         }
                         else {
@@ -2991,10 +2953,17 @@ tr:hover td { background: var(--surface); }
                         else { "$($data.BudgetCoverage)%" }
                         [void]$htmlSb.Append("<p>Budgets: $($data.TotalBudgets) &nbsp;|&nbsp; At risk: $($data.AtRiskCount) &nbsp;|&nbsp; Over budget: $($data.OverBudgetCount) &nbsp;|&nbsp; Coverage: $htmlCoverage</p>")
                         $htmlRows = $data.Budgets | ForEach-Object {
-                            $riskClass = switch ($_.Risk) { 'Over Budget' { 'severity-red' } 'Forecast Over' { 'severity-yellow' } 'At Risk' { 'severity-yellow' } 'Watch' { 'severity-yellow' } default { 'severity-green' } }
-                            [PSCustomObject]@{ Budget = $_.BudgetName; Amount = '{0:C0}' -f [double]$_.Amount; Spent = '{0:C0}' -f [double]$_.ActualSpend; PctUsed = "$($_.PctUsed)%"; Risk = $_.Risk; _riskClass = $riskClass }
+                            $riskClass = switch ($_.Risk) { 'Over Budget' { 'severity-red' } 'On Track' { 'severity-green' } default { 'severity-yellow' } }
+                            [PSCustomObject]@{
+                                Budget = $_.BudgetName
+                                Amount = Format-BudgetAmount -Value $_.Amount -Currency $_.Currency
+                                Spent = Format-BudgetAmount -Value $_.ActualSpend -Currency $_.Currency
+                                Forecast = Format-BudgetAmount -Value $_.Forecast -Currency $_.Currency
+                                PctUsed = if ($null -ne $_.PctUsed) { "$($_.PctUsed)%" } else { 'Unavailable' }
+                                Risk = $_.Risk; Note = $_.Note; _riskClass = $riskClass
+                            }
                         }
-                        $htmlCols = @('Budget', 'Amount', 'Spent', 'PctUsed', 'Risk')
+                        $htmlCols = @('Budget', 'Amount', 'Spent', 'Forecast', 'PctUsed', 'Risk', 'Note')
                     }
                     'Get-AnomalyAlerts' {
                         [void]$htmlSb.Append("<p>Total: $($data.TotalAlerts) &nbsp;|&nbsp; Anomaly: $($data.AnomalyAlertCount) &nbsp;|&nbsp; Active: $($data.ActiveAlertCount)</p>")
@@ -3037,13 +3006,14 @@ tr:hover td { background: var(--surface); }
                                 Subscription = $_.Subscription
                                 Budget       = $_.BudgetName
                                 Month        = $_.Month
-                                Budgeted     = '{0:C0}' -f [double]$_.BudgetAmount
-                                Actual       = '{0:C0}' -f [double]$_.ActualSpend
-                                PctUsed      = "$($_.PctUsed)%"
+                                Budgeted     = Format-BudgetAmount -Value $_.BudgetAmount -Currency $_.Currency
+                                Actual       = Format-BudgetAmount -Value $_.ActualSpend -Currency $_.Currency
+                                PctUsed      = if ($null -ne $_.PctUsed) { "$($_.PctUsed)%" } else { 'Unavailable' }
                                 Status       = $_.Status
+                                Note         = $_.Note
                             }
                         }
-                        $htmlCols = @('Subscription', 'Budget', 'Month', 'Budgeted', 'Actual', 'PctUsed', 'Status')
+                        $htmlCols = @('Subscription', 'Budget', 'Month', 'Budgeted', 'Actual', 'PctUsed', 'Status', 'Note')
                     }
                     'Get-CarbonMetrics' {
                         $cLatest = [System.Net.WebUtility]::HtmlEncode([string]$data.LatestMonth)
@@ -3078,8 +3048,10 @@ tr:hover td { background: var(--surface); }
                         if ($data.HasData) {
                             $fp = $data.AIFootprint
                             $aCur = [System.Net.WebUtility]::HtmlEncode([string]$data.Currency)
+                            $periodLabel = if ($data.Period -eq 'MonthToDate') { 'Month to date' } elseif ($data.Period) { [string]$data.Period } else { 'Unknown period' }
+                            $aPeriod = [System.Net.WebUtility]::HtmlEncode($periodLabel)
                             [void]$htmlSb.Append("<p>AI footprint &mdash; OpenAI/AI Services: $($fp.OpenAIAccounts + $fp.AIServices) &nbsp;|&nbsp; ML workspaces: $($fp.MLWorkspaces) &nbsp;|&nbsp; AI Search: $($fp.SearchServices) &nbsp;|&nbsp; GPU VMs: $($fp.GpuVmCount)</p>")
-                            [void]$htmlSb.Append("<p>Tokens (MTD): $($data.TotalTokens) over $($data.TotalRequests) requests &nbsp;|&nbsp; AI spend: $aCur $($data.TotalAICost)</p>")
+                            [void]$htmlSb.Append("<p>Period: $aPeriod &nbsp;|&nbsp; Tokens: $($data.TotalTokens) over $($data.TotalRequests) requests &nbsp;|&nbsp; AI spend: $aCur $($data.TotalAICost)</p>")
                             if ($data.ByModel -and @($data.ByModel | Where-Object { $_ }).Count -gt 0) {
                                 $htmlRows = $data.ByModel
                                 $htmlCols = @('Deployment', 'PromptTokens', 'GeneratedTokens', 'TotalTokens', 'PctOfTokens')

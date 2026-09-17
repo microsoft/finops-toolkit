@@ -455,8 +455,7 @@ function Read-ParquetFile {
         return $results
     }
     catch {
-        Write-Warning "Failed to read parquet file $Path`: $($_.Exception.Message)"
-        return @()
+        throw "Failed to read Parquet file '$Path'; cost coverage is incomplete. $($_.Exception.Message)"
     }
 }
 
@@ -615,6 +614,7 @@ function Read-FinOpsHubData {
         [string]$ResourceGroupName,
 
         [Parameter()]
+        [ValidateRange(1, 36)]
         [int]$Months = 1,
 
         # Restrict returned rows to these subscriptions. A hub holds every
@@ -626,12 +626,17 @@ function Read-FinOpsHubData {
 
     Write-Host "    Connecting to Hub storage: $StorageAccountName" -ForegroundColor DarkGray
 
+    $wanted = @{}
+    foreach ($subscriptionId in $SubscriptionIds) {
+        $parsedId = [guid]::Empty
+        if (-not [guid]::TryParse($subscriptionId, [ref]$parsedId)) { throw 'Invalid subscription ID; refusing an unscoped hub read.' }
+        $wanted[$parsedId.ToString()] = $true
+    }
     try {
         $ctx = New-AzStorageContext -StorageAccountName $StorageAccountName -UseConnectedAccount -ErrorAction Stop
     }
     catch {
-        Write-Host "    Failed to connect to Hub storage: $($_.Exception.Message)" -ForegroundColor Yellow
-        return $null
+        throw "Failed to connect to hub storage; cost coverage is incomplete. $($_.Exception.Message)"
     }
 
     $allData = [System.Collections.Generic.List[PSCustomObject]]::new()
@@ -644,9 +649,11 @@ function Read-FinOpsHubData {
         for ($m = 0; $m -lt $Months; $m++) {
             $d = $now.AddMonths(-$m)
             $basePath = "Costs/$($d.ToString('yyyy'))/$($d.ToString('MM'))"
+            $listed = $false
             try {
                 $blobs = @(Get-AzDataLakeGen2ChildItem -Context $ctx -FileSystem 'ingestion' -Path $basePath -Recurse -ErrorAction Stop |
                     Where-Object { -not $_.IsDirectory -and $_.Name -like '*.parquet' })
+                $listed = $true
 
                 if ($blobs.Count -gt 0) {
                     # Install parquet reader on first parquet file encountered
@@ -666,7 +673,7 @@ function Read-FinOpsHubData {
                         $localFile = Join-Path $tempDir "$([guid]::NewGuid().ToString('N')).parquet"
                         try {
                             Get-AzDataLakeGen2ItemContent -Context $ctx -FileSystem 'ingestion' -Path $blob.Path -Destination $localFile -Force -ErrorAction Stop | Out-Null
-                            $rows = Read-ParquetFile -Path $localFile
+                            $rows = @(Read-ParquetFile -Path $localFile -ErrorAction Stop)
                             if ($rows -and @($rows).Count -gt 0) {
                                 foreach ($row in $rows) { $allData.Add($row) }
                                 Write-Host "    Loaded $(@($rows).Count) rows from $(Split-Path $blob.Path -Leaf)" -ForegroundColor DarkGray
@@ -679,8 +686,8 @@ function Read-FinOpsHubData {
                 }
             }
             catch {
-                # Path doesn't exist yet — that's OK
-                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                if (-not $listed -and $_.Exception.Message -match 'PathNotFound|FilesystemNotFound|\b404\b') { continue }
+                throw "Hub ingestion read failed; cost coverage is incomplete. $($_.Exception.Message)"
             }
         }
 
@@ -688,7 +695,7 @@ function Read-FinOpsHubData {
         if ($allData.Count -eq 0) {
             Write-Host "    No parquet in ingestion — reading CSV from msexports..." -ForegroundColor DarkGray
 
-            $csvBlobs = @(Get-AzDataLakeGen2ChildItem -Context $ctx -FileSystem 'msexports' -Recurse -ErrorAction SilentlyContinue |
+            $csvBlobs = @(Get-AzDataLakeGen2ChildItem -Context $ctx -FileSystem 'msexports' -Recurse -ErrorAction Stop |
                 Where-Object { -not $_.IsDirectory -and $_.Path -like '*.csv' })
 
             if ($csvBlobs.Count -gt 0) {
@@ -729,14 +736,14 @@ function Read-FinOpsHubData {
                         $localFile = Join-Path $tempDir "$([guid]::NewGuid().ToString('N'))-$(Split-Path $blob.Path -Leaf)"
                         try {
                             Get-AzDataLakeGen2ItemContent -Context $ctx -FileSystem 'msexports' -Path $blob.Path -Destination $localFile -Force -ErrorAction Stop | Out-Null
-                            $rows = Import-Csv -Path $localFile
+                            $rows = Import-Csv -Path $localFile -ErrorAction Stop
                             if ($rows -and @($rows).Count -gt 0) {
                                 foreach ($row in $rows) { $allData.Add($row) }
                                 $periodRows += @($rows).Count
                             }
                         }
                         catch {
-                            Write-Warning "Failed to read CSV: $($_.Exception.Message)"
+                            throw "Hub CSV read failed; cost coverage is incomplete. $($_.Exception.Message)"
                         }
                         finally {
                             Remove-Item $localFile -Force -ErrorAction SilentlyContinue
@@ -766,11 +773,22 @@ function Read-FinOpsHubData {
         Write-Host "    Total rows from Hub ($source): $($allData.Count)" -ForegroundColor Green
     }
 
-    if ($SubscriptionIds -and $SubscriptionIds.Count -gt 0 -and $allData.Count -gt 0) {
-        $wanted = @{}
-        foreach ($s in $SubscriptionIds) { if ($s) { $wanted[$s.ToLower()] = $true } }
+    if ($wanted.Count -gt 0) {
         $before = $allData.Count
-        $allData = @($allData | Where-Object { $wanted.ContainsKey((Get-FinOpsHubRowSubscriptionId $_)) })
+        $covered = @{}
+        $selectedRows = [System.Collections.Generic.List[PSCustomObject]]::new()
+        foreach ($row in $allData) {
+            $rowSubscription = Get-FinOpsHubRowSubscriptionId $row
+            if (-not $rowSubscription) { throw 'A hub row has no subscription ID; cost coverage is incomplete.' }
+            if ($wanted.ContainsKey($rowSubscription)) {
+                [void]$selectedRows.Add($row)
+                $covered[$rowSubscription] = $true
+            }
+        }
+        foreach ($subscriptionId in $wanted.Keys) {
+            if (-not $covered.ContainsKey($subscriptionId)) { throw "No hub rows for selected subscription '$subscriptionId'; cost coverage is incomplete." }
+        }
+        $allData = $selectedRows.ToArray()
         Write-Host "    Scoped to $($SubscriptionIds.Count) selected subscription(s): $($allData.Count) of $before rows" -ForegroundColor DarkGray
     }
 
@@ -788,6 +806,8 @@ function ConvertTo-CostDataFromHub {
     # that Get-CostData returns: @{ subscriptionId = @{ Actual; Forecast; Currency } }
     $costMap = @{}
     $props = $HubData[0].PSObject.Properties.Name
+    $costSchema = Get-HubCostSchema -HubData $HubData
+    $costCol = $costSchema.CostColumn
 
     foreach ($row in $HubData) {
         $subId = if ($props -contains 'SubAccountId' -and $row.SubAccountId) { $row.SubAccountId }
@@ -805,17 +825,19 @@ function ConvertTo-CostDataFromHub {
         elseif ($props -contains 'SubscriptionName' -and $row.SubscriptionName) { [string]$row.SubscriptionName }
         else { '' }
 
-        $cost = if ($props -contains 'CostInBillingCurrency' -and $row.CostInBillingCurrency) { [double]$row.CostInBillingCurrency }
-        elseif ($props -contains 'BilledCost' -and $row.BilledCost) { [double]$row.BilledCost }
-        elseif ($props -contains 'EffectiveCost' -and $row.EffectiveCost) { [double]$row.EffectiveCost }
-        else { 0 }
+        $cost = Get-HubCostValue -Row $row -Column $costCol
 
         $currency = if ($props -contains 'BillingCurrency' -and $row.BillingCurrency) { $row.BillingCurrency }
         elseif ($props -contains 'BillingCurrencyCode' -and $row.BillingCurrencyCode) { $row.BillingCurrencyCode }
-        else { 'USD' }
+        else { $costSchema.Currency }
 
         if (-not $costMap.ContainsKey($subId)) {
-            $costMap[$subId] = @{ Actual = 0.0; Forecast = 0.0; Currency = $currency; Name = $subName }
+            $subscriptionPeriod = $costSchema.PeriodsBySubscription[$subId]
+            $costMap[$subId] = @{
+                Actual = 0.0; Forecast = $null; ForecastSource = 'Unavailable'; Currency = $currency; Name = $subName
+                ActualPeriodStart = $subscriptionPeriod.PeriodStart; ActualPeriodEnd = $subscriptionPeriod.PeriodEnd
+                ActualPeriod = if ($subscriptionPeriod) { $subscriptionPeriod.Period } else { 'Unknown' }
+            }
         }
         $costMap[$subId].Actual += $cost
     }
@@ -833,6 +855,8 @@ function ConvertTo-ResourceCostsFromHub {
     # Aggregate by resource and return in the same format as Get-ResourceCosts
     $resourceMap = @{}
     $props = $HubData[0].PSObject.Properties.Name
+    $costSchema = Get-HubCostSchema -HubData $HubData
+    $costCol = $costSchema.CostColumn
 
     foreach ($row in $HubData) {
         $subName = if ($props -contains 'SubAccountName' -and $row.SubAccountName) { $row.SubAccountName }
@@ -854,25 +878,24 @@ function ConvertTo-ResourceCostsFromHub {
         elseif ($props -contains 'x_ResourceId' -and $row.x_ResourceId) { $row.x_ResourceId }
         else { "$rg/$resType" }
 
-        $cost = if ($props -contains 'CostInBillingCurrency' -and $row.CostInBillingCurrency) { [double]$row.CostInBillingCurrency }
-        elseif ($props -contains 'BilledCost' -and $row.BilledCost) { [double]$row.BilledCost }
-        elseif ($props -contains 'EffectiveCost' -and $row.EffectiveCost) { [double]$row.EffectiveCost }
-        else { 0 }
+        $cost = Get-HubCostValue -Row $row -Column $costCol
 
         $currency = if ($props -contains 'BillingCurrency' -and $row.BillingCurrency) { $row.BillingCurrency }
         elseif ($props -contains 'BillingCurrencyCode' -and $row.BillingCurrencyCode) { $row.BillingCurrencyCode }
-        else { 'USD' }
+        else { $costSchema.Currency }
 
         $key = $resId
         if (-not $resourceMap.ContainsKey($key)) {
+            $subscriptionPeriod = $costSchema.PeriodsBySubscription[(Get-FinOpsHubRowSubscriptionId $row)]
             $resourceMap[$key] = [PSCustomObject]@{
                 Subscription  = $subName
                 ResourceGroup = $rg
                 ResourceType  = $resType
                 ResourcePath  = $resId
                 Actual        = 0.0
-                Forecast      = 0.0
+                Forecast      = $null
                 Currency      = $currency
+                ActualPeriod  = if ($subscriptionPeriod) { $subscriptionPeriod.Period } else { 'Unknown' }
             }
         }
         $resourceMap[$key].Actual += $cost
@@ -895,6 +918,109 @@ function Get-HubRowValue {
         }
     }
     return $null
+}
+
+function Resolve-HubCostColumn {
+    param(
+        [string[]]$Props,
+        [ValidateSet('ActualCost', 'AmortizedCost')]
+        [string]$CostBasis = 'ActualCost'
+    )
+
+    $candidates = if ($CostBasis -eq 'AmortizedCost') { @('EffectiveCost') }
+    else { @('BilledCost', 'CostInBillingCurrency', 'PreTaxCost', 'Cost') }
+    foreach ($column in $candidates) {
+        if ($Props -contains $column) { return $column }
+    }
+    throw "No $CostBasis column is available; cost results are incomplete."
+}
+
+function Get-HubCostValue {
+    param(
+        [Parameter(Mandatory)][object]$Row,
+        [string]$Column
+    )
+    if (-not $Column) { throw 'No cost column was selected; cost results are incomplete.' }
+    $raw = $Row.$Column
+    $text = ([string]$raw).Trim()
+    if ($text.Contains(',') -and $text -notmatch '^[+-]?\d{1,3}(,\d{3})+(\.\d+)?([eE][+-]?\d+)?$') {
+        throw "Invalid numeric grouping in '$Column'; cost results are incomplete."
+    }
+    $amount = 0.0
+    $styles = [System.Globalization.NumberStyles]::Float -bor [System.Globalization.NumberStyles]::AllowThousands
+    if ($null -eq $raw -or
+        -not [double]::TryParse($text, $styles, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$amount) -or
+        [double]::IsNaN($amount) -or [double]::IsInfinity($amount)) {
+        throw "Missing or invalid cost in '$Column'; cost results are incomplete."
+    }
+    return $amount
+}
+
+function Get-HubCostSchema {
+    param(
+        [Parameter(Mandatory)][object[]]$HubData,
+        [ValidateSet('ActualCost', 'AmortizedCost')]
+        [string]$CostBasis = 'ActualCost'
+    )
+
+    $headers = [System.Collections.Generic.HashSet[string]]::new([string[]]$HubData[0].PSObject.Properties.Name, [System.StringComparer]::OrdinalIgnoreCase)
+    $costColumn = Resolve-HubCostColumn -Props @($headers) -CostBasis $CostBasis
+    $currency = $null
+    $periodStart = $null
+    $periodEnd = $null
+    $periodKnown = $true
+    $periodsBySubscription = @{}
+    foreach ($row in $HubData) {
+        if (-not $headers.SetEquals([string[]]$row.PSObject.Properties.Name)) {
+            throw 'Hub row schemas differ; cost results are incomplete.'
+        }
+        $null = Get-HubCostValue -Row $row -Column $costColumn
+        $rowCurrency = [string](Get-HubRowValue -Row $row -Names @('BillingCurrency', 'BillingCurrencyCode', 'Currency'))
+        if ([string]::IsNullOrWhiteSpace($rowCurrency)) {
+            throw 'Billing currency is missing; cost results are incomplete.'
+        }
+        $rowCurrency = $rowCurrency.Trim().ToUpperInvariant()
+        if ($currency -and $currency -ne $rowCurrency) {
+            throw 'Multiple billing currencies cannot be combined into one cost total.'
+        }
+        $currency = $rowCurrency
+        $rawDate = Get-HubRowValue -Row $row -Names @('ChargePeriodStart', 'Date', 'UsageDate', 'UsageDateTime')
+        $date = $null
+        try {
+            $date = if ($rawDate -is [datetime]) { $rawDate.ToUniversalTime() }
+            elseif ([string]$rawDate -match '^\d{8}$') { [datetime]::ParseExact([string]$rawDate, 'yyyyMMdd', [cultureinfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::AssumeUniversal).ToUniversalTime() }
+            else { [datetimeoffset]::Parse([string]$rawDate, [cultureinfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::AssumeUniversal).UtcDateTime }
+            if ($null -eq $periodStart -or $date -lt $periodStart) { $periodStart = $date }
+            if ($null -eq $periodEnd -or $date -gt $periodEnd) { $periodEnd = $date }
+        }
+        catch { $periodKnown = $false }
+        $subscriptionId = Get-FinOpsHubRowSubscriptionId $row
+        if ($subscriptionId) {
+            if (-not $periodsBySubscription.ContainsKey($subscriptionId)) {
+                $periodsBySubscription[$subscriptionId] = @{ PeriodStart = $null; PeriodEnd = $null; Known = $true }
+            }
+            $subscriptionPeriod = $periodsBySubscription[$subscriptionId]
+            if ($null -eq $date) { $subscriptionPeriod.Known = $false }
+            else {
+                if ($null -eq $subscriptionPeriod.PeriodStart -or $date -lt $subscriptionPeriod.PeriodStart) { $subscriptionPeriod.PeriodStart = $date }
+                if ($null -eq $subscriptionPeriod.PeriodEnd -or $date -gt $subscriptionPeriod.PeriodEnd) { $subscriptionPeriod.PeriodEnd = $date }
+            }
+        }
+    }
+    if (-not $periodKnown) { $periodStart = $null; $periodEnd = $null }
+    foreach ($subscriptionPeriod in $periodsBySubscription.Values) {
+        if (-not $subscriptionPeriod.Known) { $subscriptionPeriod.PeriodStart = $null; $subscriptionPeriod.PeriodEnd = $null }
+        $subscriptionPeriod.Period = if ($subscriptionPeriod.Known) {
+            '{0:yyyy-MM-dd} to {1:yyyy-MM-dd}' -f $subscriptionPeriod.PeriodStart, $subscriptionPeriod.PeriodEnd
+        }
+        else { 'Unknown' }
+    }
+    return @{
+        CostColumn = $costColumn; Currency = $currency; CostBasis = $CostBasis
+        PeriodStart = $periodStart; PeriodEnd = $periodEnd
+        PeriodsBySubscription = $periodsBySubscription
+        Period = if ($null -ne $periodStart -and $null -ne $periodEnd) { '{0:yyyy-MM-dd} to {1:yyyy-MM-dd}' -f $periodStart, $periodEnd } else { 'Unknown' }
+    }
 }
 
 # Helper: convert a billing unit string (e.g. "1K", "1M", "1,000",
@@ -970,6 +1096,9 @@ function ConvertTo-AIHubAggregates {
     }
 
     $props = $HubData[0].PSObject.Properties.Name
+    $costSchema = Get-HubCostSchema -HubData $HubData -CostBasis 'AmortizedCost'
+    $costCol = $costSchema.CostColumn
+    $currency = $costSchema.Currency
 
     foreach ($row in $HubData) {
         $resType = Get-HubRowValue -Row $row -Props $props -Names @('ResourceType', 'x_ResourceType', 'ConsumedService')
@@ -982,8 +1111,7 @@ function ConvertTo-AIHubAggregates {
         $name = Get-HubRowValue -Row $row -Props $props -Names @('ResourceName')
         if (-not $name) { $name = Split-Path "$rid" -Leaf }
 
-        $cost = Get-HubRowValue -Row $row -Props $props -Names @('CostInBillingCurrency', 'BilledCost', 'EffectiveCost')
-        $cost = if ($null -ne $cost) { [double]$cost } else { 0.0 }
+        $cost = Get-HubCostValue -Row $row -Column $costCol
 
         $cur = Get-HubRowValue -Row $row -Props $props -Names @('BillingCurrency', 'BillingCurrencyCode')
         if ($cur) { $currency = "$cur" }
@@ -1044,6 +1172,7 @@ function ConvertTo-AIHubAggregates {
         HasTokens   = ($totalTokens -gt 0)
         HasCost     = ($aiCost -gt 0)
         Approximate = $approximate
+        Period      = $costSchema.Period
     }
 }
 
@@ -1172,42 +1301,32 @@ function ConvertTo-CostByTagFromHub {
     # Aggregate cost by tag key/value from FOCUS cost data
     # Returns same structure as Get-CostByTag
     $props = $HubData[0].PSObject.Properties.Name
+    $costSchema = Get-HubCostSchema -HubData $HubData
+    $costCol = $costSchema.CostColumn
     $costByTag = @{}
-    $currency = 'USD'
+    $currency = $costSchema.Currency
 
-    # Determine which tags to report on
-    $targetTags = if ($ExistingTags -and $ExistingTags.Count -gt 0) {
-        @($ExistingTags.Keys)
-    }
-    else { @() }
-
+    $targetTags = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($tagKey in $ExistingTags.Keys) { [void]$targetTags.Add($tagKey) }
+    $tagRows = [System.Collections.Generic.List[object]]::new()
     foreach ($row in $HubData) {
-        $cost = if ($props -contains 'CostInBillingCurrency' -and $row.CostInBillingCurrency) { [double]$row.CostInBillingCurrency }
-        elseif ($props -contains 'BilledCost' -and $row.BilledCost) { [double]$row.BilledCost }
-        elseif ($props -contains 'EffectiveCost' -and $row.EffectiveCost) { [double]$row.EffectiveCost }
-        else { 0 }
-
-        if ($props -contains 'BillingCurrency' -and $row.BillingCurrency) { $currency = $row.BillingCurrency }
-
+        $cost = Get-HubCostValue -Row $row -Column $costCol
         $tagsJson = if ($props -contains 'Tags') { $row.Tags } else { $null }
-        $tagDict = $null
-        if ($tagsJson -and $tagsJson.Trim() -ne '' -and $tagsJson.Trim() -ne '{}') {
-            try { $tagDict = ConvertTo-HashtableFromJson -Json $tagsJson } catch {
-                Write-Verbose "Non-fatal: $($_.Exception.Message)"
-            }
+        $tagDict = ConvertFrom-ExportTagString -Raw $tagsJson
+        if (-not $ExistingTags -or $ExistingTags.Count -eq 0) {
+            foreach ($tagKey in $tagDict.Keys) { [void]$targetTags.Add($tagKey) }
         }
+        [void]$tagRows.Add(@{ Cost = $cost; Tags = $tagDict })
+    }
 
-        if ($targetTags.Count -eq 0 -and $tagDict -and $tagDict.Count -gt 0) {
-            $targetTags = @($tagDict.Keys)
-        }
-
+    foreach ($row in $tagRows) {
         foreach ($tagKey in $targetTags) {
-            if (-not $costByTag.ContainsKey($tagKey)) { $costByTag[$tagKey] = @{} }
-            $tagVal = if ($tagDict -and $tagDict.ContainsKey($tagKey)) { "$($tagDict[$tagKey])" } else { '(untagged)' }
+            if (-not $costByTag.ContainsKey($tagKey)) { $costByTag[$tagKey] = [System.Collections.Generic.Dictionary[string, double]]::new([System.StringComparer]::Ordinal) }
+            $tagVal = if ($row.Tags.ContainsKey($tagKey)) { [string]$row.Tags[$tagKey] } else { '(untagged)' }
             if (-not $tagVal -or $tagVal -eq '') { $tagVal = '(empty)' }
 
             if (-not $costByTag[$tagKey].ContainsKey($tagVal)) { $costByTag[$tagKey][$tagVal] = 0.0 }
-            $costByTag[$tagKey][$tagVal] += $cost
+            $costByTag[$tagKey][$tagVal] += $row.Cost
         }
     }
 

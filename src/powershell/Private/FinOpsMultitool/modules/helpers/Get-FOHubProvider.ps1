@@ -34,9 +34,7 @@ param()
 # exposes) and returns the SAME shape the storage converters
 # (ConvertTo-*FromHub) produce, so the cost tools are unchanged.
 #
-# Cost parity: the storage converters treat a 0 BilledCost as falsy and fall
-# through to EffectiveCost. The KQL below replicates that exact coalescing so
-# the Kusto path and the storage path return identical numbers.
+# Cost parity: actual-cost summaries use BilledCost, including measured zero.
 #
 # ── Functions ───────────────────────────────────────────────────
 # Resolve-FOHubProvider     Decide provider (override | discovered | none)
@@ -53,9 +51,7 @@ param()
 ###########################################################################
 
 # -- Shared KQL snippets --------------------------------------------------
-# Replicates the storage converter's cost selection: BilledCost unless it is
-# null or 0, in which case EffectiveCost (matches `if ($row.BilledCost)`).
-$script:FOHubCostExpr = 'todouble(iff(isnull(BilledCost) or BilledCost == 0, EffectiveCost, BilledCost))'
+$script:FOHubCostExpr = 'todouble(BilledCost)'
 
 function Get-FOHubAnchorLet {
     # Anchor the reporting window to the latest month that actually has data
@@ -70,7 +66,7 @@ function Get-FOHubWindowClause {
     # Trailing N calendar months ending at the latest data month (_anchor).
     param([int]$Months = 1)
     $back = [math]::Max(0, $Months - 1)
-    return "| where ChargePeriodStart >= datetime_add('month', -$back, _anchor)"
+    return "| where isnull(ChargePeriodStart) or ChargePeriodStart >= datetime_add('month', -$back, _anchor)"
 }
 
 function Get-FOHubScopeClause {
@@ -106,6 +102,51 @@ function Invoke-FOHubProviderQuery {
         catch { return @{ Ok = $false; Rows = @(); RowCount = 0; Error = "Could not acquire a Kusto token for $($Provider.ClusterUri): $($_.Exception.Message)" } }
     }
     return Invoke-FOHubKustoQuery -ClusterUri $Provider.ClusterUri -Database $Provider.Database -Query $Query -AccessToken $token
+}
+
+function Invoke-FOHubCostQuery {
+    param(
+        [Parameter(Mandatory)][hashtable]$Provider,
+        [Parameter(Mandatory)][string]$Query,
+        [string[]]$SubscriptionIds,
+        [int]$Months = 1
+    )
+
+    $scope = Get-FOHubScopeClause -SubscriptionIds $SubscriptionIds
+    $expectedIds = ConvertTo-Json -InputObject @($SubscriptionIds | Where-Object { $_ } | ForEach-Object { ([guid]$_).ToString() }) -Compress
+    $validatedQuery = @"
+$(Get-FOHubAnchorLet)
+let src = Costs
+$(Get-FOHubWindowClause -Months $Months)
+$scope
+| extend _cost = $($script:FOHubCostExpr), _sub = tolower(extract('([0-9a-fA-F-]{36})', 1, SubAccountId));
+let validation = src
+| summarize _InvalidCosts = countif(isnull(_cost) or not(isfinite(_cost)) or isempty(BillingCurrency) or isnull(ChargePeriodStart)),
+    _CurrencyCount = array_length(make_set(BillingCurrency, 2)), _SourceRows = count(),
+    _MissingSubscriptions = array_length(set_difference(dynamic($expectedIds), make_set(_sub)))
+| extend _CostValidation = true;
+union validation, (
+$Query
+)
+"@
+    $result = Invoke-FOHubProviderQuery -Provider $Provider -Query $validatedQuery
+    if (-not $result.Ok) { return $result }
+    $validation = @($result.Rows | Where-Object { $_._CostValidation -eq $true })
+    if ($validation.Count -ne 1 -or $null -eq $validation[0]._InvalidCosts -or $null -eq $validation[0]._MissingSubscriptions -or
+        $null -eq $validation[0]._SourceRows -or $null -eq $validation[0]._CurrencyCount -or
+        $validation[0]._InvalidCosts -ne 0 -or $validation[0]._MissingSubscriptions -ne 0 -or
+        ($validation[0]._SourceRows -gt 0 -and $validation[0]._CurrencyCount -ne 1)) {
+        return @{ Ok = $false; Rows = @(); Error = 'Hub cost validation failed: missing or invalid amounts, currency, dates, or subscription coverage.' }
+    }
+    $rows = @($result.Rows | Where-Object { $_._CostValidation -ne $true })
+    try {
+        foreach ($row in $rows) {
+            $column = if ($row.PSObject.Properties.Name -contains 'Actual') { 'Actual' } else { 'Cost' }
+            $null = Get-HubCostValue -Row $row -Column $column
+        }
+    }
+    catch { return @{ Ok = $false; Rows = @(); Error = $_.Exception.Message } }
+    return @{ Ok = $true; Rows = $rows; RowCount = $rows.Count; Error = $null }
 }
 
 # -- Provider resolution --------------------------------------------------
@@ -187,18 +228,12 @@ function Get-FOHubCostSummary {
         [string[]]$SubscriptionIds,
         [int]$Months = 1
     )
-    $window = Get-FOHubWindowClause -Months $Months
-    $scope = Get-FOHubScopeClause -SubscriptionIds $SubscriptionIds
     $query = @"
-$(Get-FOHubAnchorLet)
-Costs
-$window
-$scope
-| extend _sub = extract('([0-9a-fA-F-]{36})', 1, tolower(SubAccountId))
-| extend _cost = $($script:FOHubCostExpr)
-| summarize Actual = sum(_cost), Currency = take_any(BillingCurrency), Name = take_any(SubAccountName) by _sub
+src
+| summarize Actual = sum(_cost), Currency = take_any(BillingCurrency), Name = take_any(SubAccountName),
+    ActualPeriodStart = min(ChargePeriodStart), ActualPeriodEnd = max(ChargePeriodStart) by _sub
 "@
-    $r = Invoke-FOHubProviderQuery -Provider $Provider -Query $query
+    $r = Invoke-FOHubCostQuery -Provider $Provider -Query $query -SubscriptionIds $SubscriptionIds -Months $Months
     if (-not $r.Ok) { return @{ Error = $r.Error; Source = 'Kusto' } }
 
     $costMap = @{}
@@ -211,9 +246,11 @@ $scope
         $subName = if ($row.Name) { [string]$row.Name } else { '' }
         $costMap[$subId] = @{
             Actual   = [math]::Round([double]$row.Actual, 2)
-            Forecast = 0.0
+            Forecast = $null
+            ForecastSource = 'Unavailable'
             Currency = $currency
             Name     = $subName
+            ActualPeriod = if ($row.ActualPeriodStart -and $row.ActualPeriodEnd) { '{0:yyyy-MM-dd} to {1:yyyy-MM-dd}' -f [datetime]$row.ActualPeriodStart, [datetime]$row.ActualPeriodEnd } else { 'Unknown' }
         }
     }
     return $costMap
@@ -228,20 +265,14 @@ function Get-FOHubResourceCosts {
         [int]$Months = 1,
         [int]$Top = 500
     )
-    $window = Get-FOHubWindowClause -Months $Months
-    $scope = Get-FOHubScopeClause -SubscriptionIds $SubscriptionIds
     $query = @"
-$(Get-FOHubAnchorLet)
-Costs
-$window
-$scope
-| extend _cost = $($script:FOHubCostExpr)
+src
 | summarize Actual = sum(_cost), Currency = take_any(BillingCurrency)
     by Subscription = SubAccountName, ResourceGroup = x_ResourceGroupName, ResourceType, ResourcePath = ResourceId
 | order by Actual desc
 | take $Top
 "@
-    $r = Invoke-FOHubProviderQuery -Provider $Provider -Query $query
+    $r = Invoke-FOHubCostQuery -Provider $Provider -Query $query -SubscriptionIds $SubscriptionIds -Months $Months
     if (-not $r.Ok) { return @{ Error = $r.Error; Source = 'Kusto' } }
 
     $out = foreach ($row in $r.Rows) {
@@ -251,7 +282,7 @@ $scope
             ResourceType  = if ($row.ResourceType) { [string]$row.ResourceType } else { 'unknown' }
             ResourcePath  = [string]$row.ResourcePath
             Actual        = [math]::Round([double]$row.Actual, 2)
-            Forecast      = 0.0
+            Forecast      = $null
             Currency      = if ($row.Currency) { [string]$row.Currency } else { 'USD' }
         }
     }
@@ -269,35 +300,7 @@ function Get-FOHubCostByTag {
         [int]$Months = 1,
         [string[]]$TagKeys
     )
-    $window = Get-FOHubWindowClause -Months $Months
-    $scope = Get-FOHubScopeClause -SubscriptionIds $SubscriptionIds
-
-    # Discover tag keys when the caller didn't supply a set to report on.
     $keys = @($TagKeys | Where-Object { $_ })
-    if ($keys.Count -eq 0) {
-        $keyQuery = @"
-$(Get-FOHubAnchorLet)
-Costs
-$window
-$scope
-| mv-expand k = bag_keys(Tags) to typeof(string)
-| distinct k
-| take 200
-"@
-        $kr = Invoke-FOHubProviderQuery -Provider $Provider -Query $keyQuery
-        if (-not $kr.Ok) { return @{ Error = $kr.Error; Source = 'Kusto' } }
-        $keys = @($kr.Rows | ForEach-Object { [string]$_.k } | Where-Object { $_ })
-    }
-
-    if ($keys.Count -eq 0) {
-        return [PSCustomObject]@{
-            TagsQueried   = @()
-            CostByTag     = @{}
-            NoTagsFound   = $true
-            UsedTimeframe = 'Hub query period'
-            Source        = 'Kusto'
-        }
-    }
 
     # One snapshot: a sentinel *TOTAL* row plus per-(key,value) cost. Untagged
     # cost per key is derived in PowerShell as total minus the key's tagged sum
@@ -305,21 +308,16 @@ $scope
     # Escape backslash before quote, matching ConvertTo-KqlLiteral, so a tag key
     # ending in a backslash cannot terminate the KQL string early.
     $keyList = ($keys | Where-Object { $_ } | ForEach-Object { '"' + $_.Replace('\', '\\').Replace('"', '\"') + '"' }) -join ', '
+    $tagFilter = if ($keys.Count -gt 0) { "| where k in~ ($keyList)" } else { '' }
     $query = @"
-$(Get-FOHubAnchorLet)
-let src = Costs
-$window
-$scope
-| extend _cost = $($script:FOHubCostExpr);
-let total = src | summarize Cost = sum(_cost), Currency = take_any(BillingCurrency) | extend TagKey = '*TOTAL*', TagValue = '*TOTAL*';
-let perTag = src
+union (src | summarize Cost = sum(_cost), Currency = take_any(BillingCurrency) | extend TagKey = '*TOTAL*', TagValue = '*TOTAL*'),
+(src
 | mv-expand k = bag_keys(Tags) to typeof(string)
-| where k in ($keyList)
+$tagFilter
 | extend TagValue = tostring(Tags[k])
-| summarize Cost = sum(_cost), Currency = take_any(BillingCurrency) by TagKey = k, TagValue;
-union total, perTag
+| summarize Cost = sum(_cost), Currency = take_any(BillingCurrency) by TagKey = k, TagValue)
 "@
-    $r = Invoke-FOHubProviderQuery -Provider $Provider -Query $query
+    $r = Invoke-FOHubCostQuery -Provider $Provider -Query $query -SubscriptionIds $SubscriptionIds -Months $Months
     if (-not $r.Ok) { return @{ Error = $r.Error; Source = 'Kusto' } }
 
     $currency = 'USD'
@@ -330,12 +328,13 @@ union total, perTag
         $cost = [double]$row.Cost
         if ($row.Currency) { $currency = [string]$row.Currency }
         if ($tk -eq '*TOTAL*') { $total = $cost; continue }
-        if (-not $tagged.ContainsKey($tk)) { $tagged[$tk] = @{} }
+        if (-not $tagged.ContainsKey($tk)) { $tagged[$tk] = [System.Collections.Generic.Dictionary[string, double]]::new([System.StringComparer]::Ordinal) }
         $tv = if ($null -ne $row.TagValue -and "$($row.TagValue)" -ne '') { [string]$row.TagValue } else { '(empty)' }
         if (-not $tagged[$tk].ContainsKey($tv)) { $tagged[$tk][$tv] = 0.0 }
         $tagged[$tk][$tv] += $cost
     }
 
+    if ($keys.Count -eq 0) { $keys = @($tagged.Keys) }
     $costByTagOut = @{}
     foreach ($key in $keys) {
         $values = if ($tagged.ContainsKey($key)) { $tagged[$key] } else { @{} }
@@ -346,7 +345,7 @@ union total, perTag
         $entries = @($values.GetEnumerator() | ForEach-Object {
                 [PSCustomObject]@{ TagValue = $_.Key; Cost = [math]::Round($_.Value, 2); Currency = $currency }
             })
-        if ($untagged -gt 0) {
+        if ($untagged -ne 0) {
             $entries += [PSCustomObject]@{ TagValue = '(untagged)'; Cost = $untagged; Currency = $currency }
         }
         $costByTagOut[$key] = @($entries | Sort-Object Cost -Descending)

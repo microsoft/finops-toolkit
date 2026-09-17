@@ -168,7 +168,7 @@ resources
     $hubApprox = $false
     if ($HubData -and @($HubData).Count -gt 0) {
         $agg = ConvertTo-AIHubAggregates -HubData $HubData
-        if ($agg -and ($agg.HasCost -or $agg.HasTokens)) {
+        if ($agg) {
             $fromHub = $true
             $hubApprox = $agg.Approximate
             $modelTokens = $agg.ModelTokens
@@ -388,7 +388,7 @@ resources
         CostPerRequest       = $costPerRequest
         ByModel              = $byModel
         ByAccount            = $byAccount
-        Period               = 'MonthToDate'
+        Period               = if ($fromHub) { $agg.Period } else { 'MonthToDate' }
         Source               = if ($fromHub) { 'FinOpsHub' } else { 'API' }
         ScannedSubs          = $Subscriptions.Count
         DetectionFailed      = $detectionFailed

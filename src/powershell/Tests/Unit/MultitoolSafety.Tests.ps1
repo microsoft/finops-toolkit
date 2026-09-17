@@ -96,8 +96,8 @@ Describe 'FinOps Multitool safety' {
         It 'Reports failure instead of inventing percentages' {
             (ConvertTo-AllocationPercentage -Targets @()).Ok | Should -BeFalse
             (ConvertTo-AllocationPercentage -Targets @(
-                    @{ subscriptionId = 'a'; allocatedShared = 0 }
-                )).Ok | Should -BeFalse
+                @{ subscriptionId = 'a'; allocatedShared = 0 }
+            )).Ok | Should -BeFalse
         }
     }
 
@@ -119,9 +119,10 @@ Describe 'FinOps Multitool safety' {
             }
         }
 
-        It 'Returns zero for values that are not numbers' {
-            ConvertTo-ExportAmount 'not-a-number' | Should -Be 0
-            ConvertTo-ExportAmount '' | Should -Be 0
+        It 'Rejects unreadable values and malformed numeric grouping' {
+            { ConvertTo-ExportAmount 'not-a-number' } | Should -Throw '*cost*'
+            { ConvertTo-ExportAmount '' } | Should -Throw '*cost*'
+            { ConvertTo-ExportAmount '123,45' } | Should -Throw '*grouping*'
         }
     }
 
@@ -203,6 +204,9 @@ Describe 'FinOps Multitool cost math' {
 
     Context 'Cost column resolution' {
 
+        # 'CostStatus' contains 'cost'. A substring match picked it up and, because
+        # the loop kept going, the later match won -- so the cost index pointed at
+        # a column holding the text 'Actual' or 'Forecast'.
         It 'Resolves Cost and not CostStatus when both are present' {
             InModuleScope FinOpsMultitool {
                 $columns = @(
@@ -293,6 +297,8 @@ Describe 'FinOps Multitool cost math' {
             }
         }
 
+        # Month-to-date spend presented as a forecast understates the full month,
+        # so callers need to be able to tell the two apart.
         It 'Rejects an unavailable forecast instead of returning actual spend as a projection' {
             InModuleScope FinOpsMultitool {
                 Mock Invoke-AzRestMethodWithRetry {
@@ -317,14 +323,140 @@ Describe 'FinOps Multitool cost math' {
         }
     }
 
-    Context 'Export scope' {
+    Context 'Budget spend source' {
 
+        # An annual budget compared against one month of subscription spend reads as
+        # roughly a twelfth of its real consumption, so an exhausted budget reports
+        # On Track. Azure already computes currentSpend for the budget's own scope,
+        # filter and time grain.
+        It 'Prefers the budget currentSpend over subscription month-to-date' {
+            InModuleScope FinOpsMultitool {
+                $budget = [pscustomobject]@{
+                    name       = 'annual-budget'
+                    properties = [pscustomobject]@{
+                        amount        = 12000
+                        timeGrain     = 'Annually'
+                        category      = 'Cost'
+                        currentSpend  = [pscustomobject]@{ amount = 11400; unit = 'USD' }
+                        forecastSpend = [pscustomobject]@{ amount = 13000; unit = 'USD' }
+                    }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{
+                        StatusCode = 200
+                        Content    = (@{ value = @($budget) } | ConvertTo-Json -Depth 10)
+                    }
+                }
+
+                $subs = @([pscustomobject]@{ Id = '33333333-3333-3333-3333-333333333333'; Name = 'test' })
+                # Subscription month-to-date is a small fraction of the annual budget.
+                $costData = @{ '33333333-3333-3333-3333-333333333333' = @{ Actual = 900; Forecast = 1000 } }
+
+                $res = Get-BudgetStatus -Subscriptions $subs -CostData $costData
+                $b = @($res.Budgets)[0]
+
+                $b.SpendSource | Should -Be 'Budget'
+                $b.ActualSpend | Should -Be 11400
+                # 11400/12000 = 95%, and the forecast exceeds the budget.
+                $b.Risk | Should -Be 'Forecast Over'
+            }
+        }
+    }
+
+    Context 'Export scope' {
+        It 'Keeps unattributed resource charges in the selected subscription total' {
+            InModuleScope FinOpsMultitool {
+                $subscriptionId = '44444444-4444-4444-4444-444444444444'
+                $data = [pscustomobject]@{ CostBasis = 'ActualCost'; Rows = @(
+                    [pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = 10; Currency = 'USD'; ResourceId = "/subscriptions/$subscriptionId/resourceGroups/test/providers/Microsoft.Compute/disks/test" }
+                    [pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = 20; Currency = 'USD'; ResourceId = '' }
+                    [pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = -5; Currency = 'USD'; ResourceId = $null }
+                ) }
+                $subscriptions = @([pscustomobject]@{ Id = $subscriptionId; Name = 'test' })
+
+                $rows = @(ConvertTo-ResourceCostsFromExport -ExportData $data -Subscriptions $subscriptions)
+
+                ($rows | Measure-Object Actual -Sum).Sum | Should -Be 25
+                ($rows | Where-Object ResourcePath -EQ '(non-resource charges)').Actual | Should -Be 15
+                ($rows | Where-Object ResourcePath -EQ '(non-resource charges)').Subscription | Should -Be 'test'
+            }
+        }
+
+        It 'Retains each subscription period in <Source> summaries' -ForEach @(
+            @{ Source = 'Hub' }
+            @{ Source = 'Export' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Source = $Source } {
+                param($Source)
+                $currentId = '44444444-4444-4444-4444-444444444444'
+                $staleId = '55555555-5555-5555-5555-555555555555'
+                $rows = @(
+                    [pscustomobject]@{ SubAccountId = $currentId; BilledCost = 10; BillingCurrency = 'USD'; ChargePeriodStart = '2026-09-16' }
+                    [pscustomobject]@{ SubAccountId = $staleId; BilledCost = 20; BillingCurrency = 'USD'; ChargePeriodStart = '2026-08-31' }
+                )
+                $result = if ($Source -eq 'Hub') { ConvertTo-CostDataFromHub -HubData $rows }
+                else { ConvertTo-CostDataFromExport -ExportData ([pscustomobject]@{ Rows = $rows }) -Subscriptions @([pscustomobject]@{ Id = $currentId }, [pscustomobject]@{ Id = $staleId }) }
+
+                $result[$currentId].ActualPeriod | Should -Be '2026-09-16 to 2026-09-16'
+                $result[$staleId].ActualPeriod | Should -Be '2026-08-31 to 2026-08-31'
+                $result[$currentId].Actual | Should -Be 10
+                $result[$staleId].Actual | Should -Be 20
+            }
+        }
+
+        It 'Reports historical actuals without synthesizing a current-month forecast' {
+            InModuleScope FinOpsMultitool {
+                $subscriptionId = '44444444-4444-4444-4444-444444444444'
+                $data = [pscustomobject]@{
+                    CostBasis = 'ActualCost'
+                    Rows = @([pscustomobject]@{
+                        SubscriptionId = $subscriptionId; Cost = 100; Currency = 'EUR'; Date = '2026-08-31'
+                        ResourceId = "/subscriptions/$subscriptionId/resourceGroups/test/providers/Microsoft.Compute/disks/test"
+                    })
+                }
+                $subscriptions = @([pscustomobject]@{ Id = $subscriptionId; Name = 'test' })
+
+                $summary = (ConvertTo-CostDataFromExport -ExportData $data -Subscriptions $subscriptions)[$subscriptionId]
+                $resource = @(ConvertTo-ResourceCostsFromExport -ExportData $data -Subscriptions $subscriptions)[0]
+
+                foreach ($entry in @($summary, $resource)) {
+                    $entry.Actual | Should -Be 100
+                    $entry.Forecast | Should -BeNullOrEmpty
+                    $entry.ForecastSource | Should -Be 'Unavailable'
+                    $entry.ActualPeriod | Should -Be '2026-08-31 to 2026-08-31'
+                }
+            }
+        }
+
+        It 'Requires a verified basis for a classic export (<Basis>)' -ForEach @(
+            @{ Basis = $null }
+            @{ Basis = 'Usage' }
+            @{ Basis = 'AmortizedCost' }
+            @{ Basis = 'ActualCost' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Basis = $Basis } {
+                param($Basis)
+                $data = [pscustomobject]@{
+                    CostBasis = $Basis; Currency = 'USD'
+                    Rows = @([pscustomobject]@{ SubscriptionId = '44444444-4444-4444-4444-444444444444'; CostInBillingCurrency = 100 })
+                }
+                if ($Basis -eq 'ActualCost') {
+                    (Select-CostExportData -ExportData $data).Rows[0].Cost | Should -Be 100
+                }
+                else { { Select-CostExportData -ExportData $data } | Should -Throw '*actual cost*' }
+            }
+        }
+
+        # An export is written at its own scope, usually the whole billing account.
+        # Treating an unrecognised subscription as a new entry reported cost for
+        # every subscription in the file, not the ones the user asked to scan.
         It 'Ignores rows for subscriptions that were not selected' {
             InModuleScope FinOpsMultitool {
                 $selected = '44444444-4444-4444-4444-444444444444'
                 $other = '55555555-5555-5555-5555-555555555555'
 
                 $exportData = [pscustomobject]@{
+                    CostBasis = 'ActualCost'
                     Currency = 'USD'
                     ColMap   = [pscustomobject]@{ Cost = 'Cost'; SubscriptionId = 'SubscriptionId'; ResourceId = $null }
                     Rows     = @(
@@ -341,10 +473,497 @@ Describe 'FinOps Multitool cost math' {
                 $map[$selected].Actual | Should -Be 10
             }
         }
+
+        It 'Uses the same selected billed-cost rows for <View>' -ForEach @(
+            @{ View = 'Summary' }
+            @{ View = 'Resources' }
+            @{ View = 'Tags' }
+            @{ View = 'Trend' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ View = $View } {
+                param($View)
+                $selected = '44444444-4444-4444-4444-444444444444'
+                $other = '55555555-5555-5555-5555-555555555555'
+                $rows = @(
+                    [pscustomobject]@{ SubscriptionId = $selected; BilledCost = 10; EffectiveCost = 1; BillingCurrency = 'USD'; Date = '2026-09-01'; ResourceId = "/subscriptions/$selected/resourceGroups/test/providers/Microsoft.Compute/disks/one"; Tags = '{"CostCenter":"test"}' }
+                    [pscustomobject]@{ SubscriptionId = $other; BilledCost = 990; EffectiveCost = 99; BillingCurrency = 'EUR'; Date = '2026-09-01'; ResourceId = "/subscriptions/$other/resourceGroups/test/providers/Microsoft.Compute/disks/two"; Tags = '{"CostCenter":"other"}' }
+                )
+                $data = [pscustomobject]@{ Rows = $rows; ColMap = (Resolve-ExportColumns -Header $rows[0].PSObject.Properties.Name); Currency = 'USD' }
+                $subscriptions = @([pscustomobject]@{ Id = $selected; Name = 'selected' })
+                $total = switch ($View) {
+                    'Summary' { (ConvertTo-CostDataFromExport -ExportData $data -Subscriptions $subscriptions)[$selected].Actual }
+                    'Resources' { (ConvertTo-ResourceCostsFromExport -ExportData $data -Subscriptions $subscriptions | Measure-Object Actual -Sum).Sum }
+                    'Tags' { ((ConvertTo-CostByTagFromExport -ExportData $data -Subscriptions $subscriptions).CostByTag.CostCenter | Measure-Object Cost -Sum).Sum }
+                    'Trend' { ((ConvertTo-CostTrendFromExport -ExportData $data -Subscriptions $subscriptions).Months | Measure-Object Cost -Sum).Sum }
+                }
+                $total | Should -Be 10
+            }
+        }
+
+        It 'Does not report an uncovered selected subscription as zero spend' {
+            InModuleScope FinOpsMultitool {
+                $selected = '44444444-4444-4444-4444-444444444444'
+                $missing = '55555555-5555-5555-5555-555555555555'
+                $data = [pscustomobject]@{
+                    CostBasis = 'ActualCost'
+                    Currency = 'USD'; ColMap = @{ Cost = 'Cost'; SubscriptionId = 'SubscriptionId' }
+                    Rows = @([pscustomobject]@{ Cost = 10; SubscriptionId = $selected })
+                }
+                $subscriptions = @([pscustomobject]@{ Id = $selected }, [pscustomobject]@{ Id = $missing })
+                { ConvertTo-CostDataFromExport -ExportData $data -Subscriptions $subscriptions } | Should -Throw '*coverage*'
+            }
+        }
+
+        It 'Rejects unreadable export costs instead of using zero' -ForEach @(
+            @{ Value = '' }
+            @{ Value = 'bad' }
+            @{ Value = 'NaN' }
+            @{ Value = 'Infinity' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Value = $Value } {
+                param($Value)
+                $rawValue = $Value
+                { ConvertTo-ExportAmount -Value $rawValue } | Should -Throw '*cost*'
+            }
+        }
+
+        It 'Merges resource and date aliases using row subscription IDs instead of storage ownership' {
+            InModuleScope FinOpsMultitool {
+                $selected = '44444444-4444-4444-4444-444444444444'
+                $other = '55555555-5555-5555-5555-555555555555'
+                Mock Get-CostExportData {
+                    $row = if ($Export.Name -eq 'first') {
+                        [pscustomobject]@{ SubscriptionId = $selected; BilledCost = 10; Currency = 'USD'; ResourceId = "/subscriptions/$selected/resourceGroups/test/providers/Microsoft.Compute/disks/one"; Date = '2026-09-01' }
+                    }
+                    else {
+                        [pscustomobject]@{ SubAccountId = "/subscriptions/$other"; BilledCost = 20; BillingCurrency = 'USD'; x_ResourceId = "/subscriptions/$other/resourceGroups/test/providers/Microsoft.Compute/disks/two"; ChargePeriodStart = '2026-09-01' }
+                    }
+                    [pscustomobject]@{ Rows = @($row); ColMap = (Resolve-ExportColumns -Header $row.PSObject.Properties.Name); DataDate = [datetime]'2026-09-15'; Currency = 'USD' }
+                }
+                $exports = @([pscustomobject]@{ Name = 'first'; SubId = 'storage-owner'; ScopeKind = 'Storage' }, [pscustomobject]@{ Name = 'second'; SubId = 'storage-owner'; ScopeKind = 'Storage' })
+                $subscriptions = @([pscustomobject]@{ Id = $selected; Name = 'first' }, [pscustomobject]@{ Id = $other; Name = 'second' })
+
+                $merged = Get-MergedCostExportData -Exports $exports -Subscriptions $subscriptions
+
+                $merged.ExportCount | Should -Be 2
+                @($merged.CoveredSubscriptionIds).Count | Should -Be 2
+                (ConvertTo-ResourceCostsFromExport -ExportData $merged -Subscriptions $subscriptions | Measure-Object Actual -Sum).Sum | Should -Be 30
+                ((ConvertTo-CostTrendFromExport -ExportData $merged).Months | Measure-Object Cost -Sum).Sum | Should -Be 30
+            }
+        }
+
+        It 'Rejects an unreadable or incompatible export rather than omitting it (<Case>)' -ForEach @(
+            @{ Case = 'unreadable'; Currency = $null }
+            @{ Case = 'different currency'; Currency = 'EUR' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Currency = $Currency } {
+                param($Currency)
+                $secondCurrency = $Currency
+                Mock Get-CostExportData {
+                    if ($Export.Name -eq 'second' -and -not $secondCurrency) { return [pscustomobject]@{ Rows = @(); NoData = $true; AccessDenied = $true } }
+                    $subscriptionId = if ($Export.Name -eq 'first') { '44444444-4444-4444-4444-444444444444' } else { '55555555-5555-5555-5555-555555555555' }
+                    $rowCurrency = if ($Export.Name -eq 'first') { 'USD' } else { $secondCurrency }
+                    [pscustomobject]@{ CostBasis = 'ActualCost'; Rows = @([pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = 10; Currency = $rowCurrency }); ColMap = @{ SubscriptionId = 'SubscriptionId'; Cost = 'Cost'; Currency = 'Currency' } }
+                }
+                { Get-MergedCostExportData -Exports @([pscustomobject]@{ Name = 'first' }, [pscustomobject]@{ Name = 'second' }) } | Should -Throw
+            }
+        }
+
+        It 'Rejects a failed CSV partition instead of returning the readable part' {
+            InModuleScope FinOpsMultitool {
+                Mock Get-PlainAccessToken { 'test-token' }
+                Mock Get-StorageBlobList {
+                    @{ Listed = $true; Blobs = @(
+                        [pscustomobject]@{ Name = 'export/run/part1.csv'; LastModified = [datetime]'2026-09-15' }
+                        [pscustomobject]@{ Name = 'export/run/part2.csv'; LastModified = [datetime]'2026-09-15' }
+                    ) }
+                }
+                Mock Get-StorageBlobBytes {
+                    if ($Uri -like '*part2.csv') { return $null }
+                    [System.Text.Encoding]::UTF8.GetBytes("SubscriptionId,Cost,Currency`n44444444-4444-4444-4444-444444444444,10,USD")
+                }
+                $export = [pscustomobject]@{ Name = 'export'; Format = 'Csv'; RootFolder = ''; Container = 'exports'; StorageResourceId = '/subscriptions/test/resourceGroups/test/providers/Microsoft.Storage/storageAccounts/test' }
+                { Get-CostExportData -Export $export } | Should -Throw '*part2*incomplete*'
+            }
+        }
+
+        It 'Keeps untagged charges and escaped JSON values in the selected tag total' {
+            InModuleScope FinOpsMultitool {
+                $subscriptionId = '44444444-4444-4444-4444-444444444444'
+                $rows = @(
+                    [pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = 10; Currency = 'USD'; Tags = '{"CostCenter":"A\"B"}' }
+                    [pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = 20; Currency = 'USD'; Tags = '' }
+                )
+                $data = [pscustomobject]@{ CostBasis = 'ActualCost'; Rows = $rows; ColMap = (Resolve-ExportColumns -Header $rows[0].PSObject.Properties.Name) }
+                $result = ConvertTo-CostByTagFromExport -ExportData $data -ExistingTags @{ CostCenter = @{} }
+                ($result.CostByTag.CostCenter | Measure-Object Cost -Sum).Sum | Should -Be 30
+                ($result.CostByTag.CostCenter | Where-Object TagValue -EQ '(untagged)').Cost | Should -Be 20
+                ($result.CostByTag.CostCenter | Where-Object TagValue -EQ 'A"B').Cost | Should -Be 10
+            }
+        }
+
+        It 'Does not present missing date or tag columns as complete empty breakdowns' {
+            InModuleScope FinOpsMultitool {
+                $data = [pscustomobject]@{ CostBasis = 'ActualCost'; Rows = @([pscustomobject]@{ SubscriptionId = '44444444-4444-4444-4444-444444444444'; Cost = 10; Currency = 'USD' }) }
+                { ConvertTo-CostByTagFromExport -ExportData $data } | Should -Throw '*coverage*'
+                { ConvertTo-CostTrendFromExport -ExportData $data } | Should -Throw '*coverage*'
+            }
+        }
+    }
+
+    Context 'Commitment cost basis' {
+
+        # FOCUS records a reservation twice on purpose: once as BilledCost on the
+        # Purchase row, and again amortized across the Usage rows it covers, which
+        # EC9.1 requires to sum to the same amount. Choosing the cost column per row
+        # picked BilledCost on the purchase and EffectiveCost on the usage, so every
+        # commitment landed in the total twice.
+        It 'Counts a commitment once rather than twice' {
+            InModuleScope FinOpsMultitool {
+                $sub = '66666666-6666-6666-6666-666666666666'
+                $hubData = @(
+                    # Reservation purchase: billed in full, zero amortized (EC6).
+                    [pscustomobject]@{
+                        SubAccountId = $sub; SubAccountName = 'test'
+                        BilledCost = 12000; EffectiveCost = 0; BillingCurrency = 'USD'
+                    }
+                    # Usage the reservation covers: nothing billed, amortized share only.
+                    [pscustomobject]@{
+                        SubAccountId = $sub; SubAccountName = 'test'
+                        BilledCost = 0; EffectiveCost = 9000; BillingCurrency = 'USD'
+                    }
+                    [pscustomobject]@{
+                        SubAccountId = $sub; SubAccountName = 'test'
+                        BilledCost = 0; EffectiveCost = 3000; BillingCurrency = 'USD'
+                    }
+                )
+
+                $map = ConvertTo-CostDataFromHub -HubData $hubData
+
+                # 12000 amortized, not 12000 purchase + 12000 amortized.
+                $map[$sub].Actual | Should -Be 12000
+            }
+        }
+
+        It 'Resolves one cost column for the whole dataset' {
+            InModuleScope FinOpsMultitool {
+                Resolve-HubCostColumn -Props @('BilledCost', 'EffectiveCost') | Should -Be 'BilledCost'
+                Resolve-HubCostColumn -Props @('BilledCost', 'EffectiveCost') -CostBasis 'AmortizedCost' | Should -Be 'EffectiveCost'
+                Resolve-HubCostColumn -Props @('CostInBillingCurrency') | Should -Be 'CostInBillingCurrency'
+                { Resolve-HubCostColumn -Props @('ResourceId') } | Should -Throw '*cost*'
+            }
+        }
+
+        It 'Uses billed cost for actual spend even when amortization differs' {
+            InModuleScope FinOpsMultitool {
+                $rows = @(
+                    [pscustomobject]@{ SubAccountId = '66666666-6666-6666-6666-666666666666'; BilledCost = 12000; EffectiveCost = 0; BillingCurrency = 'USD' }
+                    [pscustomobject]@{ SubAccountId = '66666666-6666-6666-6666-666666666666'; BilledCost = 0; EffectiveCost = 1000; BillingCurrency = 'USD' }
+                )
+
+                $result = ConvertTo-CostDataFromHub -HubData $rows
+
+                $result['66666666-6666-6666-6666-666666666666'].Actual | Should -Be 12000
+            }
+        }
+
+        It 'Rejects an unreadable selected cost without switching bases (<Case>)' -ForEach @(
+            @{ Case = 'null'; Amount = $null }
+            @{ Case = 'blank'; Amount = '' }
+            @{ Case = 'invalid'; Amount = 'invalid' }
+            @{ Case = 'NaN'; Amount = 'NaN' }
+            @{ Case = 'infinity'; Amount = 'Infinity' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Amount = $Amount } {
+                param($Amount)
+                $row = [pscustomobject]@{ EffectiveCost = $Amount; BilledCost = 500 }
+                { Get-HubCostValue -Row $row -Column 'EffectiveCost' } | Should -Throw '*cost*'
+            }
+        }
+
+        It 'Rejects a missing selected column on a later row' {
+            InModuleScope FinOpsMultitool {
+                $rows = @(
+                    [pscustomobject]@{ SubAccountId = '66666666-6666-6666-6666-666666666666'; BilledCost = 10; BillingCurrency = 'USD' }
+                    [pscustomobject]@{ SubAccountId = '66666666-6666-6666-6666-666666666666'; CostInBillingCurrency = 20; BillingCurrency = 'USD' }
+                )
+                { ConvertTo-CostDataFromHub -HubData $rows } | Should -Throw '*cost*'
+            }
+        }
+
+        It 'Preserves a measured zero and negative credit in the selected basis' {
+            InModuleScope FinOpsMultitool {
+                Get-HubCostValue -Row ([pscustomobject]@{ BilledCost = 0; EffectiveCost = 500 }) -Column 'BilledCost' | Should -Be 0
+                Get-HubCostValue -Row ([pscustomobject]@{ BilledCost = -25 }) -Column 'BilledCost' | Should -Be -25
+            }
+        }
+
+        It 'Keeps billed reporting separate from amortized allocation and unit costs' {
+            InModuleScope FinOpsMultitool {
+                $subscriptionId = '66666666-6666-6666-6666-666666666666'
+                $targetResourceId = "/subscriptions/$subscriptionId/resourceGroups/test/providers/Microsoft.CognitiveServices/accounts/test"
+                $rows = @([pscustomobject]@{
+                    SubAccountId = $subscriptionId; SubAccountName = 'test'; BilledCost = 12000; EffectiveCost = 1000
+                    BillingCurrency = 'USD'; ResourceId = $targetResourceId; ResourceType = 'microsoft.cognitiveservices/accounts'
+                    Tags = '{"CostCenter":"test"}'; ConsumedQuantity = 0
+                    ChargePeriodStart = '2026-08-31T00:00:00Z'
+                })
+                Mock Resolve-VmAssociation {
+                    $associated = [System.Collections.Generic.HashSet[string]]::new()
+                    [void]$associated.Add($targetResourceId)
+                    [pscustomobject]@{ Id = $targetResourceId; Name = 'test'; Associated = $associated; SubscriptionId = $subscriptionId }
+                }
+
+                @((ConvertTo-ResourceCostsFromHub -HubData $rows))[0].Actual | Should -Be 12000
+                (ConvertTo-CostByTagFromHub -HubData $rows).CostByTag.CostCenter[0].Cost | Should -Be 12000
+                (Get-AllocationCostMaps -SubscriptionIds @($subscriptionId) -HubData $rows).BySub[$subscriptionId] | Should -Be 1000
+                (Get-AllocationCostMaps -SubscriptionIds @($subscriptionId) -HubData $rows).Period | Should -Be '2026-08-31 to 2026-08-31'
+                (Get-VmCostBreakdown -VmName 'test' -HubData $rows).TotalCost | Should -Be 1000
+                (Get-VmCostBreakdown -VmName 'test' -HubData $rows).Period | Should -Be '2026-08-31 to 2026-08-31'
+                (ConvertTo-AIHubAggregates -HubData $rows).AICost | Should -Be 1000
+                (ConvertTo-AIHubAggregates -HubData $rows).Period | Should -Be '2026-08-31 to 2026-08-31'
+                { Resolve-HubCostColumn -Props @('BilledCost') -CostBasis 'AmortizedCost' } | Should -Throw '*AmortizedCost*'
+                { Resolve-HubCostColumn -Props @('EffectiveCost') -CostBasis 'ActualCost' } | Should -Throw '*ActualCost*'
+            }
+        }
+
+        It 'Rejects inconsistent currency instead of returning a labeled cost total (<Currency>)' -ForEach @(
+            @{ Currency = 'EUR' }
+            @{ Currency = '' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Currency = $Currency } {
+                param($Currency)
+                $rows = @(
+                    [pscustomobject]@{ SubAccountId = '66666666-6666-6666-6666-666666666666'; BilledCost = 10; BillingCurrency = 'USD' }
+                    [pscustomobject]@{ SubAccountId = '66666666-6666-6666-6666-666666666666'; BilledCost = 20; BillingCurrency = $Currency }
+                )
+                { ConvertTo-CostDataFromHub -HubData $rows } | Should -Throw '*currenc*'
+                { ConvertTo-CostByTagFromHub -HubData $rows -ExistingTags @{ CostCenter = @{} } } | Should -Throw '*currenc*'
+            }
+        }
+
+        It 'Rejects resource column drift even when the cost column is unchanged' {
+            InModuleScope FinOpsMultitool {
+                $rows = @(
+                    [pscustomobject]@{ BilledCost = 10; BillingCurrency = 'USD'; ResourceId = 'resource-a' }
+                    [pscustomobject]@{ BilledCost = 20; BillingCurrency = 'USD'; x_ResourceId = 'resource-b' }
+                )
+                { ConvertTo-ResourceCostsFromHub -HubData $rows } | Should -Throw '*schemas differ*'
+            }
+        }
+
+        It 'Discovers all hub tag keys and keeps case-distinct values' {
+            InModuleScope FinOpsMultitool {
+                $rows = @(
+                    [pscustomobject]@{ BilledCost = 10; BillingCurrency = 'USD'; Tags = '{"env":"Prod"}' }
+                    [pscustomobject]@{ BilledCost = 20; BillingCurrency = 'USD'; Tags = '{"env":"prod","Project":"test"}' }
+                    [pscustomobject]@{ BilledCost = -5; BillingCurrency = 'USD'; Tags = '' }
+                )
+
+                $result = ConvertTo-CostByTagFromHub -HubData $rows
+
+                $result.TagsQueried | Should -Contain 'Project'
+                ($result.CostByTag.env | Where-Object { $_.TagValue -ceq 'Prod' }).Cost | Should -Be 10
+                ($result.CostByTag.env | Where-Object { $_.TagValue -ceq 'prod' }).Cost | Should -Be 20
+                ($result.CostByTag.Project | Measure-Object Cost -Sum).Sum | Should -Be 25
+                ($result.CostByTag.env | Measure-Object Cost -Sum).Sum | Should -Be 25
+            }
+        }
+    }
+
+    Context 'Amortized query currency' {
+        It 'Refuses missing or mixed live currencies (<Case>)' -ForEach @(
+            @{ Case = 'blank'; Currency = '' }
+            @{ Case = 'mixed'; Currency = 'EUR' }
+            @{ Case = 'missing column'; Currency = $null }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Currency = $Currency } {
+                param($Currency)
+                $targetId = '/subscriptions/44444444-4444-4444-4444-444444444444/resourceGroups/test/providers/Microsoft.Compute/virtualMachines/test'
+                $columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'Currency' })
+                $rows = @(@(100.0, $targetId, 'USD'), @(100.0, $targetId, $Currency))
+                if ($null -eq $Currency) {
+                    $columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' })
+                    $rows = @(, @(100.0, $targetId))
+                }
+                $responseContent = @{ properties = @{ columns = $columns; rows = $rows } } | ConvertTo-Json -Depth 10
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 200; Content = $responseContent } }
+                Mock Resolve-VmAssociation {
+                    $associated = [System.Collections.Generic.HashSet[string]]::new()
+                    [void]$associated.Add($targetId)
+                    [pscustomobject]@{ Id = $targetId; Name = 'test'; SubscriptionId = '44444444-4444-4444-4444-444444444444'; ResourceGroup = 'test'; Associated = $associated }
+                }
+
+                { Get-AllocationCostMaps -SubscriptionIds @('44444444-4444-4444-4444-444444444444') } | Should -Throw '*currency*incomplete*'
+                $vm = Get-VmCostBreakdown -VmName 'test'
+                $vm.HasData | Should -BeFalse
+                $vm.TotalCost | Should -BeNullOrEmpty
+                $vm.Note | Should -BeLike '*currency*incomplete*'
+            }
+        }
+    }
+
+    Context 'Hub storage completeness' {
+        It 'Propagates a Parquet parsing failure instead of returning an empty dataset' {
+            $missingFile = Join-Path $TestDrive 'unreadable.parquet'
+            { Read-ParquetFile -Path $missingFile } | Should -Throw '*Parquet*incomplete*'
+        }
+
+        It 'Only attaches a forecast to current-month hub actuals (<Period>)' -ForEach @(
+            @{ Period = 'Current'; ChargeDate = '2026-09-16T00:00:00Z' }
+            @{ Period = 'Mixed'; ChargeDate = '2026-09-16T00:00:00Z' }
+            @{ Period = 'Stale'; ChargeDate = '2026-08-31T00:00:00Z' }
+            @{ Period = 'Unknown'; ChargeDate = $null }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Period = $Period; ChargeDate = $ChargeDate; ModuleRoot = $script:ModuleRoot } {
+                param($Period, $ChargeDate, $ModuleRoot)
+                $fixtureDate = $ChargeDate
+                $mixedPeriods = $Period -eq 'Mixed'
+                $scriptAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $scriptAst.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -in @('Invoke-SelectedScans', 'Write-SectionHeader') }, $true)) {
+                    . ([scriptblock]::Create($definition.Extent.Text))
+                }
+                Mock Get-Date { [datetime]::new(2026, 9, 17, 12, 0, 0, [DateTimeKind]::Utc) }
+                Mock Resolve-FOHubProvider { @{ Found = $false } }
+                Mock Read-FinOpsHubData {
+                    [pscustomobject]@{ BilledCost = 310; BillingCurrency = 'USD'; SubAccountId = '44444444-4444-4444-4444-444444444444'; ChargePeriodStart = $fixtureDate; Tags = '' }
+                    if ($mixedPeriods) {
+                        [pscustomobject]@{ BilledCost = 50; BillingCurrency = 'USD'; SubAccountId = '55555555-5555-5555-5555-555555555555'; ChargePeriodStart = '2026-08-31T00:00:00Z'; Tags = '' }
+                    }
+                }
+                Mock ConvertTo-TagInventoryFromHub { [pscustomobject]@{ TagCount = 0; TagCoverage = 0 } }
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 403; Content = '{}' } }
+                Mock Get-CostData { @{ '44444444-4444-4444-4444-444444444444' = @{ Actual = 100; Forecast = 180; ForecastSource = 'Forecast'; Currency = 'USD' } } }
+                $modules = @([pscustomobject]@{ Name = 'Costs'; Fn = 'Get-CostData'; Selected = $true })
+                $subscriptions = @([pscustomobject]@{ Id = '44444444-4444-4444-4444-444444444444'; Name = 'test' })
+                if ($mixedPeriods) { $subscriptions += [pscustomobject]@{ Id = '55555555-5555-5555-5555-555555555555'; Name = 'older' } }
+
+                $result = Invoke-SelectedScans -Modules $modules -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -DataSource @{ Source = 'Hub'; HubStorage = @{ name = 'test'; resourceGroup = 'test' } }
+
+                $entry = $result['Get-CostData'][$subscriptions[0].Id]
+                $entry.Actual | Should -Be 310
+                if ($Period -in @('Current', 'Mixed')) {
+                    $entry.Forecast | Should -Be 180
+                    $entry.ActualPeriod | Should -Match '2026-09'
+                    Should -Invoke Get-CostData -Times 1 -Exactly
+                    Should -Invoke Get-CostData -Times 1 -Exactly -ParameterFilter {
+                        $Subscriptions.Count -eq 1 -and $Subscriptions[0].Id -eq '44444444-4444-4444-4444-444444444444'
+                    }
+                    if ($mixedPeriods) {
+                        $older = $result['Get-CostData']['55555555-5555-5555-5555-555555555555']
+                        $older.ActualPeriod | Should -Be '2026-08-31 to 2026-08-31'
+                        $older.Forecast | Should -BeNullOrEmpty
+                    }
+                }
+                else {
+                    $entry.Forecast | Should -BeNullOrEmpty
+                    $entry.ActualPeriod | Should -Be $(if ($Period -eq 'Stale') { '2026-08-31 to 2026-08-31' } else { 'Unknown' })
+                    Should -Invoke Get-CostData -Times 0 -Exactly
+                }
+            }
+        }
+
+        It 'Does not return partial hub data after a <Source> file fails' -ForEach @(
+            @{ Source = 'Parquet' }
+            @{ Source = 'CSV' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Source = $Source } {
+                param($Source)
+                $useCsv = $Source -eq 'CSV'
+                Mock New-AzStorageContext { $null }
+                Mock Install-ParquetReader { $true }
+                Mock Get-AzDataLakeGen2ChildItem {
+                    if ($FileSystem -eq 'ingestion' -and $useCsv) { return @() }
+                    if ($FileSystem -eq 'msexports' -and -not $useCsv) { throw 'Unexpected CSV fallback.' }
+                    $extension = if ($useCsv) { 'csv' } else { 'parquet' }
+                    @(
+                        [pscustomobject]@{ Name = "part1.$extension"; Path = "export/20260901-20260930/202609170001/run/part1.$extension"; IsDirectory = $false }
+                        [pscustomobject]@{ Name = "part2.$extension"; Path = "export/20260901-20260930/202609170001/run/part2.$extension"; IsDirectory = $false }
+                    )
+                }
+                Mock Get-AzDataLakeGen2ItemContent { if ($Path -like '*part2*') { throw 'Simulated download failure.' } }
+                Mock Read-ParquetFile { [pscustomobject]@{ BilledCost = 100; BillingCurrency = 'USD'; SubAccountId = '44444444-4444-4444-4444-444444444444' } }
+                Mock Import-Csv { [pscustomobject]@{ BilledCost = 100; BillingCurrency = 'USD'; SubAccountId = '44444444-4444-4444-4444-444444444444' } }
+
+                { Read-FinOpsHubData -StorageAccountName 'test' -ResourceGroupName 'test' -SubscriptionIds @('44444444-4444-4444-4444-444444444444') } |
+                    Should -Throw '*incomplete*'
+            }
+        }
+
+        It 'Does not accept missing selected subscriptions as complete hub coverage' {
+            InModuleScope FinOpsMultitool {
+                Mock New-AzStorageContext { $null }
+                Mock Install-ParquetReader { $true }
+                Mock Get-AzDataLakeGen2ChildItem { [pscustomobject]@{ Name = 'one.parquet'; Path = 'one.parquet'; IsDirectory = $false } }
+                Mock Get-AzDataLakeGen2ItemContent { }
+                Mock Read-ParquetFile { [pscustomobject]@{ BilledCost = 100; BillingCurrency = 'USD'; SubAccountId = '44444444-4444-4444-4444-444444444444' } }
+
+                { Read-FinOpsHubData -StorageAccountName 'test' -ResourceGroupName 'test' -SubscriptionIds @('44444444-4444-4444-4444-444444444444', '55555555-5555-5555-5555-555555555555') } |
+                    Should -Throw '*coverage*'
+            }
+        }
+
+        It 'Keeps a <Source> hub failure visible to the scan runner without an API fallback' -ForEach @(
+            @{ Source = 'Storage' }
+            @{ Source = 'Kusto' }
+            @{ Source = 'KustoAI' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Source = $Source; ModuleRoot = $script:ModuleRoot } {
+                param($Source, $ModuleRoot)
+                $sourceName = $Source
+                $scriptAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                $runner = $scriptAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Invoke-SelectedScans' }, $true)
+                . ([scriptblock]::Create($runner.Extent.Text))
+                $sectionHeader = $scriptAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Write-SectionHeader' }, $true)
+                . ([scriptblock]::Create($sectionHeader.Extent.Text))
+                Mock Resolve-FOHubProvider { @{ Found = ($sourceName -in @('Kusto', 'KustoAI')); Mode = 'Kusto' } }
+                Mock Read-FinOpsHubData { throw 'Hub coverage incomplete.' }
+                Mock Get-FOHubCostSummary { @{ Error = 'Hub coverage incomplete.' } }
+                Mock Get-FOHubResourceCosts { @{ Error = 'Hub coverage incomplete.' } }
+                Mock Get-FOHubCostByTag { @{ Error = 'Hub coverage incomplete.' } }
+                Mock Get-CostData { @{ unexpected = @{ Actual = 100; Currency = 'USD' } } }
+                Mock Get-AIWorkloadMetrics { [pscustomobject]@{ HasData = $true; TotalAICost = 100; Source = 'API' } }
+                $scanName = if ($Source -eq 'KustoAI') { 'Get-AIWorkloadMetrics' } else { 'Get-CostData' }
+                $modules = @([pscustomobject]@{ Name = 'Costs'; Fn = $scanName; Selected = $true })
+                $subscriptions = @([pscustomobject]@{ Id = '44444444-4444-4444-4444-444444444444'; Name = 'test' })
+                $dataSource = @{ Source = 'Hub'; HubStorage = @{ name = 'test'; resourceGroup = 'test' } }
+
+                $result = Invoke-SelectedScans -Modules $modules -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -DataSource $dataSource
+
+                $expectedError = if ($Source -eq 'KustoAI') { '*unavailable*selected Kusto hub source*' } else { '*coverage incomplete*' }
+                $result["_error_$scanName"] | Should -BeLike $expectedError
+                @($result[$scanName]).Count | Should -Be 0
+                Should -Invoke Get-CostData -Times 0 -Exactly
+                Should -Invoke Get-AIWorkloadMetrics -Times 0 -Exactly
+            }
+        }
+
+        It 'Keeps a measured zero AI hub result on the selected source' {
+            InModuleScope FinOpsMultitool {
+                Mock Search-AzGraphSafe {
+                    @{ Data = @([pscustomobject]@{ type = 'microsoft.cognitiveservices/accounts'; lkind = 'OpenAI'; id = '/subscriptions/test/providers/Microsoft.CognitiveServices/accounts/ai'; name = 'ai' }) }
+                }
+                Mock Invoke-AzRestMethodWithRetry { throw 'A hub result must not call the live cost API.' }
+                Mock Get-PlainAccessToken { throw 'A hub result must not call live metrics.' }
+                $hubRows = @([pscustomobject]@{ EffectiveCost = 0; BillingCurrency = 'USD'; ResourceId = '/subscriptions/test/providers/Microsoft.CognitiveServices/accounts/ai'; ResourceType = 'microsoft.cognitiveservices/accounts'; ChargePeriodStart = '2026-08-31'; ConsumedQuantity = 0 })
+
+                $result = Get-AIWorkloadMetrics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -HubData $hubRows
+
+                $result.Source | Should -Be 'FinOpsHub'
+                $result.TotalAICost | Should -Be 0
+                $result.Period | Should -Be '2026-08-31 to 2026-08-31'
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly
+                Should -Invoke Get-PlainAccessToken -Times 0 -Exactly
+            }
+        }
     }
 
     Context 'Commitment utilization' {
 
+        # Get-CommitmentUtilization seeds both averages to 0 and only fills the ones
+        # it found. Treating that 0 as a measurement halves the score for anyone who
+        # owns reservations but no savings plans, and reports 100% waste when the
+        # utilization read was denied.
         It 'Ignores a family that has no commitments' {
             InModuleScope FinOpsMultitool {
                 $data = [pscustomobject]@{ RICount = 10; RIAvgUtilization = 100; SPCount = 0; SPAvgUtilization = 0 }
@@ -395,6 +1014,248 @@ Describe 'FinOps Multitool cost math' {
 
                 $result.Value | Should -Be 1.0
                 Should -Invoke Get-Date -Times 0 -Exactly
+            }
+        }
+    }
+
+    Context 'Budget KPI completeness' {
+        It 'Does not label an unavailable budget KPI as computed' {
+            InModuleScope FinOpsMultitool {
+                Mock Get-KpiCatalog {
+                    @{ kpis = @([pscustomobject]@{ id = 'variance-budget-vs-actual'; sourceTool = 'scan_budget_status'; compute = $true }) }
+                }
+                $result = Add-KpiInsights -Result @{ tool = 'scan_budget_status'; data = @{ CoverageIncomplete = $true; Budgets = @() } }
+
+                $result.kpiInsights[0].status | Should -Be 'unavailable'
+                $result.kpiInsights[0].numericValue | Should -BeNullOrEmpty
+                $result.kpiInsights[0].yourValue | Should -BeLike '*Unavailable*'
+            }
+        }
+
+        It 'Leaves combined KPIs unscored for <Case>' -ForEach @(
+            @{ Case = 'unknown spend'; Change = 'Unknown' }
+            @{ Case = 'mixed currencies'; Change = 'Currency' }
+            @{ Case = 'different periods'; Change = 'Period' }
+            @{ Case = 'overlapping scopes'; Change = 'Scope' }
+            @{ Case = 'incomplete inventory'; Change = 'Coverage' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Change = $Change } {
+                param($Change)
+                $first = [pscustomobject]@{ Amount = 1000; ActualSpend = 500; PctUsed = 50; Currency = 'EUR'; TimeGrain = 'Monthly'; Category = 'Cost'; SubscriptionId = 'one'; SpendSource = 'Budget' }
+                $second = [pscustomobject]@{ Amount = 9000; ActualSpend = 4500; PctUsed = 50; Currency = 'EUR'; TimeGrain = 'Monthly'; Category = 'Cost'; SubscriptionId = 'two'; SpendSource = 'Budget' }
+                $first | Add-Member -NotePropertyName TimePeriod -NotePropertyValue @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-1) }
+                $second | Add-Member -NotePropertyName TimePeriod -NotePropertyValue @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-1) }
+                switch ($Change) {
+                    'Unknown' { $second.ActualSpend = $null; $second.PctUsed = $null; $second.SpendSource = 'Unavailable' }
+                    'Currency' { $second.Currency = 'USD' }
+                    'Period' { $second.TimeGrain = 'Annually' }
+                    'Scope' { $second.SubscriptionId = 'one' }
+                }
+                $data = [pscustomobject]@{ Budgets = @($first, $second); CoverageIncomplete = ($Change -eq 'Coverage') }
+
+                $variance = Get-KpiComputedValue -KpiId 'variance-budget-vs-actual' -Data $data
+                $burn = Get-KpiComputedValue -KpiId 'budget-burn-rate' -Data $data
+
+                $variance.Value | Should -BeNullOrEmpty
+                $burn.Value | Should -BeNullOrEmpty
+                $variance.Display | Should -Match 'Unavailable'
+            }
+        }
+
+        It 'Reports comparable known budgets using their currency' {
+            InModuleScope FinOpsMultitool {
+                $data = [pscustomobject]@{ Budgets = @(
+                    [pscustomobject]@{ Amount = 1000; ActualSpend = 500; Currency = 'EUR'; TimeGrain = 'Monthly'; Category = 'Cost'; SubscriptionId = 'one'; TimePeriod = @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-1) } }
+                    [pscustomobject]@{ Amount = 1000; ActualSpend = 1500; Currency = 'EUR'; TimeGrain = 'Monthly'; Category = 'Cost'; SubscriptionId = 'two'; TimePeriod = @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-1) } }
+                ) }
+                $variance = Get-KpiComputedValue -KpiId 'variance-budget-vs-actual' -Data $data
+                $burn = Get-KpiComputedValue -KpiId 'budget-burn-rate' -Data $data
+
+                $variance.Value | Should -Be 0
+                $variance.Display | Should -Match 'EUR'
+                $variance.Display | Should -Not -Match 'USD'
+                $burn.Value | Should -Be 100
+            }
+        }
+    }
+
+    Context 'Observed-period reporting' {
+        It 'Uses the AI result period in terminal, HTML, guidance, and KPI text' {
+            InModuleScope FinOpsMultitool -Parameters @{ ModuleRoot = $script:ModuleRoot } {
+                param($ModuleRoot)
+                $scriptAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                $formatter = $scriptAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Write-ColorizedLine' }, $true)
+                if ($formatter) { . ([scriptblock]::Create($formatter.Extent.Text)) }
+                $switches = $scriptAst.FindAll({ $args[0] -is [System.Management.Automation.Language.SwitchStatementAst] }, $true)
+                $branches = @($switches.Clauses | Where-Object { $_.Item1.Value -eq 'Get-AIWorkloadMetrics' -and $_.Item2.Extent.Text.Contains('$data.HasData') })
+                $branches.Count | Should -Be 3
+                $captured = [System.Collections.Generic.List[string]]::new()
+                Mock Write-ColorizedLine { [void]$captured.Add($Text) }
+                $data = [pscustomobject]@{
+                    HasData = $true; Period = '2026-08-01 to 2026-08-31'; Currency = 'EUR'; TotalTokens = 1000; TotalAICost = 25; CostPer1KTokens = 25
+                    TotalPromptTokens = 800; TotalGeneratedTokens = 200; TotalRequests = 0; CostPerRequest = $null
+                    AIFootprint = @{ OpenAIAccounts = 1; AIServices = 0; MLWorkspaces = 0; SearchServices = 0; GpuVmCount = 0 }
+                }
+                $htmlSb = [System.Text.StringBuilder]::new()
+                $guidanceItems = @()
+                foreach ($branch in $branches) {
+                    $body = ($branch.Item2.Statements | ForEach-Object { $_.Extent.Text }) -join "`n"
+                    . ([scriptblock]::Create("param(`$data, `$htmlSb)`n$body")) $data $htmlSb
+                }
+
+                ($captured -join ' ') | Should -Match '2026-08-01 to 2026-08-31'
+                ($captured -join ' ') | Should -Not -Match 'MTD'
+                $htmlSb.ToString() | Should -Match '2026-08-01 to 2026-08-31'
+                $htmlSb.ToString() | Should -Not -Match 'MTD'
+                ($guidanceItems.Message -join ' ') | Should -Match '2026-08-01 to 2026-08-31'
+                $kpi = Get-KpiComputedValue -KpiId 'token-consumption-metrics' -Data $data
+                $kpi.Display | Should -Match '2026-08-01 to 2026-08-31'
+                $kpi.Display | Should -Not -Match 'MTD'
+            }
+        }
+    }
+
+    Context 'Budget reporting' {
+
+        It 'Does not call budgets healthy when forecasts are unavailable' {
+            $scriptAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+            $switches = $scriptAst.FindAll({ $args[0] -is [System.Management.Automation.Language.SwitchStatementAst] }, $true)
+            $branch = @($switches.Clauses | Where-Object { $_.Item1.Value -eq 'Get-BudgetStatus' -and $_.Item2.Extent.Text.Contains('$bCoverage') })
+            $branch.Count | Should -Be 1
+            $data = [pscustomobject]@{
+                AtRiskCount = 0; OverBudgetCount = 0; BudgetCoverage = 100; CoverageIncomplete = $false
+                Budgets = @([pscustomobject]@{ Amount = 1000; ActualSpend = 500; Forecast = $null; Risk = 'Forecast unavailable' })
+            }
+            $guidanceItems = @()
+            $body = ($branch[0].Item2.Statements | ForEach-Object { $_.Extent.Text }) -join "`n"
+
+            . ([scriptblock]::Create("param(`$data)`n$body")) $data
+
+            $guidanceItems.Count | Should -BeGreaterThan 0
+            @($guidanceItems | Where-Object Severity -EQ 'Green').Count | Should -Be 0
+            $guidanceItems[0].Message | Should -Match 'unavailable'
+        }
+
+        It 'Displays unknown amounts explicitly while preserving known currency and zero' {
+            InModuleScope FinOpsMultitool {
+                Format-BudgetAmount -Value $null -Currency 'USD' | Should -Be 'Unavailable'
+                Format-BudgetAmount -Value 500 -Currency '' | Should -Be 'Unavailable'
+                Format-BudgetAmount -Value 'NaN' -Currency 'USD' | Should -Be 'Unavailable'
+                Format-BudgetAmount -Value 0 -Currency 'EUR' | Should -Match '^EUR 0[.,]00$'
+                Format-BudgetAmount -Value 500 -Currency 'EUR' | Should -Match '^EUR '
+            }
+        }
+
+        It 'Keeps an unavailable forecast separate from known current spend' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"name":"monthly","properties":{"amount":1000,"timeGrain":"Monthly","category":"Cost","currentSpend":{"amount":500,"unit":"EUR"}}}]}' }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '88888888-8888-8888-8888-888888888888'; Name = 'test' })
+
+                $budget = (Get-BudgetStatus -Subscriptions $subscriptions).Budgets[0]
+
+                $budget.ActualSpend | Should -Be 500
+                $budget.PctUsed | Should -Be 50
+                $budget.Forecast | Should -BeNullOrEmpty
+                $budget.PctForecast | Should -BeNullOrEmpty
+                $budget.ForecastSource | Should -Be 'Unavailable'
+                $budget.Risk | Should -Not -Be 'On Track'
+                $budget.Currency | Should -Be 'EUR'
+            }
+        }
+
+        It 'Does not turn an invalid budget denominator into an on-track budget (<Case>)' -ForEach @(
+            @{ Case = 'missing'; Amount = $null }
+            @{ Case = 'zero'; Amount = 0 }
+            @{ Case = 'negative'; Amount = -1 }
+            @{ Case = 'NaN'; Amount = 'NaN' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Amount = $Amount } {
+                param($Amount)
+                $properties = @{ amount = $Amount; timeGrain = 'Monthly'; category = 'Cost'; currentSpend = @{ amount = 500; unit = 'USD' } }
+                $content = @{ value = @(@{ name = 'test'; properties = $properties }) } | ConvertTo-Json -Depth 8
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 200; Content = $content } }
+                $budget = (Get-BudgetStatus -Subscriptions @([pscustomobject]@{ Id = '88888888-8888-8888-8888-888888888888' })).Budgets[0]
+
+                $budget.Amount | Should -BeNullOrEmpty
+                $budget.PctUsed | Should -BeNullOrEmpty
+                $budget.Risk | Should -Be 'Unknown'
+                $budget.Note | Should -BeLike '*amount*'
+            }
+        }
+
+        It 'Does not compare a forecast denominated in another unit to the budget' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"name":"monthly","properties":{"amount":1000,"timeGrain":"Monthly","category":"Cost","currentSpend":{"amount":500,"unit":"USD"},"forecastSpend":{"amount":1500,"unit":"EUR"}}}]}' }
+                }
+                $budget = (Get-BudgetStatus -Subscriptions @([pscustomobject]@{ Id = '88888888-8888-8888-8888-888888888888' })).Budgets[0]
+
+                $budget.Currency | Should -Be 'USD'
+                $budget.Forecast | Should -BeNullOrEmpty
+                $budget.Risk | Should -Not -Be 'Forecast Over'
+                $budget.Note | Should -BeLike '*unit*'
+            }
+        }
+
+        It 'Preserves the budget filter and leaves unknown spend null' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"name":"filtered","properties":{"amount":1000,"timeGrain":"Monthly","category":"Cost","filter":{"tags":{"name":"CostCenter","operator":"In","values":["team"]}},"timePeriod":{"startDate":"2026-01-01T00:00:00Z","endDate":"2026-12-31T00:00:00Z"}}}]}' }
+                }
+                $budget = (Get-BudgetStatus -Subscriptions @([pscustomobject]@{ Id = '88888888-8888-8888-8888-888888888888' })).Budgets[0]
+
+                $budget.ActualSpend | Should -BeNullOrEmpty
+                $budget.Forecast | Should -BeNullOrEmpty
+                $budget.Filter.tags.name | Should -Be 'CostCenter'
+                $budget.TimePeriod.startDate | Should -Not -BeNullOrEmpty
+                $budget.Currency | Should -BeNullOrEmpty
+            }
+        }
+
+        # A budget whose spend could not be read must not average into burn-rate KPIs
+        # as though it were untouched.
+        It 'Leaves percentages null when spend is unknown' {
+            InModuleScope FinOpsMultitool {
+                $budget = [pscustomobject]@{
+                    name       = 'quarterly-filtered'
+                    properties = [pscustomobject]@{
+                        amount = 5000; timeGrain = 'Quarterly'; category = 'Cost'
+                        filter = [pscustomobject]@{ tags = @{} }
+                    }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($budget) } | ConvertTo-Json -Depth 10) }
+                }
+
+                $subs = @([pscustomobject]@{ Id = '88888888-8888-8888-8888-888888888888'; Name = 'test' })
+                $costData = @{ '88888888-8888-8888-8888-888888888888' = @{ Actual = 900; Forecast = 1000; Currency = 'USD' } }
+
+                $b = @((Get-BudgetStatus -Subscriptions $subs -CostData $costData).Budgets)[0]
+                $b.SpendSource | Should -Be 'Unavailable'
+                $b.Risk | Should -Be 'Unknown'
+                $b.PctUsed | Should -BeNullOrEmpty
+            }
+        }
+
+        # currentSpend carries its own unit; the subscription's currency may differ.
+        It 'Reports the currency that belongs to the budget amount' {
+            InModuleScope FinOpsMultitool {
+                $budget = [pscustomobject]@{
+                    name       = 'eur-budget'
+                    properties = [pscustomobject]@{
+                        amount = 1000; timeGrain = 'Monthly'; category = 'Cost'
+                        currentSpend = [pscustomobject]@{ amount = 500; unit = 'EUR' }
+                    }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($budget) } | ConvertTo-Json -Depth 10) }
+                }
+
+                $subs = @([pscustomobject]@{ Id = '99999999-9999-9999-9999-999999999999'; Name = 'test' })
+                $b = @((Get-BudgetStatus -Subscriptions $subs -CostData @{}).Budgets)[0]
+                $b.Currency | Should -Be 'EUR'
             }
         }
     }

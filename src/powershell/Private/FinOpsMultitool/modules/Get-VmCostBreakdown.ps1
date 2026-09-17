@@ -220,7 +220,7 @@ function Get-VmCostBreakdown {
         if ($MeterLabel) { [void]$buckets[$Category].Meters.Add([string]$MeterLabel) }
     }
 
-    $currency = 'USD'
+    $currency = $null
     $source = 'LiveApi'
     $subLevelEgress = 0.0   # bandwidth billed with no resource ID (cannot attribute)
     $fromHub = ($HubData -and @($HubData).Count -gt 0)
@@ -230,12 +230,15 @@ function Get-VmCostBreakdown {
         $source = 'FinOpsHub'
         Write-Host "  Decomposing from FinOps Hub export..." -ForegroundColor Cyan
         $props = $HubData[0].PSObject.Properties.Name
+        $costSchema = Get-HubCostSchema -HubData $HubData -CostBasis 'AmortizedCost'
+        $costCol = $costSchema.CostColumn
+        $currency = $costSchema.Currency
 
         foreach ($row in $HubData) {
             $rid = [string](Get-HubRowValue -Row $row -Names @('ResourceId', 'x_ResourceId', 'InstanceId') -Props $props)
             if (-not $rid -or -not $vm.Associated.Contains($rid)) { continue }
 
-            $cost = [double](Get-HubRowValue -Row $row -Names @('CostInBillingCurrency', 'BilledCost', 'EffectiveCost', 'Cost') -Props $props)
+            $cost = Get-HubCostValue -Row $row -Column $costCol
             $qty = [double](Get-HubRowValue -Row $row -Names @('ConsumedQuantity', 'Quantity', 'UsageQuantity') -Props $props)
             $cur = [string](Get-HubRowValue -Row $row -Names @('BillingCurrency', 'BillingCurrencyCode', 'Currency') -Props $props)
             if ($cur) { $currency = $cur }
@@ -282,13 +285,20 @@ function Get-VmCostBreakdown {
                 $iRes = [array]::IndexOf($cols, 'ResourceId')
                 $iCat = [array]::IndexOf($cols, 'MeterCategory')
                 $iCur = [array]::IndexOf($cols, 'Currency')
+                if ($data.properties.rows.Count -gt 0 -and ($iCost -lt 0 -or $iRes -lt 0 -or $iCur -lt 0)) {
+                    throw 'Cost, resource, or currency columns are missing; VM cost coverage is incomplete.'
+                }
 
                 foreach ($row in @($data.properties.rows)) {
                     $amount = if ($iCost -ge 0) { [double]$row[$iCost] } else { 0 }
                     $qty = if ($iQty -ge 0) { [double]$row[$iQty] }  else { 0 }
                     $rid = if ($iRes -ge 0) { [string]$row[$iRes] }  else { '' }
                     $mc = if ($iCat -ge 0) { [string]$row[$iCat] }  else { '' }
-                    if ($iCur -ge 0 -and $row[$iCur]) { $currency = [string]$row[$iCur] }
+                    $rowCurrency = ([string]$row[$iCur]).Trim().ToUpperInvariant()
+                    if (-not $rowCurrency -or ($currency -and $rowCurrency -ne $currency)) {
+                        throw 'VM cost currency is missing or mixed; cost coverage is incomplete.'
+                    }
+                    $currency = $rowCurrency
 
                     # Bandwidth often bills with an empty resource ID at sub
                     # scope - record it as an unattributable caveat.
@@ -353,12 +363,12 @@ function Get-VmCostBreakdown {
         Location          = $vm.Location
         VmSize            = $vm.VmSize
         Currency          = $currency
-        Period            = 'MonthToDate'
+        Period            = if ($fromHub) { $costSchema.Period } else { 'MonthToDate' }
         Source            = $source
         TotalCost         = [math]::Round($total, 2)
         EgressGb          = $egressQty
         Breakdown         = $breakdown
         ResourcesIncluded = @($vm.Associated)
-        Note              = if ($notes.Count -gt 0) { $notes -join ' ' } else { 'Full VM solution cost: compute + disks + network + extensions, month-to-date.' }
+        Note              = if ($notes.Count -gt 0) { $notes -join ' ' } else { "Amortized VM solution cost for $($costSchema.Period): compute + disks + network + extensions." }
     }
 }

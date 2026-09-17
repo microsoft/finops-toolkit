@@ -263,12 +263,7 @@ function Get-GuidFromString {
 # culture reads "123.45" as 12345 wherever '.' is the thousands separator.
 function ConvertTo-ExportAmount {
     param([string]$Value)
-    $parsed = 0.0
-    $styles = [System.Globalization.NumberStyles]::Float -bor [System.Globalization.NumberStyles]::AllowThousands
-    if ([double]::TryParse($Value, $styles, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$parsed)) {
-        return $parsed
-    }
-    return 0.0
+    return Get-HubCostValue -Row ([pscustomobject]@{ Cost = $Value }) -Column 'Cost'
 }
 
 # -- Canonical export column resolver -------------------------------------
@@ -284,7 +279,7 @@ function Resolve-ExportColumns {
         ResourceGroup    = @('ResourceGroup', 'ResourceGroupName', 'x_ResourceGroupName')
         ResourceId       = @('ResourceId', 'InstanceId', 'InstanceName', 'x_ResourceId')
         ServiceName      = @('ServiceName', 'MeterCategory', 'ConsumedService', 'x_ServiceName')
-        Cost             = @('CostInBillingCurrency', 'BilledCost', 'EffectiveCost', 'PreTaxCost', 'Cost', 'CostInUSD')
+        Cost             = @('BilledCost', 'CostInBillingCurrency', 'PreTaxCost', 'Cost', 'CostInUSD')
         Currency         = @('BillingCurrency', 'BillingCurrencyCode', 'Currency')
         Tags             = @('Tags')
     }
@@ -303,6 +298,82 @@ function Resolve-ExportColumns {
     return $map
 }
 
+function Select-CostExportData {
+    param(
+        [Parameter(Mandatory)][object]$ExportData,
+        [object[]]$Subscriptions,
+        [switch]$SkipCoverageCheck
+    )
+
+    if ($ExportData.CoverageIncomplete -or $ExportData.Unsupported -or $ExportData.NoData -or -not $ExportData.Rows) {
+        throw 'Export data is unavailable or incomplete; subscription coverage cannot be verified.'
+    }
+    $sourceMap = $ExportData.ColMap
+    if (-not $sourceMap) { $sourceMap = Resolve-ExportColumns -Header $ExportData.Rows[0].PSObject.Properties.Name }
+    $resolved = Resolve-ExportColumns -Header $ExportData.Rows[0].PSObject.Properties.Name
+    $costColumn = $resolved.Cost
+    if (-not $costColumn -or ($costColumn -ne 'BilledCost' -and $ExportData.CostBasis -ne 'ActualCost')) {
+        throw 'The export does not provide actual cost; BilledCost or an actual-cost dataset is required.'
+    }
+    $expected = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $requestedIds = if ($Subscriptions) { @($Subscriptions | ForEach-Object { $_.Id }) } else { @($ExportData.SelectedSubscriptionIds | Where-Object { $_ }) }
+    foreach ($subscriptionId in $requestedIds) {
+        $parsedId = [guid]::Empty
+        if (-not [guid]::TryParse([string]$subscriptionId, [ref]$parsedId)) { throw 'Invalid subscription ID; refusing to drop the export scope filter.' }
+        [void]$expected.Add($parsedId.ToString())
+    }
+    $covered = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $rows = [System.Collections.Generic.List[object]]::new()
+    $currency = $null
+    $columnMap = @{ Cost = 'Cost'; SubscriptionId = 'SubscriptionId'; Currency = 'Currency' }
+    $optional = @('Date', 'SubscriptionName', 'ResourceGroup', 'ResourceId', 'ServiceName', 'Tags')
+    foreach ($column in $optional) { if ($sourceMap.$column) { $columnMap[$column] = $column } }
+
+    foreach ($row in $ExportData.Rows) {
+        $rawId = if ($sourceMap.SubscriptionId) { [string]$row.($sourceMap.SubscriptionId) } else { '' }
+        if (-not $rawId -and $sourceMap.ResourceId) { $rawId = [string]$row.($sourceMap.ResourceId) }
+        $parsedId = [guid]::Empty
+        if ($rawId -match '^/subscriptions/([0-9a-fA-F-]{36})(?:/|$)') { $rawId = $Matches[1] }
+        if (-not [guid]::TryParse($rawId, [ref]$parsedId)) { throw 'An export row has no valid subscription ID; coverage is incomplete.' }
+        $subscriptionId = $parsedId.ToString()
+        if ($expected.Count -gt 0 -and -not $expected.Contains($subscriptionId)) { continue }
+
+        $amount = Get-HubCostValue -Row $row -Column $costColumn
+        $rowCurrency = if ($costColumn -eq 'CostInUSD') { 'USD' }
+        elseif ($sourceMap.Currency) { [string]$row.($sourceMap.Currency) }
+        else { [string]$ExportData.Currency }
+        if ([string]::IsNullOrWhiteSpace($rowCurrency)) { throw 'An export row has no billing currency; cost results are incomplete.' }
+        $rowCurrency = $rowCurrency.Trim().ToUpperInvariant()
+        if ($currency -and $currency -ne $rowCurrency) { throw 'Multiple billing currencies cannot be combined into one export cost total.' }
+        $currency = $rowCurrency
+        $normalized = [ordered]@{ Cost = $amount; SubscriptionId = $subscriptionId; Currency = $currency }
+        foreach ($column in $optional) {
+            $sourceColumn = $sourceMap.$column
+            if ($sourceColumn -and $row.PSObject.Properties.Name -notcontains $sourceColumn) {
+                throw "Export row schema is missing '$sourceColumn'; cost results are incomplete."
+            }
+            $normalized[$column] = if ($sourceColumn) { $row.$sourceColumn } else { $null }
+        }
+        [void]$rows.Add([pscustomobject]$normalized)
+        [void]$covered.Add($subscriptionId)
+    }
+    if (-not $SkipCoverageCheck) {
+        foreach ($subscriptionId in $expected) {
+            if (-not $covered.Contains($subscriptionId)) { throw "No rows for selected subscription '$subscriptionId'; export coverage is incomplete." }
+        }
+    }
+    $period = if ($rows.Count -gt 0) { Get-HubCostSchema -HubData $rows.ToArray() } else { @{ Period = 'Unknown'; PeriodStart = $null; PeriodEnd = $null } }
+    return [pscustomobject]@{
+        Rows = $rows.ToArray(); ColMap = $columnMap; Currency = $currency; DataDate = $ExportData.DataDate
+        ActualPeriod = $period.Period; ActualPeriodStart = $period.PeriodStart; ActualPeriodEnd = $period.PeriodEnd
+        PeriodsBySubscription = $period.PeriodsBySubscription
+        RowCount = $rows.Count; NoData = ($rows.Count -eq 0); CostBasis = 'ActualCost'
+        CoveredSubscriptionIds = @($covered); SelectedSubscriptionIds = @($expected)
+        ExportCount = $ExportData.ExportCount
+        Headers = @($columnMap.Keys); NoCostColumn = $false; CoverageIncomplete = $false
+    }
+}
+
 # -- Parse an export Tags cell into a hashtable ---------------------------
 # Handles both classic ("env": "prod", "owner": "team") and FOCUS JSON
 # ({"env":"prod"}) tag encodings.
@@ -310,11 +381,13 @@ function ConvertFrom-ExportTagString {
     param([string]$Raw)
     $out = @{}
     if ([string]::IsNullOrWhiteSpace($Raw)) { return $out }
-    $text = $Raw.Trim().Trim('{', '}')
-    foreach ($m in [regex]::Matches($text, '"([^"]+)"\s*:\s*"([^"]*)"')) {
-        $k = $m.Groups[1].Value
-        $v = $m.Groups[2].Value
-        if ($k) { $out[$k] = $v }
+    $text = $Raw.Trim()
+    if (-not $text.StartsWith('{')) { $text = '{' + $text + '}' }
+    $parsed = $text | ConvertFrom-Json -ErrorAction Stop
+    if ($parsed -isnot [pscustomobject]) { throw 'Export tags must be a JSON object; tag cost coverage is incomplete.' }
+    foreach ($property in $parsed.PSObject.Properties) {
+        if ($null -ne $property.Value -and $property.Value -isnot [string]) { throw 'Export tag values must be strings; tag cost coverage is incomplete.' }
+        $out[$property.Name] = [string]$property.Value
     }
     return $out
 }
@@ -610,25 +683,29 @@ function Get-CostExportData {
     foreach ($part in $runParts) {
         $blobUri = "$blobBase/$container/$([uri]::EscapeUriString($part.Name))"
         $bytes = Get-StorageBlobBytes -Uri $blobUri -StorageToken $token
-        if (-not $bytes) { continue }
+        if (-not $bytes) { throw "Export part '$($part.Name)' could not be read; cost coverage is incomplete." }
         $csvText = $null
         if ($part.Name -match '\.gz$') {
             $csvText = Expand-GzipText -Content $bytes
         }
         else { $csvText = [System.Text.Encoding]::UTF8.GetString($bytes) }
-        if (-not $csvText) { continue }
+        if (-not $csvText) { throw "Export part '$($part.Name)' could not be decoded; cost coverage is incomplete." }
 
-        $parsed = @($csvText | ConvertFrom-Csv)
-        if ($parsed.Count -eq 0) { continue }
+        $parsed = @($csvText | ConvertFrom-Csv -ErrorAction Stop)
+        if ($parsed.Count -eq 0) { throw "Export part '$($part.Name)' contains no cost rows; coverage is unverified." }
         if (-not $colMap) {
             $firstHeader = @($parsed[0].PSObject.Properties.Name)
             $colMap = Resolve-ExportColumns -Header $firstHeader
+        }
+        $headerSet = [System.Collections.Generic.HashSet[string]]::new([string[]]$firstHeader, [System.StringComparer]::OrdinalIgnoreCase)
+        if (-not $headerSet.SetEquals([string[]]$parsed[0].PSObject.Properties.Name)) {
+            throw 'Export part schemas differ; cost coverage is incomplete.'
         }
         foreach ($r in $parsed) { [void]$rows.Add($r) }
     }
 
     # Determine currency from the first row that has one
-    $currency = 'USD'
+    $currency = if ($colMap.Cost -eq 'CostInUSD') { 'USD' } else { $null }
     if ($colMap -and $colMap.Currency) {
         $c = ($rows | Where-Object { $_.$($colMap.Currency) } | Select-Object -First 1)
         if ($c) { $currency = $c.$($colMap.Currency) }
@@ -643,6 +720,7 @@ function Get-CostExportData {
         Headers      = $firstHeader
         NoCostColumn = ($colMap -and -not $colMap.Cost)
         NoData       = ($rows.Count -eq 0)
+        CostBasis    = if ($Export.ScopeKind -eq 'Storage') { 'Unknown' } else { $Export.Type }
     }
 }
 
@@ -662,6 +740,7 @@ function ConvertTo-CostDataFromExport {
         [Parameter(Mandatory)][object]$ExportData,
         [Parameter(Mandatory)][object[]]$Subscriptions
     )
+    $ExportData = Select-CostExportData -ExportData $ExportData -Subscriptions $Subscriptions
     $costMap = @{}
     $cm = $ExportData.ColMap
     if (-not $cm -or -not $cm.Cost) { return $costMap }
@@ -673,9 +752,6 @@ function ConvertTo-CostDataFromExport {
         if ($g) { $guidToKey[$g.ToLower()] = $s.Id }
     }
 
-    # Seed every selected sub so the UI shows them even at $0
-    foreach ($s in $Subscriptions) { $costMap[$s.Id] = @{ Actual = 0; Forecast = 0; Currency = $ExportData.Currency } }
-
     $skippedRows = 0
     foreach ($r in $ExportData.Rows) {
         # SubscriptionId may be a bare GUID (classic) or a /subscriptions/<guid>
@@ -684,11 +760,20 @@ function ConvertTo-CostDataFromExport {
         if ([string]::IsNullOrWhiteSpace($rawSub) -and $cm.ResourceId) { $rawSub = "$($r.$($cm.ResourceId))" }
         $g = Get-GuidFromString -Value $rawSub
         if (-not $g) { continue }
+
+        # An export is written at its own scope, which is usually the whole billing
+        # account. A row for a subscription the user did not select is out of scope,
+        # so skipping it keeps the total matching the requested scope.
         if (-not $guidToKey.ContainsKey($g.ToLower())) { $skippedRows++; continue }
         $key = $guidToKey[$g.ToLower()]
+
         $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
         if (-not $costMap.ContainsKey($key)) {
-            $costMap[$key] = @{ Actual = 0; Forecast = 0; Currency = $ExportData.Currency }
+            $subscriptionPeriod = $ExportData.PeriodsBySubscription[$g]
+            $costMap[$key] = @{
+                Actual = 0; Forecast = $null; ForecastSource = 'Unavailable'; Currency = $ExportData.Currency
+                ActualPeriod = $subscriptionPeriod.Period; ActualPeriodStart = $subscriptionPeriod.PeriodStart; ActualPeriodEnd = $subscriptionPeriod.PeriodEnd
+            }
         }
         $costMap[$key].Actual += $cost
     }
@@ -697,13 +782,8 @@ function ConvertTo-CostDataFromExport {
         Write-Verbose "  Export covers a wider scope: ignored $skippedRows row(s) for unselected subscriptions."
     }
 
-    # Linear month-to-date projection for a sensible forecast
-    $now = Get-Date
-    $daysInMo = [DateTime]::DaysInMonth($now.Year, $now.Month)
-    $dayOfMo = [math]::Max(1, $now.Day)
     foreach ($k in @($costMap.Keys)) {
         $costMap[$k].Actual = [math]::Round($costMap[$k].Actual, 2)
-        $costMap[$k].Forecast = [math]::Round($costMap[$k].Actual / $dayOfMo * $daysInMo, 2)
     }
     return $costMap
 }
@@ -715,9 +795,10 @@ function ConvertTo-ResourceCostsFromExport {
         [Parameter(Mandatory)][object]$ExportData,
         [Parameter(Mandatory)][object[]]$Subscriptions
     )
+    $ExportData = Select-CostExportData -ExportData $ExportData -Subscriptions $Subscriptions
     $out = [System.Collections.Generic.List[PSCustomObject]]::new()
     $cm = $ExportData.ColMap
-    if (-not $cm -or -not $cm.Cost -or -not $cm.ResourceId) { return $out }
+    if (-not $cm.ResourceId) { throw 'Resource IDs are unavailable for part of this export; resource cost coverage is incomplete.' }
 
     $subNameMap = @{}
     foreach ($s in $Subscriptions) { $subNameMap[$s.Id.ToLower()] = $s.Name }
@@ -725,44 +806,36 @@ function ConvertTo-ResourceCostsFromExport {
     $agg = @{}
     foreach ($r in $ExportData.Rows) {
         $rid = if ($cm.ResourceId) { "$($r.$($cm.ResourceId))".Trim() } else { '' }
-        if (-not $rid) { continue }
+        $subId = [string]$r.($cm.SubscriptionId)
         $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
-        $key = $rid.ToLower()
+        $key = if ($rid) { $rid.ToLower() } else { "$subId|non-resource charges" }
         if (-not $agg.ContainsKey($key)) {
-            $subId = ''
-            if ($rid -match '/subscriptions/([^/]+)/') { $subId = $Matches[1].ToLower() }
             $rg = if ($cm.ResourceGroup) { "$($r.$($cm.ResourceGroup))" } else { '' }
             if (-not $rg -and $rid -match '/resourcegroups/([^/]+)/') { $rg = $Matches[1] }
             $agg[$key] = @{
-                ResourcePath  = $rid
+                ResourcePath  = if ($rid) { $rid } else { '(non-resource charges)' }
                 ResourceGroup = $rg
-                ResourceType  = Get-ExportResourceType -ResourceId $rid
-                Subscription  = if ($subId -and $subNameMap.ContainsKey($subId)) { $subNameMap[$subId] } else { '' }
+                ResourceType  = if ($rid) { Get-ExportResourceType -ResourceId $rid } else { 'Non-resource charge' }
+                Subscription  = if ($subNameMap.ContainsKey($subId)) { $subNameMap[$subId] } else { $subId }
+                ActualPeriod  = $ExportData.PeriodsBySubscription[$subId].Period
                 Cost          = 0.0
             }
         }
         $agg[$key].Cost += $cost
     }
 
-    # Linear month-to-date projection so the per-resource forecast matches the
-    # subscription-level export forecast (ConvertTo-CostDataFromExport). Without
-    # this, Forecast == Actual (MTD) and downstream views (e.g. AHB "With AHB
-    # (Mo.)") show a flat month-to-date number instead of a month-end projection.
-    $now      = Get-Date
-    $daysInMo = [DateTime]::DaysInMonth($now.Year, $now.Month)
-    $dayOfMo  = [math]::Max(1, $now.Day)
-
     foreach ($v in $agg.Values) {
         $c = [math]::Round($v.Cost, 2)
-        $fc = [math]::Round($c / $dayOfMo * $daysInMo, 2)
         [void]$out.Add([PSCustomObject]@{
                 Subscription  = $v.Subscription
                 ResourceGroup = $v.ResourceGroup
                 ResourceType  = $v.ResourceType
                 ResourcePath  = $v.ResourcePath
                 Actual        = $c
-                Forecast      = $fc
+                Forecast      = $null
+                ForecastSource = 'Unavailable'
                 Currency      = $ExportData.Currency
+                ActualPeriod  = $v.ActualPeriod
             })
     }
     return @($out | Sort-Object Actual -Descending)
@@ -773,27 +846,32 @@ function ConvertTo-CostByTagFromExport {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][object]$ExportData,
-        [hashtable]$ExistingTags = @{}
+        [hashtable]$ExistingTags = @{},
+        [object[]]$Subscriptions
     )
+    $ExportData = Select-CostExportData -ExportData $ExportData -Subscriptions $Subscriptions
     $cm = $ExportData.ColMap
     $results = @{}
-    if (-not $cm -or -not $cm.Cost -or -not $cm.Tags) {
-        return [PSCustomObject]@{ TagsQueried = @(); CostByTag = $results; NoTagsFound = $true; UsedTimeframe = 'Export' }
-    }
+    if (-not $cm.Tags) { throw 'Tags are unavailable for part of this export; tag cost coverage is incomplete.' }
 
     # tagKey -> ( tagValue -> cost )
     $byKey = @{}
+    $keys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($tagKey in $ExistingTags.Keys) { [void]$keys.Add($tagKey) }
+    $tagRows = [System.Collections.Generic.List[object]]::new()
     foreach ($r in $ExportData.Rows) {
         $raw = "$($r.$($cm.Tags))"
-        if ([string]::IsNullOrWhiteSpace($raw)) { continue }
         $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
-        if ($cost -eq 0) { continue }
         $tags = ConvertFrom-ExportTagString -Raw $raw
-        foreach ($tk in $tags.Keys) {
-            $tv = $tags[$tk]
-            if (-not $byKey.ContainsKey($tk)) { $byKey[$tk] = @{} }
+        if ($ExistingTags.Count -eq 0) { foreach ($tagKey in $tags.Keys) { [void]$keys.Add($tagKey) } }
+        [void]$tagRows.Add(@{ Cost = $cost; Tags = $tags })
+    }
+    foreach ($row in $tagRows) {
+        foreach ($tk in $keys) {
+            $tv = if ($row.Tags.ContainsKey($tk)) { if ($row.Tags[$tk]) { $row.Tags[$tk] } else { '(empty)' } } else { '(untagged)' }
+            if (-not $byKey.ContainsKey($tk)) { $byKey[$tk] = [System.Collections.Generic.Dictionary[string, double]]::new([System.StringComparer]::Ordinal) }
             if (-not $byKey[$tk].ContainsKey($tv)) { $byKey[$tk][$tv] = 0.0 }
-            $byKey[$tk][$tv] += $cost
+            $byKey[$tk][$tv] += $row.Cost
         }
     }
 
@@ -821,20 +899,22 @@ function ConvertTo-CostByTagFromExport {
 # show whatever months the export's date range contains.
 function ConvertTo-CostTrendFromExport {
     [CmdletBinding()]
-    param([Parameter(Mandatory)][object]$ExportData)
+    param(
+        [Parameter(Mandatory)][object]$ExportData,
+        [object[]]$Subscriptions
+    )
 
+    $ExportData = Select-CostExportData -ExportData $ExportData -Subscriptions $Subscriptions
     $cm = $ExportData.ColMap
     $months = [System.Collections.Generic.List[PSCustomObject]]::new()
     $bySub = @{}
-    if (-not $cm -or -not $cm.Cost -or -not $cm.Date) {
-        return [PSCustomObject]@{ Months = @(); BySubscription = $bySub; HasData = $false }
-    }
+    if (-not $cm.Date) { throw 'Dates are unavailable for part of this export; cost trend coverage is incomplete.' }
 
     $agg = @{}   # yyyy-MM -> @{ Cost; Date }
     $subAgg = @{}   # subId -> ( yyyy-MM -> @{ Cost; Date } )
     foreach ($r in $ExportData.Rows) {
         $dt = $null
-        try { $dt = [datetime]"$($r.$($cm.Date))" } catch { continue }
+        try { $dt = [datetime]"$($r.$($cm.Date))" } catch { throw 'An export row has an invalid date; cost trend coverage is incomplete.' }
         $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
         $firstOfMo = Get-Date -Year $dt.Year -Month $dt.Month -Day 1 -Hour 0 -Minute 0 -Second 0
         $key = $dt.ToString('yyyy-MM')
@@ -892,51 +972,47 @@ function Get-MergedCostExportData {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][object[]]$Exports,
-        [string]$Environment = 'AzureCloud'
+        [string]$Environment = 'AzureCloud',
+        [object[]]$Subscriptions
     )
 
-    # Dedupe by subscription: keep the newest-run export per SubId so two
-    # exports covering the same subscription do not double-count.
     $bestBySub = @{}
-    $noSub = [System.Collections.Generic.List[object]]::new()
+    $sourceIndex = 0
     foreach ($exp in $Exports) {
-        if (-not $exp) { continue }
-        $sid = "$($exp.SubId)"
-        if ([string]::IsNullOrWhiteSpace($sid)) { [void]$noSub.Add($exp); continue }
-        $existing = $bestBySub[$sid]
-        if (-not $existing) { $bestBySub[$sid] = $exp; continue }
-        $a = if ($exp.LastRunDate) { [datetime]$exp.LastRunDate } else { [datetime]::MinValue }
-        $b = if ($existing.LastRunDate) { [datetime]$existing.LastRunDate } else { [datetime]::MinValue }
-        if ($a -gt $b) { $bestBySub[$sid] = $exp }
+        if (-not $exp) { throw 'An export descriptor is missing; cost coverage is incomplete.' }
+        $sourceIndex++
+        $rawData = Get-CostExportData -Export $exp -Environment $Environment
+        if (-not $rawData) { throw "Export '$($exp.Name)' could not be read; cost coverage is incomplete." }
+        $data = Select-CostExportData -ExportData $rawData -Subscriptions $Subscriptions -SkipCoverageCheck
+        $runDate = if ($data.DataDate) { [datetime]$data.DataDate }
+        elseif ($exp.LastRunDate) { [datetime]$exp.LastRunDate }
+        else { [datetime]::MinValue }
+        foreach ($group in ($data.Rows | Group-Object SubscriptionId)) {
+            $existing = $bestBySub[$group.Name]
+            if (-not $existing -or $runDate -gt $existing.RunDate) {
+                $bestBySub[$group.Name] = @{ Rows = @($group.Group); ColMap = $data.ColMap; RunDate = $runDate; SourceIndex = $sourceIndex }
+            }
+        }
     }
-    $chosen = @($bestBySub.Values) + @($noSub)
 
     $allRows = [System.Collections.Generic.List[object]]::new()
     $colMap = $null
-    $headers = @()
-    $currency = 'USD'
     $dataDate = $null
-    $readAny = $false
-
-    foreach ($exp in $chosen) {
-        $data = Get-CostExportData -Export $exp -Environment $Environment
-        if (-not $data -or $data.NoData -or -not $data.Rows -or @($data.Rows).Count -eq 0) { continue }
-        $readAny = $true
-        if (-not $colMap -and $data.ColMap) { $colMap = $data.ColMap; $headers = $data.Headers }
-        if ($data.Currency) { $currency = $data.Currency }
-        if ($data.DataDate -and (-not $dataDate -or [datetime]$data.DataDate -gt $dataDate)) { $dataDate = [datetime]$data.DataDate }
-        foreach ($r in $data.Rows) { [void]$allRows.Add($r) }
+    $usedSources = [System.Collections.Generic.HashSet[int]]::new()
+    foreach ($data in $bestBySub.Values) {
+        if (-not $colMap) { $colMap = $data.ColMap.Clone() }
+        else {
+            foreach ($column in @($colMap.Keys)) {
+                if (-not $data.ColMap.ContainsKey($column)) { $colMap.Remove($column) }
+            }
+        }
+        if (-not $dataDate -or $data.RunDate -gt $dataDate) { $dataDate = $data.RunDate }
+        [void]$usedSources.Add($data.SourceIndex)
+        foreach ($row in $data.Rows) { [void]$allRows.Add($row) }
     }
-
-    return [PSCustomObject]@{
-        Rows         = $allRows
-        ColMap       = $colMap
-        DataDate     = $dataDate
-        Currency     = $currency
-        RowCount     = $allRows.Count
-        Headers      = $headers
-        NoCostColumn = ($colMap -and -not $colMap.Cost)
-        NoData       = (-not $readAny -or $allRows.Count -eq 0)
-        ExportCount  = @($chosen).Count
+    $merged = [pscustomobject]@{
+        Rows = $allRows.ToArray(); ColMap = $colMap; DataDate = $dataDate; ExportCount = $usedSources.Count
+        NoData = ($allRows.Count -eq 0); CostBasis = 'ActualCost'
     }
+    return Select-CostExportData -ExportData $merged -Subscriptions $Subscriptions
 }

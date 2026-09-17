@@ -101,19 +101,23 @@ Describe 'Budget coverage reporting' {
                     BudgetName     = 'monthly-budget'
                     Amount         = 100
                     TimeGrain      = 'Monthly'
+                    Category       = 'Cost'
+                    Currency       = 'USD'
+                    Filter         = $null
+                    TimePeriod     = @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-2); endDate = (Get-Date).ToUniversalTime().Date.AddYears(2) }
                 }
             )
 
             $script:Trend2 = [PSCustomObject]@{
                 BySubscription = @{ $script:SubA = @(2, 1 | ForEach-Object {
-                            [PSCustomObject]@{ MonthDate = (Get-Date).AddMonths(-$_); Cost = 10 }
+                            [PSCustomObject]@{ MonthDate = (Get-Date).AddMonths(-$_); Cost = 10; Currency = 'USD' }
                         })
                 }
             }
 
             $script:Trend6 = [PSCustomObject]@{
                 BySubscription = @{ $script:SubA = @(6, 5, 4, 3, 2, 1 | ForEach-Object {
-                            [PSCustomObject]@{ MonthDate = (Get-Date).AddMonths(-$_); Cost = 10 }
+                            [PSCustomObject]@{ MonthDate = (Get-Date).AddMonths(-$_); Cost = 10; Currency = 'USD' }
                         })
                 }
             }
@@ -173,6 +177,59 @@ Describe 'Budget coverage reporting' {
             Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 1 -Exactly -ParameterFilter {
                 $Path -like '*page=2' -and $Method -eq 'POST' -and ($Payload | ConvertFrom-Json).dataset.granularity -eq 'Monthly'
             }
+        }
+
+        It 'Does not compare subscription history with a <Case> budget' -ForEach @(
+            @{ Case = 'filtered'; Change = 'Filter' }
+            @{ Case = 'quarterly'; Change = 'Quarter' }
+            @{ Case = 'usage'; Change = 'Usage' }
+            @{ Case = 'missing amount'; Change = 'Amount' }
+            @{ Case = 'unknown currency'; Change = 'Currency' }
+            @{ Case = 'unknown validity period'; Change = 'Period' }
+        ) {
+            $budget = $script:HistBudget[0] | Select-Object *
+            switch ($Change) {
+                'Filter' { $budget.Filter = @{ tags = @{ name = 'CostCenter'; operator = 'In'; values = @('team') } } }
+                'Quarter' { $budget.TimeGrain = 'Quarterly' }
+                'Usage' { $budget.Category = 'Usage' }
+                'Amount' { $budget.Amount = $null }
+                'Currency' { $budget.Currency = $null }
+                'Period' { $budget.TimePeriod = $null }
+            }
+            Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool { throw 'Unsupported budgets must not query unfiltered history.' }
+
+            $rows = @(Get-BudgetHistory -Budgets @($budget) -MonthsBack 2 -CostTrend $script:Trend6)
+
+            $rows.Count | Should -Be 2
+            foreach ($row in $rows) {
+                $row.ActualSpend | Should -BeNullOrEmpty
+                $row.PctUsed | Should -BeNullOrEmpty
+                $row.Status | Should -Be 'Unavailable'
+                $row.Note | Should -Not -BeNullOrEmpty
+            }
+            Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+        }
+
+        It 'Does not present spend before the budget start as being under budget' {
+            $budget = $script:HistBudget[0] | Select-Object *
+            $budget.TimePeriod = @{ startDate = (Get-Date).ToUniversalTime().Date.AddDays(1 - (Get-Date).ToUniversalTime().Day) }
+            Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool { throw 'No active historical months.' }
+
+            $rows = @(Get-BudgetHistory -Budgets @($budget) -MonthsBack 2 -CostTrend $script:Trend6)
+
+            @($rows | Where-Object Status -EQ 'Unavailable').Count | Should -Be 2
+            $rows[0].ActualSpend | Should -BeNullOrEmpty
+        }
+
+        It 'Rejects a cached currency mismatch instead of relabeling it' {
+            $budget = $script:HistBudget[0] | Select-Object *
+            $budget.Currency = 'EUR'
+
+            $rows = @(Get-BudgetHistory -Budgets @($budget) -MonthsBack 2 -CostTrend $script:Trend6)
+
+            @($rows | Where-Object Status -EQ 'Unavailable').Count | Should -Be 2
+            $rows[0].Note | Should -Match 'currenc'
+            $rows[0].ActualSpend | Should -BeNullOrEmpty
         }
     }
 }
