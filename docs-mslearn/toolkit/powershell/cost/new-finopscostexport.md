@@ -3,12 +3,12 @@ title: New-FinOpsCostExport command
 description: Create a new Cost Management export for the specified scope using the New-FinOpsCostExport command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what New-FinOpsCostExport command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the New-FinOpsCostExport command in the FinOpsToolkit module.
 ---
 
 # New-FinOpsCostExport command
@@ -28,42 +28,60 @@ This command was tested with the following API versions:
 ```powershell
 # Create a new daily/monthly export
 New-FinOpsCostExport `
-    [-Name] <string> `
-    -Scope <string> `
-    [-Dataset <string>] `
-    [-DatasetVersion <string>] `
-    [-DatasetFilters <hashtable>] `
-    [-Monthly] `
-    [-StartDate <DateTime>] `
-    [-EndDate <DateTime>] `
-    -StorageAccountId <string> `
-    [-StorageContainer <string>] `
-    [-StoragePath <string>] `
-    [-Location] `
-    [-DoNotPartition] `
-    [-DoNotOverwrite] `
-    [-Execute] `
-    [-Backfill <int>] `
-    [-ApiVersion <string>]
+    ‑Name <string> `
+    ‑Scope <string> `
+    [‑Dataset <string>] `
+    [‑Format <string>] `
+    [‑CompressionMode <string>] `
+    [‑DatasetVersion <string>] `
+    [‑DatasetFilters <hashtable>] `
+    [‑CommitmentDiscountScope <string>] `
+    [‑CommitmentDiscountResourceType <string>] `
+    [‑CommitmentDiscountLookback <int>] `
+    [‑Monthly] `
+    [‑StartDate <datetime>] `
+    [‑EndDate <datetime>] `
+    ‑StorageAccountId <string> `
+    [‑StorageContainer <string>] `
+    [‑StoragePath <string>] `
+    [‑Location <string>] `
+    [‑DoNotPartition] `
+    [‑DoNotOverwrite] `
+    [‑SystemAssignedIdentity] `
+    [‑Execute] `
+    [‑Backfill <int>] `
+    [‑ApiVersion <string>] `
+    [‑WhatIf] `
+    [<CommonParameters>]
 ```
 
 ```powershell
 # Create a new one-time export
 New-FinOpsCostExport `
-    [-Name] <string> `
-    -Scope <string> `
-    [-Dataset <string>] `
-    [-DatasetVersion <string>] `
-    [-DatasetFilters <hashtable>] `
-    -OneTime `
-    -StartDate <DateTime> `
-    -EndDate <DateTime> `
-    -StorageAccountId <string> `
-    [-StorageContainer <string>] `
-    [-StoragePath <string>] `
-    [-Location] `
-    [-DoNotPartition] `
-    [-ApiVersion <string>]
+    ‑Name <string> `
+    ‑Scope <string> `
+    [‑Dataset <string>] `
+    [‑Format <string>] `
+    [‑CompressionMode <string>] `
+    [‑DatasetVersion <string>] `
+    [‑DatasetFilters <hashtable>] `
+    [‑CommitmentDiscountScope <string>] `
+    [‑CommitmentDiscountResourceType <string>] `
+    [‑CommitmentDiscountLookback <int>] `
+    [‑OneTime] `
+    [‑StartDate <datetime>] `
+    [‑EndDate <datetime>] `
+    ‑StorageAccountId <string> `
+    [‑StorageContainer <string>] `
+    [‑StoragePath <string>] `
+    [‑Location <string>] `
+    [‑DoNotPartition] `
+    [‑DoNotOverwrite] `
+    [‑SystemAssignedIdentity] `
+    [‑Execute] `
+    [‑ApiVersion <string>] `
+    [‑WhatIf] `
+    [<CommonParameters>]
 ```
 
 <br>
@@ -75,6 +93,8 @@ New-FinOpsCostExport `
 | `‑Name`                           | Required. Name of the export.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `‑Scope`                          | Required. Resource ID of the scope to export data for.                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `‑Dataset`                        | Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationRecommendations", "ReservationTransactions". Default = "FocusCost".                                                                                                                                                                                                                                                           |
+| `‑Format`                         | Optional. Format of the export files. Allowed values = "Csv", "Parquet". Default = "Csv".                                                                                                                                                                                                                                                                                                                                                                               |
+| `‑CompressionMode`                | Optional. Compression used for exported files. Allowed values = "None", "GZip", "Snappy". Default = "None".                                                                                                                                                                                                                                                                                                                                                             |
 | `‑DatasetVersion`                 | Optional. Schema version of the dataset to export. Default = "1.2-preview" (applies to FocusCost only).                                                                                                                                                                                                                                                                                                                                                                 |
 | `‑DatasetFilters`                 | Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview or newer. Valid filters are reservationScope (Shared or Single), resourceType (for example, VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).                                                                                                                                                          |
 | `‑CommitmentDiscountScope`        | Optional. Reservation scope filter to use when exporting reservation recommendations. Ignored for other export types. Allowed values: Shared, Single. Default: Shared.                                                                                                                                                                                                                                                                                                  |
@@ -87,13 +107,14 @@ New-FinOpsCostExport `
 | `‑StorageAccountId`               | Required. Resource ID of the storage account to export data to.                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `‑StorageContainer`               | Optional. Name of the container to export data to. Container is created if it doesn't exist. Default = "cost-management".                                                                                                                                                                                                                                                                                                                                               |
 | `‑StoragePath`                    | Optional. Path to export data to within the storage container. Default = (scope ID).                                                                                                                                                                                                                                                                                                                                                                                    |
+| `‑Location`                       | Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Managed identity is required in order to work with storage accounts behind a firewall but require access to grant permissions (for example, Owner). If specified, managed identity will be used; otherwise, managed identity will not be used and your export will not be able to push data to a storage account behind a firewall. Default = (empty). |
 | `‑DoNotPartition`                 | Optional. Indicates whether to partition the exported data into multiple files. Partitioning is recommended for reliability so this option is to disable partitioning. Default = false.                                                                                                                                                                                                                                                                                 |
 | `‑DoNotOverwrite`                 | Optional. Indicates whether to overwrite previously exported data for the current month. Overwriting is recommended to keep storage size and costs down so this option is to disable overwriting. If creating an export for FinOps hubs, we recommend you specify the -DoNotOverwrite option to improve troubleshooting. Default = false.                                                                                                                               |
 | `‑SystemAssignedIdentity`         | Optional. Indicates that managed identity should be used to push data to the storage account. Managed identity is required in order to work with storage accounts behind a firewall but require access to grant permissions (for example, Owner). If specified, managed identity will be used; otherwise, managed identity will not be used and your export will not be able to push data to a storage account behind a firewall. Default = (empty).                    |
-| `‑Location`                       | Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Managed identity is required in order to work with storage accounts behind a firewall but require access to grant permissions (for example, Owner). If specified, managed identity will be used; otherwise, managed identity will not be used and your export will not be able to push data to a storage account behind a firewall. Default = (empty). |
 | `‑Execute`                        | Optional. Indicates that the export should be run immediately after created.                                                                                                                                                                                                                                                                                                                                                                                            |
 | `‑Backfill`                       | Optional. Number of months to export the data for. This is only run once at create time. Failed exports are not re-attempted. Not supported when -OneTime is set. Default = 0.                                                                                                                                                                                                                                                                                          |
 | `‑ApiVersion`                     | Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.                                                                                                                                                                                                                                                                                                                                                                        |
+| `‑WhatIf`                         | Optional. Shows what would happen if the command runs without actually running it.                                                                                                                                                                                                                                                                                                                                                                                      |
 
 <br>
 
@@ -103,8 +124,8 @@ New-FinOpsCostExport `
 
 ```powershell
 New-FinopsCostExport -Name 'July2023OneTime' `
-    -Scope "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e" `
-    -StorageAccountId "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+    -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+    -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
     -DataSet ActualCost `
     -OneTime `
     -StartDate "2023-07-01" `
@@ -117,8 +138,8 @@ Creates a new one time export called 'July2023OneTime' from **2023-07-01** to **
 
 ```powershell
 New-FinopsCostExport -Name 'DailyMTD' `
-    -Scope "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e" `
-    -StorageAccountId "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+    -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+    -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
     -DataSet AmortizedCost `
     -EndDate "2024-12-31" `
     -Execute
@@ -130,8 +151,8 @@ Creates a new scheduled export called **Daily-MTD** with StartDate = DateTime.No
 
 ```powershell
 New-FinopsCostExport -Name 'Monthly-Report' `
-    -Scope "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e" `
-    -StorageAccountId "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+    -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+    -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
     -DataSet AmortizedCost `
     -StartDate $(Get-Date).AddDays(5) `
     -EndDate "2024-08-15" `
@@ -145,8 +166,8 @@ Creates a new monthly export called **Monthly-Report** with StartDate = 1 day fr
 
 ```powershell
 New-FinopsCostExport -Name 'Daily--MTD' `
-    -Scope "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e" `
-    -StorageAccountId "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+    -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+    -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
     -DataSet ActualCost `
     -StorageContainer "costreports" `
     -Backfill 4 `

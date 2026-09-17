@@ -3,12 +3,12 @@ title: Initialize-FinOpsHubDeployment command
 description: Initialize a FinOps hub deployment using the Initialize-FinOpsHubDeployment command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what Initialize-FinOpsHubDeployment command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the Initialize-FinOpsHubDeployment command in the FinOpsToolkit module.
 ---
 
 # Initialize-FinOpsHubDeployment command
@@ -21,7 +21,8 @@ The **Initialize-FinOpsHubDeployment** command performs any initialization tasks
 
 ```powershell
 Initialize-FinOpsHubDeployment `
-    [-WhatIf <string>]
+    [‑WhatIf] `
+    [<CommonParameters>]
 ```
 
 <br>
@@ -30,7 +31,7 @@ Initialize-FinOpsHubDeployment `
 
 | Name      | Description                                                                        |
 | --------- | ---------------------------------------------------------------------------------- |
-| '‑WhatIf' | Optional. Shows what would happen if the command runs without actually running it. |
+| `‑WhatIf` | Optional. Shows what would happen if the command runs without actually running it. |
 
 <br>
 
@@ -41,8 +42,7 @@ The following example demonstrates how to use the Initialize-FinOpsHubDeployment
 ### Test FinOps hub deployment initialization
 
 ```powershell
-Initialize-FinOpsHubDeployment `
-    -WhatIf
+Initialize-FinOpsHubDeployment -WhatIf
 ```
 
 Shows what would happen if the command runs without actually running it.

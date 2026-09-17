@@ -3,12 +3,12 @@ title: Register-FinOpsHubProviders command
 description: Register Azure resource providers required for FinOps hub using the Register-FinOpsHubProviders command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what Register-FinOpsHubProviders command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the Register-FinOpsHubProviders command in the FinOpsToolkit module.
 ---
 
 # Register-FinOpsHubProviders command
@@ -23,7 +23,8 @@ To register a resource provider, you must have Contributor access (or the /regis
 
 ```powershell
 Register-FinOpsHubProviders `
-    [-WhatIf <string>] `
+    [‑WhatIf] `
+    [<CommonParameters>]
 ```
 
 <br>
@@ -43,8 +44,7 @@ The following example demonstrates how to use the Register-FinOpsHubProviders co
 ### Test register FinOps hub providers
 
 ```powershell
-Register-FinOpsHubProviders `
-    -WhatIf
+Register-FinOpsHubProviders -WhatIf
 ```
 
 Shows what would happen if the command runs without actually running it.
