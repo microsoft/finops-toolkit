@@ -124,7 +124,8 @@ Describe 'Budget coverage reporting' {
                 [PSCustomObject]@{ StatusCode = 403; Content = '{}' }
             }
 
-            $null = Get-BudgetHistory -Budgets $script:HistBudget -MonthsBack 6 -CostTrend $script:Trend2 -WarningAction SilentlyContinue
+            { Get-BudgetHistory -Budgets $script:HistBudget -MonthsBack 6 -CostTrend $script:Trend2 -WarningAction SilentlyContinue } |
+                Should -Throw '*403*incomplete*'
 
             # Without the coverage check the four uncovered months would be
             # reported as zero spend and therefore as being under budget.
@@ -140,6 +141,38 @@ Describe 'Budget coverage reporting' {
 
             Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
             @($rows).Count | Should -Be 6
+        }
+
+        It 'Includes monthly spend from every page (continuation fails: <PageFails>)' -ForEach @(
+            @{ PageFails = $false }
+            @{ PageFails = $true }
+        ) {
+            Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+                $isNextPage = $Path -like '*page=2'
+                if ($PageFails -and $isNextPage) { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                $monthsAgo = if ($isNextPage) { -1 } else { -2 }
+                $amount = if ($isNextPage) { 120.0 } else { 40.0 }
+                $month = (Get-Date).AddMonths($monthsAgo).ToString('yyyyMM01')
+                $properties = @{
+                    columns = @(@{ name = 'Cost' }, @{ name = 'BillingMonth' }, @{ name = 'Currency' })
+                    rows = @(, @($amount, $month, 'USD'))
+                }
+                if (-not $isNextPage) { $properties.nextLink = "$Path&page=2" }
+                [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 10) }
+            }
+
+            if ($PageFails) {
+                { Get-BudgetHistory -Budgets $script:HistBudget -MonthsBack 2 } | Should -Throw '*incomplete*'
+            }
+            else {
+                $rows = @(Get-BudgetHistory -Budgets $script:HistBudget -MonthsBack 2)
+                $rows.Count | Should -Be 2
+                ($rows | Measure-Object -Property ActualSpend -Sum).Sum | Should -Be 160
+                @($rows | Where-Object Status -EQ 'Over').Count | Should -Be 1
+            }
+            Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 1 -Exactly -ParameterFilter {
+                $Path -like '*page=2' -and $Method -eq 'POST' -and ($Payload | ConvertFrom-Json).dataset.granularity -eq 'Monthly'
+            }
         }
     }
 }

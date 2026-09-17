@@ -293,7 +293,7 @@ Describe 'FinOps Multitool cost math' {
             }
         }
 
-        It 'Flags the fallback when no forecast is available' {
+        It 'Rejects an unavailable forecast instead of returning actual spend as a projection' {
             InModuleScope FinOpsMultitool {
                 Mock Invoke-AzRestMethodWithRetry {
                     if ($Path -like '*forecast*') {
@@ -312,9 +312,7 @@ Describe 'FinOps Multitool cost math' {
                 }
 
                 $subs = @([pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'test' })
-                $result = Get-CostDataPerSubscription -Subscriptions $subs
-
-                $result['22222222-2222-2222-2222-222222222222'].ForecastSource | Should -Be 'Actual'
+                { Get-CostDataPerSubscription -Subscriptions $subs } | Should -Throw '*Forecast*404*incomplete*'
             }
         }
     }
@@ -365,6 +363,38 @@ Describe 'FinOps Multitool cost math' {
             InModuleScope FinOpsMultitool {
                 $data = [pscustomobject]@{ RICount = 0; RIAvgUtilization = 0; SPCount = 0; SPAvgUtilization = 0 }
                 @(Get-CommitmentUtilizationValue -Data $data).Count | Should -Be 0
+            }
+        }
+    }
+
+    Context 'Hourly cost reporting' {
+        It 'Uses the UTC month instead of a local calendar that is still in August' {
+            InModuleScope FinOpsMultitool {
+                Mock Get-Date { [datetime]::new(2026, 9, 1, 2, 0, 0, [DateTimeKind]::Utc) }
+                Mock Get-Date { [datetime]::new(2026, 8, 1) } -ParameterFilter { $Day -eq 1 }
+                $data = [pscustomobject]@{ CostPerVCpu = 2.0; Currency = 'USD' }
+
+                $result = Get-KpiComputedValue -KpiId 'hourly-cost-per-cpu-core' -Data $data
+
+                $result.Value | Should -Be 1.0
+            }
+        }
+
+        It 'Uses the captured cost window when the report is rendered later' {
+            InModuleScope FinOpsMultitool {
+                Mock Get-Date { [datetime]::new(2026, 10, 2, 0, 0, 0, [DateTimeKind]::Utc) }
+                Mock Get-Date { [datetime]::new(2026, 10, 1) } -ParameterFilter { $Day -eq 1 }
+                $data = [pscustomobject]@{
+                    CostPerVCpu = 384.0
+                    Currency = 'USD'
+                    CostPeriodStartUtc = [datetime]::new(2026, 9, 1, 0, 0, 0, [DateTimeKind]::Utc)
+                    CostPeriodEndUtc = [datetime]::new(2026, 9, 17, 0, 0, 0, [DateTimeKind]::Utc)
+                }
+
+                $result = Get-KpiComputedValue -KpiId 'hourly-cost-per-cpu-core' -Data $data
+
+                $result.Value | Should -Be 1.0
+                Should -Invoke Get-Date -Times 0 -Exactly
             }
         }
     }

@@ -104,14 +104,25 @@ function Get-KpiComputedValue {
             $v = Get-ScanField $Data 'CostPerVCpu'
             $cur = Get-ScanField $Data 'Currency'
             if ($null -ne $v -and $v -gt 0) {
-                $hourly = [math]::Round([double]$v / 730, 4)
+                $periodStart = Get-ScanField $Data 'CostPeriodStartUtc'
+                $periodEnd = Get-ScanField $Data 'CostPeriodEndUtc'
+                if ($null -ne $periodStart -and $null -ne $periodEnd) {
+                    $periodStart = ([datetime]$periodStart).ToUniversalTime()
+                    $periodEnd = ([datetime]$periodEnd).ToUniversalTime()
+                }
+                else {
+                    $periodEnd = (Get-Date).ToUniversalTime()
+                    $periodStart = $periodEnd.Date.AddDays(1 - $periodEnd.Day)
+                }
+                $elapsedHours = [math]::Max(($periodEnd - $periodStart).TotalHours, 1)
+                $hourly = [math]::Round([double]$v / $elapsedHours, 4)
                 return (New-KpiValue "$cur $hourly per vCPU / hour" $hourly)
             }
         }
         'effective-avg-compute-cost-per-core' {
             $v = Get-ScanField $Data 'CostPerVCpu'
             $cur = Get-ScanField $Data 'Currency'
-            if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$cur $v per vCPU / month" ([double]$v)) }
+            if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$cur $v per vCPU (month-to-date)" ([double]$v)) }
         }
         'commitment-utilization-score' {
             $vals = @(Get-CommitmentUtilizationValue -Data $Data)

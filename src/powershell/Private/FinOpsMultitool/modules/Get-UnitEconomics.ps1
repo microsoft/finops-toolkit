@@ -257,6 +257,9 @@ resources
     $totalGb = $diskGb + $blobFileGb
 
     # -- 3: Amortized cost by meter category (sub-scoped, with fallback) --
+    $costPeriodEndUtc = (Get-Date).ToUniversalTime()
+    $costPeriodStartUtc = $costPeriodEndUtc.Date.AddDays(1 - $costPeriodEndUtc.Day)
+    $costTimePeriod = @{ from = $costPeriodStartUtc.ToString('yyyy-MM-ddTHH:mm:ssZ'); to = $costPeriodEndUtc.ToString('yyyy-MM-ddTHH:mm:ssZ') }
     $computeCost = 0.0
     $storageCost = 0.0
     # A tenant can bill subscriptions in different currencies; keep them all.
@@ -278,7 +281,8 @@ resources
             if ($subFilter) { $dataset['filter'] = $subFilter }
             $body = @{
                 type      = 'AmortizedCost'
-                timeframe = 'MonthToDate'
+                timeframe = 'Custom'
+                timePeriod = $costTimePeriod
                 dataset   = $dataset
             } | ConvertTo-Json -Depth 10
 
@@ -290,10 +294,15 @@ resources
                 Set-MgCostScopeFailed
             }
             elseif ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
-                if (Add-MeterCosts -Content $resp.Content -ComputeRef ([ref]$computeCost) -StorageRef ([ref]$storageCost) -CurrencySeen $currenciesSeen) {
-                    $costOk = $true
-                    $costScope = "mg:$mgScopeId"
+                foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -Payload $body -Context 'management-group unit costs')) {
+                    if (Add-MeterCosts -Content $page.Content -ComputeRef ([ref]$computeCost) -StorageRef ([ref]$storageCost) -CurrencySeen $currenciesSeen) {
+                        $costOk = $true
+                        $costScope = "mg:$mgScopeId"
+                    }
                 }
+            }
+            else {
+                $mgFailed = $true
             }
         }
         else {
@@ -308,11 +317,15 @@ resources
     # Per-subscription fallback when the MG scope is not accessible. This is
     # the same pattern Get-CostData uses so unit economics is never silently $0.
     if (-not $costOk -and $mgFailed) {
+        $computeCost = 0.0
+        $storageCost = 0.0
+        $currenciesSeen.Clear()
         foreach ($sid in $subIds) {
             try {
                 $body = @{
                     type      = 'AmortizedCost'
-                    timeframe = 'MonthToDate'
+                    timeframe = 'Custom'
+                    timePeriod = $costTimePeriod
                     dataset   = @{
                         granularity = 'None'
                         aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
@@ -322,15 +335,15 @@ resources
 
                 $path = "/subscriptions/$sid/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
                 $resp = Invoke-AzRestMethodWithRetry -Path $path -Method POST -Payload $body
-                if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
-                    if (Add-MeterCosts -Content $resp.Content -ComputeRef ([ref]$computeCost) -StorageRef ([ref]$storageCost) -CurrencySeen $currenciesSeen) {
+                foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -Payload $body -Context "unit costs for $sid")) {
+                    if (Add-MeterCosts -Content $page.Content -ComputeRef ([ref]$computeCost) -StorageRef ([ref]$storageCost) -CurrencySeen $currenciesSeen) {
                         $costOk = $true
                         $costScope = 'per-sub'
                     }
                 }
             }
             catch {
-                Write-Warning "  Per-sub cost query failed for $sid : $($_.Exception.Message)"
+                throw "Per-sub cost query failed for $sid : $($_.Exception.Message)"
             }
         }
     }
@@ -371,6 +384,8 @@ resources
     return [PSCustomObject]@{
         HasData         = $hasData
         Currency        = Resolve-CurrencyLabel -Seen $currenciesSeen
+        CostPeriodStartUtc = $costPeriodStartUtc
+        CostPeriodEndUtc = $costPeriodEndUtc
         ComputeCost     = [math]::Round($computeCost, 2)
         StorageCost     = [math]::Round($storageCost, 2)
         ComputeSharePct = $computeSharePct

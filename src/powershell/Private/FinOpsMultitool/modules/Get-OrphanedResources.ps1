@@ -346,11 +346,8 @@ resources
             }
 
             try {
-                if (-not $costPeriodLabel) { $costPeriodLabel = $usedLabel }
-                $costQueried++
-
                 # Follow nextLink: one page only would leave later orphans uncosted.
-                foreach ($page in (Get-CostQueryResponsePage -FirstResponse $costResp -Context "orphan cost for $($sub.Name)")) {
+                foreach ($page in (Get-CostQueryResponsePage -FirstResponse $costResp -Payload $body -Context "orphan cost for $($sub.Name)")) {
                     $costResult = ($page.Content | ConvertFrom-Json)
                     $costCols = @{}
                     for ($cIdx = 0; $cIdx -lt $costResult.properties.columns.Count; $cIdx++) {
@@ -362,6 +359,8 @@ resources
                         if ($rid) { $costMap[$rid.ToLowerInvariant()] = [math]::Round([double]$costRow[$costCols['Cost']], 2) }
                     }
                 }
+                if (-not $costPeriodLabel) { $costPeriodLabel = $usedLabel }
+                $costQueried++
             }
             catch {
                 [void]$costFailures.Add("$($sub.Name): $($_.Exception.Message)")

@@ -366,8 +366,7 @@ function Get-CostByTag {
     # pay-as-you-go (unlike TagKey/TagValue, which 400/408s on most sub types).
     # This collapses the old tags x subs x timeframes call matrix down to a
     # single call per subscription, then attributes each resource's cost to its
-    # tag values client-side. The scan is built to COMPLETE even when some subs
-    # fail: a failed subscription is recorded and skipped, never thrown.
+    # tag values client-side. All selected subscriptions must be readable.
     $usedTimeframe = 'MonthToDate'
     $timeframes    = @('MonthToDate', 'Custom')
 
@@ -448,7 +447,7 @@ function Get-CostByTag {
                         $subsQueried++
                         # Follow nextLink: one page only would understate a large subscription.
                         $rows = @()
-                        foreach ($page in (Get-CostQueryResponsePage -FirstResponse $subResp -Context "cost-by-tag for $($pj.SubName)")) {
+                        foreach ($page in (Get-CostQueryResponsePage -FirstResponse $subResp -Payload $body -Context "cost-by-tag for $($pj.SubName)")) {
                             $rows += ConvertFrom-ResourceIdRow -ResponseContent $page.Content
                         }
                         foreach ($row in $rows) {
@@ -508,6 +507,9 @@ function Get-CostByTag {
                     }
                     else {
                         $subsFailed++
+                    }
+                    if (-not $subResp -or $subResp.StatusCode -ne 200) {
+                        throw "Cost-by-tag query failed for $($pj.Call.SubName) (HTTP $($subResp.StatusCode)); results are incomplete."
                     }
                 }
             }

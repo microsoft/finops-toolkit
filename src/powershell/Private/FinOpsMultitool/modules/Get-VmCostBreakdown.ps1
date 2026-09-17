@@ -275,7 +275,7 @@ function Get-VmCostBreakdown {
         try {
             $resp = Invoke-AzRestMethodWithRetry -Path $path -Method POST -Payload $body
             if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
-                $data = $resp.Content | ConvertFrom-Json
+                $data = Get-CostQueryResult -FirstResponse $resp -Payload $body -Context "VM costs for $($vm.Name)"
                 $cols = @($data.properties.columns.name)
                 $iCost = [array]::IndexOf($cols, 'Cost')
                 $iQty = [array]::IndexOf($cols, 'UsageQuantity')

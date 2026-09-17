@@ -165,16 +165,26 @@ function Get-SavingsRealized {
             Write-Host "  Calculating savings (single subscription, direct scope)..." -ForegroundColor Cyan
             $subPath = "/subscriptions/$($only.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
 
-            $actualResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload (New-SavingsQueryBody -Type 'ActualCost' -Dimensions @('ChargeType'))
+            $actualBody = New-SavingsQueryBody -Type 'ActualCost' -Dimensions @('ChargeType')
+            $actualResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $actualBody
+            if (-not $actualResp -or $actualResp.StatusCode -ne 200) {
+                throw "Savings charge query returned HTTP $($actualResp.StatusCode); results are incomplete."
+            }
             if ($actualResp.StatusCode -eq 200) {
-                foreach ($d in (Read-SavingsActual -Result ($actualResp.Content | ConvertFrom-Json))) {
+                $actualResult = Get-CostQueryResult -FirstResponse $actualResp -Payload $actualBody -Context "savings charges for $($only.Name)"
+                foreach ($d in (Read-SavingsActual -Result $actualResult)) {
                     $d.Subscription = $only.Name; [void]$details.Add($d)
                 }
             }
 
-            $amortResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload (New-SavingsQueryBody -Type 'AmortizedCost' -Dimensions @('PricingModel'))
+            $amortBody = New-SavingsQueryBody -Type 'AmortizedCost' -Dimensions @('PricingModel')
+            $amortResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $amortBody
+            if (-not $amortResp -or $amortResp.StatusCode -ne 200) {
+                throw "Savings benefit query returned HTTP $($amortResp.StatusCode); results are incomplete."
+            }
             if ($amortResp.StatusCode -eq 200) {
-                $parsed = Read-SavingsAmort -Result ($amortResp.Content | ConvertFrom-Json)
+                $amortResult = Get-CostQueryResult -FirstResponse $amortResp -Payload $amortBody -Context "savings benefits for $($only.Name)"
+                $parsed = Read-SavingsAmort -Result $amortResult
                 foreach ($d in $parsed.Rows) { $d.Subscription = $only.Name; [void]$details.Add($d) }
                 $riSavings += $parsed.RI
                 $spSavings += $parsed.SP
@@ -184,10 +194,10 @@ function Get-SavingsRealized {
             }
 
             $gotMgData = $true
-            Write-Host "  Single-subscription savings calculated (2 API calls)" -ForegroundColor Green
+            Write-Host "  Single-subscription savings calculated" -ForegroundColor Green
         }
         catch {
-            Write-Warning "  Single-subscription savings query failed: $($_.Exception.Message)"
+            throw "Single-subscription savings query failed: $($_.Exception.Message)"
         }
     }
     elseif ($hasCommitments) {
@@ -198,18 +208,28 @@ function Get-SavingsRealized {
                 Write-Host "  Calculating savings (MG scope, grouped by subscription)..." -ForegroundColor Cyan
                 $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
 
-                $actualResp = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload (New-SavingsQueryBody -Type 'ActualCost' -Dimensions @('SubscriptionId', 'ChargeType'))
+                $actualBody = New-SavingsQueryBody -Type 'ActualCost' -Dimensions @('SubscriptionId', 'ChargeType')
+                $actualResp = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $actualBody
                 if ($actualResp.StatusCode -in @(401, 403)) {
                     Set-MgCostScopeFailed
                     throw "MG-scope savings query returned HTTP $($actualResp.StatusCode)"
                 }
+                if (-not $actualResp -or $actualResp.StatusCode -ne 200) {
+                    throw "MG-scope savings charge query returned HTTP $($actualResp.StatusCode); results are incomplete."
+                }
                 if ($actualResp.StatusCode -eq 200) {
-                    foreach ($d in (Read-SavingsActual -Result ($actualResp.Content | ConvertFrom-Json))) { [void]$details.Add($d) }
+                    $actualResult = Get-CostQueryResult -FirstResponse $actualResp -Payload $actualBody -Context 'management-group savings charges'
+                    foreach ($d in (Read-SavingsActual -Result $actualResult)) { [void]$details.Add($d) }
                 }
 
-                $amortResp = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload (New-SavingsQueryBody -Type 'AmortizedCost' -Dimensions @('SubscriptionId', 'PricingModel'))
+                $amortBody = New-SavingsQueryBody -Type 'AmortizedCost' -Dimensions @('SubscriptionId', 'PricingModel')
+                $amortResp = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $amortBody
+                if (-not $amortResp -or $amortResp.StatusCode -ne 200) {
+                    throw "MG-scope savings benefit query returned HTTP $($amortResp.StatusCode); results are incomplete."
+                }
                 if ($amortResp.StatusCode -eq 200) {
-                    $parsed = Read-SavingsAmort -Result ($amortResp.Content | ConvertFrom-Json)
+                    $amortResult = Get-CostQueryResult -FirstResponse $amortResp -Payload $amortBody -Context 'management-group savings benefits'
+                    $parsed = Read-SavingsAmort -Result $amortResult
                     foreach ($d in $parsed.Rows) { [void]$details.Add($d) }
                     $riSavings += $parsed.RI
                     $spSavings += $parsed.SP
@@ -219,7 +239,7 @@ function Get-SavingsRealized {
                 }
 
                 $gotMgData = $true
-                Write-Host "  MG scope savings calculated (2 API calls)" -ForegroundColor Green
+                Write-Host "  MG scope savings calculated" -ForegroundColor Green
             }
             catch {
                 Write-Warning "  MG-scope savings query failed: $($_.Exception.Message)"
@@ -229,6 +249,12 @@ function Get-SavingsRealized {
 
     # -- Strategy 2: Per-subscription fallback (only if MG/direct scope unavailable) --
     if ($hasCommitments -and -not $gotMgData) {
+        $details.Clear()
+        $riSavings = 0.0
+        $spSavings = 0.0
+        $committedAmort = 0.0
+        $onDemandAmort = 0.0
+        $spotAmort = 0.0
         # -- Step 1: Query amortized vs actual to find RI/SP benefit amounts --
         # The difference between ActualCost and AmortizedCost reveals commitment savings
         $subCount = $Subscriptions.Count
@@ -258,9 +284,12 @@ function Get-SavingsRealized {
 
                 $subPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
                 $actualResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $actualBody
+                if (-not $actualResp -or $actualResp.StatusCode -ne 200) {
+                    throw "Savings charge retry returned HTTP $($actualResp.StatusCode); results are incomplete."
+                }
 
                 if ($actualResp.StatusCode -eq 200) {
-                    $actualResult = ($actualResp.Content | ConvertFrom-Json)
+                    $actualResult = Get-CostQueryResult -FirstResponse $actualResp -Payload $actualBody -Context "savings charges for $($sub.Name)"
                     if ($actualResult.properties.rows) {
                         foreach ($row in $actualResult.properties.rows) {
                             $chargeType = $row[1]
@@ -296,8 +325,11 @@ function Get-SavingsRealized {
                 } | ConvertTo-Json -Depth 10
 
                 $amortResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $amortBody
+                if (-not $amortResp -or $amortResp.StatusCode -ne 200) {
+                    throw "Savings benefit retry returned HTTP $($amortResp.StatusCode); results are incomplete."
+                }
                 if ($amortResp.StatusCode -eq 200) {
-                    $amortResult = ($amortResp.Content | ConvertFrom-Json)
+                    $amortResult = Get-CostQueryResult -FirstResponse $amortResp -Payload $amortBody -Context "savings benefits for $($sub.Name)"
                     if ($amortResult.properties.rows) {
                         foreach ($row in $amortResult.properties.rows) {
                             $pricingModel = $row[1]
@@ -333,7 +365,7 @@ function Get-SavingsRealized {
                 }
             }
             catch {
-                Write-Warning "  Savings query failed for $($sub.Name): $($_.Exception.Message)"
+                throw "Savings query failed for $($sub.Name): $($_.Exception.Message)"
             }
         }
     } # end per-sub fallback

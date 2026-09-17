@@ -336,9 +336,8 @@ function Get-BudgetHistory {
             $costPath = "/subscriptions/$subId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
             try {
                 $resp = Invoke-AzRestMethodWithRetry -Path $costPath -Method POST -Payload $body
-                if ($resp.StatusCode -ne 200) { continue }
 
-                $result = ($resp.Content | ConvertFrom-Json)
+                $result = Get-CostQueryResult -FirstResponse $resp -Payload $body -Context "budget history for $subName"
                 if (-not $result.properties -or -not $result.properties.rows) { continue }
 
                 # Parse columns
@@ -382,8 +381,7 @@ function Get-BudgetHistory {
                 }
             }
             catch {
-                Write-Warning "  Budget history query failed for $subName : $($_.Exception.Message)"
-                continue
+                throw "Budget history query failed for $subName : $($_.Exception.Message)"
             }
         }
 

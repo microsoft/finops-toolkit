@@ -125,9 +125,9 @@ function Get-ResourceCosts {
                     $cols[$result.properties.columns[$colIdx].name] = $colIdx
                 }
 
-                $page = $result
                 $pageNum = 0
-                do {
+                foreach ($responsePage in (Get-CostQueryResponsePage -FirstResponse $resp -Payload $body -Context 'management-group resource costs')) {
+                    $page = $responsePage.Content | ConvertFrom-Json
                     $pageNum++
                     if ($page.properties.rows) {
                         if ($pageNum -eq 1 -or $pageNum % 3 -eq 0) {
@@ -156,14 +156,7 @@ function Get-ResourceCosts {
                                 })
                         }
                     }
-                    if ($page.properties.nextLink) {
-                        $nextUri = [System.Uri]$page.properties.nextLink
-                        $nResp = Invoke-AzRestMethodWithRetry -Path $nextUri.PathAndQuery -Method GET
-                        if ($nResp.StatusCode -eq 200) { $page = ($nResp.Content | ConvertFrom-Json) }
-                        else { break }
-                    }
-                    else { break }
-                } while ($true)
+                }
 
                 if ($allRows.Count -gt 0) {
                     $gotMgData = $true
@@ -204,6 +197,8 @@ function Get-ResourceCosts {
             }
         }
         catch {
+            $allRows.Clear()
+            $gotMgData = $false
             Write-Warning "  MG-scope resource cost query failed: $($_.Exception.Message)"
         }
     }
@@ -258,8 +253,8 @@ function Get-ResourceCosts {
                     }
 
                     # Process all pages (Cost Management API paginates at ~5000 rows)
-                    $page = $result
-                    do {
+                    foreach ($responsePage in (Get-CostQueryResponsePage -FirstResponse $resp -Payload $body -Context "resource costs for $($sub.Name)")) {
+                        $page = $responsePage.Content | ConvertFrom-Json
                         if ($page.properties.rows) {
                             foreach ($row in $page.properties.rows) {
                                 $cost = [math]::Round($row[$cols['Cost']], 2)
@@ -285,19 +280,14 @@ function Get-ResourceCosts {
                                 }
                             }
                         }
-                        # Follow pagination link if present
-                        if ($page.properties.nextLink) {
-                            $uri = [System.Uri]$page.properties.nextLink
-                            $nResp = Invoke-AzRestMethodWithRetry -Path $uri.PathAndQuery -Method GET
-                            if ($nResp.StatusCode -eq 200) { $page = ($nResp.Content | ConvertFrom-Json) }
-                            else { break }
-                        }
-                        else { break }
-                    } while ($true)
+                    }
+                }
+                else {
+                    throw "Resource cost query returned HTTP $($resp.StatusCode); results are incomplete."
                 }
             }
             catch {
-                Write-Warning "  Resource cost query failed for $($sub.Name): $($_.Exception.Message)"
+                throw "Resource cost query failed for $($sub.Name): $($_.Exception.Message)"
             }
 
             # -- Forecast: use subscription-level forecast ratio -------------
@@ -320,14 +310,14 @@ function Get-ResourceCosts {
             elseif (-not $skipForecast) {
                 # Only call forecast API for small tenants without CostData
                 try {
-                    $now = Get-Date
+                    $now = (Get-Date).ToUniversalTime()
                     $monthEnd = (Get-Date -Year $now.Year -Month $now.Month -Day 1).AddMonths(1).AddDays(-1)
 
                     $fBody = @{
                         type                    = 'Usage'
                         timeframe               = 'Custom'
                         timePeriod              = @{
-                            from = $now.ToString('yyyy-MM-dd')
+                            from = $now.AddDays(1 - $now.Day).ToString('yyyy-MM-dd')
                             to   = $monthEnd.ToString('yyyy-MM-dd')
                         }
                         dataset                 = @{
@@ -342,20 +332,32 @@ function Get-ResourceCosts {
 
                     $fResp = Invoke-AzRestMethodWithRetry -Path "$basePath/forecast?api-version=2023-11-01" -Method POST -Payload $fBody
 
+                    if (-not $fResp -or $fResp.StatusCode -ne 200) {
+                        throw "Resource forecast returned HTTP $($fResp.StatusCode); results are incomplete."
+                    }
                     if ($fResp.StatusCode -eq 200) {
-                        $fResult = ($fResp.Content | ConvertFrom-Json)
-                        if ($fResult.properties.rows -and $fResult.properties.rows.Count -gt 0) {
-                            $forecastTotal = 0
+                        $forecastTotal = 0.0
+                        $rowCount = 0
+                        foreach ($responsePage in (Get-CostQueryResponsePage -FirstResponse $fResp -Payload $fBody -Context "resource forecast for $($sub.Name)")) {
+                            $fResult = $responsePage.Content | ConvertFrom-Json
+                            if ($fResult.properties.rows.Count -eq 0) { continue }
+                            $costIndex = Get-CostColumnIndex -Columns $fResult.properties.columns -Names @('cost', 'pretaxcost', 'costusd')
+                            if ($costIndex -lt 0) { throw 'Forecast response did not expose the expected Cost column.' }
                             foreach ($row in $fResult.properties.rows) {
-                                $forecastTotal += [double]$row[0]
+                                $forecastTotal += [double]$row[$costIndex]
+                                $rowCount++
                             }
+                        }
+                        if ($rowCount -gt 0) {
                             $subForecast = [math]::Round($forecastTotal, 2)
+                        }
+                        else {
+                            throw 'Resource forecast returned no rows; results are incomplete.'
                         }
                     }
                 }
                 catch {
-                    # Forecast not available for all account types
-                    Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                    throw "Resource forecast query failed for $($sub.Name): $($_.Exception.Message)"
                 }
             }
 

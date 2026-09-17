@@ -122,6 +122,27 @@ Describe 'Commitment utilization de-duplication' {
         $result.SPAvgUtilization | Should -Be 50
     }
 
+    It 'Does not return incomplete utilization after <Endpoint> pagination fails' -ForEach @(
+        @{ Endpoint = 'reservationSummaries'; PayloadName = 'ReservationPayload' }
+        @{ Endpoint = 'benefitUtilizationSummaries'; PayloadName = 'SavingsPlanPayload' }
+    ) {
+        $pagedPayload = (Get-Variable -Name $PayloadName -Scope Script -ValueOnly) | ConvertFrom-Json
+        $pagedPayload | Add-Member -NotePropertyName nextLink -NotePropertyValue "/providers/Microsoft.Billing/billingAccounts/TEST-BA/$Endpoint`?page=2"
+        $firstPageContent = $pagedPayload | ConvertTo-Json -Depth 10
+        Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+            if ($Path -like '*page=2') { [PSCustomObject]@{ StatusCode = 503; Content = '{}' } }
+            elseif ($Path -match 'billingAccounts\?') { [PSCustomObject]@{ StatusCode = 200; Content = $script:BillingAccountPayload } }
+            elseif ($Path -match 'billingProperty/default') { [PSCustomObject]@{ StatusCode = 200; Content = $script:BillingPropertyPayload } }
+            elseif ($Path.Contains($Endpoint)) { [PSCustomObject]@{ StatusCode = 200; Content = $firstPageContent } }
+            else { [PSCustomObject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+        }
+
+        { Get-CommitmentUtilization -Subscriptions $script:TwoSubs -WarningAction SilentlyContinue } | Should -Throw '*incomplete*'
+        Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 1 -Exactly -ParameterFilter {
+            $Path -like '*page=2' -and $Method -eq 'GET' -and [string]::IsNullOrEmpty($Payload)
+        }
+    }
+
     Context 'Usage date comparison' {
 
         It 'Treats a newer ISO date as newer' {

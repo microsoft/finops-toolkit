@@ -120,11 +120,11 @@ resources
             Write-Host "    No AI workloads detected - skipping AI KPIs." -ForegroundColor Gray
         }
         return [PSCustomObject]@{
-            HasData     = $false
-            AIFootprint = $footprint
-            ScannedSubs = $Subscriptions.Count
+            HasData         = $false
+            AIFootprint     = $footprint
+            ScannedSubs     = $Subscriptions.Count
             DetectionFailed = $detectionFailed
-            Note        = if ($detectionFailed) {
+            Note            = if ($detectionFailed) {
                 'AI detection query failed, so the absence of AI workloads is unverified.'
             }
             else {
@@ -285,9 +285,9 @@ resources
 
                 $path = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
                 $resp = Invoke-AzRestMethodWithRetry -Path $path -Method POST -Payload $body
+                $cdata = Get-CostQueryResult -FirstResponse $resp -Payload $body -Context 'AI spend'
 
                 if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
-                    $cdata = $resp.Content | ConvertFrom-Json
                     if ($cdata.properties.rows) {
                         $costOk = $true
                         # Column order follows properties.columns; resolve indices.
@@ -307,7 +307,7 @@ resources
             }
         }
         catch {
-            Write-Warning "  AI cost query failed: $($_.Exception.Message)"
+            throw "AI cost query failed: $($_.Exception.Message)"
         }
     }
 

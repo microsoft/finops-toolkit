@@ -19,12 +19,14 @@ param()
 # Reference: https://learn.microsoft.com/en-us/rest/api/cost-management/query/usage
 ###########################################################################
 
+# Matches column names exactly. A substring match lands on 'CostStatus', whose
+# value is the text 'Actual' or 'Forecast', and casting that to a number throws.
 function Get-CostColumnIndex {
     param($Columns, [string[]]$Names)
 
     if (-not $Columns) { return -1 }
-    for ($columnIndex = 0; $columnIndex -lt $Columns.Count; $columnIndex++) {
-        if (([string]$Columns[$columnIndex].name).ToLower() -in $Names) { return $columnIndex }
+    for ($i = 0; $i -lt $Columns.Count; $i++) {
+        if (([string]$Columns[$i].name).ToLower() -in $Names) { return $i }
     }
     return -1
 }
@@ -97,36 +99,49 @@ function Get-CostData {
             throw "MG-scope cost query returned HTTP $($response.StatusCode). Falling back to per-subscription."
         }
 
-        $result = ($response.Content | ConvertFrom-Json)
+        # The query API returns one page at a time. A truncated read looks like
+        # lower cost rather than an error, so follow nextLink before summing.
+        foreach ($page in (Get-CostQueryResponsePage -FirstResponse $response -Payload $actualBody -Context 'actual cost')) {
+            $result = ($page.Content | ConvertFrom-Json)
 
-        # Resolve column indices by name. The MG-scope response is not contractually
-        # ordered, and a reorder would silently attribute cost to the wrong sub.
-        $aCols = $result.properties.columns
-        $aSubIdx = Get-CostColumnIndex -Columns $aCols -Names @('subscriptionid')
-        $aCurIdx = Get-CostColumnIndex -Columns $aCols -Names @('currency')
-        $aCostIdx = Get-CostColumnIndex -Columns $aCols -Names @('cost', 'pretaxcost', 'costusd')
-        if ($aCostIdx -lt 0 -or $aSubIdx -lt 0) {
-            throw "Actual cost response did not expose the expected Cost and SubscriptionId columns."
+            # Resolve column indices by name. The MG-scope response is not contractually
+            # ordered, and a reorder would silently attribute cost to the wrong sub.
+            $aCols = $result.properties.columns
+            $aSubIdx = Get-CostColumnIndex -Columns $aCols -Names @('subscriptionid')
+            $aCurIdx = Get-CostColumnIndex -Columns $aCols -Names @('currency')
+            $aCostIdx = Get-CostColumnIndex -Columns $aCols -Names @('cost', 'pretaxcost', 'costusd')
+
+            # Guessing at positions here would attribute real money to the wrong
+            # subscription, so fail into the per-subscription path instead.
+            if ($aCostIdx -lt 0 -or $aSubIdx -lt 0) {
+                throw "Actual cost response did not expose the expected Cost and SubscriptionId columns."
+            }
+
+            if ($result.properties.rows) {
+                foreach ($row in $result.properties.rows) {
+                    $subId = [string]$row[$aSubIdx]
+                    $amount = [double]$row[$aCostIdx]
+                    $currency = if ($aCurIdx -ge 0) { $row[$aCurIdx] } else { 'USD' }
+
+                    if ($selectedSubs -and -not $selectedSubs.Contains($subId)) { continue }
+
+                    if (-not $costMap.ContainsKey($subId)) {
+                        $costMap[$subId] = @{ Actual = 0; Forecast = 0; Currency = $currency; ForecastSource = 'Actual' }
+                    }
+                    $costMap[$subId].Actual += $amount
+                    $costMap[$subId].Currency = $currency
+                }
+            }
         }
 
-        if ($result.properties.rows) {
-            foreach ($row in $result.properties.rows) {
-                $subId = $row[$aSubIdx]
-                $amount = [math]::Round($row[$aCostIdx], 2)
-                $currency = if ($aCurIdx -ge 0) { $row[$aCurIdx] } else { 'USD' }
-
-                if ($selectedSubs -and -not $selectedSubs.Contains([string]$subId)) { continue }
-
-                if (-not $costMap.ContainsKey($subId)) {
-                    $costMap[$subId] = @{ Actual = 0; Forecast = 0; Currency = $currency }
-                }
-                $costMap[$subId].Actual = $amount
-                $costMap[$subId].Currency = $currency
-            }
+        # Round once after every page is in, not per page.
+        foreach ($subId in @($costMap.Keys)) {
+            $costMap[$subId].Actual = [math]::Round($costMap[$subId].Actual, 2)
         }
     }
     catch {
         Write-Warning "Actual cost query failed: $($_.Exception.Message)"
+        if (-not $Subscriptions) { throw }
         Write-Warning "Falling back to per-subscription queries."
         $costMap = Get-CostDataPerSubscription -Subscriptions $Subscriptions
         return $costMap
@@ -171,15 +186,10 @@ function Get-CostData {
             throw "Forecast query returned HTTP $($fResponse.StatusCode)"
         }
 
-        $fResult = ($fResponse.Content | ConvertFrom-Json)
-
-        if ($fResult.properties.rows -and $fResult.properties.rows.Count -gt 0) {
-            # The Forecast API with includeActualCost returns rows that may have
-            # a CostStatus column (Actual/Forecast). Sum all rows per subscription
-            # to get the full-month projected cost.
-            # Resolve column indices by name. The forecast endpoint may order
-            # columns differently and adds a CostStatus column, so positional
-            # access can mistake "Forecast"/"Actual" text for a subscription ID.
+        $forecastSums = @{}
+        foreach ($page in (Get-CostQueryResponsePage -FirstResponse $fResponse -Payload $forecastBody -Context 'forecast')) {
+            $fResult = $page.Content | ConvertFrom-Json
+            if ($fResult.properties.rows.Count -eq 0) { continue }
             $fCols = $fResult.properties.columns
             $fSubIdx = Get-CostColumnIndex -Columns $fCols -Names @('subscriptionid')
             $fCostIdx = Get-CostColumnIndex -Columns $fCols -Names @('cost', 'pretaxcost', 'costusd')
@@ -187,8 +197,7 @@ function Get-CostData {
                 throw "Forecast response did not expose the expected Cost and SubscriptionId columns."
             }
 
-            $forecastSums = @{}
-            foreach ($row in $fResult.properties.rows) {
+            foreach ($row in @($fResult.properties.rows)) {
                 $subId = [string]$row[$fSubIdx]
                 if ($subId -notmatch '^[0-9a-fA-F]{8}-') { continue }
                 if ($selectedSubs -and -not $selectedSubs.Contains($subId)) { continue }
@@ -196,11 +205,14 @@ function Get-CostData {
                 if (-not $forecastSums.ContainsKey($subId)) { $forecastSums[$subId] = 0 }
                 $forecastSums[$subId] += $amount
             }
+        }
+        if ($forecastSums.Count -gt 0) {
             foreach ($subId in $forecastSums.Keys) {
                 if (-not $costMap.ContainsKey($subId)) {
                     $costMap[$subId] = @{ Actual = 0; Forecast = 0; Currency = 'USD' }
                 }
                 $costMap[$subId].Forecast = [math]::Round($forecastSums[$subId], 2)
+                $costMap[$subId].ForecastSource = 'Forecast'
             }
             $forecastSuccess = $true
             Write-Host "  MG-scope forecast: got data for $($forecastSums.Count) subscriptions" -ForegroundColor Green
@@ -211,6 +223,7 @@ function Get-CostData {
     }
     catch {
         Write-Warning "MG-scope forecast failed: $($_.Exception.Message)"
+        if (-not $Subscriptions) { throw }
         Write-Host "  Falling back to per-subscription forecast queries..." -ForegroundColor Yellow
     }
 
@@ -247,33 +260,44 @@ function Get-CostData {
                 } | ConvertTo-Json -Depth 10
 
                 $fResp = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01" -Method POST -Payload $fBody
+                if (-not $fResp -or $fResp.StatusCode -ne 200) {
+                    throw "Forecast retry returned HTTP $($fResp.StatusCode); results are incomplete."
+                }
                 if ($fResp.StatusCode -eq 200) {
-                    $fRes = ($fResp.Content | ConvertFrom-Json)
-                    if ($fRes.properties.rows -and $fRes.properties.rows.Count -gt 0) {
-                        $total = 0
-                        foreach ($row in $fRes.properties.rows) { $total += [double]$row[0] }
+                    $total = 0.0
+                    $rowCount = 0
+                    foreach ($page in (Get-CostQueryResponsePage -FirstResponse $fResp -Payload $fBody -Context "forecast for $($sub.Id)")) {
+                        $fRes = $page.Content | ConvertFrom-Json
+                        if ($fRes.properties.rows.Count -eq 0) { continue }
+                        $costIndex = Get-CostColumnIndex -Columns $fRes.properties.columns -Names @('cost', 'pretaxcost', 'costusd')
+                        if ($costIndex -lt 0) { throw 'Forecast response did not expose the expected Cost column.' }
+                        foreach ($row in $fRes.properties.rows) { $total += [double]$row[$costIndex]; $rowCount++ }
+                    }
+                    if ($rowCount -gt 0) {
                         if (-not $costMap.ContainsKey($sub.Id)) {
                             $costMap[$sub.Id] = @{ Actual = 0; Forecast = 0; Currency = 'USD' }
                         }
                         $costMap[$sub.Id].Forecast = [math]::Round($total, 2)
+                        $costMap[$sub.Id].ForecastSource = 'Forecast'
                         $hitCount++
+                    }
+                    else {
+                        throw 'Forecast retry returned no rows; results are incomplete.'
                     }
                 }
             }
             catch {
-                # Forecast not available for this sub
-                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                throw "Forecast query failed for $($sub.Name): $($_.Exception.Message)"
             }
         }
         Write-Host "  Per-sub forecast: got data for $hitCount of $subCount subscriptions" -ForegroundColor $(if ($hitCount -gt 0) { 'Green' } else { 'Yellow' })
     }
 
-    # Ensure any subs without forecast data default to actual
+    # Subs without forecast data fall back to actual, which understates a
+    # full-month projection. Flag it so callers can label the number rather
+    # than present month-to-date spend as a forecast.
     foreach ($subId in @($costMap.Keys)) {
-        if (-not $costMap[$subId].ContainsKey('ForecastSource')) {
-            $costMap[$subId].ForecastSource = 'Forecast'
-        }
-        if ($costMap[$subId].Forecast -eq 0 -and $costMap[$subId].Actual -gt 0) {
+        if ($costMap[$subId].ForecastSource -ne 'Forecast') {
             $costMap[$subId].Forecast = $costMap[$subId].Actual
             $costMap[$subId].ForecastSource = 'Actual'
         }
@@ -318,11 +342,19 @@ function Get-CostDataPerSubscription {
 
             $actual = 0; $currency = 'USD'
             if ($resp.StatusCode -eq 200) {
-                $res = ($resp.Content | ConvertFrom-Json)
-                if ($res.properties.rows -and $res.properties.rows.Count -gt 0) {
-                    $actual = [math]::Round($res.properties.rows[0][0], 2)
-                    $currency = $res.properties.rows[0][1]
+                $sum = 0.0
+                foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -Payload $body -Context "actual cost for $($sub.Id)")) {
+                    $res = $page.Content | ConvertFrom-Json
+                    if ($res.properties.rows.Count -eq 0) { continue }
+                    $cIdx = Get-CostColumnIndex -Columns $res.properties.columns -Names @('cost', 'pretaxcost', 'costusd')
+                    $curIdx = Get-CostColumnIndex -Columns $res.properties.columns -Names @('currency')
+                    if ($cIdx -lt 0) { throw 'Actual cost response did not expose the expected Cost column.' }
+                    foreach ($row in $res.properties.rows) {
+                        $sum += [double]$row[$cIdx]
+                        if ($curIdx -ge 0 -and $row[$curIdx]) { $currency = $row[$curIdx] }
+                    }
                 }
+                $actual = [math]::Round($sum, 2)
             }
             elseif ($resp.StatusCode -in @(400, 403) -and $resp.Content) {
                 $errMsg = try { ($resp.Content | ConvertFrom-Json).error.message } catch { '' }
@@ -335,7 +367,12 @@ function Get-CostDataPerSubscription {
                     Write-Warning "  Cost data access denied. Verify Billing Profile Reader or Cost Management Reader role assignment."
                 }
             }
+            if (-not $resp -or $resp.StatusCode -ne 200) {
+                throw "Actual cost query returned HTTP $($resp.StatusCode); results are incomplete."
+            }
 
+            # Forecast starts as actual so a sub with no forecast still reports a
+            # number; ForecastSource records that it is month-to-date, not a projection.
             $costMap[$sub.Id] = @{ Actual = $actual; Forecast = $actual; Currency = $currency; ForecastSource = 'Actual' }
 
             # Per-sub forecast (skipped for large tenants)
@@ -361,29 +398,35 @@ function Get-CostDataPerSubscription {
                     } | ConvertTo-Json -Depth 10
 
                     $fResp = Invoke-AzRestMethodWithRetry -Path "$path/forecast?api-version=2023-11-01" -Method POST -Payload $fBody
+                    if (-not $fResp -or $fResp.StatusCode -ne 200) {
+                        throw "Forecast query returned HTTP $($fResp.StatusCode); results are incomplete."
+                    }
                     if ($fResp.StatusCode -eq 200) {
-                        $fRes = ($fResp.Content | ConvertFrom-Json)
-                        if ($fRes.properties.rows -and $fRes.properties.rows.Count -gt 0) {
+                        $total = 0.0
+                        $rowCount = 0
+                        foreach ($page in (Get-CostQueryResponsePage -FirstResponse $fResp -Payload $fBody -Context "forecast for $($sub.Id)")) {
+                            $fRes = $page.Content | ConvertFrom-Json
+                            if ($fRes.properties.rows.Count -eq 0) { continue }
                             $fcIdx = Get-CostColumnIndex -Columns $fRes.properties.columns -Names @('cost', 'pretaxcost', 'costusd')
-                            if ($fcIdx -ge 0) {
-                                $total = 0.0
-                                foreach ($fRow in $fRes.properties.rows) {
-                                    $total += [double]$fRow[$fcIdx]
-                                }
-                                $costMap[$sub.Id].Forecast = [math]::Round($total, 2)
-                                $costMap[$sub.Id].ForecastSource = 'Forecast'
-                            }
+                            if ($fcIdx -lt 0) { throw 'Forecast response did not expose the expected Cost column.' }
+                            foreach ($fRow in $fRes.properties.rows) { $total += [double]$fRow[$fcIdx]; $rowCount++ }
+                        }
+                        if ($rowCount -gt 0) {
+                            $costMap[$sub.Id].Forecast = [math]::Round($total, 2)
+                            $costMap[$sub.Id].ForecastSource = 'Forecast'
+                        }
+                        else {
+                            throw 'Forecast query returned no rows; results are incomplete.'
                         }
                     }
                 }
                 catch {
-                    # Forecast not available for all account types
-                    Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                    throw
                 }
             }
         }
         catch {
-            Write-Warning "  Cost query failed for $($sub.Name): $($_.Exception.Message)"
+            throw "Cost query failed for $($sub.Name): $($_.Exception.Message)"
         }
     }
     return $costMap

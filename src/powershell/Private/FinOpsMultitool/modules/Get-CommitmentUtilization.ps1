@@ -147,7 +147,7 @@ function Get-CommitmentUtilization {
             }
         } catch {
             if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
-            Write-Warning "  Reservation summaries query failed for $scopeId : $($_.Exception.Message)"
+            throw "Reservation summaries query failed for $scopeId : $($_.Exception.Message)"
         }
     }
     $reservations += @($latestReservation.Values)
@@ -255,7 +255,7 @@ function Get-CommitmentUtilization {
             }
         } catch {
             if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
-            Write-Warning "  Savings plan utilization query failed for $scopeId : $($_.Exception.Message)"
+            throw "Savings plan utilization query failed for $scopeId : $($_.Exception.Message)"
         }
     }
     $savingsPlans += @($latestSavingsPlan.Values)

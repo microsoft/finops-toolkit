@@ -124,10 +124,10 @@ function Get-CostTrend {
     # under-reports a large scope as lower spend rather than as an error, so
     # every page is collected before the rows are parsed.
     function Get-AllCostRow {
-        param($FirstResponse, [string]$Context)
+        param($FirstResponse, [string]$Payload, [string]$Context)
         $rows = [System.Collections.Generic.List[object]]::new()
         $columns = $null
-        foreach ($page in (Get-CostQueryResponsePage -FirstResponse $FirstResponse -Context $Context)) {
+        foreach ($page in (Get-CostQueryResponsePage -FirstResponse $FirstResponse -Payload $Payload -Context $Context)) {
             $parsed = ($page.Content | ConvertFrom-Json)
             if (-not $columns) { $columns = $parsed.properties.columns }
             foreach ($row in @($parsed.properties.rows)) { [void]$rows.Add($row) }
@@ -221,14 +221,10 @@ function Get-CostTrend {
             $only = $Subscriptions[0]
             $subPath = "/subscriptions/$($only.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
             $subResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $body
-            if ($subResp.StatusCode -eq 200) {
-                $paged = Get-AllCostRow -FirstResponse $subResp -Context "cost trend for $($only.Name)"
-                if ($paged.Rows.Count -gt 0) {
-                    $months = ConvertFrom-TrendCostRow -Rows $paged.Rows -Columns $paged.Columns
-                    $bySubscription[$only.Id] = @($months | Sort-Object MonthDate)
-                }
-            } else {
-                Write-Warning "  Single-sub cost trend returned HTTP $($subResp.StatusCode)"
+            $paged = Get-AllCostRow -FirstResponse $subResp -Payload $body -Context "cost trend for $($only.Name)"
+            if ($paged.Rows.Count -gt 0) {
+                $months = ConvertFrom-TrendCostRow -Rows $paged.Rows -Columns $paged.Columns
+                $bySubscription[$only.Id] = @($months | Sort-Object MonthDate)
             }
         }
         else {
@@ -246,7 +242,7 @@ function Get-CostTrend {
                 $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
                 $response = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $groupedBody
                 if ($response.StatusCode -eq 200) {
-                    $paged = Get-AllCostRow -FirstResponse $response -Context 'management-group cost trend'
+                    $paged = Get-AllCostRow -FirstResponse $response -Payload $groupedBody -Context 'management-group cost trend'
                     if ($paged.Rows.Count -gt 0) {
                         $entries = ConvertFrom-GroupedCostRow -Rows $paged.Rows -Columns $paged.Columns
                         Set-TrendFromGrouped -Entries $entries
@@ -261,8 +257,6 @@ function Get-CostTrend {
 
             # -- Fallback: per-subscription loop (MG scope unavailable) ---
             if (-not $groupedOk -and $Subscriptions) {
-                $sampleErrors = 0
-                $sampleSize = [math]::Min(3, $subCount)
                 $aggTotals = @{}  # used for aggregate if MG scope failed
 
                 $i = 0
@@ -277,27 +271,18 @@ function Get-CostTrend {
                     $subPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
                     $subResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $body
 
-                    if ($subResp.StatusCode -eq 200) {
-                        $paged = Get-AllCostRow -FirstResponse $subResp -Context "cost trend for $($sub.Name)"
-                        if ($paged.Rows.Count -gt 0) {
-                            $subMonths = ConvertFrom-TrendCostRow -Rows $paged.Rows -Columns $paged.Columns
-                            $bySubscription[$sub.Id] = @($subMonths | Sort-Object MonthDate)
+                    $paged = Get-AllCostRow -FirstResponse $subResp -Payload $body -Context "cost trend for $($sub.Name)"
+                    if ($paged.Rows.Count -gt 0) {
+                        $subMonths = ConvertFrom-TrendCostRow -Rows $paged.Rows -Columns $paged.Columns
+                        $bySubscription[$sub.Id] = @($subMonths | Sort-Object MonthDate)
 
-                            foreach ($sm in $subMonths) {
-                                $key = $sm.MonthDate.ToString('yyyy-MM')
-                                if (-not $aggTotals.ContainsKey($key)) {
-                                    $aggTotals[$key] = @{ Cost = 0; Date = $sm.MonthDate; Currency = $sm.Currency }
-                                }
-                                $aggTotals[$key].Cost += $sm.Cost
+                        foreach ($sm in $subMonths) {
+                            $key = $sm.MonthDate.ToString('yyyy-MM')
+                            if (-not $aggTotals.ContainsKey($key)) {
+                                $aggTotals[$key] = @{ Cost = 0; Date = $sm.MonthDate; Currency = $sm.Currency }
                             }
+                            $aggTotals[$key].Cost += $sm.Cost
                         }
-                    } else {
-                        if ($i -le $sampleSize) { $sampleErrors++ }
-                    }
-
-                    if ($i -eq $sampleSize -and $sampleErrors -eq $sampleSize -and $subCount -gt $sampleSize) {
-                        Write-Host "  All $sampleSize sample subs returned errors - skipping remaining $($subCount - $sampleSize) subs" -ForegroundColor Yellow
-                        break
                     }
                 }
 
@@ -314,7 +299,7 @@ function Get-CostTrend {
             }
         }
     } catch {
-        Write-Warning "Cost trend query failed: $($_.Exception.Message)"
+        throw "Cost trend query failed: $($_.Exception.Message)"
     }
 
     # Sort by date

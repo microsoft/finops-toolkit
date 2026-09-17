@@ -228,7 +228,7 @@ function Get-AllocationCostMaps {
             try {
                 $resp = Invoke-AzRestMethodWithRetry -Path $path -Method POST -Payload $body
                 if (-not $bySub.ContainsKey($sub)) { $bySub[$sub] = 0.0 }
-                foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -Context "shared cost for $sub")) {
+                foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -Payload $body -Context "shared cost for $sub")) {
                     $data = $page.Content | ConvertFrom-Json
                     $cols = @($data.properties.columns.name)
                     $iCost = [array]::IndexOf($cols, 'Cost')
@@ -247,7 +247,7 @@ function Get-AllocationCostMaps {
                 }
             }
             catch {
-                Write-Warning "  Cost query failed for $sub : $($_.Exception.Message)"
+                throw "Cost query failed for $sub : $($_.Exception.Message)"
             }
         }
     }
