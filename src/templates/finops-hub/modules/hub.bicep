@@ -27,6 +27,9 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
 param enableInfrastructureEncryption bool = false
 
+@description('Optional. Disable Shared Key (storage account key) authentication on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. Data Factory already authenticates using managed identity and RBAC, so this does not affect data ingestion. Default = false.')
+param disableStorageSharedKeyAccess bool = false
+
 @description('Optional. SKU to use for the KeyVault instance, if enabled. Allowed values: "standard", "premium". Default: "premium".')
 @allowed([
   'premium'
@@ -196,6 +199,7 @@ var hub = newHub(
   keyVaultSku,
   enablePurgeProtection,
   enableInfrastructureEncryption,
+  disableStorageSharedKeyAccess,
   enablePublicAccess,
   enableNatGateway,
   virtualNetworkAddressPrefix,

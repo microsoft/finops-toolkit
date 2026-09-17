@@ -34,6 +34,9 @@
     .PARAMETER EnablePurgeProtection
     Optional. Enable purge protection for the Key Vault. Default = false.
 
+    .PARAMETER DisableStorageSharedKeyAccess
+    Optional. Disable Shared Key (storage account key) authentication on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. Data Factory already authenticates using managed identity and RBAC, so this does not affect data ingestion. Default = false.
+
     .PARAMETER RemoteHubStorageUri
     Optional. Storage account to push data to for ingestion into a remote hub.
 
@@ -144,6 +147,10 @@ function Deploy-FinOpsHub
         [Parameter()]
         [switch]
         $EnablePurgeProtection,
+
+        [Parameter()]
+        [switch]
+        $DisableStorageSharedKeyAccess,
 
         [Parameter()]
         [string]
@@ -320,6 +327,11 @@ function Deploy-FinOpsHub
             if ($Version -eq 'latest' -or [version]$Version -ge '13.0')
             {
                 $parameterSplat.TemplateParameterObject.Add('enablePurgeProtection', $EnablePurgeProtection.IsPresent)
+            }
+
+            if ($Version -eq 'latest' -or [version]$Version -ge '16.0')
+            {
+                $parameterSplat.TemplateParameterObject.Add('disableStorageSharedKeyAccess', $DisableStorageSharedKeyAccess.IsPresent)
             }
 
             # Only pass enableNatGateway when private mode is requested. This keeps public/vnet

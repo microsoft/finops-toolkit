@@ -879,6 +879,28 @@
             "visible": true
           },
           {
+            "name": "storageSecurity",
+            "type": "Microsoft.Common.Section",
+            "label": "Storage account security",
+            "elements": [
+              {
+                "name": "disableStorageSharedKeyAccessIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Data Factory always connects to hub storage accounts using its managed identity, so disabling Shared Key access does not affect data ingestion. This can be changed after deployment."
+                }
+              },
+              {
+                "name": "disableStorageSharedKeyAccess",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Disable Shared Key access",
+                "toolTip": "Disables Shared Key (storage account key) authentication on hub storage accounts, requiring Microsoft Entra ID or managed identity authentication instead. Recommended for compliance requirements that prohibit key-based storage access."
+              }
+            ],
+            "visible": true
+          },
+          {
             "name": "managedExports",
             "type": "Microsoft.Common.Section",
             "label": "Managed exports",
@@ -998,6 +1020,7 @@
       "fabricQueryUri": "[if(equals(basics('analyticsBackend').analyticsEngine, 'fabric'), basics('analyticsBackend').fabricQueryUri, '')]",
       "fabricCapacityUnits": "[if(equals(basics('analyticsBackend').analyticsEngine, 'fabric'), basics('analyticsBackend').fabricCapacity, '')]",
       "enableInfrastructureEncryption": "[steps('advanced').storage.enableInfrastructureEncryption]",
+      "disableStorageSharedKeyAccess": "[steps('advanced').storageSecurity.disableStorageSharedKeyAccess]",
       "enableManagedExports": "[steps('advanced').managedExports.enableManagedExports]",
       "enableRecommendations": "[steps('recommendations').enableRecommendations]",
       "enableAHBRecommendations": "[steps('recommendations').optional.enableAHBRecommendations]",

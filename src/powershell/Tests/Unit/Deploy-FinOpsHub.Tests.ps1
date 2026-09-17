@@ -268,5 +268,38 @@ InModuleScope 'FinOpsToolkit' {
                 } -Times 1
             }
         }
+
+        Context 'Storage shared key access' {
+            BeforeAll {
+                Mock -CommandName 'Get-AzResourceGroup' -MockWith { return @{ ResourceGroupName = $rgName } }
+                Mock -CommandName 'New-AzResourceGroup'
+                Mock -CommandName 'Save-FinOpsHubTemplate'
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
+                $templateFile = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOps/finops-hub-v1.0.0/main.bicep'
+                Mock -CommandName 'Get-ChildItem' -MockWith { return @{ FullName = $templateFile } }
+                Mock -CommandName 'New-AzResourceGroupDeployment'
+            }
+
+            It 'Should default to allowing Shared Key access' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.disableStorageSharedKeyAccess -eq $false
+                } -Times 1
+            }
+
+            It 'Should pass disableStorageSharedKeyAccess when -DisableStorageSharedKeyAccess is specified' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -DisableStorageSharedKeyAccess -Version 'latest' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.disableStorageSharedKeyAccess -eq $true
+                } -Times 1
+            }
+
+            It 'Should not pass disableStorageSharedKeyAccess when targeting a version older than 16.0' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -DisableStorageSharedKeyAccess -Version '15.0' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    -not $TemplateParameterObject.ContainsKey('disableStorageSharedKeyAccess')
+                } -Times 1
+            }
+        }
     }
 }
