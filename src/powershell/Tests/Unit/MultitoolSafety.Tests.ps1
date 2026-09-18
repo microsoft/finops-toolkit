@@ -101,6 +101,585 @@ Describe 'FinOps Multitool safety' {
         }
     }
 
+    Context 'CSV export projections' {
+        BeforeAll {
+            $launcher = Join-Path $script:ModuleRoot 'Invoke-FinOpsMultitool.ps1'
+            $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile($launcher, [ref]$null, [ref]$null)
+            foreach ($definition in $launcherAst.FindAll({
+                $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                $args[0].Name -in @('Protect-FinOpsExportText', 'ConvertTo-FinOpsExportCell', 'ConvertTo-FinOpsExportRows')
+            }, $true)) {
+                . ([scriptblock]::Create($definition.Extent.Text))
+            }
+        }
+
+        It 'Uses invariant amounts and ISO dates under <Culture>' -ForEach @(
+            @{ Culture = 'en-US' }
+            @{ Culture = 'de-DE' }
+        ) {
+            $originalCulture = [System.Threading.Thread]::CurrentThread.CurrentCulture
+            try {
+                [System.Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]::GetCultureInfo($Culture)
+                $data = @{ 'sub-a' = @{
+                    Actual = [decimal]100.25; Credit = -20.5; Currency = 'EUR'; Name = '-formula'
+                    ActualPeriodStart = [datetime]::new(2026, 9, 1, 0, 0, 0, [DateTimeKind]::Utc)
+                    CapturedAt = [datetimeoffset]::new(2026, 9, 2, 3, 4, 5, [timespan]::FromHours(2))
+                } }
+
+                $row = @(ConvertTo-FinOpsExportRows -Fn 'Get-CostData' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)[0]
+
+                $row.Actual | Should -Be '100.25'
+                $row.Credit | Should -Be '-20.5'
+                $row.ActualPeriodStart | Should -Be '2026-09-01T00:00:00.0000000Z'
+                $row.CapturedAt | Should -Be '2026-09-02T03:04:05.0000000+02:00'
+                $row.Name | Should -Be "'-formula"
+                $generic = @(ConvertTo-FinOpsExportRows -Fn 'Unknown' -Data @{ Credit = -20.5 } | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)[0]
+                $generic.Value | Should -Be '-20.5'
+            }
+            finally { [System.Threading.Thread]::CurrentThread.CurrentCulture = $originalCulture }
+        }
+
+        It 'Exports tag values, amounts, and currencies from scanner row objects' {
+            $data = [pscustomobject]@{
+                CostByTag = @{
+                    CostCenter = @(
+                        [pscustomobject]@{ TagValue = 'team-a'; Cost = 100.25; Currency = 'EUR' }
+                        [pscustomobject]@{ TagValue = 'team-b'; Cost = -20; Currency = 'EUR' }
+                    )
+                }
+                TagsQueried = @('CostCenter')
+                NoTagsFound = $false
+                Source = 'Kusto'
+                ResourceCostSeen = 80.25
+            }
+
+            $rows = @(ConvertTo-FinOpsExportRows -Fn 'Get-CostByTag' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)
+
+            $rows.Count | Should -Be 3
+            $tagRows = @($rows | Where-Object RecordType -EQ 'CostByTag')
+            $tagRows.TagValue | Should -Be @('team-a', 'team-b')
+            $tagRows.Cost | Should -Be @('100.25', '-20')
+            $tagRows.Currency | Should -Be @('EUR', 'EUR')
+            foreach ($row in $tagRows) {
+                $row.RecordType | Should -Be 'CostByTag'
+                $row.'Summary.Source' | Should -Be 'Kusto'
+                $row.'Summary.ResourceCostSeen' | Should -Be '80.25'
+            }
+            ($rows | Where-Object RecordType -EQ 'Summary.TagsQueried').Value | Should -Be 'CostCenter'
+        }
+
+        It 'Retains metadata for dictionary-backed scan wrappers' {
+            $data = @{
+                Reservations = @([pscustomobject]@{ ReservationId = 'ri-1'; AvgUtilization = 90 })
+                SavingsPlans = @()
+                HasData = $true
+                Note = 'Validated billing scope'
+            }
+
+            $row = @(ConvertTo-FinOpsExportRows -Fn 'Get-CommitmentUtilization' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)[0]
+
+            $row.ReservationId | Should -Be 'ri-1'
+            $row.'Summary.Note' | Should -Be 'Validated billing scope'
+            $row.'Summary.HasData' | Should -Be 'True'
+            $row.PSObject.Properties.Name | Should -Not -Contain 'Summary.Keys'
+        }
+
+        It 'Retains tag diagnostics when no tag rows exist' {
+            $data = [pscustomobject]@{ CostByTag = @{}; NoTagsFound = $true; Source = 'Kusto'; Note = 'No tag keys in the selected cost data' }
+
+            $row = @(ConvertTo-FinOpsExportRows -Fn 'Get-CostByTag' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)[0]
+
+            $row.RecordType | Should -Be 'Summary'
+            $row.'Summary.NoTagsFound' | Should -Be 'True'
+            $row.'Summary.Source' | Should -Be 'Kusto'
+            $row.'Summary.Note' | Should -Be $data.Note
+        }
+
+        It 'Exports both commitment families and the underutilized view once' {
+            $reservation = [pscustomobject]@{ ReservationId = 'ri-1'; SkuName = 'Standard_D2s_v5'; AvgUtilization = 50 }
+            $data = [pscustomobject]@{
+                Reservations = @($reservation)
+                SavingsPlans = @([pscustomobject]@{ BenefitId = 'sp-1'; BenefitOrderId = 'order-1'; AvgUtilization = 75 })
+                UnderutilizedRIs = @($reservation)
+                RICount = 1
+                SPCount = 1
+                HasData = $true
+            }
+
+            $rows = @(ConvertTo-FinOpsExportRows -Fn 'Get-CommitmentUtilization' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)
+
+            $rows.Count | Should -Be 3
+            ($rows | Where-Object RecordType -EQ 'Reservations').ReservationId | Should -Be 'ri-1'
+            ($rows | Where-Object RecordType -EQ 'SavingsPlans').BenefitId | Should -Be 'sp-1'
+            ($rows | Where-Object RecordType -EQ 'SavingsPlans').BenefitOrderId | Should -Be 'order-1'
+            @($rows | Where-Object RecordType -EQ 'Summary.UnderutilizedRIs').Count | Should -Be 1
+            $rows[0].PSObject.Properties.Name | Should -Not -Contain 'Summary.UnderutilizedRIs'
+        }
+
+        It 'Keeps nested summary exports linear in collection size' {
+            $sizes = @()
+            foreach ($count in @(100, 200)) {
+                $reservations = @(foreach ($index in 1..$count) {
+                    [pscustomobject]@{ ReservationId = "reservation-$index"; AvgUtilization = 50; SkuName = 'Standard_D2s_v5' }
+                })
+                $data = [pscustomobject]@{ Reservations = $reservations; SavingsPlans = @(); UnderutilizedRIs = $reservations; RICount = $count; HasData = $true }
+
+                $rows = @(ConvertTo-FinOpsExportRows -Fn 'Get-CommitmentUtilization' -Data $data)
+                $csv = ($rows | ConvertTo-Csv -NoTypeInformation) -join "`n"
+
+                @($rows | Where-Object RecordType -EQ 'Reservations').Count | Should -Be $count
+                @($rows | Where-Object RecordType -EQ 'Summary.UnderutilizedRIs').Count | Should -Be $count
+                $rows[0].PSObject.Properties.Name | Should -Not -Contain 'Summary.UnderutilizedRIs'
+                $sizes += $csv.Length
+            }
+            $sizes[1] | Should -BeLessThan ($sizes[0] * 2.2)
+        }
+
+        It 'Exports raw tag records and tag locations once as distinct views' {
+            $data = [pscustomobject]@{
+                TagNames = @{ CostCenter = @{ TotalResources = 2; Values = @('team') } }
+                CaseVariants = @(); UntaggedResources = @(); TagCount = 1
+                RawResults = @([pscustomobject]@{ tagName = 'CostCenter'; tagValue = 'team'; ResourceCount = 2 })
+                TagLocations = @{ CostCenter = @('sub-a / rg-a', 'sub-b / rg-b') }
+            }
+
+            $rows = @(ConvertTo-FinOpsExportRows -Fn 'Get-TagInventory' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)
+
+            @($rows | Where-Object RecordType -EQ 'TagNames').Count | Should -Be 1
+            @($rows | Where-Object RecordType -EQ 'Summary.RawResults').Count | Should -Be 1
+            ($rows | Where-Object RecordType -EQ 'Summary.TagLocations').Value | Should -Be @('sub-a / rg-a', 'sub-b / rg-b')
+            $rows[0].PSObject.Properties.Name | Should -Not -Contain 'Summary.RawResults'
+        }
+
+        It 'Preserves all primary collections for <Scan>' -ForEach @(
+            @{ Scan = 'Get-AHBOpportunities'; Collections = @('WindowsVMs', 'SQLVMs', 'SQLDatabases') }
+            @{ Scan = 'Get-AIWorkloadMetrics'; Collections = @('ByModel', 'ByAccount') }
+            @{ Scan = 'Get-AnomalyAlerts'; Collections = @('TriggeredAlerts', 'ConfiguredRules') }
+            @{ Scan = 'Get-BillingStructure'; Collections = @('BillingAccounts', 'BillingProfiles', 'InvoiceSections', 'EADepartments', 'CostAllocationRules') }
+            @{ Scan = 'Get-CarbonMetrics'; Collections = @('MonthlyTrend', 'BySubscription') }
+            @{ Scan = 'Get-ReservationAdvice'; Collections = @('AdvisorRecommendations', 'ReservationRecommendations') }
+        ) {
+            $payload = [ordered]@{ HasData = $true; Note = 'Known scope only' }
+            foreach ($collection in $Collections) { $payload[$collection] = @([pscustomobject]@{ Id = $collection; Amount = 12.5 }) }
+
+            $rows = @(ConvertTo-FinOpsExportRows -Fn $Scan -Data ([pscustomobject]$payload) | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)
+
+            $rows.Count | Should -Be $Collections.Count
+            $rows.RecordType | Should -Be $Collections
+            $rows.Id | Should -Be $Collections
+            foreach ($row in $rows) { $row.'Summary.Note' | Should -Be 'Known scope only' }
+        }
+
+        It 'Keeps per-subscription monthly trends alongside aggregate months' {
+            $data = [pscustomobject]@{
+                HasData = $true
+                Months = @([pscustomobject]@{ Month = 'Aug 2026'; Cost = 30; Currency = 'USD' })
+                BySubscription = @{
+                    'sub-a' = @([pscustomobject]@{ Month = 'Aug 2026'; Cost = 10; Currency = 'USD' })
+                    'sub-b' = @([pscustomobject]@{ Month = 'Aug 2026'; Cost = 20; Currency = 'USD' })
+                }
+            }
+
+            $rows = @(ConvertTo-FinOpsExportRows -Fn 'Get-CostTrend' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)
+
+            $rows.Count | Should -Be 3
+            ($rows | Where-Object SubscriptionId -EQ 'sub-a').Cost | Should -Be '10'
+            ($rows | Where-Object SubscriptionId -EQ 'sub-b').Cost | Should -Be '20'
+            ($rows | Where-Object RecordType -EQ 'Months').Cost | Should -Be '30'
+        }
+
+        It 'Preserves nested values as JSON and retains zero-result diagnostics' {
+            $nested = @{ Owner = @{ Name = 'team'; Contacts = @('one@example.test', 'two@example.test') } }
+            $cell = ConvertTo-FinOpsExportCell $nested
+            ($cell | ConvertFrom-Json).Owner.Contacts.Count | Should -Be 2
+            $cell | Should -Not -Match 'System\.Collections|System\.Object'
+            $data = [pscustomobject]@{ Reservations = @(); SavingsPlans = @(); HasData = $false; AccessDenied = $true; Note = 'Missing billing access' }
+
+            $rows = @(ConvertTo-FinOpsExportRows -Fn 'Get-CommitmentUtilization' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)
+
+            $rows.Count | Should -Be 1
+            $rows[0].RecordType | Should -Be 'Summary'
+            $rows[0].'Summary.AccessDenied' | Should -Be 'True'
+            $rows[0].'Summary.Note' | Should -Be 'Missing billing access'
+        }
+
+        It 'Preserves cost source and period while protecting formula text' {
+            $data = @{ 'sub-a' = @{ Actual = -25; Forecast = $null; Currency = 'EUR'; ActualPeriod = '2026-08'; ForecastSource = 'Unavailable'; Name = '=1+1' } }
+
+            $row = @(ConvertTo-FinOpsExportRows -Fn 'Get-CostData' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)[0]
+
+            $row.Actual | Should -Be '-25'
+            $row.ActualPeriod | Should -Be '2026-08'
+            $row.ForecastSource | Should -Be 'Unavailable'
+            $row.Forecast | Should -Be ''
+            $row.Name | Should -Be "'=1+1"
+        }
+    }
+
+    Context 'Tag cost presentation' {
+        It 'Uses aggregate tag rows for guidance when <Case>' -ForEach @(
+            @{ Case = 'cost is untagged'; Tagged = 100.0; Untagged = 20.0; Expected = 'Some untagged spend'; HasRows = $true }
+            @{ Case = 'an untagged credit exists'; Tagged = 125.0; Untagged = -5.0; Expected = 'credits|negative'; HasRows = $true }
+            @{ Case = 'tagged costs include a credit'; Tagged = -5.0; Untagged = 125.0; Expected = 'credits|negative'; HasRows = $true }
+            @{ Case = 'net cost is zero'; Tagged = 0.0; Untagged = 0.0; Expected = 'no positive net cost'; HasRows = $true }
+            @{ Case = 'no rows are available'; Tagged = 0.0; Untagged = 0.0; Expected = 'No cost data was returned'; HasRows = $false }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ModuleRoot = $script:ModuleRoot; Tagged = $Tagged; Untagged = $Untagged; Expected = $Expected; HasRows = $HasRows } {
+                param($ModuleRoot, $Tagged, $Untagged, $Expected, $HasRows)
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                $switches = $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.SwitchStatementAst] }, $true)
+                $branch = @($switches.Clauses | Where-Object {
+                    $_.Item1.Value -eq 'Get-CostByTag' -and $_.Item2.Extent.Text.Contains('No cost data was returned')
+                })
+                $branch.Count | Should -Be 1
+                $data = [pscustomobject]@{
+                    CostByTag = @{ CostCenter = @(if ($HasRows) {
+                        [pscustomobject]@{ TagValue = 'team'; Cost = $Tagged; Currency = 'USD' }
+                        [pscustomobject]@{ TagValue = '(untagged)'; Cost = $Untagged; Currency = 'USD' }
+                    }) }
+                }
+                $guidanceItems = @()
+                $body = ($branch[0].Item2.Statements | ForEach-Object { $_.Extent.Text }) -join "`n"
+                . ([scriptblock]::Create("param(`$data)`n$body")) $data
+
+                ($guidanceItems.Message -join ' ') | Should -Match $Expected
+                $guidanceItems.Severity | Should -Not -Contain 'Green'
+                if ($HasRows) { ($guidanceItems.Message -join ' ') | Should -Not -Match 'No cost data was returned|No CAF allocation tag' }
+            }
+        }
+
+        It 'Does not score invalid allocation percentages for <Case>' -ForEach @(
+            @{ Case = 'negative aggregate untagged cost'; ResourceTotals = $false; Tagged = 125.0; Untagged = -5.0 }
+            @{ Case = 'aggregate untagged cost above the total'; ResourceTotals = $false; Tagged = -5.0; Untagged = 125.0 }
+            @{ Case = 'zero aggregate cost'; ResourceTotals = $false; Tagged = 0.0; Untagged = 0.0 }
+            @{ Case = 'negative per-resource unallocated cost'; ResourceTotals = $true; Tagged = 125.0; Untagged = -5.0 }
+            @{ Case = 'per-resource unallocated cost above the total'; ResourceTotals = $true; Tagged = -5.0; Untagged = 125.0 }
+            @{ Case = 'zero per-resource cost'; ResourceTotals = $true; Tagged = 0.0; Untagged = 0.0 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ResourceTotals = $ResourceTotals; Tagged = $Tagged; Untagged = $Untagged } {
+                param($ResourceTotals, $Tagged, $Untagged)
+                $data = if ($ResourceTotals) {
+                    [pscustomobject]@{ ResourceCostSeen = $Tagged + $Untagged; UnallocatedCost = $Untagged }
+                }
+                else {
+                    [pscustomobject]@{ CostByTag = @{ CostCenter = @(
+                        [pscustomobject]@{ TagValue = 'team'; Cost = $Tagged }
+                        [pscustomobject]@{ TagValue = '(untagged)'; Cost = $Untagged }
+                    ) } }
+                }
+                $result = Add-KpiInsights -Result @{ tool = 'scan_cost_by_tag'; data = $data }
+                foreach ($insight in $result.kpiInsights | Where-Object kpiId -In @('pct-costs-untagged', 'pct-costs-unallocated', 'tagging-policy-compliant')) {
+                    $insight.status | Should -Be 'unavailable'
+                    $insight.numericValue | Should -BeNullOrEmpty
+                    $insight.yourValue | Should -Match 'Unavailable'
+                }
+            }
+        }
+
+        It 'Keeps valid allocation percentages for <Case>' -ForEach @(
+            @{ Case = 'aggregate rows'; ResourceTotals = $false }
+            @{ Case = 'resource totals'; ResourceTotals = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ResourceTotals = $ResourceTotals } {
+                param($ResourceTotals)
+                $data = if ($ResourceTotals) {
+                    [pscustomobject]@{ ResourceCostSeen = 100.0; UnallocatedCost = 20.0 }
+                }
+                else {
+                    [pscustomobject]@{ CostByTag = @{ CostCenter = @(
+                        [pscustomobject]@{ TagValue = 'team'; Cost = 80.0 }
+                        [pscustomobject]@{ TagValue = '(untagged)'; Cost = 20.0 }
+                    ) } }
+                }
+                (Get-KpiComputedValue -KpiId 'pct-costs-untagged' -Data $data).Value | Should -Be 20
+                (Get-KpiComputedValue -KpiId 'tagging-policy-compliant' -Data $data).Value | Should -Be 80
+            }
+        }
+    }
+
+    Context 'Savings estimate contract' {
+        BeforeEach {
+            Mock Write-Host -ModuleName FinOpsMultitool { }
+            Mock Get-Date -ModuleName FinOpsMultitool { [datetime]::new(2026, 9, 16, 12, 0, 0, [DateTimeKind]::Utc) }
+            Mock Resolve-CostMgId -ModuleName FinOpsMultitool { $null }
+            Mock Search-AzGraphSafe -ModuleName FinOpsMultitool {
+                @{ Data = @([pscustomobject]@{ vmSize = 'Standard_D2s_v5'; location = 'eastus' }) }
+            }
+            Mock Get-AhbVmRates -ModuleName FinOpsMultitool { [pscustomobject]@{ HourlyPremium = 0.1 } }
+            Mock Invoke-RestMethod -ModuleName FinOpsMultitool { throw 'Savings tests must not access the network.' }
+        }
+
+        It 'Separates <BillingCurrency> month-to-date commitments from the USD AHB run rate' -ForEach @(
+            @{ BillingCurrency = 'EUR' }
+            @{ BillingCurrency = 'USD' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ BillingCurrency = $BillingCurrency } {
+                param($BillingCurrency)
+                $fixtureCurrency = $BillingCurrency
+                Mock Invoke-AzRestMethodWithRetry {
+                    $request = $Payload | ConvertFrom-Json
+                    $dimension = if ($request.type -eq 'ActualCost') { 'ChargeType' } else { 'PricingModel' }
+                    $category = if ($request.type -eq 'ActualCost') { 'UnusedReservation' } else { 'Reservation' }
+                    $properties = @{
+                        columns = @(@{ name = 'Currency' }, @{ name = $dimension }, @{ name = 'Cost' })
+                        rows = @(, @($fixtureCurrency, $category, 100.0))
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+
+                $result = Get-SavingsRealized -Subscriptions $subscriptions
+
+                $result.Currency | Should -Be $fixtureCurrency
+                $result.RISavingsMonthToDate | Should -Be 66.67
+                $result.CommitmentSavingsMonthToDate | Should -Be 66.67
+                $result.AHBSavingsMonthly | Should -Be 73
+                $result.AHBCurrency | Should -Be 'USD'
+                $result.AHBPeriod | Should -Match '730'
+                $result.TotalMonthly | Should -BeNullOrEmpty
+                $result.TotalAnnual | Should -BeNullOrEmpty
+                $result.RISavingsMonthly | Should -BeNullOrEmpty
+                $result.Period | Should -Be '2026-09-01T00:00:00Z to 2026-09-16T12:00:00Z'
+                @($result.Details | Where-Object Type -NE 'AHB').Currency | Select-Object -Unique | Should -Be $fixtureCurrency
+                ($result.Details | Where-Object Type -EQ 'AHB').Currency | Should -Be 'USD'
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter {
+                    $request = $Payload | ConvertFrom-Json
+                    $request.timeframe -eq 'Custom' -and
+                    ([datetime]$request.timePeriod.from).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ') -eq '2026-09-01T00:00:00Z' -and
+                    ([datetime]$request.timePeriod.to).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ') -eq '2026-09-16T12:00:00Z'
+                }
+                $kpi = Get-KpiComputedValue -KpiId 'effective-savings-rate' -Data $result
+                $kpi.Display | Should -Match "$fixtureCurrency 66.67"
+                $kpi.Display | Should -Not -Match '/ month|annual'
+            }
+        }
+
+        It 'Rejects <Case> rather than guessing or combining currencies' -ForEach @(
+            @{ Case = 'missing currency'; First = ''; Second = ''; IncludeColumn = $true }
+            @{ Case = 'missing currency column'; First = 'EUR'; Second = 'EUR'; IncludeColumn = $false }
+            @{ Case = 'mixed billing currencies'; First = 'EUR'; Second = 'USD'; IncludeColumn = $true }
+            @{ Case = 'no-currency code'; First = 'XXX'; Second = 'XXX'; IncludeColumn = $true }
+            @{ Case = 'test currency code'; First = 'XTS'; Second = 'XTS'; IncludeColumn = $true }
+            @{ Case = 'unsupported currency code'; First = 'ABC'; Second = 'ABC'; IncludeColumn = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ First = $First; Second = $Second; IncludeColumn = $IncludeColumn } {
+                param($First, $Second, $IncludeColumn)
+                $firstCurrency = $First
+                $secondCurrency = $Second
+                $hasCurrencyColumn = $IncludeColumn
+                Mock Invoke-AzRestMethodWithRetry {
+                    $request = $Payload | ConvertFrom-Json
+                    $dimension = if ($request.type -eq 'ActualCost') { 'ChargeType' } else { 'PricingModel' }
+                    $category = if ($request.type -eq 'ActualCost') { 'UnusedReservation' } else { 'Reservation' }
+                    $currency = if ($Path -like '/subscriptions/11111111-*') { $firstCurrency } else { $secondCurrency }
+                    $properties = @{ columns = @(@{ name = $dimension }, @{ name = 'Cost' }); rows = @(, @($category, 100.0)) }
+                    if ($hasCurrencyColumn) {
+                        $properties.columns += @{ name = 'Currency' }
+                        $properties.rows = @(, @($category, 100.0, $currency))
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                )
+
+                { Get-SavingsRealized -Subscriptions $subscriptions } | Should -Throw '*currenc*'
+            }
+        }
+
+        It 'Excludes purchases, refunds, and unused commitments before aggregation' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry {
+                    $request = $Payload | ConvertFrom-Json
+                    if ($request.type -eq 'ActualCost') {
+                        $properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'ChargeType' }, @{ name = 'Currency' }); rows = @() }
+                    }
+                    else {
+                        $charges = @(
+                            @{ ChargeType = 'Usage'; Cost = 100.0 }
+                            @{ ChargeType = 'Refund'; Cost = -90.0 }
+                            @{ ChargeType = 'Purchase'; Cost = 1000.0 }
+                            @{ ChargeType = 'UnusedReservation'; Cost = 30.0 }
+                        )
+                        $filter = $request.dataset.filter.dimensions
+                        if ($filter.name -eq 'ChargeType' -and $filter.operator -eq 'In') {
+                            $charges = @($charges | Where-Object { $_.ChargeType -in $filter.values })
+                        }
+                        $amount = ($charges | Measure-Object Cost -Sum).Sum
+                        $properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'PricingModel' }, @{ name = 'Currency' }); rows = @(, @($amount, 'Reservation', 'EUR')) }
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+
+                $result = Get-SavingsRealized -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+
+                $result.CommitmentSavingsMonthToDate | Should -Be 66.67
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter {
+                    $request = $Payload | ConvertFrom-Json
+                    $request.type -eq 'AmortizedCost' -and $request.dataset.filter.dimensions.name -eq 'ChargeType' -and
+                    $request.dataset.filter.dimensions.operator -eq 'In' -and (@($request.dataset.filter.dimensions.values) -join ',') -eq 'Usage'
+                }
+            }
+        }
+
+        It 'Rejects negative usage adjustments of <Amount> without partial savings' -ForEach @(
+            @{ Amount = -100.0 }
+            @{ Amount = -0.001 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Adjustment = $Amount } {
+                param($Adjustment)
+                $fixtureAdjustment = $Adjustment
+                Mock Invoke-AzRestMethodWithRetry {
+                    $request = $Payload | ConvertFrom-Json
+                    $dimension = if ($request.type -eq 'ActualCost') { 'ChargeType' } else { 'PricingModel' }
+                    $properties = @{ columns = @(@{ name = 'Cost' }, @{ name = $dimension }, @{ name = 'Currency' }); rows = @() }
+                    if ($request.type -eq 'AmortizedCost') { $properties.rows = @(, @($fixtureAdjustment, 'Reservation', 'USD')) }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $received = [System.Collections.Generic.List[object]]::new()
+
+                { Get-SavingsRealized -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' }) |
+                    ForEach-Object { $received.Add($_) } } | Should -Throw '*negative adjustments*'
+
+                $received.Count | Should -Be 0
+            }
+        }
+
+        It 'Rejects a currency change on a later page without emitting partial savings' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry {
+                    $isNext = $Path -like '*page=2'
+                    $currency = if ($isNext) { 'USD' } else { 'EUR' }
+                    $properties = @{
+                        columns = @(@{ name = 'Cost' }, @{ name = 'ChargeType' }, @{ name = 'Currency' })
+                        rows = @(, @(100.0, 'UnusedReservation', $currency))
+                    }
+                    if (-not $isNext) { $properties.nextLink = "$Path&page=2" }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $received = [System.Collections.Generic.List[object]]::new()
+
+                { Get-SavingsRealized -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' }) |
+                    ForEach-Object { $received.Add($_) } } | Should -Throw '*multiple billing currencies*'
+
+                $received.Count | Should -Be 0
+            }
+        }
+
+        It 'Discards a failed management-group attempt including its currency' {
+            InModuleScope FinOpsMultitool {
+                Mock Resolve-CostMgId { 'test-management-group' }
+                Mock Search-AzGraphSafe { @{ Data = @() } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $request = $Payload | ConvertFrom-Json
+                    $isManagementGroup = $Path -like '/providers/Microsoft.Management/*'
+                    if ($isManagementGroup -and $request.type -eq 'AmortizedCost') { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                    $currency = if ($isManagementGroup) { 'GBP' } else { 'EUR' }
+                    $dimension = if ($request.type -eq 'ActualCost') { 'ChargeType' } else { 'PricingModel' }
+                    $category = if ($request.type -eq 'ActualCost') { 'UnusedReservation' } else { 'Reservation' }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{
+                        columns = @(@{ name = $dimension }, @{ name = 'Currency' }, @{ name = 'Cost' })
+                        rows = @(, @($category, $currency, 100.0))
+                    } } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                )
+
+                $result = Get-SavingsRealized -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -WarningAction SilentlyContinue
+
+                $result.Currency | Should -Be 'EUR'
+                $result.CommitmentSavingsMonthToDate | Should -Be 133.33
+                $result.Details.Currency | Select-Object -Unique | Should -Be 'EUR'
+                @($result.Details | Where-Object Type -EQ 'Waste').Count | Should -Be 2
+            }
+        }
+
+        It 'Retains an AHB read failure without inventing zero or a commitment currency' {
+            InModuleScope FinOpsMultitool {
+                Mock Search-AzGraphSafe { throw '403: inventory unavailable' }
+                Mock Invoke-AzRestMethodWithRetry { throw 'A confirmed empty commitment inventory should skip cost queries.' }
+
+                $result = Get-SavingsRealized -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' }) -CommitmentData ([pscustomobject]@{ HasData = $false }) -WarningAction SilentlyContinue
+
+                $result.AHBSavingsMonthly | Should -BeNullOrEmpty
+                $result.AHBIssue | Should -Match '403'
+                $result.Currency | Should -BeNullOrEmpty
+                $result.CommitmentSavingsMonthToDate | Should -BeNullOrEmpty
+                $result.HasData | Should -BeFalse
+            }
+        }
+
+        It 'Does not substitute USD for an unknown savings currency in the KPI' {
+            InModuleScope FinOpsMultitool {
+                $data = [pscustomobject]@{ CommitmentSavingsMonthToDate = 66.67; Period = 'Month to date'; TotalMonthly = 66.67 }
+
+                $result = Get-KpiComputedValue -KpiId 'effective-savings-rate' -Data $data
+
+                $result.Value | Should -BeNullOrEmpty
+                $result.Display | Should -Match 'Unavailable.*currency'
+            }
+        }
+    }
+
+    Context 'Savings estimate presentation' {
+        It 'Labels terminal, guidance, HTML, and KPI output as estimates' {
+            InModuleScope FinOpsMultitool -Parameters @{ ModuleRoot = $script:ModuleRoot } {
+                param($ModuleRoot)
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                $formatter = $launcherAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Write-ColorizedLine' }, $true)
+                . ([scriptblock]::Create($formatter.Extent.Text))
+                $captured = [System.Collections.Generic.List[string]]::new()
+                Mock Write-Host { [void]$captured.Add([string]$Object) }
+                Mock Write-ColorizedLine { [void]$captured.Add($Text) }
+                Mock Get-Date { [datetime]::new(2026, 9, 16, 12, 0, 0, [DateTimeKind]::Utc) }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $request = $Payload | ConvertFrom-Json
+                    $dimension = if ($request.type -eq 'ActualCost') { 'ChargeType' } else { 'PricingModel' }
+                    $category = if ($request.type -eq 'ActualCost') { 'Usage' } else { 'Reservation' }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{
+                        columns = @(@{ name = 'Cost' }, @{ name = $dimension }, @{ name = 'Currency' })
+                        rows = @(, @(100.0, $category, 'EUR'))
+                    } } | ConvertTo-Json -Depth 8) }
+                }
+                Mock Search-AzGraphSafe { @{ Data = @([pscustomobject]@{ vmSize = 'Standard_D2s_v5'; location = 'eastus' }) } }
+                Mock Get-AhbVmRates { [pscustomobject]@{ HourlyPremium = 0.1 } }
+                $data = Get-SavingsRealized -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+                $htmlSb = [System.Text.StringBuilder]::new()
+                $guidanceItems = @()
+                $tableNote = $null
+                $switches = $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.SwitchStatementAst] }, $true)
+                $branches = @($switches.Clauses | Where-Object { $_.Item1.Value -eq 'Get-SavingsRealized' })
+                $branches.Count | Should -Be 3
+                foreach ($branch in $branches) {
+                    $body = ($branch.Item2.Statements | ForEach-Object { $_.Extent.Text }) -join "`n"
+                    . ([scriptblock]::Create("param(`$data, `$htmlSb)`n$body")) $data $htmlSb
+                }
+
+                ($captured -join ' ') | Should -Match 'Estimated savings'
+                ($captured -join ' ') | Should -Match 'EUR 66.67'
+                ($captured -join ' ') | Should -Match 'USD 73.00'
+                ($captured -join ' ') | Should -Not -Match 'Total monthly:|Annual:'
+                ($guidanceItems.Message -join ' ') | Should -Match 'Estimated savings'
+                ($guidanceItems.Message -join ' ') | Should -Not -Match 'Realizing|Run-level'
+                $htmlSb.ToString() | Should -Match 'Estimated commitment savings'
+                $htmlSb.ToString() | Should -Match 'EUR 66.67'
+                $htmlSb.ToString() | Should -Match 'USD 73.00'
+                $htmlSb.ToString() | Should -Match '730-hour'
+                $tableNote | Should -Be $data.EstimateBasis
+                $kpi = Get-KpiComputedValue -KpiId 'effective-savings-rate' -Data $data
+                $kpi.Display | Should -Match 'estimated savings'
+                $kpi.Display | Should -Not -Match 'realized'
+                $catalog = Get-Content -LiteralPath (Join-Path $ModuleRoot 'kpi/kpi-catalog.json') -Raw | ConvertFrom-Json
+                $definition = $catalog.kpis | Where-Object id -EQ 'effective-savings-rate'
+                $definition.unit | Should -Be 'currency/period'
+                $definition.plainLanguage | Should -Match 'estimates'
+            }
+        }
+    }
+
     Context 'Export amounts parse invariantly' {
 
         It 'Reads a decimal point as a decimal point regardless of culture' {

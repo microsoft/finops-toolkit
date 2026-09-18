@@ -19,8 +19,8 @@ param()
 #          Invoke-FinOpsMultitool -OutputPath './results'
 #
 # Requirements:
-#   - PowerShell 5.1+ (Windows) or 7+ (cross-platform)
-#   - Az PowerShell modules: Az.Accounts, Az.Resources, Az.ResourceGraph
+#   - PowerShell 7+
+#   - Az PowerShell modules: Az.Accounts, Az.ResourceGraph, Az.Storage
 #   - Azure RBAC: Reader + Cost Management Reader on target scope
 ###########################################################################
 
@@ -157,8 +157,8 @@ function Invoke-FinOpsMultitool {
         'Get-UnitEconomics'         = @{ Role = 'Cost Management Reader + Reader'; Scope = 'Management Group'; API = 'Cost Management Query API + Azure Resource Graph + Azure Monitor metrics'; Reason = 'Requires amortized cost (Cost Management), capacity counts (Resource Graph), and storage-account used capacity (Monitor UsedCapacity metric) to compute $/vCPU, $/GB RAM and $/GB stored.' }
         'Get-AIWorkloadMetrics'     = @{ Role = 'Cost Management Reader + Reader'; Scope = 'Management Group'; API = 'Azure Resource Graph + Monitor Metrics + Cost Management Query API'; Reason = 'Requires Reader to detect AI resources and read Azure OpenAI token metrics, plus Cost Management Reader to map token usage to spend. Skips the deep scan when no AI workloads are present.' }
         'Get-ReservationAdvice'     = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Consumption Reservation Recommendations API'; Reason = 'Requires Microsoft.Consumption/reservationRecommendations/read to retrieve reservation purchase advice.' }
-        'Get-CommitmentUtilization' = @{ Role = 'Billing Reader, or Enterprise Administrator (reader) on an EA'; Scope = 'Billing account or billing profile'; API = 'Consumption Reservation Summaries + Cost Management Benefit Utilization APIs'; Reason = 'Reservation and savings plan utilization is published at billing scope only; a subscription-scoped read returns 404. Without billing access, the scan reports that no billing scope was resolved rather than reporting zero commitments.' }
-        'Get-SavingsRealized'       = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Benefit Utilization API'; Reason = 'Requires Microsoft.CostManagement/benefitUtilizationSummaries/read. Returns empty if no active reservations or savings plans.' }
+        'Get-CommitmentUtilization' = @{ Role = 'MCA Billing account reader or Billing profile reader, or EA Enterprise Administrator (read only)'; Scope = 'Billing account or billing profile'; API = 'Consumption Reservation Summaries + Cost Management Benefit Utilization APIs'; Reason = 'Reservation and savings plan utilization is published at billing scope only; a subscription-scoped read returns 404. Without billing access, the scan reports that no billing scope was resolved rather than reporting zero commitments.' }
+        'Get-SavingsRealized'       = @{ Role = 'Cost Management Reader + Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API + Azure Resource Graph'; Reason = 'Requires Microsoft.CostManagement/query/action for commitment spend and Reader access for Azure Hybrid Benefit inventory. Savings amounts use assumed discounts, not measured benefit utilization.' }
         'Get-BudgetStatus'          = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Consumption Budgets API'; Reason = 'Requires Microsoft.Consumption/budgets/read. Returns empty if no budgets are configured for scanned subscriptions.' }
         'Get-BudgetHistory'         = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Query API'; Reason = 'Requires Microsoft.CostManagement/query/action to retrieve monthly actuals per budget. Runs only when Budget Status returns budgets.' }
         'Get-AnomalyAlerts'         = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Alerts API'; Reason = 'Requires Microsoft.CostManagement/alerts/read. Returns empty if no cost anomalies were detected.' }
@@ -289,6 +289,15 @@ function Invoke-FinOpsMultitool {
         Write-Host "  ─────────────────────────────────────────────────────" -ForegroundColor DarkGray
         Write-Host ""
 
+        if ($Preselected -in @('API', 'GraphOnly')) {
+            Write-Host "  Data source set by parameter: $Preselected" -ForegroundColor DarkGray
+            return @{ Source = $Preselected; HubStorage = $null }
+        }
+        if (-not [string]::IsNullOrWhiteSpace($env:FINOPS_HUB_KUSTO_URI)) {
+            $provider = Resolve-FOHubProvider -Subscriptions @($Subscriptions.Id)
+            return @{ Source = 'Hub'; HubStorage = $null; HubProvider = $provider }
+        }
+
         # Try to detect a FinOps Hub in the selected subscriptions
         $hubStorage = $null
         Write-Host "  Checking for FinOps Hub deployment..." -ForegroundColor DarkGray
@@ -308,8 +317,7 @@ function Invoke-FinOpsMultitool {
 
         if ($Preselected) {
             if ($Preselected -eq 'Hub' -and -not $hubStorage) {
-                Write-Host "  No FinOps Hub found in scope. Using the Cost Management API instead." -ForegroundColor Yellow
-                return @{ Source = 'API'; HubStorage = $null }
+                throw 'No FinOps hub was found in the selected subscriptions. Configure FINOPS_HUB_KUSTO_URI or select API for a separate live scan.'
             }
             Write-Host "  Data source set by parameter: $Preselected" -ForegroundColor DarkGray
             return @{ Source = $Preselected; HubStorage = $hubStorage }
@@ -355,7 +363,7 @@ function Invoke-FinOpsMultitool {
                         }
                         if ($prov -and $prov.Found) {
                             # A scalable Kusto path exists - no warning needed.
-                            return @{ Source = 'Hub'; HubStorage = $hubStorage }
+                            return @{ Source = 'Hub'; HubStorage = $hubStorage; HubProvider = $prov }
                         }
 
                         # Size the hub before judging the reader. An unmeasurable hub
@@ -849,10 +857,11 @@ function Invoke-FinOpsMultitool {
             [array]$Modules,
             [array]$Subscriptions,
             [string]$TenantId,
-            [hashtable]$DataSource
+            [hashtable]$DataSource,
+            [hashtable]$PermissionInfo = @{}
         )
 
-        $selected = $Modules | Where-Object { $_.Selected }
+        $selected = @($Modules | Where-Object { $_.Selected })
         $results = @{}
         $total = $selected.Count
         $current = 0
@@ -873,9 +882,27 @@ function Invoke-FinOpsMultitool {
         # storage reader below when no cluster is available.
         $kustoProvider = $null
         $subIdsForDisco = @($Subscriptions | ForEach-Object { $_.Id })
-        if ($DataSource.Source -eq 'Hub' -or $env:FINOPS_HUB_KUSTO_URI) {
-            $kp = Resolve-FOHubProvider -Subscriptions $subIdsForDisco
-            if ($kp -and $kp.Found) { $kustoProvider = $kp }
+        if ($DataSource.Source -eq 'Hub') {
+            $kp = if ($DataSource.HubProvider) { $DataSource.HubProvider } else { Resolve-FOHubProvider -Subscriptions $subIdsForDisco }
+            if ($kp -and $kp.Found) {
+                $kustoProvider = $kp
+                $DataSource.HubProvider = $kp
+            }
+        }
+
+        if ($DataSource.Source -eq 'Hub') {
+            $hubPermission = if ($kustoProvider -and $kustoProvider.Mode -eq 'KustoLocal') {
+                @{ Role = 'None (local emulator)'; Scope = 'Local Kusto endpoint'; API = 'Kusto query API'; Reason = 'Check that the local emulator is running and the configured database is available.' }
+            }
+            elseif ($kustoProvider) {
+                @{ Role = 'Database Viewer'; Scope = 'Kusto database'; API = 'Kusto query API'; Reason = 'Confirm database Viewer access or an equivalent role, and that the Kusto endpoint permits your connection.' }
+            }
+            else {
+                @{ Role = 'Storage Blob Data Reader'; Scope = 'Hub storage account or export container'; API = 'Azure Storage data API'; Reason = 'Confirm Storage Blob Data Reader or equivalent data access, and check the storage firewall or private endpoint connection. Subscription Reader alone does not grant storage data access.' }
+            }
+            foreach ($hubScan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag')) {
+                $permissionInfo[$hubScan] = $hubPermission
+            }
         }
 
         if ($kustoProvider) {
@@ -910,7 +937,7 @@ function Invoke-FinOpsMultitool {
                 Write-Host '  Hub cost results are unavailable. Select API as the data source to run a separate live scan.' -ForegroundColor Yellow
             }
         }
-        elseif ($DataSource.HubStorage) {
+        elseif ($DataSource.Source -eq 'Hub' -and $DataSource.HubStorage) {
             # Storage reader: small-dataset convenience path (rows loaded into
             # PowerShell). For large hubs, the Kusto path above is preferred.
             $hub = $DataSource.HubStorage
@@ -1029,7 +1056,7 @@ function Invoke-FinOpsMultitool {
         }
 
         $srcLabel = switch ($DataSource.Source) {
-            'Hub' { "FinOps Hub ($($DataSource.HubStorage.name))" }
+            'Hub' { if ($kustoProvider) { "FinOps Hub ($($kustoProvider.ClusterUri), $($kustoProvider.Database))" } else { "FinOps Hub ($($DataSource.HubStorage.name))" } }
             'API' { "Cost Management API (real-time)" }
             'GraphOnly' { "Resource Graph only" }
         }
@@ -1245,15 +1272,14 @@ function Invoke-FinOpsMultitool {
         if ($null -eq $Value) { return '' }
         # Numbers, booleans, and dates carry no formula risk, and prefixing one
         # would stop a negative cost being read as a number.
-        if ($Value -is [ValueType]) { return $Value }
+        if ($Value -is [datetime] -or $Value -is [datetimeoffset]) {
+            return $Value.ToString('o', [System.Globalization.CultureInfo]::InvariantCulture)
+        }
+        if ($Value -is [ValueType]) {
+            return [System.Convert]::ToString($Value, [System.Globalization.CultureInfo]::InvariantCulture)
+        }
         if ($Value -is [string]) { return Protect-FinOpsExportText $Value }
-        if ($Value -is [System.Collections.IDictionary]) {
-            return Protect-FinOpsExportText ((($Value.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join '; '))
-        }
-        if ($Value -is [System.Collections.IEnumerable]) {
-            return Protect-FinOpsExportText (((@($Value) | ForEach-Object { [string]$_ }) -join '; '))
-        }
-        return Protect-FinOpsExportText ([string]$Value)
+        return Protect-FinOpsExportText (ConvertTo-Json -InputObject $Value -Depth 30 -Compress -ErrorAction Stop)
     }
 
     # Scan results are wrapper objects whose payload is a nested collection or a
@@ -1269,62 +1295,132 @@ function Invoke-FinOpsMultitool {
         if ($null -eq $Data) { return @() }
 
         $rows = $null
+        $payloadsByScan = @{
+            'Get-AHBOpportunities' = @('WindowsVMs', 'SQLVMs', 'SQLDatabases')
+            'Get-AIWorkloadMetrics' = @('ByModel', 'ByAccount')
+            'Get-AnomalyAlerts' = @('TriggeredAlerts', 'ConfiguredRules')
+            'Get-BillingAccount' = @('Accounts')
+            'Get-BillingStructure' = @('BillingAccounts', 'BillingProfiles', 'InvoiceSections', 'EADepartments', 'CostAllocationRules')
+            'Get-BudgetStatus' = @('Budgets')
+            'Get-CarbonMetrics' = @('MonthlyTrend', 'BySubscription')
+            'Get-CommitmentUtilization' = @('Reservations', 'SavingsPlans')
+            'Get-CostByTag' = @('CostByTag')
+            'Get-CostTrend' = @('Months', 'BySubscription')
+            'Get-IdleVMs' = @('IdleVMs')
+            'Get-LegacyResources' = @('LegacyResources')
+            'Get-MaccCommitment' = @('Commitments')
+            'Get-OptimizationAdvice' = @('Recommendations')
+            'Get-OrphanedResources' = @('Orphans')
+            'Get-PolicyInventory' = @('Assignments', 'ComplianceBySubMap')
+            'Get-PolicyRecommendations' = @('Analysis')
+            'Get-ReservationAdvice' = @('AdvisorRecommendations', 'ReservationRecommendations')
+            'Get-SavingsRealized' = @('Details')
+            'Get-SharedCostAllocation' = @('Allocations', 'RuleTargets')
+            'Get-StorageTierAdvice' = @('Recommendations')
+            'Get-TagInventory' = @('TagNames', 'CaseVariants', 'UntaggedResources')
+            'Get-TagRecommendations' = @('Analysis')
+            'Get-UsageProportionalAllocation' = @('Allocations', 'RuleTargets')
+            'Get-VmCostBreakdown' = @('Breakdown')
+        }
+
+        $metadata = [ordered]@{}
+        $summaryCollections = [ordered]@{}
+        if ($payloadsByScan.ContainsKey($Fn)) {
+            $payloadNames = $payloadsByScan[$Fn]
+            if ($Data -is [System.Collections.IDictionary]) {
+                foreach ($field in $Data.GetEnumerator()) {
+                    if ($field.Key -notin $payloadNames) { $metadata["Summary.$($field.Key)"] = $field.Value }
+                }
+            }
+            else {
+                foreach ($property in $Data.PSObject.Properties) {
+                    if ($property.Name -notin $payloadNames) { $metadata["Summary.$($property.Name)"] = $property.Value }
+                }
+            }
+            foreach ($name in @($metadata.Keys)) {
+                $value = $metadata[$name]
+                if ($null -ne $value -and $value -isnot [string] -and $value -isnot [ValueType]) {
+                    $summaryCollections[$name] = $value
+                    $metadata.Remove($name)
+                }
+            }
+        }
 
         # Contracts whose payload is not a plain collection.
         if ($Fn -eq 'Get-CostData' -and $Data -is [System.Collections.IDictionary]) {
             $rows = @($Data.GetEnumerator() | ForEach-Object {
-                    [PSCustomObject]@{
-                        SubscriptionId = $_.Key
-                        Actual         = $_.Value.Actual
-                        Forecast       = $_.Value.Forecast
-                        Currency       = $_.Value.Currency
-                    }
+                    $record = [ordered]@{ SubscriptionId = $_.Key }
+                    foreach ($field in $_.Value.GetEnumerator()) { $record[$field.Key] = $field.Value }
+                    [PSCustomObject]$record
                 })
         }
-        elseif ($Fn -eq 'Get-CostByTag' -and $Data.CostByTag) {
-            $rows = @(foreach ($tag in $Data.CostByTag.GetEnumerator()) {
-                    foreach ($val in $tag.Value.GetEnumerator()) {
-                        [PSCustomObject]@{
-                            TagKey   = $tag.Key
-                            TagValue = $val.Key
-                            Cost     = $val.Value
+        elseif ($payloadsByScan.ContainsKey($Fn)) {
+            $rows = @(
+                if ($Fn -eq 'Get-CostByTag' -and $Data.CostByTag) {
+                    foreach ($tag in $Data.CostByTag.GetEnumerator()) {
+                        foreach ($entry in @($tag.Value)) {
+                            $record = [ordered]@{
+                                RecordType = 'CostByTag'
+                                TagKey     = $tag.Key
+                                TagValue   = $entry.TagValue
+                                Cost       = $entry.Cost
+                                Currency   = $entry.Currency
+                            }
+                            foreach ($field in $metadata.GetEnumerator()) { $record[$field.Key] = $field.Value }
+                            [PSCustomObject]$record
                         }
+                    }
+                }
+                foreach ($collection in @($payloadNames | Where-Object { $_ -ne 'CostByTag' }) + @($summaryCollections.Keys)) {
+                    $payload = if ($summaryCollections.Contains($collection)) { $summaryCollections[$collection] } else { $Data.$collection }
+                    $entries = if ($payload -is [System.Collections.IDictionary]) {
+                        foreach ($group in $payload.GetEnumerator()) {
+                            foreach ($entry in @($group.Value | Where-Object { $null -ne $_ })) {
+                                $record = [ordered]@{ Key = $group.Key }
+                                if ($collection -eq 'BySubscription') { $record = [ordered]@{ SubscriptionId = $group.Key } }
+                                elseif ($collection -eq 'TagNames') { $record = [ordered]@{ TagKey = $group.Key } }
+                                if ($entry -is [System.Collections.IDictionary]) {
+                                    foreach ($field in $entry.GetEnumerator()) { $record[$field.Key] = $field.Value }
+                                }
+                                elseif ($entry -is [string] -or $entry -is [ValueType]) { $record['Value'] = $entry }
+                                else { foreach ($property in $entry.PSObject.Properties) { $record[$property.Name] = $property.Value } }
+                                [PSCustomObject]$record
+                            }
+                        }
+                    }
+                    else { @($payload | Where-Object { $null -ne $_ }) }
+                    foreach ($entry in $entries) {
+                        $record = [ordered]@{ RecordType = $collection }
+                        if ($entry -is [System.Collections.IDictionary]) {
+                            foreach ($field in $entry.GetEnumerator()) { $record[$field.Key] = $field.Value }
+                        }
+                        elseif ($entry -is [string] -or $entry -is [ValueType]) { $record['Value'] = $entry }
+                        else { foreach ($property in $entry.PSObject.Properties) { $record[$property.Name] = $property.Value } }
+                        foreach ($field in $metadata.GetEnumerator()) { $record[$field.Key] = $field.Value }
+                        [PSCustomObject]$record
                     }
                 })
         }
         elseif ($Data -is [System.Collections.IDictionary]) {
             $rows = @($Data.GetEnumerator() | ForEach-Object {
-                    [PSCustomObject]@{ Key = $_.Key; Value = (ConvertTo-FinOpsExportCell $_.Value) }
+                    [PSCustomObject]@{ Key = $_.Key; Value = $_.Value }
                 })
         }
         elseif ($Data -is [System.Collections.IEnumerable] -and $Data -isnot [string]) {
             $rows = @($Data)
         }
         else {
-            # Wrapper object: the payload is the collection property. Prefer the
-            # single collection when there is exactly one, so new scans that follow
-            # the pattern export correctly without needing a case here.
-            $collections = @($Data.PSObject.Properties | Where-Object {
-                    $_.Value -is [System.Collections.IEnumerable] -and
-                    $_.Value -isnot [string] -and
-                    $_.Value -isnot [System.Collections.IDictionary] -and
-                    @($_.Value).Count -gt 0
-                })
-            if ($collections.Count -eq 1) {
-                $rows = @($collections[0].Value)
-            }
-            elseif ($collections.Count -gt 1) {
-                $preferred = $collections | Where-Object { $_.Name -in @('Rows', 'Details', 'Analysis', 'Recommendations', 'Items') } | Select-Object -First 1
-                $rows = if ($preferred) { @($preferred.Value) } else { @($collections[0].Value) }
-            }
-            else {
-                # Summary-only contract: one row of its scalar properties.
-                $rows = @($Data)
-            }
+            $rows = @($Data)
+        }
+
+        if ($payloadsByScan.ContainsKey($Fn) -and $rows.Count -eq 0) {
+            $record = [ordered]@{ RecordType = 'Summary' }
+            foreach ($field in $metadata.GetEnumerator()) { $record[$field.Key] = $field.Value }
+            $rows = @([PSCustomObject]$record)
         }
 
         # Whatever projection was chosen, guarantee scalar cells.
-        return @($rows | Where-Object { $null -ne $_ } | ForEach-Object {
+        $flatRows = @($rows | Where-Object { $null -ne $_ } | ForEach-Object {
                 $row = $_
                 if ($row -is [System.Collections.IDictionary]) {
                     $ordered = [ordered]@{}
@@ -1340,6 +1436,15 @@ function Invoke-FinOpsMultitool {
                     [PSCustomObject]@{ Value = ConvertTo-FinOpsExportCell $row }
                 }
             })
+        $columnNames = [System.Collections.Generic.List[string]]::new()
+        $seenColumns = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        foreach ($row in $flatRows) {
+            foreach ($property in $row.PSObject.Properties) {
+                if ($seenColumns.Add($property.Name)) { [void]$columnNames.Add($property.Name) }
+            }
+        }
+        if ($flatRows.Count -eq 0) { return @() }
+        return @($flatRows | Select-Object -Property $columnNames.ToArray())
     }
 
     function Show-ResultsSummary {
@@ -1349,8 +1454,6 @@ function Invoke-FinOpsMultitool {
             [string]$ExportPath,
             [array]$Subscriptions,
 
-            # The source that actually produced the numbers, which is not always the
-            # one requested: a Hub run that returns nothing falls back to the API.
             [string]$DataSourceLabel
         )
 
@@ -1554,9 +1657,12 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-SavingsRealized' {
-                    Write-Host "    Estimated monthly savings breakdown:" -ForegroundColor White
-                    Write-ColorizedLine -Text "      RI:  $($data.RISavingsMonthly.ToString('C0'))   SP: $($data.SPSavingsMonthly.ToString('C0'))   AHB: $($data.AHBSavingsMonthly.ToString('C0'))" -DefaultColor 'Cyan'
-                    Write-ColorizedLine -Text "      Total monthly: $($data.TotalMonthly.ToString('C0'))   Annual: $($data.TotalAnnual.ToString('C0'))" -DefaultColor 'White'
+                    Write-Host "    Estimated savings (separate periods):" -ForegroundColor White
+                    Write-Host "      Commitment period: $($data.Period)" -ForegroundColor DarkGray
+                    Write-ColorizedLine -Text "      RI: $(Format-BudgetAmount -Value $data.RISavingsMonthToDate -Currency $data.Currency)   SP: $(Format-BudgetAmount -Value $data.SPSavingsMonthToDate -Currency $data.Currency)" -DefaultColor 'Cyan'
+                    Write-ColorizedLine -Text "      Commitment estimate: $(Format-BudgetAmount -Value $data.CommitmentSavingsMonthToDate -Currency $data.Currency)" -DefaultColor 'White'
+                    Write-ColorizedLine -Text "      AHB: $(Format-BudgetAmount -Value $data.AHBSavingsMonthly -Currency $data.AHBCurrency) ($($data.AHBPeriod))" -DefaultColor 'Cyan'
+                    if ($data.AHBIssue) { Write-Host "      $($data.AHBIssue)" -ForegroundColor Yellow }
                     if ($data.EstimateBasis) {
                         Write-Host "      $($data.EstimateBasis)" -ForegroundColor DarkGray
                     }
@@ -2150,17 +2256,24 @@ function Invoke-FinOpsMultitool {
                         $maxUntaggedTag = ''
                         $seenCost = $data.ResourceCostSeen
                         $unallocCost = $data.UnallocatedCost
-                        $haveCostData = (($seenCost -and [double]$seenCost -gt 0) -or ($data.AllocatedCost -and [double]$data.AllocatedCost -gt 0))
-                        if ($seenCost -and [double]$seenCost -gt 0 -and $null -ne $unallocCost) {
+                        $tagCostRows = @($data.CostByTag.Values | ForEach-Object { $_ } | Where-Object { $null -ne $_.Cost })
+                        $allocationTags = @($data.CostByTag.Keys | Where-Object { $allocTags -contains $_ })
+                        $haveResourceTotals = $null -ne $seenCost -and $null -ne $unallocCost
+                        $haveCostData = $haveResourceTotals -or $tagCostRows.Count -gt 0
+                        $havePositiveCost = [double]$seenCost -gt 0
+                        $hasCredits = @($tagCostRows | Where-Object { [double]$_.Cost -lt 0 }).Count -gt 0
+                        if ($haveResourceTotals) {
                             $maxUntaggedCost = [double]$unallocCost
                             $maxUntaggedTag = 'any allocation tag'
+                            $hasCredits = $hasCredits -or [double]$unallocCost -lt 0 -or [double]$unallocCost -gt [double]$seenCost
                         }
                         else {
                             foreach ($tag in $data.CostByTag.GetEnumerator()) {
+                                if (($tag.Value | Measure-Object Cost -Sum).Sum -gt 0) { $havePositiveCost = $true }
                                 if ($allocTags -notcontains $tag.Key) { continue }
-                                foreach ($v in $tag.Value) {
-                                    if ($v.TagValue -eq '(untagged)' -and [double]$v.Cost -gt $maxUntaggedCost) {
-                                        $maxUntaggedCost = [double]$v.Cost
+                                foreach ($tagValue in $tag.Value) {
+                                    if ($tagValue.TagValue -eq '(untagged)' -and [double]$tagValue.Cost -gt $maxUntaggedCost) {
+                                        $maxUntaggedCost = [double]$tagValue.Cost
                                         $maxUntaggedTag = $tag.Key
                                     }
                                 }
@@ -2173,9 +2286,19 @@ function Invoke-FinOpsMultitool {
                                 @{ Severity = 'Yellow'; Message = "No cost data was returned for this period, so spend cannot be split by tag. Tag coverage itself is unaffected - check the data source, permissions, and that the period has usage." }
                             )
                         }
-                        elseif (@($data.AllocationTags | Where-Object { $_ }).Count -eq 0) {
+                        elseif ($allocationTags.Count -eq 0) {
                             $guidanceItems = @(
                                 @{ Severity = 'Yellow'; Message = "No CAF allocation tag (CostCenter, Customer, Project, Environment, Owner, ...) is in use, so spend cannot be attributed. Add an allocation tag and deploy inheritance to make cost traceable." }
+                            )
+                        }
+                        elseif ($hasCredits) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Yellow'; Message = 'Cost data includes credits or negative net costs. Review the amounts by tag; allocation percentages might not be comparable.' }
+                            )
+                        }
+                        elseif (-not $havePositiveCost) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Yellow'; Message = 'Cost data is available, but there is no positive net cost for allocation percentages.' }
                             )
                         }
                         elseif ($maxUntaggedCost -gt 1000) {
@@ -2192,7 +2315,7 @@ function Invoke-FinOpsMultitool {
                         }
                         else {
                             $guidanceItems = @(
-                                @{ Severity = 'Green'; Message = "All scanned cost is tagged with allocation tags. Cost allocation is fully traceable — enables chargeback and showback." }
+                                @{ Severity = 'Green'; Message = 'No positive untagged cost was found for the allocation tags in this result.' }
                             )
                         }
                     }
@@ -2302,15 +2425,15 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-SavingsRealized' {
-                    if ($data.TotalMonthly -and $data.TotalMonthly -gt 0) {
+                    if ($data.CommitmentSavingsMonthToDate -gt 0 -or $data.AHBSavingsMonthly -gt 0) {
                         $guidanceItems = @(
-                            @{ Severity = 'Green'; Message = "Realizing $($data.TotalMonthly.ToString('C0'))/month ($($data.TotalAnnual.ToString('C0'))/year) in commitment discounts." }
-                            @{ Severity = 'Green'; Message = "FinOps Maturity: Active savings tracking shows Run-level FinOps maturity. Keep reviewing quarterly." }
+                            @{ Severity = 'Yellow'; Message = 'Estimated savings use assumed discounts. Commitment amounts cover the reported month-to-date period; AHB uses a separate 730-hour estimate. They are not combined or annualized.' }
+                            @{ Severity = 'Yellow'; Message = 'Validate the estimate against matching pay-as-you-go rates and benefit usage before reporting savings.' }
                         )
                     }
                     else {
                         $guidanceItems = @(
-                            @{ Severity = 'Yellow'; Message = "No savings from commitments detected. Evaluate RIs and Savings Plans for steady-state workloads." }
+                            @{ Severity = 'Yellow'; Message = 'No positive savings estimate is available from this scan. Review commitment usage and data access before drawing a conclusion.' }
                             @{ Severity = 'Yellow'; Message = "FinOps Practice: Commitment discounts are the #1 cost optimization lever (30-60% savings)."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations' }
                         )
                     }
@@ -2663,10 +2786,10 @@ tr:hover td { background: var(--surface); }
 "@)
 
             # Summary cards
-            $errorCount = ($Modules | Where-Object { $_.Selected } | Where-Object { $Results.ContainsKey("_error_$($_.Fn)") }).Count
+            $errorCount = @($Modules | Where-Object { $_.Selected } | Where-Object { $Results.ContainsKey("_error_$($_.Fn)") }).Count
             [void]$htmlSb.Append('<div class="summary-grid">')
             [void]$htmlSb.Append("<div class=`"summary-card`"><div class=`"label`">Total Findings</div><div class=`"value`">$totalFindings</div></div>")
-            [void]$htmlSb.Append("<div class=`"summary-card`"><div class=`"label`">Scans Run</div><div class=`"value`">$(($Modules | Where-Object { $_.Selected }).Count)</div></div>")
+            [void]$htmlSb.Append("<div class=`"summary-card`"><div class=`"label`">Scans Run</div><div class=`"value`">$(@($Modules | Where-Object { $_.Selected }).Count)</div></div>")
             if ($errorCount -gt 0) {
                 [void]$htmlSb.Append("<div class=`"summary-card`"><div class=`"label`">Errors</div><div class=`"value severity-red`">$errorCount</div></div>")
             }
@@ -2944,7 +3067,11 @@ tr:hover td { background: var(--surface); }
                         }
                     }
                     'Get-SavingsRealized' {
-                        [void]$htmlSb.Append("<p>RI: <span class=`"money`">$($data.RISavingsMonthly.ToString('C0'))</span> &nbsp;|&nbsp; SP: <span class=`"money`">$($data.SPSavingsMonthly.ToString('C0'))</span> &nbsp;|&nbsp; AHB: <span class=`"money`">$($data.AHBSavingsMonthly.ToString('C0'))</span> &nbsp;|&nbsp; Total: <span class=`"money`">$($data.TotalMonthly.ToString('C0'))/mo</span></p>")
+                        [void]$htmlSb.Append("<p>Estimated commitment savings ($([System.Net.WebUtility]::HtmlEncode([string]$data.Period))): <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.CommitmentSavingsMonthToDate -Currency $data.Currency)))</span></p>")
+                        [void]$htmlSb.Append("<p>RI: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.RISavingsMonthToDate -Currency $data.Currency))) &nbsp;|&nbsp; SP: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.SPSavingsMonthToDate -Currency $data.Currency)))</p>")
+                        [void]$htmlSb.Append("<p>AHB: <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.AHBSavingsMonthly -Currency $data.AHBCurrency)))</span> ($([System.Net.WebUtility]::HtmlEncode([string]$data.AHBPeriod)))</p>")
+                        if ($data.AHBIssue) { [void]$htmlSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode([string]$data.AHBIssue))</p>") }
+                        if ($data.EstimateBasis) { $tableNote = [string]$data.EstimateBasis }
                     }
                     'Get-BudgetStatus' {
                         $htmlCoverage = if ($data.CoverageIncomplete) {
@@ -3242,7 +3369,7 @@ tr:hover td { background: var(--surface); }
 
     # Show active data source
     $sourceLabel = switch ($sourceChoice.Source) {
-        'Hub' { "FinOps Hub ($($sourceChoice.HubStorage.name))" }
+        'Hub' { if ($sourceChoice.HubProvider) { "FinOps Hub ($($sourceChoice.HubProvider.ClusterUri), $($sourceChoice.HubProvider.Database))" } else { "FinOps Hub ($($sourceChoice.HubStorage.name))" } }
         'API' { 'Cost Management API (real-time)' }
         'GraphOnly' { 'Resource Graph only (no cost data)' }
     }
@@ -3283,14 +3410,11 @@ tr:hover td { background: var(--surface); }
     }
 
     # Step 4: Run
-    $results = Invoke-SelectedScans -Modules $finalModules -Subscriptions $subs -TenantId $tenantId -DataSource $sourceChoice
+    $results = Invoke-SelectedScans -Modules $finalModules -Subscriptions $subs -TenantId $tenantId -DataSource $sourceChoice -PermissionInfo $permissionInfo
 
     # Step 5: Summary + export
-    # Re-read the source after the run: Invoke-SelectedScans downgrades Hub to API
-    # in place when the hub returns nothing, so this is the source that actually
-    # produced the numbers rather than the one requested.
     $effectiveSource = switch ($sourceChoice.Source) {
-        'Hub' { "FinOps Hub ($($sourceChoice.HubStorage.name))" }
+        'Hub' { if ($sourceChoice.HubProvider) { "FinOps Hub ($($sourceChoice.HubProvider.ClusterUri), $($sourceChoice.HubProvider.Database))" } else { "FinOps Hub ($($sourceChoice.HubStorage.name))" } }
         'API' { 'Cost Management API (real-time)' }
         'GraphOnly' { 'Resource Graph only (no cost data)' }
         default { [string]$sourceChoice.Source }

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable -->
+
 # FinOps multitool terminal UI (TUI)
 
 Interactive terminal interface for running FinOps scans against Azure subscriptions. No GUI dependencies — works in any terminal on Windows, macOS, and Linux.
@@ -18,12 +20,13 @@ Invoke-FinOpsMultitool -SubscriptionId '00000000-0000-0000-0000-000000000000'
 
 ## Requirements
 
-| Requirement           | Details                                         |
-| --------------------- | ----------------------------------------------- |
-| PowerShell            | 7.0 or later (Windows, macOS, Linux)            |
-| Az modules            | `Az.Accounts`, `Az.ResourceGraph`, `Az.Storage` |
-| Azure RBAC            | Reader + Cost Management Reader on target scope |
-| FinOps Hub (optional) | Storage Blob Data Reader on Hub storage account |
+| Requirement                                  | Details                                                                              |
+| -------------------------------------------- | ------------------------------------------------------------------------------------ |
+| PowerShell                                   | 7.0 or later (Windows, macOS, Linux)                                                 |
+| Az modules                                   | `Az.Accounts`, `Az.ResourceGraph`, `Az.Storage`                                      |
+| Azure role-based access control (Azure RBAC) | Reader and Cost Management Reader on the target scope                                |
+| FinOps hub storage (optional)                | Storage Blob Data Reader on the hub storage account                                  |
+| FinOps hub Kusto (optional)                  | Query access to the hub database. A local ftklocal instance uses its local endpoint. |
 
 Install Az modules if needed:
 
@@ -35,23 +38,23 @@ Install-Module Az.Accounts, Az.ResourceGraph, Az.Storage -Scope CurrentUser
 
 ### 1. Authentication
 
-On launch, the TUI checks for an existing `Az.Accounts` session. If you're not logged in, it prompts you to run `Connect-AzAccount`. If your account has access to multiple Azure AD tenants, a tenant picker appears so you can select which tenant to scan. It then discovers all accessible subscriptions and lets you select which ones to scan.
+On launch, the TUI checks for an existing `Az.Accounts` session and starts `Connect-AzAccount` when needed. If you supply `-SubscriptionId`, the tool resolves the subscription and sets the subscription and tenant context before displaying menus. Otherwise, the tool offers a tenant menu when supported and discovers subscriptions in the selected tenant.
 
 ### 2. Data source selection
 
 If a FinOps Hub is detected in any of your subscriptions, you'll be asked to choose a data source:
 
-| Source                  | Description                                                                                                              |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **FinOps Hub**          | Reads cost data from the FinOps Hub. Faster, no API throttling. Tag and cost-by-tag scans are instant.                   |
-| **Cost Management API** | Queries the Cost Management REST API in real-time. Slower but always current. Hub tag data is still used when available. |
-| **Resource Graph only** | Skips all cost APIs. Only runs scans that use Azure Resource Graph (orphaned resources, idle VMs, etc).                  |
+| Source                  | Description                                                                                                            |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **FinOps Hub**          | Reads available cost data from the hub. Kusto summarizes data in the engine; the storage reader is for small datasets. |
+| **Cost Management API** | Queries currently available cost data through the Cost Management REST API. Doesn't preload hub data.                  |
+| **Resource Graph only** | Skips all cost APIs. Only runs scans that use Azure Resource Graph (orphaned resources, idle VMs, etc).                |
 
 When the **FinOps Hub** source is chosen, the tool prefers the hub's **Kusto database** (Azure Data Explorer / Fabric, or a local ftklocal emulator) and pushes aggregation into the engine, returning only summarized results. This is the scalable path for large customer datasets — it never loads the raw cost rows into PowerShell. See [FinOps Hub data paths](#finops-hub-data-paths) below. The storage-export reader remains as a small-dataset fallback.
 
 ### 3. Scan selection
 
-Arrow-key driven menu to toggle individual scans on/off. All scans are selected by default except Billing Structure.
+Use arrow-key menus to select scans when your host supports them. Other hosts use numbered prompts. For automation, use `-NonInteractive` with `-Scans`, `-DataSource`, and `-SubscriptionId`. Add `-OutputPath` to export results. All menu scans are selected by default except **Billing Structure**.
 
 | Key       | Action             |
 | --------- | ------------------ |
@@ -64,7 +67,7 @@ Arrow-key driven menu to toggle individual scans on/off. All scans are selected 
 
 ### 4. Scan execution
 
-Selected scans run sequentially with a progress bar. When a FinOps Hub is available, tag-related scans (Tag Inventory, Cost by Tag) use pre-loaded Hub data instead of API calls — completing in under a second.
+Selected scans run sequentially with a progress bar. Supported scans reuse available hub summaries or preloaded rows. The tool reports hub query failures as scan errors and doesn't silently switch data sources. It reports AI metrics from a Kusto-only hub as unavailable. Select **Cost Management API** to run a separate live AI scan.
 
 ### 5. Results
 
@@ -89,32 +92,38 @@ Guidance includes FinOps Foundation best practices, actionable next steps, and l
 
 Optional exports write to the output path: one CSV file per scan module, a `FinOpsReport.html` summary, and a `ScanSummary.txt` text summary.
 
+CSV files use `RecordType` to distinguish datasets when a scan returns several collections, such as reservations and savings plans. Scalar `Summary.*` columns retain scan diagnostics and estimate assumptions. Nested summary collections appear once as separate record types, such as `Summary.UnderutilizedRIs`, instead of repeating in every row. Nested values within a record are JSON. CSV headers include fields from every exported record type, amounts use a decimal point regardless of your system locale, and dates use ISO 8601. Aggregate and detailed records are separate views, not amounts to add together.
+
 ## Required permissions
 
-Each scan module requires specific Azure RBAC roles. The TUI will tell you which role is needed if a scan fails due to missing permissions.
+Each scan requires specific permissions. The TUI identifies the required role when a scan fails because of missing permissions. Billing permissions depend on your agreement, such as a Microsoft Customer Agreement (MCA) or Enterprise Agreement (EA).
 
-| Category     | Scans                                                        | Required Role            | Scope               |
-| ------------ | ------------------------------------------------------------ | ------------------------ | ------------------- |
-| Optimization | Orphaned Resources, Idle VMs, Storage Tier Advice, AHB       | Reader                   | Subscription        |
-| Governance   | Tag Inventory, Tag Recommendations, Policy Inventory/Recs    | Reader                   | Subscription        |
-| Cost         | Cost Data, Resource Costs, Cost by Tag, Cost Trend           | Cost Management Reader   | Subscription or MG  |
-| Commitments  | Reservation Advice, Commitment Utilization, Savings Realized | Cost Management Reader   | Subscription        |
-| Monitoring   | Budget Status, Anomaly Alerts                                | Cost Management Reader   | Subscription        |
-| Advisor      | Optimization Advice                                          | Reader                   | Subscription        |
-| Account      | Billing Structure, Contract Info                             | Billing Reader           | Billing Account     |
-| Hub (opt.)   | All scans via Hub data                                       | Storage Blob Data Reader | Hub Storage Account |
+| Category               | Scans                                                     | Required role                                                                                                                             | Scope                            |
+| ---------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Optimization           | Orphaned Resources, Idle VMs, Storage Tier Advice, AHB    | Reader                                                                                                                                    | Subscription                     |
+| Governance             | Tag Inventory, Tag Recommendations, Policy Inventory/Recs | Reader                                                                                                                                    | Subscription                     |
+| Cost                   | Cost Data, Resource Costs, Cost by Tag, Cost Trend        | Cost Management Reader                                                                                                                    | Subscription or management group |
+| Commitments            | Reservation Advice, Savings Realized estimates            | Cost Management Reader, and Reader for Azure Hybrid Benefit inventory                                                                     | Subscription or management group |
+| Commitment utilization | Reservation and savings plan usage                        | Billing access for the agreement, such as EA Enterprise Administrator (read only) or MCA Billing account reader or Billing profile reader | Billing account or profile       |
+| Monitoring             | Budget Status, Anomaly Alerts                             | Cost Management Reader                                                                                                                    | Subscription                     |
+| Advisor                | Optimization Advice                                       | Reader                                                                                                                                    | Subscription                     |
+| Account                | Billing Structure, Contract Info, MACC                    | Billing access for the agreement                                                                                                          | Billing account or profile       |
+| Hub storage (optional) | Storage-backed cost and tag scans                         | Storage Blob Data Reader                                                                                                                  | Hub storage account              |
+| Hub Kusto (optional)   | Kusto-backed cost summaries                               | Database query access                                                                                                                     | Hub database                     |
+
+Subscription Reader access alone doesn't grant billing access. See [MCA billing roles](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles), [EA roles](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles), and [Kusto database roles](https://learn.microsoft.com/kusto/management/manage-database-security-roles). Reading hub data also requires network access to the storage or Kusto endpoint. If you receive a 403 response, check the firewall or private endpoint as well as role assignments.
 
 ## Available scans
 
 ### Optimization (Resource Graph)
 
-| Scan                | What it finds                                                         |
-| ------------------- | --------------------------------------------------------------------- |
-| Orphaned Resources  | Unattached disks, NICs, public IPs, NSGs                              |
-| Idle VMs            | VMs with <5% CPU over 30 days                                         |
-| Storage Tier Advice | Blob storage that could move to cooler tiers                          |
-| AHB Opportunities   | Windows/SQL VMs not using Azure Hybrid Benefit                        |
-| Legacy Resources    | Legacy/retiring SKUs (v1 VM families, unmanaged disks, Basic IPs/LBs) |
+| Scan                | What it finds                                                                                                                          |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Orphaned Resources  | Unattached disks, NICs, public IPs, NSGs                                                                                               |
+| Idle VMs            | Running VMs with average CPU below 5% and network traffic below 1 MB per day over 14 days. A second threshold flags underutilized VMs. |
+| Storage Tier Advice | Blob storage that could move to cooler tiers                                                                                           |
+| AHB Opportunities   | Windows/SQL VMs not using Azure Hybrid Benefit                                                                                         |
+| Legacy Resources    | Legacy/retiring SKUs (v1 VM families, unmanaged disks, Basic IPs/LBs)                                                                  |
 
 ### Governance
 
@@ -143,11 +152,17 @@ Each scan module requires specific Azure RBAC roles. The TUI will tell you which
 
 ### Commitments
 
-| Scan                   | What it finds                            |
-| ---------------------- | ---------------------------------------- |
-| Reservation Advice     | RI purchase recommendations from Advisor |
-| Commitment Utilization | RI and Savings Plan usage rates          |
-| Savings Realized       | Actual savings from existing commitments |
+| Scan                   | What it finds                                                                           |
+| ---------------------- | --------------------------------------------------------------------------------------- |
+| Reservation Advice     | RI purchase recommendations from Advisor                                                |
+| Commitment Utilization | RI and Savings Plan usage rates                                                         |
+| Savings Realized       | Estimates of commitment and Azure Hybrid Benefit savings, not measured realized savings |
+
+The scan keeps the **Savings Realized** name for compatibility. Reservation and savings plan estimates use assumed effective discounts of 40% and 25%. Azure Hybrid Benefit estimates use a Windows license premium when available, with a fallback estimate otherwise. Results include `IsEstimate` and `EstimateBasis`. Compare the estimates with matching pay-as-you-go rates and benefit usage before reporting realized savings.
+
+Commitment estimates cover usage charges in the captured UTC month-to-date period and retain the billing currency. Purchases, refunds, and unused commitment charges are excluded before aggregation. Unknown, nonmonetary, or mixed billing currencies stop the scan instead of producing a combined amount. Negative usage adjustments also stop the estimate because the assumed discount can't produce a comparable savings amount. Use `RISavingsMonthToDate`, `SPSavingsMonthToDate`, and `CommitmentSavingsMonthToDate`, together with `Currency` and `Period`.
+
+The AHB estimate is separate: `AHBSavingsMonthly` represents 730 hours for the current VM inventory in USD, using a retail Windows license premium or a USD 50 per-VM fallback. `AHBCurrency` and `AHBPeriod` identify those units. The scan doesn't combine these amounts or annualize them. The legacy `RISavingsMonthly`, `SPSavingsMonthly`, `TotalMonthly`, and `TotalAnnual` fields remain present but are empty.
 
 ### Monitoring
 
@@ -207,13 +222,13 @@ Storage  $ 41,200 (24.3%)   126,400 GB (84,600 GB disk + 41,800 GB blob/file)
   Cost per GB stored $0.326 / month
 ```
 
-vCPU and RAM are exact (read from Compute SKU capabilities). Storage GB combines provisioned managed disks with Storage-account used capacity (Azure Monitor `UsedCapacity`). Cost is scoped to the selected subscriptions and falls back to per-subscription queries when the management-group scope is not accessible, so the section is never silently $0. Directly produces `Cost per GB Stored`; feeds `Hourly Cost per CPU Core` (÷ 730) and `Effective Avg Compute Cost per Core`.
+vCPU and RAM come from Compute SKU capabilities. Storage capacity combines provisioned managed disk capacity with storage account usage from the Azure Monitor `UsedCapacity` metric. The tool reports the combined capacity in GB. Cost queries cover the selected subscriptions. If the tool can't access the management group scope, it queries each subscription separately and reports failed queries as errors. **Hourly Cost per CPU Core** divides cost per vCPU by the elapsed hours in the recorded UTC cost period, with a one-hour minimum. It doesn't use a fixed 730-hour month.
 
 ### Token Consumption / Cost per 1K Tokens / Cost per API Call → ai workloads
 
 > "What are my AI/LLM workloads costing per token and per request this month?"
 
-This scan is self-gating: a single Resource Graph query detects whether any AI workloads (Azure OpenAI, AI Services, Machine Learning, AI Search, GPU VMs) exist. Non-AI tenants skip the deep scan entirely, so the scan stays fast. When AI is present, it joins Azure Monitor token metrics to Cost Management spend over the same month-to-date window.
+This scan first queries Resource Graph for AI workloads (Azure OpenAI, Foundry Tools, Azure Machine Learning, Azure AI Search, and GPU VMs) in the selected subscriptions. When AI workloads are present, the API path combines Azure Monitor token metrics with Cost Management spend over the same month-to-date window.
 
 ```text
 AI footprint — OpenAI/AIServices: 3   ML workspaces: 1   AI Search: 2   GPU VMs: 0
@@ -227,7 +242,7 @@ gpt-4o-mini        77,700,000     26,500,000        104,200,000   25.2
 
 Produces `Token Consumption`, `Cost per 1K Tokens` (effective blended rate), and `Cost per API Call`; the per-model breakdown highlights where to shift traffic to cheaper SKUs or evaluate Provisioned Throughput Units (PTUs).
 
-Like the cost scans, this honors `dataSource` (`auto` / `hub` / `api`). When a readable FinOps Hub export covers the scope, AI spend and billed token volume are read straight from the export — no Azure Monitor or Cost Management calls. Cost per request is only available on the live API path, since request counts are not billed line items.
+The TUI uses the selected `-DataSource`. When readable hub rows cover the selected subscriptions, AI spend and billed token volume come from those rows and use their observed period. A Kusto-only hub doesn't currently provide this AI scan, so the result is unavailable. Select **Cost Management API** to run a separate live scan. Cost per request is available only on the API path because request counts aren't billed line items.
 
 ### Carbon per Unit of Spend / Carbon Efficiency → carbon
 
@@ -272,29 +287,29 @@ Tagged spend       $612,300   (87.4%)
 Untagged spend     $ 88,200   (12.6%)   ← KPI
 ```
 
-`% Costs from Untagged Resources` = 12.6%.
+**% Costs from Untagged Resources** = 12.6%. The resource-based path measures cost with no allocation tag. Server-aggregated results use the allocation tag with the lowest cost coverage and name that tag in the result. The tool reports the percentage as unavailable when net totals are zero or negative, or when credits make the percentage unsuitable for comparison. It doesn't score those results.
 
 ## FinOps hub integration
 
-When a Hub is detected, the tool reads FinOps Hub cost data. This enables:
+When you select **FinOps Hub**, supported scans reuse its available cost data:
 
-- **Instant tag scans** — Tag Inventory and Cost by Tag are answered from Hub data instead of querying the Cost Management API
-- **No API throttling** — avoids Cost Management API rate limits
-- **Richer tag data** — Hub data contains the full Tags per cost record, enabling accurate per-resource tag parsing
-- **Forecast enrichment** — Hub data contains actuals only, so the TUI calls the Cost Management Forecast API to project full-month costs and adds them to Hub actuals (storage path)
-- **Accurate tag coverage** — Hub only sees resources with cost data. The TUI queries Azure Resource Graph for the true total/untagged resource count and overrides the Hub-derived coverage percentage
+- **Tag data reuse**: stored cost records can supply tag inventory and cost by tag. Kusto returns aggregated tag costs. Azure Resource Graph supplies resource inventory where needed.
+- **Fewer cost queries**: hub summaries reduce Cost Management API calls. Other scans and forecast enrichment can still call Azure APIs and encounter throttling.
+- **Observed cost periods**: actual costs use the dates present in the selected subscriptions' hub data, not an assumed current-month window.
+- **Forecast enrichment**: for current-month storage data, the TUI can show a separate full-month API forecast with matching currency. It never adds that forecast to hub actuals. The forecast is unavailable for older data and Kusto summaries, or when the API can't supply it.
+- **Resource coverage**: a hub contains only resources represented in its cost data. The storage path queries Azure Resource Graph for total and untagged resource counts when available.
 
 ### FinOps hub data paths
 
-The cost-family scans (Cost Data, Resource Costs, Cost by Tag) read from a FinOps Hub three ways, in priority order. The first two push aggregation **into the engine** and bring back only summarized results — they never load the raw cost rows into PowerShell, so they scale to large customer datasets (tens of GB / hundreds of millions of rows):
+The **Cost Data**, **Resource Costs**, and **Cost by Tag** scans support three hub paths. The Kusto paths aggregate data in the engine and return summarized results without loading raw cost rows into PowerShell:
 
-| Path                           | When                                                                                                                                                              | How                                                                                                                                                                                                    |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Kusto — online**             | A deployed hub with an Azure Data Explorer / Fabric cluster                                                                                                       | The cluster is discovered via Azure Resource Graph (`microsoft.kusto/clusters` tagged `ftk-tool == 'FinOps hubs'`), queried with a bearer token. Aggregation runs in KQL against the `Costs` function. |
-| **Kusto — offline (ftklocal)** | Your own hardware / air-gapped: an [ftklocal](https://github.com/microsoft/finops-toolkit) Kusto emulator with the exports loaded into the local **Hub** database | Set `FINOPS_HUB_KUSTO_URI` (and optionally `FINOPS_HUB_KUSTO_DB`, default `Hub`). The local emulator is queried anonymously — same KQL, no auth.                                                       |
-| **Storage export reader**      | Small datasets, or when no Kusto cluster is available                                                                                                             | Reads the hub's `ingestion` parquet / `msexports` CSV and aggregates in PowerShell. A convenience fallback, **not** the scalable path.                                                                 |
+| Path                       | When                                                        | How                                                                                                                                                                                                                                     |
+| -------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Kusto — online**         | A deployed hub with an Azure Data Explorer / Fabric cluster | The cluster is discovered via Azure Resource Graph (`microsoft.kusto/clusters` tagged `ftk-tool == 'FinOps hubs'`), queried with a bearer token. Aggregation runs in KQL against the `Costs` function.                                  |
+| **Local Kusto (ftklocal)** | A local Kusto emulator with cost data in its `Hub` database | Set `FINOPS_HUB_KUSTO_URI`. Optionally, set `FINOPS_HUB_KUSTO_DB`, which defaults to `Hub`. Loopback queries are anonymous. The public launcher still uses Azure context and resource metadata, so this isn't a fully offline workflow. |
+| **Storage export reader**  | Small datasets, or when no Kusto cluster is available       | Reads the hub's `ingestion` parquet / `msexports` CSV and aggregates in PowerShell. A convenience fallback, **not** the scalable path.                                                                                                  |
 
-Selection is automatic: `FINOPS_HUB_KUSTO_URI` (if set) wins, else a discovered cluster, else the storage reader. To force the live Cost Management API instead, choose the **Cost Management API** source in the TUI.
+An explicit `-DataSource API` or `-DataSource GraphOnly` takes precedence over `FINOPS_HUB_KUSTO_URI` and doesn't preload hub data. Otherwise, a configured Kusto URI selects the hub without requiring storage-account discovery. For a discovered hub, the tool prefers Kusto and uses the storage reader when no Kusto provider is available. An explicit `-DataSource Hub` fails if neither a configured endpoint nor hub storage is available; it doesn't silently switch to API.
 
 #### Environment variables
 
@@ -303,7 +318,7 @@ Selection is automatic: `FINOPS_HUB_KUSTO_URI` (if set) wins, else a discovered 
 | `FINOPS_HUB_KUSTO_URI` | Kusto cluster query URI. An `https://...kusto.windows.net` cluster (token auth) or `http://localhost:<port>` ftklocal emulator (anonymous). | unset (auto-discover) |
 | `FINOPS_HUB_KUSTO_DB`  | Hub database name.                                                                                                                          | `Hub`                 |
 
-Hub data is loaded once at startup and reused across all scans that need it.
+The tool loads hub summaries or storage rows once per run and reuses them for supported scans. It reports a failed query against the selected hub as an error and doesn't silently replace the result with API data.
 
 ## Scripting (non-interactive)
 

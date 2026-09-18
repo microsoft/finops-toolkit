@@ -215,14 +215,14 @@
     },
     {
       "id": "effective-savings-rate",
-      "name": "Effective Savings Rate Percentage",
+      "name": "Estimated commitment savings",
       "domain": "Quantify",
-      "definition": "Return-on-investment metric across all commitment discounts and optimizations.",
+      "definition": "A month-to-date commitment savings estimate for usage charges in the reported billing currency, using assumed discounts rather than measured savings.",
       "sourceTool": "scan_savings_realized",
       "compute": true,
-      "unit": "%",
-      "plainLanguage": "How much you are actually saving versus paying full on-demand rates. Shown as realized monthly savings from RIs, Savings Plans and AHB (a true rate also needs total on-demand-equivalent spend).",
-      "exploreHint": "Realized savings from RIs, Savings Plans and AHB appear in this scan."
+      "unit": "currency/period",
+      "plainLanguage": "This scan estimates commitment savings for the reported UTC period, not a savings percentage or an annual projection. Azure Hybrid Benefit has a separate USD estimate for 730 hours and isn't added to this amount. Actual discounts vary by SKU, term, region, and agreement.",
+      "exploreHint": "Validate the estimate against matching pay-as-you-go rates and benefit usage before reporting realized savings."
     },
     {
       "id": "pct-legacy-resource",

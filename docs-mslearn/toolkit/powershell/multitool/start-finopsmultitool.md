@@ -3,13 +3,15 @@ title: Start-FinOpsMultitool command
 description: Launch the FinOps multitool interactive terminal UI to scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 09/16/2026
+ms.date: 09/18/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how to use the Start-FinOpsMultitool command in the FinOpsToolkit module.
 ---
+
+<!-- markdownlint-disable -->
 
 # Start-FinOpsMultitool command
 
@@ -39,13 +41,13 @@ Start-FinOpsMultitool `
 
 ## Parameters
 
-| Name              | Description                                                                                                                                                                                                                                                 |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `‑SubscriptionId` | Optional. Scopes the scan to a single subscription. When omitted, all accessible subscriptions are discovered. If the subscription can't be resolved and nothing can answer a prompt, the command returns an error rather than scanning every subscription. |
-| `‑OutputPath`     | Optional. Directory for exported result files. Defaults to a `FinOpsResults` folder in your home directory.                                                                                                                                                 |
-| `‑Scans`          | Optional. Runs the specified scans instead of the default selection. Accepts a scan command name, such as `Get-OrphanedResources`, or its menu label, such as `Orphaned Resources`. Use `All` to select every scan. An unrecognized name returns an error.  |
-| `‑DataSource`     | Optional. Sets the data source and skips the data source prompt. Valid values are `Hub`, `API`, and `GraphOnly`. `Hub` falls back to `API` when no FinOps hub is found in scope.                                                                            |
-| `‑NonInteractive` | Optional. Runs without prompting. Every choice comes from the parameters or their defaults, and results are exported only when you set `-OutputPath`.                                                                                                       |
+| Name              | Description                                                                                                                                                                                                                                                                                                                                            |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `‑SubscriptionId` | Optional. Scopes the scan to a single subscription. When omitted, all accessible subscriptions are discovered. If the subscription can't be resolved and nothing can answer a prompt, the command returns an error rather than scanning every subscription.                                                                                            |
+| `‑OutputPath`     | Optional. Directory for exported result files. Defaults to a `FinOpsResults` folder in your home directory.                                                                                                                                                                                                                                            |
+| `‑Scans`          | Optional. Runs the specified scans instead of the default selection. Accepts a scan command name, such as `Get-OrphanedResources`, or its menu label, such as `Orphaned Resources`. Use `All` to select every scan. An unrecognized name returns an error.                                                                                             |
+| `‑DataSource`     | Optional. Sets the data source and skips the data source prompt. Valid values are `Hub`, `API`, and `GraphOnly`. `API` and `GraphOnly` take precedence over `FINOPS_HUB_KUSTO_URI` and don't preload hub data. An explicit `Hub` selection fails if no configured Kusto endpoint or hub storage is available. Select `API` separately for a live scan. |
+| `‑NonInteractive` | Optional. Runs without prompting. Every choice comes from the parameters or their defaults, and results are exported only when you set `-OutputPath`.                                                                                                                                                                                                  |
 
 <br>
 
@@ -102,9 +104,9 @@ Use `-NonInteractive` when nothing can answer a prompt, such as a build agent.
 
 ## FinOps hub data paths
 
-When a [FinOps hub](../../hubs/finops-hubs-overview.md) is present, choosing the **FinOps Hub** data source prefers the hub's Azure Data Explorer or Microsoft Fabric Kusto database. Aggregation is pushed into the engine and only summarized results are returned, so large hubs are never loaded into PowerShell. To query a local hub on your own hardware, set `FINOPS_HUB_KUSTO_URI` to a local Kusto endpoint. When no Kusto cluster is reachable, the multitool falls back to reading the hub storage export, which is intended for smaller datasets. For more information, see [FinOps multitool commands](finops-multitool-commands.md).
+When you select [FinOps Hub](../../hubs/finops-hubs-overview.md), the tool prefers the configured or discovered Kusto database. Kusto aggregates the data and returns summaries without loading raw cost records into PowerShell. To query a local hub, set `FINOPS_HUB_KUSTO_URI` to its endpoint. A configured endpoint doesn't require a discovered storage account. When no Kusto endpoint is configured or discovered, the tool reads hub storage exports, which is intended for smaller datasets. A failed query remains an error; it doesn't silently switch sources. For more information, see [FinOps multitool commands](finops-multitool-commands.md).
 
-Reading Parquet exports installs a reader the first time you read one, using NuGet on Windows and .NET SDK 8 or later on macOS and Linux. If neither is available, the multitool reads the CSV exports instead and tells you why.
+Reading Parquet exports installs a reader the first time you read one, using NuGet on Windows and .NET SDK 8 or later on macOS and Linux. An unreadable export is reported as an error instead of being treated as zero cost.
 
 <br>
 

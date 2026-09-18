@@ -38,14 +38,16 @@
     'Orphaned Resources'. Use 'All' to select every scan. An unrecognized name is an error.
 
     .PARAMETER DataSource
-    Optional data source, which skips the data source prompt. Hub reads a deployed FinOps
-    hub, API queries Cost Management directly, and GraphOnly skips the cost scans. Hub
-    falls back to API when no hub is found in scope.
+    Optional data source, which skips the data source prompt. Hub reads a configured
+    Kusto endpoint or a discovered FinOps hub. API queries Cost Management directly, and
+    GraphOnly skips the cost scans. API and GraphOnly ignore FINOPS_HUB_KUSTO_URI and
+    don't preload hub data. An explicit Hub selection fails if no hub source is available.
+    Select API separately to run a live scan.
 
     .PARAMETER NonInteractive
     Runs without prompting, for automation and scheduled jobs. Every choice comes from the
     parameters or their defaults: all accessible subscriptions in the current tenant unless
-    SubscriptionId is set, a detected hub or the Cost Management API unless DataSource is
+    SubscriptionId is set, a configured or detected hub or the Cost Management API unless DataSource is
     set, and results are exported only when OutputPath is supplied.
 
     .EXAMPLE

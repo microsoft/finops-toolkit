@@ -704,8 +704,10 @@ param($Path, $Method, $Payload)
                 if ($Scan -eq 'Savings') {
                     $result = Get-SavingsRealized -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -WarningAction SilentlyContinue
                     $result.CommittedAmortized | Should -Be (125 * $factor)
-                    $result.RISavingsMonthly | Should -Be ([math]::Round(100 * $factor * 0.4 / 0.6, 2))
-                    $result.SPSavingsMonthly | Should -Be ([math]::Round(25 * $factor * 0.25 / 0.75, 2))
+                    $result.RISavingsMonthToDate | Should -Be ([math]::Round(100 * $factor * 0.4 / 0.6, 2))
+                    $result.SPSavingsMonthToDate | Should -Be ([math]::Round(25 * $factor * 0.25 / 0.75, 2))
+                    $result.Currency | Should -Be 'USD'
+                    $result.TotalAnnual | Should -BeNullOrEmpty
                     $waste = @($result.Details | Where-Object Type -EQ 'Waste')
                     ($waste | Measure-Object -Property Amount -Sum).Sum | Should -Be (125 * $factor)
                     $continuationCalls = if ($UseFallback) { 6 } else { 2 }

@@ -244,14 +244,14 @@ function Get-KpiComputedValue {
             return (New-KpiValue "Actual is $pctOfPlan% of planned ($cur $spend of $cur $plan, comparable budgets)" $variance)
         }
         'effective-savings-rate' {
-            # Realized monthly savings from commitments + AHB (proxy: a true rate
-            # also needs total on-demand-equivalent spend, not in this scan).
-            $monthly = Get-ScanField $Data 'TotalMonthly'
+            $savings = Get-ScanField $Data 'CommitmentSavingsMonthToDate'
             $cur = Get-ScanField $Data 'Currency'
-            if (-not $cur) { $cur = 'USD' }
-            if ($null -ne $monthly -and [double]$monthly -gt 0) {
-                return (New-KpiValue "$cur $([math]::Round([double]$monthly, 2)) / month realized (proxy)" ([math]::Round([double]$monthly, 2)))
+            if (-not $cur) { return (New-KpiValue 'Unavailable: savings currency is unknown.') }
+            $period = Get-ScanField $Data 'Period'
+            if ($null -eq $savings -or -not $period -or [double]$savings -lt 0 -or [double]::IsNaN($savings) -or [double]::IsInfinity($savings)) {
+                return (New-KpiValue 'Unavailable: a valid commitment estimate and cost period are required.')
             }
+            return (New-KpiValue "$cur $([math]::Round([double]$savings, 2)) estimated savings ($period; assumed discounts, not a measured rate)" ([math]::Round([double]$savings, 2)))
         }
         'pct-compute-covered-by-commitment' {
             # Commitment coverage = committed eligible spend / total eligible
@@ -261,10 +261,9 @@ function Get-KpiComputedValue {
             $committed = Get-ScanField $Data 'CommittedAmortized'
             $onDemand = Get-ScanField $Data 'OnDemandAmortized'
             $cur = Get-ScanField $Data 'Currency'
-            if (-not $cur) { $cur = 'USD' }
             if ($null -ne $cov) {
                 $detail = ''
-                if ($null -ne $committed -and $null -ne $onDemand) {
+                if ($cur -and $null -ne $committed -and $null -ne $onDemand) {
                     $base = [double]$committed + [double]$onDemand
                     $detail = " ($cur $([math]::Round([double]$committed, 0)) committed of $cur $([math]::Round($base, 0)) eligible)"
                 }
@@ -307,7 +306,14 @@ function Get-KpiComputedValue {
             # under every tag it lacks, so summing them double-counts.
             $seen = Get-ScanField $Data 'ResourceCostSeen'
             $unalloc = Get-ScanField $Data 'UnallocatedCost'
-            if ($seen -and [double]$seen -gt 0 -and $null -ne $unalloc) {
+            if ($null -ne $seen -and $null -ne $unalloc) {
+                if ([double]$seen -le 0 -or [double]::IsNaN($seen) -or [double]::IsInfinity($seen) -or
+                    [double]::IsNaN($unalloc) -or [double]::IsInfinity($unalloc)) {
+                    return (New-KpiValue 'Unavailable: allocation percentages require finite amounts and a positive net cost total.')
+                }
+                if ([double]$unalloc -lt 0 -or [double]$unalloc -gt [double]$seen) {
+                    return (New-KpiValue 'Unavailable: credits or negative net costs prevent a comparable allocation percentage.')
+                }
                 $pct = [math]::Round(100 * [double]$unalloc / [double]$seen, 1)
                 switch ($KpiId) {
                     'pct-costs-untagged' { return (New-KpiValue "$pct% of resource spend carries no allocation tag" $pct) }
@@ -333,8 +339,14 @@ function Get-KpiComputedValue {
             foreach ($tp in $tagPairs) {
                 if ($allocTags -notcontains $tp.Name) { continue }   # allocation tags only
                 $rows = @($tp.Value)
+                if ($rows.Count -eq 0) { continue }
                 $total = ($rows | Measure-Object -Property Cost -Sum).Sum
-                if (-not $total -or $total -le 0) { continue }
+                if ($null -eq $total -or $total -le 0 -or [double]::IsNaN($total) -or [double]::IsInfinity($total)) {
+                    return (New-KpiValue 'Unavailable: allocation percentages require finite amounts and a positive net cost total.')
+                }
+                if (@($rows | Where-Object { [double]$_.Cost -lt 0 }).Count -gt 0) {
+                    return (New-KpiValue 'Unavailable: credits or negative net costs prevent a comparable allocation percentage.')
+                }
                 $untag = ($rows | Where-Object { $_.TagValue -eq '(untagged)' } | Measure-Object -Property Cost -Sum).Sum
                 if ($null -eq $untag) { $untag = 0 }
                 $pctUntag = [math]::Round(100 * $untag / $total, 1)

@@ -3,7 +3,7 @@ title: FinOps multitool commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 09/16/2026
+ms.date: 09/18/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -37,16 +37,20 @@ The multitool includes 30 scan modules across the following categories:
 - **Optimization** – Orphaned resources, idle VMs, storage tier advice, Azure Hybrid Benefit opportunities, and legacy resources.
 - **Governance** – Tag inventory and recommendations, and policy inventory and recommendations.
 - **Cost analysis** – Cost data, resource costs, cost by tag, cost trend, unit economics, VM cost breakdown, shared cost allocation, billing account, and usage allocation.
-- **Commitments** – Reservation advice, commitment utilization, and realized savings.
+- **Commitments** – Reservation advice, commitment utilization, and estimated savings.
 - **Monitoring** – Budget status, budget history, and anomaly alerts.
 - **Advisor** – Azure Advisor cost recommendations.
 - **Account** – Billing structure, contract info, and Microsoft Azure Consumption Commitment (MACC) balance.
 - **AI and ML** – Azure AI workload spend.
 - **Sustainability** – Carbon emissions.
 
-Analysis scans are read-only. Most need Reader or Cost Management Reader access. Account scans also need Billing Reader, or Enterprise Administrator (reader) on an Enterprise Agreement. Commitment utilization reads reservation and savings plan usage at billing account or billing profile scope, so it needs that same billing access. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
+Analysis scans are read-only. Most need Reader or Cost Management Reader access. Account scans also need agreement-specific billing access, such as Billing account reader or Billing profile reader for a Microsoft Customer Agreement, or Enterprise Administrator (read only) for an Enterprise Agreement. Commitment utilization reads reservation and savings plan usage at billing account or billing profile scope, so it needs that billing access. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
 
 When a scan can't read every subscription you selected, it tells you instead of treating the gap as a result. Budget status reports coverage as unverified rather than a percentage.
+
+The scan keeps the **Savings Realized** menu name for compatibility. It estimates savings using assumed discounts. It doesn't measure realized savings or calculate a savings percentage. Results include `IsEstimate` and `EstimateBasis`. Compare the estimates with matching pay-as-you-go rates and benefit usage before reporting realized savings.
+
+Commitment estimates cover usage charges in the reported UTC month-to-date period and retain the billing currency. Purchases, refunds, and unused commitment charges are excluded. Unknown, nonmonetary, or mixed currencies and negative usage adjustments stop the estimate. Azure Hybrid Benefit uses a separate USD estimate for 730 hours on the current VM inventory. The scan doesn't combine or annualize these amounts. For scripts, use `RISavingsMonthToDate`, `SPSavingsMonthToDate`, and `CommitmentSavingsMonthToDate` with `Currency` and `Period`. The old monthly commitment fields and combined monthly and annual totals remain empty.
 
 <br>
 
@@ -55,9 +59,13 @@ When a scan can't read every subscription you selected, it tells you instead of 
 When a [FinOps hub](../../hubs/finops-hubs-overview.md) is present, cost scans read from the hub and choose the path automatically:
 
 - **Kusto database (used when available)** – When the hub has an Azure Data Explorer or Microsoft Fabric cluster, the multitool discovers it through Azure Resource Graph and pushes aggregation into the engine, returning only summarized results. This scales to large datasets without loading raw cost rows into PowerShell. To query a local hub on your own hardware, set the `FINOPS_HUB_KUSTO_URI` environment variable to a local Kusto endpoint (optionally set `FINOPS_HUB_KUSTO_DB`, which defaults to `Hub`).
-- **Storage reader (small-dataset fallback)** – When no Kusto cluster is reachable, the multitool reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets. Reading Parquet exports installs a reader the first time you read one, using NuGet on Windows and .NET SDK 8 or later on macOS and Linux. If neither is available, the multitool reads the CSV exports instead and tells you why.
+- **Storage reader (small-dataset fallback)**: when no Kusto endpoint is configured or discovered, the multitool reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets. Reading Parquet exports installs a reader the first time you read one, using NuGet on Windows and .NET SDK 8 or later on macOS and Linux. The tool reports an unreadable export as an error instead of treating it as zero cost.
 
-If no hub is available, cost scans use the live Cost Management API.
+Storage reads require Storage Blob Data Reader or equivalent data access. Kusto queries require database query access. Both paths need network access to the endpoint. Local Kusto queries are anonymous, but the public launcher still uses Azure context and resource metadata.
+
+An explicit `-DataSource API` or `-DataSource GraphOnly` takes precedence over `FINOPS_HUB_KUSTO_URI` and doesn't preload hub data. A configured Kusto URI can select a hub without a discovered storage account. An explicit `-DataSource Hub` reports an error if no configured endpoint or hub storage is available.
+
+When no hub is available, the tool offers the Cost Management API. Once you select **FinOps Hub**, the tool reports any read or query failure as an error. Select **Cost Management API** to run a separate live scan. Kusto-only hubs don't currently support the AI workload scan. When forecasts are available for current-month storage data, the tool shows them as separate full-month API totals. It doesn't add forecasts to hub actuals.
 
 <br>
 

@@ -28,11 +28,26 @@ function Get-SavingsRealized {
         [object]$CommitmentData
     )
 
-    Write-Host "  Calculating savings already realized..." -ForegroundColor Cyan
+    Write-Host "  Estimating savings from commitments..." -ForegroundColor Cyan
 
     $riSavings = 0
     $spSavings = 0
     $ahbSavings = 0
+    $periodEndUtc = (Get-Date).ToUniversalTime()
+    $periodStartUtc = $periodEndUtc.Date.AddDays(1 - $periodEndUtc.Day)
+    $periodStart = $periodStartUtc.ToString('yyyy-MM-ddTHH:mm:ssZ')
+    $periodEnd = $periodEndUtc.ToString('yyyy-MM-ddTHH:mm:ssZ')
+    $period = "$periodStart to $periodEnd"
+    $currencies = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $monetaryCurrencies = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($culture in [System.Globalization.CultureInfo]::GetCultures([System.Globalization.CultureTypes]::SpecificCultures)) {
+        try {
+            $region = [System.Globalization.RegionInfo]::new($culture.Name)
+            if ($region.ISOCurrencySymbol -notin @('XXX', 'XTS')) { [void]$monetaryCurrencies.Add($region.ISOCurrencySymbol) }
+        }
+        catch [System.ArgumentException] { Write-Verbose "No currency metadata for culture $($culture.Name)." }
+    }
+    $ahbIssue = $null
 
     # Assumed effective discount versus pay-as-you-go. Real discounts vary by
     # SKU, term, region, and agreement, so the RI/SP numbers below are an
@@ -74,30 +89,49 @@ function Get-SavingsRealized {
     # Build a Cost Management query body with the requested grouping dimensions
     function New-SavingsQueryBody {
         param([string]$Type, [string[]]$Dimensions)
-        @{
+        $query = @{
             type      = $Type
-            timeframe = 'MonthToDate'
+            timeframe = 'Custom'
+            timePeriod = @{ from = $periodStart; to = $periodEnd }
             dataset   = @{
                 granularity = 'None'
                 aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
                 grouping    = @($Dimensions | ForEach-Object { @{ type = 'Dimension'; name = $_ } })
             }
-        } | ConvertTo-Json -Depth 10
+        }
+        if ($Type -eq 'AmortizedCost') {
+            $query.dataset.filter = @{ dimensions = @{ name = 'ChargeType'; operator = 'In'; values = @('Usage') } }
+        }
+        $query | ConvertTo-Json -Depth 10
     }
 
     # Resolve named column indices from a Cost Management query result
     function Get-SavingsColMap {
         param($Columns)
-        $map = @{ Cost = 0; ChargeType = -1; PricingModel = -1; SubscriptionId = -1 }
+        $map = @{ Cost = 0; ChargeType = -1; PricingModel = -1; SubscriptionId = -1; Currency = -1 }
         for ($c = 0; $c -lt $Columns.Count; $c++) {
             switch ($Columns[$c].name) {
                 'Cost' { $map.Cost = $c }
                 'ChargeType' { $map.ChargeType = $c }
                 'PricingModel' { $map.PricingModel = $c }
                 'SubscriptionId' { $map.SubscriptionId = $c }
+                'Currency' { $map.Currency = $c }
             }
         }
         $map
+    }
+
+    function Assert-SavingsCurrency {
+        param($Row, $Columns)
+        if ($Columns.Currency -lt 0) { throw 'Savings currency is missing; results are incomplete.' }
+        $currency = [string]$Row[$Columns.Currency]
+        if ($currency -notmatch '^[A-Za-z]{3}$' -or -not $monetaryCurrencies.Contains($currency)) {
+            throw 'Savings currency is missing or is not a recognized monetary currency; results are incomplete.'
+        }
+        $currency = $currency.ToUpperInvariant()
+        [void]$currencies.Add($currency)
+        if ($currencies.Count -gt 1) { throw 'Savings include multiple billing currencies. Scan each currency separately; no currency conversion is applied.' }
+        return $currency
     }
 
     # Parse an ActualCost result for UnusedReservation waste; returns detail rows
@@ -107,6 +141,7 @@ function Get-SavingsRealized {
         if (-not $Result -or -not $Result.properties.rows) { return $rows }
         $m = Get-SavingsColMap -Columns $Result.properties.columns
         foreach ($row in $Result.properties.rows) {
+            $currency = Assert-SavingsCurrency -Row $row -Columns $m
             $charge = if ($m.ChargeType -ge 0) { [string]$row[$m.ChargeType] } else { '' }
             if ($charge -match 'UnusedReservation') {
                 $sub = 'All (MG scope)'
@@ -119,6 +154,8 @@ function Get-SavingsRealized {
                         Category     = 'Unused Reservation'
                         Amount       = [math]::Round([double]$row[$m.Cost], 2)
                         Type         = 'Waste'
+                        Currency     = $currency
+                        Period       = $period
                     })
             }
         }
@@ -134,7 +171,11 @@ function Get-SavingsRealized {
         if ($Result -and $Result.properties.rows) {
             $m = Get-SavingsColMap -Columns $Result.properties.columns
             foreach ($row in $Result.properties.rows) {
+                $currency = Assert-SavingsCurrency -Row $row -Columns $m
                 $pm = if ($m.PricingModel -ge 0) { [string]$row[$m.PricingModel] } else { '' }
+                if ([double]$row[$m.Cost] -lt 0) {
+                    throw 'Savings usage costs include negative adjustments; a comparable estimate is unavailable.'
+                }
                 $cost = [math]::Round([double]$row[$m.Cost], 2)
                 $sub = 'All (MG scope)'
                 if ($m.SubscriptionId -ge 0) {
@@ -144,12 +185,12 @@ function Get-SavingsRealized {
                 if ($pm -match 'Reservation') {
                     $ri += $cost * $script:FinOpsRiSavingsFactor
                     $committed += $cost
-                    $rows.Add([PSCustomObject]@{ Subscription = $sub; Category = 'Reservation Benefit'; Amount = $cost; Type = 'Commitment' })
+                    $rows.Add([PSCustomObject]@{ Subscription = $sub; Category = 'Reservation Benefit'; Amount = $cost; Type = 'Commitment'; Currency = $currency; Period = $period })
                 }
                 elseif ($pm -match 'SavingsPlan') {
                     $sp += $cost * $script:FinOpsSpSavingsFactor
                     $committed += $cost
-                    $rows.Add([PSCustomObject]@{ Subscription = $sub; Category = 'Savings Plan Benefit'; Amount = $cost; Type = 'Commitment' })
+                    $rows.Add([PSCustomObject]@{ Subscription = $sub; Category = 'Savings Plan Benefit'; Amount = $cost; Type = 'Commitment'; Currency = $currency; Period = $period })
                 }
                 elseif ($pm -match 'Spot') { $spot += $cost }
                 elseif ($pm) { $onDemand += $cost }
@@ -250,13 +291,12 @@ function Get-SavingsRealized {
     # -- Strategy 2: Per-subscription fallback (only if MG/direct scope unavailable) --
     if ($hasCommitments -and -not $gotMgData) {
         $details.Clear()
+        $currencies.Clear()
         $riSavings = 0.0
         $spSavings = 0.0
         $committedAmort = 0.0
         $onDemandAmort = 0.0
         $spotAmort = 0.0
-        # -- Step 1: Query amortized vs actual to find RI/SP benefit amounts --
-        # The difference between ActualCost and AmortizedCost reveals commitment savings
         $subCount = $Subscriptions.Count
         $i = 0
         foreach ($sub in $Subscriptions) {
@@ -267,20 +307,7 @@ function Get-SavingsRealized {
                 }
             }
             try {
-                # Get ActualCost MonthToDate
-                $actualBody = @{
-                    type      = 'ActualCost'
-                    timeframe = 'MonthToDate'
-                    dataset   = @{
-                        granularity = 'None'
-                        aggregation = @{
-                            totalCost = @{ name = 'Cost'; function = 'Sum' }
-                        }
-                        grouping    = @(
-                            @{ type = 'Dimension'; name = 'ChargeType' }
-                        )
-                    }
-                } | ConvertTo-Json -Depth 10
+                $actualBody = New-SavingsQueryBody -Type 'ActualCost' -Dimensions @('ChargeType')
 
                 $subPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
                 $actualResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $actualBody
@@ -290,39 +317,13 @@ function Get-SavingsRealized {
 
                 if ($actualResp.StatusCode -eq 200) {
                     $actualResult = Get-CostQueryResult -FirstResponse $actualResp -Payload $actualBody -Context "savings charges for $($sub.Name)"
-                    if ($actualResult.properties.rows) {
-                        foreach ($row in $actualResult.properties.rows) {
-                            $chargeType = $row[1]
-                            $cost = [math]::Round([double]$row[0], 2)
-
-                            # RI/SP purchases show as separate charge types
-                            if ($chargeType -match 'UnusedReservation') {
-                                # This is wasted money — unused RI capacity
-                                [void]$details.Add([PSCustomObject]@{
-                                        Subscription = $sub.Name
-                                        Category     = 'Unused Reservation'
-                                        Amount       = $cost
-                                        Type         = 'Waste'
-                                    })
-                            }
-                        }
+                    foreach ($detail in (Read-SavingsActual -Result $actualResult)) {
+                        $detail.Subscription = $sub.Name
+                        [void]$details.Add($detail)
                     }
                 }
 
-                # Get benefit usage via the reservation transactions or amortized view
-                $amortBody = @{
-                    type      = 'AmortizedCost'
-                    timeframe = 'MonthToDate'
-                    dataset   = @{
-                        granularity = 'None'
-                        aggregation = @{
-                            totalCost = @{ name = 'Cost'; function = 'Sum' }
-                        }
-                        grouping    = @(
-                            @{ type = 'Dimension'; name = 'PricingModel' }
-                        )
-                    }
-                } | ConvertTo-Json -Depth 10
+                $amortBody = New-SavingsQueryBody -Type 'AmortizedCost' -Dimensions @('PricingModel')
 
                 $amortResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $amortBody
                 if (-not $amortResp -or $amortResp.StatusCode -ne 200) {
@@ -330,38 +331,16 @@ function Get-SavingsRealized {
                 }
                 if ($amortResp.StatusCode -eq 200) {
                     $amortResult = Get-CostQueryResult -FirstResponse $amortResp -Payload $amortBody -Context "savings benefits for $($sub.Name)"
-                    if ($amortResult.properties.rows) {
-                        foreach ($row in $amortResult.properties.rows) {
-                            $pricingModel = $row[1]
-                            $cost = [math]::Round([double]$row[0], 2)
-
-                            if ($pricingModel -match 'Reservation') {
-                                # Amortized RI cost — the actual RI spend
-                                # Same factor as the main path: savings is the gap up
-                                # to PAYG, not a share of what was paid.
-                                $riSavings += $cost * $script:FinOpsRiSavingsFactor
-                                $committedAmort += $cost
-                                [void]$details.Add([PSCustomObject]@{
-                                        Subscription = $sub.Name
-                                        Category     = 'Reservation Benefit'
-                                        Amount       = $cost
-                                        Type         = 'Commitment'
-                                    })
-                            }
-                            elseif ($pricingModel -match 'SavingsPlan') {
-                                $spSavings += $cost * $script:FinOpsSpSavingsFactor
-                                $committedAmort += $cost
-                                [void]$details.Add([PSCustomObject]@{
-                                        Subscription = $sub.Name
-                                        Category     = 'Savings Plan Benefit'
-                                        Amount       = $cost
-                                        Type         = 'Commitment'
-                                    })
-                            }
-                            elseif ($pricingModel -match 'Spot') { $spotAmort += $cost }
-                            elseif ($pricingModel) { $onDemandAmort += $cost }
-                        }
+                    $parsed = Read-SavingsAmort -Result $amortResult
+                    foreach ($detail in $parsed.Rows) {
+                        $detail.Subscription = $sub.Name
+                        [void]$details.Add($detail)
                     }
+                    $riSavings += $parsed.RI
+                    $spSavings += $parsed.SP
+                    $committedAmort += $parsed.Committed
+                    $onDemandAmort += $parsed.OnDemand
+                    $spotAmort += $parsed.Spot
                 }
             }
             catch {
@@ -370,7 +349,7 @@ function Get-SavingsRealized {
         }
     } # end per-sub fallback
 
-    # -- Step 2: AHB realized savings (per-SKU Windows license premium) ---
+    # -- Step 2: Separate 730-hour AHB estimate for the current VM inventory ---
     try {
         $ahbQuery = @"
 resources
@@ -397,15 +376,19 @@ resources
                     Category     = 'Azure Hybrid Benefit (VMs)'
                     Amount       = [math]::Round($ahbSavings, 2)
                     Type         = 'AHB'
+                    Currency     = 'USD'
+                    Period       = '730-hour estimate for current VM inventory'
                 })
         }
     }
     catch {
+        $ahbSavings = $null
+        $ahbIssue = "AHB estimate is unavailable: $($_.Exception.Message)"
         Write-Warning "  AHB savings query failed: $($_.Exception.Message)"
     }
 
-    $totalMonthly = [math]::Round($riSavings + $spSavings + $ahbSavings, 2)
-    $totalAnnual = [math]::Round($totalMonthly * 12, 2)
+    $currency = if ($currencies.Count -eq 1) { @($currencies)[0] } else { $null }
+    $commitmentSavings = if ($currency) { [math]::Round($riSavings + $spSavings, 2) } else { $null }
 
     # Commitment coverage = committed eligible spend / total eligible spend.
     # Eligible = everything except Spot (Spot cannot be covered by a commitment).
@@ -416,18 +399,28 @@ resources
     else { $null }
 
     return [PSCustomObject]@{
-        RISavingsMonthly      = [math]::Round($riSavings, 2)
-        SPSavingsMonthly      = [math]::Round($spSavings, 2)
-        AHBSavingsMonthly     = [math]::Round($ahbSavings, 2)
-        TotalMonthly          = $totalMonthly
-        TotalAnnual           = $totalAnnual
+        RISavingsMonthToDate  = if ($currency) { [math]::Round($riSavings, 2) } else { $null }
+        SPSavingsMonthToDate  = if ($currency) { [math]::Round($spSavings, 2) } else { $null }
+        CommitmentSavingsMonthToDate = $commitmentSavings
+        Currency              = $currency
+        Period                = $period
+        CostPeriodStartUtc    = $periodStartUtc
+        CostPeriodEndUtc      = $periodEndUtc
+        RISavingsMonthly      = $null
+        SPSavingsMonthly      = $null
+        AHBSavingsMonthly     = if ($null -ne $ahbSavings) { [math]::Round($ahbSavings, 2) } else { $null }
+        AHBCurrency           = 'USD'
+        AHBPeriod             = '730-hour estimate for current VM inventory'
+        AHBIssue              = $ahbIssue
+        TotalMonthly          = $null
+        TotalAnnual           = $null
         CommittedAmortized    = [math]::Round($committedAmort, 2)
         OnDemandAmortized     = [math]::Round($onDemandAmort, 2)
         SpotAmortized         = [math]::Round($spotAmort, 2)
         CommitmentCoveragePct = $commitmentCoverage
         Details               = @($details)
         IsEstimate            = $true
-        EstimateBasis         = "RI and savings plan figures assume a $([int]($riDiscountRate * 100))% and $([int]($spDiscountRate * 100))% effective discount versus pay-as-you-go. Actual discounts vary by SKU, term, region, and agreement. Compare against matching PAYG retail rates for measured savings."
-        HasData               = ($totalMonthly -gt 0 -or $details.Count -gt 0)
+        EstimateBasis         = "Commitment estimates cover usage charges for $period in the reported billing currency, using assumed $([int]($riDiscountRate * 100))% reservation and $([int]($spDiscountRate * 100))% savings plan discounts. Purchases, refunds, and unused commitment charges are excluded from that estimate. AHB is a separate USD estimate for 730 hours on the current VM inventory, using retail license premiums or a USD 50 per-VM fallback. These amounts are not combined or annualized. Monthly commitment and combined total fields are unavailable; use the month-to-date fields. Validate against matching pay-as-you-go rates and benefit usage before reporting realized savings."
+        HasData               = ($null -ne $commitmentSavings -or $ahbSavings -gt 0 -or $details.Count -gt 0)
     }
 }
