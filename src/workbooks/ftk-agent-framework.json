@@ -1,0 +1,3503 @@
+{
+  "__inputs": [
+    {
+      "name": "am_ds",
+      "label": "Azure Monitor",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "grafana-azure-monitor-datasource",
+      "pluginName": "Azure Monitor"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "gauge",
+      "name": "Gauge",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.6.9"
+    },
+    {
+      "type": "datasource",
+      "id": "grafana-azure-monitor-datasource",
+      "name": "Azure Monitor",
+      "version": "11.6.9"
+    },
+    {
+      "type": "panel",
+      "id": "piechart",
+      "name": "Pie chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "state-timeline",
+      "name": "State timeline",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "traces",
+      "name": "Traces",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Monitors the Agent Framework services explicitly listed in finopsPrices.services, not every client in the shared Application Insights workspace. Codex, Copilot, and the separate Foundry-only service are excluded. Token costs use the FinOps Toolkit Prices() snapshot also used by FTK Codex: contracted USD rates for EA 8611537, US East 2, Standard Global, September 2026. Prices include ordinary input, cache reads, cache writes, and output, with the context tier selected per model call. These are token estimates, not invoice totals or charges for tools and hosting.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Doc",
+      "tooltip": "Documentation",
+      "type": "link",
+      "url": "https://aka.ms/amg/dash-doc/af-agent"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Operation count and response time use agent invocations. Token totals, costs, and pricing coverage use the same attributed chat calls for the selected agents. Agent token roll-ups are not counted again. Coverage is the percentage of calls with complete counters and applicable Toolkit rates. Known costs remain visible when other calls are unpriced. The shared finopsPrices snapshot and finopsUsage query keep the financial views consistent.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Priced token cost"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              },
+              {
+                "id": "noValue",
+                "value": "No priced calls"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pricing coverage"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Operations"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Input Tokens"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Output Tokens"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg Response Time"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nlet totals = materialize(agentUsage\n| where agentKey in (agentKeys)\n| summarize inputTokens = sum(input), outputTokens = sum(output), cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)), coverage = iff(count() > 0, 100.0 * countif(priced) / count(), real(null)));\nagentRuns\n| where agentKey in (agentKeys)\n| summarize ['Total Operations'] = count(), ['Avg Response Time'] = round(avg(duration) / 1000, 2)\n| project ['Total Operations'], ['Total Input Tokens'] = toscalar(totals | project inputTokens), ['Total Output Tokens'] = toscalar(totals | project outputTokens), ['Avg Response Time'], ['Priced token cost'] = toscalar(totals | project cost), ['Pricing coverage'] = toscalar(totals | project coverage)",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Summary Statistics",
+      "type": "stat"
+    },
+    {
+      "id": 37,
+      "title": "Agent and project context",
+      "type": "row",
+      "collapsed": true,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "panels": [
+        {
+          "id": 38,
+          "title": "Agent identity",
+          "description": "Identity from the selected telemetry. Project resource ID and agent ID define the agent; version is a separate dimension. Missing identity is shown explicitly. Full IDs are available to the right without crowding the operational panels.",
+          "type": "table",
+          "gridPos": { "h": 6, "w": 24, "x": 0, "y": 6 },
+          "datasource": { "type": "grafana-azure-monitor-datasource", "uid": "${am_ds}" },
+          "fieldConfig": {
+            "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false, "width": 220 }, "noValue": "Not reported" },
+            "overrides": [
+              { "matcher": { "id": "byName", "options": "Agent" }, "properties": [{ "id": "custom.width", "value": 280 }] },
+              { "matcher": { "id": "byName", "options": "Foundry" }, "properties": [{ "id": "custom.width", "value": 300 }] },
+              { "matcher": { "id": "byName", "options": "Project" }, "properties": [{ "id": "custom.width", "value": 250 }] },
+              { "matcher": { "id": "byName", "options": "Version" }, "properties": [{ "id": "custom.width", "value": 90 }] },
+              { "matcher": { "id": "byName", "options": "Identity" }, "properties": [{ "id": "custom.width", "value": 120 }] },
+              { "matcher": { "id": "byName", "options": "Agent ID" }, "properties": [{ "id": "custom.width", "value": 320 }] },
+              { "matcher": { "id": "byName", "options": "Project resource ID" }, "properties": [{ "id": "custom.width", "value": 650 }] }
+            ]
+          },
+          "options": { "cellHeight": "sm", "showHeader": true },
+          "targets": [{
+            "refId": "A",
+            "queryType": "Azure Log Analytics",
+            "azureLogAnalytics": {
+              "dashboardTime": true,
+              "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = false;\n${finopsUsage:raw}\nattributedSpans\n| where agentKey in (dynamic([${agentKey:doublequote}]))\n| summarize take_any(agentDisplayName, foundryName, projectName, projectId, agentId, tenantId, identityComplete), ['Last seen'] = max(timestamp) by agentKey, agentVersion\n| project Agent = agentDisplayName, Foundry = foundryName, Project = projectName, Version = agentVersion, Identity = iff(identityComplete, 'Complete', 'Missing IDs'), ['Agent ID'] = agentId, ['Last seen'], ['Project resource ID'] = projectId, ['Tenant ID'] = tenantId\n| order by Agent asc, Version asc",
+              "resources": ["/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"],
+              "resultFormat": "table",
+              "timeColumn": "timestamp"
+            }
+          }]
+        },
+        {
+          "id": 39,
+          "title": "Current project and Foundry tags",
+          "description": "Live Azure Resource Graph metadata for the selected projects and their parent Foundry accounts in the selected subscription. Tags are current, not historical request-time labels. Project and account tags remain separate; no inheritance is assumed. The Project tag is a business label, not the Foundry project name. Resources outside the subscription or without read access are not returned.",
+          "type": "table",
+          "gridPos": { "h": 6, "w": 24, "x": 0, "y": 12 },
+          "datasource": { "type": "grafana-azure-monitor-datasource", "uid": "${am_ds}" },
+          "fieldConfig": {
+            "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false, "width": 140 }, "noValue": "Not set" },
+            "overrides": [
+              { "matcher": { "id": "byName", "options": "Resource" }, "properties": [{ "id": "custom.width", "value": 460 }] },
+              { "matcher": { "id": "byName", "options": "Tags" }, "properties": [{ "id": "custom.width", "value": 360 }] },
+              { "matcher": { "id": "byName", "options": "Resource ID" }, "properties": [{ "id": "custom.width", "value": 650 }] }
+            ]
+          },
+          "options": { "cellHeight": "sm", "showHeader": true },
+          "targets": [{
+            "refId": "A",
+            "queryType": "Azure Resource Graph",
+            "subscriptions": ["$sub"],
+            "azureResourceGraph": {
+              "query": "resources\n| where type in~ ('microsoft.cognitiveservices/accounts', 'microsoft.cognitiveservices/accounts/projects')\n| extend selectedProjects = dynamic([${projectIds:doublequote}])\n| mv-expand selectedProject = selectedProjects\n| extend parentId = extract(@'(?i)^(.+)/projects/[^/]+$', 1, tostring(selectedProject))\n| where id =~ tostring(selectedProject) or id =~ parentId\n| summarize take_any(name, type, location, tags) by id\n| project Scope = iff(type =~ 'microsoft.cognitiveservices/accounts/projects', 'Project', 'Foundry'), Resource = name, Region = location, ['Project tag'] = tostring(tags.Project), Environment = tostring(tags.env), Organization = tostring(tags.org), Tags = tostring(tags), ['Resource ID'] = id\n| order by Scope desc, Resource asc",
+              "resultFormat": "table"
+            }
+          }]
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 21,
+      "panels": [],
+      "title": "Token Usage & Cost Analysis",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Input and output tokens from attributed chat calls for the selected agents, with priced token cost on the right-hand USD axis. This is the same call population used by the summary and pricing tables. Costs exclude unpriced calls; token totals retain reported usage.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Tokens",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Input Tokens"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Output Tokens"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Priced token cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "yellow"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Token cost (USD)"
+              },
+              {
+                "id": "custom.stacking",
+                "value": {
+                  "mode": "none",
+                  "group": "cost"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "always"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 0,
+        "y": 7
+      },
+      "id": 4,
+      "interval": "1h",
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize ['Input Tokens'] = sum(input), ['Output Tokens'] = sum(output), ['Priced token cost'] = iff(countif(priced) > 0, sum(estimated_cost), real(null)) by bin(timestamp, $__interval)\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Token usage and cost over time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Share of reported input and output tokens from attributed chat calls for the selected agents. Uses the same token population as the summary and cost trend. See the agent table for monetary costs and unit rates.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 10,
+        "y": 7
+      },
+      "id": 5,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize total_tokens = sum(input) + sum(output), agent_name = take_any(agentLabel) by agentKey\n| project agent_name, total_tokens",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Token Usage by Agent",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Daily token cost estimates for the selected agents, using the shared finopsPrices snapshot from the Toolkit Prices() function. Prices are contracted USD per million tokens for the stated account, region, deployment type, and month. Each chat call uses its own model and context tier; input above 272,000 tokens uses long-context rates. Ordinary input = input - cache reads - cache writes. Cache writes use cache_write.input_tokens or the observed Agent Framework cache_creation.input_tokens field. Missing counters are not assumed to be zero. Only priced calls contribute; see pricing coverage in the summary and agent table.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Cost ($)",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 17,
+        "y": 7
+      },
+      "id": 6,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "xField": "Day",
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize estimated_cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)) by bin(timestamp, 1d)\n| order by timestamp asc\n| project Day = format_datetime(timestamp, 'yyyy-MM-dd'), estimated_cost",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Daily token cost estimate",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Contracted Toolkit rates and observed token costs by provider, model, and per-call context tier for the selected agents. All rates are USD per million tokens. Blended cost uses only priced calls and their input plus output tokens. Rates come from the dated finopsPrices snapshot, not a live price lookup. Pricing coverage includes unpriced calls. Unknown rates remain empty rather than using a default model price.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Token cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              },
+              {
+                "id": "noValue",
+                "value": "Not priced"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Blended / 1M"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Input / 1M"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cache read / 1M"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cache write / 1M"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Output / 1M"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pricing coverage"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 36,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Token cost"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize Calls = count(), pricedCalls = countif(priced), pricedTokens = sumif(input + output, priced), cost = sum(estimated_cost), inputRate = take_anyif(inputRate, pricingApplies), readRate = take_anyif(cacheReadRate, pricingApplies), writeRate = take_anyif(cacheWriteRate, pricingApplies), outputRate = take_anyif(outputRate, pricingApplies) by provider, model, contextTier\n| project Model = model, Provider = provider, Context = contextTier, Calls, ['Token cost'] = iff(pricedCalls > 0, cost, real(null)), ['Blended / 1M'] = iff(pricedTokens > 0, cost * 1e6 / pricedTokens, real(null)), ['Input / 1M'] = inputRate, ['Cache read / 1M'] = readRate, ['Cache write / 1M'] = writeRate, ['Output / 1M'] = outputRate, ['Pricing coverage'] = 100.0 * pricedCalls / Calls\n| order by ['Token cost'] desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Model rates and token costs",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 30,
+      "panels": [],
+      "title": "LLM & Tool Insights",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Cache-read tokens divided by input tokens for the selected agents' attributed chat calls with valid cache-read counters. The cache economics panel shows the actual Toolkit-priced read cost, write cost, and net benefit rather than assuming a fixed savings percentage.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "links": [],
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-green"
+              },
+              {
+                "color": "green",
+                "value": 30
+              },
+              {
+                "color": "dark-green",
+                "value": 70
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 24
+      },
+      "id": 31,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys) and cacheValid\n| summarize inputTokens = sum(input), cachedTokens = sum(cached)\n| project cache_hit_pct = iff(inputTokens > 0, 100.0 * cachedTokens / inputTokens, real(null))",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Cache Hit Rate (chat)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Reported cache-read and cache-write tokens for the selected agents. Cache cost sums priced reads and writes. Net cache benefit compares those same priced calls with ordinary input pricing at the same model/context tier: reads * (input rate - read rate) - writes * (write rate - input rate). Negative benefits remain negative. This is not an invoice credit; unpriced calls contribute no monetary estimate.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cache cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              },
+              {
+                "id": "noValue",
+                "value": "No priced calls"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cache cost"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "yellow"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net cache benefit"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              },
+              {
+                "id": "noValue",
+                "value": "No priced calls"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 0
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 24
+      },
+      "id": 32,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize ['Cache-read tokens'] = iff(countif(cacheValid) > 0, sumif(cached, cacheValid), long(null)), ['Cache-write tokens'] = iff(countif(written >= 0 and written <= input) > 0, sumif(written, written >= 0 and written <= input), long(null)), ['Cache cost'] = iff(countif(priced) > 0, sum(cacheReadCost + cacheWriteCost), real(null)), ['Net cache benefit'] = iff(countif(priced) > 0, sum(cacheBenefit), real(null))",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Cache economics",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Distribution of LLM chat finish reasons. Common values: tool_calls (multi-step agent step), stop (completion), length (hit max_tokens), content_filter (safety).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 33,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| extend finish = tostring(customDimensions['gen_ai.response.finish_reasons'])\n| where isnotempty(finish)\n| summarize call_count = count() by finish",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Chat Finish Reasons",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "p95 latency of LLM chat calls broken out by gen_ai.response.model. Surfaces silent model routing and per-model latency drift.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "p95 (ms)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 34,
+      "interval": "1h",
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| extend model = tostring(customDimensions['gen_ai.response.model'])\n| extend model = iff(isempty(model), '(unknown)', model)\n| summarize p95_ms = percentile(duration, 95) by bin(timestamp, $__interval), model\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Chat p95 Latency by Model",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Most-used tools by call count, with success rate and latency. Sortable.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "tool"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Tool"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "calls"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Calls"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success_rate"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Success %"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red"
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 90
+                    },
+                    {
+                      "color": "green",
+                      "value": 99
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Avg (ms)"
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95_duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "p95 (ms)"
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 35,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Calls"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentTools\n| where agentKey in (agentKeys)\n| extend tool = tostring(customDimensions['gen_ai.tool.name'])\n| where isnotempty(tool)\n| summarize calls = count(), success_rate = round(countif(success == 'True') * 100.0 / count(), 1), avg_duration_ms = round(avg(duration), 0), p95_duration_ms = round(percentile(duration, 95), 0) by tool\n| order by calls desc\n| take 30",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Tool Usage Leaderboard",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      },
+      "id": 20,
+      "panels": [],
+      "title": "Performance Monitoring",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Time series chart showing average, 95th percentile, and 99th percentile response times for agent operations over time to monitor performance trends and identify latency issues.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Duration (seconds)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 0,
+        "y": 39
+      },
+      "id": 1,
+      "interval": "1h",
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize avg = avg(duration) / 1000, p95 = percentile(duration, 95) / 1000, p99 = percentile(duration, 99) / 1000 by bin(timestamp, $__interval)",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Agent Response Time Trends",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Percentage of successful agent operations displayed as a gauge with color-coded thresholds: red (0-90%), yellow (90-95%), green (95-100%).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "links": [],
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red"
+              },
+              {
+                "color": "yellow",
+                "value": 90
+              },
+              {
+                "color": "green",
+                "value": 95
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 10,
+        "y": 39
+      },
+      "id": 2,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "text": {}
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize success_rate = countif(success == 'True') * 100.0 / count()",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Success Rate",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Number of agent operations executed per time interval, displayed as a bar chart to track system utilization and identify peak usage periods.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Operations/min",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 17,
+        "y": 39
+      },
+      "id": 3,
+      "interval": "1h",
+      "maxDataPoints": 20,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize operations_count = count() by bin(timestamp, $__interval)",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Throughput",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 47
+      },
+      "id": 22,
+      "panels": [],
+      "title": "Agent Activity",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Selected agents within the configured Agent Framework services. Cost per priced call and blended cost per million tokens use the same priced calls in numerator and denominator. Pricing coverage includes unpriced attributed calls. Copilot, Codex, and other services in the shared workspace are excluded before aggregation.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "links": [
+            {
+              "targetBlank": false,
+              "title": "Filter dashboard to agent: ${__data.fields.agent_name}",
+              "url": "/d/${__dashboard.uid}/agent-framework?${__url_time_range}&${am_ds:queryparam}&${sub:queryparam}&${rg:queryparam}&${res:queryparam}&var-agentKey=${__data.fields.agentKey}"
+            }
+          ],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_duration"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Avg Duration (s)"
+              },
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success_rate"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Success Rate"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red"
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 90
+                    },
+                    {
+                      "color": "green",
+                      "value": 95
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "operations"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Operations"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "agent_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Agent"
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "agentKey" },
+            "properties": [{ "id": "custom.hidden", "value": true }]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "priced_cost"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Priced token cost"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              },
+              {
+                "id": "noValue",
+                "value": "No priced calls"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pricing_coverage"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Pricing coverage"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cost_per_call"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cost / priced call"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              },
+              {
+                "id": "noValue",
+                "value": "No priced calls"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "blended_rate"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Blended / 1M tokens"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              },
+              {
+                "id": "noValue",
+                "value": "No priced tokens"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 0,
+        "y": 48
+      },
+      "id": 7,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Total Operations"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nlet costs = agentUsage\n| where agentKey in (agentKeys)\n| summarize priced_cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)), priced_calls = countif(priced), priced_tokens = sumif(input + output, priced), pricing_coverage = 100.0 * countif(priced) / count() by agentKey\n| extend cost_per_call = iff(priced_calls > 0, priced_cost / priced_calls, real(null)), blended_rate = iff(priced_tokens > 0, priced_cost * 1e6 / priced_tokens, real(null));\nagentRuns\n| where agentKey in (agentKeys)\n| summarize agent_name = take_any(agentLabel), operations = count(), avg_duration = round(avg(duration) / 1000, 2), success_rate = round(countif(success == 'True') * 100.0 / count(), 2) by agentKey\n| lookup kind=leftouter costs on agentKey\n| project agent_name, operations, avg_duration, success_rate, priced_cost, cost_per_call, blended_rate, pricing_coverage, agentKey\n| order by operations desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Agent performance and cost",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "State timeline visualization showing hourly agent activity levels over time, with color intensity representing operation count per hour for each agent to identify usage patterns.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisPlacement": "auto",
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 12,
+        "y": 48
+      },
+      "id": 8,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nlet topAgents = agentRuns | where agentKey in (agentKeys) | summarize cnt = count() by agentKey | top 10 by cnt | project agentKey;\nagentRuns\n| where agentKey in (topAgents)\n| summarize operations_count = count(), agent_name = take_any(agentLabel) by bin(timestamp, 1h), agentKey\n| project timestamp, agent_name, operations_count\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Agent Utilization Heatmap",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "operations_count (.*)",
+            "renamePattern": "$1"
+          }
+        }
+      ],
+      "type": "state-timeline"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 62
+      },
+      "id": 23,
+      "panels": [],
+      "title": "Error Analysis",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Overall error percentage displayed as a gauge with color thresholds: green (0-5%), yellow (5-10%), red (>10%) to quickly assess system health.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "links": [],
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 4,
+        "x": 0,
+        "y": 63
+      },
+      "id": 9,
+      "options": {
+        "minVizHeight": 200,
+        "minVizWidth": 200,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "text": {}
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize error_rate = round(countif(success == 'False') * 100.0 / count(), 2)",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Rate",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Time series bar chart showing error count over time to identify error patterns, spikes, and trends for proactive troubleshooting.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Errors",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 4,
+        "y": 63
+      },
+      "id": 10,
+      "interval": "1h",
+      "maxDataPoints": 150,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys) and success == 'False'\n| summarize error_count = count() by bin(timestamp, $__interval)",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Timeline",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Table displaying the 20 most recent failed agent operations with timestamp, agent name, error type, and duration to facilitate quick error analysis and debugging.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "timestamp"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Time"
+              },
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "agent_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Agent"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "error_type"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Error Type"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "duration"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Duration (s)"
+              },
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 63
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Time"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys) and success == 'False'\n| project timestamp, agent_name = agentLabel, error_type = tostring(customDimensions['error.type']), duration = round(duration / 1000, 2)\n| order by timestamp desc\n| limit 20",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "logs",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent Errors",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 72
+      },
+      "id": 24,
+      "panels": [],
+      "title": "Detailed Metrics",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Horizontal bar chart comparing 50th, 95th, and 99th percentile response times across different agents to identify performance variations and outliers.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Duration (seconds)",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "log": 10,
+              "type": "log"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 24,
+        "x": 0,
+        "y": 73
+      },
+      "id": 13,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize agent_name = take_any(agentLabel), p50 = percentile(duration, 50) / 1000, p95 = percentile(duration, 95) / 1000, p99 = percentile(duration, 99) / 1000 by agentKey\n| project agent_name, p50, p95, p99",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Response Time Percentiles by Agent",
+      "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 97
+      },
+      "id": 25,
+      "panels": [],
+      "title": "Select a trace",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Agent runs with the token usage and cost breakdown of their directly attributed chat calls. Input, cache-read, cache-write, and output costs sum to the priced token cost. The join uses the invocation span ID, not just the trace ID, so separate runs in one trace do not receive each other's costs. Empty run costs mean no priced direct calls were attributed. Click a row to open its original trace while retaining the dashboard filters.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "links": [
+            {
+              "targetBlank": false,
+              "title": "Open trace ${__data.fields[TraceId]}",
+              "url": "/d/${__dashboard.uid}/agent-framework?${__url_time_range}&${am_ds:queryparam}&${sub:queryparam}&${rg:queryparam}&${res:queryparam}&${agentKey:queryparam}&var-agentTraceId=${__data.fields[TraceId]}"
+            }
+          ],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Token"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 439
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request_route"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 193
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "model"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 189
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "timestamp"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 209
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "custom.width",
+                "value": 122
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "applyToRow": false,
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "False": {
+                        "color": "red",
+                        "index": 0
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 77
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Agent"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 287
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Priced token cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 6
+              },
+              {
+                "id": "noValue",
+                "value": "No priced calls"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Input cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 6
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cache-read cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 6
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cache-write cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 6
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Output cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 6
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pricing coverage"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 98
+      },
+      "id": 26,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "timestamp"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = '$sub' =~ tostring(pricing.subscription) and '$rg' =~ tostring(pricing.resourceGroup) and '$res' =~ tostring(pricing.resource);\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nlet costs = agentUsage\n| where isnotempty(agentRunId)\n| summarize input_tokens = iff(countif(isnotnull(input)) > 0, sum(input), long(null)), output_tokens = iff(countif(isnotnull(output)) > 0, sum(output), long(null)), ['Input cost'] = iff(countif(priced) > 0, sum(inputCost), real(null)), ['Cache-read cost'] = iff(countif(priced) > 0, sum(cacheReadCost), real(null)), ['Cache-write cost'] = iff(countif(priced) > 0, sum(cacheWriteCost), real(null)), ['Output cost'] = iff(countif(priced) > 0, sum(outputCost), real(null)), ['Priced token cost'] = iff(countif(priced) > 0, sum(estimated_cost), real(null)), ['Pricing coverage'] = 100.0 * countif(priced) / count() by cloud_RoleName, operation_Id, id = agentRunId, agentKey;\nagentRuns\n| where agentKey in (agentKeys)\n| lookup kind=leftouter costs on cloud_RoleName, operation_Id, id, agentKey\n| project timestamp, Agent = agentLabel, success, duration, input_tokens, output_tokens, ['Priced token cost'], ['Input cost'], ['Cache-read cost'], ['Cache-write cost'], ['Output cost'], ['Pricing coverage'], TraceId = operation_Id, Foundry = foundryName, Project = projectName, Version = agentVersion, ['Agent ID'] = agentId, ['Session ID'] = sessionId, ['Project resource ID'] = projectId\n| order by timestamp desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "logs",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Agent runs and token costs",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 106
+      },
+      "id": 27,
+      "panels": [],
+      "title": "Trace detail",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Execution flow for the selected agent trace. An empty trace selection returns no spans; it never searches unrelated telemetry in the shared workspace.",
+      "gridPos": {
+        "h": 27,
+        "w": 24,
+        "x": 0,
+        "y": 107
+      },
+      "id": 28,
+      "options": {
+        "spanFilters": {
+          "criticalPathOnly": false,
+          "matchesOnly": false,
+          "serviceNameOperator": "=",
+          "spanNameOperator": "=",
+          "tags": [
+            {
+              "id": "cb758865-082",
+              "operator": "="
+            }
+          ]
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureTraces": {
+            "operationId": "$agentTraceId",
+            "filters": [
+              {
+                "property": "operation_Id",
+                "operation": "eq",
+                "filters": ["$agentTraceId"]
+              },
+              {
+                "property": "operation_Id",
+                "operation": "ne",
+                "filters": [""]
+              }
+            ],
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "trace",
+            "traceTypes": [
+              "availabilityResults",
+              "dependencies",
+              "customEvents",
+              "exceptions",
+              "pageViews",
+              "requests",
+              "traces"
+            ]
+          },
+          "queryType": "Azure Traces",
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          }
+        }
+      ],
+      "type": "traces"
+    }
+  ],
+  "refresh": "30m",
+  "schemaVersion": 41,
+  "tags": [
+    "agent-framework"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "label": "Data Source",
+        "name": "am_ds",
+        "options": [],
+        "query": "grafana-azure-monitor-datasource",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${am_ds}"
+        },
+        "definition": "",
+        "description": "Subscription of the Application Insights",
+        "includeAll": false,
+        "label": "Subscription",
+        "name": "sub",
+        "options": [],
+        "query": {
+          "grafanaTemplateVariableFn": {
+            "kind": "SubscriptionsQuery",
+            "rawQuery": "subscriptions()"
+          },
+          "queryType": "Azure Subscriptions",
+          "refId": "A"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${am_ds}"
+        },
+        "definition": "",
+        "label": "Resource Group",
+        "name": "rg",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "query": "",
+            "resources": []
+          },
+          "azureResourceGraph": {
+            "query": "resources\r\n| where type =~ \"microsoft.insights/components\"\r\n| project resourceGroup"
+          },
+          "queryType": "Azure Resource Graph",
+          "refId": "A",
+          "subscriptions": [
+            "$sub"
+          ]
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${am_ds}"
+        },
+        "definition": "",
+        "label": "Application Insights",
+        "name": "res",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "query": "",
+            "resources": []
+          },
+          "namespace": "microsoft.insights/components",
+          "queryType": "Azure Resource Names",
+          "refId": "A",
+          "resourceGroup": "$rg",
+          "subscription": "$sub"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": { "text": "All", "value": "$__all" },
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${am_ds}"
+        },
+        "definition": "",
+        "description": "Agent and project labels. Values use the full project resource ID plus agent ID, so matching names do not combine agents. Expand Agent and project context for full identity and current tags.",
+        "includeAll": true,
+        "label": "Agent",
+        "multi": true,
+        "name": "agentKey",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = false;\n${finopsUsage:raw}\nnamedSpans\n| summarize label = take_any(iff(identityComplete, strcat(agentLabel, ' / ', projectName, ' / ', foundryName), agentLabel)), operationCount = countif(name has 'invoke_agent') by agentKey\n| sort by operationCount desc\n| project selection = strcat(label, '|', agentKey)",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "timeColumn": "timestamp"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        },
+        "refresh": 2,
+        "regex": "/^(?<text>.*)\\|(?<value>[a-f0-9]{64})$/",
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${am_ds}"
+        },
+        "definition": "",
+        "description": "Runs from the selected agents and time range, newest first. Select a trace here or select a row in Agent runs and token costs. No trace ID is fixed in the dashboard.",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "label": "Trace",
+        "name": "agentTraceId",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = false;\n${finopsUsage:raw}\nagentRuns\n| where agentKey in (dynamic([${agentKey:doublequote}])) and isnotempty(operation_Id)\n| summarize started = max(timestamp) by operation_Id\n| order by started desc\n| project operation_Id",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "name": "projectIds",
+        "label": "Selected project resources",
+        "description": "Project resource IDs from the selected agent identities. Used only to scope the live resource metadata table.",
+        "type": "query",
+        "hide": 2,
+        "skipUrlSync": true,
+        "includeAll": true,
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" },
+        "options": [],
+        "refresh": 2,
+        "regex": "",
+        "datasource": { "type": "grafana-azure-monitor-datasource", "uid": "${am_ds}" },
+        "query": {
+          "queryType": "Azure Log Analytics",
+          "refId": "A",
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\nlet scopeMatches = false;\n${finopsUsage:raw}\nattributedSpans\n| where agentKey in (dynamic([${agentKey:doublequote}])) and isnotempty(projectId)\n| summarize by projectId",
+            "resources": ["/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"],
+            "timeColumn": "timestamp"
+          }
+        }
+      },
+      {
+        "name": "finopsPrices",
+        "label": "Toolkit prices",
+        "type": "constant",
+        "hide": 2,
+        "skipUrlSync": true,
+        "description": "Prices() snapshot from trey-finops-hub.westus.kusto.windows.net, database Hub, EA billing account 8611537. USD, US East 2, Standard Global, September 2026. Retrieved 2026-09-17T17:45:58.8298989Z. Contracted rates normalized as ContractedUnitPrice * 1000000 / x_PricingBlockSize. The 64 source rows agree on 16 rates. i/cr/cw/o denote ordinary input, cache read, cache write, and output. This is the same verified snapshot as FTK Codex, not a runtime Hub query.",
+        "query": "{\"subscription\":\"64e355d7-997c-491d-b0c1-8414dccfcf42\",\"resourceGroup\":\"finops-hubs-demo\",\"resource\":\"finops-hubs-demo-projec-resource-appinsights\",\"services\":[\"finops-hub-demo-hosted-agent\"],\"projectResourceId\":\"/subscriptions/64e355d7-997c-491d-b0c1-8414dccfcf42/resourceGroups/finops-hubs-demo/providers/Microsoft.CognitiveServices/accounts/finops-hubs-demo-projec-resource/projects/finops-hubs-demo-project\",\"validFrom\":\"2026-09-01\",\"validTo\":\"2026-10-01\",\"longContextTokens\":272000,\"models\":{\"gpt-5.6-luna\":{\"short\":{\"i\":0.2,\"cr\":0.02,\"cw\":0.25,\"o\":1.2},\"long\":{\"i\":0.4,\"cr\":0.04,\"cw\":0.5,\"o\":1.8}},\"gpt-5.6-sol\":{\"short\":{\"i\":4.0,\"cr\":0.4,\"cw\":5.0,\"o\":20.0},\"long\":{\"i\":8.0,\"cr\":0.8,\"cw\":10.0,\"o\":30.0}}}}"
+      },
+      {
+        "name": "finopsUsage",
+        "label": "Toolkit model-call pricing",
+        "type": "constant",
+        "hide": 2,
+        "skipUrlSync": true,
+        "description": "Shared attribution and pricing for the explicit Agent Framework service allowlist. Identity is the project ARM ID plus agent ID, never the display name. Missing identity is isolated by span rather than merged by name. Parent metadata is inherited only when supplied child identity does not conflict. Rates apply only to the verified project. No nested Grafana variables.",
+        "query": "let uniqueSpans = materialize(spans\n| where cloud_RoleName in~ (pricing.services)\n| where name has 'invoke_agent' or tostring(customDimensions['gen_ai.operation.name']) in ('chat', 'execute_tool')\n| summarize take_any(timestamp, name, duration, success, operation_ParentId, customDimensions) by cloud_RoleName, operation_Id, id\n| extend projectId = tostring(customDimensions['microsoft.foundry.project.id']), agentId = tostring(customDimensions['gen_ai.agent.id']), agentDisplayName = tostring(customDimensions['gen_ai.agent.name']), agentVersion = tostring(customDimensions['gen_ai.agent.version']));\nlet parents = uniqueSpans | where name has 'invoke_agent'\n| summarize take_any(parentProject = projectId, parentAgentId = agentId, parentName = agentDisplayName, parentVersion = agentVersion) by cloud_RoleName, operation_Id, parentId = id;\nlet attributedSpans = materialize(uniqueSpans\n| extend parentId = operation_ParentId\n| lookup kind=leftouter parents on cloud_RoleName, operation_Id, parentId\n| extend parentMatches = isnotempty(parentProject) and isnotempty(parentAgentId) and (isempty(projectId) or projectId =~ parentProject) and (isempty(agentId) or agentId =~ parentAgentId)\n| extend projectId = coalesce(projectId, iff(parentMatches, parentProject, '')), agentId = coalesce(agentId, iff(parentMatches, parentAgentId, '')),\n    agentDisplayName = coalesce(agentDisplayName, iff(parentMatches, parentName, ''), '(unnamed agent)'), agentVersion = coalesce(agentVersion, iff(parentMatches, parentVersion, ''))\n| extend foundryName = extract(@'(?i)/accounts/([^/]+)/projects/', 1, projectId), projectName = extract(@'(?i)/projects/([^/]+)$', 1, projectId)\n| extend identityComplete = isnotempty(foundryName) and isnotempty(projectName) and isnotempty(agentId)\n| extend agentKey = iff(identityComplete, hash_sha256(strcat(tolower(projectId), '|', agentId)), hash_sha256(strcat('missing|', cloud_RoleName, '|', operation_Id, '|', id))),\n    agentRunId = iff(parentMatches, parentId, ''), sessionId = tostring(customDimensions['microsoft.session.id']), tenantId = tostring(customDimensions['microsoft.tenant.id']));\nlet labelCounts = attributedSpans | summarize by agentKey, agentDisplayName | summarize identities = count() by agentDisplayName;\nlet namedSpans = attributedSpans\n| lookup kind=leftouter labelCounts on agentDisplayName\n| extend agentLabel = case(not(identityComplete), strcat(agentDisplayName, ' [identity missing; ', id, ']'), identities == 1, agentDisplayName, strcat(agentDisplayName, ' / ', projectName, ' [', substring(agentKey, 0, 8), ']'));\nlet agentRuns = namedSpans | where name has 'invoke_agent';\nlet agentTools = namedSpans | where tostring(customDimensions['gen_ai.operation.name']) == 'execute_tool';\nlet agentUsage = materialize(namedSpans\n| where tostring(customDimensions['gen_ai.operation.name']) == 'chat'\n| extend model = replace_regex(coalesce(tostring(customDimensions['gen_ai.response.model']), tostring(customDimensions['gen_ai.request.model'])), @'-\\d{4}-\\d{2}-\\d{2}$', ''),\n    provider = tostring(customDimensions['gen_ai.provider.name']),\n    input = tolong(customDimensions['gen_ai.usage.input_tokens']),\n    cached = coalesce(tolong(customDimensions['gen_ai.usage.cache_read.input_tokens']), tolong(customDimensions['gen_ai.usage.cached_tokens'])),\n    written = coalesce(tolong(customDimensions['gen_ai.usage.cache_write.input_tokens']), tolong(customDimensions['gen_ai.usage.cache_creation.input_tokens'])),\n    output = tolong(customDimensions['gen_ai.usage.output_tokens'])\n| extend contextTier = case(isnull(input), 'unknown', input > tolong(pricing.longContextTokens), 'long', 'short'),\n    cacheValid = coalesce(input >= 0 and cached >= 0 and cached <= input, false),\n    usageValid = coalesce(input >= 0 and cached >= 0 and written >= 0 and cached + written <= input and output >= 0, false)\n| extend p = pricing.models[model][contextTier]\n| extend pricingApplies = coalesce(scopeMatches and identityComplete and projectId =~ tostring(pricing.projectResourceId) and provider in~ ('microsoft.foundry', 'azure.ai.foundry', 'azure.ai.openai', 'azure.ai.inference')\n    and timestamp >= todatetime(pricing.validFrom) and timestamp < todatetime(pricing.validTo)\n    and todouble(p.i) >= 0 and todouble(p.cr) >= 0 and todouble(p.cw) >= 0 and todouble(p.o) >= 0, false)\n| extend priced = pricingApplies and usageValid,\n    inputRate = iff(pricingApplies, todouble(p.i), real(null)), cacheReadRate = iff(pricingApplies, todouble(p.cr), real(null)),\n    cacheWriteRate = iff(pricingApplies, todouble(p.cw), real(null)), outputRate = iff(pricingApplies, todouble(p.o), real(null))\n| extend inputCost = iff(priced, (input - cached - written) * inputRate / 1e6, real(null)),\n    cacheReadCost = iff(priced, cached * cacheReadRate / 1e6, real(null)),\n    cacheWriteCost = iff(priced, written * cacheWriteRate / 1e6, real(null)),\n    outputCost = iff(priced, output * outputRate / 1e6, real(null))\n| extend estimated_cost = inputCost + cacheReadCost + cacheWriteCost + outputCost,\n    cacheBenefit = iff(priced, (cached * (inputRate - cacheReadRate) - written * (cacheWriteRate - inputRate)) / 1e6, real(null)));\n"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "FTK - Agent Framework",
+  "uid": "ftk-agent-framework",
+  "version": 5,
+  "weekStart": ""
+}
