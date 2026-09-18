@@ -1,9 +1,9 @@
 ---
-title: Configure Data Explorer dashboards for FinOps hubs
-description: Deploy a pre-built Azure Data Explorer dashboard for FinOps hubs to start analyzing cost and usage for your accounts.
+title: Configure dashboards for FinOps hubs
+description: Deploy Data Explorer, Microsoft Fabric, or Grafana dashboards for FinOps hubs to analyze cost and usage for your accounts.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 09/18/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -12,11 +12,13 @@ ms.reviewer: micflan
 ---
 
 <!-- markdownlint-disable heading-increment MD024 -->
-# Configure Data Explorer dashboards
+# Configure dashboards for FinOps hubs
 
 Azure Data Explorer and Microsoft Fabric eventhouses are fast and highly scalable data exploration services. You can explore data in Microsoft Fabric or the [Azure Data Explorer web application](https://dataexplorer.azure.com) by running queries or building dashboards. A dashboard is a collection of queries visualized as tiles and organized into pages. The FinOps toolkit provides a custom dashboard with pages design to facilitate FinOps capabilities. This article walks you through the process of deploying and configuring this dashboard.
 
 This walkthrough does not incur any cost; however, maintaining an active Data Explorer cluster does incur cost.
+
+For Grafana, see [Deploy Grafana dashboards](#deploy-grafana-dashboards).
 
 <br>
 
@@ -77,6 +79,62 @@ Note that Data Explorer dashboards are only accessible to the person who creates
 ---
 
 You can now explore the FinOps hub dashboard.
+
+<br>
+
+## Deploy Grafana dashboards
+
+The toolkit generates an overview with cost, savings, and forecast summaries, plus seven analytical dashboards: Summary, Anomaly management, Data ingestion, Rate optimization, Licensing + SaaS, Budgeting, and Invoicing + chargeback. Each overview summary links to its detailed dashboard. The text-only About, Understand, Optimize, Quantify, and Manage pages aren't included. Guidance within the analytical pages is retained. The eight panels that use `.show cluster` aren't included.
+
+The dashboards use the Azure Data Explorer data source and native Grafana panels. They don't require a new cluster, database function, plugin, or Azure Managed Grafana workspace. To deploy them as [Azure Monitor dashboards with Grafana](/azure/azure-monitor/visualize/visualize-use-grafana-dashboards), you need Contributor access to the target resource group. Viewers also need access to the dashboards and the **Hub** and **Ingestion** databases.
+
+1. From the toolkit repository root, create a build copy of the source dashboard:
+
+   ```powershell
+   $dest = './release/grafana-build'
+   New-Item -ItemType Directory -Path $dest -Force | Out-Null
+   Copy-Item ./src/templates/finops-hub/dashboard.json $dest
+   ```
+
+2. Generate the dashboards and a deployment template. Replace the subscription, resource group, cluster URI, and location with your values:
+
+   ```powershell
+   ./src/scripts/Build-HubGrafanaDashboards.ps1 -DestDir $dest `
+       -ResourceGroupId '/subscriptions/<subscription-id>/resourceGroups/<resource-group>' `
+       -ClusterUri 'https://<cluster>.<region>.kusto.windows.net' `
+       -Location '<dashboard-region>'
+   ```
+
+   The `grafana` directory contains eight dashboard JSON files and `deploy.json`. Native dashboard links contain the specified Azure resource IDs. Regenerate the template before deploying to a different subscription or resource group.
+
+3. Confirm that Azure CLI uses the intended Microsoft Entra tenant. Preview the deployment:
+
+   ```azurecli
+   az account show --query tenantId
+   az deployment group what-if --subscription <subscription-id> --resource-group <resource-group> --template-file ./release/grafana-build/grafana/deploy.json --mode Incremental
+   ```
+
+4. Review the preview, then deploy:
+
+   ```azurecli
+   az deployment group create --name finops-hub-grafana --subscription <subscription-id> --resource-group <resource-group> --template-file ./release/grafana-build/grafana/deploy.json --mode Incremental
+   ```
+
+   The template creates dashboards named `ftk-hub-*`. Deploying again updates those dashboards, including any portal edits.
+
+5. Open **ftk-hub-overview** in the Azure portal. Select a summary or capability link to open its detailed dashboard. Use **Overview** to return. Links retain the data source, connection, and filter variables.
+
+The normal FinOps hub build also generates portable dashboard JSON in its `grafana` directory. To use an existing Grafana workspace, import all eight JSON files, select its Azure Data Explorer data source, and set **Cluster URI** and **Database**. Import the JSON files, not `deploy.json`.
+
+### Query behavior
+
+The conversion retains the source financial calculations and calendar windows. Use **Monthly trend**, **Daily trend**, **Max group count**, and **Currency** to control those queries. The dashboard time picker is hidden. The forecast chart fits the returned time range, including future dates.
+
+- **Currency All** combines currencies without conversion.
+- **Budgeting** compares spending. It doesn't calculate budget limits or remaining budget.
+- **Anomaly management** shows trends and a forecast. It doesn't calculate an anomaly count.
+- Licensing queries retain the source monthly lookback, despite their **last n days** titles.
+- The source Hub settings query can return empty values when the hub version isn't numeric. This query is retained without changes.
 
 <br>
 
