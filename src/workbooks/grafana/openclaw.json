@@ -1,0 +1,4052 @@
+{
+  "__elements": {},
+  "__inputs": [
+    {
+      "description": "",
+      "label": "Azure Monitor",
+      "name": "am_ds",
+      "pluginId": "grafana-azure-monitor-datasource",
+      "pluginName": "Azure Monitor",
+      "type": "datasource"
+    }
+  ],
+  "__requires": [
+    {
+      "id": "grafana",
+      "name": "Grafana",
+      "type": "grafana",
+      "version": "11.6.9"
+    },
+    {
+      "id": "grafana-azure-monitor-datasource",
+      "name": "Azure Monitor",
+      "type": "datasource",
+      "version": "11.6.9"
+    },
+    {
+      "id": "piechart",
+      "name": "Pie chart",
+      "type": "panel",
+      "version": ""
+    },
+    {
+      "id": "stat",
+      "name": "Stat",
+      "type": "panel",
+      "version": ""
+    },
+    {
+      "id": "table",
+      "name": "Table",
+      "type": "panel",
+      "version": ""
+    },
+    {
+      "id": "timeseries",
+      "name": "Time series",
+      "type": "panel",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "OpenClaw gateway activity, model requests, tokens, tool failures, messaging outcomes, and liveness. Compatible with classic and native OTLP Application Insights via their resource-scoped query views. All queries are restricted to openclaw-gateway. Request token totals exclude aggregate usage reports and harness turns; coverage shows missing usage.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Doc",
+      "tooltip": "Documentation",
+      "type": "link",
+      "url": "https://aka.ms/amg/dash-doc/openclaw"
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "panels": [],
+      "title": "Summary",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Recorded message-processing spans, including cron jobs. Failures use the explicit outcome or failed span status. Processing duration includes full agent work and is not time to first byte. Chat count is omitted because this telemetry does not include chat IDs.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Messages"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failed Messages"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg Processing Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95 Processing Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg Processing Time"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95 Processing Time"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.message.processed\"\n| extend channel = coalesce(tostring(customDimensions[\"openclaw.channel\"]), \"unknown\"),\n         outcome = coalesce(tostring(customDimensions[\"openclaw.outcome\"]), \"unknown\")\n| extend failed = outcome in~ (\"error\", \"failed\", \"failure\") or tobool(success) == false\n| summarize ['Messages'] = count(), ['Failed Messages'] = countif(failed), ['Avg Processing Time'] = avg(duration) / 1000.0, ['P95 Processing Time'] = percentile(duration, 95) / 1000.0",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Message Summary",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "One openclaw.model.call request span per observation; harness turns are excluded. Tokens sum only request spans with valid input/output usage. See Usage Coverage for missing reports; aggregate openclaw.model.usage events are not added to request tokens.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Model Requests"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Output Tokens"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cached Input Tokens"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg Request Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg Request Time"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.model.call\"\n| extend a = customDimensions\n| where tostring(a[\"openclaw.model_call.observation_unit\"]) != \"turn\" and tostring(a[\"gen_ai.operation.name\"]) != \"invoke_agent\"\n| extend model = coalesce(tostring(a[\"openclaw.model\"]), tostring(a[\"gen_ai.request.model\"]), \"unknown\"),\n         provider = coalesce(tostring(a[\"openclaw.provider\"]), tostring(a[\"gen_ai.provider.name\"]), tostring(a[\"gen_ai.system\"]), \"unknown\"),\n         input_tokens = coalesce(todouble(a[\"gen_ai.usage.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.prompt_tokens\"])),\n         output_tokens = coalesce(todouble(a[\"gen_ai.usage.output_tokens\"]), todouble(a[\"openclaw.model_call.usage.output_tokens\"])),\n         cached_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_read.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_read_input_tokens\"]), 0.0),\n         cache_write_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_creation.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_creation_input_tokens\"]), 0.0)\n| extend has_usage = isnotnull(input_tokens) and isnotnull(output_tokens) and input_tokens >= 0 and output_tokens >= 0 and cached_tokens >= 0 and cache_write_tokens >= 0 and cached_tokens + cache_write_tokens <= input_tokens\n| summarize covered=countif(has_usage), ['Model Requests'] = count(), ['Output Tokens'] = sumif(output_tokens, has_usage), ['Cached Input Tokens'] = sumif(cached_tokens, has_usage), ['Avg Request Time'] = avg(duration) / 1000.0\n| extend ['Output Tokens']=iff(covered > 0, ['Output Tokens'],real(null)), ['Cached Input Tokens']=iff(covered > 0, ['Cached Input Tokens'],real(null))\n| project-away covered",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Model Request Summary",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 101,
+      "panels": [],
+      "title": "Message Activity",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Recorded messages by channel, including cron jobs. Each span is counted once.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "id": 3,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.message.processed\"\n| extend channel = coalesce(tostring(customDimensions[\"openclaw.channel\"]), \"unknown\"),\n         outcome = coalesce(tostring(customDimensions[\"openclaw.outcome\"]), \"unknown\")\n| extend failed = outcome in~ (\"error\", \"failed\", \"failure\") or tobool(success) == false\n| summarize messages=count() by bin(timestamp, $__interval), channel\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Messages by Channel",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Full message-processing duration by channel. Separating cron work from interactive channels avoids presenting long background runs as interactive response latency.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "id": 4,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.message.processed\"\n| extend channel = coalesce(tostring(customDimensions[\"openclaw.channel\"]), \"unknown\"),\n         outcome = coalesce(tostring(customDimensions[\"openclaw.outcome\"]), \"unknown\")\n| extend failed = outcome in~ (\"error\", \"failed\", \"failure\") or tobool(success) == false\n| summarize ['Avg']=avg(duration)/1000.0, ['P95']=percentile(duration,95)/1000.0 by bin(timestamp, $__interval), channel\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Processing Time by Channel",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "id": 102,
+      "panels": [],
+      "title": "LLM Token Usage",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Disjoint token categories from model request spans with valid usage. Input tokens include cached and cache-write tokens, so both are subtracted from uncached input. Missing usage is excluded; see Usage Coverage. Aggregate run usage is not mixed in.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "tokens",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Uncached input"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cached input"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cache write"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Output"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 5,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.model.call\"\n| extend a = customDimensions\n| where tostring(a[\"openclaw.model_call.observation_unit\"]) != \"turn\" and tostring(a[\"gen_ai.operation.name\"]) != \"invoke_agent\"\n| extend model = coalesce(tostring(a[\"openclaw.model\"]), tostring(a[\"gen_ai.request.model\"]), \"unknown\"),\n         provider = coalesce(tostring(a[\"openclaw.provider\"]), tostring(a[\"gen_ai.provider.name\"]), tostring(a[\"gen_ai.system\"]), \"unknown\"),\n         input_tokens = coalesce(todouble(a[\"gen_ai.usage.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.prompt_tokens\"])),\n         output_tokens = coalesce(todouble(a[\"gen_ai.usage.output_tokens\"]), todouble(a[\"openclaw.model_call.usage.output_tokens\"])),\n         cached_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_read.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_read_input_tokens\"]), 0.0),\n         cache_write_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_creation.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_creation_input_tokens\"]), 0.0)\n| extend has_usage = isnotnull(input_tokens) and isnotnull(output_tokens) and input_tokens >= 0 and output_tokens >= 0 and cached_tokens >= 0 and cache_write_tokens >= 0 and cached_tokens + cache_write_tokens <= input_tokens\n| where has_usage\n| summarize ['Uncached input']=sum(input_tokens-cached_tokens-cache_write_tokens), ['Cached input']=sum(cached_tokens), ['Cache write']=sum(cache_write_tokens), ['Output']=sum(output_tokens) by bin(timestamp, $__interval)\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Request Token Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Model requests grouped by model/provider. Unknown usage stays visible through coverage, not an invented cost. Input includes cached tokens. Harness turns and aggregate usage events are excluded.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95 duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Usage coverage"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cached input share"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Input tokens"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Output tokens"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      },
+      "id": 6,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Requests"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.model.call\"\n| extend a = customDimensions\n| where tostring(a[\"openclaw.model_call.observation_unit\"]) != \"turn\" and tostring(a[\"gen_ai.operation.name\"]) != \"invoke_agent\"\n| extend model = coalesce(tostring(a[\"openclaw.model\"]), tostring(a[\"gen_ai.request.model\"]), \"unknown\"),\n         provider = coalesce(tostring(a[\"openclaw.provider\"]), tostring(a[\"gen_ai.provider.name\"]), tostring(a[\"gen_ai.system\"]), \"unknown\"),\n         input_tokens = coalesce(todouble(a[\"gen_ai.usage.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.prompt_tokens\"])),\n         output_tokens = coalesce(todouble(a[\"gen_ai.usage.output_tokens\"]), todouble(a[\"openclaw.model_call.usage.output_tokens\"])),\n         cached_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_read.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_read_input_tokens\"]), 0.0),\n         cache_write_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_creation.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_creation_input_tokens\"]), 0.0)\n| extend has_usage = isnotnull(input_tokens) and isnotnull(output_tokens) and input_tokens >= 0 and output_tokens >= 0 and cached_tokens >= 0 and cache_write_tokens >= 0 and cached_tokens + cache_write_tokens <= input_tokens\n| summarize ['Requests']=count(), ['Failed']=countif(tobool(success)==false), ['Usage reports']=countif(has_usage), ['Input tokens']=sumif(input_tokens,has_usage), ['Output tokens']=sumif(output_tokens,has_usage), cached=sumif(cached_tokens,has_usage), ['P95 duration']=percentile(duration,95)/1000.0 by model,provider\n| extend ['Usage coverage']=100.0 * ['Usage reports']/['Requests'], ['Cached input share']=iff(['Input tokens'] > 0, 100.0*cached/['Input tokens'],real(null))\n| extend ['Input tokens']=iff(['Usage reports'] > 0,['Input tokens'],real(null)), ['Output tokens']=iff(['Usage reports'] > 0,['Output tokens'],real(null))\n| project model,provider,['Requests'],['Failed'],['Usage coverage'],['Input tokens'],['Output tokens'],['Cached input share'],['P95 duration']\n| order by ['Requests'] desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Model Request Breakdown",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 64
+      },
+      "id": 103,
+      "panels": [],
+      "title": "Health & Errors",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Latest 100 warning/error records for OpenClaw only. Uses exported structured error/reason fields when the log body is only 'log'. 'Message text not exported' marks an upstream telemetry gap; it is not synthesized error text. No raw chat content or tool arguments are queried.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": true
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "timestamp"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "level"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 70
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "applyToRow": false,
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "ERROR": {
+                        "color": "red",
+                        "index": 0
+                      },
+                      "WARN": {
+                        "color": "orange",
+                        "index": 1
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "subsystem"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 65
+      },
+      "id": 8,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "timestamp"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "traces\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| extend a=customDimensions\n| extend level=toupper(coalesce(tostring(a[\"openclaw.log.level\"]),case(severityLevel>=3,\"ERROR\",severityLevel==2,\"WARN\",\"\"))),\n         subsystem=coalesce(tostring(a[\"openclaw.subsystem\"]),tostring(a[\"openclaw.module\"]),tostring(a[\"openclaw.logger\"]),\"unknown\")\n| where level in (\"ERROR\",\"WARN\",\"FATAL\",\"WARNING\")\n| extend level=case(level==\"WARNING\",\"WARN\",level==\"FATAL\",\"ERROR\",level)\n| extend details=coalesce(tostring(a[\"openclaw.error\"]),tostring(a[\"openclaw.reason\"]),tostring(a[\"openclaw.watchdogReason\"]),iff(message != \"log\", message, \"\"))\n| extend details=coalesce(details,\"Message text not exported\"), source=tostring(a[\"code.function\"]), silence_min=todouble(a[\"openclaw.minutesSinceLastMessage\"])\n| project timestamp,level,subsystem,details=substring(details,0,600),source,silence_min,TraceId=operation_Id\n| order by timestamp desc\n| take 100",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Errors & Warnings",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 107
+      },
+      "id": 104,
+      "panels": [],
+      "title": "Channel Details",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Message count, failures, and processing duration by channel. Cron duration is shown separately from interactive channels.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95_s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 108
+      },
+      "id": 9,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "messages"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.message.processed\"\n| extend channel = coalesce(tostring(customDimensions[\"openclaw.channel\"]), \"unknown\"),\n         outcome = coalesce(tostring(customDimensions[\"openclaw.outcome\"]), \"unknown\")\n| extend failed = outcome in~ (\"error\", \"failed\", \"failure\") or tobool(success) == false\n| summarize messages=count(),failed=countif(failed),avg_s=avg(duration)/1000.0,p95_s=percentile(duration,95)/1000.0 by channel\n| order by messages desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Message Outcomes by Channel",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Latest 100 message-processing spans. Chat IDs are omitted because they are not present in this telemetry. TraceId supports correlation; processing duration includes full agent work.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "links": [],
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "duration_s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "outcome"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "completed": {
+                        "color": "green"
+                      },
+                      "error": {
+                        "color": "red"
+                      },
+                      "unknown": {
+                        "color": "gray"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 108
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "timestamp"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.message.processed\"\n| extend channel = coalesce(tostring(customDimensions[\"openclaw.channel\"]), \"unknown\"),\n         outcome = coalesce(tostring(customDimensions[\"openclaw.outcome\"]), \"unknown\")\n| extend failed = outcome in~ (\"error\", \"failed\", \"failure\") or tobool(success) == false\n| project timestamp,channel,outcome,duration_s=duration/1000.0,reason=tostring(customDimensions[\"openclaw.reason\"]),TraceId=operation_Id\n| order by timestamp desc\n| take 100",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent Messages",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Percentage of model request spans with valid input/output token attributes. Unknown usage is excluded from token totals. This replaces the cost estimate, which assigned unrelated default prices to unknown models. No dollar estimate is shown without a maintained price source.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "max": 100,
+          "min": 0,
+          "noValue": "No requests",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 90
+              },
+              {
+                "color": "green",
+                "value": 99
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 7
+      },
+      "id": 201,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.model.call\"\n| extend a = customDimensions\n| where tostring(a[\"openclaw.model_call.observation_unit\"]) != \"turn\" and tostring(a[\"gen_ai.operation.name\"]) != \"invoke_agent\"\n| extend model = coalesce(tostring(a[\"openclaw.model\"]), tostring(a[\"gen_ai.request.model\"]), \"unknown\"),\n         provider = coalesce(tostring(a[\"openclaw.provider\"]), tostring(a[\"gen_ai.provider.name\"]), tostring(a[\"gen_ai.system\"]), \"unknown\"),\n         input_tokens = coalesce(todouble(a[\"gen_ai.usage.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.prompt_tokens\"])),\n         output_tokens = coalesce(todouble(a[\"gen_ai.usage.output_tokens\"]), todouble(a[\"openclaw.model_call.usage.output_tokens\"])),\n         cached_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_read.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_read_input_tokens\"]), 0.0),\n         cache_write_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_creation.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_creation_input_tokens\"]), 0.0)\n| extend has_usage = isnotnull(input_tokens) and isnotnull(output_tokens) and input_tokens >= 0 and output_tokens >= 0 and cached_tokens >= 0 and cache_write_tokens >= 0 and cached_tokens + cache_write_tokens <= input_tokens\n| summarize total=count(), covered=countif(has_usage)\n| project ['Requests with token usage'] = iff(total > 0, 100.0 * covered / total, real(null))",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Usage Coverage",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Cached input tokens divided by all input tokens for request spans with valid usage. OpenTelemetry input_tokens includes cached input; it is counted once. This is a token share, not the percentage of requests that hit the cache.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "noValue": "No reported input",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red"
+              },
+              {
+                "color": "orange",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 7
+      },
+      "id": 202,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.model.call\"\n| extend a = customDimensions\n| where tostring(a[\"openclaw.model_call.observation_unit\"]) != \"turn\" and tostring(a[\"gen_ai.operation.name\"]) != \"invoke_agent\"\n| extend model = coalesce(tostring(a[\"openclaw.model\"]), tostring(a[\"gen_ai.request.model\"]), \"unknown\"),\n         provider = coalesce(tostring(a[\"openclaw.provider\"]), tostring(a[\"gen_ai.provider.name\"]), tostring(a[\"gen_ai.system\"]), \"unknown\"),\n         input_tokens = coalesce(todouble(a[\"gen_ai.usage.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.prompt_tokens\"])),\n         output_tokens = coalesce(todouble(a[\"gen_ai.usage.output_tokens\"]), todouble(a[\"openclaw.model_call.usage.output_tokens\"])),\n         cached_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_read.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_read_input_tokens\"]), 0.0),\n         cache_write_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_creation.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_creation_input_tokens\"]), 0.0)\n| extend has_usage = isnotnull(input_tokens) and isnotnull(output_tokens) and input_tokens >= 0 and output_tokens >= 0 and cached_tokens >= 0 and cache_write_tokens >= 0 and cached_tokens + cache_write_tokens <= input_tokens\n| where has_usage\n| summarize inputs=sum(input_tokens), cached=sum(cached_tokens)\n| project ['Cached Input Share'] = iff(inputs > 0, 100.0 * cached / inputs, real(null))",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Cached Input Share",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Reported request and response payload sizes for model requests only. Harness turns are excluded. Sizes are bytes and may be missing for some transports; these are payload measurements, not complete network traffic.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 7
+      },
+      "id": 203,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.model.call\"\n| extend a = customDimensions\n| where tostring(a[\"openclaw.model_call.observation_unit\"]) != \"turn\" and tostring(a[\"gen_ai.operation.name\"]) != \"invoke_agent\"\n| extend model = coalesce(tostring(a[\"openclaw.model\"]), tostring(a[\"gen_ai.request.model\"]), \"unknown\"),\n         provider = coalesce(tostring(a[\"openclaw.provider\"]), tostring(a[\"gen_ai.provider.name\"]), tostring(a[\"gen_ai.system\"]), \"unknown\"),\n         input_tokens = coalesce(todouble(a[\"gen_ai.usage.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.prompt_tokens\"])),\n         output_tokens = coalesce(todouble(a[\"gen_ai.usage.output_tokens\"]), todouble(a[\"openclaw.model_call.usage.output_tokens\"])),\n         cached_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_read.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_read_input_tokens\"]), 0.0),\n         cache_write_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_creation.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_creation_input_tokens\"]), 0.0)\n| extend has_usage = isnotnull(input_tokens) and isnotnull(output_tokens) and input_tokens >= 0 and output_tokens >= 0 and cached_tokens >= 0 and cache_write_tokens >= 0 and cached_tokens + cache_write_tokens <= input_tokens\n| extend req=todouble(a[\"openclaw.model_call.request_bytes\"]), resp=todouble(a[\"openclaw.model_call.response_bytes\"])\n| summarize req_samples=countif(isnotnull(req)), resp_samples=countif(isnotnull(resp)), req_bytes=sum(req), resp_bytes=sum(resp)\n| project ['Sent'] = iff(req_samples > 0, req_bytes, real(null)), ['Received'] = iff(resp_samples > 0, resp_bytes, real(null))",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Model Request Payload",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "id": 205,
+      "panels": [],
+      "title": "Latency & Phases",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Average and P95 time to first byte, using only request spans that report this measurement. Decimal attributes are parsed as real numbers in both ingestion formats.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95_s"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_s"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "id": 206,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.model.call\"\n| extend a = customDimensions\n| where tostring(a[\"openclaw.model_call.observation_unit\"]) != \"turn\" and tostring(a[\"gen_ai.operation.name\"]) != \"invoke_agent\"\n| extend model = coalesce(tostring(a[\"openclaw.model\"]), tostring(a[\"gen_ai.request.model\"]), \"unknown\"),\n         provider = coalesce(tostring(a[\"openclaw.provider\"]), tostring(a[\"gen_ai.provider.name\"]), tostring(a[\"gen_ai.system\"]), \"unknown\"),\n         input_tokens = coalesce(todouble(a[\"gen_ai.usage.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.prompt_tokens\"])),\n         output_tokens = coalesce(todouble(a[\"gen_ai.usage.output_tokens\"]), todouble(a[\"openclaw.model_call.usage.output_tokens\"])),\n         cached_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_read.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_read_input_tokens\"]), 0.0),\n         cache_write_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_creation.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_creation_input_tokens\"]), 0.0)\n| extend has_usage = isnotnull(input_tokens) and isnotnull(output_tokens) and input_tokens >= 0 and output_tokens >= 0 and cached_tokens >= 0 and cache_write_tokens >= 0 and cached_tokens + cache_write_tokens <= input_tokens\n| extend ttfb=todouble(a[\"openclaw.model_call.time_to_first_byte_ms\"])\n| where isnotnull(ttfb) and ttfb >= 0\n| summarize avg_s=avg(ttfb)/1000.0, p95_s=percentile(ttfb,95)/1000.0 by bin(timestamp,$__interval)\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Request Time to First Byte",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Per-phase duration distribution from openclaw.diagnostic.phase events. Surfaces slow startup phases like channels.whatsapp.start-account.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "max_s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "applyToRow": false,
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "orange",
+                      "value": 5
+                    },
+                    {
+                      "color": "red",
+                      "value": 30
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95_s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "id": 207,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "max_s"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.diagnostic.phase\"\n| extend phase = tostring(customDimensions[\"openclaw.phase\"])\n| summarize n = count(),\n            avg_s = round(avg(duration)/1000.0, 1),\n            p95_s = round(percentile(duration, 95)/1000.0, 1),\n            max_s = round(max(duration)/1000.0, 1)\n  by phase\n| order by max_s desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Phase Timings",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
+      "id": 208,
+      "panels": [],
+      "title": "Tools & Exec",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Recorded tool executions, failure counts, and latency by tool. Failure status is parsed consistently from classic and native ingestion.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_ms"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95_ms"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "max_ms"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failure_pct"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 5
+                    },
+                    {
+                      "color": "red",
+                      "value": 20
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Avg duration"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "P95 duration"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "max_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Max duration"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failure_pct"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Failure rate"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 47
+      },
+      "id": 209,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "calls"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.tool.execution\"\n| extend tool=coalesce(tostring(customDimensions[\"openclaw.toolName\"]),tostring(customDimensions[\"gen_ai.tool.name\"]),\"unknown\")\n| summarize calls=count(),failed=countif(tobool(success)==false),avg_ms=avg(duration),p95_ms=percentile(duration,95),max_ms=max(duration) by tool\n| extend failure_pct=100.0*failed/calls\n| project tool,calls,failed,failure_pct,avg_ms,p95_ms,max_ms\n| order by calls desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Tools: Volume, Failures & Latency",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Shell execution outcomes. Timeout takes precedence, explicit failure follows, and missing/unrecognized outcomes remain unknown.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*success$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*failure$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*timeout$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*unknown$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "gray",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 47
+      },
+      "id": 210,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.exec\"\n| extend outcome=tolower(tostring(customDimensions[\"openclaw.outcome\"])), timed_out=tobool(customDimensions[\"openclaw.exec.timed_out\"])\n| extend bucket=case(timed_out==true,\"timeout\",tobool(success)==false or outcome in (\"error\",\"failed\",\"failure\"),\"failure\",outcome==\"completed\",\"success\",\"unknown\")\n| summarize n=count() by bin(timestamp,$__interval),bucket\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Shell Exec Outcomes",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 55
+      },
+      "id": 211,
+      "panels": [],
+      "title": "Gateway Health",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Valid positive heap/RSS observations from custom metrics or memory-pressure spans. Zero heap/RSS samples are invalid and omitted. Gaps mean no valid observations; native ingestion may not expose these custom metrics. This is not a continuous availability signal.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 56
+      },
+      "id": 212,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "union\n(customMetrics\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name in (\"openclaw.memory.heap_used_bytes\",\"openclaw.memory.rss_bytes\")\n| project timestamp, metric=iff(name==\"openclaw.memory.heap_used_bytes\",\"Heap\",\"RSS\"), bytes=todouble(value)),\n(// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.memory.pressure\"\n| project timestamp, samples=pack_array(bag_pack(\"metric\",\"Heap\",\"bytes\",todouble(customDimensions[\"openclaw.memory.heap_used_bytes\"])),bag_pack(\"metric\",\"RSS\",\"bytes\",todouble(customDimensions[\"openclaw.memory.rss_bytes\"])))\n| mv-expand samples\n| project timestamp,metric=tostring(samples.metric),bytes=todouble(samples.bytes))\n| where bytes > 0\n| summarize bytes=avg(bytes) by bin(timestamp,$__interval),metric\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Memory Observations",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Measurements attached to liveness warnings, not continuous event-loop health. Classic string decimals and native numeric decimals are parsed with todouble. Missing intervals are not healthy zeroes.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_p99_ms"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_elu"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 56
+      },
+      "id": 213,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.liveness.warning\"\n| extend p99_ms=todouble(customDimensions[\"openclaw.liveness.event_loop_delay_p99_ms\"]), elu=todouble(customDimensions[\"openclaw.liveness.event_loop_utilization\"])\n| summarize avg_p99_ms=avg(p99_ms),avg_elu=avg(elu) by bin(timestamp,$__interval)\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Event Loop During Liveness Warnings",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 90
+      },
+      "id": 215,
+      "panels": [],
+      "title": "Context & Activity",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Average prompt / history / system prompt size in thousand chars per context.assembled event. Shows growth toward the token budget.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 91
+      },
+      "id": 216,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.context.assembled\"\n| extend prompt = tolong(customDimensions[\"openclaw.context.prompt_chars\"]),\n         history = tolong(customDimensions[\"openclaw.context.history_text_chars\"]),\n         system = tolong(customDimensions[\"openclaw.context.system_prompt_chars\"])\n| summarize avg_prompt_kchars = round(avg(prompt)/1000.0, 1),\n            avg_history_kchars = round(avg(history)/1000.0, 1),\n            avg_system_kchars = round(avg(system)/1000.0, 1)\n  by bin(timestamp, $__interval)\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Context Size (avg kchars)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Counts of processed messages and delivery events. These are different event streams, not a delivery success ratio: cron/quiet runs can produce no reply and one message can produce multiple deliveries.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 91
+      },
+      "id": 217,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name in (\"openclaw.message.processed\",\"openclaw.message.delivery\")\n| extend label=iff(name==\"openclaw.message.processed\",\"processed\",\"delivery events\")\n| summarize n=count() by bin(timestamp,$__interval),label\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Processing & Delivery Events",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Trigger distribution from openclaw.run spans only. Context-assembly spans are excluded so each run is counted once.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 99
+      },
+      "id": 218,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.run\"\n| extend trigger=coalesce(tostring(customDimensions[\"openclaw.trigger\"]),\"unknown\")\n| summarize runs=count() by trigger\n| order by runs desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Run Triggers",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Harness runs grouped by plugin, with failures, aborts, unknown outcomes, and item totals. Completion rate uses explicit completed outcomes and counts unknowns in the denominator.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success_rate_pct"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "applyToRow": false,
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red"
+                    },
+                    {
+                      "color": "orange",
+                      "value": 80
+                    },
+                    {
+                      "color": "green",
+                      "value": 95
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 99
+      },
+      "id": 219,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "runs"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.harness.run\"\n| extend plugin=coalesce(tostring(customDimensions[\"openclaw.harness.plugin\"]),tostring(customDimensions[\"openclaw.harness.id\"]),\"unknown\"), outcome=tolower(tostring(customDimensions[\"openclaw.outcome\"])), started=todouble(customDimensions[\"openclaw.harness.items.started\"]), completed=todouble(customDimensions[\"openclaw.harness.items.completed\"])\n| summarize runs=count(),failed=countif(tobool(success)==false or outcome in (\"error\",\"failed\",\"failure\")),aborted=countif(outcome==\"aborted\"),unknown=countif(isempty(outcome)),sum_started=sum(started),sum_completed=sum(completed),success_rate_pct=100.0*countif(outcome==\"completed\" and tobool(success)!=false)/count() by plugin\n| order by runs desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Harness Runs",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Success/failure status for model request spans. Harness turn observations are excluded.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*success$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*failure$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*timeout$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*unknown$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "gray",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 300,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name == \"openclaw.model.call\"\n| extend a = customDimensions\n| where tostring(a[\"openclaw.model_call.observation_unit\"]) != \"turn\" and tostring(a[\"gen_ai.operation.name\"]) != \"invoke_agent\"\n| extend model = coalesce(tostring(a[\"openclaw.model\"]), tostring(a[\"gen_ai.request.model\"]), \"unknown\"),\n         provider = coalesce(tostring(a[\"openclaw.provider\"]), tostring(a[\"gen_ai.provider.name\"]), tostring(a[\"gen_ai.system\"]), \"unknown\"),\n         input_tokens = coalesce(todouble(a[\"gen_ai.usage.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.prompt_tokens\"])),\n         output_tokens = coalesce(todouble(a[\"gen_ai.usage.output_tokens\"]), todouble(a[\"openclaw.model_call.usage.output_tokens\"])),\n         cached_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_read.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_read_input_tokens\"]), 0.0),\n         cache_write_tokens = coalesce(todouble(a[\"gen_ai.usage.cache_creation.input_tokens\"]), todouble(a[\"openclaw.model_call.usage.cache_creation_input_tokens\"]), 0.0)\n| extend has_usage = isnotnull(input_tokens) and isnotnull(output_tokens) and input_tokens >= 0 and output_tokens >= 0 and cached_tokens >= 0 and cache_write_tokens >= 0 and cached_tokens + cache_write_tokens <= input_tokens\n| extend outcome=case(tobool(success)==false,\"failure\",tobool(success)==true,\"success\",\"unknown\")\n| summarize requests=count() by bin(timestamp,$__interval),outcome\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Model Request Outcomes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Reported liveness-warning and stuck-session events. A stuck-session event indicates the application's detector fired; absence of events does not establish gateway availability.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failure"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "timeout"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*session stuck$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 73
+      },
+      "id": 301,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name in (\"openclaw.liveness.warning\",\"openclaw.session.stuck\")\n| extend event=iff(name==\"openclaw.session.stuck\",\"session stuck\",coalesce(tostring(customDimensions[\"openclaw.liveness.reason\"]),\"liveness warning\"))\n| summarize events=count() by bin(timestamp,$__interval),event\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Liveness & Stuck-Session Events",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "All OpenClaw warning/error records in the selected time window, including entries whose message text was not exported.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "WARN"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ERROR"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*WARN$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*ERROR$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 73
+      },
+      "id": 302,
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "traces\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| extend a=customDimensions\n| extend level=toupper(coalesce(tostring(a[\"openclaw.log.level\"]),case(severityLevel>=3,\"ERROR\",severityLevel==2,\"WARN\",\"\"))),\n         subsystem=coalesce(tostring(a[\"openclaw.subsystem\"]),tostring(a[\"openclaw.module\"]),tostring(a[\"openclaw.logger\"]),\"unknown\")\n| where level in (\"ERROR\",\"WARN\",\"FATAL\",\"WARNING\")\n| extend level=case(level==\"WARNING\",\"WARN\",level==\"FATAL\",\"ERROR\",level)\n| summarize logs=count() by bin(timestamp,$__interval),level\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Warning & Error Volume",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Latest 100 failed/aborted OpenClaw operations and stuck-session events. Session age comes from openclaw.ageMs; zero-duration detector spans are not used as the stuck duration.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": true
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "duration_s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "session_age_s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 81
+      },
+      "id": 303,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "timestamp"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Application Insights compatibility view: classic and native OTLP.\n// Convert numeric attributes explicitly: classic exports strings, OTLP preserves numbers.\ndependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| where name startswith \"openclaw.\"\n| extend a=customDimensions,outcome=tolower(tostring(customDimensions[\"openclaw.outcome\"]))\n| where tobool(success)==false or outcome in (\"error\",\"failed\",\"failure\",\"aborted\") or name==\"openclaw.session.stuck\"\n| where name != \"openclaw.liveness.warning\"\n| project timestamp,operation=name,outcome=coalesce(outcome,iff(tobool(success)==false,\"failed\",\"unknown\")),duration_s=duration/1000.0,reason=substring(coalesce(tostring(a[\"openclaw.error\"]),tostring(a[\"openclaw.errorCategory\"]),tostring(a[\"openclaw.reason\"])),0,600),session_age_s=todouble(a[\"openclaw.ageMs\"])/1000.0,TraceId=operation_Id\n| order by timestamp desc\n| take 100",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent Failures & Stuck Sessions",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Last observed OpenClaw trace/log timestamps within the selected window. Staleness can reflect an idle application or ingestion gaps. Other applications in this shared resource are excluded.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 116
+      },
+      "id": 304,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "union withsource=signal dependencies,traces\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"openclaw-gateway\" or tostring(column_ifexists(\"serviceName\", \"\")) == \"openclaw-gateway\"\n| summarize ['Records']=count(),['Last observed']=max(timestamp) by signal\n| order by signal asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Telemetry Coverage",
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "refresh": "30m",
+  "schemaVersion": 41,
+  "tags": [
+    "openclaw",
+    "ai-agent",
+    "messaging"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "label": "Data Source",
+        "name": "am_ds",
+        "options": [],
+        "query": "grafana-azure-monitor-datasource",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${am_ds}"
+        },
+        "definition": "",
+        "description": "Subscription of the Application Insights",
+        "includeAll": false,
+        "label": "Subscription",
+        "name": "sub",
+        "options": [],
+        "query": {
+          "grafanaTemplateVariableFn": {
+            "kind": "SubscriptionsQuery",
+            "rawQuery": "subscriptions()"
+          },
+          "queryType": "Azure Subscriptions",
+          "refId": "A"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${am_ds}"
+        },
+        "definition": "",
+        "label": "Resource Group",
+        "name": "rg",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "query": "",
+            "resources": []
+          },
+          "azureResourceGraph": {
+            "query": "resources\n| where type =~ \"microsoft.insights/components\"\n| distinct resourceGroup\n| order by resourceGroup asc"
+          },
+          "queryType": "Azure Resource Graph",
+          "refId": "A",
+          "subscriptions": [
+            "$sub"
+          ]
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${am_ds}"
+        },
+        "definition": "",
+        "label": "Application Insights",
+        "name": "res",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "query": "",
+            "resources": []
+          },
+          "namespace": "microsoft.insights/components",
+          "queryType": "Azure Resource Names",
+          "refId": "A",
+          "resourceGroup": "$rg",
+          "subscription": "$sub"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 5,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "OpenClaw",
+  "uid": "OpenClaw",
+  "version": 27
+}
