@@ -203,6 +203,18 @@ module hub 'modules/hub.bicep' = {
   }
 }
 
+// Grafana dashboards need a query endpoint, so they are only deployed when the
+// hub includes Data Explorer or Fabric.
+module dashboards 'modules/dashboards.bicep' = if (!empty(fabricQueryUri) || !empty(dataExplorerName)) {
+  name: 'dashboards'
+  params: {
+    clusterUri: hub.outputs.clusterUri
+    hubDatabaseName: hub.outputs.hubDbName
+    location: location
+    tags: tags
+  }
+}
+
 //==============================================================================
 // Outputs
 //==============================================================================

@@ -3694,8 +3694,8 @@
       },
       {
         "current": {
-          "text": "Hub",
-          "value": "Hub"
+          "value": "Hub",
+          "text": "Hub"
         },
         "type": "textbox",
         "hide": 0,
