@@ -202,6 +202,9 @@ function Invoke-FinOpsMultitool {
 
                 Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource $Source -OutputPath $reportPath -NonInteractive -ErrorAction Stop
 
+                $runs = @(Get-ChildItem -LiteralPath $reportPath -Directory)
+                $runs.Count | Should -Be 1
+                $reportPath = $runs[0].FullName
                 $result = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $result.ContainsKey('_error_Get-CostData') | Should -BeFalse
                 $result['Get-CostData']['11111111-1111-1111-1111-111111111111'].Actual | Should -Be 100
@@ -245,9 +248,9 @@ function Invoke-FinOpsMultitool {
                 Set-Variable -Name NonInteractive -Value $false -Scope Local
                 $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
                 foreach ($definition in $launcherAst.FindAll({
-                    $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
-                    $args[0].Name -in @('Select-DataSource', 'Read-FinOpsAnswer', 'Invoke-SelectedScans', 'Write-SectionHeader')
-                }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Select-DataSource', 'Read-FinOpsAnswer', 'Invoke-SelectedScans', 'Write-SectionHeader')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
                 Mock Read-FinOpsAnswer { '1' }
                 Mock Search-AzGraph { [pscustomobject]@{ name = 'test-hub-storage'; resourceGroup = 'test-hub' } }
                 Mock Resolve-FOHubProvider {
@@ -265,11 +268,42 @@ function Invoke-FinOpsMultitool {
                 Should -Invoke Read-FinOpsHubData -Times 0 -Exactly
             }
 
+            It 'Keeps scanner logs separate from progress when the scan <Outcome>' -ForEach @(
+                @{ Outcome = 'succeeds'; FailScan = $false }
+                @{ Outcome = 'fails'; FailScan = $true }
+            ) {
+                $shouldFail = $FailScan
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Invoke-SelectedScans', 'Write-SectionHeader')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Get-TagInventory {
+                    Write-Information 'Scanner detail on its own line.' -InformationAction Continue
+                    if ($shouldFail) { throw "Fixture error on a separate line.`nMore diagnostic detail." }
+                    [pscustomobject]@{ TagNames = @{}; TagCount = 0 }
+                }
+
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+                $result = Invoke-SelectedScans -Modules @(@{ Name = 'Tag Inventory'; Fn = 'Get-TagInventory'; Selected = $true }) -Subscriptions $subscriptions -DataSource @{ Source = 'API' }
+
+                Should -Invoke Write-Host -Times 0 -Exactly -ParameterFilter { $NoNewline -or "$Object".Contains("`r") }
+                Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { "$Object" -match '^  \[.+\] 100%  \(1/1\) Tag Inventory$' }
+                if ($shouldFail) {
+                    $result['_error_Get-TagInventory'] | Should -Match 'Fixture error'
+                    Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { "$Object" -eq '    FAILED: Tag Inventory' }
+                }
+                else {
+                    $result.ContainsKey('_error_Get-TagInventory') | Should -BeFalse
+                    Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { "$Object" -match '^    Completed: Tag Inventory' }
+                }
+            }
+
             It 'Does not query Hub costs for a Graph-only run with a Kusto override' {
                 $env:FINOPS_HUB_KUSTO_URI = 'http://localhost:8082'
                 Mock Get-TagInventory { [pscustomobject]@{ TagNames = @{}; TotalResources = 0; TaggedCount = 0; UntaggedCount = 0; TagCoverage = 0 } }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagInventory -DataSource GraphOnly -NonInteractive -ErrorAction Stop
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagInventory -DataSource GraphOnly -OutputPath (Join-Path $TestDrive 'graph-only') -NonInteractive -ErrorAction Stop
 
                 Should -Invoke Get-TagInventory -Times 1 -Exactly
                 Should -Invoke Invoke-FOHubKustoQuery -ModuleName FinOpsMultitool -Times 0 -Exactly
@@ -282,9 +316,44 @@ function Invoke-FinOpsMultitool {
                 $env:FINOPS_HUB_KUSTO_URI = $null
 
                 { Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource Hub -NonInteractive -ErrorAction Stop } |
-                    Should -Throw '*No FinOps hub*'
+                Should -Throw '*No FinOps hub*'
 
                 Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+            }
+
+            It 'Keeps scan results in memory when the export destination is unsafe' {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                $repository = Join-Path $TestDrive 'blocked-report-repository'
+                [void](New-Item -ItemType Directory -Path (Join-Path $repository '.git') -Force)
+
+                { Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource API -OutputPath $repository -NonInteractive -ErrorAction Stop } |
+                Should -Throw '*report saving failed*Git*Results remain*'
+
+                $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
+                $results['Get-CostData']['11111111-1111-1111-1111-111111111111'].Actual | Should -Be 100
+                @(Get-ChildItem -LiteralPath $repository -File -Recurse -Force).Count | Should -Be 0
+                Should -Invoke Read-Host -Times 0 -Exactly
+            }
+
+            It 'Preserves a caught payload-scan error in every report format' {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                $reportRoot = Join-Path $TestDrive 'failed-payload-scan'
+                Mock Get-OrphanedResources { throw '403 AuthorizationFailed: orphan fixture.' }
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-OrphanedResources -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+
+                $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
+                $results['_error_Get-OrphanedResources'] | Should -Be '403 AuthorizationFailed: orphan fixture.'
+                @($results['Get-OrphanedResources']).Count | Should -Be 0
+                $runs = @(Get-ChildItem -LiteralPath $reportRoot -Directory)
+                $runs.Count | Should -Be 1
+                $status = Import-Csv -LiteralPath (Join-Path $runs[0].FullName 'Get-OrphanedResources.csv')
+                $status.RecordType | Should -Be 'Status'
+                $status.Status | Should -Be 'Error'
+                $status.Error | Should -Be '403 AuthorizationFailed: orphan fixture.'
+                Get-Content -LiteralPath (Join-Path $runs[0].FullName 'FinOpsReport.html') -Raw | Should -Match '403 AuthorizationFailed: orphan fixture'
+                Get-Content -LiteralPath (Join-Path $runs[0].FullName 'ScanSummary.txt') -Raw | Should -Match 'ERROR: 403 AuthorizationFailed: orphan fixture'
+                Should -Invoke Read-Host -Times 0 -Exactly
             }
 
             It 'Keeps selected-source failure details for <Mode>' -ForEach @(
@@ -307,6 +376,9 @@ function Invoke-FinOpsMultitool {
 
                 Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource $Source -OutputPath $reportPath -NonInteractive -ErrorAction Stop
 
+                $runs = @(Get-ChildItem -LiteralPath $reportPath -Directory)
+                $runs.Count | Should -Be 1
+                $reportPath = $runs[0].FullName
                 $result = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $result['_error_Get-CostData'] | Should -Match '403'
                 $result['Get-CostData'] | Should -BeNullOrEmpty
@@ -315,7 +387,11 @@ function Invoke-FinOpsMultitool {
                 $html | Should -Match 'Scans Run</div><div class="value">1</div>'
                 $html | Should -Match 'Errors</div><div class="value severity-red">1</div>'
                 Get-Content (Join-Path $reportPath 'ScanSummary.txt') -Raw | Should -Match 'ERROR:.*403'
-                @(Get-ChildItem -LiteralPath $reportPath -Filter '*.csv').Count | Should -Be 0
+                $csvFiles = @(Get-ChildItem -LiteralPath $reportPath -Filter '*.csv')
+                $csvFiles.Count | Should -Be 1
+                $status = Import-Csv -LiteralPath $csvFiles[0].FullName
+                $status.Status | Should -Be 'Error'
+                $status.Error | Should -Match '403'
                 Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { "$Object" -match "Required role:\s+$([regex]::Escape($ExpectedRole))" }
                 Should -Invoke Read-Host -Times 0 -Exactly
                 if ($Source -eq 'Hub') {

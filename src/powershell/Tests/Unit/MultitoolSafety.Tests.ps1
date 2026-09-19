@@ -101,14 +101,192 @@ Describe 'FinOps Multitool safety' {
         }
     }
 
+    Context 'Automatic report storage' {
+        BeforeAll {
+            $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+            foreach ($definition in $launcherAst.FindAll({
+                        $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                        $args[0].Name -in @('Get-FinOpsReportRoot', 'Assert-FinOpsReportPath', 'New-FinOpsReportDirectory', 'Write-FinOpsReportFile',
+                            'Show-ResultsSummary', 'Write-SectionHeader', 'Write-ColorizedLine', 'Protect-FinOpsExportText', 'ConvertTo-FinOpsExportCell', 'ConvertTo-FinOpsExportRows')
+                    }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+        }
+
+        It 'Creates distinct run folders without changing existing reports' {
+            $root = Join-Path $TestDrive 'reports'
+
+            $first = New-FinOpsReportDirectory -OutputPath $root
+            Write-FinOpsReportFile -Directory $first -Name 'ScanSummary.txt' -Lines @('First run')
+            $second = New-FinOpsReportDirectory -OutputPath $root
+
+            $first | Should -Not -Be $second
+            Split-Path $first -Parent | Should -Be $root
+            Split-Path $second -Parent | Should -Be $root
+            Get-Content -LiteralPath (Join-Path $first 'ScanSummary.txt') | Should -Be 'First run'
+            { Write-FinOpsReportFile -Directory $first -Name 'ScanSummary.txt' -Lines @('Replacement') } | Should -Throw
+            Get-Content -LiteralPath (Join-Path $first 'ScanSummary.txt') | Should -Be 'First run'
+        }
+
+        It 'Rejects a <Marker> Git worktree before creating a report folder' -ForEach @(
+            @{ Marker = 'directory' }
+            @{ Marker = 'file' }
+        ) {
+            $repository = Join-Path $TestDrive "repository-$Marker"
+            [void](New-Item -ItemType Directory -Path $repository)
+            $gitMarker = Join-Path $repository '.git'
+            if ($Marker -eq 'directory') { [void](New-Item -ItemType Directory -Path $gitMarker) }
+            else { Set-Content -LiteralPath $gitMarker -Value 'gitdir: elsewhere' }
+            $target = Join-Path $repository 'nested/reports'
+
+            { New-FinOpsReportDirectory -OutputPath $target } | Should -Throw '*Git*'
+
+            Test-Path -LiteralPath $target | Should -BeFalse
+        }
+
+        It 'Rejects network and provider paths before writing data (<Destination>)' -ForEach @(
+            @{ Destination = '\\server\share\reports' }
+            @{ Destination = 'https://example.test/reports' }
+            @{ Destination = 'Env:reports' }
+        ) {
+            { New-FinOpsReportDirectory -OutputPath $Destination } | Should -Throw '*local*'
+        }
+
+        It 'Uses per-user local application data rather than the working directory' {
+            $base = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData, [Environment+SpecialFolderOption]::DoNotVerify)
+
+            Get-FinOpsReportRoot | Should -Be (Join-Path $base 'FinOpsToolkit/Multitool/Reports')
+        }
+
+        It 'Creates the default reports folder for a fresh Linux application-data path' -Skip:(-not $IsLinux) {
+            $applicationData = Join-Path $TestDrive 'fresh-application-data'
+            $definitions = @('Get-FinOpsReportRoot', 'Assert-FinOpsReportPath', 'New-FinOpsReportDirectory', 'Write-FinOpsReportFile') |
+                ForEach-Object { "function $_ { $((Get-Command $_).Definition) }" }
+            $scriptText = "`$ErrorActionPreference = 'Stop'`n" + ($definitions -join "`n") + "`nNew-FinOpsReportDirectory"
+            $startInfo = [System.Diagnostics.ProcessStartInfo]::new((Get-Process -Id $PID).Path)
+            $startInfo.UseShellExecute = $false
+            $startInfo.RedirectStandardOutput = $true
+            $startInfo.RedirectStandardError = $true
+            foreach ($argument in @('-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($scriptText)))) {
+                $startInfo.ArgumentList.Add($argument)
+            }
+            $startInfo.Environment['XDG_DATA_HOME'] = $applicationData
+            $process = [System.Diagnostics.Process]::new()
+            try {
+                $process.StartInfo = $startInfo
+                [void]$process.Start()
+                $standardOutput = $process.StandardOutput.ReadToEndAsync()
+                $standardError = $process.StandardError.ReadToEndAsync()
+                $process.WaitForExit()
+                $process.ExitCode | Should -Be 0 -Because $standardError.GetAwaiter().GetResult()
+                $run = $standardOutput.GetAwaiter().GetResult().Trim()
+                Split-Path $run -Parent | Should -Be (Join-Path $applicationData 'FinOpsToolkit/Multitool/Reports')
+                Test-Path -LiteralPath (Join-Path $run '.gitignore') | Should -BeTrue
+            }
+            finally { $process.Dispose() }
+        }
+
+        It 'Automatically saves all formats without OutputPath or a key press' {
+            $localRoot = Join-Path $TestDrive 'automatic-local'
+            Mock Get-FinOpsReportRoot { $localRoot }
+            Mock Read-Host { throw 'Saving reports must not prompt.' }
+            Mock Write-Host { }
+            $subscription = [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' }
+            $results = @{ 'Get-CostData' = @{ $subscription.Id = @{ Actual = 10; Currency = 'USD'; Name = 'Fixture'; ForecastSource = 'Unavailable' } } }
+            $modules = @(@{ Fn = 'Get-CostData'; Name = 'Cost Data'; Selected = $true; Category = 'Cost Analysis' })
+
+            $returned = Show-ResultsSummary -Results $results -Modules $modules -Subscriptions @($subscription) -ErrorAction Stop
+
+            $runs = @(Get-ChildItem -LiteralPath $localRoot -Directory)
+            $runs.Count | Should -Be 1
+            foreach ($name in @('Get-CostData.csv', 'FinOpsReport.html', 'ScanSummary.txt', '.gitignore')) {
+                Test-Path -LiteralPath (Join-Path $runs[0].FullName $name) | Should -BeTrue
+            }
+            (Import-Csv -LiteralPath (Join-Path $runs[0].FullName 'Get-CostData.csv')).Actual | Should -Be '10'
+            $returned['Get-CostData'][$subscription.Id].Actual | Should -Be 10
+            Get-Content -LiteralPath (Join-Path $runs[0].FullName '.gitignore') | Should -Be '*'
+            Should -Invoke Read-Host -Times 0 -Exactly
+        }
+
+        It 'Creates private directories and report files' {
+            $run = New-FinOpsReportDirectory -OutputPath (Join-Path $TestDrive 'private')
+            $path = Join-Path $run 'ScanSummary.txt'
+            Write-FinOpsReportFile -Directory $run -Name 'ScanSummary.txt' -Lines @('Fixture')
+
+            if ($IsWindows) {
+                $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+                try {
+                    $directoryAcl = Get-Acl -LiteralPath $run
+                    $directoryAcl.AreAccessRulesProtected | Should -BeTrue
+                    foreach ($acl in @($directoryAcl, (Get-Acl -LiteralPath $path))) {
+                        $rules = @($acl.GetAccessRules($true, $true, [System.Security.Principal.SecurityIdentifier]))
+                        $rules.Count | Should -BeGreaterThan 0
+                        foreach ($rule in $rules) { $rule.IdentityReference.Value | Should -Be $identity.User.Value }
+                    }
+                }
+                finally { $identity.Dispose() }
+            }
+            elseif ('System.IO.UnixFileMode' -as [type]) {
+                [int][System.IO.File]::GetUnixFileMode($run) | Should -Be 448
+                [int][System.IO.File]::GetUnixFileMode($path) | Should -Be 384
+            }
+        }
+
+        It 'Rejects a bare Git repository' {
+            $repository = Join-Path $TestDrive 'bare'
+            [void](New-Item -ItemType Directory -Path (Join-Path $repository 'objects') -Force)
+            Set-Content -LiteralPath (Join-Path $repository 'HEAD') -Value 'ref: refs/heads/main'
+
+            { New-FinOpsReportDirectory -OutputPath (Join-Path $repository 'reports') } | Should -Throw '*Git*'
+
+            Test-Path -LiteralPath (Join-Path $repository 'reports') | Should -BeFalse
+        }
+
+        It 'Does not create Git metadata from a report destination' {
+            $parent = Join-Path $TestDrive 'not-a-repository'
+            [void](New-Item -ItemType Directory -Path $parent)
+
+            { New-FinOpsReportDirectory -OutputPath (Join-Path $parent '.git/reports') } | Should -Throw '*Git*'
+
+            Test-Path -LiteralPath (Join-Path $parent '.git') | Should -BeFalse
+        }
+
+        It 'Refuses links and junctions in the destination path' {
+            $target = Join-Path $TestDrive 'link-target'
+            $link = Join-Path $TestDrive 'report-link'
+            [void](New-Item -ItemType Directory -Path $target)
+            $linkType = if ($IsWindows) { 'Junction' } else { 'SymbolicLink' }
+            [void](New-Item -ItemType $linkType -Path $link -Target $target)
+            try {
+                { New-FinOpsReportDirectory -OutputPath (Join-Path $link 'reports') } | Should -Throw '*links or junctions*'
+                Test-Path -LiteralPath (Join-Path $target 'reports') | Should -BeFalse
+            }
+            finally { Remove-Item -LiteralPath $link -Force }
+        }
+
+        It 'Rechecks Git ancestry before writing report content' {
+            $run = New-FinOpsReportDirectory -OutputPath (Join-Path $TestDrive 'became-repository')
+            [void](New-Item -ItemType Directory -Path (Join-Path $run '.git'))
+
+            { Write-FinOpsReportFile -Directory $run -Name 'ScanSummary.txt' -Lines @('Sensitive fixture') } | Should -Throw '*Git*'
+
+            Test-Path -LiteralPath (Join-Path $run 'ScanSummary.txt') | Should -BeFalse
+        }
+
+        It 'Rejects path traversal in report file names' {
+            $run = New-FinOpsReportDirectory -OutputPath (Join-Path $TestDrive 'file-names')
+
+            { Write-FinOpsReportFile -Directory $run -Name '../escaped.txt' -Lines @('Fixture') } | Should -Throw '*file name*'
+            { Write-FinOpsReportFile -Directory $run -Name 'ScanSummary.txt:stream' -Lines @('Fixture') } | Should -Throw '*file name*'
+        }
+    }
+
     Context 'CSV export projections' {
         BeforeAll {
             $launcher = Join-Path $script:ModuleRoot 'Invoke-FinOpsMultitool.ps1'
             $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile($launcher, [ref]$null, [ref]$null)
             foreach ($definition in $launcherAst.FindAll({
-                $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
-                $args[0].Name -in @('Protect-FinOpsExportText', 'ConvertTo-FinOpsExportCell', 'ConvertTo-FinOpsExportRows')
-            }, $true)) {
+                        $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                        $args[0].Name -in @('Protect-FinOpsExportText', 'ConvertTo-FinOpsExportCell', 'ConvertTo-FinOpsExportRows')
+                    }, $true)) {
                 . ([scriptblock]::Create($definition.Extent.Text))
             }
         }
@@ -121,10 +299,11 @@ Describe 'FinOps Multitool safety' {
             try {
                 [System.Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]::GetCultureInfo($Culture)
                 $data = @{ 'sub-a' = @{
-                    Actual = [decimal]100.25; Credit = -20.5; Currency = 'EUR'; Name = '-formula'
-                    ActualPeriodStart = [datetime]::new(2026, 9, 1, 0, 0, 0, [DateTimeKind]::Utc)
-                    CapturedAt = [datetimeoffset]::new(2026, 9, 2, 3, 4, 5, [timespan]::FromHours(2))
-                } }
+                        Actual = [decimal]100.25; Credit = -20.5; Currency = 'EUR'; Name = '-formula'
+                        ActualPeriodStart = [datetime]::new(2026, 9, 1, 0, 0, 0, [DateTimeKind]::Utc)
+                        CapturedAt = [datetimeoffset]::new(2026, 9, 2, 3, 4, 5, [timespan]::FromHours(2))
+                    }
+                }
 
                 $row = @(ConvertTo-FinOpsExportRows -Fn 'Get-CostData' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)[0]
 
@@ -141,15 +320,15 @@ Describe 'FinOps Multitool safety' {
 
         It 'Exports tag values, amounts, and currencies from scanner row objects' {
             $data = [pscustomobject]@{
-                CostByTag = @{
+                CostByTag        = @{
                     CostCenter = @(
                         [pscustomobject]@{ TagValue = 'team-a'; Cost = 100.25; Currency = 'EUR' }
                         [pscustomobject]@{ TagValue = 'team-b'; Cost = -20; Currency = 'EUR' }
                     )
                 }
-                TagsQueried = @('CostCenter')
-                NoTagsFound = $false
-                Source = 'Kusto'
+                TagsQueried      = @('CostCenter')
+                NoTagsFound      = $false
+                Source           = 'Kusto'
                 ResourceCostSeen = 80.25
             }
 
@@ -172,8 +351,8 @@ Describe 'FinOps Multitool safety' {
             $data = @{
                 Reservations = @([pscustomobject]@{ ReservationId = 'ri-1'; AvgUtilization = 90 })
                 SavingsPlans = @()
-                HasData = $true
-                Note = 'Validated billing scope'
+                HasData      = $true
+                Note         = 'Validated billing scope'
             }
 
             $row = @(ConvertTo-FinOpsExportRows -Fn 'Get-CommitmentUtilization' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)[0]
@@ -189,7 +368,8 @@ Describe 'FinOps Multitool safety' {
 
             $row = @(ConvertTo-FinOpsExportRows -Fn 'Get-CostByTag' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)[0]
 
-            $row.RecordType | Should -Be 'Summary'
+            $row.RecordType | Should -Be 'Status'
+            $row.Status | Should -Be 'No data'
             $row.'Summary.NoTagsFound' | Should -Be 'True'
             $row.'Summary.Source' | Should -Be 'Kusto'
             $row.'Summary.Note' | Should -Be $data.Note
@@ -198,12 +378,12 @@ Describe 'FinOps Multitool safety' {
         It 'Exports both commitment families and the underutilized view once' {
             $reservation = [pscustomobject]@{ ReservationId = 'ri-1'; SkuName = 'Standard_D2s_v5'; AvgUtilization = 50 }
             $data = [pscustomobject]@{
-                Reservations = @($reservation)
-                SavingsPlans = @([pscustomobject]@{ BenefitId = 'sp-1'; BenefitOrderId = 'order-1'; AvgUtilization = 75 })
+                Reservations     = @($reservation)
+                SavingsPlans     = @([pscustomobject]@{ BenefitId = 'sp-1'; BenefitOrderId = 'order-1'; AvgUtilization = 75 })
                 UnderutilizedRIs = @($reservation)
-                RICount = 1
-                SPCount = 1
-                HasData = $true
+                RICount          = 1
+                SPCount          = 1
+                HasData          = $true
             }
 
             $rows = @(ConvertTo-FinOpsExportRows -Fn 'Get-CommitmentUtilization' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)
@@ -220,8 +400,8 @@ Describe 'FinOps Multitool safety' {
             $sizes = @()
             foreach ($count in @(100, 200)) {
                 $reservations = @(foreach ($index in 1..$count) {
-                    [pscustomobject]@{ ReservationId = "reservation-$index"; AvgUtilization = 50; SkuName = 'Standard_D2s_v5' }
-                })
+                        [pscustomobject]@{ ReservationId = "reservation-$index"; AvgUtilization = 50; SkuName = 'Standard_D2s_v5' }
+                    })
                 $data = [pscustomobject]@{ Reservations = $reservations; SavingsPlans = @(); UnderutilizedRIs = $reservations; RICount = $count; HasData = $true }
 
                 $rows = @(ConvertTo-FinOpsExportRows -Fn 'Get-CommitmentUtilization' -Data $data)
@@ -272,8 +452,8 @@ Describe 'FinOps Multitool safety' {
 
         It 'Keeps per-subscription monthly trends alongside aggregate months' {
             $data = [pscustomobject]@{
-                HasData = $true
-                Months = @([pscustomobject]@{ Month = 'Aug 2026'; Cost = 30; Currency = 'USD' })
+                HasData        = $true
+                Months         = @([pscustomobject]@{ Month = 'Aug 2026'; Cost = 30; Currency = 'USD' })
                 BySubscription = @{
                     'sub-a' = @([pscustomobject]@{ Month = 'Aug 2026'; Cost = 10; Currency = 'USD' })
                     'sub-b' = @([pscustomobject]@{ Month = 'Aug 2026'; Cost = 20; Currency = 'USD' })
@@ -298,9 +478,28 @@ Describe 'FinOps Multitool safety' {
             $rows = @(ConvertTo-FinOpsExportRows -Fn 'Get-CommitmentUtilization' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)
 
             $rows.Count | Should -Be 1
-            $rows[0].RecordType | Should -Be 'Summary'
+            $rows[0].RecordType | Should -Be 'Status'
+            $rows[0].Status | Should -Be 'Error'
+            $rows[0].Error | Should -Be 'Missing billing access'
             $rows[0].'Summary.AccessDenied' | Should -Be 'True'
             $rows[0].'Summary.Note' | Should -Be 'Missing billing access'
+        }
+
+        It 'Labels empty wrapper results while preserving summary collections' {
+            $data = [pscustomobject]@{
+                Orphans = @(); HasData = $false; TotalCount = 0; Note = 'No orphaned resources found'
+                CheckedScopes = @('sub-a', 'sub-b')
+            }
+
+            $rows = @(ConvertTo-FinOpsExportRows -Fn 'Get-OrphanedResources' -Data $data | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv)
+
+            $statusRows = @($rows | Where-Object RecordType -EQ 'Status')
+            $statusRows.Count | Should -Be 1
+            $statusRows[0].Status | Should -Be 'No data'
+            $statusRows[0].Scan | Should -Be 'Get-OrphanedResources'
+            $statusRows[0].'Summary.HasData' | Should -Be 'False'
+            $statusRows[0].'Summary.Note' | Should -Be $data.Note
+            ($rows | Where-Object RecordType -EQ 'Summary.CheckedScopes').Value | Should -Be @('sub-a', 'sub-b')
         }
 
         It 'Preserves cost source and period while protecting formula text' {
@@ -329,14 +528,15 @@ Describe 'FinOps Multitool safety' {
                 $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
                 $switches = $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.SwitchStatementAst] }, $true)
                 $branch = @($switches.Clauses | Where-Object {
-                    $_.Item1.Value -eq 'Get-CostByTag' -and $_.Item2.Extent.Text.Contains('No cost data was returned')
-                })
+                        $_.Item1.Value -eq 'Get-CostByTag' -and $_.Item2.Extent.Text.Contains('No cost data was returned')
+                    })
                 $branch.Count | Should -Be 1
                 $data = [pscustomobject]@{
                     CostByTag = @{ CostCenter = @(if ($HasRows) {
-                        [pscustomobject]@{ TagValue = 'team'; Cost = $Tagged; Currency = 'USD' }
-                        [pscustomobject]@{ TagValue = '(untagged)'; Cost = $Untagged; Currency = 'USD' }
-                    }) }
+                                [pscustomobject]@{ TagValue = 'team'; Cost = $Tagged; Currency = 'USD' }
+                                [pscustomobject]@{ TagValue = '(untagged)'; Cost = $Untagged; Currency = 'USD' }
+                            })
+                    }
                 }
                 $guidanceItems = @()
                 $body = ($branch[0].Item2.Statements | ForEach-Object { $_.Extent.Text }) -join "`n"
@@ -363,9 +563,11 @@ Describe 'FinOps Multitool safety' {
                 }
                 else {
                     [pscustomobject]@{ CostByTag = @{ CostCenter = @(
-                        [pscustomobject]@{ TagValue = 'team'; Cost = $Tagged }
-                        [pscustomobject]@{ TagValue = '(untagged)'; Cost = $Untagged }
-                    ) } }
+                                [pscustomobject]@{ TagValue = 'team'; Cost = $Tagged }
+                                [pscustomobject]@{ TagValue = '(untagged)'; Cost = $Untagged }
+                            )
+                        }
+                    }
                 }
                 $result = Add-KpiInsights -Result @{ tool = 'scan_cost_by_tag'; data = $data }
                 foreach ($insight in $result.kpiInsights | Where-Object kpiId -In @('pct-costs-untagged', 'pct-costs-unallocated', 'tagging-policy-compliant')) {
@@ -387,9 +589,11 @@ Describe 'FinOps Multitool safety' {
                 }
                 else {
                     [pscustomobject]@{ CostByTag = @{ CostCenter = @(
-                        [pscustomobject]@{ TagValue = 'team'; Cost = 80.0 }
-                        [pscustomobject]@{ TagValue = '(untagged)'; Cost = 20.0 }
-                    ) } }
+                                [pscustomobject]@{ TagValue = 'team'; Cost = 80.0 }
+                                [pscustomobject]@{ TagValue = '(untagged)'; Cost = 20.0 }
+                            )
+                        }
+                    }
                 }
                 (Get-KpiComputedValue -KpiId 'pct-costs-untagged' -Data $data).Value | Should -Be 20
                 (Get-KpiComputedValue -KpiId 'tagging-policy-compliant' -Data $data).Value | Should -Be 80
@@ -422,7 +626,7 @@ Describe 'FinOps Multitool safety' {
                     $category = if ($request.type -eq 'ActualCost') { 'UnusedReservation' } else { 'Reservation' }
                     $properties = @{
                         columns = @(@{ name = 'Currency' }, @{ name = $dimension }, @{ name = 'Cost' })
-                        rows = @(, @($fixtureCurrency, $category, 100.0))
+                        rows    = @(, @($fixtureCurrency, $category, 100.0))
                     }
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
                 }
@@ -553,7 +757,7 @@ Describe 'FinOps Multitool safety' {
                     $currency = if ($isNext) { 'USD' } else { 'EUR' }
                     $properties = @{
                         columns = @(@{ name = 'Cost' }, @{ name = 'ChargeType' }, @{ name = 'Currency' })
-                        rows = @(, @(100.0, 'UnusedReservation', $currency))
+                        rows    = @(, @(100.0, 'UnusedReservation', $currency))
                     }
                     if (-not $isNext) { $properties.nextLink = "$Path&page=2" }
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
@@ -579,9 +783,11 @@ Describe 'FinOps Multitool safety' {
                     $dimension = if ($request.type -eq 'ActualCost') { 'ChargeType' } else { 'PricingModel' }
                     $category = if ($request.type -eq 'ActualCost') { 'UnusedReservation' } else { 'Reservation' }
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{
-                        columns = @(@{ name = $dimension }, @{ name = 'Currency' }, @{ name = 'Cost' })
-                        rows = @(, @($category, $currency, 100.0))
-                    } } | ConvertTo-Json -Depth 8) }
+                                    columns = @(@{ name = $dimension }, @{ name = 'Currency' }, @{ name = 'Cost' })
+                                    rows    = @(, @($category, $currency, 100.0))
+                                }
+                            } | ConvertTo-Json -Depth 8)
+                    }
                 }
                 $subscriptions = @(
                     [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
@@ -640,9 +846,11 @@ Describe 'FinOps Multitool safety' {
                     $dimension = if ($request.type -eq 'ActualCost') { 'ChargeType' } else { 'PricingModel' }
                     $category = if ($request.type -eq 'ActualCost') { 'Usage' } else { 'Reservation' }
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{
-                        columns = @(@{ name = 'Cost' }, @{ name = $dimension }, @{ name = 'Currency' })
-                        rows = @(, @(100.0, $category, 'EUR'))
-                    } } | ConvertTo-Json -Depth 8) }
+                                    columns = @(@{ name = 'Cost' }, @{ name = $dimension }, @{ name = 'Currency' })
+                                    rows    = @(, @(100.0, $category, 'EUR'))
+                                }
+                            } | ConvertTo-Json -Depth 8)
+                    }
                 }
                 Mock Search-AzGraphSafe { @{ Data = @([pscustomobject]@{ vmSize = 'Standard_D2s_v5'; location = 'eastus' }) } }
                 Mock Get-AhbVmRates { [pscustomobject]@{ HourlyPremium = 0.1 } }
@@ -947,10 +1155,11 @@ Describe 'FinOps Multitool cost math' {
             InModuleScope FinOpsMultitool {
                 $subscriptionId = '44444444-4444-4444-4444-444444444444'
                 $data = [pscustomobject]@{ CostBasis = 'ActualCost'; Rows = @(
-                    [pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = 10; Currency = 'USD'; ResourceId = "/subscriptions/$subscriptionId/resourceGroups/test/providers/Microsoft.Compute/disks/test" }
-                    [pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = 20; Currency = 'USD'; ResourceId = '' }
-                    [pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = -5; Currency = 'USD'; ResourceId = $null }
-                ) }
+                        [pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = 10; Currency = 'USD'; ResourceId = "/subscriptions/$subscriptionId/resourceGroups/test/providers/Microsoft.Compute/disks/test" }
+                        [pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = 20; Currency = 'USD'; ResourceId = '' }
+                        [pscustomobject]@{ SubscriptionId = $subscriptionId; Cost = -5; Currency = 'USD'; ResourceId = $null }
+                    )
+                }
                 $subscriptions = @([pscustomobject]@{ Id = $subscriptionId; Name = 'test' })
 
                 $rows = @(ConvertTo-ResourceCostsFromExport -ExportData $data -Subscriptions $subscriptions)
@@ -988,10 +1197,10 @@ Describe 'FinOps Multitool cost math' {
                 $subscriptionId = '44444444-4444-4444-4444-444444444444'
                 $data = [pscustomobject]@{
                     CostBasis = 'ActualCost'
-                    Rows = @([pscustomobject]@{
-                        SubscriptionId = $subscriptionId; Cost = 100; Currency = 'EUR'; Date = '2026-08-31'
-                        ResourceId = "/subscriptions/$subscriptionId/resourceGroups/test/providers/Microsoft.Compute/disks/test"
-                    })
+                    Rows      = @([pscustomobject]@{
+                            SubscriptionId = $subscriptionId; Cost = 100; Currency = 'EUR'; Date = '2026-08-31'
+                            ResourceId = "/subscriptions/$subscriptionId/resourceGroups/test/providers/Microsoft.Compute/disks/test"
+                        })
                 }
                 $subscriptions = @([pscustomobject]@{ Id = $subscriptionId; Name = 'test' })
 
@@ -1036,9 +1245,9 @@ Describe 'FinOps Multitool cost math' {
 
                 $exportData = [pscustomobject]@{
                     CostBasis = 'ActualCost'
-                    Currency = 'USD'
-                    ColMap   = [pscustomobject]@{ Cost = 'Cost'; SubscriptionId = 'SubscriptionId'; ResourceId = $null }
-                    Rows     = @(
+                    Currency  = 'USD'
+                    ColMap    = [pscustomobject]@{ Cost = 'Cost'; SubscriptionId = 'SubscriptionId'; ResourceId = $null }
+                    Rows      = @(
                         [pscustomobject]@{ SubscriptionId = $selected; Cost = '10.00' }
                         [pscustomobject]@{ SubscriptionId = $other; Cost = '999.00' }
                     )
@@ -1153,9 +1362,10 @@ Describe 'FinOps Multitool cost math' {
                 Mock Get-PlainAccessToken { 'test-token' }
                 Mock Get-StorageBlobList {
                     @{ Listed = $true; Blobs = @(
-                        [pscustomobject]@{ Name = 'export/run/part1.csv'; LastModified = [datetime]'2026-09-15' }
-                        [pscustomobject]@{ Name = 'export/run/part2.csv'; LastModified = [datetime]'2026-09-15' }
-                    ) }
+                            [pscustomobject]@{ Name = 'export/run/part1.csv'; LastModified = [datetime]'2026-09-15' }
+                            [pscustomobject]@{ Name = 'export/run/part2.csv'; LastModified = [datetime]'2026-09-15' }
+                        )
+                    }
                 }
                 Mock Get-StorageBlobBytes {
                     if ($Uri -like '*part2.csv') { return $null }
@@ -1282,11 +1492,11 @@ Describe 'FinOps Multitool cost math' {
                 $subscriptionId = '66666666-6666-6666-6666-666666666666'
                 $targetResourceId = "/subscriptions/$subscriptionId/resourceGroups/test/providers/Microsoft.CognitiveServices/accounts/test"
                 $rows = @([pscustomobject]@{
-                    SubAccountId = $subscriptionId; SubAccountName = 'test'; BilledCost = 12000; EffectiveCost = 1000
-                    BillingCurrency = 'USD'; ResourceId = $targetResourceId; ResourceType = 'microsoft.cognitiveservices/accounts'
-                    Tags = '{"CostCenter":"test"}'; ConsumedQuantity = 0
-                    ChargePeriodStart = '2026-08-31T00:00:00Z'
-                })
+                        SubAccountId = $subscriptionId; SubAccountName = 'test'; BilledCost = 12000; EffectiveCost = 1000
+                        BillingCurrency = 'USD'; ResourceId = $targetResourceId; ResourceType = 'microsoft.cognitiveservices/accounts'
+                        Tags = '{"CostCenter":"test"}'; ConsumedQuantity = 0
+                        ChargePeriodStart = '2026-08-31T00:00:00Z'
+                    })
                 Mock Resolve-VmAssociation {
                     $associated = [System.Collections.Generic.HashSet[string]]::new()
                     [void]$associated.Add($targetResourceId)
@@ -1301,7 +1511,7 @@ Describe 'FinOps Multitool cost math' {
                 (Get-VmCostBreakdown -VmName 'test' -HubData $rows).Period | Should -Be '2026-08-31 to 2026-08-31'
                 (ConvertTo-AIHubAggregates -HubData $rows).AICost | Should -Be 1000
                 (ConvertTo-AIHubAggregates -HubData $rows).Period | Should -Be '2026-08-31 to 2026-08-31'
-                { Resolve-HubCostColumn -Props @('BilledCost') -CostBasis 'AmortizedCost' } | Should -Throw '*AmortizedCost*'
+                { Resolve-HubCostColumn -Props @('BilledCost') -CostBasis 'AmortizedCost' } | Should -Throw '*AmortizedCost*EffectiveCost*FOCUS*API*'
                 { Resolve-HubCostColumn -Props @('EffectiveCost') -CostBasis 'ActualCost' } | Should -Throw '*ActualCost*'
             }
         }
@@ -1348,6 +1558,46 @@ Describe 'FinOps Multitool cost math' {
                 ($result.CostByTag.env | Measure-Object Cost -Sum).Sum | Should -Be 25
             }
         }
+
+        It 'Handles case-variant tag keys within the same hub record without double counting' {
+            InModuleScope FinOpsMultitool {
+                $rows = @(
+                    [pscustomobject]@{ BilledCost = 10; BillingCurrency = 'USD'; ResourceId = '/subscriptions/test/resources/one'; Tags = '{"project":"shared","Project":"shared","Environment":"Prod"}' }
+                    [pscustomobject]@{ BilledCost = 20; BillingCurrency = 'USD'; ResourceId = '/subscriptions/test/resources/two'; Tags = '{"PROJECT":"shared","Environment":"prod"}' }
+                    [pscustomobject]@{ BilledCost = -5; BillingCurrency = 'USD'; ResourceId = ''; Tags = '' }
+                )
+
+                $result = ConvertTo-CostByTagFromHub -HubData $rows
+                $inventory = ConvertTo-TagInventoryFromHub -HubData $rows
+
+                @($result.TagsQueried | Where-Object { $_ -ieq 'Project' }).Count | Should -Be 1
+                ($result.CostByTag.Project | Where-Object TagValue -EQ 'shared').Cost | Should -Be 30
+                ($result.CostByTag.Project | Measure-Object Cost -Sum).Sum | Should -Be 25
+                ($result.CostByTag.Environment | Where-Object { $_.TagValue -ceq 'Prod' }).Cost | Should -Be 10
+                ($result.CostByTag.Environment | Where-Object { $_.TagValue -ceq 'prod' }).Cost | Should -Be 20
+                $inventory.TaggedCount | Should -Be 2
+                $inventory.TagNames.Project.TotalResources | Should -Be 2
+                @($inventory.TagNames.Environment.Values).Count | Should -Be 2
+            }
+        }
+
+        It 'Reports conflicting case-variant tag values once instead of choosing one' {
+            InModuleScope FinOpsMultitool {
+                $rows = @(
+                    [pscustomobject]@{ BilledCost = 10; BillingCurrency = 'USD'; ResourceId = '/subscriptions/test/resources/one'; Tags = '{"project":"team-a","Project":"team-b"}' }
+                    [pscustomobject]@{ BilledCost = 20; BillingCurrency = 'USD'; ResourceId = '/subscriptions/test/resources/two'; Tags = '"project":"team-a"' }
+                )
+
+                $result = ConvertTo-CostByTagFromHub -HubData $rows
+                $inventory = ConvertTo-TagInventoryFromHub -HubData $rows
+
+                ($result.CostByTag.Project | Where-Object TagValue -EQ '(conflicting tag values)').Cost | Should -Be 10
+                ($result.CostByTag.Project | Where-Object TagValue -EQ 'team-a').Cost | Should -Be 20
+                ($result.CostByTag.Project | Measure-Object Cost -Sum).Sum | Should -Be 30
+                $inventory.TagNames.Project.TotalResources | Should -Be 2
+                ($inventory.TagNames.Project.Values | Where-Object TagValue -EQ '(conflicting tag values)').ResourceCount | Should -Be 1
+            }
+        }
     }
 
     Context 'Amortized query currency' {
@@ -1383,6 +1633,37 @@ Describe 'FinOps Multitool cost math' {
     }
 
     Context 'Hub storage completeness' {
+        It 'Labels the actual <Format> reader instead of inferring it from the cost columns' -ForEach @(
+            @{ Format = 'CSV' }
+            @{ Format = 'Parquet' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ExpectedFormat = $Format } {
+                param($ExpectedFormat)
+                $useParquet = $ExpectedFormat -eq 'Parquet'
+                Mock Write-Host { }
+                Mock New-AzStorageContext { $null }
+                Mock Install-ParquetReader { $true }
+                Mock Get-AzDataLakeGen2ChildItem {
+                    if ($FileSystem -eq 'ingestion') {
+                        if ($useParquet) { [pscustomobject]@{ Name = 'part.parquet'; Path = 'Costs/2026/09/part.parquet'; IsDirectory = $false } }
+                    }
+                    else { [pscustomobject]@{ Name = 'part.csv'; Path = 'export/20260901-20260930/202609180001/run/part.csv'; IsDirectory = $false } }
+                }
+                Mock Get-AzDataLakeGen2ItemContent { }
+                Mock Read-ParquetFile { [pscustomobject]@{ BilledCost = 10; BillingCurrency = 'USD'; x_SkuTier = 'Premium' } }
+                Mock Import-Csv { [pscustomobject]@{ BilledCost = 10; BillingCurrency = 'USD' } }
+
+                $rows = @(Read-FinOpsHubData -StorageAccountName 'fixture' -ResourceGroupName 'fixture' -Months 1)
+
+                $rows.Count | Should -Be 1
+                Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter {
+                    "$Object" -match "Total rows from Hub \($ExpectedFormat\): 1"
+                }
+                $csvReads = if ($useParquet) { 0 } else { 1 }
+                Should -Invoke Import-Csv -Times $csvReads -Exactly
+            }
+        }
+
         It 'Propagates a Parquet parsing failure instead of returning an empty dataset' {
             $missingFile = Join-Path $TestDrive 'unreadable.parquet'
             { Read-ParquetFile -Path $missingFile } | Should -Throw '*Parquet*incomplete*'
@@ -1465,7 +1746,7 @@ Describe 'FinOps Multitool cost math' {
                 Mock Import-Csv { [pscustomobject]@{ BilledCost = 100; BillingCurrency = 'USD'; SubAccountId = '44444444-4444-4444-4444-444444444444' } }
 
                 { Read-FinOpsHubData -StorageAccountName 'test' -ResourceGroupName 'test' -SubscriptionIds @('44444444-4444-4444-4444-444444444444') } |
-                    Should -Throw '*incomplete*'
+                Should -Throw '*incomplete*'
             }
         }
 
@@ -1478,7 +1759,7 @@ Describe 'FinOps Multitool cost math' {
                 Mock Read-ParquetFile { [pscustomobject]@{ BilledCost = 100; BillingCurrency = 'USD'; SubAccountId = '44444444-4444-4444-4444-444444444444' } }
 
                 { Read-FinOpsHubData -StorageAccountName 'test' -ResourceGroupName 'test' -SubscriptionIds @('44444444-4444-4444-4444-444444444444', '55555555-5555-5555-5555-555555555555') } |
-                    Should -Throw '*coverage*'
+                Should -Throw '*coverage*'
             }
         }
 
@@ -1565,7 +1846,73 @@ Describe 'FinOps Multitool cost math' {
         }
     }
 
+    Context 'Cost trend guidance' {
+        It 'Uses comparable completed months for <Case>' -ForEach @(
+            @{ Case = 'the reported September data'; Now = '2026-09-18T12:00:00Z'; Dates = @('2026-05-01', '2026-07-01', '2026-08-01', '2026-09-01'); Costs = @(1359.56, 1205.47, 751.48, 441.78); Currencies = @('USD', 'USD', 'USD', 'USD'); Expected = 'decreased 37.7% from Jul 2026 to Aug 2026' }
+            @{ Case = 'a year boundary'; Now = '2026-02-18T12:00:00Z'; Dates = @('2025-12-01', '2026-01-01', '2026-02-01'); Costs = @(100, 110, 10); Currencies = @('EUR', 'EUR', 'EUR'); Expected = 'increased 10% from Dec 2025 to Jan 2026' }
+            @{ Case = 'only one completed month'; Now = '2026-09-18T12:00:00Z'; Dates = @('2026-08-01', '2026-09-01'); Costs = @(100, 10); Currencies = @('USD', 'USD'); Expected = 'needs two completed months' }
+            @{ Case = 'a missing calendar month'; Now = '2026-09-18T12:00:00Z'; Dates = @('2026-05-01', '2026-08-01'); Costs = @(100, 10); Currencies = @('USD', 'USD'); Expected = 'two consecutive completed months' }
+            @{ Case = 'different billing currencies'; Now = '2026-09-18T12:00:00Z'; Dates = @('2026-07-01', '2026-08-01'); Costs = @(100, 10); Currencies = @('EUR', 'USD'); Expected = 'unknown or different currencies' }
+            @{ Case = 'a zero baseline'; Now = '2026-09-18T12:00:00Z'; Dates = @('2026-07-01', '2026-08-01'); Costs = @(0, 10); Currencies = @('USD', 'USD'); Expected = 'no positive net cost' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ModuleRoot = $script:ModuleRoot; Now = $Now; Dates = $Dates; Costs = $Costs; Currencies = $Currencies; Expected = $Expected } {
+                param($ModuleRoot, $Now, $Dates, $Costs, $Currencies, $Expected)
+                $fixtureNow = [datetime]::Parse($Now, [cultureinfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::AdjustToUniversal)
+                Mock Get-Date { $fixtureNow }
+                $months = @(for ($index = 0; $index -lt $Dates.Count; $index++) {
+                        $monthDate = [datetime]::ParseExact($Dates[$index], 'yyyy-MM-dd', [cultureinfo]::InvariantCulture)
+                        [pscustomobject]@{ Month = $monthDate.ToString('MMM yyyy'); MonthDate = $monthDate; Cost = $Costs[$index]; Currency = $Currencies[$index] }
+                    })
+                $data = [pscustomobject]@{ Months = $months }
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                $switches = $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.SwitchStatementAst] }, $true)
+                $branch = @($switches.Clauses | Where-Object { $_.Item1.Value -eq 'Get-CostTrend' -and $_.Item2.Extent.Text.Contains('$guidanceItems') })
+                $branch.Count | Should -Be 1
+                $guidanceItems = @()
+                $body = ($branch[0].Item2.Statements | ForEach-Object { $_.Extent.Text }) -join "`n"
+
+                . ([scriptblock]::Create("param(`$data)`n$body")) $data
+
+                ($guidanceItems.Message -join ' ') | Should -Match ([regex]::Escape($Expected))
+                ($guidanceItems.Message -join ' ') | Should -Not -Match '67.5%|Optimization efforts are working|Good cost discipline'
+                $guidanceItems.Severity | Should -Not -Contain 'Green'
+            }
+        }
+    }
+
     Context 'Hourly cost reporting' {
+        It 'Keeps small unit costs and hourly rates above zero' {
+            InModuleScope FinOpsMultitool {
+                Mock Write-Host { }
+                Mock Get-Date { [datetime]::new(2026, 9, 17, 0, 0, 0, [DateTimeKind]::Utc) }
+                Mock Search-AzGraphSafe {
+                    if ($Query -match 'virtualmachines') {
+                        @{ Data = @([pscustomobject]@{ cnt = 4; vmSize = 'Standard_D2s_v5'; loc = 'eastus'; subId = '11111111-1111-1111-1111-111111111111' }) }
+                    }
+                    else { @{ Data = @([pscustomobject]@{ totalGb = 0 }) } }
+                }
+                Mock Get-VmSizeCapability { @{ VCpu = 2; MemGb = 8 } }
+                Mock Get-StorageAccountUsedGb { 0.9 }
+                Mock Resolve-CostMgId { $null }
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"properties":{"columns":[{"name":"Cost"},{"name":"MeterCategory"},{"name":"Currency"}],"rows":[[0.12,"Virtual Machines","USD"],[9.08,"Storage","USD"]]}}' }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+
+                $result = Get-UnitEconomics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+                $hourly = Get-KpiComputedValue -KpiId 'hourly-cost-per-cpu-core' -Data $result
+
+                $result.CostPerVCpu | Should -Be 0.015
+                $result.CostPerGbRam | Should -Be 0.00375
+                $result.CostPerVm | Should -Be 0.03
+                (Format-FinOpsUnitRate -Value $result.CostPerGbRam -Currency $result.Currency) | Should -Be 'USD 0.00375'
+                $hourly.Value | Should -Be 0.0000390625
+                $hourly.Display | Should -Be 'USD 0.00003906 per vCPU / hour'
+                (Format-FinOpsUnitRate -Value 0.000000000001 -Currency 'USD') | Should -Be 'USD 1E-12'
+                (Format-FinOpsUnitRate -Value 0 -Currency 'USD') | Should -Be 'USD 0'
+            }
+        }
+
         It 'Uses the UTC month instead of a local calendar that is still in August' {
             InModuleScope FinOpsMultitool {
                 Mock Get-Date { [datetime]::new(2026, 9, 1, 2, 0, 0, [DateTimeKind]::Utc) }
@@ -1583,10 +1930,10 @@ Describe 'FinOps Multitool cost math' {
                 Mock Get-Date { [datetime]::new(2026, 10, 2, 0, 0, 0, [DateTimeKind]::Utc) }
                 Mock Get-Date { [datetime]::new(2026, 10, 1) } -ParameterFilter { $Day -eq 1 }
                 $data = [pscustomobject]@{
-                    CostPerVCpu = 384.0
-                    Currency = 'USD'
+                    CostPerVCpu        = 384.0
+                    Currency           = 'USD'
                     CostPeriodStartUtc = [datetime]::new(2026, 9, 1, 0, 0, 0, [DateTimeKind]::Utc)
-                    CostPeriodEndUtc = [datetime]::new(2026, 9, 17, 0, 0, 0, [DateTimeKind]::Utc)
+                    CostPeriodEndUtc   = [datetime]::new(2026, 9, 17, 0, 0, 0, [DateTimeKind]::Utc)
                 }
 
                 $result = Get-KpiComputedValue -KpiId 'hourly-cost-per-cpu-core' -Data $data
@@ -1644,9 +1991,10 @@ Describe 'FinOps Multitool cost math' {
         It 'Reports comparable known budgets using their currency' {
             InModuleScope FinOpsMultitool {
                 $data = [pscustomobject]@{ Budgets = @(
-                    [pscustomobject]@{ Amount = 1000; ActualSpend = 500; Currency = 'EUR'; TimeGrain = 'Monthly'; Category = 'Cost'; SubscriptionId = 'one'; TimePeriod = @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-1) } }
-                    [pscustomobject]@{ Amount = 1000; ActualSpend = 1500; Currency = 'EUR'; TimeGrain = 'Monthly'; Category = 'Cost'; SubscriptionId = 'two'; TimePeriod = @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-1) } }
-                ) }
+                        [pscustomobject]@{ Amount = 1000; ActualSpend = 500; Currency = 'EUR'; TimeGrain = 'Monthly'; Category = 'Cost'; SubscriptionId = 'one'; TimePeriod = @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-1) } }
+                        [pscustomobject]@{ Amount = 1000; ActualSpend = 1500; Currency = 'EUR'; TimeGrain = 'Monthly'; Category = 'Cost'; SubscriptionId = 'two'; TimePeriod = @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-1) } }
+                    )
+                }
                 $variance = Get-KpiComputedValue -KpiId 'variance-budget-vs-actual' -Data $data
                 $burn = Get-KpiComputedValue -KpiId 'budget-burn-rate' -Data $data
 

@@ -37,13 +37,9 @@ param()
 # - Storage Blob Data Reader RBAC on the Hub storage account
 ###########################################################################
 
-# Helper: Convert JSON to hashtable (PS 5.1 compatible — no -AsHashtable)
 function ConvertTo-HashtableFromJson {
     param([string]$Json)
-    $obj = $Json | ConvertFrom-Json -ErrorAction Stop
-    $ht = @{}
-    foreach ($p in $obj.PSObject.Properties) { $ht[$p.Name] = $p.Value }
-    return $ht
+    return ConvertFrom-ExportTagString -Raw $Json
 }
 
 function Get-FinOpsParquetCachePath {
@@ -64,7 +60,7 @@ function Get-ParquetPayloadFile {
             # Native payloads are .dll on Windows but .so/.dylib elsewhere, and a
             # .dll-only filter would leave those unhashed on Linux and macOS.
             Get-ChildItem -LiteralPath $r -Recurse -File -ErrorAction SilentlyContinue |
-                Where-Object { $_.Name -match '\.(dll|dylib|so)(\.\d+)*$' }
+            Where-Object { $_.Name -match '\.(dll|dylib|so)(\.\d+)*$' }
         }
     }
     return @($files | Sort-Object FullName)
@@ -640,6 +636,7 @@ function Read-FinOpsHubData {
     }
 
     $allData = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $loadedFormat = $null
     $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) "FinOpsHub-$([guid]::NewGuid().ToString('N').Substring(0,8))"
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 
@@ -675,6 +672,7 @@ function Read-FinOpsHubData {
                             Get-AzDataLakeGen2ItemContent -Context $ctx -FileSystem 'ingestion' -Path $blob.Path -Destination $localFile -Force -ErrorAction Stop | Out-Null
                             $rows = @(Read-ParquetFile -Path $localFile -ErrorAction Stop)
                             if ($rows -and @($rows).Count -gt 0) {
+                                $loadedFormat = 'Parquet'
                                 foreach ($row in $rows) { $allData.Add($row) }
                                 Write-Host "    Loaded $(@($rows).Count) rows from $(Split-Path $blob.Path -Leaf)" -ForegroundColor DarkGray
                             }
@@ -738,6 +736,7 @@ function Read-FinOpsHubData {
                             Get-AzDataLakeGen2ItemContent -Context $ctx -FileSystem 'msexports' -Path $blob.Path -Destination $localFile -Force -ErrorAction Stop | Out-Null
                             $rows = Import-Csv -Path $localFile -ErrorAction Stop
                             if ($rows -and @($rows).Count -gt 0) {
+                                $loadedFormat = 'CSV'
                                 foreach ($row in $rows) { $allData.Add($row) }
                                 $periodRows += @($rows).Count
                             }
@@ -769,8 +768,7 @@ function Read-FinOpsHubData {
     }
 
     if ($allData.Count -gt 0) {
-        $source = if ($allData[0].PSObject.Properties.Name -contains 'x_SkuTier') { 'CSV' } else { 'parquet' }
-        Write-Host "    Total rows from Hub ($source): $($allData.Count)" -ForegroundColor Green
+        Write-Host "    Total rows from Hub ($loadedFormat): $($allData.Count)" -ForegroundColor Green
     }
 
     if ($wanted.Count -gt 0) {
@@ -931,6 +929,9 @@ function Resolve-HubCostColumn {
     else { @('BilledCost', 'CostInBillingCurrency', 'PreTaxCost', 'Cost') }
     foreach ($column in $candidates) {
         if ($Props -contains $column) { return $column }
+    }
+    if ($CostBasis -eq 'AmortizedCost') {
+        throw 'AmortizedCost is unavailable in the selected Hub data. This scan requires EffectiveCost from a FOCUS export. Billed cost is not substituted. Use a FOCUS export with EffectiveCost or select API for a separate live scan.'
     }
     throw "No $CostBasis column is available; cost results are incomplete."
 }
@@ -1230,7 +1231,7 @@ function ConvertTo-TagInventoryFromHub {
 
                 if (-not $tagNames.ContainsKey($tName)) {
                     $tagNames[$tName] = @{
-                        Values         = @{}
+                        Values         = [System.Collections.Generic.Dictionary[string, object]]::new([System.StringComparer]::Ordinal)
                         TotalResources = 0
                     }
                 }

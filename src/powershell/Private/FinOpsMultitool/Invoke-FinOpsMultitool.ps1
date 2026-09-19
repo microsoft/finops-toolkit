@@ -1019,10 +1019,10 @@ function Invoke-FinOpsMultitool {
                     $currentMonth = (Get-Date).ToUniversalTime()
                     $currentMonth = $currentMonth.Date.AddDays(1 - $currentMonth.Day)
                     $forecastSubscriptions = @($Subscriptions | Where-Object {
-                        $entry = if ($hubCostData) { $hubCostData[$_.Id] } else { $null }
-                        $entry -and $null -ne $entry.ActualPeriodStart -and $null -ne $entry.ActualPeriodEnd -and
-                        $entry.ActualPeriodStart -ge $currentMonth -and $entry.ActualPeriodEnd -lt $currentMonth.AddMonths(1)
-                    })
+                            $entry = if ($hubCostData) { $hubCostData[$_.Id] } else { $null }
+                            $entry -and $null -ne $entry.ActualPeriodStart -and $null -ne $entry.ActualPeriodEnd -and
+                            $entry.ActualPeriodStart -ge $currentMonth -and $entry.ActualPeriodEnd -lt $currentMonth.AddMonths(1)
+                        })
                     if ($hubCostData -and $forecastSubscriptions.Count -gt 0) {
                         try {
                             $liveCost = Get-CostData -TenantId $TenantId -Subscriptions $forecastSubscriptions -RestrictToSelected
@@ -1070,7 +1070,7 @@ function Invoke-FinOpsMultitool {
             $pct = [math]::Round(($current / $total) * 100)
             $bar = ('█' * [math]::Floor($pct / 5)).PadRight(20, '░')
 
-            Write-Host "  [$bar] $pct%  ($current/$total) $($mod.Name)" -ForegroundColor White -NoNewline
+            Write-Host "  [$bar] $pct%  ($current/$total) $($mod.Name)" -ForegroundColor White
 
             $sw = [System.Diagnostics.Stopwatch]::StartNew()
             try {
@@ -1191,13 +1191,12 @@ function Invoke-FinOpsMultitool {
                 $count = if ($output) { @($output).Count } else { 0 }
                 $results[$fn] = $output
 
-                Write-Host "`r  [$bar] $pct%  ($current/$total) $($mod.Name) " -ForegroundColor Green -NoNewline
-                Write-Host "  $count results ($([math]::Round($sw.Elapsed.TotalSeconds, 1))s)" -ForegroundColor DarkGray
+                Write-Host "    Completed: $($mod.Name) - $count results ($([math]::Round($sw.Elapsed.TotalSeconds, 1))s)" -ForegroundColor Green
             }
             catch {
                 $sw.Stop()
-                Write-Host "`r  [$bar] $pct%  ($current/$total) $($mod.Name) " -ForegroundColor Red -NoNewline
-                Write-Host "  FAILED: $($_.Exception.Message)" -ForegroundColor Red
+                Write-Host "    FAILED: $($mod.Name)" -ForegroundColor Red
+                Write-Host "      $($_.Exception.Message)" -ForegroundColor Red
                 $results[$mod.Fn] = @()
                 $results["_error_$($mod.Fn)"] = $_.Exception.Message
             }
@@ -1296,31 +1295,31 @@ function Invoke-FinOpsMultitool {
 
         $rows = $null
         $payloadsByScan = @{
-            'Get-AHBOpportunities' = @('WindowsVMs', 'SQLVMs', 'SQLDatabases')
-            'Get-AIWorkloadMetrics' = @('ByModel', 'ByAccount')
-            'Get-AnomalyAlerts' = @('TriggeredAlerts', 'ConfiguredRules')
-            'Get-BillingAccount' = @('Accounts')
-            'Get-BillingStructure' = @('BillingAccounts', 'BillingProfiles', 'InvoiceSections', 'EADepartments', 'CostAllocationRules')
-            'Get-BudgetStatus' = @('Budgets')
-            'Get-CarbonMetrics' = @('MonthlyTrend', 'BySubscription')
-            'Get-CommitmentUtilization' = @('Reservations', 'SavingsPlans')
-            'Get-CostByTag' = @('CostByTag')
-            'Get-CostTrend' = @('Months', 'BySubscription')
-            'Get-IdleVMs' = @('IdleVMs')
-            'Get-LegacyResources' = @('LegacyResources')
-            'Get-MaccCommitment' = @('Commitments')
-            'Get-OptimizationAdvice' = @('Recommendations')
-            'Get-OrphanedResources' = @('Orphans')
-            'Get-PolicyInventory' = @('Assignments', 'ComplianceBySubMap')
-            'Get-PolicyRecommendations' = @('Analysis')
-            'Get-ReservationAdvice' = @('AdvisorRecommendations', 'ReservationRecommendations')
-            'Get-SavingsRealized' = @('Details')
-            'Get-SharedCostAllocation' = @('Allocations', 'RuleTargets')
-            'Get-StorageTierAdvice' = @('Recommendations')
-            'Get-TagInventory' = @('TagNames', 'CaseVariants', 'UntaggedResources')
-            'Get-TagRecommendations' = @('Analysis')
+            'Get-AHBOpportunities'            = @('WindowsVMs', 'SQLVMs', 'SQLDatabases')
+            'Get-AIWorkloadMetrics'           = @('ByModel', 'ByAccount')
+            'Get-AnomalyAlerts'               = @('TriggeredAlerts', 'ConfiguredRules')
+            'Get-BillingAccount'              = @('Accounts')
+            'Get-BillingStructure'            = @('BillingAccounts', 'BillingProfiles', 'InvoiceSections', 'EADepartments', 'CostAllocationRules')
+            'Get-BudgetStatus'                = @('Budgets')
+            'Get-CarbonMetrics'               = @('MonthlyTrend', 'BySubscription')
+            'Get-CommitmentUtilization'       = @('Reservations', 'SavingsPlans')
+            'Get-CostByTag'                   = @('CostByTag')
+            'Get-CostTrend'                   = @('Months', 'BySubscription')
+            'Get-IdleVMs'                     = @('IdleVMs')
+            'Get-LegacyResources'             = @('LegacyResources')
+            'Get-MaccCommitment'              = @('Commitments')
+            'Get-OptimizationAdvice'          = @('Recommendations')
+            'Get-OrphanedResources'           = @('Orphans')
+            'Get-PolicyInventory'             = @('Assignments', 'ComplianceBySubMap')
+            'Get-PolicyRecommendations'       = @('Analysis')
+            'Get-ReservationAdvice'           = @('AdvisorRecommendations', 'ReservationRecommendations')
+            'Get-SavingsRealized'             = @('Details')
+            'Get-SharedCostAllocation'        = @('Allocations', 'RuleTargets')
+            'Get-StorageTierAdvice'           = @('Recommendations')
+            'Get-TagInventory'                = @('TagNames', 'CaseVariants', 'UntaggedResources')
+            'Get-TagRecommendations'          = @('Analysis')
             'Get-UsageProportionalAllocation' = @('Allocations', 'RuleTargets')
-            'Get-VmCostBreakdown' = @('Breakdown')
+            'Get-VmCostBreakdown'             = @('Breakdown')
         }
 
         $metadata = [ordered]@{}
@@ -1413,10 +1412,18 @@ function Invoke-FinOpsMultitool {
             $rows = @($Data)
         }
 
-        if ($payloadsByScan.ContainsKey($Fn) -and $rows.Count -eq 0) {
-            $record = [ordered]@{ RecordType = 'Summary' }
-            foreach ($field in $metadata.GetEnumerator()) { $record[$field.Key] = $field.Value }
-            $rows = @([PSCustomObject]$record)
+        if ($payloadsByScan.ContainsKey($Fn)) {
+            $primaryRows = @($rows | Where-Object { $_.RecordType -in $payloadNames })
+            if ($primaryRows.Count -eq 0) {
+                $record = [ordered]@{
+                    RecordType = 'Status'
+                    Scan = $Fn
+                    Status = if ($Data.AccessDenied -or $Data.Error) { 'Error' } else { 'No data' }
+                    Error = if ($Data.Error) { $Data.Error } elseif ($Data.AccessDenied) { $Data.Note } else { $null }
+                }
+                foreach ($field in $metadata.GetEnumerator()) { $record[$field.Key] = $field.Value }
+                $rows = @([PSCustomObject]$record) + @($rows)
+            }
         }
 
         # Whatever projection was chosen, guarantee scalar cells.
@@ -1445,6 +1452,133 @@ function Invoke-FinOpsMultitool {
         }
         if ($flatRows.Count -eq 0) { return @() }
         return @($flatRows | Select-Object -Property $columnNames.ToArray())
+    }
+
+    function Get-FinOpsReportRoot {
+        $localData = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData, [Environment+SpecialFolderOption]::DoNotVerify)
+        if ([string]::IsNullOrWhiteSpace($localData)) {
+            throw 'Local application data is unavailable. Specify a local OutputPath outside any Git repository.'
+        }
+        return (Join-Path $localData 'FinOpsToolkit/Multitool/Reports')
+    }
+
+    function Assert-FinOpsReportPath {
+        param([Parameter(Mandatory)][string]$Path)
+
+        if ($Path -match '^[\\/]{2}|::|[\x00-\x1f]' -or ($Path.Contains(':') -and $Path -notmatch '^[A-Za-z]:[\\/][^:]*$')) {
+            throw 'Reports require a local filesystem path, not a network, device, or provider path.'
+        }
+        $provider = $null
+        $drive = $null
+        $fullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path, [ref]$provider, [ref]$drive)
+        if ($provider.Name -ne 'FileSystem' -or $fullPath -match '^[\\/]{2}') {
+            throw 'Reports require a local filesystem path.'
+        }
+        $fullPath = [System.IO.Path]::GetFullPath($fullPath)
+        if ($IsWindows -and ([System.IO.DriveInfo]::new([System.IO.Path]::GetPathRoot($fullPath))).DriveType -eq [System.IO.DriveType]::Network) {
+            throw 'Reports require a local drive, not a mapped network drive.'
+        }
+        $ancestor = $fullPath
+        while ($ancestor) {
+            if ([System.IO.Path]::GetFileName($ancestor) -ieq '.git') {
+                throw 'Reports cannot be saved in a Git metadata directory.'
+            }
+            try {
+                $attributes = [System.IO.File]::GetAttributes($ancestor)
+                if (($attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+                    throw 'Report paths cannot contain symbolic links or junctions.'
+                }
+                if (($attributes -band [System.IO.FileAttributes]::Directory) -eq 0) {
+                    throw 'The report destination must be a local directory.'
+                }
+                $gitMarker = Join-Path $ancestor '.git'
+                $hasGitMarker = $false
+                try {
+                    $null = [System.IO.File]::GetAttributes($gitMarker)
+                    $hasGitMarker = $true
+                }
+                catch [System.IO.FileNotFoundException] { $hasGitMarker = $false }
+                catch [System.IO.DirectoryNotFoundException] { $hasGitMarker = $false }
+                if ($hasGitMarker -or ([System.IO.File]::Exists((Join-Path $ancestor 'HEAD')) -and [System.IO.Directory]::Exists((Join-Path $ancestor 'objects')))) {
+                    throw 'Reports cannot be saved inside a Git repository or worktree. Choose a different local OutputPath.'
+                }
+            }
+            catch [System.IO.FileNotFoundException] { Write-Verbose "The report path '$ancestor' does not exist yet." }
+            catch [System.IO.DirectoryNotFoundException] { Write-Verbose "The report path '$ancestor' does not exist yet." }
+            $ancestor = [System.IO.Path]::GetDirectoryName($ancestor)
+        }
+        return $fullPath
+    }
+
+    function New-FinOpsReportDirectory {
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Creates only a new private report directory for the requested scan.')]
+        [CmdletBinding()]
+        param([string]$OutputPath)
+
+        $basePath = if ([string]::IsNullOrWhiteSpace($OutputPath)) { Get-FinOpsReportRoot } else { $OutputPath }
+        $basePath = Assert-FinOpsReportPath -Path $basePath
+        [void][System.IO.Directory]::CreateDirectory($basePath)
+        $runName = '{0}-{1}' -f [datetime]::UtcNow.ToString('yyyyMMddTHHmmssfffZ', [cultureinfo]::InvariantCulture), [guid]::NewGuid().ToString('N')
+        $runPath = Assert-FinOpsReportPath -Path (Join-Path $basePath $runName)
+        if (Test-Path -LiteralPath $runPath) { throw 'The report run directory already exists. No files were written.' }
+
+        if ($IsWindows) {
+            $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+            try {
+                $security = [System.Security.AccessControl.DirectorySecurity]::new()
+                $security.SetAccessRuleProtection($true, $false)
+                $security.SetOwner($identity.User)
+                $inheritance = [System.Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
+                $security.AddAccessRule([System.Security.AccessControl.FileSystemAccessRule]::new(
+                        $identity.User, [System.Security.AccessControl.FileSystemRights]::FullControl,
+                        $inheritance, [System.Security.AccessControl.PropagationFlags]::None, [System.Security.AccessControl.AccessControlType]::Allow))
+                [System.IO.FileSystemAclExtensions]::Create([System.IO.DirectoryInfo]::new($runPath), $security)
+            }
+            finally { $identity.Dispose() }
+        }
+        else {
+            $unixModeType = 'System.IO.UnixFileMode' -as [type]
+            if ($unixModeType) {
+                [void][System.IO.Directory]::CreateDirectory($runPath, [Enum]::ToObject($unixModeType, 448))
+            }
+            else {
+                $mkdir = Get-Command -Name mkdir -CommandType Application -ErrorAction Stop
+                & $mkdir.Source -m 700 $runPath
+                if ($LASTEXITCODE -ne 0) { throw 'Could not create a private report directory.' }
+            }
+        }
+        $runPath = Assert-FinOpsReportPath -Path $runPath
+        Write-FinOpsReportFile -Directory $runPath -Name '.gitignore' -Lines @('*')
+        return $runPath
+    }
+
+    function Write-FinOpsReportFile {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory)][string]$Directory,
+            [Parameter(Mandatory)][string]$Name,
+            [Parameter(Mandatory)][AllowEmptyCollection()][AllowEmptyString()][string[]]$Lines
+        )
+
+        $Directory = Assert-FinOpsReportPath -Path $Directory
+        if ($Name -notmatch '^(?:[A-Za-z0-9][A-Za-z0-9._-]*|\.gitignore)$') { throw 'Invalid report file name.' }
+        $path = Join-Path $Directory $Name
+        $stream = [System.IO.FileStream]::new($path, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
+        try {
+            if (-not $IsWindows) {
+                $unixModeType = 'System.IO.UnixFileMode' -as [type]
+                if ($unixModeType) { [System.IO.File]::SetUnixFileMode($path, [Enum]::ToObject($unixModeType, 384)) }
+                else {
+                    $chmod = Get-Command -Name chmod -CommandType Application -ErrorAction Stop
+                    & $chmod.Source 600 $path
+                    if ($LASTEXITCODE -ne 0) { throw 'Could not restrict report file permissions.' }
+                }
+            }
+            $writer = [System.IO.StreamWriter]::new($stream, [System.Text.UTF8Encoding]::new($false))
+            try { foreach ($line in $Lines) { $writer.WriteLine($line) } }
+            finally { $writer.Dispose() }
+        }
+        finally { $stream.Dispose() }
     }
 
     function Show-ResultsSummary {
@@ -1679,12 +1813,12 @@ function Invoke-FinOpsMultitool {
                             elseif ($subNameLookup.ContainsKey($_.Key)) { $subNameLookup[$_.Key] }
                             else { $_.Key.Substring(0, [Math]::Min(36, $_.Key.Length)) }
                             [PSCustomObject]@{
-                                Subscription = $subLabel
-                                Actual       = Format-BudgetAmount -Value $_.Value.Actual -Currency $_.Value.Currency
-                                ActualPeriod = if ($_.Value.ActualPeriod) { $_.Value.ActualPeriod } else { 'Current month' }
-                                Forecast     = if ($_.Value.ForecastSource -eq 'Actual') { 'Unavailable' } else { Format-BudgetAmount -Value $_.Value.Forecast -Currency $_.Value.Currency }
+                                Subscription   = $subLabel
+                                Actual         = Format-BudgetAmount -Value $_.Value.Actual -Currency $_.Value.Currency
+                                ActualPeriod   = if ($_.Value.ActualPeriod) { $_.Value.ActualPeriod } else { 'Current month' }
+                                Forecast       = if ($_.Value.ForecastSource -eq 'Actual') { 'Unavailable' } else { Format-BudgetAmount -Value $_.Value.Forecast -Currency $_.Value.Currency }
                                 ForecastSource = if ($_.Value.ForecastSource) { $_.Value.ForecastSource } else { 'Unavailable' }
-                                Currency     = $_.Value.Currency
+                                Currency       = $_.Value.Currency
                             }
                         }
                         $cols = @('Subscription', 'Actual', 'ActualPeriod', 'Forecast', 'ForecastSource', 'Currency')
@@ -1853,13 +1987,13 @@ function Invoke-FinOpsMultitool {
                     }
                     $rows = $data.Budgets | ForEach-Object {
                         [PSCustomObject]@{
-                            Budget  = $_.BudgetName
-                            Amount  = Format-BudgetAmount -Value $_.Amount -Currency $_.Currency
-                            Spent   = Format-BudgetAmount -Value $_.ActualSpend -Currency $_.Currency
+                            Budget   = $_.BudgetName
+                            Amount   = Format-BudgetAmount -Value $_.Amount -Currency $_.Currency
+                            Spent    = Format-BudgetAmount -Value $_.ActualSpend -Currency $_.Currency
                             Forecast = Format-BudgetAmount -Value $_.Forecast -Currency $_.Currency
-                            PctUsed = if ($null -ne $_.PctUsed) { "$($_.PctUsed)%" } else { 'Unavailable' }
-                            Risk    = $_.Risk
-                            Note    = $_.Note
+                            PctUsed  = if ($null -ne $_.PctUsed) { "$($_.PctUsed)%" } else { 'Unavailable' }
+                            Risk     = $_.Risk
+                            Note     = $_.Note
                         }
                     }
                     $cols = @('Budget', 'Amount', 'Spent', 'Forecast', 'PctUsed', 'Risk', 'Note')
@@ -1973,10 +2107,10 @@ function Invoke-FinOpsMultitool {
                     Write-ColorizedLine -Text "    Storage: $($data.Currency) $($data.StorageCost) ($($data.StorageSharePct)%) over $($data.TotalStorageGb) GB ($($data.DiskGb) GB disk + $($data.BlobFileGb) GB blob/file)" -DefaultColor 'White'
                     if ($data.Note) { Write-Host "    $($data.Note)" -ForegroundColor DarkGray }
                     $rows = @(
-                        [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = "$($data.Currency) $($data.CostPerVCpu)" }
-                        [PSCustomObject]@{ Metric = 'Cost per GB RAM'; Value = "$($data.Currency) $($data.CostPerGbRam)" }
-                        [PSCustomObject]@{ Metric = 'Cost per VM'; Value = "$($data.Currency) $($data.CostPerVm)" }
-                        [PSCustomObject]@{ Metric = 'Cost per GB stored'; Value = "$($data.Currency) $($data.CostPerGb)" }
+                        [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = (Format-FinOpsUnitRate -Value $data.CostPerVCpu -Currency $data.Currency) }
+                        [PSCustomObject]@{ Metric = 'Cost per GB RAM'; Value = (Format-FinOpsUnitRate -Value $data.CostPerGbRam -Currency $data.Currency) }
+                        [PSCustomObject]@{ Metric = 'Cost per VM'; Value = (Format-FinOpsUnitRate -Value $data.CostPerVm -Currency $data.Currency) }
+                        [PSCustomObject]@{ Metric = 'Cost per GB stored'; Value = (Format-FinOpsUnitRate -Value $data.CostPerGb -Currency $data.Currency) }
                     )
                     $cols = @('Metric', 'Value')
                 }
@@ -2328,35 +2462,37 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-CostTrend' {
-                    if ($data.Months -and @($data.Months).Count -ge 2) {
-                        $sorted = @($data.Months) | Sort-Object Month -Descending | Select-Object -First 2
-                        $current = [double]$sorted[0].Cost
-                        $previous = [double]$sorted[1].Cost
-                        if ($previous -gt 0) {
-                            $change = [math]::Round((($current - $previous) / $previous) * 100, 1)
-                            if ($change -gt 20) {
-                                $guidanceItems = @(
-                                    @{ Severity = 'Red'; Message = "Cost spiked $change% month-over-month. Investigate immediately — this is abnormal growth." }
-                                    @{ Severity = 'Red'; Message = "FinOps Action: Check for new deployments, usage spikes, or runaway auto-scale." }
-                                    @{ Severity = 'Yellow'; Message = "Set up Cost Management budget alerts at 80%, 90%, 100% to catch spikes early."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/costs/cost-mgt-alerts-monitor-usage-spending' }
-                                )
-                            }
-                            elseif ($change -gt 5) {
-                                $guidanceItems = @(
-                                    @{ Severity = 'Yellow'; Message = "Cost increased $change% MoM. Moderate growth — review new resources deployed this period." }
-                                    @{ Severity = 'Yellow'; Message = "FinOps Practice: Establish a monthly cost review cadence to catch trends before they become problems." }
-                                )
-                            }
-                            elseif ($change -lt -5) {
-                                $guidanceItems = @(
-                                    @{ Severity = 'Green'; Message = "Cost decreased $([math]::Abs($change))% MoM. Optimization efforts are working." }
-                                )
-                            }
-                            else {
-                                $guidanceItems = @(
-                                    @{ Severity = 'Green'; Message = "Cost trend is stable ($change% change). Good cost discipline and predictable spend." }
-                                )
-                            }
+                    $nowUtc = (Get-Date).ToUniversalTime()
+                    $currentMonthStart = $nowUtc.Date.AddDays(1 - $nowUtc.Day)
+                    $completedMonths = @($data.Months | Where-Object { $_.MonthDate -and [datetime]$_.MonthDate -lt $currentMonthStart } |
+                        Sort-Object { [datetime]$_.MonthDate } -Descending | Select-Object -First 2)
+                    if ($completedMonths.Count -lt 2) {
+                        $guidanceItems = @(@{ Severity = 'Yellow'; Message = 'A month-over-month comparison needs two completed months. The current month is partial and is excluded.' })
+                    }
+                    elseif (-not $completedMonths[0].Currency -or -not $completedMonths[1].Currency -or
+                        $completedMonths[0].Currency -eq 'Mixed' -or $completedMonths[0].Currency -ne $completedMonths[1].Currency) {
+                        $guidanceItems = @(@{ Severity = 'Yellow'; Message = 'The completed months have unknown or different currencies. A month-over-month percentage is unavailable.' })
+                    }
+                    else {
+                        $latestDate = [datetime]$completedMonths[0].MonthDate
+                        $previousDate = [datetime]$completedMonths[1].MonthDate
+                        $latestMonth = $latestDate.Date.AddDays(1 - $latestDate.Day)
+                        $previousMonth = $previousDate.Date.AddDays(1 - $previousDate.Day)
+                        if ($previousMonth.AddMonths(1) -ne $latestMonth) {
+                            $guidanceItems = @(@{ Severity = 'Yellow'; Message = 'The result does not contain two consecutive completed months. A month-over-month percentage is unavailable.' })
+                        }
+                        elseif ([double]$completedMonths[1].Cost -le 0) {
+                            $guidanceItems = @(@{ Severity = 'Yellow'; Message = 'The previous completed month has no positive net cost. A month-over-month percentage is unavailable.' })
+                        }
+                        else {
+                            $change = [math]::Round((([double]$completedMonths[0].Cost - [double]$completedMonths[1].Cost) / [double]$completedMonths[1].Cost) * 100, 1)
+                            $direction = if ($change -lt 0) { 'decreased' } elseif ($change -gt 0) { 'increased' } else { 'changed' }
+                            $previousLabel = $previousMonth.ToString('MMM yyyy', [cultureinfo]::InvariantCulture)
+                            $latestLabel = $latestMonth.ToString('MMM yyyy', [cultureinfo]::InvariantCulture)
+                            $guidanceItems = @(
+                                @{ Severity = $(if ($change -gt 20) { 'Red' } else { 'Yellow' }); Message = "Observed spend $direction $([math]::Abs($change))% from $previousLabel to $latestLabel ($($completedMonths[0].Currency)). The partial current month is excluded." }
+                                @{ Severity = 'Yellow'; Message = 'A change in spend can reflect usage, prices, credits, or optimization. Review the cost drivers before attributing savings.' }
+                            )
                         }
                     }
                 }
@@ -2647,56 +2783,27 @@ function Invoke-FinOpsMultitool {
             Write-Host ""
         }
 
-        # -- Export option -------------------------------------------------
-        $defaultPath = Join-Path $HOME 'FinOpsResults'
-        if ($ExportPath) {
-            $exportDir = $ExportPath
-        }
-        elseif ($NonInteractive) {
-            # Nothing can answer a prompt here, so -OutputPath is the way to export.
-            $exportDir = $null
-        }
-        elseif (-not (Test-FinOpsRichConsole)) {
-            $wantExport = Read-FinOpsAnswer '  Export results? [y/N]: '
-            if ($wantExport -match '^(?i)y') {
-                $entered = Read-FinOpsAnswer "  Path [$defaultPath]: "
-                $exportDir = if ($entered -eq '') { $defaultPath } else { $entered }
-            }
-            else {
-                $exportDir = $null
-            }
-        }
-        else {
-            Write-Host "  Export results?  [E] Export  [Enter] Skip" -ForegroundColor DarkGray
-            $eKey = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
-            if ($eKey.Character -eq 'e' -or $eKey.Character -eq 'E') {
-                Write-Host ""
-                Write-Host "  Path [$defaultPath]: " -ForegroundColor White -NoNewline
-                $exportDir = Read-Host
-                if (-not $exportDir -or $exportDir.Trim() -eq '') {
-                    $exportDir = $defaultPath
-                }
-            }
-            else {
-                $exportDir = $null
-            }
-        }
-
-        if ($exportDir -and $exportDir.Trim() -ne '') {
-            if (-not (Test-Path $exportDir)) {
-                New-Item -ItemType Directory -Path $exportDir -Force | Out-Null
-            }
+        $exportDir = $null
+        try {
+            $exportDir = New-FinOpsReportDirectory -OutputPath $ExportPath -ErrorAction Stop
 
             # -- CSV exports per module --
             foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
                 $data = $Results[$mod.Fn]
-                if (-not $data) { continue }
-                $exportRows = ConvertTo-FinOpsExportRows -Fn $mod.Fn -Data $data
-                if ($exportRows.Count -gt 0) {
-                    $safeName = $mod.Fn -replace '[^a-zA-Z0-9\-]', ''
-                    $csvPath = Join-Path $exportDir "$safeName.csv"
-                    $exportRows | Export-Csv -Path $csvPath -NoTypeInformation
+                $hasScanError = $Results.ContainsKey("_error_$($mod.Fn)")
+                $exportRows = @(if (-not $hasScanError) { ConvertTo-FinOpsExportRows -Fn $mod.Fn -Data $data })
+                if ($exportRows.Count -eq 0) {
+                    $errorMessage = $Results["_error_$($mod.Fn)"]
+                    $statusRow = [pscustomobject]@{
+                        RecordType = 'Status'
+                        Scan       = $mod.Fn
+                        Status     = if ($hasScanError) { 'Error' } else { 'No data' }
+                        Error      = $errorMessage
+                    }
+                    $exportRows = @(ConvertTo-FinOpsExportRows -Fn 'ReportStatus' -Data $statusRow)
                 }
+                $safeName = $mod.Fn -replace '[^a-zA-Z0-9\-]', ''
+                Write-FinOpsReportFile -Directory $exportDir -Name "$safeName.csv" -Lines @($exportRows | ConvertTo-Csv -NoTypeInformation -ErrorAction Stop) -ErrorAction Stop
             }
 
             # -- HTML report --
@@ -2970,12 +3077,12 @@ tr:hover td { background: var(--surface); }
                             $htmlRows = $data.GetEnumerator() | ForEach-Object {
                                 $sl = if ($subNameLookup.ContainsKey($_.Key)) { $subNameLookup[$_.Key] } else { $_.Key }
                                 [PSCustomObject]@{
-                                    Subscription = $sl
-                                    Actual = Format-BudgetAmount -Value $_.Value.Actual -Currency $_.Value.Currency
-                                    ActualPeriod = if ($_.Value.ActualPeriod) { $_.Value.ActualPeriod } else { 'Current month' }
-                                    Forecast = if ($_.Value.ForecastSource -eq 'Actual') { 'Unavailable' } else { Format-BudgetAmount -Value $_.Value.Forecast -Currency $_.Value.Currency }
+                                    Subscription   = $sl
+                                    Actual         = Format-BudgetAmount -Value $_.Value.Actual -Currency $_.Value.Currency
+                                    ActualPeriod   = if ($_.Value.ActualPeriod) { $_.Value.ActualPeriod } else { 'Current month' }
+                                    Forecast       = if ($_.Value.ForecastSource -eq 'Actual') { 'Unavailable' } else { Format-BudgetAmount -Value $_.Value.Forecast -Currency $_.Value.Currency }
                                     ForecastSource = if ($_.Value.ForecastSource) { $_.Value.ForecastSource } else { 'Unavailable' }
-                                    Currency = $_.Value.Currency
+                                    Currency       = $_.Value.Currency
                                 }
                             }
                             $htmlCols = @('Subscription', 'Actual', 'ActualPeriod', 'Forecast', 'ForecastSource', 'Currency')
@@ -3156,10 +3263,10 @@ tr:hover td { background: var(--surface); }
                         [void]$htmlSb.Append("<p>Compute: $uCur $($data.ComputeCost) ($($data.ComputeSharePct)%) over $($data.VmCount) VMs, $($data.TotalVCpu) vCPU, $($data.TotalMemoryGb) GB RAM</p>")
                         [void]$htmlSb.Append("<p>Storage: $uCur $($data.StorageCost) ($($data.StorageSharePct)%) over $($data.TotalStorageGb) GB</p>")
                         $htmlRows = @(
-                            [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = "$($data.Currency) $($data.CostPerVCpu)" }
-                            [PSCustomObject]@{ Metric = 'Cost per GB RAM'; Value = "$($data.Currency) $($data.CostPerGbRam)" }
-                            [PSCustomObject]@{ Metric = 'Cost per VM'; Value = "$($data.Currency) $($data.CostPerVm)" }
-                            [PSCustomObject]@{ Metric = 'Cost per GB stored'; Value = "$($data.Currency) $($data.CostPerGb)" }
+                            [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = (Format-FinOpsUnitRate -Value $data.CostPerVCpu -Currency $data.Currency) }
+                            [PSCustomObject]@{ Metric = 'Cost per GB RAM'; Value = (Format-FinOpsUnitRate -Value $data.CostPerGbRam -Currency $data.Currency) }
+                            [PSCustomObject]@{ Metric = 'Cost per VM'; Value = (Format-FinOpsUnitRate -Value $data.CostPerVm -Currency $data.Currency) }
+                            [PSCustomObject]@{ Metric = 'Cost per GB stored'; Value = (Format-FinOpsUnitRate -Value $data.CostPerGb -Currency $data.Currency) }
                         )
                         $htmlCols = @('Metric', 'Value')
                         if ($data.Note) { $tableNote = [string]$data.Note }
@@ -3296,11 +3403,9 @@ tr:hover td { background: var(--surface); }
 </body></html>
 '@)
 
-            $htmlPath = Join-Path $exportDir 'FinOpsReport.html'
-            $htmlSb.ToString() | Out-File -FilePath $htmlPath -Encoding utf8
+            Write-FinOpsReportFile -Directory $exportDir -Name 'FinOpsReport.html' -Lines @($htmlSb.ToString()) -ErrorAction Stop
 
             # Summary text file
-            $summaryPath = Join-Path $exportDir 'ScanSummary.txt'
             $summaryLines = @(
                 "FinOps Multitool Scan Summary"
                 "Generated: $timestamp"
@@ -3314,12 +3419,16 @@ tr:hover td { background: var(--surface); }
                 $status = if ($Results.ContainsKey($errorKey)) { "ERROR: $($Results[$errorKey])" } elseif ($count -eq 0) { "No data" } else { "$count findings" }
                 $summaryLines += "$($mod.Name): $status"
             }
-            $summaryLines | Out-File -FilePath $summaryPath -Encoding utf8
+            Write-FinOpsReportFile -Directory $exportDir -Name 'ScanSummary.txt' -Lines $summaryLines -ErrorAction Stop
 
             Write-Host ""
             Write-Host "  Exported to: $exportDir" -ForegroundColor Green
-            $csvCount = (Get-ChildItem $exportDir -Filter '*.csv').Count
+            $csvCount = @(Get-ChildItem -LiteralPath $exportDir -Filter '*.csv').Count
             Write-Host "  Files: $csvCount CSVs + FinOpsReport.html + ScanSummary.txt" -ForegroundColor DarkGray
+        }
+        catch {
+            $partialLocation = if ($exportDir) { " Incomplete reports may remain in '$exportDir'." } else { '' }
+            Write-Error -Message "Automatic report saving failed: $($_.Exception.Message). Results remain in `$FinOpsResults.$partialLocation" -ErrorId 'FinOpsReportExportFailed' -Category WriteError
         }
 
         # Interactive drill-down
@@ -3411,6 +3520,7 @@ tr:hover td { background: var(--surface); }
 
     # Step 4: Run
     $results = Invoke-SelectedScans -Modules $finalModules -Subscriptions $subs -TenantId $tenantId -DataSource $sourceChoice -PermissionInfo $permissionInfo
+    $global:FinOpsResults = $results
 
     # Step 5: Summary + export
     $effectiveSource = switch ($sourceChoice.Source) {
@@ -3419,7 +3529,7 @@ tr:hover td { background: var(--surface); }
         'GraphOnly' { 'Resource Graph only (no cost data)' }
         default { [string]$sourceChoice.Source }
     }
-    $global:FinOpsResults = Show-ResultsSummary -Results $results -Modules $finalModules -ExportPath $OutputPath -Subscriptions $subs -DataSourceLabel $effectiveSource
+    $null = Show-ResultsSummary -Results $results -Modules $finalModules -ExportPath $OutputPath -Subscriptions $subs -DataSourceLabel $effectiveSource
 
     Write-Host "  Done. Results available in `$FinOpsResults" -ForegroundColor Green
     Write-Host ""

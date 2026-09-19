@@ -54,7 +54,7 @@ When the **FinOps Hub** source is chosen, the tool prefers the hub's **Kusto dat
 
 ### 3. Scan selection
 
-Use arrow-key menus to select scans when your host supports them. Other hosts use numbered prompts. For automation, use `-NonInteractive` with `-Scans`, `-DataSource`, and `-SubscriptionId`. Add `-OutputPath` to export results. All menu scans are selected by default except **Billing Structure**.
+Use arrow-key menus to select scans when your host supports them. Other hosts use numbered prompts. For automation, use `-NonInteractive` with `-Scans`, `-DataSource`, and `-SubscriptionId`. Reports are saved automatically; `-OutputPath` changes their parent folder. All menu scans are selected by default except **Billing Structure**.
 
 | Key       | Action             |
 | --------- | ------------------ |
@@ -90,7 +90,13 @@ Guidance includes FinOps Foundation best practices, actionable next steps, and l
 - **Access denied** (403/401) — Shows the exact error, required RBAC role, scope, and API
 - **No data** — Explains whether the module requires specific resources (e.g., "Returns empty if no budgets are configured")
 
-Optional exports write to the output path: one CSV file per scan module, a `FinOpsReport.html` summary, and a `ScanSummary.txt` text summary.
+Each completed run automatically saves one CSV file per selected scan, a `FinOpsReport.html` summary, and a `ScanSummary.txt` text summary on the machine running the multitool. Failed or empty scans have a CSV status record. There's no export prompt or format picker.
+
+By default, reports go under the current user's local application data directory, in `FinOpsToolkit/Multitool/Reports`. On Windows, that's usually `%LOCALAPPDATA%\FinOpsToolkit\Multitool\Reports`. Each run creates a timestamped, uniquely named subfolder. The terminal prints its full path. `-OutputPath` selects a different local parent folder; it doesn't replace reports from an earlier run.
+
+The run folder allows access only to the current user through filesystem permissions. On Unix, directories use mode `700` and files use mode `600`. The tool rejects Git repositories and worktrees, UNC paths, mapped Windows network drives, symbolic links, and junctions, and adds an ignore-all `.gitignore` as a backup against accidental staging. Unix network mounts aren't detected; choose a path on a local filesystem. If it can't safely save, it reports an error and keeps the scan results in `$FinOpsResults`; it doesn't fall back to the working directory.
+
+Reports are plaintext and can contain subscription, resource, tag, and billing details. They aren't encrypted or uploaded by the tool. Administrators and processes running as your account can still access them. Keep custom locations outside synced folders, follow your organization's retention policy, and delete reports when they're no longer needed. These safeguards don't stop someone from moving or force-adding the files to a repository later.
 
 CSV files use `RecordType` to distinguish datasets when a scan returns several collections, such as reservations and savings plans. Scalar `Summary.*` columns retain scan diagnostics and estimate assumptions. Nested summary collections appear once as separate record types, such as `Summary.UnderutilizedRIs`, instead of repeating in every row. Nested values within a record are JSON. CSV headers include fields from every exported record type, amounts use a decimal point regardless of your system locale, and dates use ISO 8601. Aggregate and detailed records are separate views, not amounts to add together.
 

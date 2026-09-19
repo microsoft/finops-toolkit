@@ -22,6 +22,8 @@ The multitool provides one scan engine with two interfaces:
 
 The terminal UI prompts for each choice by default. Consoles that can't render the arrow-key menus, such as PowerShell remoting sessions, fall back to numbered prompts. To run the tool from a pipeline or a scheduled job, use `-NonInteractive` and supply the choices as parameters.
 
+CSV, HTML, and text reports are saved automatically on the machine running the multitool, in a new private folder under the current user's local application data. Use `-OutputPath` to select a different local parent folder outside Git repositories. For location details and privacy limits, see [Report storage](start-finopsmultitool.md#report-storage).
+
 <br>
 
 ## Commands

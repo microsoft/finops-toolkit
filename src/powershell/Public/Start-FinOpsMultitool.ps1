@@ -13,8 +13,9 @@
     and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly
     alerts, and policy compliance.
 
-    Results are rendered in the terminal. Exports are one CSV file per scan module, an
-    HTML report, and a text summary.
+    Results are rendered in the terminal and saved automatically on the machine running
+    the command. Each run gets a private folder with one CSV file per selected scan,
+    an HTML report, and a text summary. Failed or empty scans have a CSV status record.
 
     The scan modules are read-only. The TUI requires PowerShell 7 or later on Windows,
     macOS, and Linux, the Az modules (Az.Accounts,
@@ -29,8 +30,12 @@
     the tool discovers all accessible subscriptions.
 
     .PARAMETER OutputPath
-    Optional directory for exported result files. Defaults to a FinOpsResults folder in your
-    home directory.
+    Optional local parent directory for reports. Each run creates a new timestamped
+    subfolder and never overwrites earlier reports. The default is FinOpsToolkit/Multitool/Reports
+    under the current user's LocalApplicationData directory, usually LOCALAPPDATA on Windows.
+    Git repositories, UNC paths, mapped Windows network drives, symbolic links, and
+    junctions are rejected. Unix network mounts aren't detected; choose a local filesystem.
+    Reports contain sensitive cost and resource data; keep custom destinations outside synced folders.
 
     .PARAMETER Scans
     Optional list of scans to run, replacing the default selection. Accepts either the
@@ -48,7 +53,7 @@
     Runs without prompting, for automation and scheduled jobs. Every choice comes from the
     parameters or their defaults: all accessible subscriptions in the current tenant unless
     SubscriptionId is set, a configured or detected hub or the Cost Management API unless DataSource is
-    set, and results are exported only when OutputPath is supplied.
+    set. Reports are saved automatically even when OutputPath is omitted.
 
     .EXAMPLE
     Start-FinOpsMultitool
@@ -62,10 +67,10 @@
     Launches the TUI scoped to a single subscription.
 
     .EXAMPLE
-    Start-FinOpsMultitool -NonInteractive -Scans Get-OrphanedResources, Get-IdleVMs -OutputPath './results'
+    Start-FinOpsMultitool -NonInteractive -Scans Get-OrphanedResources, Get-IdleVMs
 
-    Runs two scans without prompting and writes the CSV output to the results folder,
-    which is the shape to use from a pipeline or scheduled job.
+    Runs two scans without prompting and saves CSV, HTML, and text reports in a new
+    private run folder under the current user's local application data.
 
     .LINK
     https://aka.ms/ftk/Start-FinOpsMultitool

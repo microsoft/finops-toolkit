@@ -383,11 +383,14 @@ function ConvertFrom-ExportTagString {
     if ([string]::IsNullOrWhiteSpace($Raw)) { return $out }
     $text = $Raw.Trim()
     if (-not $text.StartsWith('{')) { $text = '{' + $text + '}' }
-    $parsed = $text | ConvertFrom-Json -ErrorAction Stop
-    if ($parsed -isnot [pscustomobject]) { throw 'Export tags must be a JSON object; tag cost coverage is incomplete.' }
-    foreach ($property in $parsed.PSObject.Properties) {
+    $parsed = $text | ConvertFrom-Json -AsHashtable -ErrorAction Stop
+    if ($parsed -isnot [System.Collections.IDictionary]) { throw 'Export tags must be a JSON object; tag cost coverage is incomplete.' }
+    foreach ($property in $parsed.GetEnumerator()) {
         if ($null -ne $property.Value -and $property.Value -isnot [string]) { throw 'Export tag values must be strings; tag cost coverage is incomplete.' }
-        $out[$property.Name] = [string]$property.Value
+        if ($out.ContainsKey($property.Key) -and $out[$property.Key] -cne [string]$property.Value) {
+            $out[$property.Key] = '(conflicting tag values)'
+        }
+        else { $out[$property.Key] = [string]$property.Value }
     }
     return $out
 }

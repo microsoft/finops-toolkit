@@ -17,7 +17,7 @@ ms.reviewer: micflan
 
 The **Start-FinOpsMultitool** command launches the FinOps multitool interactive terminal UI (TUI). The tool authenticates to Azure, discovers accessible subscriptions, and runs the scan modules you select. Scans cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
 
-Results are rendered in the terminal. When you choose to export, the tool writes a CSV file per scan module, a `FinOpsReport.html` summary, and a `ScanSummary.txt` file. The scan modules are read-only.
+Results appear in the terminal and are saved automatically on the machine running the command. Each run creates a private folder with one CSV file per selected scan, a `FinOpsReport.html` summary, and a `ScanSummary.txt` file. Failed or empty scans have a CSV status record. The scans don't change Azure resources.
 
 The command requires PowerShell 7 or later on Windows, macOS, and Linux. It requires the `Az.Accounts`, `Az.ResourceGraph`, and `Az.Storage` modules. Most scans need Reader or Cost Management Reader access on the target scope. Account scans (billing structure, contract info, and MACC commitment) also need Billing Reader, or Enterprise Administrator (reader) on an Enterprise Agreement. Commitment utilization reads at billing account or billing profile scope, so it needs that same billing access. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
 
@@ -44,10 +44,10 @@ Start-FinOpsMultitool `
 | Name              | Description                                                                                                                                                                                                                                                                                                                                            |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `‑SubscriptionId` | Optional. Scopes the scan to a single subscription. When omitted, all accessible subscriptions are discovered. If the subscription can't be resolved and nothing can answer a prompt, the command returns an error rather than scanning every subscription.                                                                                            |
-| `‑OutputPath`     | Optional. Directory for exported result files. Defaults to a `FinOpsResults` folder in your home directory.                                                                                                                                                                                                                                            |
+| `‑OutputPath`     | Optional. Local parent folder for reports. Defaults to `FinOpsToolkit/Multitool/Reports` under the current user's local application data. Each run creates a new timestamped subfolder. Git repositories, UNC paths, mapped Windows network drives, symbolic links, and junctions aren't accepted. Unix network mounts aren't detected.                |
 | `‑Scans`          | Optional. Runs the specified scans instead of the default selection. Accepts a scan command name, such as `Get-OrphanedResources`, or its menu label, such as `Orphaned Resources`. Use `All` to select every scan. An unrecognized name returns an error.                                                                                             |
 | `‑DataSource`     | Optional. Sets the data source and skips the data source prompt. Valid values are `Hub`, `API`, and `GraphOnly`. `API` and `GraphOnly` take precedence over `FINOPS_HUB_KUSTO_URI` and don't preload hub data. An explicit `Hub` selection fails if no configured Kusto endpoint or hub storage is available. Select `API` separately for a live scan. |
-| `‑NonInteractive` | Optional. Runs without prompting. Every choice comes from the parameters or their defaults, and results are exported only when you set `-OutputPath`.                                                                                                                                                                                                  |
+| `‑NonInteractive` | Optional. Runs without prompting. Every choice comes from the parameters or their defaults. Reports are saved automatically, even when `-OutputPath` is omitted.                                                                                                                                                                                       |
 
 <br>
 
@@ -71,13 +71,13 @@ Start-FinOpsMultitool -SubscriptionId '00000000-0000-0000-0000-000000000000'
 
 Launches the terminal UI scoped to a single subscription.
 
-### Set an output path for exports
+### Choose a local report folder
 
 ```powershell
-Start-FinOpsMultitool -OutputPath './finops-results'
+Start-FinOpsMultitool -OutputPath (Join-Path $HOME 'FinOpsReports')
 ```
 
-Launches the terminal UI and writes exported result files to the specified directory.
+Launches the terminal UI and saves reports in a new run subfolder under the specified local folder. Choose a location outside Git repositories and synced folders.
 
 ### Run specific scans without prompting
 
@@ -86,11 +86,20 @@ Start-FinOpsMultitool `
     -NonInteractive `
     -SubscriptionId '00000000-0000-0000-0000-000000000000' `
     -Scans Get-OrphanedResources, Get-IdleVMs `
-    -DataSource API `
-    -OutputPath './finops-results'
+    -DataSource API
 ```
 
-Runs two scans against one subscription without prompting and writes the results to the specified directory. Use this form from a pipeline or a scheduled job.
+Runs two scans against one subscription without prompting and saves all report formats in the default local folder. Use this form from a pipeline or a scheduled job.
+
+<br>
+
+## Report storage
+
+The default parent folder is `FinOpsToolkit/Multitool/Reports` under `[Environment]::GetFolderPath('LocalApplicationData')`. On Windows, that's usually `%LOCALAPPDATA%\FinOpsToolkit\Multitool\Reports`. The command prints the full path for each run. Reports never overwrite an earlier run.
+
+The tool creates the run folder with permissions restricted to the current user. It rejects Git repositories, UNC paths, mapped Windows network drives, symbolic links, and junctions, and includes an ignore-all `.gitignore` to reduce accidental staging. Unix network mounts aren't detected, so choose a path on a local filesystem. If saving fails, the command reports the error and retains results in `$FinOpsResults`. It doesn't silently use the current directory instead.
+
+Reports are plaintext, not encrypted, and can contain sensitive cost and resource details. The tool doesn't upload them. Keep custom folders outside cloud-sync locations, protect access to your account, and follow your organization's retention policy. Administrators and processes running as your account can still access the files. Moving or force-adding reports to Git bypasses these safeguards.
 
 <br>
 

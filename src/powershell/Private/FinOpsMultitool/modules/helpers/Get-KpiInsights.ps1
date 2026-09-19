@@ -143,6 +143,18 @@ function Get-BudgetKpiData {
     return @{ Error = $null; Currency = $currency; TotalBudget = $totalBudget; TotalActual = $totalActual; Percentages = $percentages.ToArray() }
 }
 
+function Format-FinOpsUnitRate {
+    param($Value, [string]$Currency)
+
+    if ($null -eq $Value -or [string]::IsNullOrWhiteSpace($Currency)) { return 'Unavailable' }
+    try {
+        $amount = Get-HubCostValue -Row ([pscustomobject]@{ Value = $Value }) -Column 'Value'
+        $format = if ($amount -ne 0 -and [math]::Abs($amount) -lt 0.00000001) { '0.########E+0' } else { '0.########' }
+        return "$Currency $($amount.ToString($format, [cultureinfo]::InvariantCulture))"
+    }
+    catch { return 'Unavailable' }
+}
+
 function Get-KpiComputedValue {
     param([string]$KpiId, $Data, $Catalog)
 
@@ -150,7 +162,7 @@ function Get-KpiComputedValue {
         'cost-per-gb-stored' {
             $v = Get-ScanField $Data 'CostPerGb'
             $cur = Get-ScanField $Data 'Currency'
-            if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$cur $v per GB / month" ([double]$v)) }
+            if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$(Format-FinOpsUnitRate -Value $v -Currency $cur) per GB (month-to-date)" ([double]$v)) }
         }
         'hourly-cost-per-cpu-core' {
             $v = Get-ScanField $Data 'CostPerVCpu'
@@ -167,15 +179,15 @@ function Get-KpiComputedValue {
                     $periodStart = $periodEnd.Date.AddDays(1 - $periodEnd.Day)
                 }
                 $elapsedHours = [math]::Max(($periodEnd - $periodStart).TotalHours, 1)
-                $hourly = [math]::Round([double]$v / $elapsedHours, 4)
-                return (New-KpiValue "$cur $hourly per vCPU / hour" $hourly)
+                $hourly = [double]$v / $elapsedHours
+                return (New-KpiValue "$(Format-FinOpsUnitRate -Value $hourly -Currency $cur) per vCPU / hour" $hourly)
             }
         }
         'effective-avg-compute-cost-per-core' {
             $v = Get-ScanField $Data 'CostPerVCpu'
             $cur = Get-ScanField $Data 'Currency'
             # Month-to-date, not a full month, so say so rather than implying a run rate.
-            if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$cur $v per vCPU (month-to-date)" ([double]$v)) }
+            if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$(Format-FinOpsUnitRate -Value $v -Currency $cur) per vCPU (month-to-date)" ([double]$v)) }
         }
         'commitment-utilization-score' {
             # Get-CommitmentUtilization seeds both averages to 0 and only fills the

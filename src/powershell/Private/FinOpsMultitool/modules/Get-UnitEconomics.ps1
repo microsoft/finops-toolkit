@@ -280,10 +280,10 @@ resources
             $subFilter = Get-CostSubscriptionFilter -Subscriptions $Subscriptions
             if ($subFilter) { $dataset['filter'] = $subFilter }
             $body = @{
-                type      = 'AmortizedCost'
-                timeframe = 'Custom'
+                type       = 'AmortizedCost'
+                timeframe  = 'Custom'
                 timePeriod = $costTimePeriod
-                dataset   = $dataset
+                dataset    = $dataset
             } | ConvertTo-Json -Depth 10
 
             $path = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
@@ -323,10 +323,10 @@ resources
         foreach ($sid in $subIds) {
             try {
                 $body = @{
-                    type      = 'AmortizedCost'
-                    timeframe = 'Custom'
+                    type       = 'AmortizedCost'
+                    timeframe  = 'Custom'
                     timePeriod = $costTimePeriod
-                    dataset   = @{
+                    dataset    = @{
                         granularity = 'None'
                         aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
                         grouping    = @(@{ type = 'Dimension'; name = 'MeterCategory' })
@@ -349,10 +349,10 @@ resources
     }
 
     # -- 4: Derived KPIs --------------------------------------------------
-    $costPerVCpu = if ($totalVCpu -gt 0) { [math]::Round($computeCost / $totalVCpu, 2) }  else { 0 }
-    $costPerVm = if ($vmCount -gt 0) { [math]::Round($computeCost / $vmCount, 2) }    else { 0 }
-    $costPerGb = if ($totalGb -gt 0) { [math]::Round($storageCost / $totalGb, 4) }    else { 0 }
-    $costPerGbRam = if ($totalMemGb -gt 0) { [math]::Round($computeCost / $totalMemGb, 2) } else { 0 }
+    $costPerVCpu = if ($totalVCpu -gt 0) { $computeCost / $totalVCpu } else { 0 }
+    $costPerVm = if ($vmCount -gt 0) { $computeCost / $vmCount } else { 0 }
+    $costPerGb = if ($totalGb -gt 0) { $storageCost / $totalGb } else { 0 }
+    $costPerGbRam = if ($totalMemGb -gt 0) { $computeCost / $totalMemGb } else { 0 }
 
     $totalKnown = $computeCost + $storageCost
     $computeSharePct = if ($totalKnown -gt 0) { [math]::Round(100 * $computeCost / $totalKnown, 1) } else { 0 }
@@ -382,29 +382,29 @@ resources
     }
 
     return [PSCustomObject]@{
-        HasData         = $hasData
-        Currency        = Resolve-CurrencyLabel -Seen $currenciesSeen
+        HasData            = $hasData
+        Currency           = Resolve-CurrencyLabel -Seen $currenciesSeen
         CostPeriodStartUtc = $costPeriodStartUtc
-        CostPeriodEndUtc = $costPeriodEndUtc
-        ComputeCost     = [math]::Round($computeCost, 2)
-        StorageCost     = [math]::Round($storageCost, 2)
-        ComputeSharePct = $computeSharePct
-        StorageSharePct = $storageSharePct
-        VmCount         = $vmCount
-        TotalVCpu       = $totalVCpu
-        TotalMemoryGb   = [math]::Round($totalMemGb, 0)
-        DiskGb          = [math]::Round($diskGb, 1)
-        BlobFileGb      = [math]::Round($blobFileGb, 1)
-        TotalStorageGb  = [math]::Round($totalGb, 1)
-        CostPerVCpu     = $costPerVCpu
-        CostPerGbRam    = $costPerGbRam
-        CostPerVm       = $costPerVm
-        CostPerGb       = $costPerGb
-        VCpuExact       = $vcpuExact
-        BlobFileOk      = $blobFileOk
-        CostScope       = $costScope
-        Period          = 'MonthToDate'
-        ScannedSubs     = $Subscriptions.Count
-        Note            = ($notes -join ' ')
+        CostPeriodEndUtc   = $costPeriodEndUtc
+        ComputeCost        = [math]::Round($computeCost, 2)
+        StorageCost        = [math]::Round($storageCost, 2)
+        ComputeSharePct    = $computeSharePct
+        StorageSharePct    = $storageSharePct
+        VmCount            = $vmCount
+        TotalVCpu          = $totalVCpu
+        TotalMemoryGb      = [math]::Round($totalMemGb, 0)
+        DiskGb             = [math]::Round($diskGb, 1)
+        BlobFileGb         = [math]::Round($blobFileGb, 1)
+        TotalStorageGb     = [math]::Round($totalGb, 1)
+        CostPerVCpu        = $costPerVCpu
+        CostPerGbRam       = $costPerGbRam
+        CostPerVm          = $costPerVm
+        CostPerGb          = $costPerGb
+        VCpuExact          = $vcpuExact
+        BlobFileOk         = $blobFileOk
+        CostScope          = $costScope
+        Period             = 'MonthToDate'
+        ScannedSubs        = $Subscriptions.Count
+        Note               = ($notes -join ' ')
     }
 }
