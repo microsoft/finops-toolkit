@@ -910,14 +910,15 @@
       },
       {
         "current": {
-          "value": "https://trey-finops-hub.westus.kusto.windows.net",
-          "text": "https://trey-finops-hub.westus.kusto.windows.net"
+          "text": "",
+          "value": ""
         },
         "type": "textbox",
         "hide": 0,
-        "query": "https://trey-finops-hub.westus.kusto.windows.net",
+        "query": "",
         "name": "cluster",
-        "label": "Cluster URI"
+        "label": "Cluster URI",
+        "options": []
       },
       {
         "current": {

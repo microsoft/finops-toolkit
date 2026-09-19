@@ -63,7 +63,7 @@
     },
     {
       "description": "",
-      "title": "Daily trend",
+      "title": "Daily trend (${selectedBillingCurrency})",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
@@ -131,7 +131,7 @@
     },
     {
       "description": "",
-      "title": "3-month running total trend",
+      "title": "3-month running total trend (${selectedBillingCurrency})",
       "type": "barchart",
       "gridPos": {
         "x": 0,
@@ -199,7 +199,7 @@
     },
     {
       "description": "",
-      "title": "3-month daily trend",
+      "title": "3-month daily trend (${selectedBillingCurrency})",
       "type": "barchart",
       "gridPos": {
         "x": 0,
@@ -267,7 +267,7 @@
     },
     {
       "description": "",
-      "title": "3-month daily trend by subscription",
+      "title": "3-month daily trend by subscription (${selectedBillingCurrency})",
       "type": "barchart",
       "gridPos": {
         "x": 0,
@@ -341,7 +341,7 @@
     },
     {
       "description": "",
-      "title": "Forecast (next ${numberOfDays} days)",
+      "title": "Forecast — next ${numberOfDays} days (${selectedBillingCurrency})",
       "type": "timeseries",
       "gridPos": {
         "x": 0,
@@ -429,14 +429,15 @@
       },
       {
         "current": {
-          "value": "https://trey-finops-hub.westus.kusto.windows.net",
-          "text": "https://trey-finops-hub.westus.kusto.windows.net"
+          "text": "",
+          "value": ""
         },
         "type": "textbox",
         "hide": 0,
-        "query": "https://trey-finops-hub.westus.kusto.windows.net",
+        "query": "",
         "name": "cluster",
-        "label": "Cluster URI"
+        "label": "Cluster URI",
+        "options": []
       },
       {
         "current": {

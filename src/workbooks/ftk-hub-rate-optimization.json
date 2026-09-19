@@ -159,7 +159,7 @@
     },
     {
       "description": "",
-      "title": "Commitment discount breakdown (selected period)",
+      "title": "Commitment discount breakdown — selected period (${selectedBillingCurrency})",
       "type": "stat",
       "gridPos": {
         "x": 0,
@@ -367,7 +367,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "/.*/",
+          "fields": "/^Effective savings rate$/",
           "values": false
         },
         "colorMode": "value",
@@ -625,7 +625,7 @@
     },
     {
       "description": "",
-      "title": "Monthly trend by service category",
+      "title": "Monthly trend by service category (${selectedBillingCurrency})",
       "type": "table",
       "gridPos": {
         "x": 0,
@@ -797,7 +797,7 @@
     },
     {
       "description": "",
-      "title": "Commitment discount breakdown (last ${numberOfDays} days)",
+      "title": "Commitment discount breakdown — last ${numberOfDays} days (${selectedBillingCurrency})",
       "type": "stat",
       "gridPos": {
         "x": 0,
@@ -1005,7 +1005,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "/.*/",
+          "fields": "/^Effective savings rate$/",
           "values": false
         },
         "colorMode": "value",
@@ -1533,7 +1533,7 @@
     },
     {
       "description": "",
-      "title": "SKUs with negotiated discounts (last ${numberOfDays} days)",
+      "title": "SKUs with negotiated discounts — last ${numberOfDays} days (${selectedBillingCurrency})",
       "type": "table",
       "gridPos": {
         "x": 0,
@@ -1640,7 +1640,7 @@
     },
     {
       "description": "",
-      "title": "SKUs with commitment discounts (last ${numberOfDays} days)",
+      "title": "SKUs with commitment discounts — last ${numberOfDays} days (${selectedBillingCurrency})",
       "type": "table",
       "gridPos": {
         "x": 0,
@@ -1690,7 +1690,7 @@
     },
     {
       "description": "",
-      "title": "SKUs with no discounts (last ${numberOfDays} days)",
+      "title": "SKUs with no discounts — last ${numberOfDays} days (${selectedBillingCurrency})",
       "type": "table",
       "gridPos": {
         "x": 0,
@@ -1752,14 +1752,15 @@
       },
       {
         "current": {
-          "value": "https://trey-finops-hub.westus.kusto.windows.net",
-          "text": "https://trey-finops-hub.westus.kusto.windows.net"
+          "text": "",
+          "value": ""
         },
         "type": "textbox",
         "hide": 0,
-        "query": "https://trey-finops-hub.westus.kusto.windows.net",
+        "query": "",
         "name": "cluster",
-        "label": "Cluster URI"
+        "label": "Cluster URI",
+        "options": []
       },
       {
         "current": {

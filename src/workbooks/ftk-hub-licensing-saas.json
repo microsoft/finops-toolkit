@@ -1,5 +1,5 @@
 {
-  "description": "Uses source billing and calendar windows, not the dashboard time picker. Currency All does not convert currencies. The source licensing queries use the monthly lookback, despite their last n days titles.",
+  "description": "Uses source billing and calendar windows, not the dashboard time picker. Currency All does not convert currencies.",
   "title": "FinOps hubs - Licensing + SaaS",
   "time": {
     "from": "now-1y",
@@ -50,7 +50,7 @@
     },
     {
       "description": "",
-      "title": "Hybrid Benefit summary (last ${numberOfDays} days)",
+      "title": "Hybrid Benefit summary — ${numberOfMonths:raw}-month lookback",
       "type": "stat",
       "gridPos": {
         "x": 0,
@@ -179,7 +179,7 @@
     },
     {
       "description": "",
-      "title": "Underutilized vCPU capacity (last ${numberOfDays} days)",
+      "title": "Underutilized vCPU capacity — ${numberOfMonths:raw}-month lookback",
       "type": "table",
       "gridPos": {
         "x": 0,
@@ -229,7 +229,7 @@
     },
     {
       "description": "",
-      "title": "Fully utilized vCPU capacity (last ${numberOfDays} days)",
+      "title": "Fully utilized vCPU capacity — ${numberOfMonths:raw}-month lookback",
       "type": "table",
       "gridPos": {
         "x": 0,
@@ -279,7 +279,7 @@
     },
     {
       "description": "",
-      "title": "Eligible resources (last ${numberOfDays} days)",
+      "title": "Eligible resources — ${numberOfMonths:raw}-month lookback",
       "type": "table",
       "gridPos": {
         "x": 0,
@@ -341,14 +341,15 @@
       },
       {
         "current": {
-          "value": "https://trey-finops-hub.westus.kusto.windows.net",
-          "text": "https://trey-finops-hub.westus.kusto.windows.net"
+          "text": "",
+          "value": ""
         },
         "type": "textbox",
         "hide": 0,
-        "query": "https://trey-finops-hub.westus.kusto.windows.net",
+        "query": "",
         "name": "cluster",
-        "label": "Cluster URI"
+        "label": "Cluster URI",
+        "options": []
       },
       {
         "current": {

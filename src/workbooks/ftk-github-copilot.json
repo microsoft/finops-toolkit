@@ -114,7 +114,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Agent runs are invoke_agent spans (one per user turn in VS Code agent mode; one per Copilot CLI process or sub-agent run). Token totals are the per-run roll-ups reported on those spans, so model requests made outside an agent run (inline chat, Next Edit Suggestions, commit messages) are not included here \u2014 see the Token Efficiency row for all requests. AI Usage Units sums the usage units each client reports per request (github.copilot.nano_aiu for Copilot CLI, copilot_chat.copilot_usage_nano_aiu for VS Code, divided by 1e9). Reported token cost converts valid reported units to USD at $0.01 per AI credit, without rounding the units first. Copilot supplies the model and cache-tier pricing. Missing or negative usage units are excluded from cost, not treated as free usage; see cost reporting coverage in the model table. This is usage value before included credits, not an invoice total. github.copilot.cost is not used because it is a flat 1 per CLI request.",
+      "description": "Agent runs are invoke_agent spans (one per user turn in VS Code agent mode; one per Copilot CLI process or sub-agent run). Token totals are the per-run roll-ups reported on those spans, so model requests made outside an agent run (inline chat, Next Edit Suggestions, commit messages) are not included here — see the Token Efficiency row for all requests. AI Usage Units sums the usage units each client reports per request (github.copilot.nano_aiu for Copilot CLI, copilot_chat.copilot_usage_nano_aiu for VS Code, divided by 1e9). Reported token cost converts valid reported units to USD at $0.01 per AI credit, without rounding the units first. Copilot supplies the model and cache-tier pricing. Missing or negative usage units are excluded from cost, not treated as free usage; see cost reporting coverage in the model table. This is usage value before included credits, not an invoice total. github.copilot.cost is not used because it is a flat 1 per CLI request.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2367,7 +2367,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Model requests (chat spans) by outcome. Completed: a response model and a latency attribute were recorded. No response recorded: Copilot CLI chat spans that ended without a response model, tokens or output (status unset, success true) \u2014 cancelled or superseded requests whose outcome is unknown; they are not counted as failures. Failed: success = false. Sub-agent roll-up spans, which are not requests, are excluded.",
+      "description": "Model requests (chat spans) by outcome. Completed: a response model and a latency attribute were recorded. No response recorded: Copilot CLI chat spans that ended without a response model, tokens or output (status unset, success true) — cancelled or superseded requests whose outcome is unknown; they are not counted as failures. Failed: success = false. Sub-agent roll-up spans, which are not requests, are excluded.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2916,10 +2916,7 @@
         "type": "datasource"
       },
       {
-        "current": {
-          "text": "Trey Research R&D Playground",
-          "value": "64e355d7-997c-491d-b0c1-8414dccfcf42"
-        },
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -2944,10 +2941,7 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "finops-hubs-demo",
-          "value": "finops-hubs-demo"
-        },
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -2975,10 +2969,7 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "finops-hubs-demo-projec-resource-appinsights",
-          "value": "finops-hubs-demo-projec-resource-appinsights"
-        },
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
