@@ -18,6 +18,13 @@
       "title": "Overview",
       "url": "/d/ftk-hub-overview?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}",
       "type": "link"
+    },
+    {
+      "targetBlank": true,
+      "icon": "question",
+      "title": "Give feedback",
+      "url": "https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.Anomalies.Nav",
+      "type": "link"
     }
   ],
   "timepicker": {
@@ -33,10 +40,10 @@
       "title": "",
       "type": "text",
       "gridPos": {
-        "h": 6,
-        "w": 17,
         "x": 0,
-        "y": 0
+        "y": 0,
+        "w": 24,
+        "h": 3
       },
       "fieldConfig": {
         "defaults": {
@@ -55,19 +62,20 @@
       }
     },
     {
-      "description": "Source tile: 00b9ea3a-3902-4234-806f-1a7bf87b3992",
+      "description": "",
       "title": "Daily trend",
       "type": "timeseries",
       "gridPos": {
-        "h": 15,
-        "w": 17,
         "x": 0,
-        "y": 6
+        "y": 3,
+        "w": 24,
+        "h": 15
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "custom": {
@@ -83,40 +91,7 @@
           },
           "noValue": "No data"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "options": "Change",
-              "id": "byName"
-            },
-            "properties": [
-              {
-                "value": "percent",
-                "id": "unit"
-              },
-              {
-                "value": "right",
-                "id": "custom.axisPlacement"
-              },
-              {
-                "value": "line",
-                "id": "custom.drawStyle"
-              },
-              {
-                "value": 2,
-                "id": "custom.lineWidth"
-              },
-              {
-                "value": 0,
-                "id": "custom.fillOpacity"
-              },
-              {
-                "value": "auto",
-                "id": "custom.showPoints"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "hideTimeOverride": true,
       "timeFrom": "now-${numberOfDays}d-1d",
@@ -155,19 +130,20 @@
       }
     },
     {
-      "description": "Source tile: 570e40a5-f67a-4c4b-84f6-c207ed021812",
+      "description": "",
       "title": "3-month running total trend",
       "type": "barchart",
       "gridPos": {
-        "h": 10,
-        "w": 17,
         "x": 0,
-        "y": 21
+        "y": 18,
+        "w": 24,
+        "h": 10
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "shades",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "noValue": "No data"
@@ -222,19 +198,20 @@
       }
     },
     {
-      "description": "Source tile: 27ff6f92-2e6f-431f-bf3b-f36aad59b5f5",
+      "description": "",
       "title": "3-month daily trend",
       "type": "barchart",
       "gridPos": {
-        "h": 8,
-        "w": 17,
         "x": 0,
-        "y": 31
+        "y": 28,
+        "w": 24,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "noValue": "No data"
@@ -289,19 +266,19 @@
       }
     },
     {
-      "description": "Source tile: 97df5060-929c-4457-a7e9-47005c845f16",
+      "description": "",
       "title": "3-month daily trend by subscription",
       "type": "barchart",
       "gridPos": {
-        "h": 10,
-        "w": 17,
         "x": 0,
-        "y": 39
+        "y": 36,
+        "w": 24,
+        "h": 10
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -343,10 +320,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -363,19 +340,20 @@
       ]
     },
     {
-      "description": "Source tile: 6fb4c25e-ae84-495b-88ae-6dd2035500d1",
+      "description": "",
       "title": "Forecast (next ${numberOfDays} days)",
       "type": "timeseries",
       "gridPos": {
-        "h": 11,
-        "w": 9,
         "x": 0,
-        "y": 49
+        "y": 46,
+        "w": 24,
+        "h": 11
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "custom": {
@@ -386,7 +364,23 @@
           },
           "noValue": "No data"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/[Ff]orecast/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#B877D9"
+                }
+              }
+            ]
+          }
+        ]
       },
       "targets": [
         {

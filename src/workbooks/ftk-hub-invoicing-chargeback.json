@@ -18,6 +18,13 @@
       "title": "Overview",
       "url": "/d/ftk-hub-overview?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}",
       "type": "link"
+    },
+    {
+      "targetBlank": true,
+      "icon": "question",
+      "title": "Give feedback",
+      "url": "https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Manage.Invoicing",
+      "type": "link"
     }
   ],
   "timepicker": {
@@ -33,10 +40,10 @@
       "title": "",
       "type": "text",
       "gridPos": {
-        "h": 4,
-        "w": 22,
         "x": 0,
-        "y": 0
+        "y": 0,
+        "w": 24,
+        "h": 3
       },
       "fieldConfig": {
         "defaults": {
@@ -55,19 +62,20 @@
       }
     },
     {
-      "description": "Source tile: acf2ca3d-9d8f-477f-b259-f3937bf938d4",
-      "title": "Cost last month",
+      "description": "",
+      "title": "Cost last month (${selectedBillingCurrency})",
       "type": "stat",
       "gridPos": {
-        "h": 12,
-        "w": 4,
         "x": 0,
-        "y": 4
+        "y": 3,
+        "w": 24,
+        "h": 5
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "noValue": "No data"
@@ -121,27 +129,32 @@
           "fields": "/.*/",
           "values": false
         },
-        "colorMode": "background",
+        "colorMode": "value",
         "justifyMode": "center",
         "textMode": "auto",
         "orientation": "auto",
-        "graphMode": "none"
+        "graphMode": "none",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 26
+        }
       }
     },
     {
-      "description": "Source tile: 595e39e5-02ff-4ee7-99f9-68694ffd0495",
-      "title": "Cost over time",
+      "description": "",
+      "title": "Cost over time (${selectedBillingCurrency})",
       "type": "barchart",
       "gridPos": {
-        "h": 6,
-        "w": 18,
-        "x": 4,
-        "y": 4
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "shades",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "custom": {
@@ -193,19 +206,19 @@
       }
     },
     {
-      "description": "Source tile: efd2b03d-c80d-4d78-b77a-efa3f932efdb",
+      "description": "",
       "title": "Change over time",
       "type": "barchart",
       "gridPos": {
-        "h": 6,
-        "w": 18,
-        "x": 4,
-        "y": 10
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "unit": "short",
           "custom": {
@@ -215,7 +228,38 @@
           },
           "noValue": "No data"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byType",
+              "options": "number"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#56A64B",
+                      "value": null
+                    },
+                    {
+                      "color": "#E02F44",
+                      "value": 0.01
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          }
+        ]
       },
       "hideTimeOverride": true,
       "timeFrom": "now-${numberOfMonths}M/M",
@@ -257,19 +301,20 @@
       }
     },
     {
-      "description": "Source tile: 9c5e208a-f0ce-4e2e-9969-35130eef22c1",
+      "description": "",
       "title": "Counts",
       "type": "stat",
       "gridPos": {
-        "h": 6,
-        "w": 13,
         "x": 0,
-        "y": 16
+        "y": 16,
+        "w": 24,
+        "h": 4
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -323,11 +368,15 @@
           "fields": "/.*/",
           "values": false
         },
-        "colorMode": "background",
+        "colorMode": "value",
         "justifyMode": "center",
         "textMode": "auto",
         "orientation": "auto",
-        "graphMode": "none"
+        "graphMode": "none",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 26
+        }
       }
     }
   ],

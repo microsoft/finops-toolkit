@@ -18,6 +18,13 @@
       "title": "Overview",
       "url": "/d/ftk-hub-overview?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}",
       "type": "link"
+    },
+    {
+      "targetBlank": true,
+      "icon": "question",
+      "title": "Give feedback",
+      "url": "https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.DataIngestion.Nav",
+      "type": "link"
     }
   ],
   "timepicker": {
@@ -29,40 +36,14 @@
   "editable": true,
   "panels": [
     {
-      "description": "Source tile: ab300a6a-3bbd-450b-942c-7f30113cba15",
-      "title": "",
-      "type": "text",
-      "gridPos": {
-        "h": 3,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 83,
-      "options": {
-        "mode": "markdown",
-        "content": "&nbsp; [FinOps hubs](/d/ftk-hub-data-ingestion?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=84)\r\n• [Ingested data](/d/ftk-hub-data-ingestion?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=88)\r\n• [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.DataIngestion.Nav)"
-      }
-    },
-    {
       "description": "Source tile: e29123b0-320a-4d36-a5bd-14c1757af8b8",
       "title": "",
       "type": "text",
       "gridPos": {
-        "h": 4,
-        "w": 24,
         "x": 0,
-        "y": 3
+        "y": 0,
+        "w": 24,
+        "h": 3
       },
       "fieldConfig": {
         "defaults": {
@@ -81,45 +62,33 @@
       }
     },
     {
-      "description": "Source tile: 1e089e2c-d94a-4bfa-95e7-5f8b1249c982",
-      "title": "",
-      "type": "text",
+      "id": 136,
+      "type": "row",
+      "title": "FinOps hubs — summary of the cost and usage of FinOps hubs infrastructure",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
-        "h": 6,
-        "w": 24,
         "x": 0,
-        "y": 7
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 84,
-      "options": {
-        "mode": "markdown",
-        "content": "# FinOps hubs\r\nSummary of the cost and usage of FinOps hubs infrastructure\r\n\r\n⬆️ [Top](/d/ftk-hub-data-ingestion?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=83) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.DataIngestion.FinOpsHubs)"
+        "y": 3,
+        "w": 24,
+        "h": 1
       }
     },
     {
-      "description": "Source tile: fc2e27cf-57be-486f-afa5-6a93d6e9c6a7. The source query can return empty labels and values when the hub version is not numeric.",
+      "description": "",
       "title": "Hub settings",
       "type": "stat",
       "gridPos": {
-        "h": 6,
-        "w": 9,
         "x": 0,
-        "y": 13
+        "y": 4,
+        "w": 24,
+        "h": 5
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -173,27 +142,31 @@
           "fields": "/.*/",
           "values": false
         },
-        "colorMode": "background",
+        "colorMode": "value",
         "justifyMode": "center",
         "textMode": "auto",
         "orientation": "auto",
-        "graphMode": "none"
+        "graphMode": "none",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 26
+        }
       }
     },
     {
-      "description": "Source tile: 05764729-51e4-4048-8cf8-2ac56eb3e643",
+      "description": "",
       "title": "Monthly trend by hub instance",
       "type": "barchart",
       "gridPos": {
-        "h": 8,
-        "w": 24,
         "x": 0,
-        "y": 19
+        "y": 9,
+        "w": 24,
+        "h": 9
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -235,10 +208,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -255,19 +228,19 @@
       ]
     },
     {
-      "description": "Source tile: 37a8bef0-7dfb-42b9-aeab-55f8c9c178b8",
+      "description": "",
       "title": "Daily trend by hub instance",
       "type": "barchart",
       "gridPos": {
-        "h": 7,
-        "w": 24,
         "x": 0,
-        "y": 27
+        "y": 18,
+        "w": 24,
+        "h": 9
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -309,10 +282,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -329,19 +302,20 @@
       ]
     },
     {
-      "description": "Source tile: c48e07c5-f0a5-43e2-8a13-ee43ed1b92f9",
+      "description": "",
       "title": "Monthly trend by hub instance",
       "type": "table",
       "gridPos": {
-        "h": 12,
-        "w": 24,
         "x": 0,
-        "y": 34
+        "y": 27,
+        "w": 24,
+        "h": 12
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "shades",
+            "fixedColor": "blue"
           },
           "unit": "short",
           "noValue": "No data"
@@ -378,71 +352,33 @@
       }
     },
     {
-      "description": "Source tile: 10d7d4d3-0201-4cdf-977b-4814152fda24",
-      "title": "",
-      "type": "text",
+      "id": 138,
+      "type": "row",
+      "title": "Ingested data · data quality — checks that may impact your reports",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
-        "h": 6,
-        "w": 24,
         "x": 0,
-        "y": 46
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 88,
-      "options": {
-        "mode": "markdown",
-        "content": "# Ingested data\r\nSummary of the data that's been ingested into FinOps hubs\r\n\r\n⬆️ [Top](/d/ftk-hub-data-ingestion?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=83) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.DataIngestion.IngestedData)"
+        "y": 39,
+        "w": 24,
+        "h": 1
       }
     },
     {
-      "description": "Source tile: daa1b2bd-0ccd-43ff-ad2c-1337d247805a",
-      "title": "",
-      "type": "text",
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 52
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 134,
-      "options": {
-        "mode": "markdown",
-        "content": "# Data quality\r\nData quality checks that may impact your reports.\r\n\r\n⬆️ [Top](/d/ftk-hub-data-ingestion?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=83) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.DataIngestion.DataQuality)"
-      }
-    },
-    {
-      "description": "Source tile: d5ea61ef-d4f5-423e-bfa4-d1ab473867c2",
-      "title": "Summary of list, contracted, and effective cost alignment",
+      "description": "",
+      "title": "Summary of list, contracted, and effective cost alignment (${selectedBillingCurrency})",
       "type": "table",
       "gridPos": {
-        "h": 12,
-        "w": 24,
         "x": 0,
-        "y": 58
+        "y": 40,
+        "w": 24,
+        "h": 12
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "shades",
+            "fixedColor": "blue"
           },
           "unit": "short",
           "noValue": "No data"

@@ -97,7 +97,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "blue"
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "noValue": "No data",
@@ -253,8 +253,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "shades",
-            "fixedColor": "blue"
+            "mode": "fixed",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "custom": {
@@ -345,7 +345,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "custom": {
@@ -474,7 +475,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "blue"
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "noValue": "No data",
@@ -618,7 +619,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "text"
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "noValue": "No data",
@@ -811,7 +812,7 @@
       "title": "Hub infrastructure cost - selected period (${selectedBillingCurrency})",
       "type": "barchart",
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 24,
         "x": 0,
         "y": 23
@@ -819,8 +820,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "shades",
-            "fixedColor": "blue"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -870,10 +870,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"

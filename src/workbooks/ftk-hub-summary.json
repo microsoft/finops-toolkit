@@ -18,6 +18,13 @@
       "title": "Overview",
       "url": "/d/ftk-hub-overview?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}",
       "type": "link"
+    },
+    {
+      "targetBlank": true,
+      "icon": "question",
+      "title": "Give feedback",
+      "url": "https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Nav",
+      "type": "link"
     }
   ],
   "timepicker": {
@@ -29,50 +36,41 @@
   "editable": true,
   "panels": [
     {
-      "description": "Source tile: e3ac3bbc-a9ef-44dd-828f-226afbcfda33",
-      "title": "",
-      "type": "text",
-      "gridPos": {
-        "h": 3,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 51,
-      "options": {
-        "mode": "markdown",
-        "content": "&nbsp; [Services](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=33)\r\n• [Regions](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=18)\r\n• [Subscriptions](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=23)\r\n• [Resource groups](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=28)\r\n• [Resources](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=29)\r\n• [Inventory](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=36)\r\n• [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Nav)"
-      }
-    },
-    {
-      "description": "Source tile: 66dcd731-a141-47b2-b36a-53a138cb75f2",
-      "title": "Summary",
+      "description": "",
+      "title": "Cost and savings — prior and current month (${selectedBillingCurrency})",
       "type": "stat",
       "gridPos": {
-        "h": 19,
-        "w": 6,
         "x": 0,
-        "y": 3
+        "y": 0,
+        "w": 24,
+        "h": 5
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "noValue": "No data"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/savings/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#56A64B"
+                }
+              }
+            ]
+          }
+        ]
       },
       "targets": [
         {
@@ -121,27 +119,32 @@
           "fields": "/.*/",
           "values": false
         },
-        "colorMode": "background",
+        "colorMode": "value",
         "justifyMode": "center",
         "textMode": "auto",
         "orientation": "auto",
-        "graphMode": "none"
+        "graphMode": "none",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 26
+        }
       }
     },
     {
-      "description": "Source tile: 49534f2e-97ea-4b41-87c2-5e0f4bc26db8",
-      "title": "Effective cost",
+      "description": "",
+      "title": "Effective cost — monthly trend (${selectedBillingCurrency})",
       "type": "timeseries",
       "gridPos": {
-        "h": 13,
-        "w": 18,
-        "x": 6,
-        "y": 3
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "custom": {
@@ -153,40 +156,75 @@
             "axisPlacement": "auto",
             "showPoints": "never",
             "fillOpacity": 70,
-            "drawStyle": "bars"
+            "drawStyle": "bars",
+            "axisSoftMin": 0
           },
           "noValue": "No data"
         },
         "overrides": [
           {
             "matcher": {
-              "options": "Change",
-              "id": "byName"
+              "id": "byName",
+              "options": "Change"
             },
             "properties": [
               {
-                "value": "percent",
-                "id": "unit"
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
               },
               {
-                "value": "right",
-                "id": "custom.axisPlacement"
+                "id": "unit",
+                "value": "percent"
               },
               {
-                "value": "line",
-                "id": "custom.drawStyle"
+                "id": "custom.drawStyle",
+                "value": "line"
               },
               {
-                "value": 2,
-                "id": "custom.lineWidth"
+                "id": "custom.lineWidth",
+                "value": 2
               },
               {
-                "value": 0,
-                "id": "custom.fillOpacity"
+                "id": "custom.fillOpacity",
+                "value": 0
               },
               {
-                "value": "auto",
-                "id": "custom.showPoints"
+                "id": "custom.stacking",
+                "value": {
+                  "mode": "none",
+                  "group": "B"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Change vs prior month"
+              },
+              {
+                "id": "displayName",
+                "value": "Change vs prior month"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "EffectiveCost"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Effective cost"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Effective cost"
               }
             ]
           }
@@ -229,19 +267,20 @@
       }
     },
     {
-      "description": "Source tile: dad96fbb-750c-47a3-bd2e-e2bee74ebd22",
-      "title": "Cost + savings running total (this month and last)",
+      "description": "",
+      "title": "Cost + savings running total — this month and last (${selectedBillingCurrency})",
       "type": "timeseries",
       "gridPos": {
-        "h": 11,
-        "w": 18,
-        "x": 6,
-        "y": 16
+        "x": 0,
+        "y": 13,
+        "w": 24,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "custom": {
@@ -257,7 +296,53 @@
           },
           "noValue": "No data"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Effective cost/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3274D9"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Commitment savings/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#56A64B"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Negotiated savings/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#96D98D"
+                }
+              }
+            ]
+          }
+        ]
       },
       "hideTimeOverride": true,
       "timeFrom": "now-1M/M",
@@ -293,22 +378,46 @@
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "EffectiveCostRunningTotal \\d+ (\\w+)",
+            "renamePattern": "Effective cost — $1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "CommitmentDiscountSavingsRunningTotal \\d+ (\\w+)",
+            "renamePattern": "Commitment savings — $1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "NegotiatedDiscountSavingsRunningTotal \\d+ (\\w+)",
+            "renamePattern": "Negotiated savings — $1"
+          }
+        }
+      ]
     },
     {
-      "description": "Source tile: 2a1ee947-f1e3-447e-9388-91e318068608",
-      "title": "Counts (last n days)",
+      "description": "",
+      "title": "Counts (last ${numberOfDays} days)",
       "type": "stat",
       "gridPos": {
-        "h": 12,
-        "w": 6,
         "x": 0,
-        "y": 22
+        "y": 21,
+        "w": 24,
+        "h": 4
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -362,27 +471,32 @@
           "fields": "/.*/",
           "values": false
         },
-        "colorMode": "background",
+        "colorMode": "value",
         "justifyMode": "center",
         "textMode": "auto",
         "orientation": "auto",
-        "graphMode": "none"
+        "graphMode": "none",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 26
+        }
       }
     },
     {
-      "description": "Source tile: ea97e18e-5253-4a9d-9eed-0f2fc45b3c5b",
-      "title": "Cost summary",
+      "description": "",
+      "title": "Cost summary (${selectedBillingCurrency})",
       "type": "barchart",
       "gridPos": {
-        "h": 7,
-        "w": 9,
-        "x": 6,
-        "y": 27
+        "x": 0,
+        "y": 25,
+        "w": 12,
+        "h": 7
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "shades",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "noValue": "No data"
@@ -437,19 +551,20 @@
       }
     },
     {
-      "description": "Source tile: d9959281-dc89-44fc-a2b3-b4f5227e0179",
-      "title": "Savings summary",
+      "description": "",
+      "title": "Savings summary (${selectedBillingCurrency})",
       "type": "barchart",
       "gridPos": {
-        "h": 7,
-        "w": 9,
-        "x": 15,
-        "y": 27
+        "x": 12,
+        "y": 25,
+        "w": 12,
+        "h": 7
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "shades",
+            "fixedColor": "#56A64B"
           },
           "unit": "short",
           "noValue": "No data"
@@ -504,19 +619,20 @@
       }
     },
     {
-      "description": "Source tile: 04cb63d9-0a92-488f-b863-815466d6725c",
-      "title": "Summary",
+      "description": "",
+      "title": "Monthly cost and savings detail (${selectedBillingCurrency})",
       "type": "table",
       "gridPos": {
-        "h": 8,
-        "w": 24,
         "x": 0,
-        "y": 34
+        "y": 32,
+        "w": 24,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -553,45 +669,32 @@
       }
     },
     {
-      "description": "Source tile: d9960334-1cff-4686-9d4a-e6afc5574aa7",
-      "title": "",
-      "type": "text",
+      "id": 63,
+      "type": "row",
+      "title": "Services — effective cost breakdown by service category and service name",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
-        "h": 6,
+        "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 33,
-      "options": {
-        "mode": "markdown",
-        "content": "# Services\r\nEffective cost breakdown by service category and service name\r\n\r\n⬆️ [Top](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=51) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Services)"
+        "y": 40
       }
     },
     {
-      "description": "Source tile: 700f736d-56b1-4194-8282-891683f63134",
+      "description": "",
       "title": "Monthly trend by service category",
       "type": "barchart",
       "gridPos": {
-        "h": 7,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 41
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -633,10 +736,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -653,19 +756,20 @@
       ]
     },
     {
-      "description": "Source tile: 97872267-01c6-44f9-ad0d-34940d4b58fa",
+      "description": "",
       "title": "Monthly trend by service category",
       "type": "table",
       "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 55
+        "y": 50
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -702,19 +806,19 @@
       }
     },
     {
-      "description": "Source tile: b2916ba0-cb54-433d-89a1-8905b8d8618a",
+      "description": "",
       "title": "Monthly trend by service name",
       "type": "barchart",
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 67
+        "y": 62
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -756,10 +860,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -776,19 +880,20 @@
       ]
     },
     {
-      "description": "Source tile: 6208961b-6249-4fd4-a2d6-16b5e58b9baa",
+      "description": "",
       "title": "Monthly trend by service name",
       "type": "table",
       "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 75
+        "y": 71
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -825,45 +930,32 @@
       }
     },
     {
-      "description": "Source tile: e47767ba-1884-4ca7-8458-24025b92464a",
-      "title": "",
-      "type": "text",
+      "id": 64,
+      "type": "row",
+      "title": "Regions — effective cost breakdown by region",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
-        "h": 6,
+        "h": 1,
         "w": 24,
         "x": 0,
-        "y": 87
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 18,
-      "options": {
-        "mode": "markdown",
-        "content": "# Regions\r\nEffective cost breakdown by region\r\n\r\n⬆️ [Top](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=51) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Regions)"
+        "y": 83
       }
     },
     {
-      "description": "Source tile: d3e265ff-2c5a-4a03-a8b8-e0b4e10cf362",
+      "description": "",
       "title": "Monthly trend by region",
       "type": "barchart",
       "gridPos": {
-        "h": 7,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 93
+        "y": 84
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -905,10 +997,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -925,19 +1017,20 @@
       ]
     },
     {
-      "description": "Source tile: c54de4ff-e793-49b7-b33d-db22fccd0290",
+      "description": "",
       "title": "Monthly trend by region",
       "type": "table",
       "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 100
+        "y": 93
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -974,45 +1067,32 @@
       }
     },
     {
-      "description": "Source tile: 4956ec68-b338-4926-bd72-ae6ca9e886d6",
-      "title": "",
-      "type": "text",
+      "id": 65,
+      "type": "row",
+      "title": "Subscriptions — effective cost breakdown by subscription (subaccount)",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
-        "h": 6,
+        "h": 1,
         "w": 24,
         "x": 0,
-        "y": 112
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 23,
-      "options": {
-        "mode": "markdown",
-        "content": "# Subscriptions\r\nEffective cost breakdown by subscription (subaccount)\r\n\r\n⬆️ [Top](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=51) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Subscriptions)"
+        "y": 105
       }
     },
     {
-      "description": "Source tile: b28897e5-0606-4112-a13a-0cd814055ea7",
+      "description": "",
       "title": "Monthly trend by subscription",
       "type": "barchart",
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 118
+        "y": 106
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -1054,10 +1134,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -1074,19 +1154,20 @@
       ]
     },
     {
-      "description": "Source tile: 7b24b810-3cd3-4b7c-92cc-6b40f071b24d",
+      "description": "",
       "title": "Monthly trend by subscription",
       "type": "table",
       "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 126
+        "y": 115
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -1123,45 +1204,32 @@
       }
     },
     {
-      "description": "Source tile: 6750ce15-ec4e-4c60-8079-b00a4b462d63",
-      "title": "",
-      "type": "text",
+      "id": 66,
+      "type": "row",
+      "title": "Resource groups — effective cost breakdown by resource group",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
-        "h": 6,
+        "h": 1,
         "w": 24,
         "x": 0,
-        "y": 138
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 28,
-      "options": {
-        "mode": "markdown",
-        "content": "# Resource groups\r\nEffective cost breakdown by resource group\r\n\r\n⬆️ [Top](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=51) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.Summary.ResourceGroups)"
+        "y": 127
       }
     },
     {
-      "description": "Source tile: d2672640-0e48-47e5-a253-de927a77a637",
+      "description": "",
       "title": "Monthly trend by resource group",
       "type": "barchart",
       "gridPos": {
-        "h": 7,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 144
+        "y": 128
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -1203,10 +1271,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -1223,19 +1291,20 @@
       ]
     },
     {
-      "description": "Source tile: f56a2d38-7d69-4dfd-8cc8-6b7a292758b1",
+      "description": "",
       "title": "Monthly trend by resource group",
       "type": "table",
       "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 151
+        "y": 137
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -1272,45 +1341,32 @@
       }
     },
     {
-      "description": "Source tile: 52055726-2788-4216-b813-9d91714c5953",
-      "title": "",
-      "type": "text",
+      "id": 67,
+      "type": "row",
+      "title": "Resources — effective cost breakdown by resource",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
-        "h": 6,
+        "h": 1,
         "w": 24,
         "x": 0,
-        "y": 163
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 29,
-      "options": {
-        "mode": "markdown",
-        "content": "# Resources\r\nEffective cost breakdown by resource\r\n\r\n⬆️ [Top](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=51) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Resources)"
+        "y": 149
       }
     },
     {
-      "description": "Source tile: d84a014f-0b68-490b-a522-fba66fee1e0f",
+      "description": "",
       "title": "Monthly trend by resource",
       "type": "barchart",
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 169
+        "y": 150
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -1352,10 +1408,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -1372,19 +1428,19 @@
       ]
     },
     {
-      "description": "Source tile: c03c1e57-5e66-4eb1-a20b-10c887eb2140",
+      "description": "",
       "title": "Daily trend by resource",
       "type": "barchart",
       "gridPos": {
-        "h": 7,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 177
+        "y": 159
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -1426,10 +1482,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -1446,19 +1502,20 @@
       ]
     },
     {
-      "description": "Source tile: 586ebe0b-ff5c-4794-91a1-a8ec845cad3a",
+      "description": "",
       "title": "Monthly trend by resource",
       "type": "table",
       "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 184
+        "y": 168
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -1495,45 +1552,33 @@
       }
     },
     {
-      "description": "Source tile: a8edc317-353b-4648-9d32-e73e0d0a2894",
-      "title": "",
-      "type": "text",
+      "id": 68,
+      "type": "row",
+      "title": "Resource inventory — summary of resources and their costs",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
-        "h": 6,
+        "h": 1,
         "w": 24,
         "x": 0,
-        "y": 196
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 36,
-      "options": {
-        "mode": "markdown",
-        "content": "# Resource inventory\r\nSummary of resources and their costs\r\n\r\n⬆️ [Top](/d/ftk-hub-summary?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=51) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.Summary.ResourceInventory)"
+        "y": 180
       }
     },
     {
-      "description": "Source tile: a83872cb-44ef-402a-8512-b9d5ba04744e",
-      "title": "Resource inventory summary (last n days)",
+      "description": "",
+      "title": "Resource inventory summary (last ${numberOfDays} days)",
       "type": "stat",
       "gridPos": {
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 202
+        "y": 181
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -1587,27 +1632,31 @@
           "fields": "/.*/",
           "values": false
         },
-        "colorMode": "background",
+        "colorMode": "value",
         "justifyMode": "center",
         "textMode": "auto",
         "orientation": "auto",
-        "graphMode": "none"
+        "graphMode": "none",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 26
+        }
       }
     },
     {
-      "description": "Source tile: 8d63f5d3-b1d8-4117-a358-bce7939a13ae",
-      "title": "Daily trend by resource type (last n days)",
+      "description": "",
+      "title": "Daily trend by resource type (last ${numberOfDays} days)",
       "type": "barchart",
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 211
+        "y": 190
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -1649,10 +1698,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -1669,19 +1718,20 @@
       ]
     },
     {
-      "description": "Source tile: 38ffb57b-4646-4944-a92b-6966a3a6a807",
-      "title": "Resource type summary (last n days)",
+      "description": "",
+      "title": "Resource type summary (last ${numberOfDays} days)",
       "type": "table",
       "gridPos": {
         "h": 12,
         "w": 13,
         "x": 0,
-        "y": 219
+        "y": 199
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -1718,19 +1768,19 @@
       }
     },
     {
-      "description": "Source tile: 4495e71e-1005-4224-91f4-8103f06981da",
-      "title": "Most used (last n days)",
+      "description": "",
+      "title": "Most used (last ${numberOfDays} days)",
       "type": "barchart",
       "gridPos": {
         "h": 12,
         "w": 5,
         "x": 13,
-        "y": 219
+        "y": 199
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "noValue": "No data"
@@ -1775,19 +1825,19 @@
       }
     },
     {
-      "description": "Source tile: 011c2b2c-a232-4459-acf4-8db4055f4f70",
-      "title": "Most cost (last n days)",
+      "description": "",
+      "title": "Most cost (last ${numberOfDays} days)",
       "type": "barchart",
       "gridPos": {
         "h": 12,
         "w": 6,
         "x": 18,
-        "y": 219
+        "y": 199
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "noValue": "No data"
@@ -1832,19 +1882,19 @@
       }
     },
     {
-      "description": "Source tile: e26eb29d-8021-406c-a84e-5568ddd234f4",
+      "description": "",
       "title": "Monthly trend by resource type",
       "type": "barchart",
       "gridPos": {
-        "h": 7,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 231
+        "y": 211
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "unit": "short",
           "custom": {
@@ -1886,10 +1936,10 @@
         },
         "showValue": "never",
         "legend": {
-          "placement": "bottom",
-          "calcs": [],
-          "showLegend": false,
-          "displayMode": "list"
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
         },
         "orientation": "vertical",
         "stacking": "normal"
@@ -1906,19 +1956,20 @@
       ]
     },
     {
-      "description": "Source tile: 8caa438b-10a8-418c-ab3b-5c5aee53d3e6",
+      "description": "",
       "title": "Monthly trend by resource",
       "type": "table",
       "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 238
+        "y": 220
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"
@@ -1955,45 +2006,33 @@
       }
     },
     {
-      "description": "Source tile: 18517864-8a43-4f0c-80e3-863554f1b189",
-      "title": "",
-      "type": "text",
+      "id": 69,
+      "type": "row",
+      "title": "Purchases — costs from commitment discount, Marketplace, and other purchases",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
-        "h": 6,
+        "h": 1,
         "w": 24,
         "x": 0,
-        "y": 250
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "short",
-          "noValue": "No data"
-        },
-        "overrides": []
-      },
-      "id": 58,
-      "options": {
-        "mode": "markdown",
-        "content": "# Purchases\r\nCosts from commitment discount, Marketplace, and other purchases\r\n\r\n⬆️ [Top](/d/ftk-hub-rate-optimization?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}&viewPanel=53) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Purchases)"
+        "y": 232
       }
     },
     {
-      "description": "Source tile: 4383c893-8839-4678-88c6-9a6393595d0a",
+      "description": "",
       "title": "Purchases",
       "type": "table",
       "gridPos": {
         "h": 11,
         "w": 16,
         "x": 0,
-        "y": 256
+        "y": 233
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#CCCCDC"
           },
           "unit": "short",
           "noValue": "No data"

@@ -18,6 +18,13 @@
       "title": "Overview",
       "url": "/d/ftk-hub-overview?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}",
       "type": "link"
+    },
+    {
+      "targetBlank": true,
+      "icon": "question",
+      "title": "Give feedback",
+      "url": "https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0-dev/bladeName/Hubs.Dashboard/featureName/Understand.Quantify.Budgeting.Nav",
+      "type": "link"
     }
   ],
   "timepicker": {
@@ -33,10 +40,10 @@
       "title": "",
       "type": "text",
       "gridPos": {
-        "h": 4,
-        "w": 24,
         "x": 0,
-        "y": 0
+        "y": 0,
+        "w": 24,
+        "h": 3
       },
       "fieldConfig": {
         "defaults": {
@@ -55,19 +62,20 @@
       }
     },
     {
-      "description": "Source tile: 1ac02a9f-3c12-4828-a4dd-60a0d411f60c",
-      "title": "Running total - This month and last",
+      "description": "",
+      "title": "Cost running total — this month and last (${selectedBillingCurrency})",
       "type": "timeseries",
       "gridPos": {
-        "h": 12,
-        "w": 17,
         "x": 0,
-        "y": 4
+        "y": 3,
+        "w": 24,
+        "h": 12
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "#3274D9"
           },
           "unit": "short",
           "custom": {
@@ -83,7 +91,23 @@
           },
           "noValue": "No data"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/[Ll]ast/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#8AB8FF"
+                }
+              }
+            ]
+          }
+        ]
       },
       "hideTimeOverride": true,
       "timeFrom": "now-1M/M",
@@ -122,19 +146,20 @@
       }
     },
     {
-      "description": "Source tile: 4faba5ce-4190-45f9-b41e-5d9c6a9c8098",
+      "description": "",
       "title": "Summary",
       "type": "table",
       "gridPos": {
-        "h": 8,
-        "w": 24,
         "x": 0,
-        "y": 16
+        "y": 15,
+        "w": 24,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "shades",
+            "fixedColor": "blue"
           },
           "unit": "short",
           "noValue": "No data"
@@ -171,19 +196,20 @@
       }
     },
     {
-      "description": "Source tile: 890e0366-a9a5-4001-bc6e-f1b7f23fa8a7",
-      "title": "Effective cost by subscription",
+      "description": "",
+      "title": "Effective cost by subscription (${selectedBillingCurrency})",
       "type": "table",
       "gridPos": {
-        "h": 7,
-        "w": 24,
         "x": 0,
-        "y": 24
+        "y": 23,
+        "w": 24,
+        "h": 7
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "shades",
+            "fixedColor": "blue"
           },
           "unit": "short",
           "noValue": "No data"
