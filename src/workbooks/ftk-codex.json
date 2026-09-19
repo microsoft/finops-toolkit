@@ -147,9 +147,9 @@
       "id": 101,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -235,9 +235,9 @@
       "id": 102,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -323,9 +323,9 @@
       "id": 103,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -411,9 +411,9 @@
       "id": 104,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -499,9 +499,9 @@
       "id": 105,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -587,9 +587,9 @@
       "id": 106,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -675,9 +675,9 @@
       "id": 107,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -763,9 +763,9 @@
       "id": 108,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -851,9 +851,9 @@
       "id": 109,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -939,9 +939,9 @@
       "id": 110,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -1027,9 +1027,9 @@
       "id": 111,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -1115,9 +1115,9 @@
       "id": 112,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -1215,9 +1215,9 @@
           "id": 3,
           "maxDataPoints": 48,
           "options": {
-            "colorMode": "none",
+            "colorMode": "background",
             "graphMode": "none",
-            "justifyMode": "auto",
+            "justifyMode": "center",
             "orientation": "auto",
             "percentChangeColorMode": "standard",
             "reduceOptions": {
@@ -1302,9 +1302,9 @@
           "id": 2,
           "maxDataPoints": 48,
           "options": {
-            "colorMode": "none",
+            "colorMode": "background",
             "graphMode": "none",
-            "justifyMode": "auto",
+            "justifyMode": "center",
             "orientation": "auto",
             "percentChangeColorMode": "standard",
             "reduceOptions": {
@@ -1389,9 +1389,9 @@
           "id": 1,
           "maxDataPoints": 48,
           "options": {
-            "colorMode": "none",
+            "colorMode": "background",
             "graphMode": "none",
-            "justifyMode": "auto",
+            "justifyMode": "center",
             "orientation": "auto",
             "percentChangeColorMode": "standard",
             "reduceOptions": {
@@ -1476,9 +1476,9 @@
           "id": 4,
           "maxDataPoints": 48,
           "options": {
-            "colorMode": "none",
+            "colorMode": "background",
             "graphMode": "none",
-            "justifyMode": "auto",
+            "justifyMode": "center",
             "orientation": "auto",
             "percentChangeColorMode": "standard",
             "reduceOptions": {
@@ -1572,9 +1572,9 @@
           },
           "id": 5,
           "options": {
-            "colorMode": "none",
+            "colorMode": "background",
             "graphMode": "none",
-            "justifyMode": "auto",
+            "justifyMode": "center",
             "orientation": "auto",
             "percentChangeColorMode": "standard",
             "reduceOptions": {
@@ -1668,9 +1668,9 @@
           },
           "id": 6,
           "options": {
-            "colorMode": "none",
+            "colorMode": "background",
             "graphMode": "none",
-            "justifyMode": "auto",
+            "justifyMode": "center",
             "orientation": "auto",
             "percentChangeColorMode": "standard",
             "reduceOptions": {
@@ -1755,9 +1755,9 @@
           },
           "id": 7,
           "options": {
-            "colorMode": "none",
+            "colorMode": "background",
             "graphMode": "none",
-            "justifyMode": "auto",
+            "justifyMode": "center",
             "orientation": "auto",
             "percentChangeColorMode": "standard",
             "reduceOptions": {
@@ -1842,9 +1842,9 @@
           },
           "id": 8,
           "options": {
-            "colorMode": "none",
+            "colorMode": "background",
             "graphMode": "none",
-            "justifyMode": "auto",
+            "justifyMode": "center",
             "orientation": "auto",
             "percentChangeColorMode": "standard",
             "reduceOptions": {
@@ -3788,9 +3788,9 @@
       },
       "id": 20,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {

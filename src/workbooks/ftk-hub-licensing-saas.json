@@ -147,8 +147,8 @@
           "fields": "/.*/",
           "values": false
         },
-        "colorMode": "none",
-        "justifyMode": "auto",
+        "colorMode": "background",
+        "justifyMode": "center",
         "textMode": "auto",
         "orientation": "auto",
         "graphMode": "none"

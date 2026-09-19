@@ -1223,7 +1223,7 @@
       },
       "id": 32,
       "options": {
-        "colorMode": "value",
+        "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -3306,7 +3306,10 @@
         "type": "datasource"
       },
       {
-        "current": {},
+        "current": {
+          "text": "Trey Research R&D Playground",
+          "value": "64e355d7-997c-491d-b0c1-8414dccfcf42"
+        },
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -3331,7 +3334,10 @@
         "type": "query"
       },
       {
-        "current": {},
+        "current": {
+          "text": "finops-hubs-demo",
+          "value": "finops-hubs-demo"
+        },
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -3359,7 +3365,10 @@
         "type": "query"
       },
       {
-        "current": {},
+        "current": {
+          "text": "finops-hubs-demo-projec-resource-appinsights",
+          "value": "finops-hubs-demo-projec-resource-appinsights"
+        },
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"

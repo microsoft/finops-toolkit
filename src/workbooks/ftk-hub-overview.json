@@ -2,8 +2,8 @@
   "description": "Uses source billing and calendar windows, not the dashboard time picker. Currency All does not convert currencies.",
   "title": "FinOps hubs - Overview",
   "time": {
-    "from": "now-1y",
-    "to": "now"
+    "from": "now-3M/M",
+    "to": "now+28d"
   },
   "version": 1,
   "schemaVersion": 42,
@@ -133,8 +133,8 @@
           "fields": "/.*/",
           "values": false
         },
-        "colorMode": "none",
-        "justifyMode": "auto",
+        "colorMode": "background",
+        "justifyMode": "center",
         "textMode": "auto",
         "orientation": "auto",
         "graphMode": "none"
@@ -222,8 +222,8 @@
           "fields": "/.*/",
           "values": false
         },
-        "colorMode": "none",
-        "justifyMode": "auto",
+        "colorMode": "background",
+        "justifyMode": "center",
         "textMode": "auto",
         "orientation": "auto",
         "graphMode": "none"
@@ -276,7 +276,7 @@
         "overrides": []
       },
       "hideTimeOverride": true,
-      "timeFrom": "now-3M/M",
+      "timeFrom": "now-1M/M",
       "id": 10,
       "datasource": {
         "type": "grafana-azure-data-explorer-datasource",
@@ -393,8 +393,8 @@
           "fields": "/.*/",
           "values": false
         },
-        "colorMode": "none",
-        "justifyMode": "auto",
+        "colorMode": "background",
+        "justifyMode": "center",
         "textMode": "auto",
         "orientation": "auto",
         "graphMode": "none"
@@ -482,8 +482,8 @@
           "fields": "/.*/",
           "values": false
         },
-        "colorMode": "none",
-        "justifyMode": "auto",
+        "colorMode": "background",
+        "justifyMode": "center",
         "textMode": "auto",
         "orientation": "auto",
         "graphMode": "none"
@@ -499,7 +499,7 @@
     {
       "description": "Source tile: 05764729-51e4-4048-8cf8-2ac56eb3e643",
       "title": "Hub infrastructure cost - last ${numberOfMonths} months",
-      "type": "timeseries",
+      "type": "barchart",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -514,14 +514,8 @@
           "unit": "short",
           "custom": {
             "lineWidth": 1,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
             "axisPlacement": "auto",
-            "showPoints": "never",
-            "fillOpacity": 70,
-            "drawStyle": "bars"
+            "fillOpacity": 70
           },
           "noValue": "No data",
           "links": [
@@ -552,23 +546,26 @@
             "type": "grafana-azure-data-explorer-datasource",
             "uid": "${adx_ds}"
           },
-          "resultFormat": "time_series",
+          "resultFormat": "table",
           "database": "${database}",
           "query": "let numberOfMonths = toint(${numberOfMonths:doublequote});\nlet numberOfDays = toint(${numberOfDays:doublequote});\nlet maxGroupCount = toint(${maxGroupCount:doublequote});\nlet selectedBillingCurrency = tostring(${selectedBillingCurrency:doublequote});\nlet _validParameters = assert(\n    isnotnull(numberOfMonths) and todouble(${numberOfMonths:doublequote}) == numberOfMonths\n    and isnotnull(numberOfDays) and todouble(${numberOfDays:doublequote}) == numberOfDays\n    and isnotnull(maxGroupCount) and todouble(${maxGroupCount:doublequote}) == maxGroupCount,\n    \"Monthly trend, daily trend, and max group count must be integers.\");\nlet _checkParameters = toscalar(print _validParameters);\nlet CostsPlus = (\nCosts_v1_2\n//\n// Apply summarization settings\n| where ChargePeriodStart >= monthsago(numberOfMonths)\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\n| as filteredCosts\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\"Default Granularity\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\n//\n// SKU details\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\n//\n// Commitment discounts\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\n//\n// CSP partners\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\n//\n// Toolkit\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\n//\n// TODO: Only add differentiators when the name is not unique\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\n//\n// Explain why cost is 0\n| extend x_FreeReason = case(\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\n        x_SkuDescription contains 'Trial', 'Trial',\n        x_SkuDescription contains 'Preview', 'Preview',\n        'Other'\n    ),\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\n        PricingQuantity > 0.0, 'Low Usage',\n        PricingQuantity == 0.0, 'No Usage',\n        'Unknown Negative Quantity'\n    ),\n    'Unknown'\n)\n//\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\n    filteredCosts\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\n    | summarize sum(EffectiveCost) by ResourceId\n    | order by sum_EffectiveCost desc\n    | limit 1000\n    | distinct ResourceId\n)\n//\n| project-away tmp_ResourceParent\n);\nlet CostsByMonth = (\nCostsPlus\r\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\r\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\r\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\n);\nlet costs = CostsByMonth\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\n| where x_ToolkitTool == 'FinOps hubs'\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\n| extend x_ResourceParentId = tostring(Tags['cm-resource-parent'])\n| extend x_ResourceParentName = database('Ingestion').parse_resourceid(x_ResourceParentId).ResourceName\n;\nlet all = costs | summarize sum(EffectiveCost) by x_ResourceParentId;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = x_ResourceParentId in (topX)\n| extend x_ResourceParentId = iff(inTopX, x_ResourceParentId, otherId)\n| extend x_ResourceParentName = iff(inTopX, x_ResourceParentName, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2),\n    ResourceType = take_any(ResourceType),\n    x_ResourceParentName = take_any(x_ResourceParentName),\n    x_ResourceGroupName = take_any(x_ResourceGroupName),\n    SubAccountName = take_any(SubAccountName)\n    by\n    ChargePeriodStart,\n    x_ResourceParentId\n| project ChargePeriodStart, EffectiveCost, Hub = iff(x_ResourceParentId == otherId, x_ResourceParentName, strcat(x_ResourceParentName, ' (', x_ResourceGroupName, ' / ', SubAccountName, ')'))\n| order by EffectiveCost desc\n\n| where _checkParameters\n| order by ChargePeriodStart asc",
           "refId": "A"
         }
       ],
       "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "showValue": "never",
         "legend": {
           "placement": "bottom",
           "calcs": [],
           "showLegend": false,
           "displayMode": "list"
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
+        "orientation": "vertical",
+        "stacking": "normal"
       },
       "links": [
         {
@@ -576,12 +573,22 @@
           "title": "Open Data ingestion",
           "url": "/d/ftk-hub-data-ingestion?var-adx_ds=${adx_ds:percentencode}&var-cluster=${cluster:percentencode}&var-database=${database:percentencode}&var-numberOfMonths=${numberOfMonths:percentencode}&var-numberOfDays=${numberOfDays:percentencode}&var-maxGroupCount=${maxGroupCount:percentencode}&var-selectedBillingCurrency=${selectedBillingCurrency:percentencode}"
         }
+      ],
+      "transformations": [
+        {
+          "id": "groupingToMatrix",
+          "options": {
+            "rowField": "ChargePeriodStart",
+            "columnField": "Hub",
+            "valueField": "EffectiveCost"
+          }
+        }
       ]
     },
     {
       "description": "Source tile: 6fb4c25e-ae84-495b-88ae-6dd2035500d1",
       "title": "Forecast (next ${numberOfDays} days)",
-      "type": "xychart",
+      "type": "timeseries",
       "gridPos": {
         "h": 10,
         "w": 24,
@@ -596,11 +603,9 @@
           "unit": "short",
           "custom": {
             "lineWidth": 2,
-            "pointSize": {
-              "fixed": 3
-            },
-            "show": "lines",
-            "axisPlacement": "auto"
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "showPoints": "never"
           },
           "noValue": "No data"
         },
@@ -636,18 +641,7 @@
           "calcs": [],
           "showLegend": true,
           "displayMode": "list"
-        },
-        "series": [
-          {
-            "x": {
-              "matcher": {
-                "options": "Timestamp",
-                "id": "byName"
-              }
-            }
-          }
-        ],
-        "mapping": "auto"
+        }
       },
       "links": [
         {

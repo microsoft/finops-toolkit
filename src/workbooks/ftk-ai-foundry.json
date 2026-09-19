@@ -1833,7 +1833,10 @@
         "type": "datasource"
       },
       {
-        "current": {},
+        "current": {
+          "text": "Trey Research R&D Playground",
+          "value": "64e355d7-997c-491d-b0c1-8414dccfcf42"
+        },
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -1858,7 +1861,10 @@
         "type": "query"
       },
       {
-        "current": {},
+        "current": {
+          "text": "finops-hubs-demo",
+          "value": "finops-hubs-demo"
+        },
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -1881,7 +1887,10 @@
         "type": "query"
       },
       {
-        "current": {},
+        "current": {
+          "text": "finops-hubs-demo-projec-resource",
+          "value": "finops-hubs-demo-projec-resource"
+        },
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -1908,7 +1917,10 @@
         "type": "query"
       },
       {
-        "current": {},
+        "current": {
+          "text": "eastus2",
+          "value": "eastus2"
+        },
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"

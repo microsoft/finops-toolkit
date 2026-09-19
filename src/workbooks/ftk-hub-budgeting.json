@@ -86,7 +86,7 @@
         "overrides": []
       },
       "hideTimeOverride": true,
-      "timeFrom": "now-3M/M",
+      "timeFrom": "now-1M/M",
       "id": 10,
       "datasource": {
         "type": "grafana-azure-data-explorer-datasource",
