@@ -77,7 +77,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Token usage multiplied by contracted rates from the FinOps Toolkit Prices() table in trey-finops-hub.westus.kusto.windows.net, database Hub. Verified September 18, 2026: EA billing account 8611537, USD, US East 2, Standard Global, valid September 1-30, 2026. Rates per million tokens are ContractedUnitPrice * 1000000 / x_PricingBlockSize: gpt-5.6-luna input $0.20 and output $1.20; gpt-5.6-sol input $4.00 and output $20.00. Only these verified models are priced; other models remain visible in the usage panels. These aggregate metrics do not provide per-call context length or cache-read/write quantities, so this calculation uses short-context, uncached rates, not billed charges. This is a price-table snapshot, not a live Prices() query. Refresh the snapshot for other billing scopes or periods.",
+      "description": "Input and output token volume by model, from Azure Monitor metrics for the selected Foundry account. Cost is deliberately not shown here: these aggregate metrics do not expose per-call context length or cache read and write quantities, and this dashboard has no Log Analytics source to join against hub price data. For priced token cost that uses live rates from the hub price sheet, use the Codex and Agent framework dashboards.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -92,7 +92,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -214,7 +214,7 @@
           "subscription": "$sub"
         }
       ],
-      "title": "Token cost (Toolkit prices)",
+      "title": "Token volume by model",
       "transformations": [
         {
           "id": "renameByRegex",
@@ -224,154 +224,10 @@
           }
         },
         {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5.6-sol_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.6-sol_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.000004"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5.6-sol_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.6-sol_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00002"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5.6-sol",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.6-sol_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.6-sol_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5.6-luna_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.6-luna_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000002"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5.6-luna_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.6-luna_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000012"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5.6-luna",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.6-luna_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.6-luna_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
           "id": "filterFieldsByName",
           "options": {
             "include": {
-              "pattern": "^gpt-5\\.6-(luna|sol)$|^Time$"
+              "pattern": "_input$|_output$|^Time$"
             }
           }
         }
@@ -1833,10 +1689,7 @@
         "type": "datasource"
       },
       {
-        "current": {
-          "text": "Trey Research R&D Playground",
-          "value": "64e355d7-997c-491d-b0c1-8414dccfcf42"
-        },
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -1861,10 +1714,7 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "finops-hubs-demo",
-          "value": "finops-hubs-demo"
-        },
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -1887,10 +1737,7 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "finops-hubs-demo-projec-resource",
-          "value": "finops-hubs-demo-projec-resource"
-        },
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -1917,10 +1764,7 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "eastus2",
-          "value": "eastus2"
-        },
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
