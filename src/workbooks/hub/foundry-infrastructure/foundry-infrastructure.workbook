@@ -10,7 +10,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## Foundry infrastructure\n\nUse Azure Resource Graph for inventory, Azure Monitor Metrics for platform behavior, and FinOps hub cost for financial context."
+              "json": "### Foundry infrastructure\n\nUse Azure Resource Graph for inventory, Azure Monitor Metrics for platform behavior, and FinOps hub cost for financial context."
             },
             "customWidth": "100",
             "name": "562789b8-56c2-6f97-e580-52c66b2e8786"

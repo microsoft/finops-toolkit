@@ -16,6 +16,15 @@
             "isHiddenWhenLocked": true
           },
           {
+            "id": "0a52cb73-9c76-4221-b5bb-397aa05e5001",
+            "version": "KqlParameterItem/1.0",
+            "name": "SelectedAiTab",
+            "type": 1,
+            "value": "cost-usage",
+            "isGlobal": true,
+            "isHiddenWhenLocked": true
+          },
+          {
             "id": "e71f51bc-0bd8-f791-2c45-f982067f3f8d",
             "version": "KqlParameterItem/1.0",
             "name": "SelectedSupplyTab",
@@ -284,22 +293,6 @@
             "style": "link"
           },
           {
-            "id": "ec26f8eb-3e6d-31b3-c9d1-61c71c1035fb",
-            "cellValue": "SelectedTab",
-            "linkTarget": "parameter",
-            "linkLabel": "Foundry infrastructure",
-            "subTarget": "foundry-infrastructure",
-            "style": "link"
-          },
-          {
-            "id": "19165b21-5bf3-284b-148c-97b534dfb945",
-            "cellValue": "SelectedTab",
-            "linkTarget": "parameter",
-            "linkLabel": "Foundry agents",
-            "subTarget": "foundry-agents",
-            "style": "link"
-          },
-          {
             "id": "974f1a01-7875-3d81-3b22-2de8d80d9f3e",
             "cellValue": "SelectedTab",
             "linkTarget": "parameter",
@@ -553,60 +546,6 @@
         "value": "invoicing-chargeback"
       },
       "name": "19efc566-df4e-6236-c38e-7717cc67892c"
-    },
-    {
-      "type": 12,
-      "content": {
-        "version": "NotebookGroup/1.0",
-        "groupType": "editable",
-        "loadType": "lazy",
-        "items": [
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "template",
-              "loadType": "lazy",
-              "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/foundry-infrastructure",
-              "items": []
-            },
-            "name": "group - foundry-infrastructure"
-          }
-        ]
-      },
-      "conditionalVisibility": {
-        "parameterName": "SelectedTab",
-        "comparison": "isEqualTo",
-        "value": "foundry-infrastructure"
-      },
-      "name": "d640842a-af4d-1062-c9f6-b3c28a9d85af"
-    },
-    {
-      "type": 12,
-      "content": {
-        "version": "NotebookGroup/1.0",
-        "groupType": "editable",
-        "loadType": "lazy",
-        "items": [
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "template",
-              "loadType": "lazy",
-              "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/foundry-agents",
-              "items": []
-            },
-            "name": "group - foundry-agents"
-          }
-        ]
-      },
-      "conditionalVisibility": {
-        "parameterName": "SelectedTab",
-        "comparison": "isEqualTo",
-        "value": "foundry-agents"
-      },
-      "name": "351ccc46-4ea7-8367-5315-d5e9749e2112"
     },
     {
       "type": 12,

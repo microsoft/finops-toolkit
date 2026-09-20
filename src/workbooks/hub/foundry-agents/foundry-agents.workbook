@@ -10,7 +10,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## Foundry agents\n\nThis view runs one cached, Monitor-primary query across the selected workspaces. The query correlates Azure Resource Graph inventory with FinOps hub cost and price data. Workspace resource IDs stay outside KQL."
+              "json": "### Foundry agents\n\nThis view runs one cached, Monitor-primary query across the selected workspaces. The query correlates Azure Resource Graph inventory with FinOps hub cost and price data. Workspace resource IDs stay outside KQL."
             },
             "customWidth": "100",
             "name": "d2286c34-78a8-9284-80b2-e0fea9488647"
