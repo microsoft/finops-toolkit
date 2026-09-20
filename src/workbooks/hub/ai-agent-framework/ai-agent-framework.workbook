@@ -1,0 +1,941 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "loadType": "lazy",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "### Agent framework\n\nRuns, tokens, cost, and reliability for Microsoft Agent Framework workloads, attributed per agent from Application Insights traces and priced from the hub price sheet. An absent signal is unknown, not zero."
+            },
+            "customWidth": "100",
+            "name": "a623f7b2-4010-e77c-2566-f26ec4dc5935"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "e4b2a310-c282-4678-d1f0-751610ed19e4",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "TimeRange",
+                  "label": "Time range",
+                  "type": 4,
+                  "isRequired": true,
+                  "value": {
+                    "durationMs": 604800000
+                  },
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 3600000
+                      },
+                      {
+                        "durationMs": 14400000
+                      },
+                      {
+                        "durationMs": 86400000
+                      },
+                      {
+                        "durationMs": 172800000
+                      },
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      },
+                      {
+                        "durationMs": 7776000000
+                      }
+                    ],
+                    "allowCustom": true
+                  }
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "408673fb-14cc-46ea-1b84-4481057b614b"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "version": "KqlParameterItem/1.0",
+                  "multiSelect": true,
+                  "quote": "\"",
+                  "delimiter": ",",
+                  "queryType": 0,
+                  "resourceType": "microsoft.insights/components",
+                  "crossComponentResources": [
+                    "{TelemetryApplications}"
+                  ],
+                  "timeContext": {
+                    "durationMs": 0
+                  },
+                  "timeContextFromParameter": "TimeRange",
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "id": "6d4f0af2-db14-969d-47bc-53b286af2682",
+                  "name": "AgentKeys",
+                  "label": "Agents",
+                  "type": 2,
+                  "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet spans = dependencies | where (timestamp >= StartTime and timestamp < EndTime);\nlet pricing = dynamic({\"services\":[],\"projectResourceId\":\"\",\"longContextTokens\":272000});\n// Pricing intentionally disabled here; no hub price lookup is needed for this result.\nlet price = dynamic({});\nlet priceStart = datetime(null);\nlet priceEnd = datetime(null);\nlet pricesLoaded = false;\n{FtkAgentUsage}\nnamedSpans\n| summarize label = take_any(iff(identityComplete, strcat(agentLabel, ' / ', projectName, ' / ', foundryName), agentLabel)), operationCount = countif(name has 'invoke_agent') by agentKey\n| sort by operationCount desc\n| project value = agentKey, label = label, selected = true"
+                },
+                {
+                  "version": "KqlParameterItem/1.0",
+                  "multiSelect": true,
+                  "quote": "\"",
+                  "delimiter": ",",
+                  "queryType": 0,
+                  "resourceType": "microsoft.insights/components",
+                  "crossComponentResources": [
+                    "{TelemetryApplications}"
+                  ],
+                  "timeContext": {
+                    "durationMs": 0
+                  },
+                  "timeContextFromParameter": "TimeRange",
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "id": "0e11cfb0-7b5f-1e45-6dc0-eb9d04b3144e",
+                  "name": "AgentProjects",
+                  "label": "Foundry projects",
+                  "type": 2,
+                  "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet spans = dependencies | where (timestamp >= StartTime and timestamp < EndTime);\nlet pricing = dynamic({\"services\":[],\"projectResourceId\":\"\",\"longContextTokens\":272000});\n// Pricing intentionally disabled here; no hub price lookup is needed for this result.\nlet price = dynamic({});\nlet priceStart = datetime(null);\nlet priceEnd = datetime(null);\nlet pricesLoaded = false;\n{FtkAgentUsage}\nattributedSpans\n| where agentKey in (dynamic([{AgentKeys}])) and isnotempty(projectId)\n| summarize by projectId\n| project value = projectId, label = projectId, selected = true"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "1e8b9865-7372-17e6-9932-750494684e1d"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nlet totals = materialize(agentUsage\n| where agentKey in (agentKeys)\n| summarize inputTokens = sum(input), outputTokens = sum(output), cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)), coverage = iff(count() > 0, 100.0 * countif(priced) / count(), real(null)));\nagentRuns\n| where agentKey in (agentKeys)\n| summarize ['Total Operations'] = count(), ['Avg Response Time'] = round(avg(duration) / 1000, 2)\n| project ['Total Operations'], ['Total Input Tokens'] = toscalar(totals | project inputTokens), ['Total Output Tokens'] = toscalar(totals | project outputTokens), ['Avg Response Time'], ['Priced token cost'] = toscalar(totals | project cost), ['Pricing coverage'] = toscalar(totals | project coverage)",
+              "size": 4,
+              "title": "Summary Statistics",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "2a7bb998-33f3-d3ac-aec5-8162d881a2a1"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Agent and project context"
+            },
+            "customWidth": "100",
+            "name": "77864e3a-5080-3a5c-4506-c49d4db511d9"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet spans = dependencies | where (timestamp >= StartTime and timestamp < EndTime);\nlet pricing = dynamic({\"services\":[],\"projectResourceId\":\"\",\"longContextTokens\":272000});\n// Pricing intentionally disabled here; no hub price lookup is needed for this result.\nlet price = dynamic({});\nlet priceStart = datetime(null);\nlet priceEnd = datetime(null);\nlet pricesLoaded = false;\n{FtkAgentUsage}\nattributedSpans\n| where agentKey in (dynamic([{AgentKeys}]))\n| summarize take_any(agentDisplayName, foundryName, projectName, projectId, agentId, tenantId, identityComplete), ['Last seen'] = max(timestamp) by agentKey, agentVersion\n| project Agent = agentDisplayName, Foundry = foundryName, Project = projectName, Version = agentVersion, Identity = iff(identityComplete, 'Complete', 'Missing IDs'), ['Agent ID'] = agentId, ['Last seen'], ['Project resource ID'] = projectId, ['Tenant ID'] = tenantId\n| order by Agent asc, Version asc",
+              "size": 1,
+              "title": "Agent identity",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "63244e90-a63d-f232-c794-7a037938822c"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\n| where type in~ ('microsoft.cognitiveservices/accounts', 'microsoft.cognitiveservices/accounts/projects')\n| extend selectedProjects = dynamic([{AgentProjects}])\n| mv-expand selectedProject = selectedProjects\n| extend parentId = extract(@'(?i)^(.+)/projects/[^/]+$', 1, tostring(selectedProject))\n| where id =~ tostring(selectedProject) or id =~ parentId\n| summarize take_any(name, type, location, tags) by id\n| project Scope = iff(type =~ 'microsoft.cognitiveservices/accounts/projects', 'Project', 'Foundry'), Resource = name, Region = location, ['Project tag'] = tostring(tags.Project), Environment = tostring(tags.env), Organization = tostring(tags.org), Tags = tostring(tags), ['Resource ID'] = id\n| order by Scope desc, Resource asc",
+              "size": 1,
+              "title": "Current project and Foundry tags",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::selected"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "f08f6e47-325f-5e55-d122-12317d8632ad"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize ['Input Tokens'] = sum(input), ['Output Tokens'] = sum(output), ['Priced token cost'] = iff(countif(priced) > 0, sum(estimated_cost), real(null)) by bin(timestamp, Bucket)\n| order by timestamp asc",
+              "size": 1,
+              "title": "Token usage and cost over time",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "42",
+            "name": "fff311e3-ff2f-edc4-83e7-94099cb6b581"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize total_tokens = sum(input) + sum(output), agent_name = take_any(agentLabel) by agentKey\n| project agent_name, total_tokens",
+              "size": 1,
+              "title": "Token Usage by Agent",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "piechart"
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "29",
+            "name": "dac47cde-4767-0df2-a3d0-5ccf2ad000dc"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize estimated_cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)) by bin(timestamp, 1d)\n| order by timestamp asc\n| project Day = format_datetime(timestamp, 'yyyy-MM-dd'), estimated_cost",
+              "size": 1,
+              "title": "Daily token cost estimate",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "barchart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "29",
+            "name": "5d59a7db-0589-c251-9758-4aa76debe2d9"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize Calls = count(), pricedCalls = countif(priced), pricedTokens = sumif(input + output, priced), cost = sum(estimated_cost), inputRate = take_anyif(inputRate, pricingApplies), readRate = take_anyif(cacheReadRate, pricingApplies), writeRate = take_anyif(cacheWriteRate, pricingApplies), outputRate = take_anyif(outputRate, pricingApplies) by provider, model, contextTier\n| project Model = model, Provider = provider, Context = contextTier, Calls, ['Token cost'] = iff(pricedCalls > 0, cost, real(null)), ['Blended / 1M'] = iff(pricedTokens > 0, cost * 1e6 / pricedTokens, real(null)), ['Input / 1M'] = inputRate, ['Cache read / 1M'] = readRate, ['Cache write / 1M'] = writeRate, ['Output / 1M'] = outputRate, ['Pricing coverage'] = 100.0 * pricedCalls / Calls\n| order by ['Token cost'] desc",
+              "size": 1,
+              "title": "Model rates and token costs",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "984b6edd-48d5-7429-8a1d-c95dfa79d2a2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys) and cacheValid\n| summarize inputTokens = sum(input), cachedTokens = sum(cached)\n| project cache_hit_pct = iff(inputTokens > 0, 100.0 * cachedTokens / inputTokens, real(null))",
+              "size": 4,
+              "title": "Cache Hit Rate (chat)",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "cache_hit_pct",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 1,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "16d232aa-6810-c227-5436-5df8696cc29f"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize ['Cache-read tokens'] = iff(countif(cacheValid) > 0, sumif(cached, cacheValid), long(null)), ['Cache-write tokens'] = iff(countif(written >= 0 and written <= input) > 0, sumif(written, written >= 0 and written <= input), long(null)), ['Cache cost'] = iff(countif(priced) > 0, sum(cacheReadCost + cacheWriteCost), real(null)), ['Net cache benefit'] = iff(countif(priced) > 0, sum(cacheBenefit), real(null))",
+              "size": 4,
+              "title": "Cache economics",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "7c14e867-db54-294a-5949-cf6116129cc1"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| extend finish = tostring(customDimensions['gen_ai.response.finish_reasons'])\n| where isnotempty(finish)\n| summarize call_count = count() by finish",
+              "size": 1,
+              "title": "Chat Finish Reasons",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "piechart"
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "162ad827-5953-f7f1-d31e-e304962097b3"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| extend model = tostring(customDimensions['gen_ai.response.model'])\n| extend model = iff(isempty(model), '(unknown)', model)\n| summarize p95_ms = percentile(duration, 95) by bin(timestamp, Bucket), model\n| order by timestamp asc",
+              "size": 1,
+              "title": "Chat p95 Latency by Model",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "e4dbc589-e8ad-47f0-fbfe-1a5c730691b9"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentTools\n| where agentKey in (agentKeys)\n| extend tool = tostring(customDimensions['gen_ai.tool.name'])\n| where isnotempty(tool)\n| summarize calls = count(), success_rate = round(countif(success == 'True') * 100.0 / count(), 1), avg_duration_ms = round(avg(duration), 0), p95_duration_ms = round(percentile(duration, 95), 0) by tool\n| order by calls desc\n| take 30",
+              "size": 1,
+              "title": "Tool Usage Leaderboard",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "21701c31-9a61-a689-1f36-72c26d503229"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize avg = avg(duration) / 1000, p95 = percentile(duration, 95) / 1000, p99 = percentile(duration, 99) / 1000 by bin(timestamp, Bucket)",
+              "size": 1,
+              "title": "Agent Response Time Trends",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "42",
+            "name": "08705be7-dec3-a7d0-2c80-0a636cda5cb3"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize success_rate = countif(success == 'True') * 100.0 / count()",
+              "size": 4,
+              "title": "Success Rate",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "success_rate",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 1,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "29",
+            "name": "0377a3eb-f8d0-201e-be30-3892274165ca"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize operations_count = count() by bin(timestamp, Bucket)",
+              "size": 1,
+              "title": "Throughput",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "29",
+            "name": "8ffd44b6-c092-1116-41ef-4461dbd3c0b8"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nlet costs = agentUsage\n| where agentKey in (agentKeys)\n| summarize priced_cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)), priced_calls = countif(priced), priced_tokens = sumif(input + output, priced), pricing_coverage = 100.0 * countif(priced) / count() by agentKey\n| extend cost_per_call = iff(priced_calls > 0, priced_cost / priced_calls, real(null)), blended_rate = iff(priced_tokens > 0, priced_cost * 1e6 / priced_tokens, real(null));\nagentRuns\n| where agentKey in (agentKeys)\n| summarize agent_name = take_any(agentLabel), operations = count(), avg_duration = round(avg(duration) / 1000, 2), success_rate = round(countif(success == 'True') * 100.0 / count(), 2) by agentKey\n| lookup kind=leftouter costs on agentKey\n| project agent_name, operations, avg_duration, success_rate, priced_cost, cost_per_call, blended_rate, pricing_coverage, agentKey\n| order by operations desc",
+              "size": 2,
+              "title": "Agent performance and cost",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "50744811-df23-df8f-91c2-816c634640d6"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nlet topAgents = agentRuns | where agentKey in (agentKeys) | summarize cnt = count() by agentKey | top 10 by cnt | project agentKey;\nagentRuns\n| where agentKey in (topAgents)\n| summarize operations_count = count(), agent_name = take_any(agentLabel) by bin(timestamp, 1h), agentKey\n| project timestamp, agent_name, operations_count\n| order by timestamp asc",
+              "size": 2,
+              "title": "Agent Utilization Heatmap",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "e5165332-332e-8a7c-96af-277651dd0cec"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize error_rate = round(countif(success == 'False') * 100.0 / count(), 2)",
+              "size": 4,
+              "title": "Error Rate",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "error_rate",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 1,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "17",
+            "name": "9b2435f2-a246-08d8-733f-86584c7e4adc"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys) and success == 'False'\n| summarize error_count = count() by bin(timestamp, Bucket)",
+              "size": 1,
+              "title": "Error Timeline",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "d47763b4-c3fd-230b-16aa-f444510465c9"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys) and success == 'False'\n| project timestamp, agent_name = agentLabel, error_type = tostring(customDimensions['error.type']), duration = round(duration / 1000, 2)\n| order by timestamp desc\n| limit 20",
+              "size": 1,
+              "title": "Recent Errors",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "33",
+            "name": "119d82c1-0dbf-1e55-8573-13462a4eb6f1"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize agent_name = take_any(agentLabel), p50 = percentile(duration, 50) / 1000, p95 = percentile(duration, 95) / 1000, p99 = percentile(duration, 99) / 1000 by agentKey\n| project agent_name, p50, p95, p99",
+              "size": 3,
+              "title": "Response Time Percentiles by Agent",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "barchart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "065e7b04-c2b5-3125-3cd7-174b0732d341"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nlet costs = agentUsage\n| where isnotempty(agentRunId)\n| summarize input_tokens = iff(countif(isnotnull(input)) > 0, sum(input), long(null)), output_tokens = iff(countif(isnotnull(output)) > 0, sum(output), long(null)), ['Input cost'] = iff(countif(priced) > 0, sum(inputCost), real(null)), ['Cache-read cost'] = iff(countif(priced) > 0, sum(cacheReadCost), real(null)), ['Cache-write cost'] = iff(countif(priced) > 0, sum(cacheWriteCost), real(null)), ['Output cost'] = iff(countif(priced) > 0, sum(outputCost), real(null)), ['Priced token cost'] = iff(countif(priced) > 0, sum(estimated_cost), real(null)), ['Pricing coverage'] = 100.0 * countif(priced) / count() by cloud_RoleName, operation_Id, id = agentRunId, agentKey;\nagentRuns\n| where agentKey in (agentKeys)\n| lookup kind=leftouter costs on cloud_RoleName, operation_Id, id, agentKey\n| project timestamp, Agent = agentLabel, success, duration, input_tokens, output_tokens, ['Priced token cost'], ['Input cost'], ['Cache-read cost'], ['Cache-write cost'], ['Output cost'], ['Pricing coverage'], TraceId = operation_Id, Foundry = foundryName, Project = projectName, Version = agentVersion, ['Agent ID'] = agentId, ['Session ID'] = sessionId, ['Project resource ID'] = projectId\n| order by timestamp desc",
+              "size": 1,
+              "title": "Agent runs and token costs",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              },
+              "exportedParameters": [
+                {
+                  "fieldName": "TraceId",
+                  "parameterName": "AgentTraceId",
+                  "parameterType": 1
+                }
+              ],
+              "exportToExcelOptions": "visible"
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "1b957b03-fe14-8847-a259-ce6271f2cbfb"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet TraceId = '{AgentTraceId}';\nunion isfuzzy=true\n    (requests | extend ItemType = 'request', Name = name, Detail = url, DurationMs = duration, Ok = success),\n    (dependencies | extend ItemType = 'dependency', Name = name, Detail = data, DurationMs = duration, Ok = success),\n    (traces | extend ItemType = 'trace', Name = message, Detail = tostring(customDimensions), DurationMs = real(null), Ok = bool(null)),\n    (customEvents | extend ItemType = 'event', Name = name, Detail = tostring(customDimensions), DurationMs = real(null), Ok = bool(null)),\n    (exceptions | extend ItemType = 'exception', Name = type, Detail = outerMessage, DurationMs = real(null), Ok = false)\n| where timestamp >= StartTime and timestamp < EndTime\n| where operation_Id == TraceId\n| project timestamp, ItemType, Name, DurationMs, Ok, SpanId = itemId, ParentId = operation_ParentId, Detail\n| order by timestamp asc",
+                    "size": 2,
+                    "title": "Trace spans",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "timeContextFromParameter": "TimeRange",
+                    "queryType": 0,
+                    "resourceType": "microsoft.insights/components",
+                    "crossComponentResources": [
+                      "{TelemetryApplications}"
+                    ],
+                    "visualization": "table",
+                    "gridSettings": {
+                      "formatters": [
+                        {
+                          "columnMatch": ".*",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        }
+                      ],
+                      "rowLimit": 1000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "e3efda99-a74a-29e0-6e2d-b30a93bb8c8c"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "AgentTraceId",
+              "comparison": "isNotEqualTo",
+              "value": ""
+            },
+            "name": "3ccf5cab-78da-b226-ca96-b6694065cf38"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "_Select a row in **Agent runs and token costs** to resolve its trace._"
+            },
+            "conditionalVisibility": {
+              "parameterName": "AgentTraceId",
+              "comparison": "isEqualTo",
+              "value": ""
+            },
+            "customWidth": "100",
+            "name": "00ed7a1c-c2b8-d917-b5eb-6eea9e8cf1a8"
+          }
+        ]
+      },
+      "name": "group - ai-agent-framework"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

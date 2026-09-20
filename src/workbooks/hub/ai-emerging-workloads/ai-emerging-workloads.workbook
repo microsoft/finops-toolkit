@@ -60,6 +60,14 @@
                   "linkLabel": "GitHub Copilot",
                   "subTarget": "github-copilot",
                   "style": "link"
+                },
+                {
+                  "id": "f61676b1-b3db-9640-bd64-4eb973f6fd4d",
+                  "cellValue": "SelectedAiTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Agent framework",
+                  "subTarget": "ai-agent-framework",
+                  "style": "link"
                 }
               ]
             },
@@ -199,6 +207,33 @@
               "value": "github-copilot"
             },
             "name": "afe7b696-dada-d2a5-18cf-29b894f2b65d"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "lazy",
+              "items": [
+                {
+                  "type": 12,
+                  "content": {
+                    "version": "NotebookGroup/1.0",
+                    "groupType": "template",
+                    "loadType": "lazy",
+                    "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/ai-agent-framework",
+                    "items": []
+                  },
+                  "name": "group - ai-agent-framework"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedAiTab",
+              "comparison": "isEqualTo",
+              "value": "ai-agent-framework"
+            },
+            "name": "b5ced1a1-75d1-d171-df99-66a900f3e462"
           }
         ]
       },
