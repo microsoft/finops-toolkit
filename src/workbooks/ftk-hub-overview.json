@@ -84,7 +84,6 @@
       }
     },
     {
-      "description": "Source tile: 66dcd731-a141-47b2-b36a-53a138cb75f2",
       "title": "Cost and savings - month to date and prior month (${selectedBillingCurrency})",
       "type": "stat",
       "gridPos": {
@@ -241,7 +240,6 @@
       }
     },
     {
-      "description": "Source tile: 1ac02a9f-3c12-4828-a4dd-60a0d411f60c",
       "title": "Spending comparison - month to date and prior month (${selectedBillingCurrency})",
       "type": "timeseries",
       "gridPos": {
@@ -333,7 +331,6 @@
       ]
     },
     {
-      "description": "Source tile: 6fb4c25e-ae84-495b-88ae-6dd2035500d1",
       "title": "Forecast - next ${numberOfDays} days (${selectedBillingCurrency})",
       "type": "timeseries",
       "gridPos": {
@@ -462,7 +459,6 @@
       }
     },
     {
-      "description": "Source tile: e8018da4-7269-4e91-9f32-4bcf390746af",
       "title": "Commitment usage - selected period (${selectedBillingCurrency})",
       "type": "stat",
       "gridPos": {
@@ -606,7 +602,6 @@
       ]
     },
     {
-      "description": "Source tile: d2e4a321-9c2c-411b-8a20-19fd86dab3fe",
       "title": "Azure Hybrid Benefit - selected period",
       "type": "stat",
       "gridPos": {
@@ -808,7 +803,6 @@
       }
     },
     {
-      "description": "Source tile: 05764729-51e4-4048-8cf8-2ac56eb3e643",
       "title": "Hub infrastructure cost - selected period (${selectedBillingCurrency})",
       "type": "barchart",
       "gridPos": {

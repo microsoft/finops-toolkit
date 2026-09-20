@@ -36,7 +36,6 @@
   "editable": true,
   "panels": [
     {
-      "description": "Source tile: bd461109-e42e-4329-a4b9-16a83c1ad9b3",
       "title": "Savings · monthly trend — negotiated and commitment discount savings (selected period)",
       "type": "row",
       "gridPos": {
@@ -686,7 +685,6 @@
       ]
     },
     {
-      "description": "Source tile: 40a4e89e-e521-4fb1-bdca-95166b7c9267",
       "title": "Savings · daily trend (last ${numberOfDays} days)",
       "type": "row",
       "gridPos": {
@@ -1250,7 +1248,6 @@
       ]
     },
     {
-      "description": "Source tile: cee8e33c-bb08-4f48-9c8e-c785985d16e5",
       "title": "Subscription chargeback (selected period)",
       "type": "row",
       "gridPos": {
@@ -1341,7 +1338,6 @@
       ]
     },
     {
-      "description": "Source tile: fad3f76a-1c81-4c4f-8787-99da226100d1",
       "title": "Resource group chargeback (selected period)",
       "type": "row",
       "gridPos": {
@@ -1433,7 +1429,6 @@
       ]
     },
     {
-      "description": "Source tile: 6e4a3743-e023-4fbc-a34d-43c08f201c6e",
       "title": "Resources usage (last ${numberOfDays} days)",
       "type": "row",
       "gridPos": {
