@@ -127,7 +127,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nlet totals = materialize(agentUsage\n| where agentKey in (agentKeys)\n| summarize inputTokens = sum(input), outputTokens = sum(output), cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)), coverage = iff(count() > 0, 100.0 * countif(priced) / count(), real(null)));\nagentRuns\n| where agentKey in (agentKeys)\n| summarize ['Total Operations'] = count(), ['Avg Response Time'] = round(avg(duration) / 1000, 2)\n| project ['Total Operations'], ['Total Input Tokens'] = toscalar(totals | project inputTokens), ['Total Output Tokens'] = toscalar(totals | project outputTokens), ['Avg Response Time'], ['Priced token cost'] = toscalar(totals | project cost), ['Pricing coverage'] = toscalar(totals | project coverage)",
               "size": 4,
-              "title": "Summary Statistics",
+              "title": "Summary statistics",
               "timeContext": {
                 "durationMs": 0
               },
@@ -246,6 +246,14 @@
             "name": "f08f6e47-325f-5e55-d122-12317d8632ad"
           },
           {
+            "type": 1,
+            "content": {
+              "json": "#### Token usage & cost analysis"
+            },
+            "customWidth": "100",
+            "name": "26719b3d-fc7b-8e31-3993-23dfdc3028f8"
+          },
+          {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
@@ -276,7 +284,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize total_tokens = sum(input) + sum(output), agent_name = take_any(agentLabel) by agentKey\n| project agent_name, total_tokens",
               "size": 1,
-              "title": "Token Usage by Agent",
+              "title": "Token usage by agent",
               "timeContext": {
                 "durationMs": 0
               },
@@ -357,12 +365,20 @@
             "name": "984b6edd-48d5-7429-8a1d-c95dfa79d2a2"
           },
           {
+            "type": 1,
+            "content": {
+              "json": "#### LLM & tool insights"
+            },
+            "customWidth": "100",
+            "name": "19bd152e-8a15-f4dc-26d8-25200792baf5"
+          },
+          {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys) and cacheValid\n| summarize inputTokens = sum(input), cachedTokens = sum(cached)\n| project cache_hit_pct = iff(inputTokens > 0, 100.0 * cachedTokens / inputTokens, real(null))",
               "size": 4,
-              "title": "Cache Hit Rate (chat)",
+              "title": "Cache hit rate (chat)",
               "timeContext": {
                 "durationMs": 0
               },
@@ -441,7 +457,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| extend finish = tostring(customDimensions['gen_ai.response.finish_reasons'])\n| where isnotempty(finish)\n| summarize call_count = count() by finish",
               "size": 1,
-              "title": "Chat Finish Reasons",
+              "title": "Chat finish reasons",
               "timeContext": {
                 "durationMs": 0
               },
@@ -463,7 +479,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| extend model = tostring(customDimensions['gen_ai.response.model'])\n| extend model = iff(isempty(model), '(unknown)', model)\n| summarize p95_ms = percentile(duration, 95) by bin(timestamp, Bucket), model\n| order by timestamp asc",
               "size": 1,
-              "title": "Chat p95 Latency by Model",
+              "title": "Chat p95 latency by model",
               "timeContext": {
                 "durationMs": 0
               },
@@ -488,7 +504,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentTools\n| where agentKey in (agentKeys)\n| extend tool = tostring(customDimensions['gen_ai.tool.name'])\n| where isnotempty(tool)\n| summarize calls = count(), success_rate = round(countif(success == 'True') * 100.0 / count(), 1), avg_duration_ms = round(avg(duration), 0), p95_duration_ms = round(percentile(duration, 95), 0) by tool\n| order by calls desc\n| take 30",
               "size": 1,
-              "title": "Tool Usage Leaderboard",
+              "title": "Tool usage leaderboard",
               "timeContext": {
                 "durationMs": 0
               },
@@ -522,12 +538,20 @@
             "name": "21701c31-9a61-a689-1f36-72c26d503229"
           },
           {
+            "type": 1,
+            "content": {
+              "json": "#### Performance monitoring"
+            },
+            "customWidth": "100",
+            "name": "6f70eb1a-19a8-aef6-4b59-c494aeef6c44"
+          },
+          {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize avg = avg(duration) / 1000, p95 = percentile(duration, 95) / 1000, p99 = percentile(duration, 99) / 1000 by bin(timestamp, Bucket)",
               "size": 1,
-              "title": "Agent Response Time Trends",
+              "title": "Agent response time trends",
               "timeContext": {
                 "durationMs": 0
               },
@@ -552,7 +576,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize success_rate = countif(success == 'True') * 100.0 / count()",
               "size": 4,
-              "title": "Success Rate",
+              "title": "Success rate",
               "timeContext": {
                 "durationMs": 0
               },
@@ -612,6 +636,14 @@
             "name": "8ffd44b6-c092-1116-41ef-4461dbd3c0b8"
           },
           {
+            "type": 1,
+            "content": {
+              "json": "#### Agent activity"
+            },
+            "customWidth": "100",
+            "name": "47e69d47-067a-0e1c-7c33-529c7769d608"
+          },
+          {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
@@ -656,7 +688,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nlet topAgents = agentRuns | where agentKey in (agentKeys) | summarize cnt = count() by agentKey | top 10 by cnt | project agentKey;\nagentRuns\n| where agentKey in (topAgents)\n| summarize operations_count = count(), agent_name = take_any(agentLabel) by bin(timestamp, 1h), agentKey\n| project timestamp, agent_name, operations_count\n| order by timestamp asc",
               "size": 2,
-              "title": "Agent Utilization Heatmap",
+              "title": "Agent utilization heatmap",
               "timeContext": {
                 "durationMs": 0
               },
@@ -690,12 +722,20 @@
             "name": "e5165332-332e-8a7c-96af-277651dd0cec"
           },
           {
+            "type": 1,
+            "content": {
+              "json": "#### Error analysis"
+            },
+            "customWidth": "100",
+            "name": "ff3c1f13-e467-eb97-2a61-68b3b2b64eff"
+          },
+          {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize error_rate = round(countif(success == 'False') * 100.0 / count(), 2)",
               "size": 4,
-              "title": "Error Rate",
+              "title": "Error rate",
               "timeContext": {
                 "durationMs": 0
               },
@@ -735,7 +775,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys) and success == 'False'\n| summarize error_count = count() by bin(timestamp, Bucket)",
               "size": 1,
-              "title": "Error Timeline",
+              "title": "Error timeline",
               "timeContext": {
                 "durationMs": 0
               },
@@ -760,7 +800,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys) and success == 'False'\n| project timestamp, agent_name = agentLabel, error_type = tostring(customDimensions['error.type']), duration = round(duration / 1000, 2)\n| order by timestamp desc\n| limit 20",
               "size": 1,
-              "title": "Recent Errors",
+              "title": "Recent errors",
               "timeContext": {
                 "durationMs": 0
               },
@@ -794,12 +834,20 @@
             "name": "119d82c1-0dbf-1e55-8573-13462a4eb6f1"
           },
           {
+            "type": 1,
+            "content": {
+              "json": "#### Detailed metrics"
+            },
+            "customWidth": "100",
+            "name": "238fca3c-3251-7df8-ad83-8267eff66577"
+          },
+          {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize agent_name = take_any(agentLabel), p50 = percentile(duration, 50) / 1000, p95 = percentile(duration, 95) / 1000, p99 = percentile(duration, 99) / 1000 by agentKey\n| project agent_name, p50, p95, p99",
               "size": 3,
-              "title": "Response Time Percentiles by Agent",
+              "title": "Response time percentiles by agent",
               "timeContext": {
                 "durationMs": 0
               },
@@ -817,6 +865,14 @@
             "doNotRunWhenHidden": true,
             "customWidth": "100",
             "name": "065e7b04-c2b5-3125-3cd7-174b0732d341"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Select a trace"
+            },
+            "customWidth": "100",
+            "name": "dd4f4d0f-a47a-efd9-16a0-a7874ea23d2d"
           },
           {
             "type": 3,
@@ -864,6 +920,14 @@
             "doNotRunWhenHidden": true,
             "customWidth": "100",
             "name": "1b957b03-fe14-8847-a259-ce6271f2cbfb"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Trace detail"
+            },
+            "customWidth": "100",
+            "name": "182a8ba1-5b99-e012-a596-b6f5c57d16d6"
           },
           {
             "type": 12,

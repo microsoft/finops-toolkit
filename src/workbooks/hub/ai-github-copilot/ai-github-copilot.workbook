@@ -98,7 +98,7 @@
               "version": "KqlItem/1.0",
               "query": "let usage = materialize(\n    dependencies\n    | where cloud_RoleName in ({CopilotSource})\n    | where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n    | extend aiu = coalesce(\n        todouble(customDimensions[\"github.copilot.nano_aiu\"]) / 1e9,\n        todouble(customDimensions[\"copilot_chat.copilot_usage_nano_aiu\"]) / 1e9)\n    | summarize Aiu = sum(aiu),\n        TokenCost = iff(countif(aiu >= 0) > 0, sumif(aiu, aiu >= 0) * 0.01, real(null)));\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| extend\n    input_tokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize\n    Runs = count(),\n    InputTokens = sum(input_tokens),\n    OutputTokens = sum(output_tokens),\n    AvgRunSec = round(avg(duration) / 1000, 2)\n| project\n    ['AI Usage Units'] = round(toscalar(usage | project Aiu), 1),\n    ['Reported token cost'] = toscalar(usage | project TokenCost),\n    ['Agent Runs'] = Runs,\n    ['Agent Input Tokens'] = InputTokens,\n    ['Agent Output Tokens'] = OutputTokens,\n    ['Avg Agent Run Duration'] = AvgRunSec",
               "size": 4,
-              "title": "Agent Summary Statistics",
+              "title": "Agent summary statistics",
               "timeContext": {
                 "durationMs": 0
               },
@@ -137,7 +137,7 @@
               "version": "KqlItem/1.0",
               "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| extend\n    op = tostring(customDimensions[\"gen_ai.operation.name\"]),\n    hasModel = isnotempty(customDimensions[\"gen_ai.response.model\"]),\n    measured = isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n        or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n        or isnotempty(customDimensions[\"github.copilot.server_duration\"]),\n    isReasoning = isnotempty(tostring(customDimensions[\"copilot_chat.reasoning_content\"]))\n        or tolong(customDimensions[\"gen_ai.usage.reasoning.output_tokens\"]) > 0,\n    sessId = coalesce(\n        tostring(customDimensions[\"copilot_chat.chat_session_id\"]),\n        tostring(customDimensions[\"gen_ai.conversation.id\"])),\n    ttft = coalesce(\n        todouble(customDimensions[\"copilot_chat.time_to_first_token\"]),\n        todouble(customDimensions[\"gen_ai.response.time_to_first_chunk\"]) * 1000)\n| summarize\n    ['LLM Calls'] = countif(op == \"chat\" and (measured or not(hasModel))),\n    ['Chat Sessions'] = dcountif(sessId, isnotempty(sessId)),\n    ['Tool Calls'] = countif(op == \"execute_tool\"),\n    ['Reasoning Calls'] = countif(op == \"chat\" and measured and isReasoning),\n    ['Avg TTFT'] = round(avgif(ttft, op == \"chat\" and isnotnull(ttft)), 0)",
               "size": 4,
-              "title": "Chat & Tool Summary",
+              "title": "Chat & tool summary",
               "timeContext": {
                 "durationMs": 0
               },
@@ -184,7 +184,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| extend opName = tostring(customDimensions[\"gen_ai.operation.name\"])\n| where isnotempty(opName)\n| summarize Count = count() by bin(timestamp, Bucket), opName\n| order by timestamp asc",
               "size": 1,
-              "title": "Operations Over Time",
+              "title": "Operations over time",
               "timeContext": {
                 "durationMs": 0
               },
@@ -209,7 +209,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\nlet topModels = materialize(\n    dependencies\n    | where cloud_RoleName in ({CopilotSource})\n    | where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n    | where isnotempty(customDimensions[\"gen_ai.response.model\"])\n    | extend m = tostring(customDimensions[\"gen_ai.response.model\"]),\n        inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n        outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n    | summarize Total = sum(inputTokens) + sum(outputTokens) by m\n    | top 7 by Total\n    | project m);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]),\n    inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize TotalTokens = sum(inputTokens) + sum(outputTokens) by bin(timestamp, Bucket), model\n| order by timestamp asc",
               "size": 1,
-              "title": "Token Consumption Over Time by Model",
+              "title": "Token consumption over time by model",
               "timeContext": {
                 "durationMs": 0
               },
@@ -242,7 +242,7 @@
               "version": "KqlItem/1.0",
               "query": "let base = dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| where isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n    or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n    or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]);\nlet topModels = materialize(base | summarize Total = count() by m | top 7 by Total | project m);\nbase\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize CallCount = count() by model\n| order by CallCount desc",
               "size": 1,
-              "title": "Model Usage Distribution",
+              "title": "Model usage distribution",
               "timeContext": {
                 "durationMs": 0
               },
@@ -264,7 +264,7 @@
               "version": "KqlItem/1.0",
               "query": "let base = dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| where isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n    or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n    or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]),\n    llmDuration = coalesce(todouble(customDimensions[\"github.copilot.server_duration\"]), duration);\nlet topModels = materialize(base | summarize Total = count() by m | top 7 by Total | project m);\nbase\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize ['Avg Duration'] = round(avg(llmDuration), 0), ['P90 Duration'] = round(percentile(llmDuration, 90), 0) by model\n| order by ['Avg Duration'] desc",
               "size": 1,
-              "title": "LLM Request Duration by Model (Avg / P90)",
+              "title": "LLM request duration by model (Avg / P90)",
               "timeContext": {
                 "durationMs": 0
               },
@@ -289,7 +289,7 @@
               "version": "KqlItem/1.0",
               "query": "let base = dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| where isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n    or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n    or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| extend ttft = coalesce(\n        todouble(customDimensions[\"copilot_chat.time_to_first_token\"]),\n        todouble(customDimensions[\"gen_ai.response.time_to_first_chunk\"]) * 1000)\n| where isnotnull(ttft)\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]);\nlet topModels = materialize(base | summarize Total = count() by m | top 7 by Total | project m);\nbase\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize ['P50 TTFT'] = round(percentile(ttft, 50), 0), ['P90 TTFT'] = round(percentile(ttft, 90), 0) by model\n| order by ['P50 TTFT'] desc",
               "size": 1,
-              "title": "Time to First Token by Model (P50 / P90)",
+              "title": "Time to first token by model (P50 / P90)",
               "timeContext": {
                 "durationMs": 0
               },
@@ -322,7 +322,7 @@
               "version": "KqlItem/1.0",
               "query": "let topAgents = materialize(\n    dependencies\n    | where cloud_RoleName in ({CopilotSource})\n    | where not(tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\" and isnotempty(customDimensions[\"gen_ai.response.model\"]))\n    | extend a = tostring(customDimensions[\"gen_ai.agent.name\"])\n    | where isnotempty(a)\n    | summarize Total = count() by a\n    | top 7 by Total\n    | project a);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where not(tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\" and isnotempty(customDimensions[\"gen_ai.response.model\"]))\n| extend a = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(a)\n| extend agentName = iff(a in (topAgents), a, \"other\")\n| summarize CallCount = count() by agentName\n| order by CallCount desc",
               "size": 1,
-              "title": "Copilot Feature Usage",
+              "title": "Copilot feature usage",
               "timeContext": {
                 "durationMs": 0
               },
@@ -344,7 +344,7 @@
               "version": "KqlItem/1.0",
               "query": "let topTools = materialize(\n    dependencies\n    | where cloud_RoleName in ({CopilotSource})\n    | where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n    | extend t = tostring(customDimensions[\"gen_ai.tool.name\"])\n    | where isnotempty(t)\n    | summarize Total = count() by t\n    | top 7 by Total\n    | project t);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n| extend t = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where isnotempty(t)\n| extend toolName = iff(t in (topTools), t, \"other\")\n| summarize CallCount = count() by toolName\n| order by CallCount desc",
               "size": 1,
-              "title": "Top Tool Calls",
+              "title": "Top tool calls",
               "timeContext": {
                 "durationMs": 0
               },
@@ -369,7 +369,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\nlet base = dependencies\n| where cloud_RoleName in ({CopilotSource})\n| extend op = tostring(customDimensions[\"gen_ai.operation.name\"]),\n    sessId = coalesce(\n        tostring(customDimensions[\"copilot_chat.chat_session_id\"]),\n        tostring(customDimensions[\"gen_ai.conversation.id\"]));\nlet sessions = base\n| where isnotempty(sessId)\n| summarize Count = dcount(sessId) by bin(timestamp, Bucket)\n| extend eventName = \"Chat Sessions\";\nlet runs = base\n| where op == \"invoke_agent\"\n| summarize Count = count() by bin(timestamp, Bucket)\n| extend eventName = \"Agent Runs\";\nlet llmCalls = base\n| where op == \"chat\"\n| summarize Count = count() by bin(timestamp, Bucket)\n| extend eventName = \"LLM Calls\";\nlet tools = base\n| where op == \"execute_tool\"\n| summarize Count = count() by bin(timestamp, Bucket)\n| extend eventName = \"Tool Calls\";\nunion sessions, runs, llmCalls, tools\n| order by timestamp asc",
               "size": 1,
-              "title": "Sessions, Agent Runs, LLM & Tool Calls Over Time",
+              "title": "Sessions, agent runs, LLM & tool calls over time",
               "timeContext": {
                 "durationMs": 0
               },
@@ -394,7 +394,7 @@
               "version": "KqlItem/1.0",
               "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n| extend tool = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where isnotempty(tool)\n| summarize Calls = count(), ['P50 Latency'] = round(percentile(duration, 50), 0), ['P90 Latency'] = round(percentile(duration, 90), 0) by tool\n| top 10 by Calls\n| project tool, ['P50 Latency'], ['P90 Latency']\n| order by ['P90 Latency'] desc",
               "size": 1,
-              "title": "Tool Latency by Tool (P50 / P90)",
+              "title": "Tool latency by tool (P50 / P90)",
               "timeContext": {
                 "durationMs": 0
               },
@@ -419,7 +419,7 @@
               "version": "KqlItem/1.0",
               "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| extend agent = tostring(customDimensions[\"gen_ai.agent.name\"])\n| summarize Runs = count(), ['P50 Duration'] = round(percentile(duration, 50), 0), ['P90 Duration'] = round(percentile(duration, 90), 0), ['Max Duration'] = max(duration), ['Runs > 10 min'] = countif(duration > 600000) by Source = cloud_RoleName, Agent = iff(isempty(agent), \"(unnamed)\", agent)\n| order by Runs desc",
               "size": 1,
-              "title": "Agent Run Duration by Source and Agent",
+              "title": "Agent run duration by source and agent",
               "timeContext": {
                 "durationMs": 0
               },
@@ -505,7 +505,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize ['Input Tokens'] = sum(inputTokens), ['Output Tokens'] = sum(outputTokens) by bin(timestamp, Bucket)\n| order by timestamp asc",
               "size": 1,
-              "title": "Input vs Output Tokens Over Time",
+              "title": "Input vs output tokens over time",
               "timeContext": {
                 "durationMs": 0
               },
@@ -538,7 +538,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\nexceptions\n| where cloud_RoleName in ({CopilotSource})\n| extend exType = coalesce(type, outerType, tostring(customDimensions[\"exception.type\"]))\n| summarize Count = count() by bin(timestamp, Bucket), exType\n| order by timestamp asc",
               "size": 1,
-              "title": "Exceptions Over Time",
+              "title": "Exceptions over time",
               "timeContext": {
                 "durationMs": 0
               },
@@ -563,7 +563,7 @@
               "version": "KqlItem/1.0",
               "query": "exceptions\n| where cloud_RoleName in ({CopilotSource})\n| extend ExceptionType = coalesce(type, outerType, tostring(customDimensions[\"exception.type\"])),\n    Message = coalesce(outerMessage, innermostMessage, problemId)\n| project timestamp, ExceptionType, Message\n| order by timestamp desc",
               "size": 1,
-              "title": "Exception Details",
+              "title": "Exception details",
               "timeContext": {
                 "durationMs": 0
               },
@@ -602,7 +602,7 @@
               "version": "KqlItem/1.0",
               "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n| extend tool = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where isnotempty(tool)\n| summarize Calls = count(), Failed = countif(tobool(success) == false), ['P90 Duration'] = round(percentile(duration, 90), 0) by Source = cloud_RoleName, Tool = tool\n| where Failed > 0\n| extend ['Failure %'] = round(100.0 * Failed / Calls, 1)\n| project Source, Tool, Failed, Calls, ['Failure %'], ['P90 Duration']\n| order by Failed desc\n| take 15",
               "size": 1,
-              "title": "Tool Call Failures by Tool",
+              "title": "Tool call failures by tool",
               "timeContext": {
                 "durationMs": 0
               },
@@ -641,7 +641,7 @@
               "version": "KqlItem/1.0",
               "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| extend hasModel = isnotempty(customDimensions[\"gen_ai.response.model\"]),\n    measured = isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n        or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n        or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| where not(hasModel and not(measured))\n| extend outcome = case(\n    tobool(success) == false, \"Failed\",\n    not(hasModel), \"No response recorded\",\n    \"Completed\")\n| summarize Count = count() by bin(timestamp, Bucket), outcome\n| order by timestamp asc",
               "size": 1,
-              "title": "LLM Call Outcomes Over Time",
+              "title": "LLM call outcomes over time",
               "timeContext": {
                 "durationMs": 0
               },
@@ -666,7 +666,7 @@
               "version": "KqlItem/1.0",
               "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| summarize ['Last Span'] = max(timestamp), Spans = count(), ['Agent Runs'] = countif(tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\") by Source = cloud_RoleName\n| extend ['Since Last Span'] = round(datetime_diff('minute', now(), ['Last Span']) / 60.0, 1)\n| project Source, ['Last Span'], ['Since Last Span'], Spans, ['Agent Runs']\n| order by Source asc",
               "size": 1,
-              "title": "Telemetry Freshness",
+              "title": "Telemetry freshness",
               "timeContext": {
                 "durationMs": 0
               },
@@ -713,7 +713,7 @@
               "version": "KqlItem/1.0",
               "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| extend operation = tostring(customDimensions[\"gen_ai.operation.name\"]),\n    agent = tostring(customDimensions[\"gen_ai.agent.name\"]),\n    model = coalesce(tostring(customDimensions[\"gen_ai.response.model\"]), tostring(customDimensions[\"gen_ai.request.model\"])),\n    input_tokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| project timestamp, Source = cloud_RoleName, operation, agent, model, success, duration, input_tokens, output_tokens, TraceId=operation_Id\n| order by timestamp desc",
               "size": 1,
-              "title": "Recent Operations",
+              "title": "Recent operations",
               "timeContext": {
                 "durationMs": 0
               },

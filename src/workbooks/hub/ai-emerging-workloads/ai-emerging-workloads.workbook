@@ -62,6 +62,14 @@
                   "style": "link"
                 },
                 {
+                  "id": "b041c8e2-d872-ce3b-0537-f986d3a9e1bb",
+                  "cellValue": "SelectedAiTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Codex",
+                  "subTarget": "ai-codex",
+                  "style": "link"
+                },
+                {
                   "id": "f61676b1-b3db-9640-bd64-4eb973f6fd4d",
                   "cellValue": "SelectedAiTab",
                   "linkTarget": "parameter",
@@ -207,6 +215,33 @@
               "value": "github-copilot"
             },
             "name": "afe7b696-dada-d2a5-18cf-29b894f2b65d"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "lazy",
+              "items": [
+                {
+                  "type": 12,
+                  "content": {
+                    "version": "NotebookGroup/1.0",
+                    "groupType": "template",
+                    "loadType": "lazy",
+                    "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/ai-codex",
+                    "items": []
+                  },
+                  "name": "group - ai-codex"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedAiTab",
+              "comparison": "isEqualTo",
+              "value": "ai-codex"
+            },
+            "name": "2e7acbe5-eee0-7746-0488-b00d61f200f8"
           },
           {
             "type": 12,

@@ -1,0 +1,1457 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "loadType": "lazy",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "### Codex\n\nToken economics, tool health, and telemetry coverage for OpenAI Codex workloads, measured from Application Insights and priced from the hub price sheet. An absent signal is unknown, not zero."
+            },
+            "customWidth": "100",
+            "name": "fb28af2e-15d5-d7d8-222c-2abe9cc2cdb6"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "2bef0704-0527-8dbf-09ac-69fe79d3fc44",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "TimeRange",
+                  "label": "Time range",
+                  "type": 4,
+                  "isRequired": true,
+                  "value": {
+                    "durationMs": 604800000
+                  },
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 3600000
+                      },
+                      {
+                        "durationMs": 14400000
+                      },
+                      {
+                        "durationMs": 86400000
+                      },
+                      {
+                        "durationMs": 172800000
+                      },
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      },
+                      {
+                        "durationMs": 7776000000
+                      }
+                    ],
+                    "allowCustom": true
+                  }
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "df2ea716-8e50-7e7f-b583-cec90976d5b8"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Token economics"
+            },
+            "customWidth": "100",
+            "name": "842a71a6-f4cf-dd37-1930-4eeefbecb512"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts});\n\nresponseCosts\n| where priceStatus == 'Priced'\n| summarize reports = count(), cost = sum(cost_usd), tokens = sum(total),\n            benefit = sum(cache_benefit_usd),\n            inputCost = sum(input_cost_usd), inputTokens = sum(uncached),\n            readCost = sum(cached_cost_usd), readTokens = sum(cached),\n            writeCost = sum(write_cost_usd), writeTokens = sum(written),\n            outputCost = sum(output_cost_usd), outputTokens = sum(output)\n| project value = iff(reports > 0, cost, real(null))",
+              "size": 4,
+              "title": "Priced token cost",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "840deda5-2472-38de-63d0-cbc0f8c91610"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts});\n\nresponseCosts\n| where priceStatus == 'Priced'\n| summarize reports = count(), cost = sum(cost_usd), tokens = sum(total),\n            benefit = sum(cache_benefit_usd),\n            inputCost = sum(input_cost_usd), inputTokens = sum(uncached),\n            readCost = sum(cached_cost_usd), readTokens = sum(cached),\n            writeCost = sum(write_cost_usd), writeTokens = sum(written),\n            outputCost = sum(output_cost_usd), outputTokens = sum(output)\n| project value = iff(tokens > 0, cost / tokens * 1000000.0, real(null))",
+              "size": 4,
+              "title": "Blended cost / 1M tokens",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "006dd8f7-e78b-ce97-399c-c87a2772afa5"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts}| lookup kind=leftouter (spans | where name == 'run_sampling_request'\n    | project cloud_RoleName, operation_Id, requestId = id, runTurnId = operation_ParentId) on cloud_RoleName, operation_Id, requestId\n| lookup kind=leftouter (spans | where name == 'run_turn'\n    | project cloud_RoleName, operation_Id, runTurnId = id, taskRunId = operation_ParentId) on cloud_RoleName, operation_Id, runTurnId\n| lookup kind=leftouter (spans | where name == 'session_task.run'\n    | project cloud_RoleName, operation_Id, taskRunId = id, turnSpanId = operation_ParentId) on cloud_RoleName, operation_Id, taskRunId\n| lookup kind=leftouter (turns | project cloud_RoleName, operation_Id, turnSpanId, turnPresent = true) on cloud_RoleName, operation_Id, turnSpanId);\nlet turnCosts = responseCosts\n| where turnPresent == true\n| summarize responses = count(), pricedResponses = countif(priceStatus == 'Priced'),\n            responseInput = sum(input), responseCached = sum(cached), responseWritten = sum(written),\n            responseOutput = sum(output), responseTotal = sum(total),\n            cost_usd = sum(cost_usd), retail_usd = sum(retail_usd), negotiated_discount_usd = sum(negotiated_discount_usd),\n            input_cost_usd = sum(input_cost_usd), cached_cost_usd = sum(cached_cost_usd),\n            write_cost_usd = sum(write_cost_usd), output_cost_usd = sum(output_cost_usd),\n            cache_benefit_usd = sum(cache_benefit_usd), context_premium_usd = sum(context_premium_usd),\n            longResponses = countif(context == 'long'), maxResponseInput = max(input),\n            responseIssues = make_set_if(priceStatus, priceStatus != 'Priced', 8)\n    by cloud_RoleName, operation_Id, turnSpanId;\nlet pricedTurns = materialize(turns\n| lookup kind=leftouter turnCosts on cloud_RoleName, operation_Id, turnSpanId\n| extend pricingStatus = case(isnull(responses), 'No response usage in range',\n                              isempty(turnModel), 'Missing turn model',\n                              pricedResponses != responses, strcat_array(responseIssues, '; '),\n                              isnull(turnTotal) or isnull(turnInput) or isnull(turnCached) or isnull(turnOutput), 'Turn summary missing',\n                              responseInput != turnInput or responseCached != turnCached\n                                  or responseOutput != turnOutput or responseTotal != turnTotal, 'Response and turn usage differ',\n                              isnotnull(turnWritten) and responseWritten != turnWritten, 'Response and turn cache writes differ',\n                              'Complete')\n| extend complete = pricingStatus == 'Complete'\n| extend cost_usd = iff(complete, cost_usd, real(null)),\n         retail_usd = iff(complete, retail_usd, real(null)),\n         negotiated_discount_usd = iff(complete, negotiated_discount_usd, real(null)),\n         input_cost_usd = iff(complete, input_cost_usd, real(null)),\n         cached_cost_usd = iff(complete, cached_cost_usd, real(null)),\n         write_cost_usd = iff(complete, write_cost_usd, real(null)),\n         output_cost_usd = iff(complete, output_cost_usd, real(null)),\n         cache_benefit_usd = iff(complete, cache_benefit_usd, real(null)),\n         context_premium_usd = iff(complete, context_premium_usd, real(null)));\n\n\npricedTurns | summarize included = countif(complete), cost = sum(cost_usd) | project value = iff(included > 0, cost / included, real(null))",
+              "size": 4,
+              "title": "Cost / priced turn",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "573e073e-3e01-574f-35f3-df6e94a3c76c"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts});\n\nresponseCosts\n| where priceStatus == 'Priced'\n| summarize reports = count(), cost = sum(cost_usd), tokens = sum(total),\n            benefit = sum(cache_benefit_usd),\n            inputCost = sum(input_cost_usd), inputTokens = sum(uncached),\n            readCost = sum(cached_cost_usd), readTokens = sum(cached),\n            writeCost = sum(write_cost_usd), writeTokens = sum(written),\n            outputCost = sum(output_cost_usd), outputTokens = sum(output)\n| project value = iff(reports > 0, benefit, real(null))",
+              "size": 4,
+              "title": "Net cache benefit",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "3eb849b7-10aa-da43-cc98-eef1dd6b6c2a"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts});\n\nresponseCosts\n| where priceStatus == 'Priced'\n| summarize reports = count(), cost = sum(cost_usd), tokens = sum(total),\n            benefit = sum(cache_benefit_usd),\n            inputCost = sum(input_cost_usd), inputTokens = sum(uncached),\n            readCost = sum(cached_cost_usd), readTokens = sum(cached),\n            writeCost = sum(write_cost_usd), writeTokens = sum(written),\n            outputCost = sum(output_cost_usd), outputTokens = sum(output)\n| project value = iff(inputTokens > 0, inputCost / inputTokens * 1000000.0, real(null))",
+              "size": 4,
+              "title": "Uncached input / 1M tokens",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "1d71056b-2054-1b5b-16be-c49cefb5a217"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts});\n\nresponseCosts\n| where priceStatus == 'Priced'\n| summarize reports = count(), cost = sum(cost_usd), tokens = sum(total),\n            benefit = sum(cache_benefit_usd),\n            inputCost = sum(input_cost_usd), inputTokens = sum(uncached),\n            readCost = sum(cached_cost_usd), readTokens = sum(cached),\n            writeCost = sum(write_cost_usd), writeTokens = sum(written),\n            outputCost = sum(output_cost_usd), outputTokens = sum(output)\n| project value = iff(readTokens > 0, readCost / readTokens * 1000000.0, real(null))",
+              "size": 4,
+              "title": "Cache-read input / 1M tokens",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "4c731be8-abf1-d8d6-8e54-15feb3c23476"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts});\n\nresponseCosts\n| where priceStatus == 'Priced'\n| summarize reports = count(), cost = sum(cost_usd), tokens = sum(total),\n            benefit = sum(cache_benefit_usd),\n            inputCost = sum(input_cost_usd), inputTokens = sum(uncached),\n            readCost = sum(cached_cost_usd), readTokens = sum(cached),\n            writeCost = sum(write_cost_usd), writeTokens = sum(written),\n            outputCost = sum(output_cost_usd), outputTokens = sum(output)\n| project value = iff(writeTokens > 0, writeCost / writeTokens * 1000000.0, real(null))",
+              "size": 4,
+              "title": "Cache-write input / 1M tokens",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "1d9e623c-1ca6-9b0f-2b54-e56994ba054e"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts});\n\nresponseCosts\n| where priceStatus == 'Priced'\n| summarize reports = count(), cost = sum(cost_usd), tokens = sum(total),\n            benefit = sum(cache_benefit_usd),\n            inputCost = sum(input_cost_usd), inputTokens = sum(uncached),\n            readCost = sum(cached_cost_usd), readTokens = sum(cached),\n            writeCost = sum(write_cost_usd), writeTokens = sum(written),\n            outputCost = sum(output_cost_usd), outputTokens = sum(output)\n| project value = iff(outputTokens > 0, outputCost / outputTokens * 1000000.0, real(null))",
+              "size": 4,
+              "title": "Output / 1M tokens",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "f9c736f2-110e-0f8d-996a-b877894a4e81"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts});\n\nresponseCosts | where input >= 0 and cached >= 0 and cached <= input | summarize inputTokens = sum(input), readTokens = sum(cached) | project value = iff(inputTokens > 0, 100.0 * readTokens / inputTokens, real(null))",
+              "size": 4,
+              "title": "Cached input share",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 1,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "9fea2674-7121-c9b2-315c-c358c52b5c12"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts});\n\nresponseCosts | where input >= 0 and output >= 0 and total == input + output | summarize inputTokens = sum(input), outputTokens = sum(output) | project value = iff(inputTokens + outputTokens > 0, 100.0 * outputTokens / (inputTokens + outputTokens), real(null))",
+              "size": 4,
+              "title": "Output share",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 1,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "54f80643-0b03-3692-94ab-959c9d8744d0"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts});\n\nresponseCosts | summarize allTokens = sumif(total, total >= 0), pricedTokens = sumif(total, priceStatus == 'Priced') | project value = iff(allTokens > 0, 100.0 * pricedTokens / allTokens, real(null))",
+              "size": 4,
+              "title": "Pricing coverage",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 1,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "21ad1935-35ac-9142-ba57-a8265fbe1b27"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "print value = 'Not configured'",
+              "size": 4,
+              "title": "Business allocation coverage",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "6c08281e-6e21-0245-26ca-7770c104da4e"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Operational metrics"
+            },
+            "customWidth": "100",
+            "name": "6bb5965d-6b12-5ecf-bdcf-2bb8c3d11cb6"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'handle_responses'\r\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\r\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\r\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\r\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\r\n         reasoning = todouble(customDimensions['codex.usage.reasoning_output_tokens'])\r\n| where isnotnull(total)\r\n| summarize measured = countif(total >= 0), tokens = sumif(total, total >= 0)\r\n| project tokens = iff(measured > 0, tokens, real(null))",
+              "size": 4,
+              "title": "Reported response tokens",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "tokens",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "048d90ed-f45e-d057-6740-91454cf7c906"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_task.turn'\n| summarize turns = count()",
+              "size": 4,
+              "title": "Completed turns",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "turns",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "4c2dbca3-ca8d-3eb1-8b5a-c7cb14be56f9"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_init'\n| summarize initializations = count()",
+              "size": 4,
+              "title": "Session initializations",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "initializations",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "4a120309-4d17-774b-3347-d02f502cfcd3"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet metricCounts = customMetrics\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'codex.tool.call'\r\n| extend role = iff(cloud_RoleName == '[coding-agent]/codex-app-server', 'coding-agent.codex-app-server', cloud_RoleName), tool = tostring(customDimensions['tool']),\r\n         outcome = tobool(customDimensions['success'])\r\n| extend tool = iff(isempty(tool), 'Not reported', tool)\r\n| where valueSum >= 0\r\n| summarize total = sum(valueSum), failures = sumif(valueSum, outcome == false),\r\n            successes = sumif(valueSum, outcome == true),\r\n            unknown = sumif(valueSum, isnull(outcome)) by role, tool\r\n| where total > 0;\r\nlet logCounts = traces\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where tostring(customDimensions['event.name']) == 'codex.tool_result'\r\n| extend role = iff(cloud_RoleName == '[coding-agent]/codex-app-server', 'coding-agent.codex-app-server', cloud_RoleName),\r\n         conversation = tostring(customDimensions['conversation.id']),\r\n         call = tostring(customDimensions['call_id']),\r\n         tool = tostring(customDimensions['tool_name']),\r\n         outcome = tobool(customDimensions['success']),\r\n         duration_ms = todouble(customDimensions['duration_ms'])\r\n| where isnotempty(conversation) and isnotempty(call)\r\n| extend tool = iff(isempty(tool), 'Not reported', tool)\r\n| summarize timestamp = min(timestamp), outcomes = make_set_if(tostring(outcome), isnotnull(outcome), 3),\r\n            durations = make_set(duration_ms, 3), tool = take_any(tool)\r\n            by role, conversation, call\r\n| extend outcome = iff(array_length(outcomes) == 1, tobool(outcomes[0]), bool(null)),\r\n         duration_ms = iff(array_length(durations) == 1, todouble(durations[0]), real(null))\r\n| join kind=leftanti (metricCounts | project role, tool) on role, tool\r\n| summarize total = todouble(count()), failures = todouble(countif(outcome == false)),\r\n            successes = todouble(countif(outcome == true)),\r\n            unknown = todouble(countif(isnull(outcome))) by role, tool;\r\nunion (metricCounts | extend source = 'Metrics'), (logCounts | extend source = 'Logs')\r\n| summarize sources = count(), calls = sum(total)\r\n| project calls = iff(sources > 0, calls, real(null))",
+              "size": 4,
+              "title": "Completed tool calls",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "calls",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "4cb25465-ec7f-7570-02cf-31b30df6bcc2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'handle_responses'\r\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\r\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\r\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\r\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\r\n         reasoning = todouble(customDimensions['codex.usage.reasoning_output_tokens'])\r\n| where isnotnull(total)\r\n| where input > 0 and cached >= 0 and cached <= input\r\n| summarize input = sum(input), cached = sum(cached)\r\n| project cacheHitPct = iff(input > 0, 100.0 * cached / input, real(null))",
+              "size": 4,
+              "title": "Cached input share",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "cacheHitPct",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 1,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "9fea2674-7121-c9b2-315c-c358c52b5c12"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet metricCounts = customMetrics\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'codex.tool.call'\r\n| extend role = iff(cloud_RoleName == '[coding-agent]/codex-app-server', 'coding-agent.codex-app-server', cloud_RoleName), tool = tostring(customDimensions['tool']),\r\n         outcome = tobool(customDimensions['success'])\r\n| extend tool = iff(isempty(tool), 'Not reported', tool)\r\n| where valueSum >= 0\r\n| summarize total = sum(valueSum), failures = sumif(valueSum, outcome == false),\r\n            successes = sumif(valueSum, outcome == true),\r\n            unknown = sumif(valueSum, isnull(outcome)) by role, tool\r\n| where total > 0;\r\nlet logCounts = traces\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where tostring(customDimensions['event.name']) == 'codex.tool_result'\r\n| extend role = iff(cloud_RoleName == '[coding-agent]/codex-app-server', 'coding-agent.codex-app-server', cloud_RoleName),\r\n         conversation = tostring(customDimensions['conversation.id']),\r\n         call = tostring(customDimensions['call_id']),\r\n         tool = tostring(customDimensions['tool_name']),\r\n         outcome = tobool(customDimensions['success']),\r\n         duration_ms = todouble(customDimensions['duration_ms'])\r\n| where isnotempty(conversation) and isnotempty(call)\r\n| extend tool = iff(isempty(tool), 'Not reported', tool)\r\n| summarize timestamp = min(timestamp), outcomes = make_set_if(tostring(outcome), isnotnull(outcome), 3),\r\n            durations = make_set(duration_ms, 3), tool = take_any(tool)\r\n            by role, conversation, call\r\n| extend outcome = iff(array_length(outcomes) == 1, tobool(outcomes[0]), bool(null)),\r\n         duration_ms = iff(array_length(durations) == 1, todouble(durations[0]), real(null))\r\n| join kind=leftanti (metricCounts | project role, tool) on role, tool\r\n| summarize total = todouble(count()), failures = todouble(countif(outcome == false)),\r\n            successes = todouble(countif(outcome == true)),\r\n            unknown = todouble(countif(isnull(outcome))) by role, tool;\r\nunion (metricCounts | extend source = 'Metrics'), (logCounts | extend source = 'Logs')\r\n| summarize failures = sum(failures), successes = sum(successes)\r\n| project failurePct = iff(failures + successes > 0, 100.0 * failures / (failures + successes), real(null))",
+              "size": 4,
+              "title": "Tool failure rate (known outcomes)",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "failurePct",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 1,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "32fd36dc-0116-027e-bf41-e2456434df48"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_task.turn'\r\n| where duration >= 0\r\n| summarize p95s = percentile(duration, 95) / 1000.0",
+              "size": 4,
+              "title": "p95 completed-turn duration",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "p95s",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "8df0b1f9-2555-9b21-a9c9-eceb378137de"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'responses_websocket.stream_request'\r\n| where duration >= 0\r\n| summarize p95ms = percentile(duration, 95)",
+              "size": 4,
+              "title": "p95 response stream duration",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "leftContent": {
+                  "columnMatch": "p95ms",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "01e04627-6ebf-5c88-07be-6a4248644269"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Models & tokens"
+            },
+            "customWidth": "100",
+            "name": "830ab90c-6372-9eeb-c5f8-e87e2150d795"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet streamParents = dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'receiving_stream'\r\n| project cloud_RoleName, operation_Id, streamId = id, samplingId = operation_ParentId;\r\nlet samplingModels = dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'try_run_sampling_request'\r\n| project cloud_RoleName, operation_Id, samplingId = id, model = tostring(customDimensions['model']);\r\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'handle_responses'\r\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\r\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\r\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\r\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\r\n         reasoning = todouble(customDimensions['codex.usage.reasoning_output_tokens'])\r\n| where isnotnull(total)\r\n| extend streamId = operation_ParentId\r\n| join kind=leftouter streamParents on cloud_RoleName, operation_Id, streamId\r\n| join kind=leftouter samplingModels on cloud_RoleName, operation_Id, samplingId\r\n| extend model = iff(isempty(model), 'Unattributed', model)\r\n| where total >= 0\r\n| summarize tokens = sum(total) by model\r\n| order by tokens desc",
+              "size": 1,
+              "title": "Response tokens by model",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "piechart"
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "b17b071e-8873-7688-949f-c85102ae2026"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_task.turn'\r\n| extend reasoning = tostring(customDimensions['codex.turn.reasoning_effort'])\r\n| extend reasoning = iff(isempty(reasoning), 'Not reported', reasoning)\r\n| summarize turns = count() by reasoning\r\n| order by turns desc",
+              "size": 1,
+              "title": "Reasoning effort of completed turns",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "piechart"
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "6cf4ad5a-127d-c974-7e9b-3aaa9242b7f2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts}| lookup kind=leftouter (spans | where name == 'run_sampling_request'\n    | project cloud_RoleName, operation_Id, requestId = id, runTurnId = operation_ParentId) on cloud_RoleName, operation_Id, requestId\n| lookup kind=leftouter (spans | where name == 'run_turn'\n    | project cloud_RoleName, operation_Id, runTurnId = id, taskRunId = operation_ParentId) on cloud_RoleName, operation_Id, runTurnId\n| lookup kind=leftouter (spans | where name == 'session_task.run'\n    | project cloud_RoleName, operation_Id, taskRunId = id, turnSpanId = operation_ParentId) on cloud_RoleName, operation_Id, taskRunId\n| lookup kind=leftouter (turns | project cloud_RoleName, operation_Id, turnSpanId, turnPresent = true) on cloud_RoleName, operation_Id, turnSpanId);\nlet turnCosts = responseCosts\n| where turnPresent == true\n| summarize responses = count(), pricedResponses = countif(priceStatus == 'Priced'),\n            responseInput = sum(input), responseCached = sum(cached), responseWritten = sum(written),\n            responseOutput = sum(output), responseTotal = sum(total),\n            cost_usd = sum(cost_usd), retail_usd = sum(retail_usd), negotiated_discount_usd = sum(negotiated_discount_usd),\n            input_cost_usd = sum(input_cost_usd), cached_cost_usd = sum(cached_cost_usd),\n            write_cost_usd = sum(write_cost_usd), output_cost_usd = sum(output_cost_usd),\n            cache_benefit_usd = sum(cache_benefit_usd), context_premium_usd = sum(context_premium_usd),\n            longResponses = countif(context == 'long'), maxResponseInput = max(input),\n            responseIssues = make_set_if(priceStatus, priceStatus != 'Priced', 8)\n    by cloud_RoleName, operation_Id, turnSpanId;\nlet pricedTurns = materialize(turns\n| lookup kind=leftouter turnCosts on cloud_RoleName, operation_Id, turnSpanId\n| extend pricingStatus = case(isnull(responses), 'No response usage in range',\n                              isempty(turnModel), 'Missing turn model',\n                              pricedResponses != responses, strcat_array(responseIssues, '; '),\n                              isnull(turnTotal) or isnull(turnInput) or isnull(turnCached) or isnull(turnOutput), 'Turn summary missing',\n                              responseInput != turnInput or responseCached != turnCached\n                                  or responseOutput != turnOutput or responseTotal != turnTotal, 'Response and turn usage differ',\n                              isnotnull(turnWritten) and responseWritten != turnWritten, 'Response and turn cache writes differ',\n                              'Complete')\n| extend complete = pricingStatus == 'Complete'\n| extend cost_usd = iff(complete, cost_usd, real(null)),\n         retail_usd = iff(complete, retail_usd, real(null)),\n         negotiated_discount_usd = iff(complete, negotiated_discount_usd, real(null)),\n         input_cost_usd = iff(complete, input_cost_usd, real(null)),\n         cached_cost_usd = iff(complete, cached_cost_usd, real(null)),\n         write_cost_usd = iff(complete, write_cost_usd, real(null)),\n         output_cost_usd = iff(complete, output_cost_usd, real(null)),\n         cache_benefit_usd = iff(complete, cache_benefit_usd, real(null)),\n         context_premium_usd = iff(complete, context_premium_usd, real(null)));\n\npricedTurns\n| summarize turns = count(), priced_turns = countif(complete), turns_with_tokens = countif(isnotnull(turnTotal)),\n            total_tokens = sum(turnTotal), totalInput = sum(turnInput), totalCached = sum(turnCached),\n            p95_s = percentile(duration_s, 95), cost_usd = sum(cost_usd), retail_usd = sum(retail_usd),\n            negotiated_discount_usd = sum(negotiated_discount_usd), input_cost_usd = sum(input_cost_usd),\n            cached_cost_usd = sum(cached_cost_usd), write_cost_usd = sum(write_cost_usd), output_cost_usd = sum(output_cost_usd),\n            cache_benefit_usd = sum(cache_benefit_usd), context_premium_usd = sum(context_premium_usd),\n            longResponses = sum(longResponses), maxResponseInput = max(maxResponseInput),\n            issues = make_set_if(pricingStatus, not(complete), 8) by model = turnModel\n| extend complete = priced_turns == turns, missing_usage = turns - turns_with_tokens,\n         total_tokens = iff(turns_with_tokens > 0, total_tokens, real(null)),\n         avg_per_turn = iff(turns_with_tokens > 0, total_tokens / turns_with_tokens, real(null)),\n         cache_pct = iff(totalInput > 0, 100.0 * totalCached / totalInput, real(null)),\n         pricing_coverage = 100.0 * priced_turns / turns\n| extend pricingStatus = iff(complete, 'Complete', strcat(priced_turns, '/', turns, ' turns priced; ', strcat_array(issues, '; '))),\n         cost_usd = iff(complete, cost_usd, real(null)), retail_usd = iff(complete, retail_usd, real(null)),\n         negotiated_discount_usd = iff(complete, negotiated_discount_usd, real(null)),\n         input_cost_usd = iff(complete, input_cost_usd, real(null)),\n         cached_cost_usd = iff(complete, cached_cost_usd, real(null)),\n         write_cost_usd = iff(complete, write_cost_usd, real(null)),\n         output_cost_usd = iff(complete, output_cost_usd, real(null)),\n         cache_benefit_usd = iff(complete, cache_benefit_usd, real(null)),\n         context_premium_usd = iff(complete, context_premium_usd, real(null))\n| extend cost_per_turn_usd = cost_usd / turns,\n         negotiated_discount_pct = iff(retail_usd > 0, 100.0 * negotiated_discount_usd / retail_usd, real(null))\n| project model, turns, pricingStatus, cost_usd, retail_usd, negotiated_discount_pct, cost_per_turn_usd, p95_s, pricing_coverage,\n          input_cost_usd, cached_cost_usd, write_cost_usd, output_cost_usd, negotiated_discount_usd, cache_benefit_usd, context_premium_usd,\n          longResponses, maxResponseInput, total_tokens, avg_per_turn, cache_pct, turns_with_tokens, missing_usage\n| order by cost_usd desc nulls last",
+              "size": 1,
+              "title": "Completed turns and estimates by model",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "31ba5fbd-2dc7-2962-e766-aee94e00bac9"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'handle_responses'\r\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\r\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\r\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\r\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\r\n         reasoning = todouble(customDimensions['codex.usage.reasoning_output_tokens'])\r\n| where isnotnull(total)\r\n| where input >= 0 and cached >= 0 and cached <= input\r\n| summarize non_cached = sum(input - cached), cached = sum(cached) by bin(timestamp, Bucket)\r\n| order by timestamp asc",
+              "size": 1,
+              "title": "Response input tokens",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "4c2f5fa7-b633-fe42-66e4-17a8f80adb78"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'handle_responses'\r\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\r\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\r\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\r\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\r\n         reasoning = todouble(customDimensions['codex.usage.reasoning_output_tokens'])\r\n| where isnotnull(total)\r\n| where output >= 0 and reasoning >= 0 and reasoning <= output\r\n| summarize non_reasoning = sum(output - reasoning), reasoning = sum(reasoning) by bin(timestamp, Bucket)\r\n| order by timestamp asc",
+              "size": 1,
+              "title": "Response output tokens",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "7573e968-3b87-dce8-c555-f20e8da3e89a"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\nlet streamParents = dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'receiving_stream'\r\n| project cloud_RoleName, operation_Id, streamId = id, samplingId = operation_ParentId;\r\nlet samplingModels = dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'try_run_sampling_request'\r\n| project cloud_RoleName, operation_Id, samplingId = id, model = tostring(customDimensions['model']);\r\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'handle_responses'\r\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\r\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\r\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\r\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\r\n         reasoning = todouble(customDimensions['codex.usage.reasoning_output_tokens'])\r\n| where isnotnull(total)\r\n| extend streamId = operation_ParentId\r\n| join kind=leftouter streamParents on cloud_RoleName, operation_Id, streamId\r\n| join kind=leftouter samplingModels on cloud_RoleName, operation_Id, samplingId\r\n| extend model = iff(isempty(model), 'Unattributed', model)\r\n| where total >= 0\r\n| summarize tokens = sum(total) by bin(timestamp, Bucket), model\r\n| order by timestamp asc",
+              "size": 1,
+              "title": "Response tokens over time by model",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "571436a4-e6b3-599d-b51d-eb5487a1cb93"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Usage over time"
+            },
+            "customWidth": "100",
+            "name": "ecf972e8-af05-c2a1-71e6-4a0092acdea1"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_init'\r\n| summarize initializations = count() by bin(timestamp, Bucket)\r\n| order by timestamp asc",
+              "size": 1,
+              "title": "Session initializations over time",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "1b7fde24-f223-724b-f7c4-a351fa58f610"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_task.turn'\r\n| summarize turns = count() by bin(timestamp, Bucket)\r\n| order by timestamp asc",
+              "size": 1,
+              "title": "Completed turns over time",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "05c8cb65-600e-c330-779e-a4a5bcca5e3e"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Tool health"
+            },
+            "customWidth": "100",
+            "name": "c4881656-8c26-b1cf-1f50-f692c4457f8b"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet metricCounts = customMetrics\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'codex.tool.call'\r\n| extend role = iff(cloud_RoleName == '[coding-agent]/codex-app-server', 'coding-agent.codex-app-server', cloud_RoleName), tool = tostring(customDimensions['tool']),\r\n         outcome = tobool(customDimensions['success'])\r\n| extend tool = iff(isempty(tool), 'Not reported', tool)\r\n| where valueSum >= 0\r\n| summarize total = sum(valueSum), failures = sumif(valueSum, outcome == false),\r\n            successes = sumif(valueSum, outcome == true),\r\n            unknown = sumif(valueSum, isnull(outcome)) by role, tool\r\n| where total > 0;\r\nlet logCounts = traces\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where tostring(customDimensions['event.name']) == 'codex.tool_result'\r\n| extend role = iff(cloud_RoleName == '[coding-agent]/codex-app-server', 'coding-agent.codex-app-server', cloud_RoleName),\r\n         conversation = tostring(customDimensions['conversation.id']),\r\n         call = tostring(customDimensions['call_id']),\r\n         tool = tostring(customDimensions['tool_name']),\r\n         outcome = tobool(customDimensions['success']),\r\n         duration_ms = todouble(customDimensions['duration_ms'])\r\n| where isnotempty(conversation) and isnotempty(call)\r\n| extend tool = iff(isempty(tool), 'Not reported', tool)\r\n| summarize timestamp = min(timestamp), outcomes = make_set_if(tostring(outcome), isnotnull(outcome), 3),\r\n            durations = make_set(duration_ms, 3), tool = take_any(tool)\r\n            by role, conversation, call\r\n| extend outcome = iff(array_length(outcomes) == 1, tobool(outcomes[0]), bool(null)),\r\n         duration_ms = iff(array_length(durations) == 1, todouble(durations[0]), real(null))\r\n| join kind=leftanti (metricCounts | project role, tool) on role, tool\r\n| summarize total = todouble(count()), failures = todouble(countif(outcome == false)),\r\n            successes = todouble(countif(outcome == true)),\r\n            unknown = todouble(countif(isnull(outcome))) by role, tool;\r\nunion (metricCounts | extend source = 'Metrics'), (logCounts | extend source = 'Logs')\r\n| summarize total = sum(total), failures = sum(failures), successes = sum(successes),\r\n            unknown = sum(unknown) by tool, source\r\n| extend failPct = iff(failures + successes > 0, 100.0 * failures / (failures + successes), real(null))\r\n| project tool, source, total, failures, unknown, failPct\r\n| order by total desc",
+              "size": 1,
+              "title": "Tool reliability by tool",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "aaf09bb2-a482-1235-d8a3-9addcaad0ec5"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet metricLatency = customMetrics\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'codex.tool.call.duration_ms'\r\n| extend role = iff(cloud_RoleName == '[coding-agent]/codex-app-server', 'coding-agent.codex-app-server', cloud_RoleName), tool = tostring(customDimensions['tool'])\r\n| extend tool = iff(isempty(tool), 'Not reported', tool)\r\n| where valueCount > 0 and valueSum >= 0\r\n| summarize n = sum(valueCount), total_ms = sum(valueSum), max_ms = max(valueMax) by role, tool;\r\nlet logLatency = traces\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where tostring(customDimensions['event.name']) == 'codex.tool_result'\r\n| extend role = iff(cloud_RoleName == '[coding-agent]/codex-app-server', 'coding-agent.codex-app-server', cloud_RoleName),\r\n         conversation = tostring(customDimensions['conversation.id']),\r\n         call = tostring(customDimensions['call_id']),\r\n         tool = tostring(customDimensions['tool_name']),\r\n         outcome = tobool(customDimensions['success']),\r\n         duration_ms = todouble(customDimensions['duration_ms'])\r\n| where isnotempty(conversation) and isnotempty(call)\r\n| extend tool = iff(isempty(tool), 'Not reported', tool)\r\n| summarize timestamp = min(timestamp), outcomes = make_set_if(tostring(outcome), isnotnull(outcome), 3),\r\n            durations = make_set(duration_ms, 3), tool = take_any(tool)\r\n            by role, conversation, call\r\n| extend outcome = iff(array_length(outcomes) == 1, tobool(outcomes[0]), bool(null)),\r\n         duration_ms = iff(array_length(durations) == 1, todouble(durations[0]), real(null))\r\n| join kind=leftanti (metricLatency | project role, tool) on role, tool\r\n| where duration_ms >= 0\r\n| summarize n = count(), avg_ms = avg(duration_ms), p50_ms = percentile(duration_ms, 50),\r\n            p95_ms = percentile(duration_ms, 95), max_ms = max(duration_ms) by tool\r\n| extend source = 'Logs';\r\nunion\r\n    (metricLatency\r\n     | summarize n = sum(n), total_ms = sum(total_ms), max_ms = max(max_ms) by tool\r\n     | extend avg_ms = total_ms / n, p50_ms = real(null), p95_ms = real(null), source = 'Metrics'\r\n     | project-away total_ms),\r\n    logLatency\r\n| project tool, source, n, avg_ms, p50_ms, p95_ms, max_ms\r\n| order by n desc",
+              "size": 1,
+              "title": "Tool latency by tool",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "bf516fbb-4cc7-1b6a-5294-4ccb64610dfe"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Safety & access"
+            },
+            "customWidth": "100",
+            "name": "5f15fd60-95a2-7e2c-a732-9175d7a8e214"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nunion\r\n    (customMetrics\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n     | where name == 'codex.tool.call'\r\n     | extend policy = tostring(customDimensions['sandbox_policy'])\r\n     | extend policy = iff(isempty(policy), 'Not reported', policy)\r\n     | summarize observations = sum(valueSum) by policy\r\n     | where observations > 0\r\n     | extend population = 'Tool calls (metric)'),\r\n    (traces\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n     | where tostring(customDimensions['event.name']) == 'codex.conversation_starts'\r\n     | extend role = iff(cloud_RoleName == '[coding-agent]/codex-app-server', 'coding-agent.codex-app-server', cloud_RoleName), conversation = tostring(customDimensions['conversation.id']),\r\n              policy = tostring(customDimensions['sandbox_policy'])\r\n     | where isnotempty(conversation)\r\n     | summarize arg_max(timestamp, policy) by role, conversation\r\n     | extend policy = iff(isempty(policy), 'Not reported', policy)\r\n     | summarize observations = todouble(count()) by policy\r\n     | extend population = 'Conversations (latest policy)')\r\n| project population, policy, observations\r\n| order by population asc, observations desc",
+              "size": 1,
+              "title": "Sandbox policy observations",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "b06e1927-d193-d785-afbc-07ec014a188e"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_init'\n| extend role = iff(cloud_RoleName == '[coding-agent]/codex-app-server', 'coding-agent.codex-app-server', cloud_RoleName)\n| summarize initializations = count() by role\n| order by initializations desc",
+              "size": 1,
+              "title": "Initializations by service role",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "809d84ef-cad0-042c-09d4-02ecd925ed6e"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### High-usage turns"
+            },
+            "customWidth": "100",
+            "name": "07c524b1-5fb7-cc98-e484-cbcde03c67a6"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}{FtkCodexCosts}| lookup kind=leftouter (spans | where name == 'run_sampling_request'\n    | project cloud_RoleName, operation_Id, requestId = id, runTurnId = operation_ParentId) on cloud_RoleName, operation_Id, requestId\n| lookup kind=leftouter (spans | where name == 'run_turn'\n    | project cloud_RoleName, operation_Id, runTurnId = id, taskRunId = operation_ParentId) on cloud_RoleName, operation_Id, runTurnId\n| lookup kind=leftouter (spans | where name == 'session_task.run'\n    | project cloud_RoleName, operation_Id, taskRunId = id, turnSpanId = operation_ParentId) on cloud_RoleName, operation_Id, taskRunId\n| lookup kind=leftouter (turns | project cloud_RoleName, operation_Id, turnSpanId, turnPresent = true) on cloud_RoleName, operation_Id, turnSpanId);\nlet turnCosts = responseCosts\n| where turnPresent == true\n| summarize responses = count(), pricedResponses = countif(priceStatus == 'Priced'),\n            responseInput = sum(input), responseCached = sum(cached), responseWritten = sum(written),\n            responseOutput = sum(output), responseTotal = sum(total),\n            cost_usd = sum(cost_usd), retail_usd = sum(retail_usd), negotiated_discount_usd = sum(negotiated_discount_usd),\n            input_cost_usd = sum(input_cost_usd), cached_cost_usd = sum(cached_cost_usd),\n            write_cost_usd = sum(write_cost_usd), output_cost_usd = sum(output_cost_usd),\n            cache_benefit_usd = sum(cache_benefit_usd), context_premium_usd = sum(context_premium_usd),\n            longResponses = countif(context == 'long'), maxResponseInput = max(input),\n            responseIssues = make_set_if(priceStatus, priceStatus != 'Priced', 8)\n    by cloud_RoleName, operation_Id, turnSpanId;\nlet pricedTurns = materialize(turns\n| lookup kind=leftouter turnCosts on cloud_RoleName, operation_Id, turnSpanId\n| extend pricingStatus = case(isnull(responses), 'No response usage in range',\n                              isempty(turnModel), 'Missing turn model',\n                              pricedResponses != responses, strcat_array(responseIssues, '; '),\n                              isnull(turnTotal) or isnull(turnInput) or isnull(turnCached) or isnull(turnOutput), 'Turn summary missing',\n                              responseInput != turnInput or responseCached != turnCached\n                                  or responseOutput != turnOutput or responseTotal != turnTotal, 'Response and turn usage differ',\n                              isnotnull(turnWritten) and responseWritten != turnWritten, 'Response and turn cache writes differ',\n                              'Complete')\n| extend complete = pricingStatus == 'Complete'\n| extend cost_usd = iff(complete, cost_usd, real(null)),\n         retail_usd = iff(complete, retail_usd, real(null)),\n         negotiated_discount_usd = iff(complete, negotiated_discount_usd, real(null)),\n         input_cost_usd = iff(complete, input_cost_usd, real(null)),\n         cached_cost_usd = iff(complete, cached_cost_usd, real(null)),\n         write_cost_usd = iff(complete, write_cost_usd, real(null)),\n         output_cost_usd = iff(complete, output_cost_usd, real(null)),\n         cache_benefit_usd = iff(complete, cache_benefit_usd, real(null)),\n         context_premium_usd = iff(complete, context_premium_usd, real(null)));\n\npricedTurns\n| project timestamp = turnStarted, model = turnModel, cost_usd, retail_usd, negotiated_discount_usd, duration_s,\n          pricingStatus, input_cost_usd, cached_cost_usd, write_cost_usd, output_cost_usd, cache_benefit_usd, context_premium_usd,\n          longResponses, maxResponseInput, totalTokens = turnTotal, cachedTokens = turnCached, outputTokens = turnOutput,\n          thread, turn\n| order by cost_usd desc nulls last\n| take 15",
+              "size": 1,
+              "title": "Highest-cost completed turns",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "a0329da7-df56-a548-e94c-22fa3e5757be"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Operations & telemetry coverage"
+            },
+            "customWidth": "100",
+            "name": "ed69f0af-5c55-3a34-5806-7832cd61b886"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_task.turn'\r\n| where duration >= 0\r\n| summarize p50_s = percentile(duration, 50) / 1000.0,\r\n            p95_s = percentile(duration, 95) / 1000.0 by bin(timestamp, Bucket)\r\n| order by timestamp asc",
+              "size": 1,
+              "title": "Completed-turn duration over time",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "d26cf72c-df86-25dc-70fe-65ca15e847df"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\ndependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| extend status_code = toint(customDimensions['http.response.status_code'])\r\n| where status_code between (100 .. 599)\r\n| extend outcome = case(status_code >= 500, 'Server error', status_code >= 400, 'Client error',\r\n                        status_code >= 300, 'Redirect', status_code >= 200, 'Success', 'Informational')\r\n| summarize responses = count(), p95_ms = percentile(duration, 95), last_seen = max(timestamp) by status_code, outcome\r\n| order by status_code desc",
+              "size": 1,
+              "title": "Reported HTTP status codes",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "9b3a5d5d-d101-e83c-d3ef-5d9c9f8e2033"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}billedMeterScopes = toscalar(\n    billedCombos\n    | summarize strcat_array(array_sort_asc(make_set(strcat(Tier, ' ', Scope))), ', ')\n);\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\nlet spans = materialize(dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\n| where name in ('session_task.turn', 'session_task.run', 'run_turn', 'run_sampling_request', 'try_run_sampling_request', 'receiving_stream', 'handle_responses')\n| where name != 'handle_responses' or isnotnull(todouble(customDimensions['codex.usage.total_tokens']))\n| summarize take_any(timestamp, name, operation_ParentId, customDimensions, duration) by cloud_RoleName, operation_Id, id);\nlet turns = spans\n| where name == 'session_task.turn'\n| project cloud_RoleName, operation_Id, turnSpanId = id, turnStarted = timestamp, duration_s = duration / 1000.0,\n          turnModel = tostring(customDimensions['model']), thread = tostring(customDimensions['thread.id']), turn = tostring(customDimensions['turn.id']),\n          turnInput = todouble(customDimensions['codex.turn.token_usage.input_tokens']),\n          turnCached = todouble(customDimensions['codex.turn.token_usage.cached_input_tokens']),\n          turnWritten = todouble(customDimensions['codex.turn.token_usage.cache_write_input_tokens']),\n          turnOutput = todouble(customDimensions['codex.turn.token_usage.output_tokens']),\n          turnTotal = todouble(customDimensions['codex.turn.token_usage.total_tokens']);\nlet responseUsage = spans\n| where name == 'handle_responses'\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\n         written = todouble(customDimensions['gen_ai.usage.cache_write.input_tokens']),\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\n         streamId = operation_ParentId\n| lookup kind=leftouter (spans | where name == 'receiving_stream'\n    | project cloud_RoleName, operation_Id, streamId = id, samplingId = operation_ParentId) on cloud_RoleName, operation_Id, streamId\n| lookup kind=leftouter (spans | where name == 'try_run_sampling_request'\n    | project cloud_RoleName, operation_Id, samplingId = id, requestId = operation_ParentId, model = tostring(customDimensions['model'])) on cloud_RoleName, operation_Id, samplingId\n| extend context = iff(input > 272000, 'long', 'short')\n| extend p = price[model][context], shortPrice = price[model]['short'];\n// Cache-write pricing replaces ordinary input pricing for the same tokens.\n// https://developers.openai.com/api/docs/guides/prompt-caching#monitor-cache-performance\n// An absent exported write counter is unknown, not zero (Codex 0.142.0 does not emit it).\nlet responseCosts = materialize(responseUsage\n| extend coreUsageValid = coalesce(total >= 0 and input >= 0 and cached >= 0 and cached <= input\n    and output >= 0 and total == input + output, false),\n         priceValid = pricesLoaded and isnotnull(p) and timestamp >= priceStart and timestamp < priceEnd\n| extend priceStatus = case(not(pricesLoaded), 'Price data unavailable',\n                            isempty(model), 'BUG: Missing response model',\n                            isnull(p), 'BUG: Model missing from price map',\n                            timestamp < priceStart or timestamp >= priceEnd, 'Price outside effective period',\n                            not(coreUsageValid), 'Invalid or missing token usage',\n                            isnull(written), 'Cache-write counter missing',\n                            written < 0 or cached + written > input, 'Invalid cache partition',\n                            'Priced'),\n         uncached = input - cached - written\n| extend input_cost_usd = iff(priceStatus == 'Priced', uncached * todouble(p.i) / 1000000.0, real(null)),\n         cached_cost_usd = iff(priceValid and coreUsageValid, cached * todouble(p.cr) / 1000000.0, real(null)),\n         write_cost_usd = iff(priceStatus == 'Priced', written * todouble(p.cw) / 1000000.0, real(null)),\n         output_cost_usd = iff(priceValid and coreUsageValid, output * todouble(p.o) / 1000000.0, real(null)),\n         retail_usd = iff(priceStatus == 'Priced',\n             (uncached * todouble(p.li) + cached * todouble(p.lcr) + written * todouble(p.lcw) + output * todouble(p.lo)) / 1000000.0, real(null)),\n         cache_benefit_usd = iff(priceStatus == 'Priced',\n             (cached * (todouble(p.i) - todouble(p.cr)) - written * (todouble(p.cw) - todouble(p.i))) / 1000000.0, real(null)),\n         context_premium_usd = iff(priceStatus == 'Priced',\n             (uncached * (todouble(p.i) - todouble(shortPrice.i)) + cached * (todouble(p.cr) - todouble(shortPrice.cr))\n              + written * (todouble(p.cw) - todouble(shortPrice.cw)) + output * (todouble(p.o) - todouble(shortPrice.o))) / 1000000.0, real(null)),\n         negotiated_discount_usd = iff(priceStatus == 'Priced',\n             (uncached * (todouble(p.li) - todouble(p.i)) + cached * (todouble(p.lcr) - todouble(p.cr))\n              + written * (todouble(p.lcw) - todouble(p.cw)) + output * (todouble(p.lo) - todouble(p.o))) / 1000000.0, real(null))\n| extend cost_usd = input_cost_usd + cached_cost_usd + write_cost_usd + output_cost_usd\n| lookup kind=leftouter (spans | where name == 'run_sampling_request'\n    | project cloud_RoleName, operation_Id, requestId = id, runTurnId = operation_ParentId) on cloud_RoleName, operation_Id, requestId\n| lookup kind=leftouter (spans | where name == 'run_turn'\n    | project cloud_RoleName, operation_Id, runTurnId = id, taskRunId = operation_ParentId) on cloud_RoleName, operation_Id, runTurnId\n| lookup kind=leftouter (spans | where name == 'session_task.run'\n    | project cloud_RoleName, operation_Id, taskRunId = id, turnSpanId = operation_ParentId) on cloud_RoleName, operation_Id, taskRunId\n| lookup kind=leftouter (turns | project cloud_RoleName, operation_Id, turnSpanId, turnPresent = true) on cloud_RoleName, operation_Id, turnSpanId);\nlet turnCosts = responseCosts\n| where turnPresent == true\n| summarize responses = count(), pricedResponses = countif(priceStatus == 'Priced'),\n            responseInput = sum(input), responseCached = sum(cached), responseWritten = sum(written),\n            responseOutput = sum(output), responseTotal = sum(total),\n            cost_usd = sum(cost_usd), retail_usd = sum(retail_usd), negotiated_discount_usd = sum(negotiated_discount_usd),\n            input_cost_usd = sum(input_cost_usd), cached_cost_usd = sum(cached_cost_usd),\n            write_cost_usd = sum(write_cost_usd), output_cost_usd = sum(output_cost_usd),\n            cache_benefit_usd = sum(cache_benefit_usd), context_premium_usd = sum(context_premium_usd),\n            longResponses = countif(context == 'long'), maxResponseInput = max(input),\n            responseIssues = make_set_if(priceStatus, priceStatus != 'Priced', 8)\n    by cloud_RoleName, operation_Id, turnSpanId;\nlet pricedTurns = materialize(turns\n| lookup kind=leftouter turnCosts on cloud_RoleName, operation_Id, turnSpanId\n| extend pricingStatus = case(isnull(responses), 'No response usage in range',\n                              isempty(turnModel), 'Missing turn model',\n                              pricedResponses != responses, strcat_array(responseIssues, '; '),\n                              isnull(turnTotal) or isnull(turnInput) or isnull(turnCached) or isnull(turnOutput), 'Turn summary missing',\n                              responseInput != turnInput or responseCached != turnCached\n                                  or responseOutput != turnOutput or responseTotal != turnTotal, 'Response and turn usage differ',\n                              isnotnull(turnWritten) and responseWritten != turnWritten, 'Response and turn cache writes differ',\n                              'Complete')\n| extend complete = pricingStatus == 'Complete'\n| extend cost_usd = iff(complete, cost_usd, real(null)),\n         retail_usd = iff(complete, retail_usd, real(null)),\n         negotiated_discount_usd = iff(complete, negotiated_discount_usd, real(null)),\n         input_cost_usd = iff(complete, input_cost_usd, real(null)),\n         cached_cost_usd = iff(complete, cached_cost_usd, real(null)),\n         write_cost_usd = iff(complete, write_cost_usd, real(null)),\n         output_cost_usd = iff(complete, output_cost_usd, real(null)),\n         cache_benefit_usd = iff(complete, cache_benefit_usd, real(null)),\n         context_premium_usd = iff(complete, context_premium_usd, real(null)));\nlet telemetryCoverage = (union\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_init' | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Session initializations', source = 'dependencies'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_task.turn' | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Completed turn spans', source = 'dependencies'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_task.turn' | where isnotnull(todouble(customDimensions['codex.turn.token_usage.total_tokens']))\r\n     | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Turns with token usage', source = 'dependencies'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'handle_responses'\r\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\r\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\r\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\r\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\r\n         reasoning = todouble(customDimensions['codex.usage.reasoning_output_tokens'])\r\n| where isnotnull(total) | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Response token reports', source = 'dependencies'),\r\n    (customMetrics\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | where name == 'codex.tool.call'\r\n     | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Tool-call metric points', source = 'customMetrics'),\r\n    (traces\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | where tostring(customDimensions['event.name']) == 'codex.tool_result'\r\n     | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Tool-result logs (raw, before deduplication)', source = 'traces'),\r\n    (requests\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Application request spans', source = 'requests'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Application dependency spans', source = 'dependencies')\r\n| extend age_s = todouble(datetime_diff('second', EndTime, last_seen)),\r\n         availability = iff(records > 0, 'Observed', 'Not observed in this resource/window')\r\n| project signal, source, records, last_seen, age_s, availability\r\n| order by signal asc);\nlet pricingCoverage = union\n    (responseCosts\n     | summarize observed = count(), records = countif(isnull(written)), last_seen = max(timestamp),\n                 versions = make_set_if(tostring(customDimensions['service.version']), isnull(written), 8)\n     | extend signal = 'Pricing: missing cache-write counters', source = 'dependencies',\n              availability = case(observed == 0, 'No response usage', records == 0, 'All write counters present', 'Usage incomplete'),\n              details = strcat(records, ' of ', observed, ' reports lack a write counter; client versions: ', tostring(versions))),\n    (print signal = 'Pricing: price scope', source = 'Prices', records = priceRowCount, last_seen = priceIngested,\n           availability = iff(pricesLoaded, 'Prices loaded', 'Price data unavailable'),\n           details = strcat('Prices are global to the billing account; ', priceRowCount, ' model and context rates loaded from ', billedMeterScopes, ' meters')),\n    (responseCosts\n     | summarize records = count(), priced = countif(priceStatus == 'Priced'), knownCost = sum(cost_usd), last_seen = max(timestamp)\n     | extend signal = 'Pricing: response coverage', source = 'dependencies',\n              availability = case(records == 0, 'No response usage', records == priced, 'Complete', 'Incomplete'),\n              details = iff(records == 0, 'No usage reported', strcat(priced, ' of ', records, ' usage reports priced; priced subtotal USD ', round(knownCost, 6), iff(priced == records, '', '; unpriced usage excluded from monetary KPIs')))),\n    (responseCosts\n     | summarize observed = count(), records = countif(priceStatus != 'Priced'), last_seen = max(timestamp),\n                 problems = make_set_if(strcat(model, ': ', priceStatus), priceStatus != 'Priced')\n     | extend signal = 'Pricing: response errors', source = 'dependencies',\n              availability = case(observed == 0, 'No response usage', records == 0, 'No pricing errors', 'Action required'),\n              details = tostring(problems)),\n    (responseCosts\n     | summarize observed = count(), records = countif(isnull(turnPresent)), last_seen = max(timestamp)\n     | extend signal = 'Pricing: unattributed responses', source = 'dependencies',\n              availability = case(observed == 0, 'No response usage', records == 0, 'All responses linked to turns', 'Action required'),\n              details = 'Usage response -> stream -> sampling request -> run sampling -> run turn -> session task -> completed turn'),\n    (pricedTurns\n     | summarize observed = count(), records = countif(not(complete)), last_seen = max(turnStarted),\n                 problems = make_set_if(pricingStatus, not(complete))\n     | extend signal = 'Pricing: incomplete turns', source = 'dependencies',\n              availability = case(observed == 0, 'No completed turns', records == 0, 'All turn usage reconciles', 'Action required'),\n              details = tostring(problems)),\n    (print signal = 'Pricing: effective period', source = 'Prices', records = priceRowCount, last_seen = priceIngested,\n           availability = iff(StartTime >= priceStart and EndTime < priceEnd, 'Range covered', 'Range extends beyond price period'),\n           details = strcat(priceCurrency, '; ', billedMeterScopes, '; ', priceStart, ' <= response time < ', priceEnd)),\n    (print signal = 'Pricing: source', source = 'Prices', records = priceRowCount, last_seen = priceIngested,\n           availability = iff(priceEnd <= now(), 'Price sheet expired; refresh hub price data', 'Live price sheet'),\n           details = strcat('{HubQueryUri}/{HubDatabase} Prices; ', priceCurrency, ' per million tokens = unit price * 1,000,000 / x_PricingBlockSize; writes replace ordinary input pricing; missing exported write counts stay unknown'))\n| extend age_s = todouble(datetime_diff('second', EndTime, last_seen));\nunion pricingCoverage, telemetryCoverage\n| project signal, availability, records, details, source, last_seen, age_s\n| order by signal asc",
+              "size": 1,
+              "title": "Telemetry and pricing coverage",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "62f0fdf5-93bf-a74f-5bd7-e75852552663"
+          }
+        ]
+      },
+      "name": "group - ai-codex"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
