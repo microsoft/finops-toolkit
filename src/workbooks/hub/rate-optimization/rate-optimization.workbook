@@ -1,0 +1,840 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "&nbsp; [Savings](?tile=fa177e0f-9a74-4475-b64d-a399224e96e0)\r\n• [Commitment discounts](?tile=cad5d666-02e8-4319-bbad-1bdf46ca2961)\r\n• [Purchases](?tile=6ea8b37d-617b-47dd-add0-8e3c0f708540)\r\n• [SKU prices](?tile=5bd3258c-034c-4e23-b543-7cdf87bd153d)\r\n• [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.RateOptimization.Nav)\r\n"
+                  },
+                  "customWidth": "100",
+                  "name": "654d04af-829b-42ac-fb45-158ac7eb4619"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "ebd1a95f-b5e0-28fa-632f-4410a16d9738"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "# Savings\r\nSummary of negotiated and commitment discount savings\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.RateOptimization.Savings)"
+                  },
+                  "customWidth": "100",
+                  "name": "65887912-3250-2e67-839a-62ce7feb0e60"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "8305e155-0315-9188-8055-65bfc420ca2e"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "## Monthly trend (last n months)"
+                  },
+                  "customWidth": "100",
+                  "name": "8b8f010a-e62e-2a56-49b7-02f07d2632a9"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "838a3c95-d6a7-fdff-7241-b7de847b7432"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet data = materialize(\\n    CostsByMonth\\n    //\\n    // Don't double-count commitment discount purchases\\n    | where x_AmortizationClass != 'Principal'\\n    //\\n    | summarize \\n        ListCost = sum(ListCost),\\n        ContractedCost = sum(ContractedCost),\\n        EffectiveCost = sum(EffectiveCost)\\n    | extend CommitmentDiscountSavings = ContractedCost - EffectiveCost\\n    | extend NegotiatedDiscountSavings = ListCost - ContractedCost\\n    | extend TotalSavings = ListCost - EffectiveCost\\n    | project json = todynamic(strcat('[',\\n        '{ \\\"order\\\":11, \\\"type\\\":\\\"List\\\", \\\"label\\\":\\\"Cost without discounts\\\", \\\"value\\\":\\\"', numberstring(round(ListCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":12, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"➖\\\" },',\\n        '{ \\\"order\\\":13, \\\"type\\\":\\\"Contracted\\\", \\\"label\\\":\\\"After negotiated discounts\\\", \\\"value\\\":\\\"', numberstring(round(ContractedCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":14, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"🟰\\\" },',\\n        '{ \\\"order\\\":15, \\\"type\\\":\\\"PartialSavings\\\", \\\"label\\\":\\\"Negotiated savings\\\", \\\"value\\\":\\\"', numberstring(round(NegotiatedDiscountSavings, 2)), '\\\" },',\\n        //\\n        '{ \\\"order\\\":21, \\\"type\\\":\\\"Contracted\\\", \\\"label\\\":\\\"After negotiated discounts\\\", \\\"value\\\":\\\"', numberstring(round(ContractedCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":22, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"➖\\\" },',\\n        '{ \\\"order\\\":23, \\\"type\\\":\\\"Effective\\\", \\\"label\\\":\\\"After commitment discounts\\\", \\\"value\\\":\\\"', numberstring(round(EffectiveCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":24, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"🟰\\\" },',\\n        '{ \\\"order\\\":25, \\\"type\\\":\\\"PartialSavings\\\", \\\"label\\\":\\\"Commitment savings\\\", \\\"value\\\":\\\"', numberstring(round(CommitmentDiscountSavings, 2)), '\\\" },',\\n        //\\n        '{ \\\"order\\\":31, \\\"type\\\":\\\"List\\\", \\\"label\\\":\\\"Cost without discounts\\\", \\\"value\\\":\\\"', numberstring(round(ListCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":32, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"➖\\\" },',\\n        '{ \\\"order\\\":33, \\\"type\\\":\\\"Effective\\\", \\\"label\\\":\\\"After commitment discounts\\\", \\\"value\\\":\\\"', numberstring(round(EffectiveCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":34, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"🟰\\\" },',\\n        '{ \\\"order\\\":35, \\\"type\\\":\\\"TotalSavings\\\", \\\"label\\\":\\\"Total savings\\\", \\\"value\\\":\\\"', numberstring(round(TotalSavings, 2)), '\\\" }',\\n    ']'))\\n    | mv-expand json\\n    | order by toint(json.order) asc\\n    | project Label = tostring(json.label), Value = tostring(json.value), Type = tostring(json.type)\\n);\\ndata\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 0,
+                    "title": "Savings summary (last n months)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "tiles",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "66",
+                  "name": "4202732e-78b8-4ca5-ec6d-9a725f910095"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet data = materialize(\\n    CostsByMonth\\n    //\\n    | where isnotempty(CommitmentDiscountStatus)\\n    //\\n    // Guarantee there's a row for every combination\\n    | union (\\n        print json = dynamic([\\n            {\\\"order\\\": 11, \\\"CommitmentDiscountType\\\": \\\"Reservation\\\", \\\"CommitmentDiscountStatus\\\": \\\"Used\\\"},\\n            {\\\"order\\\": 12, \\\"CommitmentDiscountType\\\": \\\"Reservation\\\", \\\"CommitmentDiscountStatus\\\": \\\"Unused\\\"},\\n            {\\\"order\\\": 21, \\\"CommitmentDiscountType\\\": \\\"Savings Plan\\\", \\\"CommitmentDiscountStatus\\\": \\\"Used\\\"},\\n            {\\\"order\\\": 22, \\\"CommitmentDiscountType\\\": \\\"Savings Plan\\\", \\\"CommitmentDiscountStatus\\\": \\\"Unused\\\"}\\n        ])\\n        | mv-expand json\\n        | evaluate bag_unpack(json)\\n        | extend EffectiveCost = toreal(0)\\n    )\\n    //\\n    | summarize Value = sum(EffectiveCost), order = sum(order) by CommitmentDiscountStatus, CommitmentDiscountType\\n    | order by order asc\\n    | project Label = strcat(CommitmentDiscountStatus, ' ', tolower(CommitmentDiscountType), 's'), Value\\n);\\ndata\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 0,
+                    "title": "Commitment discount breakdown (last n months)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "tiles",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "33",
+                  "name": "884d9bc8-a48b-3e33-2500-823d221042a3"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "d6144266-f4a8-d310-3dbc-c00f3eb1222e"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet data = materialize(\\n    CostsByMonth\\n    //\\n    // Don't double-count commitment discount purchases\\n    | where x_AmortizationClass != 'Principal'\\n    //\\n    | summarize \\n        ListCost = sum(ListCost),\\n        ContractedCost = sum(ContractedCost),\\n        EffectiveCost = sum(EffectiveCost)\\n    | extend TotalSavings = ListCost - EffectiveCost\\n    | extend EffectiveSavingsRate = TotalSavings / ListCost\\n    | project json = todynamic(strcat('[',\\n        '{ \\\"order\\\":11, \\\"type\\\":\\\"TotalSavings\\\", \\\"label\\\":\\\"Total savings\\\", \\\"value\\\":\\\"', numberstring(round(TotalSavings, 2)), '\\\" },',\\n        '{ \\\"order\\\":12, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"➗\\\" },',\\n        '{ \\\"order\\\":13, \\\"type\\\":\\\"List\\\", \\\"label\\\":\\\"Cost without discounts\\\", \\\"value\\\":\\\"', numberstring(round(ListCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":14, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"🟰\\\" },',\\n        '{ \\\"order\\\":15, \\\"type\\\":\\\"EffectiveSavingsRate\\\", \\\"label\\\":\\\"Effective savings rate\\\", \\\"value\\\":\\\"', percentstring(EffectiveSavingsRate), '\\\" }',\\n    ']'))\\n    | mv-expand json\\n    | order by toint(json.order) asc\\n    | project Label = tostring(json.label), Value = tostring(json.value), Type = tostring(json.type)\\n);\\ndata\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 0,
+                    "title": "Effective Savings Rate (last n months)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "tiles",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "66",
+                  "name": "17a2f9c3-d32f-ecf8-9040-364412b0565d"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nCostsByMonth\\n//\\n// Filter out commitment discount purchases\\n| where ChargeCategory == 'Usage' or isempty(CommitmentDiscountId)\\n//\\n| summarize \\n    Savings = round(sum(ListCost - EffectiveCost), 2)\\n    by\\n    Type = case(\\n        isnotempty(CommitmentDiscountType), CommitmentDiscountType,\\n        'Negotiated'\\n    )\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Total savings (last n months)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "piechart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "33",
+                  "name": "f6c9f612-8860-f086-3005-0d9241a9d243"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "92955fb9-e658-4188-6dcd-4ead1bdb651e"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nCostsByMonth\\n//\\n// Filter out commitment discount purchases\\n| where ChargeCategory == 'Usage' or isempty(CommitmentDiscountId)\\n//\\n| summarize \\n    ListCost = sum(ListCost),\\n    ContractedCost = sum(ContractedCost),\\n    EffectiveCost = sum(EffectiveCost)\\n    by\\n    ChargePeriodStart = startofmonth(ChargePeriodStart),\\n    CommitmentDiscountType\\n| project\\n    ChargePeriodStart,\\n    Savings = round(ListCost - EffectiveCost, 2),\\n    Type = case(\\n        isnotempty(CommitmentDiscountType), CommitmentDiscountType,\\n        'Negotiated'\\n    )\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Monthly savings trend",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "barchart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "40cee772-cb57-d7c8-535e-728d5bca39aa"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "7b82cf95-a1e1-8c6f-266e-f802fae464bf"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nCostsByMonth\\n| extend x_AmortizationClass = case(\\n    ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory), 'Principal',\\n    isnotempty(CommitmentDiscountCategory), 'Amortized Charge',\\n    ''\\n)\\n| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      real(0), ContractedCost - EffectiveCost)\\n| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            real(0), ListCost - ContractedCost)\\n| extend x_TotalSavings              = iff(ListCost == 0,            real(0), ListCost - EffectiveCost)\\n| summarize\\n    ['List cost']      = round(sumif(ListCost, x_AmortizationClass != 'Principal'), 2),\\n    ['Effective cost'] = round(sum(EffectiveCost), 2),\\n    Savings            = round(sum(x_TotalSavings), 2)\\n    by\\n    Account = x_BillingProfileId,\\n    Month   = substring(startofmonth(ChargePeriodStart), 0, 7)\\n| extend ESR = percentstring(Savings/ ['List cost'])\\n| order by Month desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "Savings breakdown by month",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "50",
+                  "name": "77893652-f6c6-86d0-9b78-80bb58ae5fa8"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nCostsByMonth\\n| extend x_AmortizationClass = case(\\n    ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory), 'Principal',\\n    isnotempty(CommitmentDiscountCategory), 'Amortized Charge',\\n    ''\\n)\\n| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      real(0), ContractedCost - EffectiveCost)\\n| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            real(0), ListCost - ContractedCost)\\n| extend x_TotalSavings              = iff(ListCost == 0,            real(0), ListCost - EffectiveCost)\\n| summarize\\n    ['On-demand']    = round(sumif(EffectiveCost, PricingCategory == 'Standard'), 2),\\n    Spot             = round(sumif(EffectiveCost, PricingCategory == 'Dynamic'), 2),\\n    Reservation      = round(sumif(EffectiveCost, CommitmentDiscountType == 'Reservation'), 2),\\n    ['Savings plan'] = round(sumif(EffectiveCost, CommitmentDiscountType == 'Savings Plan'), 2),\\n    ['Other']        = round(sumif(EffectiveCost, PricingCategory !in ('Standard', 'Dynamic') and isempty(CommitmentDiscountType)), 2)\\n    by\\n    Account = x_BillingProfileId,\\n    Month   = substring(startofmonth(ChargePeriodStart), 0, 7)\\n| order by Month desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "Effective cost breakdown by month",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "50",
+                  "name": "3afb21b8-f7a8-affa-3bd7-d019a360d2ad"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "6bf32892-629d-242f-a864-bb16e38594de"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = (\\n    CostsByMonth\\n    | summarize \\n        EffectiveCost  = sum(EffectiveCost)\\n        by\\n        ChargePeriodStart = startofmonth(ChargePeriodStart),\\n        ServiceCategory,\\n        ServiceName\\n    | as per\\n    | union (\\n        per\\n        | summarize \\n            EffectiveCost  = sum(EffectiveCost)\\n            by\\n            ServiceCategory,\\n            ServiceName\\n    )\\n    | order by ChargePeriodStart asc\\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\\n);\\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), ServiceCategory)\\n| order by Total desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "Monthly trend by service category",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "be239165-5f33-3029-c2bc-ec7dc6003877"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "cd8f75a3-87af-d99d-adae-618cd4a7bd22"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "## Daily trend (last n days)"
+                  },
+                  "customWidth": "100",
+                  "name": "c3b5f08d-dc02-9d62-24fe-9b192cdcc39b"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "04eb4f16-272f-f58a-dd76-1d50eaff20f2"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nlet data = materialize(\\n    CostsByDay\\n    //\\n    // Don't double-count commitment discount purchases\\n    | where ChargeCategory == 'Usage' or isempty(CommitmentDiscountId)\\n    //\\n    | summarize \\n        ListCost = sum(ListCost),\\n        ContractedCost = sum(ContractedCost),\\n        EffectiveCost = sum(EffectiveCost)\\n    | extend CommitmentDiscountSavings = ContractedCost - EffectiveCost\\n    | extend NegotiatedDiscountSavings = ListCost - ContractedCost\\n    | extend TotalSavings = ListCost - EffectiveCost\\n    | project json = todynamic(strcat('[',\\n        '{ \\\"order\\\":11, \\\"type\\\":\\\"List\\\", \\\"label\\\":\\\"Cost without discounts\\\", \\\"value\\\":\\\"', numberstring(round(ListCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":12, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"➖\\\" },',\\n        '{ \\\"order\\\":13, \\\"type\\\":\\\"Contracted\\\", \\\"label\\\":\\\"After negotiated discounts\\\", \\\"value\\\":\\\"', numberstring(round(ContractedCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":14, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"🟰\\\" },',\\n        '{ \\\"order\\\":15, \\\"type\\\":\\\"PartialSavings\\\", \\\"label\\\":\\\"Negotiated savings\\\", \\\"value\\\":\\\"', numberstring(round(NegotiatedDiscountSavings, 2)), '\\\" },',\\n        //\\n        '{ \\\"order\\\":21, \\\"type\\\":\\\"Contracted\\\", \\\"label\\\":\\\"After negotiated discounts\\\", \\\"value\\\":\\\"', numberstring(round(ContractedCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":22, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"➖\\\" },',\\n        '{ \\\"order\\\":23, \\\"type\\\":\\\"Effective\\\", \\\"label\\\":\\\"After commitment discounts\\\", \\\"value\\\":\\\"', numberstring(round(EffectiveCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":24, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"🟰\\\" },',\\n        '{ \\\"order\\\":25, \\\"type\\\":\\\"PartialSavings\\\", \\\"label\\\":\\\"Commitment savings\\\", \\\"value\\\":\\\"', numberstring(round(CommitmentDiscountSavings, 2)), '\\\" },',\\n        //\\n        '{ \\\"order\\\":31, \\\"type\\\":\\\"List\\\", \\\"label\\\":\\\"Cost without discounts\\\", \\\"value\\\":\\\"', numberstring(round(ListCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":32, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"➖\\\" },',\\n        '{ \\\"order\\\":33, \\\"type\\\":\\\"Effective\\\", \\\"label\\\":\\\"After commitment discounts\\\", \\\"value\\\":\\\"', numberstring(round(EffectiveCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":34, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"🟰\\\" },',\\n        '{ \\\"order\\\":35, \\\"type\\\":\\\"TotalSavings\\\", \\\"label\\\":\\\"Total savings\\\", \\\"value\\\":\\\"', numberstring(round(TotalSavings, 2)), '\\\" }',\\n    ']'))\\n    | mv-expand json\\n    | order by toint(json.order) asc\\n    | project Label = tostring(json.label), Value = tostring(json.value), Type = tostring(json.type)\\n);\\ndata\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 0,
+                    "title": "Savings summary (last n days)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "tiles",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "66",
+                  "name": "7d01e886-0791-8484-69f9-69352e903d1c"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nlet data = materialize(\\n    CostsByDay\\n    //\\n    // Don't double-count commitment discount purchases\\n    | where isnotempty(CommitmentDiscountStatus)\\n    //\\n    // Guarantee there's a row for every combination\\n    | union (\\n        print json = dynamic([\\n            {\\\"order\\\": 11, \\\"CommitmentDiscountType\\\": \\\"Reservation\\\", \\\"CommitmentDiscountStatus\\\": \\\"Used\\\"},\\n            {\\\"order\\\": 12, \\\"CommitmentDiscountType\\\": \\\"Reservation\\\", \\\"CommitmentDiscountStatus\\\": \\\"Unused\\\"},\\n            {\\\"order\\\": 21, \\\"CommitmentDiscountType\\\": \\\"Savings Plan\\\", \\\"CommitmentDiscountStatus\\\": \\\"Used\\\"},\\n            {\\\"order\\\": 22, \\\"CommitmentDiscountType\\\": \\\"Savings Plan\\\", \\\"CommitmentDiscountStatus\\\": \\\"Unused\\\"}\\n        ])\\n        | mv-expand json\\n        | evaluate bag_unpack(json)\\n        | extend EffectiveCost = toreal(0)\\n    )\\n    //\\n    | summarize Value = sum(EffectiveCost), order = sum(order) by CommitmentDiscountStatus, CommitmentDiscountType\\n    | order by order asc\\n    | project Label = strcat(CommitmentDiscountStatus, ' ', tolower(CommitmentDiscountType), 's'), Value\\n);\\ndata\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 0,
+                    "title": "Commitment discount breakdown (last n days)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "tiles",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "33",
+                  "name": "b1db6ba7-0d96-1e4d-6b5a-f7fe12c45c96"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "f30a9020-d635-ece9-b10d-5685e36748b3"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nlet data = materialize(\\n    CostsByDay\\n    //\\n    // Don't double-count commitment discount purchases\\n    | where x_AmortizationClass != 'Principal'\\n    //\\n    | summarize \\n        ListCost = sum(ListCost),\\n        ContractedCost = sum(ContractedCost),\\n        EffectiveCost = sum(EffectiveCost)\\n    | extend TotalSavings = ListCost - EffectiveCost\\n    | extend EffectiveSavingsRate = TotalSavings / ListCost\\n    | project json = todynamic(strcat('[',\\n        '{ \\\"order\\\":11, \\\"type\\\":\\\"TotalSavings\\\", \\\"label\\\":\\\"Total savings\\\", \\\"value\\\":\\\"', numberstring(round(TotalSavings, 2)), '\\\" },',\\n        '{ \\\"order\\\":12, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"➗\\\" },',\\n        '{ \\\"order\\\":13, \\\"type\\\":\\\"List\\\", \\\"label\\\":\\\"Cost without discounts\\\", \\\"value\\\":\\\"', numberstring(round(ListCost, 2)), '\\\" },',\\n        '{ \\\"order\\\":14, \\\"type\\\":\\\"\\\", \\\"label\\\":\\\"\\\", \\\"value\\\":\\\"🟰\\\" },',\\n        '{ \\\"order\\\":15, \\\"type\\\":\\\"EffectiveSavingsRate\\\", \\\"label\\\":\\\"Effective savings rate\\\", \\\"value\\\":\\\"', percentstring(EffectiveSavingsRate), '\\\" }',\\n    ']'))\\n    | mv-expand json\\n    | order by toint(json.order) asc\\n    | project Label = tostring(json.label), Value = tostring(json.value), Type = tostring(json.type)\\n);\\ndata\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 0,
+                    "title": "Effective Savings Rate (last n days)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "tiles",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "66",
+                  "name": "ed298fd8-20b0-48bb-53ac-169424be93fb"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nCostsByDay\\n//\\n// Filter out commitment discount purchases\\n| where ChargeCategory == 'Usage' or isempty(CommitmentDiscountId)\\n//\\n| summarize \\n    Savings = round(sum(ListCost - EffectiveCost), 2)\\n    by\\n    Type = case(\\n        isnotempty(CommitmentDiscountType), CommitmentDiscountType,\\n        'Negotiated'\\n    )\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Total savings (last n days)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "piechart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "33",
+                  "name": "9e5294d0-c980-9d1a-c14c-5a9b6e93d2f0"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "c37ed2fb-f1ad-707f-3d61-f734721a9c24"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nCostsByDay\\n//\\n// Filter out commitment discount purchases\\n| where ChargeCategory == 'Usage' or isempty(CommitmentDiscountId)\\n//\\n| summarize \\n    ListCost = sum(ListCost),\\n    ContractedCost = sum(ContractedCost),\\n    EffectiveCost = sum(EffectiveCost)\\n    by\\n    ChargePeriodStart = startofday(ChargePeriodStart),\\n    CommitmentDiscountType\\n| project\\n    ChargePeriodStart,\\n    Savings = round(ListCost - EffectiveCost, 2),\\n    Type = case(\\n        isnotempty(CommitmentDiscountType), CommitmentDiscountType,\\n        'Negotiated'\\n    )\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Daily savings trend",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "barchart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "89329fa8-9eff-cb60-1753-fa431fc1bfff"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "63b79433-63f0-d79e-53ae-aa8a7ed4de9e"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "# Commitment discounts\r\nCommitment discount usage and costs\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.RateOptimization.CommitmentDiscounts)"
+                  },
+                  "customWidth": "100",
+                  "name": "cce41799-6dc7-b4e1-559b-7cd4fe322089"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "075fc3d0-e1ae-c190-d342-7d6bce0da6f6"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nCostsByDay\\n| where ChargeCategory == 'Usage'\\n| where isnotempty(CommitmentDiscountId)\\n//\\n| extend x_CommitmentDiscountUtilizationPotential = case(\\n    ProviderName == 'Microsoft', EffectiveCost,\\n    CommitmentDiscountCategory == 'Usage', ConsumedQuantity,\\n    CommitmentDiscountCategory == 'Spend', EffectiveCost,\\n    real(0)\\n)\\n| extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, real(0))\\n//\\n| summarize\\n    CommitmentDiscountName = take_any(CommitmentDiscountName),\\n    CommitmentDiscountType = take_any(CommitmentDiscountType),\\n    x_SkuTerm = take_any(x_SkuTerm),\\n    ListCost = sum(ListCost),\\n    ContractedCost = sum(ContractedCost),\\n    EffectiveCost = sum(EffectiveCost),\\n    x_CommitmentDiscountUtilizationAmount    = sum(x_CommitmentDiscountUtilizationAmount),\\n    x_CommitmentDiscountUtilizationPotential = sum(x_CommitmentDiscountUtilizationPotential)\\n    by\\n    CommitmentDiscountId\\n| order by EffectiveCost desc\\n| project\\n    CommitmentDiscountName,\\n    CommitmentDiscountType,\\n    Term = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', ''))),\\n    Utilization = round(x_CommitmentDiscountUtilizationAmount / x_CommitmentDiscountUtilizationPotential * 100, 1),\\n    Cost = round(EffectiveCost, 2),\\n    Savings = round(ListCost - EffectiveCost, 2)\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "Commitment discount usage (last n days)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "11f1ed2d-6b23-e89e-a7d8-384160838ca1"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "1fa28293-a927-1f72-cca2-5d7a3b1afbf3"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "## Subscription chargeback (last n months)"
+                  },
+                  "customWidth": "100",
+                  "name": "3dbf46b8-9f8a-8ddd-614a-ef69a45bb195"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "c346a40f-b5d8-a459-d896-da0fa117412b"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = (\\n    CostsByMonth\\n    | where ChargeCategory == 'Usage'\\n    | where isnotempty(CommitmentDiscountId)\\n    | where EffectiveCost != 0\\n    | summarize \\n        BilledCost     = sum(BilledCost),\\n        EffectiveCost  = sum(EffectiveCost),\\n        ContractedCost = sum(ContractedCost),\\n        ListCost       = sum(ListCost),\\n        SubAccountName = take_anyif(SubAccountName, isnotempty(SubAccountId)),\\n        CommitmentDiscountName = take_any(CommitmentDiscountName),\\n        CommitmentDiscountType = take_any(CommitmentDiscountType)\\n        by\\n        ChargePeriodStart,\\n        SubAccountId,\\n        CommitmentDiscountId,\\n        CommitmentDiscountStatus\\n    | as per\\n    | union (\\n        per\\n        | summarize \\n            BilledCost     = sum(BilledCost),\\n            EffectiveCost  = sum(EffectiveCost),\\n            ContractedCost = sum(ContractedCost),\\n            ListCost       = sum(ListCost),\\n            SubAccountName = take_anyif(SubAccountName, isnotempty(SubAccountId)),\\n            CommitmentDiscountName = take_any(CommitmentDiscountName),\\n            CommitmentDiscountType = take_any(CommitmentDiscountType)\\n            by\\n            SubAccountId,\\n            CommitmentDiscountId,\\n            CommitmentDiscountStatus\\n    )\\n    | order by ChargePeriodStart asc\\n    | extend BilledCost                = todouble(round(BilledCost, 2))\\n    | extend EffectiveCost             = todouble(round(EffectiveCost, 2))\\n    | extend ContractedCost            = todouble(round(ContractedCost, 2))\\n    | extend ListCost                  = todouble(round(ListCost, 2))\\n    | extend CommitmentDiscountSavings = todouble(round(ContractedCost - EffectiveCost, 2))\\n    | extend NegotiatedDiscountSavings = todouble(round(ListCost - ContractedCost, 2))\\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\\n    | extend SubAccountName = iff(isempty(SubAccountName) and CommitmentDiscountStatus == 'Unused', '(Unused)', SubAccountName)\\n);\\npercent((\\n    data | evaluate pivot(ChargePeriod, sum(EffectiveCost), SubAccountName, CommitmentDiscountName, CommitmentDiscountType)\\n    | extend Count = tolong(Total * 1000)\\n))\\n| project-away Count\\n| order by SubAccountName asc, Total desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "Commitment discount chargeback by subscription",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "0675f9e5-385c-8b58-f6eb-28ed003307d7"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "b6971552-b370-21b3-1f55-530bed7c6113"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "## Resource group chargeback (last n months)"
+                  },
+                  "customWidth": "100",
+                  "name": "18348baf-534a-1575-e78c-459ddd927ebc"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "b4af44ca-f0db-55f2-6e66-90e72e73c2d7"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = (\\n    CostsByMonth\\n    | where ChargeCategory == 'Usage'\\n    | where isnotempty(CommitmentDiscountId)\\n    | where EffectiveCost != 0\\n    | extend x_ResourceGroupId = strcat(SubAccountId, '/resourcegroups/', x_ResourceGroupName)\\n    | summarize \\n        EffectiveCost  = sum(EffectiveCost),\\n        SubAccountName = take_anyif(SubAccountName, isnotempty(SubAccountId)),\\n        x_ResourceGroupName = take_any(x_ResourceGroupName),\\n        CommitmentDiscountName = take_any(CommitmentDiscountName),\\n        CommitmentDiscountType = take_any(CommitmentDiscountType)\\n        by\\n        ChargePeriodStart,\\n        SubAccountId,\\n        x_ResourceGroupId,\\n        CommitmentDiscountId,\\n        CommitmentDiscountStatus\\n    | as per\\n    | union (\\n        per\\n        | summarize \\n            EffectiveCost  = sum(EffectiveCost),\\n            SubAccountName = take_anyif(SubAccountName, isnotempty(SubAccountId)),\\n            x_ResourceGroupName = take_any(x_ResourceGroupName),\\n            CommitmentDiscountName = take_any(CommitmentDiscountName),\\n            CommitmentDiscountType = take_any(CommitmentDiscountType)\\n            by\\n            x_ResourceGroupId,\\n            CommitmentDiscountId,\\n            CommitmentDiscountStatus\\n    )\\n    | order by ChargePeriodStart asc\\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\\n    | extend x_ResourceGroupName = iff(isempty(x_ResourceGroupName) and CommitmentDiscountStatus == 'Unused', '(Unused)', x_ResourceGroupName)\\n    | extend SubAccountName = iff(isempty(SubAccountName) and CommitmentDiscountStatus == 'Unused', '(Unused)', SubAccountName)\\n);\\npercent((\\n    data | evaluate pivot(ChargePeriod, sum(EffectiveCost), x_ResourceGroupName, SubAccountName, CommitmentDiscountName, CommitmentDiscountType)\\n    | extend Count = tolong(Total * 1000)\\n))\\n| project-away Count\\n| order by x_ResourceGroupName asc, SubAccountName asc, Total desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "Commitment discount chargeback by resource group",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "8b24fc1e-2a3c-3bb0-38c7-da57b5502800"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "1a98043d-9225-f36e-c62a-fda7bf091ccf"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "## Resources usage (last n days)"
+                  },
+                  "customWidth": "100",
+                  "name": "fe0f0aab-8972-a6dd-57dd-bebb8a3b0767"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "226aaa44-646d-d416-1cca-7dec3bea4ae3"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nCostsByDay\\n| where ChargeCategory == 'Usage'\\n| where isnotempty(CommitmentDiscountId)\\n| where EffectiveCost != 0\\n| summarize \\n    EffectiveCost  = sum(EffectiveCost),\\n    ResourceName = take_any(ResourceName),\\n    ResourceType = take_any(ResourceType),\\n    RegionName = take_any(RegionName),\\n    x_ResourceGroupName = take_any(x_ResourceGroupName),\\n    SubAccountName = take_any(SubAccountName),\\n    CommitmentDiscountName = take_any(CommitmentDiscountName),\\n    CommitmentDiscountType = take_any(CommitmentDiscountType)\\n    by\\n    ResourceId,\\n    CommitmentDiscountId\\n| project \\n    CommitmentDiscountType,\\n    CommitmentDiscountName,\\n    ResourceName,\\n    ResourceType,\\n    RegionName,\\n    x_ResourceGroupName,\\n    SubAccountName,\\n    EffectiveCost = round(EffectiveCost, 2)\\n| order by CommitmentDiscountType asc, CommitmentDiscountName asc, ResourceName asc, ResourceType asc, x_ResourceGroupName asc, SubAccountName asc, EffectiveCost desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "Commitment discount usage by resource (last n days)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "f973e650-fd7f-980b-00a6-fc3eb5873b60"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "0c0f4d94-ecd6-f4df-fa01-1945039d29ff"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "# Purchases\r\nCosts from commitment discount, Marketplace, and other purchases\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.RateOptimization.Purchases)"
+                  },
+                  "customWidth": "100",
+                  "name": "d28e3cdb-2d38-7327-cb30-e63b14be5fee"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "a5d167cc-ef26-a3ec-4555-a24e85660ac4"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nCostsByMonth\\n| as costs\\n| where ChargeCategory == 'Purchase'\\n| where isnotempty(CommitmentDiscountType)\\n| project\\n    ChargePeriodStart = substring(ChargePeriodStart, 0, 10),\\n    x_SkuDescription,\\n    CommitmentDiscountType,\\n    Term = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', ''))),\\n    ChargeFrequency,\\n    ChargeClass,\\n    PricingQuantity,\\n    Utilization = real(0),\\n    BilledCost,\\n    x_SkuOrderId\\n| join kind=leftouter (\\n    costs\\n    | where ChargeCategory == 'Usage'\\n    | where isnotempty(CommitmentDiscountId)\\n    //\\n    | extend x_CommitmentDiscountUtilizationPotential = case(\\n        ProviderName == 'Microsoft', EffectiveCost,\\n        CommitmentDiscountCategory == 'Usage', ConsumedQuantity,\\n        CommitmentDiscountCategory == 'Spend', EffectiveCost,\\n        real(0)\\n    )\\n    | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, real(0))\\n    //\\n    | summarize\\n        x_CommitmentDiscountUtilizationAmount    = sum(x_CommitmentDiscountUtilizationAmount),\\n        x_CommitmentDiscountUtilizationPotential = sum(x_CommitmentDiscountUtilizationPotential)\\n        by\\n        x_SkuOrderId\\n    | project\\n        x_SkuOrderId,\\n        Utilization = round(x_CommitmentDiscountUtilizationAmount / x_CommitmentDiscountUtilizationPotential * 100, 1)\\n) on x_SkuOrderId\\n| extend Utilization = coalesce(Utilization1, real(0))\\n| project-away x_SkuOrderId, x_SkuOrderId1, Utilization1\\n| order by ChargePeriodStart desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "Purchases",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "50843f47-32df-68d0-35bb-76c94ba44da6"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "0d5eb4f5-4fbd-022d-f350-c725198b6a79"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "# SKU prices\r\nSummary of the SKUs used and their applicable discounts\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.RateOptimization.SkuPrices)"
+                  },
+                  "customWidth": "100",
+                  "name": "43d53a5e-9d7c-e11c-0dbe-2b408dd6d2f9"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "afefa3c7-fde9-22f6-07ab-c867bb5ad931"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nCostsByDay\\n| where isnotempty(x_SkuDescription)\\n//\\n// Only include SKUs with effective prices\\n| where x_EffectiveUnitPrice != 0 and isnotempty(x_EffectiveUnitPrice)\\n//\\n// Only include SKUs with negotiated discounts and not commitment discounts\\n| where ListUnitPrice > x_EffectiveUnitPrice\\n| where isempty(CommitmentDiscountStatus)\\n//\\n| summarize \\n    x_ResourceCount = dcount(ResourceId),\\n    EffectiveCost = round(sum(EffectiveCost), 2),\\n    BilledCost = round(sum(BilledCost), 2),\\n    ListUnitPrice = round(take_any(ListUnitPrice), 4),\\n    ContractedUnitPrice = round(take_any(ContractedUnitPrice), 4),\\n    x_EffectiveUnitPrice = round(take_any(x_EffectiveUnitPrice), 4),\\n    PricingQuantity = sum(PricingQuantity)\\n    by\\n    x_SkuDescription,\\n    PricingUnit,\\n    CommitmentDiscountType,\\n    x_SkuTerm\\n| order by EffectiveCost desc\\n| project \\n    x_SkuDescription,\\n    // CommitmentDiscountType,\\n    // x_SkuTerm,\\n    Quantity = round(PricingQuantity, 4),\\n    Unit = PricingUnit,\\n    // Resources = x_ResourceCount,\\n    List = ListUnitPrice,\\n    // ContractedUnitPrice,\\n    // x_EffectiveUnitPrice,\\n    Discount = round(ListUnitPrice - x_EffectiveUnitPrice, 4),\\n    // BilledCost,\\n    Cost = EffectiveCost\\n| where Discount > 0\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "SKUs with negotiated discounts (last n days)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "66",
+                  "name": "d177d9e6-038b-01c5-f644-be43ed05690e"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nlet doubleGroupCount = maxGroupCount * 2;\\nlet costs = CostsByDay\\n| where isnotempty(x_SkuDescription)\\n;\\nlet all = costs | summarize EffectiveCost = round(sum(EffectiveCost), 2) by x_SkuDescription;\\nlet count = toscalar(all | count);\\nlet topX = all | order by EffectiveCost desc | limit doubleGroupCount;\\ncosts\\n//\\n// Group rows after max count\\n| extend inTopX = x_SkuDescription in (topX)\\n| extend x_SkuDescription = iff(inTopX, x_SkuDescription, strcat('(', (count - doubleGroupCount), ' others)'))\\n//\\n| summarize EffectiveCost = round(sum(EffectiveCost), 2) by SKU = x_SkuDescription\\n| order by EffectiveCost desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Most used SKUs (last n days)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "barchart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "33",
+                  "name": "c9ef03f4-6369-4230-c4bd-2105c05dffba"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "5cd3ac8b-5377-4d24-329c-02eac4baad1b"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nCostsByDay\\n| where isnotempty(x_SkuDescription)\\n//\\n// Only include SKUs with effective prices\\n| where x_EffectiveUnitPrice != 0 and isnotempty(x_EffectiveUnitPrice)\\n//\\n// Only include SKUs with commitment discounts\\n| where isnotempty(CommitmentDiscountStatus)\\n//\\n| summarize \\n    x_ResourceCount = dcount(ResourceId),\\n    EffectiveCost = round(sum(EffectiveCost), 2),\\n    BilledCost = round(sum(BilledCost), 2),\\n    ListUnitPrice = round(take_any(ListUnitPrice), 4),\\n    ContractedUnitPrice = round(take_any(ContractedUnitPrice), 4),\\n    x_EffectiveUnitPrice = round(take_any(x_EffectiveUnitPrice), 4),\\n    PricingQuantity = sum(PricingQuantity)\\n    by\\n    x_SkuDescription,\\n    PricingUnit,\\n    CommitmentDiscountType,\\n    x_SkuTerm\\n| order by EffectiveCost desc\\n| project \\n    x_SkuDescription,\\n    CommitmentDiscountType,\\n    Term = case(\\n        isempty(x_SkuTerm) or x_SkuTerm <= 0, '',\\n        x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')),\\n        strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', ''))\\n    ),\\n    Quantity = round(PricingQuantity, 4),\\n    Unit = PricingUnit,\\n    // Resources = x_ResourceCount,\\n    List = ListUnitPrice,\\n    // ContractedUnitPrice,\\n    // x_EffectiveUnitPrice,\\n    Discount = round(ListUnitPrice - x_EffectiveUnitPrice, 4),\\n    // BilledCost,\\n    Cost = EffectiveCost\\n//| where Discount > 0\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "SKUs with commitment discounts (last n days)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "a5d776b9-1f0f-08d2-cd39-bb2af550527f"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "a7071374-e00b-ab9f-a9b3-c558bca1e166"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nCostsByDay\\n| where isnotempty(x_SkuDescription)\\n//\\n// Only include SKUs with effective prices\\n| where x_EffectiveUnitPrice != 0 and isnotempty(x_EffectiveUnitPrice)\\n//\\n// Only include SKUs without any discounts\\n| where ListUnitPrice == x_EffectiveUnitPrice\\n| where isempty(CommitmentDiscountStatus)\\n//\\n| summarize \\n    x_ResourceCount = dcount(ResourceId),\\n    EffectiveCost = round(sum(EffectiveCost), 2),\\n    BilledCost = round(sum(BilledCost), 2),\\n    ListUnitPrice = round(take_any(ListUnitPrice), 4),\\n    ContractedUnitPrice = round(take_any(ContractedUnitPrice), 4),\\n    x_EffectiveUnitPrice = round(take_any(x_EffectiveUnitPrice), 4),\\n    PricingQuantity = sum(PricingQuantity)\\n    by\\n    x_SkuDescription,\\n    PricingUnit,\\n    CommitmentDiscountType,\\n    x_SkuTerm\\n| order by EffectiveCost desc\\n| project \\n    x_SkuDescription,\\n    // CommitmentDiscountType,\\n    // x_SkuTerm,\\n    Quantity = round(PricingQuantity, 4),\\n    Unit = PricingUnit,\\n    // Resources = x_ResourceCount,\\n    List = ListUnitPrice,\\n    // ContractedUnitPrice,\\n    // x_EffectiveUnitPrice,\\n    Discount = round(ListUnitPrice - x_EffectiveUnitPrice, 4),\\n    // BilledCost,\\n    Cost = EffectiveCost\\n| where Discount == 0\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "SKUs with no discounts (last n days)",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "0eaf1a25-ac29-749a-afdb-3326836616f2"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "78269345-6f2e-151a-6758-77f834847299"
+          }
+        ]
+      },
+      "name": "group - rate-optimization"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

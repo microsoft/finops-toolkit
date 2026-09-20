@@ -1,0 +1,96 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "# Quantify business value\nThe **Quantify business value** domain focuses on analyzing cost, usage, and sustainability to align with organizational plans and measure the return on investment from cloud computing efforts. This domain is all about measuring and maximizing the business value each team and workload gets from the cloud to maximize future potential.\n\n[Learn more](https://learn.microsoft.com/cloud-computing/finops/framework/quantify/quantify-business-value) &nbsp; &nbsp; [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Quantify)\n"
+                  },
+                  "customWidth": "100",
+                  "name": "844216c4-67bc-f170-32e2-40cf94081489"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "75f103bc-7568-e092-ef12-55075d4c6faf"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Planning and estimating\nPlanning and estimating involve predicting the cost and usage of new and existing workloads based on potential architectural changes and shifting business priorities. With this capability, you establish baseline expectations for new cloud workloads and prepare for changes to existing workloads. This capability is an important part of establishing and maintaining organizational budgets.\n\n&nbsp;\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/planning)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "20",
+                  "name": "591e6115-0bbf-79bf-d84c-7f620cdb555e"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Forecasting\nForecasting involves analyzing historical trends and future plans to predict costs, understand the impact on current budgets, and influence future budgets. With this capability, you'll project future cost, usage, and carbon emissions based on historical trends. This capability is a major part of establishing accurate budgets for each team.\n\n&nbsp;\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/forecasting)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "20",
+                  "name": "87e1ef29-0f6b-39b3-7e73-002c91844647"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Budgeting\nBudgeting is the process of monitoring and managing financial plans and limits over a specific period to control spending effectively. This capability allows you to use established estimates and forecasts to allocate funds to each team for fiscal year planning and set up alerts to ensure budget accountability. This capability plays a key role in staying within established fiscal constraints on an ongoing basis.\n\n&nbsp;\n\n📊 [View report](#5c57f940-6f0f-4e39-930b-b6e89bb758ad)\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/budgeting)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "20",
+                  "name": "b26784dc-0c27-9e80-1771-6589201eada8"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Benchmarking\nBenchmarking is a systematic process of evaluating the performance and value of cloud services using efficiency metrics, either within an organization or against industry peers. This capability allows you to measure and track key performance indicators to identify and accelerate the adoption of successful initiatives, maximizing cloud return on investment (ROI) across teams and external organizations when applicable.\n\n&nbsp;\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/benchmarking)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "20",
+                  "name": "63c6cfcd-aa5d-fba5-6d4a-d9aab51497b7"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Unit economics\nUnit economics refers to the process of calculating the cost and carbon emissions of a single unit of a business that can show the business value of the cloud. With this capability, you break down cost, usage, and carbon emissions and compare that with the business value per unit to identify high- and low-value workloads. This capability helps you identify areas that can be scaled out to accelerate business value through specific technology decisions.\n\n&nbsp;\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/uniteconomics)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "20",
+                  "name": "2dd93f98-ae4a-3184-a4d2-6c142cb072f9"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "964e999c-23e3-5f1e-1d41-1a8e43017b56"
+          }
+        ]
+      },
+      "name": "group - quantify"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

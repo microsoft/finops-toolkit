@@ -68,7 +68,8 @@ $nestedTemplates = $workbookJson.items.content.items `
   # Return so we can count the templates
   return $nestedName
 }
-$workbookJson | ConvertTo-Json -Depth 100 | Set-Content -Path "$outDir/workbook.json"
+# Compress: Bicep loadJsonContent() rejects files over 1,048,576 characters
+$workbookJson | ConvertTo-Json -Depth 100 -Compress | Set-Content -Path "$outDir/workbook.json"
 Write-Verbose "Saved workbook with $($nestedTemplates.Count) nested templates: $($nestedTemplates -join ', ')"
 
 # Load scaffold config and add workbook version

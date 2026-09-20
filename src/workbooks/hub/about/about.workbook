@@ -1,0 +1,47 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "# FinOps hubs 15.0.0-dev.0\nThe FinOps hub dashboard provides several summaries of your cost and usage in aligment with the [FinOps Framework](https://aka.ms/finops/fx). All data formatted based on the [FinOps Open Cost and Usage Specification (FOCUS)](https://aka.ms/finops/focus).\n\nMost of this dashboard is designed to work with effective (amortized) cost rather than billed (actual) cost. Amortization breaks down reservation and savings plan purchases and allocates costs to the resources that received the benefit to facilitate chargeback reporting. Effective costs will not match your invoice. For invoice reconciliation, refer to the **Invoicing** page.\n\n[Learn more](https://aka.ms/finops/hubs) &nbsp; &nbsp; [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Summary)\n"
+                  },
+                  "customWidth": "75",
+                  "name": "1375254b-6e4a-0f6f-dd93-b5152b18df23"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "FinOps hubs are part of the [FinOps toolkit](https://aka.ms/finops/toolkit), an open-source collection of FinOps solutions that help you manage and optimize your cost, usage, and carbon.\n\nTo contribute to the FinOps toolkit, [join us on GitHub](https://aka.ms/ftk).\n"
+                  },
+                  "customWidth": "25",
+                  "name": "596fdab5-535a-7f26-d07d-a67a005674ae"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "76817088-8c4d-edcb-8049-e00a8d6d1a22"
+          }
+        ]
+      },
+      "name": "group - about"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

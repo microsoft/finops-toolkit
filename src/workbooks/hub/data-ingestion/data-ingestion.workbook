@@ -1,0 +1,503 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "&nbsp; [FinOps hubs](?tile=1e089e2c-d94a-4bfa-95e7-5f8b1249c982)\r\n• [Ingested data](?tile=10d7d4d3-0201-4cdf-977b-4814152fda24)\r\n• [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.DataIngestion.Nav)"
+                  },
+                  "customWidth": "100",
+                  "name": "45401279-3922-c89b-d55b-4a779ca289aa"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "5e1086d4-f019-cd4f-e4fe-7e00d89e5a7f"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "Data ingestion refers to the process of collecting, transforming, and organizing data from various sources into a single, easily accessible repository. With this capability, you identify data sources needed to support your FinOps practice and facilitate FinOps tasks. [Learn more](http://aka.ms/ftk/fx/ingestion)"
+                  },
+                  "customWidth": "100",
+                  "name": "21a243bd-2da8-442e-c187-0987ea0fe80d"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "6095a685-0136-1d63-efac-c01d6bf67fc6"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "# FinOps hubs\r\nSummary of the cost and usage of FinOps hubs infrastructure\r\n\r\n⬆️ [Top](?tile=ab300a6a-3bbd-450b-942c-7f30113cba15) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.DataIngestion.FinOpsHubs)"
+                  },
+                  "customWidth": "100",
+                  "name": "a46973a6-02fe-aab4-98da-0be0d99eaa11"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "50689aff-496b-be0b-e923-af434ef8f7ed"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\ndatabase('Ingestion').HubSettings\\n| extend temp = todynamic(strcat('[',\\n    '{\\\"Label\\\":\\\"Version\\\",\\\"Value\\\":', version, '},',\\n    '{\\\"Label\\\":\\\"Managed scopes\\\",\\\"Value\\\":', array_length(scopes), '},',\\n    '{\\\"Label\\\":\\\"Data retention\\\",\\\"Value\\\":\\\"', toint(retention.final.months), 'mo\\\"}',\\n']'))\\n| mvexpand temp\\n| project Label = tostring(temp.Label), Value = tostring(temp.Value)\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 0,
+                    "title": "Ingested months",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "tiles",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "b7837256-ddcd-410c-ab44-99f0754d26fd"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "8ee336fb-a8e4-e2ea-13ca-c40f1732f17c"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet costs = CostsByMonth\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| where x_ToolkitTool == 'FinOps hubs'\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend x_ResourceParentId = tostring(Tags['cm-resource-parent'])\\n| extend x_ResourceParentName = database('Ingestion').parse_resourceid(x_ResourceParentId).ResourceName\\n;\\nlet all = costs | summarize sum(EffectiveCost) by x_ResourceParentId;\\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\\nlet otherId = '(others)';\\ncosts\\n//\\n// Group rows after max count\\n| extend inTopX = x_ResourceParentId in (topX)\\n| extend x_ResourceParentId = iff(inTopX, x_ResourceParentId, otherId)\\n| extend x_ResourceParentName = iff(inTopX, x_ResourceParentName, strcat('(', (count - maxGroupCount), ' others)'))\\n//\\n| summarize \\n    EffectiveCost = round(sum(EffectiveCost), 2),\\n    ResourceType = take_any(ResourceType),\\n    x_ResourceParentName = take_any(x_ResourceParentName),\\n    x_ResourceGroupName = take_any(x_ResourceGroupName),\\n    SubAccountName = take_any(SubAccountName)\\n    by\\n    ChargePeriodStart,\\n    x_ResourceParentId\\n| project ChargePeriodStart, EffectiveCost, Hub = iff(x_ResourceParentId == otherId, x_ResourceParentName, strcat(x_ResourceParentName, ' (', x_ResourceGroupName, ' / ', SubAccountName, ')'))\\n| order by EffectiveCost desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Monthly trend by hub instance",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "barchart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "ce3c7bd7-062b-3d58-b65a-dbc6e8692e51"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "f9053c50-a81b-008b-ee23-cbe18f92b360"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nlet costs = CostsByDay\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| where x_ToolkitTool == 'FinOps hubs'\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend x_ResourceParentId = tostring(Tags['cm-resource-parent'])\\n| extend x_ResourceParentName = database('Ingestion').parse_resourceid(x_ResourceParentId).ResourceName\\n;\\nlet all = costs | summarize sum(EffectiveCost) by x_ResourceParentId;\\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\\nlet otherId = '(others)';\\ncosts\\n//\\n// Group rows after max count\\n| extend inTopX = x_ResourceParentId in (topX)\\n| extend x_ResourceParentId = iff(inTopX, x_ResourceParentId, otherId)\\n| extend x_ResourceParentName = iff(inTopX, x_ResourceParentName, strcat('(', (count - maxGroupCount), ' others)'))\\n//\\n| summarize \\n    EffectiveCost = round(sum(EffectiveCost), 2),\\n    ResourceType = take_any(ResourceType),\\n    x_ResourceParentName = take_any(x_ResourceParentName),\\n    x_ResourceGroupName = take_any(x_ResourceGroupName),\\n    SubAccountName = take_any(SubAccountName)\\n    by\\n    ChargePeriodStart,\\n    x_ResourceParentId\\n| project ChargePeriodStart, EffectiveCost, Hub = iff(x_ResourceParentId == otherId, x_ResourceParentName, strcat(x_ResourceParentName, ' (', x_ResourceGroupName, ' / ', SubAccountName, ')'))\\n| order by EffectiveCost desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Daily trend by hub instance",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "barchart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "6c642c8f-f37c-0c5e-e658-e934695b8058"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "ceb738a3-48ae-7975-807b-e509f7e3934a"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nlet CostsPlus = (\\nCosts_v1_2\\n//\\n// Apply summarization settings\\n| where ChargePeriodStart >= monthsago(numberOfMonths)\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| as filteredCosts\\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\\n// TODO: Should we add granularity? -- | extend x_ReportingDate = iff(#\\\"Default Granularity\\\" == 'Monthly'), x_ChargeMonth, startofday(ChargePeriodStart))\\n//\\n// SKU details\\n| extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))\\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\\n//\\n// Commitment discounts\\n| extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))\\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\\n//\\n// CSP partners\\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\\n//\\n// Toolkit\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\\n//\\n// TODO: Only add differentiators when the name is not unique\\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\\n//\\n// Explain why cost is 0\\n| extend x_FreeReason = case(\\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\\n        x_SkuDescription contains 'Trial', 'Trial',\\n        x_SkuDescription contains 'Preview', 'Preview',\\n        'Other'\\n    ),\\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\\n        PricingQuantity > 0.0, 'Low Usage',\\n        PricingQuantity == 0.0, 'No Usage',\\n        'Unknown Negative Quantity'\\n    ),\\n    'Unknown'\\n)\\n//\\n| extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (\\n    filteredCosts\\n    | where isnotempty(ResourceId) and ChargeCategory == 'Usage'\\n    | summarize sum(EffectiveCost) by ResourceId\\n    | order by sum_EffectiveCost desc\\n    | limit 1000\\n    | distinct ResourceId\\n)\\n//\\n| project-away tmp_ResourceParent\\n);\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet costs = CostsByMonth\\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\\n| where x_ToolkitTool == 'FinOps hubs'\\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\\n| extend x_ResourceParentId = tostring(Tags['cm-resource-parent'])\\n| extend x_ResourceParentName = tostring(database('Ingestion').parse_resourceid(x_ResourceParentId).ResourceName)\\n;\\nlet data = (\\n    costs\\n    | summarize \\n        EffectiveCost  = sum(EffectiveCost),\\n        x_ResourceParentName = take_any(x_ResourceParentName),\\n        RegionName = take_any(RegionName),\\n        x_ResourceGroupName = take_any(x_ResourceGroupName),\\n        SubAccountName = take_any(SubAccountName),\\n        x_ToolkitVersion = take_any(x_ToolkitVersion)\\n        by\\n        ChargePeriodStart,\\n        x_ResourceParentId\\n    | as per\\n    //\\n    // Append total\\n    | union (\\n        per\\n        | summarize \\n            EffectiveCost  = sum(EffectiveCost)\\n            by\\n            x_ResourceParentId,\\n            x_ResourceParentName,\\n            x_ToolkitVersion,\\n            RegionName,\\n            x_ResourceGroupName,\\n            SubAccountName\\n    )\\n    | order by ChargePeriodStart asc\\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\\n);\\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), x_ResourceParentName, x_ToolkitVersion, RegionName, x_ResourceGroupName, SubAccountName)\\n| project-rename Name = x_ResourceParentName, Version = x_ToolkitVersion\\n| order by Total desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "Monthly trend by hub instance",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "e454782e-29f9-2d2a-a9f6-b8b60aa36a86"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "a23f1369-34ce-4f06-137d-5fe0ff569ca1"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "# Ingested data\r\nSummary of the data that's been ingested into FinOps hubs\r\n\r\n⬆️ [Top](?tile=ab300a6a-3bbd-450b-942c-7f30113cba15) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.DataIngestion.IngestedData)"
+                  },
+                  "customWidth": "100",
+                  "name": "23a88930-ee16-e655-e08f-c2d05720cf30"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "1ee9ca29-fc8d-2bef-855e-50ead7982812"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n.show cluster extents\\n| where TableName contains '_final_v'\\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\\n| where Dataset == 'Costs'\\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\\\s]+)', 1, Tags))\\n// | extend Table = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 1, Tags))\\n| extend Date  = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 2, Tags))\\n| extend Scope = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 5, Tags))\\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\\n| extend ScopeId = tostring(database('Ingestion').parse_resourceid(Scope).ResourceName)\\n// TODO: Look up the name from cost data\\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\\n| summarize dcount(Scope)\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 0,
+                    "title": "Ingested scopes",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "tiles",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "50",
+                  "name": "13a49e09-9ee2-90e2-6662-56265fcdce41"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n.show cluster extents\\n| where TableName contains '_final_v'\\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\\n| where Dataset == 'Costs'\\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\\\s]+)', 1, Tags))\\n// | extend Table = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 1, Tags))\\n| extend Date  = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 2, Tags))\\n| extend Scope = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 5, Tags))\\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\\n| extend ScopeId = tostring(database('Ingestion').parse_resourceid(Scope).ResourceName)\\n// TODO: Look up the name from cost data\\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\\n| summarize dcount(startofmonth(Date))\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 0,
+                    "title": "Ingested months",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "tiles",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "50",
+                  "name": "3d421c08-2dc3-b4d0-f635-c2d60967c6f4"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "d2edf03d-d0a8-b6f1-3c11-92474234e526"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n.show cluster extents\\n| where TableName contains '_final_v'\\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\\\s]+)', 1, Tags))\\n// | extend Table = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 1, Tags))\\n| extend Date  = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 2, Tags))\\n| extend Scope = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 5, Tags))\\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\\n| extend ScopeId = database('Ingestion').parse_resourceid(Scope).ResourceName\\n// TODO: Look up the name from cost data\\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\\n| summarize Rows = sum(RowCount) by Date, Dataset\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Ingested data by table",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "barchart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "8cd08035-f894-23b1-e505-6b63fecb3af6"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "81a6501d-95d5-1bfa-30c9-e44b93dcd2ba"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n.show cluster extents\\n| where TableName contains '_final_v'\\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\\n| where Dataset == 'Costs'\\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\\\s]+)', 1, Tags))\\n// | extend Table = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 1, Tags))\\n| extend Date  = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 2, Tags))\\n| extend Scope = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 5, Tags))\\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\\n| extend ScopeId = tostring(database('Ingestion').parse_resourceid(Scope).ResourceName)\\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\\n| summarize Rows = sum(RowCount) by Date, ScopeId\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Ingested cost data by scope",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "barchart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "4b87abab-7487-232f-46a5-bfb1ed241faf"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "57cad17c-a822-da16-f20b-bb4e345f2dc9"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n.show cluster extents\\n| where TableName contains '_final_v'\\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\\n| where Dataset == 'Prices'\\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\\\s]+)', 1, Tags))\\n// | extend Table = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 1, Tags))\\n| extend Date  = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 2, Tags))\\n| extend Scope = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 5, Tags))\\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\\n| extend ScopeId = tostring(database('Ingestion').parse_resourceid(Scope).ResourceName)\\n// TODO: Look up the name from cost data\\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\\n| summarize Rows = sum(RowCount) by Date, ScopeId\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Ingested price data by scope",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "barchart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "cbf35308-ee62-cd66-bdd7-f0711b5701a1"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "93ce25a8-7161-58ca-7699-33dc4ab96850"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n.show cluster extents\\n| where TableName contains '_final_v'\\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\\n| where Dataset == 'Recommendations'\\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\\\s]+)', 1, Tags))\\n// | extend Table = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 1, Tags))\\n| extend Date  = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 2, Tags))\\n| extend Scope = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 5, Tags))\\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\\n| extend ScopeId = tostring(database('Ingestion').parse_resourceid(Scope).ResourceName)\\n// TODO: Look up the name from cost data\\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\\n| summarize Rows = sum(RowCount) by Date, ScopeId\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Ingested recommendation data by scope",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "barchart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "8d2617b4-522a-2a44-ac55-e6af9bf84dcd"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "c8aa5dbc-e209-9bff-989c-68b2a06475b5"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n.show cluster extents\\n| where TableName contains '_final_v'\\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\\n| where Dataset == 'Transactions'\\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\\\s]+)', 1, Tags))\\n// | extend Table = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 1, Tags))\\n| extend Date  = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 2, Tags))\\n| extend Scope = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 5, Tags))\\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\\n| extend ScopeId = tostring(database('Ingestion').parse_resourceid(Scope).ResourceName)\\n// TODO: Look up the name from cost data\\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\\n| summarize Rows = sum(RowCount) by Date, ScopeId\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Ingested transaction data by scope",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "barchart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "4d636619-a1d6-0d35-4f61-74cd5d784198"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "1609d4ec-40bf-7233-e8f7-2d7f9db3d83e"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n.show cluster extents\\n| where TableName contains '_final_v'\\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\\n| where Dataset == 'CommitmentDiscountUsage'\\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\\\s]+)', 1, Tags))\\n// | extend Table = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 1, Tags))\\n| extend Date  = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 2, Tags))\\n| extend Scope = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 5, Tags))\\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\\n| extend ScopeId = tostring(database('Ingestion').parse_resourceid(Scope).ResourceName)\\n// TODO: Look up the name from cost data\\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\\n| summarize Rows = sum(RowCount) by Date, ScopeId\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 2,
+                    "title": "Ingested commitment discount usage data by scope",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "barchart",
+                    "showExportToExcel": false
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "d8246e4c-4a1b-ca2e-4228-cbb28bee0ebf"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "e1a4ab99-79d3-278d-0410-148f5152a185"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "# Data quality\r\nData quality checks that may impact your reports.\r\n\r\n⬆️ [Top](?tile=ab300a6a-3bbd-450b-942c-7f30113cba15) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.DataIngestion.DataQuality)"
+                  },
+                  "customWidth": "100",
+                  "name": "e1da9233-e980-3fcc-5386-525c69c3b7f5"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "9ea2603d-9d59-940b-6a08-392cf748e9fa"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\nCosts\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| extend EffectiveOverContracted = iff(ContractedCost < EffectiveCost, ContractedCost - EffectiveCost, real(0))\\n| extend ContractedOverList      = iff(ListCost < ContractedCost,      ListCost - ContractedCost,      real(0))\\n| extend EffectiveOverList       = iff(ListCost < EffectiveCost,       ListCost - EffectiveCost,       real(0))\\n| extend Scenario = case(\\n    ListCost == 0 and CommitmentDiscountCategory == 'Usage' and ChargeCategory == 'Usage', 'Reservation usage missing list',\\n    ListCost == 0 and CommitmentDiscountCategory == 'Usage' and ChargeCategory == 'Purchase', 'Reservation purchase missing list',\\n    ListCost == 0 and CommitmentDiscountCategory == 'Spend' and ChargeCategory == 'Usage', 'Savings plan usage missing list',\\n    ListCost == 0 and CommitmentDiscountCategory == 'Spend' and ChargeCategory == 'Purchase', 'Savings plan purchase missing list',\\n    ListCost == 0 and ChargeCategory == 'Purchase', 'Other purchase missing list',\\n    isnotempty(CommitmentDiscountStatus) and ContractedOverList == 0 and EffectiveOverContracted < 0, 'Commitment cost over contracted',\\n    ListCost == 0 and BilledCost == 0 and EffectiveCost == 0 and ContractedCost > 0 and x_SourceChanges !contains 'MissingContractedCost', 'ContractedCost should be 0',\\n    ListCost == 0 and ContractedCost == 0 and BilledCost > 0 and EffectiveCost > 0 and x_PublisherCategory == 'Vendor' and ChargeCategory == 'Usage', 'Marketplace usage missing list/contracted',\\n    ContractedOverList < 0 and EffectiveOverContracted == 0 and x_SourceChanges !contains 'MissingListCost', 'ListCost too low',\\n    ContractedUnitPrice == x_EffectiveUnitPrice and EffectiveOverContracted < 0 and x_SourceChanges !contains 'MissingContractedCost', 'ContractedCost doesn\\\\'t match price',\\n    EffectiveOverContracted != 0 and abs(EffectiveOverContracted) < 0.00000001, 'Rounding error',\\n    ContractedOverList != 0 and abs(ContractedOverList) < 0.00000001, 'Rounding error',\\n    EffectiveOverList != 0 and abs(EffectiveOverList) < 0.00000001, 'Rounding error',\\n    ContractedCost < EffectiveCost or ListCost < ContractedCost or ListCost < EffectiveCost, '',\\n    EffectiveCost <= ContractedCost and ContractedCost <= ListCost, 'Good',\\n    '')\\n| project-reorder ListCost, ContractedCost, BilledCost, EffectiveCost, EffectiveOverList, EffectiveOverContracted, ContractedOverList, x_SourceChanges, ListUnitPrice, ContractedUnitPrice, x_BilledUnitPrice, x_EffectiveUnitPrice, CommitmentDiscountStatus, PricingQuantity, PricingUnit, x_PricingBlockSize, x_PricingUnitDescription\\n// DEBUG -- | where isempty(scenario) | limit 1000\\n// Summarize -- \\n| summarize Rows = count(), EffectiveCost = round(sum(EffectiveCost), 2), EffectiveOverContracted = abs(sum(EffectiveOverContracted)), ContractedOverList = abs(sum(ContractedOverList)), EffectiveOverList = abs(sum(EffectiveOverList)), Agreement = arraystring(make_set(x_BillingAccountAgreement)) by Scenario | order by Rows desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+                    "size": 3,
+                    "title": "Summary of list, contracted, and effective cost alignment",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "queryType": 9,
+                    "visualization": "table",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "bae1e34f-49b6-8960-7fa2-57772d478a11"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "3afa304b-6448-e351-93cb-f08604f75b26"
+          }
+        ]
+      },
+      "name": "group - data-ingestion"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

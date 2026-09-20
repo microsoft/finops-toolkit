@@ -1,0 +1,135 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "# Manage the FinOps practice\nThe **Manage the FinOps practice** domain focuses on establishing a clear and consistent vision of FinOps and driving cultural adoption across your organization. Other domains are focused on the FinOps tasks you perform to drive efficiency and maximize value. This domain is focused more on how you run your FinOps practice and supporting those efforts.\n\n[Learn more](https://learn.microsoft.com/cloud-computing/finops/framework/manage/manage-finops) &nbsp; &nbsp; [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Manage)\n"
+                  },
+                  "customWidth": "100",
+                  "name": "b51d1815-c34a-2947-b22c-c53a2e6b74b4"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "60aaddd6-3963-a717-e3d2-c285bbaf9109"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### FinOps education and enablement\nFinOps education and enablement involve refers to the process of providing training, resources, and support to help individuals and teams within an organization adopt FinOps practices. This capability ensures that stakeholders across the organization have the resources they need to:\n\n- Understand FinOps\n- Understand how it can help them achieve their goals\n- Understand how to perform FinOps tasks using the available tools and services.\n\n🧭 [Open FinOps guide](https://aka.ms/finops/guide)\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/education)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "25",
+                  "name": "df89b33f-7440-d77c-73c7-9165afacc3a5"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### FinOps practice operations\nFinOps practice operations refer to the process of:\n\n- Building and managing a robust FinOps team\n- Defining clear cross-functional responsibilities\n- Integrating FinOps practices into organizational processes to manage cloud cost and usage effectively.\n\nWith this capability, you establish and manage your FinOps practice, focusing on supporting the needs of stakeholders across the organization. This capability is pivotal to driving organizational adoption.\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/operations)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "25",
+                  "name": "f1bb9f3c-a1d4-eb35-5c69-5c61956d3b9b"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Onboarding workloads\nOnboarding workloads refers to the process of bringing new and existing applications into the cloud based on their financial and technical feasibility. With this capability, you:\n\n- Understand requirements for new workloads\n- Identify if there are any architectural requirements or changes that should be considered\n- Validate that the budget is available to support their needs\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/onboarding)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "25",
+                  "name": "c1efb985-52ea-6183-eef3-749145b5e1b0"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Governance, policy, and risk\nGovernance, policy, and risk refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:\n\n- Specific SKUs\n- Resource configurations\n- Other practices that might affect cost, usage, and carbon growth\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/policy)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "25",
+                  "name": "55b4a8a1-32c9-c642-8718-78b477ce5fe9"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "1e278b02-8100-82ae-a93d-95afd6ad71f8"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Invoicing and chargeback\nInvoicing and chargeback refer to the process of receiving, reconciling, and paying provider invoices, and then billing internal teams for their respective cloud costs using existing internal finance tools and processes. With this capability, you break down invoices and cross-charge portions of these invoices to the teams responsible for the charges.\n\n📊 [View report](#f416685d-f559-4514-8e45-5e0e09aec286)\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/chargeback)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "25",
+                  "name": "5e0e1d7e-a67a-ca0d-82ac-2838069ff14a"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### FinOps assessment\nFinOps assessment refers to the process of measuring the effectiveness of a FinOps practice, aligning activities with organizational goals, and identifying areas for improvement to drive FinOps maturity. With this capability, you assess and benchmark the maturity of different teams to identify focus areas for key milestones. This capability is important to set clear, quantitative expectations with teams that are backed up with recommendations to drive targeted improvements and prioritize organizational goals.\n\n📋 [Start a FinOps review](https://aka.ms/finops/review)\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/assessment)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "25",
+                  "name": "da2ac63c-cef1-b366-cd40-89ade6a90224"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### FinOps tools and services\nFinOps tools and services encapsulate identifying, configuring, and integrating tools and services that meet the needs of FinOps capabilities. They also enable the FinOps practice at scale throughout the organization. With this capability, you identify the tools and services needed to accelerate FinOps tasks and support your FinOps practice.\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/tools)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "25",
+                  "name": "28ddc82e-263a-72ef-2f92-d0c65099b41d"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Intersecting frameworks\nFinOps and intersecting frameworks refers to integrating FinOps practices with other frameworks and methodologies used by an organization. With this capability, you'll partner with stakeholders in other disciplines to understand each other's others priorities to achieve an acceptable balance compared to cost, usage, and carbon efficiency goals.\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/frameworks)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "25",
+                  "name": "5a6f49e5-9cfe-0c5e-b00e-c6eb7321448c"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "98fdb88f-fd2c-874d-695f-2595b0002777"
+          }
+        ]
+      },
+      "name": "group - manage"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

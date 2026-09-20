@@ -1,0 +1,191 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## Foundry infrastructure\n\nUse Azure Resource Graph for inventory, Azure Monitor Metrics for platform behavior, and FinOps hub cost for financial context."
+            },
+            "customWidth": "100",
+            "name": "562789b8-56c2-6f97-e580-52c66b2e8786"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\n| where type in~ (\n    'microsoft.cognitiveservices/accounts',\n    'microsoft.cognitiveservices/accounts/projects',\n    'microsoft.cognitiveservices/accounts/deployments'\n)\n| where type !~ 'microsoft.cognitiveservices/accounts' or kind in~ ('OpenAI', 'AIServices')\n| extend ParentAccountId=iff(\n    type =~ 'microsoft.cognitiveservices/accounts',\n    id,\n    substring(id, 0, indexof(tolower(id), '/projects/')))\n| summarize\n    Resources=count(),\n    Accounts=countif(type =~ 'microsoft.cognitiveservices/accounts'),\n    Projects=countif(type =~ 'microsoft.cognitiveservices/accounts/projects'),\n    Deployments=countif(type =~ 'microsoft.cognitiveservices/accounts/deployments')\n    by subscriptionId, resourceGroup, location, ParentAccountId\n| order by subscriptionId asc, resourceGroup asc, ParentAccountId asc",
+              "size": 1,
+              "title": "Foundry estate",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::selected"
+              ],
+              "visualization": "table",
+              "showExportToExcel": true,
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "484f0ff3-917d-2a76-4940-34632a150fac"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 0,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "title": "Token usage",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  Usage-ProcessedPromptTokens",
+                  "aggregation": 7,
+                  "columnName": "Input tokens"
+                },
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  Usage-GeneratedTokens",
+                  "aggregation": 7,
+                  "columnName": "Output tokens"
+                },
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  Usage-TokenTransaction",
+                  "aggregation": 7,
+                  "columnName": "Total tokens"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "43841015-933d-eac5-2b03-52bfcaf531d5"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 0,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "title": "Model requests",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  HTTP Requests-AzureOpenAIRequests",
+                  "aggregation": 7,
+                  "columnName": "Model requests"
+                },
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  HTTP Requests-AzureOpenAIRequests",
+                  "aggregation": 7,
+                  "splitBy": [
+                    "StatusCode"
+                  ],
+                  "splitBySortOrder": -1,
+                  "columnName": "Requests by status code"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "957d8c3d-e949-98df-183b-f92333258207"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 0,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "title": "Latency and throughput",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  HTTP Requests-AzureOpenAITimeToResponse",
+                  "aggregation": 4,
+                  "columnName": "Time to response"
+                },
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  HTTP Requests-TimeToLastByte",
+                  "aggregation": 4,
+                  "columnName": "Time to last byte"
+                },
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  HTTP Requests-TokensPerSecond",
+                  "aggregation": 4,
+                  "columnName": "Tokens per second"
+                },
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  HTTP Requests-AzureOpenAIContextTokensCacheMatchRate",
+                  "aggregation": 4,
+                  "columnName": "Prompt cache match rate"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "70942847-efe9-e282-8623-683b68d46c69"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"Costs()\\n| where ChargePeriodStart between (datetime({TimeRange:start}) .. datetime({TimeRange:end}))\\n| where x_ResourceType startswith_cs 'microsoft.cognitiveservices/accounts'\\n| summarize\\n    BilledCost=sum(BilledCost),\\n    EffectiveCost=sum(EffectiveCost),\\n    UsageQuantity=sum(ConsumedQuantity)\\n    by ChargeMonth=startofmonth(ChargePeriodStart),\\n        SubAccountId,\\n        RegionId,\\n        ResourceId,\\n        ResourceName,\\n        x_SkuMeterCategory,\\n        x_SkuMeterSubcategory,\\n        SkuMeter,\\n        BillingCurrency,\\n        ConsumedUnit\\n| order by ChargeMonth asc, SubAccountId asc, ResourceName asc, SkuMeter asc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
+              "size": 1,
+              "title": "Foundry cost and usage",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "queryType": 9,
+              "visualization": "table",
+              "showExportToExcel": true,
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "e64ea744-7f21-626c-2543-02d367b70f81"
+          }
+        ]
+      },
+      "name": "group - foundry-infrastructure"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

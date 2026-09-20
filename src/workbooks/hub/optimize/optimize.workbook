@@ -1,0 +1,96 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "# Optimize usage and cost\nThe **Optimize usage and cost** domain is focused on designing and optimizing solutions for efficiency to ensure you get the most out of your cloud investments.\n\n[Learn more](https://learn.microsoft.com/cloud-computing/finops/framework/optimize/optimize-cloud-usage-cost) &nbsp; &nbsp; [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Quantify)\n"
+                  },
+                  "customWidth": "100",
+                  "name": "b5e6fb28-fe75-9a3f-6fec-f886c3ee10fc"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "3c8fbadd-56ed-8c89-1791-2c59b1985660"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "always",
+              "items": [
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Architecting for the cloud\nArchitecting for the cloud involves designing and implementing cloud infrastructure and applications to optimize cost, performance, scalability, and reliability. Simultaneously, you align with business objectives.\n\nWith this capability, you ensure solutions are designed for efficiency in early development and migration stages to ensure they follow proven practices to maximize value and reduce waste. This capability is an important step towards reducing post-deployment optimization efforts, which often require much time and effort.\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/architecting)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "20",
+                  "name": "614b1e90-1457-1c10-70d9-3a86a3bace3e"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Usage optimization\nUsage optimization refers to the process of ensuring cloud services are utilized and tuned to maximize business value and minimize wasteful usage and spending. With this capability, you analyze cost, usage, and carbon emissions for cloud workloads to identify opportunities to maximize efficiency. This capability usually starts with recommendations and expands into more nuanced optimization efforts based on detailed resource utilization analysis. This capability can be time and effort intensive as each cloud service has its different optimization opportunities.\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/workloads)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "20",
+                  "name": "305ea13f-cfc9-71f2-8690-14cc8bc0d8bc"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Rate optimization\nRate optimization is the practice of obtaining reduced rates on cloud services, often by committing to a certain level of usage or spend over a specific period. With this capability, you analyze SKU usage patterns to inform rate negotiation efforts and commitment discount planning. This capability can lead to impressive discounts based on consistent usage patterns.\n\n📊 [View report](#306fef9a-c760-4559-a326-7c25d196b616)\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/rates)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "20",
+                  "name": "c86fc949-6605-ae04-6eaf-eea643865d57"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Licensing and SaaS\nLicensing & SaaS involves managing and optimizing the financial aspects of software licensing agreements and Software as a Service (SaaS) investments within an organization. With this capability, you track and manage software licenses and prepaid SaaS products to ensure they're being fully utilized. This capability also covers bring your own license offers, like Azure Hybrid Benefit.\n\n📊 [View report](#a4ec1d55-5b6e-49af-bb9e-4f3d136cdf05)\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/licensing)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "20",
+                  "name": "b5480433-a6f7-a69f-27ab-78f31aaf186a"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Cloud sustainability\nCloud sustainability balances environmental and financial efficiency in cloud optimization, ensuring alignment with strategic objectives. With this capability, you focus explicitly on optimizing carbon emissions through usage and workload analysis. This capability relies heavily on understanding the carbon impact of different services across different regions to identify the right cost/carbon balance for your organizational goals.\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/sustainability)",
+                    "style": "upsell"
+                  },
+                  "customWidth": "20",
+                  "name": "47800e27-69b6-2b19-ce10-d3f2e932c5a6"
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "d6831a05-61e0-155e-9d96-a35a3db1bd57"
+          }
+        ]
+      },
+      "name": "group - optimize"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
