@@ -314,8 +314,8 @@ elseif ($ZipPBI)
 elseif (-not $Preview)
 {
     & "$PSScriptRoot/Package-PowerBI.ps1" -Status
-    Write-Host '     To continue, run: ' -NoNewline
-    Write-Host './Package-PowerBI' -ForegroundColor Cyan
+    Write-Host '     To finish on Windows, run: ' -NoNewline
+    Write-Host './Package-PowerBI -Unattended' -ForegroundColor Cyan
 }
 
 Write-Host '...done!'

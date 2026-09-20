@@ -16,6 +16,7 @@ On this page:
 - [🚚 Publish-Toolkit](#-publish-toolkit)
 - [📊 Build-PowerBI](#-build-powerbi)
 - [📊 Package-PowerBI](#-package-powerbi)
+- [📊 Save-PowerBIProject](#-save-powerbiproject)
 - [📦 Package-Toolkit](#-package-toolkit)
 - [©️ Add-CopyrightHeader](#️-add-copyrightheader)
 - [📁 New-Directory](#-new-directory)
@@ -461,18 +462,24 @@ Examples:
 [Build-PowerBI.ps1](./Build-PowerBI.ps1) generates the Power BI release artifacts:
 
 - One PBIT template per report in `release/pbit`, zipped into `PowerBI-kql.zip` and `PowerBI-storage.zip`.
-- One PBIP project per report in `release/pbix`, containing only the tables, relationships, and queries that report needs.
+- One PBIP project per demo report (storage reports) in `release/pbix`, containing only the tables, relationships, and queries that report needs.
 
-Both come from a single prune, so the template and the demo report always match. Open the generated project from `release/pbix` to save a demo PBIX — there are no queries to remove by hand.
+Both come from a single prune, so the template and the demo report always match. The tables and queries each report keeps are listed in [src/power-bi/reports.json](../power-bi/reports.json). When you add a table or query to a report, add it there too.
 
 Templates ship with the data source parameters set to null. The generated projects keep the demo values so demo reports can still refresh.
 
-| Parameter   | Description                                                                                                            |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `‑Name`     | Optional. Name of the report to build. Wildcards supported. Default = \* (all).                                        |
-| `‑KQL`      | Optional. Builds the KQL reports. Default = false (builds all if no types are selected).                               |
-| `‑Storage`  | Optional. Builds the storage reports. Default = false (builds all if no types are selected).                           |
-| `‑NoPbip`   | Optional. Skips generating PBIP projects and only builds PBIT templates. Default = false.                              |
+The build fails, with a message that names the report and what to add to `reports.json`, when:
+
+- A table the report keeps has columns that only differ by case, which Power BI can't load.
+- A visual on a visible page reads from a table the report doesn't keep. Hidden pages only log a warning.
+- A query, table, or measure the report keeps uses a table or query the report doesn't keep.
+
+| Parameter  | Description                                                                                  |
+| ---------- | -------------------------------------------------------------------------------------------- |
+| `‑Name`    | Optional. Name of the report to build. Wildcards supported. Default = \* (all).              |
+| `‑KQL`     | Optional. Builds the KQL reports. Default = false (builds all if no types are selected).     |
+| `‑Storage` | Optional. Builds the storage reports. Default = false (builds all if no types are selected). |
+| `‑NoPbip`  | Optional. Skips generating PBIP projects and only builds PBIT templates. Default = false.    |
 
 Examples:
 
@@ -494,17 +501,27 @@ Examples:
 
 [Package-PowerBI.ps1](./Package-PowerBI.ps1) packages the three Power BI release files and reports what's left to do.
 
-Power BI Desktop has to load and save the demo PBIX files, so this command is resumable: run it, save the projects it opens, then run it again. It works out which steps are already done, does the next one, and validates the result.
+On Windows, `-Unattended` does everything with one command: build, save demo PBIX files with Power BI Desktop (using [Save-PowerBIProject](#-save-powerbiproject)), validate, and package. Don't use the mouse or keyboard while it runs.
 
-Saved PBIX files are checked for the mistakes that are easy to make by hand — saved without data, saved from the unpruned source project, saved on the wrong page, or saved from a stale build — so a missed step fails here instead of shipping.
+Without `-Unattended`, the command is resumable: run it, save the projects it opens, then run it again. Either way, it works out which steps are already done, does the next one, and validates the result.
 
-| Parameter  | Description                                                                                    |
-| ---------- | ---------------------------------------------------------------------------------------------- |
-| `‑Open`    | Optional. Opens the projects that still need to be saved as PBIX files. Default = false.       |
-| `‑Build`   | Optional. Rebuilds the templates and projects even if they already exist. Default = false.     |
-| `‑Status`  | Optional. Reports what's done and what's left without changing anything. Default = false.      |
+Saved PBIX files are checked for the mistakes that are easy to make by hand — saved without data, saved from the unpruned source project, saved on the wrong page, saved with the wrong sensitivity label, or saved before the latest build — so a missed step fails here instead of shipping. With `-Unattended`, files that fail these checks are saved again automatically.
+
+| Parameter           | Description                                                                                                                        |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `‑Unattended`       | Optional. Saves the projects with Power BI Desktop automatically, then validates and packages them. Windows only. Default = false. |
+| `‑Open`             | Optional. Opens the projects that still need to be saved as PBIX files. Default = false.                                           |
+| `‑Build`            | Optional. Rebuilds the templates and projects even if they already exist. Default = false.                                         |
+| `‑Status`           | Optional. Reports what's done and what's left without changing anything. Default = false.                                          |
+| `‑SensitivityLabel` | Optional. Sensitivity label demo reports must have, if they have one. Default = "Public".                                          |
 
 Examples:
+
+- Build, save, validate, and package everything (Windows).
+
+  ```powershell
+  ./Package-PowerBI -Unattended
+  ```
 
 - Build whatever is missing and report the next step.
 
@@ -516,6 +533,36 @@ Examples:
 
   ```powershell
   ./Package-PowerBI -Open
+  ```
+
+<br>
+
+## 📊 Save-PowerBIProject
+
+[Save-PowerBIProject.ps1](./Save-PowerBIProject.ps1) opens one Power BI project in Power BI Desktop, refreshes its data, applies the sensitivity label, saves it as a PBIX file, and closes Power BI Desktop. `Package-PowerBI -Unattended` calls it for each demo report, so you usually don't need to run it directly.
+
+Data is refreshed through the Analysis Services engine that Power BI Desktop runs locally, so refresh errors stop the script instead of saving an empty report. Saving uses Windows UI Automation. If a step can't be automated, the script stops with a message that names the step and saves a screenshot next to the PBIX file (`*.error.png`). Save that report by hand and rerun `Package-PowerBI`.
+
+Requirements:
+
+- Windows with Power BI Desktop installed and associated with `.pbip` files.
+- An interactive desktop session. Don't use the mouse or keyboard while it runs.
+- Sign in to Power BI Desktop first if your organization requires sensitivity labels.
+
+| Parameter           | Description                                                                                                    |
+| ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `‑Path`             | Required. Path to the PBIP file to open.                                                                       |
+| `‑Destination`      | Optional. Path of the PBIX file to save. Default = the PBIP path with a .pbix extension.                       |
+| `‑SensitivityLabel` | Optional. Name of the sensitivity label to apply. Default = "Public".                                          |
+| `‑TimeoutMinutes`   | Optional. Maximum number of minutes to wait for Power BI Desktop to open and refresh the report. Default = 30. |
+| `‑SkipRefresh`      | Optional. Saves the report without refreshing data. Default = false.                                           |
+
+Example:
+
+- Refresh the Cost summary demo project and save it as a PBIX file.
+
+  ```powershell
+  ./Save-PowerBIProject ../../release/pbix/CostSummary.storage.pbip
   ```
 
 <br>

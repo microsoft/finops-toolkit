@@ -72,42 +72,24 @@ $pbixDir = "$relDir/pbix"
 $version = & "$PSScriptRoot/Get-Version.ps1"
 $buildDate = Get-Date -Format 'yyyy-MM-dd'
 
+# Report types that ship as demo PBIX files in PowerBI-demo.zip
+$demoTypes = @('storage')
+
 if (-not $KQL -and -not $Storage) { $KQL = $Storage = $true }
 
 #region Report metadata
 
-# Tables and queries to keep in each report. Prefix a name with [kql] or [storage] to keep it
-# for that report type only. Everything not listed here is removed from the PBIT and the PBIP.
-$reportMetadata = @{
-    CostSummary          = @{
-        Intro       = "The Cost summary report provides several summaries of your effective (amortized) and billed costs based on the FinOps Open Cost and Usage Specification (FOCUS). Amortization breaks down reservation and savings plan purchases and allocates costs to the resources that received the benefit. Effective costs will not match your invoice."
-        Tables      = @("Costs", "Prices", "PricingUnits")
-        Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
-    }
-    Invoicing            = @{
-        Intro       = "The Invoicing and chargeback report provides several summaries of your billed cost to facilitate invoice reconciliation for Microsoft Customer Agreement (MCA) and Enterprise Agreement (EA) accounts or to perform chargeback using effective (amortized) costs."
-        Tables      = @("Costs", "Prices", "PricingUnits")
-        Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
-    }
-    DataIngestion        = @{
-        Intro       = "The Data ingestion report provides details about the data you've ingested into your FinOps hub storage account."
-        Tables      = @("Costs", "HubScopes", "HubSettings", "Prices", "PricingUnits", "StorageData", "StorageErrors")
-        Expressions = @("▶️  START HERE", "Cluster URL", "Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
-    }
-    Governance           = @{
-        Intro       = "The Governance, policy, and risk report summarizes your Microsoft Cloud governance posture. It offers the standard metrics aligned with the Cloud Adoption Framework to facilitate identifying issues, applying recommendations, and resolving compliance gaps."
-        Tables      = @("AdvisorRecommendations", "Compliance calculation", "Costs", "Disks", "ManagementGroups", "NetworkInterfaces", "NetworkSecurityGroups", "PolicyAssignments", "PolicyStates", "Prices", "PricingUnits", "PublicIPAddresses", "Regions", "Resources", "ResourceTypes", "SqlDatabases", "Subscriptions", "VirtualMachines")
-        Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "PolicyDefinitions", "Remove Duplicate Resource IDs", "Deprecated: Perform Extra Query Optimizations", "ftk_ARGBatchSize", "ftk_DemoFilter", "ftk_QueryARG", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
-    }
-    RateOptimization     = @{
-        Intro       = "The Rate optimization report provides insights into any rate optimization opportunities, like reservations, savings plans, and Azure Hybrid Benefit. This report uses effective cost, which amortizes and breaks reservation and savings plan purchases down and allocates costs out to the resources that received the benefit. Effective cost will not match your invoice."
-        Tables      = @("Costs", "InstanceSizeFlexibility", "Prices", "PricingUnits", "ReservationRecommendations")
-        Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
-    }
-    WorkloadOptimization = @{
-        Intro       = "The Usage optimization report provides insights into resource utilization and efficiency opportunities based on historical usage patterns. Use this report to determine if resources can be scaled down or even shut down during off-peak hours to minimize wasteful usage and spending. Also consider cheaper alternatives when available and ensure all workloads have some direct or indirect link to business value to avoid unnecessary usage and costs that don't contribute to the mission."
-        Tables      = @("AdvisorRecommendations", "Costs", "Disks", "Prices", "PricingUnits", "Resources", "Subscriptions")
-        Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Remove Duplicate Resource IDs", "Deprecated: Perform Extra Query Optimizations", "ftk_ARGBatchSize", "ftk_DemoFilter", "ftk_QueryARG", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
+# Tables and queries to keep in each report are defined in src/power-bi/reports.json so the build
+# and the lint tests read the same list. Everything not listed there is removed from the PBIT and
+# the PBIP.
+$reportsConfigPath = "$srcDir/reports.json"
+$reportMetadata = @{}
+(Get-Content $reportsConfigPath -Raw | ConvertFrom-Json -Depth 10).reports.PSObject.Properties `
+| ForEach-Object {
+    $reportMetadata[$_.Name] = @{
+        Intro       = $_.Value.description
+        Tables      = [string[]]@($_.Value.tables)
+        Expressions = [string[]]@($_.Value.queries)
     }
 }
 
@@ -116,6 +98,7 @@ $reportMetadata = @{
 #region Helpers
 
 $script:Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+
 
 function Write-TextFile($Path, [string[]] $Lines)
 {
@@ -135,21 +118,11 @@ function Write-UTF16LE($File, $Content, $Json)
 #>
 function ConvertFrom-TmdlDeclaration([string] $Text)
 {
-    $value = $Text.Trim()
-    if ($value.StartsWith("'"))
-    {
-        for ($i = 1; $i -lt $value.Length; $i++)
-        {
-            if ($value[$i] -ne "'") { continue }
-            if ($i + 1 -lt $value.Length -and $value[$i + 1] -eq "'") { $i++; continue }
-            return $value.Substring(1, $i - 1).Replace("''", "'")
-        }
-        return $null
-    }
-
-    $stop = $value.IndexOfAny([char[]]@(' ', "`t", '='))
-    if ($stop -lt 0) { return $value }
-    return $value.Substring(0, $stop)
+    # Names are either 'quoted' (with '' as an escaped quote) or end at whitespace or "="
+    $match = [regex]::Match($Text, "^\s*(?:'(?<quoted>(?:[^']|'')*)'|(?<plain>[^\s=]+))")
+    if (-not $match.Success) { return $null }
+    if ($match.Groups['quoted'].Success) { return $match.Groups['quoted'].Value.Replace("''", "'") }
+    return $match.Groups['plain'].Value
 }
 
 <#
@@ -158,21 +131,11 @@ function ConvertFrom-TmdlDeclaration([string] $Text)
 #>
 function Get-TmdlReferenceTable([string] $Reference)
 {
-    $value = $Reference.Trim()
-    if ($value.StartsWith("'"))
-    {
-        for ($i = 1; $i -lt $value.Length; $i++)
-        {
-            if ($value[$i] -ne "'") { continue }
-            if ($i + 1 -lt $value.Length -and $value[$i + 1] -eq "'") { $i++; continue }
-            return $value.Substring(1, $i - 1).Replace("''", "'")
-        }
-        return $null
-    }
-
-    $dot = $value.IndexOf('.')
-    if ($dot -lt 0) { return $value }
-    return $value.Substring(0, $dot)
+    # Table names are either 'quoted' (with '' as an escaped quote) or end at "."
+    $match = [regex]::Match($Reference, "^\s*(?:'(?<quoted>(?:[^']|'')*)'|(?<plain>[^.\s]+))")
+    if (-not $match.Success) { return $null }
+    if ($match.Groups['quoted'].Success) { return $match.Groups['quoted'].Value.Replace("''", "'") }
+    return $match.Groups['plain'].Value
 }
 
 <#
@@ -215,14 +178,24 @@ function Get-TmdlNameConflict([string] $DefinitionDir)
 {
     $conflicts = New-Object System.Collections.Generic.List[object]
 
-    function Add-Conflict($List, $Table, $File, $Names)
+    function Add-Conflict($List, $Table, $File, [string] $Text, [System.Text.RegularExpressions.MatchCollection] $Declarations)
     {
-        $Names.GetEnumerator() `
-        | Where-Object { $_.Value.Count -gt 1 } `
-        | ForEach-Object {
+        # Group declarations by case-insensitive name without calling functions per name, which is
+        # slow in PowerShell for models with hundreds of columns
+        $names = New-Object 'System.Collections.Generic.Dictionary[string, System.Collections.Generic.List[System.Text.RegularExpressions.Match]]' ([System.StringComparer]::OrdinalIgnoreCase)
+        foreach ($declaration in $Declarations)
+        {
+            $name = if ($declaration.Groups['quoted'].Success) { $declaration.Groups['quoted'].Value.Replace("''", "'") } else { $declaration.Groups['plain'].Value }
+            if (-not $names.ContainsKey($name)) { $names[$name] = New-Object 'System.Collections.Generic.List[System.Text.RegularExpressions.Match]' }
+            $names[$name].Add($declaration)
+        }
+
+        foreach ($group in $names.Values)
+        {
+            if ($group.Count -lt 2) { continue }
             $scope = if ($Table) { "table '$Table'" } else { 'the query list' }
-            $conflicting = ($_.Value | ForEach-Object { $_.Name }) -join ', '
-            $lines = ($_.Value | ForEach-Object { $_.Line }) -join ', '
+            $conflicting = ($group | ForEach-Object { if ($_.Groups['quoted'].Success) { $_.Groups['quoted'].Value.Replace("''", "'") } else { $_.Groups['plain'].Value } }) -join ', '
+            $lines = ($group | ForEach-Object { [regex]::Matches($Text.Substring(0, $_.Index), "`n").Count + 1 }) -join ', '
             $List.Add([PSCustomObject]@{
                     Table   = $Table
                     File    = $File
@@ -231,48 +204,24 @@ function Get-TmdlNameConflict([string] $DefinitionDir)
         }
     }
 
+    $namePattern = "(?:'(?<quoted>(?:[^']|'')*)'|(?<plain>[^\s=]+))"
+
     Get-ChildItem "$DefinitionDir/tables" -Filter '*.tmdl' -ErrorAction SilentlyContinue `
     | ForEach-Object {
         $file = $_
-        $lines = [System.IO.File]::ReadAllLines($file.FullName)
-        $tableName = $file.BaseName
-        $members = @{}
+        $text = [System.IO.File]::ReadAllText($file.FullName)
+        $tableMatch = [regex]::Match($text, "(?m)^table\s+$namePattern")
+        $tableName = if (-not $tableMatch.Success) { $file.BaseName } elseif ($tableMatch.Groups['quoted'].Success) { $tableMatch.Groups['quoted'].Value.Replace("''", "'") } else { $tableMatch.Groups['plain'].Value }
 
-        for ($i = 0; $i -lt $lines.Count; $i++)
-        {
-            $line = $lines[$i]
-            if ($line -match '^table\s+(?<rest>.+)$')
-            {
-                $tableName = ConvertFrom-TmdlDeclaration $Matches.rest
-            }
-            elseif ($line -match '^\t(?<kind>column|measure)\s+(?<rest>.+)$')
-            {
-                $memberName = ConvertFrom-TmdlDeclaration $Matches.rest
-                if (-not $memberName) { continue }
-                $key = $memberName.ToLowerInvariant()
-                if (-not $members.ContainsKey($key)) { $members[$key] = New-Object System.Collections.Generic.List[object] }
-                $members[$key].Add([PSCustomObject]@{ Name = $memberName; Line = $i + 1 })
-            }
-        }
-
-        Add-Conflict $conflicts $tableName $file.Name $members
+        # Matching the whole file at once is much faster than reading line by line in PowerShell
+        Add-Conflict $conflicts $tableName $file.Name $text ([regex]::Matches($text, "(?m)^\t(?:column|measure)\s+$namePattern"))
     }
 
     $expressionFile = "$DefinitionDir/expressions.tmdl"
     if (Test-Path $expressionFile)
     {
-        $lines = [System.IO.File]::ReadAllLines($expressionFile)
-        $expressions = @{}
-        for ($i = 0; $i -lt $lines.Count; $i++)
-        {
-            if ($lines[$i] -notmatch '^expression\s+(?<rest>.+)$') { continue }
-            $expressionName = ConvertFrom-TmdlDeclaration $Matches.rest
-            if (-not $expressionName) { continue }
-            $key = $expressionName.ToLowerInvariant()
-            if (-not $expressions.ContainsKey($key)) { $expressions[$key] = New-Object System.Collections.Generic.List[object] }
-            $expressions[$key].Add([PSCustomObject]@{ Name = $expressionName; Line = $i + 1 })
-        }
-        Add-Conflict $conflicts $null 'expressions.tmdl' $expressions
+        $text = [System.IO.File]::ReadAllText($expressionFile)
+        Add-Conflict $conflicts $null 'expressions.tmdl' $text ([regex]::Matches($text, "(?m)^expression\s+$namePattern"))
     }
 
     return , $conflicts.ToArray()
@@ -292,7 +241,7 @@ function Export-PrunedDataset([string] $SourceDir, [string] $TargetDir, [string[
     $keep = ConvertTo-NameSet $KeepTables
 
     Remove-Item $TargetDir -Recurse -Force -ErrorAction SilentlyContinue
-    & "$PSScriptRoot/New-Directory.ps1" (Split-Path $TargetDir -Parent)
+    New-Item (Split-Path $TargetDir -Parent) -ItemType Directory -Force | Out-Null
     Copy-Item $SourceDir $TargetDir -Recurse -Force
 
     $definitionDir = "$TargetDir/definition"
@@ -427,6 +376,200 @@ function Get-ReportLayout([string] $ReportDir, [string] $ReportLabel)
     return ($report | ConvertTo-Json -Depth 100)
 }
 
+<#
+    .SYNOPSIS
+    Lists the table and query names declared in a TMDL model folder without loading the model.
+#>
+function Get-TmdlObjectName([string] $DefinitionDir)
+{
+    $names = New-Object System.Collections.Generic.List[string]
+
+    Get-ChildItem "$DefinitionDir/tables" -Filter '*.tmdl' -ErrorAction SilentlyContinue `
+    | ForEach-Object {
+        foreach ($line in [System.IO.File]::ReadAllLines($_.FullName))
+        {
+            if ($line -match '^table\s+(?<rest>.+)$') { $names.Add((ConvertFrom-TmdlDeclaration $Matches.rest)); break }
+        }
+    }
+
+    $expressionFile = "$DefinitionDir/expressions.tmdl"
+    if (Test-Path $expressionFile)
+    {
+        foreach ($line in [System.IO.File]::ReadAllLines($expressionFile))
+        {
+            if ($line -match '^expression\s+(?<rest>.+)$') { $names.Add((ConvertFrom-TmdlDeclaration $Matches.rest)) }
+        }
+    }
+
+    return , $names.ToArray()
+}
+
+<#
+    .SYNOPSIS
+    Lists the tables and queries that visuals and filters in a report read from.
+
+    .DESCRIPTION
+    Only "From" clauses are read, because those are what Power BI queries. Other entity references,
+    like conditional formatting selectors, are ignored when the entity doesn't exist.
+#>
+function Get-ReportEntityReference([string] $ReportJson)
+{
+    $references = New-Object System.Collections.Generic.List[object]
+    $report = $ReportJson | ConvertFrom-Json -Depth 100
+
+    function Add-Reference($List, [string] $Json, [string] $Page, [bool] $Hidden, [string] $Source)
+    {
+        if (-not $Json) { return }
+        foreach ($from in [regex]::Matches($Json, '"From"\s*:\s*\[(?<items>[^\]]*)\]'))
+        {
+            foreach ($entity in [regex]::Matches($from.Groups['items'].Value, '"Entity"\s*:\s*"(?<name>(?:[^"\\]|\\.)*)"'))
+            {
+                $List.Add([PSCustomObject]@{
+                        Entity = [regex]::Unescape($entity.Groups['name'].Value)
+                        Page   = $Page
+                        Hidden = $Hidden
+                        Source = $Source
+                    })
+            }
+        }
+    }
+
+    Add-Reference $references $report.filters '(all pages)' $false 'report filters'
+
+    foreach ($section in @($report.sections))
+    {
+        # Configs are JSON strings. Parsing each one is slow, so only the needed values are matched.
+        $hidden = "$($section.config)" -match '"visibility"\s*:\s*1\b'
+        Add-Reference $references $section.filters $section.displayName $hidden 'page filters'
+
+        foreach ($visual in @($section.visualContainers))
+        {
+            $visualType = [regex]::Match("$($visual.config)", '"visualType"\s*:\s*"(?<value>[^"]+)"').Groups['value'].Value
+            $visualName = [regex]::Match("$($visual.config)", '"name"\s*:\s*"(?<value>[^"]+)"').Groups['value'].Value
+            $label = "$visualType visual $visualName".Trim()
+            Add-Reference $references $visual.config $section.displayName $hidden $label
+            Add-Reference $references $visual.filters $section.displayName $hidden $label
+            Add-Reference $references $visual.query $section.displayName $hidden $label
+        }
+    }
+
+    return , $references.ToArray()
+}
+
+<#
+    .SYNOPSIS
+    Removes comments and string literals from Power Query (M) or DAX so names can be matched safely.
+
+    .DESCRIPTION
+    Quoted identifiers are kept: #"Name" in M and 'Name' in DAX.
+#>
+function Remove-ExpressionLiteral([string] $Expression, [ValidateSet('M', 'DAX')] [string] $Language)
+{
+    if (-not $Expression) { return '' }
+
+    $pattern = if ($Language -eq 'M')
+    {
+        '(?<keep>#"(?:[^"]|"")*")|(?<drop>"(?:[^"]|"")*")|(?<drop>//[^\n]*)|(?<drop>/\*.*?\*/)'
+    }
+    else
+    {
+        "(?<keep>'(?:[^']|'')*')|(?<drop>`"(?:[^`"]|`"`")*`")|(?<drop>//[^\n]*)|(?<drop>--[^\n]*)|(?<drop>/\*.*?\*/)"
+    }
+
+    return [regex]::Replace($Expression, $pattern, {
+            param($match)
+            if ($match.Groups['keep'].Success) { return $match.Value }
+            if ($match.Value.StartsWith('"')) { return '""' }
+            return ' '
+        }, [System.Text.RegularExpressions.RegexOptions]::Singleline)
+}
+
+<#
+    .SYNOPSIS
+    Finds references to removed tables or queries in the expressions that remain in a model.
+
+    .DESCRIPTION
+    A query or measure that references something the allowlist removed loads fine but fails on
+    refresh or shows an error in the report. Catching it at build time turns that into a specific
+    message instead of a broken demo report or template.
+#>
+function Get-MissingDependency($Database, [string[]] $RemovedNames)
+{
+    $missing = New-Object System.Collections.Generic.List[object]
+    if (-not $RemovedNames -or $RemovedNames.Count -eq 0) { return , $missing.ToArray() }
+
+    function Test-Reference([string] $Text, [string] $Name, [string] $Language)
+    {
+        if ($Language -eq 'M')
+        {
+            $quoted = '#"' + $Name.Replace('"', '""') + '"'
+            if ($Text.Contains($quoted)) { return $true }
+            if ($Name -notmatch '^[A-Za-z_][A-Za-z0-9_.]*$') { return $false }
+
+            $escaped = [regex]::Escape($Name)
+            # A let variable with the same name shadows the query, so it isn't a reference
+            if ($Text -match "(?<![\w.#\[])$escaped\s*=(?![=>])") { return $false }
+            return $Text -match "(?<![\w.#\[])$escaped(?![\w\]])"
+        }
+
+        $quoted = "'" + $Name.Replace("'", "''") + "'"
+        if ($Text.Contains($quoted)) { return $true }
+        if ($Name -notmatch '^[A-Za-z_][A-Za-z0-9_]*$') { return $false }
+        $escaped = [regex]::Escape($Name)
+        return $Text -match "(?<![\w'\[])$escaped(?![\w'\]])"
+    }
+
+    function Add-Missing($List, [string] $Owner, [string] $Expression, [string] $Language)
+    {
+        $text = Remove-ExpressionLiteral $Expression $Language
+        foreach ($name in $RemovedNames)
+        {
+            if (Test-Reference $text $name $Language)
+            {
+                $List.Add([PSCustomObject]@{ Owner = $Owner; Name = $name; Language = $Language })
+            }
+        }
+    }
+
+    foreach ($expression in @($Database.Model.Expressions))
+    {
+        Add-Missing $missing "query '$($expression.Name)'" $expression.Expression 'M'
+    }
+
+    foreach ($table in @($Database.Model.Tables))
+    {
+        foreach ($partition in @($table.Partitions))
+        {
+            $language = if ("$($partition.SourceType)" -eq 'Calculated') { 'DAX' } else { 'M' }
+            Add-Missing $missing "table '$($table.Name)'" $partition.Source.Expression $language
+        }
+        if ($table.RefreshPolicy -and $table.RefreshPolicy.SourceExpression)
+        {
+            Add-Missing $missing "table '$($table.Name)' refresh policy" $table.RefreshPolicy.SourceExpression 'M'
+        }
+        foreach ($measure in @($table.Measures))
+        {
+            Add-Missing $missing "measure '$($table.Name)'[$($measure.Name)]" $measure.Expression 'DAX'
+        }
+        foreach ($column in @($table.Columns | Where-Object { "$($_.Type)" -eq 'Calculated' }))
+        {
+            Add-Missing $missing "column '$($table.Name)'[$($column.Name)]" $column.Expression 'DAX'
+        }
+    }
+
+    return , $missing.ToArray()
+}
+
+function Assert-NoMissingDependency($Database, [string[]] $RemovedNames, [string] $Label, [string] $ReportName)
+{
+    $dependencies = Get-MissingDependency $Database $RemovedNames
+    if ($dependencies.Count -eq 0) { return }
+
+    $details = ($dependencies | ForEach-Object { "    $($_.Owner) uses '$($_.Name)'" }) -join "`n"
+    $names = ($dependencies | ForEach-Object { "'$($_.Name)'" } | Sort-Object -Unique) -join ', '
+    throw "$Label needs $names, which reports.json removes:`n$details`nAdd the missing names to the $ReportName report in src/power-bi/reports.json, or remove the reference."
+}
+
 #endregion Helpers
 
 #region Setup
@@ -445,6 +588,17 @@ if ($Storage)
 {
     Remove-Item "$relDir/PowerBI-storage.zip" -Force -ErrorAction SilentlyContinue
     Remove-Item "$pbitDir/*.storage.pbit" -Force -ErrorAction SilentlyContinue
+}
+
+# Remove generated projects from earlier builds, but never saved PBIX files. Package-PowerBI
+# detects PBIX files saved from an older build and asks for them to be saved again.
+if (Test-Path $pbixDir)
+{
+    $selectedTypes = @(if ($KQL) { 'kql' }) + @(if ($Storage) { 'storage' })
+    Get-ChildItem $pbixDir -Force `
+    | Where-Object { $_.Name -match '^(?<name>[^.]+)\.(?<type>kql|storage)\.(pbip|Report|Dataset)$' -and $selectedTypes -contains $Matches.type -and $Matches.name -like "*$Name*" } `
+    | Remove-Item -Recurse -Force
+    if ($Name -eq '*' -and $KQL -and $Storage) { Remove-Item "$pbixDir/.manifest.json" -Force -ErrorAction SilentlyContinue }
 }
 
 # Select report types
@@ -477,6 +631,7 @@ Add-Type -Path $dllPath
 #region Build
 
 $conflictCache = @{}
+$sourceNameCache = @{}
 $manifest = New-Object System.Collections.Generic.List[object]
 $allowlistEntries = New-Object System.Collections.Generic.HashSet[string]
 $allowlistMatches = New-Object System.Collections.Generic.HashSet[string]
@@ -493,7 +648,7 @@ foreach ($inputFile in $reports)
     Write-Host "  $baseName..."
 
     $metadata = $reportMetadata[$reportName]
-    if (-not $metadata) { throw "No build metadata is defined for the '$reportName' report. Add it to the `$reportMetadata table in Build-PowerBI.ps1." }
+    if (-not $metadata) { throw "No build metadata is defined for the '$reportName' report. Add it to src/power-bi/reports.json." }
 
     $keepTables = Resolve-Allowlist $metadata.Tables $reportType
     $keepExpressions = Resolve-Allowlist $metadata.Expressions $reportType
@@ -526,6 +681,43 @@ foreach ($inputFile in $reports)
         $db.Model.Expressions.Remove($_) | Out-Null
     }
 
+    if (-not $sourceNameCache.ContainsKey($datasetDir)) { $sourceNameCache[$datasetDir] = Get-TmdlObjectName "$datasetDir/definition" }
+    $sourceNames = $sourceNameCache[$datasetDir]
+    $survivingNames = ConvertTo-NameSet (@($db.Model.Tables | ForEach-Object { $_.Name }) + @($db.Model.Expressions | ForEach-Object { $_.Name }))
+    $removedNames = @($sourceNames | Where-Object { -not $survivingNames.Contains($_) })
+    $isDemo = $demoTypes -contains $reportType
+
+    # Confirm every visual reads from something the model still has
+    $sourceNameSet = ConvertTo-NameSet $sourceNames
+    $brokenVisuals = New-Object System.Collections.Generic.List[string]
+    $entityReferences = Get-ReportEntityReference (Get-Content "$reportDir/report.json" -Raw)
+    $removedReferences = @($entityReferences | Where-Object { -not $survivingNames.Contains($_.Entity) })
+
+    # Stale references to tables that no longer exist anywhere are ignored by Power BI
+    $removedReferences `
+    | Where-Object { -not $sourceNameSet.Contains($_.Entity) } `
+    | Group-Object Entity `
+    | ForEach-Object { Write-Verbose "  $($_.Count) references to '$($_.Name)', which isn't in the model." }
+
+    # Hidden pages can't be seen, so a broken visual there is reported without failing the build
+    $removedReferences `
+    | Where-Object { $sourceNameSet.Contains($_.Entity) -and $_.Hidden } `
+    | Group-Object Page `
+    | ForEach-Object {
+        $entities = ($_.Group.Entity | Sort-Object -Unique | ForEach-Object { "'$_'" }) -join ', '
+        Write-Warning "$baseName hidden '$($_.Name)' page reads from $entities, which reports.json removes. The build continues because the page is hidden."
+    }
+
+    $removedReferences `
+    | Where-Object { $sourceNameSet.Contains($_.Entity) -and -not $_.Hidden } `
+    | Group-Object Entity, Page, Source `
+    | ForEach-Object { $brokenVisuals.Add("    '$($_.Group[0].Page)' page $($_.Group[0].Source) reads from '$($_.Group[0].Entity)'") }
+
+    if ($brokenVisuals.Count -gt 0)
+    {
+        throw "$baseName has visuals that read from tables reports.json removes:`n$($brokenVisuals -join "`n")`nAdd the tables to the $reportName report in src/power-bi/reports.json."
+    }
+
     # Track allowlist entries that match nothing. These are only reported once every report type
     # has been built, because most entries only exist in one of the two models by design.
     $modelNames = ConvertTo-NameSet (@($db.Model.Tables | ForEach-Object { $_.Name }) + @($db.Model.Expressions | ForEach-Object { $_.Name }))
@@ -554,8 +746,12 @@ foreach ($inputFile in $reports)
 
     #region PBIP project
 
-    if (-not $NoPbip)
+    # Only report types that ship as demo PBIX files need a project to save from
+    if ($isDemo -and -not $NoPbip)
     {
+        # The demo project keeps the demo data source, so check it before template changes
+        Assert-NoMissingDependency $db $removedNames "The $baseName demo project" $reportName
+
         # Re-serialize the pruned model so the PBIP matches what the PBIT ships
         Remove-Item "$stagedDataset/definition" -Recurse -Force
         [Microsoft.AnalysisServices.Tabular.TmdlSerializer]::SerializeDatabaseToFolder($db, "$stagedDataset/definition")
@@ -609,24 +805,24 @@ foreach ($inputFile in $reports)
     & "$PSScriptRoot/New-Directory.ps1" $targetFile
     & "$PSScriptRoot/New-Directory.ps1" "$targetFile/Report"
 
+    # Templates ship without a data source so customers supply their own. The PBIP was already
+    # written with the demo values so demo PBIX files can still refresh.
+    foreach ($exp in @($db.Model.Expressions))
+    {
+        if ($exp.Name.EndsWith(' URL'))
+        {
+            $exp.Expression = $exp.Expression -replace '^"[^"]*" meta ', 'null meta '
+        }
+        if ($exp.Name -eq 'ftk_DemoFilter')
+        {
+            $exp.Expression = '() => "" // To filter out subscriptions, replace with: "| where subscriptionId in (''<sub1>'', ''<sub2>'')"'
+        }
+    }
+    Assert-NoMissingDependency $db $removedNames "The $baseName template" $reportName
+
     # DataModelSchema
     $modelJson = [Microsoft.AnalysisServices.Tabular.JsonSerializer]::SerializeDatabase($db) | ConvertFrom-Json -Depth 100 -AsHashtable
     $modelJson.name = [guid]::NewGuid()
-
-    # Templates ship without a data source so customers supply their own. The PBIP keeps the
-    # demo values so demo PBIX files can still refresh.
-    $modelJson.model.expressions `
-    | ForEach-Object {
-        $exp = $_
-        if ($exp.name.EndsWith(' URL'))
-        {
-            $exp.expression = $exp.expression -replace '^"[^"]*" meta ', 'null meta '
-        }
-        if ($exp.name -eq 'ftk_DemoFilter')
-        {
-            $exp.expression = '() => "" // To filter out subscriptions, replace with: "| where subscriptionId in (''<sub1>'', ''<sub2>'')"'
-        }
-    }
 
     Write-UTF16LE -File "$targetFile/DataModelSchema" -Content ($modelJson | ConvertTo-Json -Depth 100)
 
@@ -691,20 +887,20 @@ foreach ($inputFile in $reports)
 
     #endregion PBIT template
 
-    if (-not $NoPbip)
-    {
-        $manifest.Add([PSCustomObject]@{
-                name        = $reportName
-                type        = $reportType
-                base        = $baseName
-                pbip        = "$baseName.pbip"
-                pbix        = "$baseName.pbix"
-                pbit        = "$baseName.pbit"
-                tables      = @($db.Model.Tables | ForEach-Object { $_.Name } | Sort-Object)
-                expressions = @($db.Model.Expressions | ForEach-Object { $_.Name } | Sort-Object)
-            })
-    }
-    else
+    $manifest.Add([PSCustomObject]@{
+            name        = $reportName
+            type        = $reportType
+            base        = $baseName
+            demo        = $isDemo
+            pbip        = if ($isDemo -and -not $NoPbip) { "$baseName.pbip" } else { $null }
+            pbix        = if ($isDemo) { "$baseName.pbix" } else { $null }
+            pbit        = "$baseName.pbit"
+            tables      = @($db.Model.Tables | ForEach-Object { $_.Name } | Sort-Object)
+            expressions = @($db.Model.Expressions | ForEach-Object { $_.Name } | Sort-Object)
+        })
+
+    # The staged model is only kept when it's part of a demo project
+    if (-not $isDemo -or $NoPbip)
     {
         Remove-Item $stagedDataset -Recurse -Force -ErrorAction SilentlyContinue
     }
@@ -718,8 +914,12 @@ $genAllReports = $Name -eq '*'
 if ($KQL -and $genAllReports) { Compress-Archive -Path "$pbitDir/*.kql.pbit" -DestinationPath "$relDir/PowerBI-kql.zip" -Force }
 if ($Storage -and $genAllReports) { Compress-Archive -Path "$pbitDir/*.storage.pbit" -DestinationPath "$relDir/PowerBI-storage.zip" -Force }
 
-if (-not $NoPbip -and $manifest.Count -gt 0)
+# Package-PowerBI reads the manifest to know what was built and what needs to be saved. Partial
+# builds don't write one, so a single-report build never looks like a complete release.
+$demoProjects = @($manifest | Where-Object { $_.pbip })
+if (-not $NoPbip -and $genAllReports -and $KQL -and $Storage)
 {
+    & "$PSScriptRoot/New-Directory.ps1" $pbixDir
     @{
         version = $version
         built   = (Get-Date -Format 'o')
@@ -745,6 +945,6 @@ if ($genAllReports)
     if ($KQL) { Write-Host "✅ PowerBI-kql.zip" }
     if ($Storage) { Write-Host "✅ PowerBI-storage.zip" }
 }
-if (-not $NoPbip) { Write-Host "✅ $($manifest.Count) PBIP project$(if ($manifest.Count -ne 1) { 's' }) in release/pbix" }
+if ($demoProjects.Count -gt 0) { Write-Host "✅ $($demoProjects.Count) demo PBIP project$(if ($demoProjects.Count -ne 1) { 's' }) in release/pbix" }
 
 #endregion Package

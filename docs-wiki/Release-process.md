@@ -121,25 +121,26 @@ Once the above requirements have been met, the feature branch can be merged into
 
       > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](../actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
-   6. Package the Power BI files:
+   6. Package the Power BI files on Windows with Power BI Desktop installed:
 
       ```powershell
       cd <root>/src/scripts
-      ./Package-PowerBI
+      ./Package-PowerBI -Unattended
       ```
 
-      > _This command is resumable. Run it, do what it asks, then run it again. It reports what's done, what's left, and checks the saved PBIX files for missed steps._
+      > _Builds the templates, saves each demo report as a PBIX file with Power BI Desktop, validates the files, and packages them. Don't use the mouse or keyboard while it runs. Sign in to Power BI Desktop first so the **Public** sensitivity label can be applied._
+      >
+      > ⚠️ _If the sensitivity label isn't **Public**, the report will not open for anyone outside of Microsoft. Validation fails when a demo report has any other label._
+
+      If a report can't be saved automatically, the command names the step that failed and saves a screenshot next to the PBIX file. Save that report by hand, then rerun the command:
 
       1. Run `./Package-PowerBI -Open` to open the projects that still need to be saved.
-      2. For each Power BI project that opens:
-         1. Refresh the report so demo data is loaded.
-         2. Select **File** > **Save as**, keep the `<root>/release/pbix` folder, and change the file type to PBIX.
-         3. Change the sensitivity to **Public**. If the option is disabled, close the file and reopen it.
-            > ⚠️ _Power BI does not remember the sensitivity setting for Power BI projects so this needs to be done for each release. If not done, the report will not open for anyone outside of Microsoft._
-         4. Verify all pages, switch to the **Get started** page, and save again.
-            > _Queries are already trimmed to what each report needs. There is nothing to remove by hand, and the version is already stamped._
-      3. Run `./Package-PowerBI` again to validate the saved files and create PowerBI-demo.zip.
-      4. Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
+      2. Refresh the report so demo data is loaded.
+      3. Select **File** > **Save as**, keep the `<root>/release/pbix` folder, and change the file type to PBIX.
+      4. Change the sensitivity to **Public**. If the option is disabled, close the file and reopen it.
+         > _Queries are already trimmed and the **Get started** page is already selected. There is nothing else to change._
+
+      Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
    7. Tag and publish a [new release](../releases/new):
       1. Create a tag on publish using the "vX.X" format.
       2. Set the **Target** to `main`.

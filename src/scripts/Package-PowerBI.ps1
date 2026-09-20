@@ -9,13 +9,18 @@
     Power BI releases ship three files: PowerBI-kql.zip and PowerBI-storage.zip hold the PBIT
     templates, and PowerBI-demo.zip holds the demo PBIX files.
 
-    Everything except saving the PBIX files is automated. Power BI Desktop has to load and save
-    those, so this command is resumable: run it, save the projects it opens, then run it again.
-    It works out which steps are already done, does the next one, and validates the result, so a
-    missed step fails here instead of shipping.
+    Power BI Desktop has to load and save the PBIX files. On Windows, -Unattended does that
+    automatically with Save-PowerBIProject, so the whole process runs with one command.
+
+    Without -Unattended, this command is resumable: run it, save the projects it opens, then run
+    it again. Either way, it works out which steps are already done, does the next one, and
+    validates the result, so a missed step fails here instead of shipping.
 
     .PARAMETER Open
     Optional. Opens the Power BI projects that still need to be saved as PBIX files. Default = false.
+
+    .PARAMETER Unattended
+    Optional. Saves the Power BI projects with Power BI Desktop automatically, then validates and packages them. Windows only. Default = false.
 
     .PARAMETER Build
     Optional. Rebuilds the PBIT templates and PBIP projects even if they already exist. Default = false.
@@ -23,10 +28,18 @@
     .PARAMETER Status
     Optional. Reports what's done and what's left without changing anything. Default = false.
 
+    .PARAMETER SensitivityLabel
+    Optional. Sensitivity label demo reports must have, if they have one. Default = "Public".
+
     .EXAMPLE
     ./Package-PowerBI
 
     Builds whatever is missing and reports the next step.
+
+    .EXAMPLE
+    ./Package-PowerBI -Unattended
+
+    Builds, saves, validates, and packages all three Power BI release files without any manual steps.
 
     .EXAMPLE
     ./Package-PowerBI -Open
@@ -44,9 +57,13 @@
 param(
     [switch] $Open,
 
+    [switch] $Unattended,
+
     [switch] $Build,
 
-    [switch] $Status
+    [switch] $Status,
+
+    [string] $SensitivityLabel = 'Public'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -141,11 +158,18 @@ function ConvertFrom-PbixJson([byte[]] $Bytes)
 
     .DESCRIPTION
     Catches a report saved without data, saved from the wrong (unpruned) project, saved on the
-    wrong page, or saved from a stale build with the previous version number.
+    wrong page, saved with the wrong sensitivity label, or saved before the latest build.
 #>
-function Test-DemoPbix([string] $Path, $Report)
+function Test-DemoPbix([string] $Path, $Report, [datetime] $BuiltAfter = [datetime]::MinValue, [string] $Label = 'Public')
 {
     $issues = New-Object System.Collections.Generic.List[string]
+
+    # A PBIX saved before the latest build doesn't have the latest changes
+    $saved = (Get-Item $Path).LastWriteTimeUtc
+    if ($saved -lt $BuiltAfter.ToUniversalTime())
+    {
+        $issues.Add("was saved before the latest build ($($saved.ToLocalTime().ToString('g')) vs. $($BuiltAfter.ToLocalTime().ToString('g'))). Save it again from release/pbix.")
+    }
 
     try { $entries = Get-ArchiveEntryName $Path }
     catch
@@ -154,11 +178,28 @@ function Test-DemoPbix([string] $Path, $Report)
         return $issues
     }
 
-    foreach ($required in @('DataModel', 'Report/Layout', 'Metadata', 'Settings', 'Version'))
+    $missingParts = @('DataModel', 'Report/Layout', 'Metadata', 'Settings', 'Version') | Where-Object { $entries -notcontains $_ }
+    if ($missingParts)
     {
-        if ($entries -notcontains $required) { $issues.Add("is missing the $required part. Save it again from Power BI Desktop.") }
+        $missingParts | ForEach-Object { $issues.Add("is missing the $_ part. Save it again from Power BI Desktop.") }
+        return $issues
     }
-    if ($issues.Count -gt 0) { return $issues }
+
+    # Labels other than the expected one can block people outside the organization from opening it
+    if ($entries -contains 'docProps/custom.xml')
+    {
+        try
+        {
+            $customXml = [System.Text.Encoding]::UTF8.GetString((Get-ArchiveEntry $Path 'docProps/custom.xml'))
+            $labels = @([regex]::Matches($customXml, 'name="MSIP_Label_[^"]+_Name"[^>]*>\s*<vt:lpwstr>(?<name>[^<]*)</vt:lpwstr>') | ForEach-Object { $_.Groups['name'].Value })
+            $wrong = @($labels | Where-Object { $_ -ne $Label })
+            if ($wrong.Count -gt 0)
+            {
+                $issues.Add("has the '$($wrong -join "', '")' sensitivity label. Set it to '$Label' and save again.")
+            }
+        }
+        catch { Write-Verbose "Could not read the sensitivity label from $Path" }
+    }
 
     # A PBIX saved without loading data has a tiny data model
     $dataModelSize = Get-ArchiveEntrySize $Path 'DataModel'
@@ -227,22 +268,28 @@ if ($Build -and -not $Status)
     Write-Host ''
 }
 
-$hasManifest = Test-Path $manifestPath
-$manifest = if ($hasManifest) { Get-Content $manifestPath -Raw | ConvertFrom-Json } else { $null }
-$isStale = $hasManifest -and $manifest.version -ne $version
-
-if ((-not $hasManifest -or $isStale) -and -not $Status -and -not $Build)
+function Read-Manifest
 {
-    if ($isStale) { Write-Host "Templates were built for $($manifest.version) but the current version is $version. Rebuilding..." }
+    if (-not (Test-Path $manifestPath)) { return $null }
+    return Get-Content $manifestPath -Raw | ConvertFrom-Json
+}
+
+$manifest = Read-Manifest
+
+# Manifests from older builds don't say which reports are demo reports
+$isStale = $manifest -and ($manifest.version -ne $version -or -not @($manifest.reports | Where-Object { $null -ne $_.demo }).Count)
+
+if ((-not $manifest -or $isStale) -and -not $Status -and -not $Build)
+{
+    if ($isStale) { Write-Host "Power BI files were built for $($manifest.version) with an older build script. Rebuilding for $version..." }
     else { Write-Host 'No Power BI build found. Building...' }
     & "$PSScriptRoot/Build-PowerBI.ps1"
     Write-Host ''
-    $hasManifest = Test-Path $manifestPath
-    $manifest = if ($hasManifest) { Get-Content $manifestPath -Raw | ConvertFrom-Json } else { $null }
+    $manifest = Read-Manifest
     $isStale = $false
 }
 
-if (-not $hasManifest)
+if (-not $manifest)
 {
     Write-Host '⏳ Power BI templates have not been built.'
     Write-Host '     Run: ' -NoNewline
@@ -250,17 +297,26 @@ if (-not $hasManifest)
     return
 }
 
-# Only storage reports ship as demo PBIX files
-$demoReports = @($manifest.reports | Where-Object { $_.type -eq 'storage' })
+$builtAt = [datetime]$manifest.built
+$demoReports = @($manifest.reports | Where-Object { $_.demo })
 $templateZips = @("$relDir/PowerBI-kql.zip", "$relDir/PowerBI-storage.zip")
 $demoZip = "$relDir/PowerBI-demo.zip"
 
-$saved = @()
-$missing = @()
-foreach ($report in $demoReports)
+function Get-SaveState
 {
-    if (Test-Path "$pbixDir/$($report.pbix)") { $saved += $report } else { $missing += $report }
+    $state = [PSCustomObject]@{ Saved = @(); Missing = @() }
+    foreach ($report in $demoReports)
+    {
+        if (Test-Path "$pbixDir/$($report.pbix)") { $state.Saved += $report } else { $state.Missing += $report }
+    }
+    return $state
 }
+
+$state = Get-SaveState
+
+# A demo package older than the build or any saved report is out of date
+$demoZipCurrent = (Test-Path $demoZip) -and $state.Missing.Count -eq 0 -and (Get-Item $demoZip).LastWriteTimeUtc -ge $builtAt.ToUniversalTime() -and `
+    -not @($state.Saved | Where-Object { (Get-Item "$pbixDir/$($_.pbix)").LastWriteTimeUtc -gt (Get-Item $demoZip).LastWriteTimeUtc }).Count
 
 #endregion State
 
@@ -272,8 +328,10 @@ Write-Host ''
 $builtTemplates = @(Get-ChildItem "$pbitDir/*.pbit" -ErrorAction SilentlyContinue)
 $zipsBuilt = @($templateZips | Where-Object { Test-Path $_ })
 Write-Host "  $(if ($builtTemplates.Count -eq $manifest.reports.Count -and $zipsBuilt.Count -eq 2) { '✅' } else { '⏳' }) Templates    $($builtTemplates.Count)/$($manifest.reports.Count) PBIT, $($zipsBuilt.Count)/2 ZIP"
-Write-Host "  $(if ($missing.Count -eq 0) { '✅' } else { '⏳' }) Demo reports $($saved.Count)/$($demoReports.Count) PBIX saved"
-Write-Host "  $(if (Test-Path $demoZip) { '✅' } else { '⏳' }) Demo package $(if (Test-Path $demoZip) { Format-Size (Get-Item $demoZip).Length } else { 'PowerBI-demo.zip not created' })"
+$staleSaves = @($state.Saved | Where-Object { (Get-Item "$pbixDir/$($_.pbix)").LastWriteTimeUtc -lt $builtAt.ToUniversalTime() })
+$staleNote = if ($staleSaves.Count -gt 0) { ", $($staleSaves.Count) saved before the latest build" } else { '' }
+Write-Host "  $(if ($state.Missing.Count -eq 0 -and $staleSaves.Count -eq 0) { '✅' } else { '⏳' }) Demo reports $($state.Saved.Count)/$($demoReports.Count) PBIX saved$staleNote"
+Write-Host "  $(if ($demoZipCurrent) { '✅' } else { '⏳' }) Demo package $(if ($demoZipCurrent) { Format-Size (Get-Item $demoZip).Length } elseif (Test-Path $demoZip) { 'PowerBI-demo.zip is out of date' } else { 'PowerBI-demo.zip not created' })"
 Write-Host ''
 
 if ($Status) { return }
@@ -282,15 +340,58 @@ if ($Status) { return }
 
 #region Save PBIX files
 
-if ($missing.Count -gt 0)
+if ($Unattended)
 {
-    Write-Host "⏳ $($missing.Count) Power BI project$(if ($missing.Count -ne 1) { 's' }) still $(if ($missing.Count -eq 1) { 'needs' } else { 'need' }) to be saved as PBIX:"
-    $missing | ForEach-Object { Write-Host "     $($_.pbip) → $($_.pbix)" }
+    if ($null -ne $IsWindows -and -not $IsWindows)
+    {
+        throw 'Unattended packaging needs Power BI Desktop, which only runs on Windows. Run ./Package-PowerBI -Open to save the projects by hand instead.'
+    }
+
+    # Anything that fails validation is saved again, so rerunning fixes a bad save without cleanup
+    $toSave = @($state.Missing) + @($state.Saved | Where-Object { (Test-DemoPbix "$pbixDir/$($_.pbix)" $_ $builtAt $SensitivityLabel).Count -gt 0 })
+
+    if ($toSave.Count -gt 0)
+    {
+        Write-Host "Saving $($toSave.Count) demo report$(if ($toSave.Count -ne 1) { 's' }) with Power BI Desktop. Don't use the mouse or keyboard until this finishes."
+        $failures = New-Object System.Collections.Generic.List[string]
+        foreach ($report in $toSave)
+        {
+            Write-Host "  $($report.base)..."
+            try
+            {
+                $result = & "$PSScriptRoot/Save-PowerBIProject.ps1" -Path "$pbixDir/$($report.pbip)" -Destination "$pbixDir/$($report.pbix)" -SensitivityLabel $SensitivityLabel
+                Write-Host "  ✅ $($report.pbix)  $(Format-Size $result.Size) in $([int]$result.Duration.TotalMinutes) min"
+            }
+            catch
+            {
+                $failures.Add($report.base)
+                Write-Host "  ❌ $($_.Exception.Message)" -ForegroundColor Red
+            }
+        }
+        Write-Host ''
+
+        if ($failures.Count -gt 0)
+        {
+            Write-Host "⏳ $($failures.Count) demo report$(if ($failures.Count -ne 1) { 's' }) couldn't be saved automatically: $($failures -join ', ')"
+            Write-Host '     Save them by hand with: ' -NoNewline
+            Write-Host './Package-PowerBI -Open' -ForegroundColor Cyan
+            throw "Unattended packaging stopped. $($failures.Count) demo report$(if ($failures.Count -ne 1) { 's' }) still need to be saved."
+        }
+
+        $state = Get-SaveState
+    }
+}
+elseif ($state.Missing.Count -gt 0)
+{
+    Write-Host "⏳ $($state.Missing.Count) Power BI project$(if ($state.Missing.Count -ne 1) { 's' }) still $(if ($state.Missing.Count -eq 1) { 'needs' } else { 'need' }) to be saved as PBIX:"
+    $state.Missing | ForEach-Object { Write-Host "     $($_.pbip) → $($_.pbix)" }
     Write-Host ''
 
     if (-not $Open)
     {
-        Write-Host '     To open them, run: ' -NoNewline
+        Write-Host '     To save them automatically (Windows), run: ' -NoNewline
+        Write-Host './Package-PowerBI -Unattended' -ForegroundColor Cyan
+        Write-Host '     To open them and save by hand, run: ' -NoNewline
         Write-Host './Package-PowerBI -Open' -ForegroundColor Cyan
         return
     }
@@ -298,21 +399,21 @@ if ($missing.Count -gt 0)
     Write-Host 'For each project that opens:'
     Write-Host '  1. Refresh the report so demo data is loaded.'
     Write-Host '  2. Select File > Save as, keep the release/pbix folder, and change the file type to PBIX.'
-    Write-Host '  3. Set the sensitivity to "Public" when prompted.'
-    Write-Host '  4. Switch to the Get started page and save again.'
+    Write-Host "  3. Set the sensitivity to `"$SensitivityLabel`" when prompted."
+    Write-Host '  4. Close Power BI Desktop without saving other changes.'
     Write-Host ''
-    Write-Host 'Queries are already trimmed to what each report needs, so there is nothing to remove by hand.'
+    Write-Host 'Queries are already trimmed and the Get started page is already selected, so there is nothing else to change.'
     Write-Host ''
 
-    if ($IsWindows -or $null -eq $IsWindows)
+    if ($null -eq $IsWindows -or $IsWindows)
     {
-        $missing | ForEach-Object { Invoke-Item "$pbixDir/$($_.pbip)" }
-        Write-Host "Opened $($missing.Count) project$(if ($missing.Count -ne 1) { 's' }) in Power BI Desktop."
+        $state.Missing | ForEach-Object { Invoke-Item "$pbixDir/$($_.pbip)" }
+        Write-Host "Opened $($state.Missing.Count) project$(if ($state.Missing.Count -ne 1) { 's' }) in Power BI Desktop."
     }
     else
     {
         Write-Warning 'Power BI Desktop only runs on Windows. Open these projects there:'
-        $missing | ForEach-Object { Write-Host "     $((Resolve-Path "$pbixDir/$($_.pbip)").Path)" }
+        $state.Missing | ForEach-Object { Write-Host "     $((Resolve-Path "$pbixDir/$($_.pbip)").Path)" }
     }
 
     Write-Host ''
@@ -325,12 +426,12 @@ if ($missing.Count -gt 0)
 
 #region Validate and package
 
-Write-Host "Checking $($saved.Count) demo report$(if ($saved.Count -ne 1) { 's' })..."
+Write-Host "Checking $($state.Saved.Count) demo report$(if ($state.Saved.Count -ne 1) { 's' })..."
 $failed = 0
-foreach ($report in $saved)
+foreach ($report in $state.Saved)
 {
     $path = "$pbixDir/$($report.pbix)"
-    $issues = Test-DemoPbix $path $report
+    $issues = Test-DemoPbix $path $report $builtAt $SensitivityLabel
     if ($issues.Count -eq 0)
     {
         Write-Host "  ✅ $($report.pbix)  $(Format-Size (Get-Item $path).Length)"
@@ -346,15 +447,22 @@ foreach ($report in $saved)
 if ($failed -gt 0)
 {
     Write-Host ''
-    throw "$failed demo report$(if ($failed -ne 1) { 's' }) failed validation. Fix the issues above, save again, and rerun this command."
+    throw "$failed demo report$(if ($failed -ne 1) { 's' }) failed validation. Fix the issues above, save again (or run ./Package-PowerBI -Unattended), and rerun this command."
 }
 
 Write-Host ''
-Write-Host 'Packaging PowerBI-demo.zip...'
+if ($demoZipCurrent)
+{
+    Write-Host 'PowerBI-demo.zip is already up to date.'
+}
+else
+{
+    Write-Host 'Packaging PowerBI-demo.zip...'
 
-# PBIX files are already compressed, so the fastest level takes far less time for the same size
-Remove-Item $demoZip -Force -ErrorAction SilentlyContinue
-Compress-Archive -Path "$pbixDir/*.storage.pbix" -DestinationPath $demoZip -CompressionLevel Fastest
+    # PBIX files are already compressed, so the fastest level takes far less time for the same size
+    Remove-Item $demoZip -Force -ErrorAction SilentlyContinue
+    Compress-Archive -Path ($state.Saved | ForEach-Object { "$pbixDir/$($_.pbix)" }) -DestinationPath $demoZip -CompressionLevel Fastest
+}
 
 Write-Host ''
 Write-Host "✅ Power BI release files for $version" -ForegroundColor Green

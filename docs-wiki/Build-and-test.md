@@ -142,9 +142,11 @@ cd <root>/src/scripts
 This generates two things from a single prune, so the template and the demo report can't drift:
 
 - PBIT templates in `release/pbit`, zipped into `PowerBI-kql.zip` and `PowerBI-storage.zip`.
-- PBIP projects in `release/pbix`, each containing only the tables, relationships, and queries that report needs.
+- PBIP projects for demo reports in `release/pbix`, each containing only the tables, relationships, and queries that report needs.
 
-Power BI Desktop has to load and save the demo PBIX files, so that step is still manual. Use [Package-PowerBI](../src/scripts/README.md#-package-powerbi), which reports what's left to do and validates the saved files.
+The tables and queries each report keeps are listed in [src/power-bi/reports.json](../src/power-bi/reports.json). When a report starts using a new table or query, add it there. The build and the `PowerBIReports` lint test fail when a visual or query uses something the report doesn't keep.
+
+Demo PBIX files need Power BI Desktop to load and save them. On Windows, run [Package-PowerBI](../src/scripts/README.md#-package-powerbi) `-Unattended` to save, validate, and package them automatically.
 
 ### Building documentation
 
