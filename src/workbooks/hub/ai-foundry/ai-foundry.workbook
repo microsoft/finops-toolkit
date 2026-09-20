@@ -1,0 +1,563 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "loadType": "lazy",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "### Foundry models\n\nModel traffic, token usage, and latency for the selected Azure AI Foundry accounts, read from Azure Monitor metrics. Token cost comes from the hub. An absent signal is unknown, not zero."
+            },
+            "customWidth": "100",
+            "name": "295e2d39-1597-75f2-51d8-fab760d8ae91"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "d37cb256-0cbb-f001-e2df-239e5c2bd3c5",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "TimeRange",
+                  "label": "Time range",
+                  "type": 4,
+                  "isRequired": true,
+                  "value": {
+                    "durationMs": 604800000
+                  },
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 3600000
+                      },
+                      {
+                        "durationMs": 14400000
+                      },
+                      {
+                        "durationMs": 86400000
+                      },
+                      {
+                        "durationMs": 172800000
+                      },
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      },
+                      {
+                        "durationMs": 7776000000
+                      }
+                    ],
+                    "allowCustom": true
+                  }
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "4be27fd0-b326-3816-55b6-392f110c4e7f"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Token cost"
+            },
+            "customWidth": "100",
+            "name": "17a307f3-15f3-2718-518c-d80aa17d03e7"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\": \"AzureDataExplorerQuery/1.0\", \"queryText\": \"let StartTime = todatetime({TimeRange:start});\\nlet EndTime = todatetime({TimeRange:end});\\nlet selectedBillingCurrency = \\\"{selectedBillingCurrency}\\\";\\nlet selectedNames = toscalar(\\n    print AccountId = pack_array({FoundryAccounts})\\n    | mv-expand AccountId to typeof(string)\\n    | summarize make_set(tostring(split(AccountId, '/')[-1])));\\nlet allAccounts = set_has_element(selectedNames, '*');\\nCosts()\\n| where ChargePeriodStart >= StartTime and ChargePeriodStart < EndTime\\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\\n| where allAccounts or ResourceName in~ (selectedNames)\\n| where SkuMeter has \\\"1M Tokens\\\"\\n| extend Model = strcat(\\\"gpt-\\\", replace_string(trim(\\\" \\\", extract(@\\\"^(.+?)\\\\s+(?:Short|Long)Co\\\\s\\\", 1, SkuMeter)), \\\" \\\", \\\"-\\\"))\\n| where isnotempty(Model)\\n| summarize Cost = sum(BilledCost) by Model\\n| order by Cost desc\\n| project Name = Model, value = Cost\", \"clusterName\": \"{HubClusterName}\", \"databaseName\": \"{HubDatabase}\"}",
+              "size": 4,
+              "title": "Token cost by model ({selectedBillingCurrency})",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 9,
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Name",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "value",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "blue"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "e8f32c96-036b-fd5c-6e31-d6d343aadfb1"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Token usage"
+            },
+            "customWidth": "100",
+            "name": "6ad4c93d-d787-7a8e-a5bc-2357aba37f33"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 1,
+              "chartType": 0,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "title": "Input tokens (total)",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Models  Usage-InputTokens",
+                  "aggregation": 7,
+                  "splitBy": [
+                    "ModelDeploymentName"
+                  ],
+                  "filters": [
+                    {
+                      "key": "ModelDeploymentName",
+                      "operator": 1,
+                      "values": [
+                        "__Empty"
+                      ]
+                    }
+                  ],
+                  "columnName": "Input tokens"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "c845c288-3947-601c-a89c-4bb3a1f13e80"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 1,
+              "chartType": 0,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "title": "Output tokens (total)",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Models  Usage-OutputTokens",
+                  "aggregation": 7,
+                  "splitBy": [
+                    "ModelDeploymentName"
+                  ],
+                  "filters": [
+                    {
+                      "key": "ModelDeploymentName",
+                      "operator": 1,
+                      "values": [
+                        "__Empty"
+                      ]
+                    }
+                  ],
+                  "columnName": "Output tokens"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "bd4ef8c2-5055-77be-a1eb-4a2c4abbd4a8"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 1,
+              "chartType": 2,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "title": "Input tokens",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Models  Usage-InputTokens",
+                  "aggregation": 7,
+                  "splitBy": [
+                    "ModelDeploymentName"
+                  ],
+                  "filters": [
+                    {
+                      "key": "ModelDeploymentName",
+                      "operator": 1,
+                      "values": [
+                        "__Empty"
+                      ]
+                    }
+                  ],
+                  "columnName": "Input tokens"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "20efbd60-75b9-54fa-6bbd-82895a9858fb"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 1,
+              "chartType": 2,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "title": "Output tokens",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Models  Usage-OutputTokens",
+                  "aggregation": 7,
+                  "splitBy": [
+                    "ModelDeploymentName"
+                  ],
+                  "filters": [
+                    {
+                      "key": "ModelDeploymentName",
+                      "operator": 1,
+                      "values": [
+                        "__Empty"
+                      ]
+                    }
+                  ],
+                  "columnName": "Output tokens"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "37f376e4-c7eb-900b-3ae9-eaf47e3309af"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 1,
+              "chartType": 2,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "title": "Total tokens",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Models  Usage-TotalTokens",
+                  "aggregation": 7,
+                  "splitBy": [
+                    "ModelDeploymentName"
+                  ],
+                  "filters": [
+                    {
+                      "key": "ModelDeploymentName",
+                      "operator": 1,
+                      "values": [
+                        "__Empty"
+                      ]
+                    }
+                  ],
+                  "columnName": "Total tokens"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "dd83de0c-8b06-f32b-171d-5f25ed57af01"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 1,
+              "chartType": 2,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "title": "Token cache match rate (OpenAI models)",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  Usage-AzureOpenAIContextTokensCacheMatchRate",
+                  "aggregation": 4,
+                  "splitBy": [
+                    "ModelDeploymentName"
+                  ],
+                  "filters": [
+                    {
+                      "key": "ModelDeploymentName",
+                      "operator": 1,
+                      "values": [
+                        "__Empty"
+                      ]
+                    }
+                  ],
+                  "columnName": "Cache match rate"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "13fa521d-5f31-3078-20bf-345a2107b96c"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Requests and reliability"
+            },
+            "customWidth": "100",
+            "name": "9d47a0c4-7d8c-5eaf-0a46-1d6a7891d4bb"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 1,
+              "chartType": 2,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "title": "Model requests",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Models  HTTP Requests-ModelRequests",
+                  "aggregation": 7,
+                  "splitBy": [
+                    "ModelDeploymentName"
+                  ],
+                  "filters": [
+                    {
+                      "key": "ModelDeploymentName",
+                      "operator": 1,
+                      "values": [
+                        "__Empty"
+                      ]
+                    }
+                  ],
+                  "columnName": "Model requests"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "992d8aba-78df-c22a-61a0-a86de5888f0c"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 1,
+              "chartType": 2,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "title": "Non-200 model requests (throttling and errors)",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Models  HTTP Requests-ModelRequests",
+                  "aggregation": 7,
+                  "splitBy": [
+                    "StatusCode"
+                  ],
+                  "filters": [
+                    {
+                      "key": "StatusCode",
+                      "operator": 1,
+                      "values": [
+                        "200"
+                      ]
+                    }
+                  ],
+                  "columnName": "Model requests"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "825353b4-a68c-0780-5a50-dea7e39e42ce"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Latency and throughput"
+            },
+            "customWidth": "100",
+            "name": "70f48cc7-3f56-6f04-f67d-566b6ca57e91"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 1,
+              "chartType": 2,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "title": "Average latency (time to last byte)",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Models  Latency-TimeToLastByte",
+                  "aggregation": 4,
+                  "splitBy": [
+                    "ModelDeploymentName"
+                  ],
+                  "filters": [
+                    {
+                      "key": "ModelDeploymentName",
+                      "operator": 1,
+                      "values": [
+                        "__Empty"
+                      ]
+                    }
+                  ],
+                  "columnName": "Time to last byte"
+                },
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  Latency-AzureOpenAITTLTInMS",
+                  "aggregation": 4,
+                  "splitBy": [
+                    "ModelDeploymentName"
+                  ],
+                  "filters": [
+                    {
+                      "key": "ModelDeploymentName",
+                      "operator": 1,
+                      "values": [
+                        "__Empty"
+                      ]
+                    }
+                  ],
+                  "columnName": "OpenAI time to last token (ms)"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "938da180-0d2c-41c1-4651-37055052d09b"
+          },
+          {
+            "type": 10,
+            "content": {
+              "version": "MetricsItem/2.0",
+              "size": 1,
+              "chartType": 2,
+              "resourceType": "microsoft.cognitiveservices/accounts",
+              "resourceIds": [
+                "{FoundryAccounts}"
+              ],
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "title": "Tokens per second (OpenAI models)",
+              "metrics": [
+                {
+                  "namespace": "microsoft.cognitiveservices/accounts",
+                  "metric": "microsoft.cognitiveservices/accounts-Azure OpenAI  Latency-AzureOpenAITokenPerSecond",
+                  "aggregation": 4,
+                  "splitBy": [
+                    "ModelDeploymentName"
+                  ],
+                  "filters": [
+                    {
+                      "key": "ModelDeploymentName",
+                      "operator": 1,
+                      "values": [
+                        "__Empty"
+                      ]
+                    }
+                  ],
+                  "columnName": "Tokens per second"
+                }
+              ]
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "d89d1d3e-100a-0a94-35fe-7ad8a0992058"
+          }
+        ]
+      },
+      "name": "group - ai-foundry"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

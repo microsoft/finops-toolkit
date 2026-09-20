@@ -38,6 +38,14 @@
                   "style": "link"
                 },
                 {
+                  "id": "7b485b04-bec4-cc71-b150-efa0824a6c91",
+                  "cellValue": "SelectedAiTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Foundry models",
+                  "subTarget": "ai-foundry",
+                  "style": "link"
+                },
+                {
                   "id": "23ce3261-e5d4-4da9-82f2-2adbf608ed3c",
                   "cellValue": "SelectedAiTab",
                   "linkTarget": "parameter",
@@ -110,6 +118,33 @@
               "value": "foundry-infrastructure"
             },
             "name": "eed7b485-ab7e-4bcd-ab2d-77885225fdbc"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "lazy",
+              "items": [
+                {
+                  "type": 12,
+                  "content": {
+                    "version": "NotebookGroup/1.0",
+                    "groupType": "template",
+                    "loadType": "lazy",
+                    "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/ai-foundry",
+                    "items": []
+                  },
+                  "name": "group - ai-foundry"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedAiTab",
+              "comparison": "isEqualTo",
+              "value": "ai-foundry"
+            },
+            "name": "f9c227a8-10bb-e84b-f9cf-c4e4c62afdcf"
           },
           {
             "type": 12,
