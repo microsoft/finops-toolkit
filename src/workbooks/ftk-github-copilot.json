@@ -118,17 +118,10 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
           "unit": "short"
         },
         "overrides": [
@@ -276,7 +269,7 @@
       },
       "id": 12,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -324,17 +317,10 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
           "unit": "short"
         },
         "overrides": [
@@ -439,7 +425,7 @@
       },
       "id": 13,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -540,10 +526,10 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "#57a300"
               },
               {
-                "color": "red",
+                "color": "#e00b1c",
                 "value": 80
               }
             ]
@@ -659,10 +645,10 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "#57a300"
               },
               {
-                "color": "red",
+                "color": "#e00b1c",
                 "value": 80
               }
             ]
@@ -1314,10 +1300,10 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "#57a300"
               },
               {
-                "color": "red",
+                "color": "#e00b1c",
                 "value": 80
               }
             ]
@@ -1644,10 +1630,10 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "#57a300"
               },
               {
-                "color": "red",
+                "color": "#e00b1c",
                 "value": 80
               }
             ]
@@ -1880,10 +1866,10 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "#57a300"
               },
               {
-                "color": "red",
+                "color": "#e00b1c",
                 "value": 80
               }
             ]
@@ -2012,10 +1998,10 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "#57a300"
               },
               {
-                "color": "red",
+                "color": "#e00b1c",
                 "value": 80
               }
             ]
@@ -2106,10 +2092,10 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "#57a300"
               },
               {
-                "color": "red",
+                "color": "#e00b1c",
                 "value": 80
               }
             ]
@@ -2678,10 +2664,10 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "#57a300"
               },
               {
-                "color": "red",
+                "color": "#e00b1c",
                 "value": 80
               }
             ]

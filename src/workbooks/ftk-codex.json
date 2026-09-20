@@ -106,21 +106,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 4,
           "mappings": [],
           "noValue": "No priced usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "currencyUSD"
         },
         "overrides": [
@@ -147,7 +138,7 @@
       "id": 101,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -194,21 +185,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 4,
           "mappings": [],
           "noValue": "No priced usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "currencyUSD"
         },
         "overrides": [
@@ -235,7 +217,7 @@
       "id": 102,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -282,21 +264,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 4,
           "mappings": [],
           "noValue": "No priced usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "currencyUSD"
         },
         "overrides": [
@@ -323,7 +296,7 @@
       "id": 103,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -370,21 +343,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 4,
           "mappings": [],
           "noValue": "No priced usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "currencyUSD"
         },
         "overrides": [
@@ -411,7 +375,7 @@
       "id": 104,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -458,21 +422,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 4,
           "mappings": [],
           "noValue": "No priced usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "currencyUSD"
         },
         "overrides": [
@@ -499,7 +454,7 @@
       "id": 105,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -546,21 +501,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 4,
           "mappings": [],
           "noValue": "No priced usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "currencyUSD"
         },
         "overrides": [
@@ -587,7 +533,7 @@
       "id": 106,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -634,21 +580,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 4,
           "mappings": [],
           "noValue": "No priced usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "currencyUSD"
         },
         "overrides": [
@@ -675,7 +612,7 @@
       "id": 107,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -722,21 +659,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 4,
           "mappings": [],
           "noValue": "No priced usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "currencyUSD"
         },
         "overrides": [
@@ -763,7 +691,7 @@
       "id": 108,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -810,21 +738,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 1,
           "mappings": [],
           "noValue": "No usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "percent"
         },
         "overrides": [
@@ -851,7 +770,7 @@
       "id": 109,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -898,21 +817,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 1,
           "mappings": [],
           "noValue": "No usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "percent"
         },
         "overrides": [
@@ -939,7 +849,7 @@
       "id": 110,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -986,21 +896,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 2,
           "mappings": [],
           "noValue": "No usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "percent"
         },
         "overrides": [
@@ -1027,7 +928,7 @@
       "id": 111,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -1074,21 +975,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "fixed",
+            "fixedColor": "#9C7ECA"
           },
           "decimals": 0,
           "mappings": [],
           "noValue": "No usage",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
           "unit": "none"
         },
         "overrides": [
@@ -1115,7 +1007,7 @@
       "id": 112,
       "maxDataPoints": 48,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -1174,21 +1066,12 @@
           "fieldConfig": {
             "defaults": {
               "color": {
-                "fixedColor": "green",
-                "mode": "fixed"
+                "mode": "fixed",
+                "fixedColor": "#9C7ECA"
               },
               "decimals": 2,
               "mappings": [],
               "noValue": "Not reported",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  }
-                ]
-              },
               "unit": "short"
             },
             "overrides": [
@@ -1215,7 +1098,7 @@
           "id": 3,
           "maxDataPoints": 48,
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "center",
             "orientation": "auto",
@@ -1262,20 +1145,11 @@
           "fieldConfig": {
             "defaults": {
               "color": {
-                "fixedColor": "blue",
-                "mode": "fixed"
+                "mode": "fixed",
+                "fixedColor": "#9C7ECA"
               },
               "mappings": [],
               "noValue": "Not reported",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  }
-                ]
-              },
               "unit": "short"
             },
             "overrides": [
@@ -1302,7 +1176,7 @@
           "id": 2,
           "maxDataPoints": 48,
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "center",
             "orientation": "auto",
@@ -1349,20 +1223,11 @@
           "fieldConfig": {
             "defaults": {
               "color": {
-                "fixedColor": "purple",
-                "mode": "fixed"
+                "mode": "fixed",
+                "fixedColor": "#9C7ECA"
               },
               "mappings": [],
               "noValue": "Not reported",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  }
-                ]
-              },
               "unit": "short"
             },
             "overrides": [
@@ -1389,7 +1254,7 @@
           "id": 1,
           "maxDataPoints": 48,
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "center",
             "orientation": "auto",
@@ -1436,20 +1301,11 @@
           "fieldConfig": {
             "defaults": {
               "color": {
-                "fixedColor": "yellow",
-                "mode": "fixed"
+                "mode": "fixed",
+                "fixedColor": "#9C7ECA"
               },
               "mappings": [],
               "noValue": "Not reported",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  }
-                ]
-              },
               "unit": "short"
             },
             "overrides": [
@@ -1476,7 +1332,7 @@
           "id": 4,
           "maxDataPoints": 48,
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "center",
             "orientation": "auto",
@@ -1534,15 +1390,15 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
+                    "color": "#e00b1c",
                     "value": 0
                   },
                   {
-                    "color": "orange",
+                    "color": "#db7500",
                     "value": 50
                   },
                   {
-                    "color": "green",
+                    "color": "#57a300",
                     "value": 80
                   }
                 ]
@@ -1572,7 +1428,7 @@
           },
           "id": 5,
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "center",
             "orientation": "auto",
@@ -1630,15 +1486,15 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
+                    "color": "#57a300",
                     "value": 0
                   },
                   {
-                    "color": "orange",
+                    "color": "#db7500",
                     "value": 5
                   },
                   {
-                    "color": "red",
+                    "color": "#e00b1c",
                     "value": 10
                   }
                 ]
@@ -1668,7 +1524,7 @@
           },
           "id": 6,
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "center",
             "orientation": "auto",
@@ -1715,21 +1571,12 @@
           "fieldConfig": {
             "defaults": {
               "color": {
-                "fixedColor": "super-light-blue",
-                "mode": "fixed"
+                "mode": "fixed",
+                "fixedColor": "#9C7ECA"
               },
               "decimals": 1,
               "mappings": [],
               "noValue": "Not reported",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  }
-                ]
-              },
               "unit": "s"
             },
             "overrides": [
@@ -1755,7 +1602,7 @@
           },
           "id": 7,
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "center",
             "orientation": "auto",
@@ -1802,21 +1649,12 @@
           "fieldConfig": {
             "defaults": {
               "color": {
-                "fixedColor": "light-blue",
-                "mode": "fixed"
+                "mode": "fixed",
+                "fixedColor": "#9C7ECA"
               },
               "decimals": 0,
               "mappings": [],
               "noValue": "Not reported",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  }
-                ]
-              },
               "unit": "ms"
             },
             "overrides": [
@@ -1842,7 +1680,7 @@
           },
           "id": 8,
           "options": {
-            "colorMode": "background",
+            "colorMode": "value",
             "graphMode": "none",
             "justifyMode": "center",
             "orientation": "auto",
@@ -3754,11 +3592,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#57a300",
                 "value": 0
               },
               {
-                "color": "red",
+                "color": "#e00b1c",
                 "value": 80
               }
             ]
@@ -3788,7 +3626,7 @@
       },
       "id": 20,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",

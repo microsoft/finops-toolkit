@@ -74,7 +74,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "custom": {
@@ -142,7 +142,7 @@
         "defaults": {
           "color": {
             "mode": "shades",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "noValue": "No data"
@@ -210,7 +210,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "noValue": "No data"
@@ -352,7 +352,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "custom": {
@@ -374,7 +374,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "#B877D9"
+                  "fixedColor": "#9C7ECA"
                 }
               }
             ]

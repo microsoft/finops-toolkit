@@ -68,6 +68,12 @@ var appInsightsVariables = hasAppInsights
     }
   : {}
 
+// Identifies every dashboard as a FinOps toolkit resource. The deployment sets
+// the same tag on all 12 dashboards.
+var dashboardGalleryTag = {
+  GrafanaDashboardResourceType: 'FinOps-toolkit'
+}
+
 // Every FinOps toolkit dashboard. The hub dashboards and the AI Foundry
 // dashboard need the hub cluster. The Codex, Agent framework, and GitHub
 // Copilot dashboards read per call telemetry from Application Insights.
@@ -130,7 +136,7 @@ resource dashboard 'Microsoft.Dashboard/dashboards@2026-09-01' = [
   for item in dashboards: {
     name: item.name
     location: location
-    tags: tags
+    tags: union(tags, dashboardGalleryTag)
   }
 ]
 

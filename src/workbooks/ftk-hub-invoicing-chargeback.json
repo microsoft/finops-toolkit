@@ -74,7 +74,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "noValue": "No data"
@@ -153,7 +153,7 @@
         "defaults": {
           "color": {
             "mode": "shades",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "custom": {
@@ -240,11 +240,11 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "#56A64B",
+                      "color": "#57a300",
                       "value": null
                     },
                     {
-                      "color": "#E02F44",
+                      "color": "#e00b1c",
                       "value": 0.01
                     }
                   ]

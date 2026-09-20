@@ -75,7 +75,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "noValue": "No data"
@@ -91,7 +91,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "#56A64B"
+                  "fixedColor": "#57a300"
                 }
               }
             ]
@@ -170,7 +170,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "noValue": "No data"
@@ -202,7 +202,7 @@
                       "value": null
                     },
                     {
-                      "color": "#FF9830",
+                      "color": "#db7500",
                       "value": 0.01
                     }
                   ]
@@ -220,7 +220,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "#3274D9"
+                  "fixedColor": "#9C7ECA"
                 }
               }
             ]
@@ -299,7 +299,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "noValue": "No data"
@@ -315,7 +315,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "#56A64B"
+                  "fixedColor": "#57a300"
                 }
               }
             ]
@@ -394,7 +394,7 @@
         "defaults": {
           "color": {
             "mode": "shades",
-            "fixedColor": "#56A64B"
+            "fixedColor": "#57a300"
           },
           "unit": "short",
           "custom": {
@@ -469,7 +469,7 @@
         "defaults": {
           "color": {
             "mode": "shades",
-            "fixedColor": "#56A64B"
+            "fixedColor": "#57a300"
           },
           "unit": "short",
           "noValue": "No data"
@@ -724,7 +724,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "noValue": "No data"
@@ -740,7 +740,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "#56A64B"
+                  "fixedColor": "#57a300"
                 }
               }
             ]
@@ -819,7 +819,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "noValue": "No data"
@@ -851,7 +851,7 @@
                       "value": null
                     },
                     {
-                      "color": "#FF9830",
+                      "color": "#db7500",
                       "value": 0.01
                     }
                   ]
@@ -869,7 +869,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "#3274D9"
+                  "fixedColor": "#9C7ECA"
                 }
               }
             ]
@@ -948,7 +948,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "#3274D9"
+            "fixedColor": "#9C7ECA"
           },
           "unit": "short",
           "noValue": "No data"
@@ -964,7 +964,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "#56A64B"
+                  "fixedColor": "#57a300"
                 }
               }
             ]
@@ -1043,7 +1043,7 @@
         "defaults": {
           "color": {
             "mode": "shades",
-            "fixedColor": "#56A64B"
+            "fixedColor": "#57a300"
           },
           "unit": "short",
           "custom": {
@@ -1118,7 +1118,7 @@
         "defaults": {
           "color": {
             "mode": "shades",
-            "fixedColor": "#56A64B"
+            "fixedColor": "#57a300"
           },
           "unit": "short",
           "noValue": "No data"
