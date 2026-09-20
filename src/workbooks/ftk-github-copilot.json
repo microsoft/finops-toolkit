@@ -76,7 +76,7 @@
       }
     ]
   },
-  "description": "Monitors GitHub Copilot usage and performance via Application Insights OpenTelemetry data. Tracks agent operations, LLM token consumption, model latency (response duration and time-to-first-token), chat sessions, tool calls, feature adoption, and errors. Includes trace drill-down for debugging individual Copilot interactions.",
+  "description": "Monitors GitHub Copilot usage and performance via Application Insights OpenTelemetry data. Tracks agent operations, LLM token consumption, model latency (response duration and time-to-first-token), chat sessions, tool calls, feature adoption, and errors. Includes trace drill-down for debugging individual Copilot interactions. Adds reported token costs in USD using Copilot's token-priced AI credits: 1 billion nano-AIU = 1 AI credit = $0.01. These amounts represent usage value before included credits, not invoice charges.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -114,7 +114,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Agent runs are invoke_agent spans (one per user turn in VS Code agent mode; one per Copilot CLI process or sub-agent run). Token totals are the per-run roll-ups reported on those spans, so model requests made outside an agent run (inline chat, Next Edit Suggestions, commit messages) are not included here \u2014 see the Token Efficiency row for all requests. AI Usage Units sums the usage units each client reports per request (github.copilot.nano_aiu for Copilot CLI, copilot_chat.copilot_usage_nano_aiu for VS Code, divided by 1e9); it reflects the client's per-model and cache-tier pricing, is not a currency amount, and excludes sub-agent runs, which report no usage units. The earlier 'Est. Total Cost' summed github.copilot.cost, which is a flat 1 per CLI request.",
+      "description": "Agent runs are invoke_agent spans (one per user turn in VS Code agent mode; one per Copilot CLI process or sub-agent run). Token totals are the per-run roll-ups reported on those spans, so model requests made outside an agent run (inline chat, Next Edit Suggestions, commit messages) are not included here — see the Token Efficiency row for all requests. AI Usage Units sums the usage units each client reports per request (github.copilot.nano_aiu for Copilot CLI, copilot_chat.copilot_usage_nano_aiu for VS Code, divided by 1e9). Reported token cost converts valid reported units to USD at $0.01 per AI credit, without rounding the units first. Copilot supplies the model and cache-tier pricing. Missing or negative usage units are excluded from cost, not treated as free usage; see cost reporting coverage in the model table. This is usage value before included credits, not an invoice total. github.copilot.cost is not used because it is a flat 1 per CLI request.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -164,6 +164,33 @@
               {
                 "id": "decimals",
                 "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reported token cost"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              },
+              {
+                "id": "noValue",
+                "value": "Not reported"
               }
             ]
           },
@@ -271,7 +298,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let usage = toscalar(\n    dependencies\n    | where cloud_RoleName in (${source:singlequote})\n    | where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n    | extend aiu = coalesce(\n        todouble(customDimensions[\"github.copilot.nano_aiu\"]) / 1e9,\n        todouble(customDimensions[\"copilot_chat.copilot_usage_nano_aiu\"]) / 1e9)\n    | summarize round(sum(aiu), 1));\ndependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| extend\n    input_tokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize\n    Runs = count(),\n    InputTokens = sum(input_tokens),\n    OutputTokens = sum(output_tokens),\n    AvgRunSec = round(avg(duration) / 1000, 2)\n| project\n    ['AI Usage Units'] = usage,\n    ['Agent Runs'] = Runs,\n    ['Agent Input Tokens'] = InputTokens,\n    ['Agent Output Tokens'] = OutputTokens,\n    ['Avg Agent Run Duration'] = AvgRunSec",
+            "query": "let usage = materialize(\n    dependencies\n    | where cloud_RoleName in (${source:singlequote})\n    | where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n    | extend aiu = coalesce(\n        todouble(customDimensions[\"github.copilot.nano_aiu\"]) / 1e9,\n        todouble(customDimensions[\"copilot_chat.copilot_usage_nano_aiu\"]) / 1e9)\n    | summarize Aiu = sum(aiu),\n        TokenCost = iff(countif(aiu >= 0) > 0, sumif(aiu, aiu >= 0) * 0.01, real(null)));\ndependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| extend\n    input_tokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize\n    Runs = count(),\n    InputTokens = sum(input_tokens),\n    OutputTokens = sum(output_tokens),\n    AvgRunSec = round(avg(duration) / 1000, 2)\n| project\n    ['AI Usage Units'] = round(toscalar(usage | project Aiu), 1),\n    ['Reported token cost'] = toscalar(usage | project TokenCost),\n    ['Agent Runs'] = Runs,\n    ['Agent Input Tokens'] = InputTokens,\n    ['Agent Output Tokens'] = OutputTokens,\n    ['Avg Agent Run Duration'] = AvgRunSec",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1598,7 +1625,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Token usage per model. Totals cover every chat span with a recorded response model, including Copilot CLI sub-agent roll-up spans (a sub-agent run's usage is recorded as one span, so its model shows tokens but few or no measured requests). Requests, per-request averages and the cache hit rate use measured requests only. Cached input tokens (gen_ai.usage.cache_read.input_tokens) are always a subset of input tokens.",
+      "description": "Token usage per model. Totals cover every chat span with a recorded response model, including Copilot CLI sub-agent roll-up spans (a sub-agent run's usage is recorded as one span, so its model shows tokens but few or no measured requests). Requests, per-request averages and the cache hit rate use measured requests only. Cached input tokens (gen_ai.usage.cache_read.input_tokens) are always a subset of input tokens. Reported token cost uses Copilot's reported nano-AIU: divide by 1e9 for AI credits, then multiply by $0.01 for USD. This includes the model and cache-tier pricing reported by Copilot, before included credits. Cost reporting is the percentage of these chat spans with nonnegative usage units. Unreported spans do not erase known costs, and a model with no reported cost shows Not reported. See https://docs.github.com/en/copilot/concepts/billing-and-usage/organizations-and-enterprises/billing.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1713,6 +1740,42 @@
                 "value": 100
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reported token cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              },
+              {
+                "id": "noValue",
+                "value": "Not reported"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cost reporting %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
           }
         ]
       },
@@ -1751,7 +1814,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend model = tostring(customDimensions[\"gen_ai.response.model\"]),\n    measured = isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n        or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n        or isnotempty(customDimensions[\"github.copilot.server_duration\"]),\n    inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"]),\n    cacheRead = tolong(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"])\n| summarize Requests = countif(measured),\n    TotalInputTokens = sum(inputTokens),\n    TotalOutputTokens = sum(outputTokens),\n    MeasuredInput = sumif(inputTokens, measured),\n    MeasuredCached = sumif(cacheRead, measured),\n    AvgInputPerRequest = round(avgif(inputTokens, measured), 0),\n    AvgOutputPerRequest = round(avgif(outputTokens, measured), 0)\n    by model\n| extend ['Cache Hit %'] = iff(MeasuredInput > 0, round(100.0 * MeasuredCached / MeasuredInput, 1), real(null)),\n    AvgInputPerRequest = iff(Requests > 0, AvgInputPerRequest, real(null)),\n    AvgOutputPerRequest = iff(Requests > 0, AvgOutputPerRequest, real(null))\n| project model, Requests, TotalInputTokens, TotalOutputTokens, ['Cache Hit %'], AvgInput = AvgInputPerRequest, AvgOutput = AvgOutputPerRequest\n| order by TotalInputTokens desc",
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend model = tostring(customDimensions[\"gen_ai.response.model\"]),\n    measured = isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n        or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n        or isnotempty(customDimensions[\"github.copilot.server_duration\"]),\n    inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"]),\n    cacheRead = tolong(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"]),\n    aiu = coalesce(\n        todouble(customDimensions[\"github.copilot.nano_aiu\"]) / 1e9,\n        todouble(customDimensions[\"copilot_chat.copilot_usage_nano_aiu\"]) / 1e9)\n| summarize Requests = countif(measured),\n    TotalInputTokens = sum(inputTokens),\n    TotalOutputTokens = sum(outputTokens),\n    MeasuredInput = sumif(inputTokens, measured),\n    MeasuredCached = sumif(cacheRead, measured),\n    AvgInputPerRequest = round(avgif(inputTokens, measured), 0),\n    AvgOutputPerRequest = round(avgif(outputTokens, measured), 0),\n    ['Reported token cost'] = iff(countif(aiu >= 0) > 0, sumif(aiu, aiu >= 0) * 0.01, real(null)),\n    ['Cost reporting %'] = round(100.0 * countif(aiu >= 0) / count(), 1)\n    by model\n| extend ['Cache Hit %'] = iff(MeasuredInput > 0, round(100.0 * MeasuredCached / MeasuredInput, 1), real(null)),\n    AvgInputPerRequest = iff(Requests > 0, AvgInputPerRequest, real(null)),\n    AvgOutputPerRequest = iff(Requests > 0, AvgOutputPerRequest, real(null))\n| project model, ['Reported token cost'], ['Cost reporting %'], Requests, TotalInputTokens, TotalOutputTokens, ['Cache Hit %'], AvgInput = AvgInputPerRequest, AvgOutput = AvgOutputPerRequest\n| order by TotalInputTokens desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1765,7 +1828,7 @@
           "refId": "A"
         }
       ],
-      "title": "Token Usage by Model",
+      "title": "Token usage and cost by model",
       "type": "table"
     },
     {
@@ -2304,7 +2367,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Model requests (chat spans) by outcome. Completed: a response model and a latency attribute were recorded. No response recorded: Copilot CLI chat spans that ended without a response model, tokens or output (status unset, success true) \u2014 cancelled or superseded requests whose outcome is unknown; they are not counted as failures. Failed: success = false. Sub-agent roll-up spans, which are not requests, are excluded.",
+      "description": "Model requests (chat spans) by outcome. Completed: a response model and a latency attribute were recorded. No response recorded: Copilot CLI chat spans that ended without a response model, tokens or output (status unset, success true) — cancelled or superseded requests whose outcome is unknown; they are not counted as failures. Failed: success = false. Sub-agent roll-up spans, which are not requests, are excluded.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2998,8 +3061,8 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "GitHub Copilot",
-  "uid": "GitHubCopilot",
-  "version": 38,
+  "title": "FTK - GitHub Copilot",
+  "uid": "ftk-github-copilot",
+  "version": 1,
   "weekStart": ""
 }
