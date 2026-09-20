@@ -44,6 +44,14 @@
                   "linkLabel": "Foundry agents",
                   "subTarget": "foundry-agents",
                   "style": "link"
+                },
+                {
+                  "id": "b90a230b-78e4-a924-69a0-240cd2d69858",
+                  "cellValue": "SelectedAiTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "GitHub Copilot",
+                  "subTarget": "github-copilot",
+                  "style": "link"
                 }
               ]
             },
@@ -129,6 +137,33 @@
               "value": "foundry-agents"
             },
             "name": "07a91bf1-5713-4154-a95a-5745c0fbf350"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "loadType": "lazy",
+              "items": [
+                {
+                  "type": 12,
+                  "content": {
+                    "version": "NotebookGroup/1.0",
+                    "groupType": "template",
+                    "loadType": "lazy",
+                    "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/ai-github-copilot",
+                    "items": []
+                  },
+                  "name": "group - ai-github-copilot"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedAiTab",
+              "comparison": "isEqualTo",
+              "value": "github-copilot"
+            },
+            "name": "afe7b696-dada-d2a5-18cf-29b894f2b65d"
           }
         ]
       },

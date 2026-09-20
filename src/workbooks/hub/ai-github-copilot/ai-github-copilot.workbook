@@ -1,0 +1,846 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "loadType": "lazy",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "### GitHub Copilot\n\nAgent, chat, and tool telemetry for GitHub Copilot surfaces, read from the Application Insights component that receives Copilot traces. Token counts and durations are instrument-reported; an absent signal is unknown, not zero."
+            },
+            "customWidth": "100",
+            "name": "68b556f4-37c2-ab19-dc55-cc95c526cd66"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "691ba737-7425-ea2c-59aa-227eaeb0ae74",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "TimeRange",
+                  "label": "Time range",
+                  "type": 4,
+                  "isRequired": true,
+                  "value": {
+                    "durationMs": 604800000
+                  },
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 3600000
+                      },
+                      {
+                        "durationMs": 14400000
+                      },
+                      {
+                        "durationMs": 86400000
+                      },
+                      {
+                        "durationMs": 172800000
+                      },
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      },
+                      {
+                        "durationMs": 7776000000
+                      }
+                    ],
+                    "allowCustom": true
+                  }
+                },
+                {
+                  "id": "192cba1e-91e0-f390-e5ce-3af6c34c673d",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "CopilotSource",
+                  "label": "Copilot surface",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "datatable(value:string, label:string, selected:bool)\n[\n    'copilot-chat', 'VS Code Copilot', true,\n    'github-copilot', 'Copilot CLI', true,\n]",
+                  "queryType": 0,
+                  "resourceType": "microsoft.insights/components",
+                  "crossComponentResources": [
+                    "{TelemetryApplications}"
+                  ],
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  }
+                }
+              ]
+            },
+            "customWidth": "100",
+            "name": "965cabf7-cf06-edce-f709-9bf40e0d728a"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Summary"
+            },
+            "customWidth": "100",
+            "name": "0c2e172e-f772-a5b9-a605-9ac8ca910762"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let usage = materialize(\n    dependencies\n    | where cloud_RoleName in ({CopilotSource})\n    | where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n    | extend aiu = coalesce(\n        todouble(customDimensions[\"github.copilot.nano_aiu\"]) / 1e9,\n        todouble(customDimensions[\"copilot_chat.copilot_usage_nano_aiu\"]) / 1e9)\n    | summarize Aiu = sum(aiu),\n        TokenCost = iff(countif(aiu >= 0) > 0, sumif(aiu, aiu >= 0) * 0.01, real(null)));\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| extend\n    input_tokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize\n    Runs = count(),\n    InputTokens = sum(input_tokens),\n    OutputTokens = sum(output_tokens),\n    AvgRunSec = round(avg(duration) / 1000, 2)\n| project\n    ['AI Usage Units'] = round(toscalar(usage | project Aiu), 1),\n    ['Reported token cost'] = toscalar(usage | project TokenCost),\n    ['Agent Runs'] = Runs,\n    ['Agent Input Tokens'] = InputTokens,\n    ['Agent Output Tokens'] = OutputTokens,\n    ['Avg Agent Run Duration'] = AvgRunSec",
+              "size": 1,
+              "title": "Agent Summary Statistics",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "(?i)^(cost|tokens?|count|runs?|calls?|total|.*Cost|.*Tokens|.*Count)$",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "1c3e2855-94e8-c946-652d-2b225574bd6b"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| extend\n    op = tostring(customDimensions[\"gen_ai.operation.name\"]),\n    hasModel = isnotempty(customDimensions[\"gen_ai.response.model\"]),\n    measured = isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n        or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n        or isnotempty(customDimensions[\"github.copilot.server_duration\"]),\n    isReasoning = isnotempty(tostring(customDimensions[\"copilot_chat.reasoning_content\"]))\n        or tolong(customDimensions[\"gen_ai.usage.reasoning.output_tokens\"]) > 0,\n    sessId = coalesce(\n        tostring(customDimensions[\"copilot_chat.chat_session_id\"]),\n        tostring(customDimensions[\"gen_ai.conversation.id\"])),\n    ttft = coalesce(\n        todouble(customDimensions[\"copilot_chat.time_to_first_token\"]),\n        todouble(customDimensions[\"gen_ai.response.time_to_first_chunk\"]) * 1000)\n| summarize\n    ['LLM Calls'] = countif(op == \"chat\" and (measured or not(hasModel))),\n    ['Chat Sessions'] = dcountif(sessId, isnotempty(sessId)),\n    ['Tool Calls'] = countif(op == \"execute_tool\"),\n    ['Reasoning Calls'] = countif(op == \"chat\" and measured and isReasoning),\n    ['Avg TTFT'] = round(avgif(ttft, op == \"chat\" and isnotnull(ttft)), 0)",
+              "size": 1,
+              "title": "Chat & Tool Summary",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "(?i)^(cost|tokens?|count|runs?|calls?|total|.*Cost|.*Tokens|.*Count)$",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "f12b511b-b416-ceb0-304d-41a48645df6f"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Usage Over Time"
+            },
+            "customWidth": "100",
+            "name": "45c4f802-abdf-a7ae-0c07-5026342a0250"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| extend opName = tostring(customDimensions[\"gen_ai.operation.name\"])\n| where isnotempty(opName)\n| summarize Count = count() by bin(timestamp, Bucket), opName\n| order by timestamp asc",
+              "size": 1,
+              "title": "Operations Over Time",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "0141635f-d907-e8e1-c4f9-f7e3608679c0"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\nlet topModels = materialize(\n    dependencies\n    | where cloud_RoleName in ({CopilotSource})\n    | where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n    | where isnotempty(customDimensions[\"gen_ai.response.model\"])\n    | extend m = tostring(customDimensions[\"gen_ai.response.model\"]),\n        inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n        outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n    | summarize Total = sum(inputTokens) + sum(outputTokens) by m\n    | top 7 by Total\n    | project m);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]),\n    inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize TotalTokens = sum(inputTokens) + sum(outputTokens) by bin(timestamp, Bucket), model\n| order by timestamp asc",
+              "size": 1,
+              "title": "Token Consumption Over Time by Model",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "25add65e-210f-0574-90fe-3781b4944b78"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Model Performance"
+            },
+            "customWidth": "100",
+            "name": "fefa0fb3-af81-5539-a941-84f62e62a8ca"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let base = dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| where isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n    or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n    or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]);\nlet topModels = materialize(base | summarize Total = count() by m | top 7 by Total | project m);\nbase\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize CallCount = count() by model\n| order by CallCount desc",
+              "size": 1,
+              "title": "Model Usage Distribution",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "piechart"
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "33",
+            "name": "cd36988a-5fb3-0bc3-bba4-ddfa4cfae71a"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let base = dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| where isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n    or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n    or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]),\n    llmDuration = coalesce(todouble(customDimensions[\"github.copilot.server_duration\"]), duration);\nlet topModels = materialize(base | summarize Total = count() by m | top 7 by Total | project m);\nbase\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize ['Avg Duration'] = round(avg(llmDuration), 0), ['P90 Duration'] = round(percentile(llmDuration, 90), 0) by model\n| order by ['Avg Duration'] desc",
+              "size": 1,
+              "title": "LLM Request Duration by Model (Avg / P90)",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "barchart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "33",
+            "name": "b8e81d06-d9f1-af30-daab-f51598891ea9"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let base = dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| where isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n    or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n    or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| extend ttft = coalesce(\n        todouble(customDimensions[\"copilot_chat.time_to_first_token\"]),\n        todouble(customDimensions[\"gen_ai.response.time_to_first_chunk\"]) * 1000)\n| where isnotnull(ttft)\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]);\nlet topModels = materialize(base | summarize Total = count() by m | top 7 by Total | project m);\nbase\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize ['P50 TTFT'] = round(percentile(ttft, 50), 0), ['P90 TTFT'] = round(percentile(ttft, 90), 0) by model\n| order by ['P50 TTFT'] desc",
+              "size": 1,
+              "title": "Time to First Token by Model (P50 / P90)",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "barchart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "33",
+            "name": "fd86631b-abd1-ece6-c608-6fe6f5b17bc5"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Agent & Feature Activity"
+            },
+            "customWidth": "100",
+            "name": "4f023b0e-2c8c-43e3-162a-6920aff70fa8"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let topAgents = materialize(\n    dependencies\n    | where cloud_RoleName in ({CopilotSource})\n    | where not(tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\" and isnotempty(customDimensions[\"gen_ai.response.model\"]))\n    | extend a = tostring(customDimensions[\"gen_ai.agent.name\"])\n    | where isnotempty(a)\n    | summarize Total = count() by a\n    | top 7 by Total\n    | project a);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where not(tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\" and isnotempty(customDimensions[\"gen_ai.response.model\"]))\n| extend a = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(a)\n| extend agentName = iff(a in (topAgents), a, \"other\")\n| summarize CallCount = count() by agentName\n| order by CallCount desc",
+              "size": 1,
+              "title": "Copilot Feature Usage",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "piechart"
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "33",
+            "name": "514e84d3-940d-ddf0-c902-74d977189bb9"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let topTools = materialize(\n    dependencies\n    | where cloud_RoleName in ({CopilotSource})\n    | where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n    | extend t = tostring(customDimensions[\"gen_ai.tool.name\"])\n    | where isnotempty(t)\n    | summarize Total = count() by t\n    | top 7 by Total\n    | project t);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n| extend t = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where isnotempty(t)\n| extend toolName = iff(t in (topTools), t, \"other\")\n| summarize CallCount = count() by toolName\n| order by CallCount desc",
+              "size": 1,
+              "title": "Top Tool Calls",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "barchart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "33",
+            "name": "90a9f613-a36a-2873-f0e8-6708f9273f7d"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\nlet base = dependencies\n| where cloud_RoleName in ({CopilotSource})\n| extend op = tostring(customDimensions[\"gen_ai.operation.name\"]),\n    sessId = coalesce(\n        tostring(customDimensions[\"copilot_chat.chat_session_id\"]),\n        tostring(customDimensions[\"gen_ai.conversation.id\"]));\nlet sessions = base\n| where isnotempty(sessId)\n| summarize Count = dcount(sessId) by bin(timestamp, Bucket)\n| extend eventName = \"Chat Sessions\";\nlet runs = base\n| where op == \"invoke_agent\"\n| summarize Count = count() by bin(timestamp, Bucket)\n| extend eventName = \"Agent Runs\";\nlet llmCalls = base\n| where op == \"chat\"\n| summarize Count = count() by bin(timestamp, Bucket)\n| extend eventName = \"LLM Calls\";\nlet tools = base\n| where op == \"execute_tool\"\n| summarize Count = count() by bin(timestamp, Bucket)\n| extend eventName = \"Tool Calls\";\nunion sessions, runs, llmCalls, tools\n| order by timestamp asc",
+              "size": 1,
+              "title": "Sessions, Agent Runs, LLM & Tool Calls Over Time",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "33",
+            "name": "fa8d2473-a25a-426a-5f20-4cb28a3b01b7"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n| extend tool = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where isnotempty(tool)\n| summarize Calls = count(), ['P50 Latency'] = round(percentile(duration, 50), 0), ['P90 Latency'] = round(percentile(duration, 90), 0) by tool\n| top 10 by Calls\n| project tool, ['P50 Latency'], ['P90 Latency']\n| order by ['P90 Latency'] desc",
+              "size": 1,
+              "title": "Tool Latency by Tool (P50 / P90)",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "barchart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "a721cd6c-6a78-77da-68a5-7cebdd9d746d"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| extend agent = tostring(customDimensions[\"gen_ai.agent.name\"])\n| summarize Runs = count(), ['P50 Duration'] = round(percentile(duration, 50), 0), ['P90 Duration'] = round(percentile(duration, 90), 0), ['Max Duration'] = max(duration), ['Runs > 10 min'] = countif(duration > 600000) by Source = cloud_RoleName, Agent = iff(isempty(agent), \"(unnamed)\", agent)\n| order by Runs desc",
+              "size": 1,
+              "title": "Agent Run Duration by Source and Agent",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "(?i)^(cost|tokens?|count|runs?|calls?|total|.*Cost|.*Tokens|.*Count)$",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "aa859805-21b7-035b-5ac9-55650675e42c"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Token Efficiency & Cost"
+            },
+            "customWidth": "100",
+            "name": "6013c6e2-0545-7654-ecf9-6452bfa7f23c"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend model = tostring(customDimensions[\"gen_ai.response.model\"]),\n    measured = isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n        or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n        or isnotempty(customDimensions[\"github.copilot.server_duration\"]),\n    inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"]),\n    cacheRead = tolong(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"]),\n    aiu = coalesce(\n        todouble(customDimensions[\"github.copilot.nano_aiu\"]) / 1e9,\n        todouble(customDimensions[\"copilot_chat.copilot_usage_nano_aiu\"]) / 1e9)\n| summarize Requests = countif(measured),\n    TotalInputTokens = sum(inputTokens),\n    TotalOutputTokens = sum(outputTokens),\n    MeasuredInput = sumif(inputTokens, measured),\n    MeasuredCached = sumif(cacheRead, measured),\n    AvgInputPerRequest = round(avgif(inputTokens, measured), 0),\n    AvgOutputPerRequest = round(avgif(outputTokens, measured), 0),\n    ['Reported token cost'] = iff(countif(aiu >= 0) > 0, sumif(aiu, aiu >= 0) * 0.01, real(null)),\n    ['Cost reporting %'] = round(100.0 * countif(aiu >= 0) / count(), 1)\n    by model\n| extend ['Cache Hit %'] = iff(MeasuredInput > 0, round(100.0 * MeasuredCached / MeasuredInput, 1), real(null)),\n    AvgInputPerRequest = iff(Requests > 0, AvgInputPerRequest, real(null)),\n    AvgOutputPerRequest = iff(Requests > 0, AvgOutputPerRequest, real(null))\n| project model, ['Reported token cost'], ['Cost reporting %'], Requests, TotalInputTokens, TotalOutputTokens, ['Cache Hit %'], AvgInput = AvgInputPerRequest, AvgOutput = AvgOutputPerRequest\n| order by TotalInputTokens desc",
+              "size": 1,
+              "title": "Token usage and cost by model",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "(?i)^(cost|tokens?|count|runs?|calls?|total|.*Cost|.*Tokens|.*Count)$",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "96f1add6-e147-b1ba-fa35-2f0966a3a7eb"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize ['Input Tokens'] = sum(inputTokens), ['Output Tokens'] = sum(outputTokens) by bin(timestamp, Bucket)\n| order by timestamp asc",
+              "size": 1,
+              "title": "Input vs Output Tokens Over Time",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "d7c1ead1-72cd-fc2c-50ea-65ee177ed2dc"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Errors & Reliability"
+            },
+            "customWidth": "100",
+            "name": "f758dbaf-1fbd-4e93-3055-18e38a255694"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\nexceptions\n| where cloud_RoleName in ({CopilotSource})\n| extend exType = coalesce(type, outerType, tostring(customDimensions[\"exception.type\"]))\n| summarize Count = count() by bin(timestamp, Bucket), exType\n| order by timestamp asc",
+              "size": 1,
+              "title": "Exceptions Over Time",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "3738288b-a11f-0bce-875b-8cb6beafc85c"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "exceptions\n| where cloud_RoleName in ({CopilotSource})\n| extend ExceptionType = coalesce(type, outerType, tostring(customDimensions[\"exception.type\"])),\n    Message = coalesce(outerMessage, innermostMessage, problemId)\n| project timestamp, ExceptionType, Message\n| order by timestamp desc",
+              "size": 1,
+              "title": "Exception Details",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "(?i)^(cost|tokens?|count|runs?|calls?|total|.*Cost|.*Tokens|.*Count)$",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "50",
+            "name": "8fa7e6fd-35cb-ec68-59eb-5cb11d4030f4"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n| extend tool = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where isnotempty(tool)\n| summarize Calls = count(), Failed = countif(tobool(success) == false), ['P90 Duration'] = round(percentile(duration, 90), 0) by Source = cloud_RoleName, Tool = tool\n| where Failed > 0\n| extend ['Failure %'] = round(100.0 * Failed / Calls, 1)\n| project Source, Tool, Failed, Calls, ['Failure %'], ['P90 Duration']\n| order by Failed desc\n| take 15",
+              "size": 1,
+              "title": "Tool Call Failures by Tool",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "(?i)^(cost|tokens?|count|runs?|calls?|total|.*Cost|.*Tokens|.*Count)$",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "42",
+            "name": "8208e5e2-7894-5067-9a14-b7049765c1e1"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| extend hasModel = isnotempty(customDimensions[\"gen_ai.response.model\"]),\n    measured = isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n        or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n        or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| where not(hasModel and not(measured))\n| extend outcome = case(\n    tobool(success) == false, \"Failed\",\n    not(hasModel), \"No response recorded\",\n    \"Completed\")\n| summarize Count = count() by bin(timestamp, Bucket), outcome\n| order by timestamp asc",
+              "size": 1,
+              "title": "LLM Call Outcomes Over Time",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "timechart",
+              "chartSettings": {
+                "showLegend": true
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "33",
+            "name": "452634db-514f-f5ad-a09e-5bebb56e73df"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| summarize ['Last Span'] = max(timestamp), Spans = count(), ['Agent Runs'] = countif(tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\") by Source = cloud_RoleName\n| extend ['Since Last Span'] = round(datetime_diff('minute', now(), ['Last Span']) / 60.0, 1)\n| project Source, ['Last Span'], ['Since Last Span'], Spans, ['Agent Runs']\n| order by Source asc",
+              "size": 1,
+              "title": "Telemetry Freshness",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "(?i)^(cost|tokens?|count|runs?|calls?|total|.*Cost|.*Tokens|.*Count)$",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "25",
+            "name": "3b959795-9d9f-80c3-36f5-1ddcf8ebf6c7"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Select a trace"
+            },
+            "customWidth": "100",
+            "name": "2a080577-3d2e-6917-9a0b-322ee4c11ca3"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where cloud_RoleName in ({CopilotSource})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| extend operation = tostring(customDimensions[\"gen_ai.operation.name\"]),\n    agent = tostring(customDimensions[\"gen_ai.agent.name\"]),\n    model = coalesce(tostring(customDimensions[\"gen_ai.response.model\"]), tostring(customDimensions[\"gen_ai.request.model\"])),\n    input_tokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| project timestamp, Source = cloud_RoleName, operation, agent, model, success, duration, input_tokens, output_tokens, TraceId=operation_Id\n| order by timestamp desc",
+              "size": 1,
+              "title": "Recent Operations",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "(?i)^(cost|tokens?|count|runs?|calls?|total|.*Cost|.*Tokens|.*Count)$",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              },
+              "exportedParameters": [
+                {
+                  "fieldName": "TraceId",
+                  "parameterName": "CopilotTraceId",
+                  "parameterType": 1
+                }
+              ],
+              "exportToExcelOptions": "visible"
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "116d7eb9-e793-7774-e51a-4d3c3634e816"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Trace detail"
+            },
+            "customWidth": "100",
+            "name": "a1fbb1b3-aa9b-e92f-dca6-6e40afe2529e"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Trace detail"
+            },
+            "customWidth": "100",
+            "name": "781f7019-61a1-ee0c-f348-9161ab7760b7"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet TraceId = '{CopilotTraceId}';\nunion isfuzzy=true\n    (requests | extend ItemType = 'request', Name = name, Detail = url, DurationMs = duration, Ok = success),\n    (dependencies | extend ItemType = 'dependency', Name = name, Detail = data, DurationMs = duration, Ok = success),\n    (traces | extend ItemType = 'trace', Name = message, Detail = tostring(customDimensions), DurationMs = real(null), Ok = bool(null)),\n    (customEvents | extend ItemType = 'event', Name = name, Detail = tostring(customDimensions), DurationMs = real(null), Ok = bool(null)),\n    (exceptions | extend ItemType = 'exception', Name = type, Detail = outerMessage, DurationMs = real(null), Ok = false)\n| where timestamp >= StartTime and timestamp < EndTime\n| where operation_Id == TraceId\n| project timestamp, ItemType, Name, DurationMs, Ok, SpanId = itemId, ParentId = operation_ParentId, Detail\n| order by timestamp asc",
+                    "size": 2,
+                    "title": "Trace spans",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "timeContextFromParameter": "TimeRange",
+                    "queryType": 0,
+                    "resourceType": "microsoft.insights/components",
+                    "crossComponentResources": [
+                      "{TelemetryApplications}"
+                    ],
+                    "visualization": "table",
+                    "gridSettings": {
+                      "formatters": [
+                        {
+                          "columnMatch": "(?i)^(cost|tokens?|count|runs?|calls?|total|.*Cost|.*Tokens|.*Count)$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        }
+                      ],
+                      "rowLimit": 1000
+                    }
+                  },
+                  "doNotRunWhenHidden": true,
+                  "customWidth": "100",
+                  "name": "ea2d55ea-ca58-fd37-f5f0-f168716e37f4"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "CopilotTraceId",
+              "comparison": "isNotEqualTo",
+              "value": ""
+            },
+            "name": "8492de9d-04c8-df7b-654c-d3c3b60eb362"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "_Select a row in **Recent Operations** to resolve its trace._"
+            },
+            "conditionalVisibility": {
+              "parameterName": "CopilotTraceId",
+              "comparison": "isEqualTo",
+              "value": ""
+            },
+            "customWidth": "100",
+            "name": "4180e135-efc8-b633-175b-7be0c85a879b"
+          }
+        ]
+      },
+      "name": "group - ai-github-copilot"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
