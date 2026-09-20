@@ -188,10 +188,17 @@ The AHB estimate is separate: `AHBSavingsMonthly` represents 730 hours for the c
 
 ### Monitoring
 
-| Scan           | What it finds                     |
-| -------------- | --------------------------------- |
-| Budget Status  | Budget consumption vs. thresholds |
-| Anomaly Alerts | Recent cost anomaly detections    |
+| Scan           | What it finds                                                  |
+| -------------- | -------------------------------------------------------------- |
+| Budget Status  | Budget consumption vs. thresholds                              |
+| Budget History | Completed-month costs compared with the current monthly budget |
+| Anomaly Alerts | Recent cost anomaly detections                                 |
+
+**Budget History** supports monthly cost budgets with no filter, a tag or dimension `In` filter, or an `and` combination of those filters. An empty filter object (`{}`) means no filter. Filtered budgets use a Cost Management query with the matching filter, even when the primary cost source is a hub. Only unfiltered budgets can reuse the subscription cost trend. Results are cached separately for each subscription and exact filter, including case-sensitive tag values.
+
+Months before a budget was active for the full month remain **Unavailable**. Unsupported filters, nonmonthly periods, missing budget details, and currency mismatches also remain unavailable; the tool doesn't substitute whole-subscription spend for a filtered budget. Failed or incomplete cost queries remain errors rather than zero spend. Comparisons use the current budget amount and filter, not historical budget revisions. See the [budget filter schema](https://learn.microsoft.com/azure/templates/microsoft.consumption/2023-11-01/budgets#budgetfilter) and [Cost Management query API](https://learn.microsoft.com/rest/api/cost-management/query/usage?view=rest-cost-management-2023-11-01).
+
+Current forecasts in **Budget Status** come from Azure's budget response, independently of historical actual costs. If the response omits a forecast amount or a compatible currency, the forecast remains **Unavailable**.
 
 ### Sustainability
 

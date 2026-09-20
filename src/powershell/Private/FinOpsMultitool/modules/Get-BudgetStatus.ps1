@@ -70,8 +70,8 @@ function Get-BudgetStatus {
                 $resp = Invoke-AzRestMethodWithRetry -Path $budgetPath -Method GET
                 if ($resp.StatusCode -eq 200) {
                     $sampleBudgets = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -RootNextLink -Context "budget sample for $($sub.Name)")) {
-                        ($page.Content | ConvertFrom-Json -ErrorAction Stop).value
-                    })
+                            ($page.Content | ConvertFrom-Json -ErrorAction Stop).value
+                        })
                     if ($sampleBudgets -and $sampleBudgets.Count -gt 0) { $sampleHits++ }
                 }
                 else { $sampleErrors++ }
@@ -116,8 +116,8 @@ function Get-BudgetStatus {
 
             if ($resp.StatusCode -eq 200) {
                 $budgetRows = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -RootNextLink -Context "budgets for $($sub.Name)")) {
-                    ($page.Content | ConvertFrom-Json -ErrorAction Stop).value
-                })
+                        ($page.Content | ConvertFrom-Json -ErrorAction Stop).value
+                    })
                 if ($budgetRows.Count -gt 0) {
                     $subsWithBudget++
                     foreach ($budget in $budgetRows) {
@@ -295,6 +295,46 @@ function Get-BudgetStatus {
     }
 }
 
+function ConvertTo-BudgetHistoryFilter {
+    [CmdletBinding()]
+    param(
+        [AllowNull()][object]$Filter,
+        [int]$Depth = 0
+    )
+
+    if ($Depth -gt 4) { throw 'Budget filter nesting is unsupported.' }
+    if ($null -eq $Filter -and $Depth -eq 0) { return $null }
+    if ($Filter -isnot [System.Collections.IDictionary] -and $Filter -isnot [pscustomobject]) {
+        throw 'Budget filter must be a structured expression.'
+    }
+    $keys = @(if ($Filter -is [System.Collections.IDictionary]) { $Filter.Keys }
+        else { $Filter.PSObject.Properties | ForEach-Object Name })
+    if ($keys.Count -eq 0 -and $Depth -eq 0) { return $null }
+    if ($keys.Count -ne 1 -or $keys[0] -notin @('and', 'dimensions', 'tags')) {
+        throw 'Budget filter contains an unsupported or ambiguous expression.'
+    }
+    $kind = ([string]$keys[0]).ToLowerInvariant()
+    if ($kind -eq 'and') {
+        if ($Filter.and -isnot [array] -or $Filter.and.Count -lt 2) { throw 'Budget filter AND must contain at least two expressions.' }
+        $children = @(foreach ($child in $Filter.and) { ConvertTo-BudgetHistoryFilter -Filter $child -Depth ($Depth + 1) })
+        return [ordered]@{ and = $children }
+    }
+
+    $comparison = $Filter.$kind
+    if ($comparison -isnot [System.Collections.IDictionary] -and $comparison -isnot [pscustomobject]) {
+        throw 'Budget filter comparison is invalid.'
+    }
+    $comparisonKeys = @(if ($comparison -is [System.Collections.IDictionary]) { $comparison.Keys }
+        else { $comparison.PSObject.Properties | ForEach-Object Name })
+    if ($comparisonKeys.Count -ne 3 -or @($comparisonKeys | Where-Object { $_ -notin @('name', 'operator', 'values') }).Count -gt 0 -or
+        $comparison.name -isnot [string] -or [string]::IsNullOrWhiteSpace($comparison.name) -or
+        $comparison.operator -ne 'In' -or $comparison.values -isnot [array] -or $comparison.values.Count -eq 0 -or
+        @($comparison.values | Where-Object { $_ -isnot [string] }).Count -gt 0) {
+        throw 'Budget filter requires a name, the In operator, and string values.'
+    }
+    return [ordered]@{ $kind = [ordered]@{ name = $comparison.name; operator = 'In'; values = @($comparison.values) } }
+}
+
 function Get-BudgetHistory {
     [CmdletBinding()]
     param(
@@ -318,7 +358,7 @@ function Get-BudgetHistory {
     $now = (Get-Date).ToUniversalTime()
     $monthStart = $now.Date.AddDays(1 - $now.Day)
     $monthDates = @(for ($monthsAgo = $MonthsBack; $monthsAgo -ge 1; $monthsAgo--) { $monthStart.AddMonths(-$monthsAgo) })
-    $costCache = @{}
+    $costCache = [System.Collections.Generic.Dictionary[string, object]]::new([StringComparer]::Ordinal)
 
     foreach ($budget in $Budgets) {
         $reason = $null
@@ -326,8 +366,15 @@ function Get-BudgetHistory {
         $periodStart = $null
         $periodEnd = [datetime]::MaxValue
         $subId = [string]$budget.SubscriptionId
-        if ($budget.Filter -or $budget.TagFilter) { $reason = 'Filtered budget history requires costs for the same filter.' }
-        elseif ($budget.Category -ne 'Cost' -or $budget.TimeGrain -ne 'Monthly') { $reason = 'Subscription monthly costs cannot reconstruct this budget category or period.' }
+        $queryFilter = $null
+        try {
+            $queryFilter = ConvertTo-BudgetHistoryFilter -Filter $budget.Filter
+            if ($null -eq $queryFilter -and $budget.TagFilter) { throw 'The structured budget filter is unavailable.' }
+        }
+        catch { $reason = "Budget history cannot apply this filter: $($_.Exception.Message)" }
+        $filterKey = if ($null -eq $queryFilter) { '' } else { ConvertTo-Json -InputObject $queryFilter -Depth 20 -Compress }
+        $cacheKey = "$subId|$filterKey"
+        if (-not $reason -and ($budget.Category -ne 'Cost' -or $budget.TimeGrain -ne 'Monthly')) { $reason = 'Subscription monthly costs cannot reconstruct this budget category or period.' }
         elseif (-not $budget.Currency) { $reason = 'Budget currency is unavailable.' }
         elseif ($budget.Scope -and $budget.Scope -ne "/subscriptions/$subId") { $reason = 'Budget scope differs from the subscription cost scope.' }
         try {
@@ -343,9 +390,9 @@ function Get-BudgetHistory {
         catch { $reason = 'Budget validity period is unavailable.' }
         $activeMonths = if (-not $reason) { @($monthDates | Where-Object { $_ -ge $periodStart -and $_.AddMonths(1) -le $periodEnd }) } else { @() }
 
-        if (-not $reason -and $activeMonths.Count -gt 0 -and -not $costCache.ContainsKey($subId)) {
+        if (-not $reason -and $activeMonths.Count -gt 0 -and -not $costCache.ContainsKey($cacheKey)) {
             $monthlyCosts = @{}
-            if ($CostTrend -and $CostTrend.BySubscription -and $CostTrend.BySubscription[$subId]) {
+            if ($null -eq $queryFilter -and $CostTrend -and $CostTrend.BySubscription -and $CostTrend.BySubscription[$subId]) {
                 try {
                     foreach ($entry in $CostTrend.BySubscription[$subId]) {
                         if ($entry.MonthDate -isnot [datetime] -or -not $entry.Currency) { throw 'Cached cost date or currency is missing.' }
@@ -361,11 +408,13 @@ function Get-BudgetHistory {
             $covered = $true
             foreach ($month in $monthDates) { if (-not $monthlyCosts.ContainsKey($month.ToString('yyyy-MM'))) { $covered = $false } }
             if (-not $covered) {
+                $dataset = @{ granularity = 'Monthly'; aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } } }
+                if ($null -ne $queryFilter) { $dataset.filter = $queryFilter }
                 $body = @{
                     type = 'ActualCost'; timeframe = 'Custom'
                     timePeriod = @{ from = $monthDates[0].ToString('yyyy-MM-dd'); to = $monthStart.AddDays(-1).ToString('yyyy-MM-dd') }
-                    dataset = @{ granularity = 'Monthly'; aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } } }
-                } | ConvertTo-Json -Depth 10
+                    dataset = $dataset
+                } | ConvertTo-Json -Depth 20
                 $costPath = "/subscriptions/$subId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
                 $response = Invoke-AzRestMethodWithRetry -Path $costPath -Method POST -Payload $body
                 $result = Get-CostQueryResult -FirstResponse $response -Payload $body -Context "budget history for $($budget.Subscription)"
@@ -395,7 +444,7 @@ function Get-BudgetHistory {
                     $monthlyCosts[$key].Cost += [double]$row[$costIndex]
                 }
             }
-            $costCache[$subId] = $monthlyCosts
+            $costCache[$cacheKey] = $monthlyCosts
         }
 
         foreach ($month in $monthDates) {
@@ -408,7 +457,7 @@ function Get-BudgetHistory {
                 $rowReason = 'The budget was not active for this full month.'
             }
             if (-not $rowReason) {
-                $cost = $costCache[$subId][$key]
+                $cost = $costCache[$cacheKey][$key]
                 if ($cost.Currency -and $cost.Currency -ne $budget.Currency) { $rowReason = 'Cost currency does not match the budget currency.' }
                 else {
                     $actual = [math]::Round($cost.Cost, 2)
@@ -417,11 +466,13 @@ function Get-BudgetHistory {
                 }
             }
             [void]$history.Add([PSCustomObject]@{
-                Subscription = $budget.Subscription; BudgetName = $budget.BudgetName; Month = $month.ToString('MMM yyyy'); MonthSort = $key
-                BudgetAmount = if ($budget.TimeGrain -eq 'Monthly') { $budgetAmount } else { $null }
-                ActualSpend = $actual; PctUsed = $pctUsed; Status = $status; Currency = $budget.Currency
-                Note = if ($rowReason) { $rowReason } else { 'Compared with the current budget amount; prior budget revisions are unavailable.' }
-            })
+                    Subscription = $budget.Subscription; BudgetName = $budget.BudgetName; Month = $month.ToString('MMM yyyy'); MonthSort = $key
+                    BudgetAmount = if ($budget.TimeGrain -eq 'Monthly') { $budgetAmount } else { $null }
+                    ActualSpend = $actual; PctUsed = $pctUsed; Status = $status; Currency = $budget.Currency
+                    Note = if ($rowReason) { $rowReason }
+                    elseif ($null -ne $queryFilter) { 'Costs use the current budget filter and amount; prior budget revisions are unavailable.' }
+                    else { 'Compared with the current budget amount; prior budget revisions are unavailable.' }
+                })
         }
     }
 
