@@ -119,7 +119,7 @@ function Build-MainBicep($dir)
 # Generate workbook templates
 Write-Verbose "Searching for workbook templates..."
 $workbooks = Get-ChildItem "$PSScriptRoot/../workbooks/*" -Directory `
-| Where-Object { $_.Name -ne '.scaffold' -and ($Template -eq "*" -or $Template -eq $_.Name -or $Template -eq "$($_.Name)-workbook" -or $Template -eq "finops-workbooks") }
+| Where-Object { $_.Name -ne '.scaffold' -and (Test-Path "$($_.FullName)/workbook.json") -and ($Template -eq "*" -or $Template -eq $_.Name -or $Template -eq "$($_.Name)-workbook" -or $Template -eq "finops-workbooks") }
 
 if ($workbooks)
 {

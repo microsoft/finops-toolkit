@@ -28,6 +28,13 @@ if (-not (Test-Path $srcDir)) {
   return
 }
 
+# The workbooks folder also holds content that is not a workbook, like the
+# Grafana dashboards, so only folders that define a workbook are built.
+if (-not (Test-Path "$srcDir/workbook.json")) {
+  Write-Verbose "Skipping $Workbook because it does not contain a workbook.json file"
+  return
+}
+
 # Copy scaffold and workbook files
 & "$PSScriptRoot/New-Directory" $outDir
 Copy-Item "$PSScriptRoot/../workbooks/.scaffold/*" $outDir -Exclude workbook.json

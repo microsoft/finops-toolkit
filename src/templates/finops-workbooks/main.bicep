@@ -16,6 +16,9 @@ param includeOptimization bool = true
 @sys.description('Optional. Indicates whether to deploy the governance workbook. Default: true.')
 param includeGovernance bool = true
 
+@sys.description('Optional. Indicates whether to deploy the FinOps hub workbook. Requires clusterUri. Default: true.')
+param includeHub bool = true
+
 @sys.description('Optional. Indicates whether to deploy the Grafana dashboards. Requires clusterUri. Default: true.')
 param includeDashboards bool = true
 
@@ -112,6 +115,26 @@ module governance 'workbooks/governance/main.bicep' = if (includeGovernance) {
 }
 
 //------------------------------------------------------------------------------
+// FinOps hub workbook
+//------------------------------------------------------------------------------
+
+// The hub workbook reads cost, price, and AI telemetry data from the hub
+// database, so it is only deployed when a cluster is supplied. The cluster and
+// the database are set here so the reports open with data instead of asking for
+// a cluster name.
+module hub 'modules/hub-workbook.bicep' = if (includeHub && !empty(clusterUri)) {
+  name: '${displayNamePrefix}-Hub'
+  params: {
+    displayName: '${displayNamePrefix} hub'
+    clusterUri: clusterUri
+    hubDatabaseName: hubDatabaseName
+    appInsightsResourceId: appInsightsResourceId
+    location: location
+    tags: resourceTags
+  }
+}
+
+//------------------------------------------------------------------------------
 // Dashboards
 //------------------------------------------------------------------------------
 
@@ -146,3 +169,9 @@ output governanceUrl string = includeGovernance ? governance!.outputs.workbookUr
 
 @sys.description('Names of the dashboards that were deployed.')
 output dashboardNames array = includeDashboards && !empty(clusterUri) ? dashboards!.outputs.dashboardNames : []
+
+@sys.description('FinOps hub workbook resource ID.')
+output hubId string = includeHub && !empty(clusterUri) ? hub!.outputs.workbookId : ''
+
+@sys.description('FinOps hub workbook Azure portal link.')
+output hubUrl string = includeHub && !empty(clusterUri) ? hub!.outputs.workbookUrl : ''
