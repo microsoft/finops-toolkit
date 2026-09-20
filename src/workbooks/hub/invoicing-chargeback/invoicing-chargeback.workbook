@@ -39,14 +39,38 @@
                   "content": {
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsLastMonth = (\\nCostsPlus\\n| where startofmonth(BillingPeriodStart) == startofmonth(startofmonth(now()) - 1d)\\n);\\n\\nlet monthname = dynamic(['(ignore)', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);\\nlet costs = materialize(\\n    CostsLastMonth\\n    | summarize BilledCost = round(sum(BilledCost), 2), EffectiveCost = round(sum(EffectiveCost), 2) by BillingPeriodStart = startofmonth(BillingPeriodStart)\\n    | extend json = todynamic(strcat('[{\\\"type\\\":\\\"Billed cost\\\", \\\"Cost\\\":', BilledCost, '}, {\\\"type\\\":\\\"Effective cost\\\", \\\"Cost\\\":', EffectiveCost, '}]'))\\n    | mv-expand json\\n    | project Type = strcat(json.type, ' (', monthname[monthofyear(BillingPeriodStart)], ' ', format_datetime(BillingPeriodStart, 'yyyy'), ')'), Cost = todouble(json.Cost)\\n);\\ncosts\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
-                    "size": 3,
+                    "size": 1,
                     "title": "Cost last month",
                     "timeContext": {
                       "durationMs": 0
                     },
                     "queryType": 9,
                     "visualization": "tiles",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "tileSettings": {
+                      "titleContent": {
+                        "columnMatch": "Type",
+                        "formatter": 1
+                      },
+                      "leftContent": {
+                        "columnMatch": "Cost",
+                        "formatter": 12,
+                        "formatOptions": {
+                          "palette": "blue"
+                        },
+                        "numberFormat": {
+                          "options": {
+                            "style": "decimal",
+                            "maximumFractionDigits": 1,
+                            "maximumSignificantDigits": 4,
+                            "useGrouping": true
+                          },
+                          "unit": 0
+                        }
+                      },
+                      "showBorder": true,
+                      "size": "auto"
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "25",
@@ -117,14 +141,38 @@
                   "content": {
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsLastMonth = (\\nCostsPlus\\n| where startofmonth(BillingPeriodStart) == startofmonth(startofmonth(now()) - 1d)\\n);\\n\\nlet data = materialize(\\n    CostsLastMonth\\n    | summarize\\n        Subscriptions = dcount(SubAccountId),\\n        ResourceGroups = dcount(strcat(SubAccountId, x_ResourceGroupName)),\\n        Resources = dcount(ResourceId),\\n        Services = dcount(ServiceName)\\n    | project json = todynamic(strcat('[{ \\\"Type\\\":\\\"Subscriptions\\\", \\\"Count\\\":', Subscriptions, ' }, { \\\"Type\\\":\\\"Resource groups\\\", \\\"Count\\\":', ResourceGroups, ' }, { \\\"Type\\\":\\\"Resources\\\", \\\"Count\\\":', Resources, ' }, { \\\"Type\\\":\\\"Services\\\", \\\"Count\\\":', Services, ' }]'))\\n    | mv-expand json\\n    | project Label = tostring(json.Type), Count = tolong(json.Count)\\n);\\ndata\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
-                    "size": 3,
+                    "size": 1,
                     "title": "Counts",
                     "timeContext": {
                       "durationMs": 0
                     },
                     "queryType": 9,
                     "visualization": "tiles",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "tileSettings": {
+                      "titleContent": {
+                        "columnMatch": "Label",
+                        "formatter": 1
+                      },
+                      "leftContent": {
+                        "columnMatch": "Count",
+                        "formatter": 12,
+                        "formatOptions": {
+                          "palette": "blue"
+                        },
+                        "numberFormat": {
+                          "options": {
+                            "style": "decimal",
+                            "maximumFractionDigits": 1,
+                            "maximumSignificantDigits": 4,
+                            "useGrouping": true
+                          },
+                          "unit": 0
+                        }
+                      },
+                      "showBorder": true,
+                      "size": "auto"
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "100",

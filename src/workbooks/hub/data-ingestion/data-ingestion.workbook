@@ -59,7 +59,7 @@
                   "content": {
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\ndatabase('Ingestion').HubSettings\\n| extend temp = todynamic(strcat('[',\\n    '{\\\"Label\\\":\\\"Version\\\",\\\"Value\\\":\\\"', version, '\\\"},',\\n    '{\\\"Label\\\":\\\"Managed scopes\\\",\\\"Value\\\":', array_length(scopes), '},',\\n    '{\\\"Label\\\":\\\"Data retention\\\",\\\"Value\\\":\\\"', toint(retention.final.months), 'mo\\\"}',\\n']'))\\n| mvexpand temp\\n| project Label = tostring(temp.Label), Value = tostring(temp.Value)\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
-                    "size": 3,
+                    "size": 1,
                     "title": "Hub configuration",
                     "timeContext": {
                       "durationMs": 0
@@ -76,7 +76,8 @@
                         "columnMatch": "Value",
                         "formatter": 1
                       },
-                      "showBorder": false
+                      "showBorder": true,
+                      "size": "auto"
                     }
                   },
                   "doNotRunWhenHidden": true,
@@ -169,7 +170,357 @@
                     "visualization": "table",
                     "showExportToExcel": true,
                     "gridSettings": {
-                      "rowLimit": 10000
+                      "rowLimit": 10000,
+                      "formatters": [
+                        {
+                          "columnMatch": "^Allocated cost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^BilledAgentCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^BilledCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^CommitmentDiscountSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^CommitmentSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^ContractedCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Cost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Cost\\/1K core-hours$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Cost\\/VM-hour$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Effective cost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^EffectiveCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^EstimatedCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^InputEstimatedCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^List cost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^ListCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^NegotiatedDiscountSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^NegotiatedSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^OutputEstimatedCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Savings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^TotalEffectiveCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Unallocated cost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^x_CommitmentDiscountSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^x_CommitmentDiscountUtilizationAmount$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^x_NegotiatedDiscountSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^x_TotalSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^CachedInputTokens$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 0
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^InputTokens$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 0
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^OutputTokens$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 0
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Tokens$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 0
+                            }
+                          }
+                        }
+                      ]
                     }
                   },
                   "doNotRunWhenHidden": true,
@@ -213,7 +564,7 @@
                   "content": {
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\".show cluster extents\\n| where TableName contains '_final_v'\\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\\n| where Dataset == 'Costs'\\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\\\s]+)', 1, Tags))\\n// | extend Table = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 1, Tags))\\n| extend Date  = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 2, Tags))\\n| extend Scope = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 5, Tags))\\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\\n| extend ScopeId = tostring(database('Ingestion').parse_resourceid(Scope).ResourceName)\\n// TODO: Look up the name from cost data\\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\\n| summarize dcount(Scope)\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
-                    "size": 3,
+                    "size": 1,
                     "title": "Ingested scopes",
                     "timeContext": {
                       "durationMs": 0
@@ -226,17 +577,19 @@
                         "columnMatch": "dcount_Scope",
                         "formatter": 12,
                         "formatOptions": {
-                          "palette": "auto"
+                          "palette": "blue"
                         },
                         "numberFormat": {
-                          "unit": 17,
+                          "unit": 0,
                           "options": {
                             "style": "decimal",
-                            "maximumFractionDigits": 0
+                            "maximumFractionDigits": 0,
+                            "useGrouping": true
                           }
                         }
                       },
-                      "showBorder": false
+                      "showBorder": true,
+                      "size": "auto"
                     }
                   },
                   "doNotRunWhenHidden": true,
@@ -248,7 +601,7 @@
                   "content": {
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\".show cluster extents\\n| where TableName contains '_final_v'\\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\\n| where Dataset == 'Costs'\\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\\\s]+)', 1, Tags))\\n// | extend Table = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 1, Tags))\\n| extend Date  = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 2, Tags))\\n| extend Scope = tostring(extract(@'drop-by:([^/\\\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\\\s]+)', 5, Tags))\\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\\n| extend ScopeId = tostring(database('Ingestion').parse_resourceid(Scope).ResourceName)\\n// TODO: Look up the name from cost data\\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\\n| summarize dcount(startofmonth(Date))\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
-                    "size": 3,
+                    "size": 1,
                     "title": "Ingested months",
                     "timeContext": {
                       "durationMs": 0
@@ -261,17 +614,19 @@
                         "columnMatch": "dcount_",
                         "formatter": 12,
                         "formatOptions": {
-                          "palette": "auto"
+                          "palette": "blue"
                         },
                         "numberFormat": {
-                          "unit": 17,
+                          "unit": 0,
                           "options": {
                             "style": "decimal",
-                            "maximumFractionDigits": 0
+                            "maximumFractionDigits": 0,
+                            "useGrouping": true
                           }
                         }
                       },
-                      "showBorder": false
+                      "showBorder": true,
+                      "size": "auto"
                     }
                   },
                   "doNotRunWhenHidden": true,
@@ -302,7 +657,10 @@
                     },
                     "queryType": 9,
                     "visualization": "barchart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "showLegend": true
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "100",
@@ -332,7 +690,10 @@
                     },
                     "queryType": 9,
                     "visualization": "barchart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "showLegend": true
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "100",
@@ -362,7 +723,10 @@
                     },
                     "queryType": 9,
                     "visualization": "barchart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "showLegend": true
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "100",
@@ -392,7 +756,10 @@
                     },
                     "queryType": 9,
                     "visualization": "barchart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "showLegend": true
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "100",
@@ -422,7 +789,10 @@
                     },
                     "queryType": 9,
                     "visualization": "barchart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "showLegend": true
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "100",
@@ -452,7 +822,10 @@
                     },
                     "queryType": 9,
                     "visualization": "barchart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "showLegend": true
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "100",
@@ -504,7 +877,357 @@
                     "visualization": "table",
                     "showExportToExcel": true,
                     "gridSettings": {
-                      "rowLimit": 10000
+                      "rowLimit": 10000,
+                      "formatters": [
+                        {
+                          "columnMatch": "^Allocated cost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^BilledAgentCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^BilledCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^CommitmentDiscountSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^CommitmentSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^ContractedCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Cost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Cost\\/1K core-hours$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Cost\\/VM-hour$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Effective cost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^EffectiveCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^EstimatedCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^InputEstimatedCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^List cost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^ListCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^NegotiatedDiscountSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^NegotiatedSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^OutputEstimatedCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Savings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^TotalEffectiveCost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Unallocated cost$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^x_CommitmentDiscountSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^x_CommitmentDiscountUtilizationAmount$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^x_NegotiatedDiscountSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^x_TotalSavings$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^CachedInputTokens$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 0
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^InputTokens$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 0
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^OutputTokens$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 0
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "^Tokens$",
+                          "formatter": 0,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "useGrouping": true,
+                              "maximumFractionDigits": 0
+                            }
+                          }
+                        }
+                      ]
                     }
                   },
                   "doNotRunWhenHidden": true,

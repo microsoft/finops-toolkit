@@ -76,7 +76,10 @@
                     },
                     "queryType": 9,
                     "visualization": "barchart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "showLegend": true
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "100",
@@ -106,7 +109,10 @@
                     },
                     "queryType": 9,
                     "visualization": "barchart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "showLegend": true
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "100",
