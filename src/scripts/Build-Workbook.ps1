@@ -46,35 +46,50 @@ Copy-Item "$srcDir/README.md" $outDir
 Write-Verbose "Reading workbook: $srcDir/workbook.json"
 $workbookJson = Get-Content "$srcDir/workbook.json" -Raw | ConvertFrom-Json
 
-# Replace nested templates
-$nestedTemplates = $workbookJson.items.content.items `
-| Where-Object {
-  $_.content.groupType -eq 'template' `
-    -and $_.content.loadFromTemplateId.StartsWith("community-Workbooks") } `
-| Select-Object -ExpandProperty content `
-| ForEach-Object {
-  $template = $_
-  # Read template
-  $nestedName = $template.loadFromTemplateId.Split('/')[-1]
-  if (-not (Test-Path "$srcDir/$nestedName/$nestedName.workbook")) {
-    Write-Verbose "Ignoring nested template $nestedName (not found)"
-    return
-  }
-  Write-Verbose "Injecting $nestedName template..."
-  $nestedJson = Get-Content "$srcDir/$nestedName/$nestedName.workbook" -Raw | ConvertFrom-Json
-  Write-Verbose "...adding $($nestedJson.items.content.items.Count) items"
+# Replace nested templates at any depth so a tab can be composed of sub-tabs
+# that are themselves separate workbook files.
+$nestedTemplates = @()
 
-  # Update workbook
-  $templateObjects = ($nestedJson.items.content).items
-  $template.loadFromTemplateId = ""
-  $templateObjects | ForEach-Object {
-    $template.items += $_
-  }
-  Write-Verbose "...added $($template.items.Count) items"
+function Expand-NestedTemplate {
+  Param (
+    [Parameter(Mandatory)][AllowNull()] $Items,
+    [Parameter(Mandatory)][string] $SourceDirectory
+  )
 
-  # Return so we can count the templates
-  return $nestedName
+  foreach ($item in $Items) {
+    $template = $item.content
+    if ($null -eq $template) { continue }
+
+    if ($template.groupType -eq 'template' `
+        -and $template.loadFromTemplateId `
+        -and $template.loadFromTemplateId.StartsWith("community-Workbooks")) {
+      $nestedName = $template.loadFromTemplateId.Split('/')[-1]
+      $nestedPath = "$SourceDirectory/$nestedName/$nestedName.workbook"
+      if (Test-Path $nestedPath) {
+        Write-Verbose "Injecting $nestedName template..."
+        $nestedJson = Get-Content $nestedPath -Raw | ConvertFrom-Json
+        $templateObjects = ($nestedJson.items.content).items
+        Write-Verbose "...adding $($templateObjects.Count) items"
+
+        $template.loadFromTemplateId = ""
+        $templateObjects | ForEach-Object {
+          $template.items += $_
+        }
+        Write-Verbose "...added $($template.items.Count) items"
+        $script:nestedTemplates += $nestedName
+      } else {
+        Write-Verbose "Ignoring nested template $nestedName (not found)"
+      }
+    }
+
+    # Recurse after injecting so templates nested inside injected content resolve too
+    if ($template.items) {
+      Expand-NestedTemplate -Items $template.items -SourceDirectory $SourceDirectory
+    }
+  }
 }
+
+Expand-NestedTemplate -Items $workbookJson.items -SourceDirectory $srcDir
 # Compress: Bicep loadJsonContent() rejects files over 1,048,576 characters
 $workbookJson | ConvertTo-Json -Depth 100 -Compress | Set-Content -Path "$outDir/workbook.json"
 Write-Verbose "Saved workbook with $($nestedTemplates.Count) nested templates: $($nestedTemplates -join ', ')"
