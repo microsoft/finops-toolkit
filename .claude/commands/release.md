@@ -121,7 +121,7 @@ Present as a prioritized list — no AUQ needed, just a summary the user can act
 Update the release tracking issue checkboxes:
 
 1. Run `gh issue view {number} --json body` and capture the output. Parse the JSON to extract the `body` field, then write it to `/tmp/release-issue-body.md` using the Write tool (not shell redirection).
-2. Read the file with the Read tool. Each `/release`-managed checkbox in the template has an HTML comment label like `<!-- release:core -->`, `<!-- release:finalize -->`, or `<!-- release:package -->`. To mark a step complete, find the line containing the matching label and change its `- [ ]` to `- [x]`. Use the Edit tool to write the updated body back to the file. In Phase 2 Release readiness, mark `release:core` complete.
+2. Read the file with the Read tool. Each `/release`-managed checkbox in the template has an HTML comment label like `<!-- release:core -->`, `<!-- release:finalize -->`, `<!-- release:package -->`, or `<!-- release:powerbi -->`. To mark a step complete, find the line containing the matching label and change its `- [ ]` to `- [x]`. Use the Edit tool to write the updated body back to the file. In Phase 2 Release readiness, mark `release:core` complete.
 3. Run `gh issue edit {number} --body-file /tmp/release-issue-body.md` to push the updates.
 
 Then present a summary and next action via AskUserQuestion:
@@ -150,13 +150,17 @@ If it fails, show the error and ask whether to investigate or skip.
 
 ### Package Power BI
 
-Power BI packaging is resumable and reports its own state. Run:
+Power BI packaging reports its own state and saves demo reports with Power BI Desktop, which only runs on Windows.
+
+On Windows, tell the user not to use the mouse or keyboard until it finishes, then run:
 
 ```bash
-pwsh -Command "./src/scripts/Package-PowerBI.ps1"
+pwsh -Command "./src/scripts/Package-PowerBI.ps1 -Unattended"
 ```
 
-Relay its status output verbatim — it says exactly which step is next. When it reports projects that still need to be saved, tell the user to run `Package-PowerBI.ps1 -Open`, save each project as PBIX (refresh, Save as PBIX in `release/pbix`, sensitivity "Public", end on the Get started page), then say "done" so you can rerun the command to validate and package.
+On other platforms, run `pwsh -Command "./src/scripts/Package-PowerBI.ps1 -Status"` and tell the user to run `Package-PowerBI.ps1 -Unattended` on a Windows machine with Power BI Desktop, then say "done".
+
+Relay its status output verbatim — it says exactly which step is next. If a report can't be saved automatically, relay the failed step and screenshot path, tell the user to run `Package-PowerBI.ps1 -Open` and save that project as PBIX (refresh, Save as PBIX in `release/pbix`, sensitivity "Public"), then say "done" so you can rerun the command to validate and package.
 
 If validation fails, show the reported issues verbatim. Each one names the file and the fix; don't guess at causes.
 
@@ -171,4 +175,4 @@ After packaging succeeds, inform the user of remaining manual steps documented i
 
 ### Final issue update
 
-Update the release tracking issue checkboxes for finalize-phase items using the same label-based process as Release readiness. Mark `release:finalize` and `release:package` complete. Then report completion and wish the user well.
+Update the release tracking issue checkboxes for finalize-phase items using the same label-based process as Release readiness. Mark `release:finalize` and `release:package` complete. Mark `release:powerbi` complete only when all three Power BI files exist. Then report completion and wish the user well.

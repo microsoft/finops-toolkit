@@ -1,0 +1,172 @@
+{
+  "$comment": [
+    "Build settings for each Power BI report, used by src/scripts/Build-PowerBI.ps1.",
+    "description: Template description shown when the PBIT file is opened.",
+    "tables: Tables to keep. Everything else is removed from the template and demo project.",
+    "queries: Parameters, functions, and queries that do not load a table (Power Query expressions) to keep.",
+    "Prefix a name with [kql] or [storage] to keep it for that report type only."
+  ],
+  "reports": {
+    "CostSummary": {
+      "description": "The Cost summary report provides several summaries of your effective (amortized) and billed costs based on the FinOps Open Cost and Usage Specification (FOCUS). Amortization breaks down reservation and savings plan purchases and allocates costs to the resources that received the benefit. Effective costs will not match your invoice.",
+      "tables": ["Costs", "Prices", "PricingUnits"],
+      "queries": [
+        "▶️  START HERE",
+        "Cluster URL",
+        "[storage]Storage URL",
+        "Default Granularity",
+        "Number of Months",
+        "RangeStart",
+        "RangeEnd",
+        "Experimental: Add Missing Prices",
+        "Deprecated: Perform Extra Query Optimizations",
+        "ftk_DatetimeToJulianDate",
+        "ftk_ImpalaToJulianDate",
+        "ftk_Metadata",
+        "ftk_ParseResourceId",
+        "ftk_ParseResourceName",
+        "ftk_ParseResourceType",
+        "ftk_Storage"
+      ]
+    },
+    "DataIngestion": {
+      "description": "The Data ingestion report provides details about the data you've ingested into your FinOps hub storage account.",
+      "tables": ["Costs", "HubScopes", "HubSettings", "Prices", "PricingUnits", "StorageData", "StorageErrors"],
+      "queries": [
+        "▶️  START HERE",
+        "Cluster URL",
+        "Storage URL",
+        "Default Granularity",
+        "Number of Months",
+        "RangeStart",
+        "RangeEnd",
+        "Experimental: Add Missing Prices",
+        "Deprecated: Perform Extra Query Optimizations",
+        "ftk_DatetimeToJulianDate",
+        "ftk_ImpalaToJulianDate",
+        "ftk_Metadata",
+        "ftk_ParseResourceId",
+        "ftk_ParseResourceName",
+        "ftk_ParseResourceType",
+        "ftk_Storage"
+      ]
+    },
+    "Governance": {
+      "description": "The Governance, policy, and risk report summarizes your Microsoft Cloud governance posture. It offers the standard metrics aligned with the Cloud Adoption Framework to facilitate identifying issues, applying recommendations, and resolving compliance gaps.",
+      "tables": [
+        "AdvisorRecommendations",
+        "Compliance calculation",
+        "Costs",
+        "Disks",
+        "ManagementGroups",
+        "NetworkInterfaces",
+        "NetworkSecurityGroups",
+        "PolicyAssignments",
+        "PolicyStates",
+        "Prices",
+        "PricingUnits",
+        "PublicIPAddresses",
+        "Regions",
+        "Resources",
+        "ResourceTypes",
+        "SqlDatabases",
+        "Subscriptions",
+        "VirtualMachines",
+        "VirtualMachinesDisks"
+      ],
+      "queries": [
+        "▶️  START HERE",
+        "Cluster URL",
+        "[storage]Storage URL",
+        "Default Granularity",
+        "Number of Months",
+        "RangeStart",
+        "RangeEnd",
+        "Experimental: Add Missing Prices",
+        "PolicyDefinitions",
+        "Remove Duplicate Resource IDs",
+        "Deprecated: Perform Extra Query Optimizations",
+        "ftk_ARGBatchSize",
+        "ftk_DemoFilter",
+        "ftk_QueryARG",
+        "ftk_DatetimeToJulianDate",
+        "ftk_ImpalaToJulianDate",
+        "ftk_Metadata",
+        "ftk_ParseResourceId",
+        "ftk_ParseResourceName",
+        "ftk_ParseResourceType",
+        "ftk_Storage"
+      ]
+    },
+    "Invoicing": {
+      "description": "The Invoicing and chargeback report provides several summaries of your billed cost to facilitate invoice reconciliation for Microsoft Customer Agreement (MCA) and Enterprise Agreement (EA) accounts or to perform chargeback using effective (amortized) costs.",
+      "tables": ["Costs", "Prices", "PricingUnits"],
+      "queries": [
+        "▶️  START HERE",
+        "Cluster URL",
+        "[storage]Storage URL",
+        "Default Granularity",
+        "Number of Months",
+        "RangeStart",
+        "RangeEnd",
+        "Experimental: Add Missing Prices",
+        "Deprecated: Perform Extra Query Optimizations",
+        "ftk_DatetimeToJulianDate",
+        "ftk_ImpalaToJulianDate",
+        "ftk_Metadata",
+        "ftk_ParseResourceId",
+        "ftk_ParseResourceName",
+        "ftk_ParseResourceType",
+        "ftk_Storage"
+      ]
+    },
+    "RateOptimization": {
+      "description": "The Rate optimization report provides insights into any rate optimization opportunities, like reservations, savings plans, and Azure Hybrid Benefit. This report uses effective cost, which amortizes and breaks reservation and savings plan purchases down and allocates costs out to the resources that received the benefit. Effective cost will not match your invoice.",
+      "tables": ["Costs", "InstanceSizeFlexibility", "Prices", "PricingUnits", "ReservationRecommendations"],
+      "queries": [
+        "▶️  START HERE",
+        "Cluster URL",
+        "[storage]Storage URL",
+        "Default Granularity",
+        "Number of Months",
+        "RangeStart",
+        "RangeEnd",
+        "Experimental: Add Missing Prices",
+        "Deprecated: Perform Extra Query Optimizations",
+        "ftk_DatetimeToJulianDate",
+        "ftk_ImpalaToJulianDate",
+        "ftk_Metadata",
+        "ftk_ParseResourceId",
+        "ftk_ParseResourceName",
+        "ftk_ParseResourceType",
+        "ftk_Storage"
+      ]
+    },
+    "WorkloadOptimization": {
+      "description": "The Usage optimization report provides insights into resource utilization and efficiency opportunities based on historical usage patterns. Use this report to determine if resources can be scaled down or even shut down during off-peak hours to minimize wasteful usage and spending. Also consider cheaper alternatives when available and ensure all workloads have some direct or indirect link to business value to avoid unnecessary usage and costs that don't contribute to the mission.",
+      "tables": ["AdvisorRecommendations", "Costs", "Disks", "Prices", "PricingUnits", "Resources", "Subscriptions"],
+      "queries": [
+        "▶️  START HERE",
+        "Cluster URL",
+        "[storage]Storage URL",
+        "Default Granularity",
+        "Number of Months",
+        "RangeStart",
+        "RangeEnd",
+        "Experimental: Add Missing Prices",
+        "Remove Duplicate Resource IDs",
+        "Deprecated: Perform Extra Query Optimizations",
+        "ftk_ARGBatchSize",
+        "ftk_DemoFilter",
+        "ftk_QueryARG",
+        "ftk_DatetimeToJulianDate",
+        "ftk_ImpalaToJulianDate",
+        "ftk_Metadata",
+        "ftk_ParseResourceId",
+        "ftk_ParseResourceName",
+        "ftk_ParseResourceType",
+        "ftk_Storage"
+      ]
+    }
+  }
+}

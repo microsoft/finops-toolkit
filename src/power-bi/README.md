@@ -65,6 +65,10 @@ Power BI reports in the FinOps toolkit must adhere to the following guidelines:
    2. Queries should all be a the root **FinOps toolkit** folder.
       1. All queries should use the same settings. Do not duplicate properties that can be shared.
 7. All text (including report, page, and column names) should follow the [content guidelines](../../docs-wiki/Coding-guidelines.md#-content-strings-and-microcopy).
+8. Every table and query a report uses must be listed for that report in [reports.json](./reports.json).
+   1. Reports share one semantic model per data source. The release build removes everything a report doesn't list, so an unlisted table shows up as a broken visual or refresh error.
+   2. Prefix a name with `[kql]` or `[storage]` when only one report type uses it.
+   3. The `PowerBIReports` lint test fails when a visual or query uses something the report doesn't list.
 
 > [!NOTE]
 > Remember: These are general rules of thumb for consistency. They are not set in stone. Please propose updates by submitting a PR, starting a discussion, or creating an issue. In general, use your best judgement to make the report as useful as possible. We just want everything to feel consistent and familiar.
