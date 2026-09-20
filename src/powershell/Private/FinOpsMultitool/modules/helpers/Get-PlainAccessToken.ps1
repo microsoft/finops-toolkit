@@ -12,9 +12,28 @@ function Get-FinOpsArmEndpoint {
     return $url.TrimEnd('/')
 }
 
+function Resolve-FinOpsRequestUri {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$Uri,
+        [switch]$AllowAnonymousLoopback
+    )
+
+    $parsed = $null
+    if ($Uri -match '[\x00-\x20\\]' -or -not [Uri]::TryCreate($Uri, [UriKind]::Absolute, [ref]$parsed) -or
+        $parsed.UserInfo -or $parsed.Fragment -or -not $parsed.Host) {
+        throw 'The endpoint must be an absolute URL without credentials, fragments, or control characters.'
+    }
+    if ($parsed.Scheme -ne 'https' -and -not ($AllowAnonymousLoopback -and $parsed.Scheme -eq 'http' -and $parsed.IsLoopback)) {
+        throw 'Authenticated and remote endpoints must use HTTPS. HTTP is allowed only for a token-free loopback emulator.'
+    }
+    return $parsed
+}
+
 function Get-PlainAccessToken {
     param([string]$ResourceUrl)
     if ([string]::IsNullOrWhiteSpace($ResourceUrl)) { $ResourceUrl = Get-FinOpsArmEndpoint }
+    $null = Resolve-FinOpsRequestUri -Uri $ResourceUrl
     $tok = (Get-AzAccessToken -ResourceUrl $ResourceUrl).Token
     if ($tok -is [securestring]) {
         $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($tok)

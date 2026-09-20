@@ -4,7 +4,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Justification = 'Private helper; the returned shape varies by hub schema and is not a declared contract.')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Private helper named for the collection it processes.')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Read-only: reads hub data and changes no state.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Reads Azure data and manages private local cache and download files only.')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = 'Accepted for signature parity across the hub reader family.')]
 param()
 
@@ -42,12 +42,118 @@ function ConvertTo-HashtableFromJson {
     return ConvertFrom-ExportTagString -Raw $Json
 }
 
+function New-FinOpsPrivateDirectory {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [switch]$RequireNew
+    )
+
+    $fullPath = [IO.Path]::GetFullPath($Path)
+    if ($fullPath -match '^[\\/]{2}|[\x00-\x1f]') { throw 'Private data requires a local filesystem directory.' }
+    $items = [Collections.Generic.List[object]]::new()
+    $missingDirectories = [Collections.Generic.List[string]]::new()
+    $ancestor = $fullPath
+    while ($ancestor) {
+        try {
+            if (([IO.File]::GetAttributes($ancestor) -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Private data paths cannot contain links or junctions.' }
+            $item = Get-Item -LiteralPath $ancestor -Force -ErrorAction Stop
+            if (-not $item.PSIsContainer) { throw 'Private data paths must be directories.' }
+            $items.Add($item)
+        }
+        catch [IO.FileNotFoundException] { $missingDirectories.Add($ancestor) }
+        catch [IO.DirectoryNotFoundException] { $missingDirectories.Add($ancestor) }
+        $ancestor = [IO.Path]::GetDirectoryName($ancestor)
+    }
+    $parentDirectory = [IO.Path]::GetDirectoryName($fullPath)
+    $creationParent = if ($missingDirectories.Count -gt 0) { $items[0].FullName } else { $parentDirectory }
+    if (Test-Path -LiteralPath $fullPath) {
+        if ($RequireNew) { throw 'The private data directory already exists.' }
+        foreach ($item in Get-ChildItem -LiteralPath $fullPath -Force -Recurse -ErrorAction Stop) { $items.Add($item) }
+    }
+    if ($IsWindows) {
+        $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+        try {
+            $trusted = @($identity.User.Value, 'S-1-5-18', 'S-1-5-32-544', 'S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464')
+            $writeRights = [Security.AccessControl.FileSystemRights]'Write, Delete, DeleteSubdirectoriesAndFiles, ChangePermissions, TakeOwnership'
+            $replacementRights = [Security.AccessControl.FileSystemRights]'Delete, DeleteSubdirectoriesAndFiles, ChangePermissions, TakeOwnership'
+            foreach ($item in $items) {
+                if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Private data cannot contain linked files or directories.' }
+                $security = Get-Acl -LiteralPath $item.FullName -ErrorAction Stop
+                if ($security.GetOwner([Security.Principal.SecurityIdentifier]).Value -notin $trusted) { throw 'The private data directory contains an untrusted owner.' }
+                $rights = if ($item.FullName -eq $creationParent -or $item.FullName -eq $parentDirectory -or $item.FullName -eq $fullPath -or
+                    $item.FullName.StartsWith($fullPath + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { $writeRights } else { $replacementRights }
+                foreach ($rule in $security.GetAccessRules($true, $true, [Security.Principal.SecurityIdentifier])) {
+                    if (($rule.PropagationFlags -band [Security.AccessControl.PropagationFlags]::InheritOnly) -ne 0) { continue }
+                    if ($rule.AccessControlType -eq 'Allow' -and $rule.IdentityReference.Value -notin $trusted -and ($rule.FileSystemRights -band $rights) -ne 0) {
+                        throw 'The private data directory permits writes by another account.'
+                    }
+                }
+            }
+        }
+        finally { $identity.Dispose() }
+    }
+    else {
+        $identityCommand = Get-Command id -CommandType Application -ErrorAction Stop
+        $ownerId = (& $identityCommand.Source -u).Trim()
+        if ($LASTEXITCODE -ne 0 -or $ownerId -notmatch '^\d+$') { throw 'The current user ID could not be verified.' }
+        $stat = Get-Command stat -CommandType Application -ErrorAction Stop
+        foreach ($item in $items) {
+            if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Private data cannot contain linked files or directories.' }
+            $metadata = if ($IsMacOS) { & $stat.Source -f '%u:%Lp' $item.FullName } else { & $stat.Source -c '%u:%a' -- $item.FullName }
+            if ($LASTEXITCODE -ne 0 -or [string]$metadata -notmatch '^(\d+):([0-7]+)$') { throw 'Private data ownership and permissions could not be verified.' }
+            $itemOwner = $Matches[1]
+            $mode = [Convert]::ToInt32($Matches[2], 8)
+            $isAncestor = $item.FullName -ne $fullPath -and -not $item.FullName.StartsWith($fullPath + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal)
+            $stickyAncestor = $isAncestor -and $item.FullName -ne $creationParent -and $item.FullName -ne $parentDirectory -and $itemOwner -eq '0' -and ($mode -band 512) -ne 0
+            if (($itemOwner -ne $ownerId -and -not ($isAncestor -and $itemOwner -eq '0')) -or (($mode -band 18) -ne 0 -and -not $stickyAncestor)) {
+                throw 'Private data must be owned by the current user and not writable by other accounts.'
+            }
+        }
+    }
+    $directoriesToCreate = @($missingDirectories.ToArray())
+    [array]::Reverse($directoriesToCreate)
+    if ($directoriesToCreate.Count -eq 0) { $directoriesToCreate = @($fullPath) }
+    foreach ($directoryPath in $directoriesToCreate) {
+        if ($IsWindows) {
+            $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+            try {
+                $security = [Security.AccessControl.DirectorySecurity]::new()
+                $security.SetAccessRuleProtection($true, $false)
+                $security.SetOwner($identity.User)
+                $security.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new(
+                        $identity.User, [Security.AccessControl.FileSystemRights]::FullControl,
+                        [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit',
+                        [Security.AccessControl.PropagationFlags]::None, [Security.AccessControl.AccessControlType]::Allow))
+                $directory = [IO.DirectoryInfo]::new($directoryPath)
+                if ($directory.Exists) { [IO.FileSystemAclExtensions]::SetAccessControl($directory, $security) }
+                else { [IO.FileSystemAclExtensions]::Create($directory, $security) }
+            }
+            finally { $identity.Dispose() }
+        }
+        else {
+            $unixModeType = 'System.IO.UnixFileMode' -as [type]
+            if ($unixModeType) {
+                [void][IO.Directory]::CreateDirectory($directoryPath, [Enum]::ToObject($unixModeType, 448))
+                [IO.File]::SetUnixFileMode($directoryPath, [Enum]::ToObject($unixModeType, 448))
+            }
+            else {
+                $command = Get-Command $(if (Test-Path -LiteralPath $directoryPath) { 'chmod' } else { 'mkdir' }) -CommandType Application -ErrorAction Stop
+                if ([IO.Directory]::Exists($directoryPath)) { & $command.Source 700 $directoryPath }
+                else { & $command.Source -m 700 $directoryPath }
+                if ($LASTEXITCODE -ne 0) { throw 'A private data directory could not be created.' }
+            }
+        }
+    }
+    return $fullPath
+}
+
 function Get-FinOpsParquetCachePath {
     # Per-user cache, not the world-writable shared temp dir. On a multi-user or
     # shared host, %TEMP%/tmp lets another local principal pre-plant DLLs at a
     # predictable path that we would then load into this process.
-    $base = [Environment]::GetFolderPath('LocalApplicationData')
-    if ([string]::IsNullOrWhiteSpace($base)) { $base = [System.IO.Path]::GetTempPath() }
+    $base = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData, [Environment+SpecialFolderOption]::DoNotVerify)
+    if ([string]::IsNullOrWhiteSpace($base)) { throw 'Private application data is unavailable. The Parquet cache cannot use a shared temporary directory.' }
     return (Join-Path (Join-Path $base 'FinOpsMultitool') 'parquet')
 }
 
@@ -112,26 +218,60 @@ function Test-ParquetManifest {
     return $true
 }
 
-# Validates nuget.org repository signatures on the packages we just fetched.
+function Get-FinOpsParquetPackageLock {
+    @(
+        @{ Id = 'Parquet.Net'; Version = '4.24.0'; Sha512 = 'UAWKArPr96Oea1PfCvZqYhQ7xS+LewgMnMXxZijTAMKuujTYjf9jwLHzOB52e2wrBxGpkdmG3suIPdb7kNRRqQ==' }
+        @{ Id = 'IronCompress'; Version = '1.5.2'; Sha512 = '9ZxjgVMP7BBfCQSQ14IT+05XABHz5lTiZWd7t7Jpg+0bVOZHtuwjHKnExUJJgM8OHKqyqolNkqmlyd8b/gJq7Q==' }
+        @{ Id = 'Microsoft.Data.Analysis'; Version = '0.21.1'; Sha512 = 'OuEm3LZ6GoZCMU3X5hh02fGye9Iu4tPYvSbcHl62X41jZHQ+W5Z3CoJgzIOOKqUK7lpOkhTz6v/j/5ena2eh8g==' }
+        @{ Id = 'Microsoft.IO.RecyclableMemoryStream'; Version = '3.0.0'; Sha512 = '7xVI6zAdiOAKchkPULjy33WRp3MPxwoYIB3kx0QWVdF9flb3DhoiGtSHre7c/1R9DIe3shQrriYeiwXWOkA3yg==' }
+        @{ Id = 'Snappier'; Version = '1.3.1'; Sha512 = 'uo6Wvo127r6j6zfBayLdR3LxJ6eu82hM4iH+wJBhyKuN79tpCXlTIKDOE8Du0Cohq3VQ4o7GCpoXQtjF37ZC6w==' }
+        @{ Id = 'ZstdSharp.Port'; Version = '0.8.1'; Sha512 = 'se/fJ+LE7xM4dpUxhwHS8DROQZWzZMs3MGF2bcgmnXJ2rcCiKCyA2QDph7soErYohHJYeECavuul95bNgTldhQ==' }
+        @{ Id = 'Microsoft.ML.DataView'; Version = '3.0.1'; Sha512 = 'OhBIx0fq4p5ggwJnFFWSthy7FxuTqj61qVzinU4U1e6JuS3LqBt+bMe8MxFX69yjwvCU2lT0ja2ln7Kfuk/N9A==' }
+        @{ Id = 'Apache.Arrow'; Version = '11.0.0'; Sha512 = 'PUK1/AQdcQg3epd1DRbiXQ3jhyY0noWm0MVTN3OTmKBsmvaapbO1My827Ui0RzH3u9P4avjKly52sX8sv6rQ3w==' }
+        @{ Id = 'System.Buffers'; Version = '4.5.1'; Sha512 = 'gNphWOVbm89+C15jebnPRaYykU8De1PFv1YJV24814IfeGGVa3PXRHDS0MLlbdI1pe9Mpv/n4ZK4INwtAjqv8g==' }
+        @{ Id = 'System.Memory'; Version = '4.5.5'; Sha512 = '6MjlNsl7lKw0Q8lAsw2tQ89ul9x6jD2Yk3EEj+dOFoYGOE9eAUO9wNhvd4O/n97oQXlkyzqKXXUnE+kLElFy3A==' }
+        @{ Id = 'System.Runtime.CompilerServices.Unsafe'; Version = '6.0.0'; Sha512 = '1AVzAb5OxJNvJLnOADtexNmWgattm2XVOT3TjQTN7Dd4SqoSwai1CsN2fth42uQldJSQdz/sAec0+TzxBFgisw==' }
+        @{ Id = 'System.Collections.Immutable'; Version = '1.5.0'; Sha512 = 'T5XGQlcHhEO75Qx38GGCUDPdk4n/7yrRmTgy4yczzJV8alPHaxPU55TBC2UFrkQ42bu34sZPfK0dU+nWZUOEJA==' }
+    )
+}
+
+function Get-VerifiedParquetPackage {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$PackageDir)
+
+    $expected = [Collections.Generic.Dictionary[string, object]]::new([StringComparer]::Ordinal)
+    foreach ($package in Get-FinOpsParquetPackageLock) { $expected[$package.Sha512] = $package }
+    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $verified = [Collections.Generic.List[object]]::new()
+    foreach ($package in Get-ChildItem -LiteralPath $PackageDir -Filter '*.nupkg' -Recurse -File -ErrorAction Stop) {
+        $stream = [IO.File]::OpenRead($package.FullName)
+        $algorithm = [Security.Cryptography.SHA512]::Create()
+        try { $hash = [Convert]::ToBase64String($algorithm.ComputeHash($stream)) }
+        finally { $algorithm.Dispose(); $stream.Dispose() }
+        if (-not $expected.ContainsKey($hash) -or -not $seen.Add($hash)) { throw 'The Parquet cache contains an unexpected or duplicate package archive.' }
+        $verified.Add([pscustomobject]@{ Path = $package.FullName; Id = $expected[$hash].Id; Version = $expected[$hash].Version })
+    }
+    if ($verified.Count -ne $expected.Count) { throw 'The Parquet cache is missing pinned package archives.' }
+    return $verified.ToArray()
+}
+
+# Validates package signatures with the configured NuGet client.
 # TLS alone only proves who we talked to, not that the payload is authentic.
 function Assert-NuGetPackageSignature {
     param(
         [Parameter(Mandatory)][object]$Client,
         [Parameter(Mandatory)][string]$PackageDir
     )
-    $nupkgs = @(Get-ChildItem -LiteralPath $PackageDir -Filter '*.nupkg' -Recurse -File -ErrorAction SilentlyContinue)
-    if ($nupkgs.Count -eq 0) {
-        throw "No .nupkg files were retained for signature verification. Refusing to load unverified assemblies."
-    }
+    $nupkgs = @(Get-VerifiedParquetPackage -PackageDir $PackageDir)
     foreach ($pkg in $nupkgs) {
         $output = if ($Client.Kind -eq 'dotnet') {
-            & $Client.Path nuget verify $pkg.FullName --all 2>&1
+            & $Client.Path nuget verify $pkg.Path --all 2>&1
         }
         else {
-            & $Client.Path verify -Signatures $pkg.FullName 2>&1
+            & $Client.Path verify -Signatures $pkg.Path 2>&1
         }
         if ($LASTEXITCODE -ne 0) {
-            throw "NuGet signature verification failed for $($pkg.Name): $($output -join ' ')"
+            throw "NuGet signature verification failed for $($pkg.Id) $($pkg.Version): $($output -join ' ')"
         }
     }
 }
@@ -203,8 +343,7 @@ function Resolve-NuGetClient {
     return [PSCustomObject]@{ Kind = 'nuget.exe'; Path = $nugetExe; Reason = $null }
 }
 
-# Restores a package and its transitive dependencies with whichever client was
-# resolved. Neither branch names a feed: the host's NuGet configuration decides.
+# Restores the pinned dependency set with the host's configured feeds.
 function Invoke-NuGetRestore {
     [CmdletBinding()]
     param(
@@ -215,30 +354,42 @@ function Invoke-NuGetRestore {
         [Parameter(Mandatory)][string]$WorkingPath
     )
 
+    $packages = @(Get-FinOpsParquetPackageLock)
+    if (@($packages | Where-Object { $_.Id -eq $PackageId -and $_.Version -eq $Version }).Count -ne 1) {
+        throw 'Only the pinned Parquet dependency set can be restored.'
+    }
+    $projDir = Join-Path $WorkingPath 'restore'
+    New-Item -ItemType Directory -Path $projDir -Force | Out-Null
+    $document = [Xml.XmlDocument]::new()
     if ($Client.Kind -eq 'dotnet') {
-        $projDir = Join-Path $WorkingPath 'restore'
-        New-Item -ItemType Directory -Path $projDir -Force | Out-Null
+        $document.LoadXml('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net8.0</TargetFramework><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup><ItemGroup /></Project>')
+        foreach ($package in $packages) {
+            $reference = $document.CreateElement('PackageReference')
+            $reference.SetAttribute('Include', $package.Id)
+            $reference.SetAttribute('Version', "[$($package.Version)]")
+            [void]$document.SelectSingleNode('/Project/ItemGroup').AppendChild($reference)
+        }
         $proj = Join-Path $projDir 'parquet-restore.csproj'
-        @"
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="$PackageId" Version="$Version" />
-  </ItemGroup>
-</Project>
-"@ | Set-Content -LiteralPath $proj -Encoding UTF8
+        $document.Save($proj)
         $output = & $Client.Path restore $proj --packages $PackageDir 2>&1
         if ($LASTEXITCODE -ne 0) {
             throw "dotnet restore failed for $PackageId $Version : $($output -join ' ')"
         }
     }
     else {
-        $output = & $Client.Path install $PackageId -Version $Version -OutputDirectory $PackageDir -Framework net8.0 2>&1
+        $document.LoadXml('<packages />')
+        foreach ($package in $packages) {
+            $reference = $document.CreateElement('package')
+            $reference.SetAttribute('id', $package.Id)
+            $reference.SetAttribute('version', $package.Version)
+            $reference.SetAttribute('targetFramework', 'net8.0')
+            [void]$document.DocumentElement.AppendChild($reference)
+        }
+        $config = Join-Path $projDir 'packages.config'
+        $document.Save($config)
+        $output = & $Client.Path restore $config -PackagesDirectory $PackageDir -NonInteractive 2>&1
         if ($LASTEXITCODE -ne 0) {
-            throw "nuget.exe install failed for $PackageId $Version : $($output -join ' ')"
+            throw "nuget.exe restore failed for $PackageId $Version : $($output -join ' ')"
         }
     }
 }
@@ -262,6 +413,48 @@ function Get-RestoredPackageRoot {
     return @($roots)
 }
 
+function Assert-ParquetPackagePayload {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$BasePath,
+        [Parameter(Mandatory)][string]$PackageDir
+    )
+
+    $payload = @(Get-ParquetPayloadFile -BasePath $BasePath)
+    if ($payload.Count -eq 0 -or -not (Test-Path -LiteralPath (Join-Path $BasePath 'lib/Parquet.dll') -PathType Leaf)) {
+        throw 'The Parquet payload is incomplete.'
+    }
+    $verifiedHashes = @{}
+    $frameworks = @('net8.0', 'net7.0', 'net6.0', 'net5.0', 'netcoreapp3.1', 'netstandard2.1', 'netstandard2.0')
+    $rid = Get-FinOpsNativeRid
+    foreach ($package in Get-VerifiedParquetPackage -PackageDir $PackageDir) {
+        $archive = [System.IO.Compression.ZipFile]::OpenRead($package.Path)
+        try {
+            $framework = $frameworks | Where-Object { $archive.Entries.FullName -like "lib/$_/*" } | Select-Object -First 1
+            foreach ($entry in $archive.Entries) {
+                $relative = if ($framework -and $entry.FullName -like "lib/$framework/*.dll" -and $entry.FullName -match '^lib/[^/]+/([^/]+\.dll)$') { "lib/$($Matches[1])" }
+                elseif ($entry.FullName.StartsWith("runtimes/$rid/native/", [StringComparison]::Ordinal) -and $entry.FullName -match '^runtimes/[^/]+/native/[^/]+\.(dll|dylib|so)(\.\d+)*$') { $entry.FullName }
+                else { continue }
+                $stream = $entry.Open()
+                $algorithm = [System.Security.Cryptography.SHA256]::Create()
+                try { $hash = [BitConverter]::ToString($algorithm.ComputeHash($stream)).Replace('-', '') }
+                finally { $algorithm.Dispose(); $stream.Dispose() }
+                if (-not $verifiedHashes.ContainsKey($relative)) { $verifiedHashes[$relative] = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase) }
+                [void]$verifiedHashes[$relative].Add($hash)
+            }
+        }
+        finally { $archive.Dispose() }
+    }
+    foreach ($file in $payload) {
+        if (($file.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Linked Parquet payload files are not allowed.' }
+        $relative = $file.FullName.Substring($BasePath.Length).TrimStart('\', '/').Replace('\', '/')
+        $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
+        if (-not $verifiedHashes.ContainsKey($relative) -or -not $verifiedHashes[$relative].Contains($hash)) {
+            throw "Parquet payload '$relative' does not match a verified package."
+        }
+    }
+}
+
 function Install-ParquetReader {
     [CmdletBinding()]
     param()
@@ -272,31 +465,46 @@ function Install-ParquetReader {
     }
     if ($loaded) { return $true }
 
-    $parquetDir = Get-FinOpsParquetCachePath
+    try { $parquetDir = New-FinOpsPrivateDirectory -Path (Get-FinOpsParquetCachePath) }
+    catch {
+        $script:FinOpsParquetUnavailableReason = $_.Exception.Message
+        Write-Warning "The Parquet cache is unavailable: $($_.Exception.Message)"
+        return $false
+    }
     $manifestFile = Join-Path $parquetDir 'parquet-manifest.json'
 
-    # Reuse a cached install only when every DLL still matches the hash recorded
-    # at install time.
+    # Cached checksums are not provenance: verify packages and staged bytes too.
     if (Test-Path -LiteralPath $manifestFile) {
         if (Test-ParquetManifest -BasePath $parquetDir -ManifestPath $manifestFile) {
             try {
+                $cachedClient = Resolve-NuGetClient -CachePath $parquetDir
+                if (-not $cachedClient.Kind) { throw 'A package signature verifier is required before loading the Parquet cache.' }
+                Assert-NuGetPackageSignature -Client $cachedClient -PackageDir (Join-Path $parquetDir 'packages')
+                Assert-ParquetPackagePayload -BasePath $parquetDir -PackageDir (Join-Path $parquetDir 'packages')
+                $null = New-FinOpsPrivateDirectory -Path $parquetDir
                 Import-ParquetAssemblies -BasePath $parquetDir
                 return $true
             }
             catch {
-                Remove-Item $parquetDir -Recurse -Force -ErrorAction SilentlyContinue
+                $null = New-FinOpsPrivateDirectory -Path $parquetDir
+                Remove-Item -LiteralPath $parquetDir -Recurse -Force -ErrorAction Stop
             }
         }
         else {
             Write-Warning "Parquet cache failed integrity check - reinstalling."
-            Remove-Item $parquetDir -Recurse -Force -ErrorAction SilentlyContinue
+            $null = New-FinOpsPrivateDirectory -Path $parquetDir
+            Remove-Item -LiteralPath $parquetDir -Recurse -Force -ErrorAction Stop
         }
     }
 
     $script:FinOpsParquetUnavailableReason = $null
     $client = $null
     try {
-        New-Item -ItemType Directory -Path $parquetDir -Force | Out-Null
+        if (Test-Path -LiteralPath $parquetDir) {
+            $null = New-FinOpsPrivateDirectory -Path $parquetDir
+            Remove-Item -LiteralPath $parquetDir -Recurse -Force -ErrorAction Stop
+        }
+        $null = New-FinOpsPrivateDirectory -Path $parquetDir
         $client = Resolve-NuGetClient -CachePath $parquetDir
     }
     catch {
@@ -318,7 +526,7 @@ function Install-ParquetReader {
         $pkgDir = Join-Path $parquetDir 'packages'
         Invoke-NuGetRestore -Client $client -PackageId 'Parquet.Net' -Version '4.24.0' -PackageDir $pkgDir -WorkingPath $parquetDir
 
-        # Verify nuget.org signatures on the fetched packages before any of
+        # Verify package signatures on the fetched packages before any of
         # their assemblies are copied or loaded into this process.
         Assert-NuGetPackageSignature -Client $client -PackageDir $pkgDir
 
@@ -326,9 +534,9 @@ function Install-ParquetReader {
         $libDir = Join-Path $parquetDir 'lib'
         New-Item -ItemType Directory -Path $libDir -Force | Out-Null
 
-        $fxPriority = @('net8.0', 'net6.0', 'netstandard2.1', 'netstandard2.0')
+        $fxPriority = @('net8.0', 'net7.0', 'net6.0', 'net5.0', 'netcoreapp3.1', 'netstandard2.1', 'netstandard2.0')
         $rid = Get-FinOpsNativeRid
-        $ridCandidates = @($rid, "$($rid.Split('-')[0])-x64") | Select-Object -Unique
+        $ridCandidates = @($rid)
         # Matches what the integrity manifest hashes, including versioned names
         # such as libfoo.so.1 - a plain *.so filter would skip those and stage
         # an incomplete set.
@@ -364,8 +572,10 @@ function Install-ParquetReader {
 
         # Record hashes of everything we just staged so later loads can detect
         # tampering instead of trusting a bare marker file.
+        Assert-ParquetPackagePayload -BasePath $parquetDir -PackageDir $pkgDir
         New-ParquetManifest -BasePath $parquetDir -ManifestPath $manifestFile
 
+        $null = New-FinOpsPrivateDirectory -Path $parquetDir
         Import-ParquetAssemblies -BasePath $parquetDir
         Write-Host "    Parquet reader installed." -ForegroundColor DarkGray
         return $true
@@ -637,8 +847,7 @@ function Read-FinOpsHubData {
 
     $allData = [System.Collections.Generic.List[PSCustomObject]]::new()
     $loadedFormat = $null
-    $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) "FinOpsHub-$([guid]::NewGuid().ToString('N').Substring(0,8))"
-    New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+    $tempDir = New-FinOpsPrivateDirectory -Path (Join-Path (Split-Path (Get-FinOpsParquetCachePath) -Parent) "download-$([guid]::NewGuid().ToString('N'))") -RequireNew
 
     try {
         # -- Strategy 1: Parquet from ingestion (normalized FOCUS) ---------
@@ -678,7 +887,7 @@ function Read-FinOpsHubData {
                             }
                         }
                         finally {
-                            Remove-Item $localFile -Force -ErrorAction SilentlyContinue
+                            Remove-Item -LiteralPath $localFile -Force -ErrorAction SilentlyContinue
                         }
                     }
                 }
@@ -745,7 +954,7 @@ function Read-FinOpsHubData {
                             throw "Hub CSV read failed; cost coverage is incomplete. $($_.Exception.Message)"
                         }
                         finally {
-                            Remove-Item $localFile -Force -ErrorAction SilentlyContinue
+                            Remove-Item -LiteralPath $localFile -Force -ErrorAction SilentlyContinue
                         }
                     }
 
@@ -764,7 +973,7 @@ function Read-FinOpsHubData {
         }
     }
     finally {
-        Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     }
 
     if ($allData.Count -gt 0) {

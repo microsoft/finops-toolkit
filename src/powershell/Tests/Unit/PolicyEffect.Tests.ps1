@@ -278,6 +278,8 @@ Describe 'Policy effect resolution' {
                     PolicyDefId = '/providers/Microsoft.Authorization/policySetDefinitions/fixture'; Origin = 'Initiative'
                 })
                 $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                $console = $launcherAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Write-FinOpsConsole' }, $true)
+                . ([scriptblock]::Create($console.Extent.Text))
                 $switches = $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.SwitchStatementAst] }, $true)
                 $branches = @($switches.Clauses | Where-Object { $_.Item1.Value -eq 'Get-PolicyRecommendations' -and $_.Item2.Extent.Text.Contains('$data.Analysis') })
                 $branches.Count | Should -Be 3

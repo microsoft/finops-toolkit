@@ -64,6 +64,11 @@ function Invoke-FOHubKustoQuery {
         return @{ Ok = $false; Rows = @(); RowCount = 0; Error = 'ClusterUri is required.' }
     }
 
+    try {
+        $endpoint = Resolve-FinOpsRequestUri -Uri $ClusterUri -AllowAnonymousLoopback:([string]::IsNullOrWhiteSpace($AccessToken))
+        if ($endpoint.Query) { throw 'The cluster URL cannot contain a query string.' }
+    }
+    catch { return @{ Ok = $false; Rows = @(); RowCount = 0; Error = $_.Exception.Message } }
     $base = $ClusterUri.TrimEnd('/')
     $uri = "$base/v1/rest/query"
 
@@ -79,7 +84,7 @@ function Invoke-FOHubKustoQuery {
 
     try {
         $resp = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body `
-            -TimeoutSec $TimeoutSec -ErrorAction Stop
+            -TimeoutSec $TimeoutSec -MaximumRedirection 0 -ErrorAction Stop
 
         # v1 response: { Tables: [ { TableName, Columns:[{ColumnName,...}], Rows:[[...]] } ] }
         # The primary result set is the first table.

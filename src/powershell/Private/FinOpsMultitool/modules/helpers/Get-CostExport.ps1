@@ -56,6 +56,7 @@ function Invoke-StorageBlobRest {
         [string]$StorageToken,
         [int]$TimeoutSeconds = 60
     )
+    $null = Resolve-FinOpsRequestUri -Uri $Uri
     if (-not $StorageToken) {
         try { $StorageToken = Get-PlainAccessToken -ResourceUrl 'https://storage.azure.com' }
         catch { Write-Warning "  Could not acquire storage token: $($_.Exception.Message)"; return $null }
@@ -65,7 +66,7 @@ function Invoke-StorageBlobRest {
         'x-ms-version' = '2021-08-06'
     }
     try {
-        return Invoke-RestMethod -Uri $Uri -Headers $headers -Method GET -TimeoutSec $TimeoutSeconds -ErrorAction Stop
+        return Invoke-RestMethod -Uri $Uri -Headers $headers -Method GET -TimeoutSec $TimeoutSeconds -MaximumRedirection 0 -ErrorAction Stop
     }
     catch {
         $code = $null
@@ -86,13 +87,16 @@ function Get-StorageBlobBytes {
         [string]$StorageToken,
         [int]$TimeoutSeconds = 120
     )
+    $null = Resolve-FinOpsRequestUri -Uri $Uri
     if (-not $StorageToken) {
         try { $StorageToken = Get-PlainAccessToken -ResourceUrl 'https://storage.azure.com' }
         catch { Write-Warning "  Could not acquire storage token: $($_.Exception.Message)"; return $null }
     }
-    $client = $null; $req = $null; $resp = $null
+    $client = $null; $handler = $null; $req = $null; $resp = $null
     try {
-        $client = [System.Net.Http.HttpClient]::new()
+        $handler = [System.Net.Http.HttpClientHandler]::new()
+        $handler.AllowAutoRedirect = $false
+        $client = [System.Net.Http.HttpClient]::new($handler)
         $client.Timeout = [TimeSpan]::FromSeconds($TimeoutSeconds)
         $req = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Get, $Uri)
         [void]$req.Headers.TryAddWithoutValidation('Authorization', "Bearer $StorageToken")
@@ -112,6 +116,7 @@ function Get-StorageBlobBytes {
         if ($resp) { $resp.Dispose() }
         if ($req) { $req.Dispose() }
         if ($client) { $client.Dispose() }
+        elseif ($handler) { $handler.Dispose() }
     }
 }
 

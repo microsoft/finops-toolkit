@@ -16,6 +16,50 @@ Describe 'FinOps Hub Kusto provider' {
         Remove-Module FinOpsMultitool -ErrorAction SilentlyContinue
     }
 
+    Context 'Endpoint security' {
+        It 'Rejects unsafe endpoint <Endpoint> before requesting a token or sending a request' -ForEach @(
+            @{ Endpoint = 'http://example.test' }
+            @{ Endpoint = 'http://127.0.0.1:8082' }
+            @{ Endpoint = 'https://user:password@example.test' }
+            @{ Endpoint = 'http://localhost:8082@example.test' }
+            @{ Endpoint = 'https://example.test/#fragment' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Endpoint = $Endpoint } {
+                param($Endpoint)
+                Mock Get-AzAccessToken { throw 'Token acquisition must not occur.' }
+                Mock Invoke-RestMethod { throw 'Network I/O must not occur.' }
+
+                { Get-PlainAccessToken -ResourceUrl $Endpoint } | Should -Throw
+                { Invoke-StorageBlobRest -Uri $Endpoint -StorageToken 'synthetic' } | Should -Throw
+                { Get-StorageBlobBytes -Uri $Endpoint -StorageToken 'synthetic' } | Should -Throw
+                (Invoke-FOHubKustoQuery -ClusterUri $Endpoint -Query 'print synthetic=1' -AccessToken 'synthetic').Ok | Should -BeFalse
+                (Invoke-FOHubProviderQuery -Provider @{ ClusterUri = $Endpoint; UseAuth = $true; Database = 'Hub' } -Query 'print synthetic=1').Ok | Should -BeFalse
+                Should -Invoke Get-AzAccessToken -Times 0 -Exactly
+                Should -Invoke Invoke-RestMethod -Times 0 -Exactly
+            }
+        }
+
+        It 'Allows token-free loopback Kusto requests without following redirects' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-RestMethod { @{ Tables = @() } }
+
+                (Invoke-FOHubKustoQuery -ClusterUri 'http://127.0.0.1:8082' -Query 'print synthetic=1').Ok | Should -BeTrue
+
+                Should -Invoke Invoke-RestMethod -Times 1 -Exactly -ParameterFilter {
+                    $MaximumRedirection -eq 0 -and -not $Headers.ContainsKey('Authorization')
+                }
+            }
+        }
+
+        It 'Accepts HTTPS storage endpoints without following redirects' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-RestMethod { 'synthetic response' }
+                Invoke-StorageBlobRest -Uri 'https://fixture.blob.core.windows.net/container?comp=list' -StorageToken 'synthetic' | Should -Be 'synthetic response'
+                Should -Invoke Invoke-RestMethod -Times 1 -Exactly -ParameterFilter { $MaximumRedirection -eq 0 }
+            }
+        }
+    }
+
     Context 'Resolve-FOHubProvider - explicit override' {
         AfterEach {
             Remove-Item Env:FINOPS_HUB_KUSTO_URI -ErrorAction SilentlyContinue

@@ -107,8 +107,54 @@ Describe 'FinOps Multitool safety' {
             foreach ($definition in $launcherAst.FindAll({
                         $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
                         $args[0].Name -in @('Get-FinOpsReportRoot', 'Assert-FinOpsReportPath', 'New-FinOpsReportDirectory', 'Write-FinOpsReportFile',
-                            'Show-ResultsSummary', 'Write-SectionHeader', 'Write-ColorizedLine', 'Protect-FinOpsExportText', 'ConvertTo-FinOpsExportCell', 'ConvertTo-FinOpsExportRows')
+                            'Show-ResultsSummary', 'Show-Banner', 'Write-SectionHeader', 'Write-ColorizedLine', 'Write-FinOpsConsole', 'Protect-FinOpsExportText', 'ConvertTo-FinOpsExportCell', 'ConvertTo-FinOpsExportRows')
                     }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+        }
+
+        It 'Escapes terminal control sequences while preserving host colors' {
+            $captured = [Collections.Generic.List[string]]::new()
+            Mock Write-Host { [void]$captured.Add([string]$Object) }
+            $payload = "$([char]27)[2J$([char]27)]52;c;synthetic$([char]7)$([char]0x202E)"
+
+            Write-FinOpsConsole -Object $payload -ForegroundColor Yellow -NoNewline
+
+            $captured[0] | Should -Not -Match '[\p{Cc}\p{Cf}]'
+            $captured[0] | Should -Match '\\u001B\[2J'
+            $captured[0] | Should -Match '\\u0007\\u202E'
+            Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { $ForegroundColor -eq 'Yellow' -and $NoNewline }
+        }
+
+        It 'Preserves the banner line layout through safe console output' {
+            $captured = [Collections.Generic.List[string]]::new()
+            function Get-VersionNumber { '0.0.0' }
+            Mock Clear-Host { }
+            Mock Write-Host { [void]$captured.Add([string]$Object) }
+
+            Show-Banner
+
+            $captured.Count | Should -BeGreaterThan 15
+            ($captured -join '') | Should -Not -Match '\\u000[AD]|[\p{Cc}\p{Cf}]'
+        }
+
+        It 'Keeps hostile tag controls out of terminal output without changing scan data' {
+            $reportRoot = Join-Path $TestDrive 'terminal-controls'
+            $captured = [Collections.Generic.List[string]]::new()
+            Mock Write-Host { [void]$captured.Add([string]$Object) }
+            $payload = "$([char]27)[2Jsynthetic <script>example</script>"
+            $inventory = ConvertTo-TagInventoryFromHub -HubData @([pscustomobject]@{
+                ResourceId = '/resources/fixture'; ResourceType = 'Fixture'; Tags = (@{ CostCenter = $payload } | ConvertTo-Json -Compress)
+            })
+            $modules = @(@{ Fn = 'Get-TagInventory'; Name = 'Tag Inventory'; Selected = $true; Category = 'Governance' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-TagInventory' = $inventory } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            ($captured -join '') | Should -Not -Match '[\p{Cc}\p{Cf}]'
+            ($captured -join '') | Should -Match '\\u001B\[2J'
+            $inventory.TagNames.CostCenter.Values[0].Value | Should -BeExactly $payload
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match '&lt;script&gt;example&lt;/script&gt;'
+            $html | Should -Not -Match '<script>example</script>'
         }
 
         It 'Creates distinct run folders without changing existing reports' {
@@ -993,6 +1039,8 @@ Describe 'FinOps Multitool safety' {
             InModuleScope FinOpsMultitool -Parameters @{ ModuleRoot = $script:ModuleRoot } {
                 param($ModuleRoot)
                 $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                $console = $launcherAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Write-FinOpsConsole' }, $true)
+                . ([scriptblock]::Create($console.Extent.Text))
                 $formatter = $launcherAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Write-ColorizedLine' }, $true)
                 . ([scriptblock]::Create($formatter.Extent.Text))
                 $captured = [System.Collections.Generic.List[string]]::new()
@@ -1766,6 +1814,8 @@ Describe 'FinOps Multitool cost math' {
                 )
                 $data = ConvertTo-TagInventoryFromHub -HubData $hubRows
                 $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                $console = $launcherAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Write-FinOpsConsole' }, $true)
+                . ([scriptblock]::Create($console.Extent.Text))
                 $switches = $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.SwitchStatementAst] }, $true)
                 $branches = @($switches.Clauses | Where-Object { $_.Item1.Value -eq 'Get-TagInventory' -and $_.Item2.Extent.Text.Contains('Top values') })
                 $branches.Count | Should -Be 2
@@ -1872,7 +1922,7 @@ Describe 'FinOps Multitool cost math' {
                 $fixtureDate = $ChargeDate
                 $mixedPeriods = $Period -eq 'Mixed'
                 $scriptAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
-                foreach ($definition in $scriptAst.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -in @('Invoke-SelectedScans', 'Write-SectionHeader') }, $true)) {
+                foreach ($definition in $scriptAst.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -in @('Invoke-SelectedScans', 'Write-SectionHeader', 'Write-FinOpsConsole') }, $true)) {
                     . ([scriptblock]::Create($definition.Extent.Text))
                 }
                 Mock Get-Date { [datetime]::new(2026, 9, 17, 12, 0, 0, [DateTimeKind]::Utc) }
@@ -1964,6 +2014,8 @@ Describe 'FinOps Multitool cost math' {
                 param($Source, $ModuleRoot)
                 $sourceName = $Source
                 $scriptAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                $console = $scriptAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Write-FinOpsConsole' }, $true)
+                . ([scriptblock]::Create($console.Extent.Text))
                 $runner = $scriptAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Invoke-SelectedScans' }, $true)
                 . ([scriptblock]::Create($runner.Extent.Text))
                 $sectionHeader = $scriptAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Write-SectionHeader' }, $true)

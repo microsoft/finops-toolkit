@@ -48,6 +48,18 @@ InModuleScope 'FinOpsToolkit' {
         }
 
         Context 'Behavior' {
+            It 'Shows missing-module guidance before any Azure calls' {
+                Mock Import-Module { }
+                Mock Get-Module { $null }
+                Mock Write-Host { }
+                Mock Get-AzContext { throw 'Azure must not be queried without required modules.' }
+
+                { Start-FinOpsMultitool -NonInteractive -ErrorAction Stop } | Should -Not -Throw
+
+                Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { $Object -eq '  MISSING REQUIRED MODULES' }
+                Should -Invoke Get-AzContext -Times 0 -Exactly
+            }
+
             It 'Rejects Windows PowerShell 5.1 before scanning through <Command>' -Skip:(-not $IsWindows) -ForEach @(
                 @{ Command = 'Start-FinOpsMultitool'; Script = '../../Public/Start-FinOpsMultitool.ps1' }
                 @{ Command = 'Invoke-FinOpsMultitool'; Script = '../../Private/FinOpsMultitool/Invoke-FinOpsMultitool.ps1' }
@@ -291,7 +303,7 @@ function Invoke-FinOpsMultitool {
                 $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
                 foreach ($definition in $launcherAst.FindAll({
                             $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
-                            $args[0].Name -in @('Select-DataSource', 'Read-FinOpsAnswer', 'Invoke-SelectedScans', 'Write-SectionHeader')
+                            $args[0].Name -in @('Select-DataSource', 'Read-FinOpsAnswer', 'Invoke-SelectedScans', 'Write-SectionHeader', 'Write-FinOpsConsole')
                         }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
                 Mock Read-FinOpsAnswer { '1' }
                 Mock Search-AzGraph { [pscustomobject]@{ name = 'test-hub-storage'; resourceGroup = 'test-hub' } }
@@ -318,7 +330,7 @@ function Invoke-FinOpsMultitool {
                 $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
                 foreach ($definition in $launcherAst.FindAll({
                             $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
-                            $args[0].Name -in @('Invoke-SelectedScans', 'Write-SectionHeader')
+                            $args[0].Name -in @('Invoke-SelectedScans', 'Write-SectionHeader', 'Write-FinOpsConsole')
                         }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
                 Mock Get-TagInventory {
                     Write-Information 'Scanner detail on its own line.' -InformationAction Continue

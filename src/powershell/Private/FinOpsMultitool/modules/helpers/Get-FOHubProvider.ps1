@@ -97,6 +97,8 @@ function Invoke-FOHubProviderQuery {
         [Parameter(Mandatory)][string]$Query
     )
     $token = $null
+    try { $null = Resolve-FinOpsRequestUri -Uri $Provider.ClusterUri -AllowAnonymousLoopback:(-not $Provider.UseAuth) }
+    catch { return @{ Ok = $false; Rows = @(); RowCount = 0; Error = $_.Exception.Message } }
     if ($Provider.UseAuth) {
         try { $token = Get-PlainAccessToken -ResourceUrl $Provider.ClusterUri }
         catch { return @{ Ok = $false; Rows = @(); RowCount = 0; Error = "Could not acquire a Kusto token for $($Provider.ClusterUri): $($_.Exception.Message)" } }
@@ -161,7 +163,9 @@ function Resolve-FOHubProvider {
     if (-not [string]::IsNullOrWhiteSpace($env:FINOPS_HUB_KUSTO_URI)) {
         $uri = $env:FINOPS_HUB_KUSTO_URI.Trim()
         $db = if ($env:FINOPS_HUB_KUSTO_DB) { $env:FINOPS_HUB_KUSTO_DB.Trim() } else { 'Hub' }
-        $isLocal = $uri -match '^https?://(localhost|127\.0\.0\.1|\[::1\])(:|/|$)'
+        $endpoint = Resolve-FinOpsRequestUri -Uri $uri -AllowAnonymousLoopback
+        if ($endpoint.Query) { throw 'The cluster URL cannot contain a query string.' }
+        $isLocal = $endpoint.IsLoopback
         return @{
             Found      = $true
             Mode       = if ($isLocal) { 'KustoLocal' } else { 'Kusto' }
@@ -175,6 +179,7 @@ function Resolve-FOHubProvider {
 
     # 2. A cluster already discovered by Resolve-CostDataSource.
     if ($Decision -and $Decision.KustoClusterUri) {
+        $null = Resolve-FinOpsRequestUri -Uri $Decision.KustoClusterUri
         return @{
             Found      = $true
             Mode       = 'Kusto'
@@ -200,6 +205,7 @@ resources
         if ($res -and $res.Data -and @($res.Data).Count -gt 0) {
             $row = @($res.Data)[0]
             if ($row.clusterUri) {
+                $null = Resolve-FinOpsRequestUri -Uri $row.clusterUri
                 return @{
                     Found      = $true
                     Mode       = 'Kusto'

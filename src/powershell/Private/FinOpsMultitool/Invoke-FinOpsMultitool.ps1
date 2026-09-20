@@ -40,6 +40,22 @@ function Invoke-FinOpsMultitool {
         throw "FinOps Multitool requires PowerShell 7 or later. This session is PowerShell $($PSVersionTable.PSVersion). Open PowerShell 7 with 'pwsh', import the module there, and run the scan again. No scan was started."
     }
 
+    function Write-FinOpsConsole {
+        [CmdletBinding()]
+        param(
+            [Parameter(Position = 0)][AllowNull()][AllowEmptyString()][object]$Object,
+            [ConsoleColor]$ForegroundColor,
+            [ConsoleColor]$BackgroundColor,
+            [switch]$NoNewline
+        )
+        $parameters = @{} + $PSBoundParameters
+        $parameters.Object = [regex]::Replace([string]$Object, '[\p{Cc}\p{Cf}]', {
+                param($character)
+                '\u{0:X4}' -f [int][char]$character.Value
+            })
+        Write-Host @parameters
+    }
+
     # -- Load modules (always force-reimport to pick up latest changes) ----
     $multitoolRoot = $PSScriptRoot
     # Re-probe the console every run; the host can differ between invocations.
@@ -67,18 +83,18 @@ function Invoke-FinOpsMultitool {
         }
     }
     if ($missing.Count -gt 0) {
-        Write-Host ""
-        Write-Host "  MISSING REQUIRED MODULES" -ForegroundColor Red
-        Write-Host "  ─────────────────────────────────────────────────────" -ForegroundColor DarkGray
+        Write-FinOpsConsole ""
+        Write-FinOpsConsole "  MISSING REQUIRED MODULES" -ForegroundColor Red
+        Write-FinOpsConsole "  ─────────────────────────────────────────────────────" -ForegroundColor DarkGray
         foreach ($m in $missing) {
-            Write-Host "    $($m.Name)" -ForegroundColor Red -NoNewline
-            Write-Host "  — $($m.Reason)" -ForegroundColor DarkGray
+            Write-FinOpsConsole "    $($m.Name)" -ForegroundColor Red -NoNewline
+            Write-FinOpsConsole "  — $($m.Reason)" -ForegroundColor DarkGray
         }
-        Write-Host ""
-        Write-Host "  Install with:" -ForegroundColor White
+        Write-FinOpsConsole ""
+        Write-FinOpsConsole "  Install with:" -ForegroundColor White
         $names = ($missing.Name | ForEach-Object { "'$_'" }) -join ', '
-        Write-Host "    Install-Module $names -Scope CurrentUser" -ForegroundColor Yellow
-        Write-Host ""
+        Write-FinOpsConsole "    Install-Module $names -Scope CurrentUser" -ForegroundColor Yellow
+        Write-FinOpsConsole ""
         return
     }
 
@@ -213,7 +229,7 @@ function Invoke-FinOpsMultitool {
   ╚════════════════════════════════════════════════════════════════════════╝
 
 "@
-        Write-Host $banner -ForegroundColor Cyan
+        foreach ($line in ($banner -split '\r?\n')) { Write-FinOpsConsole $line -ForegroundColor Cyan }
     }
 
     # =====================================================================
@@ -244,8 +260,8 @@ function Invoke-FinOpsMultitool {
         }
         $script:FinOpsRichConsole = $rich
         if (-not $rich) {
-            Write-Host ""
-            Write-Host "  This console does not support the arrow-key menus. Using numbered prompts." -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  This console does not support the arrow-key menus. Using numbered prompts." -ForegroundColor DarkGray
         }
         return $rich
     }
@@ -269,7 +285,7 @@ function Invoke-FinOpsMultitool {
     # spin a validation loop forever, so every caller needs an attempt ceiling.
     function Read-FinOpsAnswer {
         param([string]$Prompt)
-        Write-Host $Prompt -ForegroundColor White -NoNewline
+        Write-FinOpsConsole $Prompt -ForegroundColor White -NoNewline
         $answer = $null
         try { $answer = Read-Host }
         catch [System.Management.Automation.PipelineStoppedException] { throw }
@@ -288,13 +304,13 @@ function Invoke-FinOpsMultitool {
             [string]$Preselected
         )
 
-        Write-Host ""
-        Write-Host "  DATA SOURCE" -ForegroundColor Cyan
-        Write-Host "  ─────────────────────────────────────────────────────" -ForegroundColor DarkGray
-        Write-Host ""
+        Write-FinOpsConsole ""
+        Write-FinOpsConsole "  DATA SOURCE" -ForegroundColor Cyan
+        Write-FinOpsConsole "  ─────────────────────────────────────────────────────" -ForegroundColor DarkGray
+        Write-FinOpsConsole ""
 
         if ($Preselected -in @('API', 'GraphOnly')) {
-            Write-Host "  Data source set by parameter: $Preselected" -ForegroundColor DarkGray
+            Write-FinOpsConsole "  Data source set by parameter: $Preselected" -ForegroundColor DarkGray
             return @{ Source = $Preselected; HubStorage = $null }
         }
         if (-not [string]::IsNullOrWhiteSpace($env:FINOPS_HUB_KUSTO_URI)) {
@@ -304,7 +320,7 @@ function Invoke-FinOpsMultitool {
 
         # Try to detect a FinOps Hub in the selected subscriptions
         $hubStorage = $null
-        Write-Host "  Checking for FinOps Hub deployment..." -ForegroundColor DarkGray
+        Write-FinOpsConsole "  Checking for FinOps Hub deployment..." -ForegroundColor DarkGray
         foreach ($sub in $Subscriptions) {
             try {
                 $query = "resources | where type == 'microsoft.storage/storageaccounts' and tags['cm-resource-parent'] contains 'Microsoft.Cloud/hubs' | project name, resourceGroup, subscriptionId, location"
@@ -323,32 +339,32 @@ function Invoke-FinOpsMultitool {
             if ($Preselected -eq 'Hub' -and -not $hubStorage) {
                 throw 'No FinOps hub was found in the selected subscriptions. Configure FINOPS_HUB_KUSTO_URI or select API for a separate live scan.'
             }
-            Write-Host "  Data source set by parameter: $Preselected" -ForegroundColor DarkGray
+            Write-FinOpsConsole "  Data source set by parameter: $Preselected" -ForegroundColor DarkGray
             return @{ Source = $Preselected; HubStorage = $hubStorage }
         }
 
         if ($NonInteractive) {
             $autoSource = if ($hubStorage) { 'Hub' } else { 'API' }
-            Write-Host "  Non-interactive run. Using $autoSource." -ForegroundColor DarkGray
+            Write-FinOpsConsole "  Non-interactive run. Using $autoSource." -ForegroundColor DarkGray
             return @{ Source = $autoSource; HubStorage = $hubStorage }
         }
 
         if ($hubStorage) {
-            Write-Host "  FinOps Hub detected: " -ForegroundColor Green -NoNewline
-            Write-Host "$($hubStorage.name)" -ForegroundColor White -NoNewline
-            Write-Host " ($($hubStorage.resourceGroup))" -ForegroundColor DarkGray
-            Write-Host ""
-            Write-Host "  [1] FinOps Hub" -ForegroundColor Green -NoNewline
-            Write-Host "  - Pre-processed data from your Hub's ingestion pipeline" -ForegroundColor DarkGray
-            Write-Host "       Faster, consistent, includes normalized/amortized costs" -ForegroundColor DarkGray
-            Write-Host ""
-            Write-Host "  [2] Cost Management API" -ForegroundColor Yellow -NoNewline
-            Write-Host "  - Query Azure Cost Management REST APIs directly" -ForegroundColor DarkGray
-            Write-Host "       Real-time, no Hub required, subject to API throttling" -ForegroundColor DarkGray
-            Write-Host ""
-            Write-Host "  [3] Resource Graph only" -ForegroundColor DarkGray -NoNewline
-            Write-Host "  - Skip cost modules, run governance/optimization scans only" -ForegroundColor DarkGray
-            Write-Host ""
+            Write-FinOpsConsole "  FinOps Hub detected: " -ForegroundColor Green -NoNewline
+            Write-FinOpsConsole "$($hubStorage.name)" -ForegroundColor White -NoNewline
+            Write-FinOpsConsole " ($($hubStorage.resourceGroup))" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  [1] FinOps Hub" -ForegroundColor Green -NoNewline
+            Write-FinOpsConsole "  - Pre-processed data from your Hub's ingestion pipeline" -ForegroundColor DarkGray
+            Write-FinOpsConsole "       Faster, consistent, includes normalized/amortized costs" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  [2] Cost Management API" -ForegroundColor Yellow -NoNewline
+            Write-FinOpsConsole "  - Query Azure Cost Management REST APIs directly" -ForegroundColor DarkGray
+            Write-FinOpsConsole "       Real-time, no Hub required, subject to API throttling" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  [3] Resource Graph only" -ForegroundColor DarkGray -NoNewline
+            Write-FinOpsConsole "  - Skip cost modules, run governance/optimization scans only" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
 
             $attempts = 0
             while ($true) {
@@ -383,14 +399,14 @@ function Invoke-FinOpsMultitool {
                         if (-not $hubSize.Reachable) {
                             # Storage refused access, so the reader cannot run at all.
                             # Speed is not the problem here; reachability is.
-                            Write-Host ""
-                            Write-Host "  This FinOps Hub's storage account is not reachable from here." -ForegroundColor Yellow
-                            Write-Host "  Hub cost scans need to read the ingestion container, so they will return nothing." -ForegroundColor DarkGray
-                            Write-Host "  Common causes: the storage firewall denies this network, public network access is" -ForegroundColor DarkGray
-                            Write-Host "  disabled, or the account is reachable only through a private endpoint." -ForegroundColor DarkGray
-                            Write-Host ""
-                            Write-Host "  Use the live Cost Management API instead? " -ForegroundColor White -NoNewline
-                            Write-Host "(N = continue with the Hub anyway)" -ForegroundColor DarkGray
+                            Write-FinOpsConsole ""
+                            Write-FinOpsConsole "  This FinOps Hub's storage account is not reachable from here." -ForegroundColor Yellow
+                            Write-FinOpsConsole "  Hub cost scans need to read the ingestion container, so they will return nothing." -ForegroundColor DarkGray
+                            Write-FinOpsConsole "  Common causes: the storage firewall denies this network, public network access is" -ForegroundColor DarkGray
+                            Write-FinOpsConsole "  disabled, or the account is reachable only through a private endpoint." -ForegroundColor DarkGray
+                            Write-FinOpsConsole ""
+                            Write-FinOpsConsole "  Use the live Cost Management API instead? " -ForegroundColor White -NoNewline
+                            Write-FinOpsConsole "(N = continue with the Hub anyway)" -ForegroundColor DarkGray
                             $useApi = Read-FinOpsAnswer '  Select [Y/N]: '
                             if ($useApi -notmatch '^(?i)(n|no)$') {
                                 return @{ Source = 'API'; HubStorage = $hubStorage }
@@ -401,25 +417,25 @@ function Invoke-FinOpsMultitool {
                         if (-not $hubSize.IsLarge) {
                             # Small enough for the reader. Still name it the small-dataset
                             # path so it is never mistaken for the scalable engine.
-                            Write-Host ""
-                            Write-Host "  Using the FinOps Hub storage reader (small-dataset path; $($hubSize.Display))." -ForegroundColor DarkGray
-                            Write-Host "  Larger hubs should query Kusto: deploy ADX/Fabric, or set FINOPS_HUB_KUSTO_URI (ftklocal)." -ForegroundColor DarkGray
+                            Write-FinOpsConsole ""
+                            Write-FinOpsConsole "  Using the FinOps Hub storage reader (small-dataset path; $($hubSize.Display))." -ForegroundColor DarkGray
+                            Write-FinOpsConsole "  Larger hubs should query Kusto: deploy ADX/Fabric, or set FINOPS_HUB_KUSTO_URI (ftklocal)." -ForegroundColor DarkGray
                             return @{ Source = 'Hub'; HubStorage = $hubStorage }
                         }
 
-                        Write-Host ""
-                        Write-Host "  Note: this FinOps Hub has no Azure Data Explorer (Kusto) cluster." -ForegroundColor Yellow
+                        Write-FinOpsConsole ""
+                        Write-FinOpsConsole "  Note: this FinOps Hub has no Azure Data Explorer (Kusto) cluster." -ForegroundColor Yellow
                         if ($hubSize.Known) {
-                            Write-Host "  Ingestion data measured at $($hubSize.Display)." -ForegroundColor Yellow
+                            Write-FinOpsConsole "  Ingestion data measured at $($hubSize.Display)." -ForegroundColor Yellow
                         }
-                        Write-Host "  Cost scans will use the storage reader, which loads cost rows into" -ForegroundColor DarkGray
-                        Write-Host "  memory. On a large hub (tens of GB) this can be slow or run out of" -ForegroundColor DarkGray
-                        Write-Host "  memory before completing." -ForegroundColor DarkGray
-                        Write-Host "  For the scalable engine path: deploy ADX/Fabric on the hub, or set" -ForegroundColor DarkGray
-                        Write-Host "  FINOPS_HUB_KUSTO_URI to a local ftklocal emulator, then re-run." -ForegroundColor DarkGray
-                        Write-Host ""
-                        Write-Host "  Switch to the live Cost Management API instead? " -ForegroundColor White -NoNewline
-                        Write-Host "(N = continue with the storage reader)" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "  Cost scans will use the storage reader, which loads cost rows into" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "  memory. On a large hub (tens of GB) this can be slow or run out of" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "  memory before completing." -ForegroundColor DarkGray
+                        Write-FinOpsConsole "  For the scalable engine path: deploy ADX/Fabric on the hub, or set" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "  FINOPS_HUB_KUSTO_URI to a local ftklocal emulator, then re-run." -ForegroundColor DarkGray
+                        Write-FinOpsConsole ""
+                        Write-FinOpsConsole "  Switch to the live Cost Management API instead? " -ForegroundColor White -NoNewline
+                        Write-FinOpsConsole "(N = continue with the storage reader)" -ForegroundColor DarkGray
                         $useApi = Read-FinOpsAnswer '  Select [Y/N]: '
                         if ($useApi -match '^(?i)(y|yes)$') {
                             return @{ Source = 'API'; HubStorage = $hubStorage }
@@ -433,24 +449,24 @@ function Invoke-FinOpsMultitool {
                         # A console that cannot take input returns empty forever, so only give
                         # up there. A real terminal keeps asking until it gets an answer.
                         if ($attempts -ge 3 -and -not (Test-FinOpsRichConsole)) {
-                            Write-Host "  No valid selection. Using the FinOps Hub." -ForegroundColor Yellow
+                            Write-FinOpsConsole "  No valid selection. Using the FinOps Hub." -ForegroundColor Yellow
                             return @{ Source = 'Hub'; HubStorage = $hubStorage }
                         }
-                        Write-Host "  Invalid choice." -ForegroundColor Red
+                        Write-FinOpsConsole "  Invalid choice." -ForegroundColor Red
                     }
                 }
             }
         }
         else {
-            Write-Host "  No FinOps Hub found in selected subscriptions." -ForegroundColor DarkGray
-            Write-Host ""
-            Write-Host "  [1] Cost Management API" -ForegroundColor Yellow -NoNewline
-            Write-Host "  - Query Azure Cost Management REST APIs directly" -ForegroundColor DarkGray
-            Write-Host "       Real-time, subject to API throttling on large tenants" -ForegroundColor DarkGray
-            Write-Host ""
-            Write-Host "  [2] Resource Graph only" -ForegroundColor DarkGray -NoNewline
-            Write-Host "  - Skip cost modules, run governance/optimization scans only" -ForegroundColor DarkGray
-            Write-Host ""
+            Write-FinOpsConsole "  No FinOps Hub found in selected subscriptions." -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  [1] Cost Management API" -ForegroundColor Yellow -NoNewline
+            Write-FinOpsConsole "  - Query Azure Cost Management REST APIs directly" -ForegroundColor DarkGray
+            Write-FinOpsConsole "       Real-time, subject to API throttling on large tenants" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  [2] Resource Graph only" -ForegroundColor DarkGray -NoNewline
+            Write-FinOpsConsole "  - Skip cost modules, run governance/optimization scans only" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
 
             $attempts = 0
             while ($true) {
@@ -461,10 +477,10 @@ function Invoke-FinOpsMultitool {
                     default {
                         $attempts++
                         if ($attempts -ge 3 -and -not (Test-FinOpsRichConsole)) {
-                            Write-Host "  No valid selection. Using the Cost Management API." -ForegroundColor Yellow
+                            Write-FinOpsConsole "  No valid selection. Using the Cost Management API." -ForegroundColor Yellow
                             return @{ Source = 'API'; HubStorage = $null }
                         }
-                        Write-Host "  Invalid choice." -ForegroundColor Red
+                        Write-FinOpsConsole "  Invalid choice." -ForegroundColor Red
                     }
                 }
             }
@@ -477,15 +493,15 @@ function Invoke-FinOpsMultitool {
     function Select-Subscription {
         param([string]$PreselectedId)
 
-        Write-Host "  Checking Azure connection..." -ForegroundColor DarkGray
+        Write-FinOpsConsole "  Checking Azure connection..." -ForegroundColor DarkGray
         $ctx = Get-AzContext -ErrorAction SilentlyContinue
         if (-not $ctx) {
-            Write-Host "  Not connected. Launching browser login..." -ForegroundColor Yellow
+            Write-FinOpsConsole "  Not connected. Launching browser login..." -ForegroundColor Yellow
             Connect-AzAccount | Out-Null
             $ctx = Get-AzContext
         }
-        Write-Host "  Signed in as: $($ctx.Account.Id)" -ForegroundColor Green
-        Write-Host ""
+        Write-FinOpsConsole "  Signed in as: $($ctx.Account.Id)" -ForegroundColor Green
+        Write-FinOpsConsole ""
 
         # -- Explicit scope: resolve before either picker ------------------
         # When the caller already named a subscription there is nothing to pick,
@@ -506,9 +522,9 @@ function Invoke-FinOpsMultitool {
             }
             if ($sub) {
                 $null = Set-AzContext -SubscriptionId $sub.Id -TenantId $sub.TenantId -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-                Write-Host "  Using subscription: $($sub.Name)" -ForegroundColor Green
-                Write-Host "  Tenant: $($sub.TenantId)" -ForegroundColor Green
-                Write-Host ""
+                Write-FinOpsConsole "  Using subscription: $($sub.Name)" -ForegroundColor Green
+                Write-FinOpsConsole "  Tenant: $($sub.TenantId)" -ForegroundColor Green
+                Write-FinOpsConsole ""
                 return @($sub)
             }
             # Widening an explicit request to every accessible subscription would
@@ -518,7 +534,7 @@ function Invoke-FinOpsMultitool {
             if ($NonInteractive -or -not (Test-FinOpsRichConsole)) {
                 throw "Subscription '$PreselectedId' could not be resolved in any accessible tenant. Refusing to widen the scan to all subscriptions."
             }
-            Write-Host "  Subscription $PreselectedId not found in any accessible tenant, showing picker..." -ForegroundColor Yellow
+            Write-FinOpsConsole "  Subscription $PreselectedId not found in any accessible tenant, showing picker..." -ForegroundColor Yellow
         }
 
         # -- Tenant picker ------------------------------------------------
@@ -527,13 +543,13 @@ function Invoke-FinOpsMultitool {
             # The tenant picker is arrow-key only, so stay in the signed-in tenant
             # and let -SubscriptionId reach the others.
             $currentTenant = (Get-AzContext -ErrorAction SilentlyContinue).Tenant.Id
-            Write-Host "  Tenant: $currentTenant" -ForegroundColor Green
-            Write-Host "  $($tenants.Count) tenants available. Pass -SubscriptionId to target another one." -ForegroundColor DarkGray
-            Write-Host ""
+            Write-FinOpsConsole "  Tenant: $currentTenant" -ForegroundColor Green
+            Write-FinOpsConsole "  $($tenants.Count) tenants available. Pass -SubscriptionId to target another one." -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
         }
         elseif ($tenants.Count -gt 1) {
-            Write-Host "  $($tenants.Count) tenants available:" -ForegroundColor White
-            Write-Host ""
+            Write-FinOpsConsole "  $($tenants.Count) tenants available:" -ForegroundColor White
+            Write-FinOpsConsole ""
 
             $tCursor = 0
             $currentTenantId = $ctx.Tenant.Id
@@ -555,10 +571,10 @@ function Invoke-FinOpsMultitool {
                     $current = if ($tenants[$t].TenantId -eq $currentTenantId) { ' (current)' } else { '' }
                     $tLine = "$tPrefix$tLabel$current"
                     if ($tLine.Length -gt $tWidth) { $tLine = $tLine.Substring(0, $tWidth - 3) + '...' }
-                    Write-Host $tLine.PadRight($tWidth) -ForegroundColor $tColor
+                    Write-FinOpsConsole $tLine.PadRight($tWidth) -ForegroundColor $tColor
                 }
-                Write-Host ""
-                Write-Host "  ↑↓ Navigate  │  Enter = Select tenant  │  Q = Stay in current" -ForegroundColor DarkGray
+                Write-FinOpsConsole ""
+                Write-FinOpsConsole "  ↑↓ Navigate  │  Enter = Select tenant  │  Q = Stay in current" -ForegroundColor DarkGray
 
                 $tKey = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
                 switch ($tKey.VirtualKeyCode) {
@@ -567,21 +583,21 @@ function Invoke-FinOpsMultitool {
                     13 {
                         $selectedTenant = $tenants[$tCursor]
                         if ($selectedTenant.TenantId -ne $currentTenantId) {
-                            Write-Host ""
-                            Write-Host "  Switching to tenant: $($selectedTenant.Name)..." -ForegroundColor Yellow
+                            Write-FinOpsConsole ""
+                            Write-FinOpsConsole "  Switching to tenant: $($selectedTenant.Name)..." -ForegroundColor Yellow
                             Connect-AzAccount -TenantId $selectedTenant.TenantId | Out-Null
                             $ctx = Get-AzContext
-                            Write-Host "  Connected to: $($ctx.Tenant.Id)" -ForegroundColor Green
+                            Write-FinOpsConsole "  Connected to: $($ctx.Tenant.Id)" -ForegroundColor Green
                         }
                         else {
-                            Write-Host ""
-                            Write-Host "  Staying in current tenant." -ForegroundColor Green
+                            Write-FinOpsConsole ""
+                            Write-FinOpsConsole "  Staying in current tenant." -ForegroundColor Green
                         }
                         break
                     }
                     81 {
-                        Write-Host ""
-                        Write-Host "  Staying in current tenant." -ForegroundColor Green
+                        Write-FinOpsConsole ""
+                        Write-FinOpsConsole "  Staying in current tenant." -ForegroundColor Green
                         break
                     }
                 }
@@ -591,12 +607,12 @@ function Invoke-FinOpsMultitool {
                 $tLinesToClear = $tenants.Count + 2
                 Move-FinOpsCursorLine -LinesUp $tLinesToClear
             }
-            Write-Host ""
+            Write-FinOpsConsole ""
         }
         elseif ($tenants.Count -eq 1) {
             $tLabel = if ($tenants[0].Name -and $tenants[0].Name -ne $tenants[0].TenantId) { $tenants[0].Name } else { $tenants[0].TenantId }
-            Write-Host "  Tenant: $tLabel" -ForegroundColor Green
-            Write-Host ""
+            Write-FinOpsConsole "  Tenant: $tLabel" -ForegroundColor Green
+            Write-FinOpsConsole ""
         }
 
         # Scope subscription enumeration to the SELECTED tenant only.
@@ -610,44 +626,44 @@ function Invoke-FinOpsMultitool {
             return $null
         }
         if ($allSubs.Count -eq 1) {
-            Write-Host "  Using only subscription: $($allSubs[0].Name)" -ForegroundColor Green
+            Write-FinOpsConsole "  Using only subscription: $($allSubs[0].Name)" -ForegroundColor Green
             return $allSubs
         }
 
         # Multi-sub picker
         if ($NonInteractive) {
-            Write-Host "  Non-interactive run. Scanning all $($allSubs.Count) subscriptions." -ForegroundColor Green
+            Write-FinOpsConsole "  Non-interactive run. Scanning all $($allSubs.Count) subscriptions." -ForegroundColor Green
             return $allSubs
         }
 
-        Write-Host "  Found $($allSubs.Count) subscriptions. Select scope:" -ForegroundColor White
-        Write-Host ""
-        Write-Host "    [A] All subscriptions" -ForegroundColor White
-        Write-Host "    [S] Single subscription (pick from list)" -ForegroundColor White
-        Write-Host ""
+        Write-FinOpsConsole "  Found $($allSubs.Count) subscriptions. Select scope:" -ForegroundColor White
+        Write-FinOpsConsole ""
+        Write-FinOpsConsole "    [A] All subscriptions" -ForegroundColor White
+        Write-FinOpsConsole "    [S] Single subscription (pick from list)" -ForegroundColor White
+        Write-FinOpsConsole ""
         $choice = Read-FinOpsAnswer '  Choice (A/S): '
 
         if ($choice -match '^(?i)(a|all)$') {
-            Write-Host "  Scanning all $($allSubs.Count) subscriptions" -ForegroundColor Green
+            Write-FinOpsConsole "  Scanning all $($allSubs.Count) subscriptions" -ForegroundColor Green
             return $allSubs
         }
 
         if (-not (Test-FinOpsRichConsole)) {
-            Write-Host ""
+            Write-FinOpsConsole ""
             for ($i = 0; $i -lt $allSubs.Count; $i++) {
-                Write-Host ("    [{0}] {1}" -f ($i + 1), $allSubs[$i].Name)
+                Write-FinOpsConsole ("    [{0}] {1}" -f ($i + 1), $allSubs[$i].Name)
             }
-            Write-Host ""
+            Write-FinOpsConsole ""
             $pick = Read-FinOpsAnswer '  Subscription number (blank = all): '
             if ($pick -eq '') { return $allSubs }
             $pickIndex = 0
             if ([int]::TryParse($pick, [ref]$pickIndex) -and $pickIndex -ge 1 -and $pickIndex -le $allSubs.Count) {
-                Write-Host "  Selected: $($allSubs[$pickIndex - 1].Name)" -ForegroundColor Green
+                Write-FinOpsConsole "  Selected: $($allSubs[$pickIndex - 1].Name)" -ForegroundColor Green
                 return @($allSubs[$pickIndex - 1])
             }
             # Cancel rather than fall through to every subscription; a mistyped number
             # should not silently widen the scan to the whole tenant.
-            Write-Host "  '$pick' is not one of the listed numbers. Cancelled." -ForegroundColor Yellow
+            Write-FinOpsConsole "  '$pick' is not one of the listed numbers. Cancelled." -ForegroundColor Yellow
             return $null
         }
 
@@ -668,10 +684,10 @@ function Invoke-FinOpsMultitool {
                 $color = if ($i -eq $cursor) { 'Green' } else { 'Gray' }
                 $line = "$prefix$($allSubs[$i].Name)"
                 if ($line.Length -gt $width) { $line = $line.Substring(0, $width - 3) + '...' }
-                Write-Host $line.PadRight($width) -ForegroundColor $color
+                Write-FinOpsConsole $line.PadRight($width) -ForegroundColor $color
             }
-            Write-Host ""
-            Write-Host "  ↑↓ Navigate  │  Enter = Select  │  Q = Cancel" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  ↑↓ Navigate  │  Enter = Select  │  Q = Cancel" -ForegroundColor DarkGray
 
             $key = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
             switch ($key.VirtualKeyCode) {
@@ -687,8 +703,8 @@ function Invoke-FinOpsMultitool {
                 }
                 13 {
                     # Enter
-                    Write-Host ""
-                    Write-Host "  Selected: $($allSubs[$cursor].Name)" -ForegroundColor Green
+                    Write-FinOpsConsole ""
+                    Write-FinOpsConsole "  Selected: $($allSubs[$cursor].Name)" -ForegroundColor Green
                     return @($allSubs[$cursor])
                 }
                 81 { return $null } # Q
@@ -707,15 +723,15 @@ function Invoke-FinOpsMultitool {
     function Select-ScanModulesLineMode {
         param([array]$Modules)
 
-        Write-Host ""
-        Write-Host "  SELECT SCANS" -ForegroundColor White
-        Write-Host ""
+        Write-FinOpsConsole ""
+        Write-FinOpsConsole "  SELECT SCANS" -ForegroundColor White
+        Write-FinOpsConsole ""
         for ($i = 0; $i -lt $Modules.Count; $i++) {
             $mark = if ($Modules[$i].Selected) { 'x' } else { ' ' }
-            Write-Host ("    [{0,2}] [{1}] {2}  ({3})" -f ($i + 1), $mark, $Modules[$i].Name, $Modules[$i].Category)
+            Write-FinOpsConsole ("    [{0,2}] [{1}] {2}  ({3})" -f ($i + 1), $mark, $Modules[$i].Name, $Modules[$i].Category)
         }
-        Write-Host ""
-        Write-Host "  Enter numbers separated by commas, 'all', or blank to keep the [x] defaults." -ForegroundColor DarkGray
+        Write-FinOpsConsole ""
+        Write-FinOpsConsole "  Enter numbers separated by commas, 'all', or blank to keep the [x] defaults." -ForegroundColor DarkGray
         $entry = Read-FinOpsAnswer '  Scans: '
 
         if ($entry -eq '') { return $Modules }
@@ -736,10 +752,10 @@ function Invoke-FinOpsMultitool {
             }
         }
         if ($ignored.Count -gt 0) {
-            Write-Host "  Ignored, not a listed number: $($ignored -join ', ')" -ForegroundColor Yellow
+            Write-FinOpsConsole "  Ignored, not a listed number: $($ignored -join ', ')" -ForegroundColor Yellow
         }
         if ($picked.Count -eq 0) {
-            Write-Host "  No valid numbers. Keeping the default selection." -ForegroundColor Yellow
+            Write-FinOpsConsole "  No valid numbers. Keeping the default selection." -ForegroundColor Yellow
             return $Modules
         }
         for ($i = 0; $i -lt $Modules.Count; $i++) { $Modules[$i].Selected = ($i -in $picked) }
@@ -787,10 +803,10 @@ function Invoke-FinOpsMultitool {
 
             # Render
             Clear-Host
-            Write-Host ""
-            Write-Host "  SELECT SCANS" -ForegroundColor White
-            Write-Host "  ↑↓ Move  │  Space = Toggle  │  A = All  │  N = None  │  Enter = Run  │  Q = Quit" -ForegroundColor DarkGray
-            Write-Host ""
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  SELECT SCANS" -ForegroundColor White
+            Write-FinOpsConsole "  ↑↓ Move  │  Space = Toggle  │  A = All  │  N = None  │  Enter = Run  │  Q = Quit" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
 
             $selectedCount = ($Modules | Where-Object { $_.Selected }).Count
 
@@ -798,10 +814,10 @@ function Invoke-FinOpsMultitool {
                 if ($lineToIndex[$i] -eq -1) {
                     # Category header or blank
                     if ($lines[$i] -match '──') {
-                        Write-Host $lines[$i] -ForegroundColor Yellow
+                        Write-FinOpsConsole $lines[$i] -ForegroundColor Yellow
                     }
                     else {
-                        Write-Host $lines[$i]
+                        Write-FinOpsConsole $lines[$i]
                     }
                 }
                 else {
@@ -813,13 +829,13 @@ function Invoke-FinOpsMultitool {
                     elseif ($isActive) { 'White' }
                     elseif ($mod.Selected) { 'DarkGreen' }
                     else { 'Gray' }
-                    Write-Host "  $pointer $check $($mod.Name)" -ForegroundColor $color
+                    Write-FinOpsConsole "  $pointer $check $($mod.Name)" -ForegroundColor $color
                 }
             }
 
-            Write-Host ""
-            Write-Host "  $selectedCount of $($Modules.Count) scans selected" -ForegroundColor DarkGray
-            Write-Host ""
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  $selectedCount of $($Modules.Count) scans selected" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
 
             # Read key
             $key = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
@@ -843,7 +859,7 @@ function Invoke-FinOpsMultitool {
                     # Enter = run
                     $selected = $Modules | Where-Object { $_.Selected }
                     if ($selected.Count -eq 0) {
-                        Write-Host "  No scans selected. Press any key..." -ForegroundColor Red
+                        Write-FinOpsConsole "  No scans selected. Press any key..." -ForegroundColor Red
                         $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
                     }
                     else { return $Modules }
@@ -910,8 +926,8 @@ function Invoke-FinOpsMultitool {
         }
 
         if ($kustoProvider) {
-            Write-Host ""
-            Write-Host "  Querying FinOps Hub Kusto database ($($kustoProvider.Mode))..." -ForegroundColor Green
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  Querying FinOps Hub Kusto database ($($kustoProvider.Mode))..." -ForegroundColor Green
 
             # Scope every query to the selected subscriptions. Without this the
             # hub returns every subscription it holds, contaminating a report
@@ -932,13 +948,13 @@ function Invoke-FinOpsMultitool {
             else { $hubCostByTag = $ct; $hubOk++ }
 
             if ($hubOk -gt 0) {
-                Write-Host "  Hub data summarized in-engine (no rows loaded). Forecast is not included; choose API source for live forecast." -ForegroundColor DarkGray
+                Write-FinOpsConsole "  Hub data summarized in-engine (no rows loaded). Forecast is not included; choose API source for live forecast." -ForegroundColor DarkGray
             }
             foreach ($e in $hubErrors) {
-                Write-Host "  Hub query failed - $e" -ForegroundColor Yellow
+                Write-FinOpsConsole "  Hub query failed - $e" -ForegroundColor Yellow
             }
             if ($hubOk -eq 0) {
-                Write-Host '  Hub cost results are unavailable. Select API as the data source to run a separate live scan.' -ForegroundColor Yellow
+                Write-FinOpsConsole '  Hub cost results are unavailable. Select API as the data source to run a separate live scan.' -ForegroundColor Yellow
             }
         }
         elseif ($DataSource.Source -eq 'Hub' -and $DataSource.HubStorage) {
@@ -946,18 +962,18 @@ function Invoke-FinOpsMultitool {
             # PowerShell). For large hubs, the Kusto path above is preferred.
             $hub = $DataSource.HubStorage
             if ($DataSource.Source -eq 'Hub') {
-                Write-Host ""
-                Write-Host "  Loading cost data from FinOps Hub storage (small-dataset reader)..." -ForegroundColor Green
-                Write-Host "  For large hubs, query the Kusto database instead (ADX/Fabric, or set FINOPS_HUB_KUSTO_URI for ftklocal)." -ForegroundColor DarkGray
+                Write-FinOpsConsole ""
+                Write-FinOpsConsole "  Loading cost data from FinOps Hub storage (small-dataset reader)..." -ForegroundColor Green
+                Write-FinOpsConsole "  For large hubs, query the Kusto database instead (ADX/Fabric, or set FINOPS_HUB_KUSTO_URI for ftklocal)." -ForegroundColor DarkGray
             }
             else {
-                Write-Host "  Loading Hub tag data for fast tag scans..." -ForegroundColor DarkGray
+                Write-FinOpsConsole "  Loading Hub tag data for fast tag scans..." -ForegroundColor DarkGray
             }
             try {
                 $hubRaw = Read-FinOpsHubData -StorageAccountName $hub.name -ResourceGroupName $hub.resourceGroup -Months 1 -SubscriptionIds $subIdsForDisco
             }
             catch {
-                Write-Host "  Hub data load failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                Write-FinOpsConsole "  Hub data load failed: $($_.Exception.Message)" -ForegroundColor Yellow
                 if ($DataSource.Source -eq 'Hub') {
                     foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-AIWorkloadMetrics')) { $hubScanErrors[$scan] = $_.Exception.Message }
                 }
@@ -1001,13 +1017,13 @@ function Invoke-FinOpsMultitool {
                                     $_.TagCoverage = $argCoverage
                                     $_
                                 }
-                                Write-Host "  Tag coverage corrected via Resource Graph: $argCoverage% ($argTagged/$argTotal)" -ForegroundColor DarkGray
+                                Write-FinOpsConsole "  Tag coverage corrected via Resource Graph: $argCoverage% ($argTagged/$argTotal)" -ForegroundColor DarkGray
                             }
                         }
                     }
                 }
                 catch {
-                    Write-Host "  Could not verify tag coverage via ARG: $($_.Exception.Message)" -ForegroundColor DarkGray
+                    Write-FinOpsConsole "  Could not verify tag coverage via ARG: $($_.Exception.Message)" -ForegroundColor DarkGray
                 }
 
                 if ($DataSource.Source -eq 'Hub') {
@@ -1038,13 +1054,13 @@ function Invoke-FinOpsMultitool {
                                 }
                             }
                         }
-                        catch { Write-Host "  Live forecast unavailable; hub actuals remain available. $($_.Exception.Message)" -ForegroundColor Yellow }
+                        catch { Write-FinOpsConsole "  Live forecast unavailable; hub actuals remain available. $($_.Exception.Message)" -ForegroundColor Yellow }
                     }
 
-                    Write-Host "  Hub data loaded: $(@($hubRaw).Count) cost records, $($hubTagInventory.TagCount) tags, $($hubTagInventory.TagCoverage)% coverage" -ForegroundColor Green
+                    Write-FinOpsConsole "  Hub data loaded: $(@($hubRaw).Count) cost records, $($hubTagInventory.TagCount) tags, $($hubTagInventory.TagCoverage)% coverage" -ForegroundColor Green
                 }
                 else {
-                    Write-Host "  Hub tag data ready: $($hubTagInventory.TagCount) tags, $($hubTagInventory.TagCoverage)% coverage" -ForegroundColor DarkGray
+                    Write-FinOpsConsole "  Hub tag data ready: $($hubTagInventory.TagCount) tags, $($hubTagInventory.TagCoverage)% coverage" -ForegroundColor DarkGray
                 }
             }
             else {
@@ -1053,10 +1069,10 @@ function Invoke-FinOpsMultitool {
                     foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-AIWorkloadMetrics')) {
                         if (-not $hubScanErrors.ContainsKey($scan)) { $hubScanErrors[$scan] = 'No hub data is available; cost coverage is incomplete.' }
                     }
-                    Write-Host '  Hub data is unavailable. Select API as the data source to run a separate live scan.' -ForegroundColor Yellow
+                    Write-FinOpsConsole '  Hub data is unavailable. Select API as the data source to run a separate live scan.' -ForegroundColor Yellow
                 }
             }
-            if ($DataSource.Source -eq 'Hub') { Write-Host "" }
+            if ($DataSource.Source -eq 'Hub') { Write-FinOpsConsole "" }
         }
 
         $srcLabel = switch ($DataSource.Source) {
@@ -1066,15 +1082,15 @@ function Invoke-FinOpsMultitool {
         }
         Write-SectionHeader "RUNNING $total SCANS"
         $srcColor = switch ($DataSource.Source) { 'Hub' { 'Green' } 'API' { 'Yellow' } 'GraphOnly' { 'DarkGray' } }
-        Write-Host "  $srcLabel" -ForegroundColor $srcColor
-        Write-Host ""
+        Write-FinOpsConsole "  $srcLabel" -ForegroundColor $srcColor
+        Write-FinOpsConsole ""
 
         foreach ($mod in $selected) {
             $current++
             $pct = [math]::Round(($current / $total) * 100)
             $bar = ('█' * [math]::Floor($pct / 5)).PadRight(20, '░')
 
-            Write-Host "  [$bar] $pct%  ($current/$total) $($mod.Name)" -ForegroundColor White
+            Write-FinOpsConsole "  [$bar] $pct%  ($current/$total) $($mod.Name)" -ForegroundColor White
 
             $sw = [System.Diagnostics.Stopwatch]::StartNew()
             try {
@@ -1199,12 +1215,12 @@ function Invoke-FinOpsMultitool {
                 $count = if ($output) { @($output).Count } else { 0 }
                 $results[$fn] = $output
 
-                Write-Host "    Completed: $($mod.Name) - $count results ($([math]::Round($sw.Elapsed.TotalSeconds, 1))s)" -ForegroundColor Green
+                Write-FinOpsConsole "    Completed: $($mod.Name) - $count results ($([math]::Round($sw.Elapsed.TotalSeconds, 1))s)" -ForegroundColor Green
             }
             catch {
                 $sw.Stop()
-                Write-Host "    FAILED: $($mod.Name)" -ForegroundColor Red
-                Write-Host "      $($_.Exception.Message)" -ForegroundColor Red
+                Write-FinOpsConsole "    FAILED: $($mod.Name)" -ForegroundColor Red
+                Write-FinOpsConsole "      $($_.Exception.Message)" -ForegroundColor Red
                 $results[$mod.Fn] = @()
                 $results["_error_$($mod.Fn)"] = $_.Exception.Message
             }
@@ -1219,10 +1235,10 @@ function Invoke-FinOpsMultitool {
     function Write-SectionHeader {
         param([string]$Title, [string]$Color = 'Cyan')
         $line = '═' * 55
-        Write-Host ""
-        Write-Host "  $line" -ForegroundColor $Color
-        Write-Host "  $Title" -ForegroundColor $Color
-        Write-Host "  $line" -ForegroundColor $Color
+        Write-FinOpsConsole ""
+        Write-FinOpsConsole "  $line" -ForegroundColor $Color
+        Write-FinOpsConsole "  $Title" -ForegroundColor $Color
+        Write-FinOpsConsole "  $line" -ForegroundColor $Color
     }
 
     # Write a line with dollar amounts ($1,234) highlighted in green
@@ -1236,13 +1252,13 @@ function Invoke-FinOpsMultitool {
         $parts = [regex]::Split($Text, '(\$[\d,]+\.?\d*(?:/\w+)?)')
         foreach ($part in $parts) {
             if ($part -match '^\$[\d,]+\.?\d*') {
-                Write-Host $part -ForegroundColor $MoneyColor -NoNewline
+                Write-FinOpsConsole $part -ForegroundColor $MoneyColor -NoNewline
             }
             else {
-                Write-Host $part -ForegroundColor $DefaultColor -NoNewline
+                Write-FinOpsConsole $part -ForegroundColor $DefaultColor -NoNewline
             }
         }
-        Write-Host ""
+        Write-FinOpsConsole ""
     }
     function Show-PermissionReadout {
         param(
@@ -1252,13 +1268,13 @@ function Invoke-FinOpsMultitool {
         )
         $pInfo = if ($PermissionInfo -and $PermissionInfo.ContainsKey($Fn)) { $PermissionInfo[$Fn] } else { $null }
         $what = if ($Activity) { " reading $Activity" } else { '' }
-        Write-Host "    [!] ACCESS DENIED$what (the API returned access denied, not empty results)." -ForegroundColor Red
+        Write-FinOpsConsole "    [!] ACCESS DENIED$what (the API returned access denied, not empty results)." -ForegroundColor Red
         if ($pInfo) {
-            Write-Host "    Required role:  $($pInfo.Role)" -ForegroundColor Yellow
-            Write-Host "    Scope:          $($pInfo.Scope)" -ForegroundColor Yellow
-            Write-Host "    API:            $($pInfo.API)" -ForegroundColor DarkGray
-            Write-Host "    $($pInfo.Reason)" -ForegroundColor DarkGray
-            Write-Host "    Ask a billing or subscription admin to assign the matching role, then re-scan." -ForegroundColor DarkGray
+            Write-FinOpsConsole "    Required role:  $($pInfo.Role)" -ForegroundColor Yellow
+            Write-FinOpsConsole "    Scope:          $($pInfo.Scope)" -ForegroundColor Yellow
+            Write-FinOpsConsole "    API:            $($pInfo.API)" -ForegroundColor DarkGray
+            Write-FinOpsConsole "    $($pInfo.Reason)" -ForegroundColor DarkGray
+            Write-FinOpsConsole "    Ask a billing or subscription admin to assign the matching role, then re-scan." -ForegroundColor DarkGray
         }
     }
 
@@ -1604,7 +1620,7 @@ function Invoke-FinOpsMultitool {
         if ($Subscriptions) { foreach ($s in $Subscriptions) { if ($s.Id -and $s.Name) { $subNameLookup[$s.Id] = $s.Name } } }
 
         Write-SectionHeader 'SCAN COMPLETE'
-        Write-Host ""
+        Write-FinOpsConsole ""
 
         $totalFindings = 0
         foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
@@ -1628,12 +1644,12 @@ function Invoke-FinOpsMultitool {
                 $color = 'DarkGray'
                 $suffix = '0 findings'
             }
-            Write-Host "  $icon $($mod.Name.PadRight(30)) $suffix" -ForegroundColor $color
+            Write-FinOpsConsole "  $icon $($mod.Name.PadRight(30)) $suffix" -ForegroundColor $color
         }
 
-        Write-Host ""
-        Write-Host "  Total findings: $totalFindings" -ForegroundColor White
-        Write-Host ""
+        Write-FinOpsConsole ""
+        Write-FinOpsConsole "  Total findings: $totalFindings" -ForegroundColor White
+        Write-FinOpsConsole ""
 
         # -- Display results per module ------------------------------------
         # Guidance is built per scan during this pass; the HTML report is written
@@ -1655,32 +1671,32 @@ function Invoke-FinOpsMultitool {
                     # Detect permission-related errors
                     $isPermError = $errorMsg -match '(?i)403|401|Forbidden|Unauthorized|AuthorizationFailed|does not have authorization|InsufficientPermissions|BillingAccountNotFound'
                     if ($isPermError -and $pInfo) {
-                        Write-Host "    [!] ACCESS DENIED" -ForegroundColor Red
-                        Write-Host "    $errorMsg" -ForegroundColor DarkGray
-                        Write-Host ""
-                        Write-Host "    Required role:  $($pInfo.Role)" -ForegroundColor Yellow
-                        Write-Host "    Scope:          $($pInfo.Scope)" -ForegroundColor Yellow
-                        Write-Host "    API:            $($pInfo.API)" -ForegroundColor DarkGray
-                        Write-Host "    $($pInfo.Reason)" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    [!] ACCESS DENIED" -ForegroundColor Red
+                        Write-FinOpsConsole "    $errorMsg" -ForegroundColor DarkGray
+                        Write-FinOpsConsole ""
+                        Write-FinOpsConsole "    Required role:  $($pInfo.Role)" -ForegroundColor Yellow
+                        Write-FinOpsConsole "    Scope:          $($pInfo.Scope)" -ForegroundColor Yellow
+                        Write-FinOpsConsole "    API:            $($pInfo.API)" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    $($pInfo.Reason)" -ForegroundColor DarkGray
                     }
                     else {
-                        Write-Host "    [!] ERROR: $errorMsg" -ForegroundColor Red
+                        Write-FinOpsConsole "    [!] ERROR: $errorMsg" -ForegroundColor Red
                         if ($pInfo) {
-                            Write-Host "    If this is a permissions issue:" -ForegroundColor DarkGray
-                            Write-Host "    Required role: $($pInfo.Role) at $($pInfo.Scope) scope" -ForegroundColor DarkGray
+                            Write-FinOpsConsole "    If this is a permissions issue:" -ForegroundColor DarkGray
+                            Write-FinOpsConsole "    Required role: $($pInfo.Role) at $($pInfo.Scope) scope" -ForegroundColor DarkGray
                         }
                     }
                 }
                 else {
                     # No error but no data — could be legitimately empty
-                    Write-Host "    No data returned." -ForegroundColor DarkGray
+                    Write-FinOpsConsole "    No data returned." -ForegroundColor DarkGray
                     if ($pInfo) {
-                        Write-Host "    Possible reasons:" -ForegroundColor DarkGray
-                        Write-Host "    - $($pInfo.Reason)" -ForegroundColor DarkGray
-                        Write-Host "    - Required role: $($pInfo.Role) at $($pInfo.Scope) scope" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    Possible reasons:" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    - $($pInfo.Reason)" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    - Required role: $($pInfo.Role) at $($pInfo.Scope) scope" -ForegroundColor DarkGray
                     }
                 }
-                Write-Host ""
+                Write-FinOpsConsole ""
                 continue
             }
 
@@ -1693,10 +1709,10 @@ function Invoke-FinOpsMultitool {
             switch ($mod.Fn) {
                 'Get-OrphanedResources' {
                     if ($data.MonthlyCost) {
-                        Write-Host "    Observed cost ($($data.CostPeriod)): $('{0:C2}' -f [double]$data.MonthlyCost) across $($data.CostedCount) of $($data.TotalCount) resources" -ForegroundColor White
+                        Write-FinOpsConsole "    Observed cost ($($data.CostPeriod)): $('{0:C2}' -f [double]$data.MonthlyCost) across $($data.CostedCount) of $($data.TotalCount) resources" -ForegroundColor White
                     }
                     if ($data.CostIssue) {
-                        Write-Host "    Cost column incomplete - $($data.CostIssue)" -ForegroundColor Yellow
+                        Write-FinOpsConsole "    Cost column incomplete - $($data.CostIssue)" -ForegroundColor Yellow
                     }
                     # 'n/a' when the lookup failed, '-' when it succeeded and the resource simply had no spend.
                     $noCost = if ($data.CostAvailable) { '-' } else { 'n/a' }
@@ -1716,23 +1732,23 @@ function Invoke-FinOpsMultitool {
                 'Get-IdleVMs' {
                     $scanned = if ($data.ScannedVMs) { $data.ScannedVMs } else { 0 }
                     if ($data.IdleVMs -and @($data.IdleVMs).Count -gt 0) {
-                        Write-Host "    Scanned $scanned running VMs — $(@($data.IdleVMs).Count) idle/underutilized" -ForegroundColor White
+                        Write-FinOpsConsole "    Scanned $scanned running VMs — $(@($data.IdleVMs).Count) idle/underutilized" -ForegroundColor White
                         $rows = $data.IdleVMs
                         $cols = @('VMName', 'ResourceGroup', 'VMSize', 'AvgCPU14d', 'Classification')
                     }
                     else {
-                        Write-Host "    Scanned $scanned running VMs — no idle or underutilized VMs detected" -ForegroundColor Green
+                        Write-FinOpsConsole "    Scanned $scanned running VMs — no idle or underutilized VMs detected" -ForegroundColor Green
                     }
                 }
                 'Get-StorageTierAdvice' {
                     $hotCount = if ($data.TotalHotAccounts) { $data.TotalHotAccounts } else { 0 }
                     if ($data.Recommendations -and @($data.Recommendations).Count -gt 0) {
-                        Write-Host "    $hotCount Hot-tier accounts scanned — $(@($data.Recommendations).Count) can be optimized" -ForegroundColor White
+                        Write-FinOpsConsole "    $hotCount Hot-tier accounts scanned — $(@($data.Recommendations).Count) can be optimized" -ForegroundColor White
                         $rows = $data.Recommendations
                         $cols = @('StorageAccount', 'ResourceGroup', 'CurrentTier', 'CapacityGB', 'Recommendation')
                     }
                     else {
-                        Write-Host "    $hotCount Hot-tier accounts scanned — all are appropriately tiered" -ForegroundColor Green
+                        Write-FinOpsConsole "    $hotCount Hot-tier accounts scanned — all are appropriately tiered" -ForegroundColor Green
                     }
                 }
                 'Get-AHBOpportunities' {
@@ -1785,7 +1801,7 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-CommitmentUtilization' {
                     if ($data.HasData) {
-                        Write-Host "    RIs: $($data.RICount) (avg $($data.RIAvgUtilization)% util)  |  Savings Plans: $($data.SPCount) (avg $($data.SPAvgUtilization)% util)" -ForegroundColor White
+                        Write-FinOpsConsole "    RIs: $($data.RICount) (avg $($data.RIAvgUtilization)% util)  |  Savings Plans: $($data.SPCount) (avg $($data.SPAvgUtilization)% util)" -ForegroundColor White
                         $rows = $data.UnderutilizedRIs | ForEach-Object {
                             [PSCustomObject]@{ SKU = $_.SkuName; Kind = $_.Kind; AvgUtil = "$($_.AvgUtilization)%"; MinUtil = "$($_.MinUtilization)%" }
                         }
@@ -1795,18 +1811,18 @@ function Invoke-FinOpsMultitool {
                         Show-PermissionReadout -Fn 'Get-CommitmentUtilization' -PermissionInfo $permissionInfo -Activity 'reservation / savings plan utilization'
                     }
                     else {
-                        Write-Host "    No active reservations or savings plans found." -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    No active reservations or savings plans found." -ForegroundColor DarkGray
                     }
                 }
                 'Get-SavingsRealized' {
-                    Write-Host "    Estimated savings (separate periods):" -ForegroundColor White
-                    Write-Host "      Commitment period: $($data.Period)" -ForegroundColor DarkGray
+                    Write-FinOpsConsole "    Estimated savings (separate periods):" -ForegroundColor White
+                    Write-FinOpsConsole "      Commitment period: $($data.Period)" -ForegroundColor DarkGray
                     Write-ColorizedLine -Text "      RI: $(Format-BudgetAmount -Value $data.RISavingsMonthToDate -Currency $data.Currency)   SP: $(Format-BudgetAmount -Value $data.SPSavingsMonthToDate -Currency $data.Currency)" -DefaultColor 'Cyan'
                     Write-ColorizedLine -Text "      Commitment estimate: $(Format-BudgetAmount -Value $data.CommitmentSavingsMonthToDate -Currency $data.Currency)" -DefaultColor 'White'
                     Write-ColorizedLine -Text "      AHB: $(Format-BudgetAmount -Value $data.AHBSavingsMonthly -Currency $data.AHBCurrency) ($($data.AHBPeriod))" -DefaultColor 'Cyan'
-                    if ($data.AHBIssue) { Write-Host "      $($data.AHBIssue)" -ForegroundColor Yellow }
+                    if ($data.AHBIssue) { Write-FinOpsConsole "      $($data.AHBIssue)" -ForegroundColor Yellow }
                     if ($data.EstimateBasis) {
-                        Write-Host "      $($data.EstimateBasis)" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "      $($data.EstimateBasis)" -ForegroundColor DarkGray
                     }
                     $rows = $null  # summary only
                 }
@@ -1844,12 +1860,12 @@ function Invoke-FinOpsMultitool {
                     }
                     $cols = @('Resource', 'ResourceGroup', 'ResourceType', 'Cost')
                     if (@($data).Count -gt 50) {
-                        Write-Host "    (showing top 50 of $(@($data).Count) resources by cost)" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    (showing top 50 of $(@($data).Count) resources by cost)" -ForegroundColor DarkGray
                     }
                 }
                 'Get-CostByTag' {
                     if ($data.CostByTag -and $data.CostByTag.Count -gt 0) {
-                        if ($data.Source) { Write-Host "    Source: $($data.Source)" -ForegroundColor DarkGray }
+                        if ($data.Source) { Write-FinOpsConsole "    Source: $($data.Source)" -ForegroundColor DarkGray }
                         $rows = foreach ($tag in $data.CostByTag.GetEnumerator()) {
                             foreach ($v in $tag.Value) {
                                 $displayVal = if ($v.TagValue.Length -gt 40) { $v.TagValue.Substring(0, 37) + '...' } else { $v.TagValue }
@@ -1859,13 +1875,13 @@ function Invoke-FinOpsMultitool {
                         $cols = @('Tag', 'Value', 'Cost')
                     }
                     elseif ($data.NoTagsFound) {
-                        Write-Host "    No tags found in environment to query cost against." -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    No tags found in environment to query cost against." -ForegroundColor DarkGray
                     }
                     else {
                         $tagCount = if ($data.TagsQueried) { $data.TagsQueried.Count } else { 0 }
                         $cbtCount = if ($data.CostByTag) { $data.CostByTag.Count } else { 0 }
-                        Write-Host "    Tags queried: $tagCount, results: $cbtCount — no cost data returned." -ForegroundColor DarkGray
-                        if ($data.UsedTimeframe) { Write-Host "    Timeframe: $($data.UsedTimeframe)" -ForegroundColor DarkGray }
+                        Write-FinOpsConsole "    Tags queried: $tagCount, results: $cbtCount — no cost data returned." -ForegroundColor DarkGray
+                        if ($data.UsedTimeframe) { Write-FinOpsConsole "    Timeframe: $($data.UsedTimeframe)" -ForegroundColor DarkGray }
                     }
                 }
                 'Get-CostTrend' {
@@ -1877,14 +1893,14 @@ function Invoke-FinOpsMultitool {
                     $hasMonths = ($data.Months -and @($data.Months).Count -gt 0)
 
                     if ((-not $nonEmptySubs -or $nonEmptySubs.Count -eq 0) -and -not $hasMonths) {
-                        Write-Host "    No cost trend data returned. Requires Cost Management Reader at the subscription or MG scope, or there is no historical spend in the selected period." -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    No cost trend data returned. Requires Cost Management Reader at the subscription or MG scope, or there is no historical spend in the selected period." -ForegroundColor DarkGray
                         $rows = $null
                         $cols = $null
                     }
                     elseif ($nonEmptySubs -and $nonEmptySubs.Count -gt 0) {
                         foreach ($subEntry in $nonEmptySubs) {
                             $subName = if ($subNameLookup.ContainsKey($subEntry.Key)) { $subNameLookup[$subEntry.Key] } else { $subEntry.Key }
-                            Write-Host "    $subName" -ForegroundColor White
+                            Write-FinOpsConsole "    $subName" -ForegroundColor White
                             $subRows = $subEntry.Value | ForEach-Object {
                                 [PSCustomObject]@{ Month = $_.Month; Cost = Format-BudgetAmount -Value $_.Cost -Currency $_.Currency; Currency = $_.Currency }
                             }
@@ -1893,8 +1909,8 @@ function Invoke-FinOpsMultitool {
                                 $hdrDone = $false
                                 foreach ($ln in $lines) {
                                     if (-not $hdrDone) {
-                                        if ($ln -match '^[\s\-]+$') { Write-Host "    $ln" -ForegroundColor DarkCyan; $hdrDone = $true }
-                                        else { Write-Host "    $ln" -ForegroundColor Cyan }
+                                        if ($ln -match '^[\s\-]+$') { Write-FinOpsConsole "    $ln" -ForegroundColor DarkCyan; $hdrDone = $true }
+                                        else { Write-FinOpsConsole "    $ln" -ForegroundColor Cyan }
                                     }
                                     else { Write-ColorizedLine -Text "    $ln" -DefaultColor 'White' }
                                 }
@@ -1908,7 +1924,7 @@ function Invoke-FinOpsMultitool {
                         # Fallback: aggregate months with sub name header
                         if ($Subscriptions -and $Subscriptions.Count -gt 0) {
                             $subNames = ($Subscriptions | ForEach-Object { if ($_.Name) { $_.Name } else { $_.Id } }) -join ', '
-                            Write-Host "    $subNames" -ForegroundColor White
+                            Write-FinOpsConsole "    $subNames" -ForegroundColor White
                         }
                         $rows = $data.Months | ForEach-Object {
                             [PSCustomObject]@{ Month = $_.Month; Cost = '{0:C0}' -f [double]$_.Cost; Currency = $_.Currency }
@@ -1918,11 +1934,11 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-TagInventory' {
                     $tagCountText = if ($data.SpellingCount -and $data.SpellingCount -ne $data.TagCount) { "$($data.TagCount) unique tag keys ($($data.SpellingCount) spellings)" } else { "$($data.TagCount) unique tags" }
-                    Write-Host "    Coverage: $($data.TagCoverage)%  |  $($data.TaggedCount) tagged / $($data.UntaggedCount) untagged  |  $tagCountText" -ForegroundColor White
+                    Write-FinOpsConsole "    Coverage: $($data.TagCoverage)%  |  $($data.TaggedCount) tagged / $($data.UntaggedCount) untagged  |  $tagCountText" -ForegroundColor White
                     if ($data.CaseVariants -and @($data.CaseVariants).Count -gt 0) {
-                        Write-Host "    Case-variant keys (Azure treats these as one tag):" -ForegroundColor Yellow
+                        Write-FinOpsConsole "    Case-variant keys (Azure treats these as one tag):" -ForegroundColor Yellow
                         foreach ($cv in @($data.CaseVariants)) {
-                            Write-Host "      $($cv.TagKey): $($cv.Detail)" -ForegroundColor DarkGray
+                            Write-FinOpsConsole "      $($cv.TagKey): $($cv.Detail)" -ForegroundColor DarkGray
                         }
                     }
                     if ($data.TagNames -and $data.TagNames.Count -gt 0) {
@@ -1941,15 +1957,15 @@ function Invoke-FinOpsMultitool {
                         [PSCustomObject]@{ Tag = $_.TagName; Status = $_.Status; Priority = $_.Priority; Pillar = $_.Pillar; Example = $_.Example }
                     }
                     $cols = @('Tag', 'Status', 'Priority', 'Pillar', 'Example')
-                    Write-Host "    Compliance: $($data.CompliancePercent)%" -ForegroundColor White
+                    Write-FinOpsConsole "    Compliance: $($data.CompliancePercent)%" -ForegroundColor White
                 }
                 'Get-PolicyInventory' {
                     $hasComplianceData = if ($null -ne $data.HasComplianceData) { $data.HasComplianceData } else { (($data.TotalCompliant + $data.TotalNonCompliant) -gt 0) }
                     if ($hasComplianceData) {
-                        Write-Host "    Assignments: $($data.AssignmentCount)  |  Compliance: $($data.CompliancePct)%  ($($data.TotalCompliant) compliant, $($data.TotalNonCompliant) non-compliant)" -ForegroundColor White
+                        Write-FinOpsConsole "    Assignments: $($data.AssignmentCount)  |  Compliance: $($data.CompliancePct)%  ($($data.TotalCompliant) compliant, $($data.TotalNonCompliant) non-compliant)" -ForegroundColor White
                     }
                     else {
-                        Write-Host "    Assignments: $($data.AssignmentCount)  |  Compliance: data unavailable (no evaluated policy states)" -ForegroundColor White
+                        Write-FinOpsConsole "    Assignments: $($data.AssignmentCount)  |  Compliance: data unavailable (no evaluated policy states)" -ForegroundColor White
                     }
                     $rows = $data.Assignments | Select-Object -First 15 | ForEach-Object {
                         # Parse scope into a readable label
@@ -1972,7 +1988,7 @@ function Invoke-FinOpsMultitool {
                     }
                     $cols = @('Name', 'Effect', 'Enforcement', 'Scope')
                     if ($data.AssignmentCount -gt 15) {
-                        Write-Host "    (showing 15 of $($data.AssignmentCount) assignments)" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    (showing 15 of $($data.AssignmentCount) assignments)" -ForegroundColor DarkGray
                     }
                 }
                 'Get-PolicyRecommendations' {
@@ -1981,21 +1997,21 @@ function Invoke-FinOpsMultitool {
                     }
                     $cols = @('Policy', 'Status', 'Category', 'Priority', 'Effect')
                     $assignmentCoverage = if ($data.CoverageIncomplete -or $null -eq $data.CompliancePct) { 'unverified' } else { "$($data.CompliancePct)%" }
-                    Write-Host "    Assignment coverage: $assignmentCoverage (recommended definition IDs found, not resource compliance)" -ForegroundColor White
+                    Write-FinOpsConsole "    Assignment coverage: $assignmentCoverage (recommended definition IDs found, not resource compliance)" -ForegroundColor White
                     foreach ($issue in @($data.InitiativeErrors)) {
-                        Write-Host "    Initiative lookup unavailable: $($issue.InitiativeId) - $($issue.Error)" -ForegroundColor Yellow
+                        Write-FinOpsConsole "    Initiative lookup unavailable: $($issue.InitiativeId) - $($issue.Error)" -ForegroundColor Yellow
                     }
                 }
                 'Get-BudgetStatus' {
-                    Write-Host "    Budgets: $($data.TotalBudgets)  |  " -ForegroundColor White -NoNewline
-                    Write-Host "At risk: $($data.AtRiskCount)" -ForegroundColor $(if ($data.AtRiskCount -gt 0) { 'Yellow' } else { 'Green' }) -NoNewline
-                    Write-Host "  |  " -ForegroundColor White -NoNewline
-                    Write-Host "Over budget: $($data.OverBudgetCount)" -ForegroundColor $(if ($data.OverBudgetCount -gt 0) { 'Red' } else { 'Green' }) -NoNewline
+                    Write-FinOpsConsole "    Budgets: $($data.TotalBudgets)  |  " -ForegroundColor White -NoNewline
+                    Write-FinOpsConsole "At risk: $($data.AtRiskCount)" -ForegroundColor $(if ($data.AtRiskCount -gt 0) { 'Yellow' } else { 'Green' }) -NoNewline
+                    Write-FinOpsConsole "  |  " -ForegroundColor White -NoNewline
+                    Write-FinOpsConsole "Over budget: $($data.OverBudgetCount)" -ForegroundColor $(if ($data.OverBudgetCount -gt 0) { 'Red' } else { 'Green' }) -NoNewline
                     if ($data.CoverageIncomplete) {
-                        Write-Host "  |  Coverage: unverified (read $($data.ScannedSubs) of $($data.TotalSubs) subs)" -ForegroundColor Yellow
+                        Write-FinOpsConsole "  |  Coverage: unverified (read $($data.ScannedSubs) of $($data.TotalSubs) subs)" -ForegroundColor Yellow
                     }
                     else {
-                        Write-Host "  |  Coverage: $($data.BudgetCoverage)%" -ForegroundColor White
+                        Write-FinOpsConsole "  |  Coverage: $($data.BudgetCoverage)%" -ForegroundColor White
                     }
                     $rows = $data.Budgets | ForEach-Object {
                         [PSCustomObject]@{
@@ -2027,11 +2043,11 @@ function Invoke-FinOpsMultitool {
                         $cols = @('Subscription', 'Budget', 'Month', 'Budgeted', 'Actual', 'PctUsed', 'Status', 'Note')
                     }
                     else {
-                        Write-Host "    No budget history available (no budgets configured, or no cost data for the period)." -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    No budget history available (no budgets configured, or no cost data for the period)." -ForegroundColor DarkGray
                     }
                 }
                 'Get-AnomalyAlerts' {
-                    Write-Host "    Alerts: $($data.TotalAlerts)  |  Anomaly: $($data.AnomalyAlertCount)  |  Active: $($data.ActiveAlertCount)  |  Rules: $($data.ConfiguredRuleCount)" -ForegroundColor White
+                    Write-FinOpsConsole "    Alerts: $($data.TotalAlerts)  |  Anomaly: $($data.AnomalyAlertCount)  |  Active: $($data.ActiveAlertCount)  |  Rules: $($data.ConfiguredRuleCount)" -ForegroundColor White
                     $rows = $data.TriggeredAlerts | Select-Object -First 10 | ForEach-Object {
                         $label = if ($_.AlertLabel) { $_.AlertLabel } else { $_.AlertName }
                         if ($label.Length -gt 45) { $label = $label.Substring(0, 42) + '...' }
@@ -2053,7 +2069,7 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-MaccCommitment' {
                     if (-not $data.Applicable) {
-                        Write-Host "    $($data.Reason)" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    $($data.Reason)" -ForegroundColor DarkGray
                     }
                     elseif ($data.HasMacc -and @($data.Commitments).Count -gt 0) {
                         $rows = @($data.Commitments) | ForEach-Object {
@@ -2070,7 +2086,7 @@ function Invoke-FinOpsMultitool {
                         $cols = @('Account', 'Commitment', 'Consumed', 'Remaining', 'PctUsed', 'Status', 'Expires')
                     }
                     else {
-                        Write-Host "    $($data.Reason)" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    $($data.Reason)" -ForegroundColor DarkGray
                     }
                 }
                 'Get-OptimizationAdvice' {
@@ -2088,7 +2104,7 @@ function Invoke-FinOpsMultitool {
                     }
                     $cols = @('Category', 'Impact', 'Resource', 'Problem', 'Savings')
                     if ($data.TotalCount -gt 15) {
-                        Write-Host "    (showing top 15 of $($data.TotalCount) by savings)" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    (showing top 15 of $($data.TotalCount) by savings)" -ForegroundColor DarkGray
                     }
                 }
                 'Get-CarbonMetrics' {
@@ -2117,7 +2133,7 @@ function Invoke-FinOpsMultitool {
                 'Get-UnitEconomics' {
                     Write-ColorizedLine -Text "    Compute: $($data.Currency) $($data.ComputeCost) ($($data.ComputeSharePct)%) over $($data.VmCount) VMs / $($data.TotalVCpu) vCPU / $($data.TotalMemoryGb) GB RAM" -DefaultColor 'White'
                     Write-ColorizedLine -Text "    Storage: $($data.Currency) $($data.StorageCost) ($($data.StorageSharePct)%) over $($data.TotalStorageGb) GB ($($data.DiskGb) GB disk + $($data.BlobFileGb) GB blob/file)" -DefaultColor 'White'
-                    if ($data.Note) { Write-Host "    $($data.Note)" -ForegroundColor DarkGray }
+                    if ($data.Note) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor DarkGray }
                     $rows = @(
                         [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = (Format-FinOpsUnitRate -Value $data.CostPerVCpu -Currency $data.Currency) }
                         [PSCustomObject]@{ Metric = 'Cost per GB RAM'; Value = (Format-FinOpsUnitRate -Value $data.CostPerGbRam -Currency $data.Currency) }
@@ -2128,7 +2144,7 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-AIWorkloadMetrics' {
                     if (-not $data.HasData) {
-                        Write-Host "    No AI workloads detected — AI KPIs skipped." -ForegroundColor Green
+                        Write-FinOpsConsole "    No AI workloads detected — AI KPIs skipped." -ForegroundColor Green
                     }
                     else {
                         $fp = $data.AIFootprint
@@ -2137,7 +2153,7 @@ function Invoke-FinOpsMultitool {
                         Write-ColorizedLine -Text "    Period: $periodLabel" -DefaultColor 'White'
                         Write-ColorizedLine -Text "    Tokens: $($data.TotalTokens) total ($($data.TotalPromptTokens) in / $($data.TotalGeneratedTokens) out) over $($data.TotalRequests) requests" -DefaultColor 'White'
                         Write-ColorizedLine -Text "    AI spend: $($data.Currency) $($data.TotalAICost)  |  $($data.Currency) $($data.CostPer1KTokens)/1K tokens  |  $($data.Currency) $($data.CostPerRequest)/request" -DefaultColor 'White'
-                        if ($data.Note) { Write-Host "    $($data.Note)" -ForegroundColor DarkGray }
+                        if ($data.Note) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor DarkGray }
                         if ($data.ByModel -and @($data.ByModel).Count -gt 0) {
                             $rows = $data.ByModel
                             $cols = @('Deployment', 'PromptTokens', 'GeneratedTokens', 'TotalTokens', 'PctOfTokens')
@@ -2170,8 +2186,8 @@ function Invoke-FinOpsMultitool {
                         $headerStr = @($budgetRows) | Select-Object $validCols | Format-Table -AutoSize | Out-String |
                         ForEach-Object { $_.TrimEnd() -split "`n" | Where-Object { $_.Trim() } }
                         if ($headerStr.Count -ge 2) {
-                            Write-Host "    $($headerStr[0])" -ForegroundColor Cyan
-                            Write-Host "    $($headerStr[1])" -ForegroundColor DarkCyan
+                            Write-FinOpsConsole "    $($headerStr[0])" -ForegroundColor Cyan
+                            Write-FinOpsConsole "    $($headerStr[1])" -ForegroundColor DarkCyan
                         }
                         # Render each data row with risk-based color
                         for ($ri = 2; $ri -lt $headerStr.Count; $ri++) {
@@ -2197,11 +2213,11 @@ function Invoke-FinOpsMultitool {
                             if (-not $headerDone) {
                                 # First two lines are header + separator
                                 if ($line -match '^[\s\-]+$') {
-                                    Write-Host "    $line" -ForegroundColor DarkCyan
+                                    Write-FinOpsConsole "    $line" -ForegroundColor DarkCyan
                                     $headerDone = $true
                                 }
                                 else {
-                                    Write-Host "    $line" -ForegroundColor Cyan
+                                    Write-FinOpsConsole "    $line" -ForegroundColor Cyan
                                 }
                             }
                             else {
@@ -2215,7 +2231,7 @@ function Invoke-FinOpsMultitool {
                 # Module used inline Write-Host (like SavingsRealized) — no table needed
             }
             else {
-                Write-Host "    (no findings)" -ForegroundColor DarkGray
+                Write-FinOpsConsole "    (no findings)" -ForegroundColor DarkGray
             }
 
             # -- FinOps KPI Insights ---------------------------------------
@@ -2237,17 +2253,17 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 if ($kpiInsights.Count -gt 0) {
-                    Write-Host ""
-                    Write-Host "    FinOps KPIs:" -ForegroundColor Cyan
+                    Write-FinOpsConsole ""
+                    Write-FinOpsConsole "    FinOps KPIs:" -ForegroundColor Cyan
                     foreach ($kpi in $kpiInsights) {
                         if ($kpi.status -eq 'computed' -and $kpi.yourValue) {
-                            Write-Host "    - $($kpi.kpiName): " -ForegroundColor White -NoNewline
-                            Write-Host "$($kpi.yourValue)" -ForegroundColor Green -NoNewline
-                            Write-Host "  [$($kpi.domain)]" -ForegroundColor DarkGray
+                            Write-FinOpsConsole "    - $($kpi.kpiName): " -ForegroundColor White -NoNewline
+                            Write-FinOpsConsole "$($kpi.yourValue)" -ForegroundColor Green -NoNewline
+                            Write-FinOpsConsole "  [$($kpi.domain)]" -ForegroundColor DarkGray
                         }
                         else {
-                            Write-Host "    - $($kpi.kpiName) " -ForegroundColor DarkGray -NoNewline
-                            Write-Host "(informational, $($kpi.domain))" -ForegroundColor DarkGray
+                            Write-FinOpsConsole "    - $($kpi.kpiName) " -ForegroundColor DarkGray -NoNewline
+                            Write-FinOpsConsole "(informational, $($kpi.domain))" -ForegroundColor DarkGray
                         }
                     }
                 }
@@ -2768,25 +2784,25 @@ function Invoke-FinOpsMultitool {
             # Render guidance with severity colors
             if ($guidanceItems.Count -gt 0) {
                 $guidanceByFn[$mod.Fn] = $guidanceItems
-                Write-Host ""
+                Write-FinOpsConsole ""
                 # Determine overall severity for the header
                 $hasCritical = $guidanceItems | Where-Object { $_.Severity -eq 'Red' }
                 $hasWarning = $guidanceItems | Where-Object { $_.Severity -eq 'Yellow' }
                 $headerColor = if ($hasCritical) { 'Red' } elseif ($hasWarning) { 'Yellow' } else { 'Green' }
                 $headerIcon = switch ($headerColor) { 'Red' { '[!]' } 'Yellow' { '[~]' } 'Green' { '[+]' } }
-                Write-Host "    $headerIcon GUIDANCE" -ForegroundColor $headerColor
+                Write-FinOpsConsole "    $headerIcon GUIDANCE" -ForegroundColor $headerColor
 
                 foreach ($item in $guidanceItems) {
                     $color = switch ($item.Severity) { 'Red' { 'Red' } 'Yellow' { 'DarkYellow' } 'Green' { 'Green' } default { 'Gray' } }
                     $icon = switch ($item.Severity) { 'Red' { '!' } 'Yellow' { '~' } 'Green' { '+' } default { '-' } }
-                    Write-Host "    $icon $($item.Message)" -ForegroundColor $color
+                    Write-FinOpsConsole "    $icon $($item.Message)" -ForegroundColor $color
                     if ($item.Docs) {
-                        Write-Host "      $($item.Docs)" -ForegroundColor DarkCyan
+                        Write-FinOpsConsole "      $($item.Docs)" -ForegroundColor DarkCyan
                     }
                 }
             }
 
-            Write-Host ""
+            Write-FinOpsConsole ""
         }
 
         $exportDir = $null
@@ -3258,12 +3274,12 @@ h2[id] { scroll-margin-top: 85px; }
                     'Get-ResourceCosts' {
                         $htmlRows = @($data) | Sort-Object { $_.Actual } -Descending | ForEach-Object {
                             [PSCustomObject]@{
-                                Subscription = $_.Subscription
-                                Resource = if ($_.ResourcePath) { $_.ResourcePath } else { 'No resource ID recorded' }
+                                Subscription  = $_.Subscription
+                                Resource      = if ($_.ResourcePath) { $_.ResourcePath } else { 'No resource ID recorded' }
                                 ResourceGroup = $_.ResourceGroup
-                                ResourceType = $_.ResourceType
-                                Cost = Format-BudgetAmount -Value $_.Actual -Currency $_.Currency
-                                ActualPeriod = if ($_.ActualPeriod) { $_.ActualPeriod } else { 'Not recorded' }
+                                ResourceType  = $_.ResourceType
+                                Cost          = Format-BudgetAmount -Value $_.Actual -Currency $_.Currency
+                                ActualPeriod  = if ($_.ActualPeriod) { $_.ActualPeriod } else { 'Not recorded' }
                             }
                         }
                         $htmlCols = @('Subscription', 'Resource', 'ResourceGroup', 'ResourceType', 'Cost', 'ActualPeriod')
@@ -3615,10 +3631,10 @@ h2[id] { scroll-margin-top: 85px; }
             }
             Write-FinOpsReportFile -Directory $exportDir -Name 'ScanSummary.txt' -Lines $summaryLines -ErrorAction Stop
 
-            Write-Host ""
-            Write-Host "  Exported to: $exportDir" -ForegroundColor Green
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  Exported to: $exportDir" -ForegroundColor Green
             $csvCount = @(Get-ChildItem -LiteralPath $exportDir -Filter '*.csv').Count
-            Write-Host "  Files: $csvCount CSVs + FinOpsReport.html + ScanSummary.txt" -ForegroundColor DarkGray
+            Write-FinOpsConsole "  Files: $csvCount CSVs + FinOpsReport.html + ScanSummary.txt" -ForegroundColor DarkGray
         }
         catch {
             $partialLocation = if ($exportDir) { " Incomplete reports may remain in '$exportDir'." } else { '' }
@@ -3626,12 +3642,12 @@ h2[id] { scroll-margin-top: 85px; }
         }
 
         # Interactive drill-down
-        Write-Host ""
-        Write-Host "  ─────────────────────────────────────────────────────" -ForegroundColor DarkGray
-        Write-Host "  Results are stored in `$FinOpsResults. Examples:" -ForegroundColor DarkGray
-        Write-Host '    $FinOpsResults["Get-OrphanedResources"] | Format-Table' -ForegroundColor DarkGray
-        Write-Host '    $FinOpsResults["Get-IdleVMs"] | Where-Object Impact -eq "High"' -ForegroundColor DarkGray
-        Write-Host ""
+        Write-FinOpsConsole ""
+        Write-FinOpsConsole "  ─────────────────────────────────────────────────────" -ForegroundColor DarkGray
+        Write-FinOpsConsole "  Results are stored in `$FinOpsResults. Examples:" -ForegroundColor DarkGray
+        Write-FinOpsConsole '    $FinOpsResults["Get-OrphanedResources"] | Format-Table' -ForegroundColor DarkGray
+        Write-FinOpsConsole '    $FinOpsResults["Get-IdleVMs"] | Where-Object Impact -eq "High"' -ForegroundColor DarkGray
+        Write-FinOpsConsole ""
 
         return $Results
     }
@@ -3644,7 +3660,7 @@ h2[id] { scroll-margin-top: 85px; }
     # Step 1: Connect & pick subscription
     $subs = Select-Subscription -PreselectedId $SubscriptionId
     if (-not $subs) {
-        Write-Host "  Cancelled." -ForegroundColor Yellow
+        Write-FinOpsConsole "  Cancelled." -ForegroundColor Yellow
         return
     }
 
@@ -3677,14 +3693,14 @@ h2[id] { scroll-margin-top: 85px; }
         'GraphOnly' { 'Resource Graph only (no cost data)' }
     }
     $sourceColor = switch ($sourceChoice.Source) { 'Hub' { 'Green' } 'API' { 'Yellow' } 'GraphOnly' { 'DarkGray' } }
-    Write-Host ""
-    Write-Host "  Data source: $sourceLabel" -ForegroundColor $sourceColor
-    Write-Host ""
+    Write-FinOpsConsole ""
+    Write-FinOpsConsole "  Data source: $sourceLabel" -ForegroundColor $sourceColor
+    Write-FinOpsConsole ""
 
     # Step 3: Pick scans
     $finalModules = Select-ScanModules -Modules $scanModules
     if (-not $finalModules) {
-        Write-Host "  Cancelled." -ForegroundColor Yellow
+        Write-FinOpsConsole "  Cancelled." -ForegroundColor Yellow
         return
     }
 
@@ -3705,7 +3721,7 @@ h2[id] { scroll-margin-top: 85px; }
                     $mod = $finalModules | Where-Object { $_.Fn -eq $req }
                     if ($mod) {
                         $mod.Selected = $true
-                        Write-Host "  Auto-enabled: $($mod.Name) (required by $($depEntry.Key -replace 'Get-',''))" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "  Auto-enabled: $($mod.Name) (required by $($depEntry.Key -replace 'Get-',''))" -ForegroundColor DarkGray
                     }
                 }
             }
@@ -3725,8 +3741,8 @@ h2[id] { scroll-margin-top: 85px; }
     }
     $null = Show-ResultsSummary -Results $results -Modules $finalModules -ExportPath $OutputPath -Subscriptions $subs -DataSourceLabel $effectiveSource
 
-    Write-Host "  Done. Results available in `$FinOpsResults" -ForegroundColor Green
-    Write-Host ""
+    Write-FinOpsConsole "  Done. Results available in `$FinOpsResults" -ForegroundColor Green
+    Write-FinOpsConsole ""
 }
 
 # Auto-invoke when run directly (not dot-sourced or imported as module)
