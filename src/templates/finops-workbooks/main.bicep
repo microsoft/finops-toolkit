@@ -16,6 +16,18 @@ param includeOptimization bool = true
 @sys.description('Optional. Indicates whether to deploy the governance workbook. Default: true.')
 param includeGovernance bool = true
 
+@sys.description('Optional. Indicates whether to deploy the Grafana dashboards. Requires clusterUri. Default: true.')
+param includeDashboards bool = true
+
+@sys.description('Optional. URI of the Data Explorer cluster or Fabric eventhouse that hosts the hub database. The dashboards read cost and price data from it. Default: "" (the dashboards are not deployed).')
+param clusterUri string = ''
+
+@sys.description('Optional. Name of the hub database. Default: "Hub".')
+param hubDatabaseName string = 'Hub'
+
+@sys.description('Optional. Resource ID of the Application Insights resource that holds AI agent telemetry. Default: "" (pick the resource in the dashboard).')
+param appInsightsResourceId string = ''
+
 @sys.description('Optional. Location of the resources. Default: Same as deployment. See https://aka.ms/azureregions.')
 param location string = resourceGroup().location
 
@@ -99,6 +111,23 @@ module governance 'workbooks/governance/main.bicep' = if (includeGovernance) {
   }
 }
 
+//------------------------------------------------------------------------------
+// Dashboards
+//------------------------------------------------------------------------------
+
+// The dashboards read cost and price data from the hub database, so they are
+// only deployed when a cluster is supplied.
+module dashboards 'modules/dashboards.bicep' = if (includeDashboards && !empty(clusterUri)) {
+  name: '${displayNamePrefix}-Dashboards'
+  params: {
+    clusterUri: clusterUri
+    hubDatabaseName: hubDatabaseName
+    appInsightsResourceId: appInsightsResourceId
+    location: location
+    tags: resourceTags
+  }
+}
+
 //==============================================================================
 // Outputs
 //==============================================================================
@@ -114,3 +143,6 @@ output governanceId string = includeGovernance ? governance!.outputs.workbookId 
 
 @sys.description('Governance workbook Azure portal link.')
 output governanceUrl string = includeGovernance ? governance!.outputs.workbookUrl : ''
+
+@sys.description('Names of the dashboards that were deployed.')
+output dashboardNames array = includeDashboards && !empty(clusterUri) ? dashboards!.outputs.dashboardNames : []

@@ -17,6 +17,9 @@ param location string = resourceGroup().location
 @description('Optional. Tags to apply to the dashboards.')
 param tags object = {}
 
+@description('Optional. Resource ID of the Application Insights resource that holds AI agent telemetry. The Codex, Agent framework, and GitHub Copilot dashboards read from it. Default: "" (pick the resource in the dashboard).')
+param appInsightsResourceId string = ''
+
 //==============================================================================
 // Variables
 //==============================================================================
@@ -52,47 +55,70 @@ var databaseVariable = {
   label: 'Database'
 }
 
-// Dashboards that only need the hub cluster. The Codex, Agent framework, and
-// GitHub Copilot dashboards are not included because they also require an
-// Application Insights resource that the hub does not create. The AI Foundry
-// dashboard is included: it reads token usage from Azure Monitor metrics and
-// token cost from the hub, so the hub cluster is all it needs.
+// The Application Insights resource ID is split so the AI dashboards open on
+// the resource that holds the agent telemetry. The dashboards keep their own
+// queries for these variables, so a reader can still switch resources.
+var appInsightsParts = split(appInsightsResourceId, '/')
+var hasAppInsights = length(appInsightsParts) == 9
+var appInsightsVariables = hasAppInsights
+  ? {
+      sub: appInsightsParts[2]
+      rg: appInsightsParts[4]
+      res: appInsightsParts[8]
+    }
+  : {}
+
+// Every FinOps toolkit dashboard. The hub dashboards and the AI Foundry
+// dashboard need the hub cluster. The Codex, Agent framework, and GitHub
+// Copilot dashboards read per call telemetry from Application Insights.
 var dashboards = [
   {
     name: 'ftk-ai-foundry'
-    content: loadJsonContent('../../../workbooks/ftk-ai-foundry.json')
+    content: loadJsonContent('dashboards/ftk-ai-foundry.json')
+  }
+  {
+    name: 'ftk-codex'
+    content: loadJsonContent('dashboards/ftk-codex.json')
+  }
+  {
+    name: 'ftk-agent-framework'
+    content: loadJsonContent('dashboards/ftk-agent-framework.json')
+  }
+  {
+    name: 'ftk-github-copilot'
+    content: loadJsonContent('dashboards/ftk-github-copilot.json')
   }
   {
     name: 'ftk-hub-summary'
-    content: loadJsonContent('../../../workbooks/ftk-hub-summary.json')
+    content: loadJsonContent('dashboards/ftk-hub-summary.json')
   }
   {
     name: 'ftk-hub-overview'
-    content: loadJsonContent('../../../workbooks/ftk-hub-overview.json')
+    content: loadJsonContent('dashboards/ftk-hub-overview.json')
   }
   {
     name: 'ftk-hub-rate-optimization'
-    content: loadJsonContent('../../../workbooks/ftk-hub-rate-optimization.json')
+    content: loadJsonContent('dashboards/ftk-hub-rate-optimization.json')
   }
   {
     name: 'ftk-hub-anomaly-management'
-    content: loadJsonContent('../../../workbooks/ftk-hub-anomaly-management.json')
+    content: loadJsonContent('dashboards/ftk-hub-anomaly-management.json')
   }
   {
     name: 'ftk-hub-budgeting'
-    content: loadJsonContent('../../../workbooks/ftk-hub-budgeting.json')
+    content: loadJsonContent('dashboards/ftk-hub-budgeting.json')
   }
   {
     name: 'ftk-hub-data-ingestion'
-    content: loadJsonContent('../../../workbooks/ftk-hub-data-ingestion.json')
+    content: loadJsonContent('dashboards/ftk-hub-data-ingestion.json')
   }
   {
     name: 'ftk-hub-invoicing-chargeback'
-    content: loadJsonContent('../../../workbooks/ftk-hub-invoicing-chargeback.json')
+    content: loadJsonContent('dashboards/ftk-hub-invoicing-chargeback.json')
   }
   {
     name: 'ftk-hub-licensing-saas'
-    content: loadJsonContent('../../../workbooks/ftk-hub-licensing-saas.json')
+    content: loadJsonContent('dashboards/ftk-hub-licensing-saas.json')
   }
 ]
 
@@ -118,7 +144,16 @@ resource dashboardDefinition 'Microsoft.Dashboard/dashboards/dashboardDefinition
             item.content.templating.list,
             variable => variable.name == 'cluster'
               ? clusterVariable
-              : (variable.name == 'database' ? databaseVariable : variable)
+              : variable.name == 'database'
+                  ? databaseVariable
+                  : contains(appInsightsVariables, variable.name)
+                      ? union(variable, {
+                          current: {
+                            text: appInsightsVariables[variable.name]
+                            value: appInsightsVariables[variable.name]
+                          }
+                        })
+                      : variable
           )
         })
       }))
