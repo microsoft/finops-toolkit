@@ -86,7 +86,18 @@
                     },
                     "queryType": 9,
                     "visualization": "tiles",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "tileSettings": {
+                      "titleContent": {
+                        "columnMatch": "Label",
+                        "formatter": 1
+                      },
+                      "leftContent": {
+                        "columnMatch": "Value",
+                        "formatter": 1
+                      },
+                      "showBorder": false
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "66",
@@ -134,7 +145,18 @@
                     },
                     "queryType": 9,
                     "visualization": "tiles",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "tileSettings": {
+                      "titleContent": {
+                        "columnMatch": "Label",
+                        "formatter": 1
+                      },
+                      "leftContent": {
+                        "columnMatch": "Value",
+                        "formatter": 1
+                      },
+                      "showBorder": false
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "66",
@@ -319,7 +341,18 @@
                     },
                     "queryType": 9,
                     "visualization": "tiles",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "tileSettings": {
+                      "titleContent": {
+                        "columnMatch": "Label",
+                        "formatter": 1
+                      },
+                      "leftContent": {
+                        "columnMatch": "Value",
+                        "formatter": 1
+                      },
+                      "showBorder": false
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "66",
@@ -367,7 +400,18 @@
                     },
                     "queryType": 9,
                     "visualization": "tiles",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "tileSettings": {
+                      "titleContent": {
+                        "columnMatch": "Label",
+                        "formatter": 1
+                      },
+                      "leftContent": {
+                        "columnMatch": "Value",
+                        "formatter": 1
+                      },
+                      "showBorder": false
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "66",

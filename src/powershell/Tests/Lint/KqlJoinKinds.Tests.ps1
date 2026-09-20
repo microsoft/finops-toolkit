@@ -98,6 +98,16 @@ Describe 'KqlJoinKinds' {
             'src/workbooks/optimization/Networking/Networking.workbook' = 3
             'src/workbooks/governance/workbook.json'              = 1
         }
+
+        # Workbook files are classified as ARG surfaces by path, but a workbook may host a
+        # Log Analytics query (queryType 0) where lookup is the preferred operator for
+        # enriching a fact table from a small dimension. Allowlisted per repo-relative path,
+        # counted the same way as the bare-join baseline. Ratchet only: lower on fix, never raise.
+        # Every allowlisted occurrence must sit inside a non-ARG query in that file.
+        $argAllowlist = @{
+            # 6 lookups, all inside the single queryType 0 (Log Analytics) query.
+            'src/workbooks/hub/foundry-agents/foundry-agents.workbook' = 6
+        }
     }
 
     It 'Should scan at least one file per surface' {
@@ -121,8 +131,18 @@ Describe 'KqlJoinKinds' {
     It 'Should not use operators ARG rejects (lookup, semi/anti joins): <RelPath>' -ForEach $argFiles {
         $content = Get-Content -Path $FullName -Raw
         $rejected = @($argRejectedPattern.Matches($content))
+        $allowed = if ($argAllowlist.ContainsKey($RelPath)) { $argAllowlist[$RelPath] } else { 0 }
 
-        @($rejected | ForEach-Object { $_.Value }) -join '; ' | Should -BeNullOrEmpty -Because ('Azure Resource Graph rejects the lookup operator and all semi/anti join flavors with InvalidQuery (verified live; supported kinds are inner, innerunique, leftouter, rightouter, fullouter). For exclusions in ARG, use join kind=leftouter + where isempty(<right key>) with a key-unique right side. If this file contains a Log Analytics query that legitimately needs the operator, add a per-file allowlist to this test.')
+        if ($allowed -eq 0)
+        {
+            @($rejected | ForEach-Object { $_.Value }) -join '; ' | Should -BeNullOrEmpty -Because ('Azure Resource Graph rejects the lookup operator and all semi/anti join flavors with InvalidQuery (verified live; supported kinds are inner, innerunique, leftouter, rightouter, fullouter). For exclusions in ARG, use join kind=leftouter + where isempty(<right key>) with a key-unique right side. If this file contains a Log Analytics query that legitimately needs the operator, add a per-file allowlist entry to $argAllowlist in this test.')
+        }
+        else
+        {
+            # Ratchet: allowlisted files must match their entry exactly, so removed
+            # occurrences lower the entry and new ARG-rejected operators still fail.
+            $rejected.Count | Should -Be $allowed -Because ("'$RelPath' is allowlisted for $allowed ARG-rejected operator(s) inside non-ARG (queryType 0) queries, but $($rejected.Count) were found. If you removed one, lower the entry in `$argAllowlist; if you added one, confirm it is not in an Azure Resource Graph query.")
+        }
     }
 
     It 'Should not use operators ARG rejects in docs ARG examples: <RelPath>' -ForEach $docsFiles {

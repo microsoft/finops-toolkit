@@ -16,6 +16,46 @@
             "name": "562789b8-56c2-6f97-e580-52c66b2e8786"
           },
           {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "e9e01a94-969a-5155-b9ca-23df3b9731ba",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "TimeRange",
+                  "label": "Time range",
+                  "type": 4,
+                  "isRequired": true,
+                  "value": {
+                    "durationMs": 604800000
+                  },
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 86400000
+                      },
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 1209600000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      }
+                    ],
+                    "allowCustom": true
+                  }
+                }
+              ],
+              "style": "pills",
+              "queryType": 9
+            },
+            "customWidth": "100",
+            "name": "cafb1b4a-12d3-5a8b-a942-04a8bb6828c7"
+          },
+          {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",

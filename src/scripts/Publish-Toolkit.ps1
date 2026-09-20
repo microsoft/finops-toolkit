@@ -43,7 +43,7 @@
 #>
 Param(
     [Parameter(Position = 0)]
-    [ValidateSet("*", "docs", "finops-hub", "finops-workbooks", "governance-workbook", "optimization-workbook")]
+    [ValidateSet("*", "docs", "finops-hub", "finops-workbooks", "governance-workbook", "hub-workbook", "optimization-workbook")]
     [string]$Template = "*",
     [string]$QuickstartRepo = "azure-quickstart-templates",
     [string]$RegistryRepo = "bicep-registry-modules",

@@ -3,6 +3,7 @@
 This folder contains Azure Monitor workbooks that will be published to Azure Quickstart Templates.
 
 - [Governance](./governance/README.md)
+- [Hub](./hub/README.md)
 - [Optimization](./optimization/README.md)
 
 <br>

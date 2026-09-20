@@ -154,34 +154,6 @@
             "resourceType": "microsoft.resourcegraph/resources"
           },
           {
-            "id": "d018c007-3452-a538-70cf-0cf9bf3a7a24",
-            "version": "KqlParameterItem/1.0",
-            "name": "TimeRange",
-            "label": "Time range",
-            "type": 4,
-            "isRequired": true,
-            "value": {
-              "durationMs": 604800000
-            },
-            "typeSettings": {
-              "selectableValues": [
-                {
-                  "durationMs": 86400000
-                },
-                {
-                  "durationMs": 604800000
-                },
-                {
-                  "durationMs": 1209600000
-                },
-                {
-                  "durationMs": 2592000000
-                }
-              ],
-              "allowCustom": true
-            }
-          },
-          {
             "id": "76d701a0-b8fb-e52c-1e4a-8ac751de7719",
             "version": "KqlParameterItem/1.0",
             "name": "numberOfMonths",
