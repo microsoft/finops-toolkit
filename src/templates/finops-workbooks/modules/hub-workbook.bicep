@@ -47,6 +47,9 @@ var clusterName = replace(clusterHost, '.kusto.windows.net', '')
 // The Foundry agents tab reads agent telemetry through the Azure Monitor Logs
 // data source, which accepts an Application Insights component as well as a Log
 // Analytics workspace, so the deployed resource is preselected when supplied.
+// TelemetryApplications is component-only because the AI sub-tabs converted from
+// the Grafana dashboards use the classic Application Insights schema, which
+// resolves only in component scope.
 var hasAppInsights = !empty(appInsightsResourceId)
 
 var telemetryTypeFilter = {
@@ -86,7 +89,9 @@ var resolvedParameters = map(parametersItem.content.parameters, parameter =>
                     value: [appInsightsResourceId]
                     typeSettings: union(parameter.typeSettings, { resourceTypeFilter: telemetryTypeFilter })
                   })
-                : parameter
+                : parameter.name == 'TelemetryApplications' && hasAppInsights
+                    ? union(parameter, { value: [appInsightsResourceId] })
+                    : parameter
 )
 
 var resolvedContent = union(workbookContent, {

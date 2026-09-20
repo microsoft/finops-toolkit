@@ -138,6 +138,32 @@
             "resourceType": "microsoft.resourcegraph/resources"
           },
           {
+            "id": "84361871-8c07-4aa8-b713-3074cfcd6ae6",
+            "version": "KqlParameterItem/1.0",
+            "name": "TelemetryApplications",
+            "label": "Agent telemetry apps",
+            "type": 5,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resources\n| where type =~ 'microsoft.insights/components'\n| project\n    value=id,\n    label=strcat(name, ' (', resourceGroup, ', ', location, ')'),\n    selected=true\n| order by label asc",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.insights/components": true
+              },
+              "additionalResourceOptions": [],
+              "selectAllValue": "*",
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "description": "Application Insights components that hold agent and Copilot telemetry. These queries use the classic Application Insights schema, so they must be scoped to a component rather than a workspace."
+          },
+          {
             "id": "868c4bd3-964a-c249-a424-770170331ffd",
             "version": "KqlParameterItem/1.0",
             "name": "FoundryAccounts",
