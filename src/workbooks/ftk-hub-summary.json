@@ -887,7 +887,19 @@
               "show": false
             },
             "cellHeight": "sm"
-          }
+          },
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "indexByName": {},
+                "renameByName": {
+                  "ServiceCategory": "Service category"
+                }
+              }
+            }
+          ]
         },
         {
           "description": "",
@@ -937,7 +949,20 @@
               "show": false
             },
             "cellHeight": "sm"
-          }
+          },
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "indexByName": {},
+                "renameByName": {
+                  "ServiceName": "Service",
+                  "ServiceCategory": "Service category"
+                }
+              }
+            }
+          ]
         }
       ],
       "title": "Full monthly detail — every service, with exact monthly totals",
@@ -1088,7 +1113,19 @@
               "show": false
             },
             "cellHeight": "sm"
-          }
+          },
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "indexByName": {},
+                "renameByName": {
+                  "RegionName": "Region"
+                }
+              }
+            }
+          ]
         }
       ],
       "title": "Full monthly detail — every region, with exact monthly totals",
@@ -1239,7 +1276,19 @@
               "show": false
             },
             "cellHeight": "sm"
-          }
+          },
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "indexByName": {},
+                "renameByName": {
+                  "SubAccountName": "Subscription"
+                }
+              }
+            }
+          ]
         }
       ],
       "title": "Full monthly detail — every subscription, with exact monthly totals",
@@ -1390,7 +1439,20 @@
               "show": false
             },
             "cellHeight": "sm"
-          }
+          },
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "indexByName": {},
+                "renameByName": {
+                  "x_ResourceGroupName": "Resource group",
+                  "SubAccountName": "Subscription"
+                }
+              }
+            }
+          ]
         }
       ],
       "title": "Full monthly detail — every resource group, with exact monthly totals",
@@ -1615,7 +1677,23 @@
               "show": false
             },
             "cellHeight": "sm"
-          }
+          },
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "indexByName": {},
+                "renameByName": {
+                  "ResourceName": "Resource",
+                  "ResourceType": "Resource type",
+                  "RegionName": "Region",
+                  "x_ResourceGroupName": "Resource group",
+                  "SubAccountName": "Subscription"
+                }
+              }
+            }
+          ]
         }
       ],
       "title": "Full monthly detail — every resource, with exact monthly totals",
@@ -2086,7 +2164,24 @@
           "show": false
         },
         "cellHeight": "sm"
-      }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "ChargePeriodStart": "Charge start",
+              "x_SkuDescription": "SKU",
+              "CommitmentDiscountType": "Commitment type",
+              "PricingQuantity": "Quantity",
+              "BilledCost": "Billed cost",
+              "BillingCurrency": "Currency"
+            }
+          }
+        }
+      ]
     }
   ],
   "templating": {

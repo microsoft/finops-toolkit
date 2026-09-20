@@ -225,7 +225,23 @@
           "show": false
         },
         "cellHeight": "sm"
-      }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "ResourceName": "Resource",
+              "ResourceType": "Resource type",
+              "EffectiveCost": "Effective cost",
+              "x_ResourceGroupName": "Resource group",
+              "SubAccountName": "Subscription"
+            }
+          }
+        }
+      ]
     },
     {
       "description": "",
@@ -275,7 +291,23 @@
           "show": false
         },
         "cellHeight": "sm"
-      }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "ResourceName": "Resource",
+              "ResourceType": "Resource type",
+              "EffectiveCost": "Effective cost",
+              "x_ResourceGroupName": "Resource group",
+              "SubAccountName": "Subscription"
+            }
+          }
+        }
+      ]
     },
     {
       "description": "",
@@ -325,7 +357,23 @@
           "show": false
         },
         "cellHeight": "sm"
-      }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "ResourceName": "Resource",
+              "ResourceType": "Resource type",
+              "EffectiveCost": "Effective cost",
+              "x_ResourceGroupName": "Resource group",
+              "SubAccountName": "Subscription"
+            }
+          }
+        }
+      ]
     }
   ],
   "templating": {
