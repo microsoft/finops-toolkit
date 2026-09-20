@@ -28,14 +28,18 @@ The workbook includes the following tabs:
 
 | Tab | What you can do |
 | --- | --- |
-| Home | Review overall cost and usage for the selected scope and time range. |
-| App Service | Analyze App Service plans, utilization, and rate optimization. |
-| Azure AI | Analyze Azure AI and Azure OpenAI usage, tokens, and cost. |
-| Compute | Analyze virtual machine cost, utilization, and rightsizing. |
-| Azure SQL | Analyze Azure SQL cost and utilization. |
-| Storage | Analyze storage cost by account, tier, and redundancy. |
-| Capacity reservations | Review capacity reservation coverage and use. |
-| Premium SSD v2 | Analyze Premium SSD v2 disks and their configured performance. |
+| About | Review the workbook version, how it aligns to the FinOps Framework, and where to find the FinOps toolkit. |
+| Summary | Review cost and usage across services, regions, subscriptions, and resource groups. |
+| AI & emerging workloads | Analyze the AI and machine learning estate, including foundation models, cognitive services, and ML platform compute. |
+| Anomaly management | Detect and investigate abnormal cost and usage patterns. |
+| Data ingestion | Review the state of your FinOps hub and the data it ingested. |
+| Rate optimization | Analyze savings, commitment discounts, and purchases. |
+| Licensing + SaaS | Review Azure Hybrid Benefit use and licensing cost. |
+| Budgeting | Monitor budgets and track spending against your financial plans. |
+| Invoicing + chargeback | Reconcile provider invoices and bill internal teams for their cloud costs. |
+| Foundry infrastructure | Review Azure AI Foundry inventory, platform metrics, and cost. |
+| Foundry agents | Analyze Foundry agent runs, tokens, latency, errors, and estimated cost. |
+| Supply | Review quota and capacity inventory as separate evidence. |
 
 To learn more about FinOps hubs, the roadmap, or how to contribute, see [FinOps toolkit documentation](https://aka.ms/ftk/docs).
 

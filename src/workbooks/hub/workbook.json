@@ -234,14 +234,6 @@
             "style": "link"
           },
           {
-            "id": "57ef9020-0d69-cad8-18e4-da63a815b934",
-            "cellValue": "SelectedTab",
-            "linkTarget": "parameter",
-            "linkLabel": "UNDERSTAND",
-            "subTarget": "understand",
-            "style": "link"
-          },
-          {
             "id": "320491a2-971e-7c43-6b2a-eef0137b43d7",
             "cellValue": "SelectedTab",
             "linkTarget": "parameter",
@@ -274,14 +266,6 @@
             "style": "link"
           },
           {
-            "id": "4b10c204-1cdc-cd47-880a-464919e55f93",
-            "cellValue": "SelectedTab",
-            "linkTarget": "parameter",
-            "linkLabel": "OPTIMIZE",
-            "subTarget": "optimize",
-            "style": "link"
-          },
-          {
             "id": "d6aa05ad-8812-3574-7bd3-733cfe9e584d",
             "cellValue": "SelectedTab",
             "linkTarget": "parameter",
@@ -298,27 +282,11 @@
             "style": "link"
           },
           {
-            "id": "faddc721-2649-c5e7-7721-ca66d44d2909",
-            "cellValue": "SelectedTab",
-            "linkTarget": "parameter",
-            "linkLabel": "QUANTIFY",
-            "subTarget": "quantify",
-            "style": "link"
-          },
-          {
             "id": "33356d94-9189-5ae0-3469-e4b3d3096f15",
             "cellValue": "SelectedTab",
             "linkTarget": "parameter",
             "linkLabel": "Budgeting",
             "subTarget": "budgeting",
-            "style": "link"
-          },
-          {
-            "id": "2369adc2-b350-f9b6-9893-9643a43a007a",
-            "cellValue": "SelectedTab",
-            "linkTarget": "parameter",
-            "linkLabel": "MANAGE",
-            "subTarget": "manage",
             "style": "link"
           },
           {
@@ -383,33 +351,6 @@
         "value": "about"
       },
       "name": "00a247c6-53f7-a683-0323-043c1f5da456"
-    },
-    {
-      "type": 12,
-      "content": {
-        "version": "NotebookGroup/1.0",
-        "groupType": "editable",
-        "loadType": "lazy",
-        "items": [
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "template",
-              "loadType": "lazy",
-              "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/understand",
-              "items": []
-            },
-            "name": "group - understand"
-          }
-        ]
-      },
-      "conditionalVisibility": {
-        "parameterName": "SelectedTab",
-        "comparison": "isEqualTo",
-        "value": "understand"
-      },
-      "name": "8214686b-a5b0-4fc5-361c-f8e97f2df128"
     },
     {
       "type": 12,
@@ -532,33 +473,6 @@
               "version": "NotebookGroup/1.0",
               "groupType": "template",
               "loadType": "lazy",
-              "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/optimize",
-              "items": []
-            },
-            "name": "group - optimize"
-          }
-        ]
-      },
-      "conditionalVisibility": {
-        "parameterName": "SelectedTab",
-        "comparison": "isEqualTo",
-        "value": "optimize"
-      },
-      "name": "623e8816-386d-79b0-be79-a36c1f10fd47"
-    },
-    {
-      "type": 12,
-      "content": {
-        "version": "NotebookGroup/1.0",
-        "groupType": "editable",
-        "loadType": "lazy",
-        "items": [
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "template",
-              "loadType": "lazy",
               "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/rate-optimization",
               "items": []
             },
@@ -613,33 +527,6 @@
               "version": "NotebookGroup/1.0",
               "groupType": "template",
               "loadType": "lazy",
-              "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/quantify",
-              "items": []
-            },
-            "name": "group - quantify"
-          }
-        ]
-      },
-      "conditionalVisibility": {
-        "parameterName": "SelectedTab",
-        "comparison": "isEqualTo",
-        "value": "quantify"
-      },
-      "name": "5d5649de-d313-71c2-a4b4-0be4021244bf"
-    },
-    {
-      "type": 12,
-      "content": {
-        "version": "NotebookGroup/1.0",
-        "groupType": "editable",
-        "loadType": "lazy",
-        "items": [
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "template",
-              "loadType": "lazy",
               "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/budgeting",
               "items": []
             },
@@ -653,33 +540,6 @@
         "value": "budgeting"
       },
       "name": "3bb57d08-216b-eb33-2144-d65049ee48e3"
-    },
-    {
-      "type": 12,
-      "content": {
-        "version": "NotebookGroup/1.0",
-        "groupType": "editable",
-        "loadType": "lazy",
-        "items": [
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "template",
-              "loadType": "lazy",
-              "loadFromTemplateId": "community-Workbooks/FinOps toolkit/FinOps hub/manage",
-              "items": []
-            },
-            "name": "group - manage"
-          }
-        ]
-      },
-      "conditionalVisibility": {
-        "parameterName": "SelectedTab",
-        "comparison": "isEqualTo",
-        "value": "manage"
-      },
-      "name": "46a80c0b-0fa3-15ca-e858-e9a697184e3a"
     },
     {
       "type": 12,
