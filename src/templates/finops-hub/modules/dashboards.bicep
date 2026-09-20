@@ -52,10 +52,16 @@ var databaseVariable = {
   label: 'Database'
 }
 
-// Dashboards that only need the hub cluster. The AI dashboards are not included
-// because they also require an Application Insights resource that the hub does
-// not create.
+// Dashboards that only need the hub cluster. The Codex, Agent framework, and
+// GitHub Copilot dashboards are not included because they also require an
+// Application Insights resource that the hub does not create. The AI Foundry
+// dashboard is included: it reads token usage from Azure Monitor metrics and
+// token cost from the hub, so the hub cluster is all it needs.
 var dashboards = [
+  {
+    name: 'ftk-ai-foundry'
+    content: loadJsonContent('../../../workbooks/ftk-ai-foundry.json')
+  }
   {
     name: 'ftk-hub-summary'
     content: loadJsonContent('../../../workbooks/ftk-hub-summary.json')

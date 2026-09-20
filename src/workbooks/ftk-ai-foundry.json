@@ -74,10 +74,10 @@
   "panels": [
     {
       "datasource": {
-        "type": "grafana-azure-monitor-datasource",
-        "uid": "${am_ds}"
+        "type": "grafana-azure-data-explorer-datasource",
+        "uid": "${adx_ds}"
       },
-      "description": "Input and output token volume by model, from Azure Monitor metrics for the selected Foundry account. Cost is deliberately not shown here: these aggregate metrics do not expose per-call context length or cache read and write quantities, and this dashboard has no Log Analytics source to join against hub price data. For priced token cost that uses live rates from the hub price sheet, use the Codex and Agent framework dashboards.",
+      "description": "Billed token cost by model for the selected Foundry account, read from the FinOps hub. Rates are never embedded in this dashboard: the hub supplies the billed cost for every token meter, so cached input, cache writes, and output are each charged at their own contracted rate. Token volume on this page comes from Azure Monitor metrics, which report total input tokens only and cannot separate cached from uncached input.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -110,11 +110,9 @@
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "fields": "",
-          "values": false
+          "calcs": [],
+          "fields": "/^Cost$/",
+          "values": true
         },
         "showPercentChange": false,
         "textMode": "auto",
@@ -123,115 +121,21 @@
       "pluginVersion": "11.6.9",
       "targets": [
         {
-          "azureMonitor": {
-            "aggregation": "Total",
-            "alias": "{{modelname}}_input",
-            "allowedTimeGrainsMs": [
-              60000,
-              300000,
-              900000,
-              1800000,
-              3600000,
-              21600000,
-              43200000,
-              86400000
-            ],
-            "customNamespace": "microsoft.cognitiveservices/accounts",
-            "dimensionFilters": [
-              {
-                "dimension": "ModelName",
-                "filters": [],
-                "operator": "eq"
-              }
-            ],
-            "metricName": "InputTokens",
-            "metricNamespace": "microsoft.cognitiveservices/accounts",
-            "region": "$region",
-            "resources": [
-              {
-                "metricNamespace": "Microsoft.CognitiveServices/accounts",
-                "region": "$region",
-                "resourceGroup": "$rg",
-                "resourceName": "$res",
-                "subscription": "$sub"
-              }
-            ],
-            "timeGrain": "auto",
-            "top": "500"
-          },
+          "clusterUri": "${cluster}",
+          "database": "${database}",
           "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${am_ds}"
+            "type": "grafana-azure-data-explorer-datasource",
+            "uid": "${adx_ds}"
           },
-          "queryType": "Azure Monitor",
-          "refId": "inputToken",
-          "subscription": "$sub"
-        },
-        {
-          "azureMonitor": {
-            "aggregation": "Total",
-            "alias": "{{modelname}}_output",
-            "allowedTimeGrainsMs": [
-              60000,
-              300000,
-              900000,
-              1800000,
-              3600000,
-              21600000,
-              43200000,
-              86400000
-            ],
-            "customNamespace": "microsoft.cognitiveservices/accounts",
-            "dimensionFilters": [
-              {
-                "dimension": "ModelName",
-                "filters": [],
-                "operator": "eq"
-              }
-            ],
-            "metricName": "OutputTokens",
-            "metricNamespace": "microsoft.cognitiveservices/accounts",
-            "region": "$region",
-            "resources": [
-              {
-                "metricNamespace": "Microsoft.CognitiveServices/accounts",
-                "region": "$region",
-                "resourceGroup": "$rg",
-                "resourceName": "$res",
-                "subscription": "$sub"
-              }
-            ],
-            "timeGrain": "auto",
-            "top": "500"
-          },
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${am_ds}"
-          },
-          "hide": false,
-          "queryType": "Azure Monitor",
-          "refId": "outputToken",
-          "subscription": "$sub"
+          "query": "let selectedResourceGroup = tostring(${rg:doublequote});\nlet selectedResource = tostring(${res:doublequote});\nlet selectedBillingCurrency = tostring(${selectedBillingCurrency:doublequote});\nCosts()\n| where $__timeFilter(ChargePeriodStart)\n| where isempty(selectedBillingCurrency) or BillingCurrency == selectedBillingCurrency\n| where isempty(selectedResourceGroup) or x_ResourceGroupName =~ selectedResourceGroup\n| where isempty(selectedResource) or ResourceName =~ selectedResource\n| where SkuMeter has \"1M Tokens\"\n| extend Model = strcat(\"gpt-\", replace_string(trim(\" \", extract(@\"^(.+?)\\s+(?:Short|Long)Co\\s\", 1, SkuMeter)), \" \", \"-\"))\n| where isnotempty(Model)\n| summarize Cost = sum(BilledCost) by Model\n| order by Cost desc",
+          "querySource": "raw",
+          "queryType": "KQL",
+          "rawMode": true,
+          "refId": "A",
+          "resultFormat": "table"
         }
       ],
-      "title": "Token volume by model",
-      "transformations": [
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "^[Gg][Pp][Tt]-(.*)_(input|output)$",
-            "renamePattern": "gpt-$1_$2"
-          }
-        },
-        {
-          "id": "filterFieldsByName",
-          "options": {
-            "include": {
-              "pattern": "_input$|_output$|^Time$"
-            }
-          }
-        }
-      ],
+      "title": "Token cost by model (${selectedBillingCurrency})",
       "type": "stat"
     },
     {
@@ -1786,6 +1690,66 @@
         },
         "refresh": 1,
         "type": "query"
+      },
+      {
+        "current": {},
+        "type": "datasource",
+        "hide": 0,
+        "query": "grafana-azure-data-explorer-datasource",
+        "name": "adx_ds",
+        "refresh": 1,
+        "label": "Hub data source"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "type": "textbox",
+        "hide": 0,
+        "query": "",
+        "name": "cluster",
+        "label": "Cluster URI",
+        "options": []
+      },
+      {
+        "current": {
+          "value": "Hub",
+          "text": "Hub"
+        },
+        "type": "textbox",
+        "hide": 0,
+        "query": "Hub",
+        "name": "database",
+        "label": "Database"
+      },
+      {
+        "current": {},
+        "type": "query",
+        "hide": 0,
+        "name": "selectedBillingCurrency",
+        "label": "Billing currency",
+        "definition": "",
+        "refresh": 1,
+        "options": [],
+        "datasource": {
+          "type": "grafana-azure-data-explorer-datasource",
+          "uid": "${adx_ds}"
+        },
+        "query": {
+          "rawMode": true,
+          "queryType": "KQL",
+          "querySource": "raw",
+          "clusterUri": "${cluster}",
+          "datasource": {
+            "type": "grafana-azure-data-explorer-datasource",
+            "uid": "${adx_ds}"
+          },
+          "resultFormat": "table",
+          "database": "${database}",
+          "query": "Costs()\n| where ChargePeriodStart >= ago(365d)\n| where isnotempty(BillingCurrency)\n| distinct BillingCurrency\n| order by BillingCurrency asc\n| project text = BillingCurrency, value = BillingCurrency",
+          "refId": "A"
+        }
       }
     ]
   },
