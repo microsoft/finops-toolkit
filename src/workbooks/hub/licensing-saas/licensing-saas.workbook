@@ -17,27 +17,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "&nbsp; [Hybrid Benefit](?tile=805cac8c-a189-45cb-8ba3-fbb1a06dfba0)\r\n• [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Licensing.Nav)"
-                  },
-                  "customWidth": "100",
-                  "name": "beb1dd84-6a25-b9da-0db6-64f302744bad"
-                }
-              ]
-            },
-            "customWidth": "100",
-            "name": "b65c3e49-87b5-e243-ed25-eca8dad3f9d1"
-          },
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "editable",
-              "loadType": "always",
-              "items": [
-                {
-                  "type": 1,
-                  "content": {
-                    "json": "# Azure Hybrid Benefit\r\nSummary of the Hybrid Benefit coverage and utilization\r\n\r\n⬆️ [Top](?tile=2ba70b12-ac64-41b9-b13f-d3c91dab6df4) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Licensing.HybridBenefit)"
+                    "json": "# Azure Hybrid Benefit\r\nSummary of the Hybrid Benefit coverage and utilization\r\n\r\n💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Licensing.HybridBenefit)"
                   },
                   "customWidth": "100",
                   "name": "d7f28d0d-f78f-a811-bad9-49cac2dc5864"
@@ -59,14 +39,25 @@
                   "content": {
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByDayAHB = (\\nCostsPlus\\n);\\n\\nlet costs = CostsByDayAHB\\n| where isnotempty(x_SkuLicenseStatus)\\n//\\n// Get the latest resource record first to guarrantee we have the latest status\\n| summarize arg_max(ChargePeriodStart, *) by ResourceId\\n| summarize\\n    x_ResourceCount = dcount(ResourceId),\\n    x_SkuLicenseUnusedQuantity = sum(x_SkuLicenseUnusedQuantity)\\n    by\\n    x_SkuLicenseStatus,\\n    x_SkuLicenseQuantity,\\n    x_SkuCoreCount\\n| union (\\n    print json = dynamic([\\n        { \\\"x_SkuLicenseStatus\\\": \\\"Enabled\\\" },\\n        { \\\"x_SkuLicenseStatus\\\": \\\"Not Enabled\\\" }\\n    ])\\n    | mv-expand json\\n    | evaluate bag_unpack(json)\\n);\\n//\\n// Coverage first\\ncosts\\n| summarize covered = sumif(x_ResourceCount, x_SkuLicenseStatus == 'Enabled'), all = sum(x_ResourceCount)\\n| project Order = 1, Label = 'Coverage %', Value = percentstring(covered, all, 1)\\n//\\n// First column\\n| union (costs | where x_SkuLicenseStatus == 'Enabled'     | summarize Value = numberstring(sum(x_ResourceCount)) by Order = 3, Label = 'Covered resources')\\n| union (costs | where x_SkuLicenseStatus == 'Not Enabled' | summarize Value = numberstring(sum(x_ResourceCount)) by Order = 5, Label = 'Eligible resources')\\n//\\n// Second column\\n| union (costs | where x_SkuLicenseStatus == 'Enabled'     | summarize Value = numberstring(sum(x_SkuLicenseUnusedQuantity)) by Order = 2, Label = 'Underutilized vCPU capacity')\\n| union (costs | where x_SkuLicenseStatus == 'Enabled'     | summarize Value = numberstring(sum(x_SkuLicenseQuantity)) by Order = 4, Label = 'Covered vCPU capacity')\\n| union (costs | where x_SkuLicenseStatus == 'Not Enabled' | summarize Value = numberstring(sum(x_SkuLicenseQuantity)) by Order = 6, Label = 'Eligible vCPU capacity')\\n| order by Order asc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
-                    "size": 0,
+                    "size": 3,
                     "title": "Hybrid Benefit summary (last n days)",
                     "timeContext": {
                       "durationMs": 0
                     },
                     "queryType": 9,
                     "visualization": "tiles",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "tileSettings": {
+                      "titleContent": {
+                        "columnMatch": "Label",
+                        "formatter": 1
+                      },
+                      "leftContent": {
+                        "columnMatch": "Value",
+                        "formatter": 1
+                      },
+                      "showBorder": false
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "33",

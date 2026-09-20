@@ -15,31 +15,11 @@
               "loadType": "always",
               "items": [
                 {
-                  "type": 1,
-                  "content": {
-                    "json": "&nbsp; [Services](?tile=d9960334-1cff-4686-9d4a-e6afc5574aa7)\r\n• [Regions](?tile=e47767ba-1884-4ca7-8458-24025b92464a)\r\n• [Subscriptions](?tile=4956ec68-b338-4926-bd72-ae6ca9e886d6)\r\n• [Resource groups](?tile=6750ce15-ec4e-4c60-8079-b00a4b462d63)\r\n• [Resources](?tile=52055726-2788-4216-b813-9d91714c5953)\r\n• [Inventory](?tile=a8edc317-353b-4648-9d32-e73e0d0a2894)\r\n• [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Nav)"
-                  },
-                  "customWidth": "100",
-                  "name": "92911fca-5791-b98e-6e24-11bdf940f928"
-                }
-              ]
-            },
-            "customWidth": "100",
-            "name": "e8d1258a-60e8-5db4-f8f6-47536ca8dc33"
-          },
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "editable",
-              "loadType": "always",
-              "items": [
-                {
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = materialize(\\n    CostsByMonth\\n    | where ChargePeriodStart >= startofmonth(now(), -1)\\n    | summarize \\n        BilledCost = sum(BilledCost),\\n        EffectiveCost = sum(EffectiveCost),\\n        ContractedCost = sum(ContractedCost),\\n        ListCost = sum(ListCost)\\n        by\\n        ChargePeriodStart\\n    | order by ChargePeriodStart asc\\n    | extend CommitmentDiscountSavings = ContractedCost - EffectiveCost\\n    | extend NegotiatedDiscountSavings = ListCost - ContractedCost\\n    | extend Month = monthname[monthofyear(ChargePeriodStart)]\\n    | project json = todynamic(strcat('[{ \\\"Type\\\":\\\"Billed cost\\\", \\\"Count\\\":', BilledCost, ' }, { \\\"Type\\\":\\\"Effective cost\\\", \\\"Count\\\":', EffectiveCost, ' }, { \\\"Type\\\":\\\"Commitment savings\\\", \\\"Count\\\":', CommitmentDiscountSavings, ' }, { \\\"Type\\\":\\\"Negotiated savings\\\", \\\"Count\\\":', NegotiatedDiscountSavings, ' }]')), Month, IsThisMonth = ChargePeriodStart >= startofmonth(now())\\n    | mv-expand json\\n    | project Label = strcat(json.Type, ' (', Month, ')'), Count = tolong(json.Count), IsThisMonth\\n);\\ndata\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
-                    "size": 0,
+                    "size": 3,
                     "title": "Summary",
                     "timeContext": {
                       "durationMs": 0
@@ -64,7 +44,21 @@
                     },
                     "queryType": 9,
                     "visualization": "barchart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "seriesLabelSettings": [
+                        {
+                          "seriesName": "EffectiveCost",
+                          "color": "green",
+                          "label": "Effective cost"
+                        },
+                        {
+                          "seriesName": "Change",
+                          "color": "yellow",
+                          "label": "Change (%)"
+                        }
+                      ]
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "66",
@@ -94,7 +88,26 @@
                     },
                     "queryType": 9,
                     "visualization": "timechart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "seriesLabelSettings": [
+                        {
+                          "seriesName": "EffectiveCostRunningTotal",
+                          "color": "green",
+                          "label": "Effective cost"
+                        },
+                        {
+                          "seriesName": "NegotiatedDiscountSavingsRunningTotal",
+                          "color": "blue",
+                          "label": "Negotiated savings"
+                        },
+                        {
+                          "seriesName": "CommitmentDiscountSavingsRunningTotal",
+                          "color": "grayBlue",
+                          "label": "Commitment savings"
+                        }
+                      ]
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "100",
@@ -117,7 +130,7 @@
                   "content": {
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nlet data = materialize(\\n    CostsByDay\\n    | summarize\\n        Subscriptions = dcount(SubAccountId),\\n        ResourceGroups = dcount(strcat(SubAccountId, x_ResourceGroupName)),\\n        Resources = dcount(ResourceId),\\n        Services = dcount(ServiceName)\\n    | project json = todynamic(strcat('[{ \\\"Type\\\":\\\"Subscriptions\\\", \\\"Count\\\":', Subscriptions, ' }, { \\\"Type\\\":\\\"Resource groups\\\", \\\"Count\\\":', ResourceGroups, ' }, { \\\"Type\\\":\\\"Resources\\\", \\\"Count\\\":', Resources, ' }, { \\\"Type\\\":\\\"Services\\\", \\\"Count\\\":', Services, ' }]'))\\n    | mv-expand json\\n    | project Label = tostring(json.Type), Count = tolong(json.Count)\\n);\\ndata\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
-                    "size": 0,
+                    "size": 3,
                     "title": "Counts (last n days)",
                     "timeContext": {
                       "durationMs": 0
@@ -154,7 +167,23 @@
                     },
                     "queryType": 9,
                     "visualization": "barchart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "seriesLabelSettings": [
+                        {
+                          "seriesName": "List",
+                          "color": "red"
+                        },
+                        {
+                          "seriesName": "Contracted",
+                          "color": "yellow"
+                        },
+                        {
+                          "seriesName": "Effective",
+                          "color": "green"
+                        }
+                      ]
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "50",
@@ -172,7 +201,23 @@
                     },
                     "queryType": 9,
                     "visualization": "barchart",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "chartSettings": {
+                      "seriesLabelSettings": [
+                        {
+                          "seriesName": "Total",
+                          "color": "green"
+                        },
+                        {
+                          "seriesName": "Negotiated",
+                          "color": "blue"
+                        },
+                        {
+                          "seriesName": "Commitment",
+                          "color": "grayBlue"
+                        }
+                      ]
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "50",
@@ -196,7 +241,7 @@
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = (\\n    CostsByMonth\\n    | summarize \\n        BilledCost     = todouble(round(sum(BilledCost), 2)),\\n        EffectiveCost  = todouble(round(sum(EffectiveCost), 2)),\\n        ContractedCost = todouble(round(sum(ContractedCost), 2)),\\n        ListCost       = todouble(round(sum(ListCost), 2))\\n        by\\n        ChargePeriodStart\\n    | order by ChargePeriodStart asc\\n    | extend CommitmentDiscountSavings = todouble(round(ContractedCost - EffectiveCost, 2))\\n    | extend NegotiatedDiscountSavings = todouble(round(ListCost - ContractedCost, 2))\\n    | extend ChargePeriod = strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)])\\n);\\ndata | extend Data = 'Billed cost' | evaluate pivot(ChargePeriod, sum(BilledCost), Data)\\n| union (data | extend Data = 'Effective cost'     | evaluate pivot(ChargePeriod, sum(EffectiveCost), Data))\\n| union (data | extend Data = 'Negotiated savings' | evaluate pivot(ChargePeriod, sum(NegotiatedDiscountSavings), Data))\\n| union (data | extend Data = 'Commitment savings' | evaluate pivot(ChargePeriod, sum(CommitmentDiscountSavings), Data))\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
                     "size": 3,
-                    "title": "Summary",
+                    "title": "Cost and savings by month",
                     "timeContext": {
                       "durationMs": 0
                     },
@@ -226,7 +271,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "# Services\r\nEffective cost breakdown by service category and service name\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Services)"
+                    "json": "# Services\r\nEffective cost breakdown by service category and service name\r\n\r\n💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Services)"
                   },
                   "customWidth": "100",
                   "name": "d6f4d550-fb1a-f782-3781-ae33afebce15"
@@ -279,7 +324,7 @@
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = (\\n    CostsByMonth\\n    | summarize \\n        EffectiveCost  = sum(EffectiveCost)\\n        by\\n        ChargePeriodStart,\\n        ServiceCategory,\\n        ServiceName\\n    | as per\\n    | union (\\n        per\\n        | summarize \\n            EffectiveCost  = sum(EffectiveCost)\\n            by\\n            ServiceCategory,\\n            ServiceName\\n    )\\n    | order by ChargePeriodStart asc\\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\\n);\\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), ServiceCategory)\\n| order by Total desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
                     "size": 3,
-                    "title": "Monthly trend by service category",
+                    "title": "Monthly trend by service category (details)",
                     "timeContext": {
                       "durationMs": 0
                     },
@@ -342,7 +387,7 @@
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = (\\n    CostsByMonth\\n    | summarize \\n        EffectiveCost  = sum(EffectiveCost)\\n        by\\n        ChargePeriodStart,\\n        ServiceCategory,\\n        ServiceName\\n    | as per\\n    | union (\\n        per\\n        | summarize \\n            EffectiveCost  = sum(EffectiveCost)\\n            by\\n            ServiceCategory,\\n            ServiceName\\n    )\\n    | order by ChargePeriodStart asc\\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\\n);\\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), ServiceName, ServiceCategory)\\n| order by Total desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
                     "size": 3,
-                    "title": "Monthly trend by service name",
+                    "title": "Monthly trend by service name (details)",
                     "timeContext": {
                       "durationMs": 0
                     },
@@ -372,7 +417,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "# Regions\r\nEffective cost breakdown by region\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Regions)"
+                    "json": "# Regions\r\nEffective cost breakdown by region\r\n\r\n💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Regions)"
                   },
                   "customWidth": "100",
                   "name": "c41e2dfa-4ce5-5cd9-9677-8e44c63b1d4f"
@@ -425,7 +470,7 @@
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = (\\n    CostsByMonth\\n    | summarize \\n        EffectiveCost  = sum(EffectiveCost)\\n        by\\n        ChargePeriodStart = startofmonth(ChargePeriodStart),\\n        RegionName\\n    | as per\\n    | union (\\n        per\\n        | summarize \\n            EffectiveCost  = sum(EffectiveCost)\\n            by\\n            RegionName\\n    )\\n    | order by ChargePeriodStart asc\\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\\n);\\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), RegionName)\\n| order by Total desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
                     "size": 3,
-                    "title": "Monthly trend by region",
+                    "title": "Monthly trend by region (details)",
                     "timeContext": {
                       "durationMs": 0
                     },
@@ -455,7 +500,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "# Subscriptions\r\nEffective cost breakdown by subscription (subaccount)\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Subscriptions)"
+                    "json": "# Subscriptions\r\nEffective cost breakdown by subscription (subaccount)\r\n\r\n💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Subscriptions)"
                   },
                   "customWidth": "100",
                   "name": "0051fca0-7560-6f97-7709-4793dd67cd07"
@@ -508,7 +553,7 @@
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = (\\n    CostsByMonth\\n    | summarize \\n        BilledCost     = sum(BilledCost),\\n        EffectiveCost  = sum(EffectiveCost),\\n        ContractedCost = sum(ContractedCost),\\n        ListCost       = sum(ListCost),\\n        SubAccountName = take_any(SubAccountName)\\n        by\\n        ChargePeriodStart,\\n        SubAccountId\\n    | as per\\n    | union (\\n        per\\n        | summarize \\n            BilledCost     = sum(BilledCost),\\n            EffectiveCost  = sum(EffectiveCost),\\n            ContractedCost = sum(ContractedCost),\\n            ListCost       = sum(ListCost),\\n            SubAccountName = take_any(SubAccountName)\\n            by\\n            SubAccountId\\n    )\\n    | order by ChargePeriodStart asc\\n    | extend BilledCost                = todouble(round(BilledCost, 2))\\n    | extend EffectiveCost             = todouble(round(EffectiveCost, 2))\\n    | extend ContractedCost            = todouble(round(ContractedCost, 2))\\n    | extend ListCost                  = todouble(round(ListCost, 2))\\n    | extend CommitmentDiscountSavings = todouble(round(ContractedCost - EffectiveCost, 2))\\n    | extend NegotiatedDiscountSavings = todouble(round(ListCost - ContractedCost, 2))\\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\\n);\\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), SubAccountName)\\n| order by Total desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
                     "size": 3,
-                    "title": "Monthly trend by subscription",
+                    "title": "Monthly trend by subscription (details)",
                     "timeContext": {
                       "durationMs": 0
                     },
@@ -538,7 +583,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "# Resource groups\r\nEffective cost breakdown by resource group\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.ResourceGroups)"
+                    "json": "# Resource groups\r\nEffective cost breakdown by resource group\r\n\r\n💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.ResourceGroups)"
                   },
                   "customWidth": "100",
                   "name": "17534a83-77dd-a0b5-aa26-591957fb2cc8"
@@ -591,7 +636,7 @@
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = (\\n    CostsByMonth\\n    | extend x_ResourceGroupId = strcat(SubAccountId, '/resourcegroups/', x_ResourceGroupName)\\n    | summarize \\n        EffectiveCost  = sum(EffectiveCost),\\n        SubAccountName = take_any(SubAccountName),\\n        x_ResourceGroupName = take_any(x_ResourceGroupName)\\n        by\\n        ChargePeriodStart,\\n        x_ResourceGroupId\\n    | as per\\n    | union (\\n        per\\n        | summarize \\n            EffectiveCost  = sum(EffectiveCost),\\n            SubAccountName = take_any(SubAccountName),\\n            x_ResourceGroupName = take_any(x_ResourceGroupName)\\n            by\\n            x_ResourceGroupId\\n    )\\n    | order by ChargePeriodStart asc\\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\\n);\\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), x_ResourceGroupName, SubAccountName)\\n| order by Total desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
                     "size": 3,
-                    "title": "Monthly trend by resource group",
+                    "title": "Monthly trend by resource group (details)",
                     "timeContext": {
                       "durationMs": 0
                     },
@@ -621,7 +666,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "# Resources\r\nEffective cost breakdown by resource\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Resources)"
+                    "json": "# Resources\r\nEffective cost breakdown by resource\r\n\r\n💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Resources)"
                   },
                   "customWidth": "100",
                   "name": "d03d503d-85a2-6bc7-96c7-320c22ad97c2"
@@ -704,7 +749,7 @@
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = (\\n    CostsByMonth\\n    | summarize \\n        EffectiveCost  = sum(EffectiveCost),\\n        ResourceName = take_any(ResourceName),\\n        ResourceType = take_any(ResourceType),\\n        RegionName = take_any(RegionName),\\n        x_ResourceGroupName = take_any(x_ResourceGroupName),\\n        SubAccountName = take_any(SubAccountName)\\n        by\\n        ChargePeriodStart,\\n        ResourceId\\n    | as per\\n    | union (\\n        per\\n        | summarize \\n            EffectiveCost  = sum(EffectiveCost)\\n            by\\n            ResourceId,\\n            ResourceName,\\n            ResourceType,\\n            RegionName,\\n            x_ResourceGroupName,\\n            SubAccountName\\n    )\\n    | order by ChargePeriodStart asc\\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\\n);\\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), ResourceName, ResourceType, RegionName, x_ResourceGroupName, SubAccountName)\\n| order by Total desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
                     "size": 3,
-                    "title": "Monthly trend by resource",
+                    "title": "Monthly trend by resource (details)",
                     "timeContext": {
                       "durationMs": 0
                     },
@@ -734,7 +779,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "# Resource inventory\r\nSummary of resources and their costs\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.ResourceInventory)"
+                    "json": "# Resource inventory\r\nSummary of resources and their costs\r\n\r\n💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.ResourceInventory)"
                   },
                   "customWidth": "100",
                   "name": "c55567fe-5359-5b48-1543-2813d6429f92"
@@ -756,14 +801,25 @@
                   "content": {
                     "version": "KqlItem/1.0",
                     "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByDay = (\\nCostsPlus\\r\\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\\r\\n| extend ChargePeriodStart = startofday(ChargePeriodStart)\\n);\\n\\nlet costs = CostsByDay\\n| where isnotempty(ResourceType);\\ncosts | summarize Value = tostring(dcount(ResourceId)) by Label = \\\"Resources\\\", Order = 10\\n| union (costs | summarize Value = tostring(dcount(ResourceType)) by Label = \\\"Resource types\\\", Order = 11)\\n| union (costs | summarize Count = dcount(ResourceId) by Value = ResourceType | order by Count desc | limit 1 | extend Label = \\\"Most used\\\", Order = 21)\\n| union (costs | summarize sum(EffectiveCost) by Value = ResourceType | order by sum_EffectiveCost desc | limit 1 | extend Label = \\\"Most cost\\\", Order = 22)\\n| union (costs | summarize AllTypes = dcount(ResourceType), CommittedTypes = dcountif(ResourceType, isnotempty(CommitmentDiscountType)) by Label = \\\"Covered by commitment discounts\\\", Order = 31 | extend Value = strcat(round(1.0 * CommittedTypes / AllTypes * 100, 1), '%'))\\n| union (costs | summarize Savings = sum(ListCost - EffectiveCost) by Value = ResourceType | order by Savings desc | limit 1 | extend Label = \\\"Most savings\\\", Order = 32)\\n| union (costs | summarize CostPerResource = sum(EffectiveCost) / dcount(ResourceId) by Value = ResourceType | order by CostPerResource desc | limit 1 | extend Label = \\\"Most expensive (cost / resource)\\\", Order = 41)\\n| union (costs | where ResourceType !in (CostsPlus | where ChargePeriodStart < ago(numberOfDays * 1d) - 1d | distinct ResourceType) | summarize Count = dcount(ResourceId) by ResourceType | order by Count desc | as d | count | extend Label = \\\"New in last n days\\\", Value = case(Count == 0, '(none)', Count == 1, toscalar(d | project ResourceType), strcat(toscalar(d | limit 1 | project ResourceType), ' and ', (Count - 1), ' more')), Order = 42)\\n| order by Order asc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
-                    "size": 0,
+                    "size": 3,
                     "title": "Resource inventory summary (last n days)",
                     "timeContext": {
                       "durationMs": 0
                     },
                     "queryType": 9,
                     "visualization": "tiles",
-                    "showExportToExcel": false
+                    "showExportToExcel": false,
+                    "tileSettings": {
+                      "titleContent": {
+                        "columnMatch": "Label",
+                        "formatter": 1
+                      },
+                      "leftContent": {
+                        "columnMatch": "Value",
+                        "formatter": 1
+                      },
+                      "showBorder": false
+                    }
                   },
                   "doNotRunWhenHidden": true,
                   "customWidth": "100",
@@ -911,42 +967,9 @@
               "loadType": "always",
               "items": [
                 {
-                  "type": 3,
-                  "content": {
-                    "version": "KqlItem/1.0",
-                    "query": "{\"version\":\"AzureDataExplorerQuery/1.0\",\"queryText\":\"let numberOfMonths = toint('{numberOfMonths}');\\nlet numberOfDays = toint('{numberOfDays}');\\nlet maxGroupCount = toint('{maxGroupCount}');\\nlet selectedBillingCurrency = '{selectedBillingCurrency}';\\n\\n{FtkCostsPlus}\\n\\nlet CostsByMonth = (\\nCostsPlus\\r\\n| where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)\\r\\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\\r\\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)\\n);\\n\\nlet monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\\nlet data = (\\n    CostsByMonth\\n    | summarize \\n        EffectiveCost  = sum(EffectiveCost),\\n        ResourceName = take_any(ResourceName),\\n        ResourceType = take_any(ResourceType),\\n        RegionName = take_any(RegionName),\\n        x_ResourceGroupName = take_any(x_ResourceGroupName),\\n        SubAccountName = take_any(SubAccountName)\\n        by\\n        ChargePeriodStart,\\n        ResourceId\\n    | as per\\n    | union (\\n        per\\n        | summarize \\n            EffectiveCost  = sum(EffectiveCost)\\n            by\\n            ResourceId,\\n            ResourceName,\\n            ResourceType,\\n            RegionName,\\n            x_ResourceGroupName,\\n            SubAccountName\\n    )\\n    | order by ChargePeriodStart asc\\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\\n);\\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), ResourceName, ResourceType, RegionName, x_ResourceGroupName, SubAccountName)\\n| order by Total desc\",\"clusterName\":\"{HubClusterName}\",\"databaseName\":\"{HubDatabase}\"}",
-                    "size": 3,
-                    "title": "Monthly trend by resource",
-                    "timeContext": {
-                      "durationMs": 0
-                    },
-                    "queryType": 9,
-                    "visualization": "table",
-                    "showExportToExcel": true,
-                    "gridSettings": {
-                      "rowLimit": 10000
-                    }
-                  },
-                  "doNotRunWhenHidden": true,
-                  "customWidth": "100",
-                  "name": "f40f4fce-6b79-329c-e6f6-1ba72207a62e"
-                }
-              ]
-            },
-            "customWidth": "100",
-            "name": "96789e46-35ad-497c-70a7-6ede399b5ef4"
-          },
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "editable",
-              "loadType": "always",
-              "items": [
-                {
                   "type": 1,
                   "content": {
-                    "json": "# Purchases\r\nCosts from commitment discount, Marketplace, and other purchases\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Purchases)"
+                    "json": "# Purchases\r\nCosts from commitment discount, Marketplace, and other purchases\r\n\r\n💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK15.0.0-dev.0/bladeName/Hubs.Dashboard/featureName/Understand.Summary.Purchases)"
                   },
                   "customWidth": "100",
                   "name": "71fe7dbc-7eb7-e4d8-2b29-475a3faeb3d6"
