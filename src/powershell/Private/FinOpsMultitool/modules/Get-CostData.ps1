@@ -113,21 +113,23 @@ function Get-CostData {
 
             # Guessing at positions here would attribute real money to the wrong
             # subscription, so fail into the per-subscription path instead.
-            if ($aCostIdx -lt 0 -or $aSubIdx -lt 0) {
-                throw "Actual cost response did not expose the expected Cost and SubscriptionId columns."
+            if ($aCostIdx -lt 0 -or $aSubIdx -lt 0 -or $aCurIdx -lt 0) {
+                throw "Actual cost response did not expose the expected Cost, SubscriptionId, and Currency columns."
             }
 
             if ($result.properties.rows) {
                 foreach ($row in $result.properties.rows) {
                     $subId = [string]$row[$aSubIdx]
                     $amount = [double]$row[$aCostIdx]
-                    $currency = if ($aCurIdx -ge 0) { $row[$aCurIdx] } else { 'USD' }
+                    $currency = ([string]$row[$aCurIdx]).Trim().ToUpperInvariant()
 
                     if ($selectedSubs -and -not $selectedSubs.Contains($subId)) { continue }
+                    if (-not $currency) { throw "Actual cost currency is unavailable for $subId." }
 
                     if (-not $costMap.ContainsKey($subId)) {
-                        $costMap[$subId] = @{ Actual = 0; Forecast = 0; Currency = $currency; ForecastSource = 'Actual' }
+                        $costMap[$subId] = @{ Actual = 0; Forecast = $null; Currency = $currency; ForecastSource = 'Unavailable'; ActualPeriod = 'Month to date (UTC query window)' }
                     }
+                    if ($costMap[$subId].Currency -ne $currency) { throw "Actual cost contains mixed currency values for $subId." }
                     $costMap[$subId].Actual += $amount
                     $costMap[$subId].Currency = $currency
                 }
@@ -187,14 +189,16 @@ function Get-CostData {
         }
 
         $forecastSums = @{}
+        $forecastCurrencies = @{}
         foreach ($page in (Get-CostQueryResponsePage -FirstResponse $fResponse -Payload $forecastBody -Context 'forecast')) {
             $fResult = $page.Content | ConvertFrom-Json
             if ($fResult.properties.rows.Count -eq 0) { continue }
             $fCols = $fResult.properties.columns
             $fSubIdx = Get-CostColumnIndex -Columns $fCols -Names @('subscriptionid')
             $fCostIdx = Get-CostColumnIndex -Columns $fCols -Names @('cost', 'pretaxcost', 'costusd')
-            if ($fCostIdx -lt 0 -or $fSubIdx -lt 0) {
-                throw "Forecast response did not expose the expected Cost and SubscriptionId columns."
+            $fCurIdx = Get-CostColumnIndex -Columns $fCols -Names @('currency')
+            if ($fCostIdx -lt 0 -or $fSubIdx -lt 0 -or $fCurIdx -lt 0) {
+                throw "Forecast response did not expose the expected Cost, SubscriptionId, and Currency columns."
             }
 
             foreach ($row in @($fResult.properties.rows)) {
@@ -202,6 +206,10 @@ function Get-CostData {
                 if ($subId -notmatch '^[0-9a-fA-F]{8}-') { continue }
                 if ($selectedSubs -and -not $selectedSubs.Contains($subId)) { continue }
                 $amount = [double]$row[$fCostIdx]
+                $currency = ([string]$row[$fCurIdx]).Trim().ToUpperInvariant()
+                if (-not $currency) { throw "Forecast currency is unavailable for $subId." }
+                if ($forecastCurrencies.ContainsKey($subId) -and $forecastCurrencies[$subId] -ne $currency) { throw "Forecast contains mixed currency values for $subId." }
+                $forecastCurrencies[$subId] = $currency
                 if (-not $forecastSums.ContainsKey($subId)) { $forecastSums[$subId] = 0 }
                 $forecastSums[$subId] += $amount
             }
@@ -209,8 +217,9 @@ function Get-CostData {
         if ($forecastSums.Count -gt 0) {
             foreach ($subId in $forecastSums.Keys) {
                 if (-not $costMap.ContainsKey($subId)) {
-                    $costMap[$subId] = @{ Actual = 0; Forecast = 0; Currency = 'USD' }
+                    $costMap[$subId] = @{ Actual = $null; Forecast = $null; Currency = $forecastCurrencies[$subId]; ActualPeriod = 'Month to date (UTC query window)' }
                 }
+                if ($costMap[$subId].Currency -ne $forecastCurrencies[$subId]) { throw "Actual cost and forecast currency differ for $subId." }
                 $costMap[$subId].Forecast = [math]::Round($forecastSums[$subId], 2)
                 $costMap[$subId].ForecastSource = 'Forecast'
             }
@@ -266,17 +275,26 @@ function Get-CostData {
                 if ($fResp.StatusCode -eq 200) {
                     $total = 0.0
                     $rowCount = 0
+                    $forecastCurrency = $null
                     foreach ($page in (Get-CostQueryResponsePage -FirstResponse $fResp -Payload $fBody -Context "forecast for $($sub.Id)")) {
                         $fRes = $page.Content | ConvertFrom-Json
                         if ($fRes.properties.rows.Count -eq 0) { continue }
                         $costIndex = Get-CostColumnIndex -Columns $fRes.properties.columns -Names @('cost', 'pretaxcost', 'costusd')
-                        if ($costIndex -lt 0) { throw 'Forecast response did not expose the expected Cost column.' }
-                        foreach ($row in $fRes.properties.rows) { $total += [double]$row[$costIndex]; $rowCount++ }
+                        $currencyIndex = Get-CostColumnIndex -Columns $fRes.properties.columns -Names @('currency')
+                        if ($costIndex -lt 0 -or $currencyIndex -lt 0) { throw 'Forecast response did not expose the expected Cost and Currency columns.' }
+                        foreach ($row in $fRes.properties.rows) {
+                            $rowCurrency = ([string]$row[$currencyIndex]).Trim().ToUpperInvariant()
+                            if (-not $rowCurrency -or ($forecastCurrency -and $forecastCurrency -ne $rowCurrency)) { throw 'Forecast currency is unavailable or mixed.' }
+                            $forecastCurrency = $rowCurrency
+                            $total += [double]$row[$costIndex]
+                            $rowCount++
+                        }
                     }
                     if ($rowCount -gt 0) {
                         if (-not $costMap.ContainsKey($sub.Id)) {
-                            $costMap[$sub.Id] = @{ Actual = 0; Forecast = 0; Currency = 'USD' }
+                            $costMap[$sub.Id] = @{ Actual = $null; Forecast = $null; Currency = $forecastCurrency; ActualPeriod = 'Month to date (UTC query window)' }
                         }
+                        if ($costMap[$sub.Id].Currency -ne $forecastCurrency) { throw 'Actual cost and forecast currency differ.' }
                         $costMap[$sub.Id].Forecast = [math]::Round($total, 2)
                         $costMap[$sub.Id].ForecastSource = 'Forecast'
                         $hitCount++
@@ -300,6 +318,12 @@ function Get-CostData {
         if ($costMap[$subId].ForecastSource -ne 'Forecast') {
             $costMap[$subId].Forecast = $costMap[$subId].Actual
             $costMap[$subId].ForecastSource = 'Actual'
+        }
+    }
+
+    foreach ($sub in $Subscriptions) {
+        if (-not $costMap.ContainsKey($sub.Id)) {
+            $costMap[$sub.Id] = @{ Actual = $null; Forecast = $null; Currency = $null; ForecastSource = 'Unavailable'; ActualPeriod = 'Month to date (UTC query window)' }
         }
     }
 
@@ -340,21 +364,25 @@ function Get-CostDataPerSubscription {
             $path = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement"
             $resp = Invoke-AzRestMethodWithRetry -Path "$path/query?api-version=2023-11-01" -Method POST -Payload $body
 
-            $actual = 0; $currency = 'USD'
+            $actual = $null; $currency = $null
             if ($resp.StatusCode -eq 200) {
                 $sum = 0.0
+                $actualRowCount = 0
                 foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -Payload $body -Context "actual cost for $($sub.Id)")) {
                     $res = $page.Content | ConvertFrom-Json
                     if ($res.properties.rows.Count -eq 0) { continue }
                     $cIdx = Get-CostColumnIndex -Columns $res.properties.columns -Names @('cost', 'pretaxcost', 'costusd')
                     $curIdx = Get-CostColumnIndex -Columns $res.properties.columns -Names @('currency')
-                    if ($cIdx -lt 0) { throw 'Actual cost response did not expose the expected Cost column.' }
+                    if ($cIdx -lt 0 -or $curIdx -lt 0) { throw 'Actual cost response did not expose the expected Cost and Currency columns.' }
                     foreach ($row in $res.properties.rows) {
+                        $rowCurrency = ([string]$row[$curIdx]).Trim().ToUpperInvariant()
+                        if (-not $rowCurrency -or ($currency -and $currency -ne $rowCurrency)) { throw 'Actual cost currency is unavailable or mixed.' }
                         $sum += [double]$row[$cIdx]
-                        if ($curIdx -ge 0 -and $row[$curIdx]) { $currency = $row[$curIdx] }
+                        $currency = $rowCurrency
+                        $actualRowCount++
                     }
                 }
-                $actual = [math]::Round($sum, 2)
+                if ($actualRowCount -gt 0) { $actual = [math]::Round($sum, 2) }
             }
             elseif ($resp.StatusCode -in @(400, 403) -and $resp.Content) {
                 $errMsg = try { ($resp.Content | ConvertFrom-Json).error.message } catch { '' }
@@ -373,7 +401,7 @@ function Get-CostDataPerSubscription {
 
             # Forecast starts as actual so a sub with no forecast still reports a
             # number; ForecastSource records that it is month-to-date, not a projection.
-            $costMap[$sub.Id] = @{ Actual = $actual; Forecast = $actual; Currency = $currency; ForecastSource = 'Actual' }
+            $costMap[$sub.Id] = @{ Actual = $actual; Forecast = $actual; Currency = $currency; ForecastSource = 'Actual'; ActualPeriod = 'Month to date (UTC query window)' }
 
             # Per-sub forecast (skipped for large tenants)
             if (-not $skipForecast) {
@@ -404,14 +432,24 @@ function Get-CostDataPerSubscription {
                     if ($fResp.StatusCode -eq 200) {
                         $total = 0.0
                         $rowCount = 0
+                        $forecastCurrency = $null
                         foreach ($page in (Get-CostQueryResponsePage -FirstResponse $fResp -Payload $fBody -Context "forecast for $($sub.Id)")) {
                             $fRes = $page.Content | ConvertFrom-Json
                             if ($fRes.properties.rows.Count -eq 0) { continue }
                             $fcIdx = Get-CostColumnIndex -Columns $fRes.properties.columns -Names @('cost', 'pretaxcost', 'costusd')
-                            if ($fcIdx -lt 0) { throw 'Forecast response did not expose the expected Cost column.' }
-                            foreach ($fRow in $fRes.properties.rows) { $total += [double]$fRow[$fcIdx]; $rowCount++ }
+                            $fcCurIdx = Get-CostColumnIndex -Columns $fRes.properties.columns -Names @('currency')
+                            if ($fcIdx -lt 0 -or $fcCurIdx -lt 0) { throw 'Forecast response did not expose the expected Cost and Currency columns.' }
+                            foreach ($fRow in $fRes.properties.rows) {
+                                $rowCurrency = ([string]$fRow[$fcCurIdx]).Trim().ToUpperInvariant()
+                                if (-not $rowCurrency -or ($forecastCurrency -and $forecastCurrency -ne $rowCurrency)) { throw 'Forecast currency is unavailable or mixed.' }
+                                $forecastCurrency = $rowCurrency
+                                $total += [double]$fRow[$fcIdx]
+                                $rowCount++
+                            }
                         }
                         if ($rowCount -gt 0) {
+                            if ($currency -and $currency -ne $forecastCurrency) { throw 'Actual cost and forecast currency differ.' }
+                            $costMap[$sub.Id].Currency = $forecastCurrency
                             $costMap[$sub.Id].Forecast = [math]::Round($total, 2)
                             $costMap[$sub.Id].ForecastSource = 'Forecast'
                         }

@@ -206,6 +206,164 @@ Describe 'FinOps Multitool safety' {
             Should -Invoke Read-Host -Times 0 -Exactly
         }
 
+        It 'Starts the HTML story with scoped spend and visible evidence gaps' {
+            $reportRoot = Join-Path $TestDrive 'finops-story'
+            Mock Write-Host { }
+            $permissionInfo = @{ 'Get-CostTrend' = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Query' } }
+            $subscriptions = @(
+                [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Production <east>'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+                [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Development'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+            )
+            $results = @{
+                'Get-CostData' = @{
+                    $subscriptions[0].Id = @{ Actual = 100; Currency = 'EUR'; Name = $subscriptions[0].Name; ActualPeriod = '2026-08-01 to 2026-08-31'; Forecast = $null; ForecastSource = 'Unavailable' }
+                    $subscriptions[1].Id = @{ Actual = 200; Currency = 'USD'; Name = $subscriptions[1].Name; ActualPeriod = '2026-09-01 to 2026-09-18'; Forecast = 300; ForecastSource = 'Forecast' }
+                }
+                'Get-CostTrend' = @()
+                '_error_Get-CostTrend' = '429 Too Many Requests: retry later <script>not markup</script>'
+            }
+            $modules = @(
+                @{ Fn = 'Get-CostData'; Name = 'Cost Data'; Selected = $true; Category = 'Cost Analysis' }
+                @{ Fn = 'Get-CostTrend'; Name = 'Cost Trend'; Selected = $true; Category = 'Cost Analysis' }
+            )
+
+            $null = Show-ResultsSummary -Results $results -Modules $modules -Subscriptions $subscriptions -ExportPath $reportRoot -DataSourceLabel 'FinOps Hub (fixture)' -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $story = [regex]::Match($html, '(?s)<section id="tab-FinOpsStory"[^>]*>.*?</section>').Value
+            $story | Should -Not -BeNullOrEmpty
+            $story | Should -Match 'Observed spend'
+            $story | Should -Match '2026-08-01 to 2026-08-31'
+            $story | Should -Match '2026-09-01 to 2026-09-18'
+            $story | Should -Match 'EUR 100.00'
+            $story | Should -Match 'USD 200.00'
+            $story | Should -Match 'Production &lt;east&gt;'
+            $story | Should -Match 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+            $story | Should -Match 'FinOps Hub \(fixture\)'
+            $story | Should -Match 'Scan status'
+            $story | Should -Match '429 Too Many Requests'
+            $story | Should -Match '&lt;script&gt;not markup&lt;/script&gt;'
+            $story | Should -Match 'href="#scan-Get-CostTrend"'
+            $html | Should -Match ([regex]::Escape($permissionInfo['Get-CostTrend'].Role))
+            $story | Should -Match 'Full-month forecast unavailable'
+            $html | Should -Not -Match 'Total Findings|Every measure below is a FinOps Foundation KPI'
+            $html | Should -Not -Match 'Current period spend:'
+            $story | Should -Not -Match '<script>|Total savings'
+        }
+
+        It 'Keeps zero, credits, unavailable amounts, and budget comparison gaps distinct without a KPI catalog' {
+            $reportRoot = Join-Path $TestDrive 'story-unknowns'
+            Mock Write-Host { }
+            Mock Get-KpiCatalog { $null }
+            $results = @{
+                'Get-CostData' = @{
+                    'zero' = @{ Actual = 0; Currency = 'USD'; Forecast = 0; ForecastSource = 'Actual'; ActualPeriod = '2026-09-01 to 2026-09-18' }
+                    'credit' = @{ Actual = -5.25; Currency = 'EUR'; ForecastSource = 'Unavailable'; ActualPeriod = '2026-08-01 to 2026-08-31' }
+                    'unknown' = @{ Actual = $null; Currency = $null; Forecast = $null; ForecastSource = 'Unavailable' }
+                }
+                'Get-BudgetHistory' = @([pscustomobject]@{
+                    BudgetName = 'Filtered budget'; SubscriptionId = 'zero'; Month = '2026-08'; Budget = 500; ActualSpend = $null
+                    PctUsed = $null; Status = 'Unavailable'; Currency = 'USD'; Note = 'Filtered budget history requires costs for the same filter.'
+                })
+            }
+            $modules = @(
+                @{ Fn = 'Get-CostData'; Name = 'Cost Data'; Selected = $true; Category = 'Cost Analysis' }
+                @{ Fn = 'Get-BudgetHistory'; Name = 'Budget History'; Selected = $true; Category = 'Cost Analysis' }
+            )
+
+            $null = Show-ResultsSummary -Results $results -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $story = [regex]::Match($html, '(?s)<section id="tab-FinOpsStory"[^>]*>.*?</section>').Value
+            $story | Should -Match '<td>zero</td><td>USD 0.00</td>.*?<td>Unavailable</td>'
+            $story | Should -Match '<td>credit</td><td>EUR -5.25</td>'
+            $story | Should -Match '<td>unknown</td><td>Unavailable</td><td>Not recorded</td><td>Unavailable</td>'
+            $story | Should -Match 'Filtered budget history requires costs for the same filter'
+            $story | Should -Match 'Limited data'
+            $html | Should -Match '<div class="label">Scans with gaps</div><div class="value">2</div>'
+            $story | Should -Not -Match 'Every measure|No budget overruns'
+        }
+
+        It 'Shows the largest resource costs by currency and period with links to every underlying row' {
+            $reportRoot = Join-Path $TestDrive 'story-drivers'
+            Mock Write-Host { }
+            $resources = @(foreach ($index in 1..57) {
+                [pscustomobject]@{
+                    Subscription = 'Fixture'; ResourcePath = "/subscriptions/fixture/resources/resource-$index"; ResourceGroup = 'Compute'
+                    ResourceType = 'Virtual Machine'; Actual = $index * 10; Currency = 'USD'; ActualPeriod = '2026-09-01 to 2026-09-18'
+                }
+            })
+            $resources += [pscustomobject]@{
+                Subscription = 'Fixture'; ResourcePath = '/subscriptions/fixture/resources/euro-storage'; ResourceGroup = 'Storage'
+                ResourceType = 'Storage Account'; Actual = 2; Currency = 'EUR'; ActualPeriod = '2026-08-01 to 2026-08-31'
+            }
+            $resources += [pscustomobject]@{
+                Subscription = 'Fixture'; ResourcePath = '/subscriptions/fixture/resources/credit'; ResourceGroup = 'Compute'
+                ResourceType = 'Virtual Machine'; Actual = -5; Currency = 'USD'; ActualPeriod = '2026-09-01 to 2026-09-18'
+            }
+            $resources += @(foreach ($index in 1..6) {
+                [pscustomobject]@{
+                    Subscription = 'Fixture'; ResourcePath = "/subscriptions/other/resources/other-$index"; ResourceGroup = 'Compute'
+                    ResourceType = 'Virtual Machine'; Actual = $index; Currency = 'USD'; ActualPeriod = '2026-09-01 to 2026-09-18'
+                }
+            })
+            $modules = @(@{ Fn = 'Get-ResourceCosts'; Name = 'Resource Costs'; Selected = $true; Category = 'Cost Analysis' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-ResourceCosts' = $resources } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $drivers = [regex]::Match($html, '(?s)<div id="story-cost-drivers">.*?</div><!-- cost-drivers -->').Value
+            $drivers | Should -Not -BeNullOrEmpty
+            $drivers | Should -Match 'EUR 2.00|2026-08-01 to 2026-08-31'
+            $drivers | Should -Match 'USD 570.00|2026-09-01 to 2026-09-18'
+            $drivers | Should -Not -Match 'resource-1</td>|resource-2</td>|/resources/credit'
+            $drivers | Should -Match '/subscriptions/other/resources/other-2</td>'
+            $drivers | Should -Not -Match '/subscriptions/other/resources/other-1</td>'
+            [regex]::Matches($drivers, '<tr><td>Fixture</td>').Count | Should -Be 11
+            $drivers | Should -Match 'href="#scan-Get-ResourceCosts"'
+            $html | Should -Match 'href="#scan-Get-ResourceCosts">Resource Costs</a></td><td class="evidence-state ">Data returned</td>'
+            $html | Should -Match '<div class="label">Scans with gaps</div><div class="value">0</div>'
+            @((Import-Csv -LiteralPath (Join-Path $run 'Get-ResourceCosts.csv'))).Count | Should -Be 65
+            $detail = [regex]::Match($html, '(?s)<h2 id="scan-Get-ResourceCosts".*?</table>').Value
+            [regex]::Matches($detail, '<tr><td>Fixture</td>').Count | Should -Be 65
+            $detail | Should -Match '/resources/credit</td>|USD -5.00'
+            $detail | Should -Match '/resources/resource-1</td>'
+            $detail | Should -Match '/resources/euro-storage</td>.*?2026-08-01 to 2026-08-31'
+        }
+
+        It 'Exports every Hub tag and its full encoded values in HTML and CSV' {
+            $reportRoot = Join-Path $TestDrive 'complete-tag-values'
+            Mock Write-Host { }
+            $longValue = ('long-value-' * 10) + '<script>example</script>'
+            $tags = @{}
+            foreach ($index in 1..20) { $tags[('Tag{0:D2}' -f $index)] = 'Fixture' }
+            $tags.Tag20 = $longValue
+            $hubRows = @([pscustomobject]@{ ResourceId = '/resources/one'; ResourceType = 'fixture'; Tags = ($tags | ConvertTo-Json -Compress) })
+            foreach ($index in 1..6) {
+                $hubRows += [pscustomobject]@{ ResourceId = "/resources/extra-$index"; ResourceType = 'fixture'; Tags = (@{ Tag20 = "Other-$index" } | ConvertTo-Json -Compress) }
+            }
+            $inventory = ConvertTo-TagInventoryFromHub -HubData $hubRows
+            $modules = @(@{ Fn = 'Get-TagInventory'; Name = 'Tag Inventory'; Selected = $true; Category = 'Governance' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-TagInventory' = $inventory } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            [regex]::Matches($html, '<tr><td>Tag\d{2}</td>').Count | Should -Be 20
+            $tagRow = [regex]::Match($html, '(?s)<tr><td>Tag20</td>.*?</tr>').Value
+            $tagRow | Should -Match ([regex]::Escape([System.Net.WebUtility]::HtmlEncode($longValue)))
+            foreach ($index in 1..6) { $tagRow | Should -Match "Other-$index" }
+            $tagRow | Should -Not -Match '&hellip;|<script>|\+\d+ more'
+            $csvRows = @(Import-Csv -LiteralPath (Join-Path $run 'Get-TagInventory.csv') | Where-Object RecordType -EQ 'TagNames')
+            $csvRows.Count | Should -Be 20
+            $values = @((($csvRows | Where-Object TagKey -EQ 'Tag20').Values) | ConvertFrom-Json)
+            $values.Count | Should -Be 7
+            $values.Value | Should -Contain $longValue
+        }
+
         It 'Creates private directories and report files' {
             $run = New-FinOpsReportDirectory -OutputPath (Join-Path $TestDrive 'private')
             $path = Join-Path $run 'ScanSummary.txt'
@@ -1595,7 +1753,41 @@ Describe 'FinOps Multitool cost math' {
                 ($result.CostByTag.Project | Where-Object TagValue -EQ 'team-a').Cost | Should -Be 20
                 ($result.CostByTag.Project | Measure-Object Cost -Sum).Sum | Should -Be 30
                 $inventory.TagNames.Project.TotalResources | Should -Be 2
-                ($inventory.TagNames.Project.Values | Where-Object TagValue -EQ '(conflicting tag values)').ResourceCount | Should -Be 1
+                ($inventory.TagNames.Project.Values | Where-Object Value -EQ '(conflicting tag values)').ResourceCount | Should -Be 1
+            }
+        }
+
+        It 'Renders Hub tag values in terminal and HTML using the live-inventory contract' {
+            InModuleScope FinOpsMultitool -Parameters @{ ModuleRoot = $script:ModuleRoot } {
+                param($ModuleRoot)
+                $hubRows = @(
+                    [pscustomobject]@{ ResourceId = '/subscriptions/test/resources/one'; ResourceType = 'fixture'; Tags = '{"Environment":"Prod","CostCenter":"team-a"}' }
+                    [pscustomobject]@{ ResourceId = '/subscriptions/test/resources/two'; ResourceType = 'fixture'; Tags = '{"environment":"prod","CostCenter":"team-a"}' }
+                )
+                $data = ConvertTo-TagInventoryFromHub -HubData $hubRows
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                $switches = $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.SwitchStatementAst] }, $true)
+                $branches = @($switches.Clauses | Where-Object { $_.Item1.Value -eq 'Get-TagInventory' -and $_.Item2.Extent.Text.Contains('Top values') })
+                $branches.Count | Should -Be 2
+                $htmlSb = [System.Text.StringBuilder]::new()
+                $rows = $null
+                $htmlRows = $null
+                Mock Write-Host { }
+
+                foreach ($branch in $branches) {
+                    $body = ($branch.Item2.Statements | ForEach-Object { $_.Extent.Text }) -join "`n"
+                    . ([scriptblock]::Create("param(`$data, `$htmlSb)`n$body")) $data $htmlSb
+                }
+
+                foreach ($projection in @(@{ Rows = $rows }, @{ Rows = $htmlRows })) {
+                    ($projection.Rows | Where-Object Tag -EQ 'CostCenter').'Top values' | Should -Be 'team-a (2)'
+                    $environment = ($projection.Rows | Where-Object Tag -EQ 'Environment').'Top values'
+                    $environment | Should -Match 'Prod \(1\)'
+                    $environment | Should -Match 'prod \(1\)'
+                    $environment | Should -Not -Match '^\s*\('
+                }
+                @($data.TagNames.Environment.Values | Where-Object { $_.Value -ceq 'Prod' }).Count | Should -Be 1
+                @($data.TagNames.Environment.Values | Where-Object { $_.Value -ceq 'prod' }).Count | Should -Be 1
             }
         }
     }

@@ -52,7 +52,7 @@ function Resolve-PolicyEffect {
     if (-not [string]::IsNullOrWhiteSpace($AssignmentEffect) -and $AssignmentEffect -ne '-') {
         return (Format-PolicyEffectName $AssignmentEffect)
     }
-    if ($IsInitiative) { return 'varies' }
+    if ($IsInitiative) { return 'varies (Initiative)' }
     if (-not $Definition) { return '-' }
 
     # "[parameters('effect')]" defers to the parameter default; a bare word is the effect.
@@ -122,6 +122,7 @@ function Get-PolicyInventory {
     $complianceMap = @{}
     $gotAssignments = $false
     $gotCompliance = $false
+    $subFailures = [System.Collections.Generic.List[string]]::new()
 
     # -- Strategy 1: ARM REST API for ALL effective assignments ----------
     # Resource Graph policyresources at subscription scope only returns
@@ -131,7 +132,6 @@ function Get-PolicyInventory {
     try {
         Write-Host "  Querying policy assignments via ARM REST API..." -ForegroundColor Cyan
         $seenIds = @{}
-        $subFailures = [System.Collections.Generic.List[string]]::new()
         foreach ($sub in $Subscriptions) {
             # Scoped per subscription: a transient failure on one must not abandon
             # the rest of the tenant and leave a partial result looking complete.
@@ -145,7 +145,13 @@ function Get-PolicyInventory {
                         break
                     }
                     $body = $resp.Content | ConvertFrom-Json
+                    if ($null -eq $body -or $body.value -isnot [array]) {
+                        throw 'The policy assignment response has no valid value collection.'
+                    }
                     foreach ($a in $body.value) {
+                        if ([string]::IsNullOrWhiteSpace([string]$a.id) -or [string]::IsNullOrWhiteSpace([string]$a.properties.policyDefinitionId)) {
+                            throw 'A policy assignment has no resource ID or policy definition ID.'
+                        }
                         # De-duplicate (same MG assignment appears under each sub)
                         if ($seenIds.ContainsKey($a.id)) { continue }
                         $seenIds[$a.id] = $true
@@ -189,12 +195,13 @@ function Get-PolicyInventory {
             foreach ($f in ($subFailures | Select-Object -First 3)) { Write-Verbose "    $f" }
         }
 
-        if ($allAssignments.Count -gt 0) {
+        if ($subFailures.Count -eq 0 -or $allAssignments.Count -gt 0) {
             $gotAssignments = $true
             Write-Host "  ARM REST API: $($allAssignments.Count) unique policy assignments (including inherited)" -ForegroundColor Green
         }
     }
     catch {
+        [void]$subFailures.Add("ARM REST policy query: $($_.Exception.Message)")
         Write-Warning "  ARM REST policy query failed: $($_.Exception.Message)"
     }
 
@@ -411,6 +418,9 @@ policyresources
     return [PSCustomObject]@{
         Assignments        = $unique
         AssignmentCount    = $unique.Count
+        CoverageIncomplete = ($subFailures.Count -gt 0)
+        AssignmentErrors   = $subFailures.ToArray()
+        Note               = if ($subFailures.Count -gt 0) { 'Some effective policy assignments could not be read. Missing assignments cannot be determined from this inventory.' } else { $null }
         ComplianceBySubMap = $complianceMap
         CompliancePct      = $compliancePct
         TotalCompliant     = $totalCompliant

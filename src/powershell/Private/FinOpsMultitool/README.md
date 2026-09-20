@@ -92,6 +92,10 @@ Guidance includes FinOps Foundation best practices, actionable next steps, and l
 
 Each completed run automatically saves one CSV file per selected scan, a `FinOpsReport.html` summary, and a `ScanSummary.txt` text summary on the machine running the multitool. Failed or empty scans have a CSV status record. There's no export prompt or format picker.
 
+The HTML report opens with the **FinOps story**: selected tenant and subscriptions, observed spend, largest resource costs, scan status, and follow-up actions. Actual costs stay separate by subscription, currency, and reported period. Full-month forecasts are separate estimates, and unavailable amounts aren't treated as zero. Failed scans and evidence gaps link to their detailed results.
+
+The story highlights up to five positive resource costs per subscription, currency, and period. **All returned resource costs** opens the complete returned resource table, including credits and any resource IDs and periods the data source provided. Source query limits can omit resources; this view doesn't prove the inventory is complete. A high cost alone isn't evidence of waste.
+
 By default, reports go under the current user's local application data directory, in `FinOpsToolkit/Multitool/Reports`. On Windows, that's usually `%LOCALAPPDATA%\FinOpsToolkit\Multitool\Reports`. Each run creates a timestamped, uniquely named subfolder. The terminal prints its full path. `-OutputPath` selects a different local parent folder; it doesn't replace reports from an earlier run.
 
 The run folder allows access only to the current user through filesystem permissions. On Unix, directories use mode `700` and files use mode `600`. The tool rejects Git repositories and worktrees, UNC paths, mapped Windows network drives, symbolic links, and junctions, and adds an ignore-all `.gitignore` as a backup against accidental staging. Unix network mounts aren't detected; choose a path on a local filesystem. If it can't safely save, it reports an error and keeps the scan results in `$FinOpsResults`; it doesn't fall back to the working directory.
@@ -99,6 +103,8 @@ The run folder allows access only to the current user through filesystem permiss
 Reports are plaintext and can contain subscription, resource, tag, and billing details. They aren't encrypted or uploaded by the tool. Administrators and processes running as your account can still access them. Keep custom locations outside synced folders, follow your organization's retention policy, and delete reports when they're no longer needed. These safeguards don't stop someone from moving or force-adding the files to a repository later.
 
 CSV files use `RecordType` to distinguish datasets when a scan returns several collections, such as reservations and savings plans. Scalar `Summary.*` columns retain scan diagnostics and estimate assumptions. Nested summary collections appear once as separate record types, such as `Summary.UnderutilizedRIs`, instead of repeating in every row. Nested values within a record are JSON. CSV headers include fields from every exported record type, amounts use a decimal point regardless of your system locale, and dates use ISO 8601. Aggregate and detailed records are separate views, not amounts to add together.
+
+The terminal limits tag inventory to a compact preview. The HTML tag inventory includes every returned tag and value, and wraps long cell text instead of shortening it. CSV exports preserve the underlying value records and their counts.
 
 ## Required permissions
 
@@ -139,6 +145,10 @@ Subscription Reader access alone doesn't grant billing access. See [MCA billing 
 | Tag Recommendations    | Inconsistent casing, similar names, missing standard tags |
 | Policy Inventory       | Azure Policy assignments with scope and compliance        |
 | Policy Recommendations | Gaps in policy coverage for cost governance               |
+
+**Policy Recommendations** checks definition IDs in direct assignments and in assigned initiatives. Policies found through an initiative appear as **Assigned (Initiative)**, with the matching assignment, scope, and enforcement mode in the report. Reading custom initiative members requires access to the definition's subscription or management group. Each distinct initiative is read once per scan.
+
+If an initiative can't be read, unmatched policies appear as **Unknown**, not **Missing**. If the effective assignment inventory is incomplete, the launcher keeps the partial inventory but skips recommendations; it doesn't assume unread assignments are missing. Assignment coverage is the percentage of recommended definition IDs found in the supplied inventory, not Azure Policy compliance or proof of enforcement. Review parameters, exclusions, enforcement modes, and equivalent custom policies before treating a recommendation as a governance gap.
 
 ### Cost Analysis
 

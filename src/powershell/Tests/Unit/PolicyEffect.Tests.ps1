@@ -66,7 +66,7 @@ Describe 'Policy effect resolution' {
 
     Context 'Initiatives' {
         It 'Reports varies rather than an unknown effect' {
-            Resolve-PolicyEffect -AssignmentEffect '' -Definition $null -IsInitiative | Should -Be 'varies'
+            Resolve-PolicyEffect -AssignmentEffect '' -Definition $null -IsInitiative | Should -Be 'varies (Initiative)'
         }
 
         It 'Still honors an explicit override on an initiative assignment' {
@@ -113,6 +113,199 @@ Describe 'Policy effect resolution' {
             @{ Case = 'an empty id'; Id = '' }
         ) {
             $Id -match $script:IdPattern | Should -BeFalse
+        }
+    }
+
+    Context 'Assignment inventory coverage' {
+        It 'Preserves incomplete assignment evidence for <Scenario>' -ForEach @(
+            @{ Scenario = 'denied'; Incomplete = $true; AssignmentCount = 0 }
+            @{ Scenario = 'malformed'; Incomplete = $true; AssignmentCount = 0 }
+            @{ Scenario = 'later page failure'; Incomplete = $true; AssignmentCount = 1 }
+            @{ Scenario = 'complete empty inventory'; Incomplete = $false; AssignmentCount = 0 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Scenario = $Scenario; Incomplete = $Incomplete; AssignmentCount = $AssignmentCount } {
+                param($Scenario, $Incomplete, $AssignmentCount)
+                $fixtureScenario = $Scenario
+                Mock Write-Host { }
+                Mock Search-AzGraphSafe { [pscustomobject]@{ Data = @(); SkipToken = $null } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*policyAssignments*') {
+                        if ($fixtureScenario -eq 'denied') { return [pscustomobject]@{ StatusCode = 403; Content = '{}' } }
+                        if ($fixtureScenario -eq 'malformed') { return [pscustomobject]@{ StatusCode = 200; Content = '{}' } }
+                        if ($fixtureScenario -eq 'later page failure') {
+                            if ($Path -like '*continuation*') { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                            return [pscustomobject]@{ StatusCode = 200; Content = (@{
+                                value = @(@{
+                                    id = '/subscriptions/fixture/providers/Microsoft.Authorization/policyAssignments/locations'
+                                    name = 'locations'
+                                    properties = @{
+                                        displayName = 'Locations'
+                                        policyDefinitionId = '/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c'
+                                        parameters = @{ effect = @{ value = 'Audit' } }
+                                    }
+                                })
+                                nextLink = '/subscriptions/fixture/providers/Microsoft.Authorization/policyAssignments?continuation=second'
+                            } | ConvertTo-Json -Depth 8) }
+                        }
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' }
+                }
+
+                $inventory = Get-PolicyInventory -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture' })
+
+                $inventory.CoverageIncomplete | Should -Be $Incomplete
+                $inventory.AssignmentCount | Should -Be $AssignmentCount
+                if ($Incomplete) {
+                    @($inventory.AssignmentErrors).Count | Should -BeGreaterThan 0
+                    $inventory.Note | Should -Match 'Missing assignments cannot be determined'
+                }
+                else {
+                    @($inventory.AssignmentErrors).Count | Should -Be 0
+                    Should -Invoke Search-AzGraphSafe -Times 0 -Exactly -ParameterFilter { $Query -like '*policyassignments*' }
+                }
+            }
+        }
+    }
+
+    Context 'Recommendation initiative membership' {
+        It 'Finds policies in a <Scope> initiative and resolves each definition once' -ForEach @(
+            @{ Scope = 'built-in'; DefinitionId = '/providers/Microsoft.Authorization/policySetDefinitions/fixture' }
+            @{ Scope = 'subscription'; DefinitionId = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/policySetDefinitions/fixture' }
+            @{ Scope = 'management-group'; DefinitionId = '/providers/Microsoft.Management/managementGroups/fixture/providers/Microsoft.Authorization/policySetDefinitions/fixture' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ DefinitionId = $DefinitionId } {
+                param($DefinitionId)
+                $initiativeId = $DefinitionId
+                $policyId = '/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c'
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ policyDefinitions = @(
+                        @{ policyDefinitionId = $policyId.ToUpperInvariant(); policyDefinitionReferenceId = 'locations-one' }
+                        @{ policyDefinitionId = $policyId; policyDefinitionReferenceId = 'locations-two' }
+                    ) } } | ConvertTo-Json -Depth 8) }
+                }
+                $assignments = @(
+                    [pscustomobject]@{ AssignmentName = 'Governance initiative'; AssignmentId = '/assignments/one'; PolicyDefId = $initiativeId; Origin = 'Initiative'; Scope = '/subscriptions/one'; EnforcementMode = 'Default' }
+                    [pscustomobject]@{ AssignmentName = 'Audit-only initiative'; AssignmentId = '/assignments/two'; PolicyDefId = $initiativeId; Origin = 'Initiative'; Scope = '/subscriptions/two'; EnforcementMode = 'DoNotEnforce' }
+                )
+
+                $result = Get-PolicyRecommendations -ExistingAssignments $assignments
+
+                $locations = $result.Analysis | Where-Object PolicyDefId -EQ $policyId
+                $locations.Status | Should -Be 'Assigned (Initiative)'
+                @($locations.MatchedAssignments).Count | Should -Be 2
+                $locations.MatchedAssignments.AssignmentName | Should -Contain 'Governance initiative'
+                $locations.MatchedAssignments.EnforcementMode | Should -Contain 'DoNotEnforce'
+                $result.Assigned.PolicyDefId | Should -Contain $policyId
+                $result.Missing.PolicyDefId | Should -Not -Contain $policyId
+                $result.CoverageIncomplete | Should -BeFalse
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter {
+                    $Path -eq "$($initiativeId)?api-version=2023-04-01" -and $Method -eq 'GET'
+                }
+            }
+        }
+
+        It 'Leaves unmatched policies unverified when an initiative read fails with <Failure>' -ForEach @(
+            @{ Failure = '403' }
+            @{ Failure = '429' }
+            @{ Failure = 'malformed response' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Failure = $Failure } {
+                param($Failure)
+                $fixtureFailure = $Failure
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($fixtureFailure -eq 'malformed response') { return [pscustomobject]@{ StatusCode = 200; Content = '{"properties":{}}' } }
+                    [pscustomobject]@{ StatusCode = [int]$fixtureFailure; Content = '{}' }
+                }
+                $assignments = @(
+                    [pscustomobject]@{ AssignmentName = 'Unknown initiative'; PolicyDefId = '/providers/Microsoft.Authorization/policySetDefinitions/fixture'; Origin = 'Initiative' }
+                    [pscustomobject]@{ AssignmentName = 'Locations'; PolicyDefId = '/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c'; Origin = 'BuiltIn' }
+                )
+
+                $result = Get-PolicyRecommendations -ExistingAssignments $assignments
+
+                ($result.Analysis | Where-Object DisplayName -EQ 'Allowed locations').Status | Should -Be 'Assigned'
+                ($result.Analysis | Where-Object DisplayName -EQ 'Require a tag on resources').Status | Should -Be 'Unknown'
+                @($result.Missing).Count | Should -Be 0
+                $result.CompliancePct | Should -BeNullOrEmpty
+                $result.CoverageIncomplete | Should -BeTrue
+                @($result.InitiativeErrors).Count | Should -Be 1
+            }
+        }
+
+        It 'Does not treat a matching assignment name as a matching policy definition' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry { throw 'Direct assignments should not trigger initiative reads.' }
+                $assignments = @([pscustomobject]@{
+                    AssignmentName = 'Allowed locations'
+                    PolicyDefId = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/policyDefinitions/different-policy'
+                })
+
+                $result = Get-PolicyRecommendations -ExistingAssignments $assignments
+
+                ($result.Analysis | Where-Object DisplayName -EQ 'Allowed locations').Status | Should -Be 'Missing'
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly
+            }
+        }
+
+        It 'Rejects an unsafe initiative ID without sending it to ARM' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry { throw 'The unsafe resource ID must not be sent.' }
+
+                $result = Get-PolicyRecommendations -ExistingAssignments @([pscustomobject]@{
+                    PolicyDefId = '/providers/Microsoft.Authorization/policySetDefinitions/fixture?api-version=bad'
+                    Origin = 'Initiative'
+                })
+
+                $result.CoverageIncomplete | Should -BeTrue
+                @($result.Missing).Count | Should -Be 0
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly
+            }
+        }
+
+        It 'Renders initiative presence and unknown coverage honestly (read failure: <ReadFailure>)' -ForEach @(
+            @{ ReadFailure = $false }
+            @{ ReadFailure = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ReadFailure = $ReadFailure; ModuleRoot = (Split-Path $script:MultitoolModule -Parent) } {
+                param($ReadFailure, $ModuleRoot)
+                $failLookup = $ReadFailure
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($failLookup) { return [pscustomobject]@{ StatusCode = 403; Content = '{}' } }
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"properties":{"policyDefinitions":[{"policyDefinitionId":"/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c"}]}}' }
+                }
+                $data = Get-PolicyRecommendations -ExistingAssignments @([pscustomobject]@{
+                    AssignmentName = 'Governance initiative'; AssignmentId = '/assignments/fixture'; Scope = '/subscriptions/fixture'; EnforcementMode = 'DoNotEnforce'
+                    PolicyDefId = '/providers/Microsoft.Authorization/policySetDefinitions/fixture'; Origin = 'Initiative'
+                })
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                $switches = $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.SwitchStatementAst] }, $true)
+                $branches = @($switches.Clauses | Where-Object { $_.Item1.Value -eq 'Get-PolicyRecommendations' -and $_.Item2.Extent.Text.Contains('$data.Analysis') })
+                $branches.Count | Should -Be 3
+                $captured = [System.Collections.Generic.List[string]]::new()
+                Mock Write-Host { [void]$captured.Add([string]$Object) }
+                $guidanceItems = @()
+                $htmlRows = $null
+                $rows = $null
+
+                foreach ($branch in $branches) {
+                    $body = ($branch.Item2.Statements | ForEach-Object { $_.Extent.Text }) -join "`n"
+                    . ([scriptblock]::Create("param(`$data)`n$body")) $data
+                }
+
+                ($captured -join ' ') | Should -Match 'Assignment coverage:'
+                ($captured -join ' ') | Should -Not -Match 'Compliance:'
+                if ($ReadFailure) {
+                    ($captured -join ' ') | Should -Match 'unverified'
+                    ($guidanceItems.Message -join ' ') | Should -Match 'Unknown, not confirmed missing'
+                    $guidanceItems.Severity | Should -Not -Contain 'Green'
+                }
+                else {
+                    ($rows | Where-Object Policy -EQ 'Allowed locations').Status | Should -Be 'Assigned (Initiative)'
+                    ($htmlRows | Where-Object Policy -EQ 'Allowed locations').Assignments | Should -Be 'Governance initiative [Initiative; DoNotEnforce; /subscriptions/fixture]'
+                }
+                ($guidanceItems.Message -join ' ') | Should -Not -Match 'foundation is incomplete|Strong governance foundation'
+                ($guidanceItems.Message -join ' ') | Should -Match 'does not prove enforcement'
+            }
         }
     }
 }

@@ -203,6 +203,99 @@ Describe 'Cost Management query pagination' {
     }
 
     Context 'Actual and forecast totals' {
+        It 'Keeps missing actuals unavailable and preserves forecast currency (<QueryPath>)' -ForEach @(
+            @{ QueryPath = 'PerSubscription' }
+            @{ QueryPath = 'ManagementGroup' }
+            @{ QueryPath = 'ManagementGroupFallback' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ QueryPath = $QueryPath } {
+                param($QueryPath)
+                $fixturePath = $QueryPath
+                Mock Resolve-CostMgId { 'test-management-group' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $isForecast = $Path -like '*forecast*'
+                    if ($fixturePath -eq 'ManagementGroupFallback' -and $isForecast -and $Path -like '/providers/Microsoft.Management/*') {
+                        return [pscustomobject]@{ StatusCode = 503; Content = '{}' }
+                    }
+                    $properties = @{
+                        columns = @(@{ name = 'Currency' }, @{ name = 'SubscriptionId' }, @{ name = 'Cost' })
+                        rows = @()
+                    }
+                    if ($isForecast) { $properties.rows = @(, @('EUR', '11111111-1111-1111-1111-111111111111', 375.0)) }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Forecast only' })
+
+                $result = if ($fixturePath -eq 'PerSubscription') { Get-CostDataPerSubscription -Subscriptions $subscriptions }
+                    else { Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
+
+                $entry = $result[$subscriptions[0].Id]
+                $entry.Actual | Should -BeNullOrEmpty
+                $entry.Forecast | Should -Be 375
+                $entry.Currency | Should -Be 'EUR'
+                $entry.ForecastSource | Should -Be 'Forecast'
+            }
+        }
+
+        It 'Preserves measured <Amount> actuals and rejects a different forecast currency (<QueryPath>)' -ForEach @(
+            @{ QueryPath = 'PerSubscription'; Amount = 0.0 }
+            @{ QueryPath = 'ManagementGroup'; Amount = 0.0 }
+            @{ QueryPath = 'PerSubscription'; Amount = -5.25 }
+            @{ QueryPath = 'ManagementGroup'; Amount = -5.25 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ QueryPath = $QueryPath; Amount = $Amount } {
+                param($QueryPath, $Amount)
+                $fixturePath = $QueryPath
+                $fixtureAmount = $Amount
+                $forecastUnit = 'EUR'
+                Mock Resolve-CostMgId { 'test-management-group' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $isForecast = $Path -like '*forecast*'
+                    $unit = if ($isForecast) { $forecastUnit } else { 'EUR' }
+                    $value = if ($isForecast) { 375.0 } else { $fixtureAmount }
+                    $properties = @{
+                        columns = @(@{ name = 'Currency' }, @{ name = 'SubscriptionId' }, @{ name = 'Cost' })
+                        rows = @(, @($unit, '11111111-1111-1111-1111-111111111111', $value))
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+
+                $result = if ($fixturePath -eq 'PerSubscription') { Get-CostDataPerSubscription -Subscriptions $subscriptions }
+                    else { Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
+
+                $result[$subscriptions[0].Id].Actual | Should -Be $fixtureAmount
+                $result[$subscriptions[0].Id].Currency | Should -Be 'EUR'
+                $result[$subscriptions[0].Id].ActualPeriod | Should -Be 'Month to date (UTC query window)'
+                $forecastUnit = 'USD'
+                {
+                    if ($fixturePath -eq 'PerSubscription') { Get-CostDataPerSubscription -Subscriptions $subscriptions }
+                    else { Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
+                } | Should -Throw '*currency*'
+            }
+        }
+
+        It 'Retains selected subscriptions absent from both management-group result sets as unavailable' {
+            InModuleScope FinOpsMultitool {
+                Mock Resolve-CostMgId { 'test-management-group' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"properties":{"columns":[{"name":"Currency"},{"name":"SubscriptionId"},{"name":"Cost"}],"rows":[["EUR","11111111-1111-1111-1111-111111111111",100]]}}' }
+                }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Present' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Absent' }
+                )
+
+                $result = Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+
+                $result.Count | Should -Be 2
+                $result[$subscriptions[1].Id].Actual | Should -BeNullOrEmpty
+                $result[$subscriptions[1].Id].Forecast | Should -BeNullOrEmpty
+                $result[$subscriptions[1].Id].Currency | Should -BeNullOrEmpty
+                $result[$subscriptions[1].Id].ForecastSource | Should -Be 'Unavailable'
+            }
+        }
+
         It 'Sums complete pages once (<QueryPath>, empty first page: <EmptyFirstPage>)' -ForEach @(
             @{ QueryPath = 'PerSubscription'; EmptyFirstPage = $false }
             @{ QueryPath = 'ManagementGroup'; EmptyFirstPage = $false }

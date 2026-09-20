@@ -97,6 +97,10 @@ function Start-FinOpsMultitool {
         [switch]$NonInteractive
     )
 
+    if ($PSVersionTable.PSVersion.Major -lt 7) {
+        throw "FinOps Multitool requires PowerShell 7 or later. This session is PowerShell $($PSVersionTable.PSVersion). Open PowerShell 7 with 'pwsh', import the module there, and run Start-FinOpsMultitool again. No scan was started."
+    }
+
     # Locate the Multitool TUI implementation
     $multitoolRoot = Join-Path -Path $PSScriptRoot -ChildPath '../Private/FinOpsMultitool'
     $tuiScript = Join-Path -Path $multitoolRoot -ChildPath 'Invoke-FinOpsMultitool.ps1'

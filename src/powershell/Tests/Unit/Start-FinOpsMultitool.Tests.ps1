@@ -48,6 +48,48 @@ InModuleScope 'FinOpsToolkit' {
         }
 
         Context 'Behavior' {
+            It 'Rejects Windows PowerShell 5.1 before scanning through <Command>' -Skip:(-not $IsWindows) -ForEach @(
+                @{ Command = 'Start-FinOpsMultitool'; Script = '../../Public/Start-FinOpsMultitool.ps1' }
+                @{ Command = 'Invoke-FinOpsMultitool'; Script = '../../Private/FinOpsMultitool/Invoke-FinOpsMultitool.ps1' }
+            ) {
+                $entryPath = (Join-Path $PSScriptRoot $Script).Replace("'", "''")
+                $scriptText = @"
+`$ErrorActionPreference = 'Stop'
+. '$entryPath'
+try {
+    $Command -NonInteractive -Scans Get-TagInventory -DataSource GraphOnly
+    throw 'The unsupported host was not rejected.'
+}
+catch {
+    if (`$_.Exception.Message -notmatch 'requires PowerShell 7.*pwsh.*No scan was started') { throw }
+    if (Get-Module FinOpsMultitool) { throw 'The scan module was loaded in the unsupported host.' }
+    if (Get-Variable FinOpsResults -Scope Global -ErrorAction SilentlyContinue) { throw 'The unsupported host started a scan.' }
+    'Rejected before scanning'
+}
+"@
+                $startInfo = [System.Diagnostics.ProcessStartInfo]::new((Join-Path $env:WINDIR 'System32/WindowsPowerShell/v1.0/powershell.exe'))
+                $startInfo.UseShellExecute = $false
+                $startInfo.RedirectStandardOutput = $true
+                $startInfo.RedirectStandardError = $true
+                foreach ($argument in @('-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($scriptText)))) {
+                    $startInfo.ArgumentList.Add($argument)
+                }
+                $process = [System.Diagnostics.Process]::new()
+                try {
+                    $process.StartInfo = $startInfo
+                    [void]$process.Start()
+                    $standardOutput = $process.StandardOutput.ReadToEndAsync()
+                    $standardError = $process.StandardError.ReadToEndAsync()
+                    if (-not $process.WaitForExit(20000)) {
+                        $process.Kill()
+                        throw 'The unsupported-host check did not finish.'
+                    }
+                    $process.ExitCode | Should -Be 0 -Because $standardError.GetAwaiter().GetResult()
+                    $standardOutput.GetAwaiter().GetResult() | Should -Match 'Rejected before scanning'
+                }
+                finally { $process.Dispose() }
+            }
+
             It 'Should write an error when the TUI launcher is missing' {
                 Mock Test-Path { $false }
                 { Start-FinOpsMultitool -ErrorAction Stop } | Should -Throw '*installation may be incomplete*'
@@ -333,6 +375,28 @@ function Invoke-FinOpsMultitool {
                 $results['Get-CostData']['11111111-1111-1111-1111-111111111111'].Actual | Should -Be 100
                 @(Get-ChildItem -LiteralPath $repository -File -Recurse -Force).Count | Should -Be 0
                 Should -Invoke Read-Host -Times 0 -Exactly
+            }
+
+            It 'Does not declare policies missing when their inventory is <InventoryState>' -ForEach @(
+                @{ InventoryState = 'failed' }
+                @{ InventoryState = 'incomplete' }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                $fixtureInventoryState = $InventoryState
+                Mock Get-PolicyInventory {
+                    if ($fixtureInventoryState -eq 'failed') { throw '403: policy inventory unavailable' }
+                    [pscustomobject]@{ Assignments = @(); CoverageIncomplete = $true; AssignmentErrors = @('Fixture: HTTP 403'); Note = 'Effective assignments could not be read.' }
+                }
+                Mock Get-PolicyRecommendations { throw 'Recommendations must not consume failed inventory.' }
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-PolicyRecommendations -DataSource API -OutputPath (Join-Path $TestDrive 'policy-inventory-failed') -NonInteractive -ErrorAction Stop
+
+                $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
+                if ($InventoryState -eq 'failed') { $results['_error_Get-PolicyInventory'] | Should -Match '403' }
+                else { $results['Get-PolicyInventory'].CoverageIncomplete | Should -BeTrue }
+                $results['_error_Get-PolicyRecommendations'] | Should -Match 'No policies are assumed missing'
+                $results['Get-PolicyRecommendations'] | Should -BeNullOrEmpty
+                Should -Invoke Get-PolicyRecommendations -Times 0 -Exactly
             }
 
             It 'Preserves a caught payload-scan error in every report format' {

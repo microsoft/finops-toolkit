@@ -1263,7 +1263,7 @@ function ConvertTo-TagInventoryFromHub {
         $valArray = @()
         foreach ($v in $kv.Value.Values.GetEnumerator()) {
             $valArray += [PSCustomObject]@{
-                TagValue      = $v.Key
+                Value         = $v.Key
                 ResourceCount = $v.Value.ResourceCount
                 ResourceTypes = @($v.Value.ResourceTypes.Keys)
             }

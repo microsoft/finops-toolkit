@@ -25,6 +25,7 @@ function Get-PolicyRecommendations {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
+        [AllowEmptyCollection()]
         [object[]]$ExistingAssignments   # Policy assignment objects from Get-PolicyInventory
     )
 
@@ -201,20 +202,63 @@ function Get-PolicyRecommendations {
 
     # -- Match existing assignments against recommendations ------------
     $existingDefIds = @{}
-    $existingNames  = @{}
-    foreach ($a in $ExistingAssignments) {
-        if ($a.PolicyDefId) {
-            $existingDefIds[$a.PolicyDefId.ToLower()] = $true
+    $initiativeCache = @{}
+    $initiativeErrors = [System.Collections.Generic.List[object]]::new()
+    $scopePattern = '(?:(?:/subscriptions/[0-9a-fA-F-]{36})|(?:/providers/Microsoft\.Management/managementGroups/[A-Za-z0-9._()-]+))?'
+    $initiativePattern = "^$scopePattern/providers/Microsoft\.Authorization/policySetDefinitions/[A-Za-z0-9._()-]+$"
+    $policyPattern = "^$scopePattern/providers/Microsoft\.Authorization/policyDefinitions/[A-Za-z0-9._()-]+(?:/versions/[0-9.]+)?$"
+    foreach ($assignment in $ExistingAssignments) {
+        $definitionId = ([string]$assignment.PolicyDefId).TrimEnd('/')
+        if (-not $definitionId) { continue }
+        $isInitiative = $assignment.Origin -eq 'Initiative' -or $definitionId -match '/policySetDefinitions/'
+        $memberIds = @($definitionId)
+        if ($isInitiative) {
+            if (-not $initiativeCache.ContainsKey($definitionId)) {
+                try {
+                    if ($definitionId -notmatch $initiativePattern) { throw 'The initiative ID is not a valid policy set definition resource ID.' }
+                    $response = Invoke-AzRestMethodWithRetry -Path "$($definitionId)?api-version=2023-04-01" -Method GET
+                    if (-not $response -or $response.StatusCode -ne 200 -or -not $response.Content) {
+                        throw "Initiative membership returned HTTP $($response.StatusCode)."
+                    }
+                    $properties = ($response.Content | ConvertFrom-Json -ErrorAction Stop).properties
+                    if (-not $properties -or $null -eq $properties.policyDefinitions -or $properties.policyDefinitions -isnot [array]) {
+                        throw 'The initiative response has no valid policyDefinitions collection.'
+                    }
+                    $members = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+                    foreach ($member in $properties.policyDefinitions) {
+                        $memberId = ([string]$member.policyDefinitionId).TrimEnd('/')
+                        if ($memberId -notmatch $policyPattern) { throw 'An initiative member has an invalid policy definition ID.' }
+                        [void]$members.Add(($memberId -replace '/versions/[0-9.]+$', ''))
+                    }
+                    $initiativeCache[$definitionId] = @($members)
+                }
+                catch {
+                    $initiativeCache[$definitionId] = @()
+                    [void]$initiativeErrors.Add([pscustomobject]@{ InitiativeId = $definitionId; Error = $_.Exception.Message })
+                }
+            }
+            $memberIds = @($initiativeCache[$definitionId])
         }
-        if ($a.AssignmentName) {
-            $existingNames[$a.AssignmentName.ToLower()] = $true
+        foreach ($memberId in $memberIds) {
+            $policyId = $memberId -replace '/versions/[0-9.]+$', ''
+            if (-not $existingDefIds.ContainsKey($policyId)) { $existingDefIds[$policyId] = [System.Collections.Generic.List[object]]::new() }
+            [void]$existingDefIds[$policyId].Add([pscustomobject]@{
+                AssignmentId = $assignment.AssignmentId
+                AssignmentName = $assignment.AssignmentName
+                Scope = $assignment.Scope
+                EnforcementMode = $assignment.EnforcementMode
+                Source = if ($isInitiative) { 'Initiative' } else { 'Direct' }
+                InitiativeId = if ($isInitiative) { $definitionId } else { $null }
+            })
         }
     }
 
     $analysis = foreach ($rec in $recommendedPolicies) {
-        $foundById   = $existingDefIds.ContainsKey($rec.PolicyDefId.ToLower())
-        $foundByName = $existingNames.ContainsKey($rec.DisplayName.ToLower())
-        $status = if ($foundById -or $foundByName) { 'Assigned' } else { 'Missing' }
+        $matchedAssignments = @($existingDefIds[$rec.PolicyDefId] | Where-Object { $null -ne $_ })
+        $status = if (@($matchedAssignments | Where-Object Source -EQ 'Direct').Count -gt 0) { 'Assigned' }
+        elseif ($matchedAssignments.Count -gt 0) { 'Assigned (Initiative)' }
+        elseif ($initiativeErrors.Count -gt 0) { 'Unknown' }
+        else { 'Missing' }
 
         [PSCustomObject]@{
             DisplayName    = $rec.DisplayName
@@ -228,16 +272,24 @@ function Get-PolicyRecommendations {
             PolicyDefId    = $rec.PolicyDefId
             Reference      = $rec.Reference
             Parameters     = if ($rec.Parameters) { $rec.Parameters } else { @() }
+            MatchedAssignments = $matchedAssignments
+            Note = if ($status -eq 'Unknown') { 'Initiative membership is incomplete. This policy cannot be confirmed missing.' }
+                elseif ($status -eq 'Missing') { 'No matching definition ID was found in the supplied assignments or readable initiatives. Equivalent custom policies are not assessed.' }
+                else { 'Assignment presence does not establish enforcement, parameter settings, exclusions, or compliance. Review the matched assignments.' }
         }
     }
 
     $missing  = @($analysis | Where-Object { $_.Status -eq 'Missing' })
-    $assigned = @($analysis | Where-Object { $_.Status -eq 'Assigned' })
+    $assigned = @($analysis | Where-Object { $_.Status -in @('Assigned', 'Assigned (Initiative)') })
+    $unknown = @($analysis | Where-Object Status -EQ 'Unknown')
 
     return [PSCustomObject]@{
         Analysis         = $analysis
         Missing          = $missing
         Assigned         = $assigned
-        CompliancePct    = [math]::Round(($assigned.Count / $analysis.Count) * 100, 0)
+        Unknown          = $unknown
+        InitiativeErrors = $initiativeErrors.ToArray()
+        CoverageIncomplete = ($initiativeErrors.Count -gt 0)
+        CompliancePct    = if ($initiativeErrors.Count -eq 0) { [math]::Round(($assigned.Count / $analysis.Count) * 100, 0) } else { $null }
     }
 }
