@@ -30,7 +30,10 @@
     Optional. Skips generating pruned PBIP projects and only builds PBIT files. Default = false.
 
     .PARAMETER OpenDataUrl
-    Optional. Public folder demo reports read open data from. Default = the open data files in the main branch.
+    Optional. Public folder demo reports read open data from. Must be a permanent location, because demo reports ship with this URL in them. Default = the open data files in the main branch.
+
+    .PARAMETER TestOpenDataUrl
+    Optional. Allows an OpenDataUrl that isn't permanent, like a branch that gets deleted after it merges. Demo reports built this way can't be released. Default = false.
 
     .EXAMPLE
     ./Build-PowerBI
@@ -65,7 +68,10 @@ param(
     $NoPbip,
 
     [string]
-    $OpenDataUrl = 'https://raw.githubusercontent.com/microsoft/finops-toolkit/main/src/open-data'
+    $OpenDataUrl = 'https://raw.githubusercontent.com/microsoft/finops-toolkit/main/src/open-data',
+
+    [switch]
+    $TestOpenDataUrl
 )
 
 $ErrorActionPreference = 'Stop'
@@ -96,6 +102,18 @@ $reportsConfig = Get-Content $reportsConfigPath -Raw | ConvertFrom-Json -Depth 1
 # open data files added during the release being built.
 $openDataUrl = $OpenDataUrl.TrimEnd('/')
 $openDataChecked = @{}
+
+# Whatever URL is used here ships inside the demo reports, so it has to outlive the release. A
+# branch URL works while building and breaks for customers as soon as the branch is deleted.
+$permanentOpenDataUrl = $openDataUrl -match '^https://raw\.githubusercontent\.com/microsoft/finops-toolkit/main/' -or $openDataUrl -match '^https://github\.com/microsoft/finops-toolkit/releases/'
+if (-not $permanentOpenDataUrl)
+{
+    if (-not $TestOpenDataUrl)
+    {
+        throw "Demo reports would ship reading open data from $openDataUrl, which isn't permanent. Customers can't refresh them once it's gone. Use the main branch, or pass -TestOpenDataUrl to build reports that can't be released."
+    }
+    Write-Warning "Demo reports will read open data from $openDataUrl. This is a test build. The reports cannot be released, and Package-PowerBI will not package them."
+}
 
 $reportMetadata = @{}
 $reportsConfig.reports.PSObject.Properties `
@@ -969,9 +987,11 @@ if (-not $NoPbip -and $genAllReports -and $KQL -and $Storage)
 {
     & "$PSScriptRoot/New-Directory.ps1" $pbixDir
     @{
-        version = $version
-        built   = (Get-Date -Format 'o')
-        reports = $manifest.ToArray()
+        version       = $version
+        built         = (Get-Date -Format 'o')
+        openDataUrl   = $openDataUrl
+        releasable    = $permanentOpenDataUrl
+        reports       = $manifest.ToArray()
     } | ConvertTo-Json -Depth 10 | Set-Content "$pbixDir/.manifest.json"
 }
 

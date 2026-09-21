@@ -146,7 +146,7 @@ This generates two things from a single prune, so the template and the demo repo
 
 The tables and queries each report keeps are listed in [src/power-bi/reports.json](../src/power-bi/reports.json). When a report starts using a new table or query, add it there. The build and the `PowerBIReports` lint test fail when a visual or query uses something the report doesn't keep.
 
-Demo projects keep the data source saved in the semantic model. They read open data from the `main` branch, because the release URL resolves to the last published release and doesn't have open data files added during the release being built. Templates always ship with the data source set to null and the release open data URL. Use `-OpenDataUrl` to read from a pushed branch when building demo reports before the merge to `main`.
+Demo projects keep the data source saved in the semantic model. They read open data from the `main` branch, because the release URL resolves to the last published release and doesn't have open data files added during the release being built. Templates always ship with the data source set to null and the release open data URL. Only permanent URLs are accepted, because the URL ships inside the demo reports. To test before the merge to `main`, add `-TestOpenDataUrl` and pass a branch with `-OpenDataUrl`. Reports built that way are not packaged.
 
 Demo PBIX files need Power BI Desktop to load and save them. On Windows, run [Package-PowerBI](../src/scripts/README.md#-package-powerbi) `-Unattended` to save, validate, and package them automatically.
 
