@@ -88,7 +88,7 @@
       }
     ]
   },
-  "description": "Monitors the Agent Framework services listed in the finopsPrices variable, not every client in the shared Application Insights resource. Token rates are read live from the hub price sheet using the Cluster URI and Database variables, and cover input, cache reads, cache writes, and output, with the context tier selected per model call. These are token estimates, not invoice totals, and they exclude tool and hosting charges.",
+  "description": "Comprehensive monitoring dashboard for AI agent framework performance, tracking operations, token usage, costs, errors, and detailed trace analysis. Monitor agent health, response times, success rates, and resource consumption in real-time.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -113,68 +113,25 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Operation count and response time use agent invocations. Token totals, costs, and pricing coverage use the same attributed chat calls for the selected agents. Agent token roll-ups are not counted again. Coverage is the percentage of calls with complete counters and applicable Toolkit rates. Known costs remain visible when other calls are unpriced. The shared finopsPrices configuration and finopsUsage query keep the financial views consistent.",
+      "description": "Key performance indicators for agent operations including total operations executed, token consumption (input and output), and average response time across all agents.",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "#9C7ECA"
+            "mode": "thresholds"
           },
           "links": [],
           "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
           "unit": "short"
         },
         "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Priced token cost"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              },
-              {
-                "id": "noValue",
-                "value": "No priced calls"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Pricing coverage"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "decimals",
-                "value": 1
-              }
-            ]
-          },
           {
             "matcher": {
               "id": "byName",
@@ -269,7 +226,7 @@
       },
       "id": 12,
       "options": {
-        "colorMode": "value",
+        "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -291,7 +248,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nlet totals = materialize(agentUsage\n| where agentKey in (agentKeys)\n| summarize inputTokens = sum(input), outputTokens = sum(output), cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)), coverage = iff(count() > 0, 100.0 * countif(priced) / count(), real(null)));\nagentRuns\n| where agentKey in (agentKeys)\n| summarize ['Total Operations'] = count(), ['Avg Response Time'] = round(avg(duration) / 1000, 2)\n| project ['Total Operations'], ['Total Input Tokens'] = toscalar(totals | project inputTokens), ['Total Output Tokens'] = toscalar(totals | project outputTokens), ['Avg Response Time'], ['Priced token cost'] = toscalar(totals | project cost), ['Pricing coverage'] = toscalar(totals | project coverage)",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Total Operations'] = count(),\n    ['Total Input Tokens'] = sum(input_tokens),\n    ['Total Output Tokens'] = sum(output_tokens),\n    ['Avg Response Time'] = round(avg(duration) / 1000, 2)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -310,244 +267,12 @@
       "type": "stat"
     },
     {
-      "id": 37,
-      "title": "Agent and project context",
-      "type": "row",
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 5
-      },
-      "panels": [
-        {
-          "id": 38,
-          "title": "Agent identity",
-          "description": "Identity from the selected telemetry. Project resource ID and agent ID define the agent; version is a separate dimension. Missing identity is shown explicitly. Full IDs are available to the right without crowding the operational panels.",
-          "type": "table",
-          "gridPos": {
-            "h": 6,
-            "w": 24,
-            "x": 0,
-            "y": 6
-          },
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${am_ds}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "auto"
-                },
-                "inspect": false,
-                "width": 220
-              },
-              "noValue": "Not reported"
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Agent"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 280
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Foundry"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 300
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Project"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 250
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Version"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 90
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Identity"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 120
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Agent ID"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 320
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Project resource ID"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 650
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "cellHeight": "sm",
-            "showHeader": true
-          },
-          "targets": [
-            {
-              "refId": "A",
-              "queryType": "Azure Log Analytics",
-              "azureLogAnalytics": {
-                "dashboardTime": true,
-                "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Pricing intentionally disabled here; no hub price lookup is needed for this result.\nlet price = dynamic({});\nlet priceStart = datetime(null);\nlet priceEnd = datetime(null);\nlet pricesLoaded = false;\n${finopsUsage:raw}\nattributedSpans\n| where agentKey in (dynamic([${agentKey:doublequote}]))\n| summarize take_any(agentDisplayName, foundryName, projectName, projectId, agentId, tenantId, identityComplete), ['Last seen'] = max(timestamp) by agentKey, agentVersion\n| project Agent = agentDisplayName, Foundry = foundryName, Project = projectName, Version = agentVersion, Identity = iff(identityComplete, 'Complete', 'Missing IDs'), ['Agent ID'] = agentId, ['Last seen'], ['Project resource ID'] = projectId, ['Tenant ID'] = tenantId\n| order by Agent asc, Version asc",
-                "resources": [
-                  "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
-                ],
-                "resultFormat": "table",
-                "timeColumn": "timestamp"
-              }
-            }
-          ]
-        },
-        {
-          "id": 39,
-          "title": "Current project and Foundry tags",
-          "description": "Live Azure Resource Graph metadata for the selected projects and their parent Foundry accounts in the selected subscription. Tags are current, not historical request-time labels. Project and account tags remain separate; no inheritance is assumed. The Project tag is a business label, not the Foundry project name. Resources outside the subscription or without read access are not returned.",
-          "type": "table",
-          "gridPos": {
-            "h": 6,
-            "w": 24,
-            "x": 0,
-            "y": 12
-          },
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${am_ds}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "auto"
-                },
-                "inspect": false,
-                "width": 140
-              },
-              "noValue": "Not set"
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Resource"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 460
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Tags"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 360
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Resource ID"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 650
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "cellHeight": "sm",
-            "showHeader": true
-          },
-          "targets": [
-            {
-              "refId": "A",
-              "queryType": "Azure Resource Graph",
-              "subscriptions": [
-                "$sub"
-              ],
-              "azureResourceGraph": {
-                "query": "resources\n| where type in~ ('microsoft.cognitiveservices/accounts', 'microsoft.cognitiveservices/accounts/projects')\n| extend selectedProjects = dynamic([${projectIds:doublequote}])\n| mv-expand selectedProject = selectedProjects\n| extend parentId = extract(@'(?i)^(.+)/projects/[^/]+$', 1, tostring(selectedProject))\n| where id =~ tostring(selectedProject) or id =~ parentId\n| summarize take_any(name, type, location, tags) by id\n| project Scope = iff(type =~ 'microsoft.cognitiveservices/accounts/projects', 'Project', 'Foundry'), Resource = name, Region = location, ['Project tag'] = tostring(tags.Project), Environment = tostring(tags.env), Organization = tostring(tags.org), Tags = tostring(tags), ['Resource ID'] = id\n| order by Scope desc, Resource asc",
-                "resultFormat": "table"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 6
+        "y": 5
       },
       "id": 21,
       "panels": [],
@@ -559,7 +284,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Input and output tokens from attributed chat calls for the selected agents, with priced token cost on the right-hand USD axis. This is the same call population used by the summary and pricing tables. Costs exclude unpriced calls; token totals retain reported usage.",
+      "description": "Stacked time series chart showing input and output token usage trends over time, helping monitor AI model consumption and associated costs.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -588,7 +313,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "always",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -643,56 +368,6 @@
           },
           {
             "matcher": {
-              "id": "byName",
-              "options": "Priced token cost"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "yellow"
-                }
-              },
-              {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              },
-              {
-                "id": "custom.axisLabel",
-                "value": "Token cost (USD)"
-              },
-              {
-                "id": "custom.stacking",
-                "value": {
-                  "mode": "none",
-                  "group": "cost"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 2
-              },
-              {
-                "id": "custom.showPoints",
-                "value": "always"
-              }
-            ]
-          },
-          {
-            "matcher": {
               "id": "byRegexp",
               "options": ".*"
             },
@@ -709,7 +384,7 @@
         "h": 8,
         "w": 10,
         "x": 0,
-        "y": 7
+        "y": 6
       },
       "id": 4,
       "interval": "1h",
@@ -719,7 +394,7 @@
           "calcs": [
             "sum"
           ],
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
@@ -734,7 +409,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize ['Input Tokens'] = sum(input), ['Output Tokens'] = sum(output), ['Priced token cost'] = iff(countif(priced) > 0, sum(estimated_cost), real(null)) by bin(timestamp, $__interval)\n| order by timestamp asc",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Input Tokens'] = sum(input_tokens),\n    ['Output Tokens'] = sum(output_tokens)\n    by bin(timestamp, $__interval)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -749,7 +424,7 @@
           "refId": "A"
         }
       ],
-      "title": "Token usage and cost over time",
+      "title": "Token Consumption Over Time",
       "type": "timeseries"
     },
     {
@@ -757,7 +432,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Share of reported input and output tokens from attributed chat calls for the selected agents. Uses the same token population as the summary and cost trend. See the agent table for monetary costs and unit rates.",
+      "description": "Donut chart showing the distribution of total token consumption (input + output) across different agents, helping identify which agents consume the most resources.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -793,7 +468,7 @@
         "h": 8,
         "w": 7,
         "x": 10,
-        "y": 7
+        "y": 6
       },
       "id": 5,
       "options": {
@@ -825,7 +500,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize total_tokens = sum(input) + sum(output), agent_name = take_any(agentLabel) by agentKey\n| project agent_name, total_tokens",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    total_tokens = sum(input_tokens + output_tokens)\n    by agent_name",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -848,12 +523,11 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Daily token cost estimates for the selected agents, using rates read live from the hub price sheet. Prices are contracted USD per million tokens for the stated account, region, deployment type, and month. Each chat call uses its own model and context tier; input above 272,000 tokens uses long-context rates. Ordinary input = input - cache reads - cache writes. Cache writes use cache_write.input_tokens or the observed Agent Framework cache_creation.input_tokens field. Missing counters are not assumed to be zero. Only priced calls contribute; see pricing coverage in the summary and agent table.",
+      "description": "Bar chart estimating daily operational costs based on token consumption and model pricing. Rates are configurable in the query (example: $1.25 per 1M input tokens, $10 per 1M output tokens).",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
+            "mode": "continuous-blues"
           },
           "custom": {
             "axisBorderShow": false,
@@ -907,13 +581,13 @@
         "h": 8,
         "w": 7,
         "x": 17,
-        "y": 7
+        "y": 6
       },
       "id": 6,
       "options": {
         "barRadius": 0,
         "barWidth": 0.97,
-        "xField": "Day",
+        "colorByField": "estimated_cost",
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
@@ -940,7 +614,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize estimated_cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)) by bin(timestamp, 1d)\n| order by timestamp asc\n| project Day = format_datetime(timestamp, 'yyyy-MM-dd'), estimated_cost",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"]),\n    cached_input_tokens = toint(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"])\n| extend uncached_input_tokens = input_tokens - coalesce(cached_input_tokens, 0)\n| extend\n    // Adjust per-model rates. Defaults below are GPT-5 mini-class. Cached input is ~1/10 of uncached.\n    uncached_cost = uncached_input_tokens * 0.00000025,        // $0.25 per 1M uncached input\n    cached_cost   = coalesce(cached_input_tokens, 0) * 0.000000025, // $0.025 per 1M cached input\n    output_cost   = output_tokens * 0.000002                   // $2 per 1M output\n| summarize estimated_cost = sum(uncached_cost + cached_cost + output_cost) by bin(timestamp, 1d)\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -955,201 +629,8 @@
           "refId": "A"
         }
       ],
-      "title": "Daily token cost estimate",
+      "title": "Daily Cost Estimation",
       "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "grafana-azure-monitor-datasource",
-        "uid": "${am_ds}"
-      },
-      "description": "Contracted Toolkit rates and observed token costs by provider, model, and per-call context tier for the selected agents. All rates are USD per million tokens. Blended cost uses only priced calls and their input plus output tokens. Rates are read live from the hub price sheet for the current effective period. Pricing coverage includes unpriced calls. Unknown rates remain empty rather than using a default model price.",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "links": [],
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Token cost"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              },
-              {
-                "id": "noValue",
-                "value": "Not priced"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Blended / 1M"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Input / 1M"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Cache read / 1M"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Cache write / 1M"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Output / 1M"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Pricing coverage"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "decimals",
-                "value": 1
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 15
-      },
-      "id": 36,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Token cost"
-          }
-        ]
-      },
-      "pluginVersion": "11.6.9",
-      "targets": [
-        {
-          "azureLogAnalytics": {
-            "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize Calls = count(), pricedCalls = countif(priced), pricedTokens = sumif(input + output, priced), cost = sum(estimated_cost), inputRate = take_anyif(inputRate, pricingApplies), readRate = take_anyif(cacheReadRate, pricingApplies), writeRate = take_anyif(cacheWriteRate, pricingApplies), outputRate = take_anyif(outputRate, pricingApplies) by provider, model, contextTier\n| project Model = model, Provider = provider, Context = contextTier, Calls, ['Token cost'] = iff(pricedCalls > 0, cost, real(null)), ['Blended / 1M'] = iff(pricedTokens > 0, cost * 1e6 / pricedTokens, real(null)), ['Input / 1M'] = inputRate, ['Cache read / 1M'] = readRate, ['Cache write / 1M'] = writeRate, ['Output / 1M'] = outputRate, ['Pricing coverage'] = 100.0 * pricedCalls / Calls\n| order by ['Token cost'] desc",
-            "resources": [
-              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
-            ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
-          },
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${am_ds}"
-          },
-          "queryType": "Azure Log Analytics",
-          "refId": "A"
-        }
-      ],
-      "title": "Model rates and token costs",
-      "type": "table"
     },
     {
       "collapsed": false,
@@ -1157,7 +638,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 14
       },
       "id": 30,
       "panels": [],
@@ -1169,7 +650,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Cache-read tokens divided by input tokens for the selected agents' attributed chat calls with valid cache-read counters. The cache economics panel shows the actual Toolkit-priced read cost, write cost, and net benefit rather than assuming a fixed savings percentage.",
+      "description": "Percentage of input tokens served from cache across LLM chat calls (gen_ai.operation.name == 'chat'). Cached input is ~1/10 the price of uncached, so a high hit rate directly reduces spend.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1216,7 +697,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 24
+        "y": 15
       },
       "id": 31,
       "options": {
@@ -1239,7 +720,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys) and cacheValid\n| summarize inputTokens = sum(input), cachedTokens = sum(cached)\n| project cache_hit_pct = iff(inputTokens > 0, 100.0 * cachedTokens / inputTokens, real(null))",
+            "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"])\n| where op_name == \"chat\"\n| extend in_tok = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n         cache_tok = toint(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"])\n| summarize cache_hit_pct = round(sum(cache_tok) * 100.0 / sum(in_tok), 1)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1262,95 +743,26 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Reported cache-read and cache-write tokens for the selected agents. Cache cost sums priced reads and writes. Net cache benefit compares those same priced calls with ordinary input pricing at the same model/context tier: reads * (input rate - read rate) - writes * (write rate - input rate). Negative benefits remain negative. This is not an invoice credit; unpriced calls contribute no monetary estimate.",
+      "description": "Total input tokens served from prompt cache. Equivalent to ~90% of these tokens' uncached cost saved.",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "#9C7ECA"
+            "fixedColor": "blue",
+            "mode": "fixed"
           },
           "links": [],
           "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          },
           "unit": "short"
         },
         "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Cache cost"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              },
-              {
-                "id": "noValue",
-                "value": "No priced calls"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Cache cost"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "yellow"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Net cache benefit"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              },
-              {
-                "id": "noValue",
-                "value": "No priced calls"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "thresholds"
-                }
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "red",
-                      "value": null
-                    },
-                    {
-                      "color": "green",
-                      "value": 0
-                    }
-                  ]
-                }
-              }
-            ]
-          },
           {
             "matcher": {
               "id": "byRegexp",
@@ -1369,7 +781,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 24
+        "y": 15
       },
       "id": 32,
       "options": {
@@ -1394,7 +806,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize ['Cache-read tokens'] = iff(countif(cacheValid) > 0, sumif(cached, cacheValid), long(null)), ['Cache-write tokens'] = iff(countif(written >= 0 and written <= input) > 0, sumif(written, written >= 0 and written <= input), long(null)), ['Cache cost'] = iff(countif(priced) > 0, sum(cacheReadCost + cacheWriteCost), real(null)), ['Net cache benefit'] = iff(countif(priced) > 0, sum(cacheBenefit), real(null))",
+            "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"])\n| where op_name == \"chat\"\n| extend cache_tok = toint(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"])\n| summarize ['Tokens From Cache'] = sum(cache_tok)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1409,7 +821,7 @@
           "refId": "A"
         }
       ],
-      "title": "Cache economics",
+      "title": "Tokens From Cache (chat)",
       "type": "stat"
     },
     {
@@ -1453,7 +865,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 15
       },
       "id": 33,
       "options": {
@@ -1485,7 +897,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| extend finish = tostring(customDimensions['gen_ai.response.finish_reasons'])\n| where isnotempty(finish)\n| summarize call_count = count() by finish",
+            "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"]),\n         finish = tostring(customDimensions[\"gen_ai.response.finish_reasons\"])\n| where op_name == \"chat\"\n| where isnotempty(finish)\n| summarize call_count = count() by finish",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1578,7 +990,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 21
       },
       "id": 34,
       "interval": "1h",
@@ -1604,7 +1016,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentUsage\n| where agentKey in (agentKeys)\n| extend model = tostring(customDimensions['gen_ai.response.model'])\n| extend model = iff(isempty(model), '(unknown)', model)\n| summarize p95_ms = percentile(duration, 95) by bin(timestamp, $__interval), model\n| order by timestamp asc",
+            "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"]),\n         model = tostring(customDimensions[\"gen_ai.response.model\"])\n| where op_name == \"chat\"\n| extend model = iff(isempty(model), \"(unknown)\", model)\n| summarize p95_ms = percentile(duration, 95) by bin(timestamp, $__interval), model\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1765,7 +1177,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 21
       },
       "id": 35,
       "options": {
@@ -1791,7 +1203,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentTools\n| where agentKey in (agentKeys)\n| extend tool = tostring(customDimensions['gen_ai.tool.name'])\n| where isnotempty(tool)\n| summarize calls = count(), success_rate = round(countif(success == 'True') * 100.0 / count(), 1), avg_duration_ms = round(avg(duration), 0), p95_duration_ms = round(percentile(duration, 95), 0) by tool\n| order by calls desc\n| take 30",
+            "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"]),\n         tool = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where op_name == \"execute_tool\"\n| where isnotempty(tool)\n| summarize calls = count(),\n    success_rate = round(countif(success == \"True\") * 100.0 / count(), 1),\n    avg_duration_ms = round(avg(duration), 0),\n    p95_duration_ms = round(percentile(duration, 95), 0)\n    by tool\n| order by calls desc\n| take 30",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1815,7 +1227,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 29
       },
       "id": 20,
       "panels": [],
@@ -1872,10 +1284,10 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#57a300"
+                "color": "green"
               },
               {
-                "color": "#e00b1c",
+                "color": "red",
                 "value": 80
               }
             ]
@@ -1901,7 +1313,7 @@
         "h": 8,
         "w": 10,
         "x": 0,
-        "y": 39
+        "y": 30
       },
       "id": 1,
       "interval": "1h",
@@ -1927,7 +1339,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize avg = avg(duration) / 1000, p95 = percentile(duration, 95) / 1000, p99 = percentile(duration, 99) / 1000 by bin(timestamp, $__interval)",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    avg = avg(duration) / 1000,\n    p95 = percentile(duration, 95) / 1000,\n    p99 = percentile(duration, 99) / 1000\n    by bin(timestamp, $__interval)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1964,14 +1376,14 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#e00b1c"
+                "color": "red"
               },
               {
-                "color": "#db7500",
+                "color": "yellow",
                 "value": 90
               },
               {
-                "color": "#57a300",
+                "color": "green",
                 "value": 95
               }
             ]
@@ -1997,7 +1409,7 @@
         "h": 8,
         "w": 7,
         "x": 10,
-        "y": 39
+        "y": 30
       },
       "id": 2,
       "options": {
@@ -2021,7 +1433,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize success_rate = countif(success == 'True') * 100.0 / count()",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    success_rate = countif(success == \"True\") * 100.0 / count()",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -2114,7 +1526,7 @@
         "h": 8,
         "w": 7,
         "x": 17,
-        "y": 39
+        "y": 30
       },
       "id": 3,
       "interval": "1h",
@@ -2137,7 +1549,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize operations_count = count() by bin(timestamp, $__interval)",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    operations_count = count() \n    by bin(timestamp, $__interval)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -2161,7 +1573,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 38
       },
       "id": 22,
       "panels": [],
@@ -2173,7 +1585,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Selected agents within the configured Agent Framework services. Cost per priced call and blended cost per million tokens use the same priced calls in numerator and denominator. Pricing coverage includes unpriced attributed calls. Copilot, Codex, and other services in the shared workspace are excluded before aggregation.",
+      "description": "Table summarizing key performance metrics for each agent including total operations, average response time, and success rate with color-coded success rate indicators.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -2187,7 +1599,7 @@
             {
               "targetBlank": false,
               "title": "Filter dashboard to agent: ${__data.fields.agent_name}",
-              "url": "/d/${__dashboard.uid}/agent-framework?${__url_time_range}&${am_ds:queryparam}&${sub:queryparam}&${rg:queryparam}&${res:queryparam}&var-agentKey=${__data.fields.agentKey}"
+              "url": "/d/${__dashboard.uid}/agent-framework?${__url_time_range}&${__all_variables}&var-agentName=${__data.fields.agent_name}"
             }
           ],
           "mappings": [],
@@ -2283,111 +1695,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Agent"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "agentKey"
-            },
-            "properties": [
-              {
-                "id": "custom.hidden",
-                "value": true
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "priced_cost"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Priced token cost"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              },
-              {
-                "id": "noValue",
-                "value": "No priced calls"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "pricing_coverage"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Pricing coverage"
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "decimals",
-                "value": 1
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "cost_per_call"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Cost / priced call"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              },
-              {
-                "id": "noValue",
-                "value": "No priced calls"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "blended_rate"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Blended / 1M tokens"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              },
-              {
-                "id": "noValue",
-                "value": "No priced tokens"
+                "value": "Agent Name"
               }
             ]
           }
@@ -2397,7 +1705,7 @@
         "h": 14,
         "w": 12,
         "x": 0,
-        "y": 48
+        "y": 39
       },
       "id": 7,
       "options": {
@@ -2423,11 +1731,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nlet costs = agentUsage\n| where agentKey in (agentKeys)\n| summarize priced_cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)), priced_calls = countif(priced), priced_tokens = sumif(input + output, priced), pricing_coverage = 100.0 * countif(priced) / count() by agentKey\n| extend cost_per_call = iff(priced_calls > 0, priced_cost / priced_calls, real(null)), blended_rate = iff(priced_tokens > 0, priced_cost * 1e6 / priced_tokens, real(null));\nagentRuns\n| where agentKey in (agentKeys)\n| summarize agent_name = take_any(agentLabel), operations = count(), avg_duration = round(avg(duration) / 1000, 2), success_rate = round(countif(success == 'True') * 100.0 / count(), 2) by agentKey\n| lookup kind=leftouter costs on agentKey\n| project agent_name, operations, avg_duration, success_rate, priced_cost, cost_per_call, blended_rate, pricing_coverage, agentKey\n| order by operations desc",
+            "query": "dependencies\n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| summarize\n    operations = count(),\n    avg_duration = round(avg(duration) / 1000, 2),\n    success_rate = round(countif(success == \"True\") * 100.0 / count(), 2)\n    by agent_name\n| order by operations desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
+            "resultFormat": "logs",
             "timeColumn": "timestamp"
           },
           "datasource": {
@@ -2438,7 +1746,7 @@
           "refId": "A"
         }
       ],
-      "title": "Agent performance and cost",
+      "title": "Agent Performance Summary (Click to select one agent)",
       "type": "table"
     },
     {
@@ -2470,14 +1778,14 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#57a300"
+                "color": "green"
               },
               {
-                "color": "#db7500",
+                "color": "#EAB839",
                 "value": 5
               },
               {
-                "color": "#e00b1c",
+                "color": "red",
                 "value": 10
               }
             ]
@@ -2503,7 +1811,7 @@
         "h": 14,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 39
       },
       "id": 8,
       "options": {
@@ -2527,7 +1835,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nlet topAgents = agentRuns | where agentKey in (agentKeys) | summarize cnt = count() by agentKey | top 10 by cnt | project agentKey;\nagentRuns\n| where agentKey in (topAgents)\n| summarize operations_count = count(), agent_name = take_any(agentLabel) by bin(timestamp, 1h), agentKey\n| project timestamp, agent_name, operations_count\n| order by timestamp asc",
+            "query": "let agentNames = dynamic([$agentName]);\nlet maxRows = 10;\nlet topAgents = dependencies\n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize cnt = count() by agent_name\n| top maxRows by cnt\n| project agent_name;\ndependencies\n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where agent_name in (topAgents)\n| summarize operations_count = count() by bin(timestamp, 1h), agent_name\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -2560,7 +1868,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 53
       },
       "id": 23,
       "panels": [],
@@ -2586,14 +1894,14 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#57a300"
+                "color": "green"
               },
               {
-                "color": "#db7500",
+                "color": "yellow",
                 "value": 5
               },
               {
-                "color": "#e00b1c",
+                "color": "red",
                 "value": 10
               }
             ]
@@ -2619,7 +1927,7 @@
         "h": 9,
         "w": 4,
         "x": 0,
-        "y": 63
+        "y": 54
       },
       "id": 9,
       "options": {
@@ -2643,7 +1951,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize error_rate = round(countif(success == 'False') * 100.0 / count(), 2)",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    error_rate = round(countif(success == \"False\") * 100.0 / count(), 2)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -2736,7 +2044,7 @@
         "h": 9,
         "w": 12,
         "x": 4,
-        "y": 63
+        "y": 54
       },
       "id": 10,
       "interval": "1h",
@@ -2759,7 +2067,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys) and success == 'False'\n| summarize error_count = count() by bin(timestamp, $__interval)",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| where success == \"False\"\n| summarize error_count = count() by bin(timestamp, $__interval)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -2882,7 +2190,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 63
+        "y": 54
       },
       "id": 11,
       "options": {
@@ -2908,7 +2216,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys) and success == 'False'\n| project timestamp, agent_name = agentLabel, error_type = tostring(customDimensions['error.type']), duration = round(duration / 1000, 2)\n| order by timestamp desc\n| limit 20",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\" and success == \"False\"\n| extend \n    error_type = tostring(customDimensions[\"error.type\"]),\n    agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| project timestamp, agent_name, error_type, duration = round(duration / 1000, 2)\n| order by timestamp desc\n| limit 20",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -2932,7 +2240,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 72
+        "y": 63
       },
       "id": 24,
       "panels": [],
@@ -3003,7 +2311,7 @@
         "h": 24,
         "w": 24,
         "x": 0,
-        "y": 73
+        "y": 64
       },
       "id": 13,
       "options": {
@@ -3033,7 +2341,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize agent_name = take_any(agentLabel), p50 = percentile(duration, 50) / 1000, p95 = percentile(duration, 95) / 1000, p99 = percentile(duration, 99) / 1000 by agentKey\n| project agent_name, p50, p95, p99",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    p50 = percentile(duration, 50) / 1000,\n    p95 = percentile(duration, 95) / 1000,\n    p99 = percentile(duration, 99) / 1000\n    by agent_name",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -3057,7 +2365,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 97
+        "y": 88
       },
       "id": 25,
       "panels": [],
@@ -3069,7 +2377,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Agent runs with the token usage and cost breakdown of their directly attributed chat calls. Input, cache-read, cache-write, and output costs sum to the priced token cost. The join uses the invocation span ID, not just the trace ID, so separate runs in one trace do not receive each other's costs. Empty run costs mean no priced direct calls were attributed. Click a row to open its original trace while retaining the dashboard filters.",
+      "description": "Interactive table listing recent agent operations with timestamp, agent name, duration, and token usage. Click any row to drill down into detailed trace information for that specific operation.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3085,8 +2393,8 @@
           "links": [
             {
               "targetBlank": false,
-              "title": "Open trace ${__data.fields[TraceId]}",
-              "url": "/d/${__dashboard.uid}/agent-framework?${__url_time_range}&${am_ds:queryparam}&${sub:queryparam}&${rg:queryparam}&${res:queryparam}&${agentKey:queryparam}&var-agentTraceId=${__data.fields[TraceId]}"
+              "title": "Open trace with trace Id \"${__data.fields[TraceId]}\"",
+              "url": "/d/${__dashboard.uid}/agent-framework?var-agentTraceId=${__data.fields[TraceId]}"
             }
           ],
           "mappings": [],
@@ -3094,10 +2402,10 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#57a300"
+                "color": "green"
               },
               {
-                "color": "#e00b1c",
+                "color": "red",
                 "value": 80
               }
             ]
@@ -3212,106 +2520,6 @@
                 "value": 287
               }
             ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Priced token cost"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 6
-              },
-              {
-                "id": "noValue",
-                "value": "No priced calls"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Input cost"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 6
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Cache-read cost"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 6
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Cache-write cost"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 6
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Output cost"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "decimals",
-                "value": 6
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Pricing coverage"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "decimals",
-                "value": 1
-              }
-            ]
           }
         ]
       },
@@ -3319,7 +2527,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 98
+        "y": 89
       },
       "id": 26,
       "options": {
@@ -3346,7 +2554,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Live token prices from the FinOps hub price sheet, normalized per 1,000,000 tokens.\n// Meter grammar: \"<model> <ShortCo|LongCo> <Cd Inp|Cd Wr|Inp|Opt> <Std|PP> <Gl|DZ> 1M Tokens\".\n//   Inp = uncached input (i), Cd Inp = cached read (cr), Cd Wr = cache write (cw), Opt = output (o).\n// Unprefixed fields are contracted rates; l-prefixed are list rates, used for negotiated discount.\n// Prices are global to the billing account, so no subscription or resource scope filter applies.\n// Set the \"Cluster URI\" and \"Database\" variables to point at your hub.\nlet meterRx = @\"^(.+?) (ShortCo|LongCo) (Cd Inp|Cd Wr|Inp|Opt) (Std|PP) (Gl|DZ) 1M Tokens$\";\n// Read the deployment tier and scope from the meters the hub actually billed, per\n// model, so neither is assumed. A model billed on priority processing or in a data\n// zone is priced on its own meter rather than the standard global one.\nlet billedCombos = materialize(\n    adx('${cluster}/${database}').Costs\n    | where SkuMeter endswith \"1M Tokens\"\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Tier = extract(meterRx, 4, SkuMeter),\n             Scope = extract(meterRx, 5, SkuMeter)\n    | where isnotempty(Tier) and isnotempty(Scope)\n    | summarize Spend = sum(BilledCost) by Model, Tier, Scope\n    | summarize arg_max(Spend, Tier, Scope) by Model\n    | project Model, Tier, Scope\n);\nlet priceRows = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith \"1M Tokens\" and PricingUnit == \"Units\"\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | extend Tier = extract(meterRx, 4, SkuMeter), Scope = extract(meterRx, 5, SkuMeter)\n    | extend Model = strcat(\"gpt-\", replace_string(extract(meterRx, 1, SkuMeter), \" \", \"-\")),\n             Context = iff(extract(meterRx, 2, SkuMeter) == \"LongCo\", \"long\", \"short\"),\n             Op = extract(meterRx, 3, SkuMeter)\n    | join kind=inner billedCombos on Model, Tier, Scope\n    | where x_EffectivePeriodStart <= now()\n    | extend C = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0,\n             L = todouble(iff(isnull(ListUnitPrice) or ListUnitPrice <= 0, ContractedUnitPrice, ListUnitPrice)) / x_PricingBlockSize * 1000000.0\n    | summarize C = max(C), L = max(L), IngestedAt = max(x_IngestionTime), Currency = take_any(PricingCurrency)\n      by Model, Context, Op, x_EffectivePeriodStart, x_EffectivePeriodEnd\n    | summarize arg_max(x_EffectivePeriodStart, *) by Model, Context, Op\n    | summarize i = round(maxif(C, Op == \"Inp\"), 8), cr = round(maxif(C, Op == \"Cd Inp\"), 8),\n                cw = round(maxif(C, Op == \"Cd Wr\"), 8), o = round(maxif(C, Op == \"Opt\"), 8),\n                li = round(maxif(L, Op == \"Inp\"), 8), lcr = round(maxif(L, Op == \"Cd Inp\"), 8),\n                lcw = round(maxif(L, Op == \"Cd Wr\"), 8), lo = round(maxif(L, Op == \"Opt\"), 8),\n                pStart = min(x_EffectivePeriodStart), pEnd = max(x_EffectivePeriodEnd), ops = dcount(Op),\n                pIngest = max(IngestedAt), pCur = take_any(Currency)\n      by Model, Context\n    | where ops == 4);\nlet price = toscalar(priceRows\n    | extend ctx = bag_pack(Context, bag_pack(\"i\", i, \"cr\", cr, \"cw\", cw, \"o\", o, \"li\", li, \"lcr\", lcr, \"lcw\", lcw, \"lo\", lo))\n    | summarize ctxBag = make_bag(ctx) by Model\n    | extend m = bag_pack(Model, ctxBag)\n    | summarize b = make_bag(m) | project b);\nlet priceStart = toscalar(priceRows | summarize max(pStart));\nlet priceEnd = toscalar(priceRows | summarize min(pEnd));\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\n${finopsUsage:raw}\nlet agentKeys = dynamic([${agentKey:doublequote}]);\nlet costs = agentUsage\n| where isnotempty(agentRunId)\n| summarize input_tokens = iff(countif(isnotnull(input)) > 0, sum(input), long(null)), output_tokens = iff(countif(isnotnull(output)) > 0, sum(output), long(null)), ['Input cost'] = iff(countif(priced) > 0, sum(inputCost), real(null)), ['Cache-read cost'] = iff(countif(priced) > 0, sum(cacheReadCost), real(null)), ['Cache-write cost'] = iff(countif(priced) > 0, sum(cacheWriteCost), real(null)), ['Output cost'] = iff(countif(priced) > 0, sum(outputCost), real(null)), ['Priced token cost'] = iff(countif(priced) > 0, sum(estimated_cost), real(null)), ['Pricing coverage'] = 100.0 * countif(priced) / count() by cloud_RoleName, operation_Id, id = agentRunId, agentKey;\nagentRuns\n| where agentKey in (agentKeys)\n| lookup kind=leftouter costs on cloud_RoleName, operation_Id, id, agentKey\n| project timestamp, Agent = agentLabel, success, duration, input_tokens, output_tokens, ['Priced token cost'], ['Input cost'], ['Cache-read cost'], ['Cache-write cost'], ['Output cost'], ['Pricing coverage'], TraceId = operation_Id, Foundry = foundryName, Project = projectName, Version = agentVersion, ['Agent ID'] = agentId, ['Session ID'] = sessionId, ['Project resource ID'] = projectId\n| order by timestamp desc",
+            "query": "let agentNames = dynamic([$agentName]);\r\ndependencies\r\n| where name contains \"invoke_agent\"\r\n| extend Agent = tostring(customDimensions[\"gen_ai.agent.name\"])\r\n| where isnotempty(Agent)\r\n| where array_length(agentNames) > 0\r\n| where Agent in (agentNames)\r\n| extend input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]), output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\r\n| project timestamp, Agent, success, duration, input_tokens, output_tokens, TraceId=operation_Id\r\n| order by timestamp desc ",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -3361,7 +2569,6 @@
           "refId": "A"
         }
       ],
-      "title": "Agent runs and token costs",
       "type": "table"
     },
     {
@@ -3370,7 +2577,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 106
+        "y": 97
       },
       "id": 27,
       "panels": [],
@@ -3382,12 +2589,12 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Execution flow for the selected agent trace. An empty trace selection returns no spans; it never searches unrelated telemetry in the shared workspace.",
+      "description": "Detailed trace visualization showing the complete execution flow of a selected agent operation, including all dependencies, timing, and hierarchical span relationships for debugging and performance analysis.",
       "gridPos": {
         "h": 27,
         "w": 24,
         "x": 0,
-        "y": 107
+        "y": 98
       },
       "id": 28,
       "options": {
@@ -3409,22 +2616,6 @@
         {
           "azureTraces": {
             "operationId": "$agentTraceId",
-            "filters": [
-              {
-                "property": "operation_Id",
-                "operation": "eq",
-                "filters": [
-                  "$agentTraceId"
-                ]
-              },
-              {
-                "property": "operation_Id",
-                "operation": "ne",
-                "filters": [
-                  ""
-                ]
-              }
-            ],
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -3547,25 +2738,21 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
         },
         "definition": "",
-        "description": "Agent and project labels. Values use the full project resource ID plus agent ID, so matching names do not combine agents. Expand Agent and project context for full identity and current tags.",
-        "includeAll": true,
-        "label": "Agent",
-        "multi": true,
-        "name": "agentKey",
+        "description": "Trace Id of the agent operations",
+        "hide": 2,
+        "label": "Trace Id",
+        "name": "agentTraceId",
         "options": [],
         "query": {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Pricing intentionally disabled here; no hub price lookup is needed for this result.\nlet price = dynamic({});\nlet priceStart = datetime(null);\nlet priceEnd = datetime(null);\nlet pricesLoaded = false;\n${finopsUsage:raw}\nnamedSpans\n| summarize label = take_any(iff(identityComplete, strcat(agentLabel, ' / ', projectName, ' / ', foundryName), agentLabel)), operationCount = countif(name has 'invoke_agent') by agentKey\n| sort by operationCount desc\n| project selection = strcat(label, '|', agentKey)",
+            "query": "dependencies\r\n| distinct operation_Id\r\n| limit 50",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -3575,7 +2762,7 @@
           "refId": "A"
         },
         "refresh": 2,
-        "regex": "/^(?<text>.*)\\|(?<value>[a-f0-9]{64})$/",
+        "regex": "",
         "type": "query"
       },
       {
@@ -3585,21 +2772,19 @@
           "uid": "${am_ds}"
         },
         "definition": "",
-        "description": "Runs from the selected agents and time range, newest first. Select a trace here or select a row in Agent runs and token costs. No trace ID is fixed in the dashboard.",
-        "hide": 0,
-        "includeAll": false,
-        "multi": false,
-        "label": "Trace",
-        "name": "agentTraceId",
+        "description": "Name of the agent",
+        "includeAll": true,
+        "label": "Agent",
+        "multi": true,
+        "name": "agentName",
         "options": [],
         "query": {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Pricing intentionally disabled here; no hub price lookup is needed for this result.\nlet price = dynamic({});\nlet priceStart = datetime(null);\nlet priceEnd = datetime(null);\nlet pricesLoaded = false;\n${finopsUsage:raw}\nagentRuns\n| where agentKey in (dynamic([${agentKey:doublequote}])) and isnotempty(operation_Id)\n| summarize started = max(timestamp) by operation_Id\n| order by started desc\n| project operation_Id",
+            "query": "dependencies \r\n| where name contains \"invoke_agent\"\r\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\r\n| where isnotempty(agent_name)\r\n| summarize operationCount=count() by agent_name\r\n| sort by operationCount desc\r\n| project agent_name",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
             "timeColumn": "timestamp"
           },
           "queryType": "Azure Log Analytics",
@@ -3607,86 +2792,7 @@
         },
         "refresh": 2,
         "regex": "",
-        "sort": 0,
         "type": "query"
-      },
-      {
-        "name": "projectIds",
-        "label": "Selected project resources",
-        "description": "Project resource IDs from the selected agent identities. Used only to scope the live resource metadata table.",
-        "type": "query",
-        "hide": 2,
-        "skipUrlSync": true,
-        "includeAll": true,
-        "multi": true,
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "options": [],
-        "refresh": 2,
-        "regex": "",
-        "datasource": {
-          "type": "grafana-azure-monitor-datasource",
-          "uid": "${am_ds}"
-        },
-        "query": {
-          "queryType": "Azure Log Analytics",
-          "refId": "A",
-          "azureLogAnalytics": {
-            "dashboardTime": true,
-            "query": "let spans = dependencies | where $__timeFilter(timestamp);\nlet pricing = dynamic(${finopsPrices:raw});\n// Pricing intentionally disabled here; no hub price lookup is needed for this result.\nlet price = dynamic({});\nlet priceStart = datetime(null);\nlet priceEnd = datetime(null);\nlet pricesLoaded = false;\n${finopsUsage:raw}\nattributedSpans\n| where agentKey in (dynamic([${agentKey:doublequote}])) and isnotempty(projectId)\n| summarize by projectId",
-            "resources": [
-              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
-            ],
-            "timeColumn": "timestamp"
-          }
-        }
-      },
-      {
-        "name": "finopsPrices",
-        "label": "Toolkit prices",
-        "type": "constant",
-        "hide": 2,
-        "skipUrlSync": true,
-        "description": "Non-price configuration for this dashboard: agent service names, the Foundry project resource ID to attribute usage to, and the long-context token threshold. Token rates are not stored here; they are read live from the hub price sheet using the Cluster URI and Database variables. Leave services and projectResourceId empty to disable filtering.",
-        "query": "{\"services\":[],\"projectResourceId\":\"\",\"longContextTokens\":272000}",
-        "current": {
-          "text": "{\"services\":[],\"projectResourceId\":\"\",\"longContextTokens\":272000}",
-          "value": "{\"services\":[],\"projectResourceId\":\"\",\"longContextTokens\":272000}"
-        }
-      },
-      {
-        "name": "finopsUsage",
-        "label": "Toolkit model-call pricing",
-        "type": "constant",
-        "hide": 2,
-        "skipUrlSync": true,
-        "description": "Shared attribution and pricing for the explicit Agent Framework service allowlist. Identity is the project ARM ID plus agent ID, never the display name. Missing identity is isolated by span rather than merged by name. Parent metadata is inherited only when supplied child identity does not conflict. Rates apply only to the verified project. No nested Grafana variables.",
-        "query": "let uniqueSpans = materialize(spans\n| where array_length(pricing.services) == 0 or cloud_RoleName in~ (pricing.services)\n| where name has 'invoke_agent' or tostring(customDimensions['gen_ai.operation.name']) in ('chat', 'execute_tool')\n| summarize take_any(timestamp, name, duration, success, operation_ParentId, customDimensions) by cloud_RoleName, operation_Id, id\n| extend projectId = tostring(customDimensions['microsoft.foundry.project.id']), agentId = tostring(customDimensions['gen_ai.agent.id']), agentDisplayName = tostring(customDimensions['gen_ai.agent.name']), agentVersion = tostring(customDimensions['gen_ai.agent.version']));\nlet parents = uniqueSpans | where name has 'invoke_agent'\n| summarize take_any(parentProject = projectId, parentAgentId = agentId, parentName = agentDisplayName, parentVersion = agentVersion) by cloud_RoleName, operation_Id, parentId = id;\nlet attributedSpans = materialize(uniqueSpans\n| extend parentId = operation_ParentId\n| lookup kind=leftouter parents on cloud_RoleName, operation_Id, parentId\n| extend parentMatches = isnotempty(parentProject) and isnotempty(parentAgentId) and (isempty(projectId) or projectId =~ parentProject) and (isempty(agentId) or agentId =~ parentAgentId)\n| extend projectId = coalesce(projectId, iff(parentMatches, parentProject, '')), agentId = coalesce(agentId, iff(parentMatches, parentAgentId, '')),\n    agentDisplayName = coalesce(agentDisplayName, iff(parentMatches, parentName, ''), '(unnamed agent)'), agentVersion = coalesce(agentVersion, iff(parentMatches, parentVersion, ''))\n| extend foundryName = extract(@'(?i)/accounts/([^/]+)/projects/', 1, projectId), projectName = extract(@'(?i)/projects/([^/]+)$', 1, projectId)\n| extend identityComplete = isnotempty(foundryName) and isnotempty(projectName) and isnotempty(agentId)\n| extend agentKey = iff(identityComplete, hash_sha256(strcat(tolower(projectId), '|', agentId)), hash_sha256(strcat('missing|', cloud_RoleName, '|', operation_Id, '|', id))),\n    agentRunId = iff(parentMatches, parentId, ''), sessionId = tostring(customDimensions['microsoft.session.id']), tenantId = tostring(customDimensions['microsoft.tenant.id']));\nlet labelCounts = attributedSpans | summarize by agentKey, agentDisplayName | summarize identities = count() by agentDisplayName;\nlet namedSpans = attributedSpans\n| lookup kind=leftouter labelCounts on agentDisplayName\n| extend agentLabel = case(not(identityComplete), strcat(agentDisplayName, ' [identity missing; ', id, ']'), identities == 1, agentDisplayName, strcat(agentDisplayName, ' / ', projectName, ' [', substring(agentKey, 0, 8), ']'));\nlet agentRuns = namedSpans | where name has 'invoke_agent';\nlet agentTools = namedSpans | where tostring(customDimensions['gen_ai.operation.name']) == 'execute_tool';\nlet agentUsage = materialize(namedSpans\n| where tostring(customDimensions['gen_ai.operation.name']) == 'chat'\n| extend model = replace_regex(coalesce(tostring(customDimensions['gen_ai.response.model']), tostring(customDimensions['gen_ai.request.model'])), @'-\\d{4}-\\d{2}-\\d{2}$', ''),\n    provider = tostring(customDimensions['gen_ai.provider.name']),\n    input = tolong(customDimensions['gen_ai.usage.input_tokens']),\n    cached = coalesce(tolong(customDimensions['gen_ai.usage.cache_read.input_tokens']), tolong(customDimensions['gen_ai.usage.cached_tokens'])),\n    written = coalesce(tolong(customDimensions['gen_ai.usage.cache_write.input_tokens']), tolong(customDimensions['gen_ai.usage.cache_creation.input_tokens'])),\n    output = tolong(customDimensions['gen_ai.usage.output_tokens'])\n| extend contextTier = case(isnull(input), 'unknown', input > tolong(pricing.longContextTokens), 'long', 'short'),\n    cacheValid = coalesce(input >= 0 and cached >= 0 and cached <= input, false),\n    usageValid = coalesce(input >= 0 and cached >= 0 and written >= 0 and cached + written <= input and output >= 0, false)\n| extend p = price[model][contextTier]\n| extend pricingApplies = coalesce(pricesLoaded and identityComplete and (isempty(tostring(pricing.projectResourceId)) or projectId =~ tostring(pricing.projectResourceId)) and provider in~ ('microsoft.foundry', 'azure.ai.foundry', 'azure.ai.openai', 'azure.ai.inference')\n    and timestamp >= priceStart and timestamp < priceEnd\n    and todouble(p.i) >= 0 and todouble(p.cr) >= 0 and todouble(p.cw) >= 0 and todouble(p.o) >= 0, false)\n| extend priced = pricingApplies and usageValid,\n    inputRate = iff(pricingApplies, todouble(p.i), real(null)), cacheReadRate = iff(pricingApplies, todouble(p.cr), real(null)),\n    cacheWriteRate = iff(pricingApplies, todouble(p.cw), real(null)), outputRate = iff(pricingApplies, todouble(p.o), real(null))\n| extend inputCost = iff(priced, (input - cached - written) * inputRate / 1e6, real(null)),\n    cacheReadCost = iff(priced, cached * cacheReadRate / 1e6, real(null)),\n    cacheWriteCost = iff(priced, written * cacheWriteRate / 1e6, real(null)),\n    outputCost = iff(priced, output * outputRate / 1e6, real(null))\n| extend estimated_cost = inputCost + cacheReadCost + cacheWriteCost + outputCost,\n    cacheBenefit = iff(priced, (cached * (inputRate - cacheReadRate) - written * (cacheWriteRate - inputRate)) / 1e6, real(null)));\n"
-      },
-      {
-        "current": {
-          "text": "",
-          "value": ""
-        },
-        "type": "textbox",
-        "hide": 0,
-        "query": "",
-        "name": "cluster",
-        "label": "Cluster URI",
-        "options": []
-      },
-      {
-        "current": {
-          "value": "Hub",
-          "text": "Hub"
-        },
-        "type": "textbox",
-        "hide": 0,
-        "query": "Hub",
-        "name": "database",
-        "label": "Database"
       }
     ]
   },
@@ -3698,6 +2804,6 @@
   "timezone": "",
   "title": "FTK - Agent Framework",
   "uid": "ftk-agent-framework",
-  "version": 5,
+  "version": 33,
   "weekStart": ""
 }
