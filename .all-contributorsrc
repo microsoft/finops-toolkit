@@ -989,6 +989,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "sandhyakumili",
+      "name": "sandhyakumili",
+      "avatar_url": "https://avatars.githubusercontent.com/u/173696668?v=4",
+      "profile": "https://github.com/sandhyakumili",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
