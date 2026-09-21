@@ -1431,7 +1431,6 @@ table Costs
 					PerformDeprecatedOptimizations = #"Deprecated: Perform Extra Query Optimizations",
 					HasPreview = Table.HasColumns(RawData, {"ChargeSubcategory"}),
 					Has10      = Table.HasColumns(RawData, {"ChargeClass"}),
-					Has12      = Table.HasColumns(RawData, {"InvoiceId"}),
 					HandlePeview = if HasPreview = false then RawData
 						else if PerformDeprecatedOptimizations = false then error "LegacyFocusVersion: Please enable the 'Perform Extra Query Optimizations' parameter"
 						else (
@@ -1462,17 +1461,25 @@ table Costs
 								RemovePreviewCols
 						),
 					// Handle columns renamed in FOCUS 1.2 gracefully -- Copy values to/from 1.0 and 1.2 columns
-					InvoiceId       = if Has12
-						then Table.ReplaceValue(HandlePeview, null,        each [x_InvoiceId], Replacer.ReplaceValue, {"InvoiceId"})
-						else Table.AddColumn(   HandlePeview, "InvoiceId", each [x_InvoiceId]),
-					PricingCurrency = if Has12
-						then Table.ReplaceValue(InvoiceId, null,              each [x_PricingCurrency], Replacer.ReplaceValue, {"PricingCurrency"})
-						else Table.AddColumn(   InvoiceId, "PricingCurrency", each [x_PricingCurrency]),
-					SkuMeter        = if Has12
-						then Table.ReplaceValue(PricingCurrency, null,       each [x_SkuMeterName], Replacer.ReplaceValue, {"SkuMeterName"})
-						else Table.AddColumn(   PricingCurrency, "SkuMeter", each [x_SkuMeterName]),
-					// Copy 1.2 values to 1.0 columns
-					Align12 = Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(SkuMeter,
+					// FOCUS 1.2 promotes x_InvoiceId/x_PricingCurrency to InvoiceId/PricingCurrency and renames
+					// x_SkuMeterName to SkuMeter. ftk_Storage does not backfill focuscost columns, so a container
+					// holding only 1.2 exports has none of the 1.0 columns (and a 1.0-only container none of the
+					// 1.2 ones). Add whichever side is missing as null first, then copy values in both directions.
+					EnsureRenamedCols =
+						let
+							a = if Table.HasColumns(HandlePeview, {"x_InvoiceId"})       then HandlePeview else Table.AddColumn(HandlePeview, "x_InvoiceId",       each null),
+							b = if Table.HasColumns(a,            {"x_PricingCurrency"}) then a            else Table.AddColumn(a,            "x_PricingCurrency", each null),
+							c = if Table.HasColumns(b,            {"x_SkuMeterName"})    then b            else Table.AddColumn(b,            "x_SkuMeterName",    each null),
+							d = if Table.HasColumns(c,            {"InvoiceId"})         then c            else Table.AddColumn(c,            "InvoiceId",         each null),
+							e = if Table.HasColumns(d,            {"PricingCurrency"})   then d            else Table.AddColumn(d,            "PricingCurrency",   each null),
+							f = if Table.HasColumns(e,            {"SkuMeter"})          then e            else Table.AddColumn(e,            "SkuMeter",          each null)
+						in
+							f,
+					// Copy 1.0 values to the 1.2 columns, then 1.2 values back to the 1.0 columns
+					Align12 = Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(EnsureRenamedCols,
+						null, each [x_InvoiceId],       Replacer.ReplaceValue, {"InvoiceId"}),
+						null, each [x_PricingCurrency], Replacer.ReplaceValue, {"PricingCurrency"}),
+						null, each [x_SkuMeterName],    Replacer.ReplaceValue, {"SkuMeter"}),
 						null, each [InvoiceId],         Replacer.ReplaceValue, {"x_InvoiceId"}),
 						null, each [PricingCurrency],   Replacer.ReplaceValue, {"x_PricingCurrency"}),
 						null, each [SkuMeter],          Replacer.ReplaceValue, {"x_SkuMeterName"}),
