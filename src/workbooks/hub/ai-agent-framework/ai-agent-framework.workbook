@@ -548,7 +548,29 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "calls",
+                    "label": "Calls"
+                  },
+                  {
+                    "columnId": "success_rate",
+                    "label": "Success rate"
+                  },
+                  {
+                    "columnId": "avg_duration_ms",
+                    "label": "Avg duration ms"
+                  },
+                  {
+                    "columnId": "p95_duration_ms",
+                    "label": "P95 duration ms"
+                  },
+                  {
+                    "columnId": "tool",
+                    "label": "Tool"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,

@@ -1447,7 +1447,17 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "initializations",
+                    "label": "Initializations"
+                  },
+                  {
+                    "columnId": "role",
+                    "label": "Role"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -1648,7 +1658,29 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "responses",
+                    "label": "Responses"
+                  },
+                  {
+                    "columnId": "p95_ms",
+                    "label": "P95 ms"
+                  },
+                  {
+                    "columnId": "last_seen",
+                    "label": "Last seen"
+                  },
+                  {
+                    "columnId": "status_code",
+                    "label": "Status code"
+                  },
+                  {
+                    "columnId": "outcome",
+                    "label": "Outcome"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,

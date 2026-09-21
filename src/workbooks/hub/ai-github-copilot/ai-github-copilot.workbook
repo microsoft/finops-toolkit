@@ -185,7 +185,25 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "LLM Calls",
+                    "label": "LLM calls"
+                  },
+                  {
+                    "columnId": "Chat Sessions",
+                    "label": "Chat sessions"
+                  },
+                  {
+                    "columnId": "Tool Calls",
+                    "label": "Tool calls"
+                  },
+                  {
+                    "columnId": "Reasoning Calls",
+                    "label": "Reasoning calls"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -467,7 +485,21 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "P50 Duration",
+                    "label": "P50 duration"
+                  },
+                  {
+                    "columnId": "P90 Duration",
+                    "label": "P90 duration"
+                  },
+                  {
+                    "columnId": "Max Duration",
+                    "label": "Max duration"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
