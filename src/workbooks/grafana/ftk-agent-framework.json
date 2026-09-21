@@ -567,6 +567,36 @@
           {
             "matcher": {
               "id": "byRegexp",
+              "options": "/Reported by GitHub in AI credits/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Priced from the Azure price sheet/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
               "options": ".*"
             },
             "properties": [
@@ -588,7 +618,6 @@
       "options": {
         "barRadius": 0,
         "barWidth": 0.97,
-        "colorByField": "Estimated cost",
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
