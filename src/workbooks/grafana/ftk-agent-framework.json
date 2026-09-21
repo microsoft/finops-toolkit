@@ -88,7 +88,7 @@
       }
     ]
   },
-  "description": "Comprehensive monitoring dashboard for AI agent framework performance, tracking operations, token usage, costs, errors, and detailed trace analysis. Monitor agent health, response times, success rates, and resource consumption in real-time.",
+  "description": "Agent framework telemetry from Application Insights. Agents are identified by the OpenTelemetry agent name or id, so agents that run on local inferencing or any non-Azure provider appear alongside Azure hosted ones. Token counts come from OpenTelemetry. Cost is derived only where a rate exists in the FinOps hub price sheet, which covers Azure OpenAI and Azure AI Inference. Every other case reports tokens with a stated reason instead of an estimated cost.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -523,7 +523,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Bar chart estimating daily operational costs based on token consumption and model pricing. Rates are configurable in the query (example: $1.25 per 1M input tokens, $10 per 1M output tokens).",
+      "description": "Sums only the calls that resolved to a real rate in the hub price sheet. Calls that could not be priced are excluded here and explained in Costing coverage.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -533,7 +533,7 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Cost ($)",
+            "axisLabel": "Estimated cost",
             "axisPlacement": "auto",
             "fillOpacity": 80,
             "gradientMode": "none",
@@ -587,7 +587,7 @@
       "options": {
         "barRadius": 0,
         "barWidth": 0.97,
-        "colorByField": "estimated_cost",
+        "colorByField": "Estimated cost",
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
@@ -612,25 +612,163 @@
       "pluginVersion": "11.6.9",
       "targets": [
         {
-          "azureLogAnalytics": {
-            "dashboardTime": true,
-            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"]),\n    cached_input_tokens = toint(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"])\n| extend uncached_input_tokens = input_tokens - coalesce(cached_input_tokens, 0)\n| extend\n    // Adjust per-model rates. Defaults below are GPT-5 mini-class. Cached input is ~1/10 of uncached.\n    uncached_cost = uncached_input_tokens * 0.00000025,        // $0.25 per 1M uncached input\n    cached_cost   = coalesce(cached_input_tokens, 0) * 0.000000025, // $0.025 per 1M cached input\n    output_cost   = output_tokens * 0.000002                   // $2 per 1M output\n| summarize estimated_cost = sum(uncached_cost + cached_cost + output_cost) by bin(timestamp, 1d)\n| order by timestamp asc",
-            "resources": [
-              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
-            ],
-            "resultFormat": "time_series",
-            "timeColumn": "timestamp"
-          },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
             "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
-          "refId": "A"
+          "refId": "A",
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Token rates are read live from the FinOps hub price sheet.\n// Only Azure OpenAI and Azure AI Inference usage can be priced from it. Other\n// providers bill through their own rate sheets, and Claude models in Microsoft\n// Foundry bill in Claude consumption units through Azure Marketplace, which\n// carries no per-model token rate. Set the Cluster URI and Database variables.\n// Scope, tier and context are billing dimensions that telemetry does not carry,\n// so they are selected above rather than inferred here.\nlet wantScope = '${priceScope}';\nlet wantTier = '${priceTier}';\nlet wantContext = '${priceContext}';\nlet meterRx = @'(?i)^(.+?)\\s+(?:(ShortCo|LongCo)\\s+)?(?:(Std|PP)\\s+)?(Cd\\s+Wr|Cd\\s+Inpt|Cd\\s+Inp|cchd\\s+Inpt|cchd\\s+Inp|Inpt|Inp|Outpt|Outp|Opt)\\s+(?:(Std|PP)\\s+)?(Glbl|Gl|Dzone|DZ|Rgnl|Rg)\\s+1M\\s+Tokens$';\nlet normalizeModel = (s: string) {\n    trim('-', replace_regex(replace_regex(replace_regex(tolower(s), @'-\\d{4}-\\d{2}-\\d{2}$', ''), @'[^a-z0-9]+', '-'), @'^gpt-', ''))\n};\nlet priceRates = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith '1M Tokens' and PricingUnit == 'Units'\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | where x_EffectivePeriodStart <= now() and x_EffectivePeriodEnd > now()\n    | extend RawKind = tolower(extract(meterRx, 4, SkuMeter))\n    | where isnotempty(RawKind)\n    | extend RawCtx = tolower(extract(meterRx, 2, SkuMeter)),\n        RawTier = tolower(coalesce(extract(meterRx, 3, SkuMeter), extract(meterRx, 5, SkuMeter))),\n        RawScope = tolower(extract(meterRx, 6, SkuMeter))\n    | extend ModelKey = normalizeModel(extract(meterRx, 1, SkuMeter)),\n        Context = case(RawCtx == 'longco', 'long', RawCtx == 'shortco', 'short', 'any'),\n        Tier = iff(RawTier == 'pp', 'priority', 'standard'),\n        Scope = case(RawScope startswith 'dz', 'data zone', RawScope startswith 'rg', 'regional', 'global'),\n        Kind = case(RawKind == 'cd wr', 'cw', RawKind startswith 'cd ' or RawKind startswith 'cchd', 'cr', RawKind in ('inp', 'inpt'), 'i', 'o')\n    | where Scope =~ wantScope and Tier =~ wantTier and Context in~ (wantContext, 'any')\n    | extend Rate = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0\n    | summarize Rates = dcount(Rate), Rate = take_any(Rate), Currency = take_any(PricingCurrency) by ModelKey, Kind);\n// More than one distinct rate for a model and token kind means the meter cannot be\n// resolved, so the model is reported as ambiguous instead of picking a rate.\nlet ambiguousModels = coalesce(toscalar(priceRates | where Rates > 1 | summarize s = make_set(ModelKey) | project s), dynamic([]));\nlet price = toscalar(priceRates\n    | where Rates == 1\n    | summarize kinds = make_bag(bag_pack(Kind, Rate)) by ModelKey\n    | summarize b = make_bag(bag_pack(ModelKey, kinds))\n    | project b);\nlet priceCurrency = toscalar(priceRates | summarize take_any(Currency));\nlet pricesLoaded = toscalar(priceRates | count) > 0;\n${finopsUsage:raw}\nagentUsage\n| where costingState == 'Priced'\n| summarize ['Estimated cost'] = sum(estimatedCost) by bin(timestamp, 1d)\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          }
         }
       ],
-      "title": "Daily Cost Estimation",
+      "title": "Daily token cost",
       "type": "barchart"
+    },
+    {
+      "id": 240,
+      "title": "Token economics by agent and model",
+      "description": "Tokens always shown. Cost basis states why a row is priced or not.",
+      "type": "table",
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 16,
+        "h": 9
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Estimated cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          }
+        ]
+      },
+      "options": {},
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A",
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Token rates are read live from the FinOps hub price sheet.\n// Only Azure OpenAI and Azure AI Inference usage can be priced from it. Other\n// providers bill through their own rate sheets, and Claude models in Microsoft\n// Foundry bill in Claude consumption units through Azure Marketplace, which\n// carries no per-model token rate. Set the Cluster URI and Database variables.\n// Scope, tier and context are billing dimensions that telemetry does not carry,\n// so they are selected above rather than inferred here.\nlet wantScope = '${priceScope}';\nlet wantTier = '${priceTier}';\nlet wantContext = '${priceContext}';\nlet meterRx = @'(?i)^(.+?)\\s+(?:(ShortCo|LongCo)\\s+)?(?:(Std|PP)\\s+)?(Cd\\s+Wr|Cd\\s+Inpt|Cd\\s+Inp|cchd\\s+Inpt|cchd\\s+Inp|Inpt|Inp|Outpt|Outp|Opt)\\s+(?:(Std|PP)\\s+)?(Glbl|Gl|Dzone|DZ|Rgnl|Rg)\\s+1M\\s+Tokens$';\nlet normalizeModel = (s: string) {\n    trim('-', replace_regex(replace_regex(replace_regex(tolower(s), @'-\\d{4}-\\d{2}-\\d{2}$', ''), @'[^a-z0-9]+', '-'), @'^gpt-', ''))\n};\nlet priceRates = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith '1M Tokens' and PricingUnit == 'Units'\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | where x_EffectivePeriodStart <= now() and x_EffectivePeriodEnd > now()\n    | extend RawKind = tolower(extract(meterRx, 4, SkuMeter))\n    | where isnotempty(RawKind)\n    | extend RawCtx = tolower(extract(meterRx, 2, SkuMeter)),\n        RawTier = tolower(coalesce(extract(meterRx, 3, SkuMeter), extract(meterRx, 5, SkuMeter))),\n        RawScope = tolower(extract(meterRx, 6, SkuMeter))\n    | extend ModelKey = normalizeModel(extract(meterRx, 1, SkuMeter)),\n        Context = case(RawCtx == 'longco', 'long', RawCtx == 'shortco', 'short', 'any'),\n        Tier = iff(RawTier == 'pp', 'priority', 'standard'),\n        Scope = case(RawScope startswith 'dz', 'data zone', RawScope startswith 'rg', 'regional', 'global'),\n        Kind = case(RawKind == 'cd wr', 'cw', RawKind startswith 'cd ' or RawKind startswith 'cchd', 'cr', RawKind in ('inp', 'inpt'), 'i', 'o')\n    | where Scope =~ wantScope and Tier =~ wantTier and Context in~ (wantContext, 'any')\n    | extend Rate = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0\n    | summarize Rates = dcount(Rate), Rate = take_any(Rate), Currency = take_any(PricingCurrency) by ModelKey, Kind);\n// More than one distinct rate for a model and token kind means the meter cannot be\n// resolved, so the model is reported as ambiguous instead of picking a rate.\nlet ambiguousModels = coalesce(toscalar(priceRates | where Rates > 1 | summarize s = make_set(ModelKey) | project s), dynamic([]));\nlet price = toscalar(priceRates\n    | where Rates == 1\n    | summarize kinds = make_bag(bag_pack(Kind, Rate)) by ModelKey\n    | summarize b = make_bag(bag_pack(ModelKey, kinds))\n    | project b);\nlet priceCurrency = toscalar(priceRates | summarize take_any(Currency));\nlet pricesLoaded = toscalar(priceRates | count) > 0;\n${finopsUsage:raw}\nagentUsage\n| summarize ['Calls'] = count(), ['Input tokens'] = sum(coalesce(inputTokens, long(0))),\n    ['Cache read tokens'] = sum(cacheReadTokens), ['Output tokens'] = sum(coalesce(outputTokens, long(0))),\n    pricedCost = sumif(estimatedCost, costingState == 'Priced')\n    by ['Agent'] = agentLabel, ['Provider'] = providerLabel, ['Model'] = model, ['Cost basis'] = costingState\n| extend ['Estimated cost'] = iff(['Cost basis'] == 'Priced', pricedCost, real(null))\n| project-away pricedCost\n| order by ['Input tokens'] desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          }
+        }
+      ],
+      "pluginVersion": "12.3.0"
+    },
+    {
+      "id": 241,
+      "title": "Costing coverage",
+      "description": "Tokens and calls by cost basis, so an unpriced gap is visible rather than read as zero cost.",
+      "type": "table",
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 14,
+        "w": 8,
+        "h": 9
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Estimated cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          }
+        ]
+      },
+      "options": {},
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A",
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "// Token rates are read live from the FinOps hub price sheet.\n// Only Azure OpenAI and Azure AI Inference usage can be priced from it. Other\n// providers bill through their own rate sheets, and Claude models in Microsoft\n// Foundry bill in Claude consumption units through Azure Marketplace, which\n// carries no per-model token rate. Set the Cluster URI and Database variables.\n// Scope, tier and context are billing dimensions that telemetry does not carry,\n// so they are selected above rather than inferred here.\nlet wantScope = '${priceScope}';\nlet wantTier = '${priceTier}';\nlet wantContext = '${priceContext}';\nlet meterRx = @'(?i)^(.+?)\\s+(?:(ShortCo|LongCo)\\s+)?(?:(Std|PP)\\s+)?(Cd\\s+Wr|Cd\\s+Inpt|Cd\\s+Inp|cchd\\s+Inpt|cchd\\s+Inp|Inpt|Inp|Outpt|Outp|Opt)\\s+(?:(Std|PP)\\s+)?(Glbl|Gl|Dzone|DZ|Rgnl|Rg)\\s+1M\\s+Tokens$';\nlet normalizeModel = (s: string) {\n    trim('-', replace_regex(replace_regex(replace_regex(tolower(s), @'-\\d{4}-\\d{2}-\\d{2}$', ''), @'[^a-z0-9]+', '-'), @'^gpt-', ''))\n};\nlet priceRates = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith '1M Tokens' and PricingUnit == 'Units'\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | where x_EffectivePeriodStart <= now() and x_EffectivePeriodEnd > now()\n    | extend RawKind = tolower(extract(meterRx, 4, SkuMeter))\n    | where isnotempty(RawKind)\n    | extend RawCtx = tolower(extract(meterRx, 2, SkuMeter)),\n        RawTier = tolower(coalesce(extract(meterRx, 3, SkuMeter), extract(meterRx, 5, SkuMeter))),\n        RawScope = tolower(extract(meterRx, 6, SkuMeter))\n    | extend ModelKey = normalizeModel(extract(meterRx, 1, SkuMeter)),\n        Context = case(RawCtx == 'longco', 'long', RawCtx == 'shortco', 'short', 'any'),\n        Tier = iff(RawTier == 'pp', 'priority', 'standard'),\n        Scope = case(RawScope startswith 'dz', 'data zone', RawScope startswith 'rg', 'regional', 'global'),\n        Kind = case(RawKind == 'cd wr', 'cw', RawKind startswith 'cd ' or RawKind startswith 'cchd', 'cr', RawKind in ('inp', 'inpt'), 'i', 'o')\n    | where Scope =~ wantScope and Tier =~ wantTier and Context in~ (wantContext, 'any')\n    | extend Rate = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0\n    | summarize Rates = dcount(Rate), Rate = take_any(Rate), Currency = take_any(PricingCurrency) by ModelKey, Kind);\n// More than one distinct rate for a model and token kind means the meter cannot be\n// resolved, so the model is reported as ambiguous instead of picking a rate.\nlet ambiguousModels = coalesce(toscalar(priceRates | where Rates > 1 | summarize s = make_set(ModelKey) | project s), dynamic([]));\nlet price = toscalar(priceRates\n    | where Rates == 1\n    | summarize kinds = make_bag(bag_pack(Kind, Rate)) by ModelKey\n    | summarize b = make_bag(bag_pack(ModelKey, kinds))\n    | project b);\nlet priceCurrency = toscalar(priceRates | summarize take_any(Currency));\nlet pricesLoaded = toscalar(priceRates | count) > 0;\n${finopsUsage:raw}\nagentUsage\n| summarize ['Calls'] = count(), ['Agents'] = dcount(agentKey),\n    ['Tokens'] = sum(coalesce(inputTokens, long(0)) + coalesce(outputTokens, long(0))),\n    pricedCost = sumif(estimatedCost, costingState == 'Priced')\n    by ['Cost basis'] = costingState\n| extend ['Estimated cost'] = iff(['Cost basis'] == 'Priced', pricedCost, real(null)),\n    ['Currency'] = iff(['Cost basis'] == 'Priced', tostring(priceCurrency), '')\n| project-away pricedCost\n| order by ['Tokens'] desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          }
+        }
+      ],
+      "pluginVersion": "12.3.0"
     },
     {
       "collapsed": false,
@@ -638,7 +776,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 23
       },
       "id": 30,
       "panels": [],
@@ -697,7 +835,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 15
+        "y": 24
       },
       "id": 31,
       "options": {
@@ -781,7 +919,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 15
+        "y": 24
       },
       "id": 32,
       "options": {
@@ -865,7 +1003,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 15
+        "y": 24
       },
       "id": 33,
       "options": {
@@ -990,7 +1128,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 30
       },
       "id": 34,
       "interval": "1h",
@@ -1177,7 +1315,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 30
       },
       "id": 35,
       "options": {
@@ -1227,7 +1365,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 38
       },
       "id": 20,
       "panels": [],
@@ -1313,7 +1451,7 @@
         "h": 8,
         "w": 10,
         "x": 0,
-        "y": 30
+        "y": 39
       },
       "id": 1,
       "interval": "1h",
@@ -1409,7 +1547,7 @@
         "h": 8,
         "w": 7,
         "x": 10,
-        "y": 30
+        "y": 39
       },
       "id": 2,
       "options": {
@@ -1526,7 +1664,7 @@
         "h": 8,
         "w": 7,
         "x": 17,
-        "y": 30
+        "y": 39
       },
       "id": 3,
       "interval": "1h",
@@ -1573,7 +1711,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 47
       },
       "id": 22,
       "panels": [],
@@ -1705,7 +1843,7 @@
         "h": 14,
         "w": 12,
         "x": 0,
-        "y": 39
+        "y": 48
       },
       "id": 7,
       "options": {
@@ -1811,7 +1949,7 @@
         "h": 14,
         "w": 12,
         "x": 12,
-        "y": 39
+        "y": 48
       },
       "id": 8,
       "options": {
@@ -1868,7 +2006,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 62
       },
       "id": 23,
       "panels": [],
@@ -1927,7 +2065,7 @@
         "h": 9,
         "w": 4,
         "x": 0,
-        "y": 54
+        "y": 63
       },
       "id": 9,
       "options": {
@@ -2044,7 +2182,7 @@
         "h": 9,
         "w": 12,
         "x": 4,
-        "y": 54
+        "y": 63
       },
       "id": 10,
       "interval": "1h",
@@ -2190,7 +2328,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 54
+        "y": 63
       },
       "id": 11,
       "options": {
@@ -2240,7 +2378,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 63
+        "y": 72
       },
       "id": 24,
       "panels": [],
@@ -2311,7 +2449,7 @@
         "h": 24,
         "w": 24,
         "x": 0,
-        "y": 64
+        "y": 73
       },
       "id": 13,
       "options": {
@@ -2365,7 +2503,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 88
+        "y": 97
       },
       "id": 25,
       "panels": [],
@@ -2527,7 +2665,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 89
+        "y": 98
       },
       "id": 26,
       "options": {
@@ -2577,7 +2715,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 97
+        "y": 106
       },
       "id": 27,
       "panels": [],
@@ -2594,7 +2732,7 @@
         "h": 27,
         "w": 24,
         "x": 0,
-        "y": 98
+        "y": 107
       },
       "id": 28,
       "options": {
@@ -2793,6 +2931,149 @@
         "refresh": 2,
         "regex": "",
         "type": "query"
+      },
+      {
+        "name": "cluster",
+        "label": "Cluster URI",
+        "description": "FinOps hub Data Explorer cluster URI, used to read token rates.",
+        "type": "textbox",
+        "hide": 0,
+        "query": "",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "options": [
+          {
+            "text": "",
+            "value": "",
+            "selected": true
+          }
+        ],
+        "skipUrlSync": false
+      },
+      {
+        "name": "database",
+        "label": "Database",
+        "description": "FinOps hub database name.",
+        "type": "textbox",
+        "hide": 0,
+        "query": "Hub",
+        "current": {
+          "text": "Hub",
+          "value": "Hub"
+        },
+        "options": [
+          {
+            "text": "Hub",
+            "value": "Hub",
+            "selected": true
+          }
+        ],
+        "skipUrlSync": false
+      },
+      {
+        "name": "priceScope",
+        "label": "Pricing scope",
+        "description": "Deployment scope the rates are read for. Telemetry does not carry it.",
+        "type": "custom",
+        "hide": 0,
+        "query": "global,data zone,regional",
+        "includeAll": false,
+        "multi": false,
+        "current": {
+          "text": "global",
+          "value": "global",
+          "selected": true
+        },
+        "options": [
+          {
+            "text": "global",
+            "value": "global",
+            "selected": true
+          },
+          {
+            "text": "data zone",
+            "value": "data zone",
+            "selected": false
+          },
+          {
+            "text": "regional",
+            "value": "regional",
+            "selected": false
+          }
+        ],
+        "skipUrlSync": false
+      },
+      {
+        "name": "priceTier",
+        "label": "Deployment tier",
+        "description": "Deployment tier the rates are read for. Telemetry does not carry it.",
+        "type": "custom",
+        "hide": 0,
+        "query": "standard,priority",
+        "includeAll": false,
+        "multi": false,
+        "current": {
+          "text": "standard",
+          "value": "standard",
+          "selected": true
+        },
+        "options": [
+          {
+            "text": "standard",
+            "value": "standard",
+            "selected": true
+          },
+          {
+            "text": "priority",
+            "value": "priority",
+            "selected": false
+          }
+        ],
+        "skipUrlSync": false
+      },
+      {
+        "name": "priceContext",
+        "label": "Context tier",
+        "description": "Context tier the rates are read for, where a model prices them apart.",
+        "type": "custom",
+        "hide": 0,
+        "query": "short,long",
+        "includeAll": false,
+        "multi": false,
+        "current": {
+          "text": "short",
+          "value": "short",
+          "selected": true
+        },
+        "options": [
+          {
+            "text": "short",
+            "value": "short",
+            "selected": true
+          },
+          {
+            "text": "long",
+            "value": "long",
+            "selected": false
+          }
+        ],
+        "skipUrlSync": false
+      },
+      {
+        "name": "finopsUsage",
+        "label": "finopsUsage",
+        "type": "constant",
+        "hide": 2,
+        "query": "let agentSpans = materialize(dependencies\n| where name has 'invoke_agent' or tostring(customDimensions['gen_ai.operation.name']) in ('chat', 'execute_tool')\n| extend operation = tostring(customDimensions['gen_ai.operation.name']),\n    agentId = tostring(customDimensions['gen_ai.agent.id']),\n    agentName = tostring(customDimensions['gen_ai.agent.name']),\n    provider = tostring(customDimensions['gen_ai.provider.name'])\n// Identity never depends on a provider specific field. Agents without an id or a\n// name collapse into one bucket per service, so the roster cannot grow a row per span.\n| extend agentKey = case(isnotempty(agentId), strcat(cloud_RoleName, '|', agentId),\n        isnotempty(agentName), strcat(cloud_RoleName, '|', agentName),\n        strcat(cloud_RoleName, '|(unidentified)')),\n    agentLabel = case(isnotempty(agentName), agentName,\n        isnotempty(agentId), agentId,\n        strcat(cloud_RoleName, ' (unidentified agents)')));\nlet agentUsage = materialize(agentSpans\n| where operation == 'chat'\n| extend model = tostring(coalesce(customDimensions['gen_ai.response.model'], customDimensions['gen_ai.request.model'])),\n    inputTokens = tolong(customDimensions['gen_ai.usage.input_tokens']),\n    outputTokens = tolong(customDimensions['gen_ai.usage.output_tokens']),\n    cacheReadTokens = coalesce(tolong(customDimensions['gen_ai.usage.cache_read.input_tokens']), tolong(customDimensions['gen_ai.usage.cached_tokens']), long(0)),\n    cacheWriteTokens = coalesce(tolong(customDimensions['gen_ai.usage.cache_write.input_tokens']), tolong(customDimensions['gen_ai.usage.cache_creation.input_tokens']), long(0))\n| extend modelKey = normalizeModel(model),\n    providerLabel = iff(isempty(provider), '(provider not reported)', provider)\n// Only usage billed through Azure can be priced from the hub price sheet. The\n// OpenTelemetry enum defines the first two; Microsoft Foundry instrumentation also\n// emits the Foundry values, which are observed live, so both spellings are accepted.\n// The same model served by another channel, such as GitHub, bills elsewhere and is\n// deliberately excluded.\n| extend billableInput = coalesce(inputTokens, long(0)) - cacheReadTokens - cacheWriteTokens,\n    azureRated = provider in~ ('azure.ai.openai', 'azure.ai.inference', 'azure.ai.foundry', 'microsoft.foundry'),\n    claudeModel = modelKey has 'claude'\n| extend rates = price[modelKey]\n| extend rateInput = todouble(rates.i), rateCacheRead = todouble(rates.cr),\n    rateCacheWrite = todouble(rates.cw), rateOutput = todouble(rates.o)\n// A rate is required only for a token kind that was actually used.\n| extend missingRate = (billableInput > 0 and isnull(rateInput))\n    or (cacheReadTokens > 0 and isnull(rateCacheRead))\n    or (cacheWriteTokens > 0 and isnull(rateCacheWrite))\n    or (coalesce(outputTokens, long(0)) > 0 and isnull(rateOutput))\n| extend costingState = case(\n    isnull(inputTokens) and isnull(outputTokens), 'Usage counters missing',\n    billableInput < 0, 'Usage counters inconsistent',\n    not(azureRated), 'Provider not in the Azure price sheet',\n    claudeModel, 'Billed as Claude consumption units',\n    not(pricesLoaded), 'Price sheet unavailable',\n    set_has_element(ambiguousModels, modelKey), 'Meter match ambiguous',\n    isnull(rates), 'No matching token meter',\n    missingRate, 'Rate missing for a used token kind',\n    'Priced')\n| extend estimatedCost = iff(costingState == 'Priced',\n    (billableInput * coalesce(rateInput, 0.0)\n        + cacheReadTokens * coalesce(rateCacheRead, 0.0)\n        + cacheWriteTokens * coalesce(rateCacheWrite, 0.0)\n        + coalesce(outputTokens, long(0)) * coalesce(rateOutput, 0.0)) / 1000000.0,\n    real(null)));\n",
+        "current": {
+          "text": "let agentSpans = materialize(dependencies\n| where name has 'invoke_agent' or tostring(customDimensions['gen_ai.operation.name']) in ('chat', 'execute_tool')\n| extend operation = tostring(customDimensions['gen_ai.operation.name']),\n    agentId = tostring(customDimensions['gen_ai.agent.id']),\n    agentName = tostring(customDimensions['gen_ai.agent.name']),\n    provider = tostring(customDimensions['gen_ai.provider.name'])\n// Identity never depends on a provider specific field. Agents without an id or a\n// name collapse into one bucket per service, so the roster cannot grow a row per span.\n| extend agentKey = case(isnotempty(agentId), strcat(cloud_RoleName, '|', agentId),\n        isnotempty(agentName), strcat(cloud_RoleName, '|', agentName),\n        strcat(cloud_RoleName, '|(unidentified)')),\n    agentLabel = case(isnotempty(agentName), agentName,\n        isnotempty(agentId), agentId,\n        strcat(cloud_RoleName, ' (unidentified agents)')));\nlet agentUsage = materialize(agentSpans\n| where operation == 'chat'\n| extend model = tostring(coalesce(customDimensions['gen_ai.response.model'], customDimensions['gen_ai.request.model'])),\n    inputTokens = tolong(customDimensions['gen_ai.usage.input_tokens']),\n    outputTokens = tolong(customDimensions['gen_ai.usage.output_tokens']),\n    cacheReadTokens = coalesce(tolong(customDimensions['gen_ai.usage.cache_read.input_tokens']), tolong(customDimensions['gen_ai.usage.cached_tokens']), long(0)),\n    cacheWriteTokens = coalesce(tolong(customDimensions['gen_ai.usage.cache_write.input_tokens']), tolong(customDimensions['gen_ai.usage.cache_creation.input_tokens']), long(0))\n| extend modelKey = normalizeModel(model),\n    providerLabel = iff(isempty(provider), '(provider not reported)', provider)\n// Only usage billed through Azure can be priced from the hub price sheet. The\n// OpenTelemetry enum defines the first two; Microsoft Foundry instrumentation also\n// emits the Foundry values, which are observed live, so both spellings are accepted.\n// The same model served by another channel, such as GitHub, bills elsewhere and is\n// deliberately excluded.\n| extend billableInput = coalesce(inputTokens, long(0)) - cacheReadTokens - cacheWriteTokens,\n    azureRated = provider in~ ('azure.ai.openai', 'azure.ai.inference', 'azure.ai.foundry', 'microsoft.foundry'),\n    claudeModel = modelKey has 'claude'\n| extend rates = price[modelKey]\n| extend rateInput = todouble(rates.i), rateCacheRead = todouble(rates.cr),\n    rateCacheWrite = todouble(rates.cw), rateOutput = todouble(rates.o)\n// A rate is required only for a token kind that was actually used.\n| extend missingRate = (billableInput > 0 and isnull(rateInput))\n    or (cacheReadTokens > 0 and isnull(rateCacheRead))\n    or (cacheWriteTokens > 0 and isnull(rateCacheWrite))\n    or (coalesce(outputTokens, long(0)) > 0 and isnull(rateOutput))\n| extend costingState = case(\n    isnull(inputTokens) and isnull(outputTokens), 'Usage counters missing',\n    billableInput < 0, 'Usage counters inconsistent',\n    not(azureRated), 'Provider not in the Azure price sheet',\n    claudeModel, 'Billed as Claude consumption units',\n    not(pricesLoaded), 'Price sheet unavailable',\n    set_has_element(ambiguousModels, modelKey), 'Meter match ambiguous',\n    isnull(rates), 'No matching token meter',\n    missingRate, 'Rate missing for a used token kind',\n    'Priced')\n| extend estimatedCost = iff(costingState == 'Priced',\n    (billableInput * coalesce(rateInput, 0.0)\n        + cacheReadTokens * coalesce(rateCacheRead, 0.0)\n        + cacheWriteTokens * coalesce(rateCacheWrite, 0.0)\n        + coalesce(outputTokens, long(0)) * coalesce(rateOutput, 0.0)) / 1000000.0,\n    real(null)));\n",
+          "value": "let agentSpans = materialize(dependencies\n| where name has 'invoke_agent' or tostring(customDimensions['gen_ai.operation.name']) in ('chat', 'execute_tool')\n| extend operation = tostring(customDimensions['gen_ai.operation.name']),\n    agentId = tostring(customDimensions['gen_ai.agent.id']),\n    agentName = tostring(customDimensions['gen_ai.agent.name']),\n    provider = tostring(customDimensions['gen_ai.provider.name'])\n// Identity never depends on a provider specific field. Agents without an id or a\n// name collapse into one bucket per service, so the roster cannot grow a row per span.\n| extend agentKey = case(isnotempty(agentId), strcat(cloud_RoleName, '|', agentId),\n        isnotempty(agentName), strcat(cloud_RoleName, '|', agentName),\n        strcat(cloud_RoleName, '|(unidentified)')),\n    agentLabel = case(isnotempty(agentName), agentName,\n        isnotempty(agentId), agentId,\n        strcat(cloud_RoleName, ' (unidentified agents)')));\nlet agentUsage = materialize(agentSpans\n| where operation == 'chat'\n| extend model = tostring(coalesce(customDimensions['gen_ai.response.model'], customDimensions['gen_ai.request.model'])),\n    inputTokens = tolong(customDimensions['gen_ai.usage.input_tokens']),\n    outputTokens = tolong(customDimensions['gen_ai.usage.output_tokens']),\n    cacheReadTokens = coalesce(tolong(customDimensions['gen_ai.usage.cache_read.input_tokens']), tolong(customDimensions['gen_ai.usage.cached_tokens']), long(0)),\n    cacheWriteTokens = coalesce(tolong(customDimensions['gen_ai.usage.cache_write.input_tokens']), tolong(customDimensions['gen_ai.usage.cache_creation.input_tokens']), long(0))\n| extend modelKey = normalizeModel(model),\n    providerLabel = iff(isempty(provider), '(provider not reported)', provider)\n// Only usage billed through Azure can be priced from the hub price sheet. The\n// OpenTelemetry enum defines the first two; Microsoft Foundry instrumentation also\n// emits the Foundry values, which are observed live, so both spellings are accepted.\n// The same model served by another channel, such as GitHub, bills elsewhere and is\n// deliberately excluded.\n| extend billableInput = coalesce(inputTokens, long(0)) - cacheReadTokens - cacheWriteTokens,\n    azureRated = provider in~ ('azure.ai.openai', 'azure.ai.inference', 'azure.ai.foundry', 'microsoft.foundry'),\n    claudeModel = modelKey has 'claude'\n| extend rates = price[modelKey]\n| extend rateInput = todouble(rates.i), rateCacheRead = todouble(rates.cr),\n    rateCacheWrite = todouble(rates.cw), rateOutput = todouble(rates.o)\n// A rate is required only for a token kind that was actually used.\n| extend missingRate = (billableInput > 0 and isnull(rateInput))\n    or (cacheReadTokens > 0 and isnull(rateCacheRead))\n    or (cacheWriteTokens > 0 and isnull(rateCacheWrite))\n    or (coalesce(outputTokens, long(0)) > 0 and isnull(rateOutput))\n| extend costingState = case(\n    isnull(inputTokens) and isnull(outputTokens), 'Usage counters missing',\n    billableInput < 0, 'Usage counters inconsistent',\n    not(azureRated), 'Provider not in the Azure price sheet',\n    claudeModel, 'Billed as Claude consumption units',\n    not(pricesLoaded), 'Price sheet unavailable',\n    set_has_element(ambiguousModels, modelKey), 'Meter match ambiguous',\n    isnull(rates), 'No matching token meter',\n    missingRate, 'Rate missing for a used token kind',\n    'Priced')\n| extend estimatedCost = iff(costingState == 'Priced',\n    (billableInput * coalesce(rateInput, 0.0)\n        + cacheReadTokens * coalesce(rateCacheRead, 0.0)\n        + cacheWriteTokens * coalesce(rateCacheWrite, 0.0)\n        + coalesce(outputTokens, long(0)) * coalesce(rateOutput, 0.0)) / 1000000.0,\n    real(null)));\n"
+        },
+        "options": [],
+        "skipUrlSync": false,
+        "description": "Shared agent attribution and costing logic."
       }
     ]
   },
