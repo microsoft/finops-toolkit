@@ -29,6 +29,9 @@
     .PARAMETER NoPbip
     Optional. Skips generating pruned PBIP projects and only builds PBIT files. Default = false.
 
+    .PARAMETER OpenDataUrl
+    Optional. Public folder demo reports read open data from. Default = the open data files in the main branch.
+
     .EXAMPLE
     ./Build-PowerBI
 
@@ -59,7 +62,10 @@ param(
     $Storage,
 
     [switch]
-    $NoPbip
+    $NoPbip,
+
+    [string]
+    $OpenDataUrl = 'https://raw.githubusercontent.com/microsoft/finops-toolkit/main/src/open-data'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -85,9 +91,11 @@ if (-not $KQL -and -not $Storage) { $KQL = $Storage = $true }
 $reportsConfigPath = "$srcDir/reports.json"
 $reportsConfig = Get-Content $reportsConfigPath -Raw | ConvertFrom-Json -Depth 10
 
-# Demo projects read open data from this working tree instead of the last published release, which
-# doesn't have open data files added during the release being built.
-$openDataDir = [System.IO.Path]::GetFullPath("$srcDir/../open-data")
+# Demo reports ship to customers, so they read open data over HTTP like the templates do. They
+# can't use the release URL, because it resolves to the last published release, which doesn't have
+# open data files added during the release being built.
+$openDataUrl = $OpenDataUrl.TrimEnd('/')
+$openDataChecked = @{}
 
 $reportMetadata = @{}
 $reportsConfig.reports.PSObject.Properties `
@@ -761,21 +769,30 @@ foreach ($inputFile in $reports)
         # The template is rendered from the same model, so every demo-only change is undone after
         $demoEdits = New-Object System.Collections.Generic.List[object]
 
-        # The release URL resolves to the last published release, which doesn't have open data
-        # files added during this release. Reading from the working tree also means the demo is
-        # built from the branch being released, not from whatever shipped last.
         foreach ($table in @($db.Model.Tables))
         {
             foreach ($partition in @($table.Partitions | Where-Object { $_.Source.Expression -match 'releases/latest/download/' }))
             {
                 $demoEdits.Add([PSCustomObject]@{ Object = $partition.Source; Expression = $partition.Source.Expression })
-                $partition.Source.Expression = [regex]::Replace($partition.Source.Expression, 'Web\.Contents\("https://github\.com/microsoft/finops-toolkit/releases/latest/download/(?<file>[^"]+)"\)', {
-                        param($match)
-                        $localFile = Join-Path $openDataDir $match.Groups['file'].Value
-                        if (-not (Test-Path $localFile)) { throw "The $baseName demo project reads $($match.Groups['file'].Value), which isn't in src/open-data." }
-                        Write-Verbose "  Demo open data for $($table.Name): $localFile"
-                        return 'File.Contents("' + $localFile.Replace('"', '""') + '")'
-                    })
+                # A demo report that can't read open data is only found when someone refreshes
+                # it, so the URL is checked here, while it's cheap to fix
+                foreach ($match in [regex]::Matches($partition.Source.Expression, 'https://github\.com/microsoft/finops-toolkit/releases/latest/download/(?<file>[^"]+)'))
+                {
+                    $file = $match.Groups['file'].Value
+                    $url = "$openDataUrl/$file"
+                    if (-not $openDataChecked.ContainsKey($url))
+                    {
+                        $response = Invoke-WebRequest $url -Method Head -SkipHttpErrorCheck -ErrorAction SilentlyContinue
+                        $openDataChecked[$url] = $response.StatusCode -eq 200
+                    }
+                    if (-not $openDataChecked[$url])
+                    {
+                        throw "Demo reports read open data from $url, which isn't published yet. Merge to main before packaging Power BI, or pass -OpenDataUrl with a branch that has $file."
+                    }
+                    Write-Verbose "  Demo open data for $($table.Name): $url"
+                }
+
+                $partition.Source.Expression = $partition.Source.Expression -replace 'https://github\.com/microsoft/finops-toolkit/releases/latest/download/', "$openDataUrl/"
             }
         }
 
