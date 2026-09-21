@@ -59,7 +59,7 @@ The following section lists features and enhancements that are currently in deve
 - **Changed**
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
-  - Fixed the storage reports failing to refresh with "The column 'SkuMeterName' of the table wasn't found" when the Cost Management export uses the FOCUS 1.2 schema ([#2332](https://github.com/microsoft/finops-toolkit/issues/2332)).
+  - Fixed the storage reports failing to refresh with "The column 'SkuMeterName' of the table wasn't found" when the Cost Management export uses the FOCUS 1.2 schema, and added a lint rule that fails the build when a Power Query column name doesn't exist ([#2332](https://github.com/microsoft/finops-toolkit/issues/2332)).
 
 ### [Optimization Engine](optimization-engine/overview.md)
 
