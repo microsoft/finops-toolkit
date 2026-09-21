@@ -3,7 +3,7 @@ title: FOCUS metadata
 description: This article provides general information about the FOCUS dataset including the data generator, schema version, and columns included in the dataset.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 09/21/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -128,7 +128,6 @@ Columns include:
 | `x_SkuIsCreditEligible`      | Boolean  | Indicates if the charge is eligible for Azure credits.                                                                                                                                                                                         |
 | `x_SkuMeterCategory`         | String   | Name of the service the SKU falls within.                                                                                                                                                                                                      |
 | `x_SkuMeterId`               | String   | Unique identifier (sometimes a GUID, but not always) for the usage meter. It usually maps to a specific SKU or range of SKUs that have a specific price.                                                                                       |
-| `x_SkuMeterName`             | String   | Name of the usage meter. It usually maps to a specific SKU or range of SKUs that have a specific price. Not applicable for purchases.                                                                                                          |
 | `x_SkuMeterSubcategory`      | String   | Group of SKU Classes that address the same core need within the SKU Group.                                                                                                                                                                     |
 | `x_SkuOfferId`               | String   | Microsoft Cloud subscription type.                                                                                                                                                                                                             |
 | `x_SkuOrderId`               | String   | Unique identifier of the entitlement product for this charge. Same as MCA ProductOrderId. Not applicable for EA.                                                                                                                               |
