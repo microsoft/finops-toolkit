@@ -492,7 +492,29 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "model",
+                    "label": "Model"
+                  },
+                  {
+                    "columnId": "TotalInputTokens",
+                    "label": "Total input tokens"
+                  },
+                  {
+                    "columnId": "TotalOutputTokens",
+                    "label": "Total output tokens"
+                  },
+                  {
+                    "columnId": "AvgInput",
+                    "label": "Avg input"
+                  },
+                  {
+                    "columnId": "AvgOutput",
+                    "label": "Avg output"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -589,7 +611,17 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "timestamp",
+                    "label": "Timestamp"
+                  },
+                  {
+                    "columnId": "ExceptionType",
+                    "label": "Exception type"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -739,7 +771,45 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "timestamp",
+                    "label": "Timestamp"
+                  },
+                  {
+                    "columnId": "operation",
+                    "label": "Operation"
+                  },
+                  {
+                    "columnId": "agent",
+                    "label": "Agent"
+                  },
+                  {
+                    "columnId": "model",
+                    "label": "Model"
+                  },
+                  {
+                    "columnId": "success",
+                    "label": "Success"
+                  },
+                  {
+                    "columnId": "duration",
+                    "label": "Duration"
+                  },
+                  {
+                    "columnId": "input_tokens",
+                    "label": "Input tokens"
+                  },
+                  {
+                    "columnId": "output_tokens",
+                    "label": "Output tokens"
+                  },
+                  {
+                    "columnId": "TraceId",
+                    "label": "Trace ID"
+                  }
+                ]
               },
               "exportedParameters": [
                 {
@@ -800,7 +870,29 @@
                           }
                         }
                       ],
-                      "rowLimit": 1000
+                      "rowLimit": 1000,
+                      "labelSettings": [
+                        {
+                          "columnId": "timestamp",
+                          "label": "Timestamp"
+                        },
+                        {
+                          "columnId": "ItemType",
+                          "label": "Item type"
+                        },
+                        {
+                          "columnId": "DurationMs",
+                          "label": "Duration ms"
+                        },
+                        {
+                          "columnId": "SpanId",
+                          "label": "Span ID"
+                        },
+                        {
+                          "columnId": "ParentId",
+                          "label": "Parent ID"
+                        }
+                      ]
                     }
                   },
                   "doNotRunWhenHidden": true,

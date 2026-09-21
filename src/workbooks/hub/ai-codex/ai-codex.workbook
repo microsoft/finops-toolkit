@@ -978,7 +978,101 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "model",
+                    "label": "Model"
+                  },
+                  {
+                    "columnId": "turns",
+                    "label": "Turns"
+                  },
+                  {
+                    "columnId": "pricingStatus",
+                    "label": "Pricing status"
+                  },
+                  {
+                    "columnId": "cost_usd",
+                    "label": "Cost USD"
+                  },
+                  {
+                    "columnId": "retail_usd",
+                    "label": "Retail USD"
+                  },
+                  {
+                    "columnId": "negotiated_discount_pct",
+                    "label": "Negotiated discount %"
+                  },
+                  {
+                    "columnId": "cost_per_turn_usd",
+                    "label": "Cost per turn USD"
+                  },
+                  {
+                    "columnId": "p95_s",
+                    "label": "P95 s"
+                  },
+                  {
+                    "columnId": "pricing_coverage",
+                    "label": "Pricing coverage"
+                  },
+                  {
+                    "columnId": "input_cost_usd",
+                    "label": "Input cost USD"
+                  },
+                  {
+                    "columnId": "cached_cost_usd",
+                    "label": "Cached cost USD"
+                  },
+                  {
+                    "columnId": "write_cost_usd",
+                    "label": "Write cost USD"
+                  },
+                  {
+                    "columnId": "output_cost_usd",
+                    "label": "Output cost USD"
+                  },
+                  {
+                    "columnId": "negotiated_discount_usd",
+                    "label": "Negotiated discount USD"
+                  },
+                  {
+                    "columnId": "cache_benefit_usd",
+                    "label": "Cache benefit USD"
+                  },
+                  {
+                    "columnId": "context_premium_usd",
+                    "label": "Context premium USD"
+                  },
+                  {
+                    "columnId": "longResponses",
+                    "label": "Long responses"
+                  },
+                  {
+                    "columnId": "maxResponseInput",
+                    "label": "Max response input"
+                  },
+                  {
+                    "columnId": "total_tokens",
+                    "label": "Total tokens"
+                  },
+                  {
+                    "columnId": "avg_per_turn",
+                    "label": "Avg per turn"
+                  },
+                  {
+                    "columnId": "cache_pct",
+                    "label": "Cache %"
+                  },
+                  {
+                    "columnId": "turns_with_tokens",
+                    "label": "Turns with tokens"
+                  },
+                  {
+                    "columnId": "missing_usage",
+                    "label": "Missing usage"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -1158,7 +1252,33 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "tool",
+                    "label": "Tool"
+                  },
+                  {
+                    "columnId": "source",
+                    "label": "Source"
+                  },
+                  {
+                    "columnId": "total",
+                    "label": "Total"
+                  },
+                  {
+                    "columnId": "failures",
+                    "label": "Failures"
+                  },
+                  {
+                    "columnId": "unknown",
+                    "label": "Unknown"
+                  },
+                  {
+                    "columnId": "failPct",
+                    "label": "Fail %"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -1197,7 +1317,37 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "tool",
+                    "label": "Tool"
+                  },
+                  {
+                    "columnId": "source",
+                    "label": "Source"
+                  },
+                  {
+                    "columnId": "n",
+                    "label": "Count"
+                  },
+                  {
+                    "columnId": "avg_ms",
+                    "label": "Avg ms"
+                  },
+                  {
+                    "columnId": "p50_ms",
+                    "label": "P50 ms"
+                  },
+                  {
+                    "columnId": "p95_ms",
+                    "label": "P95 ms"
+                  },
+                  {
+                    "columnId": "max_ms",
+                    "label": "Max ms"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -1244,7 +1394,21 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "population",
+                    "label": "Population"
+                  },
+                  {
+                    "columnId": "policy",
+                    "label": "Policy"
+                  },
+                  {
+                    "columnId": "observations",
+                    "label": "Observations"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -1330,7 +1494,89 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "timestamp",
+                    "label": "Timestamp"
+                  },
+                  {
+                    "columnId": "model",
+                    "label": "Model"
+                  },
+                  {
+                    "columnId": "cost_usd",
+                    "label": "Cost USD"
+                  },
+                  {
+                    "columnId": "retail_usd",
+                    "label": "Retail USD"
+                  },
+                  {
+                    "columnId": "negotiated_discount_usd",
+                    "label": "Negotiated discount USD"
+                  },
+                  {
+                    "columnId": "duration_s",
+                    "label": "Duration s"
+                  },
+                  {
+                    "columnId": "pricingStatus",
+                    "label": "Pricing status"
+                  },
+                  {
+                    "columnId": "input_cost_usd",
+                    "label": "Input cost USD"
+                  },
+                  {
+                    "columnId": "cached_cost_usd",
+                    "label": "Cached cost USD"
+                  },
+                  {
+                    "columnId": "write_cost_usd",
+                    "label": "Write cost USD"
+                  },
+                  {
+                    "columnId": "output_cost_usd",
+                    "label": "Output cost USD"
+                  },
+                  {
+                    "columnId": "cache_benefit_usd",
+                    "label": "Cache benefit USD"
+                  },
+                  {
+                    "columnId": "context_premium_usd",
+                    "label": "Context premium USD"
+                  },
+                  {
+                    "columnId": "longResponses",
+                    "label": "Long responses"
+                  },
+                  {
+                    "columnId": "maxResponseInput",
+                    "label": "Max response input"
+                  },
+                  {
+                    "columnId": "totalTokens",
+                    "label": "Total tokens"
+                  },
+                  {
+                    "columnId": "cachedTokens",
+                    "label": "Cached tokens"
+                  },
+                  {
+                    "columnId": "outputTokens",
+                    "label": "Output tokens"
+                  },
+                  {
+                    "columnId": "thread",
+                    "label": "Thread"
+                  },
+                  {
+                    "columnId": "turn",
+                    "label": "Turn"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -1413,7 +1659,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}billedMeterScopes = toscalar(\n    billedCombos\n    | summarize strcat_array(array_sort_asc(make_set(strcat(Tier, ' ', Scope))), ', ')\n);\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\nlet spans = materialize(dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\n| where name in ('session_task.turn', 'session_task.run', 'run_turn', 'run_sampling_request', 'try_run_sampling_request', 'receiving_stream', 'handle_responses')\n| where name != 'handle_responses' or isnotnull(todouble(customDimensions['codex.usage.total_tokens']))\n| summarize take_any(timestamp, name, operation_ParentId, customDimensions, duration) by cloud_RoleName, operation_Id, id);\nlet turns = spans\n| where name == 'session_task.turn'\n| project cloud_RoleName, operation_Id, turnSpanId = id, turnStarted = timestamp, duration_s = duration / 1000.0,\n          turnModel = tostring(customDimensions['model']), thread = tostring(customDimensions['thread.id']), turn = tostring(customDimensions['turn.id']),\n          turnInput = todouble(customDimensions['codex.turn.token_usage.input_tokens']),\n          turnCached = todouble(customDimensions['codex.turn.token_usage.cached_input_tokens']),\n          turnWritten = todouble(customDimensions['codex.turn.token_usage.cache_write_input_tokens']),\n          turnOutput = todouble(customDimensions['codex.turn.token_usage.output_tokens']),\n          turnTotal = todouble(customDimensions['codex.turn.token_usage.total_tokens']);\nlet responseUsage = spans\n| where name == 'handle_responses'\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\n         written = todouble(customDimensions['gen_ai.usage.cache_write.input_tokens']),\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\n         streamId = operation_ParentId\n| lookup kind=leftouter (spans | where name == 'receiving_stream'\n    | project cloud_RoleName, operation_Id, streamId = id, samplingId = operation_ParentId) on cloud_RoleName, operation_Id, streamId\n| lookup kind=leftouter (spans | where name == 'try_run_sampling_request'\n    | project cloud_RoleName, operation_Id, samplingId = id, requestId = operation_ParentId, model = tostring(customDimensions['model'])) on cloud_RoleName, operation_Id, samplingId\n| extend context = iff(input > 272000, 'long', 'short')\n| extend p = price[model][context], shortPrice = price[model]['short'];\n// Cache-write pricing replaces ordinary input pricing for the same tokens.\n// https://developers.openai.com/api/docs/guides/prompt-caching#monitor-cache-performance\n// An absent exported write counter is unknown, not zero (Codex 0.142.0 does not emit it).\nlet responseCosts = materialize(responseUsage\n| extend coreUsageValid = coalesce(total >= 0 and input >= 0 and cached >= 0 and cached <= input\n    and output >= 0 and total == input + output, false),\n         priceValid = pricesLoaded and isnotnull(p) and timestamp >= priceStart and timestamp < priceEnd\n| extend priceStatus = case(not(pricesLoaded), 'Price data unavailable',\n                            isempty(model), 'BUG: Missing response model',\n                            isnull(p), 'BUG: Model missing from price map',\n                            timestamp < priceStart or timestamp >= priceEnd, 'Price outside effective period',\n                            not(coreUsageValid), 'Invalid or missing token usage',\n                            isnull(written), 'Cache-write counter missing',\n                            written < 0 or cached + written > input, 'Invalid cache partition',\n                            'Priced'),\n         uncached = input - cached - written\n| extend input_cost_usd = iff(priceStatus == 'Priced', uncached * todouble(p.i) / 1000000.0, real(null)),\n         cached_cost_usd = iff(priceValid and coreUsageValid, cached * todouble(p.cr) / 1000000.0, real(null)),\n         write_cost_usd = iff(priceStatus == 'Priced', written * todouble(p.cw) / 1000000.0, real(null)),\n         output_cost_usd = iff(priceValid and coreUsageValid, output * todouble(p.o) / 1000000.0, real(null)),\n         retail_usd = iff(priceStatus == 'Priced',\n             (uncached * todouble(p.li) + cached * todouble(p.lcr) + written * todouble(p.lcw) + output * todouble(p.lo)) / 1000000.0, real(null)),\n         cache_benefit_usd = iff(priceStatus == 'Priced',\n             (cached * (todouble(p.i) - todouble(p.cr)) - written * (todouble(p.cw) - todouble(p.i))) / 1000000.0, real(null)),\n         context_premium_usd = iff(priceStatus == 'Priced',\n             (uncached * (todouble(p.i) - todouble(shortPrice.i)) + cached * (todouble(p.cr) - todouble(shortPrice.cr))\n              + written * (todouble(p.cw) - todouble(shortPrice.cw)) + output * (todouble(p.o) - todouble(shortPrice.o))) / 1000000.0, real(null)),\n         negotiated_discount_usd = iff(priceStatus == 'Priced',\n             (uncached * (todouble(p.li) - todouble(p.i)) + cached * (todouble(p.lcr) - todouble(p.cr))\n              + written * (todouble(p.lcw) - todouble(p.cw)) + output * (todouble(p.lo) - todouble(p.o))) / 1000000.0, real(null))\n| extend cost_usd = input_cost_usd + cached_cost_usd + write_cost_usd + output_cost_usd\n| lookup kind=leftouter (spans | where name == 'run_sampling_request'\n    | project cloud_RoleName, operation_Id, requestId = id, runTurnId = operation_ParentId) on cloud_RoleName, operation_Id, requestId\n| lookup kind=leftouter (spans | where name == 'run_turn'\n    | project cloud_RoleName, operation_Id, runTurnId = id, taskRunId = operation_ParentId) on cloud_RoleName, operation_Id, runTurnId\n| lookup kind=leftouter (spans | where name == 'session_task.run'\n    | project cloud_RoleName, operation_Id, taskRunId = id, turnSpanId = operation_ParentId) on cloud_RoleName, operation_Id, taskRunId\n| lookup kind=leftouter (turns | project cloud_RoleName, operation_Id, turnSpanId, turnPresent = true) on cloud_RoleName, operation_Id, turnSpanId);\nlet turnCosts = responseCosts\n| where turnPresent == true\n| summarize responses = count(), pricedResponses = countif(priceStatus == 'Priced'),\n            responseInput = sum(input), responseCached = sum(cached), responseWritten = sum(written),\n            responseOutput = sum(output), responseTotal = sum(total),\n            cost_usd = sum(cost_usd), retail_usd = sum(retail_usd), negotiated_discount_usd = sum(negotiated_discount_usd),\n            input_cost_usd = sum(input_cost_usd), cached_cost_usd = sum(cached_cost_usd),\n            write_cost_usd = sum(write_cost_usd), output_cost_usd = sum(output_cost_usd),\n            cache_benefit_usd = sum(cache_benefit_usd), context_premium_usd = sum(context_premium_usd),\n            longResponses = countif(context == 'long'), maxResponseInput = max(input),\n            responseIssues = make_set_if(priceStatus, priceStatus != 'Priced', 8)\n    by cloud_RoleName, operation_Id, turnSpanId;\nlet pricedTurns = materialize(turns\n| lookup kind=leftouter turnCosts on cloud_RoleName, operation_Id, turnSpanId\n| extend pricingStatus = case(isnull(responses), 'No response usage in range',\n                              isempty(turnModel), 'Missing turn model',\n                              pricedResponses != responses, strcat_array(responseIssues, '; '),\n                              isnull(turnTotal) or isnull(turnInput) or isnull(turnCached) or isnull(turnOutput), 'Turn summary missing',\n                              responseInput != turnInput or responseCached != turnCached\n                                  or responseOutput != turnOutput or responseTotal != turnTotal, 'Response and turn usage differ',\n                              isnotnull(turnWritten) and responseWritten != turnWritten, 'Response and turn cache writes differ',\n                              'Complete')\n| extend complete = pricingStatus == 'Complete'\n| extend cost_usd = iff(complete, cost_usd, real(null)),\n         retail_usd = iff(complete, retail_usd, real(null)),\n         negotiated_discount_usd = iff(complete, negotiated_discount_usd, real(null)),\n         input_cost_usd = iff(complete, input_cost_usd, real(null)),\n         cached_cost_usd = iff(complete, cached_cost_usd, real(null)),\n         write_cost_usd = iff(complete, write_cost_usd, real(null)),\n         output_cost_usd = iff(complete, output_cost_usd, real(null)),\n         cache_benefit_usd = iff(complete, cache_benefit_usd, real(null)),\n         context_premium_usd = iff(complete, context_premium_usd, real(null)));\nlet telemetryCoverage = (union\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_init' | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Session initializations', source = 'dependencies'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_task.turn' | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Completed turn spans', source = 'dependencies'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_task.turn' | where isnotnull(todouble(customDimensions['codex.turn.token_usage.total_tokens']))\r\n     | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Turns with token usage', source = 'dependencies'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'handle_responses'\r\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\r\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\r\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\r\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\r\n         reasoning = todouble(customDimensions['codex.usage.reasoning_output_tokens'])\r\n| where isnotnull(total) | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Response token reports', source = 'dependencies'),\r\n    (customMetrics\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | where name == 'codex.tool.call'\r\n     | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Tool-call metric points', source = 'customMetrics'),\r\n    (traces\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | where tostring(customDimensions['event.name']) == 'codex.tool_result'\r\n     | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Tool-result logs (raw, before deduplication)', source = 'traces'),\r\n    (requests\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Application request spans', source = 'requests'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Application dependency spans', source = 'dependencies')\r\n| extend age_s = todouble(datetime_diff('second', EndTime, last_seen)),\r\n         availability = iff(records > 0, 'Observed', 'Not observed in this resource/window')\r\n| project signal, source, records, last_seen, age_s, availability\r\n| order by signal asc);\nlet pricingCoverage = union\n    (responseCosts\n     | summarize observed = count(), records = countif(isnull(written)), last_seen = max(timestamp),\n                 versions = make_set_if(tostring(customDimensions['service.version']), isnull(written), 8)\n     | extend signal = 'Pricing: missing cache-write counters', source = 'dependencies',\n              availability = case(observed == 0, 'No response usage', records == 0, 'All write counters present', 'Usage incomplete'),\n              details = strcat(records, ' of ', observed, ' reports lack a write counter; client versions: ', tostring(versions))),\n    (print signal = 'Pricing: price scope', source = 'Prices', records = priceRowCount, last_seen = priceIngested,\n           availability = iff(pricesLoaded, 'Prices loaded', 'Price data unavailable'),\n           details = strcat('Prices are global to the billing account; ', priceRowCount, ' model and context rates loaded from ', billedMeterScopes, ' meters')),\n    (responseCosts\n     | summarize records = count(), priced = countif(priceStatus == 'Priced'), knownCost = sum(cost_usd), last_seen = max(timestamp)\n     | extend signal = 'Pricing: response coverage', source = 'dependencies',\n              availability = case(records == 0, 'No response usage', records == priced, 'Complete', 'Incomplete'),\n              details = iff(records == 0, 'No usage reported', strcat(priced, ' of ', records, ' usage reports priced; priced subtotal USD ', round(knownCost, 6), iff(priced == records, '', '; unpriced usage excluded from monetary KPIs')))),\n    (responseCosts\n     | summarize observed = count(), records = countif(priceStatus != 'Priced'), last_seen = max(timestamp),\n                 problems = make_set_if(strcat(model, ': ', priceStatus), priceStatus != 'Priced')\n     | extend signal = 'Pricing: response errors', source = 'dependencies',\n              availability = case(observed == 0, 'No response usage', records == 0, 'No pricing errors', 'Action required'),\n              details = tostring(problems)),\n    (responseCosts\n     | summarize observed = count(), records = countif(isnull(turnPresent)), last_seen = max(timestamp)\n     | extend signal = 'Pricing: unattributed responses', source = 'dependencies',\n              availability = case(observed == 0, 'No response usage', records == 0, 'All responses linked to turns', 'Action required'),\n              details = 'Usage response -> stream -> sampling request -> run sampling -> run turn -> session task -> completed turn'),\n    (pricedTurns\n     | summarize observed = count(), records = countif(not(complete)), last_seen = max(turnStarted),\n                 problems = make_set_if(pricingStatus, not(complete))\n     | extend signal = 'Pricing: incomplete turns', source = 'dependencies',\n              availability = case(observed == 0, 'No completed turns', records == 0, 'All turn usage reconciles', 'Action required'),\n              details = tostring(problems)),\n    (print signal = 'Pricing: effective period', source = 'Prices', records = priceRowCount, last_seen = priceIngested,\n           availability = iff(StartTime >= priceStart and EndTime < priceEnd, 'Range covered', 'Range extends beyond price period'),\n           details = strcat(priceCurrency, '; ', billedMeterScopes, '; ', priceStart, ' <= response time < ', priceEnd)),\n    (print signal = 'Pricing: source', source = 'Prices', records = priceRowCount, last_seen = priceIngested,\n           availability = iff(priceEnd <= now(), 'Price sheet expired; refresh hub price data', 'Live price sheet'),\n           details = strcat('{HubQueryUri}/{HubDatabase} Prices; ', priceCurrency, ' per million tokens = unit price * 1,000,000 / x_PricingBlockSize; writes replace ordinary input pricing; missing exported write counts stay unknown'))\n| extend age_s = todouble(datetime_diff('second', EndTime, last_seen));\nunion pricingCoverage, telemetryCoverage\n| project signal, availability, records, details, source, last_seen, age_s\n| order by signal asc",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkCodexPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkCodexPrices3}let billedMeterScopes = toscalar(\n    billedCombos\n    | summarize strcat_array(array_sort_asc(make_set(strcat(Tier, ' ', Scope))), ', ')\n);\nlet priceRowCount = toscalar(priceRows | count);\nlet priceIngested = toscalar(priceRows | summarize max(pIngest));\nlet priceCurrency = toscalar(priceRows | summarize take_any(pCur));\nlet pricesLoaded = priceRowCount > 0;\nlet spans = materialize(dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\n| where name in ('session_task.turn', 'session_task.run', 'run_turn', 'run_sampling_request', 'try_run_sampling_request', 'receiving_stream', 'handle_responses')\n| where name != 'handle_responses' or isnotnull(todouble(customDimensions['codex.usage.total_tokens']))\n| summarize take_any(timestamp, name, operation_ParentId, customDimensions, duration) by cloud_RoleName, operation_Id, id);\nlet turns = spans\n| where name == 'session_task.turn'\n| project cloud_RoleName, operation_Id, turnSpanId = id, turnStarted = timestamp, duration_s = duration / 1000.0,\n          turnModel = tostring(customDimensions['model']), thread = tostring(customDimensions['thread.id']), turn = tostring(customDimensions['turn.id']),\n          turnInput = todouble(customDimensions['codex.turn.token_usage.input_tokens']),\n          turnCached = todouble(customDimensions['codex.turn.token_usage.cached_input_tokens']),\n          turnWritten = todouble(customDimensions['codex.turn.token_usage.cache_write_input_tokens']),\n          turnOutput = todouble(customDimensions['codex.turn.token_usage.output_tokens']),\n          turnTotal = todouble(customDimensions['codex.turn.token_usage.total_tokens']);\nlet responseUsage = spans\n| where name == 'handle_responses'\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\n         written = todouble(customDimensions['gen_ai.usage.cache_write.input_tokens']),\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\n         streamId = operation_ParentId\n| lookup kind=leftouter (spans | where name == 'receiving_stream'\n    | project cloud_RoleName, operation_Id, streamId = id, samplingId = operation_ParentId) on cloud_RoleName, operation_Id, streamId\n| lookup kind=leftouter (spans | where name == 'try_run_sampling_request'\n    | project cloud_RoleName, operation_Id, samplingId = id, requestId = operation_ParentId, model = tostring(customDimensions['model'])) on cloud_RoleName, operation_Id, samplingId\n| extend context = iff(input > 272000, 'long', 'short')\n| extend p = price[model][context], shortPrice = price[model]['short'];\n// Cache-write pricing replaces ordinary input pricing for the same tokens.\n// https://developers.openai.com/api/docs/guides/prompt-caching#monitor-cache-performance\n// An absent exported write counter is unknown, not zero (Codex 0.142.0 does not emit it).\nlet responseCosts = materialize(responseUsage\n| extend coreUsageValid = coalesce(total >= 0 and input >= 0 and cached >= 0 and cached <= input\n    and output >= 0 and total == input + output, false),\n         priceValid = pricesLoaded and isnotnull(p) and timestamp >= priceStart and timestamp < priceEnd\n| extend priceStatus = case(not(pricesLoaded), 'Price data unavailable',\n                            isempty(model), 'BUG: Missing response model',\n                            isnull(p), 'BUG: Model missing from price map',\n                            timestamp < priceStart or timestamp >= priceEnd, 'Price outside effective period',\n                            not(coreUsageValid), 'Invalid or missing token usage',\n                            isnull(written), 'Cache-write counter missing',\n                            written < 0 or cached + written > input, 'Invalid cache partition',\n                            'Priced'),\n         uncached = input - cached - written\n| extend input_cost_usd = iff(priceStatus == 'Priced', uncached * todouble(p.i) / 1000000.0, real(null)),\n         cached_cost_usd = iff(priceValid and coreUsageValid, cached * todouble(p.cr) / 1000000.0, real(null)),\n         write_cost_usd = iff(priceStatus == 'Priced', written * todouble(p.cw) / 1000000.0, real(null)),\n         output_cost_usd = iff(priceValid and coreUsageValid, output * todouble(p.o) / 1000000.0, real(null)),\n         retail_usd = iff(priceStatus == 'Priced',\n             (uncached * todouble(p.li) + cached * todouble(p.lcr) + written * todouble(p.lcw) + output * todouble(p.lo)) / 1000000.0, real(null)),\n         cache_benefit_usd = iff(priceStatus == 'Priced',\n             (cached * (todouble(p.i) - todouble(p.cr)) - written * (todouble(p.cw) - todouble(p.i))) / 1000000.0, real(null)),\n         context_premium_usd = iff(priceStatus == 'Priced',\n             (uncached * (todouble(p.i) - todouble(shortPrice.i)) + cached * (todouble(p.cr) - todouble(shortPrice.cr))\n              + written * (todouble(p.cw) - todouble(shortPrice.cw)) + output * (todouble(p.o) - todouble(shortPrice.o))) / 1000000.0, real(null)),\n         negotiated_discount_usd = iff(priceStatus == 'Priced',\n             (uncached * (todouble(p.li) - todouble(p.i)) + cached * (todouble(p.lcr) - todouble(p.cr))\n              + written * (todouble(p.lcw) - todouble(p.cw)) + output * (todouble(p.lo) - todouble(p.o))) / 1000000.0, real(null))\n| extend cost_usd = input_cost_usd + cached_cost_usd + write_cost_usd + output_cost_usd\n| lookup kind=leftouter (spans | where name == 'run_sampling_request'\n    | project cloud_RoleName, operation_Id, requestId = id, runTurnId = operation_ParentId) on cloud_RoleName, operation_Id, requestId\n| lookup kind=leftouter (spans | where name == 'run_turn'\n    | project cloud_RoleName, operation_Id, runTurnId = id, taskRunId = operation_ParentId) on cloud_RoleName, operation_Id, runTurnId\n| lookup kind=leftouter (spans | where name == 'session_task.run'\n    | project cloud_RoleName, operation_Id, taskRunId = id, turnSpanId = operation_ParentId) on cloud_RoleName, operation_Id, taskRunId\n| lookup kind=leftouter (turns | project cloud_RoleName, operation_Id, turnSpanId, turnPresent = true) on cloud_RoleName, operation_Id, turnSpanId);\nlet turnCosts = responseCosts\n| where turnPresent == true\n| summarize responses = count(), pricedResponses = countif(priceStatus == 'Priced'),\n            responseInput = sum(input), responseCached = sum(cached), responseWritten = sum(written),\n            responseOutput = sum(output), responseTotal = sum(total),\n            cost_usd = sum(cost_usd), retail_usd = sum(retail_usd), negotiated_discount_usd = sum(negotiated_discount_usd),\n            input_cost_usd = sum(input_cost_usd), cached_cost_usd = sum(cached_cost_usd),\n            write_cost_usd = sum(write_cost_usd), output_cost_usd = sum(output_cost_usd),\n            cache_benefit_usd = sum(cache_benefit_usd), context_premium_usd = sum(context_premium_usd),\n            longResponses = countif(context == 'long'), maxResponseInput = max(input),\n            responseIssues = make_set_if(priceStatus, priceStatus != 'Priced', 8)\n    by cloud_RoleName, operation_Id, turnSpanId;\nlet pricedTurns = materialize(turns\n| lookup kind=leftouter turnCosts on cloud_RoleName, operation_Id, turnSpanId\n| extend pricingStatus = case(isnull(responses), 'No response usage in range',\n                              isempty(turnModel), 'Missing turn model',\n                              pricedResponses != responses, strcat_array(responseIssues, '; '),\n                              isnull(turnTotal) or isnull(turnInput) or isnull(turnCached) or isnull(turnOutput), 'Turn summary missing',\n                              responseInput != turnInput or responseCached != turnCached\n                                  or responseOutput != turnOutput or responseTotal != turnTotal, 'Response and turn usage differ',\n                              isnotnull(turnWritten) and responseWritten != turnWritten, 'Response and turn cache writes differ',\n                              'Complete')\n| extend complete = pricingStatus == 'Complete'\n| extend cost_usd = iff(complete, cost_usd, real(null)),\n         retail_usd = iff(complete, retail_usd, real(null)),\n         negotiated_discount_usd = iff(complete, negotiated_discount_usd, real(null)),\n         input_cost_usd = iff(complete, input_cost_usd, real(null)),\n         cached_cost_usd = iff(complete, cached_cost_usd, real(null)),\n         write_cost_usd = iff(complete, write_cost_usd, real(null)),\n         output_cost_usd = iff(complete, output_cost_usd, real(null)),\n         cache_benefit_usd = iff(complete, cache_benefit_usd, real(null)),\n         context_premium_usd = iff(complete, context_premium_usd, real(null)));\nlet telemetryCoverage = (union\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_init' | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Session initializations', source = 'dependencies'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_task.turn' | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Completed turn spans', source = 'dependencies'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'session_task.turn' | where isnotnull(todouble(customDimensions['codex.turn.token_usage.total_tokens']))\r\n     | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Turns with token usage', source = 'dependencies'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server')\r\n| where name == 'handle_responses'\r\n| extend total = todouble(customDimensions['codex.usage.total_tokens']),\r\n         input = todouble(customDimensions['gen_ai.usage.input_tokens']),\r\n         cached = todouble(customDimensions['gen_ai.usage.cache_read.input_tokens']),\r\n         output = todouble(customDimensions['gen_ai.usage.output_tokens']),\r\n         reasoning = todouble(customDimensions['codex.usage.reasoning_output_tokens'])\r\n| where isnotnull(total) | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Response token reports', source = 'dependencies'),\r\n    (customMetrics\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | where name == 'codex.tool.call'\r\n     | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Tool-call metric points', source = 'customMetrics'),\r\n    (traces\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | where tostring(customDimensions['event.name']) == 'codex.tool_result'\r\n     | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Tool-result logs (raw, before deduplication)', source = 'traces'),\r\n    (requests\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Application request spans', source = 'requests'),\r\n    (dependencies\n| where (timestamp >= StartTime and timestamp < EndTime)\r\n| where cloud_RoleName in ('codex-app-server', 'coding-agent.codex-app-server', '[coding-agent]/codex-app-server') | summarize records = count(), last_seen = max(timestamp) | extend signal = 'Application dependency spans', source = 'dependencies')\r\n| extend age_s = todouble(datetime_diff('second', EndTime, last_seen)),\r\n         availability = iff(records > 0, 'Observed', 'Not observed in this resource/window')\r\n| project signal, source, records, last_seen, age_s, availability\r\n| order by signal asc);\nlet pricingCoverage = union\n    (responseCosts\n     | summarize observed = count(), records = countif(isnull(written)), last_seen = max(timestamp),\n                 versions = make_set_if(tostring(customDimensions['service.version']), isnull(written), 8)\n     | extend signal = 'Pricing: missing cache-write counters', source = 'dependencies',\n              availability = case(observed == 0, 'No response usage', records == 0, 'All write counters present', 'Usage incomplete'),\n              details = strcat(records, ' of ', observed, ' reports lack a write counter; client versions: ', tostring(versions))),\n    (print signal = 'Pricing: price scope', source = 'Prices', records = priceRowCount, last_seen = priceIngested,\n           availability = iff(pricesLoaded, 'Prices loaded', 'Price data unavailable'),\n           details = strcat('Prices are global to the billing account; ', priceRowCount, ' model and context rates loaded from ', billedMeterScopes, ' meters')),\n    (responseCosts\n     | summarize records = count(), priced = countif(priceStatus == 'Priced'), knownCost = sum(cost_usd), last_seen = max(timestamp)\n     | extend signal = 'Pricing: response coverage', source = 'dependencies',\n              availability = case(records == 0, 'No response usage', records == priced, 'Complete', 'Incomplete'),\n              details = iff(records == 0, 'No usage reported', strcat(priced, ' of ', records, ' usage reports priced; priced subtotal USD ', round(knownCost, 6), iff(priced == records, '', '; unpriced usage excluded from monetary KPIs')))),\n    (responseCosts\n     | summarize observed = count(), records = countif(priceStatus != 'Priced'), last_seen = max(timestamp),\n                 problems = make_set_if(strcat(model, ': ', priceStatus), priceStatus != 'Priced')\n     | extend signal = 'Pricing: response errors', source = 'dependencies',\n              availability = case(observed == 0, 'No response usage', records == 0, 'No pricing errors', 'Action required'),\n              details = tostring(problems)),\n    (responseCosts\n     | summarize observed = count(), records = countif(isnull(turnPresent)), last_seen = max(timestamp)\n     | extend signal = 'Pricing: unattributed responses', source = 'dependencies',\n              availability = case(observed == 0, 'No response usage', records == 0, 'All responses linked to turns', 'Action required'),\n              details = 'Usage response -> stream -> sampling request -> run sampling -> run turn -> session task -> completed turn'),\n    (pricedTurns\n     | summarize observed = count(), records = countif(not(complete)), last_seen = max(turnStarted),\n                 problems = make_set_if(pricingStatus, not(complete))\n     | extend signal = 'Pricing: incomplete turns', source = 'dependencies',\n              availability = case(observed == 0, 'No completed turns', records == 0, 'All turn usage reconciles', 'Action required'),\n              details = tostring(problems)),\n    (print signal = 'Pricing: effective period', source = 'Prices', records = priceRowCount, last_seen = priceIngested,\n           availability = iff(StartTime >= priceStart and EndTime < priceEnd, 'Range covered', 'Range extends beyond price period'),\n           details = strcat(priceCurrency, '; ', billedMeterScopes, '; ', priceStart, ' <= response time < ', priceEnd)),\n    (print signal = 'Pricing: source', source = 'Prices', records = priceRowCount, last_seen = priceIngested,\n           availability = iff(priceEnd <= now(), 'Price sheet expired; refresh hub price data', 'Live price sheet'),\n           details = strcat('{HubQueryUri}/{HubDatabase} Prices; ', priceCurrency, ' per million tokens = unit price * 1,000,000 / x_PricingBlockSize; writes replace ordinary input pricing; missing exported write counts stay unknown'))\n| extend age_s = todouble(datetime_diff('second', EndTime, last_seen));\nunion pricingCoverage, telemetryCoverage\n| project signal, availability, records, details, source, last_seen, age_s\n| order by signal asc",
               "size": 1,
               "title": "Telemetry and pricing coverage",
               "timeContext": {
@@ -1441,7 +1687,37 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "signal",
+                    "label": "Signal"
+                  },
+                  {
+                    "columnId": "availability",
+                    "label": "Availability"
+                  },
+                  {
+                    "columnId": "records",
+                    "label": "Records"
+                  },
+                  {
+                    "columnId": "details",
+                    "label": "Details"
+                  },
+                  {
+                    "columnId": "source",
+                    "label": "Source"
+                  },
+                  {
+                    "columnId": "last_seen",
+                    "label": "Last seen"
+                  },
+                  {
+                    "columnId": "age_s",
+                    "label": "Age s"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,

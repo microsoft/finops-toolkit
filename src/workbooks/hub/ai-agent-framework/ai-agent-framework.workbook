@@ -675,7 +675,45 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "agent_name",
+                    "label": "Agent name"
+                  },
+                  {
+                    "columnId": "operations",
+                    "label": "Operations"
+                  },
+                  {
+                    "columnId": "avg_duration",
+                    "label": "Avg duration"
+                  },
+                  {
+                    "columnId": "success_rate",
+                    "label": "Success rate"
+                  },
+                  {
+                    "columnId": "priced_cost",
+                    "label": "Priced cost"
+                  },
+                  {
+                    "columnId": "cost_per_call",
+                    "label": "Cost per call"
+                  },
+                  {
+                    "columnId": "blended_rate",
+                    "label": "Blended rate"
+                  },
+                  {
+                    "columnId": "pricing_coverage",
+                    "label": "Pricing coverage"
+                  },
+                  {
+                    "columnId": "agentKey",
+                    "label": "Agent key"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -714,7 +752,21 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "timestamp",
+                    "label": "Timestamp"
+                  },
+                  {
+                    "columnId": "agent_name",
+                    "label": "Agent name"
+                  },
+                  {
+                    "columnId": "operations_count",
+                    "label": "Operations count"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -826,7 +878,25 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "timestamp",
+                    "label": "Timestamp"
+                  },
+                  {
+                    "columnId": "agent_name",
+                    "label": "Agent name"
+                  },
+                  {
+                    "columnId": "error_type",
+                    "label": "Error type"
+                  },
+                  {
+                    "columnId": "duration",
+                    "label": "Duration"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -906,7 +976,33 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "timestamp",
+                    "label": "Timestamp"
+                  },
+                  {
+                    "columnId": "success",
+                    "label": "Success"
+                  },
+                  {
+                    "columnId": "duration",
+                    "label": "Duration"
+                  },
+                  {
+                    "columnId": "input_tokens",
+                    "label": "Input tokens"
+                  },
+                  {
+                    "columnId": "output_tokens",
+                    "label": "Output tokens"
+                  },
+                  {
+                    "columnId": "TraceId",
+                    "label": "Trace ID"
+                  }
+                ]
               },
               "exportedParameters": [
                 {
@@ -967,7 +1063,29 @@
                           }
                         }
                       ],
-                      "rowLimit": 1000
+                      "rowLimit": 1000,
+                      "labelSettings": [
+                        {
+                          "columnId": "timestamp",
+                          "label": "Timestamp"
+                        },
+                        {
+                          "columnId": "ItemType",
+                          "label": "Item type"
+                        },
+                        {
+                          "columnId": "DurationMs",
+                          "label": "Duration ms"
+                        },
+                        {
+                          "columnId": "SpanId",
+                          "label": "Span ID"
+                        },
+                        {
+                          "columnId": "ParentId",
+                          "label": "Parent ID"
+                        }
+                      ]
                     }
                   },
                   "doNotRunWhenHidden": true,
