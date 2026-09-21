@@ -466,9 +466,9 @@ Examples:
 
 Both come from a single prune, so the template and the demo report always match. The tables and queries each report keeps are listed in [src/power-bi/reports.json](../power-bi/reports.json). When you add a table or query to a report, add it there too.
 
-Templates ship with the data source parameters set to null. Demo projects are stamped with the data source in `reports.json` (`demo.storageUrl` and `demo.clusterUrl`), so a release never depends on whatever the source project was last saved with. Point those at the current demo hub when it changes.
+Templates ship with the data source parameters set to null. Demo projects keep the data source saved in the semantic model, which points at the demo hub.
 
-Demo projects also read open data from `demo.openDataUrl` (the repo) instead of the release, because open data for the release being built isn't published until the release ships. Templates keep the release URL.
+Demo projects read open data from `src/open-data` in the current working tree, so the demo is built from the branch being released. Templates keep the release URL, which resolves to the last published release and doesn't have open data files added during this release.
 
 
 The build fails, with a message that names the report and what to add to `reports.json`, when:

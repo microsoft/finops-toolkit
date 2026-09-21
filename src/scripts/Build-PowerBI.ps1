@@ -85,12 +85,9 @@ if (-not $KQL -and -not $Storage) { $KQL = $Storage = $true }
 $reportsConfigPath = "$srcDir/reports.json"
 $reportsConfig = Get-Content $reportsConfigPath -Raw | ConvertFrom-Json -Depth 10
 
-# Demo projects are stamped with this data source so a release never depends on whatever the
-# source project was last saved with. Templates always ship with the data source set to null.
-$demoConnection = @{
-    'Storage URL' = $reportsConfig.demo.storageUrl
-    'Cluster URL' = $reportsConfig.demo.clusterUrl
-}
+# Demo projects read open data from this working tree instead of the last published release, which
+# doesn't have open data files added during the release being built.
+$openDataDir = [System.IO.Path]::GetFullPath("$srcDir/../open-data")
 
 $reportMetadata = @{}
 $reportsConfig.reports.PSObject.Properties `
@@ -764,30 +761,21 @@ foreach ($inputFile in $reports)
         # The template is rendered from the same model, so every demo-only change is undone after
         $demoEdits = New-Object System.Collections.Generic.List[object]
 
-        foreach ($exp in @($db.Model.Expressions | Where-Object { $demoConnection.ContainsKey($_.Name) }))
+        # The release URL resolves to the last published release, which doesn't have open data
+        # files added during this release. Reading from the working tree also means the demo is
+        # built from the branch being released, not from whatever shipped last.
+        foreach ($table in @($db.Model.Tables))
         {
-            $value = $demoConnection[$exp.Name]
-            if (-not $value) { throw "reports.json doesn't set a demo data source for '$($exp.Name)', which the $baseName demo project needs." }
-
-            if ($exp.Expression -notmatch '^"[^"]*"') { throw "Could not set '$($exp.Name)' in the $baseName demo project. Its value isn't a text literal: $($exp.Expression)" }
-            Write-Verbose "  Demo $($exp.Name): $value"
-            $demoEdits.Add([PSCustomObject]@{ Object = $exp; Expression = $exp.Expression })
-            $exp.Expression = $exp.Expression -replace '^"[^"]*"', ('"' + $value.Replace('"', '""') + '"')
-        }
-
-        # Open data for the release being built isn't published until the release ships, so the
-        # release URL 404s for any file added this release. Demo projects read it from the repo.
-        if ($reportsConfig.demo.openDataUrl)
-        {
-            $openDataUrl = $reportsConfig.demo.openDataUrl.TrimEnd('/')
-            foreach ($table in @($db.Model.Tables))
+            foreach ($partition in @($table.Partitions | Where-Object { $_.Source.Expression -match 'releases/latest/download/' }))
             {
-                foreach ($partition in @($table.Partitions | Where-Object { $_.Source.Expression -match 'releases/latest/download/' }))
-                {
-                    Write-Verbose "  Demo open data for $($table.Name): $openDataUrl"
-                    $demoEdits.Add([PSCustomObject]@{ Object = $partition.Source; Expression = $partition.Source.Expression })
-                    $partition.Source.Expression = $partition.Source.Expression -replace 'https://github\.com/microsoft/finops-toolkit/releases/latest/download/', "$openDataUrl/"
-                }
+                $demoEdits.Add([PSCustomObject]@{ Object = $partition.Source; Expression = $partition.Source.Expression })
+                $partition.Source.Expression = [regex]::Replace($partition.Source.Expression, 'Web\.Contents\("https://github\.com/microsoft/finops-toolkit/releases/latest/download/(?<file>[^"]+)"\)', {
+                        param($match)
+                        $localFile = Join-Path $openDataDir $match.Groups['file'].Value
+                        if (-not (Test-Path $localFile)) { throw "The $baseName demo project reads $($match.Groups['file'].Value), which isn't in src/open-data." }
+                        Write-Verbose "  Demo open data for $($table.Name): $localFile"
+                        return 'File.Contents("' + $localFile.Replace('"', '""') + '")'
+                    })
             }
         }
 

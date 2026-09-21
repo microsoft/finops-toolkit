@@ -248,12 +248,30 @@ try
         Get-Process PBIDesktop -ErrorAction SilentlyContinue | Where-Object { $existing -notcontains $_.Id } | Select-Object -First 1
     }
 
+    $promptedAt = $null
     $mainWindow = Wait-Until -Description "the $reportLabel report to open" -Condition {
         $windows = @(Get-ProcessWindow $desktop.Id)
 
-        # Nothing here can sign in, so stop immediately instead of waiting out the timeout
+        # Nothing here can sign in, so say so plainly and wait for the person at the keyboard
         $signIn = @($windows | Where-Object { $_.Current.Name -match "(?i)sign in|sign-in|credential|authenticat|your account" }) | Select-Object -First 1
-        if ($signIn) { throw "Power BI Desktop is asking to sign in ('$($signIn.Current.Name)'). Sign in to Power BI Desktop, refresh this report once to save its data source credentials, then rerun." }
+        if ($signIn)
+        {
+            if (-not $promptedAt)
+            {
+                $promptedAt = Get-Date
+                Write-Host ''
+                Write-Host "    ⚠️ ACTION NEEDED: Power BI Desktop is asking you to sign in ('$($signIn.Current.Name)')." -ForegroundColor Yellow
+                Write-Host '       Complete the sign-in in that window. Everything continues on its own afterward.' -ForegroundColor Yellow
+                Write-Host ''
+            }
+            return $null
+        }
+
+        if ($promptedAt)
+        {
+            Write-Step "Signed in after $([int]((Get-Date) - $promptedAt).TotalSeconds) seconds. Continuing..."
+            $promptedAt = $null
+        }
 
         $windows | Where-Object { $_.Current.Name -like "*$reportLabel*" } | Select-Object -First 1
     }
