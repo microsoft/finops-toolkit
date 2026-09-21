@@ -468,6 +468,8 @@ Both come from a single prune, so the template and the demo report always match.
 
 Templates ship with the data source parameters set to null. Demo projects are stamped with the data source in `reports.json` (`demo.storageUrl` and `demo.clusterUrl`), so a release never depends on whatever the source project was last saved with. Point those at the current demo hub when it changes.
 
+Demo projects also read open data from `demo.openDataUrl` (the repo) instead of the release, because open data for the release being built isn't published until the release ships. Templates keep the release URL.
+
 
 The build fails, with a message that names the report and what to add to `reports.json`, when:
 

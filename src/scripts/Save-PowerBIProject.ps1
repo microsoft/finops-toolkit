@@ -288,7 +288,36 @@ try
         $errors = @($results | ForEach-Object { $_.Messages } | Where-Object { $_.GetType().Name -eq 'XmlaError' } | ForEach-Object { $_.Description })
         if ($errors.Count -gt 0)
         {
-            throw "Data refresh failed:`n  $($errors -join "`n  ")"
+            # The engine reports what went wrong but not where, and one failure cancels the whole
+            # transaction. Refreshing each table on its own says which tables are actually broken.
+            Write-Step 'Refresh failed. Checking each table to find the cause...'
+            $broken = New-Object System.Collections.Generic.List[string]
+            foreach ($table in @($database.Model.Tables))
+            {
+                if ((Get-Date) -ge $deadline)
+                {
+                    $broken.Add('(ran out of time before checking every table)')
+                    break
+                }
+
+                $tableCommand = @{ refresh = @{ type = 'full'; applyRefreshPolicy = $false; objects = @(@{ database = $database.Name; table = $table.Name }) } } | ConvertTo-Json -Depth 5 -Compress
+                try
+                {
+                    $tableResults = $server.Execute($tableCommand)
+                    $tableErrors = @($tableResults | ForEach-Object { $_.Messages } | Where-Object { $_.GetType().Name -eq 'XmlaError' } | ForEach-Object { $_.Description })
+                }
+                catch
+                {
+                    $tableErrors = @($_.Exception.GetBaseException().Message)
+                }
+
+                # Errors about a cancelled transaction come from another table, not this one
+                $tableErrors = @($tableErrors | Where-Object { $_ -notmatch 'another operation in the transaction' })
+                if ($tableErrors.Count -gt 0) { $broken.Add("$($table.Name): $(($tableErrors | Select-Object -First 2) -join ' ')") }
+            }
+
+            $detail = if ($broken.Count -gt 0) { "`n  $($broken -join "`n  ")" } else { "`n  $($errors -join "`n  ")" }
+            throw "Data refresh failed:$detail"
         }
 
         $database.Refresh($true)

@@ -761,6 +761,9 @@ foreach ($inputFile in $reports)
         # The demo project keeps the demo data source, so check it before template changes
         Assert-NoMissingDependency $db $removedNames "The $baseName demo project" $reportName
 
+        # The template is rendered from the same model, so every demo-only change is undone after
+        $demoEdits = New-Object System.Collections.Generic.List[object]
+
         foreach ($exp in @($db.Model.Expressions | Where-Object { $demoConnection.ContainsKey($_.Name) }))
         {
             $value = $demoConnection[$exp.Name]
@@ -768,7 +771,24 @@ foreach ($inputFile in $reports)
 
             if ($exp.Expression -notmatch '^"[^"]*"') { throw "Could not set '$($exp.Name)' in the $baseName demo project. Its value isn't a text literal: $($exp.Expression)" }
             Write-Verbose "  Demo $($exp.Name): $value"
+            $demoEdits.Add([PSCustomObject]@{ Object = $exp; Expression = $exp.Expression })
             $exp.Expression = $exp.Expression -replace '^"[^"]*"', ('"' + $value.Replace('"', '""') + '"')
+        }
+
+        # Open data for the release being built isn't published until the release ships, so the
+        # release URL 404s for any file added this release. Demo projects read it from the repo.
+        if ($reportsConfig.demo.openDataUrl)
+        {
+            $openDataUrl = $reportsConfig.demo.openDataUrl.TrimEnd('/')
+            foreach ($table in @($db.Model.Tables))
+            {
+                foreach ($partition in @($table.Partitions | Where-Object { $_.Source.Expression -match 'releases/latest/download/' }))
+                {
+                    Write-Verbose "  Demo open data for $($table.Name): $openDataUrl"
+                    $demoEdits.Add([PSCustomObject]@{ Object = $partition.Source; Expression = $partition.Source.Expression })
+                    $partition.Source.Expression = $partition.Source.Expression -replace 'https://github\.com/microsoft/finops-toolkit/releases/latest/download/', "$openDataUrl/"
+                }
+            }
         }
 
 
@@ -814,6 +834,9 @@ foreach ($inputFile in $reports)
             artifacts = @(@{ report = @{ path = "$baseName.Report" } })
             settings  = @{ enableAutoRecovery = $true }
         } | ConvertTo-Json -Depth 10 | Set-Content "$pbixDir/$baseName.pbip" -NoNewline
+
+        # Templates ship the public data source and open data URLs, not the demo ones
+        foreach ($edit in $demoEdits) { $edit.Object.Expression = $edit.Expression }
     }
 
     #endregion PBIP project

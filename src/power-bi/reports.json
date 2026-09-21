@@ -5,11 +5,13 @@
     "tables: Tables to keep. Everything else is removed from the template and demo project.",
     "queries: Parameters, functions, and queries that do not load a table (Power Query expressions) to keep.",
     "Prefix a name with [kql] or [storage] to keep it for that report type only.",
-    "demo: Data source the generated demo projects connect to. Templates always ship with these set to null."
+    "demo: Data source the generated demo projects connect to. Templates always ship with these set to null.",
+    "demo.openDataUrl: Where demo projects read open data files. Open data for the release being built is not published yet, so demo projects read it from the repo instead of the release."
   ],
   "demo": {
     "storageUrl": "https://devhubjrcckugyiacvk.dfs.core.windows.net/ingestion",
-    "clusterUrl": "ftk-dev.westus"
+    "clusterUrl": "ftk-dev.westus",
+    "openDataUrl": "https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data"
   },
   "reports": {
     "CostSummary": {
