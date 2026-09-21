@@ -86,16 +86,10 @@ Describe 'PowerQueryColumnNames' {
         $modelColumnPattern = [regex]'(?m)^\s*sourceColumn:\s*(\S+)'
 
         # Unguarded references to columns FOCUS 1.2 drops, counted per repo-relative path.
-        # Ratchet only: lower on fix, never raise.
-        #
-        # Costs.tmdl: the "Handle columns renamed in FOCUS 1.2 gracefully" block reads
-        # [x_InvoiceId], [x_PricingCurrency] and [x_SkuMeterName], and Align12 passes all three as
-        # columnsToSearch. On a container holding only 1.2 exports none of them exist. Guard the
-        # block with the _exists / _swapCol helpers already defined at the top of the query, then
-        # lower this entry. Tracked on issue #2332 / PR #2333.
-        $baseline = @{
-            'src/power-bi/storage/Shared.Dataset/definition/tables/Costs.tmdl' = 3
-        }
+        # Ratchet only: lower on fix, never raise. Empty today - Costs.tmdl guards all three with
+        # Table.HasColumns in its EnsureRenamedCols step. Add an entry only for a reference that
+        # genuinely cannot be guarded, and say why.
+        $baseline = @{}
     }
 
     It 'Should find the export schemas and the dataset partitions' {
