@@ -32,7 +32,10 @@
     Optional. Sensitivity label demo reports must have, if they have one. Default = "Public".
 
     .PARAMETER OpenDataUrl
-    Optional. Public folder demo reports read open data from. Passed to Build-PowerBI. Default = the open data files in the main branch.
+    Optional. Public folder demo reports read open data from. Passed to Build-PowerBI. Must be a permanent location. Default = the open data files in the main branch.
+
+    .PARAMETER TestOpenDataUrl
+    Optional. Allows an OpenDataUrl that isn't permanent. Demo reports built this way are not packaged. Default = false.
 
     .EXAMPLE
     ./Package-PowerBI
@@ -68,7 +71,9 @@ param(
 
     [string] $SensitivityLabel = 'Public',
 
-    [string] $OpenDataUrl
+    [string] $OpenDataUrl,
+
+    [switch] $TestOpenDataUrl
 )
 
 $ErrorActionPreference = 'Stop'
@@ -79,7 +84,9 @@ $pbixDir = "$relDir/pbix"
 $manifestPath = "$pbixDir/.manifest.json"
 
 $version = & "$PSScriptRoot/Get-Version.ps1"
-$buildArgs = if ($OpenDataUrl) { @{ OpenDataUrl = $OpenDataUrl } } else { @{} }
+$buildArgs = @{}
+if ($OpenDataUrl) { $buildArgs.OpenDataUrl = $OpenDataUrl }
+if ($TestOpenDataUrl) { $buildArgs.TestOpenDataUrl = $true }
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
@@ -437,6 +444,11 @@ elseif ($state.Missing.Count -gt 0)
 #endregion Save PBIX files
 
 #region Validate and package
+
+if ($manifest.PSObject.Properties.Name -contains 'releasable' -and -not $manifest.releasable)
+{
+    throw "Demo reports were built reading open data from $($manifest.openDataUrl), which isn't permanent, so they can't be released. Rebuild with ./Package-PowerBI -Build once the open data files are on main."
+}
 
 Write-Host "Checking $($state.Saved.Count) demo report$(if ($state.Saved.Count -ne 1) { 's' })..."
 $failed = 0

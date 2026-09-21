@@ -37,14 +37,14 @@
     .PARAMETER Scope
     Optional. Resource IDs of the scopes to export cost data for. Default = the subscription being deployed to.
 
-    .PARAMETER Months
-    Optional. Number of months of data to backfill. Default = 12 for the current demo hub, 1 for a versioned instance.
+    .PARAMETER Retention
+    Optional. Number of months of data the hub keeps. Default = 12 for the current demo hub, 1 for a versioned instance.
+
+    .PARAMETER Backfill
+    Optional. Number of months of history to load. Backfilling is a one-time task for a new instance, so nothing is backfilled unless this is specified.
 
     .PARAMETER Check
     Optional. Reports whether the demo hub is ready for a release without changing anything. Default = false.
-
-    .PARAMETER SkipBackfill
-    Optional. Deploys the hub without creating or running exports. Default = false.
 
     .PARAMETER Stop
     Optional. Stops the Data Explorer cluster when the deployment finishes. Default = true for versioned instances.
@@ -63,12 +63,17 @@
     .EXAMPLE
     ./Deploy-Demo
 
-    Deploys or updates the demo hub and backfills 12 months of data.
+    Deploys or updates the demo hub. Exports keep running on their own, so nothing is backfilled.
 
     .EXAMPLE
-    ./Deploy-Demo -Version v15
+    ./Deploy-Demo -Backfill 12
 
-    Deploys the versioned instance for v15 with one month of data, then stops its cluster.
+    Deploys the demo hub and loads 12 months of history. Only needed for a new instance.
+
+    .EXAMPLE
+    ./Deploy-Demo -Version v15 -Backfill 1
+
+    Deploys the versioned instance for v15 with one month of data.
 
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-deploy-demo
@@ -91,13 +96,13 @@ param(
     $Scope,
 
     [int]
-    $Months,
+    $Retention,
+
+    [int]
+    $Backfill,
 
     [switch]
     $Check,
-
-    [switch]
-    $SkipBackfill,
 
     [switch]
     $Stop,
@@ -112,7 +117,7 @@ $toolkitVersion = & "$PSScriptRoot/Get-Version.ps1"
 $isVersioned = [bool]$Version
 $name = if ($isVersioned) { "ftk-demo-$($Version.TrimStart('v') -replace '^', 'v')" } else { 'ftk-demo' }
 if (-not $ResourceGroup) { $ResourceGroup = $name }
-if (-not $Months) { $Months = if ($isVersioned) { 1 } else { 12 } }
+if (-not $Retention) { $Retention = if ($isVersioned) { 1 } else { 12 } }
 if (-not $PSBoundParameters.ContainsKey('Stop')) { $Stop = $isVersioned }
 
 #region Helpers
@@ -253,11 +258,11 @@ $parameters = @{
     dataExplorerSku                   = if ($isVersioned) { 'Dev(No SLA)_Standard_E2a_v4' } else { 'Standard_E2ads_v5' }
     enableManagedExports              = $true
     scopesToMonitor                   = $Scope
-    ingestionRetentionInMonths        = $Months
-    dataExplorerFinalRetentionInMonths = $Months
+    ingestionRetentionInMonths        = $Retention
+    dataExplorerFinalRetentionInMonths = $Retention
 }
 
-Write-Host "Deploying $name with $Months month$(if ($Months -ne 1) { 's' }) of data for $($Scope -join ', ')..."
+Write-Host "Deploying $name keeping $Retention month$(if ($Retention -ne 1) { 's' }) of data for $($Scope -join ', ')..."
 
 if ($PSCmdlet.ShouldProcess($name, "Deploy FinOps hub to $ResourceGroup"))
 {
@@ -270,9 +275,10 @@ if ($WhatIfPreference) { return }
 
 #region Backfill
 
-if ($SkipBackfill)
+# Managed exports run on their own once the hub is deployed, so history is only loaded when asked
+if (-not $Backfill)
 {
-    Write-Host 'Skipping exports.'
+    Write-Host 'Exports run on their own. Pass -Backfill to load history, which a new instance needs once.'
 }
 else
 {
@@ -283,7 +289,7 @@ else
     foreach ($target in $Scope)
     {
         $exportName = "$name-focus"
-        Write-Host "Backfilling $Months month$(if ($Months -ne 1) { 's' }) of FOCUS 1.2 data for $target..."
+        Write-Host "Backfilling $Backfill month$(if ($Backfill -ne 1) { 's' }) of FOCUS 1.2 data for $target..."
 
         if ($PSCmdlet.ShouldProcess($target, "Create and run the $exportName export"))
         {
@@ -295,7 +301,7 @@ else
                 -Monthly `
                 -StorageAccountId $storageId `
                 -StorageContainer 'msexports' `
-                -Backfill $Months `
+                -Backfill $Backfill `
                 -Execute `
                 -ErrorAction Stop `
             | Out-Null

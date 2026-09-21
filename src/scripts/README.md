@@ -478,9 +478,9 @@ Run `-Check` before a release. It reports the hub version and months of data, an
 | `‑ResourceGroup` | Optional. Name of the resource group. Default = the instance name.                                 |
 | `‑Location`      | Optional. Azure region. Default = "westus".                                                        |
 | `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the subscription being deployed to.      |
-| `‑Months`        | Optional. Months of data to backfill. Default = 12, or 1 for a versioned instance.                 |
+| `‑Retention`     | Optional. Months of data the hub keeps. Default = 12, or 1 for a versioned instance.               |
+| `‑Backfill`      | Optional. Months of history to load. Backfilling is a one-time task for a new instance, so nothing is backfilled unless specified. |
 | `‑Check`         | Optional. Reports whether the demo hub is ready for a release without changing anything.           |
-| `‑SkipBackfill`  | Optional. Deploys the hub without creating or running exports.                                     |
 | `‑Stop`          | Optional. Stops the Data Explorer cluster when finished. Default = true for versioned instances.   |
 | `‑Build`         | Optional. Builds the templates before deploying.                                                   |
 
@@ -492,16 +492,22 @@ Examples:
   ./Deploy-Demo -Check
   ```
 
-- Deploy or update the demo hub and backfill 12 months.
+- Deploy or update the demo hub. Exports keep running on their own, so nothing is backfilled.
 
   ```powershell
   ./Deploy-Demo
   ```
 
+- Load 12 months of history, which a new instance needs once.
+
+  ```powershell
+  ./Deploy-Demo -Backfill 12
+  ```
+
 - Deploy the versioned instance for v15.
 
   ```powershell
-  ./Deploy-Demo -Version v15
+  ./Deploy-Demo -Version v15 -Backfill 1
   ```
 
 <br>
@@ -519,7 +525,9 @@ Templates ship with the data source parameters set to null. Demo projects keep t
 
 Demo reports ship to customers, so they read open data over HTTP like the templates do. They can't use the release URL, because it resolves to the last published release, which doesn't have open data files added during the release being built. `‑OpenDataUrl` sets where they read it from, and defaults to the open data files in the `main` branch. Every URL is checked at build time, so a file that isn't published yet fails here instead of when someone refreshes the demo.
 
-The release process merges to `main` before packaging Power BI, so the default is correct at release time. To build demo reports before that merge, pass `‑OpenDataUrl` with a pushed branch that has the files.
+The URL ends up inside the demo reports, so it has to outlive the release. Only the `main` branch and release URLs are accepted. The release process merges to `main` before packaging Power BI, so the default is correct at release time.
+
+To build demo reports before that merge, add `‑TestOpenDataUrl` and pass a branch with `‑OpenDataUrl`. Those reports can't be released: the build warns, records it in the manifest, and `Package-PowerBI` refuses to package them.
 
 
 The build fails, with a message that names the report and what to add to `reports.json`, when:
