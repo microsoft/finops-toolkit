@@ -771,24 +771,6 @@ foreach ($inputFile in $reports)
             $exp.Expression = $exp.Expression -replace '^"[^"]*"', ('"' + $value.Replace('"', '""') + '"')
         }
 
-        # The source filter keys off a hardcoded list of storage account names, which silently
-        # stops filtering when the demo hub changes. Demo projects get the subscriptions from
-        # reports.json instead, so what ships is what's configured.
-        $demoFilter = @($db.Model.Expressions | Where-Object { $_.Name -eq 'ftk_DemoFilter' })
-        if ($demoFilter.Count -gt 0)
-        {
-            $subscriptions = @($reportsConfig.demo.subscriptionIds)
-            if ($subscriptions.Count -gt 0)
-            {
-                $list = ($subscriptions | ForEach-Object { "'" + ($_ -replace "'", "''") + "'" }) -join ', '
-                $demoFilter[0].Expression = "() => `"| where subscriptionId in ($list)`""
-            }
-            else
-            {
-                $demoFilter[0].Expression = '() => ""'
-                Write-Warning "$baseName is not filtered to any subscriptions, so every subscription in the demo hub ships in PowerBI-demo.zip. Set demo.subscriptionIds in src/power-bi/reports.json to limit it."
-            }
-        }
 
         # Re-serialize the pruned model so the PBIP matches what the PBIT ships
         Remove-Item "$stagedDataset/definition" -Recurse -Force
