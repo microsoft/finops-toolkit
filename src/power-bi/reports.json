@@ -5,13 +5,11 @@
     "tables: Tables to keep. Everything else is removed from the template and demo project.",
     "queries: Parameters, functions, and queries that do not load a table (Power Query expressions) to keep.",
     "Prefix a name with [kql] or [storage] to keep it for that report type only.",
-    "demo: Data source the generated demo projects connect to. Templates always ship with these set to null.",
-    "demo.subscriptionIds: Subscriptions the demo reports are limited to. Empty means every subscription in the hub ships in PowerBI-demo.zip."
+    "demo: Data source the generated demo projects connect to. Templates always ship with these set to null."
   ],
   "demo": {
     "storageUrl": "https://devhubjrcckugyiacvk.dfs.core.windows.net/ingestion",
-    "clusterUrl": "ftk-dev.westus",
-    "subscriptionIds": []
+    "clusterUrl": "ftk-dev.westus"
   },
   "reports": {
     "CostSummary": {
