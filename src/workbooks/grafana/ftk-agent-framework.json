@@ -644,7 +644,7 @@
       "gridPos": {
         "x": 0,
         "y": 14,
-        "w": 16,
+        "w": 24,
         "h": 9
       },
       "fieldConfig": {
@@ -675,6 +675,94 @@
               {
                 "id": "decimals",
                 "value": 4
+              },
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Agent"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 240
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Provider"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 170
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Model"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 190
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cost basis"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 290
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Calls"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Input tokens"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Output tokens"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 130
               }
             ]
           }
@@ -691,7 +779,7 @@
           "refId": "A",
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "// Token rates are read live from the FinOps hub price sheet.\n// Only Azure OpenAI and Azure AI Inference usage can be priced from it. Other\n// providers bill through their own rate sheets, and Claude models in Microsoft\n// Foundry bill in Claude consumption units through Azure Marketplace, which\n// carries no per-model token rate. Set the Cluster URI and Database variables.\n// Scope, tier and context are billing dimensions that telemetry does not carry,\n// so they are selected above rather than inferred here.\nlet wantScope = '${priceScope}';\nlet wantTier = '${priceTier}';\nlet wantContext = '${priceContext}';\nlet meterRx = @'(?i)^(.+?)\\s+(?:(ShortCo|LongCo)\\s+)?(?:(Std|PP)\\s+)?(Cd\\s+Wr|Cd\\s+Inpt|Cd\\s+Inp|cchd\\s+Inpt|cchd\\s+Inp|Inpt|Inp|Outpt|Outp|Opt)\\s+(?:(Std|PP)\\s+)?(Glbl|Gl|Dzone|DZ|Rgnl|Rg)\\s+1M\\s+Tokens$';\nlet normalizeModel = (s: string) {\n    trim('-', replace_regex(replace_regex(replace_regex(tolower(s), @'-\\d{4}-\\d{2}-\\d{2}$', ''), @'[^a-z0-9]+', '-'), @'^gpt-', ''))\n};\nlet priceRates = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith '1M Tokens' and PricingUnit == 'Units'\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | where x_EffectivePeriodStart <= now() and x_EffectivePeriodEnd > now()\n    | extend RawKind = tolower(extract(meterRx, 4, SkuMeter))\n    | where isnotempty(RawKind)\n    | extend RawCtx = tolower(extract(meterRx, 2, SkuMeter)),\n        RawTier = tolower(coalesce(extract(meterRx, 3, SkuMeter), extract(meterRx, 5, SkuMeter))),\n        RawScope = tolower(extract(meterRx, 6, SkuMeter))\n    | extend ModelKey = normalizeModel(extract(meterRx, 1, SkuMeter)),\n        Context = case(RawCtx == 'longco', 'long', RawCtx == 'shortco', 'short', 'any'),\n        Tier = iff(RawTier == 'pp', 'priority', 'standard'),\n        Scope = case(RawScope startswith 'dz', 'data zone', RawScope startswith 'rg', 'regional', 'global'),\n        Kind = case(RawKind == 'cd wr', 'cw', RawKind startswith 'cd ' or RawKind startswith 'cchd', 'cr', RawKind in ('inp', 'inpt'), 'i', 'o')\n    | where Scope =~ wantScope and Tier =~ wantTier and Context in~ (wantContext, 'any')\n    | extend Rate = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0\n    | summarize Rates = dcount(Rate), Rate = take_any(Rate), Currency = take_any(PricingCurrency) by ModelKey, Kind);\n// More than one distinct rate for a model and token kind means the meter cannot be\n// resolved, so the model is reported as ambiguous instead of picking a rate.\nlet ambiguousModels = coalesce(toscalar(priceRates | where Rates > 1 | summarize s = make_set(ModelKey) | project s), dynamic([]));\nlet price = toscalar(priceRates\n    | where Rates == 1\n    | summarize kinds = make_bag(bag_pack(Kind, Rate)) by ModelKey\n    | summarize b = make_bag(bag_pack(ModelKey, kinds))\n    | project b);\nlet priceCurrency = toscalar(priceRates | summarize take_any(Currency));\nlet pricesLoaded = toscalar(priceRates | count) > 0;\n${finopsUsage:raw}\nagentUsage\n| summarize ['Calls'] = count(), ['Input tokens'] = sum(coalesce(inputTokens, long(0))),\n    ['Cache read tokens'] = sum(cacheReadTokens), ['Output tokens'] = sum(coalesce(outputTokens, long(0))),\n    pricedCost = sumif(estimatedCost, costingState == 'Priced')\n    by ['Agent'] = agentLabel, ['Provider'] = providerLabel, ['Model'] = model, ['Cost basis'] = costingState\n| extend ['Estimated cost'] = iff(['Cost basis'] == 'Priced', pricedCost, real(null))\n| project-away pricedCost\n| order by ['Input tokens'] desc",
+            "query": "// Token rates are read live from the FinOps hub price sheet.\n// Only Azure OpenAI and Azure AI Inference usage can be priced from it. Other\n// providers bill through their own rate sheets, and Claude models in Microsoft\n// Foundry bill in Claude consumption units through Azure Marketplace, which\n// carries no per-model token rate. Set the Cluster URI and Database variables.\n// Scope, tier and context are billing dimensions that telemetry does not carry,\n// so they are selected above rather than inferred here.\nlet wantScope = '${priceScope}';\nlet wantTier = '${priceTier}';\nlet wantContext = '${priceContext}';\nlet meterRx = @'(?i)^(.+?)\\s+(?:(ShortCo|LongCo)\\s+)?(?:(Std|PP)\\s+)?(Cd\\s+Wr|Cd\\s+Inpt|Cd\\s+Inp|cchd\\s+Inpt|cchd\\s+Inp|Inpt|Inp|Outpt|Outp|Opt)\\s+(?:(Std|PP)\\s+)?(Glbl|Gl|Dzone|DZ|Rgnl|Rg)\\s+1M\\s+Tokens$';\nlet normalizeModel = (s: string) {\n    trim('-', replace_regex(replace_regex(replace_regex(tolower(s), @'-\\d{4}-\\d{2}-\\d{2}$', ''), @'[^a-z0-9]+', '-'), @'^gpt-', ''))\n};\nlet priceRates = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith '1M Tokens' and PricingUnit == 'Units'\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | where x_EffectivePeriodStart <= now() and x_EffectivePeriodEnd > now()\n    | extend RawKind = tolower(extract(meterRx, 4, SkuMeter))\n    | where isnotempty(RawKind)\n    | extend RawCtx = tolower(extract(meterRx, 2, SkuMeter)),\n        RawTier = tolower(coalesce(extract(meterRx, 3, SkuMeter), extract(meterRx, 5, SkuMeter))),\n        RawScope = tolower(extract(meterRx, 6, SkuMeter))\n    | extend ModelKey = normalizeModel(extract(meterRx, 1, SkuMeter)),\n        Context = case(RawCtx == 'longco', 'long', RawCtx == 'shortco', 'short', 'any'),\n        Tier = iff(RawTier == 'pp', 'priority', 'standard'),\n        Scope = case(RawScope startswith 'dz', 'data zone', RawScope startswith 'rg', 'regional', 'global'),\n        Kind = case(RawKind == 'cd wr', 'cw', RawKind startswith 'cd ' or RawKind startswith 'cchd', 'cr', RawKind in ('inp', 'inpt'), 'i', 'o')\n    | where Scope =~ wantScope and Tier =~ wantTier and Context in~ (wantContext, 'any')\n    | extend Rate = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0\n    | summarize Rates = dcount(Rate), Rate = take_any(Rate), Currency = take_any(PricingCurrency) by ModelKey, Kind);\n// More than one distinct rate for a model and token kind means the meter cannot be\n// resolved, so the model is reported as ambiguous instead of picking a rate.\nlet ambiguousModels = coalesce(toscalar(priceRates | where Rates > 1 | summarize s = make_set(ModelKey) | project s), dynamic([]));\nlet price = toscalar(priceRates\n    | where Rates == 1\n    | summarize kinds = make_bag(bag_pack(Kind, Rate)) by ModelKey\n    | summarize b = make_bag(bag_pack(ModelKey, kinds))\n    | project b);\nlet priceCurrency = toscalar(priceRates | summarize take_any(Currency));\nlet pricesLoaded = toscalar(priceRates | count) > 0;\n${finopsUsage:raw}\nagentUsage\n| summarize ['Calls'] = count(), ['Input tokens'] = sum(coalesce(inputTokens, long(0))),\n    ['Output tokens'] = sum(coalesce(outputTokens, long(0))),\n    pricedCost = sumif(estimatedCost, costingState == 'Priced')\n    by ['Agent'] = agentLabel, ['Provider'] = providerLabel, ['Model'] = model, ['Cost basis'] = costingState\n| extend ['Estimated cost'] = iff(['Cost basis'] == 'Priced', pricedCost, real(null))\n| project-away pricedCost\n| order by ['Input tokens'] desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -711,10 +799,10 @@
         "uid": "${am_ds}"
       },
       "gridPos": {
-        "x": 16,
-        "y": 14,
-        "w": 8,
-        "h": 9
+        "x": 0,
+        "y": 23,
+        "w": 24,
+        "h": 6
       },
       "fieldConfig": {
         "defaults": {
@@ -744,6 +832,58 @@
               {
                 "id": "decimals",
                 "value": 4
+              },
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cost basis"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 320
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Calls"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Agents"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Tokens"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 160
               }
             ]
           }
@@ -760,7 +900,7 @@
           "refId": "A",
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "// Token rates are read live from the FinOps hub price sheet.\n// Only Azure OpenAI and Azure AI Inference usage can be priced from it. Other\n// providers bill through their own rate sheets, and Claude models in Microsoft\n// Foundry bill in Claude consumption units through Azure Marketplace, which\n// carries no per-model token rate. Set the Cluster URI and Database variables.\n// Scope, tier and context are billing dimensions that telemetry does not carry,\n// so they are selected above rather than inferred here.\nlet wantScope = '${priceScope}';\nlet wantTier = '${priceTier}';\nlet wantContext = '${priceContext}';\nlet meterRx = @'(?i)^(.+?)\\s+(?:(ShortCo|LongCo)\\s+)?(?:(Std|PP)\\s+)?(Cd\\s+Wr|Cd\\s+Inpt|Cd\\s+Inp|cchd\\s+Inpt|cchd\\s+Inp|Inpt|Inp|Outpt|Outp|Opt)\\s+(?:(Std|PP)\\s+)?(Glbl|Gl|Dzone|DZ|Rgnl|Rg)\\s+1M\\s+Tokens$';\nlet normalizeModel = (s: string) {\n    trim('-', replace_regex(replace_regex(replace_regex(tolower(s), @'-\\d{4}-\\d{2}-\\d{2}$', ''), @'[^a-z0-9]+', '-'), @'^gpt-', ''))\n};\nlet priceRates = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith '1M Tokens' and PricingUnit == 'Units'\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | where x_EffectivePeriodStart <= now() and x_EffectivePeriodEnd > now()\n    | extend RawKind = tolower(extract(meterRx, 4, SkuMeter))\n    | where isnotempty(RawKind)\n    | extend RawCtx = tolower(extract(meterRx, 2, SkuMeter)),\n        RawTier = tolower(coalesce(extract(meterRx, 3, SkuMeter), extract(meterRx, 5, SkuMeter))),\n        RawScope = tolower(extract(meterRx, 6, SkuMeter))\n    | extend ModelKey = normalizeModel(extract(meterRx, 1, SkuMeter)),\n        Context = case(RawCtx == 'longco', 'long', RawCtx == 'shortco', 'short', 'any'),\n        Tier = iff(RawTier == 'pp', 'priority', 'standard'),\n        Scope = case(RawScope startswith 'dz', 'data zone', RawScope startswith 'rg', 'regional', 'global'),\n        Kind = case(RawKind == 'cd wr', 'cw', RawKind startswith 'cd ' or RawKind startswith 'cchd', 'cr', RawKind in ('inp', 'inpt'), 'i', 'o')\n    | where Scope =~ wantScope and Tier =~ wantTier and Context in~ (wantContext, 'any')\n    | extend Rate = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0\n    | summarize Rates = dcount(Rate), Rate = take_any(Rate), Currency = take_any(PricingCurrency) by ModelKey, Kind);\n// More than one distinct rate for a model and token kind means the meter cannot be\n// resolved, so the model is reported as ambiguous instead of picking a rate.\nlet ambiguousModels = coalesce(toscalar(priceRates | where Rates > 1 | summarize s = make_set(ModelKey) | project s), dynamic([]));\nlet price = toscalar(priceRates\n    | where Rates == 1\n    | summarize kinds = make_bag(bag_pack(Kind, Rate)) by ModelKey\n    | summarize b = make_bag(bag_pack(ModelKey, kinds))\n    | project b);\nlet priceCurrency = toscalar(priceRates | summarize take_any(Currency));\nlet pricesLoaded = toscalar(priceRates | count) > 0;\n${finopsUsage:raw}\nagentUsage\n| summarize ['Calls'] = count(), ['Agents'] = dcount(agentKey),\n    ['Tokens'] = sum(coalesce(inputTokens, long(0)) + coalesce(outputTokens, long(0))),\n    pricedCost = sumif(estimatedCost, costingState == 'Priced')\n    by ['Cost basis'] = costingState\n| extend ['Estimated cost'] = iff(['Cost basis'] == 'Priced', pricedCost, real(null)),\n    ['Currency'] = iff(['Cost basis'] == 'Priced', tostring(priceCurrency), '')\n| project-away pricedCost\n| order by ['Tokens'] desc",
+            "query": "// Token rates are read live from the FinOps hub price sheet.\n// Only Azure OpenAI and Azure AI Inference usage can be priced from it. Other\n// providers bill through their own rate sheets, and Claude models in Microsoft\n// Foundry bill in Claude consumption units through Azure Marketplace, which\n// carries no per-model token rate. Set the Cluster URI and Database variables.\n// Scope, tier and context are billing dimensions that telemetry does not carry,\n// so they are selected above rather than inferred here.\nlet wantScope = '${priceScope}';\nlet wantTier = '${priceTier}';\nlet wantContext = '${priceContext}';\nlet meterRx = @'(?i)^(.+?)\\s+(?:(ShortCo|LongCo)\\s+)?(?:(Std|PP)\\s+)?(Cd\\s+Wr|Cd\\s+Inpt|Cd\\s+Inp|cchd\\s+Inpt|cchd\\s+Inp|Inpt|Inp|Outpt|Outp|Opt)\\s+(?:(Std|PP)\\s+)?(Glbl|Gl|Dzone|DZ|Rgnl|Rg)\\s+1M\\s+Tokens$';\nlet normalizeModel = (s: string) {\n    trim('-', replace_regex(replace_regex(replace_regex(tolower(s), @'-\\d{4}-\\d{2}-\\d{2}$', ''), @'[^a-z0-9]+', '-'), @'^gpt-', ''))\n};\nlet priceRates = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith '1M Tokens' and PricingUnit == 'Units'\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | where x_EffectivePeriodStart <= now() and x_EffectivePeriodEnd > now()\n    | extend RawKind = tolower(extract(meterRx, 4, SkuMeter))\n    | where isnotempty(RawKind)\n    | extend RawCtx = tolower(extract(meterRx, 2, SkuMeter)),\n        RawTier = tolower(coalesce(extract(meterRx, 3, SkuMeter), extract(meterRx, 5, SkuMeter))),\n        RawScope = tolower(extract(meterRx, 6, SkuMeter))\n    | extend ModelKey = normalizeModel(extract(meterRx, 1, SkuMeter)),\n        Context = case(RawCtx == 'longco', 'long', RawCtx == 'shortco', 'short', 'any'),\n        Tier = iff(RawTier == 'pp', 'priority', 'standard'),\n        Scope = case(RawScope startswith 'dz', 'data zone', RawScope startswith 'rg', 'regional', 'global'),\n        Kind = case(RawKind == 'cd wr', 'cw', RawKind startswith 'cd ' or RawKind startswith 'cchd', 'cr', RawKind in ('inp', 'inpt'), 'i', 'o')\n    | where Scope =~ wantScope and Tier =~ wantTier and Context in~ (wantContext, 'any')\n    | extend Rate = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0\n    | summarize Rates = dcount(Rate), Rate = take_any(Rate), Currency = take_any(PricingCurrency) by ModelKey, Kind);\n// More than one distinct rate for a model and token kind means the meter cannot be\n// resolved, so the model is reported as ambiguous instead of picking a rate.\nlet ambiguousModels = coalesce(toscalar(priceRates | where Rates > 1 | summarize s = make_set(ModelKey) | project s), dynamic([]));\nlet price = toscalar(priceRates\n    | where Rates == 1\n    | summarize kinds = make_bag(bag_pack(Kind, Rate)) by ModelKey\n    | summarize b = make_bag(bag_pack(ModelKey, kinds))\n    | project b);\nlet priceCurrency = toscalar(priceRates | summarize take_any(Currency));\nlet pricesLoaded = toscalar(priceRates | count) > 0;\n${finopsUsage:raw}\nagentUsage\n| summarize ['Calls'] = count(), ['Agents'] = dcount(agentKey),\n    ['Tokens'] = sum(coalesce(inputTokens, long(0)) + coalesce(outputTokens, long(0))),\n    pricedCost = sumif(estimatedCost, costingState == 'Priced')\n    by ['Cost basis'] = costingState\n| extend ['Estimated cost'] = iff(['Cost basis'] == 'Priced', pricedCost, real(null))\n| project-away pricedCost\n| order by ['Tokens'] desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -776,7 +916,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 29
       },
       "id": 30,
       "panels": [],
@@ -835,7 +975,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 24
+        "y": 30
       },
       "id": 31,
       "options": {
@@ -919,7 +1059,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 24
+        "y": 30
       },
       "id": 32,
       "options": {
@@ -1003,7 +1143,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 30
       },
       "id": 33,
       "options": {
@@ -1128,7 +1268,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 36
       },
       "id": 34,
       "interval": "1h",
@@ -1315,7 +1455,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 36
       },
       "id": 35,
       "options": {
@@ -1365,7 +1505,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 44
       },
       "id": 20,
       "panels": [],
@@ -1451,7 +1591,7 @@
         "h": 8,
         "w": 10,
         "x": 0,
-        "y": 39
+        "y": 45
       },
       "id": 1,
       "interval": "1h",
@@ -1547,7 +1687,7 @@
         "h": 8,
         "w": 7,
         "x": 10,
-        "y": 39
+        "y": 45
       },
       "id": 2,
       "options": {
@@ -1664,7 +1804,7 @@
         "h": 8,
         "w": 7,
         "x": 17,
-        "y": 39
+        "y": 45
       },
       "id": 3,
       "interval": "1h",
@@ -1711,7 +1851,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 53
       },
       "id": 22,
       "panels": [],
@@ -1843,7 +1983,7 @@
         "h": 14,
         "w": 12,
         "x": 0,
-        "y": 48
+        "y": 54
       },
       "id": 7,
       "options": {
@@ -1949,7 +2089,7 @@
         "h": 14,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 54
       },
       "id": 8,
       "options": {
@@ -2006,7 +2146,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 68
       },
       "id": 23,
       "panels": [],
@@ -2065,7 +2205,7 @@
         "h": 9,
         "w": 4,
         "x": 0,
-        "y": 63
+        "y": 69
       },
       "id": 9,
       "options": {
@@ -2182,7 +2322,7 @@
         "h": 9,
         "w": 12,
         "x": 4,
-        "y": 63
+        "y": 69
       },
       "id": 10,
       "interval": "1h",
@@ -2328,7 +2468,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 63
+        "y": 69
       },
       "id": 11,
       "options": {
@@ -2378,7 +2518,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 72
+        "y": 78
       },
       "id": 24,
       "panels": [],
@@ -2449,7 +2589,7 @@
         "h": 24,
         "w": 24,
         "x": 0,
-        "y": 73
+        "y": 79
       },
       "id": 13,
       "options": {
@@ -2503,7 +2643,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 97
+        "y": 103
       },
       "id": 25,
       "panels": [],
@@ -2665,7 +2805,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 98
+        "y": 104
       },
       "id": 26,
       "options": {
@@ -2715,7 +2855,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 106
+        "y": 112
       },
       "id": 27,
       "panels": [],
@@ -2732,7 +2872,7 @@
         "h": 27,
         "w": 24,
         "x": 0,
-        "y": 107
+        "y": 113
       },
       "id": 28,
       "options": {
