@@ -560,7 +560,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "none",
+          "decimals": 2
         },
         "overrides": [
           {
@@ -620,7 +621,7 @@
           "refId": "A",
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "// Token rates are read live from the FinOps hub price sheet.\n// Only Azure OpenAI and Azure AI Inference usage can be priced from it. Other\n// providers bill through their own rate sheets. GitHub Copilot reports the AI\n// credits it charged, so it is priced from that telemetry instead. Claude models\n// in Microsoft Foundry bill in Claude consumption units through Azure Marketplace,\n// which carries no per-model token rate. Set the Cluster URI and Database\n// variables. Scope, tier and context are billing dimensions that telemetry does\n// not carry, so they are selected above rather than inferred here.\nlet wantScope = '${priceScope}';\nlet wantTier = '${priceTier}';\nlet wantContext = '${priceContext}';\nlet meterRx = @'(?i)^(.+?)\\s+(?:(ShortCo|LongCo)\\s+)?(?:(Std|PP)\\s+)?(Cd\\s+Wr|Cd\\s+Inpt|Cd\\s+Inp|cchd\\s+Inpt|cchd\\s+Inp|Inpt|Inp|Outpt|Outp|Opt)\\s+(?:(Std|PP)\\s+)?(Glbl|Gl|Dzone|DZ|Rgnl|Rg)\\s+1M\\s+Tokens$';\nlet normalizeModel = (s: string) {\n    trim('-', replace_regex(replace_regex(replace_regex(tolower(s), @'-\\d{4}-\\d{2}-\\d{2}$', ''), @'[^a-z0-9]+', '-'), @'^gpt-', ''))\n};\nlet priceRates = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith '1M Tokens' and PricingUnit == 'Units'\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | where x_EffectivePeriodStart <= now() and x_EffectivePeriodEnd > now()\n    | extend RawKind = tolower(extract(meterRx, 4, SkuMeter))\n    | where isnotempty(RawKind)\n    | extend RawCtx = tolower(extract(meterRx, 2, SkuMeter)),\n        RawTier = tolower(coalesce(extract(meterRx, 3, SkuMeter), extract(meterRx, 5, SkuMeter))),\n        RawScope = tolower(extract(meterRx, 6, SkuMeter))\n    | extend ModelKey = normalizeModel(extract(meterRx, 1, SkuMeter)),\n        Context = case(RawCtx == 'longco', 'long', RawCtx == 'shortco', 'short', 'any'),\n        Tier = iff(RawTier == 'pp', 'priority', 'standard'),\n        Scope = case(RawScope startswith 'dz', 'data zone', RawScope startswith 'rg', 'regional', 'global'),\n        Kind = case(RawKind == 'cd wr', 'cw', RawKind startswith 'cd ' or RawKind startswith 'cchd', 'cr', RawKind in ('inp', 'inpt'), 'i', 'o')\n    | where Scope =~ wantScope and Tier =~ wantTier and Context in~ (wantContext, 'any')\n    | extend Rate = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0\n    | summarize Rates = dcount(Rate), Rate = take_any(Rate), Currency = take_any(PricingCurrency) by ModelKey, Kind);\n// More than one distinct rate for a model and token kind means the meter cannot be\n// resolved, so the model is reported as ambiguous instead of picking a rate.\nlet ambiguousModels = coalesce(toscalar(priceRates | where Rates > 1 | summarize s = make_set(ModelKey) | project s), dynamic([]));\nlet price = toscalar(priceRates\n    | where Rates == 1\n    | summarize kinds = make_bag(bag_pack(Kind, Rate)) by ModelKey\n    | summarize b = make_bag(bag_pack(ModelKey, kinds))\n    | project b);\nlet priceCurrency = toscalar(priceRates | summarize take_any(Currency));\nlet pricesLoaded = toscalar(priceRates | count) > 0;\n${finopsUsage:raw}\nagentUsage\n| extend cost = coalesce(azureCost, aiCredits * todouble('${creditRate}'))\n| where isnotnull(cost)\n| summarize ['Estimated cost'] = sum(cost) by bin(timestamp, 1d), ['Cost basis'] = costingState\n| order by timestamp asc",
+            "query": "// Token rates are read live from the FinOps hub price sheet.\n// Only Azure OpenAI and Azure AI Inference usage can be priced from it. Other\n// providers bill through their own rate sheets. GitHub Copilot reports the AI\n// credits it charged, so it is priced from that telemetry instead. Claude models\n// in Microsoft Foundry bill in Claude consumption units through Azure Marketplace,\n// which carries no per-model token rate. Set the Cluster URI and Database\n// variables. Scope, tier and context are billing dimensions that telemetry does\n// not carry, so they are selected above rather than inferred here.\nlet wantScope = '${priceScope}';\nlet wantTier = '${priceTier}';\nlet wantContext = '${priceContext}';\nlet meterRx = @'(?i)^(.+?)\\s+(?:(ShortCo|LongCo)\\s+)?(?:(Std|PP)\\s+)?(Cd\\s+Wr|Cd\\s+Inpt|Cd\\s+Inp|cchd\\s+Inpt|cchd\\s+Inp|Inpt|Inp|Outpt|Outp|Opt)\\s+(?:(Std|PP)\\s+)?(Glbl|Gl|Dzone|DZ|Rgnl|Rg)\\s+1M\\s+Tokens$';\nlet normalizeModel = (s: string) {\n    trim('-', replace_regex(replace_regex(replace_regex(tolower(s), @'-\\d{4}-\\d{2}-\\d{2}$', ''), @'[^a-z0-9]+', '-'), @'^gpt-', ''))\n};\nlet priceRates = materialize(\n    adx('${cluster}/${database}').Prices\n    | where SkuMeter endswith '1M Tokens' and PricingUnit == 'Units'\n    | where isnotnull(x_PricingBlockSize) and x_PricingBlockSize > 0\n    | where x_EffectivePeriodStart <= now() and x_EffectivePeriodEnd > now()\n    | extend RawKind = tolower(extract(meterRx, 4, SkuMeter))\n    | where isnotempty(RawKind)\n    | extend RawCtx = tolower(extract(meterRx, 2, SkuMeter)),\n        RawTier = tolower(coalesce(extract(meterRx, 3, SkuMeter), extract(meterRx, 5, SkuMeter))),\n        RawScope = tolower(extract(meterRx, 6, SkuMeter))\n    | extend ModelKey = normalizeModel(extract(meterRx, 1, SkuMeter)),\n        Context = case(RawCtx == 'longco', 'long', RawCtx == 'shortco', 'short', 'any'),\n        Tier = iff(RawTier == 'pp', 'priority', 'standard'),\n        Scope = case(RawScope startswith 'dz', 'data zone', RawScope startswith 'rg', 'regional', 'global'),\n        Kind = case(RawKind == 'cd wr', 'cw', RawKind startswith 'cd ' or RawKind startswith 'cchd', 'cr', RawKind in ('inp', 'inpt'), 'i', 'o')\n    | where Scope =~ wantScope and Tier =~ wantTier and Context in~ (wantContext, 'any')\n    | extend Rate = todouble(ContractedUnitPrice) / x_PricingBlockSize * 1000000.0\n    | summarize Rates = dcount(Rate), Rate = take_any(Rate), Currency = take_any(PricingCurrency) by ModelKey, Kind);\n// More than one distinct rate for a model and token kind means the meter cannot be\n// resolved, so the model is reported as ambiguous instead of picking a rate.\nlet ambiguousModels = coalesce(toscalar(priceRates | where Rates > 1 | summarize s = make_set(ModelKey) | project s), dynamic([]));\nlet price = toscalar(priceRates\n    | where Rates == 1\n    | summarize kinds = make_bag(bag_pack(Kind, Rate)) by ModelKey\n    | summarize b = make_bag(bag_pack(ModelKey, kinds))\n    | project b);\nlet priceCurrency = toscalar(priceRates | summarize take_any(Currency));\nlet pricesLoaded = toscalar(priceRates | count) > 0;\n${finopsUsage:raw}\nagentUsage\n| extend cost = coalesce(azureCost, aiCredits * todouble('${creditRate}'))\n| where isnotnull(cost)\n// The currency rides on the series name because a chart axis can carry only one, and\n// the price sheet currency is whatever the hub holds rather than a fixed USD.\n| extend basis = iff(isnotnull(aiCredits), strcat(costingState, ' (USD)'),\n    strcat(costingState, ' (', tostring(priceCurrency), ')'))\n| summarize ['Estimated cost'] = sum(cost) by bin(timestamp, 1d), ['Cost basis'] = basis\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -746,7 +747,7 @@
         "x": 0,
         "y": 23,
         "w": 24,
-        "h": 6
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
@@ -884,7 +885,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 31
       },
       "id": 30,
       "panels": [],
@@ -943,7 +944,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 30
+        "y": 32
       },
       "id": 31,
       "options": {
@@ -1027,7 +1028,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 30
+        "y": 32
       },
       "id": 32,
       "options": {
@@ -1111,7 +1112,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 32
       },
       "id": 33,
       "options": {
@@ -1236,7 +1237,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 36
+        "y": 38
       },
       "id": 34,
       "interval": "1h",
@@ -1423,7 +1424,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 36
+        "y": 38
       },
       "id": 35,
       "options": {
@@ -1473,7 +1474,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 46
       },
       "id": 20,
       "panels": [],
@@ -1559,7 +1560,7 @@
         "h": 8,
         "w": 10,
         "x": 0,
-        "y": 45
+        "y": 47
       },
       "id": 1,
       "interval": "1h",
@@ -1655,7 +1656,7 @@
         "h": 8,
         "w": 7,
         "x": 10,
-        "y": 45
+        "y": 47
       },
       "id": 2,
       "options": {
@@ -1772,7 +1773,7 @@
         "h": 8,
         "w": 7,
         "x": 17,
-        "y": 45
+        "y": 47
       },
       "id": 3,
       "interval": "1h",
@@ -1819,7 +1820,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 55
       },
       "id": 22,
       "panels": [],
@@ -1951,7 +1952,7 @@
         "h": 14,
         "w": 12,
         "x": 0,
-        "y": 54
+        "y": 56
       },
       "id": 7,
       "options": {
@@ -2057,7 +2058,7 @@
         "h": 14,
         "w": 12,
         "x": 12,
-        "y": 54
+        "y": 56
       },
       "id": 8,
       "options": {
@@ -2114,7 +2115,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 68
+        "y": 70
       },
       "id": 23,
       "panels": [],
@@ -2173,7 +2174,7 @@
         "h": 9,
         "w": 4,
         "x": 0,
-        "y": 69
+        "y": 71
       },
       "id": 9,
       "options": {
@@ -2290,7 +2291,7 @@
         "h": 9,
         "w": 12,
         "x": 4,
-        "y": 69
+        "y": 71
       },
       "id": 10,
       "interval": "1h",
@@ -2436,7 +2437,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 69
+        "y": 71
       },
       "id": 11,
       "options": {
@@ -2486,7 +2487,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 80
       },
       "id": 24,
       "panels": [],
@@ -2557,7 +2558,7 @@
         "h": 24,
         "w": 24,
         "x": 0,
-        "y": 79
+        "y": 81
       },
       "id": 13,
       "options": {
@@ -2611,7 +2612,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 103
+        "y": 105
       },
       "id": 25,
       "panels": [],
@@ -2773,7 +2774,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 104
+        "y": 106
       },
       "id": 26,
       "options": {
@@ -2823,7 +2824,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 112
+        "y": 114
       },
       "id": 27,
       "panels": [],
@@ -2840,7 +2841,7 @@
         "h": 27,
         "w": 24,
         "x": 0,
-        "y": 113
+        "y": 115
       },
       "id": 28,
       "options": {
