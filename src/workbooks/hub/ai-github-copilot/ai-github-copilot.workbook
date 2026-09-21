@@ -124,7 +124,29 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "AI Usage Units",
+                    "label": "AI usage units"
+                  },
+                  {
+                    "columnId": "Agent Runs",
+                    "label": "Agent runs"
+                  },
+                  {
+                    "columnId": "Agent Input Tokens",
+                    "label": "Agent input tokens"
+                  },
+                  {
+                    "columnId": "Agent Output Tokens",
+                    "label": "Agent output tokens"
+                  },
+                  {
+                    "columnId": "Avg Agent Run Duration",
+                    "label": "Avg agent run duration"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -173,7 +195,7 @@
           {
             "type": 1,
             "content": {
-              "json": "#### Usage Over Time"
+              "json": "#### Usage over time"
             },
             "customWidth": "100",
             "name": "45c4f802-abdf-a7ae-0c07-5026342a0250"
@@ -231,7 +253,7 @@
           {
             "type": 1,
             "content": {
-              "json": "#### Model Performance"
+              "json": "#### Model performance"
             },
             "customWidth": "100",
             "name": "fefa0fb3-af81-5539-a941-84f62e62a8ca"
@@ -311,7 +333,7 @@
           {
             "type": 1,
             "content": {
-              "json": "#### Agent & Feature Activity"
+              "json": "#### Agent & feature activity"
             },
             "customWidth": "100",
             "name": "4f023b0e-2c8c-43e3-162a-6920aff70fa8"
@@ -455,7 +477,7 @@
           {
             "type": 1,
             "content": {
-              "json": "#### Token Efficiency & Cost"
+              "json": "#### Token efficiency & cost"
             },
             "customWidth": "100",
             "name": "6013c6e2-0545-7654-ecf9-6452bfa7f23c"
@@ -507,6 +529,10 @@
                     "label": "Total output tokens"
                   },
                   {
+                    "columnId": "Cache Hit %",
+                    "label": "Cache hit %"
+                  },
+                  {
                     "columnId": "AvgInput",
                     "label": "Avg input"
                   },
@@ -549,7 +575,7 @@
           {
             "type": 1,
             "content": {
-              "json": "#### Errors & Reliability"
+              "json": "#### Errors & reliability"
             },
             "customWidth": "100",
             "name": "f758dbaf-1fbd-4e93-3055-18e38a255694"
@@ -660,7 +686,13 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "P90 Duration",
+                    "label": "P90 duration"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
@@ -724,7 +756,21 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "Last Span",
+                    "label": "Last span"
+                  },
+                  {
+                    "columnId": "Since Last Span",
+                    "label": "Since last span"
+                  },
+                  {
+                    "columnId": "Agent Runs",
+                    "label": "Agent runs"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,

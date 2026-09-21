@@ -153,7 +153,25 @@
                     }
                   }
                 ],
-                "rowLimit": 1000
+                "rowLimit": 1000,
+                "labelSettings": [
+                  {
+                    "columnId": "Total Operations",
+                    "label": "Total operations"
+                  },
+                  {
+                    "columnId": "Total Input Tokens",
+                    "label": "Total input tokens"
+                  },
+                  {
+                    "columnId": "Total Output Tokens",
+                    "label": "Total output tokens"
+                  },
+                  {
+                    "columnId": "Avg Response Time",
+                    "label": "Avg response time"
+                  }
+                ]
               }
             },
             "doNotRunWhenHidden": true,
