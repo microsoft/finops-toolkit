@@ -110,6 +110,7 @@ Status icons:
     > _This step is optional, but can catch issues earlier. You can also add the `-Build` parameter to the publish command in the next step._
   - Ensure all tests pass: `<root>/src/scripts/Test-PowerShell -Unit -Integration`
 - [ ] <!-- release:package --> Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
+- [ ] Confirm the demo data source in `<root>/src/power-bi/reports.json` points at the current demo hub and that `demo.subscriptionIds` lists the subscriptions that should ship publicly.
 - [ ] <!-- release:powerbi --> Package Power BI files on Windows: `<root>/src/scripts/Package-PowerBI.ps1 -Unattended`
   > _Builds, saves demo PBIX files with Power BI Desktop, validates, and packages. Don't use the mouse or keyboard while it runs. Sign in to Power BI Desktop first so the "Public" sensitivity label can be applied._
   - If a report can't be saved automatically, the command names the step that failed and saves a screenshot. Save that report by hand, then rerun the command:

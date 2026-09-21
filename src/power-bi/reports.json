@@ -4,8 +4,15 @@
     "description: Template description shown when the PBIT file is opened.",
     "tables: Tables to keep. Everything else is removed from the template and demo project.",
     "queries: Parameters, functions, and queries that do not load a table (Power Query expressions) to keep.",
-    "Prefix a name with [kql] or [storage] to keep it for that report type only."
+    "Prefix a name with [kql] or [storage] to keep it for that report type only.",
+    "demo: Data source the generated demo projects connect to. Templates always ship with these set to null.",
+    "demo.subscriptionIds: Subscriptions the demo reports are limited to. Empty means every subscription in the hub ships in PowerBI-demo.zip."
   ],
+  "demo": {
+    "storageUrl": "https://devhubjrcckugyiacvk.dfs.core.windows.net/ingestion",
+    "clusterUrl": "ftk-dev.westus",
+    "subscriptionIds": []
+  },
   "reports": {
     "CostSummary": {
       "description": "The Cost summary report provides several summaries of your effective (amortized) and billed costs based on the FinOps Open Cost and Usage Specification (FOCUS). Amortization breaks down reservation and savings plan purchases and allocates costs to the resources that received the benefit. Effective costs will not match your invoice.",
