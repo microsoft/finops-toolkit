@@ -1,5 +1,5 @@
 /// URL for the Azure Data Lake Storage Gen2 account with your data. Must use the DFS endpoint (.dfs.core.windows.net), not the Blob endpoint (.blob.core.windows.net).
-expression 'Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+expression 'Storage URL' = "https://devhubjrcckugyiacvk.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
 	queryGroup: '🛠️ Setup'
 
@@ -158,7 +158,7 @@ expression ftk_QueryARG =
 /// URI of the FinOps hub Azure Data Explorer cluster to pull data from. Copy from the "clusterUri" deployment output.
 /// 
 /// Pro tip: As a shortcut, you can alternatively use the "{name}.{region}" subset of the URI.
-expression 'Cluster URL' = "ftk-mf.westcentralus" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression 'Cluster URL' = "ftk-dev.westus" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: d8708cbe-5fb8-4e10-b96f-54e31a5e9665
 	queryGroup: '🛠️ Setup'
 

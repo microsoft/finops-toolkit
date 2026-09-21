@@ -83,8 +83,17 @@ if (-not $KQL -and -not $Storage) { $KQL = $Storage = $true }
 # and the lint tests read the same list. Everything not listed there is removed from the PBIT and
 # the PBIP.
 $reportsConfigPath = "$srcDir/reports.json"
+$reportsConfig = Get-Content $reportsConfigPath -Raw | ConvertFrom-Json -Depth 10
+
+# Demo projects are stamped with this data source so a release never depends on whatever the
+# source project was last saved with. Templates always ship with the data source set to null.
+$demoConnection = @{
+    'Storage URL' = $reportsConfig.demo.storageUrl
+    'Cluster URL' = $reportsConfig.demo.clusterUrl
+}
+
 $reportMetadata = @{}
-(Get-Content $reportsConfigPath -Raw | ConvertFrom-Json -Depth 10).reports.PSObject.Properties `
+$reportsConfig.reports.PSObject.Properties `
 | ForEach-Object {
     $reportMetadata[$_.Name] = @{
         Intro       = $_.Value.description
@@ -751,6 +760,35 @@ foreach ($inputFile in $reports)
     {
         # The demo project keeps the demo data source, so check it before template changes
         Assert-NoMissingDependency $db $removedNames "The $baseName demo project" $reportName
+
+        foreach ($exp in @($db.Model.Expressions | Where-Object { $demoConnection.ContainsKey($_.Name) }))
+        {
+            $value = $demoConnection[$exp.Name]
+            if (-not $value) { throw "reports.json doesn't set a demo data source for '$($exp.Name)', which the $baseName demo project needs." }
+
+            if ($exp.Expression -notmatch '^"[^"]*"') { throw "Could not set '$($exp.Name)' in the $baseName demo project. Its value isn't a text literal: $($exp.Expression)" }
+            Write-Verbose "  Demo $($exp.Name): $value"
+            $exp.Expression = $exp.Expression -replace '^"[^"]*"', ('"' + $value.Replace('"', '""') + '"')
+        }
+
+        # The source filter keys off a hardcoded list of storage account names, which silently
+        # stops filtering when the demo hub changes. Demo projects get the subscriptions from
+        # reports.json instead, so what ships is what's configured.
+        $demoFilter = @($db.Model.Expressions | Where-Object { $_.Name -eq 'ftk_DemoFilter' })
+        if ($demoFilter.Count -gt 0)
+        {
+            $subscriptions = @($reportsConfig.demo.subscriptionIds)
+            if ($subscriptions.Count -gt 0)
+            {
+                $list = ($subscriptions | ForEach-Object { "'" + ($_ -replace "'", "''") + "'" }) -join ', '
+                $demoFilter[0].Expression = "() => `"| where subscriptionId in ($list)`""
+            }
+            else
+            {
+                $demoFilter[0].Expression = '() => ""'
+                Write-Warning "$baseName is not filtered to any subscriptions, so every subscription in the demo hub ships in PowerBI-demo.zip. Set demo.subscriptionIds in src/power-bi/reports.json to limit it."
+            }
+        }
 
         # Re-serialize the pruned model so the PBIP matches what the PBIT ships
         Remove-Item "$stagedDataset/definition" -Recurse -Force

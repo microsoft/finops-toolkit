@@ -146,6 +146,8 @@ This generates two things from a single prune, so the template and the demo repo
 
 The tables and queries each report keeps are listed in [src/power-bi/reports.json](../src/power-bi/reports.json). When a report starts using a new table or query, add it there. The build and the `PowerBIReports` lint test fail when a visual or query uses something the report doesn't keep.
 
+The same file holds the demo data source (`demo.storageUrl`, `demo.clusterUrl`) that demo projects are stamped with, and `demo.subscriptionIds`, which limits what the demo reports show. Update these when the demo hub changes. Templates always ship with the data source set to null.
+
 Demo PBIX files need Power BI Desktop to load and save them. On Windows, run [Package-PowerBI](../src/scripts/README.md#-package-powerbi) `-Unattended` to save, validate, and package them automatically.
 
 ### Building documentation

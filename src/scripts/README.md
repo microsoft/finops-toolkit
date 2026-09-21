@@ -466,7 +466,9 @@ Examples:
 
 Both come from a single prune, so the template and the demo report always match. The tables and queries each report keeps are listed in [src/power-bi/reports.json](../power-bi/reports.json). When you add a table or query to a report, add it there too.
 
-Templates ship with the data source parameters set to null. The generated projects keep the demo values so demo reports can still refresh.
+Templates ship with the data source parameters set to null. Demo projects are stamped with the data source in `reports.json` (`demo.storageUrl` and `demo.clusterUrl`), so a release never depends on whatever the source project was last saved with. Point those at the current demo hub when it changes.
+
+`demo.subscriptionIds` limits what the demo reports show. When it's empty, the build warns that every subscription in the demo hub ships in `PowerBI-demo.zip`.
 
 The build fails, with a message that names the report and what to add to `reports.json`, when:
 
