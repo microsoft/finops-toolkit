@@ -241,6 +241,7 @@ Whether you're looking for a little assistance or are interested in contributing
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/TakumiSeo"><img src="https://avatars.githubusercontent.com/u/49015441?v=4?s=100" width="100px;" alt="TakuSe"/><br /><sub><b>TakuSe</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=TakumiSeo" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/sandhyakumili"><img src="https://avatars.githubusercontent.com/u/173696668?v=4?s=100" width="100px;" alt="sandhyakumili"/><br /><sub><b>sandhyakumili</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Asandhyakumili" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
