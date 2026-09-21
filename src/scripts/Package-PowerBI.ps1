@@ -31,6 +31,9 @@
     .PARAMETER SensitivityLabel
     Optional. Sensitivity label demo reports must have, if they have one. Default = "Public".
 
+    .PARAMETER OpenDataUrl
+    Optional. Public folder demo reports read open data from. Passed to Build-PowerBI. Default = the open data files in the main branch.
+
     .EXAMPLE
     ./Package-PowerBI
 
@@ -63,7 +66,9 @@ param(
 
     [switch] $Status,
 
-    [string] $SensitivityLabel = 'Public'
+    [string] $SensitivityLabel = 'Public',
+
+    [string] $OpenDataUrl
 )
 
 $ErrorActionPreference = 'Stop'
@@ -74,6 +79,7 @@ $pbixDir = "$relDir/pbix"
 $manifestPath = "$pbixDir/.manifest.json"
 
 $version = & "$PSScriptRoot/Get-Version.ps1"
+$buildArgs = if ($OpenDataUrl) { @{ OpenDataUrl = $OpenDataUrl } } else { @{} }
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
@@ -264,7 +270,7 @@ function Test-DemoPbix([string] $Path, $Report, [datetime] $BuiltAfter = [dateti
 if ($Build -and -not $Status)
 {
     Write-Host 'Building Power BI templates and projects...'
-    & "$PSScriptRoot/Build-PowerBI.ps1"
+    & "$PSScriptRoot/Build-PowerBI.ps1" @buildArgs
     Write-Host ''
 }
 
@@ -283,7 +289,7 @@ if ((-not $manifest -or $isStale) -and -not $Status -and -not $Build)
 {
     if ($isStale) { Write-Host "Power BI files were built for $($manifest.version) with an older build script. Rebuilding for $version..." }
     else { Write-Host 'No Power BI build found. Building...' }
-    & "$PSScriptRoot/Build-PowerBI.ps1"
+    & "$PSScriptRoot/Build-PowerBI.ps1" @buildArgs
     Write-Host ''
     $manifest = Read-Manifest
     $isStale = $false

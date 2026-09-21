@@ -468,7 +468,9 @@ Both come from a single prune, so the template and the demo report always match.
 
 Templates ship with the data source parameters set to null. Demo projects keep the data source saved in the semantic model, which points at the demo hub.
 
-Demo projects read open data from `src/open-data` in the current working tree, so the demo is built from the branch being released. Templates keep the release URL, which resolves to the last published release and doesn't have open data files added during this release.
+Demo reports ship to customers, so they read open data over HTTP like the templates do. They can't use the release URL, because it resolves to the last published release, which doesn't have open data files added during the release being built. `‑OpenDataUrl` sets where they read it from, and defaults to the open data files in the `main` branch. Every URL is checked at build time, so a file that isn't published yet fails here instead of when someone refreshes the demo.
+
+The release process merges to `main` before packaging Power BI, so the default is correct at release time. To build demo reports before that merge, pass `‑OpenDataUrl` with a pushed branch that has the files.
 
 
 The build fails, with a message that names the report and what to add to `reports.json`, when:
