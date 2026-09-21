@@ -128,7 +128,9 @@ Once the above requirements have been met, the feature branch can be merged into
       ./Package-PowerBI -Unattended
       ```
 
-      > _Builds the templates, saves each demo report as a PBIX file with Power BI Desktop, validates the files, and packages them. Don't use the mouse or keyboard while it runs. Sign in to Power BI Desktop first so the **Public** sensitivity label can be applied._
+      > _Builds the templates, saves each demo report as a PBIX file with Power BI Desktop, validates the files, and packages them. Don't use the mouse or keyboard while it runs._
+      >
+      > _First, sign in to Power BI Desktop and refresh one demo project from `<root>/release/pbix` by hand. That stores the data source credentials and makes the **Public** sensitivity label available. The command can't sign in or answer a credential prompt: a sign-in window stops it right away, and missing credentials fail the refresh._
       >
       > ⚠️ _If the sensitivity label isn't **Public**, the report will not open for anyone outside of Microsoft. Validation fails when a demo report has any other label._
 

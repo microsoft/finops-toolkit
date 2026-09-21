@@ -249,7 +249,13 @@ try
     }
 
     $mainWindow = Wait-Until -Description "the $reportLabel report to open" -Condition {
-        Get-ProcessWindow $desktop.Id | Where-Object { $_.Current.Name -like "*$reportLabel*" } | Select-Object -First 1
+        $windows = @(Get-ProcessWindow $desktop.Id)
+
+        # Nothing here can sign in, so stop immediately instead of waiting out the timeout
+        $signIn = @($windows | Where-Object { $_.Current.Name -match "(?i)sign in|sign-in|credential|authenticat|your account" }) | Select-Object -First 1
+        if ($signIn) { throw "Power BI Desktop is asking to sign in ('$($signIn.Current.Name)'). Sign in to Power BI Desktop, refresh this report once to save its data source credentials, then rerun." }
+
+        $windows | Where-Object { $_.Current.Name -like "*$reportLabel*" } | Select-Object -First 1
     }
 
     #endregion Open
