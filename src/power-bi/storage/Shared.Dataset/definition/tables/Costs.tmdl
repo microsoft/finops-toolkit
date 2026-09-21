@@ -1480,8 +1480,8 @@ table Costs
 					// Fix known bugs and set data types
 					Fixes = Table.TransformColumnTypes(
 						Table.ReplaceValue(Table.ReplaceValue(
-							// Create AvailabilityZone column if missing to support non-Microsoft clouds
-							if Table.HasColumns(Align12, {"AvailabilityZone"}) then Align12 else Table.AddColumn(Align12, "AvailabilityZone", each null),
+							// Create columns the report needs that older FOCUS versions and non-Microsoft clouds don't have
+							List.Accumulate({"AvailabilityZone", "CapacityReservationId", "CapacityReservationStatus"}, Align12, (tbl, col) => if Table.HasColumns(tbl, {col}) then tbl else Table.AddColumn(tbl, col, each null)),
 							// Fix savings plan purchases -- Cost Management fix pending as of Dec 8, 2024
 							each [EffectiveCost], each if [ChargeCategory] = "Purchase" and [CommitmentDiscountId] <> "" and [CommitmentDiscountId] <> null then 0.0 else [EffectiveCost], Replacer.ReplaceValue, {"EffectiveCost"}),
 							// Fix PricingCategory values -- Remove after Oct 1, 2025
