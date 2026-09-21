@@ -1469,7 +1469,7 @@ table Costs
 						then Table.ReplaceValue(InvoiceId, null,              each [x_PricingCurrency], Replacer.ReplaceValue, {"PricingCurrency"})
 						else Table.AddColumn(   InvoiceId, "PricingCurrency", each [x_PricingCurrency]),
 					SkuMeter        = if Has12
-						then Table.ReplaceValue(PricingCurrency, null,       each [x_SkuMeterName], Replacer.ReplaceValue, {"SkuMeterName"})
+						then Table.ReplaceValue(PricingCurrency, null,       each [x_SkuMeterName], Replacer.ReplaceValue, {"SkuMeter"})
 						else Table.AddColumn(   PricingCurrency, "SkuMeter", each [x_SkuMeterName]),
 					// Copy 1.2 values to 1.0 columns
 					Align12 = Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(SkuMeter,
