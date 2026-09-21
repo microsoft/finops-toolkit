@@ -372,6 +372,11 @@ if (-not $Raw)
 # Culture-aware collation orders "DCadsv5-series DedicatedHost" after "Dasv4 Series" while an
 # ordinal comparison puts it before, so the same records regenerated on a differently configured
 # host produce a few hundred lines of pure reordering that bury any real change in review.
+#
+# List.Sort is unstable where Sort-Object is stable, but no tie can reach it: $seen is keyed by
+# group + ArmSkuName, and a duplicate ArmSkuName across groups throws above, so the two keys order
+# every record uniquely in the normalized and the -Raw path alike. Keep the comparer in sync with
+# the published-file order test in src/powershell/Tests/Unit/Update-InstanceSizeFlexibility.Tests.ps1.
 $sortedRecords = [Collections.Generic.List[object]]::new()
 if ($allRecords) { $sortedRecords.AddRange([object[]]@($allRecords)) }  # an empty sweep leaves $allRecords null
 $sortedRecords.Sort([Comparison[object]] {

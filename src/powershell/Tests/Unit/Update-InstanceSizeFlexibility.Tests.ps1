@@ -446,7 +446,10 @@ Describe 'Update-InstanceSizeFlexibility' {
 
         It 'Is written in ordinal sort order' {
             # Catches a file regenerated on a host whose culture collates differently, which
-            # reorders hundreds of rows without changing a single value.
+            # reorders hundreds of rows without changing a single value. The comparer mirrors the
+            # one in src/scripts/Update-InstanceSizeFlexibility.ps1 and must stay in sync with it:
+            # if the script gains a sort key, this test keeps asserting the old order until it does
+            # too.
             $csv = @(Import-Csv "$PSScriptRoot/../../../open-data/InstanceSizeFlexibility.csv")
             $sorted = [Collections.Generic.List[object]]::new([object[]]$csv)
             $sorted.Sort([Comparison[object]] {
