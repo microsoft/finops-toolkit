@@ -110,7 +110,7 @@ Status icons:
     > _This step is optional, but can catch issues earlier. You can also add the `-Build` parameter to the publish command in the next step._
   - Ensure all tests pass: `<root>/src/scripts/Test-PowerShell -Unit -Integration`
 - [ ] <!-- release:package --> Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
-- [ ] Confirm the demo data source in `<root>/src/power-bi/reports.json` points at the current demo hub.
+- [ ] Confirm the data source saved in the Power BI semantic models points at the current demo hub.
 - [ ] <!-- release:powerbi --> Package Power BI files on Windows: `<root>/src/scripts/Package-PowerBI.ps1 -Unattended`
   > _Builds, saves demo PBIX files with Power BI Desktop, validates, and packages. Don't use the mouse or keyboard while it runs._
   >

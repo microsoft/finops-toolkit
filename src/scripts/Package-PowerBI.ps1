@@ -352,7 +352,13 @@ if ($Unattended)
 
     if ($toSave.Count -gt 0)
     {
-        Write-Host "Saving $($toSave.Count) demo report$(if ($toSave.Count -ne 1) { 's' }) with Power BI Desktop. Don't use the mouse or keyboard until this finishes."
+        Write-Host "Saving $($toSave.Count) demo report$(if ($toSave.Count -ne 1) { 's' }) with Power BI Desktop. This takes a while."
+        Write-Host ''
+        Write-Host '  Leave the mouse and keyboard alone while this runs.' -ForegroundColor Yellow
+        Write-Host '  Power BI Desktop can ask you to sign in or for data source credentials, which this' -ForegroundColor Yellow
+        Write-Host '  command cannot answer. It stops and prints "ACTION NEEDED" when that happens, then' -ForegroundColor Yellow
+        Write-Host '  carries on by itself once you are done. Nothing else needs you.' -ForegroundColor Yellow
+        Write-Host ''
         $failures = New-Object System.Collections.Generic.List[string]
         foreach ($report in $toSave)
         {
