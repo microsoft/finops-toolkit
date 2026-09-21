@@ -111,6 +111,8 @@ Status icons:
   - Ensure all tests pass: `<root>/src/scripts/Test-PowerShell -Unit -Integration`
 - [ ] <!-- release:package --> Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
 - [ ] Confirm the data source saved in the Power BI semantic models points at the current demo hub.
+- [ ] Confirm the demo hub is on this release and has current data: `<root>/src/scripts/Deploy-Demo.ps1 -Check`
+  - If it isn't, update it with `Deploy-Demo.ps1` and wait for ingestion before packaging Power BI.
 - [ ] <!-- release:powerbi --> Package Power BI files on Windows: `<root>/src/scripts/Package-PowerBI.ps1 -Unattended`
   > _Builds, saves demo PBIX files with Power BI Desktop, validates, and packages. Don't use the mouse or keyboard while it runs._
   >
