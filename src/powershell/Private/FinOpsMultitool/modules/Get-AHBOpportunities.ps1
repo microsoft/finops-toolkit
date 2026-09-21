@@ -39,7 +39,7 @@ resources
 | where type == 'microsoft.compute/virtualmachines'
 | where properties.storageProfile.osDisk.osType =~ 'Windows'
 | where isempty(properties.licenseType) or (properties.licenseType !~ 'Windows_Server' and properties.licenseType !~ 'Windows_Client')
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           vmSize = properties.hardwareProfile.vmSize,
           currentLicense = coalesce(tostring(properties.licenseType), 'None'),
           osType = tostring(properties.storageProfile.imageReference.offer)
@@ -49,7 +49,7 @@ resources
         $windowsVMs = if ($result) { @($result.Data) } else { @() }
     }
     catch {
-        Write-Warning "Windows VM AHB scan failed: $($_.Exception.Message)"
+        throw "Windows VM AHB inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- Estimate per-VM AHB monthly savings (per-SKU Windows license premium) --
@@ -70,7 +70,7 @@ resources
 resources
 | where type == 'microsoft.sqlvirtualmachine/sqlvirtualmachines'
 | where isempty(properties.sqlServerLicenseType) or properties.sqlServerLicenseType !~ 'AHUB'
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           currentLicense = coalesce(tostring(properties.sqlServerLicenseType), 'None'),
           sqlEdition = tostring(properties.sqlImageSku)
 | order by subscriptionId asc, name asc
@@ -79,7 +79,7 @@ resources
         $sqlVMs = if ($result) { @($result.Data) } else { @() }
     }
     catch {
-        Write-Warning "SQL VM AHB scan failed: $($_.Exception.Message)"
+        throw "SQL VM AHB inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- SQL Databases without AHB --------------------------------------
@@ -91,7 +91,7 @@ resources
 | where type == 'microsoft.sql/servers/databases'
 | where sku.tier != 'Free' and name != 'master'
 | where isempty(properties.licenseType) or properties.licenseType !~ 'BasePrice'
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           currentLicense = coalesce(tostring(properties.licenseType), 'LicenseIncluded'),
           sku = strcat(tostring(sku.tier), ' / ', tostring(sku.name)),
           maxSizeGB = tolong(properties.maxSizeBytes) / 1073741824
@@ -101,7 +101,7 @@ resources
         $sqlDBs = if ($result) { @($result.Data) } else { @() }
     }
     catch {
-        Write-Warning "SQL Database AHB scan failed: $($_.Exception.Message)"
+        throw "SQL Database AHB inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- Summary --------------------------------------------------------

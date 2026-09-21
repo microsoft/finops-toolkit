@@ -2,13 +2,13 @@
 
 # FinOps multitool terminal UI (TUI)
 
-Interactive terminal interface for running FinOps scans against Azure subscriptions. No GUI dependencies — works in any terminal on Windows, macOS, and Linux.
+Terminal interface for running FinOps scans against Azure subscriptions without GUI dependencies. PowerShell 7 is required. Validation for this change was performed on Windows; native macOS/Linux behavior and the `dotnet restore` path haven't been exercised.
 
 ## Quick start
 
 ```powershell
 # From the FinOpsMultitool directory
-Import-Module .\FinOpsMultitool.psm1
+. .\Invoke-FinOpsMultitool.ps1
 Invoke-FinOpsMultitool
 ```
 
@@ -38,23 +38,25 @@ Install-Module Az.Accounts, Az.ResourceGraph, Az.Storage -Scope CurrentUser
 
 ### 1. Authentication
 
-On launch, the TUI checks for an existing `Az.Accounts` session and starts `Connect-AzAccount` when needed. If you supply `-SubscriptionId`, the tool resolves the subscription and sets the subscription and tenant context before displaying menus. Otherwise, the tool offers a tenant menu when supported and discovers subscriptions in the selected tenant.
+On an interactive launch, the TUI checks for an existing `Az.Accounts` session and starts `Connect-AzAccount` when needed. `-NonInteractive` requires an existing Azure context and fails before scanning if none is available; authenticate with the intended identity first. If you supply `-SubscriptionId`, the tool resolves the subscription and sets the subscription and tenant context before displaying menus. Otherwise, the tool offers a tenant menu when supported and discovers subscriptions in the selected tenant.
 
 ### 2. Data source selection
 
-If a FinOps Hub is detected in any of your subscriptions, you'll be asked to choose a data source:
+During interactive source selection, you can choose Cost Management API or Resource Graph only. FinOps Hub is also offered when a hub is detected:
 
-| Source                  | Description                                                                                                            |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| **FinOps Hub**          | Reads available cost data from the hub. Kusto summarizes data in the engine; the storage reader is for small datasets. |
-| **Cost Management API** | Queries currently available cost data through the Cost Management REST API. Doesn't preload hub data.                  |
-| **Resource Graph only** | Skips all cost APIs. Only runs scans that use Azure Resource Graph (orphaned resources, idle VMs, etc).                |
+| Source                  | Description                                                                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **FinOps Hub**          | Reads available cost data from the hub. Kusto summarizes data in the engine; the storage reader is for small datasets.                           |
+| **Cost Management API** | Queries currently available cost data through the Cost Management REST API. Doesn't preload hub data.                                            |
+| **Resource Graph only** | Excludes cost-dependent scans and orphan cost enrichment. Remaining scans can still use Azure Monitor metrics, Advisor, policy, and carbon APIs. |
 
 When the **FinOps Hub** source is chosen, the tool prefers the hub's **Kusto database** (Azure Data Explorer / Fabric, or a local ftklocal emulator) and pushes aggregation into the engine, returning only summarized results. This is the scalable path for large customer datasets — it never loads the raw cost rows into PowerShell. See [FinOps Hub data paths](#finops-hub-data-paths) below. The storage-export reader remains as a small-dataset fallback.
 
 ### 3. Scan selection
 
 Use arrow-key menus to select scans when your host supports them. Other hosts use numbered prompts. For automation, use `-NonInteractive` with `-Scans`, `-DataSource`, and `-SubscriptionId`. Reports are saved automatically; `-OutputPath` changes their parent folder. All menu scans are selected by default except **Billing Structure**.
+
+Use `-Scans All` on its own to select every menu scan. GraphOnly removes cost-dependent scans from that selection, including budget history, unit economics, AI workload metrics, and MACC. Dependencies can't re-enable excluded scans.
 
 | Key       | Action             |
 | --------- | ------------------ |
@@ -68,6 +70,8 @@ Use arrow-key menus to select scans when your host supports them. Other hosts us
 ### 4. Scan execution
 
 Selected scans run sequentially with a progress bar. Supported scans reuse available hub summaries or preloaded rows. The tool reports hub query failures as scan errors and doesn't silently switch data sources. It reports AI metrics from a Kusto-only hub as unavailable. Select **Cost Management API** to run a separate live AI scan.
+
+Inventory scans that request all Resource Graph pages fail when a page is unreadable, a continuation token repeats, or the page limit is reached. A full page without a continuation token is also unverified, even if the true result happens to equal the page size. Resource queries retain `id`, which [Resource Graph requires for continuation tokens](https://learn.microsoft.com/powershell/module/az.resourcegraph/search-azgraph#example-3). These scans don't report an unverified inventory as complete.
 
 ### 5. Results
 
@@ -102,7 +106,7 @@ The run folder allows access only to the current user through filesystem permiss
 
 Reports are plaintext and can contain subscription, resource, tag, and billing details. They aren't encrypted or uploaded by the tool. Administrators and processes running as your account can still access them. Keep custom locations outside synced folders, follow your organization's retention policy, and delete reports when they're no longer needed. These safeguards don't stop someone from moving or force-adding the files to a repository later.
 
-Raw Hub downloads use private, per-run folders under the user's `FinOpsMultitool` application-data directory, not shared temporary storage. The reader removes these folders when the read finishes or fails. The Parquet cache stays under `FinOpsMultitool/parquet`. Cached assemblies must match signature-verified package archives before loading. Untrusted ownership, replacement permissions on ancestor directories, write access by other accounts, and linked cache paths are rejected.
+Raw Hub downloads use private, per-run folders under the user's `FinOpsMultitool` application-data directory, not shared temporary storage. The reader removes these folders when a read finishes or returns an error. A process termination or host failure can leave a private `download-*` folder behind; after confirming no scan is using it, delete it according to your retention policy. The Parquet cache stays under `FinOpsMultitool/parquet`. Cached assemblies must match signature-verified package archives before loading. Untrusted ownership, replacement permissions on ancestor directories, write access by other accounts, and linked cache paths are rejected.
 
 The Parquet reader pins its net8.0 dependency versions and SHA-512 archive hashes in [Get-FinOpsParquetPackageLock](modules/helpers/Read-FinOpsHubData.ps1), using published [NuGet package metadata](https://www.nuget.org/api/v2/). Corporate feeds must return the same archives; repackaged or unexpected dependencies are rejected. The pins include Snappier 1.3.1, which addresses [CVE-2026-44302](https://github.com/advisories/GHSA-pggp-6c3x-2xmx). Dependency updates require reviewing and updating the pins together.
 
@@ -110,7 +114,7 @@ CSV files use `RecordType` to distinguish datasets when a scan returns several c
 
 The terminal limits tag inventory to a compact preview. The HTML tag inventory includes every returned tag and value, and wraps long cell text instead of shortening it. CSV exports preserve the underlying value records and their counts.
 
-The TUI escapes control characters in displayed text so resource metadata can't supply terminal escape commands through its report renderer. The underlying scan data and CSV values aren't rewritten by this display protection.
+The TUI's results renderer escapes control characters before printing, so resource metadata isn't emitted as terminal escape sequences. Progress and warning messages written directly by scan modules aren't covered by this renderer. The underlying scan data and CSV values aren't rewritten by this display protection.
 
 ## Required permissions
 
@@ -118,7 +122,7 @@ Each scan requires specific permissions. The TUI identifies the required role wh
 
 | Category               | Scans                                                     | Required role                                                                                                                             | Scope                            |
 | ---------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
-| Optimization           | Orphaned Resources, Idle VMs, Storage Tier Advice, AHB    | Reader                                                                                                                                    | Subscription                     |
+| Optimization           | Orphaned Resources, Idle VMs, Storage Tier Advice, AHB, Legacy Resources | Reader                                                                                                                                    | Subscription                     |
 | Governance             | Tag Inventory, Tag Recommendations, Policy Inventory/Recs | Reader                                                                                                                                    | Subscription                     |
 | Cost                   | Cost Data, Resource Costs, Cost by Tag, Cost Trend        | Cost Management Reader                                                                                                                    | Subscription or management group |
 | Commitments            | Reservation Advice, Savings Realized estimates            | Cost Management Reader, and Reader for Azure Hybrid Benefit inventory                                                                     | Subscription or management group |
@@ -133,15 +137,19 @@ Subscription Reader access alone doesn't grant billing access. See [MCA billing 
 
 ## Available scans
 
-### Optimization (Resource Graph)
+The menu contains 26 scans. Four additional modules support direct investigations: VM cost breakdown, shared cost allocation, usage-proportional allocation, and billing account.
+
+### Optimization
 
 | Scan                | What it finds                                                                                                                          |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Orphaned Resources  | Unattached disks, NICs, public IPs, NSGs                                                                                               |
+| Orphaned Resources  | Unattached disks, NICs, public IPs, stopped VMs, empty App Service plans, and old snapshots for review                                 |
 | Idle VMs            | Running VMs with average CPU below 5% and network traffic below 1 MB per day over 14 days. A second threshold flags underutilized VMs. |
 | Storage Tier Advice | Blob storage that could move to cooler tiers                                                                                           |
 | AHB Opportunities   | Windows/SQL VMs not using Azure Hybrid Benefit                                                                                         |
 | Legacy Resources    | Legacy/retiring SKUs (v1 VM families, unmanaged disks, Basic IPs/LBs)                                                                  |
+
+Storage tier advice uses 30-day transaction and capacity metrics. Missing or invalid samples leave an account unevaluated, not idle. Recommendations are review candidates, not proof that a tier change will save money; validate retrieval needs, eligibility, and retention charges before acting.
 
 ### Governance
 
@@ -156,6 +164,8 @@ Subscription Reader access alone doesn't grant billing access. See [MCA billing 
 
 If an initiative can't be read, unmatched policies appear as **Unknown**, not **Missing**. If the effective assignment inventory is incomplete, the launcher keeps the partial inventory but skips recommendations; it doesn't assume unread assignments are missing. Assignment coverage is the percentage of recommended definition IDs found in the supplied inventory, not Azure Policy compliance or proof of enforcement. Review parameters, exclusions, enforcement modes, and equivalent custom policies before treating a recommendation as a governance gap.
 
+Policy compliance coverage is separate from assignment coverage. When ARG coverage is incomplete, the tool requests REST resource summaries for every selected subscription rather than combining the two counting methods. If those requests don't establish complete coverage, the report retains available evidence but leaves the overall percentage unverified. Assignments are identified by resource ID, so different assignments with the same display name remain distinct.
+
 ### Cost Analysis
 
 | Scan           | What it finds                                                                                       |
@@ -165,6 +175,8 @@ If an initiative can't be read, unmatched policies appear as **Unknown**, not **
 | Cost by Tag    | Spend breakdown by tag key/value                                                                    |
 | Cost Trend     | Month-over-month spend comparison                                                                   |
 | Unit Economics | Cost per vCPU, per GB RAM, per VM, and per GB stored (disk + blob/file, with compute/storage split) |
+
+Cost trend requires explicit cost, date, and currency fields. It rejects monthly totals that would combine different currencies rather than labeling the combined amount with one currency.
 
 ### AI & ML
 
@@ -204,15 +216,16 @@ Current forecasts in **Budget Status** come from Azure's budget response, indepe
 
 | Scan           | What it finds                                                                               |
 | -------------- | ------------------------------------------------------------------------------------------- |
-| Carbon Metrics | Cloud carbon emissions, month-over-month change, 12-month trend, per-subscription breakdown |
+| Carbon Emissions | Cloud carbon emissions, month-over-month change, 12-month trend, per-subscription breakdown |
 
 ### Advisor & Account
 
-| Scan                | What it finds                            |
-| ------------------- | ---------------------------------------- |
-| Optimization Advice | Azure Advisor cost recommendations       |
-| Billing Structure   | Account hierarchy and enrollment details |
-| Contract Info       | Agreement type, offer, support plan      |
+| Scan                | What it finds                                               |
+| ------------------- | ----------------------------------------------------------- |
+| Optimization Advice | Azure Advisor cost recommendations                          |
+| Billing Structure   | Account hierarchy and enrollment details                    |
+| Contract Info       | Agreement type, offer, support plan                         |
+| MACC Commitment     | Microsoft Azure Consumption Commitment balance and drawdown |
 
 ## FinOps KPI coverage
 
@@ -341,6 +354,8 @@ The **Cost Data**, **Resource Costs**, and **Cost by Tag** scans support three h
 An explicit `-DataSource API` or `-DataSource GraphOnly` takes precedence over `FINOPS_HUB_KUSTO_URI` and doesn't preload hub data. Otherwise, a configured Kusto URI selects the hub without requiring storage-account discovery. For a discovered hub, the tool prefers Kusto and uses the storage reader when no Kusto provider is available. An explicit `-DataSource Hub` fails if neither a configured endpoint nor hub storage is available; it doesn't silently switch to API.
 
 Remote Kusto endpoints and requests carrying access tokens require HTTPS. HTTP is allowed only for a token-free loopback emulator. Endpoint URLs can't contain credentials or fragments. Kusto and export-blob requests don't follow redirects; configure the final endpoint URL.
+
+Reading Parquet requires a signature verifier: NuGet on Windows or .NET SDK 8 or later elsewhere. If the verifier is unavailable, the cache remains unloaded and is preserved for a later attempt. If the reader can't be prepared, the tool warns you with the reason and attempts the hub's `msexports` CSV instead of normalized Parquet data. An export read failure still reports an error rather than zero spend.
 
 #### Environment variables
 

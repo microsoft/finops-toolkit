@@ -38,7 +38,7 @@ function Get-IdleVMs {
 resources
 | where type =~ 'microsoft.compute/virtualmachines'
 | extend powerState = tostring(properties.extended.instanceView.powerState.code)
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           vmSize = properties.hardwareProfile.vmSize,
           osType = properties.storageProfile.osDisk.osType,
           powerState
@@ -51,8 +51,7 @@ resources
         Write-Host "    VMs found: $totalVMs ($($runningVMs.Count) running, $deallocatedCount stopped/deallocated)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Running VM query failed: $($_.Exception.Message)"
-        $runningVMs = @()
+        throw "Running VM inventory is incomplete: $($_.Exception.Message)"
     }
 
     if ($runningVMs.Count -eq 0) {
@@ -63,17 +62,17 @@ resources
             'No virtual machines found in scope.'
         }
         return [PSCustomObject]@{
-            IdleVMs        = @()
-            Count          = 0
-            HasData        = $false
-            ScannedVMs     = 0
-            TotalVMs       = $totalVMs
-            DeallocatedVMs = $deallocatedCount
+            IdleVMs             = @()
+            Count               = 0
+            HasData             = $false
+            ScannedVMs          = 0
+            TotalVMs            = $totalVMs
+            DeallocatedVMs      = $deallocatedCount
             # Same shape as the main return so callers can read these on either path.
-            EvaluatedVMs   = 0
-            MetricFailures = 0
+            EvaluatedVMs        = 0
+            MetricFailures      = 0
             MetricFailureDetail = @()
-            Note           = $note
+            Note                = $note
         }
     }
 
@@ -101,10 +100,10 @@ resources
         $scope = "/subscriptions/$($vm.subscriptionId)/resourceGroups/$($vm.resourceGroup)/providers/Microsoft.Compute/virtualMachines/$($vm.name)"
         try {
             # Query CPU + Network In + Network Out in a single call
-                # FULL is the only way to get one datapoint for the whole span:
-                # P14D is not a published timegrain and the API rejects it.
-                $metricUri = "$armBase$scope/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=Percentage CPU,Network In Total,Network Out Total&timespan=$fourteenDaysAgo/$nowStr&aggregation=Average,Total&interval=FULL"
-            $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
+            # FULL is the only way to get one datapoint for the whole span:
+            # P14D is not a published timegrain and the API rejects it.
+            $metricUri = "$armBase$scope/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=Percentage CPU,Network In Total,Network Out Total&timespan=$fourteenDaysAgo/$nowStr&aggregation=Average,Total&interval=FULL"
+            $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -MaximumRedirection 0 -ErrorAction Stop
             $metricData = ($resp.Content | ConvertFrom-Json)
 
             $avgCpu = $null
@@ -176,16 +175,16 @@ resources
     Write-Host "    Idle/underutilized VMs: $($results.Count)" -ForegroundColor Gray
 
     [PSCustomObject]@{
-        IdleVMs         = @($results)
-        Count           = $results.Count
-        HasData         = ($results.Count -gt 0)
-        ScannedVMs      = $runningVMs.Count
-        TotalVMs        = $totalVMs
-        DeallocatedVMs  = $deallocatedCount
+        IdleVMs             = @($results)
+        Count               = $results.Count
+        HasData             = ($results.Count -gt 0)
+        ScannedVMs          = $runningVMs.Count
+        TotalVMs            = $totalVMs
+        DeallocatedVMs      = $deallocatedCount
         # Evaluated excludes VMs whose metrics could not be read, so a caller can
         # tell a clean result from a partial one.
-        EvaluatedVMs    = ($runningVMs.Count - $metricFailures.Count)
-        MetricFailures  = $metricFailures.Count
+        EvaluatedVMs        = ($runningVMs.Count - $metricFailures.Count)
+        MetricFailures      = $metricFailures.Count
         MetricFailureDetail = @($metricFailures)
     }
 }

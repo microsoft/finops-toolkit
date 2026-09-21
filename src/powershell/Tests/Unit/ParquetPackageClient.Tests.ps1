@@ -223,6 +223,40 @@ Describe 'Parquet package acquisition' {
     }
 
     Context 'Cache provenance' {
+        It 'Returns an unavailable reason without losing the cache when <Failure>' -ForEach @(
+            @{ Failure = 'verifier missing' }
+            @{ Failure = 'verifier preparation fails' }
+            @{ Failure = 'cleanup fails' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ FixturePath = (Join-Path $TestDrive ('unavailable-' + $Failure.Replace(' ', '-'))); Failure = $Failure } {
+                param($FixturePath, $Failure)
+                $cacheRoot = New-FinOpsPrivateDirectory -Path $FixturePath -RequireNew
+                $fixtureFailure = $Failure
+                $lib = Join-Path $cacheRoot 'lib'
+                [void](New-Item -ItemType Directory -Path $lib)
+                Set-Content -LiteralPath (Join-Path $lib 'Parquet.dll') -Value 'Synthetic cached bytes'
+                New-ParquetManifest -BasePath $cacheRoot -ManifestPath (Join-Path $cacheRoot 'parquet-manifest.json')
+                Mock Get-FinOpsParquetCachePath { $cacheRoot }
+                Mock Resolve-NuGetClient {
+                    if ($fixtureFailure -eq 'verifier missing') { return @{ Kind = $null; Reason = 'Synthetic SDK unavailable.' } }
+                    if ($fixtureFailure -eq 'verifier preparation fails') { throw 'Synthetic verifier download unavailable.' }
+                    @{ Kind = 'nuget.exe'; Path = 'unused' }
+                }
+                Mock Assert-NuGetPackageSignature { throw 'Synthetic package verification failure.' }
+                Mock Remove-Item { throw 'Synthetic locked cache.' } -ParameterFilter { $LiteralPath -eq $cacheRoot }
+                Mock Invoke-NuGetRestore { throw 'No restore is allowed.' }
+                Mock Import-ParquetAssemblies { throw 'No assembly load is allowed.' }
+
+                Install-ParquetReader -WarningAction SilentlyContinue | Should -BeFalse
+
+                Test-Path -LiteralPath (Join-Path $lib 'Parquet.dll') | Should -BeTrue
+                $script:FinOpsParquetUnavailableReason | Should -Match 'Synthetic'
+                Should -Invoke Invoke-NuGetRestore -Times 0 -Exactly
+                Should -Invoke Import-ParquetAssemblies -Times 0 -Exactly
+                if ($fixtureFailure -ne 'cleanup fails') { Should -Invoke Remove-Item -Times 0 -Exactly -ParameterFilter { $LiteralPath -eq $cacheRoot } }
+            }
+        }
+
         It 'Reuses matching cached payloads only after package verification' {
             InModuleScope FinOpsMultitool -Parameters @{ FixturePath = (Join-Path $TestDrive 'verified-cache') } {
                 param($FixturePath)

@@ -32,7 +32,7 @@ function Get-StorageTierAdvice {
 resources
 | where type =~ 'microsoft.storage/storageaccounts'
 | where properties.accessTier =~ 'Hot' or isnull(properties.accessTier)
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           kind, sku = sku.name,
           accessTier = tostring(properties.accessTier),
           creationTime = properties.creationTime,
@@ -43,8 +43,7 @@ resources
         Write-Host "    Hot-tier storage accounts: $($hotAccounts.Count)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Storage account query failed: $($_.Exception.Message)"
-        $hotAccounts = @()
+        throw "Storage account inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- 2: For each hot account, check last access metrics ---------------
@@ -62,34 +61,44 @@ resources
             # FULL is the only way to get one datapoint for the whole span:
             # P30D is not a published timegrain and the API rejects it.
             $metricUri = "$armBase$scope/blobServices/default/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=Transactions&timespan=$thirtyDaysAgo/$nowStr&aggregation=Total&interval=FULL"
-            $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
+            $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -MaximumRedirection 0 -ErrorAction Stop
             $metricData = ($resp.Content | ConvertFrom-Json)
 
-            $totalTx = 0
+            $totalTx = 0.0
+            $transactionSamples = 0
             if ($metricData.value -and $metricData.value.Count -gt 0) {
                 foreach ($ts in $metricData.value[0].timeseries) {
                     foreach ($dp in $ts.data) {
-                        if ($dp.total) { $totalTx += $dp.total }
+                        $value = Get-HubCostValue -Row $dp -Column 'total'
+                        if ($value -lt 0) { throw 'Transactions contain a negative measurement.' }
+                        $totalTx += $value
+                        $transactionSamples++
                     }
                 }
             }
+            if ($transactionSamples -eq 0) { throw 'No transaction measurements were returned for the requested period.' }
 
             # Also query used capacity. Every recommendation below requires a
             # capacity reading, so a silent failure here would suppress the
             # recommendation instead of reporting the account as unevaluated.
             $capacityUri = "$armBase$scope/blobServices/default/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=BlobCapacity&timespan=$thirtyDaysAgo/$nowStr&aggregation=Average&interval=FULL"
-            $capResp = Invoke-WebRequest -Uri $capacityUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
-            $capacityBytes = 0
+            $capResp = Invoke-WebRequest -Uri $capacityUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 15 -MaximumRedirection 0 -ErrorAction Stop
+            $capacityBytes = 0.0
+            $capacitySamples = 0
             if ($capResp) {
                 $capData = ($capResp.Content | ConvertFrom-Json)
                 if ($capData.value -and $capData.value.Count -gt 0) {
                     foreach ($ts in $capData.value[0].timeseries) {
                         foreach ($dp in $ts.data) {
-                            if ($dp.average -and $dp.average -gt $capacityBytes) { $capacityBytes = $dp.average }
+                            $value = Get-HubCostValue -Row $dp -Column 'average'
+                            if ($value -lt 0) { throw 'Capacity contains a negative measurement.' }
+                            if ($value -gt $capacityBytes) { $capacityBytes = $value }
+                            $capacitySamples++
                         }
                     }
                 }
             }
+            if ($capacitySamples -eq 0) { throw 'No capacity measurements were returned for the requested period.' }
 
             $capacityGB = [math]::Round($capacityBytes / 1GB, 2)
             $recommendation = $null
@@ -138,13 +147,13 @@ resources
     Write-Host "    Storage tier recommendations: $($results.Count)" -ForegroundColor Gray
 
     [PSCustomObject]@{
-        Recommendations  = @($results)
-        TotalHotAccounts = $hotAccounts.Count
-        Count            = $results.Count
-        HasData          = ($results.Count -gt 0)
+        Recommendations     = @($results)
+        TotalHotAccounts    = $hotAccounts.Count
+        Count               = $results.Count
+        HasData             = ($results.Count -gt 0)
         # Evaluated excludes accounts whose metrics could not be read.
-        EvaluatedAccounts = ($hotAccounts.Count - $metricFailures.Count)
-        MetricFailures   = $metricFailures.Count
+        EvaluatedAccounts   = ($hotAccounts.Count - $metricFailures.Count)
+        MetricFailures      = $metricFailures.Count
         MetricFailureDetail = @($metricFailures)
     }
 }

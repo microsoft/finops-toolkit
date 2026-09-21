@@ -19,7 +19,10 @@ function Get-OrphanedResources {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
-        [object[]]$Subscriptions
+        [object[]]$Subscriptions,
+
+        [Parameter()]
+        [switch]$SkipCost
     )
 
     Write-Host "  Scanning for orphaned and idle resources..." -ForegroundColor Cyan
@@ -56,7 +59,7 @@ resources
         Write-Host "    Orphaned disks: $($rows.Count)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Orphaned disk query failed: $($_.Exception.Message)"
+        throw "Orphaned disk inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- 2: Idle Public IPs ------------------------------------------------
@@ -133,7 +136,7 @@ resources
         Write-Host "    Public IPs on stopped VMs: $pipStoppedVm" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Public IP query failed: $($_.Exception.Message)"
+        throw "Public IP inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- 3: Unattached NICs -----------------------------------------------
@@ -164,7 +167,7 @@ resources
         Write-Host "    Unattached NICs: $($rows.Count)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Unattached NIC query failed: $($_.Exception.Message)"
+        throw "NIC inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- 4: Stopped (deallocated) VMs still on disk -----------------------
@@ -206,7 +209,7 @@ resources
         Write-Host "    Deallocated VMs: $($rows.Count)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Deallocated VM query failed: $($_.Exception.Message)"
+        throw "Deallocated VM inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- 5: Empty App Service Plans (0 apps) ------------------------------
@@ -238,7 +241,7 @@ resources
         Write-Host "    Empty App Service Plans: $($rows.Count)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Empty ASP query failed: $($_.Exception.Message)"
+        throw "App Service plan inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- 6: Orphaned Snapshots (older than 30 days) -----------------------
@@ -270,7 +273,7 @@ resources
         Write-Host "    Old snapshots (30d+): $($rows.Count)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Snapshot query failed: $($_.Exception.Message)"
+        throw "Snapshot inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- Observed cost per orphan (best effort) ---------------------------
@@ -280,6 +283,7 @@ resources
     # range, with month-to-date as the fallback.
     $costMap = @{}
     $costFailures = [System.Collections.Generic.List[string]]::new()
+    if ($SkipCost) { [void]$costFailures.Add('Cost lookup was not requested for the selected data source.') }
     $costQueried = 0
     $costPeriodLabel = $null
     $firstOfThisMonth = (Get-Date -Day 1).Date
@@ -315,7 +319,7 @@ resources
             }
         }
     )
-    if ($allOrphans.Count -gt 0) {
+    if ($allOrphans.Count -gt 0 -and -not $SkipCost) {
         foreach ($sub in $Subscriptions) {
             $costResp = $null
             $usedLabel = $null

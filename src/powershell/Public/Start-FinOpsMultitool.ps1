@@ -40,12 +40,13 @@
     .PARAMETER Scans
     Optional list of scans to run, replacing the default selection. Accepts either the
     scan function name, such as Get-OrphanedResources, or its menu label, such as
-    'Orphaned Resources'. Use 'All' to select every scan. An unrecognized name is an error.
+    'Orphaned Resources'. Use 'All' on its own to select every scan. An unrecognized name is an error.
 
     .PARAMETER DataSource
     Optional data source, which skips the data source prompt. Hub reads a configured
     Kusto endpoint or a discovered FinOps hub. API queries Cost Management directly, and
-    GraphOnly skips the cost scans. API and GraphOnly ignore FINOPS_HUB_KUSTO_URI and
+    GraphOnly skips cost-dependent scans and orphan cost enrichment; remaining scans can
+    still use Azure Monitor, Advisor, policy, and carbon APIs. API and GraphOnly ignore FINOPS_HUB_KUSTO_URI and
     don't preload hub data. An explicit Hub selection fails if no hub source is available.
     Select API separately to run a live scan.
 
@@ -53,7 +54,8 @@
     Runs without prompting, for automation and scheduled jobs. Every choice comes from the
     parameters or their defaults: all accessible subscriptions in the current tenant unless
     SubscriptionId is set, a configured or detected hub or the Cost Management API unless DataSource is
-    set. Reports are saved automatically even when OutputPath is omitted.
+    set. Requires an existing Azure context; authenticate with the intended identity using
+    Connect-AzAccount before running. Reports are saved automatically even when OutputPath is omitted.
 
     .EXAMPLE
     Start-FinOpsMultitool
@@ -69,7 +71,7 @@
     .EXAMPLE
     Start-FinOpsMultitool -NonInteractive -Scans Get-OrphanedResources, Get-IdleVMs
 
-    Runs two scans without prompting and saves CSV, HTML, and text reports in a new
+    Requires an existing authenticated Azure context. Runs two scans without prompting and saves CSV, HTML, and text reports in a new
     private run folder under the current user's local application data.
 
     .LINK

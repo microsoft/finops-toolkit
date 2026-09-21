@@ -459,6 +459,7 @@ function Install-ParquetReader {
     [CmdletBinding()]
     param()
 
+    $script:FinOpsParquetUnavailableReason = $null
     # Check if Parquet is already loaded in this session
     $loaded = [AppDomain]::CurrentDomain.GetAssemblies() | Where-Object {
         $_.GetName().Name -eq 'Parquet'
@@ -475,25 +476,38 @@ function Install-ParquetReader {
 
     # Cached checksums are not provenance: verify packages and staged bytes too.
     if (Test-Path -LiteralPath $manifestFile) {
-        if (Test-ParquetManifest -BasePath $parquetDir -ManifestPath $manifestFile) {
+        try {
+            if (-not (Test-ParquetManifest -BasePath $parquetDir -ManifestPath $manifestFile)) { throw 'Parquet cache failed its checksum check.' }
             try {
                 $cachedClient = Resolve-NuGetClient -CachePath $parquetDir
-                if (-not $cachedClient.Kind) { throw 'A package signature verifier is required before loading the Parquet cache.' }
-                Assert-NuGetPackageSignature -Client $cachedClient -PackageDir (Join-Path $parquetDir 'packages')
-                Assert-ParquetPackagePayload -BasePath $parquetDir -PackageDir (Join-Path $parquetDir 'packages')
-                $null = New-FinOpsPrivateDirectory -Path $parquetDir
-                Import-ParquetAssemblies -BasePath $parquetDir
-                return $true
             }
             catch {
+                $script:FinOpsParquetUnavailableReason = "The cached reader could not be verified: $($_.Exception.Message)"
+                Write-Warning $script:FinOpsParquetUnavailableReason
+                return $false
+            }
+            if (-not $cachedClient.Kind) {
+                $script:FinOpsParquetUnavailableReason = "A package signature verifier is required before loading the cached reader. $($cachedClient.Reason)"
+                Write-Warning $script:FinOpsParquetUnavailableReason
+                return $false
+            }
+            Assert-NuGetPackageSignature -Client $cachedClient -PackageDir (Join-Path $parquetDir 'packages')
+            Assert-ParquetPackagePayload -BasePath $parquetDir -PackageDir (Join-Path $parquetDir 'packages')
+            $null = New-FinOpsPrivateDirectory -Path $parquetDir
+            Import-ParquetAssemblies -BasePath $parquetDir
+            return $true
+        }
+        catch {
+            Write-Warning "The cached Parquet reader failed verification or loading: $($_.Exception.Message) Reinstalling."
+            try {
                 $null = New-FinOpsPrivateDirectory -Path $parquetDir
                 Remove-Item -LiteralPath $parquetDir -Recurse -Force -ErrorAction Stop
             }
-        }
-        else {
-            Write-Warning "Parquet cache failed integrity check - reinstalling."
-            $null = New-FinOpsPrivateDirectory -Path $parquetDir
-            Remove-Item -LiteralPath $parquetDir -Recurse -Force -ErrorAction Stop
+            catch {
+                $script:FinOpsParquetUnavailableReason = "Could not remove the unusable Parquet cache: $($_.Exception.Message)"
+                Write-Warning $script:FinOpsParquetUnavailableReason
+                return $false
+            }
         }
     }
 

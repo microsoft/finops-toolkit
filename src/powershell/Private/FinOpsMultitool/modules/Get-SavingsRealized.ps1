@@ -355,7 +355,7 @@ function Get-SavingsRealized {
 resources
 | where type =~ 'microsoft.compute/virtualmachines'
 | where properties.licenseType == 'Windows_Server'
-| project vmSize = tostring(properties.hardwareProfile.vmSize), location
+| project id, vmSize = tostring(properties.hardwareProfile.vmSize), location
 "@
         $subIds = $Subscriptions | ForEach-Object { $_.Id }
         $ahbResult = Search-AzGraphSafe -Query $ahbQuery -Subscription $subIds -All

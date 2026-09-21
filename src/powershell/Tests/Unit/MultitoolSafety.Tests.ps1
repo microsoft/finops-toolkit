@@ -80,6 +80,36 @@ Describe 'FinOps Multitool safety' {
         }
     }
 
+    Context 'Storage tier metric evidence' {
+        It 'Distinguishes <Case> from valid activity measurements' -ForEach @(
+            @{ Case = 'empty transactions'; TransactionPoints = @(); CapacityPoints = @(@{ average = 10GB }); ExpectedFailures = 1; ExpectedRecommendations = 0 }
+            @{ Case = 'null transactions'; TransactionPoints = @(@{ total = $null }); CapacityPoints = @(@{ average = 10GB }); ExpectedFailures = 1; ExpectedRecommendations = 0 }
+            @{ Case = 'invalid transactions'; TransactionPoints = @(@{ total = 'invalid' }); CapacityPoints = @(@{ average = 10GB }); ExpectedFailures = 1; ExpectedRecommendations = 0 }
+            @{ Case = 'empty capacity'; TransactionPoints = @(@{ total = 0 }); CapacityPoints = @(); ExpectedFailures = 1; ExpectedRecommendations = 0 }
+            @{ Case = 'negative capacity'; TransactionPoints = @(@{ total = 0 }); CapacityPoints = @(@{ average = -1 }); ExpectedFailures = 1; ExpectedRecommendations = 0 }
+            @{ Case = 'measured zero transactions'; TransactionPoints = @(@{ total = 0 }); CapacityPoints = @(@{ average = 10GB }); ExpectedFailures = 0; ExpectedRecommendations = 1 }
+            @{ Case = 'measured active storage'; TransactionPoints = @(@{ total = 2000 }); CapacityPoints = @(@{ average = 10GB }); ExpectedFailures = 0; ExpectedRecommendations = 0 }
+        ) {
+            $fixtureTransactions = $TransactionPoints
+            $fixtureCapacity = $CapacityPoints
+            Mock Search-AzGraphSafe -ModuleName FinOpsMultitool {
+                @{ Data = @([pscustomobject]@{ name = 'fixture'; resourceGroup = 'fixture'; subscriptionId = '11111111-1111-1111-1111-111111111111'; accessTier = 'Hot'; sku = 'Standard_LRS' }) }
+            }
+            Mock Get-PlainAccessToken -ModuleName FinOpsMultitool { 'synthetic-token' }
+            Mock Invoke-WebRequest -ModuleName FinOpsMultitool {
+                $points = if ($Uri -like '*metricnames=Transactions*') { $fixtureTransactions } else { $fixtureCapacity }
+                [pscustomobject]@{ Content = (@{ value = @(@{ timeseries = @(@{ data = @($points) }) }) } | ConvertTo-Json -Depth 8) }
+            }
+
+            $result = Get-StorageTierAdvice -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+
+            $result.MetricFailures | Should -Be $ExpectedFailures
+            $result.EvaluatedAccounts | Should -Be (1 - $ExpectedFailures)
+            @($result.Recommendations).Count | Should -Be $ExpectedRecommendations
+            Should -Invoke Invoke-WebRequest -ModuleName FinOpsMultitool -Times 0 -Exactly -ParameterFilter { $MaximumRedirection -ne 0 }
+        }
+    }
+
     Context 'Allocation percentages' {
 
         It 'Normalizes uneven shares to exactly 100' {
@@ -155,6 +185,31 @@ Describe 'FinOps Multitool safety' {
             $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
             $html | Should -Match '&lt;script&gt;example&lt;/script&gt;'
             $html | Should -Not -Match '<script>example</script>'
+        }
+
+        It 'Keeps incomplete policy and storage evidence visible without healthy guidance' {
+            $reportRoot = Join-Path $TestDrive 'partial-evidence'
+            $captured = [Collections.Generic.List[string]]::new()
+            Mock Write-Host { [void]$captured.Add([string]$Object) }
+            $results = @{
+                'Get-PolicyInventory' = [pscustomobject]@{ Assignments = @(); AssignmentCount = 0; CoverageIncomplete = $false; ComplianceCoverageIncomplete = $true; CompliancePct = $null; TotalCompliant = 10; TotalNonCompliant = 0; HasComplianceData = $false; Note = 'Policy compliance coverage is incomplete.' }
+                'Get-StorageTierAdvice' = [pscustomobject]@{ Recommendations = @(); TotalHotAccounts = 1; MetricFailures = 1; EvaluatedAccounts = 0; HasData = $false; MetricFailureDetail = @('No transaction measurements.') }
+            }
+            $modules = @(
+                @{ Fn = 'Get-PolicyInventory'; Name = 'Policy Inventory'; Selected = $true; Category = 'Governance' }
+                @{ Fn = 'Get-StorageTierAdvice'; Name = 'Storage Tier Advice'; Selected = $true; Category = 'Optimization' }
+            )
+
+            $null = Show-ResultsSummary -Results $results -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match 'Policy compliance coverage is incomplete'
+            $html | Should -Match 'Storage tier assessment is incomplete'
+            [regex]::Matches($html, '>Limited data</td>').Count | Should -Be 2
+            $html | Should -Not -Match 'Full policy compliance|All storage accounts are appropriately tiered'
+            ($captured -join ' ') | Should -Not -Match 'all are appropriately tiered|Compliance: 100'
+            (Import-Csv -LiteralPath (Join-Path $run 'Get-PolicyInventory.csv'))[0].'Summary.ComplianceCoverageIncomplete' | Should -Be 'True'
         }
 
         It 'Creates distinct run folders without changing existing reports' {

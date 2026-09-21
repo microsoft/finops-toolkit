@@ -167,6 +167,95 @@ Describe 'Policy effect resolution' {
         }
     }
 
+    Context 'Compliance and assignment identity' {
+        It 'Keeps compliance coverage separate from assignment coverage (<ArgMode>, HTTP <SecondStatus>)' -ForEach @(
+            @{ ArgMode = 'empty'; SecondStatus = 503; ExpectedIncomplete = $true }
+            @{ ArgMode = 'partial'; SecondStatus = 403; ExpectedIncomplete = $true }
+            @{ ArgMode = 'failed'; SecondStatus = 200; ExpectedIncomplete = $false }
+            @{ ArgMode = 'partial'; SecondStatus = 200; ExpectedIncomplete = $false }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ArgMode = $ArgMode; SecondStatus = $SecondStatus; ExpectedIncomplete = $ExpectedIncomplete } {
+                param($ArgMode, $SecondStatus, $ExpectedIncomplete)
+                $fixtureArgMode = $ArgMode
+                $fixtureStatus = $SecondStatus
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                )
+                Mock Search-AzGraphSafe {
+                    if ($fixtureArgMode -eq 'failed') { throw 'ARG incomplete.' }
+                    if ($fixtureArgMode -eq 'partial') { return @{ Data = @([pscustomobject]@{ subscriptionId = '11111111-1111-1111-1111-111111111111'; Total = 10; Compliant = 10; NonCompliant = 0 }) } }
+                    @{ Data = @() }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*policyAssignments*') { return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+                    if ($Path -like '*/22222222-2222-2222-2222-222222222222/*' -and $fixtureStatus -ne 200) { return [pscustomobject]@{ StatusCode = $fixtureStatus; Content = '{}' } }
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"results":{"resourceDetails":[{"complianceState":"compliant","count":10}],"policyDetails":[]}}]}' }
+                }
+
+                $result = Get-PolicyInventory -Subscriptions $subscriptions
+
+                $result.CoverageIncomplete | Should -BeFalse
+                $result.ComplianceCoverageIncomplete | Should -Be $ExpectedIncomplete
+                if ($ExpectedIncomplete) {
+                    $result.CompliancePct | Should -BeNullOrEmpty
+                    $result.HasComplianceData | Should -BeFalse
+                    $result.Note | Should -Match 'compliance.*incomplete'
+                }
+                else { $result.CompliancePct | Should -Be 100; $result.HasComplianceData | Should -BeTrue }
+            }
+        }
+
+        It 'Replaces partial ARG state counts with resource summaries for every subscription' {
+            InModuleScope FinOpsMultitool {
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                )
+                Mock Search-AzGraphSafe {
+                    @{ Data = @([pscustomobject]@{ subscriptionId = '11111111-1111-1111-1111-111111111111'; Total = 100; Compliant = 100; NonCompliant = 0 }) }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*policyAssignments*') { return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+                    $state = if ($Path -like '*/11111111-1111-1111-1111-111111111111/*') { 'compliant' } else { 'noncompliant' }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @(@{ results = @{ resourceDetails = @(@{ complianceState = $state; count = 1 }); policyDetails = @() } }) } | ConvertTo-Json -Depth 8) }
+                }
+
+                $result = Get-PolicyInventory -Subscriptions $subscriptions
+
+                $result.ComplianceCoverageIncomplete | Should -BeFalse
+                $result.CompliancePct | Should -Be 50
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Path -like '*policyStates/latest/summarize*' }
+            }
+        }
+
+        It 'Retains distinct same-name initiative assignments and finds both sets of members' {
+            InModuleScope FinOpsMultitool {
+                Mock Search-AzGraphSafe { @{ Data = @() } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*policyAssignments*') {
+                        $assignments = @(foreach ($number in 1..2) {
+                            @{ id = "/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/policyAssignments/fixture-$number"; name = "fixture-$number"; properties = @{ displayName = 'Same display name'; policyDefinitionId = "/providers/Microsoft.Authorization/policySetDefinitions/fixture-$number" } }
+                        })
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = $assignments } | ConvertTo-Json -Depth 8) }
+                    }
+                    if ($Path -like '*policySetDefinitions*') {
+                        $policyId = if ($Path -like '*fixture-1?*') { 'e56962a6-4747-49cd-b67b-bf8b01975c4c' } else { '726aca4c-86e9-4b04-b0c5-073027359532' }
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ policyDefinitions = @(@{ policyDefinitionId = "/providers/Microsoft.Authorization/policyDefinitions/$policyId" }) } } | ConvertTo-Json -Depth 8) }
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' }
+                }
+
+                $inventory = Get-PolicyInventory -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+                $recommendations = Get-PolicyRecommendations -ExistingAssignments $inventory.Assignments
+
+                $inventory.AssignmentCount | Should -Be 2
+                ($recommendations.Analysis | Where-Object DisplayName -EQ 'Allowed locations').Status | Should -Be 'Assigned (Initiative)'
+                ($recommendations.Analysis | Where-Object DisplayName -EQ 'Require a tag on resources').Status | Should -Be 'Assigned (Initiative)'
+            }
+        }
+    }
+
     Context 'Recommendation initiative membership' {
         It 'Finds policies in a <Scope> initiative and resolves each definition once' -ForEach @(
             @{ Scope = 'built-in'; DefinitionId = '/providers/Microsoft.Authorization/policySetDefinitions/fixture' }

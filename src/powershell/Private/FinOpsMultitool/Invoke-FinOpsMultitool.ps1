@@ -496,6 +496,7 @@ function Invoke-FinOpsMultitool {
         Write-FinOpsConsole "  Checking Azure connection..." -ForegroundColor DarkGray
         $ctx = Get-AzContext -ErrorAction SilentlyContinue
         if (-not $ctx) {
+            if ($NonInteractive) { throw 'NonInteractive requires an existing Azure context. Run Connect-AzAccount with the intended identity before starting the scan.' }
             Write-FinOpsConsole "  Not connected. Launching browser login..." -ForegroundColor Yellow
             Connect-AzAccount | Out-Null
             $ctx = Get-AzContext
@@ -1207,6 +1208,7 @@ function Invoke-FinOpsMultitool {
                         if ($cmdInfo -and $cmdInfo.Parameters.ContainsKey('RestrictToSelected')) {
                             $params['RestrictToSelected'] = $true
                         }
+                        if ($fn -eq 'Get-OrphanedResources' -and $DataSource.Source -eq 'GraphOnly') { $params.SkipCost = $true }
                         $output = & $fn @params
                     }
                 }
@@ -1742,13 +1744,14 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-StorageTierAdvice' {
                     $hotCount = if ($data.TotalHotAccounts) { $data.TotalHotAccounts } else { 0 }
+                    if ($data.MetricFailures -gt 0) { Write-FinOpsConsole "    $($data.MetricFailures) of $hotCount storage accounts could not be evaluated. Review the metric errors." -ForegroundColor Yellow }
                     if ($data.Recommendations -and @($data.Recommendations).Count -gt 0) {
-                        Write-FinOpsConsole "    $hotCount Hot-tier accounts scanned — $(@($data.Recommendations).Count) can be optimized" -ForegroundColor White
+                        Write-FinOpsConsole "    $hotCount Hot-tier accounts scanned - $(@($data.Recommendations).Count) candidates for tier review" -ForegroundColor White
                         $rows = $data.Recommendations
                         $cols = @('StorageAccount', 'ResourceGroup', 'CurrentTier', 'CapacityGB', 'Recommendation')
                     }
                     else {
-                        Write-FinOpsConsole "    $hotCount Hot-tier accounts scanned — all are appropriately tiered" -ForegroundColor Green
+                        Write-FinOpsConsole "    $hotCount Hot-tier accounts found. No tier recommendation was produced from the available measurements." -ForegroundColor White
                     }
                 }
                 'Get-AHBOpportunities' {
@@ -1961,7 +1964,10 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-PolicyInventory' {
                     $hasComplianceData = if ($null -ne $data.HasComplianceData) { $data.HasComplianceData } else { (($data.TotalCompliant + $data.TotalNonCompliant) -gt 0) }
-                    if ($hasComplianceData) {
+                    if ($data.ComplianceCoverageIncomplete) {
+                        Write-FinOpsConsole "    Assignments: $($data.AssignmentCount) | Compliance: unverified because some selected scopes could not be read" -ForegroundColor Yellow
+                    }
+                    elseif ($hasComplianceData) {
                         Write-FinOpsConsole "    Assignments: $($data.AssignmentCount)  |  Compliance: $($data.CompliancePct)%  ($($data.TotalCompliant) compliant, $($data.TotalNonCompliant) non-compliant)" -ForegroundColor White
                     }
                     else {
@@ -2322,16 +2328,20 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-StorageTierAdvice' {
                     $recoCount = if ($data.Recommendations) { @($data.Recommendations).Count } else { 0 }
-                    if ($recoCount -gt 0) {
+                    if ($data.MetricFailures -gt 0) {
                         $guidanceItems = @(
-                            @{ Severity = 'Yellow'; Message = "$recoCount storage accounts can be moved to a cheaper tier (Cool or Cold saves 50-75%)." }
-                            @{ Severity = 'Yellow'; Message = "FinOps Principle: Match storage tier to access patterns. Most data is written once and rarely read." }
-                            @{ Severity = 'Yellow'; Message = "Enable lifecycle management policies to auto-tier blobs based on last access time — set it and forget it."; Docs = 'https://learn.microsoft.com/azure/storage/blobs/lifecycle-management-overview' }
+                            @{ Severity = 'Yellow'; Message = "Storage tier assessment is incomplete: $($data.MetricFailures) account(s) have unavailable metrics. $recoCount candidate(s) were found among evaluated accounts; unread accounts are not assumed optimized." }
+                        )
+                    }
+                    elseif ($recoCount -gt 0) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = "$recoCount storage accounts meet the scan's activity thresholds for a tier review. Validate blob access patterns, retrieval needs, retention charges, and supported tiers before making changes." }
+                            @{ Severity = 'Yellow'; Message = 'Review lifecycle management rules for eligible blobs; account-level metrics alone do not prove a tier change will save money.'; Docs = 'https://learn.microsoft.com/azure/storage/blobs/lifecycle-management-overview' }
                         )
                     }
                     else {
                         $guidanceItems = @(
-                            @{ Severity = 'Green'; Message = "All storage accounts are appropriately tiered. Good data lifecycle management." }
+                            @{ Severity = 'Yellow'; Message = 'No tier candidates met the scan thresholds in the available measurements. This does not establish that every blob is appropriately tiered.' }
                         )
                     }
                 }
@@ -2668,7 +2678,12 @@ function Invoke-FinOpsMultitool {
                     $compliance = if ($data.CompliancePct) { $data.CompliancePct } else { 0 }
                     $nonCompliant = if ($data.TotalNonCompliant) { $data.TotalNonCompliant } else { 0 }
                     $hasComplianceData = if ($null -ne $data.HasComplianceData) { $data.HasComplianceData } else { (($data.TotalCompliant + $data.TotalNonCompliant) -gt 0) }
-                    if (-not $hasComplianceData) {
+                    if ($data.ComplianceCoverageIncomplete) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = 'Policy compliance coverage is incomplete. Review failed scopes before using a compliance percentage or concluding that no violations exist.' }
+                        )
+                    }
+                    elseif (-not $hasComplianceData) {
                         $guidanceItems = @(
                             @{ Severity = 'Yellow'; Message = "No policy compliance data available. Resource Graph 'policystates' returned no rows - Policy Insights may not have evaluated resources yet, or the identity lacks Policy Insights read access." }
                             @{ Severity = 'Yellow'; Message = "Assignments detected: $($data.AssignmentCount). Compliance percentages require evaluated policy states."; Docs = 'https://learn.microsoft.com/azure/governance/policy/how-to/get-compliance-data' }
@@ -2947,7 +2962,7 @@ h2[id] { scroll-margin-top: 85px; }
                         $notes = @([string]$Results["_error_$($selectedMod.Fn)"])
                     }
                     elseif (-not $scanData -or @($scanData).Count -eq 0 -or $scanData.HasData -contains $false) { $state = 'No data' }
-                    if ($state -ne 'Failed' -and ($scanData.CoverageIncomplete -contains $true -or $scanData.AccessDenied -contains $true -or
+                    if ($state -ne 'Failed' -and ($scanData.CoverageIncomplete -contains $true -or $scanData.ComplianceCoverageIncomplete -contains $true -or $scanData.AccessDenied -contains $true -or
                             @(@($scanData.CostIssue; $scanData.AHBIssue; $scanData.Error) | Where-Object { $_ }).Count -gt 0 -or
                             @($scanData.MetricFailures | Where-Object { $_ -gt 0 }).Count -gt 0 -or
                             @($scanData.Status | Where-Object { $_ -in @('Unavailable', 'Unknown') }).Count -gt 0)) {
@@ -3675,11 +3690,10 @@ h2[id] { scroll-margin-top: 85px; }
     # If "Resource Graph only", disable cost modules
     $costModuleFns = @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-CostTrend',
         'Get-SavingsRealized', 'Get-CommitmentUtilization', 'Get-ReservationAdvice',
-        'Get-BudgetStatus', 'Get-AnomalyAlerts', 'Get-BillingStructure', 'Get-ContractInfo')
+        'Get-BudgetStatus', 'Get-BudgetHistory', 'Get-AnomalyAlerts', 'Get-BillingStructure', 'Get-ContractInfo',
+        'Get-UnitEconomics', 'Get-AIWorkloadMetrics', 'Get-MaccCommitment')
     if ($sourceChoice.Source -eq 'GraphOnly') {
-        foreach ($mod in $scanModules) {
-            if ($mod.Fn -in $costModuleFns) { $mod.Selected = $false }
-        }
+        $scanModules = @($scanModules | Where-Object { $_.Fn -notin $costModuleFns })
         if (-not ($scanModules | Where-Object { $_.Selected })) {
             Write-Warning "Every selected scan needs cost data, which the 'Resource Graph only' source excludes. Nothing left to run."
             return
@@ -3726,6 +3740,10 @@ h2[id] { scroll-margin-top: 85px; }
                 }
             }
         }
+    }
+
+    if ($sourceChoice.Source -eq 'GraphOnly' -and @($finalModules | Where-Object { $_.Selected -and $_.Fn -in $costModuleFns }).Count -gt 0) {
+        throw 'Resource Graph only cannot run a scan or dependency that requires cost data.'
     }
 
     # Step 4: Run

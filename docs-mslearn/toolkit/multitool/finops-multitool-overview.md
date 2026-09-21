@@ -3,7 +3,7 @@ title: FinOps multitool overview
 description: FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from a terminal UI, with agent skills so AI assistants can run the same analysis.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 09/16/2026
+ms.date: 09/20/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -17,9 +17,9 @@ FinOps multitool scans an Azure environment for cost optimization, governance, a
 
 ## How it works
 
-FinOps multitool runs 30 scan modules against the subscriptions you select and renders the findings in one place:
+FinOps multitool provides 30 scan modules, with 26 available in the terminal menu, and renders findings for the subscriptions you select:
 
-- **Interactive scanning** <br> Choose the subscriptions and scan modules you want, then review results in the terminal. Findings can be exported to CSV, an HTML report, and a text summary. Consoles that can't render the arrow-key menus fall back to numbered prompts, and a non-interactive mode runs the same scans from a pipeline or a scheduled job.
+- **Interactive scanning** <br> Choose the subscriptions and scan modules you want, then review results in the terminal. Every completed run automatically saves CSV files, an HTML report, and a text summary to a private local folder. See [Report storage](../powershell/multitool/start-finopsmultitool.md#report-storage) for locations and privacy limits. Consoles that can't render the arrow-key menus fall back to numbered prompts. Non-interactive runs require an existing Azure sign-in context.
 
 - **AI agent support** <br> Agent skills describe the same investigations, the queries behind them, and how to read the results, so AI assistants can answer cost questions from your environment's data.
 
@@ -31,10 +31,10 @@ FinOps multitool runs 30 scan modules against the subscriptions you select and r
 
 FinOps multitool provides the following benefits:
 
-- Run 30 scans across optimization, governance, cost analysis, commitments, monitoring, and sustainability in a single pass.
+- Choose from 26 menu scans across optimization, governance, cost analysis, commitments, monitoring, and sustainability, with four more modules for direct investigations.
 - Scope each scan to the subscriptions you select.
-- Export findings to a CSV file per scan, an HTML report, and a text summary.
-- Read cost data from a FinOps hub, the Cost Management API, or Azure Resource Graph.
+- Get a CSV file per selected scan, an HTML report, and a text summary saved automatically to a private local folder.
+- Read costs from a FinOps hub or the Cost Management API, with resource inventory from Azure Resource Graph.
 - Run the same scans from a pipeline or a scheduled job with `-NonInteractive`.
 - Run the same investigations from an AI assistant through agent skills.
 
@@ -44,7 +44,7 @@ FinOps multitool provides the following benefits:
 
 ## Required permissions
 
-Most scans need [Reader](/azure/role-based-access-control/built-in-roles#reader) or [Cost Management Reader](/azure/role-based-access-control/built-in-roles#cost-management-reader) on the target scope. Account scans (billing structure, contract info, and Microsoft Azure Consumption Commitment balance) also need [Billing Reader](/azure/role-based-access-control/built-in-roles#billing-reader), or Enterprise Administrator (reader) on an Enterprise Agreement.
+Most scans need [Reader](/azure/role-based-access-control/built-in-roles#reader) or [Cost Management Reader](/azure/role-based-access-control/built-in-roles#cost-management-reader) on the target scope. Account scans (billing structure, contract info, and Microsoft Azure Consumption Commitment balance) also need agreement-specific billing access: [Billing account reader or Billing profile reader for a Microsoft Customer Agreement](/azure/cost-management-billing/manage/understand-mca-roles), or [Enterprise Administrator (read only) for an Enterprise Agreement](/azure/cost-management-billing/manage/understand-ea-roles), at the scope the scan reads.
 
 Commitment utilization reads reservation and savings plan usage at billing account or billing profile scope, so it needs the same access as account scans. Reader on a subscription isn't enough. Without it, the scan tells you it couldn't reach a billing scope instead of showing zero commitments.
 

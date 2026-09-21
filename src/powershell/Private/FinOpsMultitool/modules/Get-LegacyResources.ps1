@@ -41,7 +41,7 @@ resources
 | where type =~ 'microsoft.compute/virtualmachines'
 | extend vmSize = tostring(properties.hardwareProfile.vmSize)
 | where vmSize matches regex @'(?i)^(Basic_A[0-9]+|Standard_A[0-7]|Standard_D[0-9]+|Standard_DS[0-9]+|Standard_F[0-9]+|Standard_G[0-9]+|Standard_GS[0-9]+)$'
-| project name, resourceGroup, subscriptionId, location, vmSize
+| project id, name, resourceGroup, subscriptionId, location, vmSize
 "@
         $result = Search-AzGraphSafe -Query $vmQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
@@ -59,7 +59,7 @@ resources
         Write-Host "    Legacy VM families: $($rows.Count)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Legacy VM query failed: $($_.Exception.Message)"
+        throw "Legacy VM inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- 2: Unmanaged (VHD) disks -----------------------------------------
@@ -68,7 +68,7 @@ resources
 resources
 | where type =~ 'microsoft.compute/virtualmachines'
 | where isnotempty(properties.storageProfile.osDisk.vhd.uri)
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           vhd = tostring(properties.storageProfile.osDisk.vhd.uri)
 "@
         $result = Search-AzGraphSafe -Query $vhdQuery -Subscription $subIds -First 1000 -All
@@ -87,7 +87,7 @@ resources
         Write-Host "    Unmanaged-disk VMs: $($rows.Count)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Unmanaged disk query failed: $($_.Exception.Message)"
+        throw "Unmanaged disk inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- 3: HDD (Standard_LRS) managed disks ------------------------------
@@ -97,7 +97,7 @@ resources
 | where type =~ 'microsoft.compute/disks'
 | where tostring(sku.name) =~ 'Standard_LRS'
 | where toint(properties.diskSizeGB) >= 128
-| project name, resourceGroup, subscriptionId, location,
+| project id, name, resourceGroup, subscriptionId, location,
           diskSizeGb = properties.diskSizeGB, sku = sku.name
 "@
         $result = Search-AzGraphSafe -Query $hddQuery -Subscription $subIds -First 1000 -All
@@ -116,7 +116,7 @@ resources
         Write-Host "    HDD managed disks: $($rows.Count)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  HDD disk query failed: $($_.Exception.Message)"
+        throw "HDD disk inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- 4: Basic-SKU public IPs (retiring Sept 2025) ---------------------
@@ -125,7 +125,7 @@ resources
 resources
 | where type =~ 'microsoft.network/publicipaddresses'
 | where tostring(sku.name) =~ 'Basic'
-| project name, resourceGroup, subscriptionId, location, sku = sku.name
+| project id, name, resourceGroup, subscriptionId, location, sku = sku.name
 "@
         $result = Search-AzGraphSafe -Query $pipQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
@@ -143,7 +143,7 @@ resources
         Write-Host "    Basic public IPs: $($rows.Count)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Basic public IP query failed: $($_.Exception.Message)"
+        throw "Basic public IP inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- 5: Basic-SKU load balancers (retiring Sept 2025) -----------------
@@ -152,7 +152,7 @@ resources
 resources
 | where type =~ 'microsoft.network/loadbalancers'
 | where tostring(sku.name) =~ 'Basic'
-| project name, resourceGroup, subscriptionId, location, sku = sku.name
+| project id, name, resourceGroup, subscriptionId, location, sku = sku.name
 "@
         $result = Search-AzGraphSafe -Query $lbQuery -Subscription $subIds -First 1000 -All
         $rows = if ($result) { @($result.Data) } else { @() }
@@ -170,7 +170,7 @@ resources
         Write-Host "    Basic load balancers: $($rows.Count)" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  Basic load balancer query failed: $($_.Exception.Message)"
+        throw "Basic load balancer inventory is incomplete: $($_.Exception.Message)"
     }
 
     $byCategory = @(

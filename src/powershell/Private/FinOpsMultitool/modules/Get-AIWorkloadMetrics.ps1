@@ -60,7 +60,6 @@ function Get-AIWorkloadMetrics {
     $mlWorkspaceCount = 0
     $searchCount = 0
     $gpuVmCount = 0
-    $detectionFailed = $false
     $metricFailures = [System.Collections.Generic.List[string]]::new()
 
     try {
@@ -98,9 +97,7 @@ resources
         }
     }
     catch {
-        # A failed probe cannot prove absence, so record it and say so below.
-        $detectionFailed = $true
-        Write-Warning "  AI detection query failed: $($_.Exception.Message)"
+        throw "AI workload inventory is incomplete: $($_.Exception.Message)"
     }
 
     $footprint = [PSCustomObject]@{
@@ -113,23 +110,13 @@ resources
 
     $anyAI = ($openAiAccounts.Count + $aiServiceCount + $mlWorkspaceCount + $searchCount + $gpuVmCount) -gt 0
     if (-not $anyAI) {
-        if ($detectionFailed) {
-            Write-Warning "    AI detection did not complete - cannot confirm whether AI workloads exist."
-        }
-        else {
-            Write-Host "    No AI workloads detected - skipping AI KPIs." -ForegroundColor Gray
-        }
+        Write-Host "    No AI workloads detected - skipping AI KPIs." -ForegroundColor Gray
         return [PSCustomObject]@{
             HasData         = $false
             AIFootprint     = $footprint
             ScannedSubs     = $Subscriptions.Count
-            DetectionFailed = $detectionFailed
-            Note            = if ($detectionFailed) {
-                'AI detection query failed, so the absence of AI workloads is unverified.'
-            }
-            else {
-                'No AI workloads detected in the scanned subscriptions.'
-            }
+            DetectionFailed = $false
+            Note            = 'No AI workloads detected in the scanned subscriptions.'
         }
     }
 
@@ -218,7 +205,7 @@ resources
                 $metricUri = "$armBase$($acct.Id)/providers/Microsoft.Insights/metrics?api-version=2023-10-01&metricnames=$metricNames&timespan=$fromStr/$toStr&aggregation=Total&interval=P1D$filterSeg"
 
                 try {
-                    $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 20 -ErrorAction Stop
+                    $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 20 -MaximumRedirection 0 -ErrorAction Stop
                     $data = $resp.Content | ConvertFrom-Json
                     $metricsOk = $true
 
@@ -391,7 +378,7 @@ resources
         Period               = if ($fromHub) { $agg.Period } else { 'MonthToDate' }
         Source               = if ($fromHub) { 'FinOpsHub' } else { 'API' }
         ScannedSubs          = $Subscriptions.Count
-        DetectionFailed      = $detectionFailed
+        DetectionFailed      = $false
         # Accounts whose metrics could not be read; token totals exclude them.
         MetricFailures       = $metricFailures.Count
         MetricFailureDetail  = @($metricFailures)

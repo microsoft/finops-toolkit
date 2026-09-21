@@ -256,6 +256,7 @@ policyresources
         }
     }
 
+    $complianceErrors = [System.Collections.Generic.List[string]]::new()
     # -- Strategy 2: Resource Graph for compliance (tenant-wide, fast) ---
     # The MG-scope PolicyInsights summarize REST API hangs indefinitely,
     # and per-sub REST loops are slow on large tenants.
@@ -280,7 +281,11 @@ policyresources
             foreach ($row in $compResult.Data) {
                 $subName = $row.subscriptionId
                 $matchSub = $Subscriptions | Where-Object { $_.Id -eq $row.subscriptionId } | Select-Object -First 1
-                if ($matchSub) { $subName = $matchSub.Name }
+                if (-not $matchSub) { continue }
+                $subName = $matchSub.Name
+                foreach ($column in @('Total', 'NonCompliant', 'Compliant')) {
+                    if ((Get-HubCostValue -Row $row -Column $column) -lt 0) { throw 'Policy compliance contains an invalid count.' }
+                }
 
                 $complianceMap[$row.subscriptionId] = [PSCustomObject]@{
                     Subscription   = $subName
@@ -293,17 +298,19 @@ policyresources
                     PolicyCount    = $null
                 }
             }
-            $gotCompliance = $true
+            $gotCompliance = @($Subscriptions | Where-Object { $complianceMap.ContainsKey([string]$_.Id) }).Count -eq $subCount
             Write-Host "  Resource Graph compliance: $($complianceMap.Count) subscriptions" -ForegroundColor Green
         }
     }
     catch {
+        $complianceMap.Clear()
         Write-Warning "  Resource Graph compliance query failed: $($_.Exception.Message)"
     }
 
     # -- Compliance fallback: per-sub REST (only if ARG compliance failed) --
     if (-not $gotCompliance) {
         Write-Host "  Falling back to per-sub compliance queries..." -ForegroundColor Yellow
+        $complianceMap.Clear()
         $i = 0
         foreach ($sub in $Subscriptions) {
             $i++
@@ -315,22 +322,32 @@ policyresources
             try {
                 $compPath = "/subscriptions/$($sub.Id)/providers/Microsoft.PolicyInsights/policyStates/latest/summarize?api-version=2019-10-01"
                 $compResp = Invoke-AzRestMethodWithRetry -Path $compPath -Method POST
-                if ($compResp.StatusCode -eq 200) {
-                    $summary = ($compResp.Content | ConvertFrom-Json).value
-                    if ($summary -and $summary.Count -gt 0) {
-                        $s = $summary[0].results
-                        $complianceMap[$sub.Id] = [PSCustomObject]@{
-                            Subscription   = $sub.Name
-                            SubscriptionId = $sub.Id
-                            TotalResources = $s.resourceDetails | ForEach-Object { $_.count } | Measure-Object -Sum | Select-Object -ExpandProperty Sum
-                            NonCompliant   = ($s.resourceDetails | Where-Object { $_.complianceState -eq 'noncompliant' }).count
-                            Compliant      = ($s.resourceDetails | Where-Object { $_.complianceState -eq 'compliant' }).count
-                            PolicyCount    = $s.policyDetails | ForEach-Object { $_.count } | Measure-Object -Sum | Select-Object -ExpandProperty Sum
-                        }
+                if (-not $compResp -or $compResp.StatusCode -ne 200) { throw "Policy compliance returned HTTP $($compResp.StatusCode)." }
+                $summary = ($compResp.Content | ConvertFrom-Json -ErrorAction Stop).value
+                if ($summary -isnot [array] -or $summary.Count -gt 1) { throw 'Policy compliance returned an invalid summary.' }
+                $total = 0.0
+                $compliant = 0.0
+                $nonCompliant = 0.0
+                $policyCount = $null
+                if ($summary.Count -eq 1) {
+                    $summaryResult = $summary[0].results
+                    if ($summaryResult.resourceDetails -isnot [array]) { throw 'Policy compliance has no resource counts.' }
+                    foreach ($detail in $summaryResult.resourceDetails) {
+                        $count = Get-HubCostValue -Row $detail -Column 'count'
+                        if ($count -lt 0) { throw 'Policy compliance contains a negative count.' }
+                        $total += $count
+                        if ($detail.complianceState -eq 'compliant') { $compliant += $count }
+                        elseif ($detail.complianceState -eq 'noncompliant') { $nonCompliant += $count }
                     }
+                    $policyCount = ($summaryResult.policyDetails | ForEach-Object { $_.count } | Measure-Object -Sum).Sum
+                }
+                $complianceMap[$sub.Id] = [PSCustomObject]@{
+                    Subscription = $sub.Name; SubscriptionId = $sub.Id; TotalResources = $total
+                    NonCompliant = $nonCompliant; Compliant = $compliant; PolicyCount = $policyCount
                 }
             }
             catch {
+                [void]$complianceErrors.Add("$($sub.Name): $($_.Exception.Message)")
                 Write-Warning "  Policy compliance failed for $($sub.Name): $($_.Exception.Message)"
             }
         }
@@ -378,11 +395,16 @@ policyresources
         }
     }
 
-    # -- Deduplicate assignments by name + scope -----------------------
+    # -- Deduplicate assignments by resource ID -----------------------
     $seen = @{}
     $unique = [System.Collections.Generic.List[PSCustomObject]]::new()
     foreach ($a in $allAssignments) {
-        $key = "$($a.AssignmentName)|$($a.Scope)"
+        $key = [string]$a.AssignmentId
+        if ([string]::IsNullOrWhiteSpace($key)) {
+            [void]$subFailures.Add('An assignment has no resource ID; assignment coverage is incomplete.')
+            [void]$unique.Add($a)
+            continue
+        }
         if (-not $seen.ContainsKey($key)) {
             $seen[$key] = $true
             [void]$unique.Add($a)
@@ -413,19 +435,25 @@ policyresources
         $totalNonCompliant += $c.NonCompliant
     }
     $totalEvaluated = $totalCompliant + $totalNonCompliant
-    $compliancePct = if ($totalEvaluated -gt 0) { [math]::Round(($totalCompliant / $totalEvaluated) * 100, 1) } else { 0 }
+    $complianceIncomplete = $complianceErrors.Count -gt 0 -or @($Subscriptions | Where-Object { -not $complianceMap.ContainsKey([string]$_.Id) }).Count -gt 0
+    $compliancePct = if (-not $complianceIncomplete -and $totalEvaluated -gt 0) { [math]::Round(($totalCompliant / $totalEvaluated) * 100, 1) } else { $null }
 
     return [PSCustomObject]@{
         Assignments        = $unique
         AssignmentCount    = $unique.Count
         CoverageIncomplete = ($subFailures.Count -gt 0)
         AssignmentErrors   = $subFailures.ToArray()
-        Note               = if ($subFailures.Count -gt 0) { 'Some effective policy assignments could not be read. Missing assignments cannot be determined from this inventory.' } else { $null }
+        Note               = (@(
+            if ($subFailures.Count -gt 0) { 'Some effective policy assignments could not be read. Missing assignments cannot be determined from this inventory.' }
+            if ($complianceIncomplete) { 'Policy compliance coverage is incomplete. Partial results do not establish a percentage for the selected scope.' }
+        ) -join ' ')
+        ComplianceCoverageIncomplete = $complianceIncomplete
+        ComplianceErrors   = $complianceErrors.ToArray()
         ComplianceBySubMap = $complianceMap
         CompliancePct      = $compliancePct
         TotalCompliant     = $totalCompliant
         TotalNonCompliant  = $totalNonCompliant
         TotalEvaluated     = $totalEvaluated
-        HasComplianceData  = ($totalEvaluated -gt 0)
+        HasComplianceData  = (-not $complianceIncomplete -and $totalEvaluated -gt 0)
     }
 }

@@ -22,7 +22,7 @@ The FinOps multitool scans an Azure environment for cost optimization, governanc
 <div id="whats-new" class="ftk-new">
     <h3>New in the FinOps toolkit<span class="ftk-version">v15</span></h3>
     <p>
-        The FinOps multitool is a new addition to the FinOps toolkit. It delivers 30 read-only scan modules through a cross-platform terminal UI, plus agent skills for AI assistants, with a scalable FinOps hub Kusto data path for large environments.
+        The FinOps multitool is a new addition to the FinOps toolkit. It provides 30 read-only scan modules, with 26 in the terminal menu, plus agent skills for AI assistants and a FinOps hub Kusto data path for large environments.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -34,7 +34,7 @@ The FinOps multitool scans an Azure environment for cost optimization, governanc
 <div class="ftk-gallery ftk-50">
     <div class="ftk-tile">
         <div>🖥️ Terminal UI</div>
-        <div>Run cost, governance, and optimization scans from an interactive, cross-platform terminal experience.</div>
+        <div>Run cost, governance, and optimization scans from an interactive PowerShell 7 terminal experience.</div>
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/start-finopsmultitool">Learn more</a>
     </div>
     <div class="ftk-tile">

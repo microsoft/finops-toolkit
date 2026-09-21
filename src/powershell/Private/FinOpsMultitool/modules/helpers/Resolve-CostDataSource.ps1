@@ -62,7 +62,8 @@ function Resolve-CostDataSource {
         RemediationHint     = $null
         CoverageSubs        = @()
         RequestedSubs       = $requested
-        CoveragePct         = 0
+        CoveragePct         = $null
+        CoverageKnown       = $false
         Freshness           = $null
         EstimatedApiSeconds = 0
         Recommendation      = 'UseApi'
@@ -126,6 +127,7 @@ Resources
             $result.CoverageSubs = $exp.CoverageSubs
             $result.Freshness = $exp.Freshness
             $result.CoveragePct = $exp.CoveragePct
+            $result.CoverageKnown = ($null -ne $exp.CoveragePct)
             $result.Recommendation = $exp.Recommendation
             $result.Message = $exp.Message
             return [pscustomobject]$result
@@ -186,9 +188,7 @@ Resources
 
     $coveredRequested = @($requested | Where-Object { $coverage.Subs -contains $_ })
     if ($coverage.Subs.Count -eq 0) {
-        # Coverage could not be determined — assume it covers the scope but
-        # flag it so the agent can mention the uncertainty.
-        $result.CoveragePct = 100
+        $result.CoveragePct = $null
         $result.Recommendation = 'UseHub'
         $kustoNote0 = if ($result.KustoClusterUri) {
             " A FinOps Hub Kusto cluster was found ($($result.KustoClusterUri)); cost scans query it directly and push aggregation into the engine (scales to large datasets)."
@@ -201,6 +201,7 @@ Resources
     }
 
     $result.CoveragePct = [int][math]::Round((($coveredRequested.Count / [double]$subCount) * 100))
+    $result.CoverageKnown = $true
 
     $asOf = if ($coverage.Freshness) { " as of $($coverage.Freshness)" } else { '' }
     $kustoNote = if ($result.KustoClusterUri) {

@@ -599,6 +599,50 @@ Describe 'Cost Management query pagination' {
         }
     }
 
+    Context 'Trend currency integrity' {
+        It 'Handles <CurrencyCase> through <QueryPath> without inventing a monetary total' -ForEach @(
+            @{ QueryPath = 'Fallback'; CurrencyCase = 'mixed'; Valid = $false }
+            @{ QueryPath = 'ManagementGroup'; CurrencyCase = 'mixed'; Valid = $false }
+            @{ QueryPath = 'Fallback'; CurrencyCase = 'missing'; Valid = $false }
+            @{ QueryPath = 'ManagementGroup'; CurrencyCase = 'missing'; Valid = $false }
+            @{ QueryPath = 'Single'; CurrencyCase = 'missing'; Valid = $false }
+            @{ QueryPath = 'Single'; CurrencyCase = 'blank'; Valid = $false }
+            @{ QueryPath = 'Fallback'; CurrencyCase = 'same'; Valid = $true }
+            @{ QueryPath = 'ManagementGroup'; CurrencyCase = 'same'; Valid = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ QueryPath = $QueryPath; CurrencyCase = $CurrencyCase; Valid = $Valid } {
+                param($QueryPath, $CurrencyCase, $Valid)
+                $fixturePath = $QueryPath
+                $fixtureCurrency = $CurrencyCase
+                Mock Resolve-CostMgId { if ($fixturePath -eq 'ManagementGroup') { 'fixture' } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $firstId = '11111111-1111-1111-1111-111111111111'
+                    $secondId = '22222222-2222-2222-2222-222222222222'
+                    $ids = if ($fixturePath -eq 'ManagementGroup') { @($firstId, $secondId) } elseif ($Path -like "*/$secondId/*") { @($secondId) } else { @($firstId) }
+                    $columns = @(@{ name = 'BillingMonth'; type = 'Number' }, @{ name = 'Cost'; type = 'Number' }, @{ name = 'SubscriptionId'; type = 'String' })
+                    if ($fixtureCurrency -ne 'missing') { $columns += @{ name = 'Currency'; type = 'String' } }
+                    $rows = @(foreach ($subscriptionId in $ids) {
+                        $row = @([int](Get-Date).AddMonths(-1).ToString('yyyyMM01'), 100, $subscriptionId)
+                        if ($fixtureCurrency -ne 'missing') { $row += $(if ($fixtureCurrency -eq 'blank') { '' } elseif ($fixtureCurrency -eq 'mixed' -and $subscriptionId -eq $secondId) { 'EUR' } else { 'USD' }) }
+                        , $row
+                    })
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ columns = $columns; rows = $rows } } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' })
+                if ($fixturePath -ne 'Single') { $subscriptions += [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' } }
+
+                if ($Valid) {
+                    $result = Get-CostTrend -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+                    $result.Months[0].Cost | Should -Be 200
+                    $result.Months[0].Currency | Should -Be 'USD'
+                }
+                else {
+                    { Get-CostTrend -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions } | Should -Throw '*currency*'
+                }
+            }
+        }
+    }
+
     Context 'Cost-only scan failures' {
         It 'Does not return a successful scan after a failed continuation (<Scan>)' -ForEach @(
             @{ Scan = 'Trend' }

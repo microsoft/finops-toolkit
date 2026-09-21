@@ -18,14 +18,15 @@
 # module path. In PowerShell 7 (Core) we must NOT prepend the Windows PowerShell
 # 5.1 module path: it can shadow Core's modules with older, incompatible versions
 # (for example an old Az.Accounts that then blocks a newer Az.Storage from loading).
-$userModDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'PowerShell\Modules'
-if ($userModDir -and (Test-Path $userModDir) -and $env:PSModulePath -notlike "*$userModDir*") {
-    $env:PSModulePath = "$userModDir;$env:PSModulePath"
-}
-if ($PSEdition -eq 'Desktop') {
-    $userModDir5 = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'WindowsPowerShell\Modules'
-    if ($userModDir5 -and (Test-Path $userModDir5) -and $env:PSModulePath -notlike "*$userModDir5*") {
-        $env:PSModulePath = "$userModDir5;$env:PSModulePath"
+if ($IsWindows -or $PSEdition -eq 'Desktop') {
+    $documents = [Environment]::GetFolderPath('MyDocuments')
+    if (-not [string]::IsNullOrWhiteSpace($documents)) {
+        $moduleFolder = if ($PSEdition -eq 'Desktop') { 'WindowsPowerShell/Modules' } else { 'PowerShell/Modules' }
+        $userModDir = Join-Path $documents $moduleFolder
+        $separator = [IO.Path]::PathSeparator
+        if ((Test-Path -LiteralPath $userModDir) -and $userModDir -notin ($env:PSModulePath -split [regex]::Escape([string]$separator))) {
+            $env:PSModulePath = "$userModDir$separator$env:PSModulePath"
+        }
     }
 }
 

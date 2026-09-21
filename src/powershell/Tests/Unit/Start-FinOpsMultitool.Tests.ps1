@@ -366,6 +366,47 @@ function Invoke-FinOpsMultitool {
                 Should -Invoke Read-FinOpsHubData -Times 0 -Exactly
             }
 
+            It 'Does not re-enable <CostScan> or its dependencies in GraphOnly mode' -ForEach @(
+                @{ CostScan = 'Get-BudgetHistory' }
+                @{ CostScan = 'Get-UnitEconomics' }
+                @{ CostScan = 'Get-AIWorkloadMetrics' }
+                @{ CostScan = 'Get-MaccCommitment' }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Mock Get-TagInventory { [pscustomobject]@{ TagNames = @{}; TotalResources = 0; TaggedCount = 0; UntaggedCount = 0; TagCoverage = 0 } }
+                Mock Get-BudgetHistory { throw 'Budget history must not run.' }
+                Mock Get-BudgetStatus { throw 'Budgets must not run.' }
+                Mock Get-CostTrend { throw 'Cost trend must not run.' }
+                Mock Get-UnitEconomics { throw 'Unit economics must not run.' }
+                Mock Get-AIWorkloadMetrics { throw 'AI costs must not run.' }
+                Mock Get-MaccCommitment { throw 'Commitments must not run.' }
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans @('Get-TagInventory', $CostScan) -DataSource GraphOnly -OutputPath (Join-Path $TestDrive "graph-$CostScan") -NonInteractive -ErrorAction Stop
+
+                foreach ($command in @('Get-BudgetHistory','Get-BudgetStatus','Get-CostTrend','Get-UnitEconomics','Get-AIWorkloadMetrics','Get-MaccCommitment')) { Should -Invoke $command -Times 0 -Exactly }
+                Should -Invoke Get-TagInventory -Times 1 -Exactly
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+            }
+
+            It 'Requires an existing sign-in for noninteractive runs' {
+                Mock Get-AzContext { $null }
+                Mock Connect-AzAccount { throw 'Interactive sign-in must not be attempted.' }
+
+                { Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagInventory -DataSource GraphOnly -NonInteractive -ErrorAction Stop } | Should -Throw '*NonInteractive*Connect-AzAccount*'
+
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
+            }
+
+            It 'Skips orphan cost enrichment in GraphOnly mode' {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Mock Get-OrphanedResources { [pscustomobject]@{ Orphans = @(); TotalCount = 0; HasData = $false } }
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-OrphanedResources -DataSource GraphOnly -OutputPath (Join-Path $TestDrive 'graph-orphans') -NonInteractive -ErrorAction Stop
+
+                Should -Invoke Get-OrphanedResources -Times 1 -Exactly -ParameterFilter { $SkipCost }
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+            }
+
             It 'Rejects an unavailable explicit Hub rather than silently selecting API' {
                 $env:FINOPS_HUB_KUSTO_URI = $null
 
@@ -430,6 +471,31 @@ function Invoke-FinOpsMultitool {
                 Get-Content -LiteralPath (Join-Path $runs[0].FullName 'FinOpsReport.html') -Raw | Should -Match '403 AuthorizationFailed: orphan fixture'
                 Get-Content -LiteralPath (Join-Path $runs[0].FullName 'ScanSummary.txt') -Raw | Should -Match 'ERROR: 403 AuthorizationFailed: orphan fixture'
                 Should -Invoke Read-Host -Times 0 -Exactly
+            }
+
+            It 'Reports an incomplete AI inventory as an error in every report format' {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                $reportRoot = Join-Path $TestDrive 'failed-ai-inventory'
+                Mock Invoke-AzGraphQueryPage -ModuleName FinOpsMultitool {
+                    if (-not $SkipToken) { return [pscustomobject]@{ Data = @('partial'); SkipToken = 'next'; Count = 1 } }
+                    $null
+                }
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-AIWorkloadMetrics -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+
+                $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
+                $results['_error_Get-AIWorkloadMetrics'] | Should -Match 'AI workload inventory is incomplete'
+                $runs = @(Get-ChildItem -LiteralPath $reportRoot -Directory)
+                $runs.Count | Should -Be 1
+                $status = Import-Csv -LiteralPath (Join-Path $runs[0].FullName 'Get-AIWorkloadMetrics.csv')
+                $status.RecordType | Should -Be 'Status'
+                $status.Status | Should -Be 'Error'
+                $status.Error | Should -Match 'AI workload inventory is incomplete'
+                $html = Get-Content -LiteralPath (Join-Path $runs[0].FullName 'FinOpsReport.html') -Raw
+                $html | Should -Match 'AI workload inventory is incomplete'
+                $html | Should -Not -Match 'No AI workloads detected'
+                Get-Content -LiteralPath (Join-Path $runs[0].FullName 'ScanSummary.txt') -Raw | Should -Match 'ERROR: AI workload inventory is incomplete'
+                Should -Invoke Get-PlainAccessToken -ModuleName FinOpsMultitool -Times 0 -Exactly
             }
 
             It 'Keeps selected-source failure details for <Mode>' -ForEach @(

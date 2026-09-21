@@ -22,6 +22,7 @@ function Search-AzGraphSafe {
         [int]$TimeoutSeconds = 60,
         [int]$MaxRetries = 2,
         [switch]$All,
+        [ValidateRange(1, 10000)]
         [int]$MaxPages = 100
     )
 
@@ -37,6 +38,8 @@ function Search-AzGraphSafe {
     $rows = [System.Collections.Generic.List[object]]::new()
     $token = $SkipToken
     $pageCount = 0
+    $visitedTokens = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    if ($SkipToken) { [void]$visitedTokens.Add($SkipToken) }
 
     do {
         $usedToken = $token
@@ -44,27 +47,24 @@ function Search-AzGraphSafe {
             -SkipToken $usedToken -TimeoutSeconds $TimeoutSeconds -MaxRetries $MaxRetries
 
         if (-not $page) {
-            # A first-page failure keeps the existing contract: callers treat
-            # $null as "the query failed". Losing a later page is different -
-            # we have partial data, so say so rather than total it silently.
-            if ($pageCount -eq 0) { return $null }
-            Write-Warning "  Resource Graph continuation failed after $pageCount page(s); results are incomplete."
-            break
+            throw "Resource Graph query failed after $pageCount page(s); results are incomplete."
         }
 
         if ($page.Data) { $rows.AddRange(@($page.Data)) }
         $token = $page.SkipToken
         $pageCount++
 
+        if ($page.Data -and -not $token -and @($page.Data).Count -ge $First) {
+            throw 'Resource Graph returned a full page without a continuation token; results may be incomplete. Keep id in the query projection or narrow the scope.'
+        }
+
         # A token that does not advance would re-request the page we just added.
-        if ($token -and $usedToken -and $token -eq $usedToken) {
-            Write-Warning "  Resource Graph returned the same continuation token twice; stopping rather than repeating a page. Results are incomplete."
-            break
+        if ($token -and -not $visitedTokens.Add($token)) {
+            throw 'Resource Graph returned a repeated continuation token; results are incomplete.'
         }
 
         if ($token -and $pageCount -ge $MaxPages) {
-            Write-Warning "  Resource Graph query stopped after $MaxPages pages ($($rows.Count) rows); results are incomplete."
-            break
+            throw "Resource Graph query stopped after $MaxPages pages; results are incomplete."
         }
     } while ($token)
 

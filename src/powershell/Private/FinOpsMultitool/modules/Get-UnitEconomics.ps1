@@ -133,8 +133,7 @@ resources
         $accounts = if ($result) { @($result.Data) } else { @() }
     }
     catch {
-        Write-Warning "  Storage account inventory query failed: $($_.Exception.Message)"
-        return $null
+        throw "Storage account inventory is incomplete: $($_.Exception.Message)"
     }
 
     if ($accounts.Count -eq 0) { return 0.0 }
@@ -218,7 +217,7 @@ resources
         Write-Host "    VMs: $vmCount  |  vCPUs: $totalVCpu  |  RAM: $([math]::Round($totalMemGb, 0)) GB" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "  vCPU query failed: $($_.Exception.Message)"
+        throw "Compute capacity inventory is incomplete: $($_.Exception.Message)"
     }
 
     # -- 2: Provisioned storage (managed disk GB) -------------------------
@@ -250,7 +249,7 @@ resources
         }
     }
     catch {
-        Write-Warning "  Storage account capacity query failed: $($_.Exception.Message)"
+        throw "Storage account capacity is incomplete: $($_.Exception.Message)"
     }
 
     # Total storage denominator = managed disks + storage-account used capacity.

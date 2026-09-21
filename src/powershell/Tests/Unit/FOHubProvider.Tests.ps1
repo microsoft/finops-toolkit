@@ -16,6 +16,29 @@ Describe 'FinOps Hub Kusto provider' {
         Remove-Module FinOpsMultitool -ErrorAction SilentlyContinue
     }
 
+    Context 'Unknown Hub coverage' {
+        It 'Does not turn unreadable subscription metadata into complete coverage' {
+            InModuleScope FinOpsMultitool {
+                Mock Search-AzGraphSafe {
+                    if ($Query -like '*microsoft.storage/storageaccounts*') {
+                        return @{ Data = @([pscustomobject]@{ name = 'fixture'; resourceGroup = 'fixture'; subscriptionId = '11111111-1111-1111-1111-111111111111'; location = 'eastus' }) }
+                    }
+                    @{ Data = @([pscustomobject]@{ c = 0 }) }
+                }
+                Mock Get-HubKustoCluster { $null }
+                Mock Test-HubStorageAccess { @{ Readable = $true; Context = [pscustomobject]@{ Synthetic = $true } } }
+                Mock Get-HubCoverage { @{ Subs = @(); Freshness = $null } }
+
+                $result = Resolve-CostDataSource -RequestedSubscriptionIds @('11111111-1111-1111-1111-111111111111')
+
+                $result.HubFound | Should -BeTrue
+                $result.CoveragePct | Should -BeNullOrEmpty
+                $result.CoverageKnown | Should -BeFalse
+                $result.Message | Should -Match 'could not be confirmed'
+            }
+        }
+    }
+
     Context 'Endpoint security' {
         It 'Rejects unsafe endpoint <Endpoint> before requesting a token or sending a request' -ForEach @(
             @{ Endpoint = 'http://example.test' }

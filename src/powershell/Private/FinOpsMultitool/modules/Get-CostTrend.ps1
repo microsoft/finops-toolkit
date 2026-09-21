@@ -85,20 +85,12 @@ function Get-CostTrend {
         $entries = [System.Collections.Generic.List[PSCustomObject]]::new()
         if (-not $Rows) { return $entries }
 
-        $costIdx = -1; $dateIdx = -1; $currIdx = -1
-        if ($Columns) {
-            for ($ci = 0; $ci -lt $Columns.Count; $ci++) {
-                $n = $Columns[$ci].name.ToLower()
-                $t = $Columns[$ci].type.ToLower()
-                if ($n -match 'cost|precost|pretaxcost') { $costIdx = $ci }
-                elseif ($t -eq 'number' -and $costIdx -eq -1) { $costIdx = $ci }
-                elseif ($n -match 'billingmonth|usagedate' -or $t -eq 'datetime') { $dateIdx = $ci }
-                elseif ($n -match 'currency|billingcurrency') { $currIdx = $ci }
-            }
+        $costIdx = Get-CostColumnIndex -Columns $Columns -Names @('cost', 'pretaxcost', 'costusd', 'totalcost')
+        $dateIdx = Get-CostColumnIndex -Columns $Columns -Names @('billingmonth', 'usagedate')
+        $currIdx = Get-CostColumnIndex -Columns $Columns -Names @('currency', 'billingcurrency')
+        if ($costIdx -lt 0 -or $dateIdx -lt 0 -or $currIdx -lt 0) {
+            throw 'Cost trend requires explicit cost, date, and currency columns; results are incomplete.'
         }
-        if ($costIdx -eq -1) { $costIdx = 0 }
-        if ($dateIdx -eq -1) { $dateIdx = 1 }
-        if ($currIdx -eq -1) { $currIdx = 2 }
 
         foreach ($row in $Rows) {
             $cost = [math]::Round([double]$row[$costIdx], 2)
@@ -109,7 +101,8 @@ function Get-CostTrend {
             } else {
                 $parsed = [datetime]::Parse($dateVal)
             }
-            $currency = if ($currIdx -lt $row.Count) { $row[$currIdx] } else { 'USD' }
+            $currency = ([string]$row[$currIdx]).Trim().ToUpperInvariant()
+            if ($currency -notmatch '^[A-Z]{3}$' -or $currency -in @('XXX', 'XTS')) { throw 'Cost trend currency is unavailable or invalid.' }
             [void]$entries.Add([PSCustomObject]@{
                 Month     = $parsed.ToString('MMM yyyy')
                 MonthDate = $parsed
@@ -141,20 +134,13 @@ function Get-CostTrend {
             param($Rows, $Columns)
             $out = [System.Collections.Generic.List[PSCustomObject]]::new()
             if (-not $Rows) { return $out }
-            $costIdx = -1; $dateIdx = -1; $currIdx = -1; $subIdx = -1
-            if ($Columns) {
-                for ($ci = 0; $ci -lt $Columns.Count; $ci++) {
-                    $n = $Columns[$ci].name.ToLower()
-                    $t = $Columns[$ci].type.ToLower()
-                    if ($n -match 'subscriptionid') { $subIdx = $ci }
-                    elseif ($n -match 'cost|precost|pretaxcost') { $costIdx = $ci }
-                    elseif ($n -match 'billingmonth|usagedate' -or $t -eq 'datetime') { $dateIdx = $ci }
-                    elseif ($n -match 'currency|billingcurrency') { $currIdx = $ci }
-                    elseif ($t -eq 'number' -and $costIdx -eq -1) { $costIdx = $ci }
-                }
+            $costIdx = Get-CostColumnIndex -Columns $Columns -Names @('cost', 'pretaxcost', 'costusd', 'totalcost')
+            $dateIdx = Get-CostColumnIndex -Columns $Columns -Names @('billingmonth', 'usagedate')
+            $currIdx = Get-CostColumnIndex -Columns $Columns -Names @('currency', 'billingcurrency')
+            $subIdx = Get-CostColumnIndex -Columns $Columns -Names @('subscriptionid')
+            if ($costIdx -lt 0 -or $dateIdx -lt 0 -or $currIdx -lt 0 -or $subIdx -lt 0) {
+                throw 'Grouped cost trend requires explicit cost, date, currency, and subscription columns; results are incomplete.'
             }
-            if ($costIdx -eq -1) { $costIdx = 0 }
-            if ($dateIdx -eq -1) { $dateIdx = 1 }
             foreach ($row in $Rows) {
                 $cost = [math]::Round([double]$row[$costIdx], 2)
                 $dateVal = $row[$dateIdx].ToString()
@@ -164,8 +150,10 @@ function Get-CostTrend {
                 } else {
                     $parsed = [datetime]::Parse($dateVal)
                 }
-                $currency = if ($currIdx -ge 0 -and $currIdx -lt $row.Count) { $row[$currIdx] } else { 'USD' }
-                $subId = if ($subIdx -ge 0 -and $subIdx -lt $row.Count) { [string]$row[$subIdx] } else { '' }
+                $currency = ([string]$row[$currIdx]).Trim().ToUpperInvariant()
+                if ($currency -notmatch '^[A-Z]{3}$' -or $currency -in @('XXX', 'XTS')) { throw 'Cost trend currency is unavailable or invalid.' }
+                $subId = [string]$row[$subIdx]
+                if ([string]::IsNullOrWhiteSpace($subId)) { throw 'Cost trend subscription is missing; results are incomplete.' }
                 [void]$out.Add([PSCustomObject]@{
                     SubId     = $subId
                     Month     = $parsed.ToString('MMM yyyy')
@@ -196,6 +184,7 @@ function Get-CostTrend {
                     $agg[$key] = @{ Cost = 0; Date = $e.MonthDate; Currencies = @{} }
                 }
                 Add-CurrencySeen -Seen $agg[$key].Currencies -Currency $e.Currency
+                if ($agg[$key].Currencies.Count -ne 1) { throw 'Cost trend cannot combine multiple billing currency values in one monthly total.' }
                 $agg[$key].Cost += $e.Cost
             }
             foreach ($k in @($bySubscription.Keys)) {
@@ -281,6 +270,7 @@ function Get-CostTrend {
                             if (-not $aggTotals.ContainsKey($key)) {
                                 $aggTotals[$key] = @{ Cost = 0; Date = $sm.MonthDate; Currency = $sm.Currency }
                             }
+                            if ($aggTotals[$key].Currency -ne $sm.Currency) { throw 'Cost trend cannot combine multiple billing currency values in one monthly total.' }
                             $aggTotals[$key].Cost += $sm.Cost
                         }
                     }
