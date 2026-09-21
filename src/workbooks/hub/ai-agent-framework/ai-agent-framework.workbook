@@ -11,7 +11,7 @@
           {
             "type": 1,
             "content": {
-              "json": "### Agent framework\n\nRuns, tokens, cost, and reliability for Microsoft Agent Framework workloads, attributed per agent from Application Insights traces. Agent framework is not tied to one provider, and each provider bills on its own rate sheet, so only usage billed through Azure is priced from the hub price sheet. Everything else keeps its tokens visible and states why no rate applies. An absent signal is unknown, not zero."
+              "json": "### Agent framework\n\nRuns, tokens, cost, and reliability for Microsoft Agent Framework workloads, attributed per agent from Application Insights traces and priced from the hub price sheet. An absent signal is unknown, not zero."
             },
             "customWidth": "100",
             "name": "a623f7b2-4010-e77c-2566-f26ec4dc5935"
@@ -69,49 +69,52 @@
               "version": "KqlParameterItem/1.0",
               "parameters": [
                 {
-                  "id": "c5fee05c-4e9e-161b-58fa-42384c8d7b11",
                   "version": "KqlParameterItem/1.0",
-                  "name": "PriceScope",
-                  "label": "Pricing scope",
-                  "type": 2,
-                  "isRequired": true,
-                  "queryType": 8,
-                  "description": "Deployment scope the rates are read for. Telemetry does not carry it.",
-                  "query": "{\"version\": \"1.0.0\", \"content\": \"[{\\\"value\\\": \\\"global\\\", \\\"label\\\": \\\"global\\\", \\\"selected\\\": true}, {\\\"value\\\": \\\"data zone\\\", \\\"label\\\": \\\"data zone\\\", \\\"selected\\\": false}, {\\\"value\\\": \\\"regional\\\", \\\"label\\\": \\\"regional\\\", \\\"selected\\\": false}]\", \"transformers\": null}",
+                  "multiSelect": true,
+                  "quote": "\"",
+                  "delimiter": ",",
+                  "queryType": 0,
+                  "resourceType": "microsoft.insights/components",
+                  "crossComponentResources": [
+                    "{TelemetryApplications}"
+                  ],
+                  "timeContext": {
+                    "durationMs": 0
+                  },
+                  "timeContextFromParameter": "TimeRange",
                   "typeSettings": {
                     "additionalResourceOptions": [],
                     "showDefault": false
-                  }
+                  },
+                  "id": "6d4f0af2-db14-969d-47bc-53b286af2682",
+                  "name": "AgentKeys",
+                  "label": "Agents",
+                  "type": 2,
+                  "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet spans = dependencies | where (timestamp >= StartTime and timestamp < EndTime);\nlet pricing = dynamic({\"services\":[],\"projectResourceId\":\"\",\"longContextTokens\":272000});\n// Pricing intentionally disabled here; no hub price lookup is needed for this result.\nlet price = dynamic({});\nlet priceStart = datetime(null);\nlet priceEnd = datetime(null);\nlet pricesLoaded = false;\n{FtkAgentUsage}\nnamedSpans\n| summarize label = take_any(iff(identityComplete, strcat(agentLabel, ' / ', projectName, ' / ', foundryName), agentLabel)), operationCount = countif(name has 'invoke_agent') by agentKey\n| sort by operationCount desc\n| project value = agentKey, label = label, selected = true"
                 },
                 {
-                  "id": "651320c7-bf5a-0cb8-bfdf-0faf5022626c",
                   "version": "KqlParameterItem/1.0",
-                  "name": "PriceTier",
-                  "label": "Deployment tier",
-                  "type": 2,
-                  "isRequired": true,
-                  "queryType": 8,
-                  "description": "Deployment tier the rates are read for. Telemetry does not carry it.",
-                  "query": "{\"version\": \"1.0.0\", \"content\": \"[{\\\"value\\\": \\\"standard\\\", \\\"label\\\": \\\"standard\\\", \\\"selected\\\": true}, {\\\"value\\\": \\\"priority\\\", \\\"label\\\": \\\"priority\\\", \\\"selected\\\": false}]\", \"transformers\": null}",
+                  "multiSelect": true,
+                  "quote": "\"",
+                  "delimiter": ",",
+                  "queryType": 0,
+                  "resourceType": "microsoft.insights/components",
+                  "crossComponentResources": [
+                    "{TelemetryApplications}"
+                  ],
+                  "timeContext": {
+                    "durationMs": 0
+                  },
+                  "timeContextFromParameter": "TimeRange",
                   "typeSettings": {
                     "additionalResourceOptions": [],
                     "showDefault": false
-                  }
-                },
-                {
-                  "id": "76f5391e-faa6-7fd6-bffe-80adee6d201e",
-                  "version": "KqlParameterItem/1.0",
-                  "name": "PriceContext",
-                  "label": "Context tier",
+                  },
+                  "id": "0e11cfb0-7b5f-1e45-6dc0-eb9d04b3144e",
+                  "name": "AgentProjects",
+                  "label": "Foundry projects",
                   "type": 2,
-                  "isRequired": true,
-                  "queryType": 8,
-                  "description": "Context tier the rates are read for, where a model prices them apart.",
-                  "query": "{\"version\": \"1.0.0\", \"content\": \"[{\\\"value\\\": \\\"short\\\", \\\"label\\\": \\\"short\\\", \\\"selected\\\": true}, {\\\"value\\\": \\\"long\\\", \\\"label\\\": \\\"long\\\", \\\"selected\\\": false}]\", \"transformers\": null}",
-                  "typeSettings": {
-                    "additionalResourceOptions": [],
-                    "showDefault": false
-                  }
+                  "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet spans = dependencies | where (timestamp >= StartTime and timestamp < EndTime);\nlet pricing = dynamic({\"services\":[],\"projectResourceId\":\"\",\"longContextTokens\":272000});\n// Pricing intentionally disabled here; no hub price lookup is needed for this result.\nlet price = dynamic({});\nlet priceStart = datetime(null);\nlet priceEnd = datetime(null);\nlet pricesLoaded = false;\n{FtkAgentUsage}\nattributedSpans\n| where agentKey in (dynamic([{AgentKeys}])) and isnotempty(projectId)\n| summarize by projectId\n| project value = projectId, label = projectId, selected = true"
                 }
               ]
             },
@@ -122,7 +125,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Total Operations'] = count(),\n    ['Total Input Tokens'] = sum(input_tokens),\n    ['Total Output Tokens'] = sum(output_tokens),\n    ['Avg Response Time'] = round(avg(duration) / 1000, 2)",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nlet totals = materialize(agentUsage\n| where agentKey in (agentKeys)\n| summarize inputTokens = sum(input), outputTokens = sum(output), cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)), coverage = iff(count() > 0, 100.0 * countif(priced) / count(), real(null)));\nagentRuns\n| where agentKey in (agentKeys)\n| summarize ['Total Operations'] = count(), ['Avg Response Time'] = round(avg(duration) / 1000, 2)\n| project ['Total Operations'], ['Total Input Tokens'] = toscalar(totals | project inputTokens), ['Total Output Tokens'] = toscalar(totals | project outputTokens), ['Avg Response Time'], ['Priced token cost'] = toscalar(totals | project cost), ['Pricing coverage'] = toscalar(totals | project coverage)",
               "size": 4,
               "title": "Summary statistics",
               "timeContext": {
@@ -178,6 +181,91 @@
           {
             "type": 1,
             "content": {
+              "json": "#### Agent and project context"
+            },
+            "customWidth": "100",
+            "name": "77864e3a-5080-3a5c-4506-c49d4db511d9"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet spans = dependencies | where (timestamp >= StartTime and timestamp < EndTime);\nlet pricing = dynamic({\"services\":[],\"projectResourceId\":\"\",\"longContextTokens\":272000});\n// Pricing intentionally disabled here; no hub price lookup is needed for this result.\nlet price = dynamic({});\nlet priceStart = datetime(null);\nlet priceEnd = datetime(null);\nlet pricesLoaded = false;\n{FtkAgentUsage}\nattributedSpans\n| where agentKey in (dynamic([{AgentKeys}]))\n| summarize take_any(agentDisplayName, foundryName, projectName, projectId, agentId, tenantId, identityComplete), ['Last seen'] = max(timestamp) by agentKey, agentVersion\n| project Agent = agentDisplayName, Foundry = foundryName, Project = projectName, Version = agentVersion, Identity = iff(identityComplete, 'Complete', 'Missing IDs'), ['Agent ID'] = agentId, ['Last seen'], ['Project resource ID'] = projectId, ['Tenant ID'] = tenantId\n| order by Agent asc, Version asc",
+              "size": 1,
+              "title": "Agent identity",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{TelemetryApplications}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "63244e90-a63d-f232-c794-7a037938822c"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\n| where type in~ ('microsoft.cognitiveservices/accounts', 'microsoft.cognitiveservices/accounts/projects')\n| extend selectedProjects = dynamic([{AgentProjects}])\n| mv-expand selectedProject = selectedProjects\n| extend parentId = extract(@'(?i)^(.+)/projects/[^/]+$', 1, tostring(selectedProject))\n| where id =~ tostring(selectedProject) or id =~ parentId\n| summarize take_any(name, type, location, tags) by id\n| project Scope = iff(type =~ 'microsoft.cognitiveservices/accounts/projects', 'Project', 'Foundry'), Resource = name, Region = location, ['Project tag'] = tostring(tags.Project), Environment = tostring(tags.env), Organization = tostring(tags.org), Tags = tostring(tags), ['Resource ID'] = id\n| order by Scope desc, Resource asc",
+              "size": 1,
+              "title": "Current project and Foundry tags",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::selected"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": ".*",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 1000
+              }
+            },
+            "doNotRunWhenHidden": true,
+            "customWidth": "100",
+            "name": "f08f6e47-325f-5e55-d122-12317d8632ad"
+          },
+          {
+            "type": 1,
+            "content": {
               "json": "#### Token usage & cost analysis"
             },
             "customWidth": "100",
@@ -187,9 +275,9 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\nlet agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Input Tokens'] = sum(input_tokens),\n    ['Output Tokens'] = sum(output_tokens)\n    by bin(timestamp, Bucket)",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize ['Input Tokens'] = sum(input), ['Output Tokens'] = sum(output), ['Priced token cost'] = iff(countif(priced) > 0, sum(estimated_cost), real(null)) by bin(timestamp, Bucket)\n| order by timestamp asc",
               "size": 1,
-              "title": "Token consumption over time",
+              "title": "Token usage and cost over time",
               "timeContext": {
                 "durationMs": 0
               },
@@ -206,13 +294,13 @@
             },
             "doNotRunWhenHidden": true,
             "customWidth": "42",
-            "name": "1008d7f1-bac9-ac90-43fc-a2d0e3cb3f4a"
+            "name": "fff311e3-ff2f-edc4-83e7-94099cb6b581"
           },
           {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    total_tokens = sum(input_tokens + output_tokens)\n    by agent_name",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize total_tokens = sum(input) + sum(output), agent_name = take_any(agentLabel) by agentKey\n| project agent_name, total_tokens",
               "size": 1,
               "title": "Token usage by agent",
               "timeContext": {
@@ -234,9 +322,9 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}{FtkAgentUsage}\nagentUsage\n| where costingState == 'Priced'\n| summarize ['Estimated cost'] = sum(estimatedCost) by bin(timestamp, 1d)\n| order by timestamp asc",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize estimated_cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)) by bin(timestamp, 1d)\n| order by timestamp asc\n| project Day = format_datetime(timestamp, 'yyyy-MM-dd'), estimated_cost",
               "size": 1,
-              "title": "Daily token cost",
+              "title": "Daily token cost estimate",
               "timeContext": {
                 "durationMs": 0
               },
@@ -253,15 +341,15 @@
             },
             "doNotRunWhenHidden": true,
             "customWidth": "29",
-            "name": "56951dc6-7ac9-415b-eab0-58d0d7e07969"
+            "name": "5d59a7db-0589-c251-9758-4aa76debe2d9"
           },
           {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}{FtkAgentUsage}\nagentUsage\n| summarize ['Calls'] = count(), ['Input tokens'] = sum(coalesce(inputTokens, long(0))),\n    ['Cache read tokens'] = sum(cacheReadTokens), ['Output tokens'] = sum(coalesce(outputTokens, long(0))),\n    pricedCost = sumif(estimatedCost, costingState == 'Priced')\n    by ['Agent'] = agentLabel, ['Provider'] = providerLabel, ['Model'] = model, ['Cost basis'] = costingState\n| extend ['Estimated cost'] = iff(['Cost basis'] == 'Priced', pricedCost, real(null))\n| project-away pricedCost\n| order by ['Input tokens'] desc",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize Calls = count(), pricedCalls = countif(priced), pricedTokens = sumif(input + output, priced), cost = sum(estimated_cost), inputRate = take_anyif(inputRate, pricingApplies), readRate = take_anyif(cacheReadRate, pricingApplies), writeRate = take_anyif(cacheWriteRate, pricingApplies), outputRate = take_anyif(outputRate, pricingApplies) by provider, model, contextTier\n| project Model = model, Provider = provider, Context = contextTier, Calls, ['Token cost'] = iff(pricedCalls > 0, cost, real(null)), ['Blended / 1M'] = iff(pricedTokens > 0, cost * 1e6 / pricedTokens, real(null)), ['Input / 1M'] = inputRate, ['Cache read / 1M'] = readRate, ['Cache write / 1M'] = writeRate, ['Output / 1M'] = outputRate, ['Pricing coverage'] = 100.0 * pricedCalls / Calls\n| order by ['Token cost'] desc",
               "size": 1,
-              "title": "Token economics by agent and model",
+              "title": "Model rates and token costs",
               "timeContext": {
                 "durationMs": 0
               },
@@ -287,63 +375,12 @@
                     }
                   }
                 ],
-                "rowLimit": 1000,
-                "labelSettings": [
-                  {
-                    "columnId": "pricedCost",
-                    "label": "Priced cost"
-                  }
-                ]
+                "rowLimit": 1000
               }
             },
             "doNotRunWhenHidden": true,
-            "customWidth": "67",
-            "name": "a3befc85-f48f-1eaf-a316-71e3cb684166"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}{FtkAgentUsage}\nagentUsage\n| summarize ['Calls'] = count(), ['Agents'] = dcount(agentKey),\n    ['Tokens'] = sum(coalesce(inputTokens, long(0)) + coalesce(outputTokens, long(0))),\n    pricedCost = sumif(estimatedCost, costingState == 'Priced')\n    by ['Cost basis'] = costingState\n| extend ['Estimated cost'] = iff(['Cost basis'] == 'Priced', pricedCost, real(null)),\n    ['Currency'] = iff(['Cost basis'] == 'Priced', tostring(priceCurrency), '')\n| project-away pricedCost\n| order by ['Tokens'] desc",
-              "size": 1,
-              "title": "Costing coverage",
-              "timeContext": {
-                "durationMs": 0
-              },
-              "timeContextFromParameter": "TimeRange",
-              "queryType": 0,
-              "resourceType": "microsoft.insights/components",
-              "crossComponentResources": [
-                "{TelemetryApplications}"
-              ],
-              "visualization": "table",
-              "gridSettings": {
-                "formatters": [
-                  {
-                    "columnMatch": ".*",
-                    "formatter": 0,
-                    "numberFormat": {
-                      "unit": 0,
-                      "options": {
-                        "style": "decimal",
-                        "useGrouping": true,
-                        "maximumFractionDigits": 2
-                      }
-                    }
-                  }
-                ],
-                "rowLimit": 1000,
-                "labelSettings": [
-                  {
-                    "columnId": "pricedCost",
-                    "label": "Priced cost"
-                  }
-                ]
-              }
-            },
-            "doNotRunWhenHidden": true,
-            "customWidth": "33",
-            "name": "58b6ecba-cc42-5ceb-59db-68590ba698c1"
+            "customWidth": "100",
+            "name": "984b6edd-48d5-7429-8a1d-c95dfa79d2a2"
           },
           {
             "type": 1,
@@ -357,7 +394,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"])\n| where op_name == \"chat\"\n| extend in_tok = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n         cache_tok = toint(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"])\n| summarize cache_hit_pct = round(sum(cache_tok) * 100.0 / sum(in_tok), 1)",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys) and cacheValid\n| summarize inputTokens = sum(input), cachedTokens = sum(cached)\n| project cache_hit_pct = iff(inputTokens > 0, 100.0 * cachedTokens / inputTokens, real(null))",
               "size": 4,
               "title": "Cache hit rate (chat)",
               "timeContext": {
@@ -397,9 +434,9 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"])\n| where op_name == \"chat\"\n| extend cache_tok = toint(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"])\n| summarize ['Tokens From Cache'] = sum(cache_tok)",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| summarize ['Cache-read tokens'] = iff(countif(cacheValid) > 0, sumif(cached, cacheValid), long(null)), ['Cache-write tokens'] = iff(countif(written >= 0 and written <= input) > 0, sumif(written, written >= 0 and written <= input), long(null)), ['Cache cost'] = iff(countif(priced) > 0, sum(cacheReadCost + cacheWriteCost), real(null)), ['Net cache benefit'] = iff(countif(priced) > 0, sum(cacheBenefit), real(null))",
               "size": 4,
-              "title": "Tokens from cache (chat)",
+              "title": "Cache economics",
               "timeContext": {
                 "durationMs": 0
               },
@@ -425,24 +462,18 @@
                     }
                   }
                 ],
-                "rowLimit": 1000,
-                "labelSettings": [
-                  {
-                    "columnId": "Tokens From Cache",
-                    "label": "Tokens from cache"
-                  }
-                ]
+                "rowLimit": 1000
               }
             },
             "doNotRunWhenHidden": true,
             "customWidth": "25",
-            "name": "d8abc383-fccd-f3bc-4c47-b24954832aee"
+            "name": "7c14e867-db54-294a-5949-cf6116129cc1"
           },
           {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"]),\n         finish = tostring(customDimensions[\"gen_ai.response.finish_reasons\"])\n| where op_name == \"chat\"\n| where isnotempty(finish)\n| summarize call_count = count() by finish",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| extend finish = tostring(customDimensions['gen_ai.response.finish_reasons'])\n| where isnotempty(finish)\n| summarize call_count = count() by finish",
               "size": 1,
               "title": "Chat finish reasons",
               "timeContext": {
@@ -464,7 +495,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\ndependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"]),\n         model = tostring(customDimensions[\"gen_ai.response.model\"])\n| where op_name == \"chat\"\n| extend model = iff(isempty(model), \"(unknown)\", model)\n| summarize p95_ms = percentile(duration, 95) by bin(timestamp, Bucket), model\n| order by timestamp asc",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentUsage\n| where agentKey in (agentKeys)\n| extend model = tostring(customDimensions['gen_ai.response.model'])\n| extend model = iff(isempty(model), '(unknown)', model)\n| summarize p95_ms = percentile(duration, 95) by bin(timestamp, Bucket), model\n| order by timestamp asc",
               "size": 1,
               "title": "Chat p95 latency by model",
               "timeContext": {
@@ -489,7 +520,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"]),\n         tool = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where op_name == \"execute_tool\"\n| where isnotempty(tool)\n| summarize calls = count(),\n    success_rate = round(countif(success == \"True\") * 100.0 / count(), 1),\n    avg_duration_ms = round(avg(duration), 0),\n    p95_duration_ms = round(percentile(duration, 95), 0)\n    by tool\n| order by calls desc\n| take 30",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentTools\n| where agentKey in (agentKeys)\n| extend tool = tostring(customDimensions['gen_ai.tool.name'])\n| where isnotempty(tool)\n| summarize calls = count(), success_rate = round(countif(success == 'True') * 100.0 / count(), 1), avg_duration_ms = round(avg(duration), 0), p95_duration_ms = round(percentile(duration, 95), 0) by tool\n| order by calls desc\n| take 30",
               "size": 1,
               "title": "Tool usage leaderboard",
               "timeContext": {
@@ -558,7 +589,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\nlet agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    avg = avg(duration) / 1000,\n    p95 = percentile(duration, 95) / 1000,\n    p99 = percentile(duration, 99) / 1000\n    by bin(timestamp, Bucket)",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize avg = avg(duration) / 1000, p95 = percentile(duration, 95) / 1000, p99 = percentile(duration, 99) / 1000 by bin(timestamp, Bucket)",
               "size": 1,
               "title": "Agent response time trends",
               "timeContext": {
@@ -583,7 +614,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    success_rate = countif(success == \"True\") * 100.0 / count()",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize success_rate = countif(success == 'True') * 100.0 / count()",
               "size": 4,
               "title": "Success rate",
               "timeContext": {
@@ -623,7 +654,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\nlet agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    operations_count = count() \n    by bin(timestamp, Bucket)",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize operations_count = count() by bin(timestamp, Bucket)",
               "size": 1,
               "title": "Throughput",
               "timeContext": {
@@ -656,9 +687,9 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "dependencies\n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| summarize\n    operations = count(),\n    avg_duration = round(avg(duration) / 1000, 2),\n    success_rate = round(countif(success == \"True\") * 100.0 / count(), 2)\n    by agent_name\n| order by operations desc",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nlet costs = agentUsage\n| where agentKey in (agentKeys)\n| summarize priced_cost = iff(countif(priced) > 0, sum(estimated_cost), real(null)), priced_calls = countif(priced), priced_tokens = sumif(input + output, priced), pricing_coverage = 100.0 * countif(priced) / count() by agentKey\n| extend cost_per_call = iff(priced_calls > 0, priced_cost / priced_calls, real(null)), blended_rate = iff(priced_tokens > 0, priced_cost * 1e6 / priced_tokens, real(null));\nagentRuns\n| where agentKey in (agentKeys)\n| summarize agent_name = take_any(agentLabel), operations = count(), avg_duration = round(avg(duration) / 1000, 2), success_rate = round(countif(success == 'True') * 100.0 / count(), 2) by agentKey\n| lookup kind=leftouter costs on agentKey\n| project agent_name, operations, avg_duration, success_rate, priced_cost, cost_per_call, blended_rate, pricing_coverage, agentKey\n| order by operations desc",
               "size": 2,
-              "title": "Agent performance summary (Click to select one agent)",
+              "title": "Agent performance and cost",
               "timeContext": {
                 "durationMs": 0
               },
@@ -687,6 +718,10 @@
                 "rowLimit": 1000,
                 "labelSettings": [
                   {
+                    "columnId": "agent_name",
+                    "label": "Agent name"
+                  },
+                  {
                     "columnId": "operations",
                     "label": "Operations"
                   },
@@ -699,21 +734,37 @@
                     "label": "Success rate"
                   },
                   {
-                    "columnId": "agent_name",
-                    "label": "Agent name"
+                    "columnId": "priced_cost",
+                    "label": "Priced cost"
+                  },
+                  {
+                    "columnId": "cost_per_call",
+                    "label": "Cost per call"
+                  },
+                  {
+                    "columnId": "blended_rate",
+                    "label": "Blended rate"
+                  },
+                  {
+                    "columnId": "pricing_coverage",
+                    "label": "Pricing coverage"
+                  },
+                  {
+                    "columnId": "agentKey",
+                    "label": "Agent key"
                   }
                 ]
               }
             },
             "doNotRunWhenHidden": true,
             "customWidth": "50",
-            "name": "45866ede-9e8d-0986-6594-9fec441bc08b"
+            "name": "50744811-df23-df8f-91c2-816c634640d6"
           },
           {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let agentNames = dynamic([$agentName]);\nlet maxRows = 10;\nlet topAgents = dependencies\n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize cnt = count() by agent_name\n| top maxRows by cnt\n| project agent_name;\ndependencies\n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where agent_name in (topAgents)\n| summarize operations_count = count() by bin(timestamp, 1h), agent_name\n| order by timestamp asc",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nlet topAgents = agentRuns | where agentKey in (agentKeys) | summarize cnt = count() by agentKey | top 10 by cnt | project agentKey;\nagentRuns\n| where agentKey in (topAgents)\n| summarize operations_count = count(), agent_name = take_any(agentLabel) by bin(timestamp, 1h), agentKey\n| project timestamp, agent_name, operations_count\n| order by timestamp asc",
               "size": 2,
               "title": "Agent utilization heatmap",
               "timeContext": {
@@ -744,12 +795,16 @@
                 "rowLimit": 1000,
                 "labelSettings": [
                   {
-                    "columnId": "operations_count",
-                    "label": "Operations count"
+                    "columnId": "timestamp",
+                    "label": "Timestamp"
                   },
                   {
                     "columnId": "agent_name",
                     "label": "Agent name"
+                  },
+                  {
+                    "columnId": "operations_count",
+                    "label": "Operations count"
                   }
                 ]
               }
@@ -770,7 +825,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    error_rate = round(countif(success == \"False\") * 100.0 / count(), 2)",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize error_rate = round(countif(success == 'False') * 100.0 / count(), 2)",
               "size": 4,
               "title": "Error rate",
               "timeContext": {
@@ -810,7 +865,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\nlet agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| where success == \"False\"\n| summarize error_count = count() by bin(timestamp, Bucket)",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\nlet Bucket = case(\n    EndTime - StartTime <= 1d, 15m,\n    EndTime - StartTime <= 7d, 1h,\n    EndTime - StartTime <= 30d, 6h,\n    1d);\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys) and success == 'False'\n| summarize error_count = count() by bin(timestamp, Bucket)",
               "size": 1,
               "title": "Error timeline",
               "timeContext": {
@@ -835,7 +890,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\" and success == \"False\"\n| extend \n    error_type = tostring(customDimensions[\"error.type\"]),\n    agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| project timestamp, agent_name, error_type, duration = round(duration / 1000, 2)\n| order by timestamp desc\n| limit 20",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys) and success == 'False'\n| project timestamp, agent_name = agentLabel, error_type = tostring(customDimensions['error.type']), duration = round(duration / 1000, 2)\n| order by timestamp desc\n| limit 20",
               "size": 1,
               "title": "Recent errors",
               "timeContext": {
@@ -900,7 +955,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    p50 = percentile(duration, 50) / 1000,\n    p95 = percentile(duration, 95) / 1000,\n    p99 = percentile(duration, 99) / 1000\n    by agent_name",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nagentRuns\n| where agentKey in (agentKeys)\n| summarize agent_name = take_any(agentLabel), p50 = percentile(duration, 50) / 1000, p95 = percentile(duration, 95) / 1000, p99 = percentile(duration, 99) / 1000 by agentKey\n| project agent_name, p50, p95, p99",
               "size": 3,
               "title": "Response time percentiles by agent",
               "timeContext": {
@@ -933,9 +988,9 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let agentNames = dynamic([$agentName]);\r\ndependencies\r\n| where name contains \"invoke_agent\"\r\n| extend Agent = tostring(customDimensions[\"gen_ai.agent.name\"])\r\n| where isnotempty(Agent)\r\n| where array_length(agentNames) > 0\r\n| where Agent in (agentNames)\r\n| extend input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]), output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\r\n| project timestamp, Agent, success, duration, input_tokens, output_tokens, TraceId=operation_Id\r\n| order by timestamp desc ",
+              "query": "let StartTime = todatetime({TimeRange:start});\nlet EndTime = todatetime({TimeRange:end});\n{FtkAgentPrices1}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices2}adx('{HubQueryUri}/{HubDatabase}'){FtkAgentPrices3}{FtkAgentUsage}\nlet agentKeys = dynamic([{AgentKeys}]);\nlet costs = agentUsage\n| where isnotempty(agentRunId)\n| summarize input_tokens = iff(countif(isnotnull(input)) > 0, sum(input), long(null)), output_tokens = iff(countif(isnotnull(output)) > 0, sum(output), long(null)), ['Input cost'] = iff(countif(priced) > 0, sum(inputCost), real(null)), ['Cache-read cost'] = iff(countif(priced) > 0, sum(cacheReadCost), real(null)), ['Cache-write cost'] = iff(countif(priced) > 0, sum(cacheWriteCost), real(null)), ['Output cost'] = iff(countif(priced) > 0, sum(outputCost), real(null)), ['Priced token cost'] = iff(countif(priced) > 0, sum(estimated_cost), real(null)), ['Pricing coverage'] = 100.0 * countif(priced) / count() by cloud_RoleName, operation_Id, id = agentRunId, agentKey;\nagentRuns\n| where agentKey in (agentKeys)\n| lookup kind=leftouter costs on cloud_RoleName, operation_Id, id, agentKey\n| project timestamp, Agent = agentLabel, success, duration, input_tokens, output_tokens, ['Priced token cost'], ['Input cost'], ['Cache-read cost'], ['Cache-write cost'], ['Output cost'], ['Pricing coverage'], TraceId = operation_Id, Foundry = foundryName, Project = projectName, Version = agentVersion, ['Agent ID'] = agentId, ['Session ID'] = sessionId, ['Project resource ID'] = projectId\n| order by timestamp desc",
               "size": 1,
-              "title": "",
+              "title": "Agent runs and token costs",
               "timeContext": {
                 "durationMs": 0
               },
@@ -988,11 +1043,19 @@
                     "label": "Trace ID"
                   }
                 ]
-              }
+              },
+              "exportedParameters": [
+                {
+                  "fieldName": "TraceId",
+                  "parameterName": "AgentTraceId",
+                  "parameterType": 1
+                }
+              ],
+              "exportToExcelOptions": "visible"
             },
             "doNotRunWhenHidden": true,
             "customWidth": "100",
-            "name": "c70616e6-dc4d-c1f0-6b61-36b34fef9717"
+            "name": "1b957b03-fe14-8847-a259-ce6271f2cbfb"
           },
           {
             "type": 1,

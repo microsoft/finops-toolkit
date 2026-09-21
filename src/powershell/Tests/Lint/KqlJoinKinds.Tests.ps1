@@ -108,16 +108,17 @@ Describe 'KqlJoinKinds' {
             # 6 lookups, all inside the single queryType 0 (Log Analytics) query.
             'src/workbooks/hub/foundry-agents/foundry-agents.workbook' = 6
 
-            # The Agent framework sub-tab no longer uses either operator. Its costing
-            # queries resolve rates through the hidden shared parameters instead.
+            # 2 lookups, both inside queryType 0 (Log Analytics) queries. The one
+            # Azure Resource Graph query on this sub-tab uses neither operator.
+            'src/workbooks/hub/ai-agent-framework/ai-agent-framework.workbook' = 2
 
             # 26 occurrences, all inside queryType 0 (Log Analytics) queries. This
             # sub-tab has no Azure Resource Graph query.
             'src/workbooks/hub/ai-codex/ai-codex.workbook' = 26
 
-            # 2 lookups inside the hidden Log Analytics base-query parameters that
+            # 4 lookups inside the hidden Log Analytics base-query parameters that
             # the AI sub-tabs share. They are never sent to Azure Resource Graph.
-            'src/workbooks/hub/workbook.json' = 2
+            'src/workbooks/hub/workbook.json' = 4
         }
     }
 
