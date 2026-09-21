@@ -14,6 +14,7 @@ On this page:
 - [🏷️ Get-Version](#️-get-version)
 - [🏷️ Update-Version](#️-update-version)
 - [🚚 Publish-Toolkit](#-publish-toolkit)
+- [🎬 Deploy-Demo](#-deploy-demo)
 - [📊 Build-PowerBI](#-build-powerbi)
 - [📊 Package-PowerBI](#-package-powerbi)
 - [📊 Save-PowerBIProject](#-save-powerbiproject)
@@ -453,6 +454,54 @@ Examples:
 
   ```powershell
   ./Publish-Toolkit "docs"
+  ```
+
+<br>
+
+## 🎬 Deploy-Demo
+
+[Deploy-Demo.ps1](./Deploy-Demo.ps1) deploys and refreshes the FinOps hub instances that demo Power BI reports are built from.
+
+Demo reports in `PowerBI-demo.zip` are saved with data from a demo hub, so that hub has to be on the version being released and have data for the current month. Otherwise the demo either fails to refresh or ships with stale numbers.
+
+Two kinds of instances:
+
+- `ftk-demo` is the current demo hub, with 12 months of data. Demo reports are built from it.
+- `ftk-demo-v{version}` keeps one month of data for testing an older release. Stop its Data Explorer cluster after ingestion and it costs almost nothing to keep.
+
+Run `-Check` before a release. It reports the hub version and months of data, and fails when the hub is behind the toolkit version or has no data for the current month.
+
+| Parameter        | Description                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------- |
+| `‑Version`       | Optional. Deploys the versioned instance for a release (for example, "v15"). Default = the current demo hub. |
+| `‑Subscription`  | Optional. Name or ID of the subscription to deploy to. Default = "FTK Prod".                       |
+| `‑ResourceGroup` | Optional. Name of the resource group. Default = the instance name.                                 |
+| `‑Location`      | Optional. Azure region. Default = "westus".                                                        |
+| `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the subscription being deployed to.      |
+| `‑Months`        | Optional. Months of data to backfill. Default = 12, or 1 for a versioned instance.                 |
+| `‑Check`         | Optional. Reports whether the demo hub is ready for a release without changing anything.           |
+| `‑SkipBackfill`  | Optional. Deploys the hub without creating or running exports.                                     |
+| `‑Stop`          | Optional. Stops the Data Explorer cluster when finished. Default = true for versioned instances.   |
+| `‑Build`         | Optional. Builds the templates before deploying.                                                   |
+
+Examples:
+
+- Check whether the demo hub is ready for a release.
+
+  ```powershell
+  ./Deploy-Demo -Check
+  ```
+
+- Deploy or update the demo hub and backfill 12 months.
+
+  ```powershell
+  ./Deploy-Demo
+  ```
+
+- Deploy the versioned instance for v15.
+
+  ```powershell
+  ./Deploy-Demo -Version v15
   ```
 
 <br>
