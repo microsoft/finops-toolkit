@@ -112,7 +112,9 @@ Status icons:
 - [ ] <!-- release:package --> Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
 - [ ] Confirm the demo data source in `<root>/src/power-bi/reports.json` points at the current demo hub.
 - [ ] <!-- release:powerbi --> Package Power BI files on Windows: `<root>/src/scripts/Package-PowerBI.ps1 -Unattended`
-  > _Builds, saves demo PBIX files with Power BI Desktop, validates, and packages. Don't use the mouse or keyboard while it runs. Sign in to Power BI Desktop first so the "Public" sensitivity label can be applied._
+  > _Builds, saves demo PBIX files with Power BI Desktop, validates, and packages. Don't use the mouse or keyboard while it runs._
+  >
+  > _First, sign in to Power BI Desktop and refresh one demo project by hand so the data source credentials are stored and the "Public" sensitivity label is available. The command can't sign in or answer a credential prompt._
   - If a report can't be saved automatically, the command names the step that failed and saves a screenshot. Save that report by hand, then rerun the command:
     - Run `Package-PowerBI.ps1 -Open` to open the projects that need to be saved.
     - Refresh the report, select **File** > **Save as**, keep the `<root>/release/pbix` folder, change the file type to PBIX, and set the sensitivity to "Public".
