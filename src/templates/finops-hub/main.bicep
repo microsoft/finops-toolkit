@@ -26,6 +26,9 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
 param enableInfrastructureEncryption bool = false
 
+@description('Optional. Disable Shared Key (storage account key) authentication on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. Data Factory already authenticates using managed identity and RBAC, so this does not affect data ingestion. Default = false.')
+param disableStorageSharedKeyAccess bool = false
+
 @description('Optional. Enable purge protection for the Key Vault. Default: false.')
 param enablePurgeProtection bool = false
 
@@ -178,6 +181,7 @@ module hub 'modules/hub.bicep' = {
     // eventGridLocation: eventGridLocation
     storageSku: storageSku
     enableInfrastructureEncryption: enableInfrastructureEncryption
+    disableStorageSharedKeyAccess: disableStorageSharedKeyAccess
     enablePurgeProtection: enablePurgeProtection
     enableManagedExports: enableManagedExports
     enableRecommendations: enableRecommendations

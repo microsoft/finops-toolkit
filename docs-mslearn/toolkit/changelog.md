@@ -29,6 +29,7 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Added VNet and private network modes, including opt-in NAT Gateway support for private mode; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
+  - Added an opt-in `disableStorageSharedKeyAccess` parameter (and matching `-DisableStorageSharedKeyAccess` switch in [Deploy-FinOpsHub](powershell/hubs/deploy-finopshub.md)) to disable Shared Key (storage account key) authentication on hub storage accounts. Data Factory already authenticates using managed identity and RBAC, so enabling this does not affect data ingestion. Default: false, to avoid changing the authentication model on existing deployments ([#2312](https://github.com/microsoft/finops-toolkit/issues/2312)).
 - **Changed**
   - Clarified that the FinOps toolkit exclusively manages the FinOps hub virtual network and documented customer-managed private endpoints as the preferred private-access topology, with virtual network peering as a secondary option ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
   - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
