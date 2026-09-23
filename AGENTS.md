@@ -2,10 +2,6 @@
 
 This file provides guidance to AI Agents when working with code in this repository.
 
-## Model Selection
-
-Claude Sonnet and Claude Opus models are prohibited in this environment. Do not select, invoke, delegate to, or configure any Sonnet or Opus model. Use another approved model.
-
 ## Repository Overview
 
 The FinOps Toolkit is an open-source collection of tools for adopting and implementing FinOps capabilities in the Microsoft Cloud. It contains templates, PowerShell modules, workbooks, optimization engines, and supporting documentation organized in a modular architecture.

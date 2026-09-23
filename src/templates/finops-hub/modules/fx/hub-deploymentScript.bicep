@@ -31,9 +31,6 @@ param arguments string = ''
 @description('Optional. Environment variables to use for the deployment script.')
 param environmentVariables EnvironmentVariable[] = []
 
-@description('Optional. Forces the deployment script to run again when redeployed.')
-param forceUpdateTag string = utcNow()
-
 
 //==============================================================================
 // Variables
@@ -117,7 +114,6 @@ resource script 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
     azPowerShellVersion: '11.0'
     retentionInterval: 'PT1H'
     cleanupPreference: 'OnSuccess'
-    forceUpdateTag: forceUpdateTag
     scriptContent: scriptContent
     arguments: arguments
     environmentVariables: environmentVariables

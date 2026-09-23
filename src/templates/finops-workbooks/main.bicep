@@ -16,12 +16,6 @@ param includeOptimization bool = true
 @sys.description('Optional. Indicates whether to deploy the governance workbook. Default: true.')
 param includeGovernance bool = true
 
-@sys.description('Optional. Indicates whether to deploy the FinOps hub workbook. Default: false.')
-param includeFinOpsHub bool = false
-
-@sys.description('Optional. Azure resource ID of the FinOps hub Data Explorer cluster. Required when includeFinOpsHub is true.')
-param finOpsHubSourceId string = ''
-
 @sys.description('Optional. Location of the resources. Default: Same as deployment. See https://aka.ms/azureregions.')
 param location string = resourceGroup().location
 
@@ -105,17 +99,6 @@ module governance 'workbooks/governance/main.bicep' = if (includeGovernance) {
   }
 }
 
-module finOpsHub 'workbooks/finops-hub/main.bicep' = if (includeFinOpsHub) {
-  name: '${displayNamePrefix}-Hub'
-  params: {
-    displayName: '${displayNamePrefix} - Hub'
-    location: location
-    sourceId: finOpsHubSourceId
-    tags: resourceTags
-    enableDefaultTelemetry: false
-  }
-}
-
 //==============================================================================
 // Outputs
 //==============================================================================
@@ -131,9 +114,3 @@ output governanceId string = includeGovernance ? governance!.outputs.workbookId 
 
 @sys.description('Governance workbook Azure portal link.')
 output governanceUrl string = includeGovernance ? governance!.outputs.workbookUrl : ''
-
-@sys.description('FinOps hub workbook resource ID.')
-output finOpsHubId string = includeFinOpsHub ? finOpsHub!.outputs.workbookId : ''
-
-@sys.description('FinOps hub workbook Azure portal link.')
-output finOpsHubUrl string = includeFinOpsHub ? finOpsHub!.outputs.workbookUrl : ''

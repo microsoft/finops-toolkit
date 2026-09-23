@@ -1,0 +1,35 @@
+{
+    "additionalColumns": [],
+    "translator": {
+        "type": "TabularTranslator",
+        "mappings": [
+            { "source": { "name": "ProviderName", "type": "String" }, "sink": { "name": "ProviderName" } },
+            { "source": { "name": "ResourceId", "type": "String" }, "sink": { "name": "ResourceId" } },
+            { "source": { "name": "ResourceName", "type": "String" }, "sink": { "name": "ResourceName" } },
+            { "source": { "name": "ResourceType", "type": "String" }, "sink": { "name": "ResourceType" } },
+            { "source": { "name": "SubAccountId", "type": "String" }, "sink": { "name": "SubAccountId" } },
+            { "source": { "name": "displayName", "type": "String" }, "sink": { "name": "displayName" } },
+            { "source": { "name": "location", "type": "String" }, "sink": { "name": "location" } },
+            { "source": { "name": "currentValue", "type": "Double" }, "sink": { "name": "currentValue" } },
+            { "source": { "name": "limit", "type": "Double" }, "sink": { "name": "limit" } },
+            { "source": { "name": "unit", "type": "String" }, "sink": { "name": "unit" } },
+            { "source": { "name": "x_QuotaDetails", "type": "String" }, "sink": { "name": "x_QuotaDetails" } },
+            { "source": { "name": "x_SourceName", "type": "String" }, "sink": { "name": "x_SourceName" } },
+            { "source": { "name": "x_SourceProvider", "type": "String" }, "sink": { "name": "x_SourceProvider" } },
+            { "source": { "name": "x_SourceType", "type": "String" }, "sink": { "name": "x_SourceType" } },
+            { "source": { "name": "x_SourceVersion", "type": "String" }, "sink": { "name": "x_SourceVersion" } },
+            { "source": { "name": "x_AvailabilityZoneMappings", "type": "String" }, "sink": { "name": "x_AvailabilityZoneMappings" } },
+            { "source": { "name": "x_Capabilities", "type": "String" }, "sink": { "name": "x_Capabilities" } },
+            { "source": { "name": "x_Family", "type": "String" }, "sink": { "name": "x_Family" } },
+            { "source": { "name": "x_Kind", "type": "String" }, "sink": { "name": "x_Kind" } },
+            { "source": { "name": "x_LocationInfo", "type": "String" }, "sink": { "name": "x_LocationInfo" } },
+            { "source": { "name": "x_LocationMetadata", "type": "String" }, "sink": { "name": "x_LocationMetadata" } },
+            { "source": { "name": "x_Locations", "type": "String" }, "sink": { "name": "x_Locations" } },
+            { "source": { "name": "x_RegionalDisplayName", "type": "String" }, "sink": { "name": "x_RegionalDisplayName" } },
+            { "source": { "name": "x_Restrictions", "type": "String" }, "sink": { "name": "x_Restrictions" } },
+            { "source": { "name": "x_Size", "type": "String" }, "sink": { "name": "x_Size" } },
+            { "source": { "name": "x_Tier", "type": "String" }, "sink": { "name": "x_Tier" } }
+        ],
+        "mapComplexValuesToString": true
+    }
+}

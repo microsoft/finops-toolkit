@@ -1680,9 +1680,9 @@ Recommendations_transform_v1_2()
     | extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
     | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', ''))
     | extend x_SourceVersion  = case(
-        x_SourceType =~ 'SavingsPlan', '2026-06-01',
         isnotempty(x_SourceVersion), x_SourceVersion,
-        ProviderName == 'Microsoft', '2023-05-01',
+        x_SourceType =~ 'SavingsPlan', '',
+        ProviderName =~ 'Microsoft', '2023-05-01',
         ''
     )
     //

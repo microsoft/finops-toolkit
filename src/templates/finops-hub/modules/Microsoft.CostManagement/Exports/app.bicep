@@ -75,6 +75,8 @@ module schemaFiles '../../fx/hub-storage.bicep' = {
       'schemas/focuscost_1.0-preview(v1).json': loadTextContent('./schemas/focuscost_1.0-preview(v1).json')
       'schemas/pricesheet_2023-05-01_ea.json': loadTextContent('./schemas/pricesheet_2023-05-01_ea.json')
       'schemas/pricesheet_2023-05-01_mca.json': loadTextContent('./schemas/pricesheet_2023-05-01_mca.json')
+      'schemas/quota_1.0.json': loadTextContent('./schemas/quota_1.0.json')
+      'schemas/recommendations_1.0-savingsplan.json': loadTextContent('./schemas/recommendations_1.0-savingsplan.json')
       'schemas/reservationdetails_2023-03-01.json': loadTextContent('./schemas/reservationdetails_2023-03-01.json')
       'schemas/reservationrecommendations_2023-05-01_ea.json': loadTextContent('./schemas/reservationrecommendations_2023-05-01_ea.json')
       'schemas/reservationrecommendations_2023-05-01_mca.json': loadTextContent('./schemas/reservationrecommendations_2023-05-01_mca.json')
@@ -844,7 +846,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           typeProperties: {
             variableName: 'hubDataset'
             value: {
-              value: '@if(equals(toLower(variables(\'exportDatasetType\')), \'focuscost\'), \'Costs\', if(equals(toLower(variables(\'exportDatasetType\')), \'pricesheet\'), \'Prices\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationdetails\'), \'CommitmentDiscountUsage\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationrecommendations\'), \'Recommendations\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationtransactions\'), \'Transactions\', if(equals(toLower(variables(\'exportDatasetType\')), \'actualcost\'), \'ActualCosts\', if(equals(toLower(variables(\'exportDatasetType\')), \'amortizedcost\'), \'AmortizedCosts\', toLower(variables(\'exportDatasetType\')))))))))'
+              value: '@if(equals(toLower(variables(\'exportDatasetType\')), \'focuscost\'), \'Costs\', if(equals(toLower(variables(\'exportDatasetType\')), \'pricesheet\'), \'Prices\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationdetails\'), \'CommitmentDiscountUsage\', if(or(equals(toLower(variables(\'exportDatasetType\')), \'reservationrecommendations\'), equals(toLower(variables(\'exportDatasetType\')), \'recommendations\')), \'Recommendations\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationtransactions\'), \'Transactions\', if(equals(toLower(variables(\'exportDatasetType\')), \'actualcost\'), \'ActualCosts\', if(equals(toLower(variables(\'exportDatasetType\')), \'amortizedcost\'), \'AmortizedCosts\', if(equals(toLower(variables(\'exportDatasetType\')), \'quota\'), \'Quota\', toLower(variables(\'exportDatasetType\'))))))))))'
               type: 'Expression'
             }
           }
@@ -874,7 +876,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           typeProperties: {
             variableName: 'destinationFolder'
             value: {
-              value: '@replace(concat(variables(\'hubDataset\'),\'/\',substring(variables(\'date\'), 0, 4),\'/\',substring(variables(\'date\'), 4, 2),\'/\',toLower(variables(\'scope\')), if(equals(variables(\'hubDataset\'), \'Recommendations\'), activity(\'Read Manifest\').output.firstRow.exportConfig.exportName, \'\')),\'//\',\'/\')'
+              value: '@replace(concat(variables(\'hubDataset\'),\'/\',substring(variables(\'date\'), 0, 4),\'/\',substring(variables(\'date\'), 4, 2),\'/\',toLower(variables(\'scope\')), if(equals(toLower(variables(\'exportDatasetType\')), \'recommendations\'), \'/\', \'\'), if(equals(variables(\'hubDataset\'), \'Recommendations\'), activity(\'Read Manifest\').output.firstRow.exportConfig.exportName, \'\')),\'//\',\'/\')'
               type: 'Expression'
             }
           }

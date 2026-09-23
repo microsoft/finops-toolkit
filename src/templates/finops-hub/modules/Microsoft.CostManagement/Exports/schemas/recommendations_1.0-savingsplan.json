@@ -1,0 +1,26 @@
+{
+    "additionalColumns": [],
+    "translator": {
+        "type": "TabularTranslator",
+        "mappings": [
+            { "source": { "name": "ProviderName", "type": "String" }, "sink": { "name": "ProviderName" } },
+            { "source": { "name": "ResourceId", "type": "String" }, "sink": { "name": "ResourceId" } },
+            { "source": { "name": "ResourceName", "type": "String" }, "sink": { "name": "ResourceName" } },
+            { "source": { "name": "ResourceType", "type": "String" }, "sink": { "name": "ResourceType" } },
+            { "source": { "name": "SubAccountId", "type": "String" }, "sink": { "name": "SubAccountId" } },
+            { "source": { "name": "SubAccountName", "type": "String" }, "sink": { "name": "SubAccountName" } },
+            { "source": { "name": "x_EffectiveCostBefore", "type": "Double" }, "sink": { "name": "x_EffectiveCostBefore" } },
+            { "source": { "name": "x_EffectiveCostAfter", "type": "Double" }, "sink": { "name": "x_EffectiveCostAfter" } },
+            { "source": { "name": "x_EffectiveCostSavings", "type": "Double" }, "sink": { "name": "x_EffectiveCostSavings" } },
+            { "source": { "name": "x_RecommendationId", "type": "String" }, "sink": { "name": "x_RecommendationId" } },
+            { "source": { "name": "x_RecommendationCategory", "type": "String" }, "sink": { "name": "x_RecommendationCategory" } },
+            { "source": { "name": "x_RecommendationDate", "type": "DateTime" }, "sink": { "name": "x_RecommendationDate" } },
+            { "source": { "name": "x_RecommendationDetails", "type": "String" }, "sink": { "name": "x_RecommendationDetails" } },
+            { "source": { "name": "x_SourceName", "type": "String" }, "sink": { "name": "x_SourceName" } },
+            { "source": { "name": "x_SourceProvider", "type": "String" }, "sink": { "name": "x_SourceProvider" } },
+            { "source": { "name": "x_SourceType", "type": "String" }, "sink": { "name": "x_SourceType" } },
+            { "source": { "name": "x_SourceVersion", "type": "String" }, "sink": { "name": "x_SourceVersion" } }
+        ],
+        "mapComplexValuesToString": true
+    }
+}

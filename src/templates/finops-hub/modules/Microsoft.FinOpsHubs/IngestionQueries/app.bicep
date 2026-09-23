@@ -53,9 +53,6 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: app.dataFactory
   dependsOn: [appRegistration]
 
-  resource linkedService_storageAccount 'linkedservices@2018-06-01' existing = {
-    name: app.storage
-  }
   resource dataset_config 'datasets@2018-06-01' existing = {
     name: core.datasets.config
   }
@@ -67,31 +64,6 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   }
   resource dataset_manifest 'datasets@2018-06-01' existing = {
     name: core.datasets.ingestionManifest
-  }
-  resource dataset_msexports_parquet_files 'datasets@2018-06-01' = {
-    name: 'msexports_parquet_files'
-    properties: {
-      linkedServiceName: {
-        referenceName: linkedService_storageAccount.name
-        type: 'LinkedServiceReference'
-      }
-      parameters: {
-        folderPath: {
-          type: 'String'
-        }
-      }
-      type: 'Parquet'
-      typeProperties: {
-        location: {
-          type: 'AzureBlobFSLocation'
-          fileSystem: 'msexports'
-          folderPath: {
-            value: '@dataset().folderPath'
-            type: 'Expression'
-          }
-        }
-      }
-    }
   }
 }
 
@@ -123,7 +95,7 @@ resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06
     typeProperties: {
       recurrence: {
         frequency: 'Hour'
-        interval: 4
+        interval: 24
         startTime: '2023-01-01T01:01:00'
         timeZone: timeZones.outputs.Timezone
       }
@@ -139,7 +111,6 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
   name: '${QUERIES}_ExecuteETL'
   parent: dataFactory
   properties: {
-    concurrency: 1
     activities: [
       { // Load Queries
         name: 'Load Queries'
@@ -213,13 +184,8 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
             value: '@activity(\'Load Queries\').output.value'
             type: 'Expression'
           }
+          batchCount: 2
           isSequential: false
-          // Capped at 4 regardless of routing mode: this loop is shared by every query
-          // provider, and up to 11 Azure Resource Manager tenant-scope query types can run
-          // concurrently here, each fanning out across subscriptions (batchCount 30/4) into
-          // the shared CopyQuery pipeline. 11 x 30 = 330 would exceed CopyQuery's capacity
-          // (concurrency 30 + 100 queued = 130); 11 x 4 = 44 stays well inside it.
-          batchCount: 4
           activities: [
             {  // Execute File Queries
               name: 'Execute File Queries'
@@ -255,10 +221,6 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
                   }
                   queryScope: {
                     value: '@item().scope'
-                    type: 'Expression'
-                  }
-                  queryScopeTypes: {
-                    value: '@if(contains(item(), \'scopeTypes\'), item().scopeTypes, json(\'[]\'))'
                     type: 'Expression'
                   }
                   query: {
@@ -532,7 +494,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
             'Content-Type': 'application/json'
           }
           body: {
-            value: '@json(concat(\'{"query":"\', pipeline().parameters.query, \'","queryScope":"\', pipeline().parameters.queryScope, \'","queryScopeTypes":\', string(pipeline().parameters.queryScopeTypes), \',"querySource":"\', pipeline().parameters.querySource, \'","queryType":"\', pipeline().parameters.queryType, \'","queryProvider":"\', pipeline().parameters.queryProvider, \'","queryVersion":"\', pipeline().parameters.queryVersion, \'","ingestionPath":"\', concat(variables(\'ingestionPath\'), pipeline().parameters.queryType, \'.parquet\'), \'","translator":\', string(activity(\'Load Schema Mappings\').output.firstRow.translator), \'}\'))'
+            value: '@json(concat(\'{"query":"\', pipeline().parameters.query, \'","querySource":"\', pipeline().parameters.querySource, \'","queryType":"\', pipeline().parameters.queryType, \'","queryProvider":"\', pipeline().parameters.queryProvider, \'","queryVersion":"\', pipeline().parameters.queryVersion, \'","ingestionPath":"\', concat(variables(\'ingestionPath\'), pipeline().parameters.queryType, \'.parquet\'), \'","translator":\', string(activity(\'Load Schema Mappings\').output.firstRow.translator), \'}\'))'
             type: 'Expression'
           }
           authentication: {
@@ -661,7 +623,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
         type: 'GetMetadata'
         dependsOn: [
           {
-            activity: 'Finalize ARM Query'
+            activity: 'Verify Query Engine Pipeline Succeeded'
             dependencyConditions: ['Succeeded']
           }
         ]
@@ -681,174 +643,14 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
               folderPath: '@concat(pipeline().parameters.outputDataset, \'/\', variables(\'queryScope\'), \'/\', pipeline().parameters.queryType)'
             }
           }
-          fieldList: [
-            'exists'
-            'childItems'
-          ]
-          storeSettings: {
-            type: 'AzureBlobFSReadSettings'
-            enablePartitionDiscovery: false
-          }
-          formatSettings: {
-            type: 'ParquetReadSettings'
-          }
-        }
-      }
-      { // Check ARM Query Staging
-        name: 'Check ARM Query Staging'
-        type: 'GetMetadata'
-        dependsOn: [
-          {
-            activity: 'Verify Query Engine Pipeline Succeeded'
-            dependencyConditions: ['Succeeded']
-          }
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          dataset: {
-            referenceName: dataFactory::dataset_msexports_parquet_files.name
-            type: 'DatasetReference'
-            parameters: {
-              folderPath: {
-                value: '@concat(\'_ftk-query-staging/\', variables(\'ingestionPath\'))'
-                type: 'Expression'
-              }
-            }
-          }
           fieldList: ['exists']
           storeSettings: {
             type: 'AzureBlobFSReadSettings'
-            recursive: true
             enablePartitionDiscovery: false
           }
           formatSettings: {
             type: 'ParquetReadSettings'
           }
-        }
-      }
-      { // Finalize ARM Query
-        name: 'Finalize ARM Query'
-        description: 'Consolidate staged ARM results into one ingestion file before manifest creation.'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Check ARM Query Staging'
-            dependencyConditions: ['Succeeded']
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@and(equals(toLower(pipeline().parameters.queryEngine), \'azureresourcemanager\'), activity(\'Check ARM Query Staging\').output.exists)'
-            type: 'Expression'
-          }
-          ifTrueActivities: [
-            {
-              name: 'Consolidate ARM Query'
-              type: 'Copy'
-              dependsOn: []
-              policy: {
-                timeout: '0.00:30:00'
-                retry: 0
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                source: {
-                  type: 'ParquetSource'
-                  storeSettings: {
-                    type: 'AzureBlobFSReadSettings'
-                    recursive: true
-                    wildcardFileName: '*.parquet'
-                    enablePartitionDiscovery: true
-                  }
-                  formatSettings: {
-                    type: 'ParquetReadSettings'
-                  }
-                }
-                sink: {
-                  type: 'ParquetSink'
-                  storeSettings: {
-                    type: 'AzureBlobFSWriteSettings'
-                    copyBehavior: 'MergeFiles'
-                  }
-                  formatSettings: {
-                    type: 'ParquetWriteSettings'
-                  }
-                }
-                enableStaging: false
-              }
-              inputs: [
-                {
-                  referenceName: dataFactory::dataset_msexports_parquet_files.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    folderPath: {
-                      value: '@concat(\'_ftk-query-staging/\', variables(\'ingestionPath\'))'
-                      type: 'Expression'
-                    }
-                  }
-                }
-              ]
-              outputs: [
-                {
-                  referenceName: dataFactory::dataset_ingestion.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    blobPath: {
-                      value: '@concat(variables(\'ingestionPath\'), pipeline().parameters.queryType, \'.parquet\')'
-                      type: 'Expression'
-                    }
-                  }
-                }
-              ]
-            }
-            {
-              name: 'Delete ARM Query Staging'
-              type: 'Delete'
-              dependsOn: [
-                {
-                  activity: 'Consolidate ARM Query'
-                  dependencyConditions: ['Succeeded']
-                }
-              ]
-              policy: {
-                timeout: '0.00:10:00'
-                retry: 0
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                dataset: {
-                  referenceName: dataFactory::dataset_msexports_parquet_files.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    folderPath: {
-                      value: '@concat(\'_ftk-query-staging/\', variables(\'ingestionPath\'))'
-                      type: 'Expression'
-                    }
-                  }
-                }
-                enableLogging: false
-                storeSettings: {
-                  type: 'AzureBlobFSReadSettings'
-                  recursive: true
-                  enablePartitionDiscovery: false
-                }
-              }
-            }
-          ]
         }
       }
       { // Create Manifest If Data Exists
@@ -864,7 +666,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@and(pipeline().parameters.publishManifest, activity(\'Check If Data Was Written\').output.exists, contains(string(activity(\'Check If Data Was Written\').output.childItems), concat(pipeline().parameters.ingestionId, \'${core.ingestionIdFileNameSeparator}\', pipeline().parameters.queryType, \'.parquet\')))'
+            value: '@activity(\'Check If Data Was Written\').output.exists'
             type: 'Expression'
           }
           ifTrueActivities: [
@@ -948,9 +750,6 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
       queryScope: {
         type: 'String'
       }
-      queryScopeTypes: {
-        type: 'Array'
-      }
       query: {
         type: 'String'
       }
@@ -965,10 +764,6 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
       }
       queryType: {
         type: 'String'
-      }
-      publishManifest: {
-        type: 'Bool'
-        defaultValue: true
       }
     }
     variables: {

@@ -1495,7 +1495,6 @@ Recommendations_transform_v1_0()
 // - Microsoft Azure Resource Manager: 1.0
 //======================================================================================================================
 
-// Quota_transform_v1_0 function
 .create-or-alter function
 with (docstring='Transforms Quota_raw into the Quota 1.0 contract.', folder='Quota')
 Quota_transform_v1_0()
@@ -1512,7 +1511,7 @@ Quota_transform_v1_0()
         tmp_QueryLocation = replace_string(tostring(tmp_FileParts[3]), '.parquet', '')
     | extend
         ProviderName = coalesce(ProviderName, 'Microsoft'),
-        SubAccountId = tolower(coalesce(tmp_QueryScope, SubAccountId)),
+        SubAccountId = tolower(coalesce(SubAccountId, tmp_QueryScope)),
         displayName = coalesce(displayName, ResourceName),
         location = coalesce(location, tmp_QueryLocation),
         x_SourceName = coalesce(x_SourceName, 'Azure Resource Manager'),
@@ -1528,6 +1527,7 @@ Quota_transform_v1_0()
         x_SourceType =~ 'MachineLearningUsage', 'Microsoft.MachineLearningServices/locations/usages',
         x_SourceType =~ 'NetworkUsage', 'Microsoft.Network/locations/usages',
         x_SourceType =~ 'PurviewUsage', 'Microsoft.Purview/locations/usages',
+        x_SourceType =~ 'SqlSubscriptionUsage', 'Microsoft.Sql/locations/usages',
         x_SourceType =~ 'StorageUsage', 'Microsoft.Storage/locations/usages',
         x_SourceType =~ 'ComputeResourceSku', 'Microsoft.Compute/skus',
         x_SourceType =~ 'AvailabilityZoneMapping', 'Microsoft.Resources/subscriptions/locations',
@@ -1542,8 +1542,9 @@ Quota_transform_v1_0()
         '/usages/',
         ResourceName
     )
-    | extend ResourceId = tolower(case(
+    | extend tmp_NormalizedResourceId = tolower(case(
         x_SourceType =~ 'MachineLearningUsage'
+            and isnull(x_QuotaDetails.Raw)
             and ResourceId matches regex '(?i)^/subscriptions/[^/]+/usages(/[^/]+)?$',
             tmp_UsageResourceId,
         coalesce(ResourceId, case(
@@ -1555,6 +1556,7 @@ Quota_transform_v1_0()
                 'MachineLearningUsage',
                 'NetworkUsage',
                 'PurviewUsage',
+                'SqlSubscriptionUsage',
                 'StorageUsage'
             ),
                 tmp_UsageResourceId,
@@ -1563,6 +1565,8 @@ Quota_transform_v1_0()
             ''
         ))
     ))
+    // Keep provider-supplied IDs, including shared Machine Learning subscription usage IDs.
+    | extend ResourceId = iff(isnotempty(x_QuotaDetails.Raw.id), coalesce(ResourceId, tostring(x_QuotaDetails.Raw.id)), tmp_NormalizedResourceId)
     | extend x_QuotaDetails = bag_merge(
         coalesce(x_QuotaDetails, dynamic({})),
         bag_pack(
@@ -1606,7 +1610,6 @@ Quota_transform_v1_0()
         x_IngestionTime
 }
 
-// Quota_final_v1_0 table
 .create-merge table Quota_final_v1_0 (
     ProviderName:     string,
     ResourceId:       string,
@@ -1626,7 +1629,6 @@ Quota_transform_v1_0()
     x_IngestionTime:  datetime
 )
 
-// Update policy for Quota_raw -> Quota_final_v1_0 table
 .alter table Quota_final_v1_0 policy update
 ```
 [{

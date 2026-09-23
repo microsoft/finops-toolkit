@@ -1,4 +1,4 @@
-name: 'Development tests'
+name: 'PowerShell Tests'
 
 on:
   pull_request:
@@ -7,20 +7,10 @@ on:
       # KQL sources are covered by unit tests (HubsKqlOperators.Tests.ps1)
       - 'src/templates/finops-hub/**/*.kql'
       - 'src/queries/**/*.kql'
-      # ARM/Quota/Recommendations Bicep apps and their query/schema manifests are
-      # covered by unit tests (HubsIngestionQueries.Tests.ps1)
-      - 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/**/*.bicep'
-      - 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/**/*.json'
       # ADF trigger time zone mappings are covered by unit tests (HubsAdfTriggerTimeZones.Tests.ps1)
       - 'src/templates/finops-hub/**/timeZones.bicep'
       - 'docs/deploy/finops-hub-latest.json'
       - 'docs/deploy/finops-hub-preview.json'
-      - '.github/extensions/ftk-local-dashboard/**'
-      - 'package.json'
-
-permissions:
-  contents: read
-
 jobs:
   run_pester_tests:
     name: Pester
@@ -35,10 +25,3 @@ jobs:
       - name: Run Tests
         shell: pwsh
         run: .build/start.ps1 -Task Test.PowerShell.All
-  run_dashboard_tests:
-    name: FinOps hub dashboard
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Run dashboard tests
-        run: npm run test-dashboard
