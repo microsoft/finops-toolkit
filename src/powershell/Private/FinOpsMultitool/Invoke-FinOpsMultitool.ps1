@@ -2155,10 +2155,12 @@ function Invoke-FinOpsMultitool {
                     $cols = @('Category', 'Resource', 'Detail', 'Impact')
                 }
                 'Get-UnitEconomics' {
-                    $computeShare = if ($null -ne $data.ComputeSharePct) { "$($data.ComputeSharePct)%" } else { 'Unavailable' }
-                    $storageShare = if ($null -ne $data.StorageSharePct) { "$($data.StorageSharePct)%" } else { 'Unavailable' }
+                    $computeShare = if ($null -ne $data.ComputeSharePct) { "$($data.ComputeSharePct)% of VM compute + storage spend" } else { 'Unavailable' }
+                    $storageShare = if ($null -ne $data.StorageSharePct) { "$($data.StorageSharePct)% of VM compute + storage spend" } else { 'Unavailable' }
                     Write-ColorizedLine -Text "    Compute: $(Format-BudgetAmount -Value $data.ComputeCost -Currency $data.Currency) ($computeShare) over $($data.VmCount) VMs / $($data.TotalVCpu) vCPU / $($data.TotalMemoryGb) GB RAM" -DefaultColor 'White'
                     Write-ColorizedLine -Text "    Storage: $(Format-BudgetAmount -Value $data.StorageCost -Currency $data.Currency) ($storageShare) over $($data.TotalStorageGb) GB ($($data.DiskGb) GB disk + $($data.BlobFileGb) GB blob/file)" -DefaultColor 'White'
+                    $unitContext = Get-FinOpsUnitCostContext -Data $data
+                    Write-FinOpsConsole "    $($unitContext.Summary)" -ForegroundColor DarkGray
                     if ($data.Note) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor DarkGray }
                     $rows = @(
                         [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = (Format-FinOpsUnitRate -Value $data.CostPerVCpu -Currency $data.Currency) }
@@ -2258,6 +2260,12 @@ function Invoke-FinOpsMultitool {
             }
             else {
                 Write-FinOpsConsole "    (no findings)" -ForegroundColor DarkGray
+            }
+
+            $scanContext = Get-FinOpsScanContext -FunctionName $mod.Fn -Data $data
+            if ($scanContext) {
+                Write-FinOpsConsole "    $($scanContext.Summary)" -ForegroundColor DarkGray
+                foreach ($description in $scanContext.Details) { Write-FinOpsConsole "    $description" -ForegroundColor DarkGray }
             }
 
             # -- FinOps KPI Insights ---------------------------------------
@@ -2970,6 +2978,33 @@ h2[id] { scroll-margin-top: 85px; }
 .kpi-plain { font-size: 13px; color: var(--muted); }
 .kpi-next { font-size: 13px; color: var(--ink); margin-top: 6px; }
 .kpi-next-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); margin-right: 6px; }
+.calculation-details { margin: 12px 0 18px; max-width: 100ch; border-block: 1px solid var(--light-gray); }
+.calculation-details summary { cursor: pointer; padding: 10px 0; color: var(--energy-blue); font-weight: 600; }
+.calculation-details p { line-height: 1.55; }
+.kpi-reference-filters { display: flex; align-items: end; flex-wrap: wrap; gap: 16px; margin: 20px 0 12px; }
+.kpi-reference-filters label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; flex: 1 1 180px; max-width: 420px; }
+.kpi-reference-filters input, .kpi-reference-filters select { box-sizing: border-box; width: 100%; min-height: 38px; padding: 8px; border: 1px solid #767676; border-radius: 4px; background: #FFFFFF; color: var(--ink); font: inherit; }
+.kpi-reference-filters output { padding: 8px 0; font-size: 13px; color: var(--muted); }
+.kpi-reference { table-layout: fixed; width: 100%; min-width: 0; }
+.kpi-reference th:first-child { width: 48%; }
+.kpi-reference th:nth-child(2) { width: 32%; }
+.kpi-reference td { vertical-align: top; overflow-wrap: anywhere; }
+.kpi-reference p { margin: 8px 0; line-height: 1.5; }
+.kpi-reference details { margin-top: 10px; }
+.kpi-reference summary { color: var(--energy-blue); cursor: pointer; padding: 6px 0; }
+.kpi-reference dl { margin: 8px 0; }
+.kpi-reference dt { font-weight: 600; margin-top: 12px; }
+.kpi-reference dd { margin: 4px 0 0; line-height: 1.5; }
+.kpi-reference ul { margin: 4px 0; padding-left: 20px; }
+.kpi-status { font-weight: 600; }
+.kpi-reference-row[hidden], #kpi-no-results[hidden] { display: none; }
+@media (max-width: 700px) {
+    .kpi-reference, .kpi-reference tbody, .kpi-reference tr, .kpi-reference td { display: block; width: 100%; min-width: 0; }
+    .kpi-reference thead { display: none; }
+    .kpi-reference tr { border-bottom: 2px solid var(--light-gray); padding: 12px 0; }
+    .kpi-reference td { border: 0; padding: 8px; }
+    .kpi-reference td[data-label]::before { content: attr(data-label); display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+}
 .no-data { color: var(--muted); font-style: italic; padding: 8px 0; }
 .money { color: var(--success); font-weight: 600; }
 .tag-error { background: #FDF3F2; border: 1px solid #F1C9C4; border-left: 4px solid var(--danger); border-radius: 0 4px 4px 0; padding: 11px 16px; margin: 8px 0; }
@@ -3067,6 +3102,12 @@ h2[id] { scroll-margin-top: 85px; }
                 try { $storyCatalog = Get-KpiCatalog } catch { $storyCatalog = $null }
             }
             $hasStory = $true
+            $kpiReferenceIssue = $null
+            try { $kpiReference = @(Get-FinOpsKpiReference -Results $Results -Modules $Modules -Insights $kpiCollected) }
+            catch {
+                $kpiReference = @()
+                $kpiReferenceIssue = 'KPI reference unavailable: definitions could not be loaded. Scan results remain available.'
+            }
 
             [void]$htmlSb.Append('<nav class="tabs" role="tablist">')
             if ($hasStory) {
@@ -3077,7 +3118,13 @@ h2[id] { scroll-margin-top: 85px; }
                 $tabId = 'tab-' + ($tabCats[$ti] -replace '[^A-Za-z0-9]', '')
                 [void]$htmlSb.Append("<button type=`"button`" class=`"$tabCls`" role=`"tab`" aria-selected=`"false`" tabindex=`"-1`" aria-controls=`"$tabId`" data-target=`"$tabId`">$([System.Net.WebUtility]::HtmlEncode([string]$tabCats[$ti]))</button>")
             }
+            if ($kpiReference.Count -gt 0) {
+                [void]$htmlSb.Append('<button type="button" class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="tab-KpiReference" data-target="tab-KpiReference">KPI reference</button>')
+            }
             [void]$htmlSb.Append('</nav>')
+            if ($kpiReferenceIssue) {
+                [void]$htmlSb.Append("<p class=`"guidance yellow`">$([System.Net.WebUtility]::HtmlEncode($kpiReferenceIssue))</p>")
+            }
 
             if ($hasStory) {
                 [void]$htmlSb.Append('<section id="tab-FinOpsStory" class="tabpane active" role="tabpanel">')
@@ -3210,6 +3257,32 @@ h2[id] { scroll-margin-top: 85px; }
                     [void]$htmlSb.Append("<p class=`"story-note`">FinOps KPI reference: <a href=`"$lm`">$lm</a>. Scan-derived estimates and proxies are labeled separately from measured values.</p>")
                 }
                 [void]$htmlSb.Append('</section>')
+            }
+
+            if ($kpiReference.Count -gt 0) {
+                [void]$htmlSb.Append('<section id="tab-KpiReference" class="tabpane" role="tabpanel"><h2>KPI reference</h2>')
+                [void]$htmlSb.Append('<p>No universal healthy value applies across workloads. Compare matched scope, currency, reporting period, cost basis, and service requirements. Computed means a value was derived, not that the environment is optimized; some values are estimates or proxies.</p>')
+                [void]$htmlSb.Append('<div class="kpi-reference-filters"><label for="kpi-search">Search KPIs<input id="kpi-search" type="search" autocomplete="off"></label><label for="kpi-status-filter">Status<select id="kpi-status-filter" aria-label="Status"><option value="">All statuses</option><option>Computed</option><option>Unavailable</option><option>Not run</option><option>Informational</option></select></label>')
+                [void]$htmlSb.Append("<output id=`"kpi-result-count`" aria-live=`"polite`">$($kpiReference.Count) of $($kpiReference.Count) KPIs</output></div>")
+                [void]$htmlSb.Append('<div class="table-scroll"><table class="kpi-reference" role="table" aria-label="KPI definitions and current results"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Metric and definition</th><th scope="col" role="columnheader">Current result</th><th scope="col" role="columnheader">Source scan</th></tr></thead><tbody role="rowgroup">')
+                foreach ($entry in $kpiReference) {
+                    $referenceId = 'kpi-' + ($entry.Id -replace '[^A-Za-z0-9-]', '')
+                    $searchText = [System.Net.WebUtility]::HtmlEncode((@($entry.Name, $entry.Definition, $entry.Domain, $entry.SourceName, $entry.Calculation, ($entry.RequiredInputs -join ' ')) -join ' '))
+                    $statusText = [System.Net.WebUtility]::HtmlEncode($entry.Status)
+                    [void]$htmlSb.Append("<tr id=`"$referenceId`" class=`"kpi-reference-row`" role=`"row`" data-kpi-search=`"$searchText`" data-kpi-status=`"$statusText`"><td role=`"cell`"><strong>$([System.Net.WebUtility]::HtmlEncode($entry.Name))</strong><p>$([System.Net.WebUtility]::HtmlEncode($entry.Definition))</p><details><summary>Calculation and interpretation</summary><dl><dt>Calculation</dt><dd>$([System.Net.WebUtility]::HtmlEncode($entry.Calculation))</dd><dt>Required inputs</dt><dd><ul>")
+                    foreach ($inputName in $entry.RequiredInputs) { [void]$htmlSb.Append("<li>$([System.Net.WebUtility]::HtmlEncode($inputName))</li>") }
+                    [void]$htmlSb.Append("</ul></dd><dt>Interpretation and target</dt><dd>$([System.Net.WebUtility]::HtmlEncode($entry.Interpretation))</dd><dt>Limits</dt><dd>$([System.Net.WebUtility]::HtmlEncode($entry.Limitations))</dd></dl></details></td><td role=`"cell`" data-label=`"Current result`"><span class=`"kpi-status`">$statusText</span><p>$([System.Net.WebUtility]::HtmlEncode($entry.Value))</p>")
+                    if ($entry.Context) { [void]$htmlSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode($entry.Context))</p>") }
+                    [void]$htmlSb.Append('</td><td role="cell" data-label="Source scan">')
+                    if ($entry.SourceSelected) {
+                        $target = 'tab-' + ($entry.SourceCategory -replace '[^A-Za-z0-9]', '')
+                        $anchor = 'scan-' + ($entry.SourceFunction -replace '[^a-zA-Z0-9\-]', '')
+                        [void]$htmlSb.Append("<a class=`"report-jump`" data-target=`"$target`" href=`"#$anchor`">$([System.Net.WebUtility]::HtmlEncode($entry.SourceName))</a>")
+                    }
+                    else { [void]$htmlSb.Append([System.Net.WebUtility]::HtmlEncode($entry.SourceName)) }
+                    [void]$htmlSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode($entry.Unit))</p></td></tr>")
+                }
+                [void]$htmlSb.Append('</tbody></table></div><p id="kpi-no-results" hidden>No matching KPIs.</p></section>')
             }
 
             $orderedMods = @(foreach ($c in $tabCats) { $selectedMods | Where-Object { $_.Category -eq $c } })
@@ -3443,7 +3516,7 @@ h2[id] { scroll-margin-top: 85px; }
                             "unverified (read $($data.ScannedSubs) of $($data.TotalSubs) subs)"
                         }
                         else { "$($data.BudgetCoverage)%" }
-                        [void]$htmlSb.Append("<p>Budgets: $($data.TotalBudgets) &nbsp;|&nbsp; At risk: $($data.AtRiskCount) &nbsp;|&nbsp; Over budget: $($data.OverBudgetCount) &nbsp;|&nbsp; Coverage: $htmlCoverage</p>")
+                        [void]$htmlSb.Append("<p>Budgets: $($data.TotalBudgets) &nbsp;|&nbsp; At risk: $($data.AtRiskCount) &nbsp;|&nbsp; Over budget: $($data.OverBudgetCount) &nbsp;|&nbsp; Subscriptions with a budget: $htmlCoverage</p>")
                         $htmlRows = $data.Budgets | ForEach-Object {
                             $riskClass = switch ($_.Risk) { 'Over Budget' { 'severity-red' } 'On Track' { 'severity-green' } default { 'severity-yellow' } }
                             [PSCustomObject]@{
@@ -3527,10 +3600,17 @@ h2[id] { scroll-margin-top: 85px; }
                     'Get-UnitEconomics' {
                         $computeAmount = [System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.ComputeCost -Currency $data.Currency))
                         $storageAmount = [System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.StorageCost -Currency $data.Currency))
-                        $computeShare = if ($null -ne $data.ComputeSharePct) { [System.Net.WebUtility]::HtmlEncode("$($data.ComputeSharePct)%") } else { 'Unavailable' }
-                        $storageShare = if ($null -ne $data.StorageSharePct) { [System.Net.WebUtility]::HtmlEncode("$($data.StorageSharePct)%") } else { 'Unavailable' }
+                        $computeShare = if ($null -ne $data.ComputeSharePct) { [System.Net.WebUtility]::HtmlEncode("$($data.ComputeSharePct)% of VM compute + storage spend") } else { 'Unavailable' }
+                        $storageShare = if ($null -ne $data.StorageSharePct) { [System.Net.WebUtility]::HtmlEncode("$($data.StorageSharePct)% of VM compute + storage spend") } else { 'Unavailable' }
                         [void]$htmlSb.Append("<p>Compute: $computeAmount ($computeShare) over $($data.VmCount) VMs, $($data.TotalVCpu) vCPU, $($data.TotalMemoryGb) GB RAM</p>")
                         [void]$htmlSb.Append("<p>Storage: $storageAmount ($storageShare) over $($data.TotalStorageGb) GB</p>")
+                        $unitContext = Get-FinOpsUnitCostContext -Data $data
+                        [void]$htmlSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode($unitContext.Summary))</p>")
+                        [void]$htmlSb.Append('<details class="calculation-details"><summary>Calculation and thresholds</summary>')
+                        foreach ($description in @($unitContext.Formula, $unitContext.Capacity, $unitContext.Target)) {
+                            [void]$htmlSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode($description))</p>")
+                        }
+                        [void]$htmlSb.Append('</details>')
                         $htmlRows = @(
                             [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = (Format-FinOpsUnitRate -Value $data.CostPerVCpu -Currency $data.Currency) }
                             [PSCustomObject]@{ Metric = 'Cost per GB RAM'; Value = (Format-FinOpsUnitRate -Value $data.CostPerGbRam -Currency $data.Currency) }
@@ -3619,6 +3699,16 @@ h2[id] { scroll-margin-top: 85px; }
                     }
                 }
 
+                $scanContext = Get-FinOpsScanContext -FunctionName $fn -Data $data
+                if ($scanContext) {
+                    [void]$htmlSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode($scanContext.Summary))</p>")
+                    [void]$htmlSb.Append('<details class="calculation-details"><summary>Calculation and thresholds</summary>')
+                    foreach ($description in $scanContext.Details) {
+                        [void]$htmlSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode($description))</p>")
+                    }
+                    [void]$htmlSb.Append('</details>')
+                }
+
                 # Render guidance
                 if ($guidanceByFn.ContainsKey($fn)) {
                     foreach ($item in $guidanceByFn[$fn]) {
@@ -3649,6 +3739,26 @@ h2[id] { scroll-margin-top: 85px; }
             [void]$htmlSb.Append(@'
 <script>
 (function () {
+    var kpiSearch = document.getElementById('kpi-search');
+    var kpiStatusFilter = document.getElementById('kpi-status-filter');
+    var kpiRows = Array.prototype.slice.call(document.querySelectorAll('.kpi-reference-row'));
+    if (kpiSearch && kpiStatusFilter) {
+        function filterKpis() {
+            var query = kpiSearch.value.trim().toLowerCase();
+            var status = kpiStatusFilter.value;
+            var visibleCount = 0;
+            kpiRows.forEach(function (row) {
+                var matches = (!query || row.getAttribute('data-kpi-search').toLowerCase().indexOf(query) !== -1) &&
+                    (!status || row.getAttribute('data-kpi-status') === status);
+                row.hidden = !matches;
+                if (matches) { visibleCount++; }
+            });
+            document.getElementById('kpi-result-count').textContent = visibleCount + ' of ' + kpiRows.length + ' KPIs';
+            document.getElementById('kpi-no-results').hidden = visibleCount !== 0;
+        }
+        kpiSearch.addEventListener('input', filterKpis);
+        kpiStatusFilter.addEventListener('change', filterKpis);
+    }
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
   var panes = Array.prototype.slice.call(document.querySelectorAll('.tabpane'));
     function activate(target) {
@@ -3697,6 +3807,7 @@ h2[id] { scroll-margin-top: 85px; }
                 "Generated: $timestamp"
                 "Subscriptions: $subList"
                 "Total findings: $totalFindings"
+                if ($kpiReferenceIssue) { $kpiReferenceIssue }
                 ""
             )
             foreach ($mod in ($Modules | Where-Object { $_.Selected })) {

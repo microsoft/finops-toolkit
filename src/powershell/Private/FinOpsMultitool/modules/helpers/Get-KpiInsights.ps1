@@ -155,6 +155,97 @@ function Format-FinOpsUnitRate {
     catch { return 'Unavailable' }
 }
 
+function Get-FinOpsUnitCostContext {
+    param($Data)
+
+    $currency = [string](Get-ScanField $Data 'Currency')
+    $subtotal = $null
+    if ($currency -match '^[A-Za-z]{3}$' -and $currency -notin @('XXX', 'XTS') -and
+        -not (Get-ScanField $Data 'CostIssue') -and (Get-ScanField $Data 'CostAvailable') -ne $false) {
+        try {
+            $compute = Get-HubCostValue -Row $Data -Column 'ComputeCost'
+            $storage = Get-HubCostValue -Row $Data -Column 'StorageCost'
+            $sum = $compute + $storage
+            if (-not [double]::IsNaN($sum) -and -not [double]::IsInfinity($sum)) { $subtotal = $sum }
+        }
+        catch { $subtotal = $null }
+    }
+    $period = 'Cost period unavailable'
+    $start = Get-ScanField $Data 'CostPeriodStartUtc'
+    $end = Get-ScanField $Data 'CostPeriodEndUtc'
+    if ($null -ne $start -and $null -ne $end) {
+        try {
+            $start = ([datetime]$start).ToUniversalTime()
+            $end = ([datetime]$end).ToUniversalTime()
+            if ($end -gt $start) {
+                $period = '{0} to {1} UTC' -f $start.ToString('yyyy-MM-dd HH:mm', [cultureinfo]::InvariantCulture), $end.ToString('yyyy-MM-dd HH:mm', [cultureinfo]::InvariantCulture)
+            }
+        }
+        catch { $period = 'Cost period unavailable' }
+    }
+    $amount = Format-BudgetAmount -Value $subtotal -Currency $currency
+    return [pscustomobject]@{
+        Summary = "Amortized cost for selected subscriptions. Period: $period. Subtotal: $amount. Other Azure services are excluded. This is a cost distribution, not an efficiency score."
+        Formula = 'Category share = category cost / (VM compute cost + storage cost) x 100. Shares are unavailable when the subtotal is not positive.'
+        Capacity = 'Unit rates divide period cost by current inventory: all VMs, including stopped VMs; provisioned managed-disk capacity plus measured storage-account used capacity. These are not time-weighted running-resource rates.'
+        Target = 'No universal target split applies. Compare unit costs for the same workload, scope, currency, period, capacity basis, and service requirements. A lower rate alone does not prove better efficiency.'
+    }
+}
+
+function Get-FinOpsScanContext {
+    param([string]$FunctionName, $Data)
+
+    switch ($FunctionName) {
+        'Get-IdleVMs' {
+            $evaluated = Get-ScanField $Data 'EvaluatedVMs'
+            $evaluatedLabel = if ($null -ne $evaluated) { [string]$evaluated } else { 'Unknown' }
+            return [pscustomobject]@{
+                Summary = "Evaluated: $evaluatedLabel of $($Data.ScannedVMs) running VMs. Missing CPU or network measurements leave a VM unevaluated, not active or idle."
+                Details = @(
+                    'Window: the 14 days preceding this scan, using available Azure Monitor measurements. Idle requires average CPU <5% AND combined network <1 MiB/day (14 MiB across the window).'
+                    'Otherwise, underutilized requires average CPU <10% AND combined network <10 MiB/day (140 MiB across the window). These are scanner thresholds, not Azure Advisor criteria.'
+                    'Only currently running VMs are candidates. Averages can hide bursts; memory, disk activity, availability requirements, and workload purpose are not assessed. No returned candidate is not proof of optimized compute spend.'
+                )
+            }
+        }
+        'Get-StorageTierAdvice' {
+            $evaluated = Get-ScanField $Data 'EvaluatedAccounts'
+            $evaluatedLabel = if ($null -ne $evaluated) { [string]$evaluated } else { 'Unknown' }
+            return [pscustomobject]@{
+                Summary = "Evaluated: $evaluatedLabel of $($Data.TotalHotAccounts) storage accounts with Hot or unspecified default tier. Missing transaction or capacity measurements leave an account unevaluated."
+                Details = @(
+                    'Window: the 30 days preceding this scan. Archive candidate: fewer than 100 blob transactions and rounded reported capacity greater than zero.'
+                    'Otherwise, Cool candidate: fewer than 1,000 blob transactions and reported capacity greater than 1 GiB. Capacity is the largest returned time-series average, rounded to two decimal places; display labels GB/MB use binary units.'
+                    'This is account-level screening, not per-blob last-access analysis. Active accounts can contain cold blobs; the account default does not establish every blob tier.'
+                    'Validate tier eligibility, retrieval costs, access latency, and retention before changing tiers. The scan does not model a net saving; its 50%/90% estimates are assumptions. Archive is offline and has a 180-day minimum retention charge.'
+                )
+            }
+        }
+        'Get-BudgetStatus' {
+            $budgets = @($Data.Budgets | Where-Object { $null -ne $_ })
+            $available = 0
+            foreach ($budget in $budgets) {
+                if ($budget.ForecastSource -eq 'Unavailable' -or $budget.Currency -notmatch '^[A-Za-z]{3}$' -or $budget.Currency -in @('XXX', 'XTS')) { continue }
+                try {
+                    $null = Get-HubCostValue -Row $budget -Column 'Forecast'
+                    $available++
+                }
+                catch { continue }
+            }
+            return [pscustomobject]@{
+                Summary = "Forecasts available: $available of $($budgets.Count); $($budgets.Count - $available) unavailable. A zero at-risk count is not an all-clear when forecasts are missing."
+                Details = @(
+                    'Budget coverage = selected subscriptions with at least one budget / selected subscriptions x 100. It is not spend coverage or forecast availability. Unreadable subscriptions leave coverage unverified.'
+                    'PctUsed = current spend / budget amount x 100, using each budget scope, filters, currency, and reset period. Budget scopes can overlap; do not add their amounts or spend as a subscription total.'
+                    'Risk checks, in priority order: a missing or invalid budget amount is Unknown; actual >100% is Over Budget; forecast >100% is Forecast Over; missing current spend is Unknown; forecast >90% is At Risk; actual >90% is Near Limit; an unavailable forecast is Forecast unavailable; forecast >75% is Watch; otherwise On Track. Unknown amounts or forecasts are not replaced with zero.'
+                    'There is no universal target burn rate. Compare the budget reset period, expected workload demand, and available forecast with the planned spending profile.'
+                )
+            }
+        }
+    }
+    return $null
+}
+
 function Get-KpiComputedValue {
     param([string]$KpiId, $Data, $Catalog)
 
@@ -165,18 +256,23 @@ function Get-KpiComputedValue {
         if ($currency -notmatch '^[A-Za-z]{3}$' -or $currency -in @('XXX', 'XTS')) {
             return (New-KpiValue 'Unavailable: one known billing currency is required.')
         }
+        if ((Get-ScanField $Data 'CostAvailable') -eq $false) { return (New-KpiValue 'Unavailable: cost measurements could not be verified.') }
+        $field = if ($KpiId -eq 'cost-per-gb-stored') { 'CostPerGb' } else { 'CostPerVCpu' }
+        if ($null -eq (Get-ScanField $Data $field)) { return $null }
+        try { $unitRate = Get-HubCostValue -Row ([pscustomobject]@{ Value = (Get-ScanField $Data $field) }) -Column 'Value' }
+        catch { return (New-KpiValue 'Unavailable: a finite numeric unit rate is required.') }
     }
 
     switch ($KpiId) {
         'cost-per-gb-stored' {
-            $v = Get-ScanField $Data 'CostPerGb'
+            $v = $unitRate
             $cur = Get-ScanField $Data 'Currency'
-            if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$(Format-FinOpsUnitRate -Value $v -Currency $cur) per GB (month-to-date)" ([double]$v)) }
+            if ($null -ne $v -and $v -ge 0) { return (New-KpiValue "$(Format-FinOpsUnitRate -Value $v -Currency $cur) per GB (month-to-date)" ([double]$v)) }
         }
         'hourly-cost-per-cpu-core' {
-            $v = Get-ScanField $Data 'CostPerVCpu'
+            $v = $unitRate
             $cur = Get-ScanField $Data 'Currency'
-            if ($null -ne $v -and $v -gt 0) {
+            if ($null -ne $v -and $v -ge 0) {
                 $periodStart = Get-ScanField $Data 'CostPeriodStartUtc'
                 $periodEnd = Get-ScanField $Data 'CostPeriodEndUtc'
                 if ($null -ne $periodStart -and $null -ne $periodEnd) {
@@ -193,10 +289,10 @@ function Get-KpiComputedValue {
             }
         }
         'effective-avg-compute-cost-per-core' {
-            $v = Get-ScanField $Data 'CostPerVCpu'
+            $v = $unitRate
             $cur = Get-ScanField $Data 'Currency'
             # Month-to-date, not a full month, so say so rather than implying a run rate.
-            if ($null -ne $v -and $v -gt 0) { return (New-KpiValue "$(Format-FinOpsUnitRate -Value $v -Currency $cur) per vCPU (month-to-date)" ([double]$v)) }
+            if ($null -ne $v -and $v -ge 0) { return (New-KpiValue "$(Format-FinOpsUnitRate -Value $v -Currency $cur) per vCPU (month-to-date)" ([double]$v)) }
         }
         'commitment-utilization-score' {
             # Get-CommitmentUtilization seeds both averages to 0 and only fills the
@@ -442,9 +538,8 @@ function Add-KpiInsights {
 # Map a raw scan function name (as used by the TUI/automated editions) to the
 # scan name the KPI catalog keys off (sourceTool). Lets every caller reuse the
 # exact same compute path, so KPI behavior stays in parity.
-function Get-KpiToolNameForFunction {
-    param([Parameter(Mandatory)][string]$FunctionName)
-    $map = @{
+function Get-KpiScanMap {
+    return @{
         'Get-UnitEconomics'               = 'scan_unit_economics'
         'Get-CostByTag'                   = 'scan_cost_by_tag'
         'Get-CommitmentUtilization'       = 'scan_commitment_utilization'
@@ -464,6 +559,11 @@ function Get-KpiToolNameForFunction {
         'Get-SharedCostAllocation'        = 'scan_allocate_shared_cost'
         'Get-UsageProportionalAllocation' = 'scan_usage_allocation'
     }
+}
+
+function Get-KpiToolNameForFunction {
+    param([Parameter(Mandatory)][string]$FunctionName)
+    $map = Get-KpiScanMap
     if ($map.ContainsKey($FunctionName)) { return $map[$FunctionName] }
     return $null
 }
@@ -486,6 +586,65 @@ function Get-KpiInsightsForResult {
         return @($enriched['kpiInsights'])
     }
     return @()
+}
+
+function Get-FinOpsKpiReference {
+    param([System.Collections.IDictionary]$Results, [object[]]$Modules, [object[]]$Insights)
+
+    $catalog = Get-KpiCatalog
+    if (-not $catalog) { return @() }
+    $scanMap = Get-KpiScanMap
+    foreach ($kpi in $catalog.kpis) {
+        $functionName = $scanMap.Keys | Where-Object { $scanMap[$_] -eq $kpi.sourceTool } | Select-Object -First 1
+        $sourceModule = $Modules | Where-Object { $_.Fn -eq $functionName } | Select-Object -First 1
+        $selected = $sourceModule | Where-Object Selected
+        $status = if ($kpi.compute) { 'Not run' } else { 'Informational' }
+        $value = if ($kpi.compute) { 'The source scan was not selected for this report.' } else { 'Reference only. This tool does not calculate this KPI.' }
+        $context = $null
+        if ($selected) {
+            if ($Results.Contains("_error_$functionName")) {
+                if ($kpi.compute) {
+                    $status = 'Unavailable'
+                    $value = [string]$Results["_error_$functionName"]
+                }
+                else { $context = "Related scan failed: $($Results["_error_$functionName"])" }
+            }
+            elseif (-not $Results.Contains($functionName) -or $null -eq $Results[$functionName]) {
+                if ($kpi.compute) {
+                    $status = 'Unavailable'
+                    $value = 'The scan returned no result; this is not a measured zero.'
+                }
+                else { $context = 'The related scan returned no result.' }
+            }
+            else {
+                if ($kpi.compute) {
+                    $insight = $Insights | Where-Object { $_.kpiId -eq $kpi.id } | Select-Object -First 1
+                    $status = if ($insight.status -eq 'computed' -and $null -ne $insight.numericValue) { 'Computed' } else { 'Unavailable' }
+                    $value = if ($insight.yourValue) { [string]$insight.yourValue } else { 'Required comparable measurements were not available in this run.' }
+                }
+                if ($functionName -eq 'Get-UnitEconomics') { $context = (Get-FinOpsUnitCostContext -Data $Results[$functionName]).Summary }
+                else { $context = (Get-FinOpsScanContext -FunctionName $functionName -Data $Results[$functionName]).Summary }
+            }
+        }
+        [pscustomobject]@{
+            Id = $kpi.id
+            Name = $kpi.name
+            Definition = $kpi.definition
+            Domain = $kpi.domain
+            Unit = $kpi.unit
+            Calculation = $kpi.calculation
+            RequiredInputs = @($kpi.requiredInputs)
+            Interpretation = $kpi.interpretation
+            Limitations = $kpi.limitations
+            Status = $status
+            Value = $value
+            Context = $context
+            SourceFunction = $functionName
+            SourceName = if ($sourceModule) { $sourceModule.Name } elseif ($functionName) { $functionName } else { 'Data-source discovery (not a menu scan)' }
+            SourceCategory = $selected.Category
+            SourceSelected = $null -ne $selected
+        }
+    }
 }
 
 # Browse the KPI catalog for the explore_finops_kpis tool.

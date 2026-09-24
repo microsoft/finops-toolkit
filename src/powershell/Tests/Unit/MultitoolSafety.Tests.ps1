@@ -488,6 +488,153 @@ Describe 'FinOps Multitool safety' {
             (Import-Csv -LiteralPath (Join-Path $run 'Get-PolicyInventory.csv'))[0].'Summary.ComplianceCoverageIncomplete' | Should -Be 'True'
         }
 
+        It 'Names the unit-cost share denominator and captured period in report output' {
+            $reportRoot = Join-Path $TestDrive 'unit-cost-context'
+            $captured = [Collections.Generic.List[string]]::new()
+            Mock Write-Host { [void]$captured.Add([string]$Object) }
+            $data = [pscustomobject]@{
+                HasData = $true; Currency = 'USD'; CostAvailable = $true
+                ComputeCost = 0.65; StorageCost = 12.26; ComputeSharePct = 5; StorageSharePct = 95
+                CostPerVCpu = 0.08125; CostPerGbRam = 0.0203125; CostPerVm = 0.1625; CostPerGb = 0.03892063
+                VmCount = 4; TotalVCpu = 8; TotalMemoryGb = 32; DiskGb = 300; BlobFileGb = 15; TotalStorageGb = 315
+                CostPeriodStartUtc = [datetime]::new(2026, 9, 1, 0, 0, 0, [DateTimeKind]::Utc)
+                CostPeriodEndUtc = [datetime]::new(2026, 9, 24, 12, 0, 0, [DateTimeKind]::Utc)
+                Period = 'MonthToDate'; ScannedSubs = 1
+            }
+            $modules = @(@{ Fn = 'Get-UnitEconomics'; Name = 'Unit Economics'; Selected = $true; Category = 'Cost Analysis' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-UnitEconomics' = $data } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            foreach ($outputText in @($html, ($captured -join ' '))) {
+                $outputText | Should -Match '5% of VM compute \+ storage spend'
+                $outputText | Should -Match 'Subtotal: USD 12\.91'
+                $outputText | Should -Match '2026-09-01 00:00.*2026-09-24 12:00.*UTC'
+                $outputText | Should -Match 'Amortized cost'
+                $outputText | Should -Match 'not an efficiency score'
+            }
+            $html | Should -Match '<summary>Calculation and thresholds</summary>'
+            $html | Should -Match 'current inventory'
+            $html | Should -Match 'Other Azure services are excluded'
+        }
+
+        It 'Explains screening thresholds and separates budget coverage from forecast availability' {
+            $reportRoot = Join-Path $TestDrive 'screening-context'
+            Mock Write-Host { }
+            $budgets = @(foreach ($budgetIndex in 1..6) {
+                    [pscustomobject]@{
+                        BudgetName = "Budget $budgetIndex"; Amount = 100; ActualSpend = 25; Currency = 'USD'; PctUsed = 25
+                        Forecast = $(if ($budgetIndex -le 2) { 40 } else { $null })
+                        ForecastSource = $(if ($budgetIndex -le 2) { 'Budget' } else { 'Unavailable' })
+                        Risk = $(if ($budgetIndex -le 2) { 'On Track' } else { 'Forecast unavailable' })
+                    }
+                })
+            $results = @{
+                'Get-IdleVMs'           = [pscustomobject]@{ IdleVMs = @(); Count = 0; ScannedVMs = 2; EvaluatedVMs = 1; TotalVMs = 4; MetricFailures = 1; HasData = $false }
+                'Get-StorageTierAdvice' = [pscustomobject]@{ Recommendations = @(); Count = 0; TotalHotAccounts = 8; EvaluatedAccounts = 7; MetricFailures = 1; HasData = $false }
+                'Get-BudgetStatus'      = [pscustomobject]@{ Budgets = $budgets; TotalBudgets = 6; AtRiskCount = 0; OverBudgetCount = 0; BudgetCoverage = 100; SubsWithBudget = 1; TotalSubs = 1; ScannedSubs = 1; CoverageIncomplete = $false }
+            }
+            $modules = @(
+                @{ Fn = 'Get-IdleVMs'; Name = 'Idle VMs'; Selected = $true; Category = 'Optimization' }
+                @{ Fn = 'Get-StorageTierAdvice'; Name = 'Storage Tier Advice'; Selected = $true; Category = 'Optimization' }
+                @{ Fn = 'Get-BudgetStatus'; Name = 'Budget Status'; Selected = $true; Category = 'Monitoring' }
+            )
+
+            $null = Show-ResultsSummary -Results $results -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $plain = [System.Net.WebUtility]::HtmlDecode($html)
+            $plain | Should -Match 'Evaluated: 1 of 2 running VMs'
+            $plain | Should -Match 'CPU <5% AND combined network <1 MiB/day'
+            $plain | Should -Match 'CPU <10% AND combined network <10 MiB/day'
+            $plain | Should -Match 'Evaluated: 7 of 8 storage accounts'
+            $plain | Should -Match 'fewer than 100 blob transactions'
+            $plain | Should -Match 'fewer than 1,000 blob transactions'
+            $plain | Should -Match 'not per-blob last-access analysis'
+            $plain | Should -Match 'Subscriptions with a budget: 100%'
+            $plain | Should -Match 'Forecasts available: 2 of 6'
+            $plain | Should -Match '4 unavailable'
+            $plain | Should -Match 'not an all-clear'
+            [regex]::Matches($html, '<summary>Calculation and thresholds</summary>').Count | Should -Be 3
+        }
+
+        It 'Lists every KPI with context and honest run states without unsafe report links' {
+            $reportRoot = Join-Path $TestDrive 'kpi-reference'
+            Mock Write-Host { }
+            Set-Variable -Name permissionInfo -Value @{} -Scope Local
+            $catalog = Get-KpiCatalog
+            $payload = '<img src=x onerror=alert(1)>'
+            $results = @{
+                'Get-IdleVMs'             = [pscustomobject]@{ IdleVMs = @(); Count = 0; ScannedVMs = 1; EvaluatedVMs = 1; TotalVMs = 1; MetricFailures = 0; HasData = $false }
+                'Get-StorageTierAdvice'   = [pscustomobject]@{ Recommendations = @(); Count = 0; TotalHotAccounts = 1; EvaluatedAccounts = 1; MetricFailures = 0; HasData = $false }
+                '_error_Get-BudgetStatus' = "Synthetic failure $payload"
+            }
+            $modules = @(
+                @{ Fn = 'Get-IdleVMs'; Name = 'Idle VMs'; Selected = $true; Category = 'Optimization' }
+                @{ Fn = 'Get-StorageTierAdvice'; Name = 'Storage Tier Advice'; Selected = $true; Category = 'Optimization' }
+                @{ Fn = 'Get-BudgetStatus'; Name = 'Budget Status'; Selected = $true; Category = 'Monitoring' }
+            )
+
+            $null = Show-ResultsSummary -Results $results -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match 'data-target="tab-KpiReference">KPI reference</button>'
+            [regex]::Matches($html, 'class="kpi-reference-row"').Count | Should -Be $catalog.kpis.Count
+            foreach ($kpi in $catalog.kpis) {
+                $html | Should -Match ('id="kpi-' + [regex]::Escape($kpi.id) + '"')
+                foreach ($field in @('calculation', 'interpretation', 'limitations')) { $kpi.$field | Should -Not -BeNullOrEmpty }
+                $kpi.requiredInputs.Count | Should -BeGreaterThan 0
+            }
+            $html | Should -Match 'data-kpi-status="Computed"'
+            $html | Should -Match 'data-kpi-status="Unavailable"'
+            $html | Should -Match 'data-kpi-status="Not run"'
+            $html | Should -Match 'data-kpi-status="Informational"'
+            $html | Should -Match '0% of running VMs idle'
+            $html | Should -Match 'href="#scan-Get-IdleVMs"'
+            $html | Should -Not -Match 'href="#scan-Get-UnitEconomics"'
+            $html | Should -Match 'id="kpi-search"'
+            $html | Should -Match 'id="kpi-status-filter"'
+            $html | Should -Match '&lt;img src=x onerror=alert\(1\)&gt;'
+            $html | Should -Not -Match '<img src=x|<[^>]+\soninput=|<[^>]+\sonchange='
+            $html | Should -Match 'No universal healthy value'
+        }
+
+        It 'Keeps informational KPI status when a related scan fails' {
+            $results = @{ '_error_Get-StorageTierAdvice' = 'Synthetic storage read failure.' }
+            $modules = @(@{ Fn = 'Get-StorageTierAdvice'; Name = 'Storage Tier Advice'; Selected = $true; Category = 'Optimization' })
+
+            $entries = @(Get-FinOpsKpiReference -Results $results -Modules $modules -Insights @() | Where-Object SourceFunction -EQ 'Get-StorageTierAdvice')
+
+            $entries.Count | Should -Be 2
+            foreach ($entry in $entries) {
+                $entry.Status | Should -Be 'Informational'
+                $entry.Value | Should -Match 'does not calculate'
+                $entry.Context | Should -Match 'Synthetic storage read failure'
+            }
+        }
+
+        It 'Keeps all report formats when the KPI catalog throws' {
+            $reportRoot = Join-Path $TestDrive 'catalog-failure'
+            Mock Write-Host { }
+            Mock Get-KpiCatalog { throw 'Synthetic malformed catalog.' }
+            Mock Get-KpiCatalog -ModuleName FinOpsMultitool { throw 'Synthetic malformed catalog.' }
+            $results = @{ 'Get-CostData' = @{ 'fixture' = @{ Actual = 10; Currency = 'EUR'; Forecast = $null; ForecastSource = 'Unavailable' } } }
+            $modules = @(@{ Fn = 'Get-CostData'; Name = 'Cost Data'; Selected = $true; Category = 'Cost Analysis' })
+
+            { $null = Show-ResultsSummary -Results $results -Modules $modules -ExportPath $reportRoot -ErrorAction Stop } | Should -Not -Throw
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match 'KPI reference unavailable'
+            $html | Should -Match 'Scan results remain available'
+            $html | Should -Match 'EUR 10[.,]00'
+            Test-Path -LiteralPath (Join-Path $run 'Get-CostData.csv') | Should -BeTrue
+            Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw | Should -Match 'KPI reference unavailable'
+        }
+
         It 'Reports incompatible unit costs as unavailable while retaining capacity' {
             $reportRoot = Join-Path $TestDrive 'mixed-unit-costs'
             $data = [pscustomobject]@{
@@ -2628,6 +2775,24 @@ Describe 'FinOps Multitool cost math' {
     }
 
     Context 'Hourly cost reporting' {
+        It 'Retains a measured zero for the <KpiId> unit KPI' -ForEach @(
+            @{ KpiId = 'cost-per-gb-stored' }
+            @{ KpiId = 'hourly-cost-per-cpu-core' }
+            @{ KpiId = 'effective-avg-compute-cost-per-core' }
+        ) {
+            $data = [pscustomobject]@{
+                Currency = 'EUR'; CostPerVCpu = 0.0; CostPerGb = 0.0
+                CostPeriodStartUtc = [datetime]::new(2026, 9, 1, 0, 0, 0, [DateTimeKind]::Utc)
+                CostPeriodEndUtc = [datetime]::new(2026, 9, 24, 12, 0, 0, [DateTimeKind]::Utc)
+            }
+
+            $result = Get-KpiComputedValue -KpiId $KpiId -Data $data
+
+            $result | Should -Not -BeNullOrEmpty
+            $result.Value | Should -Be 0
+            $result.Display | Should -Match '^EUR 0 per '
+        }
+
         It 'Keeps capacity but suppresses incompatible <CurrencyCase> unit costs through <CostPath>' -ForEach @(
             @{ CostPath = 'management group'; CurrencyCase = 'mixed'; SecondCurrency = 'EUR' }
             @{ CostPath = 'per subscription'; CurrencyCase = 'mixed'; SecondCurrency = 'EUR' }
@@ -2886,6 +3051,23 @@ Describe 'FinOps Multitool cost math' {
                 $budget.ForecastSource | Should -Be 'Unavailable'
                 $budget.Risk | Should -Not -Be 'On Track'
                 $budget.Currency | Should -Be 'EUR'
+            }
+        }
+
+        It 'Explains missing budget evidence in the same order as risk classification' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"name":"monthly","properties":{"amount":100,"timeGrain":"Monthly","category":"Cost","forecastSpend":{"amount":95,"unit":"USD"}}}]}' }
+                }
+
+                $result = Get-BudgetStatus -Subscriptions @([pscustomobject]@{ Id = '88888888-8888-8888-8888-888888888888'; Name = 'Fixture' })
+                $context = Get-FinOpsScanContext -FunctionName 'Get-BudgetStatus' -Data $result
+
+                $result.Budgets[0].Risk | Should -Be 'Unknown'
+                $result.Budgets[0].PctForecast | Should -Be 95
+                $rules = $context.Details -join ' '
+                $rules | Should -Match 'invalid budget amount.*Unknown.*actual >100%.*forecast >100%.*missing current spend.*Unknown.*forecast >90%'
+                $rules | Should -Match 'unavailable forecast.*Forecast unavailable'
             }
         }
 

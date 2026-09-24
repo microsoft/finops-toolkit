@@ -245,7 +245,26 @@ Carbon reports retain available detail when another report section fails, but le
 
 ## FinOps KPI coverage
 
-The scan modules map directly to [FinOps Foundation KPIs](https://www.finops.org/finops-kpis/). Each scan answers a KPI question directly, and the `finops-multitool` agent skill routes a natural-language question to the matching investigation. A few examples of question → output:
+The scan modules provide measurements, estimates, or proxies related to [FinOps Foundation KPIs](https://www.finops.org/finops-kpis/). Some KPI definitions need additional inputs and aren't calculated by this tool. The `finops-multitool` agent skill routes a natural-language question to the matching investigation.
+
+The HTML report's **KPI reference** tab lists every entry from the shared [KPI catalog](kpi/kpi-catalog.json), including entries not measured in the run. Search or filter by status, expand **Calculation and interpretation**, and follow a source-scan link when that scan was included. Each entry identifies the formula, required inputs, interpretation, and limitations.
+
+| Status        | Meaning                                                                                          |
+| ------------- | ------------------------------------------------------------------------------------------------ |
+| Computed      | A value was derived from the scan. It can be an estimate or proxy; this isn't a health rating.   |
+| Unavailable   | The selected scan failed or lacks comparable measurements. Missing values aren't measured zeros. |
+| Not run       | The scan for a calculable KPI wasn't selected.                                                   |
+| Informational | The catalog explains the KPI, but this tool doesn't calculate it.                                |
+
+**Calculation and thresholds** disclosures beside Unit Economics, Idle VMs, Storage Tier Advice, and Budget Status explain the values in place. Unit Economics names the VM-compute-plus-storage denominator, subtotal, captured UTC window, and amortized basis. The percentage isn't a share of the entire Azure bill or an efficiency score. Unit rates divide period cost by current capacity, including stopped VMs, rather than time-weighted running-resource capacity.
+
+Idle VM screening uses 14-day average CPU below 5% and combined network below 1 MiB/day; otherwise, CPU below 10% and network below 10 MiB/day flags underutilization. Storage screening uses 30-day blob transactions: fewer than 100 with positive rounded capacity suggests an Archive candidate; otherwise, fewer than 1,000 with capacity above 1 GiB suggests Cool. These are scanner rules, not Azure Advisor criteria or per-blob last-access analysis. Evaluated counts exclude unreadable metrics.
+
+Budget coverage counts selected subscriptions with at least one budget, not spend or forecast coverage. Forecast availability is shown separately. A zero at-risk count doesn't establish that budgets with missing forecasts are on track.
+
+There is no universal healthy compute/storage split or unit-cost target. Compare the same scope, period, currency, capacity basis, and service requirements against a workload-specific baseline, as described in the [FinOps unit-economics guidance](https://www.finops.org/framework/capabilities/unit-economics/). Storage-tier decisions also need [retrieval, retention, and eligibility checks](https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview).
+
+A few examples of question and output:
 
 ### Percentage of Legacy Resource → legacy resources
 
@@ -262,22 +281,26 @@ By category:
   Basic SKU Load Balancers      3   (retiring Sep 2025 → Standard)
 ```
 
-Legacy % = 47 ÷ total resources in scope.
+The scan returns candidate counts. A legacy percentage also needs a complete, comparable resource denominator; the catalog entry remains informational.
 
 ### Cost per Gigabyte Stored / Hourly Cost per CPU Core → unit economics
 
 > "What's my cost per vCPU and per GB of storage this month?"
 
+Abridged example:
+
 ```text
 Unit Economics — Month to Date (USD)
 
-Compute  $128,400 (75.7%)   312 VMs / 1,840 vCPU / 7,360 GB RAM
-Storage  $ 41,200 (24.3%)   126,400 GB (84,600 GB disk + 41,800 GB blob/file)
+Compute  USD 128,400 (75.7% of VM compute + storage spend)
+Storage  USD  41,200 (24.3% of VM compute + storage spend)
+Subtotal USD 169,600; other Azure services excluded
+Capacity 312 VMs / 1,840 vCPU / 7,360 GB RAM / 126,400 GB storage
 
-  Cost per vCPU      $69.78 / month
-  Cost per GB RAM    $17.45 / month
-  Cost per VM        $411.54 / month
-  Cost per GB stored $0.326 / month
+  Cost per vCPU      USD 69.78   (month-to-date)
+  Cost per GB RAM    USD 17.45   (month-to-date)
+  Cost per VM        USD 411.54  (month-to-date)
+  Cost per GB stored USD 0.326  (month-to-date)
 ```
 
 vCPU and RAM come from Compute SKU capabilities. Storage capacity combines provisioned managed disk capacity with storage account usage from the Azure Monitor `UsedCapacity` metric. The tool reports the combined capacity in GB. Cost queries cover the selected subscriptions. If the tool can't access the management group scope, it queries each subscription separately and reports failed queries as errors. **Hourly Cost per CPU Core** divides cost per vCPU by the elapsed hours in the recorded UTC cost period, with a one-hour minimum. It doesn't use a fixed 730-hour month.

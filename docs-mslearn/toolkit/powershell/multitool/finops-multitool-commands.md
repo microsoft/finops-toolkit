@@ -26,6 +26,12 @@ Automation requires an existing Azure context established with the intended iden
 
 CSV, HTML, and text reports are saved automatically on the machine running the multitool, in a new private folder under the current user's local application data. Use `-OutputPath` to select a different local parent folder outside Git repositories. For location details and privacy limits, see [Report storage](start-finopsmultitool.md#report-storage).
 
+The HTML report's **KPI reference** tab lists the available KPI definitions, including entries not measured in the current run. Each entry includes its status, calculation, required inputs, interpretation, limitations, and a link to its source scan when that scan was included. **Computed** means a value was derived, not that the environment is healthy; some values are estimates or proxies. **Unavailable**, **Not run**, and **Informational** distinguish missing measurements, unselected scans, and definitions that need additional data or calculations.
+
+**Calculation and thresholds** disclosures explain Unit Economics, Idle VMs, Storage Tier Advice, and Budget Status beside their results. Unit Economics percentages are shares of the **VM compute plus storage subtotal**, not total Azure spend or an efficiency score. The report includes the captured UTC cost period and amortized basis. Unit rates use current capacity, including stopped VMs, rather than time-weighted running-resource capacity. Compare with a workload-specific baseline instead of assuming a universal healthy percentage.
+
+Idle and storage screening show their thresholds and evaluated counts. Missing metrics leave resources unevaluated. Budget coverage counts subscriptions with a budget, while usable forecasts are counted separately; zero at-risk budgets isn't an all-clear when forecasts are missing.
+
 <br>
 
 ## Commands

@@ -62,8 +62,10 @@ The following section lists features and enhancements that are currently in deve
     - Added a companion set of agent skills that carry the investigation routing, the queries, and the interpretation rules so AI agents can run the same analysis through Azure CLI or an Azure MCP server.
     - Added engine-side aggregation through the FinOps hub's Azure Data Explorer or Microsoft Fabric Kusto database for large environments, with a storage reader as a small-dataset fallback.
     - Added a non-interactive mode for an already-authenticated pipeline or scheduled job, and automatic private CSV, HTML, and text reports. Consoles that can't render the arrow-key menus, such as PowerShell remoting sessions, fall back to numbered prompts.
+    - Added a searchable KPI reference and in-report calculation details for cost shares, unit rates, VM and storage screening, and budget coverage and forecast availability.
 - **Fixed**
   - Fixed storage-backed Parquet imports returning empty values or misaligning costs when an export contains nested metadata.
+  - Fixed measured zero unit-cost KPIs appearing unavailable.
 
 ### [Power BI reports](power-bi/reports.md)
 
