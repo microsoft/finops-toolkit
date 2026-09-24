@@ -44,7 +44,6 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
     env:
-      TMPDIR: ${{ runner.temp }}
       DOTNET_CLI_TELEMETRY_OPTOUT: '1'
       DOTNET_NOLOGO: '1'
     steps:
@@ -63,6 +62,8 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Run native multitool tests
         shell: pwsh
+        env:
+          TMPDIR: ${{ runner.temp }}
         run: |
           $ErrorActionPreference = 'Stop'
           Import-Module Pester -RequiredVersion 6.0.0 -Force
@@ -104,6 +105,8 @@ jobs:
       - name: Run package and real Parquet integration tests
         if: ${{ !cancelled() }}
         shell: pwsh
+        env:
+          TMPDIR: ${{ runner.temp }}
         run: |
           $ErrorActionPreference = 'Stop'
           Import-Module Pester -RequiredVersion 6.0.0 -Force
