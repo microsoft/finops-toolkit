@@ -1,0 +1,205 @@
+﻿# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+param()
+
+###########################################################################
+# GET-BILLINGSTRUCTURE.PS1
+# AZURE FINOPS MULTITOOL - Billing Profiles, Invoice Sections & Cost Allocation
+###########################################################################
+# Purpose: Retrieve billing account structure (profiles, invoice sections)
+#          and any configured cost allocation rules. Requires Billing Reader
+#          on the billing account for full data; falls back gracefully.
+###########################################################################
+
+function Get-BillingStructure {
+    [CmdletBinding()]
+    param(
+        [object[]]$Subscriptions
+    )
+
+    Write-Host "  Querying billing structure..." -ForegroundColor Cyan
+
+    $billingAccounts = @()
+    $billingProfiles = @()
+    $invoiceSections = @()
+    $costAllocationRules = @()
+    $readErrors = [Collections.Generic.List[string]]::new()
+
+    # -- Step 1: Get Billing Accounts -----------------------------------
+    # Correlation happens after the list call: billingInfo/default is not a valid
+    # resource type and 404s on every api-version, which previously left the
+    # linked-account set empty and skipped every account.
+    try {
+        $baPath = "/providers/Microsoft.Billing/billingAccounts?api-version=2024-04-01"
+        $baResp = Invoke-AzRestMethodWithRetry -Path $baPath -Method GET
+        $baResult = Get-FinOpsListResult -FirstResponse $baResp -Context 'billing accounts'
+        if ($baResp.StatusCode -eq 200) {
+            if ($baResult.value) {
+                $scope = Get-FinOpsBillingScope -BillingAccounts @($baResult.value) -Subscriptions $Subscriptions
+                if ($scope.CoverageIncomplete) {
+                    foreach ($issue in $scope.ReadErrors) { $readErrors.Add([string]$issue) }
+                }
+                if (-not $scope.Resolved) {
+                    $readErrors.Add([string]$scope.Reason)
+                    Write-Warning "  $($scope.Reason)"
+                }
+                else {
+                    Write-Host "  Resolved $(@($scope.Accounts).Count) billing account(s) linked to scanned subscriptions." -ForegroundColor Cyan
+                }
+                foreach ($ba in @($scope.Accounts)) {
+                    $props = $ba.properties
+                    $billingAccounts += [PSCustomObject]@{
+                        AccountId     = $ba.name
+                        DisplayName   = $props.displayName
+                        AgreementType = $props.agreementType
+                        AccountType   = $props.accountType
+                        AccountStatus = $props.accountStatus
+                        FullId        = $ba.id
+                    }
+                }
+            }
+        }
+        else {
+            Write-Warning "  Billing accounts returned HTTP $($baResp.StatusCode)"
+        }
+    }
+    catch {
+        $readErrors.Add($_.Exception.Message)
+        Write-Warning "  Billing accounts query failed: $($_.Exception.Message)"
+    }
+
+    # -- Step 2: Get Billing Profiles (MCA only) ------------------------
+    foreach ($ba in $billingAccounts) {
+        if ($ba.AgreementType -notin @('MicrosoftCustomerAgreement', 'MicrosoftPartnerAgreement')) {
+            continue
+        }
+        try {
+            $bpPath = "$($ba.FullId)/billingProfiles?api-version=2024-04-01"
+            $bpResp = Invoke-AzRestMethodWithRetry -Path $bpPath -Method GET
+            $bpResult = Get-FinOpsListResult -FirstResponse $bpResp -Context "billing profiles for $($ba.DisplayName)"
+            if ($bpResp.StatusCode -eq 200) {
+                if ($bpResult.value) {
+                    foreach ($bp in $bpResult.value) {
+                        $bpProps = $bp.properties
+                        $billingProfiles += [PSCustomObject]@{
+                            ProfileId      = $bp.name
+                            DisplayName    = $bpProps.displayName
+                            BillingAccount = $ba.DisplayName
+                            Currency       = $bpProps.currency
+                            InvoiceDay     = $bpProps.invoiceDay
+                            Status         = $bpProps.status
+                            FullId         = $bp.id
+                        }
+
+                        # -- Step 3: Invoice Sections per Profile -------
+                        try {
+                            $isPath = "$($bp.id)/invoiceSections?api-version=2024-04-01"
+                            $isResp = Invoke-AzRestMethodWithRetry -Path $isPath -Method GET
+                            $isResult = Get-FinOpsListResult -FirstResponse $isResp -Context "invoice sections for $($bpProps.displayName)"
+                            if ($isResp.StatusCode -eq 200) {
+                                if ($isResult.value) {
+                                    foreach ($section in $isResult.value) {
+                                        $sProps = $section.properties
+                                        $invoiceSections += [PSCustomObject]@{
+                                            SectionId      = $section.name
+                                            DisplayName    = $sProps.displayName
+                                            BillingProfile = $bpProps.displayName
+                                            BillingAccount = $ba.DisplayName
+                                            State          = $sProps.state
+                                            SystemId       = $sProps.systemId
+                                            FullId         = $section.id
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch {
+                            $readErrors.Add($_.Exception.Message)
+                            Write-Warning "  Invoice sections query failed for profile $($bpProps.displayName): $($_.Exception.Message)"
+                        }
+                    }
+                }
+            }
+        }
+        catch {
+            $readErrors.Add($_.Exception.Message)
+            Write-Warning "  Billing profiles query failed: $($_.Exception.Message)"
+        }
+    }
+
+    # -- Step 4: EA Departments & Enrollment Accounts (EA only) ---------
+    $eaDepartments = @()
+    foreach ($ba in $billingAccounts) {
+        if ($ba.AgreementType -ne 'EnterpriseAgreement') { continue }
+        try {
+            $deptPath = "$($ba.FullId)/departments?api-version=2024-04-01"
+            $deptResp = Invoke-AzRestMethodWithRetry -Path $deptPath -Method GET
+            $deptResult = Get-FinOpsListResult -FirstResponse $deptResp -Context "departments for $($ba.DisplayName)"
+            if ($deptResp.StatusCode -eq 200) {
+                if ($deptResult.value) {
+                    foreach ($dept in $deptResult.value) {
+                        $dProps = $dept.properties
+                        $eaDepartments += [PSCustomObject]@{
+                            DepartmentId   = $dept.name
+                            DisplayName    = $dProps.displayName
+                            BillingAccount = $ba.DisplayName
+                            CostCenter     = $dProps.costCenter
+                            Status         = $dProps.status
+                        }
+                    }
+                }
+            }
+        }
+        catch {
+            $readErrors.Add($_.Exception.Message)
+            Write-Warning "  EA departments query failed: $($_.Exception.Message)"
+        }
+    }
+
+    # -- Step 5: Cost Allocation Rules ----------------------------------
+    foreach ($ba in $billingAccounts) {
+        try {
+            $carPath = "$($ba.FullId)/providers/Microsoft.CostManagement/costAllocationRules?api-version=2023-11-01"
+            $carResp = Invoke-AzRestMethodWithRetry -Path $carPath -Method GET
+            if ($carResp.StatusCode -eq 200) {
+                $carResult = Get-FinOpsListResult -FirstResponse $carResp -Context "cost allocation rules for $($ba.DisplayName)"
+                if ($carResult.value) {
+                    foreach ($rule in $carResult.value) {
+                        $rProps = $rule.properties
+                        $costAllocationRules += [PSCustomObject]@{
+                            RuleName       = $rProps.name
+                            Description    = $rProps.description
+                            Status         = $rProps.status
+                            BillingAccount = $ba.DisplayName
+                            SourceCount    = if ($rProps.details.sourceResources) { $rProps.details.sourceResources.Count } else { 0 }
+                            TargetCount    = if ($rProps.details.targetResources) { $rProps.details.targetResources.Count } else { 0 }
+                            CreatedDate    = $rProps.createdDate
+                            UpdatedDate    = $rProps.updatedDate
+                        }
+                    }
+                }
+            }
+            elseif ($carResp.StatusCode -ne 404) {
+                throw "Cost allocation rules for $($ba.DisplayName) returned HTTP $($carResp.StatusCode); results are incomplete."
+            }
+        }
+        catch {
+            $readErrors.Add($_.Exception.Message)
+            Write-Warning "  Cost allocation rules query failed: $($_.Exception.Message)"
+        }
+    }
+
+    return [PSCustomObject]@{
+        BillingAccounts     = $billingAccounts
+        CoverageIncomplete  = ($readErrors.Count -gt 0)
+        ReadErrors          = @($readErrors)
+        Note                = if ($readErrors.Count -gt 0) { 'Billing inventory is incomplete. ' + ($readErrors -join ' ') } else { $null }
+        BillingProfiles     = $billingProfiles
+        InvoiceSections     = $invoiceSections
+        EADepartments       = $eaDepartments
+        CostAllocationRules = $costAllocationRules
+        HasBillingAccess    = ($billingAccounts.Count -gt 0)
+    }
+}

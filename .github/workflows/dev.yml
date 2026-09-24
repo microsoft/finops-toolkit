@@ -3,6 +3,11 @@ name: 'PowerShell Tests'
 on:
   pull_request:
     paths:
+      - '.github/workflows/dev.yml'
+      - '.build/BuildHelper/**'
+      - '.build/BuildHelper.psm1'
+      - 'package.json'
+      - 'src/scripts/Get-Version.ps1'
       - 'src/powershell/**'
       # KQL sources are covered by unit tests (HubsKqlOperators.Tests.ps1)
       - 'src/templates/finops-hub/**/*.kql'
@@ -11,6 +16,10 @@ on:
       - 'src/templates/finops-hub/**/timeZones.bicep'
       - 'docs/deploy/finops-hub-latest.json'
       - 'docs/deploy/finops-hub-preview.json'
+
+permissions:
+  contents: read
+
 jobs:
   run_pester_tests:
     name: Pester
@@ -25,3 +34,124 @@ jobs:
       - name: Run Tests
         shell: pwsh
         run: .build/start.ps1 -Task Test.PowerShell.All
+
+  multitool_native:
+    name: Multitool (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+    steps:
+      - name: Install and cache test dependencies
+        uses: potatoqualitee/psmodulecache@9e4b63833c22c1768d648e115a9c849afdda22a5 # v6.3
+        with:
+          modules-to-cache: Pester:6.0.0, Az.Accounts, Az.Resources, Az.ResourceGraph, Az.Storage
+          shell: pwsh
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install SDK for native Parquet restore
+        if: runner.os == 'Linux'
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '8.0.x'
+      - name: Run native multitool tests
+        shell: pwsh
+        env:
+          TMPDIR: ${{ runner.temp }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Import-Module Pester -RequiredVersion 6.0.0 -Force
+          $names = @(
+              'AzGraphPagination', 'BudgetCoverage', 'CommitmentUtilizationDedupe'
+              'CostQueryPagination', 'CurrencyLabel', 'FOHubProvider', 'HubSizeProbe'
+              'MultitoolSafety', 'ParquetPackageClient', 'PolicyEffect'
+              'RetryJitter', 'Start-FinOpsMultitool'
+          )
+          $paths = @($names | ForEach-Object {
+              Join-Path 'src/powershell/Tests/Unit' "$_.Tests.ps1"
+          })
+          foreach ($path in $paths) {
+              if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing test: $path" }
+          }
+          $configuration = New-PesterConfiguration
+          $configuration.Run.Path = $paths
+          $configuration.Run.PassThru = $true
+          $configuration.Run.Exit = $false
+          $configuration.Output.Verbosity = 'Detailed'
+            $configuration.TestResult.Enabled = $true
+            $configuration.TestResult.OutputFormat = 'NUnitXml'
+            $configuration.TestResult.OutputPath = Join-Path $env:RUNNER_TEMP 'multitool-unit.xml'
+          $result = Invoke-Pester -Configuration $configuration
+          $result | Select-Object Result, TotalCount, PassedCount, FailedCount, SkippedCount, FailedContainersCount
+            @(
+              '## Multitool validation'
+              "Tested merge commit: $env:GITHUB_SHA"
+              "Host: $([Runtime.InteropServices.RuntimeInformation]::OSDescription); PowerShell: $($PSVersionTable.PSVersion)"
+              "Unit tests: $($result.Result); passed $($result.PassedCount), failed $($result.FailedCount), skipped $($result.SkippedCount)."
+            ) | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+          if ($null -eq $result -or $result.Result -ne 'Passed' -or
+              $result.TotalCount -le 0 -or $result.PassedCount -le 0 -or
+              $result.FailedCount -ne 0 -or $result.FailedContainersCount -ne 0 -or
+              $result.FailedBlocksCount -ne 0 -or $result.Containers.Count -ne $paths.Count) {
+              throw 'Native multitool tests failed or discovery was incomplete.'
+          }
+          exit 0
+      - name: Run package and real Parquet integration tests
+        if: ${{ !cancelled() }}
+        shell: pwsh
+        env:
+          TMPDIR: ${{ runner.temp }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Import-Module Pester -RequiredVersion 6.0.0 -Force
+            $paths = @('src/powershell/Tests/Integration/MultitoolPackage.Tests.ps1')
+            $minimumPassed = 3
+            $parquetCoverage = 'Not run on macOS: NuGet signed-package verification is not supported. https://learn.microsoft.com/dotnet/core/tools/nuget-signed-package-verification#macos'
+            if (-not $IsMacOS) {
+              $paths += 'src/powershell/Tests/Integration/MultitoolParquet.Tests.ps1'
+              $minimumPassed += 2
+              $parquetCoverage = 'Real signed Parquet restore and cold/cached reads in separate processes.'
+            }
+          foreach ($path in $paths) {
+              if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing test: $path" }
+          }
+          $configuration = New-PesterConfiguration
+          $configuration.Run.Path = $paths
+          $configuration.Run.PassThru = $true
+          $configuration.Run.Exit = $false
+          $configuration.Output.Verbosity = 'Detailed'
+          $configuration.TestResult.Enabled = $true
+          $configuration.TestResult.OutputFormat = 'NUnitXml'
+          $configuration.TestResult.OutputPath = Join-Path $env:RUNNER_TEMP 'multitool-integration.xml'
+          $result = Invoke-Pester -Configuration $configuration
+          $result | Select-Object Result, TotalCount, PassedCount, FailedCount, SkippedCount, FailedContainersCount
+          @(
+              "Integration tests: $($result.Result); passed $($result.PassedCount), failed $($result.FailedCount), skipped $($result.SkippedCount)."
+              'Checks: isolated module build and public launch; CSV, HTML, and text reports.'
+              "Parquet coverage: $parquetCoverage"
+              'Azure access is replaced with synthetic responses. Package downloads and signature verification require network access.'
+          ) | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+          if ($null -eq $result -or $result.Result -ne 'Passed' -or
+              $result.PassedCount -lt $minimumPassed -or $result.FailedCount -ne 0 -or
+              $result.SkippedCount -ne 0 -or $result.NotRunCount -ne 0 -or
+              $result.FailedContainersCount -ne 0 -or $result.FailedBlocksCount -ne 0 -or
+              $result.Containers.Count -ne $paths.Count) {
+              throw 'Multitool integration tests failed, were skipped, or discovery was incomplete.'
+          }
+          exit 0
+      - name: Upload multitool test evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: multitool-tests-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/multitool-unit.xml
+            ${{ runner.temp }}/multitool-integration.xml
+          if-no-files-found: error
+          retention-days: 14

@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 09/11/2026
+ms.date: 09/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -53,6 +53,19 @@ The following section lists features and enhancements that are currently in deve
 
 - **Fixed**
   - Made the idle application gateway and idle public IP query join kinds explicit so they no longer rely on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+
+### [FinOps multitool](multitool/finops-multitool-overview.md)
+
+- **Added**
+  - Added the FinOps multitool, which scans an Azure environment for cost optimization, governance, and FinOps insights through a PowerShell 7 terminal UI ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+    - Included 30 read-only scan modules, with 26 available in the menu, covering orphaned resources, idle VMs, storage tier advice, Azure Hybrid Benefit, tag and policy inventory and recommendations, cost data, cost trend, cost by tag, resource costs, reservation advice, commitment utilization, estimated savings, budget status and history, anomaly alerts, Advisor recommendations, billing structure, and contract info.
+    - Added a companion set of agent skills that carry the investigation routing, the queries, and the interpretation rules so AI agents can run the same analysis through Azure CLI or an Azure MCP server.
+    - Added engine-side aggregation through the FinOps hub's Azure Data Explorer or Microsoft Fabric Kusto database for large environments, with a storage reader as a small-dataset fallback.
+    - Added a non-interactive mode for an already-authenticated pipeline or scheduled job, and automatic private CSV, HTML, and text reports. Consoles that can't render the arrow-key menus, such as PowerShell remoting sessions, fall back to numbered prompts.
+    - Added a searchable KPI reference and in-report calculation details for cost shares, unit rates, VM and storage screening, and budget coverage and forecast availability.
+- **Fixed**
+  - Fixed storage-backed Parquet imports returning empty values or misaligning costs when an export contains nested metadata.
+  - Fixed measured zero unit-cost KPIs appearing unavailable.
 
 ### [Power BI reports](power-bi/reports.md)
 
