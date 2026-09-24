@@ -50,18 +50,17 @@ function Resolve-CostMgId {
     try {
         $listResp = Invoke-AzRestMethodWithRetry -Path '/providers/Microsoft.Management/managementGroups?api-version=2020-05-01' -Method GET
         if ($listResp -and $listResp.StatusCode -eq 200) {
-            $mgs = ($listResp.Content | ConvertFrom-Json).value
+            $mgs = (Get-FinOpsListResult -FirstResponse $listResp -Context 'management-group discovery').value
             foreach ($mg in @($mgs)) {
                 $name = $mg.name
                 if ($name -and -not $candidates.Contains($name)) {
                     $candidates.Add($name)
                 }
-                if ($candidates.Count -ge 12) { break }
             }
         }
     }
     catch {
-        Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        Write-Warning "Management-group discovery is incomplete; only the tenant root can be probed. $($_.Exception.Message)"
     }
 
     # Tenant root as a last-resort candidate (covers orgs where the cost role

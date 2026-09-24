@@ -144,37 +144,29 @@ function Get-CostByTag {
     # supplies that join data without hammering the Cost Management API. We
     # capture resource-level tags plus resource-group-level tags (used as a
     # fallback when a resource carries no tag of its own but its RG does).
-    $subIds    = @($Subscriptions | ForEach-Object { $_.Id })
+    $subIds = @($Subscriptions | ForEach-Object { $_.Id })
     $resTagMap = @{}   # lowercased resourceId        -> @{ tagKey = tagValue }
-    $rgTagMap  = @{}   # lowercased resourceGroup id  -> @{ tagKey = tagValue }
+    $rgTagMap = @{}   # lowercased resourceGroup id  -> @{ tagKey = tagValue }
     try {
         Write-Host "  Building resource -> tag map via Resource Graph..." -ForegroundColor Cyan
         $resTagQuery = "resources | where isnotempty(tags) | project id, tags"
-        $skip = $null
-        do {
-            $r = Search-AzGraphSafe -Query $resTagQuery -Subscription $subIds -First 1000 -SkipToken $skip
-            if (-not $r -or -not $r.Data) { break }
-            foreach ($row in $r.Data) {
-                if ($row.id) { $resTagMap[([string]$row.id).ToLower()] = ConvertTo-TagHash $row.tags }
-            }
-            $skip = $r.SkipToken
-        } while ($skip)
+        $resourceTags = Search-AzGraphSafe -Query $resTagQuery -Subscription $subIds -First 1000 -All
+        if ($null -eq $resourceTags) { throw 'Resource tags could not be read.' }
+        foreach ($row in $resourceTags.Data) {
+            if ($row.id) { $resTagMap[([string]$row.id).ToLower()] = ConvertTo-TagHash $row.tags }
+        }
 
         $rgTagQuery = "resourcecontainers | where type =~ 'microsoft.resources/subscriptions/resourcegroups' | where isnotempty(tags) | project id, tags"
-        $skip = $null
-        do {
-            $r = Search-AzGraphSafe -Query $rgTagQuery -Subscription $subIds -First 1000 -SkipToken $skip
-            if (-not $r -or -not $r.Data) { break }
-            foreach ($row in $r.Data) {
-                if ($row.id) { $rgTagMap[([string]$row.id).ToLower()] = ConvertTo-TagHash $row.tags }
-            }
-            $skip = $r.SkipToken
-        } while ($skip)
+        $groupTags = Search-AzGraphSafe -Query $rgTagQuery -Subscription $subIds -First 1000 -All
+        if ($null -eq $groupTags) { throw 'Resource group tags could not be read.' }
+        foreach ($row in $groupTags.Data) {
+            if ($row.id) { $rgTagMap[([string]$row.id).ToLower()] = ConvertTo-TagHash $row.tags }
+        }
 
         Write-Host "    Mapped tags for $($resTagMap.Count) resources, $($rgTagMap.Count) resource groups" -ForegroundColor Gray
     }
     catch {
-        Write-Warning "Resource tag map build failed: $($_.Exception.Message). Cost-by-tag will rely on whatever map data was collected."
+        throw "Resource tag map is incomplete: $($_.Exception.Message)"
     }
 
     # Helper: parse a ResourceId-grouped Cost Management response into rows of
@@ -195,14 +187,13 @@ function Get-CostByTag {
             elseif ($n -match 'currency|billingcurrency') { $currIdx = $i }
             elseif ($n -eq 'resourceid') { $ridIdx = $i }
         }
-        if ($costIdx -eq -1) { $costIdx = 0 }
-        if ($ridIdx -eq -1) { $ridIdx = 1 }
-        if ($currIdx -eq -1) { $currIdx = if ($cols.Count -ge 3) { 2 } else { -1 } }
+        if ($costIdx -lt 0 -or $ridIdx -lt 0 -or $currIdx -lt 0) { throw 'Cost-by-tag requires explicit cost, resource ID, and currency columns.' }
 
         foreach ($row in $result.properties.rows) {
             $cost = [math]::Round([double]$row[$costIdx], 2)
-            $rid  = if ($ridIdx -ge 0 -and $ridIdx -lt $row.Count -and $row[$ridIdx]) { [string]$row[$ridIdx] } else { '' }
-            $currency = if ($currIdx -ge 0 -and $currIdx -lt $row.Count) { $row[$currIdx] } else { 'USD' }
+            $rid = if ($ridIdx -ge 0 -and $ridIdx -lt $row.Count -and $row[$ridIdx]) { [string]$row[$ridIdx] } else { '' }
+            $currency = ([string]$row[$currIdx]).Trim().ToUpperInvariant()
+            if ($currency -notmatch '^[A-Z]{3}$' -or $currency -in @('XXX', 'XTS')) { throw 'Cost-by-tag billing currency is missing or invalid.' }
             [void]$parsed.Add([PSCustomObject]@{ ResourceId = $rid; Cost = $cost; Currency = $currency })
         }
         return $parsed
@@ -368,22 +359,25 @@ function Get-CostByTag {
     # single call per subscription, then attributes each resource's cost to its
     # tag values client-side. All selected subscriptions must be readable.
     $usedTimeframe = 'MonthToDate'
-    $timeframes    = @('MonthToDate', 'Custom')
+    $timeframes = @('MonthToDate', 'Custom')
 
     # Per-tag aggregation: tagName -> (tagValue -> accumulated cost)
     $tagAgg = @{}
     foreach ($t in $tagsToQuery) { $tagAgg[$t] = @{} }
-    $currencySeen = 'USD'
-    $subsQueried  = 0
-    $subsFailed   = 0
-    $grandTotal   = 0.0
+    $currencySeen = $null
+    $subsQueried = 0
+    $subsFailed = 0
+    $grandTotal = 0.0
+    $returnedRows = 0
+    $successfulSubs = [Collections.Generic.List[string]]::new()
+    $failedSubscriptions = [Collections.Generic.List[object]]::new()
 
     # True allocation coverage, counted once per resource. The per-tag totals
     # cannot answer this: a resource appears as untagged under every tag it
     # lacks, so summing across tags double-counts the same spend.
-    $allocTagNames    = if (Get-Command Get-CafAllocationTag -ErrorAction SilentlyContinue) { Get-CafAllocationTag } else { @('CostCenter', 'Customer', 'Project', 'Environment', 'Application', 'Owner', 'BusinessUnit', 'Department', 'Team', 'Service', 'WorkloadName') }
-    $allocatedCost    = 0.0   # resource carries at least one allocation tag
-    $unallocatedCost  = 0.0   # resource carries none
+    $allocTagNames = if (Get-Command Get-CafAllocationTag -ErrorAction SilentlyContinue) { Get-CafAllocationTag } else { @('CostCenter', 'Customer', 'Project', 'Environment', 'Application', 'Owner', 'BusinessUnit', 'Department', 'Team', 'Service', 'WorkloadName') }
+    $allocatedCost = 0.0   # resource carries at least one allocation tag
+    $unallocatedCost = 0.0   # resource carries none
     $resourceCostSeen = 0.0   # allocated + unallocated, excludes non-resource charges
 
     if (-not $Subscriptions -or $Subscriptions.Count -eq 0) {
@@ -396,11 +390,15 @@ function Get-CostByTag {
         foreach ($tf in $timeframes) {
             # MonthToDate first; only fall back to last month (Custom) when MTD
             # produced no cost at all (e.g. the first day of a new billing month).
-            if ($tf -eq 'Custom' -and $grandTotal -gt 0) { break }
+            if ($tf -eq 'Custom' -and ($returnedRows -gt 0 -or $subsFailed -gt 0)) { break }
             if ($tf -eq 'Custom') {
-                Write-Host "  MonthToDate returned no cost - retrying with last month..." -ForegroundColor Yellow
+                Write-Host '  MonthToDate returned no cost rows - querying last month...' -ForegroundColor Yellow
                 foreach ($t in $tagsToQuery) { $tagAgg[$t] = @{} }
                 $subsQueried = 0; $subsFailed = 0; $grandTotal = 0.0
+                $allocatedCost = 0.0; $unallocatedCost = 0.0; $resourceCostSeen = 0.0
+                $currencySeen = $null; $returnedRows = 0
+                $successfulSubs.Clear()
+                $failedSubscriptions.Clear()
             }
 
             $bodyObj = @{
@@ -413,8 +411,8 @@ function Get-CostByTag {
             }
             if ($tf -eq 'Custom') {
                 $lastMonthStart = (Get-Date).AddMonths(-1).ToString('yyyy-MM-01')
-                $lastMonthEnd   = (Get-Date -Day 1).AddDays(-1).ToString('yyyy-MM-dd')
-                $bodyObj['timeframe']  = 'Custom'
+                $lastMonthEnd = (Get-Date -Day 1).AddDays(-1).ToString('yyyy-MM-dd')
+                $bodyObj['timeframe'] = 'Custom'
                 $bodyObj['timePeriod'] = @{ from = $lastMonthStart; to = $lastMonthEnd }
             }
             else {
@@ -425,7 +423,7 @@ function Get-CostByTag {
             # Fan out across subscriptions in capped batches so a large tenant
             # never floods the Cost Management API. Each call self-retries 429.
             $batchSize = 8
-            $subList   = @($Subscriptions)
+            $subList = @($Subscriptions)
             for ($offset = 0; $offset -lt $subList.Count; $offset += $batchSize) {
                 $upper = [math]::Min($offset + $batchSize - 1, $subList.Count - 1)
                 $slice = @($subList[$offset..$upper])
@@ -443,17 +441,42 @@ function Get-CostByTag {
                 $jobs = Invoke-ParallelRestCalls -Calls $calls -TimeoutSeconds 120
                 foreach ($pj in $jobs) {
                     $subResp = $pj.Result
-                    if ($subResp.StatusCode -eq 200) {
-                        $subsQueried++
+                    try {
+                        if (-not $subResp -or $subResp.StatusCode -ne 200) {
+                            if ($subResp -and $subResp.StatusCode -eq 403) { $script:costAccessIssue = 'MCA' }
+                            if ($subResp -and $subResp.StatusCode -eq 400) {
+                                $errorMessage = try { ($subResp.Content | ConvertFrom-Json).error.message } catch { '' }
+                                if ($errorMessage -match 'AO View Charges') { $script:costAccessIssue = 'EA' }
+                            }
+                            throw "Cost query returned HTTP $($subResp.StatusCode)."
+                        }
                         # Follow nextLink: one page only would understate a large subscription.
                         $rows = @()
-                        foreach ($page in (Get-CostQueryResponsePage -FirstResponse $subResp -Payload $body -Context "cost-by-tag for $($pj.SubName)")) {
+                        foreach ($page in (Get-CostQueryResponsePage -FirstResponse $subResp -Payload $body -Context "cost-by-tag for $($pj.Call.SubName)")) {
                             $rows += ConvertFrom-ResourceIdRow -ResponseContent $page.Content
                         }
+                    }
+                    catch {
+                        $subsFailed++
+                        $failedSubscriptions.Add([pscustomobject]@{
+                                SubscriptionId = $pj.Call.SubId
+                                Subscription   = $pj.Call.SubName
+                                StatusCode     = if ($subResp -and $subResp.StatusCode -ne 200) { $subResp.StatusCode } else { $null }
+                                Error          = $_.Exception.Message
+                            })
+                        continue
+                    }
+                    $subsQueried++
+                    $successfulSubs.Add([string]$pj.Call.SubId)
+                    $returnedRows += $rows.Count
+                    foreach ($row in $rows) {
+                        if ($currencySeen -and $currencySeen -ne $row.Currency) { throw 'Cost-by-tag cannot combine different billing currencies; results are incomplete.' }
+                        $currencySeen = $row.Currency
+                    }
+                    if ($rows.Count -gt 0) {
                         foreach ($row in $rows) {
                             $cost = $row.Cost
                             $grandTotal += $cost
-                            if ($row.Currency) { $currencySeen = $row.Currency }
 
                             if ([string]::IsNullOrWhiteSpace($row.ResourceId)) {
                                 foreach ($t in $tagsToQuery) {
@@ -496,21 +519,6 @@ function Get-CostByTag {
                             if ($hasAlloc) { $allocatedCost += $cost } else { $unallocatedCost += $cost }
                         }
                     }
-                    elseif ($subResp.StatusCode -eq 403) {
-                        $subsFailed++
-                        $script:costAccessIssue = 'MCA'
-                    }
-                    elseif ($subResp.StatusCode -eq 400) {
-                        $subsFailed++
-                        $errBody = try { ($subResp.Content | ConvertFrom-Json).error.message } catch { '' }
-                        if ($errBody -match 'AO View Charges') { $script:costAccessIssue = 'EA' }
-                    }
-                    else {
-                        $subsFailed++
-                    }
-                    if (-not $subResp -or $subResp.StatusCode -ne 200) {
-                        throw "Cost-by-tag query failed for $($pj.Call.SubName) (HTTP $($subResp.StatusCode)); results are incomplete."
-                    }
                 }
             }
 
@@ -518,6 +526,7 @@ function Get-CostByTag {
         }
 
         if ($subsFailed -gt 0) {
+            if ($subsQueried -eq 0) { throw "Cost-by-tag failed for every selected subscription: $(($failedSubscriptions | ForEach-Object { $_.Error }) -join '; '); results are incomplete." }
             Write-Host "  Cost-by-tag completed: $subsQueried subscription(s) returned data, $subsFailed skipped (timeout / throttle / access)." -ForegroundColor Yellow
         }
         else {
@@ -540,16 +549,23 @@ function Get-CostByTag {
     }
 
     return [PSCustomObject]@{
-        TagsQueried      = $tagsToQuery
-        CostByTag        = $results
-        NoTagsFound      = ($tagsToQuery.Count -eq 0)
-        UsedTimeframe    = $usedTimeframe
+        TagsQueried               = $tagsToQuery
+        CostByTag                 = $results
+        NoTagsFound               = ($tagsToQuery.Count -eq 0)
+        UsedTimeframe             = $usedTimeframe
+        Currency                  = $currencySeen
+        CoverageIncomplete        = ($subsFailed -gt 0)
+        ScannedSubs               = $subsQueried
+        TotalSubs                 = $subIds.Count
+        SuccessfulSubscriptionIds = @($successfulSubs)
+        FailedSubscriptions       = @($failedSubscriptions)
+        Note                      = if ($subsFailed -gt 0) { "Cost coverage is incomplete: $subsQueried of $($subIds.Count) subscriptions were read. Amounts cover successful subscriptions only; whole-scope allocation KPIs are unavailable." } else { $null }
         # Allocation coverage counted once per resource. Null when this run did
         # not walk resources (hub paths aggregate server-side), so consumers can
         # tell "no allocated spend" apart from "not measured".
-        AllocatedCost    = if ($resourceCostSeen -gt 0) { [math]::Round($allocatedCost, 2) } else { $null }
-        UnallocatedCost  = if ($resourceCostSeen -gt 0) { [math]::Round($unallocatedCost, 2) } else { $null }
-        ResourceCostSeen = if ($resourceCostSeen -gt 0) { [math]::Round($resourceCostSeen, 2) } else { $null }
-        AllocationTags   = $allocTagNames
+        AllocatedCost             = if ($resourceCostSeen -gt 0) { [math]::Round($allocatedCost, 2) } else { $null }
+        UnallocatedCost           = if ($resourceCostSeen -gt 0) { [math]::Round($unallocatedCost, 2) } else { $null }
+        ResourceCostSeen          = if ($resourceCostSeen -gt 0) { [math]::Round($resourceCostSeen, 2) } else { $null }
+        AllocationTags            = $allocTagNames
     }
 }

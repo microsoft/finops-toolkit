@@ -78,7 +78,7 @@ When the live API path is the only option and the scope is large, chunk it so pr
 
 1. Split the subscription list into batches.
 2. Call the cost tool once per batch, passing `subscriptionIds` (an array) for that batch and `dataSource: "api"`.
-3. After each batch, report incremental progress and a running total — e.g., "batch 2 of 5 done, $42,100 so far".
+3. After each batch, report progress and separate running totals for each currency and reporting period. Don't combine incompatible amounts or treat failed batches as zero spend.
 
 `subscriptionIds` overrides `subscriptionId` when both are present. The detection step needs to run only once per scope; reuse its decision across the batches.
 
@@ -105,7 +105,6 @@ Always tell the user which source the numbers came from and, for hub data, how f
 ## Prerequisites
 
 - An authenticated Azure session (`az login`, or `Connect-AzAccount` for the terminal UI).
-- An authenticated Azure session is required (`Connect-AzAccount`).
 - The scalable hub path needs read access to the FinOps Hub Kusto database — an Azure Data Explorer / Fabric cluster (discovered automatically), or a reachable ftklocal emulator via `FINOPS_HUB_KUSTO_URI`.
 - The storage-reader fallback additionally needs **Storage Blob Data Reader** on the hub storage account. Without any hub path, the data-source check reports the blocker and the live API is used instead.
 - The cost tools this skill routes are read-only.

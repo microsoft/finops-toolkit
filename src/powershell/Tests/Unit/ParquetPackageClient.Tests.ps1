@@ -25,6 +25,61 @@ Describe 'Parquet package acquisition' {
     }
 
     Context 'Private data directories' {
+        It 'Requests full macOS permission bits including the sticky bit' {
+            $definition = (Get-Command New-FinOpsPrivateDirectory).Definition
+            $ast = [Management.Automation.Language.Parser]::ParseInput($definition, [ref]$null, [ref]$null)
+            $formats = @($ast.FindAll({
+                        $args[0] -is [Management.Automation.Language.StringConstantExpressionAst] -and
+                        $args[0].Value -like '%u:*'
+                    }, $true))
+
+            $formats.Count | Should -Be 2
+            $formats.Value | Should -Contain '%u:%p'
+            $formats.Value | Should -Not -Contain '%u:%Lp'
+        }
+
+        It 'Checks BSD permission metadata for <Case>' -ForEach @(
+            @{ Case = 'root-owned sticky ancestor'; FixtureMode = '41777'; FixtureOwner = '0'; UseImmediateParent = $false; Rejected = $false }
+            @{ Case = 'root-owned nonsticky writable ancestor'; FixtureMode = '40777'; FixtureOwner = '0'; UseImmediateParent = $false; Rejected = $true }
+            @{ Case = 'sticky writable immediate parent'; FixtureMode = '41777'; FixtureOwner = '0'; UseImmediateParent = $true; Rejected = $true }
+            @{ Case = 'untrusted ancestor owner'; FixtureMode = '40755'; FixtureOwner = '2002'; UseImmediateParent = $false; Rejected = $true }
+        ) {
+            $ast = [Management.Automation.Language.Parser]::ParseInput((Get-Command New-FinOpsPrivateDirectory).Definition, [ref]$null, [ref]$null)
+            $condition = $ast.Find({
+                $args[0] -is [Management.Automation.Language.IfStatementAst] -and
+                $args[0].ElseClause -and $args[0].ElseClause.Extent.Text.Contains('$identityCommand = Get-Command id')
+            }, $true)
+            $condition | Should -Not -BeNullOrEmpty
+            $body = ($condition.ElseClause.Statements.Extent.Text -join "`n").Replace('$IsMacOS', '$fixtureIsMacOS')
+            $probe = [scriptblock]::Create(@'
+param($Root, $FixtureMode, $FixtureOwner, $UseImmediateParent)
+$fixtureIsMacOS = $true
+$fullPath = Join-Path $Root 'owned/cache'
+$parentDirectory = Join-Path $Root 'owned'
+$creationParent = $parentDirectory
+$fixtureAncestor = if ($UseImmediateParent) { $parentDirectory } else { $Root }
+$items = @([pscustomobject]@{ FullName = $fixtureAncestor; Attributes = [IO.FileAttributes]::Directory })
+$LASTEXITCODE = 0
+function Get-Command {
+    param($Name, $CommandType, $ErrorAction)
+    @{ Source = $(if ($Name -eq 'id') { 'Get-FixtureIdentity' } else { 'Get-FixtureStat' }) }
+}
+function Get-FixtureIdentity { '1001' }
+function Get-FixtureStat {
+    param([Alias('f')][string]$Format, [string]$Path)
+    $mode = if ($Format -eq '%u:%Lp') { $FixtureMode.Substring($FixtureMode.Length - 3) } else { $FixtureMode }
+    "$($FixtureOwner):$mode"
+}
+'@ + "`n" + $body)
+
+            if ($Rejected) {
+                { & $probe $TestDrive $FixtureMode $FixtureOwner $UseImmediateParent } | Should -Throw '*not writable by other accounts*'
+            }
+            else {
+                { & $probe $TestDrive $FixtureMode $FixtureOwner $UseImmediateParent } | Should -Not -Throw
+            }
+        }
+
         It 'Uses application data without a shared-temp fallback' {
             $base = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData, [Environment+SpecialFolderOption]::DoNotVerify)
             Get-FinOpsParquetCachePath | Should -Be (Join-Path $base 'FinOpsMultitool/parquet')
@@ -55,9 +110,9 @@ Describe 'Parquet package acquisition' {
             $path = New-FinOpsPrivateDirectory -Path (Join-Path $TestDrive 'unsafe-cache') -RequireNew
             $security = Get-Acl -LiteralPath $path
             $security.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new(
-                [Security.Principal.SecurityIdentifier]::new('S-1-1-0'), [Security.AccessControl.FileSystemRights]::Write,
-                [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit',
-                [Security.AccessControl.PropagationFlags]::None, [Security.AccessControl.AccessControlType]::Allow))
+                    [Security.Principal.SecurityIdentifier]::new('S-1-1-0'), [Security.AccessControl.FileSystemRights]::Write,
+                    [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit',
+                    [Security.AccessControl.PropagationFlags]::None, [Security.AccessControl.AccessControlType]::Allow))
             [IO.FileSystemAclExtensions]::SetAccessControl([IO.DirectoryInfo]::new($path), $security)
 
             { New-FinOpsPrivateDirectory -Path $path } | Should -Throw '*writes by another account*'
@@ -67,9 +122,9 @@ Describe 'Parquet package acquisition' {
             $parent = New-FinOpsPrivateDirectory -Path (Join-Path $TestDrive 'unsafe-parent') -RequireNew
             $security = Get-Acl -LiteralPath $parent
             $security.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new(
-                [Security.Principal.SecurityIdentifier]::new('S-1-1-0'), [Security.AccessControl.FileSystemRights]::Write,
-                [Security.AccessControl.InheritanceFlags]::None, [Security.AccessControl.PropagationFlags]::None,
-                [Security.AccessControl.AccessControlType]::Allow))
+                    [Security.Principal.SecurityIdentifier]::new('S-1-1-0'), [Security.AccessControl.FileSystemRights]::Write,
+                    [Security.AccessControl.InheritanceFlags]::None, [Security.AccessControl.PropagationFlags]::None,
+                    [Security.AccessControl.AccessControlType]::Allow))
             [IO.FileSystemAclExtensions]::SetAccessControl([IO.DirectoryInfo]::new($parent), $security)
 
             { New-FinOpsPrivateDirectory -Path (Join-Path $parent 'download') -RequireNew } | Should -Throw '*writes by another account*'
@@ -81,9 +136,9 @@ Describe 'Parquet package acquisition' {
             $parent = New-FinOpsPrivateDirectory -Path (Join-Path $grandparent 'protected-parent') -RequireNew
             $security = Get-Acl -LiteralPath $grandparent
             $security.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new(
-                [Security.Principal.SecurityIdentifier]::new('S-1-1-0'), [Security.AccessControl.FileSystemRights]::FullControl,
-                [Security.AccessControl.InheritanceFlags]::None, [Security.AccessControl.PropagationFlags]::None,
-                [Security.AccessControl.AccessControlType]::Allow))
+                    [Security.Principal.SecurityIdentifier]::new('S-1-1-0'), [Security.AccessControl.FileSystemRights]::FullControl,
+                    [Security.AccessControl.InheritanceFlags]::None, [Security.AccessControl.PropagationFlags]::None,
+                    [Security.AccessControl.AccessControlType]::Allow))
             [IO.FileSystemAclExtensions]::SetAccessControl([IO.DirectoryInfo]::new($grandparent), $security)
 
             { New-FinOpsPrivateDirectory -Path (Join-Path $parent 'new-parent/cache') -RequireNew } | Should -Throw '*writes by another account*'
@@ -104,7 +159,7 @@ Describe 'Parquet package acquisition' {
                 Mock Get-AzDataLakeGen2ItemContent {
                     $probe.Path = Split-Path $Destination -Parent
                     $probe.Private = if ($IsWindows) { (Get-Acl -LiteralPath $probe.Path).AreAccessRulesProtected }
-                        else { ([int][IO.File]::GetUnixFileMode($probe.Path) -band 511) -eq 448 }
+                    else { ([int][IO.File]::GetUnixFileMode($probe.Path) -band 511) -eq 448 }
                     throw 'Intentional synthetic stop before downloading.'
                 }
 

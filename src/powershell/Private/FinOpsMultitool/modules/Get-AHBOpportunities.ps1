@@ -115,6 +115,8 @@ resources
         SQLDatabases        = $sqlDBs
         TotalOpportunities  = $totalOpportunities
         EstMonthlyVMSavings = [math]::Round($ahbVMSavings, 2)
+        SavingsCurrency     = 'USD'
+        SavingsPeriod       = '730-hour estimate for current VM inventory'
         Summary             = "Found $($windowsVMs.Count) Windows VMs, $($sqlVMs.Count) SQL VMs, $($sqlDBs.Count) SQL DBs eligible for AHB"
     }
 }

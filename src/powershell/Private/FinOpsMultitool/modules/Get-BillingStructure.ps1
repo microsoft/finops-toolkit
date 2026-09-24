@@ -25,6 +25,7 @@ function Get-BillingStructure {
     $billingProfiles = @()
     $invoiceSections = @()
     $costAllocationRules = @()
+    $readErrors = [Collections.Generic.List[string]]::new()
 
     # -- Step 1: Get Billing Accounts -----------------------------------
     # Correlation happens after the list call: billingInfo/default is not a valid
@@ -33,11 +34,15 @@ function Get-BillingStructure {
     try {
         $baPath = "/providers/Microsoft.Billing/billingAccounts?api-version=2024-04-01"
         $baResp = Invoke-AzRestMethodWithRetry -Path $baPath -Method GET
+        $baResult = Get-FinOpsListResult -FirstResponse $baResp -Context 'billing accounts'
         if ($baResp.StatusCode -eq 200) {
-            $baResult = ($baResp.Content | ConvertFrom-Json)
             if ($baResult.value) {
                 $scope = Get-FinOpsBillingScope -BillingAccounts @($baResult.value) -Subscriptions $Subscriptions
+                if ($scope.CoverageIncomplete) {
+                    foreach ($issue in $scope.ReadErrors) { $readErrors.Add([string]$issue) }
+                }
                 if (-not $scope.Resolved) {
+                    $readErrors.Add([string]$scope.Reason)
                     Write-Warning "  $($scope.Reason)"
                 }
                 else {
@@ -55,10 +60,13 @@ function Get-BillingStructure {
                     }
                 }
             }
-        } else {
+        }
+        else {
             Write-Warning "  Billing accounts returned HTTP $($baResp.StatusCode)"
         }
-    } catch {
+    }
+    catch {
+        $readErrors.Add($_.Exception.Message)
         Write-Warning "  Billing accounts query failed: $($_.Exception.Message)"
     }
 
@@ -70,27 +78,27 @@ function Get-BillingStructure {
         try {
             $bpPath = "$($ba.FullId)/billingProfiles?api-version=2024-04-01"
             $bpResp = Invoke-AzRestMethodWithRetry -Path $bpPath -Method GET
+            $bpResult = Get-FinOpsListResult -FirstResponse $bpResp -Context "billing profiles for $($ba.DisplayName)"
             if ($bpResp.StatusCode -eq 200) {
-                $bpResult = ($bpResp.Content | ConvertFrom-Json)
                 if ($bpResult.value) {
                     foreach ($bp in $bpResult.value) {
                         $bpProps = $bp.properties
                         $billingProfiles += [PSCustomObject]@{
-                            ProfileId       = $bp.name
-                            DisplayName     = $bpProps.displayName
-                            BillingAccount  = $ba.DisplayName
-                            Currency        = $bpProps.currency
-                            InvoiceDay      = $bpProps.invoiceDay
-                            Status          = $bpProps.status
-                            FullId          = $bp.id
+                            ProfileId      = $bp.name
+                            DisplayName    = $bpProps.displayName
+                            BillingAccount = $ba.DisplayName
+                            Currency       = $bpProps.currency
+                            InvoiceDay     = $bpProps.invoiceDay
+                            Status         = $bpProps.status
+                            FullId         = $bp.id
                         }
 
                         # -- Step 3: Invoice Sections per Profile -------
                         try {
                             $isPath = "$($bp.id)/invoiceSections?api-version=2024-04-01"
                             $isResp = Invoke-AzRestMethodWithRetry -Path $isPath -Method GET
+                            $isResult = Get-FinOpsListResult -FirstResponse $isResp -Context "invoice sections for $($bpProps.displayName)"
                             if ($isResp.StatusCode -eq 200) {
-                                $isResult = ($isResp.Content | ConvertFrom-Json)
                                 if ($isResult.value) {
                                     foreach ($section in $isResult.value) {
                                         $sProps = $section.properties
@@ -106,13 +114,17 @@ function Get-BillingStructure {
                                     }
                                 }
                             }
-                        } catch {
+                        }
+                        catch {
+                            $readErrors.Add($_.Exception.Message)
                             Write-Warning "  Invoice sections query failed for profile $($bpProps.displayName): $($_.Exception.Message)"
                         }
                     }
                 }
             }
-        } catch {
+        }
+        catch {
+            $readErrors.Add($_.Exception.Message)
             Write-Warning "  Billing profiles query failed: $($_.Exception.Message)"
         }
     }
@@ -124,8 +136,8 @@ function Get-BillingStructure {
         try {
             $deptPath = "$($ba.FullId)/departments?api-version=2024-04-01"
             $deptResp = Invoke-AzRestMethodWithRetry -Path $deptPath -Method GET
+            $deptResult = Get-FinOpsListResult -FirstResponse $deptResp -Context "departments for $($ba.DisplayName)"
             if ($deptResp.StatusCode -eq 200) {
-                $deptResult = ($deptResp.Content | ConvertFrom-Json)
                 if ($deptResult.value) {
                     foreach ($dept in $deptResult.value) {
                         $dProps = $dept.properties
@@ -139,7 +151,9 @@ function Get-BillingStructure {
                     }
                 }
             }
-        } catch {
+        }
+        catch {
+            $readErrors.Add($_.Exception.Message)
             Write-Warning "  EA departments query failed: $($_.Exception.Message)"
         }
     }
@@ -150,32 +164,38 @@ function Get-BillingStructure {
             $carPath = "$($ba.FullId)/providers/Microsoft.CostManagement/costAllocationRules?api-version=2023-11-01"
             $carResp = Invoke-AzRestMethodWithRetry -Path $carPath -Method GET
             if ($carResp.StatusCode -eq 200) {
-                $carResult = ($carResp.Content | ConvertFrom-Json)
+                $carResult = Get-FinOpsListResult -FirstResponse $carResp -Context "cost allocation rules for $($ba.DisplayName)"
                 if ($carResult.value) {
                     foreach ($rule in $carResult.value) {
                         $rProps = $rule.properties
                         $costAllocationRules += [PSCustomObject]@{
-                            RuleName        = $rProps.name
-                            Description     = $rProps.description
-                            Status          = $rProps.status
-                            BillingAccount  = $ba.DisplayName
-                            SourceCount     = if ($rProps.details.sourceResources) { $rProps.details.sourceResources.Count } else { 0 }
-                            TargetCount     = if ($rProps.details.targetResources) { $rProps.details.targetResources.Count } else { 0 }
-                            CreatedDate     = $rProps.createdDate
-                            UpdatedDate     = $rProps.updatedDate
+                            RuleName       = $rProps.name
+                            Description    = $rProps.description
+                            Status         = $rProps.status
+                            BillingAccount = $ba.DisplayName
+                            SourceCount    = if ($rProps.details.sourceResources) { $rProps.details.sourceResources.Count } else { 0 }
+                            TargetCount    = if ($rProps.details.targetResources) { $rProps.details.targetResources.Count } else { 0 }
+                            CreatedDate    = $rProps.createdDate
+                            UpdatedDate    = $rProps.updatedDate
                         }
                     }
                 }
-            } elseif ($carResp.StatusCode -ne 404) {
-                Write-Warning "  Cost allocation rules returned HTTP $($carResp.StatusCode)"
             }
-        } catch {
+            elseif ($carResp.StatusCode -ne 404) {
+                throw "Cost allocation rules for $($ba.DisplayName) returned HTTP $($carResp.StatusCode); results are incomplete."
+            }
+        }
+        catch {
+            $readErrors.Add($_.Exception.Message)
             Write-Warning "  Cost allocation rules query failed: $($_.Exception.Message)"
         }
     }
 
     return [PSCustomObject]@{
         BillingAccounts     = $billingAccounts
+        CoverageIncomplete  = ($readErrors.Count -gt 0)
+        ReadErrors          = @($readErrors)
+        Note                = if ($readErrors.Count -gt 0) { 'Billing inventory is incomplete. ' + ($readErrors -join ' ') } else { $null }
         BillingProfiles     = $billingProfiles
         InvoiceSections     = $invoiceSections
         EADepartments       = $eaDepartments

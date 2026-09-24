@@ -24,6 +24,7 @@ function Get-TagInventory {
     )
 
     $subIds = $Subscriptions | ForEach-Object { $_.Id }
+    $readErrors = [Collections.Generic.List[string]]::new()
 
     # -- Query 1: Tag names, values, and counts -------------------------
     try {
@@ -40,36 +41,35 @@ resources
 "@
 
         $allResults = @()
-        $skipToken = $null
+        $result = Search-AzGraphSafe -Query $tagQuery -Subscription $subIds -First 1000 -All
+        if ($null -eq $result) { throw 'Tag values could not be read.' }
+        $allResults = @($result.Data)
 
-        do {
-            $result = Search-AzGraphSafe -Query $tagQuery -Subscription $subIds -First 1000 -SkipToken $skipToken
-            if (-not $result) { break }
-            $allResults += $result.Data
-            $skipToken = $result.SkipToken
-        } while ($skipToken)
-
-    } catch {
+    }
+    catch {
+        $readErrors.Add("Tag values: $($_.Exception.Message)")
         Write-Warning "Tag inventory query failed: $($_.Exception.Message)"
         $allResults = @()
     }
 
     # -- Query 2: Untagged resource count (via REST to avoid runspace issues with single-row aggregates)
-    $untaggedCount = 0
+    $untaggedCount = $null
     try {
         $countBody = @{
             subscriptions = @($subIds)
-            query = "resources | where isnull(tags) or tags == '{}' | summarize UntaggedCount = count()"
-            options = @{ resultFormat = 'objectArray' }
+            query         = "resources | where isnull(tags) or tags == '{}' | summarize UntaggedCount = count()"
+            options       = @{ resultFormat = 'objectArray' }
         } | ConvertTo-Json -Depth 5
         $countResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $countBody
-        if ($countResp.StatusCode -eq 200) {
-            $countRows = @(($countResp.Content | ConvertFrom-Json).data)
-            if ($countRows.Count -gt 0) {
-                $untaggedCount = [int]$countRows[0].UntaggedCount
-            }
-        }
-    } catch {
+        if (-not $countResp -or $countResp.StatusCode -ne 200) { throw "HTTP $($countResp.StatusCode) while reading untagged count." }
+        $countRows = @(($countResp.Content | ConvertFrom-Json -ErrorAction Stop).data)
+        if ($countRows.Count -ne 1) { throw 'Untagged count response has no single measured count.' }
+        $count = Get-HubCostValue -Row $countRows[0] -Column 'UntaggedCount'
+        if ($count -lt 0 -or $count -ne [math]::Floor($count)) { throw 'Untagged resource count is invalid.' }
+        $untaggedCount = [long]$count
+    }
+    catch {
+        $readErrors.Add("Untagged count: $($_.Exception.Message)")
         Write-Warning "Untagged resource count failed: $($_.Exception.Message)"
     }
 
@@ -79,76 +79,77 @@ resources
         $untaggedDetailQuery = @"
 resources
 | where isnull(tags) or tags == '{}'
-| project name, type, resourceGroup, subscriptionId, location
+| project id, name, type, resourceGroup, subscriptionId, location
 | order by type asc, name asc
 "@
         $allUntagged = @()
-        $udSkipToken = $null
-        do {
-            $udResult = Search-AzGraphSafe -Query $untaggedDetailQuery -Subscription $subIds -First 1000 -SkipToken $udSkipToken
-            if (-not $udResult -or -not $udResult.Data) { break }
-            $allUntagged += $udResult.Data
-            $udSkipToken = $udResult.SkipToken
-            if ($allUntagged.Count % 2000 -eq 0) {
-                Write-Host "    Loaded $($allUntagged.Count) untagged resources so far..." -ForegroundColor Gray
-            }
-        } while ($udSkipToken)
+        $udResult = Search-AzGraphSafe -Query $untaggedDetailQuery -Subscription $subIds -First 1000 -All
+        if ($null -eq $udResult) { throw 'Untagged resource details could not be read.' }
+        $allUntagged = @($udResult.Data)
+        if ($null -eq $untaggedCount) { $untaggedCount = $allUntagged.Count }
 
         if ($allUntagged.Count -gt 0) {
             # Map subscription IDs to names
             $subNameMap = @{}
             foreach ($s in $Subscriptions) { $subNameMap[$s.Id] = $s.Name }
             $untaggedResources = @($allUntagged | ForEach-Object {
-                [PSCustomObject]@{
-                    ResourceName   = $_.name
-                    ResourceType   = $_.type
-                    ResourceGroup  = $_.resourceGroup
-                    Subscription   = if ($subNameMap.ContainsKey($_.subscriptionId)) { $subNameMap[$_.subscriptionId] } else { $_.subscriptionId }
-                    Location       = $_.location
-                }
-            })
+                    [PSCustomObject]@{
+                        ResourceName  = $_.name
+                        ResourceType  = $_.type
+                        ResourceGroup = $_.resourceGroup
+                        Subscription  = if ($subNameMap.ContainsKey($_.subscriptionId)) { $subNameMap[$_.subscriptionId] } else { $_.subscriptionId }
+                        Location      = $_.location
+                    }
+                })
             Write-Host "    Total untagged resources loaded: $($untaggedResources.Count)" -ForegroundColor Cyan
         }
-    } catch {
+    }
+    catch {
+        $readErrors.Add("Untagged details: $($_.Exception.Message)")
         Write-Warning "Untagged resource detail query failed: $($_.Exception.Message)"
     }
 
     # -- Query 3: Total resource count (via REST to avoid runspace issues with single-row aggregates)
-    $totalCount = 0
+    $totalCount = $null
     try {
         $totalBody = @{
             subscriptions = @($subIds)
-            query = "resources | summarize TotalCount = count()"
-            options = @{ resultFormat = 'objectArray' }
+            query         = "resources | summarize TotalCount = count()"
+            options       = @{ resultFormat = 'objectArray' }
         } | ConvertTo-Json -Depth 5
         $totalResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $totalBody
-        if ($totalResp.StatusCode -eq 200) {
-            $totalRows = @(($totalResp.Content | ConvertFrom-Json).data)
-            if ($totalRows.Count -gt 0) {
-                $totalCount = [int]$totalRows[0].TotalCount
-            }
-        }
-    } catch {
+        if (-not $totalResp -or $totalResp.StatusCode -ne 200) { throw "HTTP $($totalResp.StatusCode) while reading total count." }
+        $totalRows = @(($totalResp.Content | ConvertFrom-Json -ErrorAction Stop).data)
+        if ($totalRows.Count -ne 1) { throw 'Total count response has no single measured count.' }
+        $count = Get-HubCostValue -Row $totalRows[0] -Column 'TotalCount'
+        if ($count -lt 0 -or $count -ne [math]::Floor($count)) { throw 'Total resource count is invalid.' }
+        $totalCount = [long]$count
+    }
+    catch {
+        $readErrors.Add("Total count: $($_.Exception.Message)")
         Write-Warning "Total resource count failed: $($_.Exception.Message)"
     }
 
     # Fallback: the REST count endpoint returns table-format results in some
     # tenants (no objectArray rows), leaving the count at 0. Re-derive via the
     # Resource Graph cmdlet path, which is reliable where the tag query works.
-    if ($totalCount -eq 0) {
+    if ($null -eq $totalCount) {
         try {
             $tcResult = Search-AzGraphSafe -Query "resources | summarize TotalCount = count()" -Subscription $subIds -First 1
             $tcRows = if ($tcResult) { @($tcResult.Data) } else { @() }
             if ($tcRows.Count -gt 0 -and $null -ne $tcRows[0].TotalCount) {
-                $totalCount = [int]$tcRows[0].TotalCount
+                $count = Get-HubCostValue -Row $tcRows[0] -Column 'TotalCount'
+                if ($count -lt 0 -or $count -ne [math]::Floor($count)) { throw 'Fallback resource count is invalid.' }
+                $totalCount = [long]$count
             }
-        } catch {
+        }
+        catch {
             Write-Verbose "Non-fatal: $($_.Exception.Message)"
         }
     }
 
     # Fallback: derive counts from detail data if REST queries failed
-    if ($untaggedCount -eq 0 -and $untaggedResources.Count -gt 0) {
+    if ($null -eq $untaggedCount -and $untaggedResources.Count -gt 0) {
         $untaggedCount = $untaggedResources.Count
         Write-Host "    Using detail query count as fallback: $untaggedCount untagged" -ForegroundColor Yellow
     }
@@ -192,13 +193,9 @@ resources
 | order by tagName asc, ResourceCount desc
 "@
         $locResults = @()
-        $locSkip = $null
-        do {
-            $locResult = Search-AzGraphSafe -Query $locQuery -Subscription $subIds -First 1000 -SkipToken $locSkip
-            if (-not $locResult) { break }
-            $locResults += $locResult.Data
-            $locSkip = $locResult.SkipToken
-        } while ($locSkip)
+        $locResult = Search-AzGraphSafe -Query $locQuery -Subscription $subIds -First 1000 -All
+        if ($null -eq $locResult) { throw 'Tag locations could not be read.' }
+        $locResults = @($locResult.Data)
 
         foreach ($row in $locResults) {
             $name = $row.tagName
@@ -211,7 +208,9 @@ resources
                 [void]$tagLocations[$name].Add($loc)
             }
         }
-    } catch {
+    }
+    catch {
+        $readErrors.Add("Tag locations: $($_.Exception.Message)")
         Write-Warning "Tag location query failed: $($_.Exception.Message)"
     }
 
@@ -219,30 +218,40 @@ resources
     # REST endpoint returned no rows and the cmdlet path also came up empty),
     # derive the total from the tagged + untagged populations so coverage is
     # still meaningful instead of showing 0 tagged / 0 untagged.
-    if ($totalCount -eq 0) {
-        $taggedFromArg = 0
+    if ($null -eq $totalCount) {
+        $taggedFromArg = $null
         try {
             $tagCountBody = @{
                 subscriptions = @($subIds)
-                query = "resources | where isnotnull(tags) and tags != '{}' | summarize TaggedCount = count()"
-                options = @{ resultFormat = 'objectArray' }
+                query         = "resources | where isnotnull(tags) and tags != '{}' | summarize TaggedCount = count()"
+                options       = @{ resultFormat = 'objectArray' }
             } | ConvertTo-Json -Depth 5
             $tagCountResp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01" -Method POST -Payload $tagCountBody
             if ($tagCountResp.StatusCode -eq 200) {
                 $tagCountRows = @(($tagCountResp.Content | ConvertFrom-Json).data)
-                if ($tagCountRows.Count -gt 0) { $taggedFromArg = [int]$tagCountRows[0].TaggedCount }
+                if ($tagCountRows.Count -eq 1) {
+                    $count = Get-HubCostValue -Row $tagCountRows[0] -Column 'TaggedCount'
+                    if ($count -lt 0 -or $count -ne [math]::Floor($count)) { throw 'Tagged resource count is invalid.' }
+                    $taggedFromArg = [long]$count
+                }
             }
-        } catch {
+        }
+        catch {
             Write-Verbose "Non-fatal: $($_.Exception.Message)"
         }
-        if ($untaggedCount -eq 0 -and $untaggedResources.Count -gt 0) { $untaggedCount = $untaggedResources.Count }
-        if (($taggedFromArg + $untaggedCount) -gt 0) {
+        if ($null -ne $taggedFromArg -and $null -ne $untaggedCount) {
             $totalCount = $taggedFromArg + $untaggedCount
         }
     }
 
-    $taggedCount = [math]::Max(0, $totalCount - $untaggedCount)
-    $tagCoverage = if ($totalCount -gt 0) { [math]::Round(($taggedCount / $totalCount) * 100, 1) } else { 0 }
+    if ($null -ne $totalCount -and $null -ne $untaggedCount -and $untaggedCount -gt $totalCount) {
+        $readErrors.Add('Resource counts disagree; tagging coverage cannot be calculated.')
+    }
+    $taggedCount = if ($null -ne $totalCount -and $null -ne $untaggedCount -and $untaggedCount -le $totalCount) { $totalCount - $untaggedCount } else { $null }
+    $tagCoverage = if ($readErrors.Count -eq 0 -and $null -ne $taggedCount) {
+        if ($totalCount -gt 0) { [math]::Round(($taggedCount / $totalCount) * 100, 1) } else { 0 }
+    }
+    else { $null }
 
     # -- Case-variant tag keys -------------------------------------------
     # Azure stores tag keys case-preserving but resolves them case-insensitively.
@@ -275,6 +284,9 @@ resources
 
     return [PSCustomObject]@{
         TagNames           = $tagNames
+        CoverageIncomplete = ($readErrors.Count -gt 0)
+        ReadErrors         = @($readErrors)
+        Note               = if ($readErrors.Count -gt 0) { 'Tag inventory coverage is incomplete. ' + ($readErrors -join ' ') } else { $null }
         TagCount           = $tagNames.Count
         SpellingCount      = $spellingCount
         CaseVariants       = @($caseVariants)

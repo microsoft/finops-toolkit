@@ -21,7 +21,10 @@ Describe 'FinOps Multitool safety' {
 
         # A cleanup commit once deleted a helper and left its caller behind, so
         # the scan threw CommandNotFoundException on its normal success path.
-        It 'Has no calls to undefined internal commands' {
+        It 'Has no calls to undefined internal commands (<CommandPlatform>)' -ForEach @(
+            @{ CommandPlatform = 'host'; HideWindowsCommands = $false }
+            @{ CommandPlatform = 'without Windows cmdlets'; HideWindowsCommands = $true }
+        ) {
             $files = Get-ChildItem -Path $script:ModuleRoot -Recurse -Include *.ps1, *.psm1 -File
 
             # Sibling private functions live one level up and are legitimate callees.
@@ -48,6 +51,8 @@ Describe 'FinOps Multitool safety' {
                 foreach ($cmd in $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.CommandAst] }, $true)) {
                     $name = $cmd.GetCommandName()
                     if (-not $name) { continue }
+                    if ((-not $IsWindows -or $HideWindowsCommands) -and $file.Name -eq 'Read-FinOpsHubData.ps1' -and
+                        $name -in @('Get-Acl', 'Get-AuthenticodeSignature')) { continue }
 
                     # A name probed through Get-Command is an optional callback,
                     # so its absence is deliberate rather than a broken call.
@@ -72,11 +77,282 @@ Describe 'FinOps Multitool safety' {
                 if ($defined.Contains($name)) { continue }
                 if ($optional.Contains($name)) { continue }
                 if ($name -match '^(Az|AzureRm)' -or $name -match '-Az') { continue }
-                if (Get-Command -Name $name -ErrorAction SilentlyContinue) { continue }
+                if (-not ($HideWindowsCommands -and $name -in @('Get-Acl', 'Get-AuthenticodeSignature')) -and
+                    (Get-Command -Name $name -ErrorAction SilentlyContinue)) { continue }
                 '{0}  (called at {1})' -f $name, $called[$name]
             }
 
             @($unresolved) -join "`n" | Should -BeNullOrEmpty
+        }
+    }
+
+    Context 'Tag inventory evidence' {
+        It 'Distinguishes <Failure> from a complete tag inventory' -ForEach @(
+            @{ Failure = 'none'; Incomplete = $false }
+            @{ Failure = 'tag values'; Incomplete = $true }
+            @{ Failure = 'untagged count'; Incomplete = $true }
+            @{ Failure = 'untagged details'; Incomplete = $true }
+            @{ Failure = 'total count'; Incomplete = $true }
+            @{ Failure = 'locations'; Incomplete = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Failure = $Failure; Incomplete = $Incomplete } {
+                param($Failure, $Incomplete)
+                $fixtureFailure = $Failure
+                Mock Search-AzGraphSafe {
+                    if ($Query -like '*ResourceTypes*') {
+                        if ($fixtureFailure -eq 'tag values') { throw 'Synthetic tag values failure.' }
+                        return @{ Data = @([pscustomobject]@{ tagName = 'CostCenter'; tagValue = 'team'; ResourceCount = 3; ResourceTypes = @('fixture') }) }
+                    }
+                    if ($Query -like '*by tagName, subscriptionId*') {
+                        if ($fixtureFailure -eq 'locations') { throw 'Synthetic locations failure.' }
+                        return @{ Data = @([pscustomobject]@{ tagName = 'CostCenter'; subscriptionId = '11111111-1111-1111-1111-111111111111'; resourceGroup = 'fixture' }) }
+                    }
+                    if ($Query -like '*TotalCount*') {
+                        if ($fixtureFailure -eq 'total count') { throw 'Synthetic total count failure.' }
+                        return @{ Data = @([pscustomobject]@{ TotalCount = 4 }) }
+                    }
+                    if ($fixtureFailure -eq 'untagged details') { throw 'Synthetic untagged details failure.' }
+                    @{ Data = @([pscustomobject]@{ name = 'untagged'; type = 'fixture'; resourceGroup = 'fixture'; subscriptionId = '11111111-1111-1111-1111-111111111111'; location = 'eastus' }) }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $queryText = ($Payload | ConvertFrom-Json).query
+                    if (($fixtureFailure -eq 'untagged count' -and $queryText -like '*UntaggedCount*') -or
+                        ($fixtureFailure -eq 'total count' -and $queryText -match 'TotalCount|TaggedCount')) {
+                        return [pscustomobject]@{ StatusCode = 503; Content = '{}' }
+                    }
+                    $column = if ($queryText -like '*UntaggedCount*') { 'UntaggedCount' } elseif ($queryText -like '*TaggedCount*') { 'TaggedCount' } else { 'TotalCount' }
+                    $count = if ($column -eq 'UntaggedCount') { 1 } elseif ($column -eq 'TaggedCount') { 3 } else { 4 }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ data = @(@{ $column = $count }) } | ConvertTo-Json -Depth 5) }
+                }
+
+                $result = Get-TagInventory -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+
+                $result.CoverageIncomplete | Should -Be $Incomplete
+                if ($Incomplete) {
+                    $result.TagCoverage | Should -BeNullOrEmpty
+                    $result.ReadErrors.Count | Should -BeGreaterThan 0
+                    $result.Note | Should -Match 'incomplete'
+                }
+                else { $result.TagCoverage | Should -Be 75; $result.TotalResources | Should -Be 4 }
+                if ($Failure -ne 'tag values') { $result.TagNames.CostCenter.Values[0].Value | Should -Be 'team' }
+            }
+        }
+    }
+
+    Context 'Anomaly alert evidence' {
+        It 'Preserves alert labels and counts only anomaly notification rules' {
+            Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+                $items = if ($Path -like '*alerts?*') {
+                    @(
+                        @{ name = 'first'; properties = @{ description = 'Describe this alert'; status = 'Active'; definition = @{ type = 'Anomaly' }; details = @{ amount = 0; currentSpend = 0; unit = 'EUR' } } }
+                        @{ name = 'second'; properties = @{ costEntityId = '/budgets/monthly'; definition = @{ type = 'Budget' } } }
+                        @{ name = 'third'; properties = @{ definition = @{ category = 'Cost'; type = 'Budget' } } }
+                        @{ name = 'fourth'; properties = @{} }
+                    )
+                }
+                else { @(@{ name = 'rule'; kind = 'InsightAlert'; properties = @{} }, @{ name = 'other'; kind = 'Email'; properties = @{} }) }
+                [pscustomobject]@{ StatusCode = 200; Content = (@{ value = $items } | ConvertTo-Json -Depth 9) }
+            }
+
+            $result = Get-AnomalyAlerts -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+
+            $result.CoverageIncomplete | Should -BeFalse
+            $result.AnomalyAlertCount | Should -Be 1
+            $result.BudgetAlertCount | Should -Be 2
+            $result.ActiveAlertCount | Should -Be 1
+            $result.ConfiguredRuleCount | Should -Be 1
+            $result.TriggeredAlerts.AlertLabel | Should -Be @('Describe this alert', 'monthly (Budget)', 'Cost Budget', 'fourth')
+            $result.TriggeredAlerts[0].Amount | Should -Be 0
+            $result.TriggeredAlerts[1].Amount | Should -BeNullOrEmpty
+            $result.TriggeredAlerts[1].Unit | Should -BeNullOrEmpty
+        }
+    }
+
+    Context 'Carbon measurement evidence' {
+        It 'Preserves <Scenario> carbon data without inventing headline values' -ForEach @(
+            @{ Scenario = 'complete'; Incomplete = $false }
+            @{ Scenario = 'failed headline'; Incomplete = $true }
+            @{ Scenario = 'denied probes'; Incomplete = $true }
+            @{ Scenario = 'zero baseline'; Incomplete = $false }
+            @{ Scenario = 'failed recent probe'; Incomplete = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Scenario = $Scenario; Incomplete = $Incomplete } {
+                param($Scenario, $Incomplete)
+                $fixtureScenario = $Scenario
+                $probeState = @{ SummaryCalls = 0; Windows = [Collections.Generic.List[string]]::new() }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $request = $Payload | ConvertFrom-Json
+                    if ($fixtureScenario -eq 'denied probes') { return [pscustomobject]@{ StatusCode = 403; Content = '{}' } }
+                    if ($request.reportType -eq 'OverallSummaryReport') {
+                        $probeState.SummaryCalls++
+                        $probeState.Windows.Add([string]$request.dateRange.end)
+                        if ($probeState.SummaryCalls -eq 1) {
+                            if ($fixtureScenario -eq 'failed recent probe') { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                            return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' }
+                        }
+                        if ($fixtureScenario -eq 'failed headline' -and $probeState.SummaryCalls -gt 2) { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                        $value = @(@{ latestMonthEmissions = 50; previousMonthEmissions = $(if ($fixtureScenario -eq 'zero baseline') { 0 } else { 25 }) })
+                    }
+                    elseif ($request.reportType -eq 'ItemDetailsReport') { $value = @(@{ itemName = '11111111-1111-1111-1111-111111111111'; latestMonthEmissions = 50 }) }
+                    else { $value = @(@{ date = $request.dateRange.end; totalCarbonEmission = 50 }) }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = $value } | ConvertTo-Json -Depth 6) }
+                }
+
+                $result = Get-CarbonMetrics -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+
+                $result.CoverageIncomplete | Should -Be $Incomplete
+                if ($Incomplete) {
+                    if ($Scenario -eq 'failed recent probe') { $result.TotalEmissionsKg | Should -Be 50; $result.LatestMonth | Should -Be $probeState.Windows[1].Substring(0, 7) }
+                    else { $result.TotalEmissionsKg | Should -BeNullOrEmpty; $result.ChangeRatio | Should -BeNullOrEmpty }
+                    $result.Note | Should -Match '403|503'
+                }
+                else {
+                    $result.TotalEmissionsKg | Should -Be 50
+                    $result.LatestMonth | Should -Be $probeState.Windows[1].Substring(0, 7)
+                    ([datetime]$probeState.Windows[1]) | Should -BeLessThan ([datetime]$probeState.Windows[0])
+                    if ($Scenario -eq 'zero baseline') { $result.ChangeRatio | Should -BeNullOrEmpty; $result.ChangeValueKg | Should -Be 50 }
+                    else { $result.ChangeRatio | Should -Be 100 }
+                }
+            }
+        }
+    }
+
+    Context 'Idle VM metric evidence' {
+        It 'Classifies <Case> only from measured CPU and network' -ForEach @(
+            @{ Case = 'idle'; Cpu = 2; Network = 1MB; Classification = 'Idle'; Failed = $false }
+            @{ Case = 'underutilized'; Cpu = 7; Network = 1MB; Classification = 'Underutilized'; Failed = $false }
+            @{ Case = 'network active'; Cpu = 4; Network = 20MB; Classification = 'Underutilized'; Failed = $false }
+            @{ Case = 'busy'; Cpu = 20; Network = 1MB; Classification = $null; Failed = $false }
+            @{ Case = 'measured zero'; Cpu = 0; Network = 0; Classification = 'Idle'; Failed = $false }
+            @{ Case = 'missing CPU'; Cpu = $null; Network = 1MB; Classification = $null; Failed = $true }
+            @{ Case = 'missing network'; Cpu = 2; Network = $null; Classification = $null; Failed = $true }
+            @{ Case = 'denied'; Cpu = 2; Network = 1MB; Classification = $null; Failed = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Case = $Case; Cpu = $Cpu; Network = $Network; Classification = $Classification; Failed = $Failed } {
+                param($Case, $Cpu, $Network, $Classification, $Failed)
+                $fixtureCase = $Case
+                $fixtureCpu = $Cpu
+                $fixtureNetwork = $Network
+                Mock Search-AzGraphSafe {
+                    @{ Data = @([pscustomobject]@{ name = 'fixture'; resourceGroup = 'fixture'; subscriptionId = '11111111-1111-1111-1111-111111111111'; location = 'eastus'; powerState = 'PowerState/running'; vmSize = 'Standard_D2s_v5' }) }
+                }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Invoke-WebRequest {
+                    if ($fixtureCase -eq 'denied') { throw 'Synthetic HTTP 403.' }
+                    $metrics = @(
+                        @{ name = @{ value = 'Percentage CPU' }; timeseries = @(@{ data = @(@{ average = $fixtureCpu }) }) }
+                        @{ name = @{ value = 'Network In Total' }; timeseries = @(@{ data = @(@{ total = $fixtureNetwork }) }) }
+                        @{ name = @{ value = 'Network Out Total' }; timeseries = @(@{ data = @(@{ total = 0 }) }) }
+                    )
+                    [pscustomobject]@{ Content = (@{ value = $metrics } | ConvertTo-Json -Depth 8) }
+                }
+
+                $result = Get-IdleVMs -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+
+                $result.MetricFailures | Should -Be ([int]$Failed)
+                $result.EvaluatedVMs | Should -Be (1 - [int]$Failed)
+                if ($Classification) { $result.IdleVMs[0].Classification | Should -Be $Classification }
+                else { $result.Count | Should -Be 0 }
+                Should -Invoke Invoke-WebRequest -Times 0 -Exactly -ParameterFilter { $MaximumRedirection -ne 0 }
+            }
+        }
+
+        It 'Skips metrics when all virtual machines are deallocated' {
+            Mock Search-AzGraphSafe -ModuleName FinOpsMultitool { @{ Data = @([pscustomobject]@{ powerState = 'PowerState/deallocated' }) } }
+            Mock Get-PlainAccessToken -ModuleName FinOpsMultitool { throw 'No token should be requested.' }
+
+            $result = Get-IdleVMs -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111' })
+
+            $result.TotalVMs | Should -Be 1
+            $result.Note | Should -Match 'none are running'
+            Should -Invoke Get-PlainAccessToken -ModuleName FinOpsMultitool -Times 0 -Exactly
+        }
+    }
+
+    Context 'Scanner domain behavior' {
+        It 'Prioritizes high-impact legacy resources and preserves category counts' {
+            Mock Search-AzGraphSafe -ModuleName FinOpsMultitool {
+                $rows = if ($Query -like '*publicipaddresses*') { @([pscustomobject]@{ name = 'basic-ip'; sku = 'Basic' }) }
+                elseif ($Query -like '*microsoft.compute/disks*') { @([pscustomobject]@{ name = 'hdd'; diskSizeGb = 256; sku = 'Standard_LRS' }) }
+                else { @() }
+                @{ Data = $rows }
+            }
+
+            $result = Get-LegacyResources -Subscriptions @([pscustomobject]@{ Id = 'fixture' })
+
+            $result.TotalCount | Should -Be 2
+            $result.LegacyResources[0].Impact | Should -Be 'High'
+            $result.LegacyResources[1].Detail | Should -Match '256 GB'
+            @($result.ByCategory | Where-Object Count -EQ 1).Count | Should -Be 2
+        }
+
+        It 'Labels AHB retail estimates and preserves unavailable per-VM rates' {
+            Mock Search-AzGraphSafe -ModuleName FinOpsMultitool {
+                @{ Data = $(if ($Query -like '*microsoft.compute/virtualmachines*') {
+                            @([pscustomobject]@{ name = 'priced'; vmSize = 'known'; location = 'eastus' }, [pscustomobject]@{ name = 'unpriced'; vmSize = 'unknown'; location = 'eastus' })
+                        }
+                        else { @() })
+                }
+            }
+            Mock Get-AhbVmRates -ModuleName FinOpsMultitool { if ($VmSize -eq 'known') { @{ HourlyPremium = 0.1 } } }
+
+            $result = Get-AHBOpportunities -Subscriptions @([pscustomobject]@{ Id = 'fixture' })
+
+            $result.TotalOpportunities | Should -Be 2
+            $result.EstMonthlyVMSavings | Should -Be 73
+            $result.SavingsCurrency | Should -Be 'USD'
+            ($result.WindowsVMs | Where-Object name -EQ 'unpriced').estMonthlySavings | Should -BeNullOrEmpty
+        }
+
+        It 'Matches tag spelling and variants without losing the original tag name' {
+            $result = Get-TagRecommendations -ExistingTags @{ 'COST-CENTER' = @{}; 'BusinessUnit' = @{} } -TagLocations @{ 'COST-CENTER' = @('Fixture / rg') }
+
+            $result.Present.Count | Should -Be 2
+            $result.MissingRequired.Count | Should -Be 5
+            $result.CompliancePercent | Should -Be 29
+            $costCenter = $result.Analysis | Where-Object TagName -EQ 'CostCenter'
+            $costCenter.Status | Should -Match 'Variation found'
+            $costCenter.ActualTagName | Should -BeExactly 'COST-CENTER'
+            $costCenter.Location | Should -Be 'Fixture / rg'
+        }
+
+        It 'Allocates a shared pool once per case-insensitive spoke and reconciles the split' {
+            Mock Resolve-SharedCostPool -ModuleName FinOpsMultitool { @([pscustomobject]@{ Id = 'pool'; Name = 'Pool'; Type = 'fixture'; SubscriptionId = 'hub' }) }
+            Mock Get-AllocationCostMaps -ModuleName FinOpsMultitool { @{ ByResource = @{ pool = 1000 }; BySub = @{ 'spoke-a' = 200; 'spoke-b' = 300 }; Currency = 'EUR'; Source = 'LiveApi'; Period = 'MonthToDate' } }
+
+            $result = Get-SharedCostAllocation -SharedResourceIds 'pool' -Spokes @('spoke-a', 'spoke-b', 'SPOKE-A') -WeightingValues @{ 'spoke-a' = 3; 'spoke-b' = 1 } -FixedRatio 0.5
+
+            $result.Allocations.Count | Should -Be 2
+            ($result.Allocations | Where-Object Spoke -EQ 'spoke-a').AllocatedShared | Should -Be 625
+            ($result.Allocations | Where-Object Spoke -EQ 'spoke-b').SolutionCost | Should -Be 675
+            ($result.Allocations | Measure-Object AllocatedShared -Sum).Sum | Should -Be 1000
+            ($result.RuleTargets | Measure-Object percentage -Sum).Sum | Should -Be 100
+            $result.Currency | Should -Be 'EUR'
+        }
+
+        It 'Keeps usage-weighted allocation nonnegative and reconciles <Amount> across <Consumers> consumers' -ForEach @(
+            @{ Amount = 100; Consumers = 3 }
+            @{ Amount = 0.03; Consumers = 5 }
+            @{ Amount = 0.01; Consumers = 9 }
+        ) {
+            $fixtureConsumers = $Consumers
+            Mock Get-TelemetryWeighting -ModuleName FinOpsMultitool {
+                $weights = @{}
+                foreach ($consumer in 1..$fixtureConsumers) { $weights["consumer-$consumer"] = 1 }
+                [pscustomobject]@{ Ok = $true; Weights = $weights; ConsumerDimension = 'KubernetesNamespace'; Source = 'Fixture'; Note = '' }
+            }
+            Mock Resolve-SharedCostPool -ModuleName FinOpsMultitool { throw 'Explicit pools must not query resources.' }
+
+            $result = Get-UsageProportionalAllocation -WorkspaceId 'fixture' -PoolAmount $Amount -PoolCurrency 'EUR' -PoolPeriod '2026-08'
+
+            ($result.Allocations | Measure-Object AllocatedCost -Sum).Sum | Should -Be $Amount
+            @($result.Allocations | Where-Object { $_.AllocatedCost -lt 0 }).Count | Should -Be 0
+            $result.Currency | Should -Be 'EUR'
+            $result.Period | Should -Be '2026-08'
+            $result.Mode | Should -Be 'Showback'
+            $result.BillingWritable | Should -BeFalse
+            $result.RuleTargets | Should -BeNullOrEmpty
+            Should -Invoke Resolve-SharedCostPool -ModuleName FinOpsMultitool -Times 0 -Exactly
         }
     }
 
@@ -172,8 +448,8 @@ Describe 'FinOps Multitool safety' {
             Mock Write-Host { [void]$captured.Add([string]$Object) }
             $payload = "$([char]27)[2Jsynthetic <script>example</script>"
             $inventory = ConvertTo-TagInventoryFromHub -HubData @([pscustomobject]@{
-                ResourceId = '/resources/fixture'; ResourceType = 'Fixture'; Tags = (@{ CostCenter = $payload } | ConvertTo-Json -Compress)
-            })
+                    ResourceId = '/resources/fixture'; ResourceType = 'Fixture'; Tags = (@{ CostCenter = $payload } | ConvertTo-Json -Compress)
+                })
             $modules = @(@{ Fn = 'Get-TagInventory'; Name = 'Tag Inventory'; Selected = $true; Category = 'Governance' })
 
             $null = Show-ResultsSummary -Results @{ 'Get-TagInventory' = $inventory } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
@@ -192,7 +468,7 @@ Describe 'FinOps Multitool safety' {
             $captured = [Collections.Generic.List[string]]::new()
             Mock Write-Host { [void]$captured.Add([string]$Object) }
             $results = @{
-                'Get-PolicyInventory' = [pscustomobject]@{ Assignments = @(); AssignmentCount = 0; CoverageIncomplete = $false; ComplianceCoverageIncomplete = $true; CompliancePct = $null; TotalCompliant = 10; TotalNonCompliant = 0; HasComplianceData = $false; Note = 'Policy compliance coverage is incomplete.' }
+                'Get-PolicyInventory'   = [pscustomobject]@{ Assignments = @(); AssignmentCount = 0; CoverageIncomplete = $false; ComplianceCoverageIncomplete = $true; CompliancePct = $null; TotalCompliant = 10; TotalNonCompliant = 0; HasComplianceData = $false; Note = 'Policy compliance coverage is incomplete.' }
                 'Get-StorageTierAdvice' = [pscustomobject]@{ Recommendations = @(); TotalHotAccounts = 1; MetricFailures = 1; EvaluatedAccounts = 0; HasData = $false; MetricFailureDetail = @('No transaction measurements.') }
             }
             $modules = @(
@@ -210,6 +486,160 @@ Describe 'FinOps Multitool safety' {
             $html | Should -Not -Match 'Full policy compliance|All storage accounts are appropriately tiered'
             ($captured -join ' ') | Should -Not -Match 'all are appropriately tiered|Compliance: 100'
             (Import-Csv -LiteralPath (Join-Path $run 'Get-PolicyInventory.csv'))[0].'Summary.ComplianceCoverageIncomplete' | Should -Be 'True'
+        }
+
+        It 'Reports incompatible unit costs as unavailable while retaining capacity' {
+            $reportRoot = Join-Path $TestDrive 'mixed-unit-costs'
+            $data = [pscustomobject]@{
+                HasData = $true; Currency = 'Mixed'; CostAvailable = $false; CostIssue = 'Multiple billing currencies cannot be combined.'
+                ComputeCost = $null; StorageCost = $null; ComputeSharePct = $null; StorageSharePct = $null
+                CostPerVCpu = $null; CostPerGbRam = $null; CostPerVm = $null; CostPerGb = $null
+                VmCount = 4; TotalVCpu = 8; TotalMemoryGb = 32; DiskGb = 0; BlobFileGb = 0.9; TotalStorageGb = 0.9
+                Note = 'Multiple billing currencies cannot be combined.'
+            }
+            $modules = @(@{ Fn = 'Get-UnitEconomics'; Name = 'Unit Economics'; Selected = $true; Category = 'Cost Analysis' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-UnitEconomics' = $data } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match 'Compute: Unavailable \(Unavailable\) over 4 VMs, 8 vCPU, 32 GB RAM'
+            $html | Should -Match 'Storage: Unavailable'
+            $html | Should -Match '>Limited data</td>'
+            $row = @(Import-Csv -LiteralPath (Join-Path $run 'Get-UnitEconomics.csv'))[0]
+            $row.ComputeCost | Should -BeNullOrEmpty
+            $row.CostPerVCpu | Should -BeNullOrEmpty
+            $row.TotalVCpu | Should -Be '8'
+        }
+
+        It 'Reports incompatible AI costs without hiding measured usage or inventing a permissions issue' {
+            $reportRoot = Join-Path $TestDrive 'mixed-ai-costs'
+            $data = [pscustomobject]@{
+                HasData = $true; Currency = 'Mixed'; CostAvailable = $false; CostIssue = 'Multiple billing currencies cannot be combined.'
+                TotalAICost = $null; CostPer1KTokens = $null; CostPerRequest = $null
+                TotalTokens = 2000; TotalRequests = 20; TotalPromptTokens = 1600; TotalGeneratedTokens = 400
+                AIFootprint = @{ OpenAIAccounts = 2; AIServices = 0; MLWorkspaces = 0; SearchServices = 0; GpuVmCount = 0 }
+                ByModel = @([pscustomobject]@{ Deployment = 'fixture'; TotalTokens = 2000; PromptTokens = 1600; GeneratedTokens = 400; PctOfTokens = 100 })
+                Note = 'Multiple billing currencies cannot be combined.'; Period = 'MonthToDate'
+            }
+            $modules = @(@{ Fn = 'Get-AIWorkloadMetrics'; Name = 'AI Workload Metrics'; Selected = $true; Category = 'AI & ML' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-AIWorkloadMetrics' = $data } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match 'AI spend: Unavailable'
+            $html | Should -Match 'Tokens: 2000 over 20 requests'
+            $html | Should -Match '>Limited data</td>'
+            $html | Should -Not -Match 'Grant Cost Management Reader to compute|No AI workloads detected'
+            $row = @(Import-Csv -LiteralPath (Join-Path $run 'Get-AIWorkloadMetrics.csv'))[0]
+            $row.'Summary.TotalAICost' | Should -BeNullOrEmpty
+            $row.'Summary.CostIssue' | Should -Match 'currencies'
+        }
+
+        It 'Keeps partial cost-by-tag coverage visible in every report without healthy guidance' {
+            $reportRoot = Join-Path $TestDrive 'partial-cost-by-tag'
+            $data = [pscustomobject]@{
+                CostByTag = @{ CostCenter = @([pscustomobject]@{ TagValue = 'team'; Cost = 125; Currency = 'USD' }) }
+                CoverageIncomplete = $true; ScannedSubs = 2; TotalSubs = 3; UsedTimeframe = 'MonthToDate'
+                SuccessfulSubscriptionIds = @('first', 'third')
+                FailedSubscriptions = @([pscustomobject]@{ SubscriptionId = 'second'; Subscription = 'Second'; StatusCode = 403; Error = 'Cost query returned HTTP 403.' })
+                ResourceCostSeen = 125; AllocatedCost = 125; UnallocatedCost = 0
+                Note = 'Cost coverage is incomplete: 2 of 3 subscriptions were read. Amounts cover successful subscriptions only.'
+            }
+            $modules = @(@{ Fn = 'Get-CostByTag'; Name = 'Cost by Tag'; Selected = $true; Category = 'Cost Analysis' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-CostByTag' = $data } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match 'Cost coverage is incomplete: 2 of 3'
+            $html | Should -Match '>Limited data</td>'
+            $html | Should -Not -Match 'No positive untagged cost was found'
+            $rows = @(Import-Csv -LiteralPath (Join-Path $run 'Get-CostByTag.csv'))
+            @($rows | Where-Object { $_.TagValue -eq 'team' })[0].'Summary.CoverageIncomplete' | Should -Be 'True'
+            @($rows | Where-Object { $_.SubscriptionId -eq 'second' -and $_.Error -match '403' }).Count | Should -Be 1
+            Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw | Should -Match 'Cost by Tag: Limited data: Cost coverage is incomplete'
+        }
+
+        It 'Keeps incompatible recommendation savings separate in rendered reports' {
+            $reportRoot = Join-Path $TestDrive 'recommendation-currencies'
+            $recommendations = @(
+                [pscustomobject]@{ Category = 'Rightsize'; Impact = 'High'; ResourceName = 'one'; AnnualSavings = 100; Currency = 'USD'; Problem = 'Resize'; ResourceType = 'VM' }
+                [pscustomobject]@{ Category = 'Rightsize'; Impact = 'High'; ResourceName = 'two'; AnnualSavings = 50; Currency = 'EUR'; Problem = 'Resize'; ResourceType = 'VM' }
+            )
+            $results = @{
+                'Get-OptimizationAdvice' = [pscustomobject]@{ Recommendations = $recommendations; TotalCount = 2; EstimatedAnnualSavings = $null; Currency = 'Mixed'; CostIssue = 'Savings in different currencies cannot be combined.' }
+                'Get-ReservationAdvice'  = [pscustomobject]@{ AdvisorRecommendations = $recommendations; EstimatedAnnualSavings = $null; Currency = 'Mixed'; CostIssue = 'Savings in different currencies cannot be combined.' }
+            }
+            $modules = @(
+                @{ Fn = 'Get-OptimizationAdvice'; Name = 'Optimization Advice'; Selected = $true; Category = 'Advisor' }
+                @{ Fn = 'Get-ReservationAdvice'; Name = 'Reservation Advice'; Selected = $true; Category = 'Commitments' }
+            )
+
+            $null = Show-ResultsSummary -Results $results -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match 'Est. annual savings: Unavailable'
+            $html | Should -Match 'USD 100'
+            $html | Should -Match 'EUR 50'
+            $html | Should -Not -Match 'Mixed 150|\$150'
+            [regex]::Matches($html, '>Limited data</td>').Count | Should -Be 2
+            Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw | Should -Match 'Limited data: Savings in different currencies cannot be combined'
+        }
+
+        It 'Does not claim healthy VM utilization or alerting when the reads fail' {
+            Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool { [pscustomobject]@{ StatusCode = 403; Content = '{}' } }
+            $alerts = Get-AnomalyAlerts -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+            $reportRoot = Join-Path $TestDrive 'failed-utilization-alerts'
+            $results = @{
+                'Get-AnomalyAlerts' = $alerts
+                'Get-IdleVMs'       = [pscustomobject]@{ IdleVMs = @(); Count = 0; HasData = $false; ScannedVMs = 2; EvaluatedVMs = 0; MetricFailures = 2; MetricFailureDetail = @('HTTP 403'); Note = 'VM utilization coverage is incomplete.' }
+            }
+            $modules = @(
+                @{ Fn = 'Get-AnomalyAlerts'; Name = 'Anomaly Alerts'; Selected = $true; Category = 'Monitoring' }
+                @{ Fn = 'Get-IdleVMs'; Name = 'Idle VMs'; Selected = $true; Category = 'Optimization' }
+            )
+
+            $null = Show-ResultsSummary -Results $results -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $alerts.CoverageIncomplete | Should -BeTrue
+            (Get-KpiComputedValue -KpiId 'anomaly-detection-rate' -Data $alerts).Value | Should -BeNullOrEmpty
+            (Get-KpiComputedValue -KpiId 'computational-waste' -Data $results['Get-IdleVMs']).Value | Should -BeNullOrEmpty
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            [regex]::Matches($html, '>Limited data</td>').Count | Should -Be 2
+            $html | Should -Not -Match 'actively utilized|Compute spend looks healthy|Monitoring is working|No anomaly detection rules configured'
+            Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw | Should -Match 'Idle VMs: Limited data: VM utilization coverage is incomplete'
+        }
+
+        It 'Renders billing currency and unavailable carbon measurements explicitly' {
+            $reportRoot = Join-Path $TestDrive 'currencies-carbon'
+            $results = @{
+                'Get-MaccCommitment' = [pscustomobject]@{ Applicable = $true; HasMacc = $true; Commitments = @([pscustomobject]@{ BillingAccount = 'fixture'; Currency = 'EUR'; Commitment = 300; Consumed = 250; Remaining = 50; PctUsed = 83.3; Status = 'Active' }) }
+                'Get-CostTrend'      = [pscustomobject]@{ Months = @([pscustomobject]@{ Month = 'Aug 2026'; MonthDate = [datetime]'2026-08-01'; Cost = 30; Currency = 'EUR' }) }
+                'Get-CarbonMetrics'  = [pscustomobject]@{ HasData = $true; LatestMonth = '2026-07'; TotalEmissionsKg = $null; ChangeRatio = $null; Unit = 'kgCO2e'; CoverageIncomplete = $true; BySubscription = @([pscustomobject]@{ Subscription = 'fixture'; EmissionsKg = 50 }); Note = 'Overall carbon measurement is unavailable.' }
+            }
+            $modules = @(
+                @{ Fn = 'Get-MaccCommitment'; Name = 'MACC Commitment'; Selected = $true; Category = 'Account' }
+                @{ Fn = 'Get-CostTrend'; Name = 'Cost Trend'; Selected = $true; Category = 'Cost Analysis' }
+                @{ Fn = 'Get-CarbonMetrics'; Name = 'Carbon Emissions'; Selected = $true; Category = 'Sustainability' }
+            )
+            $captured = [Collections.Generic.List[string]]::new()
+            Mock Write-Host { $captured.Add([string]$Object) }
+
+            $null = Show-ResultsSummary -Results $results -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match 'EUR 300'
+            $html | Should -Match 'EUR 30'
+            $html | Should -Match 'Latest month \(2026-07\): Unavailable'
+            $html | Should -Match 'month over month Unavailable'
+            $html | Should -Not -Match '\$300|\$30|month over month 0%'
+            ($captured -join ' ') | Should -Match 'EUR 300'
+            ($captured -join ' ') | Should -Match 'EUR 30'
         }
 
         It 'Creates distinct run folders without changing existing reports' {
@@ -260,7 +690,7 @@ Describe 'FinOps Multitool safety' {
         It 'Creates the default reports folder for a fresh Linux application-data path' -Skip:(-not $IsLinux) {
             $applicationData = Join-Path $TestDrive 'fresh-application-data'
             $definitions = @('Get-FinOpsReportRoot', 'Assert-FinOpsReportPath', 'New-FinOpsReportDirectory', 'Write-FinOpsReportFile') |
-                ForEach-Object { "function $_ { $((Get-Command $_).Definition) }" }
+            ForEach-Object { "function $_ { $((Get-Command $_).Definition) }" }
             $scriptText = "`$ErrorActionPreference = 'Stop'`n" + ($definitions -join "`n") + "`nNew-FinOpsReportDirectory"
             $startInfo = [System.Diagnostics.ProcessStartInfo]::new((Get-Process -Id $PID).Path)
             $startInfo.UseShellExecute = $false
@@ -316,11 +746,11 @@ Describe 'FinOps Multitool safety' {
                 [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Development'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
             )
             $results = @{
-                'Get-CostData' = @{
+                'Get-CostData'         = @{
                     $subscriptions[0].Id = @{ Actual = 100; Currency = 'EUR'; Name = $subscriptions[0].Name; ActualPeriod = '2026-08-01 to 2026-08-31'; Forecast = $null; ForecastSource = 'Unavailable' }
                     $subscriptions[1].Id = @{ Actual = 200; Currency = 'USD'; Name = $subscriptions[1].Name; ActualPeriod = '2026-09-01 to 2026-09-18'; Forecast = 300; ForecastSource = 'Forecast' }
                 }
-                'Get-CostTrend' = @()
+                'Get-CostTrend'        = @()
                 '_error_Get-CostTrend' = '429 Too Many Requests: retry later <script>not markup</script>'
             }
             $modules = @(
@@ -358,15 +788,15 @@ Describe 'FinOps Multitool safety' {
             Mock Write-Host { }
             Mock Get-KpiCatalog { $null }
             $results = @{
-                'Get-CostData' = @{
-                    'zero' = @{ Actual = 0; Currency = 'USD'; Forecast = 0; ForecastSource = 'Actual'; ActualPeriod = '2026-09-01 to 2026-09-18' }
-                    'credit' = @{ Actual = -5.25; Currency = 'EUR'; ForecastSource = 'Unavailable'; ActualPeriod = '2026-08-01 to 2026-08-31' }
+                'Get-CostData'      = @{
+                    'zero'    = @{ Actual = 0; Currency = 'USD'; Forecast = 0; ForecastSource = 'Actual'; ActualPeriod = '2026-09-01 to 2026-09-18' }
+                    'credit'  = @{ Actual = -5.25; Currency = 'EUR'; ForecastSource = 'Unavailable'; ActualPeriod = '2026-08-01 to 2026-08-31' }
                     'unknown' = @{ Actual = $null; Currency = $null; Forecast = $null; ForecastSource = 'Unavailable' }
                 }
                 'Get-BudgetHistory' = @([pscustomobject]@{
-                    BudgetName = 'Filtered budget'; SubscriptionId = 'zero'; Month = '2026-08'; Budget = 500; ActualSpend = $null
-                    PctUsed = $null; Status = 'Unavailable'; Currency = 'USD'; Note = 'Filtered budget history requires costs for the same filter.'
-                })
+                        BudgetName = 'Filtered budget'; SubscriptionId = 'zero'; Month = '2026-08'; Budget = 500; ActualSpend = $null
+                        PctUsed = $null; Status = 'Unavailable'; Currency = 'USD'; Note = 'Filtered budget history requires costs for the same filter.'
+                    })
             }
             $modules = @(
                 @{ Fn = 'Get-CostData'; Name = 'Cost Data'; Selected = $true; Category = 'Cost Analysis' }
@@ -391,11 +821,11 @@ Describe 'FinOps Multitool safety' {
             $reportRoot = Join-Path $TestDrive 'story-drivers'
             Mock Write-Host { }
             $resources = @(foreach ($index in 1..57) {
-                [pscustomobject]@{
-                    Subscription = 'Fixture'; ResourcePath = "/subscriptions/fixture/resources/resource-$index"; ResourceGroup = 'Compute'
-                    ResourceType = 'Virtual Machine'; Actual = $index * 10; Currency = 'USD'; ActualPeriod = '2026-09-01 to 2026-09-18'
-                }
-            })
+                    [pscustomobject]@{
+                        Subscription = 'Fixture'; ResourcePath = "/subscriptions/fixture/resources/resource-$index"; ResourceGroup = 'Compute'
+                        ResourceType = 'Virtual Machine'; Actual = $index * 10; Currency = 'USD'; ActualPeriod = '2026-09-01 to 2026-09-18'
+                    }
+                })
             $resources += [pscustomobject]@{
                 Subscription = 'Fixture'; ResourcePath = '/subscriptions/fixture/resources/euro-storage'; ResourceGroup = 'Storage'
                 ResourceType = 'Storage Account'; Actual = 2; Currency = 'EUR'; ActualPeriod = '2026-08-01 to 2026-08-31'
@@ -405,11 +835,11 @@ Describe 'FinOps Multitool safety' {
                 ResourceType = 'Virtual Machine'; Actual = -5; Currency = 'USD'; ActualPeriod = '2026-09-01 to 2026-09-18'
             }
             $resources += @(foreach ($index in 1..6) {
-                [pscustomobject]@{
-                    Subscription = 'Fixture'; ResourcePath = "/subscriptions/other/resources/other-$index"; ResourceGroup = 'Compute'
-                    ResourceType = 'Virtual Machine'; Actual = $index; Currency = 'USD'; ActualPeriod = '2026-09-01 to 2026-09-18'
-                }
-            })
+                    [pscustomobject]@{
+                        Subscription = 'Fixture'; ResourcePath = "/subscriptions/other/resources/other-$index"; ResourceGroup = 'Compute'
+                        ResourceType = 'Virtual Machine'; Actual = $index; Currency = 'USD'; ActualPeriod = '2026-09-01 to 2026-09-18'
+                    }
+                })
             $modules = @(@{ Fn = 'Get-ResourceCosts'; Name = 'Resource Costs'; Selected = $true; Category = 'Cost Analysis' })
 
             $null = Show-ResultsSummary -Results @{ 'Get-ResourceCosts' = $resources } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
@@ -1792,6 +2222,24 @@ Describe 'FinOps Multitool cost math' {
             }
         }
 
+        It 'Rejects <Currency> Hub allocation currency before returning cost maps' -ForEach @(
+            @{ Currency = 'EUR' }
+            @{ Currency = '' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Currency = $Currency } {
+                param($Currency)
+                $rows = @(
+                    [pscustomobject]@{ SubAccountId = '11111111-1111-1111-1111-111111111111'; ResourceId = '/resources/one'; EffectiveCost = 100; BillingCurrency = 'USD' }
+                    [pscustomobject]@{ SubAccountId = '22222222-2222-2222-2222-222222222222'; ResourceId = '/resources/two'; EffectiveCost = 50; BillingCurrency = $Currency }
+                )
+                $returned = [Collections.Generic.List[object]]::new()
+
+                { Get-AllocationCostMaps -SubscriptionIds $rows.SubAccountId -HubData $rows | ForEach-Object { $returned.Add($_) } } | Should -Throw '*currenc*'
+
+                $returned.Count | Should -Be 0
+            }
+        }
+
         It 'Rejects resource column drift even when the cost column is unchanged' {
             InModuleScope FinOpsMultitool {
                 $rows = @(
@@ -2180,6 +2628,56 @@ Describe 'FinOps Multitool cost math' {
     }
 
     Context 'Hourly cost reporting' {
+        It 'Keeps capacity but suppresses incompatible <CurrencyCase> unit costs through <CostPath>' -ForEach @(
+            @{ CostPath = 'management group'; CurrencyCase = 'mixed'; SecondCurrency = 'EUR' }
+            @{ CostPath = 'per subscription'; CurrencyCase = 'mixed'; SecondCurrency = 'EUR' }
+            @{ CostPath = 'management group'; CurrencyCase = 'missing'; SecondCurrency = $null }
+            @{ CostPath = 'per subscription'; CurrencyCase = 'missing'; SecondCurrency = $null }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ CostPath = $CostPath; SecondCurrency = $SecondCurrency } {
+                param($CostPath, $SecondCurrency)
+                $fixtureCostPath = $CostPath
+                $fixtureCurrency = $SecondCurrency
+                Mock Write-Host { }
+                Mock Search-AzGraphSafe {
+                    if ($Query -match 'virtualmachines') {
+                        @{ Data = @([pscustomobject]@{ cnt = 4; vmSize = 'Standard_D2s_v5'; loc = 'eastus'; subId = '11111111-1111-1111-1111-111111111111' }) }
+                    }
+                    else { @{ Data = @([pscustomobject]@{ totalGb = 0 }) } }
+                }
+                Mock Get-VmSizeCapability { @{ VCpu = 2; MemGb = 8 } }
+                Mock Get-StorageAccountUsedGb { 0.9 }
+                Mock Resolve-CostMgId { if ($fixtureCostPath -eq 'management group') { 'fixture' } else { $null } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $rows = @()
+                    if ($Path -like '*/managementGroups/*' -or $Path -like '*/11111111-1111-1111-1111-111111111111/*') { $rows += , @(100, 'Virtual Machines', 'USD') }
+                    if ($Path -like '*/managementGroups/*' -or $Path -like '*/22222222-2222-2222-2222-222222222222/*') { $rows += , @(50, 'Storage', $fixtureCurrency) }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'MeterCategory' }, @{ name = 'Currency' }); rows = $rows } } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                )
+
+                $result = Get-UnitEconomics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+
+                $result.VmCount | Should -Be 4
+                $result.TotalVCpu | Should -Be 8
+                $result.TotalMemoryGb | Should -Be 32
+                $result.TotalStorageGb | Should -Be 0.9
+                $result.HasData | Should -BeTrue
+                foreach ($field in @('ComputeCost', 'StorageCost', 'CostPerVCpu', 'CostPerGbRam', 'CostPerVm', 'CostPerGb', 'ComputeSharePct', 'StorageSharePct')) {
+                    $result.$field | Should -BeNullOrEmpty -Because "$field requires comparable currencies"
+                }
+                $result.CostIssue | Should -Match 'currenc'
+                foreach ($kpiId in @('cost-per-gb-stored', 'hourly-cost-per-cpu-core', 'effective-avg-compute-cost-per-core')) {
+                    $value = Get-KpiComputedValue -KpiId $kpiId -Data $result
+                    $value.Value | Should -BeNullOrEmpty
+                    $value.Display | Should -Match 'Unavailable'
+                }
+            }
+        }
+
         It 'Keeps small unit costs and hourly rates above zero' {
             InModuleScope FinOpsMultitool {
                 Mock Write-Host { }

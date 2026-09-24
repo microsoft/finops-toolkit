@@ -62,3 +62,30 @@ function Test-CurrencyMixed {
     )
     return (@($Seen.Keys).Count -gt 1)
 }
+
+function Measure-FinOpsSavingsEstimate {
+    param([AllowEmptyCollection()][object[]]$Recommendations)
+
+    $currencies = @{}
+    $total = 0.0
+    $count = 0
+    foreach ($recommendation in $Recommendations) {
+        if ($null -eq $recommendation.AnnualSavings) { continue }
+        $currency = ([string]$recommendation.Currency).Trim().ToUpperInvariant()
+        if ($currency -notmatch '^[A-Z]{3}$' -or $currency -in @('XXX', 'XTS')) {
+            return @{ Total = $null; Currency = 'Unknown'; CostIssue = 'Savings currency is missing or invalid; the combined estimate is unavailable.' }
+        }
+        Add-CurrencySeen -Seen $currencies -Currency $currency
+        if (Test-CurrencyMixed -Seen $currencies) {
+            return @{ Total = $null; Currency = 'Mixed'; CostIssue = 'Savings in different currencies cannot be combined.' }
+        }
+        try { $total += Get-HubCostValue -Row $recommendation -Column 'AnnualSavings' }
+        catch { return @{ Total = $null; Currency = $currency; CostIssue = 'A savings amount is invalid; the combined estimate is unavailable.' } }
+        $count++
+    }
+    return @{
+        Total     = if ($count -gt 0) { [math]::Round($total, 2) } else { $null }
+        Currency  = Resolve-CurrencyLabel -Seen $currencies -Fallback 'Unknown'
+        CostIssue = $null
+    }
+}

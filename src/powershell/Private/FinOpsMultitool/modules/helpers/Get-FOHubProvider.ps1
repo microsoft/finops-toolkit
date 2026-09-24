@@ -116,6 +116,7 @@ function Invoke-FOHubCostQuery {
 
     $scope = Get-FOHubScopeClause -SubscriptionIds $SubscriptionIds
     $expectedIds = ConvertTo-Json -InputObject @($SubscriptionIds | Where-Object { $_ } | ForEach-Object { ([guid]$_).ToString() }) -Compress
+    # Set difference is case-sensitive; extracted IDs must match the normalized GUIDs.
     $validatedQuery = @"
 $(Get-FOHubAnchorLet)
 let src = Costs
@@ -251,12 +252,12 @@ src
         # selected list (a hub commonly covers more subs than are being scanned).
         $subName = if ($row.Name) { [string]$row.Name } else { '' }
         $costMap[$subId] = @{
-            Actual   = [math]::Round([double]$row.Actual, 2)
-            Forecast = $null
+            Actual         = [math]::Round([double]$row.Actual, 2)
+            Forecast       = $null
             ForecastSource = 'Unavailable'
-            Currency = $currency
-            Name     = $subName
-            ActualPeriod = if ($row.ActualPeriodStart -and $row.ActualPeriodEnd) { '{0:yyyy-MM-dd} to {1:yyyy-MM-dd}' -f [datetime]$row.ActualPeriodStart, [datetime]$row.ActualPeriodEnd } else { 'Unknown' }
+            Currency       = $currency
+            Name           = $subName
+            ActualPeriod   = if ($row.ActualPeriodStart -and $row.ActualPeriodEnd) { '{0:yyyy-MM-dd} to {1:yyyy-MM-dd}' -f [datetime]$row.ActualPeriodStart, [datetime]$row.ActualPeriodEnd } else { 'Unknown' }
         }
     }
     return $costMap

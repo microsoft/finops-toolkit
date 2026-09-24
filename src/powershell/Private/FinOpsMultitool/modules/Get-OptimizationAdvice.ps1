@@ -152,16 +152,17 @@ advisorresources
 
     # -- Summarize by category ------------------------------------------
     $byCat = $allRecs | Group-Object Category | ForEach-Object {
+        $categorySavings = Measure-FinOpsSavingsEstimate -Recommendations $_.Group
         [PSCustomObject]@{
             Category      = $_.Name
             Count         = $_.Count
-            TotalSavings  = [math]::Round(($_.Group | Where-Object { $_.AnnualSavings } |
-                Measure-Object -Property AnnualSavings -Sum).Sum, 2)
+            TotalSavings  = $categorySavings.Total
+            Currency      = $categorySavings.Currency
+            CostIssue     = $categorySavings.CostIssue
         }
     }
 
-    $totalSavings = ($allRecs | Where-Object { $_.AnnualSavings } |
-        Measure-Object -Property AnnualSavings -Sum).Sum
+    $savingsSummary = Measure-FinOpsSavingsEstimate -Recommendations @($allRecs)
 
     # -- Summarize by impact --------------------------------------------
     $byImpact = $allRecs | Group-Object Impact | ForEach-Object {
@@ -173,7 +174,9 @@ advisorresources
         ByCategory          = $byCat
         ByImpact            = $byImpact
         TotalCount          = $allRecs.Count
-        EstimatedAnnualSavings = [math]::Round($totalSavings, 2)
-        Summary             = "$($allRecs.Count) optimization recommendations (est. `$$([math]::Round($totalSavings, 2))/yr savings)"
+        EstimatedAnnualSavings = $savingsSummary.Total
+        Currency            = $savingsSummary.Currency
+        CostIssue           = $savingsSummary.CostIssue
+        Summary             = "$($allRecs.Count) optimization recommendations; estimated annual savings: $(Format-BudgetAmount -Value $savingsSummary.Total -Currency $savingsSummary.Currency)"
     }
 }

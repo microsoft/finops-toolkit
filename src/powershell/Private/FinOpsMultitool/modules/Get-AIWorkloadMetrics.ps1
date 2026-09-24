@@ -140,7 +140,7 @@ resources
     $metricsOk = $false
 
     $aiCost = 0.0
-    $currency = 'USD'
+    $currency = 'Unknown'
     # A tenant can bill subscriptions in different currencies; keep them all.
     $currenciesSeen = @{}
     $costByAcct = @{}   # resourceId(lower) -> cost
@@ -167,7 +167,7 @@ resources
             $aiCost = $agg.AICost
             $currency = $agg.Currency
             $metricsOk = $agg.HasTokens
-            $costOk = $agg.HasCost
+            $costOk = $agg.CostByAcct.Count -gt 0
             Write-Host ("    Derived from FinOps Hub export: {0} token rows, {1} {2} AI spend" -f `
                     $agg.RowCount, [math]::Round($agg.AICost, 2), $agg.Currency) -ForegroundColor Gray
         }
@@ -285,9 +285,11 @@ resources
                         foreach ($row in $cdata.properties.rows) {
                             $amount = if ($iCost -ge 0) { [double]$row[$iCost] } else { [double]$row[0] }
                             $rid = if ($iRes -ge 0) { [string]$row[$iRes] } else { '' }
-                            if ($iCur -ge 0 -and $row[$iCur]) { Add-CurrencySeen -Seen $currenciesSeen -Currency ([string]$row[$iCur]) }
+                            $rowCurrency = if ($iCur -ge 0) { ([string]$row[$iCur]).Trim().ToUpperInvariant() } else { '' }
+                            if ($rowCurrency -notmatch '^[A-Z]{3}$' -or $rowCurrency -in @('XXX', 'XTS')) { $rowCurrency = 'Unknown' }
+                            Add-CurrencySeen -Seen $currenciesSeen -Currency $rowCurrency
                             $aiCost += $amount
-                            if ($rid) { $costByAcct[$rid.ToLowerInvariant()] = $amount }
+                            if ($rid) { $costByAcct[$rid.ToLowerInvariant()] += $amount }
                         }
                     }
                 }
@@ -299,8 +301,32 @@ resources
     }
 
     # -- 3: KPIs ----------------------------------------------------------
-    $costPer1kTokens = if ($totalTokens -gt 0) { [math]::Round(($aiCost / $totalTokens) * 1000, 4) } else { 0 }
-    $costPerRequest = if ($totalReq -gt 0) { [math]::Round($aiCost / $totalReq, 4) } else { 0 }
+    if (-not $fromHub) { $currency = Resolve-CurrencyLabel -Seen $currenciesSeen -Fallback 'Unknown' }
+    $costIssue = if ($currenciesSeen.ContainsKey('UNKNOWN') -or ($currency -notmatch '^[A-Za-z]{3}$' -and $currency -ne 'Mixed') -or $currency -in @('XXX', 'XTS')) {
+        'AI cost currency is missing or invalid; combined costs and rates are unavailable.'
+    }
+    elseif ($currency -eq 'Mixed') {
+        'Multiple billing currencies cannot be combined; AI costs and rates are unavailable.'
+    }
+    elseif (-not $costOk) { 'AI cost data is unavailable.' }
+    else { $null }
+    $costAvailable = $costOk -and -not $costIssue
+    $tokenAccounts = @($acctTokens.Keys | Where-Object { $acctTokens[$_].Tokens -gt 0 })
+    $requestAccounts = @($acctTokens.Keys | Where-Object { $acctTokens[$_].Requests -gt 0 })
+    $rateIssue = if ($costIssue) { $costIssue }
+    elseif ($metricFailures.Count -gt 0) { 'AI account metrics are incomplete; aggregate token and request rates are unavailable.' }
+    elseif (-not $metricsOk) { 'No comparable AI usage measurements were returned; aggregate rates are unavailable.' }
+    elseif (@($acctTokens.Keys | Where-Object { ($acctTokens[$_].Tokens -gt 0 -or $acctTokens[$_].Requests -gt 0) -and -not $costByAcct.ContainsKey($_) }).Count -gt 0) {
+        'Costs are missing for accounts with measured AI usage; aggregate rates are unavailable.'
+    }
+    elseif ($totalTokens -gt 0 -and ($tokenAccounts.Count -eq 0 -or ($tokenAccounts | ForEach-Object { $acctTokens[$_].Tokens } | Measure-Object -Sum).Sum -ne $totalTokens)) {
+        'Token totals cannot be matched to account costs; aggregate rates are unavailable.'
+    }
+    else { $null }
+    $tokenCost = if (-not $rateIssue) { ($tokenAccounts | ForEach-Object { $costByAcct[$_] } | Measure-Object -Sum).Sum } else { $null }
+    $requestCost = if (-not $rateIssue) { ($requestAccounts | ForEach-Object { $costByAcct[$_] } | Measure-Object -Sum).Sum } else { $null }
+    $costPer1kTokens = if (-not $rateIssue -and $null -ne $tokenCost -and $totalTokens -gt 0) { [math]::Round(($tokenCost / $totalTokens) * 1000, 4) } else { $null }
+    $costPerRequest = if (-not $rateIssue -and $null -ne $requestCost -and $totalReq -gt 0) { [math]::Round($requestCost / $totalReq, 4) } else { $null }
 
     $byModel = @(
         $modelTokens.GetEnumerator() | ForEach-Object {
@@ -317,15 +343,16 @@ resources
 
     $byAccount = @(
         $acctTokens.GetEnumerator() | ForEach-Object {
-            $c = if ($costByAcct.ContainsKey($_.Key)) { $costByAcct[$_.Key] } else { 0.0 }
+            $c = if ($costAvailable -and $costByAcct.ContainsKey($_.Key)) { $costByAcct[$_.Key] } else { $null }
             $tk = $_.Value.Tokens
             [PSCustomObject]@{
                 Name            = $_.Value.Name
                 ResourceId      = $_.Key
                 Tokens          = [long]$tk
                 Requests        = [long]$_.Value.Requests
-                Cost            = [math]::Round($c, 2)
-                CostPer1KTokens = if ($tk -gt 0) { [math]::Round(($c / $tk) * 1000, 4) } else { 0 }
+                Currency        = $currency
+                Cost            = if ($null -ne $c) { [math]::Round($c, 2) } else { $null }
+                CostPer1KTokens = if ($null -ne $c -and $tk -gt 0) { [math]::Round(($c / $tk) * 1000, 4) } else { $null }
             }
         } | Sort-Object Cost -Descending
     )
@@ -357,8 +384,11 @@ resources
         $note = 'AI footprint detected (ML/Search/GPU); no token-metered Azure OpenAI usage to price.'
     }
 
+    if ($costIssue) { $note = "$note $costIssue" }
+    if ($rateIssue -and $rateIssue -ne $costIssue) { $note = "$note $rateIssue" }
+    if (-not $rateIssue) { $note = "$note Rates use costs for accounts with corresponding measured token or request usage, not total AI spend." }
     if ($metricFailures.Count -gt 0) {
-        Write-Warning "  Metrics unavailable for $($metricFailures.Count) AI account(s); token and cost totals exclude them."
+        Write-Warning "  Metrics unavailable for $($metricFailures.Count) AI account(s); usage totals are partial and aggregate rates are unavailable."
         foreach ($f in ($metricFailures | Select-Object -First 3)) { Write-Verbose "    $f" }
     }
 
@@ -369,8 +399,11 @@ resources
         TotalGeneratedTokens = [long]$totalGen
         TotalTokens          = [long]$totalTokens
         TotalRequests        = [long]$totalReq
-        TotalAICost          = [math]::Round($aiCost, 2)
-        Currency             = if (@($currenciesSeen.Keys).Count -gt 0) { Resolve-CurrencyLabel -Seen $currenciesSeen } else { $currency }
+        TotalAICost          = if ($costAvailable) { [math]::Round($aiCost, 2) } else { $null }
+        Currency             = $currency
+        CostAvailable        = $costAvailable
+        CostIssue            = $costIssue
+        RateIssue            = $rateIssue
         CostPer1KTokens      = $costPer1kTokens
         CostPerRequest       = $costPerRequest
         ByModel              = $byModel

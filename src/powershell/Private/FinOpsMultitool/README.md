@@ -2,7 +2,11 @@
 
 # FinOps multitool terminal UI (TUI)
 
-Terminal interface for running FinOps scans against Azure subscriptions without GUI dependencies. PowerShell 7 is required. Validation for this change was performed on Windows; native macOS/Linux behavior and the `dotnet restore` path haven't been exercised.
+Terminal interface for running FinOps scans against Azure subscriptions without GUI dependencies. PowerShell 7 is required.
+
+The [PR test workflow](../../../../.github/workflows/dev.yml) includes Windows, macOS, and Ubuntu jobs for the multitool suites and packaged launcher. Real signed Parquet integration runs on Windows and Ubuntu. The jobs require no Azure sign-in or deployment credentials. Use each platform's result for the tested commit; Windows results don't establish native compatibility.
+
+NuGet signed-package verification [isn't supported on macOS](https://learn.microsoft.com/dotnet/core/tools/nuget-signed-package-verification#macos). Use Kusto or available CSV exports there. The reader doesn't bypass signature verification to load Parquet.
 
 ## Quick start
 
@@ -120,18 +124,18 @@ The TUI's results renderer escapes control characters before printing, so resour
 
 Each scan requires specific permissions. The TUI identifies the required role when a scan fails because of missing permissions. Billing permissions depend on your agreement, such as a Microsoft Customer Agreement (MCA) or Enterprise Agreement (EA).
 
-| Category               | Scans                                                     | Required role                                                                                                                             | Scope                            |
-| ---------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Category               | Scans                                                                    | Required role                                                                                                                             | Scope                            |
+| ---------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
 | Optimization           | Orphaned Resources, Idle VMs, Storage Tier Advice, AHB, Legacy Resources | Reader                                                                                                                                    | Subscription                     |
-| Governance             | Tag Inventory, Tag Recommendations, Policy Inventory/Recs | Reader                                                                                                                                    | Subscription                     |
-| Cost                   | Cost Data, Resource Costs, Cost by Tag, Cost Trend        | Cost Management Reader                                                                                                                    | Subscription or management group |
-| Commitments            | Reservation Advice, Savings Realized estimates            | Cost Management Reader, and Reader for Azure Hybrid Benefit inventory                                                                     | Subscription or management group |
-| Commitment utilization | Reservation and savings plan usage                        | Billing access for the agreement, such as EA Enterprise Administrator (read only) or MCA Billing account reader or Billing profile reader | Billing account or profile       |
-| Monitoring             | Budget Status, Anomaly Alerts                             | Cost Management Reader                                                                                                                    | Subscription                     |
-| Advisor                | Optimization Advice                                       | Reader                                                                                                                                    | Subscription                     |
-| Account                | Billing Structure, Contract Info, MACC                    | Billing access for the agreement                                                                                                          | Billing account or profile       |
-| Hub storage (optional) | Storage-backed cost and tag scans                         | Storage Blob Data Reader                                                                                                                  | Hub storage account              |
-| Hub Kusto (optional)   | Kusto-backed cost summaries                               | Database query access                                                                                                                     | Hub database                     |
+| Governance             | Tag Inventory, Tag Recommendations, Policy Inventory/Recs                | Reader                                                                                                                                    | Subscription                     |
+| Cost                   | Cost Data, Resource Costs, Cost by Tag, Cost Trend                       | Cost Management Reader                                                                                                                    | Subscription or management group |
+| Commitments            | Reservation Advice, Savings Realized estimates                           | Cost Management Reader, and Reader for Azure Hybrid Benefit inventory                                                                     | Subscription or management group |
+| Commitment utilization | Reservation and savings plan usage                                       | Billing access for the agreement, such as EA Enterprise Administrator (read only) or MCA Billing account reader or Billing profile reader | Billing account or profile       |
+| Monitoring             | Budget Status, Anomaly Alerts                                            | Cost Management Reader                                                                                                                    | Subscription                     |
+| Advisor                | Optimization Advice                                                      | Reader                                                                                                                                    | Subscription                     |
+| Account                | Billing Structure, Contract Info, MACC                                   | Billing access for the agreement                                                                                                          | Billing account or profile       |
+| Hub storage (optional) | Storage-backed cost and tag scans                                        | Storage Blob Data Reader                                                                                                                  | Hub storage account              |
+| Hub Kusto (optional)   | Kusto-backed cost summaries                                              | Database query access                                                                                                                     | Hub database                     |
 
 Subscription Reader access alone doesn't grant billing access. See [MCA billing roles](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles), [EA roles](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles), and [Kusto database roles](https://learn.microsoft.com/kusto/management/manage-database-security-roles). Reading hub data also requires network access to the storage or Kusto endpoint. If you receive a 403 response, check the firewall or private endpoint as well as role assignments.
 
@@ -150,6 +154,8 @@ The menu contains 26 scans. Four additional modules support direct investigation
 | Legacy Resources    | Legacy/retiring SKUs (v1 VM families, unmanaged disks, Basic IPs/LBs)                                                                  |
 
 Storage tier advice uses 30-day transaction and capacity metrics. Missing or invalid samples leave an account unevaluated, not idle. Recommendations are review candidates, not proof that a tier change will save money; validate retrieval needs, eligibility, and retention charges before acting.
+
+Idle VM checks likewise require CPU and inbound/outbound network samples. Failed or missing measurements leave the VM unevaluated and the utilization KPI unavailable. AHB license estimates use USD retail rates for a 730-hour month; `SavingsCurrency` and `SavingsPeriod` identify the units.
 
 ### Governance
 
@@ -178,11 +184,19 @@ Policy compliance coverage is separate from assignment coverage. When ARG covera
 
 Cost trend requires explicit cost, date, and currency fields. It rejects monthly totals that would combine different currencies rather than labeling the combined amount with one currency.
 
+On the API path, **Cost by Tag** keeps results from subscriptions whose full cost query succeeded when another subscription fails. `CoverageIncomplete`, `ScannedSubs`, `TotalSubs`, `SuccessfulSubscriptionIds`, and `FailedSubscriptions` identify the coverage and failures. Reports show **Limited data**, and whole-scope allocation KPIs remain unavailable. If every subscription fails, the scan reports an error. Failed continuation pages don't contribute partial costs, and missing resource or resource-group tag maps stop the scan rather than classifying unknown tags as untagged. Amounts from different currencies aren't combined.
+
+**Unit Economics** retains measured VM, vCPU, memory, and storage capacity when currency evidence is missing or mixed. Combined costs, cost shares, and monetary unit rates remain empty, with `CostAvailable = false` and an explanatory `CostIssue`. A measured zero with known currency remains zero.
+
+Advisor and reservation recommendations retain each recommendation's savings currency. Combined estimates remain unavailable when currency is missing or mixed; a dollar symbol is not substituted for an unknown currency. Tag inventory, alerts, and billing inventories expose `CoverageIncomplete`, read errors, and explanatory notes when a required read fails. Incomplete tag inventory doesn't become missing-tag recommendations.
+
 ### AI & ML
 
 | Scan                | What it finds                                                                                      |
 | ------------------- | -------------------------------------------------------------------------------------------------- |
 | AI Workload Metrics | Detects AI workloads, then token consumption by model, AI spend, cost per 1K tokens, cost per call |
+
+AI usage counts remain available when monetary rates can't be calculated. Missing or mixed billing currencies suppress combined and per-account monetary outputs; `CostIssue` explains why. Token and request rates use costs from accounts with the corresponding measured usage, not all Cognitive Services spend. Failed metric reads suppress aggregate rates and expose a `RateIssue`; reports retain the separate spend and available usage evidence. Missing measurements aren't treated as measured zero.
 
 ### Commitments
 
@@ -214,8 +228,10 @@ Current forecasts in **Budget Status** come from Azure's budget response, indepe
 
 ### Sustainability
 
-| Scan           | What it finds                                                                               |
-| -------------- | ------------------------------------------------------------------------------------------- |
+Carbon reports retain available detail when another report section fails, but leave missing headline measurements unavailable. Percentage change requires a positive previous-month measurement. A failed permission check is reported separately from a window with no published measurements.
+
+| Scan             | What it finds                                                                               |
+| ---------------- | ------------------------------------------------------------------------------------------- |
 | Carbon Emissions | Cloud carbon emissions, month-over-month change, 12-month trend, per-subscription breakdown |
 
 ### Advisor & Account
@@ -370,6 +386,8 @@ The tool loads hub summaries or storage rows once per run and reuses them for su
 
 The scan modules can be called directly without the TUI:
 
+For usage-proportional showback with an explicit `-PoolAmount`, supply `-PoolCurrency` and `-PoolPeriod` to identify its units. Omitted units remain unknown. Resource-backed pools retain the cost source's period and currency. Rounded showback allocations reconcile to the pool amount; they don't write native billing rules.
+
 ```powershell
 Import-Module .\FinOpsMultitool.psm1
 
@@ -381,6 +399,42 @@ $hubData = Read-FinOpsHubData -StorageAccountName 'myhub' -ResourceGroupName 'rg
 $tagInventory = ConvertTo-TagInventoryFromHub -HubData $hubData
 $costByTag = ConvertTo-CostByTagFromHub -HubData $hubData -ExistingTags $tagInventory.TagNames
 ```
+
+## Validation
+
+Run the normal toolkit unit and lint gates from the repository root:
+
+```powershell
+./.build/start.ps1 -Task Test.PowerShell.All
+```
+
+Run the focused integration checks in a fresh PowerShell 7 session from the repository root. Install Pester 6.0.0 and the Az modules listed in the workflow first. These tests build in a temporary directory, replace Azure access with synthetic responses, and use isolated package caches. They don't scan subscriptions or overwrite the checkout's release output. Package restore and signature verification require network access to the configured NuGet feeds and certificate services.
+
+```powershell
+Import-Module Pester -RequiredVersion 6.0.0
+$paths = @('src/powershell/Tests/Integration/MultitoolPackage.Tests.ps1')
+$minimumPassed = 3
+if (-not $IsMacOS) {
+  $paths += 'src/powershell/Tests/Integration/MultitoolParquet.Tests.ps1'
+  $minimumPassed += 2
+}
+$configuration = New-PesterConfiguration
+$configuration.Run.Path = $paths
+$configuration.Run.PassThru = $true
+$configuration.Output.Verbosity = 'Detailed'
+$result = Invoke-Pester -Configuration $configuration
+if ($null -eq $result -or $result.Result -ne 'Passed' -or
+  $result.PassedCount -lt $minimumPassed -or $result.FailedCount -ne 0 -or
+  $result.SkippedCount -ne 0 -or $result.NotRunCount -ne 0 -or
+  $result.FailedContainersCount -ne 0 -or $result.FailedBlocksCount -ne 0 -or
+  $result.Containers.Count -ne $paths.Count) {
+  throw 'Multitool integration validation failed or was incomplete.'
+}
+```
+
+The workflow records the tested merge commit, host, PowerShell version, and test counts in each job summary. Platform-specific `multitool-tests-*` artifacts retain NUnit results for 14 days. Only the two named test-result XML files are uploaded, not scan reports, package caches, or build output. The macOS summary explicitly records that signed Parquet integration wasn't run.
+
+These checks don't establish live Azure API behavior or current tenant access. A live smoke test must use an explicitly selected subscription and matching cost periods and currencies.
 
 ## File structure
 

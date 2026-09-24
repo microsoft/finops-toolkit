@@ -74,7 +74,8 @@ resources
 | project id, name, type, resourceGroup, subscriptionId
 "@
 
-    $res = Search-AzGraphSafe -Query $query -Subscription $SubscriptionIds -First 200
+    $res = Search-AzGraphSafe -Query $query -Subscription $SubscriptionIds -First 1000 -All
+    if ($null -eq $res) { throw 'Shared resource inventory is incomplete.' }
     $rows = if ($res) { @($res.Data) } else { @() }
 
     return @($rows | ForEach-Object {
@@ -361,7 +362,9 @@ function Get-SharedCostAllocation {
         }
     }
     # A repeated subscription ID would inflate $nSpokes and dilute every spoke's fixed share.
-    $Spokes = @($Spokes | Select-Object -Unique)
+    $spokeIds = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $Spokes = @($Spokes | Where-Object { -not [string]::IsNullOrWhiteSpace($_) -and $spokeIds.Add($_) })
+    if ($Spokes.Count -eq 0) { return [pscustomobject]@{ HasData = $false; Note = 'Provide at least one nonempty spoke subscription ID.' } }
     if ($FixedRatio -lt 0) { $FixedRatio = 0 }
     if ($FixedRatio -gt 1) { $FixedRatio = 1 }
 

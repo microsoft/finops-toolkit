@@ -62,13 +62,14 @@ function Get-BillingAccount {
         return [PSCustomObject]@{
             HasData  = $false
             Accounts = @()
+            CoverageIncomplete = $true
             Note     = "$msg Ensure you are signed in (Connect-AzAccount) and have at least Billing Reader."
         }
     }
 
     $payload = $null
-    try { $payload = $resp.Content | ConvertFrom-Json -ErrorAction Stop } catch {
-        Write-Verbose "Non-fatal: $($_.Exception.Message)"
+    try { $payload = Get-FinOpsListResult -FirstResponse $resp -Context 'billing accounts' } catch {
+        return [pscustomobject]@{ HasData = $false; Accounts = @(); CoverageIncomplete = $true; Note = $_.Exception.Message }
     }
     $raw = @()
     if ($payload -and $payload.value) { $raw = @($payload.value) }
@@ -81,6 +82,7 @@ function Get-BillingAccount {
         return [PSCustomObject]@{
             HasData  = $false
             Accounts = @()
+            CoverageIncomplete = $false
             Note     = if ($BillingAccountId) { "No billing account named '$BillingAccountId' is visible to this identity." } else { 'No billing accounts are visible to this identity.' }
         }
     }
@@ -125,13 +127,12 @@ function Get-BillingAccount {
         }
     }
 
-    $hasNext = if ($payload.PSObject.Properties['nextLink'] -and $payload.nextLink) { $true } else { $false }
-    $note = 'Use Id as billingAccountId in set_cost_allocation_rule. Only Eligible=true accounts (EA/MCA) support cost allocation rules.'
-    if ($hasNext) { $note += ' More accounts exist beyond this page (nextLink present).' }
+    $note = 'Only Eligible=true accounts (EA/MCA) support cost allocation rules. RulesAccess reports read access, not permission to change rules.'
 
     return [PSCustomObject]@{
         HasData  = $true
         Accounts = @($accounts | Sort-Object -Property @{ Expression = 'Eligible'; Descending = $true }, 'DisplayName')
+        CoverageIncomplete = $false
         Note     = $note
     }
 }

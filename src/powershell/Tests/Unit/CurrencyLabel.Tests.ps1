@@ -16,6 +16,50 @@ Describe 'Mixed currency detection' {
         Remove-Module FinOpsMultitool -ErrorAction SilentlyContinue
     }
 
+    Context 'Advisor savings totals' {
+        It 'Keeps <Scan> evidence without combining <Case> currencies' -ForEach @(
+            @{ Scan = 'Get-OptimizationAdvice'; Case = 'matching'; SecondCurrency = 'USD'; Comparable = $true }
+            @{ Scan = 'Get-OptimizationAdvice'; Case = 'mixed'; SecondCurrency = 'EUR'; Comparable = $false }
+            @{ Scan = 'Get-OptimizationAdvice'; Case = 'missing'; SecondCurrency = ''; Comparable = $false }
+            @{ Scan = 'Get-ReservationAdvice'; Case = 'matching'; SecondCurrency = 'USD'; Comparable = $true }
+            @{ Scan = 'Get-ReservationAdvice'; Case = 'mixed'; SecondCurrency = 'EUR'; Comparable = $false }
+            @{ Scan = 'Get-ReservationAdvice'; Case = 'missing'; SecondCurrency = ''; Comparable = $false }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Scan = $Scan; SecondCurrency = $SecondCurrency; Comparable = $Comparable } {
+                param($Scan, $SecondCurrency, $Comparable)
+                $fixtureCurrency = $SecondCurrency
+                Mock Search-AzGraphSafe {
+                    @{ Data = @(
+                        [pscustomobject]@{ subscriptionId = '11111111-1111-1111-1111-111111111111'; shortDescriptionProblem = 'Resize VM'; shortDescriptionSolution = 'Use a smaller VM'; impact = 'High'; impactedValue = 'first'; annualSavings = 100; savingsCurrency = 'USD' }
+                        [pscustomobject]@{ subscriptionId = '22222222-2222-2222-2222-222222222222'; shortDescriptionProblem = 'Resize VM'; shortDescriptionSolution = 'Use a smaller VM'; impact = 'High'; impactedValue = 'second'; annualSavings = 50; savingsCurrency = $fixtureCurrency }
+                    ) }
+                }
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                )
+
+                $result = & $Scan -Subscriptions $subscriptions
+
+                $recommendations = if ($Scan -eq 'Get-OptimizationAdvice') { $result.Recommendations } else { $result.AdvisorRecommendations }
+                @($recommendations).Count | Should -Be 2
+                $recommendations[0].AnnualSavings | Should -Be 100
+                if ($Comparable) {
+                    $result.EstimatedAnnualSavings | Should -Be 150
+                    $result.Currency | Should -Be 'USD'
+                    if ($Scan -eq 'Get-OptimizationAdvice') { $result.ByCategory[0].TotalSavings | Should -Be 150 }
+                }
+                else {
+                    $result.EstimatedAnnualSavings | Should -BeNullOrEmpty
+                    if ($Scan -eq 'Get-OptimizationAdvice') { $result.ByCategory[0].TotalSavings | Should -BeNullOrEmpty }
+                    $result.CostIssue | Should -Match 'currenc'
+                    $result.Summary | Should -Not -Match '\$150|150.*savings'
+                }
+            }
+        }
+    }
+
     Context 'Resolve-CurrencyLabel' {
         It 'Falls back when nothing was recorded' {
             Resolve-CurrencyLabel -Seen @{} | Should -Be 'USD'

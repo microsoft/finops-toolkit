@@ -92,6 +92,7 @@ function Get-PolicyDefinitionMap {
         }
         try {
             $resp = Invoke-AzRestMethodWithRetry -Path "$($id)?api-version=2023-04-01" -Method GET
+            if (-not $resp -or $resp.StatusCode -ne 200) { throw "HTTP $($resp.StatusCode) while reading policy definition." }
             if ($resp.StatusCode -eq 200) {
                 $def = $resp.Content | ConvertFrom-Json
                 if ($def.properties) { $map[[string]$id] = $def.properties }
@@ -99,6 +100,7 @@ function Get-PolicyDefinitionMap {
         }
         catch {
             # An unreadable definition just leaves the effect unresolved.
+            Write-Verbose "Policy definition '$id' could not be read: $($_.Exception.Message)"
             continue
         }
     }
@@ -439,21 +441,21 @@ policyresources
     $compliancePct = if (-not $complianceIncomplete -and $totalEvaluated -gt 0) { [math]::Round(($totalCompliant / $totalEvaluated) * 100, 1) } else { $null }
 
     return [PSCustomObject]@{
-        Assignments        = $unique
-        AssignmentCount    = $unique.Count
-        CoverageIncomplete = ($subFailures.Count -gt 0)
-        AssignmentErrors   = $subFailures.ToArray()
-        Note               = (@(
-            if ($subFailures.Count -gt 0) { 'Some effective policy assignments could not be read. Missing assignments cannot be determined from this inventory.' }
-            if ($complianceIncomplete) { 'Policy compliance coverage is incomplete. Partial results do not establish a percentage for the selected scope.' }
-        ) -join ' ')
+        Assignments                  = $unique
+        AssignmentCount              = $unique.Count
+        CoverageIncomplete           = ($subFailures.Count -gt 0)
+        AssignmentErrors             = $subFailures.ToArray()
+        Note                         = (@(
+                if ($subFailures.Count -gt 0) { 'Some effective policy assignments could not be read. Missing assignments cannot be determined from this inventory.' }
+                if ($complianceIncomplete) { 'Policy compliance coverage is incomplete. Partial results do not establish a percentage for the selected scope.' }
+            ) -join ' ')
         ComplianceCoverageIncomplete = $complianceIncomplete
-        ComplianceErrors   = $complianceErrors.ToArray()
-        ComplianceBySubMap = $complianceMap
-        CompliancePct      = $compliancePct
-        TotalCompliant     = $totalCompliant
-        TotalNonCompliant  = $totalNonCompliant
-        TotalEvaluated     = $totalEvaluated
-        HasComplianceData  = (-not $complianceIncomplete -and $totalEvaluated -gt 0)
+        ComplianceErrors             = $complianceErrors.ToArray()
+        ComplianceBySubMap           = $complianceMap
+        CompliancePct                = $compliancePct
+        TotalCompliant               = $totalCompliant
+        TotalNonCompliant            = $totalNonCompliant
+        TotalEvaluated               = $totalEvaluated
+        HasComplianceData            = (-not $complianceIncomplete -and $totalEvaluated -gt 0)
     }
 }

@@ -158,6 +158,15 @@ function Format-FinOpsUnitRate {
 function Get-KpiComputedValue {
     param([string]$KpiId, $Data, $Catalog)
 
+    if ($KpiId -in @('cost-per-gb-stored', 'hourly-cost-per-cpu-core', 'effective-avg-compute-cost-per-core')) {
+        $costIssue = Get-ScanField $Data 'CostIssue'
+        $currency = [string](Get-ScanField $Data 'Currency')
+        if ($costIssue) { return (New-KpiValue "Unavailable: $costIssue") }
+        if ($currency -notmatch '^[A-Za-z]{3}$' -or $currency -in @('XXX', 'XTS')) {
+            return (New-KpiValue 'Unavailable: one known billing currency is required.')
+        }
+    }
+
     switch ($KpiId) {
         'cost-per-gb-stored' {
             $v = Get-ScanField $Data 'CostPerGb'
@@ -202,6 +211,7 @@ function Get-KpiComputedValue {
             }
         }
         'anomaly-detection-rate' {
+            if (Get-ScanField $Data 'CoverageIncomplete') { return (New-KpiValue 'Unavailable: alert and rule coverage is incomplete.') }
             # No true rate is possible (Azure does not expose how many anomalies
             # actually occurred, only what it caught). Report an honest PROXY:
             # anomaly alerts triggered + detection rules configured. Both are
@@ -227,6 +237,7 @@ function Get-KpiComputedValue {
             }
         }
         'computational-waste' {
+            if ((Get-ScanField $Data 'MetricFailures') -gt 0) { return (New-KpiValue 'Unavailable: VM utilization coverage is incomplete.') }
             # Share of running VMs flagged idle/underutilized.
             $idle = Get-ScanField $Data 'Count'
             $scanned = Get-ScanField $Data 'ScannedVMs'
@@ -286,9 +297,9 @@ function Get-KpiComputedValue {
             $tokens = Get-ScanField $Data 'TotalTokens'
             $cost = Get-ScanField $Data 'TotalAICost'
             $cur = Get-ScanField $Data 'Currency'
-            if (-not $cur) { $cur = 'USD' }
             if ($null -ne $tokens -and [long]$tokens -gt 0) {
-                $costStr = if ($null -ne $cost -and [double]$cost -gt 0) { " for $cur $([math]::Round([double]$cost, 2))" } else { '' }
+                $costStr = if ($null -ne $cost -and [double]$cost -gt 0 -and $cur -match '^[A-Za-z]{3}$' -and $cur -notin @('XXX', 'XTS') -and
+                    -not (Get-ScanField $Data 'CostIssue')) { " for $cur $([math]::Round([double]$cost, 2))" } else { '' }
                 $period = Get-ScanField $Data 'Period'
                 if ($period -eq 'MonthToDate') { $period = 'Month to date' }
                 elseif (-not $period) { $period = 'Unknown period' }
@@ -298,10 +309,15 @@ function Get-KpiComputedValue {
         'cost-per-api-call' {
             $cpr = Get-ScanField $Data 'CostPerRequest'
             $cur = Get-ScanField $Data 'Currency'
-            if (-not $cur) { $cur = 'USD' }
-            if ($null -ne $cpr -and [double]$cpr -gt 0) {
+            $costIssue = Get-ScanField $Data 'CostIssue'
+            if ($costIssue) { return (New-KpiValue "Unavailable: $costIssue") }
+            $rateIssue = Get-ScanField $Data 'RateIssue'
+            if ($rateIssue) { return (New-KpiValue "Unavailable: $rateIssue") }
+            if ($cur -notmatch '^[A-Za-z]{3}$' -or $cur -in @('XXX', 'XTS')) { return (New-KpiValue 'Unavailable: one known AI billing currency is required.') }
+            if ($null -ne $cpr -and [double]$cpr -ge 0) {
                 return (New-KpiValue "$cur $([math]::Round([double]$cpr, 5)) per AI request" ([math]::Round([double]$cpr, 5)))
             }
+            return (New-KpiValue 'Unavailable: comparable AI costs and measured request counts are required.')
         }
         'pct-commitment-discount-waste' {
             $vals = @(Get-CommitmentUtilizationValue -Data $Data)
@@ -312,6 +328,9 @@ function Get-KpiComputedValue {
             }
         }
         { $_ -in @('pct-costs-untagged', 'pct-costs-unallocated', 'tagging-policy-compliant') } {
+            if (Get-ScanField $Data 'CoverageIncomplete') {
+                return (New-KpiValue 'Unavailable: cost coverage is incomplete; allocation cannot be scored for the whole selected scope.')
+            }
             # Prefer the per-resource allocation figure: a resource counts once,
             # and is allocated if it carries any CAF allocation tag. Per-tag
             # totals cannot answer this because a resource shows as untagged

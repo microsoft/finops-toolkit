@@ -33,7 +33,7 @@ function Get-CarbonMetrics {
 
     $apiVersion = '2025-04-01'
     $carbonPath = "/providers/Microsoft.Carbon/carbonEmissionReports?api-version=$apiVersion"
-    $scopeList  = @('Scope1', 'Scope2', 'Scope3')
+    $scopeList = @('Scope1', 'Scope2', 'Scope3')
 
     $subCount = $Subscriptions.Count
     Write-Host "  Querying carbon emissions ($subCount subs)..." -ForegroundColor Cyan
@@ -53,10 +53,11 @@ function Get-CarbonMetrics {
     # every batch. Returns $null when no recent window has data.
     $firstOfMonth = Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0
     $window = $null
+    $probeErrors = [Collections.Generic.List[string]]::new()
     foreach ($lag in 1..4) {
-        $endMonth   = $firstOfMonth.AddMonths(-$lag)
+        $endMonth = $firstOfMonth.AddMonths(-$lag)
         $startMonth = $endMonth.AddMonths(-11)
-        $probeBody  = @{
+        $probeBody = @{
             reportType       = 'OverallSummaryReport'
             subscriptionList = $batches[0]
             carbonScopeList  = $scopeList
@@ -70,6 +71,7 @@ function Get-CarbonMetrics {
             $probe = Invoke-AzRestMethodWithRetry -Path $carbonPath -Method POST -Payload $probeBody
         }
         catch {
+            $probeErrors.Add($_.Exception.Message)
             $probe = $null
         }
 
@@ -77,12 +79,20 @@ function Get-CarbonMetrics {
             # A 200 with an empty value array means the window published no data.
             # Accepting it would lock onto an empty month and never try older ones.
             $probeRows = 0
-            try { $probeRows = @(($probe.Content | ConvertFrom-Json).value).Count }
-            catch { $probeRows = 0 }
+            try {
+                $values = ($probe.Content | ConvertFrom-Json -ErrorAction Stop).value
+                if ($values -isnot [array]) { throw 'Carbon probe returned an invalid result collection.' }
+                $probeRows = $values.Count
+            }
+            catch { $probeRows = 0; $probeErrors.Add($_.Exception.Message) }
             if ($probeRows -gt 0) {
                 $window = @{ Start = $startMonth; End = $endMonth }
                 break
             }
+        }
+        elseif ($probe -and $probe.StatusCode -notin @(400, 404)) {
+            $probeErrors.Add("Carbon window probe returned HTTP $($probe.StatusCode).")
+            if ($probe.StatusCode -in @(401, 403)) { break }
         }
 
         # 404/400 here usually means "no data for that window" or the
@@ -93,26 +103,32 @@ function Get-CarbonMetrics {
         Write-Host "    No carbon emissions data available (provider unavailable or no published months)." -ForegroundColor DarkGray
         return [PSCustomObject]@{
             HasData            = $false
-            TotalEmissionsKg   = 0
-            PreviousMonthKg    = 0
-            ChangeRatio        = 0
-            ChangeValueKg      = 0
+            TotalEmissionsKg   = $null
+            PreviousMonthKg    = $null
+            ChangeRatio        = $null
+            ChangeValueKg      = $null
+            CoverageIncomplete = ($probeErrors.Count -gt 0)
+            ReadErrors         = @($probeErrors)
             LatestMonth        = $null
             MonthlyTrend       = @()
             BySubscription     = @()
             Unit               = 'kgCO2e'
             ScannedSubs        = $subCount
-            Note               = 'Carbon Optimization returned no data. Requires Reader on subscriptions; emissions publish ~2 months in arrears.'
+            Note               = if ($probeErrors.Count -gt 0) { 'Carbon discovery is incomplete. ' + ($probeErrors -join ' ') } else { 'No measurements were returned for the queried windows; this is not a measured zero. Carbon data publishes with a delay.' }
         }
     }
 
     $startStr = $window.Start.ToString('yyyy-MM-dd')
-    $endStr   = $window.End.ToString('yyyy-MM-dd')
+    $endStr = $window.End.ToString('yyyy-MM-dd')
 
-    $totalLatest   = 0.0
+    $totalLatest = 0.0
     $totalPrevious = 0.0
     $monthlyTotals = @{}   # key 'yyyy-MM' -> kgCO2e
-    $bySub         = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $bySub = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $readErrors = [Collections.Generic.List[string]]::new()
+    foreach ($probeError in $probeErrors) { $readErrors.Add($probeError) }
+    $headlineComplete = $true
+    $headlineRows = 0
 
     $batchNo = 0
     foreach ($batch in $batches) {
@@ -131,17 +147,23 @@ function Get-CarbonMetrics {
 
         try {
             $resp = Invoke-AzRestMethodWithRetry -Path $carbonPath -Method POST -Payload $overallBody
+            if (-not $resp -or $resp.StatusCode -ne 200) { throw "Overall carbon report returned HTTP $($resp.StatusCode)." }
             if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
                 $data = $resp.Content | ConvertFrom-Json
+                if ($data.value -isnot [array] -or $data.value.Count -eq 0) { throw 'Overall carbon report has no measured values.' }
                 foreach ($row in @($data.value)) {
-                    $latest   = if ($null -ne $row.latestMonthEmissions)   { [double]$row.latestMonthEmissions }   else { 0 }
-                    $previous = if ($null -ne $row.previousMonthEmissions) { [double]$row.previousMonthEmissions } else { 0 }
-                    $totalLatest   += $latest
+                    $latest = Get-HubCostValue -Row $row -Column 'latestMonthEmissions'
+                    $previous = Get-HubCostValue -Row $row -Column 'previousMonthEmissions'
+                    $totalLatest += $latest
                     $totalPrevious += $previous
+                    $headlineRows++
                 }
             }
+            else { throw 'Overall carbon report returned no content.' }
         }
         catch {
+            $headlineComplete = $false
+            $readErrors.Add("Overall batch $batchNo : $($_.Exception.Message)")
             Write-Warning "  Carbon overall query failed (batch $batchNo): $($_.Exception.Message)"
         }
 
@@ -159,21 +181,25 @@ function Get-CarbonMetrics {
 
         try {
             $resp = Invoke-AzRestMethodWithRetry -Path $carbonPath -Method POST -Payload $itemBody
+            if (-not $resp -or $resp.StatusCode -ne 200) { throw "Per-subscription carbon report returned HTTP $($resp.StatusCode)." }
             if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
                 $data = $resp.Content | ConvertFrom-Json
+                if ($data.value -isnot [array]) { throw 'Per-subscription carbon report returned an invalid collection.' }
                 foreach ($row in @($data.value)) {
-                    $subId   = if ($row.itemName) { [string]$row.itemName } else { '' }
-                    $subObj  = $Subscriptions | Where-Object { ([string]$_.Id).ToLower() -eq $subId.ToLower() } | Select-Object -First 1
-                    $latest  = if ($null -ne $row.latestMonthEmissions) { [double]$row.latestMonthEmissions } else { 0 }
+                    $subId = if ($row.itemName) { [string]$row.itemName } else { '' }
+                    $subObj = $Subscriptions | Where-Object { ([string]$_.Id).ToLower() -eq $subId.ToLower() } | Select-Object -First 1
+                    $latest = Get-HubCostValue -Row $row -Column 'latestMonthEmissions'
                     [void]$bySub.Add([PSCustomObject]@{
-                        Subscription   = if ($subObj) { $subObj.Name } else { $subId }
-                        SubscriptionId = $subId
-                        EmissionsKg    = [math]::Round($latest, 3)
-                    })
+                            Subscription   = if ($subObj) { $subObj.Name } else { $subId }
+                            SubscriptionId = $subId
+                            EmissionsKg    = [math]::Round($latest, 3)
+                        })
                 }
             }
+            else { throw 'Per-subscription carbon report returned no content.' }
         }
         catch {
+            $readErrors.Add("Subscription batch $batchNo : $($_.Exception.Message)")
             Write-Warning "  Carbon per-subscription query failed (batch $batchNo): $($_.Exception.Message)"
         }
 
@@ -187,23 +213,26 @@ function Get-CarbonMetrics {
 
         try {
             $resp = Invoke-AzRestMethodWithRetry -Path $carbonPath -Method POST -Payload $monthlyBody
+            if (-not $resp -or $resp.StatusCode -ne 200) { throw "Monthly carbon report returned HTTP $($resp.StatusCode)." }
             if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
                 $data = $resp.Content | ConvertFrom-Json
+                if ($data.value -isnot [array]) { throw 'Monthly carbon report returned an invalid collection.' }
                 foreach ($row in @($data.value)) {
                     $month = ''
-                    if ($row.date)      { try { $month = ([datetime]$row.date).ToString('yyyy-MM') } catch { $month = [string]$row.date } }
+                    if ($row.date) { try { $month = ([datetime]$row.date).ToString('yyyy-MM') } catch { $month = [string]$row.date } }
                     elseif ($row.month) { $month = [string]$row.month }
                     if (-not $month) { continue }
-                    $val = if ($null -ne $row.totalCarbonEmission) { [double]$row.totalCarbonEmission }
-                           elseif ($null -ne $row.carbonEmission)  { [double]$row.carbonEmission }
-                           elseif ($null -ne $row.latestMonthEmissions) { [double]$row.latestMonthEmissions }
-                           else { 0 }
+                    $column = if ($null -ne $row.totalCarbonEmission) { 'totalCarbonEmission' }
+                    elseif ($null -ne $row.carbonEmission) { 'carbonEmission' } else { 'latestMonthEmissions' }
+                    $val = Get-HubCostValue -Row $row -Column $column
                     if (-not $monthlyTotals.ContainsKey($month)) { $monthlyTotals[$month] = 0.0 }
                     $monthlyTotals[$month] += $val
                 }
             }
+            else { throw 'Monthly carbon report returned no content.' }
         }
         catch {
+            $readErrors.Add("Monthly batch $batchNo : $($_.Exception.Message)")
             Write-Warning "  Carbon monthly query failed (batch $batchNo): $($_.Exception.Message)"
         }
     }
@@ -214,22 +243,27 @@ function Get-CarbonMetrics {
         }
     )
 
-    $changeValue = $totalLatest - $totalPrevious
-    $changeRatio = if ($totalPrevious -ne 0) { [math]::Round(($changeValue / $totalPrevious) * 100, 1) } else { 0 }
+    $headlineAvailable = $headlineComplete -and $headlineRows -gt 0
+    $changeValue = if ($headlineAvailable) { $totalLatest - $totalPrevious } else { $null }
+    $changeRatio = if ($headlineAvailable -and $totalPrevious -gt 0) { [math]::Round(($changeValue / $totalPrevious) * 100, 1) } else { $null }
 
-    $hasData = ($totalLatest -gt 0) -or ($trend.Count -gt 0) -or ($bySub.Count -gt 0)
+    $hasData = $headlineAvailable -or ($trend.Count -gt 0) -or ($bySub.Count -gt 0)
 
     return [PSCustomObject]@{
-        HasData          = $hasData
-        TotalEmissionsKg = [math]::Round($totalLatest, 3)
-        PreviousMonthKg  = [math]::Round($totalPrevious, 3)
-        ChangeValueKg    = [math]::Round($changeValue, 3)
-        ChangeRatio      = $changeRatio
-        LatestMonth      = $window.End.ToString('yyyy-MM')
-        MonthlyTrend     = $trend
-        BySubscription   = @($bySub | Sort-Object EmissionsKg -Descending)
-        Unit             = 'kgCO2e'
-        ScannedSubs      = $subCount
-        Note             = if ($hasData) { $null } else { 'No emissions returned for the available window.' }
+        HasData            = $hasData
+        TotalEmissionsKg   = if ($headlineAvailable) { [math]::Round($totalLatest, 3) } else { $null }
+        PreviousMonthKg    = if ($headlineAvailable) { [math]::Round($totalPrevious, 3) } else { $null }
+        ChangeValueKg      = if ($headlineAvailable) { [math]::Round($changeValue, 3) } else { $null }
+        ChangeRatio        = $changeRatio
+        CoverageIncomplete = ($readErrors.Count -gt 0)
+        ReadErrors         = @($readErrors)
+        LatestMonth        = $window.End.ToString('yyyy-MM')
+        MonthlyTrend       = $trend
+        BySubscription     = @($bySub | Sort-Object EmissionsKg -Descending)
+        Unit               = 'kgCO2e'
+        ScannedSubs        = $subCount
+        Note               = if ($readErrors.Count -gt 0) { 'Carbon report coverage is incomplete. ' + ($readErrors -join ' ') }
+        elseif ($headlineAvailable -and $totalPrevious -le 0) { 'A month-over-month percentage requires a positive previous-month measurement.' }
+        elseif ($hasData) { $null } else { 'No emissions returned for the available window.' }
     }
 }

@@ -194,6 +194,13 @@ function Get-UsageProportionalAllocation {
         [double]$PoolAmount = 0,
 
         [Parameter()]
+        [ValidatePattern('(?i)^(?!XXX$|XTS$)[A-Z]{3}$')]
+        [string]$PoolCurrency,
+
+        [Parameter()]
+        [string]$PoolPeriod,
+
+        [Parameter()]
         [string]$Preset = 'aksNamespace',
 
         [Parameter()]
@@ -231,7 +238,8 @@ function Get-UsageProportionalAllocation {
     # -- Size the shared pool ---------------------------------------------
     $poolTotal = 0.0
     $poolResources = @()
-    $currency = 'USD'
+    $currency = 'Unknown'
+    $period = 'Unknown'
     $source = 'Explicit'
 
     if ($haveResources) {
@@ -242,6 +250,7 @@ function Get-UsageProportionalAllocation {
             $maps = Get-AllocationCostMaps -SubscriptionIds $hubSubs -HubData $HubData
             $currency = $maps.Currency
             $source = $maps.Source
+            $period = $maps.Period
             foreach ($p in $pool) {
                 $c = if ($maps.ByResource.ContainsKey($p.Id)) { [double]$maps.ByResource[$p.Id] } else { 0.0 }
                 $poolTotal += $c
@@ -253,6 +262,8 @@ function Get-UsageProportionalAllocation {
     if ($poolTotal -le 0 -and $PoolAmount -gt 0) {
         $poolTotal = $PoolAmount
         $source = 'Explicit'
+        $currency = if ($PoolCurrency) { $PoolCurrency.ToUpperInvariant() } else { 'Unknown' }
+        $period = if ($PoolPeriod) { $PoolPeriod } else { 'Unknown' }
     }
 
     if ($poolTotal -le 0) {
@@ -284,12 +295,25 @@ function Get-UsageProportionalAllocation {
             }
         }
         $allocations = @($allocations | Sort-Object AllocatedCost -Descending)
+        $residual = [math]::Round([math]::Round($poolTotal, 2) - ($allocations | Measure-Object AllocatedCost -Sum).Sum, 2)
+        if ($residual -gt 0 -and $allocations.Count -gt 0) {
+            $allocations[0].AllocatedCost = [math]::Round($allocations[0].AllocatedCost + $residual, 2)
+        }
+        elseif ($residual -lt 0) {
+            foreach ($allocation in $allocations) {
+                $adjustment = [math]::Min($allocation.AllocatedCost, - $residual)
+                $allocation.AllocatedCost = [math]::Round($allocation.AllocatedCost - $adjustment, 2)
+                $residual = [math]::Round($residual + $adjustment, 2)
+                if ($residual -eq 0) { break }
+            }
+        }
     }
     else {
         $notes += 'No usage telemetry resolved, so the pool was not split. ' + $tw.Note
     }
 
     $notes += "Showback only: $($tw.ConsumerDimension) is not an Azure billing dimension, so this allocation CANNOT be written as a native cost allocation rule (set_cost_allocation_rule). Use it for internal chargeback / reporting."
+    if ($source -eq 'Explicit' -and ($currency -eq 'Unknown' -or $period -eq 'Unknown')) { $notes += 'Provide PoolCurrency and PoolPeriod to identify the units of the explicit amount; none are assumed.' }
     if ($tw.Note -and $totalWeight -gt 0) { $notes += $tw.Note }
 
     return [PSCustomObject]@{
@@ -300,7 +324,7 @@ function Get-UsageProportionalAllocation {
         ConsumerDimension = $tw.ConsumerDimension
         Source            = $tw.Source
         CostSource        = $source
-        Period            = 'MonthToDate'
+        Period            = $period
         Currency          = $currency
         SharedPool        = [PSCustomObject]@{
             TotalCost = [math]::Round($poolTotal, 2)

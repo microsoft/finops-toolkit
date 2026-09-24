@@ -98,7 +98,9 @@ function Add-MeterCosts {
                 $any = $true
                 $amount = [double]$row[0]
                 $category = [string]$row[1]
-                if ($row.Count -ge 3 -and $row[2]) { Add-CurrencySeen -Seen $CurrencySeen -Currency ([string]$row[2]) }
+                $rowCurrency = if ($row.Count -ge 3) { ([string]$row[2]).Trim().ToUpperInvariant() } else { '' }
+                if ($rowCurrency -notmatch '^[A-Z]{3}$' -or $rowCurrency -in @('XXX', 'XTS')) { $rowCurrency = 'Unknown' }
+                Add-CurrencySeen -Seen $CurrencySeen -Currency $rowCurrency
                 switch -Wildcard ($category) {
                     'Virtual Machines*' { $ComputeRef.Value += $amount }
                     'Storage*' { $StorageRef.Value += $amount }
@@ -348,23 +350,33 @@ resources
     }
 
     # -- 4: Derived KPIs --------------------------------------------------
-    $costPerVCpu = if ($totalVCpu -gt 0) { $computeCost / $totalVCpu } else { 0 }
-    $costPerVm = if ($vmCount -gt 0) { $computeCost / $vmCount } else { 0 }
-    $costPerGb = if ($totalGb -gt 0) { $storageCost / $totalGb } else { 0 }
-    $costPerGbRam = if ($totalMemGb -gt 0) { $computeCost / $totalMemGb } else { 0 }
+    $currency = Resolve-CurrencyLabel -Seen $currenciesSeen -Fallback 'Unknown'
+    $costIssue = if ($currenciesSeen.ContainsKey('UNKNOWN') -or $currency -eq 'Unknown') {
+        'Cost currency is missing or invalid; combined costs and unit rates are unavailable.'
+    }
+    elseif (Test-CurrencyMixed -Seen $currenciesSeen) {
+        'Multiple billing currencies cannot be combined; costs, cost shares, and unit rates are unavailable.'
+    }
+    else { $null }
+    $costAvailable = $costOk -and -not $costIssue
+    $costPerVCpu = if ($costAvailable -and $totalVCpu -gt 0) { $computeCost / $totalVCpu } else { $null }
+    $costPerVm = if ($costAvailable -and $vmCount -gt 0) { $computeCost / $vmCount } else { $null }
+    $costPerGb = if ($costAvailable -and $totalGb -gt 0) { $storageCost / $totalGb } else { $null }
+    $costPerGbRam = if ($costAvailable -and $totalMemGb -gt 0) { $computeCost / $totalMemGb } else { $null }
 
-    $totalKnown = $computeCost + $storageCost
-    $computeSharePct = if ($totalKnown -gt 0) { [math]::Round(100 * $computeCost / $totalKnown, 1) } else { 0 }
-    $storageSharePct = if ($totalKnown -gt 0) { [math]::Round(100 * $storageCost / $totalKnown, 1) } else { 0 }
+    $totalKnown = if ($costAvailable) { $computeCost + $storageCost } else { $null }
+    $computeSharePct = if ($costAvailable -and $totalKnown -gt 0) { [math]::Round(100 * $computeCost / $totalKnown, 1) } else { $null }
+    $storageSharePct = if ($costAvailable -and $totalKnown -gt 0) { [math]::Round(100 * $storageCost / $totalKnown, 1) } else { $null }
 
     $hasData = $costOk -and (($totalVCpu -gt 0) -or ($totalGb -gt 0))
 
     # -- 5: Honest diagnostics so $0 is explained, not silent -------------
     $notes = @()
+    if ($costIssue) { $notes += $costIssue }
     if (-not $costOk) {
         $notes += 'No cost data returned - check Cost Management Reader at the management-group or subscription scope.'
     }
-    if ($costOk -and $computeCost -eq 0 -and $vmCount -gt 0) {
+    if ($costAvailable -and $computeCost -eq 0 -and $vmCount -gt 0) {
         $notes += 'VMs found but $0 compute MTD (newly created, deallocated, or fully reservation/savings-plan covered).'
     }
     if ($totalGb -eq 0 -and $vmCount -gt 0) {
@@ -382,11 +394,13 @@ resources
 
     return [PSCustomObject]@{
         HasData            = $hasData
-        Currency           = Resolve-CurrencyLabel -Seen $currenciesSeen
+        Currency           = $currency
+        CostAvailable      = $costAvailable
+        CostIssue          = $costIssue
         CostPeriodStartUtc = $costPeriodStartUtc
         CostPeriodEndUtc   = $costPeriodEndUtc
-        ComputeCost        = [math]::Round($computeCost, 2)
-        StorageCost        = [math]::Round($storageCost, 2)
+        ComputeCost        = if ($costAvailable) { [math]::Round($computeCost, 2) } else { $null }
+        StorageCost        = if ($costAvailable) { [math]::Round($storageCost, 2) } else { $null }
         ComputeSharePct    = $computeSharePct
         StorageSharePct    = $storageSharePct
         VmCount            = $vmCount

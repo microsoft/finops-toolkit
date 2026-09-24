@@ -100,10 +100,10 @@ function New-FinOpsPrivateDirectory {
         $stat = Get-Command stat -CommandType Application -ErrorAction Stop
         foreach ($item in $items) {
             if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Private data cannot contain linked files or directories.' }
-            $metadata = if ($IsMacOS) { & $stat.Source -f '%u:%Lp' $item.FullName } else { & $stat.Source -c '%u:%a' -- $item.FullName }
+            $metadata = if ($IsMacOS) { & $stat.Source -f '%u:%p' $item.FullName } else { & $stat.Source -c '%u:%a' -- $item.FullName }
             if ($LASTEXITCODE -ne 0 -or [string]$metadata -notmatch '^(\d+):([0-7]+)$') { throw 'Private data ownership and permissions could not be verified.' }
             $itemOwner = $Matches[1]
-            $mode = [Convert]::ToInt32($Matches[2], 8)
+            $mode = [Convert]::ToInt32($Matches[2], 8) -band 4095
             $isAncestor = $item.FullName -ne $fullPath -and -not $item.FullName.StartsWith($fullPath + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal)
             $stickyAncestor = $isAncestor -and $item.FullName -ne $creationParent -and $item.FullName -ne $parentDirectory -and $itemOwner -eq '0' -and ($mode -band 512) -ne 0
             if (($itemOwner -ne $ownerId -and -not ($isAncestor -and $itemOwner -eq '0')) -or (($mode -band 18) -ne 0 -and -not $stickyAncestor)) {
@@ -661,13 +661,14 @@ function Read-ParquetFile {
         if (-not $table -or $table.Count -eq 0) { return @() }
 
         $results = [System.Collections.Generic.List[PSCustomObject]]::new()
-        $colNames = @($table.Schema.GetDataFields() | ForEach-Object { $_.Name })
+        $colNames = @($table.Schema.Fields | ForEach-Object { $_.Name })
 
-        for ($i = 0; $i -lt $table.Count; $i++) {
+        for ($rowIndex = 0; $rowIndex -lt $table.Count; $rowIndex++) {
+            $row = $table[$rowIndex]
+            if ($row.Values.Length -ne $colNames.Count) { throw 'Parquet row width does not match its schema.' }
             $obj = [ordered]@{}
-            foreach ($colName in $colNames) {
-                $col = $table[$colName]
-                $obj[$colName] = if ($col -and $i -lt $col.Data.Length) { $col.Data[$i] } else { $null }
+            for ($columnIndex = 0; $columnIndex -lt $colNames.Count; $columnIndex++) {
+                $obj[$colNames[$columnIndex]] = $row.Values[$columnIndex]
             }
             $results.Add([PSCustomObject]$obj)
         }

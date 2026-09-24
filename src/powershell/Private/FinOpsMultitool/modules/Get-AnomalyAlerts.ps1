@@ -26,6 +26,7 @@ function Get-AnomalyAlerts {
 
     $triggeredAlerts = [System.Collections.Generic.List[PSCustomObject]]::new()
     $configuredRules = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $readErrors = [Collections.Generic.List[string]]::new()
 
     $i = 0
     foreach ($sub in $Subscriptions) {
@@ -40,9 +41,9 @@ function Get-AnomalyAlerts {
         try {
             $alertPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/alerts?api-version=2023-09-01"
             $resp = Invoke-AzRestMethodWithRetry -Path $alertPath -Method GET
+            $data = Get-FinOpsListResult -FirstResponse $resp -Context "alerts for $($sub.Name)"
 
             if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
-                $data = $resp.Content | ConvertFrom-Json
                 if ($data.value) {
                     foreach ($alert in $data.value) {
                         $p   = $alert.properties
@@ -54,9 +55,9 @@ function Get-AnomalyAlerts {
                         $criteria  = if ($def.criteria) { $def.criteria } else { '' }
                         $status    = if ($p.status)     { $p.status }     else { 'Unknown' }
 
-                        $amount      = if ($det.amount)       { [math]::Round([double]$det.amount, 2) }       else { 0 }
-                        $currentSpend = if ($det.currentSpend) { [math]::Round([double]$det.currentSpend, 2) } else { 0 }
-                        $unit        = if ($det.unit)         { $det.unit }                                   else { 'USD' }
+                        $amount = if ($null -ne $det.amount) { [math]::Round((Get-HubCostValue -Row $det -Column 'amount'), 2) } else { $null }
+                        $currentSpend = if ($null -ne $det.currentSpend) { [math]::Round((Get-HubCostValue -Row $det -Column 'currentSpend'), 2) } else { $null }
+                        $unit = if ($det.unit) { $det.unit } else { $null }
 
                         # Cost Management names alerts with a GUID. Derive a human
                         # label: prefer the alert description, then the related
@@ -103,6 +104,7 @@ function Get-AnomalyAlerts {
                 }
             }
         } catch {
+            $readErrors.Add($_.Exception.Message)
             Write-Warning "  Alert query failed for $($sub.Name): $($_.Exception.Message)"
         }
 
@@ -110,9 +112,9 @@ function Get-AnomalyAlerts {
         try {
             $saPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/scheduledActions?api-version=2023-03-01"
             $resp = Invoke-AzRestMethodWithRetry -Path $saPath -Method GET
+            $data = Get-FinOpsListResult -FirstResponse $resp -Context "scheduled actions for $($sub.Name)"
 
             if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
-                $data = $resp.Content | ConvertFrom-Json
                 if ($data.value) {
                     $insightActions = @($data.value | Where-Object { $_.kind -eq 'InsightAlert' })
                     foreach ($sa in $insightActions) {
@@ -142,6 +144,7 @@ function Get-AnomalyAlerts {
                 }
             }
         } catch {
+            $readErrors.Add($_.Exception.Message)
             Write-Warning "  Scheduled action query failed for $($sub.Name): $($_.Exception.Message)"
         }
     }
@@ -152,6 +155,9 @@ function Get-AnomalyAlerts {
 
     return [PSCustomObject]@{
         TriggeredAlerts     = @($triggeredAlerts)
+        CoverageIncomplete  = ($readErrors.Count -gt 0)
+        ReadErrors          = @($readErrors)
+        Note                = if ($readErrors.Count -gt 0) { 'Alert and rule coverage is incomplete. ' + ($readErrors -join ' ') } else { $null }
         ConfiguredRules     = @($configuredRules)
         TotalAlerts         = $triggeredAlerts.Count
         AnomalyAlertCount   = $anomalyCount

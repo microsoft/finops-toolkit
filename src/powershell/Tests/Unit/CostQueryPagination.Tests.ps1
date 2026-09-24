@@ -36,7 +36,7 @@ Describe 'Cost Management query pagination' {
 
     It 'Rejects a failed first response' {
         { Get-CostQueryResponsePage -FirstResponse (Get-FakeResponse -StatusCode 403) } |
-            Should -Throw '*page 1 failed (403)*incomplete*'
+        Should -Throw '*page 1 failed (403)*incomplete*'
     }
 
     It 'Rejects missing response content' -ForEach @(
@@ -44,7 +44,7 @@ Describe 'Cost Management query pagination' {
         @{ Content = '' }
     ) {
         { Get-CostQueryResponsePage -FirstResponse ([PSCustomObject]@{ StatusCode = 200; Content = $Content }) } |
-            Should -Throw '*no content*incomplete*'
+        Should -Throw '*no content*incomplete*'
     }
 
     It 'Rejects a null response' {
@@ -77,7 +77,7 @@ Describe 'Cost Management query pagination' {
 
         {
             Get-CostQueryResponsePage -FirstResponse $firstPage -Payload '{"type":"ActualCost"}' |
-                ForEach-Object { [void]$returnedPages.Add($_) }
+            ForEach-Object { [void]$returnedPages.Add($_) }
         } | Should -Throw '*incomplete*'
 
         $returnedPages.Count | Should -Be 0
@@ -138,7 +138,7 @@ Describe 'Cost Management query pagination' {
     ) {
         $properties = @{
             columns = @(@{ name = 'ResourceId' }, @{ name = 'Cost' }, @{ name = 'Currency' })
-            rows = @(, @('/subscriptions/x/r2', $Amount, 'USD'))
+            rows    = @(, @('/subscriptions/x/r2', $Amount, 'USD'))
         }
         $badPage = [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
         Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool { $badPage }
@@ -147,7 +147,7 @@ Describe 'Cost Management query pagination' {
 
         {
             Get-CostQueryResponsePage -FirstResponse $firstPage -Payload '{}' |
-                ForEach-Object { [void]$returnedPages.Add($_) }
+            ForEach-Object { [void]$returnedPages.Add($_) }
         } | Should -Throw '*cost*incomplete*'
         $returnedPages.Count | Should -Be 0
     }
@@ -158,7 +158,7 @@ Describe 'Cost Management query pagination' {
     ) {
         $properties = @{
             columns = @(@{ name = 'Cost' }, @{ name = 'Currency' })
-            rows = @(, @($Amount, 'USD'))
+            rows    = @(, @($Amount, 'USD'))
         }
         $firstPage = [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
 
@@ -171,7 +171,7 @@ Describe 'Cost Management query pagination' {
         Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
             [PSCustomObject]@{
                 StatusCode = 200
-                Content = '{"properties":{"columns":[{"name":"Cost"},{"name":"ResourceId"},{"name":"Currency"}],"rows":[[20,"resource","USD"]]}}'
+                Content    = '{"properties":{"columns":[{"name":"Cost"},{"name":"ResourceId"},{"name":"Currency"}],"rows":[[20,"resource","USD"]]}}'
             }
         }
         $firstPage = Get-FakeResponse -NextLink '/subscriptions/x/q?page=2'
@@ -219,7 +219,7 @@ Describe 'Cost Management query pagination' {
                     }
                     $properties = @{
                         columns = @(@{ name = 'Currency' }, @{ name = 'SubscriptionId' }, @{ name = 'Cost' })
-                        rows = @()
+                        rows    = @()
                     }
                     if ($isForecast) { $properties.rows = @(, @('EUR', '11111111-1111-1111-1111-111111111111', 375.0)) }
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
@@ -227,7 +227,7 @@ Describe 'Cost Management query pagination' {
                 $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Forecast only' })
 
                 $result = if ($fixturePath -eq 'PerSubscription') { Get-CostDataPerSubscription -Subscriptions $subscriptions }
-                    else { Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
+                else { Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
 
                 $entry = $result[$subscriptions[0].Id]
                 $entry.Actual | Should -BeNullOrEmpty
@@ -255,14 +255,14 @@ Describe 'Cost Management query pagination' {
                     $value = if ($isForecast) { 375.0 } else { $fixtureAmount }
                     $properties = @{
                         columns = @(@{ name = 'Currency' }, @{ name = 'SubscriptionId' }, @{ name = 'Cost' })
-                        rows = @(, @($unit, '11111111-1111-1111-1111-111111111111', $value))
+                        rows    = @(, @($unit, '11111111-1111-1111-1111-111111111111', $value))
                     }
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
                 }
                 $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
 
                 $result = if ($fixturePath -eq 'PerSubscription') { Get-CostDataPerSubscription -Subscriptions $subscriptions }
-                    else { Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
+                else { Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
 
                 $result[$subscriptions[0].Id].Actual | Should -Be $fixtureAmount
                 $result[$subscriptions[0].Id].Currency | Should -Be 'EUR'
@@ -320,7 +320,7 @@ Describe 'Cost Management query pagination' {
                     $body = @{
                         properties = @{
                             columns = @(@{ name = 'Currency' }, @{ name = 'SubscriptionId' }, @{ name = 'Cost' })
-                            rows = @(, @('USD', '11111111-1111-1111-1111-111111111111', $amount))
+                            rows    = @(, @('USD', '11111111-1111-1111-1111-111111111111', $amount))
                         }
                     }
                     if (-not $isNextPage) {
@@ -371,7 +371,7 @@ Describe 'Cost Management query pagination' {
                     $body = @{
                         properties = @{
                             columns = @(@{ name = 'Cost' }, @{ name = 'SubscriptionId' }, @{ name = 'Currency' })
-                            rows = @(, @($amount, '11111111-1111-1111-1111-111111111111', 'USD'))
+                            rows    = @(, @($amount, '11111111-1111-1111-1111-111111111111', 'USD'))
                         }
                     }
                     if ($isForecast) { $body.properties.nextLink = "$Path&page=2" }
@@ -399,7 +399,7 @@ Describe 'Cost Management query pagination' {
                     if ($Path -like '*page=2') { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
                     [pscustomobject]@{
                         StatusCode = 200
-                        Content = '{"properties":{"columns":[{"name":"Cost"},{"name":"Currency"}],"rows":[[100,"USD"]],"nextLink":"/subscriptions/x/query?page=2"}}'
+                        Content    = '{"properties":{"columns":[{"name":"Cost"},{"name":"Currency"}],"rows":[[100,"USD"]],"nextLink":"/subscriptions/x/query?page=2"}}'
                     }
                 }
                 $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'test' })
@@ -430,7 +430,7 @@ Describe 'Cost Management query pagination' {
                         $amount = if ($isNextPage) { 100.0 } else { 400.0 }
                         $properties = @{
                             columns = @(@{ name = 'CostStatus' }, @{ name = 'Cost' }, @{ name = 'Currency' })
-                            rows = @(, @('Forecast', $amount, 'USD'))
+                            rows    = @(, @('Forecast', $amount, 'USD'))
                         }
                     }
                     else {
@@ -438,7 +438,7 @@ Describe 'Cost Management query pagination' {
                         $resourceName = if ($isNextPage) { 'second' } else { 'first' }
                         $properties = @{
                             columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'ResourceGroupName' }, @{ name = 'Currency' })
-                            rows = @(, @($amount, "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/disks/$resourceName", 'test', 'USD'))
+                            rows    = @(, @($amount, "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/disks/$resourceName", 'test', 'USD'))
                         }
                     }
                     if (-not $isNextPage) { $properties.nextLink = "$Path&page=2" }
@@ -476,7 +476,7 @@ Describe 'Cost Management query pagination' {
                     if ($Path -like '*page=2') { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
                     $properties = @{
                         columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'ResourceGroupName' }, @{ name = 'Currency' })
-                        rows = @(, @(100.0, '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/disks/first', 'test', 'USD'))
+                        rows    = @(, @(100.0, '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/disks/first', 'test', 'USD'))
                     }
                     if ($Path.Contains("/$failedOperation`?")) { $properties.nextLink = "$Path&page=2" }
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 10) }
@@ -493,10 +493,10 @@ Describe 'Cost Management query pagination' {
                 $rows = @()
                 if ($Query.Contains("properties.diskState == 'Unattached'")) {
                     $rows = @([pscustomobject]@{
-                        id = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/disks/first'
-                        name = 'first'; resourceGroup = 'test'; subscriptionId = '11111111-1111-1111-1111-111111111111'
-                        location = 'eastus'; diskSizeGb = 128; sku = 'Premium_LRS'
-                    })
+                            id = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/disks/first'
+                            name = 'first'; resourceGroup = 'test'; subscriptionId = '11111111-1111-1111-1111-111111111111'
+                            location = 'eastus'; diskSizeGb = 128; sku = 'Premium_LRS'
+                        })
                 }
                 [pscustomobject]@{ Data = $rows }
             }
@@ -504,8 +504,8 @@ Describe 'Cost Management query pagination' {
                 if ($Path -like '*page=2') { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
                 $body = @{
                     properties = @{
-                        columns = @(@{ name = 'ResourceId' }, @{ name = 'Cost' })
-                        rows = @(, @('/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/disks/first', 100.0))
+                        columns  = @(@{ name = 'ResourceId' }, @{ name = 'Cost' })
+                        rows     = @(, @('/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/disks/first', 100.0))
                         nextLink = "$Path&page=2"
                     }
                 }
@@ -529,6 +529,88 @@ Describe 'Cost Management query pagination' {
     }
 
     Context 'Parsed query consumers' {
+        It 'Preserves AI usage without inventing totals for <CurrencyCase> currencies' -ForEach @(
+            @{ CurrencyCase = 'mixed'; ExpectedAvailable = $false }
+            @{ CurrencyCase = 'missing column'; ExpectedAvailable = $false }
+            @{ CurrencyCase = 'blank row'; ExpectedAvailable = $false }
+            @{ CurrencyCase = 'matching'; ExpectedAvailable = $true }
+            @{ CurrencyCase = 'matching with failed metrics'; ExpectedAvailable = $true }
+            @{ CurrencyCase = 'matching with other AI spend'; ExpectedAvailable = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ CurrencyCase = $CurrencyCase; ExpectedAvailable = $ExpectedAvailable } {
+                param($CurrencyCase, $ExpectedAvailable)
+                $fixtureCurrencyCase = $CurrencyCase
+                $accountIds = @(
+                    '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.CognitiveServices/accounts/first'
+                    '/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/test/providers/Microsoft.CognitiveServices/accounts/second'
+                )
+                Mock Resolve-CostMgId { 'fixture' }
+                Mock Search-AzGraphSafe {
+                    @{ Data = @($accountIds | ForEach-Object { [pscustomobject]@{ id = $_; name = ($_ -split '/')[-1]; type = 'microsoft.cognitiveservices/accounts'; lkind = 'OpenAI'; subscriptionId = ($_ -split '/')[2]; location = 'eastus' } }) }
+                }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Invoke-WebRequest {
+                    if ($fixtureCurrencyCase -eq 'matching with failed metrics' -and $Uri -like '*/accounts/second/*') { throw 'Synthetic metrics HTTP 429.' }
+                    $metrics = @(foreach ($metric in @(@{ Name = 'ProcessedPromptTokens'; Total = 800 }, @{ Name = 'GeneratedTokens'; Total = 200 }, @{ Name = 'TokenTransaction'; Total = 1000 }, @{ Name = 'AzureOpenAIRequests'; Total = 10 })) {
+                            @{ name = @{ value = $metric.Name }; timeseries = @(@{ data = @(@{ total = $metric.Total }) }) }
+                        })
+                    [pscustomobject]@{ Content = (@{ value = $metrics } | ConvertTo-Json -Depth 10) }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' })
+                    $rows = @(@(100, $accountIds[0]), @(50, $accountIds[1]))
+                    if ($fixtureCurrencyCase -ne 'missing column') {
+                        $columns += @{ name = 'Currency' }
+                        $rows[0] += 'USD'
+                        $rows[1] += $(switch ($fixtureCurrencyCase) { 'mixed' { 'EUR' }; 'blank row' { '' }; default { 'USD' } })
+                    }
+                    if ($fixtureCurrencyCase -eq 'matching with other AI spend') { $rows += , @(200, ($accountIds[0] -replace '/first$', '/speech'), 'USD') }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ columns = $columns; rows = $rows } } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                )
+
+                $result = Get-AIWorkloadMetrics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+
+                $metricsFailed = $CurrencyCase -eq 'matching with failed metrics'
+                $result.TotalTokens | Should -Be $(if ($metricsFailed) { 1000 } else { 2000 })
+                $result.TotalRequests | Should -Be $(if ($metricsFailed) { 10 } else { 20 })
+                $result.HasData | Should -BeTrue
+                if ($ExpectedAvailable) {
+                    $result.TotalAICost | Should -Be $(if ($CurrencyCase -eq 'matching with other AI spend') { 350 } else { 150 })
+                    $result.Currency | Should -Be 'USD'
+                    if ($metricsFailed) {
+                        $result.CostPer1KTokens | Should -BeNullOrEmpty
+                        $result.CostPerRequest | Should -BeNullOrEmpty
+                        $result.RateIssue | Should -Match 'metrics'
+                        $result.MetricFailures | Should -Be 1
+                    }
+                    else {
+                        $result.CostPer1KTokens | Should -Be 75
+                        $result.CostPerRequest | Should -Be 7.5
+                    }
+                }
+                else {
+                    $result.TotalAICost | Should -BeNullOrEmpty
+                    $result.CostPer1KTokens | Should -BeNullOrEmpty
+                    $result.CostPerRequest | Should -BeNullOrEmpty
+                    $result.CostIssue | Should -Match 'currenc'
+                    foreach ($account in $result.ByAccount) {
+                        $account.Cost | Should -BeNullOrEmpty
+                        $account.CostPer1KTokens | Should -BeNullOrEmpty
+                    }
+                    $requestKpi = Get-KpiComputedValue -KpiId 'cost-per-api-call' -Data $result
+                    $requestKpi.Value | Should -BeNullOrEmpty
+                    $requestKpi.Display | Should -Match 'Unavailable'
+                    $tokenKpi = Get-KpiComputedValue -KpiId 'token-consumption-metrics' -Data $result
+                    $tokenKpi.Value | Should -Be 2000
+                    $tokenKpi.Display | Should -Not -Match 'for (Mixed|USD|EUR)'
+                }
+            }
+        }
+
         It 'Requires complete <Scan> cost pages (continuation fails: <PageFails>)' -ForEach @(
             @{ Scan = 'AI'; PageFails = $false }
             @{ Scan = 'AI'; PageFails = $true }
@@ -564,7 +646,7 @@ Describe 'Cost Management query pagination' {
                     $category = if ($isNextPage) { 'Storage' } else { 'Virtual Machines' }
                     $properties = @{
                         columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'MeterCategory' }, @{ name = 'Currency' }, @{ name = 'UsageQuantity' })
-                        rows = @(, @($amount, $targetResourceId, $category, 'USD', 1.0))
+                        rows    = @(, @($amount, $targetResourceId, $category, 'USD', 1.0))
                     }
                     if (-not $isNextPage) { $properties.nextLink = "$Path&page=2" }
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 10) }
@@ -622,10 +704,10 @@ Describe 'Cost Management query pagination' {
                     $columns = @(@{ name = 'BillingMonth'; type = 'Number' }, @{ name = 'Cost'; type = 'Number' }, @{ name = 'SubscriptionId'; type = 'String' })
                     if ($fixtureCurrency -ne 'missing') { $columns += @{ name = 'Currency'; type = 'String' } }
                     $rows = @(foreach ($subscriptionId in $ids) {
-                        $row = @([int](Get-Date).AddMonths(-1).ToString('yyyyMM01'), 100, $subscriptionId)
-                        if ($fixtureCurrency -ne 'missing') { $row += $(if ($fixtureCurrency -eq 'blank') { '' } elseif ($fixtureCurrency -eq 'mixed' -and $subscriptionId -eq $secondId) { 'EUR' } else { 'USD' }) }
-                        , $row
-                    })
+                            $row = @([int](Get-Date).AddMonths(-1).ToString('yyyyMM01'), 100, $subscriptionId)
+                            if ($fixtureCurrency -ne 'missing') { $row += $(if ($fixtureCurrency -eq 'blank') { '' } elseif ($fixtureCurrency -eq 'mixed' -and $subscriptionId -eq $secondId) { 'EUR' } else { 'USD' }) }
+                            , $row
+                        })
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ columns = $columns; rows = $rows } } | ConvertTo-Json -Depth 8) }
                 }
                 $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' })
@@ -716,19 +798,19 @@ Describe 'Cost Management query pagination' {
                     if ($scanName -eq 'ResourceForecast' -and $Path -notlike '*forecast*') {
                         return [pscustomobject]@{
                             StatusCode = 200
-                            Content = '{"properties":{"columns":[{"name":"Cost"},{"name":"ResourceId"},{"name":"ResourceGroupName"},{"name":"Currency"}],"rows":[[100,"/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/disks/test","test","USD"]]}}'
+                            Content    = '{"properties":{"columns":[{"name":"Cost"},{"name":"ResourceId"},{"name":"ResourceGroupName"},{"name":"Currency"}],"rows":[[100,"/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/disks/test","test","USD"]]}}'
                         }
                     }
                     if ($scanName -eq 'Forecast' -and $Path -notlike '*forecast*') {
                         return [pscustomobject]@{
                             StatusCode = 200
-                            Content = '{"properties":{"columns":[{"name":"Cost"},{"name":"Currency"}],"rows":[[100,"USD"]]}}'
+                            Content    = '{"properties":{"columns":[{"name":"Cost"},{"name":"Currency"}],"rows":[[100,"USD"]]}}'
                         }
                     }
                     if ($scanName -eq 'TrendPartial' -and $Path -like '/subscriptions/11111111-*') {
                         return [pscustomobject]@{
                             StatusCode = 200
-                            Content = '{"properties":{"columns":[{"name":"Cost","type":"Number"},{"name":"BillingMonth","type":"DateTime"},{"name":"Currency","type":"String"}],"rows":[[100,"2026-08-01","USD"]]}}'
+                            Content    = '{"properties":{"columns":[{"name":"Cost","type":"Number"},{"name":"BillingMonth","type":"DateTime"},{"name":"Currency","type":"String"}],"rows":[[100,"2026-08-01","USD"]]}}'
                         }
                     }
                     [pscustomobject]@{ StatusCode = 503; Content = '{}' }
@@ -738,9 +820,9 @@ Describe 'Cost Management query pagination' {
                     $subscriptions += [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'second' }
                 }
                 $budgets = @([pscustomobject]@{
-                    SubscriptionId = $subscriptions[0].Id; Subscription = 'first'; Amount = 1000; BudgetName = 'test'; TimeGrain = 'Monthly'
-                    Category = 'Cost'; Currency = 'USD'; TimePeriod = @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-2) }
-                })
+                        SubscriptionId = $subscriptions[0].Id; Subscription = 'first'; Amount = 1000; BudgetName = 'test'; TimeGrain = 'Monthly'
+                        Category = 'Cost'; Currency = 'USD'; TimePeriod = @{ startDate = (Get-Date).ToUniversalTime().Date.AddYears(-2) }
+                    })
 
                 {
                     switch ($scanName) {
@@ -797,6 +879,314 @@ param($Path, $Method, $Payload)
         }
     }
 
+    Context 'Cost-by-tag coverage and currency' {
+        It 'Handles <Scenario> without presenting invalid whole-scope costs' -ForEach @(
+            @{ Scenario = 'denied subscription'; ExpectError = $false }
+            @{ Scenario = 'failed continuation'; ExpectError = $false }
+            @{ Scenario = 'mixed currencies'; ExpectError = $true }
+            @{ Scenario = 'mixed currencies reversed'; ExpectError = $true }
+            @{ Scenario = 'missing currency'; ExpectError = $true }
+            @{ Scenario = 'matching currencies'; ExpectError = $false }
+            @{ Scenario = 'failed tag map'; ExpectError = $true }
+            @{ Scenario = 'empty successes with denied subscription'; ExpectError = $false }
+            @{ Scenario = 'offsetting charges'; ExpectError = $false }
+            @{ Scenario = 'empty current month'; ExpectError = $false }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Scenario = $Scenario; ExpectError = $ExpectError } {
+                param($Scenario, $ExpectError)
+                $fixtureScenario = $Scenario
+                Mock Search-AzGraphSafe {
+                    if ($fixtureScenario -eq 'failed tag map') { throw 'Synthetic tag map is incomplete.' }
+                    [pscustomobject]@{ Data = @() }
+                }
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                $sessionState = [Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+                $sessionState.Variables.Add([Management.Automation.Runspaces.SessionStateVariableEntry]::new('FixtureScenario', $Scenario, 'Synthetic response scenario'))
+                $sessionState.Commands.Add([Management.Automation.Runspaces.SessionStateFunctionEntry]::new('Invoke-AzRestMethod', @'
+param($Path, $Method, $Payload)
+$subscriptionId = ($Path -split '/')[2]
+$second = $subscriptionId -eq '22222222-2222-2222-2222-222222222222'
+if ($FixtureScenario -in @('denied subscription', 'empty successes with denied subscription') -and $second) { return [pscustomobject]@{ StatusCode = 403; Content = '{}'; Headers = @{} } }
+$columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' })
+$amount = if ($second) { 50 } elseif ($subscriptionId -like '11111111-*') { 100 } else { 25 }
+$row = @($amount, "/subscriptions/$subscriptionId/resourceGroups/fixture/providers/Microsoft.Compute/disks/fixture")
+if ($FixtureScenario -ne 'missing currency') {
+    $columns += @{ name = 'Currency' }
+    $row += $(if (($FixtureScenario -eq 'mixed currencies' -and $second) -or ($FixtureScenario -eq 'mixed currencies reversed' -and -not $second)) { 'EUR' } else { 'USD' })
+}
+$properties = @{ columns = $columns; rows = @(,$row) }
+if ($FixtureScenario -eq 'empty successes with denied subscription' -or ($FixtureScenario -eq 'empty current month' -and ($Payload | ConvertFrom-Json).timeframe -eq 'MonthToDate')) { $properties.rows = @() }
+if ($FixtureScenario -eq 'offsetting charges') { $properties.rows += ,@(-$amount, $row[1], 'USD') }
+if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextLink = "$Path&page=2" }
+[pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8); Headers = @{} }
+'@))
+                $pool = [runspacefactory]::CreateRunspacePool(1, 2, $sessionState, $Host)
+                $previousPool = $script:RunspacePool
+                try {
+                    $pool.Open()
+                    $script:RunspacePool = $pool
+                    $subscriptions = @(
+                        [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                        [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                        [pscustomobject]@{ Id = '33333333-3333-3333-3333-333333333333'; Name = 'Third' }
+                    )
+                    $arguments = @{ TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; Subscriptions = $subscriptions; ExistingTags = @{ CostCenter = @{ TotalResources = 3 } } }
+                    if ($ExpectError) {
+                        $expectedMessage = if ($Scenario -eq 'failed tag map') { '*tag map*incomplete*' } else { '*currenc*' }
+                        { Get-CostByTag @arguments } | Should -Throw $expectedMessage
+                    }
+                    else {
+                        $result = Get-CostByTag @arguments
+                        $partial = $Scenario -in @('denied subscription', 'failed continuation', 'empty successes with denied subscription')
+                        $expectedTotal = if ($Scenario -in @('empty successes with denied subscription', 'offsetting charges')) { 0 } elseif ($partial) { 125 } else { 175 }
+                        [double]($result.CostByTag.CostCenter | Measure-Object Cost -Sum).Sum | Should -Be $expectedTotal
+                        $result.UsedTimeframe | Should -Be $(if ($Scenario -eq 'empty current month') { 'Custom' } else { 'MonthToDate' })
+                        $result.CoverageIncomplete | Should -Be $partial
+                        $result.ScannedSubs | Should -Be $(if ($partial) { 2 } else { 3 })
+                        $result.TotalSubs | Should -Be 3
+                        if ($partial) {
+                            @($result.FailedSubscriptions).Count | Should -Be 1
+                            $result.FailedSubscriptions[0].SubscriptionId | Should -Be $subscriptions[1].Id
+                            $result.SuccessfulSubscriptionIds | Should -Contain $subscriptions[2].Id
+                            foreach ($kpiId in @('pct-costs-untagged', 'pct-costs-unallocated', 'tagging-policy-compliant')) {
+                                $kpi = Get-KpiComputedValue -KpiId $kpiId -Data $result
+                                $kpi.Value | Should -BeNullOrEmpty
+                                $kpi.Display | Should -Match 'incomplete'
+                            }
+                        }
+                    }
+                }
+                finally { $script:RunspacePool = $previousPool; $pool.Dispose() }
+            }
+        }
+    }
+
+    Context 'Paged billing discovery' {
+        It 'Retains incomplete membership evidence after a partial <FailurePath> match' -ForEach @(
+            @{ FailurePath = 'membership page' }
+            @{ FailurePath = 'subscription lookup' }
+            @{ FailurePath = 'empty lookup' }
+            @{ FailurePath = 'whitespace lookup' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ FailurePath = $FailurePath } {
+                param($FailurePath)
+                $fixtureFailurePath = $FailurePath
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                )
+                $accounts = @('unreadable', 'readable') | ForEach-Object {
+                    [pscustomobject]@{ name = $_; id = "/providers/Microsoft.Billing/billingAccounts/$_"; properties = @{ displayName = $_; agreementType = 'EnterpriseAgreement' } }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*billingProperty*') {
+                        if ($fixtureFailurePath -ne 'membership page' -and $Path -like '*/22222222-*') {
+                            return [pscustomobject]@{ StatusCode = 200; Content = '{"properties":{"billingAccountId":"/providers/Microsoft.Billing/billingAccounts/readable"}}' }
+                        }
+                        if ($fixtureFailurePath -in @('empty lookup', 'whitespace lookup')) {
+                            return [pscustomobject]@{ StatusCode = 200; Content = $(if ($fixtureFailurePath -eq 'empty lookup') { '' } else { '   ' }) }
+                        }
+                        return [pscustomobject]@{ StatusCode = $(if ($fixtureFailurePath -eq 'subscription lookup') { 503 } else { 403 }); Content = '{}' }
+                    }
+                    if ($Path -like '*billingSubscriptions*') {
+                        if ($Path -like '*/unreadable/*') {
+                            if ($Path -like '*page=2') { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                            return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @(); nextLink = "$Path&page=2" } | ConvertTo-Json) }
+                        }
+                        return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"properties":{"subscriptionId":"22222222-2222-2222-2222-222222222222"}}]}' }
+                    }
+                    if ($Path -like '*/billingAccounts?*') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($accounts) } | ConvertTo-Json -Depth 7) }
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' }
+                }
+
+                $scope = Get-FinOpsBillingScope -BillingAccounts $accounts -Subscriptions $subscriptions
+                $billing = Get-BillingStructure -Subscriptions $subscriptions
+                $macc = Get-MaccCommitment -Subscriptions $subscriptions
+
+                $scope.Resolved | Should -BeTrue
+                $scope.Accounts[0].name | Should -Be 'readable'
+                $scope.CoverageIncomplete | Should -BeTrue
+                $expectedReason = if ($FailurePath -in @('empty lookup', 'whitespace lookup')) { 'no content' } else { '503' }
+                ($scope.ReadErrors -join ' ') | Should -Match $expectedReason
+                $billing.CoverageIncomplete | Should -BeTrue
+                $billing.Note | Should -Match $expectedReason
+                $macc.CoverageIncomplete | Should -BeTrue
+                $macc.Reason | Should -Match $expectedReason
+                $macc.Reason | Should -Not -Match 'No MACC commitment found'
+            }
+        }
+
+        It 'Correlates a selected subscription from a later billing membership page' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*billingProperty*') { return [pscustomobject]@{ StatusCode = 403; Content = '{}' } }
+                    $second = $Path -like '*page=2'
+                    $body = @{ value = @(@{ properties = @{ subscriptionId = $(if ($second) { '11111111-1111-1111-1111-111111111111' } else { '22222222-2222-2222-2222-222222222222' }) } }) }
+                    if (-not $second) { $body.nextLink = "$Path&page=2" }
+                    [pscustomobject]@{ StatusCode = 200; Content = ($body | ConvertTo-Json -Depth 6) }
+                }
+
+                $result = Get-FinOpsBillingScope -BillingAccounts @([pscustomobject]@{ Name = 'fixture' }) -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111' })
+
+                $result.Resolved | Should -BeTrue
+                $result.Accounts[0].Name | Should -Be 'fixture'
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Path -like '*page=2' -and $Method -eq 'GET' }
+            }
+        }
+
+        It 'Does not invent MACC amounts when the lot currency is absent' {
+            InModuleScope FinOpsMultitool {
+                Mock Get-FinOpsBillingScope { @{ Resolved = $true; Accounts = $BillingAccounts } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $value = if ($Path -like '*/lots?*') { @(@{ properties = @{ source = 'ConsumptionCommitment'; originalAmount = @{ value = 100 }; closedBalance = @{ value = 25 } } }) }
+                    else { @(@{ name = 'fixture'; properties = @{ displayName = 'Fixture'; agreementType = 'EnterpriseAgreement' } }) }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($value) } | ConvertTo-Json -Depth 8) }
+                }
+
+                $result = Get-MaccCommitment -Subscriptions @([pscustomobject]@{ Id = 'fixture' })
+
+                $result.CoverageIncomplete | Should -BeTrue
+                $result.Commitments[0].Currency | Should -BeNullOrEmpty
+                $result.Commitments[0].Consumed | Should -BeNullOrEmpty
+                $result.Commitments[0].Remaining | Should -BeNullOrEmpty
+                $result.Reason | Should -Match 'currency'
+            }
+        }
+
+        It 'Preserves contract probe failures beside subscription inference' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '/subscriptions/*') { return [pscustomobject]@{ StatusCode = 200; Content = '{"properties":{"subscriptionPolicies":{"quotaId":"EnterpriseAgreement"}}}' } }
+                    [pscustomobject]@{ StatusCode = 503; Content = '{}' }
+                }
+
+                $result = @(Get-ContractInfo -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' }))
+
+                $result[0].AgreementType | Should -Be 'EnterpriseAgreement'
+                $result[0].CoverageIncomplete | Should -BeTrue
+                $result[0].ReadErrors | Should -Match '503'
+                $result[0].Note | Should -Match 'not confirmed'
+            }
+        }
+
+        It 'Includes all MACC lots or reports incomplete coverage (failed page: <PageFails>)' -ForEach @(
+            @{ PageFails = $false }
+            @{ PageFails = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ PageFails = $PageFails } {
+                param($PageFails)
+                $failLots = $PageFails
+                Mock Get-FinOpsBillingScope { @{ Resolved = $true; Accounts = $BillingAccounts } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $second = $Path -like '*page=2'
+                    if ($Path -like '*/lots?*') {
+                        if ($second -and $failLots) { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                        $amount = if ($second) { 200 } else { 100 }
+                        $body = @{ value = @(@{ properties = @{ source = 'ConsumptionCommitment'; originalAmount = @{ value = $amount }; closedBalance = @{ value = 25 }; billingCurrency = 'EUR'; status = 'Active' } }) }
+                    }
+                    else {
+                        $body = @{ value = @(@{ name = 'fixture'; properties = @{ displayName = 'Fixture'; agreementType = $(if ($second) { 'EnterpriseAgreement' } else { 'MicrosoftOnlineServicesProgram' }) } }) }
+                    }
+                    if (-not $second) { $body.nextLink = "$Path&page=2" }
+                    [pscustomobject]@{ StatusCode = 200; Content = ($body | ConvertTo-Json -Depth 8) }
+                }
+
+                $result = Get-MaccCommitment -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+
+                $result.CoverageIncomplete | Should -Be $PageFails
+                if ($PageFails) {
+                    $result.Commitments | Should -BeNullOrEmpty
+                    $result.Reason | Should -Match 'incomplete'
+                    $result.Reason | Should -Not -Match 'No MACC commitment found'
+                }
+                else {
+                    $result.Commitments.Count | Should -Be 2
+                    ($result.Commitments | Measure-Object Commitment -Sum).Sum | Should -Be 300
+                    ($result.Commitments | Measure-Object Consumed -Sum).Sum | Should -Be 250
+                }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Path -like '*page=2' -and $Method -eq 'GET' }
+            }
+        }
+
+        It 'Reads every billing hierarchy page and marks a failed section (failed page: <PageFails>)' -ForEach @(
+            @{ PageFails = $false }
+            @{ PageFails = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ PageFails = $PageFails } {
+                param($PageFails)
+                $failSection = $PageFails
+                Mock Get-FinOpsBillingScope { @{ Resolved = $true; Accounts = $BillingAccounts } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $pageNumber = if ($Path -like '*page=2') { 2 } else { 1 }
+                    if ($failSection -and $Path -like '*invoiceSections*page=2') { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                    $name = "fixture-$pageNumber"
+                    $properties = @{ displayName = $name; name = $name; agreementType = $(if ($pageNumber -eq 1) { 'EnterpriseAgreement' } else { 'MicrosoftCustomerAgreement' }) }
+                    $body = @{ value = @(@{ name = $name; id = (($Path -split '\?')[0] + "/$name"); properties = $properties }) }
+                    if ($pageNumber -eq 1) { $body.nextLink = "$Path&page=2" }
+                    [pscustomobject]@{ StatusCode = 200; Content = ($body | ConvertTo-Json -Depth 8) }
+                }
+
+                $result = Get-BillingStructure -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
+
+                $result.BillingAccounts.Count | Should -Be 2
+                $result.BillingProfiles.Count | Should -Be 2
+                $result.EADepartments.Count | Should -Be 2
+                $result.CostAllocationRules.Count | Should -Be 4
+                $result.CoverageIncomplete | Should -Be $PageFails
+                if ($PageFails) {
+                    $result.InvoiceSections | Should -BeNullOrEmpty
+                    $result.Note | Should -Match 'invoice sections.*incomplete'
+                }
+                else { $result.InvoiceSections.Count | Should -Be 4 }
+            }
+        }
+
+        It 'Reads the requested billing account on page two (failed page: <PageFails>)' -ForEach @(
+            @{ PageFails = $false }
+            @{ PageFails = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ PageFails = $PageFails } {
+                param($PageFails)
+                $failPage = $PageFails
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*page=2' -and $failPage) { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                    $name = if ($Path -like '*page=2') { 'second' } else { 'first' }
+                    $body = @{ value = @(@{ name = $name; properties = @{ displayName = $name; agreementType = 'EnterpriseAgreement' } }) }
+                    if ($name -eq 'first') { $body.nextLink = "$Path&page=2" }
+                    [pscustomobject]@{ StatusCode = 200; Content = ($body | ConvertTo-Json -Depth 6) }
+                }
+
+                $result = Get-BillingAccount -BillingAccountId 'second' -ProbeAccess $false
+
+                $result.CoverageIncomplete | Should -Be $PageFails
+                if ($PageFails) { $result.Accounts | Should -BeNullOrEmpty; $result.Note | Should -Match 'incomplete' }
+                else { $result.Accounts[0].Id | Should -Be 'second' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Path -like '*page=2' -and $Method -eq 'GET' }
+            }
+        }
+
+        It 'Finds a readable management group after the first page and first twelve candidates' {
+            InModuleScope FinOpsMultitool {
+                Reset-CostMgScope
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Method -eq 'GET') {
+                        $body = if ($Path -like '*page=2') { @{ value = @(@{ name = 'readable' }) } }
+                        else { @{ value = @(1..12 | ForEach-Object { @{ name = "denied-$_" } }); nextLink = "$Path&page=2" } }
+                        return [pscustomobject]@{ StatusCode = 200; Content = ($body | ConvertTo-Json -Depth 5) }
+                    }
+                    [pscustomobject]@{ StatusCode = $(if ($Path -like '*/readable/*') { 200 } else { 403 }); Content = '{}' }
+                }
+                try {
+                    Resolve-CostMgId -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' | Should -Be 'readable'
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Path -like '*page=2' -and $Method -eq 'GET' }
+                }
+                finally { Reset-CostMgScope }
+            }
+        }
+    }
+
     Context 'Savings and unit totals' {
         It 'Completes <Scan> pages and discards failed MG data (fallback: <UseFallback>)' -ForEach @(
             @{ Scan = 'Savings'; UseFallback = $false }
@@ -827,7 +1217,7 @@ param($Path, $Method, $Payload)
                     }
                     $properties = @{
                         columns = @(@{ name = 'Cost' }, @{ name = $dimension }, @{ name = 'Currency' })
-                        rows = @(, @($amount, $category, 'USD'))
+                        rows    = @(, @($amount, $category, 'USD'))
                     }
                     if (-not $isNextPage) { $properties.nextLink = "$Path&page=2" }
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 10) }
@@ -925,7 +1315,7 @@ param($Path, $Method, $Payload)
 
         It 'Strips the host so the request stays on the ARM endpoint' {
             Resolve-NextLinkPath -NextLink 'https://management.azure.com/subscriptions/x/q?a=1' |
-                Should -Be '/subscriptions/x/q?a=1'
+            Should -Be '/subscriptions/x/q?a=1'
         }
     }
 }

@@ -3,7 +3,7 @@ title: FinOps multitool commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 09/20/2026
+ms.date: 09/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -22,7 +22,7 @@ The multitool provides one scan engine with two interfaces:
 
 The terminal UI prompts for each choice by default. Consoles that can't render the arrow-key menus, such as PowerShell remoting sessions, fall back to numbered prompts. To run the tool from a pipeline or a scheduled job, use `-NonInteractive` and supply the choices as parameters.
 
-Automation requires an existing Azure context established with the intended identity. Without one, `-NonInteractive` fails before scanning. Validation for this change was performed on Windows; native macOS/Linux behavior and live `dotnet restore` remain unverified.
+Automation requires an existing Azure context established with the intended identity. Without one, `-NonInteractive` fails before scanning. PowerShell 7 or later is required. For the macOS Parquet limitation and alternative data sources, see [FinOps hub data paths](#finops-hub-data-paths).
 
 CSV, HTML, and text reports are saved automatically on the machine running the multitool, in a new private folder under the current user's local application data. Use `-OutputPath` to select a different local parent folder outside Git repositories. For location details and privacy limits, see [Report storage](start-finopsmultitool.md#report-storage).
 
@@ -48,9 +48,17 @@ The multitool includes 30 scan modules across the following categories:
 - **AI and ML** – Azure AI workload spend.
 - **Sustainability** – Carbon emissions.
 
+VM cost breakdown, shared cost allocation, usage-proportional allocation, and billing account are direct module functions, not menu entries or valid `Start-FinOpsMultitool -Scans` choices. The remaining 26 scans are available through the terminal UI.
+
 Analysis scans are read-only. Most need Reader or Cost Management Reader access. Account scans also need agreement-specific billing access, such as Billing account reader or Billing profile reader for a Microsoft Customer Agreement, or Enterprise Administrator (read only) for an Enterprise Agreement. Commitment utilization reads reservation and savings plan usage at billing account or billing profile scope, so it needs that billing access. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
 
 Complete Resource Graph reads fail when a page is unreadable, a continuation token repeats, or the page limit is reached. A full page without a continuation token is also unverified, even if the true result happens to equal the page size. Affected inventory scans don't report partial rows as a successful complete inventory. Cost trend also rejects missing currency fields or monthly totals that would mix currencies.
+
+On the API path, **Cost by Tag** retains successful subscription queries when another subscription fails. Reports identify incomplete coverage and failed subscriptions, and whole-scope allocation KPIs remain unavailable. Failed continuation pages don't contribute partial costs. The scan rejects mixed-currency totals and incomplete tag maps; if no subscription can be read, it reports an error.
+
+**Unit Economics** and **AI Workload Metrics** retain capacity or usage measurements when currency evidence is missing or mixed, but leave monetary totals and rates unavailable with an explanation. AI rates use matching account costs and usage rather than total AI spend, and incomplete metric reads suppress aggregate rates. A measured zero with known currency stays zero.
+
+Advisor and reservation savings retain each recommendation's currency and don't combine incompatible amounts. Billing account, profile, invoice-section, department, rule, and MACC reads follow all returned pages; failures remain visible as incomplete coverage. Tag inventory and anomaly scans also report incomplete reads rather than presenting them as measured zero or healthy coverage. Failed Hub discovery requires an explicit source choice rather than silently selecting another source.
 
 For large subscription selections, budget status can sample subscriptions first. If the sample contains no budgets, it skips the remainder and reports coverage as unverified. Unreadable subscriptions aren't counted as having no budget. Policy inventory tracks assignment coverage separately from compliance coverage; incomplete compliance reads suppress the overall percentage. Storage tier advice leaves accounts with missing measurements unevaluated rather than treating absent samples as zero activity.
 
@@ -67,7 +75,7 @@ Commitment estimates cover usage charges in the reported UTC month-to-date perio
 When a [FinOps hub](../../hubs/finops-hubs-overview.md) is present, cost scans read from the hub and choose the path automatically:
 
 - **Kusto database (used when available)** – When the hub has an Azure Data Explorer or Microsoft Fabric cluster, the multitool discovers it through Azure Resource Graph and pushes aggregation into the engine, returning only summarized results. This scales to large datasets without loading raw cost rows into PowerShell. To query a local hub on your own hardware, set the `FINOPS_HUB_KUSTO_URI` environment variable to a local Kusto endpoint (optionally set `FINOPS_HUB_KUSTO_DB`, which defaults to `Hub`).
-- **Storage reader (small-dataset fallback)**: when no Kusto endpoint is configured or discovered, the multitool reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets. Reading Parquet exports prepares a pinned reader using NuGet on Windows and .NET SDK 8 or later on macOS and Linux. If the reader can't be prepared, the tool warns with the reason and attempts `msexports` CSV instead. A failed export read remains an error, not zero cost.
+- **Storage reader (small-dataset fallback)**: when no Kusto endpoint is configured or discovered, the multitool reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets. Reading Parquet exports prepares a pinned reader using NuGet on Windows or .NET SDK 8 or later on Linux. NuGet signed-package verification [isn't supported on macOS](/dotnet/core/tools/nuget-signed-package-verification#macos); use Kusto or available CSV exports there. The reader doesn't bypass signature verification. If it can't be prepared, the tool warns with the reason and attempts `msexports` CSV instead. A failed export read remains an error, not zero cost.
 
 Storage reads require Storage Blob Data Reader or equivalent data access. Kusto queries require database query access. Both paths need network access to the endpoint. Local Kusto queries are anonymous, but the public launcher still uses Azure context and resource metadata.
 
@@ -100,7 +108,7 @@ If you're looking for something specific, vote for an existing or create a new i
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20PowerShell%22%20sort%3A"reactions-%2B1-desc")
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20PowerShell%22%20sort%3Areactions-%2B1-desc)
 <!-- prettier-ignore-end -->
 
 <br>

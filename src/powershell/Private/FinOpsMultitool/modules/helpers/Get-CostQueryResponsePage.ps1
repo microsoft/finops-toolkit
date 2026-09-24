@@ -177,6 +177,21 @@ function Get-CostQueryResponsePage {
     return $pages
 }
 
+function Get-FinOpsListResult {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][AllowNull()][object]$FirstResponse,
+        [string]$Context = 'resource list'
+    )
+
+    $items = [Collections.Generic.List[object]]::new()
+    foreach ($page in (Get-CostQueryResponsePage -FirstResponse $FirstResponse -RootNextLink -Context $Context)) {
+        $parsed = $page.Content | ConvertFrom-Json -ErrorAction Stop
+        foreach ($item in $parsed.value) { $items.Add($item) }
+    }
+    return [pscustomobject]@{ value = $items.ToArray(); nextLink = $null }
+}
+
 function Get-CostQueryResult {
     [CmdletBinding()]
     param(
@@ -201,8 +216,8 @@ function Get-CostQueryResult {
 
     return [PSCustomObject]@{
         properties = [PSCustomObject]@{
-            columns = $columns
-            rows = $rows.ToArray()
+            columns  = $columns
+            rows     = $rows.ToArray()
             nextLink = $null
         }
     }

@@ -2,7 +2,7 @@
 name: finops-reporting
 description: Use when the user wants to turn cost data, scan output, or KQL results into an audience-ready narrative — executive summaries, monthly cost reviews, QBR decks, variance write-ups, or savings/optimization status reports. Converts numbers into decisions and recommendations.
 license: MIT
-compatibility: Works on output from the finops-multitool skill, the finops-toolkit KQL skill, or any cost dataset. Pairs with power-bi-finops for visuals and content-humanizer for tone.
+compatibility: Works on output from the finops-multitool skill, the finops-toolkit KQL skill, or any cost dataset. Pairs with power-bi-finops for visuals.
 metadata:
   author: microsoft
   version: "1.0"
@@ -31,21 +31,21 @@ Use it when the user asks for a summary, executive report, monthly/quarterly rev
 2. **Trend** — are we accelerating, flat, or declining? (cost trend, `monthly-cost-trend.kql`)
 3. **Top movers** — the 3 services/resource groups driving the change.
 4. **Savings captured** — ESR and realized savings (savings realized, `savings-summary-report.kql`).
-5. **Opportunities** — top 3 unrealized savings, each with $ impact, effort, and owner.
+5. **Opportunities** — top 3 savings opportunities, each with an amount in the reported currency and period, effort, and owner.
 6. **Anomalies / risks** — anything unusual, expiring commitments, budget overruns.
 7. **Recommended actions** — numbered, owned, with a target date. This is the part executives read.
 
 ## Turning a scan into a recommendation
 
-For every finding, give: **what** (the issue), **how much** ($ / month or %), **effort** (low/med/high), **risk** (low/med/high), **owner**, **action**. A finding without a dollar figure and an owner is noise — quantify it from the scan data or say it's an estimate.
+For every finding, give: **what** (the issue), **how much** (amount in the reported currency and period, or %), **effort** (low/med/high), **risk** (low/med/high), **owner**, **action**. Quantify impact from the evidence, label estimates, and state when an amount or owner is unknown.
 
 ## Writing rules
 
 - Lead with the number and the decision, not the methodology.
 - One idea per bullet; no walls of text in exec material.
-- Always express savings as $/month *and* annualized — annualized numbers move executives.
+- Retain the reported currency and period. Label estimates, and don't annualize partial-period savings or combine different currencies.
 - State assumptions explicitly (window, scope, billed vs effective cost) so the report survives scrutiny.
-- For the prose itself, apply the `content-humanizer` skill so it reads like a person, not a generator.
+- Use plain language, active voice, and specific actions. Remove generic praise and unsupported claims.
 
 ## Hand-offs
 

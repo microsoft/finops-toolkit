@@ -320,19 +320,25 @@ function Invoke-FinOpsMultitool {
 
         # Try to detect a FinOps Hub in the selected subscriptions
         $hubStorage = $null
+        $discoveryErrors = [Collections.Generic.List[string]]::new()
         Write-FinOpsConsole "  Checking for FinOps Hub deployment..." -ForegroundColor DarkGray
         foreach ($sub in $Subscriptions) {
             try {
                 $query = "resources | where type == 'microsoft.storage/storageaccounts' and tags['cm-resource-parent'] contains 'Microsoft.Cloud/hubs' | project name, resourceGroup, subscriptionId, location"
-                $result = Search-AzGraph -Query $query -Subscription $sub.Id -ErrorAction SilentlyContinue
+                $result = Search-AzGraph -Query $query -Subscription $sub.Id -ErrorAction Stop
                 if ($result -and @($result).Count -gt 0) {
                     $hubStorage = $result[0]
                     break
                 }
             }
             catch {
-                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                $discoveryErrors.Add("$($sub.Name): $($_.Exception.Message)")
+                Write-FinOpsConsole "  Hub discovery failed for $($sub.Name): $($_.Exception.Message)" -ForegroundColor Yellow
             }
+        }
+
+        if (-not $hubStorage -and $discoveryErrors.Count -gt 0) {
+            throw "FinOps hub discovery is incomplete: $($discoveryErrors -join '; '). Select API or GraphOnly explicitly, or configure FINOPS_HUB_KUSTO_URI."
         }
 
         if ($Preselected) {
@@ -379,7 +385,7 @@ function Invoke-FinOpsMultitool {
                         $hubSubIds = @($Subscriptions | ForEach-Object { $_.Id })
                         $prov = $null
                         try { $prov = Resolve-FOHubProvider -Subscriptions $hubSubIds } catch {
-                            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                            throw "FinOps hub provider discovery failed: $($_.Exception.Message)"
                         }
                         if ($prov -and $prov.Found) {
                             # A scalable Kusto path exists - no warning needed.
@@ -962,14 +968,9 @@ function Invoke-FinOpsMultitool {
             # Storage reader: small-dataset convenience path (rows loaded into
             # PowerShell). For large hubs, the Kusto path above is preferred.
             $hub = $DataSource.HubStorage
-            if ($DataSource.Source -eq 'Hub') {
-                Write-FinOpsConsole ""
-                Write-FinOpsConsole "  Loading cost data from FinOps Hub storage (small-dataset reader)..." -ForegroundColor Green
-                Write-FinOpsConsole "  For large hubs, query the Kusto database instead (ADX/Fabric, or set FINOPS_HUB_KUSTO_URI for ftklocal)." -ForegroundColor DarkGray
-            }
-            else {
-                Write-FinOpsConsole "  Loading Hub tag data for fast tag scans..." -ForegroundColor DarkGray
-            }
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  Loading cost data from FinOps Hub storage (small-dataset reader)..." -ForegroundColor Green
+            Write-FinOpsConsole "  For large hubs, query the Kusto database instead (ADX/Fabric, or set FINOPS_HUB_KUSTO_URI for ftklocal)." -ForegroundColor DarkGray
             try {
                 $hubRaw = Read-FinOpsHubData -StorageAccountName $hub.name -ResourceGroupName $hub.resourceGroup -Months 1 -SubscriptionIds $subIdsForDisco
             }
@@ -1030,11 +1031,16 @@ function Invoke-FinOpsMultitool {
                 if ($DataSource.Source -eq 'Hub') {
                     try {
                         $hubCostData = ConvertTo-CostDataFromHub -HubData $hubRaw
+                    }
+                    catch {
+                        $hubScanErrors['Get-CostData'] = $_.Exception.Message
+                        $hubCostData = $null
+                    }
+                    try {
                         $hubResourceCosts = ConvertTo-ResourceCostsFromHub -HubData $hubRaw
                     }
                     catch {
-                        foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag')) { $hubScanErrors[$scan] = $_.Exception.Message }
-                        $hubCostData = $null
+                        $hubScanErrors['Get-ResourceCosts'] = $_.Exception.Message
                         $hubResourceCosts = $null
                     }
                     $currentMonth = (Get-Date).ToUniversalTime()
@@ -1125,6 +1131,10 @@ function Invoke-FinOpsMultitool {
                         $output = ConvertTo-CostByTagFromHub -HubData $hubRaw -ExistingTags $existingTags; break
                     }
                     'Get-TagRecommendations' {
+                        $tagInventory = if ($results.ContainsKey('Get-TagInventory')) { $results['Get-TagInventory'] } else { $hubTagInventory }
+                        if ($results.ContainsKey('_error_Get-TagInventory') -or -not $tagInventory -or $tagInventory.CoverageIncomplete) {
+                            throw 'Tag recommendations are unavailable because tag inventory is incomplete. No tags are assumed missing.'
+                        }
                         $tags = if ($results.ContainsKey('Get-TagInventory') -and $results['Get-TagInventory'].TagNames) {
                             $results['Get-TagInventory'].TagNames
                         }
@@ -1175,6 +1185,9 @@ function Invoke-FinOpsMultitool {
                         $output = & $fn -Subscriptions $Subscriptions -AgreementType $agreementType; break
                     }
                     { $_ -eq 'Get-CostByTag' -and -not $hubRaw } {
+                        if ($results.ContainsKey('_error_Get-TagInventory') -or $results['Get-TagInventory'].CoverageIncomplete) {
+                            throw 'Cost by tag is unavailable because the tag inventory is incomplete.'
+                        }
                         # No Hub data — fall back to API
                         $existingTags = if ($results.ContainsKey('Get-TagInventory') -and $results['Get-TagInventory'].TagNames) {
                             $results['Get-TagInventory'].TagNames
@@ -1733,12 +1746,13 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-IdleVMs' {
                     $scanned = if ($data.ScannedVMs) { $data.ScannedVMs } else { 0 }
+                    if ($data.MetricFailures -gt 0) { Write-FinOpsConsole "    $($data.MetricFailures) of $scanned VMs could not be evaluated. $($data.Note)" -ForegroundColor Yellow }
                     if ($data.IdleVMs -and @($data.IdleVMs).Count -gt 0) {
                         Write-FinOpsConsole "    Scanned $scanned running VMs — $(@($data.IdleVMs).Count) idle/underutilized" -ForegroundColor White
                         $rows = $data.IdleVMs
                         $cols = @('VMName', 'ResourceGroup', 'VMSize', 'AvgCPU14d', 'Classification')
                     }
-                    else {
+                    elseif ($data.MetricFailures -eq 0) {
                         Write-FinOpsConsole "    Scanned $scanned running VMs — no idle or underutilized VMs detected" -ForegroundColor Green
                     }
                 }
@@ -1758,7 +1772,7 @@ function Invoke-FinOpsMultitool {
                     $rows = @()
                     if ($data.WindowsVMs) {
                         $rows += @($data.WindowsVMs) | ForEach-Object {
-                            $est = if ($_.estMonthlySavings) { '$' + ('{0:N0}' -f $_.estMonthlySavings) + '/mo' } else { 'n/a' }
+                            $est = if ($null -ne $_.estMonthlySavings) { "$(Format-BudgetAmount -Value $_.estMonthlySavings -Currency $data.SavingsCurrency)/mo" } else { 'n/a' }
                             [PSCustomObject]@{ Type = 'Windows VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.vmSize; License = $_.currentLicense; 'Est Savings' = $est }
                         }
                     }
@@ -1792,14 +1806,13 @@ function Invoke-FinOpsMultitool {
                                 Region   = $_.Region
                                 Qty      = $_.Qty
                                 Term     = $_.Term
-                                Savings  = '{0:C0}' -f [double]$_.AnnualSavings
+                                Savings  = Format-BudgetAmount -Value $_.AnnualSavings -Currency $_.Currency
                                 Impact   = $_.Impact
                             }
                         }
                         $cols = @('Resource', 'Type', 'SKU', 'Region', 'Qty', 'Term', 'Savings', 'Impact')
-                        if ($data.EstimatedAnnualSavings) {
-                            Write-ColorizedLine -Text "    Est. annual savings: $($data.EstimatedAnnualSavings.ToString('C0'))" -DefaultColor 'White'
-                        }
+                        Write-ColorizedLine -Text "    Est. annual savings: $(Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)" -DefaultColor 'White'
+                        if ($data.CostIssue) { Write-FinOpsConsole "    $($data.CostIssue)" -ForegroundColor Yellow }
                     }
                 }
                 'Get-CommitmentUtilization' {
@@ -1867,6 +1880,7 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-CostByTag' {
+                    if ($data.CoverageIncomplete) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor Yellow }
                     if ($data.CostByTag -and $data.CostByTag.Count -gt 0) {
                         if ($data.Source) { Write-FinOpsConsole "    Source: $($data.Source)" -ForegroundColor DarkGray }
                         $rows = foreach ($tag in $data.CostByTag.GetEnumerator()) {
@@ -1930,14 +1944,16 @@ function Invoke-FinOpsMultitool {
                             Write-FinOpsConsole "    $subNames" -ForegroundColor White
                         }
                         $rows = $data.Months | ForEach-Object {
-                            [PSCustomObject]@{ Month = $_.Month; Cost = '{0:C0}' -f [double]$_.Cost; Currency = $_.Currency }
+                            [PSCustomObject]@{ Month = $_.Month; Cost = Format-BudgetAmount -Value $_.Cost -Currency $_.Currency; Currency = $_.Currency }
                         }
                         $cols = @('Month', 'Cost', 'Currency')
                     }
                 }
                 'Get-TagInventory' {
                     $tagCountText = if ($data.SpellingCount -and $data.SpellingCount -ne $data.TagCount) { "$($data.TagCount) unique tag keys ($($data.SpellingCount) spellings)" } else { "$($data.TagCount) unique tags" }
-                    Write-FinOpsConsole "    Coverage: $($data.TagCoverage)%  |  $($data.TaggedCount) tagged / $($data.UntaggedCount) untagged  |  $tagCountText" -ForegroundColor White
+                    $coverageLabel = if ($data.CoverageIncomplete -or $null -eq $data.TagCoverage) { 'Unverified' } else { "$($data.TagCoverage)%" }
+                    Write-FinOpsConsole "    Coverage: $coverageLabel  |  $($data.TaggedCount) tagged / $($data.UntaggedCount) untagged  |  $tagCountText" -ForegroundColor White
+                    if ($data.CoverageIncomplete) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor Yellow }
                     if ($data.CaseVariants -and @($data.CaseVariants).Count -gt 0) {
                         Write-FinOpsConsole "    Case-variant keys (Azure treats these as one tag):" -ForegroundColor Yellow
                         foreach ($cv in @($data.CaseVariants)) {
@@ -2074,6 +2090,7 @@ function Invoke-FinOpsMultitool {
                     $cols = @('Account', 'Agreement', 'Type', 'Country', 'Status')
                 }
                 'Get-MaccCommitment' {
+                    if ($data.CoverageIncomplete) { Write-FinOpsConsole "    $($data.Reason)" -ForegroundColor Yellow }
                     if (-not $data.Applicable) {
                         Write-FinOpsConsole "    $($data.Reason)" -ForegroundColor DarkGray
                     }
@@ -2081,10 +2098,10 @@ function Invoke-FinOpsMultitool {
                         $rows = @($data.Commitments) | ForEach-Object {
                             [PSCustomObject]@{
                                 Account    = $_.BillingAccount
-                                Commitment = '{0:C0}' -f [double]$_.Commitment
-                                Consumed   = '{0:C0}' -f [double]$_.Consumed
-                                Remaining  = '{0:C0}' -f [double]$_.Remaining
-                                PctUsed    = "$($_.PctUsed)%"
+                                Commitment = Format-BudgetAmount -Value $_.Commitment -Currency $_.Currency
+                                Consumed   = Format-BudgetAmount -Value $_.Consumed -Currency $_.Currency
+                                Remaining  = Format-BudgetAmount -Value $_.Remaining -Currency $_.Currency
+                                PctUsed    = if ($null -ne $_.PctUsed) { "$($_.PctUsed)%" } else { 'Unavailable' }
                                 Status     = $_.Status
                                 Expires    = $_.ExpirationDate
                             }
@@ -2096,16 +2113,15 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-OptimizationAdvice' {
-                    if ($data.EstimatedAnnualSavings) {
-                        Write-ColorizedLine -Text "    Est. annual savings: `$$($data.EstimatedAnnualSavings)  |  $($data.TotalCount) recommendations" -DefaultColor 'White'
-                    }
+                    Write-ColorizedLine -Text "    Est. annual savings: $(Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)  |  $($data.TotalCount) recommendations" -DefaultColor 'White'
+                    if ($data.CostIssue) { Write-FinOpsConsole "    $($data.CostIssue)" -ForegroundColor Yellow }
                     $rows = $data.Recommendations | Sort-Object { if ($_.AnnualSavings) { [double]$_.AnnualSavings } else { 0 } } -Descending | Select-Object -First 15 | ForEach-Object {
                         [PSCustomObject]@{
                             Category = $_.Category
                             Impact   = $_.Impact
                             Resource = $_.ResourceName
                             Problem  = ($_.Problem -replace '(.{60}).+', '$1...')
-                            Savings  = if ($_.AnnualSavings) { '{0:C0}/yr' -f [double]$_.AnnualSavings } else { '-' }
+                            Savings  = "$(Format-BudgetAmount -Value $_.AnnualSavings -Currency $_.Currency)/yr"
                         }
                     }
                     $cols = @('Category', 'Impact', 'Resource', 'Problem', 'Savings')
@@ -2114,8 +2130,10 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-CarbonMetrics' {
-                    $arrow = if ($data.ChangeValueKg -gt 0) { 'up' } elseif ($data.ChangeValueKg -lt 0) { 'down' } else { 'flat' }
-                    Write-ColorizedLine -Text "    Latest month ($($data.LatestMonth)): $($data.TotalEmissionsKg) $($data.Unit)  |  MoM $arrow $($data.ChangeRatio)%" -DefaultColor 'White'
+                    $emissions = if ($null -ne $data.TotalEmissionsKg) { "$($data.TotalEmissionsKg) $($data.Unit)" } else { 'Unavailable' }
+                    $changeLabel = if ($null -ne $data.ChangeRatio) { "$($data.ChangeRatio)%" } else { 'Unavailable' }
+                    Write-ColorizedLine -Text "    Latest month ($($data.LatestMonth)): $emissions  |  Month-over-month change: $changeLabel" -DefaultColor 'White'
+                    if ($data.Note) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor Yellow }
                     $rows = $data.BySubscription | Select-Object -First 15 | ForEach-Object {
                         [PSCustomObject]@{
                             Subscription = $_.Subscription
@@ -2137,8 +2155,10 @@ function Invoke-FinOpsMultitool {
                     $cols = @('Category', 'Resource', 'Detail', 'Impact')
                 }
                 'Get-UnitEconomics' {
-                    Write-ColorizedLine -Text "    Compute: $($data.Currency) $($data.ComputeCost) ($($data.ComputeSharePct)%) over $($data.VmCount) VMs / $($data.TotalVCpu) vCPU / $($data.TotalMemoryGb) GB RAM" -DefaultColor 'White'
-                    Write-ColorizedLine -Text "    Storage: $($data.Currency) $($data.StorageCost) ($($data.StorageSharePct)%) over $($data.TotalStorageGb) GB ($($data.DiskGb) GB disk + $($data.BlobFileGb) GB blob/file)" -DefaultColor 'White'
+                    $computeShare = if ($null -ne $data.ComputeSharePct) { "$($data.ComputeSharePct)%" } else { 'Unavailable' }
+                    $storageShare = if ($null -ne $data.StorageSharePct) { "$($data.StorageSharePct)%" } else { 'Unavailable' }
+                    Write-ColorizedLine -Text "    Compute: $(Format-BudgetAmount -Value $data.ComputeCost -Currency $data.Currency) ($computeShare) over $($data.VmCount) VMs / $($data.TotalVCpu) vCPU / $($data.TotalMemoryGb) GB RAM" -DefaultColor 'White'
+                    Write-ColorizedLine -Text "    Storage: $(Format-BudgetAmount -Value $data.StorageCost -Currency $data.Currency) ($storageShare) over $($data.TotalStorageGb) GB ($($data.DiskGb) GB disk + $($data.BlobFileGb) GB blob/file)" -DefaultColor 'White'
                     if ($data.Note) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor DarkGray }
                     $rows = @(
                         [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = (Format-FinOpsUnitRate -Value $data.CostPerVCpu -Currency $data.Currency) }
@@ -2158,7 +2178,7 @@ function Invoke-FinOpsMultitool {
                         Write-ColorizedLine -Text "    AI footprint — OpenAI/AIServices: $($fp.OpenAIAccounts + $fp.AIServices)  ML workspaces: $($fp.MLWorkspaces)  AI Search: $($fp.SearchServices)  GPU VMs: $($fp.GpuVmCount)" -DefaultColor 'White'
                         Write-ColorizedLine -Text "    Period: $periodLabel" -DefaultColor 'White'
                         Write-ColorizedLine -Text "    Tokens: $($data.TotalTokens) total ($($data.TotalPromptTokens) in / $($data.TotalGeneratedTokens) out) over $($data.TotalRequests) requests" -DefaultColor 'White'
-                        Write-ColorizedLine -Text "    AI spend: $($data.Currency) $($data.TotalAICost)  |  $($data.Currency) $($data.CostPer1KTokens)/1K tokens  |  $($data.Currency) $($data.CostPerRequest)/request" -DefaultColor 'White'
+                        Write-ColorizedLine -Text "    AI spend: $(Format-BudgetAmount -Value $data.TotalAICost -Currency $data.Currency)  |  $(Format-FinOpsUnitRate -Value $data.CostPer1KTokens -Currency $data.Currency)/1K tokens  |  $(Format-FinOpsUnitRate -Value $data.CostPerRequest -Currency $data.Currency)/request" -DefaultColor 'White'
                         if ($data.Note) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor DarkGray }
                         if ($data.ByModel -and @($data.ByModel).Count -gt 0) {
                             $rows = $data.ByModel
@@ -2306,7 +2326,10 @@ function Invoke-FinOpsMultitool {
                 'Get-IdleVMs' {
                     $idleCount = if ($data.IdleVMs) { @($data.IdleVMs).Count } else { 0 }
                     $scanned = if ($data.ScannedVMs) { $data.ScannedVMs } else { 0 }
-                    if ($idleCount -gt 5) {
+                    if ($data.MetricFailures -gt 0) {
+                        $guidanceItems = @(@{ Severity = 'Yellow'; Message = "VM utilization coverage is incomplete: $($data.MetricFailures) VMs have unavailable metrics. Review the $idleCount candidates found among evaluated VMs." })
+                    }
+                    elseif ($idleCount -gt 5) {
                         $guidanceItems = @(
                             @{ Severity = 'Red'; Message = "$idleCount of $scanned VMs are idle or underutilized. This is likely significant wasted spend." }
                             @{ Severity = 'Red'; Message = "FinOps Action: Check Azure Advisor for right-size recommendations before deleting — some may just need a smaller SKU." }
@@ -2322,7 +2345,7 @@ function Invoke-FinOpsMultitool {
                     }
                     else {
                         $guidanceItems = @(
-                            @{ Severity = 'Green'; Message = "All $scanned running VMs are actively utilized. Compute spend looks healthy." }
+                            @{ Severity = 'Yellow'; Message = "No VMs met the idle thresholds in the available measurements. This does not establish that compute spend is optimized." }
                         )
                     }
                 }
@@ -2363,7 +2386,10 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-TagInventory' {
                     $coverage = if ($data.TagCoverage) { $data.TagCoverage } else { 0 }
-                    if ($coverage -lt 30) {
+                    if ($data.CoverageIncomplete -or $null -eq $data.TagCoverage) {
+                        $guidanceItems = @(@{ Severity = 'Yellow'; Message = if ($data.Note) { [string]$data.Note } else { 'Tag coverage is unverified because inventory measurements are incomplete.' } })
+                    }
+                    elseif ($coverage -lt 30) {
                         $guidanceItems = @(
                             @{ Severity = 'Red'; Message = "Tag coverage is critically low at $coverage%." }
                             @{ Severity = 'Red'; Message = "FinOps Foundation: Tags are the #1 requirement for cost allocation. Without tags, you cannot do chargeback, showback, or unit economics." }
@@ -2407,7 +2433,12 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-CostByTag' {
-                    if ($data.CostByTag -and $data.CostByTag.Count -gt 0) {
+                    if ($data.CoverageIncomplete) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = [string]$data.Note }
+                        )
+                    }
+                    elseif ($data.CostByTag -and $data.CostByTag.Count -gt 0) {
                         # Only measure untagged spend against CAF allocation tags
                         # (CostCenter, Customer, Project, Environment, ...), not
                         # identity/marker tags like FinOps or cm-resource-parent
@@ -2429,6 +2460,8 @@ function Invoke-FinOpsMultitool {
                         $seenCost = $data.ResourceCostSeen
                         $unallocCost = $data.UnallocatedCost
                         $tagCostRows = @($data.CostByTag.Values | ForEach-Object { $_ } | Where-Object { $null -ne $_.Cost })
+                        $tagCurrencies = @($tagCostRows.Currency | Where-Object { $_ } | Select-Object -Unique)
+                        $guidanceCurrency = if ($tagCurrencies.Count -eq 1) { $tagCurrencies[0] } else { $null }
                         $allocationTags = @($data.CostByTag.Keys | Where-Object { $allocTags -contains $_ })
                         $haveResourceTotals = $null -ne $seenCost -and $null -ne $unallocCost
                         $haveCostData = $haveResourceTotals -or $tagCostRows.Count -gt 0
@@ -2475,14 +2508,14 @@ function Invoke-FinOpsMultitool {
                         }
                         elseif ($maxUntaggedCost -gt 1000) {
                             $guidanceItems = @(
-                                @{ Severity = 'Red'; Message = "Untagged spend: $("{0:C0}" -f $maxUntaggedCost) not allocated by '$maxUntaggedTag'. This cost cannot be attributed to any team, project, or budget." }
+                                @{ Severity = 'Red'; Message = "Untagged spend: $(Format-BudgetAmount -Value $maxUntaggedCost -Currency $guidanceCurrency) not allocated by '$maxUntaggedTag'. Review the missing allocation evidence." }
                                 @{ Severity = 'Red'; Message = "FinOps Impact: Untagged spend creates 'shadow IT' — no one owns it, no one optimizes it." }
                                 @{ Severity = 'Yellow'; Message = "Use Cost Management tag views to identify the highest-cost resources missing '$maxUntaggedTag' and tag them first." }
                             )
                         }
                         elseif ($maxUntaggedCost -gt 0) {
                             $guidanceItems = @(
-                                @{ Severity = 'Yellow'; Message = "Some untagged spend detected: $("{0:C0}" -f $maxUntaggedCost) not allocated by '$maxUntaggedTag'. Tag remaining resources for full cost traceability." }
+                                @{ Severity = 'Yellow'; Message = "Some untagged spend detected: $(Format-BudgetAmount -Value $maxUntaggedCost -Currency $guidanceCurrency) not allocated by '$maxUntaggedTag'. Tag remaining resources for full cost traceability." }
                             )
                         }
                         else {
@@ -2535,11 +2568,14 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-ReservationAdvice' {
-                    if ($data.AdvisorRecommendations -and @($data.AdvisorRecommendations).Count -gt 0) {
+                    if ($data.CostIssue) {
+                        $guidanceItems = @(@{ Severity = 'Yellow'; Message = [string]$data.CostIssue })
+                    }
+                    elseif ($data.AdvisorRecommendations -and @($data.AdvisorRecommendations).Count -gt 0) {
                         $totalSavings = if ($data.EstimatedAnnualSavings) { $data.EstimatedAnnualSavings } else { 0 }
                         if ($totalSavings -gt 10000) {
                             $guidanceItems = @(
-                                @{ Severity = 'Red'; Message = "Significant reservation savings available: $("{0:C0}" -f $totalSavings)/year." }
+                                @{ Severity = 'Red'; Message = "Estimated reservation savings: $(Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)/year." }
                                 @{ Severity = 'Red'; Message = "FinOps Principle: Commitment-based discounts (RIs, Savings Plans) are the single largest cost lever — typically 30-60% savings." }
                                 @{ Severity = 'Yellow'; Message = "Start with 1-year terms for flexibility. Use shared scope to maximize utilization across subscriptions." }
                                 @{ Severity = 'Yellow'; Message = "Review 14-day usage trends before purchasing to ensure steady-state workloads."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations' }
@@ -2547,7 +2583,7 @@ function Invoke-FinOpsMultitool {
                         }
                         else {
                             $guidanceItems = @(
-                                @{ Severity = 'Yellow'; Message = "Reservation savings available: $("{0:C0}" -f $totalSavings)/year. Consider purchasing for steady-state workloads." }
+                                @{ Severity = 'Yellow'; Message = "Estimated reservation savings: $(Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)/year. Review the individual recommendations for steady-state workloads." }
                                 @{ Severity = 'Yellow'; Message = "Start with 1-year terms. Use shared scope for best utilization."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations' }
                             )
                         }
@@ -2656,7 +2692,10 @@ function Invoke-FinOpsMultitool {
                 'Get-AnomalyAlerts' {
                     $activeAlerts = if ($data.ActiveAlertCount) { $data.ActiveAlertCount } else { 0 }
                     $rules = if ($data.ConfiguredRuleCount) { $data.ConfiguredRuleCount } else { 0 }
-                    if ($activeAlerts -gt 0) {
+                    if ($data.CoverageIncomplete) {
+                        $guidanceItems = @(@{ Severity = 'Yellow'; Message = [string]$data.Note })
+                    }
+                    elseif ($activeAlerts -gt 0) {
                         $guidanceItems = @(
                             @{ Severity = 'Yellow'; Message = "$activeAlerts active anomaly alerts. Review to determine if they indicate unexpected spend patterns." }
                             @{ Severity = 'Yellow'; Message = "FinOps Practice: Cost anomaly detection is an early warning system. Investigate anomalies promptly." }
@@ -2729,7 +2768,10 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-OptimizationAdvice' {
-                    if ($data.Recommendations -and @($data.Recommendations).Count -gt 0) {
+                    if ($data.CostIssue) {
+                        $guidanceItems = @(@{ Severity = 'Yellow'; Message = [string]$data.CostIssue })
+                    }
+                    elseif ($data.Recommendations -and @($data.Recommendations).Count -gt 0) {
                         $highImpact = @($data.Recommendations | Where-Object { $_.Impact -eq 'High' })
                         if ($highImpact.Count -gt 5) {
                             $guidanceItems = @(
@@ -2772,6 +2814,11 @@ function Invoke-FinOpsMultitool {
                     if (-not $data.HasData) {
                         $guidanceItems = @(
                             @{ Severity = 'Green'; Message = "No AI/LLM workloads detected. No AI-specific cost optimization needed right now." }
+                        )
+                    }
+                    elseif ($data.CostIssue -or $data.RateIssue) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = if ($data.RateIssue) { [string]$data.RateIssue } else { [string]$data.CostIssue } }
                         )
                     }
                     elseif ($data.CostPer1KTokens -gt 0) {
@@ -2954,7 +3001,7 @@ h2[id] { scroll-margin-top: 85px; }
             $selectedMods = @($Modules | Where-Object { $_.Selected })
             $scanEvidence = @(foreach ($selectedMod in $selectedMods) {
                     $scanData = $Results[$selectedMod.Fn]
-                    $notes = @(@($scanData.Note; $scanData.Reason; $scanData.CostIssue; $scanData.AHBIssue; $scanData.Error) |
+                    $notes = @(@($scanData.Note; $scanData.Reason; $scanData.CostIssue; $scanData.RateIssue; $scanData.AHBIssue; $scanData.Error) |
                         Where-Object { $_ -is [string] -and -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique)
                     $state = 'Data returned'
                     if ($Results.ContainsKey("_error_$($selectedMod.Fn)")) {
@@ -2963,7 +3010,7 @@ h2[id] { scroll-margin-top: 85px; }
                     }
                     elseif (-not $scanData -or @($scanData).Count -eq 0 -or $scanData.HasData -contains $false) { $state = 'No data' }
                     if ($state -ne 'Failed' -and ($scanData.CoverageIncomplete -contains $true -or $scanData.ComplianceCoverageIncomplete -contains $true -or $scanData.AccessDenied -contains $true -or
-                            @(@($scanData.CostIssue; $scanData.AHBIssue; $scanData.Error) | Where-Object { $_ }).Count -gt 0 -or
+                            @(@($scanData.CostIssue; $scanData.RateIssue; $scanData.AHBIssue; $scanData.Error) | Where-Object { $_ }).Count -gt 0 -or
                             @($scanData.MetricFailures | Where-Object { $_ -gt 0 }).Count -gt 0 -or
                             @($scanData.Status | Where-Object { $_ -in @('Unavailable', 'Unknown') }).Count -gt 0)) {
                         $state = 'Limited data'
@@ -3244,7 +3291,7 @@ h2[id] { scroll-margin-top: 85px; }
                     }
                     'Get-AHBOpportunities' {
                         $ahbRows = @()
-                        if ($data.WindowsVMs) { $ahbRows += @($data.WindowsVMs) | ForEach-Object { $est = if ($_.estMonthlySavings) { '$' + ('{0:N0}' -f $_.estMonthlySavings) + '/mo' } else { 'n/a' }; [PSCustomObject]@{ Type = 'Windows VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.vmSize; License = $_.currentLicense; 'Est Savings' = $est } } }
+                        if ($data.WindowsVMs) { $ahbRows += @($data.WindowsVMs) | ForEach-Object { $est = if ($null -ne $_.estMonthlySavings) { "$(Format-BudgetAmount -Value $_.estMonthlySavings -Currency $data.SavingsCurrency)/mo" } else { 'n/a' }; [PSCustomObject]@{ Type = 'Windows VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.vmSize; License = $_.currentLicense; 'Est Savings' = $est } } }
                         if ($data.SQLVMs) { $ahbRows += @($data.SQLVMs) | ForEach-Object { [PSCustomObject]@{ Type = 'SQL VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sqlEdition; License = $_.currentLicense; 'Est Savings' = '-' } } }
                         if ($data.SQLDatabases) { $ahbRows += @($data.SQLDatabases) | ForEach-Object { [PSCustomObject]@{ Type = 'SQL DB'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sku; License = $_.currentLicense; 'Est Savings' = '-' } } }
                         $htmlRows = $ahbRows
@@ -3252,7 +3299,10 @@ h2[id] { scroll-margin-top: 85px; }
                     }
                     'Get-TagInventory' {
                         $tagCountHtml = if ($data.SpellingCount -and $data.SpellingCount -ne $data.TagCount) { "$($data.TagCount) unique tag keys ($($data.SpellingCount) spellings)" } else { "$($data.TagCount) unique tags" }
-                        [void]$htmlSb.Append("<p>Coverage: $($data.TagCoverage)% &nbsp;|&nbsp; $($data.TaggedCount) tagged / $($data.UntaggedCount) untagged &nbsp;|&nbsp; $tagCountHtml</p>")
+                        $coverageLabel = if ($data.CoverageIncomplete -or $null -eq $data.TagCoverage) { 'Unverified' } else { [System.Net.WebUtility]::HtmlEncode("$($data.TagCoverage)%") }
+                        $taggedLabel = if ($null -ne $data.TaggedCount) { [System.Net.WebUtility]::HtmlEncode([string]$data.TaggedCount) } else { 'Unknown' }
+                        $untaggedLabel = if ($null -ne $data.UntaggedCount) { [System.Net.WebUtility]::HtmlEncode([string]$data.UntaggedCount) } else { 'Unknown' }
+                        [void]$htmlSb.Append("<p>Coverage: $coverageLabel &nbsp;|&nbsp; $taggedLabel tagged / $untaggedLabel untagged &nbsp;|&nbsp; $tagCountHtml</p>")
                         if ($data.CaseVariants -and @($data.CaseVariants).Count -gt 0) {
                             # Tag keys and values come from customer resources, so encode before emitting.
                             $cvText = (@($data.CaseVariants) | ForEach-Object {
@@ -3268,6 +3318,7 @@ h2[id] { scroll-margin-top: 85px; }
                             }
                             $htmlCols = @('Tag', 'Resources', 'Values', 'Top values')
                             $tableNote = 'Values are the distinct tag values in use, with the resource count for each. A tag with a single value provides no allocation granularity; a tag with many near-identical values indicates inconsistent tagging.'
+                            if ($data.CoverageIncomplete) { $tableNote = "$($data.Note) $tableNote" }
                         }
                     }
                     'Get-CostData' {
@@ -3308,6 +3359,7 @@ h2[id] { scroll-margin-top: 85px; }
                             }
                             $htmlCols = @('Tag', 'Value', 'Cost')
                             $tableNote = 'Each tag is measured on its own, so a resource missing that tag counts as (untagged) for it and appears once per tag it lacks. Costs overlap between tags and do not sum to total spend.'
+                            if ($data.CoverageIncomplete) { $tableNote = "$($data.Note) $tableNote" }
                         }
                     }
                     'Get-CostTrend' {
@@ -3321,7 +3373,8 @@ h2[id] { scroll-margin-top: 85px; }
                         }
                     }
                     'Get-ReservationAdvice' {
-                        if ($data.EstimatedAnnualSavings) { [void]$htmlSb.Append("<p>Est. annual savings: <span class=`"money`">`$$($data.EstimatedAnnualSavings.ToString('N0'))</span></p>") }
+                        [void]$htmlSb.Append("<p>Est. annual savings: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)))</p>")
+                        if ($data.CostIssue) { $tableNote = [string]$data.CostIssue }
 
                         # Wrapping a null in @() yields a one-element array, so filter before counting.
                         $rrRows = @($data.ReservationRecommendations | Where-Object { $_ })
@@ -3365,7 +3418,7 @@ h2[id] { scroll-margin-top: 85px; }
                                 Region   = $_.Region
                                 Qty      = $_.Qty
                                 Term     = $_.Term
-                                Savings  = '{0:C0}' -f [double]$_.AnnualSavings
+                                Savings  = Format-BudgetAmount -Value $_.AnnualSavings -Currency $_.Currency
                                 Impact   = $_.Impact
                             }
                         }
@@ -3413,9 +3466,10 @@ h2[id] { scroll-margin-top: 85px; }
                         $htmlCols = @('Alert', 'Type', 'Status', 'Subscription')
                     }
                     'Get-OptimizationAdvice' {
-                        if ($data.EstimatedAnnualSavings) { [void]$htmlSb.Append("<p>Est. annual savings: <span class=`"money`">`$$($data.EstimatedAnnualSavings)</span> &nbsp;|&nbsp; $($data.TotalCount) recommendations</p>") }
+                        [void]$htmlSb.Append("<p>Est. annual savings: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency))) &nbsp;|&nbsp; $($data.TotalCount) recommendations</p>")
+                        if ($data.CostIssue) { $tableNote = [string]$data.CostIssue }
                         $htmlRows = $data.Recommendations | Sort-Object { if ($_.AnnualSavings) { [double]$_.AnnualSavings } else { 0 } } -Descending | Select-Object -First 25 | ForEach-Object {
-                            [PSCustomObject]@{ Category = $_.Category; Impact = $_.Impact; Resource = $_.ResourceName; Problem = ($_.Problem -replace '(.{80}).+', '$1...'); Savings = if ($_.AnnualSavings) { '{0:C0}/yr' -f [double]$_.AnnualSavings } else { '-' } }
+                            [PSCustomObject]@{ Category = $_.Category; Impact = $_.Impact; Resource = $_.ResourceName; Problem = ($_.Problem -replace '(.{80}).+', '$1...'); Savings = "$(Format-BudgetAmount -Value $_.AnnualSavings -Currency $_.Currency)/yr" }
                         }
                         $htmlCols = @('Category', 'Impact', 'Resource', 'Problem', 'Savings')
                     }
@@ -3461,16 +3515,22 @@ h2[id] { scroll-margin-top: 85px; }
                     'Get-CarbonMetrics' {
                         $cLatest = [System.Net.WebUtility]::HtmlEncode([string]$data.LatestMonth)
                         $cUnit = [System.Net.WebUtility]::HtmlEncode([string]$data.Unit)
-                        [void]$htmlSb.Append("<p>Latest month ($cLatest): $($data.TotalEmissionsKg) $cUnit &nbsp;|&nbsp; month over month $($data.ChangeRatio)%</p>")
+                        $emissions = if ($null -ne $data.TotalEmissionsKg) { "$($data.TotalEmissionsKg) $cUnit" } else { 'Unavailable' }
+                        $changeLabel = if ($null -ne $data.ChangeRatio) { "$($data.ChangeRatio)%" } else { 'Unavailable' }
+                        [void]$htmlSb.Append("<p>Latest month ($cLatest): $emissions &nbsp;|&nbsp; month over month $changeLabel</p>")
+                        if ($data.Note) { $tableNote = [string]$data.Note }
                         $htmlRows = $data.BySubscription | Where-Object { $_ } | ForEach-Object {
                             [PSCustomObject]@{ Subscription = $_.Subscription; Emissions = "$($_.EmissionsKg) kg" }
                         }
                         $htmlCols = @('Subscription', 'Emissions')
                     }
                     'Get-UnitEconomics' {
-                        $uCur = [System.Net.WebUtility]::HtmlEncode([string]$data.Currency)
-                        [void]$htmlSb.Append("<p>Compute: $uCur $($data.ComputeCost) ($($data.ComputeSharePct)%) over $($data.VmCount) VMs, $($data.TotalVCpu) vCPU, $($data.TotalMemoryGb) GB RAM</p>")
-                        [void]$htmlSb.Append("<p>Storage: $uCur $($data.StorageCost) ($($data.StorageSharePct)%) over $($data.TotalStorageGb) GB</p>")
+                        $computeAmount = [System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.ComputeCost -Currency $data.Currency))
+                        $storageAmount = [System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.StorageCost -Currency $data.Currency))
+                        $computeShare = if ($null -ne $data.ComputeSharePct) { [System.Net.WebUtility]::HtmlEncode("$($data.ComputeSharePct)%") } else { 'Unavailable' }
+                        $storageShare = if ($null -ne $data.StorageSharePct) { [System.Net.WebUtility]::HtmlEncode("$($data.StorageSharePct)%") } else { 'Unavailable' }
+                        [void]$htmlSb.Append("<p>Compute: $computeAmount ($computeShare) over $($data.VmCount) VMs, $($data.TotalVCpu) vCPU, $($data.TotalMemoryGb) GB RAM</p>")
+                        [void]$htmlSb.Append("<p>Storage: $storageAmount ($storageShare) over $($data.TotalStorageGb) GB</p>")
                         $htmlRows = @(
                             [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = (Format-FinOpsUnitRate -Value $data.CostPerVCpu -Currency $data.Currency) }
                             [PSCustomObject]@{ Metric = 'Cost per GB RAM'; Value = (Format-FinOpsUnitRate -Value $data.CostPerGbRam -Currency $data.Currency) }
@@ -3490,11 +3550,11 @@ h2[id] { scroll-margin-top: 85px; }
                     'Get-AIWorkloadMetrics' {
                         if ($data.HasData) {
                             $fp = $data.AIFootprint
-                            $aCur = [System.Net.WebUtility]::HtmlEncode([string]$data.Currency)
+                            $aiAmount = [System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.TotalAICost -Currency $data.Currency))
                             $periodLabel = if ($data.Period -eq 'MonthToDate') { 'Month to date' } elseif ($data.Period) { [string]$data.Period } else { 'Unknown period' }
                             $aPeriod = [System.Net.WebUtility]::HtmlEncode($periodLabel)
                             [void]$htmlSb.Append("<p>AI footprint &mdash; OpenAI/AI Services: $($fp.OpenAIAccounts + $fp.AIServices) &nbsp;|&nbsp; ML workspaces: $($fp.MLWorkspaces) &nbsp;|&nbsp; AI Search: $($fp.SearchServices) &nbsp;|&nbsp; GPU VMs: $($fp.GpuVmCount)</p>")
-                            [void]$htmlSb.Append("<p>Period: $aPeriod &nbsp;|&nbsp; Tokens: $($data.TotalTokens) over $($data.TotalRequests) requests &nbsp;|&nbsp; AI spend: $aCur $($data.TotalAICost)</p>")
+                            [void]$htmlSb.Append("<p>Period: $aPeriod &nbsp;|&nbsp; Tokens: $($data.TotalTokens) over $($data.TotalRequests) requests &nbsp;|&nbsp; AI spend: $aiAmount</p>")
                             if ($data.ByModel -and @($data.ByModel | Where-Object { $_ }).Count -gt 0) {
                                 $htmlRows = $data.ByModel
                                 $htmlCols = @('Deployment', 'PromptTokens', 'GeneratedTokens', 'TotalTokens', 'PctOfTokens')
@@ -3510,14 +3570,15 @@ h2[id] { scroll-margin-top: 85px; }
                         }
                     }
                     'Get-MaccCommitment' {
+                        if ($data.CoverageIncomplete) { $tableNote = [string]$data.Reason }
                         if ($data.Applicable -and $data.HasMacc -and @($data.Commitments | Where-Object { $_ }).Count -gt 0) {
                             $htmlRows = @($data.Commitments) | ForEach-Object {
                                 [PSCustomObject]@{
                                     Account    = $_.BillingAccount
-                                    Commitment = '{0:C0}' -f [double]$_.Commitment
-                                    Consumed   = '{0:C0}' -f [double]$_.Consumed
-                                    Remaining  = '{0:C0}' -f [double]$_.Remaining
-                                    PctUsed    = "$($_.PctUsed)%"
+                                    Commitment = Format-BudgetAmount -Value $_.Commitment -Currency $_.Currency
+                                    Consumed   = Format-BudgetAmount -Value $_.Consumed -Currency $_.Currency
+                                    Remaining  = Format-BudgetAmount -Value $_.Remaining -Currency $_.Currency
+                                    PctUsed    = if ($null -ne $_.PctUsed) { "$($_.PctUsed)%" } else { 'Unavailable' }
                                     Status     = $_.Status
                                     Expires    = $_.ExpirationDate
                                 }
@@ -3641,7 +3702,15 @@ h2[id] { scroll-margin-top: 85px; }
             foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
                 $count = if ($Results[$mod.Fn]) { @($Results[$mod.Fn]).Count } else { 0 }
                 $errorKey = "_error_$($mod.Fn)"
-                $status = if ($Results.ContainsKey($errorKey)) { "ERROR: $($Results[$errorKey])" } elseif ($count -eq 0) { "No data" } else { "$count findings" }
+                $summaryData = $Results[$mod.Fn]
+                $summaryNote = @(@($summaryData.Note; $summaryData.Reason; $summaryData.CostIssue; $summaryData.RateIssue; $summaryData.AHBIssue; $summaryData.Error) |
+                    Where-Object { $_ -is [string] -and -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique) -join ' '
+                $status = if ($Results.ContainsKey($errorKey)) { "ERROR: $($Results[$errorKey])" }
+                elseif ($summaryData.CoverageIncomplete -contains $true -or $summaryData.ComplianceCoverageIncomplete -contains $true -or
+                    $summaryData.AccessDenied -contains $true -or @(@($summaryData.CostIssue; $summaryData.RateIssue; $summaryData.AHBIssue; $summaryData.Error) | Where-Object { $_ }).Count -gt 0 -or
+                    @($summaryData.MetricFailures | Where-Object { $_ -gt 0 }).Count -gt 0) { "Limited data: $(if ($summaryNote) { $summaryNote } else { 'Some evidence could not be verified.' })" }
+                elseif ($count -eq 0) { 'No data' }
+                else { "$count findings" }
                 $summaryLines += "$($mod.Name): $status"
             }
             Write-FinOpsReportFile -Directory $exportDir -Name 'ScanSummary.txt' -Lines $summaryLines -ErrorAction Stop

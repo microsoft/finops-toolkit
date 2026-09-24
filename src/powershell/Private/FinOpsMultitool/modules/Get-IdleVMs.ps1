@@ -109,6 +109,8 @@ resources
             $avgCpu = $null
             $totalNetIn = 0
             $totalNetOut = 0
+            $networkInSamples = 0
+            $networkOutSamples = 0
 
             foreach ($metric in $metricData.value) {
                 $metricName = $metric.name.value
@@ -116,19 +118,27 @@ resources
                     foreach ($dp in $ts.data) {
                         switch ($metricName) {
                             'Percentage CPU' {
-                                if ($null -ne $dp.average) { $avgCpu = $dp.average }
+                                $avgCpu = Get-HubCostValue -Row $dp -Column 'average'
+                                if ($avgCpu -lt 0 -or $avgCpu -gt 100) { throw 'CPU measurement is outside the valid percentage range.' }
                             }
                             'Network In Total' {
-                                if ($dp.total) { $totalNetIn += $dp.total }
+                                $networkValue = Get-HubCostValue -Row $dp -Column 'total'
+                                if ($networkValue -lt 0) { throw 'Network measurement cannot be negative.' }
+                                $totalNetIn += $networkValue
+                                $networkInSamples++
                             }
                             'Network Out Total' {
-                                if ($dp.total) { $totalNetOut += $dp.total }
+                                $networkValue = Get-HubCostValue -Row $dp -Column 'total'
+                                if ($networkValue -lt 0) { throw 'Network measurement cannot be negative.' }
+                                $totalNetOut += $networkValue
+                                $networkOutSamples++
                             }
                         }
                     }
                 }
             }
 
+            if ($null -eq $avgCpu -or $networkInSamples -eq 0 -or $networkOutSamples -eq 0) { throw 'CPU or network measurements are missing; the VM was not evaluated.' }
             $totalNetwork = $totalNetIn + $totalNetOut
 
             # Classify: idle if CPU < threshold AND network < threshold
@@ -186,5 +196,6 @@ resources
         EvaluatedVMs        = ($runningVMs.Count - $metricFailures.Count)
         MetricFailures      = $metricFailures.Count
         MetricFailureDetail = @($metricFailures)
+        Note                = if ($metricFailures.Count -gt 0) { 'VM utilization coverage is incomplete; VMs with unreadable metrics are not assumed active.' } else { $null }
     }
 }

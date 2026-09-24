@@ -46,10 +46,12 @@ function Get-MaccCommitment {
 
     # -- Result shape (single source of truth) --------------------------
     $result = [PSCustomObject]@{
-        HasMacc     = $false
-        Applicable  = $true
-        Reason      = ''
-        Commitments = @()
+        HasMacc            = $false
+        Applicable         = $true
+        Reason             = ''
+        Commitments        = @()
+        CoverageIncomplete = $false
+        ReadErrors         = @()
     }
 
     # -- Step 0: Gate on agreement type ---------------------------------
@@ -65,8 +67,8 @@ function Get-MaccCommitment {
     $billingAccounts = @()
     try {
         $resp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.Billing/billingAccounts?api-version=2024-04-01" -Method GET
+        $parsed = Get-FinOpsListResult -FirstResponse $resp -Context 'MACC billing accounts'
         if ($resp.StatusCode -eq 200) {
-            $parsed = ($resp.Content | ConvertFrom-Json)
             foreach ($a in $parsed.value) {
                 if ($a.properties.agreementType -in @('EnterpriseAgreement', 'MicrosoftCustomerAgreement')) {
                     $billingAccounts += [PSCustomObject]@{
@@ -77,8 +79,11 @@ function Get-MaccCommitment {
                 }
             }
         }
-    } catch {
+    }
+    catch {
         $result.Reason = "Could not list billing accounts: $($_.Exception.Message)"
+        $result.CoverageIncomplete = $true
+        $result.ReadErrors = @($_.Exception.Message)
         Write-Warning "  MACC: $($result.Reason)"
         return $result
     }
@@ -95,6 +100,7 @@ function Get-MaccCommitment {
     $scope = Get-FinOpsBillingScope -BillingAccounts $billingAccounts -Subscriptions $Subscriptions
     if (-not $scope.Resolved) {
         $result.Reason = $scope.Reason
+        $result.CoverageIncomplete = $true
         Write-Host "  MACC: $($scope.Reason)" -ForegroundColor DarkGray
         return $result
     }
@@ -105,6 +111,10 @@ function Get-MaccCommitment {
 
     # -- Step 2: List MACC lots per billing account ---------------------
     $lots = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $readErrors = [Collections.Generic.List[string]]::new()
+    if ($scope.CoverageIncomplete) {
+        foreach ($issue in $scope.ReadErrors) { $readErrors.Add([string]$issue) }
+    }
     $lotAccessDenied = $false   # set if the lots call is forbidden (403) for any account
     foreach ($ba in $billingAccounts) {
         # Server-side filter to ConsumptionCommitment (the MACC) lots only. This
@@ -118,40 +128,49 @@ function Get-MaccCommitment {
                 # role to read its consumption lots (the MACC). 404 = no lots
                 # exist for this account, which is genuinely "no MACC."
                 if ($lotResp.StatusCode -in @(401, 403)) { $lotAccessDenied = $true }
-                continue
+                if ($lotResp.StatusCode -eq 404) { continue }
+                throw "MACC lots returned HTTP $($lotResp.StatusCode); results are incomplete."
             }
-            $lotData = ($lotResp.Content | ConvertFrom-Json)
+            $lotData = Get-FinOpsListResult -FirstResponse $lotResp -Context "MACC lots for $($ba.DisplayName)"
             foreach ($lot in $lotData.value) {
                 $p = $lot.properties
                 if ("$($p.source)" -ne 'ConsumptionCommitment') { continue }
 
-                $currency  = if ($p.billingCurrency) { $p.billingCurrency } elseif ($p.originalAmount.currency) { $p.originalAmount.currency } else { 'USD' }
-                $original  = if ($null -ne $p.originalAmount.value) { [double]$p.originalAmount.value } else { 0 }
+                $currency = if ($p.billingCurrency) { ([string]$p.billingCurrency).Trim().ToUpperInvariant() }
+                elseif ($p.originalAmount.currency) { ([string]$p.originalAmount.currency).Trim().ToUpperInvariant() } else { $null }
+                $original = if ($null -ne $p.originalAmount.value) { Get-HubCostValue -Row $p.originalAmount -Column 'value' } else { $null }
 
                 # The Lots API does not return a "used" amount. closedBalance is
                 # the amount REMAINING on the commitment, so consumed is simply
                 # originalAmount - closedBalance. This is the same calculation
                 # used by the Cost Management data factory sample
                 # (MSBrett/ccm_datafactory).
-                $remaining = if ($null -ne $p.closedBalance.value) { [double]$p.closedBalance.value } else { 0 }
-                $used      = if ($original -gt 0) { [math]::Round($original - $remaining, 2) } else { 0 }
-                $pctUsed   = if ($original -gt 0) { [math]::Round(($used / $original) * 100, 1) } else { 0 }
+                $remaining = if ($null -ne $p.closedBalance.value) { Get-HubCostValue -Row $p.closedBalance -Column 'value' } else { $null }
+                $comparable = $currency -match '^[A-Z]{3}$' -and $currency -notin @('XXX', 'XTS') -and $null -ne $original -and $null -ne $remaining
+                foreach ($balanceCurrency in @($p.originalAmount.currency, $p.closedBalance.currency)) {
+                    if ($balanceCurrency -and ([string]$balanceCurrency).Trim() -ne $currency) { $comparable = $false }
+                }
+                if (-not $comparable) { $readErrors.Add("$($ba.DisplayName): a commitment lot has missing or incompatible balance amounts or currency.") }
+                $used = if ($comparable) { [math]::Round($original - $remaining, 2) } else { $null }
+                $pctUsed = if ($comparable -and $original -gt 0) { [math]::Round(($used / $original) * 100, 1) } else { $null }
 
                 $lots.Add([PSCustomObject]@{
-                    BillingAccount = $ba.DisplayName
-                    Agreement      = $ba.Agreement
-                    Currency       = $currency
-                    Commitment     = [math]::Round($original, 2)
-                    Consumed       = $used
-                    Remaining      = [math]::Round($remaining, 2)
-                    PctUsed        = $pctUsed
-                    Status         = if ($p.status) { $p.status } else { 'Unknown' }
-                    StartDate      = if ($p.startDate) { ([datetime]$p.startDate).ToString('yyyy-MM-dd') } else { '' }
-                    ExpirationDate = if ($p.expirationDate) { ([datetime]$p.expirationDate).ToString('yyyy-MM-dd') } else { '' }
-                    Estimated      = [bool]$p.isEstimatedBalance
-                })
+                        BillingAccount = $ba.DisplayName
+                        Agreement      = $ba.Agreement
+                        Currency       = $currency
+                        Commitment     = if ($comparable) { [math]::Round($original, 2) } else { $null }
+                        Consumed       = $used
+                        Remaining      = if ($comparable) { [math]::Round($remaining, 2) } else { $null }
+                        PctUsed        = $pctUsed
+                        Status         = if ($p.status) { $p.status } else { 'Unknown' }
+                        StartDate      = if ($p.startDate) { ([datetime]$p.startDate).ToString('yyyy-MM-dd') } else { '' }
+                        ExpirationDate = if ($p.expirationDate) { ([datetime]$p.expirationDate).ToString('yyyy-MM-dd') } else { '' }
+                        Estimated      = [bool]$p.isEstimatedBalance
+                    })
             }
-        } catch {
+        }
+        catch {
+            $readErrors.Add("$($ba.DisplayName): $($_.Exception.Message)")
             if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $lotAccessDenied = $true }
             Write-Warning "  MACC lot query failed for account $($ba.DisplayName): $($_.Exception.Message)"
         }
@@ -161,13 +180,20 @@ function Get-MaccCommitment {
         $result.HasMacc = $true
         $result.Commitments = @($lots)
         Write-Host "  Found $($lots.Count) MACC commitment lot(s)." -ForegroundColor Green
-    } elseif ($lotAccessDenied) {
+    }
+    elseif ($lotAccessDenied) {
         $result.Reason = 'MACC data could not be read due to insufficient billing permissions. You can see the EA/MCA billing account, but reading its consumption commitment (lots) requires a billing role: for EA, Enterprise Administrator (read-only) or EA Reader at the enrollment scope; for MCA, Billing account reader or Billing profile reader. Standard subscription RBAC (Owner/Contributor/Reader) does not grant access. Ask a billing admin to assign one of these roles, then re-scan. Reference: https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles'
         Write-Host "  MACC: billing access denied reading consumption lots." -ForegroundColor Yellow
-    } else {
+    }
+    elseif ($readErrors.Count -eq 0) {
         $result.Reason = 'No MACC commitment found on the reachable EA/MCA billing account(s). This agreement may not include a consumption commitment.'
         Write-Host "  MACC: no consumption-commitment lots found." -ForegroundColor DarkGray
     }
 
+    if ($readErrors.Count -gt 0) {
+        $result.CoverageIncomplete = $true
+        $result.ReadErrors = @($readErrors)
+        $result.Reason = ('MACC coverage is incomplete. ' + $result.Reason + ' ' + ($readErrors -join ' ')).Trim()
+    }
     return $result
 }

@@ -322,6 +322,36 @@ function Invoke-FinOpsMultitool {
                 Should -Invoke Read-FinOpsHubData -Times 0 -Exactly
             }
 
+            It 'Does not turn failed Hub discovery into an automatic API fallback' {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Mock Search-AzGraph { throw 'Synthetic Resource Graph HTTP 403.' }
+
+                { Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -NonInteractive -ErrorAction Stop } |
+                    Should -Throw '*hub discovery is incomplete*403*Select API*'
+
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+            }
+
+            It 'Attributes a failed Hub converter only to its own scan' {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Mock Search-AzGraph { [pscustomobject]@{ name = 'fixture'; resourceGroup = 'fixture'; subscriptionId = '11111111-1111-1111-1111-111111111111' } }
+                Mock Resolve-FOHubProvider { @{ Found = $false } }
+                Mock Read-FinOpsHubData {
+                    @([pscustomobject]@{ SubAccountId = '11111111-1111-1111-1111-111111111111'; ResourceId = '/resources/fixture'; ResourceType = 'fixture'; BilledCost = 100; BillingCurrency = 'USD'; Tags = '{"CostCenter":"team"}'; ChargePeriodStart = '2026-08-01' })
+                }
+                Mock ConvertTo-CostDataFromHub { throw 'Synthetic summary conversion failed.' }
+                $reportRoot = Join-Path $TestDrive 'independent-hub-converters'
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans @('Get-CostData','Get-ResourceCosts','Get-CostByTag') -DataSource Hub -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+
+                $result = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
+                $result['_error_Get-CostData'] | Should -Match 'Synthetic summary'
+                $result.ContainsKey('_error_Get-CostByTag') | Should -BeFalse
+                $result.ContainsKey('_error_Get-ResourceCosts') | Should -BeFalse
+                $result['Get-CostByTag'].CostByTag.CostCenter[0].Cost | Should -Be 100
+                $result['Get-ResourceCosts'][0].Actual | Should -Be 100
+            }
+
             It 'Keeps scanner logs separate from progress when the scan <Outcome>' -ForEach @(
                 @{ Outcome = 'succeeds'; FailScan = $false }
                 @{ Outcome = 'fails'; FailScan = $true }
@@ -428,6 +458,25 @@ function Invoke-FinOpsMultitool {
                 $results['Get-CostData']['11111111-1111-1111-1111-111111111111'].Actual | Should -Be 100
                 @(Get-ChildItem -LiteralPath $repository -File -Recurse -Force).Count | Should -Be 0
                 Should -Invoke Read-Host -Times 0 -Exactly
+            }
+
+            It 'Does not infer missing tags from an incomplete inventory' {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                $reportRoot = Join-Path $TestDrive 'incomplete-tag-inventory'
+                Mock Get-TagInventory {
+                    [pscustomobject]@{ TagNames = @{}; TagCount = 0; TagCoverage = $null; CoverageIncomplete = $true; Note = 'Tag inventory coverage is incomplete.' }
+                }
+                Mock Get-TagRecommendations { throw 'Incomplete tags must not become missing-tag recommendations.' }
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagRecommendations -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+
+                $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
+                $results['_error_Get-TagRecommendations'] | Should -Match 'No tags are assumed missing'
+                Should -Invoke Get-TagRecommendations -Times 0 -Exactly
+                $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+                $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+                $html | Should -Match 'Coverage: Unverified'
+                $html | Should -Not -Match 'Tag coverage is critically low|strong tagging discipline'
             }
 
             It 'Does not declare policies missing when their inventory is <InventoryState>' -ForEach @(

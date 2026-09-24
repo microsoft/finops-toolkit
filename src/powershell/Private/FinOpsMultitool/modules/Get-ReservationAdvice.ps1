@@ -226,8 +226,8 @@ advisorresources
     $deduped = [System.Collections.Generic.List[PSCustomObject]]::new()
     $seenKeys = @{}
     foreach ($rec in $allRecommendations) {
-        $key = '{0}|{1}|{2}|{3}|{4}|{5}|{6}' -f `
-            $rec.SubscriptionId, $rec.ResourceType, $rec.Term, $rec.SKU, $rec.Region, $rec.Qty, $rec.AnnualSavings
+        $key = '{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}' -f `
+            $rec.SubscriptionId, $rec.ResourceType, $rec.Term, $rec.SKU, $rec.Region, $rec.Qty, $rec.AnnualSavings, $rec.Currency
         if ($seenKeys.ContainsKey($key)) {
             $seenKeys[$key].DuplicateCount++
         }
@@ -243,8 +243,7 @@ advisorresources
     $allRecommendations = $deduped
 
     # -- Aggregate savings ----------------------------------------------
-    $totalAnnualSavings = ($allRecommendations | Where-Object { $_.AnnualSavings } |
-        Measure-Object -Property AnnualSavings -Sum).Sum
+    $savingsSummary = Measure-FinOpsSavingsEstimate -Recommendations @($allRecommendations)
 
     $denied = ($accessDenied -and $allRecommendations.Count -eq 0 -and $reservationRecs.Count -eq 0)
 
@@ -253,7 +252,9 @@ advisorresources
         ReservationRecommendations = $reservationRecs
         TotalAdvisorCount          = $allRecommendations.Count
         TotalReservationCount      = $reservationRecs.Count
-        EstimatedAnnualSavings     = [math]::Round($totalAnnualSavings, 2)
+        EstimatedAnnualSavings     = $savingsSummary.Total
+        Currency                   = $savingsSummary.Currency
+        CostIssue                  = $savingsSummary.CostIssue
         AccessDenied               = $denied
         Summary                    = "$($allRecommendations.Count) Advisor + $($reservationRecs.Count) reservation recommendations"
     }

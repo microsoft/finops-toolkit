@@ -38,9 +38,11 @@ function Get-FinOpsBillingScope {
     )
 
     $out = [PSCustomObject]@{
-        Accounts = @()
-        Resolved = $false
-        Reason   = $null
+        Accounts           = @()
+        Resolved           = $false
+        Reason             = $null
+        CoverageIncomplete = $false
+        ReadErrors         = @()
     }
 
     $accounts = @($BillingAccounts | Where-Object { $_ })
@@ -64,6 +66,8 @@ function Get-FinOpsBillingScope {
 
     $matched = [System.Collections.Generic.List[object]]::new()
     $anyReadable = $false
+    $readErrors = [Collections.Generic.List[string]]::new()
+    $matchedNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 
     # Pass 1: ask each subscription which billing account owns it.
     $ownerNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
@@ -71,9 +75,12 @@ function Get-FinOpsBillingScope {
         if (-not $s -or -not $s.Id) { continue }
         try {
             $resp = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$($s.Id)/providers/Microsoft.Billing/billingProperty/default?api-version=2024-04-01" -Method GET
+            if (-not $resp -or $resp.StatusCode -ne 200) { throw "Subscription billing lookup returned HTTP $($resp.StatusCode)." }
+            if ([string]::IsNullOrWhiteSpace([string]$resp.Content)) { throw 'Subscription billing lookup returned no content.' }
             if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
                 $anyReadable = $true
                 $baId = ($resp.Content | ConvertFrom-Json).properties.billingAccountId
+                if (-not $baId) { throw 'Subscription billing lookup returned no billing account ID.' }
                 if ($baId) {
                     $name = ($baId -replace '(?i).*/billingAccounts/', '').Trim('/')
                     if ($name) { [void]$ownerNames.Add($name) }
@@ -81,36 +88,44 @@ function Get-FinOpsBillingScope {
             }
         }
         catch {
-            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            $readErrors.Add("$($s.Id): $($_.Exception.Message)")
         }
     }
 
     foreach ($ba in $accounts) {
         $name = if ($ba.PSObject.Properties['Name'] -and $ba.Name) { [string]$ba.Name } else { [string]$ba.name }
-        if ($name -and $ownerNames.Contains($name)) { $matched.Add($ba) }
+        if ($name -and $ownerNames.Contains($name) -and $matchedNames.Add($name)) { $matched.Add($ba) }
     }
 
     # Pass 2: walk each account's subscriptions. Covers enrollments where the
     # subscription-scoped lookup is not readable but the account is.
-    if ($matched.Count -eq 0) {
+    if ($matched.Count -eq 0 -or $readErrors.Count -gt 0) {
         foreach ($ba in $accounts) {
             $name = if ($ba.PSObject.Properties['Name'] -and $ba.Name) { [string]$ba.Name } else { [string]$ba.name }
             if (-not $name) { continue }
             try {
                 $resp = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.Billing/billingAccounts/$name/billingSubscriptions?api-version=2024-04-01" -Method GET
+                $membership = Get-FinOpsListResult -FirstResponse $resp -Context "billing membership for $name"
                 if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
                     $anyReadable = $true
-                    foreach ($bs in @(($resp.Content | ConvertFrom-Json).value)) {
+                    foreach ($bs in @($membership.value)) {
                         $id = if ($bs.properties.subscriptionId) { [string]$bs.properties.subscriptionId } else { [string]$bs.name }
-                        if ($id -and $scanIds.Contains($id)) { $matched.Add($ba); break }
+                        if ($id -and $scanIds.Contains($id)) {
+                            if ($matchedNames.Add($name)) { $matched.Add($ba) }
+                            break
+                        }
                     }
                 }
             }
             catch {
-                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+                $readErrors.Add("$name : $($_.Exception.Message)")
             }
         }
     }
+
+    $out.CoverageIncomplete = $readErrors.Count -gt 0
+    $out.ReadErrors = @($readErrors)
+    if ($out.CoverageIncomplete) { $out.Reason = 'Billing account correlation is incomplete. ' + ($readErrors -join ' ') }
 
     if ($matched.Count -gt 0) {
         $out.Accounts = @($matched)
@@ -120,7 +135,8 @@ function Get-FinOpsBillingScope {
 
     # Correlation failed. Distinguish "read it, found no link" from "could not read
     # it", because the second is a permissions problem the user can act on.
-    $out.Reason = if ($anyReadable) {
+    $out.Reason = if ($out.CoverageIncomplete) { $out.Reason }
+    elseif ($anyReadable) {
         'No reachable billing account owns any of the scanned subscriptions.'
     }
     else {

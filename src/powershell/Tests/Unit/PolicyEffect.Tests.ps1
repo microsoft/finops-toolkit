@@ -75,6 +75,18 @@ Describe 'Policy effect resolution' {
     }
 
     Context 'Unresolvable' {
+        It 'Preserves a verbose reason for an unreadable definition' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                Mock Write-Verbose { }
+
+                $result = Get-PolicyDefinitionMap -DefinitionIds @('/providers/Microsoft.Authorization/policyDefinitions/fixture')
+
+                $result.Count | Should -Be 0
+                Should -Invoke Write-Verbose -Times 1 -Exactly -ParameterFilter { $Message -match 'fixture.*503' }
+            }
+        }
+
         It 'Returns a dash when no definition is available' {
             Resolve-PolicyEffect -AssignmentEffect '' -Definition $null | Should -Be '-'
         }
