@@ -11,10 +11,13 @@
     .EXAMPLE
     Register-FinOpsHubProviders -WhatIf
 
+    ### Test register FinOps hub providers
     Shows what would happen if the command runs without actually running it.
 
     .Description
-    The Register-FinOpsHubProviders command registers the Azure resource providers required to deploy and operate a FinOps hub instance. To register a resource provider, you must have Contributor access (or the /register permission for each resource provider) for the entire subscription. Subscription readers can check the status of the resource providers but cannot register them. If you do not have access to register resource providers, please contact a subscription contributor or owner to run the Register-FinOpsHubProviders command.
+    The Register-FinOpsHubProviders command registers the Azure resource providers required to deploy and operate a FinOps hub instance.
+
+    To register a resource provider, you must have Contributor access (or the /register permission for each resource provider) for the entire subscription. Subscription readers can check the status of the resource providers but can't register them. If you don't have access to register resource providers, contact a subscription contributor or owner to run the Register-FinOpsHubProviders command.
 #>
 function Register-FinOpsHubProviders
 {

@@ -3,12 +3,12 @@ title: Get-FinOpsPricingUnit command
 description: Get a pricing unit, distinct unit, and block size using the Get-FinOpsPricingUnit command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsPricingUnit command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the Get-FinOpsPricingUnit command in the FinOpsToolkit module.
 ---
 
 # Get-FinOpsPricingUnit command
@@ -24,20 +24,20 @@ The **Get-FinOpsPricingUnit** command returns a pricing unit (also known as unit
 
 ```powershell
 Get-FinOpsPricingUnit `
-    [[-UnitOfMeasure] <string>] `
-    [-DistinctUnits <string>] `
-    [-BlockSize <string>]
+    [[‑UnitOfMeasure] <string>] `
+    [‑DistinctUnits <string>] `
+    [‑BlockSize <double>]
 ```
 
 <br>
 
 ## Parameters
 
-| Name          | Description                                                                                                                                                           |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| UnitOfMeasure | Optional. Unit of measure (also known as pricing unit) value from a Cost Management cost/usage details or price sheet dataset. Accepts wildcards. Default = \* (all). |
-| DistinctUnits | Optional. The distinct unit for the pricing unit without block pricing. Accepts wildcards. Default = \* (all).                                                        |
-| BlockSize     | Optional. The number of units for block pricing (for example, 100 for "100 Hours"). Default = null (all).                                                             |
+| Name             | Description                                                                                                                                                           |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑UnitOfMeasure` | Optional. Unit of measure (also known as pricing unit) value from a Cost Management cost/usage details or price sheet dataset. Accepts wildcards. Default = \* (all). |
+| `‑DistinctUnits` | Optional. The distinct unit for the pricing unit without block pricing. Accepts wildcards. Default = \* (all).                                                        |
+| `‑BlockSize`     | Optional. The number of units for block pricing (for example, 100 for "100 Hours"). Default = null (all).                                                             |
 
 <br>
 

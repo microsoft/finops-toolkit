@@ -15,7 +15,7 @@
     - 2023-03-01
 
     .PARAMETER Name
-    Name of the Cost Management export.
+    Required. Name of the Cost Management export to delete.
 
     .PARAMETER Scope
     Required. Resource ID of the scope to export data for.
@@ -23,13 +23,14 @@
     .PARAMETER RemoveData
     Optional. Indicates that all cost data associated with the Export scope should be deleted.
 
-    .PARAMETER APIVersion
+    .PARAMETER ApiVersion
     Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.
 
     .EXAMPLE
     Remove-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -RemoveData
 
-    Deletes a Cost Management export named MyExport scoped to /subscriptions/00000000-0000-0000-0000-000000000000, and deletes all exported data from the related storage account.
+    ### Delete a Cost Management export
+    Deletes a Cost Management export and removes the exported data from the linked storage account.
 #>
 
 function Remove-FinOpsCostExport
