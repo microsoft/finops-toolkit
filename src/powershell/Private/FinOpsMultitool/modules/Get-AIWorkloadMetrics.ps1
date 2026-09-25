@@ -299,8 +299,12 @@ resources
     }
 
     # -- 3: KPIs ----------------------------------------------------------
-    $costPer1kTokens = if ($totalTokens -gt 0) { [math]::Round(($aiCost / $totalTokens) * 1000, 4) } else { 0 }
-    $costPerRequest = if ($totalReq -gt 0) { [math]::Round($aiCost / $totalReq, 4) } else { 0 }
+    # Cost spans multiple billing currencies when subscriptions in scope are
+    # billed differently (EA/MCA); summing them produces a meaningless total,
+    # so every cost-derived figure below is nulled rather than reported wrong.
+    $currencyMixed = Test-CurrencyMixed -Seen $currenciesSeen
+    $costPer1kTokens = if ($currencyMixed) { $null } elseif ($totalTokens -gt 0) { [math]::Round(($aiCost / $totalTokens) * 1000, 4) } else { 0 }
+    $costPerRequest = if ($currencyMixed) { $null } elseif ($totalReq -gt 0) { [math]::Round($aiCost / $totalReq, 4) } else { 0 }
 
     $byModel = @(
         $modelTokens.GetEnumerator() | ForEach-Object {
@@ -324,8 +328,8 @@ resources
                 ResourceId      = $_.Key
                 Tokens          = [long]$tk
                 Requests        = [long]$_.Value.Requests
-                Cost            = [math]::Round($c, 2)
-                CostPer1KTokens = if ($tk -gt 0) { [math]::Round(($c / $tk) * 1000, 4) } else { 0 }
+                Cost            = if ($currencyMixed) { $null } else { [math]::Round($c, 2) }
+                CostPer1KTokens = if ($currencyMixed) { $null } elseif ($tk -gt 0) { [math]::Round(($c / $tk) * 1000, 4) } else { 0 }
             }
         } | Sort-Object Cost -Descending
     )
@@ -369,7 +373,7 @@ resources
         TotalGeneratedTokens = [long]$totalGen
         TotalTokens          = [long]$totalTokens
         TotalRequests        = [long]$totalReq
-        TotalAICost          = [math]::Round($aiCost, 2)
+        TotalAICost          = if ($currencyMixed) { $null } else { [math]::Round($aiCost, 2) }
         Currency             = if (@($currenciesSeen.Keys).Count -gt 0) { Resolve-CurrencyLabel -Seen $currenciesSeen } else { $currency }
         CostPer1KTokens      = $costPer1kTokens
         CostPerRequest       = $costPerRequest

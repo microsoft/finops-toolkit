@@ -373,7 +373,7 @@ function Get-CostByTag {
     # Per-tag aggregation: tagName -> (tagValue -> accumulated cost)
     $tagAgg = @{}
     foreach ($t in $tagsToQuery) { $tagAgg[$t] = @{} }
-    $currencySeen = 'USD'
+    $currencySeen = $null
     $subsQueried  = 0
     $subsFailed   = 0
     $grandTotal   = 0.0
@@ -452,8 +452,12 @@ function Get-CostByTag {
                         }
                         foreach ($row in $rows) {
                             $cost = $row.Cost
+                            $rowCurrency = ([string]$row.Currency).Trim().ToUpperInvariant()
+                            if (-not $rowCurrency -or ($currencySeen -and $rowCurrency -ne $currencySeen)) {
+                                throw "Cost-by-tag currency is missing or mixed for $($pj.Call.SubName); cost coverage is incomplete."
+                            }
+                            $currencySeen = $rowCurrency
                             $grandTotal += $cost
-                            if ($row.Currency) { $currencySeen = $row.Currency }
 
                             if ([string]::IsNullOrWhiteSpace($row.ResourceId)) {
                                 foreach ($t in $tagsToQuery) {
@@ -508,9 +512,6 @@ function Get-CostByTag {
                     else {
                         $subsFailed++
                     }
-                    if (-not $subResp -or $subResp.StatusCode -ne 200) {
-                        throw "Cost-by-tag query failed for $($pj.Call.SubName) (HTTP $($subResp.StatusCode)); results are incomplete."
-                    }
                 }
             }
 
@@ -534,7 +535,7 @@ function Get-CostByTag {
         foreach ($val in $tagAgg[$t].Keys) {
             $c = [math]::Round([double]$tagAgg[$t][$val], 2)
             if ($c -eq 0) { continue }
-            [void]$rows.Add([PSCustomObject]@{ TagValue = $val; Cost = $c; Currency = $currencySeen })
+            [void]$rows.Add([PSCustomObject]@{ TagValue = $val; Cost = $c; Currency = $(if ($currencySeen) { $currencySeen } else { 'USD' }) })
         }
         $results[$t] = @($rows | Sort-Object Cost -Descending)
     }

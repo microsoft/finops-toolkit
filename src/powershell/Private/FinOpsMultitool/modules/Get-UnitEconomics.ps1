@@ -348,10 +348,14 @@ resources
     }
 
     # -- 4: Derived KPIs --------------------------------------------------
-    $costPerVCpu = if ($totalVCpu -gt 0) { $computeCost / $totalVCpu } else { 0 }
-    $costPerVm = if ($vmCount -gt 0) { $computeCost / $vmCount } else { 0 }
-    $costPerGb = if ($totalGb -gt 0) { $storageCost / $totalGb } else { 0 }
-    $costPerGbRam = if ($totalMemGb -gt 0) { $computeCost / $totalMemGb } else { 0 }
+    # Cost spans multiple billing currencies when subscriptions in scope are
+    # billed differently (EA/MCA); summing them produces a meaningless total,
+    # so every cost-derived figure below is nulled rather than reported wrong.
+    $currencyMixed = Test-CurrencyMixed -Seen $currenciesSeen
+    $costPerVCpu = if ($currencyMixed) { $null } elseif ($totalVCpu -gt 0) { $computeCost / $totalVCpu } else { 0 }
+    $costPerVm = if ($currencyMixed) { $null } elseif ($vmCount -gt 0) { $computeCost / $vmCount } else { 0 }
+    $costPerGb = if ($currencyMixed) { $null } elseif ($totalGb -gt 0) { $storageCost / $totalGb } else { 0 }
+    $costPerGbRam = if ($currencyMixed) { $null } elseif ($totalMemGb -gt 0) { $computeCost / $totalMemGb } else { 0 }
 
     $totalKnown = $computeCost + $storageCost
     $computeSharePct = if ($totalKnown -gt 0) { [math]::Round(100 * $computeCost / $totalKnown, 1) } else { 0 }
@@ -376,6 +380,9 @@ resources
     if (-not $vcpuExact) {
         $notes += 'Some vCPU/RAM values approximated from VM size names (SKU capability lookup unavailable for a region).'
     }
+    if ($currencyMixed) {
+        $notes += 'Cost spans multiple billing currencies; cost figures are unavailable (vCPU/RAM/storage counts are unaffected).'
+    }
     if ($notes.Count -eq 0) {
         $notes += 'vCPU/RAM are exact (Compute SKU capabilities); storage GB combines managed disks and Storage-account used capacity.'
     }
@@ -385,8 +392,8 @@ resources
         Currency           = Resolve-CurrencyLabel -Seen $currenciesSeen
         CostPeriodStartUtc = $costPeriodStartUtc
         CostPeriodEndUtc   = $costPeriodEndUtc
-        ComputeCost        = [math]::Round($computeCost, 2)
-        StorageCost        = [math]::Round($storageCost, 2)
+        ComputeCost        = if ($currencyMixed) { $null } else { [math]::Round($computeCost, 2) }
+        StorageCost        = if ($currencyMixed) { $null } else { [math]::Round($storageCost, 2) }
         ComputeSharePct    = $computeSharePct
         StorageSharePct    = $storageSharePct
         VmCount            = $vmCount

@@ -100,7 +100,11 @@ function New-FinOpsPrivateDirectory {
         $stat = Get-Command stat -CommandType Application -ErrorAction Stop
         foreach ($item in $items) {
             if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Private data cannot contain linked files or directories.' }
-            $metadata = if ($IsMacOS) { & $stat.Source -f '%u:%Lp' $item.FullName } else { & $stat.Source -c '%u:%a' -- $item.FullName }
+            # %Lp strips the sticky bit on macOS (BSD stat), which silently disables the
+            # sticky-ancestor exemption below for any ancestor under a sticky directory
+            # (e.g. /tmp). %p carries the file-type bits too, but those sit above the
+            # bits the checks below test, so a bitwise -band against them is unaffected.
+            $metadata = if ($IsMacOS) { & $stat.Source -f '%u:%p' $item.FullName } else { & $stat.Source -c '%u:%a' -- $item.FullName }
             if ($LASTEXITCODE -ne 0 -or [string]$metadata -notmatch '^(\d+):([0-7]+)$') { throw 'Private data ownership and permissions could not be verified.' }
             $itemOwner = $Matches[1]
             $mode = [Convert]::ToInt32($Matches[2], 8)

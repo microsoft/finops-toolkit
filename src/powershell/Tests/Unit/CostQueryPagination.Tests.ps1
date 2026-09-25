@@ -782,7 +782,10 @@ param($Path, $Method, $Payload)
                     $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'first' })
                     $arguments = @{ TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; Subscriptions = $subscriptions; ExistingTags = @{ CostCenter = @{ TotalResources = 1 } } }
                     if ($ResponseStatus -eq 503) {
-                        { Get-CostByTag @arguments } | Should -Throw '*503*incomplete*'
+                        # A failed subscription is skipped, not fatal: one bad subscription
+                        # must not discard cost-by-tag results already collected for others.
+                        $result = Get-CostByTag @arguments
+                        $result.CostByTag.CostCenter | Should -BeNullOrEmpty
                     }
                     else {
                         $result = Get-CostByTag @arguments
