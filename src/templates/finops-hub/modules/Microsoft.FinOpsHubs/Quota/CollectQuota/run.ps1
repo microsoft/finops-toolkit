@@ -4,6 +4,7 @@
 param($Timer)
 
 $ErrorActionPreference = 'Stop'
+Import-Module (Join-Path $PSScriptRoot '../AzVMQuotaUsage/AzVMQuotaUsage.psm1')
 
 function Get-IdentityToken
 {
@@ -17,6 +18,37 @@ function Get-IdentityToken
     $response = Invoke-RestMethod -Uri $uri -Headers @{ 'X-IDENTITY-HEADER' = $env:IDENTITY_HEADER } -ErrorAction Stop
     if (-not $response.access_token) { throw "No managed identity token was returned for $Resource." }
     ConvertTo-SecureString $response.access_token -AsPlainText -Force
+}
+
+function Write-Manifest
+{
+    param ([string] $CsvPath, [string] $BlobName, [int] $RowCount, [string] $Scope, [string] $Type, [string] $Version, [string] $ExportName)
+
+    $bytes = (Get-Item -LiteralPath $CsvPath).Length
+    $manifest = [ordered] @{
+        manifestVersion = '2024-04-01'
+        byteCount       = $bytes
+        blobCount       = 1
+        dataRowCount    = $RowCount
+        blobs           = @(@{
+                blobName = $BlobName; byteCount = $bytes; rowCount = $RowCount
+                sha256 = (Get-FileHash -LiteralPath $CsvPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            })
+        exportConfig    = @{
+            exportName  = $ExportName
+            resourceId  = "$Scope/providers/Microsoft.CostManagement/exports/$ExportName"
+            dataVersion = $Version
+            type        = $Type
+        }
+        runInfo         = @{
+            runId     = $runId
+            startDate = $started.ToString('o')
+            endDate   = [datetime]::UtcNow.ToString('o')
+        }
+    }
+    $manifestPath = Join-Path (Split-Path $CsvPath) 'manifest.json'
+    $manifest | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $manifestPath -Encoding utf8NoBOM
+    [pscustomobject] @{ CsvPath = $CsvPath; ManifestPath = $manifestPath; BlobName = $BlobName }
 }
 
 $settingsStorage = "https://$($env:HUB_STORAGE_ACCOUNT).blob.core.windows.net"
@@ -36,20 +68,40 @@ $outputDirectory = Join-Path ([IO.Path]::GetTempPath()) ("quota-" + [guid]::NewG
 
 try
 {
+    $started = [datetime]::UtcNow
+    $runId = $started.ToString('yyyyMMddTHHmmssZ')
     $armToken = Get-IdentityToken 'https://management.azure.com/'
-    $result = & (Join-Path $PSScriptRoot '../Export-Quota.ps1') `
-        -AccessToken $armToken -TenantId ([guid] $env:AZURE_TENANT_ID) `
-        -OutputDirectory $outputDirectory -BillingScope $billingScopes `
-        -SettingsHash $settingsHash -SettingsETag ([string] $settingsResponse.Headers.ETag)
-    if (-not $result.Files.Count) { throw 'The quota collector produced no files.' }
-    if (-not $result.Complete)
+    $files = [System.Collections.Generic.List[object]]::new()
+    # Savings plan and quota failures are warnings, so one dataset does not block the upload of the other
+    try
     {
-        $failures = @($result.Sources | Where-Object Error | ForEach-Object { "$($_.SourceType) $($_.Scope) $($_.Location): $($_.Error)" })
-        throw "Quota collection was incomplete: $($failures -join '; ')"
+        $savingsPlans = Get-SavingsPlanRecommendations -AccessToken $armToken -TenantId $env:AZURE_TENANT_ID `
+            -BillingScope $billingScopes -SettingsHash $settingsHash -SettingsETag ([string] $settingsResponse.Headers.ETag) `
+            -RunId $runId -OutputDirectory $outputDirectory
+        foreach ($file in $savingsPlans)
+        {
+            $files.Add((Write-Manifest -CsvPath $file.CsvPath -BlobName $file.BlobName -RowCount $file.Rows -Scope $file.Scope `
+                        -Type Recommendations -Version '1.0-savingsplan' -ExportName "SavingsPlan-$($file.Partition)"))
+        }
     }
+    catch { Write-Warning "Savings plan collection failed: $($_.Exception.Message)" }
+
+    try
+    {
+        $quotaBlobName = "quota/$runId/Quota.csv"
+        $quotaCsvPath = Join-Path $outputDirectory $quotaBlobName
+        $null = New-Item -ItemType Directory -Path (Split-Path $quotaCsvPath) -Force
+        Get-AzVMQuotaUsage -AccessToken $armToken -OutputFile $quotaCsvPath
+        $quotaRows = -1
+        foreach ($line in [IO.File]::ReadLines($quotaCsvPath)) { $quotaRows++ }
+        $files.Add((Write-Manifest -CsvPath $quotaCsvPath -BlobName $quotaBlobName -RowCount $quotaRows `
+                    -Scope "/tenants/$($env:AZURE_TENANT_ID)" -Type Quota -Version '1.0' -ExportName Quota))
+    }
+    catch { Write-Warning "Quota collection failed: $($_.Exception.Message)" }
+    if (-not $files.Count) { throw 'No files were produced.' }
 
     $storageToken = Get-IdentityToken 'https://storage.azure.com/'
-    foreach ($file in $result.Files)
+    foreach ($file in $files)
     {
         $blob = ($file.BlobName -split '/' | ForEach-Object { [uri]::EscapeDataString($_) }) -join '/'
         $csvUri = "$exportStorage/msexports/$blob"
@@ -57,7 +109,7 @@ try
             -Authentication Bearer -Token $storageToken -Headers ($headers + @{ 'x-ms-blob-type' = 'BlockBlob' }) `
             -TimeoutSec 7200 -ErrorAction Stop | Out-Null
     }
-    foreach ($file in $result.Files)
+    foreach ($file in $files)
     {
         $blob = ($file.BlobName -split '/' | ForEach-Object { [uri]::EscapeDataString($_) }) -join '/'
         $manifestUri = "$exportStorage/msexports/$($blob.Substring(0, $blob.LastIndexOf('/')))/manifest.json"
@@ -65,7 +117,7 @@ try
             -Authentication Bearer -Token $storageToken -Headers ($headers + @{ 'x-ms-blob-type' = 'BlockBlob' }) `
             -ErrorAction Stop | Out-Null
     }
-    Write-Output "Published $($result.Files.Count) quota datasets for run $($result.RunId)."
+    Write-Output "Published $($files.Count) datasets for run $runId."
 }
 finally
 {

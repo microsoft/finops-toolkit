@@ -134,7 +134,7 @@ function Get-QuotaDetails {
             continue
         }
 
-        # Output the result as a Quota CSV row with every field quoted
+        # Output the result as a Quota CSV row with every non-empty field quoted, so empty values are read as null
         $row = @(
             'Microsoft'                                         # ProviderName
             "$($Subscription.id)/providers/Microsoft.Compute/locations/$Location/skus/$($sku.Name)" # ResourceId
@@ -152,7 +152,7 @@ function Get-QuotaDetails {
             'ComputeResourceSku'                                # x_SourceType
             '1.0'                                               # x_SourceVersion
         )
-        '"{0}"' -f (($row -replace '"', '""') -join '","')
+        ($row -replace '"', '""' -replace '(?s)^(.+)\z', '"$1"') -join ','
     }
 
     # Output every usage entry, such as VM family vCPUs, regional vCPUs, and disks
@@ -204,6 +204,6 @@ function Get-QuotaDetails {
             $UsageSourceType                                      # x_SourceType
             '1.0'                                                 # x_SourceVersion
         )
-        '"{0}"' -f (($row -replace '"', '""') -join '","')
+        ($row -replace '"', '""' -replace '(?s)^(.+)\z', '"$1"') -join ','
     }
 }

@@ -53,6 +53,6 @@ function Get-ResourceDetails {
             $SourceType                                           # x_SourceType
             '1.0'                                                 # x_SourceVersion
         )
-        '"{0}"' -f (($row -replace '"', '""') -join '","')
+        ($row -replace '"', '""' -replace '(?s)^(.+)\z', '"$1"') -join ','
     }
 }

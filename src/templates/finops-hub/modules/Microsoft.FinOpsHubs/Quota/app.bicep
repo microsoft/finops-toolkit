@@ -16,7 +16,16 @@ var packageFiles = {
   'host.json': loadTextContent('host.json')
   'CollectQuota/function.json': loadTextContent('CollectQuota/function.json')
   'CollectQuota/run.ps1': loadTextContent('CollectQuota/run.ps1')
-  'Export-Quota.ps1': loadTextContent('Export-Quota.ps1')
+  'AzVMQuotaUsage/AzVMQuotaUsage.psm1': loadTextContent('AzVMQuotaUsage/AzVMQuotaUsage.psm1')
+  'AzVMQuotaUsage/Private/Get-ArmCollection.ps1': loadTextContent('AzVMQuotaUsage/Private/Get-ArmCollection.ps1')
+  'AzVMQuotaUsage/Private/Get-ArmResponses.ps1': loadTextContent('AzVMQuotaUsage/Private/Get-ArmResponses.ps1')
+  'AzVMQuotaUsage/Private/Get-Locations.ps1': loadTextContent('AzVMQuotaUsage/Private/Get-Locations.ps1')
+  'AzVMQuotaUsage/Private/Get-QuotaDetails.ps1': loadTextContent('AzVMQuotaUsage/Private/Get-QuotaDetails.ps1')
+  'AzVMQuotaUsage/Private/Get-ResourceDetails.ps1': loadTextContent('AzVMQuotaUsage/Private/Get-ResourceDetails.ps1')
+  'AzVMQuotaUsage/Private/Get-SnapshotHash.ps1': loadTextContent('AzVMQuotaUsage/Private/Get-SnapshotHash.ps1')
+  'AzVMQuotaUsage/Private/Get-Subscriptions.ps1': loadTextContent('AzVMQuotaUsage/Private/Get-Subscriptions.ps1')
+  'AzVMQuotaUsage/Public/Get-AzVMQuotaUsage.ps1': loadTextContent('AzVMQuotaUsage/Public/Get-AzVMQuotaUsage.ps1')
+  'AzVMQuotaUsage/Public/Get-SavingsPlanRecommendations.ps1': loadTextContent('AzVMQuotaUsage/Public/Get-SavingsPlanRecommendations.ps1')
 }
 var packageBlob = 'quota/${uniqueString(string(packageFiles))}/released-package.zip'
 var deploymentContainer = 'quota${app.suffix}'

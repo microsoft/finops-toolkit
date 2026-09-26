@@ -81,8 +81,7 @@ function Get-AzVMQuotaUsage {
         [string[]]$SKUs = @(),
 
         [Parameter(Mandatory = $false, HelpMessage = "Maximum subscriptions scanned at a time")]
-        [ValidateRange("Positive")]
-        [int]$ConcurrentSubscriptions = 1,
+        [int]$ConcurrentSubscriptions = 64,
 
         [Parameter(Mandatory = $false, HelpMessage = "Maximum ARM requests in flight within each subscription")]
         [ValidateRange(1, 32)]
