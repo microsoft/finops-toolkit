@@ -12,6 +12,11 @@ type AppMetadata = {
   id: string
   @description('App version.')
   version: string
+  @description('Data Factory credential names.')
+  credentials: {
+    @description('Credential for the shared recommendations managed identity.')
+    recommendations: string
+  }
   @description('Storage container names.')
   containers: {
     @description('Container for raw Cost Management export files.')

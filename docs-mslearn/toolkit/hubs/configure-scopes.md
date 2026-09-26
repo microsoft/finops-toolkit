@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 05/14/2026
+ms.date: 09/23/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -207,42 +207,56 @@ _⁵ Export paths can be any value but must be unique per scope. We recommended 
 
 <br>
 
+## Configure Azure Resource Graph access
+
+When you enable recommendations, FinOps hubs use the shared recommendations managed identity to query Azure Resource Graph. Grant the **Reader** role to this identity on each management group or subscription you want to include.
+
+From the FinOps hub resource group, go to **Deployments** > **hub** > **Outputs**, and note the **managedIdentityId** and **managedIdentityTenantId** values. The **managedIdentityId** value is the object ID for the user assigned managed identity named `<data-factory-name>_recommendations`.
+
+> [!IMPORTANT]
+> FinOps hubs don't assign roles outside the hub resource group. You must grant access to management groups and subscriptions separately. When you upgrade an existing hub, permissions assigned to the Data Factory system-assigned managed identity don't transfer to the shared recommendations managed identity.
+
+<br>
+
 ## Configure managed exports
 
-Managed exports allow FinOps hubs to set up and maintain Cost Management exports for you. To enable managed exports, you must grant Azure Data Factory access to read data across each scope you want to monitor.
+Managed exports allow FinOps hubs to set up and maintain Cost Management exports for you. To enable managed exports, you must grant the shared recommendations managed identity access to each scope you want to monitor.
 
 :::image type="content" source="./media/configure-scopes/hubs-scopes.png" border="false" alt-text="Diagram showing the supported scopes for hubs." lightbox="./media/configure-scopes/hubs-scopes.png" :::
 
 > [!NOTE]
 > Managed exports are only available in FinOps hubs 0.4 and later.
 
-Managed exports use a managed identity (MI) to configure the exports automatically. To set it up, use the following steps:
+Managed exports use the same user assigned managed identity as Azure Resource Graph recommendations. To set it up, use the following steps:
 
-1. **Grant access to Azure Data Factory.**
+1. **Grant access to the shared recommendations managed identity.**
 
    - From the FinOps hub resource group, navigate to **Deployments** > **hub** > **Outputs**, and make note of the values for **managedIdentityId** and **managedIdentityTenantId**. You'll use them in the next step.
    - Use the following guides to assign access to each scope you want to monitor:
      - EA enrollments – [Assign enrollment reader role permission](/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
      - EA departments – [Assign department reader role permission](/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
-     - Subscriptions and resource groups – Assign the **Cost Management Contributor** role to the hub managed identity on each scope. [Learn more](/azure/role-based-access-control/role-assignments-portal).
+     - Subscriptions and resource groups – Assign the **Cost Management Contributor** role to the shared recommendations managed identity on each scope. [Learn more](/azure/role-based-access-control/role-assignments-portal).
+
+   > [!IMPORTANT]
+   > FinOps hubs don't assign permissions outside the hub resource group. When you upgrade an existing hub, permissions assigned to the Data Factory system-assigned managed identity don't transfer automatically. Grant the required permissions to the shared recommendations managed identity before you use managed exports.
 
    <!--
    ### Enterprise agreement billing accounts and departments
 
    1. [Find your enrollment (and department) Id](/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
    2. Load the FinOps Toolkit PowerShell module.
-   3. Grant reader permissions to the data factory
+   3. Grant reader permissions to the shared recommendations managed identity
 
       ```powershell
       # Grants enrollment reader permissions to the specified service principal or managed identity
       Add-FinOpsServicePrincipal `
-         -ObjectId aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb ` # Object Id of data factory managed identity
+         -ObjectId aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb ` # Object ID of shared recommendations managed identity
          -TenantId aaaabbbb-0000-cccc-1111-dddd2222eeee ` # Azure Active Directory tenant Id
          -BillingAccountId 12345                          # Enrollment ID
 
       # Grants department reader permissions to the specified service principal or managed identity
       Add-FinOpsServicePrincipal `
-         -ObjectId aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb ` # Object Id of data factory managed identity
+         -ObjectId aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb ` # Object ID of shared recommendations managed identity
          -TenantId aaaabbbb-0000-cccc-1111-dddd2222eeee ` # Azure Active Directory tenant Id
          -BillingAccountId 12345 `                        # Enrollment Id
          -DepartmentId 67890                              # Department Id
@@ -268,7 +282,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    Use the **config_RunBackfillJob** pipeline to process historical data after it's been exported. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
 
    > [!IMPORTANT]
-   > This option relies on managed exports and is **not supported for Microsoft Customer Agreement (MCA) billing accounts or billing profiles**. The pipeline calls the Cost Management `exports/run` API using the Data Factory managed identity, which Cost Management rejects on MCA scopes regardless of role assignments — typically with an `RBACAccessDenied` error. For MCA, use [Option 2](#option-2-using-cost-management-exports) or [Option 3](#option-3-using-start-finopscostexport-powershell-command) instead.
+   > This option relies on managed exports and is **not supported for Microsoft Customer Agreement (MCA) billing accounts or billing profiles**. The pipeline calls the Cost Management `exports/run` API using the shared recommendations managed identity, which Cost Management rejects on MCA scopes regardless of role assignments—typically with an `RBACAccessDenied` error. For MCA, use [Option 2](#option-2-using-cost-management-exports) or [Option 3](#option-3-using-start-finopscostexport-powershell-command) instead.
 
    To run the pipeline from the Azure portal:
 

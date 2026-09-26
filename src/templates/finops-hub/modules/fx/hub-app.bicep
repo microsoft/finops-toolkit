@@ -26,6 +26,9 @@ param features HubAppFeature[] = []
 @description('Optional. Indicate which RBAC roles the Data Factory identity needs on the storage account, if created. This is in addition to Storage Blob Data Contributor for reading and managing content. Default: [] (none).')
 param storageRoles string[] = []
 
+@description('Optional. Resource ID of a user assigned managed identity to attach to Data Factory. Default: "" (none).')
+param userAssignedIdentityId string = ''
+
 @description('Optional. Custom string with additional metadata to log. Must an alphanumeric string without spaces or special characters except for underscores and dashes. Namespace + appName + telemetryString must be 50 characters or less - additional characters will be trimmed.')
 param telemetryString string = ''
 
@@ -121,7 +124,14 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = if (usesData
   name: app.dataFactory
   location: app.hub.location
   tags: getAppPublisherTags(app, 'Microsoft.DataFactory/factories')
-  identity: { type: 'SystemAssigned' }
+  identity: empty(userAssignedIdentityId)
+    ? { type: 'SystemAssigned' }
+    : {
+        type: 'SystemAssigned,UserAssigned'
+        userAssignedIdentities: {
+          '${userAssignedIdentityId}': {}
+        }
+      }
   properties: any({ // Using any() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet
       globalConfigurations: {
         PipelineBillingEnabled: 'true'

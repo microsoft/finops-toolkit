@@ -24,6 +24,9 @@ metadata hubApp = {
 @description('Required. FinOps hub app getting deployed.')
 param app HubAppProperties
 
+@description('Required. Core app that owns the settings container and deployment identity.')
+param coreApp HubAppProperties
+
 @description('Optional. Indicates whether to enable Azure Hybrid Benefit recommendations. These recommendations flag VMs and SQL VMs without Azure Hybrid Benefit enabled, which may generate noise if your organization does not have on-premises licenses. Default: false.')
 param enableAHBRecommendations bool = false
 
@@ -33,6 +36,12 @@ param enableSpotRecommendations bool = false
 @description('Required. Metadata describing shared resources from the Core app. Must be v13 or higher.')
 @validate(x => isSupportedVersion(x.version, '13.0', ''), 'Core app version must be 13.0 or higher.')
 param core CoreMetadata
+
+@description('Required. Core storage account containing hub settings.')
+param coreStorageAccountName string
+
+@description('Required. Cost Management Exports storage account containing msexports.')
+param exportStorageAccountName string
 
 @description('Required. Metadata describing resources from the Ingestion Queries app. Must be v13 or higher.')
 @validate(x => isSupportedVersion(x.version, '13.0', ''), 'IngestionQueries app version must be 13.0 or higher.')
@@ -97,6 +106,16 @@ module uploadSchemas '../../fx/hub-storage.bicep' = {
   }
 }
 
+module quotaFunction '../Quota/app.bicep' = if (!app.hub.options.privateRouting) {
+  name: 'Microsoft.FinOpsHubs.Recommendations_QuotaFunction'
+  params: {
+    app: app
+    coreApp: coreApp
+    core: core
+    coreStorageAccountName: coreStorageAccountName
+    exportStorageAccountName: exportStorageAccountName
+  }
+}
 
 //==============================================================================
 // Outputs

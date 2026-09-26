@@ -8,14 +8,14 @@
 // REGION: All
 // TECH: KQL
 //
-// RESOURCE TYPES: virtualMachines
+// RESOURCE TYPES: Microsoft.Compute/skus
 //
 // SOURCE: Quota()
 //
 
 Quota()
 | where x_SourceType =~ 'ComputeResourceSku'
-| where ResourceType =~ 'virtualMachines'
+| where ResourceType =~ 'Microsoft.Compute/skus'
 | where isnotempty(ResourceName) and isnotempty(location)
 | summarize arg_max(x_IngestionTime, *) by ResourceId
 | project

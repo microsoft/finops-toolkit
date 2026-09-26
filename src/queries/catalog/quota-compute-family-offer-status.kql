@@ -8,36 +8,27 @@
 // REGION: All
 // TECH: KQL
 //
-// RESOURCE TYPES: virtualMachines
+// RESOURCE TYPES: Microsoft.Compute/skus
 //
 // SOURCE: Quota()
 //
 
 Quota()
 | where x_SourceType =~ 'ComputeResourceSku'
-| where ResourceType =~ 'virtualMachines'
+| where ResourceType =~ 'Microsoft.Compute/skus'
 | where isnotempty(ResourceName) and isnotempty(location)
 | summarize arg_max(x_IngestionTime, *) by ResourceId
 | extend
     SubscriptionId = SubAccountId,
     FamilyKey = tostring(x_QuotaDetails.Family),
     Location = tolower(location),
-    Capabilities = todynamic(x_QuotaDetails.Capabilities),
-    LocationInfo = todynamic(x_QuotaDetails.LocationInfo),
-    Restrictions = todynamic(x_QuotaDetails.Restrictions)
+    SkuVcpus = toint(extract(@'(\d+)', 1, tostring(x_QuotaDetails.Size)))
 | where isnotempty(SubscriptionId) and isnotempty(FamilyKey)
-| mv-apply Capability = Capabilities to typeof(dynamic) on (
-    summarize RepresentativeVcpus = minif(
-        todouble(Capability.value),
-        tostring(Capability.name) =~ 'vCPUs'
-    )
-)
-| where isnotnull(RepresentativeVcpus)
 | sort by
     SubscriptionId asc,
     FamilyKey asc,
     Location asc,
-    RepresentativeVcpus asc,
+    SkuVcpus asc,
     ResourceName asc
 | serialize
 | extend FamilySkuRank = row_number(
@@ -47,28 +38,16 @@ Quota()
         or Location != prev(Location)
 )
 | where FamilySkuRank == 1
-// LocationInfo carries one entry per region the SKU is offered in. Match it to
-// this row's own Location instead of blindly taking index 0, otherwise a SKU
-// available in multiple regions reports zone data from the wrong region.
-| mv-expand LocationInfoEntry = LocationInfo
-| where tolower(tostring(LocationInfoEntry.location)) == Location
+// The collector stores this region's physical zones as comma-separated strings.
 | extend
-    ZonesPresent = array_sort_asc(todynamic(LocationInfoEntry.zones)),
-    RestrictionRows = iff(array_length(Restrictions) > 0, Restrictions, dynamic([{}]))
-| mv-apply Restriction = RestrictionRows to typeof(dynamic) on (
-    summarize
-        RegionRestricted = countif(tostring(Restriction.type) =~ 'Location') > 0,
-        ZonesRestricted = make_list_if(
-            todynamic(Restriction.restrictionInfo.zones),
-            tostring(Restriction.type) =~ 'Zone'
-        )
-)
+    RegionRestricted = tobool(x_QuotaDetails.RegionRestricted),
+    ZonesPresent = array_sort_asc(extract_all(@'([^,]+)', tostring(x_QuotaDetails.ZonesPresent))),
+    ZonesRestricted = array_sort_asc(extract_all(@'([^,]+)', tostring(x_QuotaDetails.ZonesRestricted)))
 | project
     SubscriptionId,
     FamilyKey,
     Location,
     RepresentativeSku = ResourceName,
-    RepresentativeVcpus,
     RegionRestricted,
     ZonesPresent,
     ZonesRestricted,

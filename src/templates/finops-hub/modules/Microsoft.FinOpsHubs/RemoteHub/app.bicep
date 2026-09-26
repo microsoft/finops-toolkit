@@ -52,6 +52,7 @@ module appRegistration '../../fx/hub-app.bicep' = {
       'KeyVault'
       'Storage'
     ]
+    userAssignedIdentityId: core.recommendationsIdentity.id
   }
 }
 

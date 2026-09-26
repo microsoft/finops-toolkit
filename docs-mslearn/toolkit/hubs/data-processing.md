@@ -3,7 +3,7 @@ title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 09/23/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -94,7 +94,7 @@ HubsRecommendations includes the following query types:
 - **VMs without Azure Hybrid Benefit** - Windows VMs not leveraging Azure Hybrid Benefit.
 
 > [!NOTE]
-> The Data Factory managed identity requires **Reader** role on management groups or subscriptions to execute Resource Graph queries. This permission must be configured separately from the FinOps hub deployment.
+> The shared recommendations managed identity requires the **Reader** role on management groups or subscriptions to execute Resource Graph queries. Configure this access separately from the FinOps hub deployment. See [Configure Azure Resource Graph access](configure-scopes.md#configure-azure-resource-graph-access).
 
 <br>
 

@@ -47,7 +47,7 @@ param remoteHubStorageKey string = ''
 @description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
 param enableManagedExports bool = true
 
-@description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The Data Factory managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
+@description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The shared recommendations managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
 param enableRecommendations bool = false
 
 @description('Optional. Enable Azure Hybrid Benefit recommendations that flag VMs and SQL VMs without Azure Hybrid Benefit enabled. May generate noise if your organization does not have on-premises licenses. Requires enableRecommendations. Default: false.')
@@ -204,6 +204,8 @@ var hub = newHub(
 
 var useFabric = !empty(fabricQueryUri)
 var useAzureDataExplorer = !useFabric && !empty(dataExplorerName)  // Prefer Fabric over Azure Data Explorer
+var useRecommendationsIdentity = enableRecommendations || enableManagedExports
+var coreApp = newApp(hub, 'Microsoft.FinOpsHubs', 'Core')
 
 // The last segment of the GUID in the telemetryId (40b) is used to identify this module
 // Remaining characters identify settings; must be <= 12 chars -- Example: (guid)_RLXD##x1000P
@@ -257,15 +259,35 @@ resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefa
 // Hub core app
 //------------------------------------------------------------------------------
 
+module recommendationsIdentity 'fx/hub-identity.bicep' = if (useRecommendationsIdentity) {
+  name: 'Microsoft.FinOpsHubs.Recommendations_Identity'
+  params: {
+    app: coreApp
+    identityName: '${coreApp.dataFactory}_recommendations'
+    roleAssignmentResourceId: resourceGroup().id
+    roles: []
+  }
+}
+
+#disable-next-line BCP318 // Safe: Identity outputs are only accessed when the module is deployed
+var recommendationsIdentityId = useRecommendationsIdentity ? recommendationsIdentity.outputs.id : ''
+#disable-next-line BCP318 // Safe: Identity outputs are only accessed when the module is deployed
+var recommendationsIdentityName = useRecommendationsIdentity ? recommendationsIdentity.outputs.name : ''
+#disable-next-line BCP318 // Safe: Identity outputs are only accessed when the module is deployed
+var recommendationsIdentityPrincipalId = useRecommendationsIdentity ? recommendationsIdentity.outputs.principalId : ''
+
 module core 'Microsoft.FinOpsHubs/Core/app.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core'
   params: {
-    app: newApp(hub, 'Microsoft.FinOpsHubs', 'Core')
+    app: coreApp
     scopesToMonitor: scopesToMonitor
     msexportRetentionInDays: exportRetentionInDays  // cSpell:ignore msexport
     ingestionRetentionInMonths: ingestionRetentionInMonths
     rawRetentionInDays: dataExplorerRawRetentionInDays
     finalRetentionInMonths: dataExplorerFinalRetentionInMonths
+    recommendationsIdentityId: recommendationsIdentityId
+    recommendationsIdentityName: recommendationsIdentityName
+    recommendationsIdentityPrincipalId: recommendationsIdentityPrincipalId
   }
 }
 
@@ -342,10 +364,14 @@ module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (en
   name: 'Microsoft.FinOpsHubs.Recommendations'
   dependsOn: [
     azureResourceGraph
+    cmExports
   ]
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'Recommendations')
+    coreApp: coreApp
     core: core.outputs.metadata
+    coreStorageAccountName: coreApp.storage
+    exportStorageAccountName: newApp(hub, 'Microsoft.CostManagement', 'Exports').storage
     ingestionQueries: ingestionQueries!.outputs.metadata // Safe: guarded by same enableRecommendations condition
     enableAHBRecommendations: enableAHBRecommendations
     enableSpotRecommendations: enableSpotRecommendations
@@ -453,8 +479,8 @@ output ingestionDbName string = useFabric || useAzureDataExplorer ? analytics.ou
 #disable-next-line BCP318 // Null safety warning for conditional resource access
 output hubDbName string = useFabric || useAzureDataExplorer ? analytics.outputs.metadata.databases.hub : ''
 
-@description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
-output managedIdentityId string = core.outputs.metadata.principalId
+@description('Object ID of the shared recommendations managed identity. This is required to grant access for recommendations and managed exports.')
+output managedIdentityId string = recommendationsIdentityPrincipalId
 
-@description('Azure AD tenant ID. This will be needed when configuring managed exports.')
-output managedIdentityTenantId string = tenant().tenantId
+@description('Microsoft Entra tenant ID of the shared recommendations managed identity.')
+output managedIdentityTenantId string = useRecommendationsIdentity ? tenant().tenantId : ''

@@ -36,6 +36,15 @@ param rawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param finalRetentionInMonths int = 13
 
+@description('Optional. Resource ID of the shared recommendations user assigned managed identity. Default: "" (none).')
+param recommendationsIdentityId string = ''
+
+@description('Optional. Name of the shared recommendations user assigned managed identity. Default: "" (none).')
+param recommendationsIdentityName string = ''
+
+@description('Optional. Object ID of the shared recommendations user assigned managed identity. Default: "" (none).')
+param recommendationsIdentityPrincipalId string = ''
+
 
 //==============================================================================
 // Variables
@@ -75,6 +84,7 @@ module appRegistration '../../fx/hub-app.bicep' = {
       'DataFactory'
       'Storage'
     ]
+    userAssignedIdentityId: recommendationsIdentityId
   }
 }
 
@@ -158,6 +168,16 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   dependsOn: [
     appRegistration
   ]
+
+  resource credential_recommendations 'credentials' = if (!empty(recommendationsIdentityId)) {
+    name: recommendationsIdentityName
+    properties: {
+      type: 'ManagedIdentity'
+      typeProperties: {
+        resourceId: recommendationsIdentityId
+      }
+    }
+  }
 
   // Config dataset
   resource dataset_config 'datasets' = {
@@ -306,6 +326,12 @@ resource linkedService_arm 'Microsoft.DataFactory/factories/linkedservices@2018-
         authenticationType: 'ManagedServiceIdentity'
         enableServerCertificateValidation: true
       },
+      empty(recommendationsIdentityId) ? {} : {
+        credential: {
+          referenceName: dataFactory::credential_recommendations.name
+          type: 'CredentialReference'
+        }
+      },
       {
         // Workaround: When bicep sees "ResourceId" in the property name, it raises a warning
         '${armEndpointPropertyName}': environment().resourceManager
@@ -342,6 +368,12 @@ output metadata CoreMetadata = {
   version: finOpsToolkitVersion
   storageUrlForPowerBI: 'https://${app.storage}.dfs.${environment().suffixes.storage}/${INGESTION}'
   principalId: dataFactory.identity.principalId
+  dataFactoryName: dataFactory.name
+  recommendationsIdentity: {
+    id: recommendationsIdentityId
+    name: recommendationsIdentityName
+    principalId: recommendationsIdentityPrincipalId
+  }
   ingestionIdFileNameSeparator: INGESTION_ID_SEPARATOR
   containers: {
     config: configContainer.outputs.containerName
@@ -361,4 +393,3 @@ output metadata CoreMetadata = {
     file: SETTINGS_FILE
   }
 }
-

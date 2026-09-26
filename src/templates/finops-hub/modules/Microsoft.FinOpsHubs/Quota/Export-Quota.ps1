@@ -9,6 +9,7 @@
     Uses a caller-provided ARM token without changing Azure context. Discovers enabled
     subscriptions and registered providers, follows pagination, and selects the smallest
     VM SKU per subscription, region, and family by vCPU count, then memory.
+    Joins the selected SKU with its matching family quota in one row.
     Does not upload files or create ingestion mappings. Source failures produce warnings
     and appear in the returned Sources collection; Complete is false for an incomplete run.
 .PARAMETER AccessToken
@@ -17,8 +18,6 @@
     Resource tenant. Must match the token's tid claim.
 .PARAMETER OutputDirectory
     Local directory for the generated export folders.
-.PARAMETER SubscriptionId
-    Optional subscription IDs. Omit to discover enabled subscriptions in the token tenant.
 .PARAMETER Location
     Optional region names. Omit to collect all supported regions.
 .PARAMETER BillingScope
@@ -29,10 +28,10 @@
 .PARAMETER SettingsETag
     ETag of that settings file.
 .PARAMETER ThrottleLimit
-    Maximum concurrent source requests.
+    Maximum concurrent ARM GET requests.
 .EXAMPLE
     ./Export-Quota.ps1 -AccessToken $token -TenantId $tenantId `
-        -SubscriptionId $subscriptionId -Location eastus -OutputDirectory ./exports
+        -Location eastus -OutputDirectory ./exports
 #>
 [CmdletBinding()]
 param (
@@ -42,18 +41,19 @@ param (
     [guid] $TenantId,
     [Parameter(Mandatory)]
     [string] $OutputDirectory,
-    [guid[]] $SubscriptionId,
     [string[]] $Location,
     [ValidatePattern('^/providers/Microsoft\.Billing/billingAccounts/[^/]+(/billingProfiles/[^/]+)?$')]
     [string[]] $BillingScope,
     [string] $SettingsHash,
     [string] $SettingsETag,
     [ValidateRange(1, 32)]
-    [int] $ThrottleLimit = 4
+    [int] $ThrottleLimit = 32
 )
 
 $ErrorActionPreference = 'Stop'
 $started = [datetime]::UtcNow
+$totalWatch = [Diagnostics.Stopwatch]::StartNew()
+$stageWatch = [Diagnostics.Stopwatch]::StartNew()
 $runId = $started.ToString('yyyyMMddTHHmmssZ')
 $arm = 'https://management.azure.com'
 $payload = ([System.Net.NetworkCredential]::new('', $AccessToken).Password.Split('.'))[1]
@@ -91,32 +91,86 @@ function Get-ArmCollection
     return $items.ToArray()
 }
 
+function Get-ArmResponses
+{
+    param ([System.Collections.Generic.List[object]] $Requests, [System.Net.Http.HttpClient] $Client, [int] $Limit)
+
+    $active = @{}
+    $next = 0
+    while ($next -lt $Requests.Count -or $active.Count)
+    {
+        while ($active.Count -lt $Limit -and $next -lt $Requests.Count)
+        {
+            $request = $Requests[$next++]
+            $active[$Client.GetStringAsync($request.Uri)] = @{
+                Request = $request; Uri = $request.Uri; Items = [System.Collections.Generic.List[object]]::new()
+            }
+        }
+        $task = [System.Threading.Tasks.Task]::WhenAny([System.Threading.Tasks.Task[]] @($active.Keys)).GetAwaiter().GetResult()
+        $current = $active[$task]
+        $active.Remove($task)
+        $errorMessage = $null
+        try
+        {
+            $json = $task.GetAwaiter().GetResult()
+            $task = $null
+            $page = ConvertFrom-Json -InputObject $json -ErrorAction Stop
+            $json = $null
+            if ($page.PSObject.Properties.Name -contains 'value')
+            {
+                foreach ($item in $page.value) { $current.Items.Add($item) }
+            }
+            else { $current.Items.Add($page) }
+            if ($page.nextLink)
+            {
+                $uri = [uri] $page.nextLink
+                if ($uri.Scheme -ne 'https' -or $uri.Authority -ne 'management.azure.com')
+                {
+                    throw "Unexpected ARM pagination endpoint: $uri"
+                }
+                $current.Uri = $page.nextLink
+                $active[$Client.GetStringAsync($current.Uri)] = $current
+                $page = $null
+                continue
+            }
+        }
+        catch
+        {
+            $errorMessage = "$($current.Uri): $($_.Exception.Message) $($_.ErrorDetails.Message)"
+        }
+        $page = $null
+        $json = $null
+        $task = $null
+        $data = @()
+        if (-not $errorMessage) { $data = $current.Items.ToArray() }
+        @{
+            SourceType = $current.Request.SourceType; Scope = $current.Request.Scope
+            Location = $current.Request.Location; Provider = $current.Request.Provider
+            Uri = $current.Uri; Data = $data; Error = $errorMessage
+        }
+        $current = $null
+    }
+}
+
 function Export-QuotaDataset
 {
     param (
-        [object[]] $Rows, [string[]] $Columns, [string] $Scope, [string] $Directory,
+        [string] $CsvPath, [int] $RowCount, [string] $Scope,
         [string] $Type = 'Quota', [string] $Version = '1.0',
         [string] $ExportName = 'Quota', [string] $BlobName = "quota/$runId/Quota.csv"
     )
 
-    $csvPath = Join-Path $Directory $BlobName
-    $directory = Split-Path $csvPath
-    $null = New-Item -ItemType Directory -Path $directory -Force
-    # Quote string columns only: numeric nulls must remain unquoted empty fields.
-    $stringColumns = @($Columns | Where-Object {
-            $_ -notin @('currentValue', 'limit', 'x_EffectiveCostBefore', 'x_EffectiveCostAfter', 'x_EffectiveCostSavings')
-        })
-    $Rows | Select-Object $Columns | ConvertTo-Csv -NoTypeInformation -QuoteFields $stringColumns |
-        Set-Content -LiteralPath $csvPath -Encoding utf8NoBOM
-    $bytes = (Get-Item -LiteralPath $csvPath).Length
+    if (-not (Test-Path -LiteralPath $CsvPath)) { throw "Missing CSV for $BlobName." }
+    $directory = Split-Path $CsvPath
+    $bytes = (Get-Item -LiteralPath $CsvPath).Length
     $manifest = [ordered] @{
         manifestVersion = '2024-04-01'
         byteCount       = $bytes
         blobCount       = 1
-        dataRowCount    = $Rows.Count
+        dataRowCount    = $RowCount
         blobs           = @(@{
-                blobName = $BlobName; byteCount = $bytes; rowCount = $Rows.Count
-                sha256 = (Get-FileHash -LiteralPath $csvPath -Algorithm SHA256).Hash.ToLowerInvariant()
+                blobName = $BlobName; byteCount = $bytes; rowCount = $RowCount
+                sha256 = (Get-FileHash -LiteralPath $CsvPath -Algorithm SHA256).Hash.ToLowerInvariant()
             })
         exportConfig    = @{
             exportName  = $ExportName
@@ -132,7 +186,7 @@ function Export-QuotaDataset
     }
     $manifestPath = Join-Path $directory 'manifest.json'
     $manifest | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $manifestPath -Encoding utf8NoBOM
-    [pscustomobject] @{ CsvPath = $csvPath; ManifestPath = $manifestPath; BlobName = $BlobName; Rows = $Rows.Count; Bytes = $bytes }
+    [pscustomobject] @{ CsvPath = $CsvPath; ManifestPath = $manifestPath; BlobName = $BlobName; Rows = $RowCount; Bytes = $bytes }
 }
 
 function Get-SnapshotHash
@@ -168,114 +222,169 @@ $recommendationColumns = @(
     'x_RecommendationId', 'x_RecommendationCategory', 'x_RecommendationDate', 'x_RecommendationDetails',
     'x_SourceName', 'x_SourceProvider', 'x_SourceType', 'x_SourceVersion'
 )
-$subscriptions = if ($SubscriptionId.Count)
-{
-    foreach ($id in $SubscriptionId | Select-Object -Unique)
-    {
-        Get-ArmCollection "$arm/subscriptions/${id}?api-version=2022-12-01" $AccessToken
-    }
-}
-else { Get-ArmCollection "$arm/subscriptions?api-version=2022-12-01" $AccessToken }
+$subscriptions = Get-ArmCollection "$arm/subscriptions?api-version=2022-12-01" $AccessToken
 $subscriptions = @($subscriptions | Where-Object state -EQ 'Enabled')
 if (-not $subscriptions.Count) { throw 'No enabled subscriptions are accessible in the requested scope.' }
+Write-Verbose ("Quota timing: subscription discovery {0:N1}s ({1} subscriptions)" -f $stageWatch.Elapsed.TotalSeconds, $subscriptions.Count)
+$stageWatch.Restart()
 
 $requests = [System.Collections.Generic.List[object]]::new()
+$skuRequests = [System.Collections.Generic.List[object]]::new()
 $results = [System.Collections.Generic.List[object]]::new()
 $responses = [System.Collections.Generic.List[object]]::new()
-foreach ($sub in $subscriptions)
+$discoveryRequests = [System.Collections.Generic.List[object]]::new()
+$pendingDiscovery = @{}
+$quotaWriter = $null
+$handler = [System.Net.Http.HttpClientHandler]::new()
+$handler.AutomaticDecompression = [System.Net.DecompressionMethods]::All
+$httpClient = [System.Net.Http.HttpClient]::new($handler)
+$httpClient.Timeout = [TimeSpan]::FromSeconds(120)
+$httpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new(
+    'Bearer', [System.Net.NetworkCredential]::new('', $AccessToken).Password)
+try
 {
-    if ($sub.tenantId -ne $TenantId.ToString()) { throw "Subscription $($sub.subscriptionId) belongs to a different tenant." }
-    $scope = "/subscriptions/$($sub.subscriptionId)"
-    $locations = @(Get-ArmCollection "$arm$scope/locations?api-version=2022-12-01" $AccessToken)
-    foreach ($requestedLocation in $Location)
+    foreach ($sub in $subscriptions)
     {
-        if ($requestedLocation -notin $locations.name) { throw "Location '$requestedLocation' is not listed for $scope." }
-    }
-    $selectedLocations = @($locations | Where-Object { -not $Location -or $_.name -in $Location })
-    $responses.Add(@{
-            SourceType = 'AvailabilityZoneMapping'; Scope = $scope; Location = ''
-            Provider = 'Microsoft.Resources'; Data = $selectedLocations; Error = $null
-        })
-    $providers = @(Get-ArmCollection "$arm$scope/providers?api-version=2021-04-01" $AccessToken)
-    foreach ($source in $sources)
-    {
-        $provider = $providers | Where-Object namespace -EQ $source[0]
-        $supported = @(($provider.resourceTypes | Where-Object resourceType -EQ 'locations/usages').locations)
-        $regions = @($selectedLocations | Where-Object {
-                $_.metadata.regionType -eq 'Physical' -and $_.displayName -in $supported
+        if ($sub.tenantId -ne $TenantId.ToString()) { throw "Subscription $($sub.subscriptionId) belongs to a different tenant." }
+        $scope = "/subscriptions/$($sub.subscriptionId)"
+        $discoveryRequests.Add(@{
+                SourceType = 'AvailabilityZoneMapping'; Scope = $scope; Location = ''; Provider = 'Microsoft.Resources'
+                Uri = "$arm$scope/locations?api-version=2022-12-01"
             })
-        if ($provider.registrationState -ne 'Registered' -or -not $regions.Count)
+        $discoveryRequests.Add(@{
+                SourceType = 'ProviderMetadata'; Scope = $scope; Location = ''; Provider = 'Microsoft.Resources'
+                Uri = "$arm$scope/providers?api-version=2021-04-01"
+            })
+    }
+    Get-ArmResponses $discoveryRequests $httpClient $ThrottleLimit | ForEach-Object {
+        $response = $_
+        if ($response.Error) { throw $response.Error }
+        $scope = $response.Scope
+        if (-not $pendingDiscovery.ContainsKey($scope))
         {
-            $reason = "Provider $($source[0]) is not registered or has no supported physical regions in the requested scope."
-            Write-Warning "$scope/$($source[2]): $reason"
-            $results.Add([pscustomobject] @{ SourceType = $source[2]; Scope = $scope; Location = ''; Rows = 0; Error = $reason })
-            continue
+            $pendingDiscovery[$scope] = $response
+            return
         }
-        foreach ($region in $regions)
+        $pair = $pendingDiscovery[$scope]
+        $pendingDiscovery.Remove($scope)
+        if ($response.SourceType -eq 'AvailabilityZoneMapping')
         {
-            $requests.Add(@{
-                    SourceType = $source[2]; Scope = $scope; Location = $region.name; Provider = $source[0]
-                    Uri = "$arm$scope/providers/$($source[0])/locations/$($region.name)/usages?api-version=$($source[1])"
+            $locations = @($response.Data)
+            $providers = @($pair.Data)
+        }
+        else
+        {
+            $locations = @($pair.Data)
+            $providers = @($response.Data)
+        }
+        foreach ($requestedLocation in $Location)
+        {
+            if ($requestedLocation -notin $locations.name) { throw "Location '$requestedLocation' is not listed for $scope." }
+        }
+        $selectedLocations = @($locations | Where-Object { -not $Location -or $_.name -in $Location })
+        $responses.Add(@{
+                SourceType = 'AvailabilityZoneMapping'; Scope = $scope; Location = ''
+                Provider = 'Microsoft.Resources'; Data = $selectedLocations; Error = $null
+            })
+        foreach ($source in $sources)
+        {
+            $provider = $providers | Where-Object namespace -EQ $source[0]
+            $supported = @(($provider.resourceTypes | Where-Object resourceType -EQ 'locations/usages').locations)
+            $regions = @($selectedLocations | Where-Object {
+                    $_.metadata.regionType -eq 'Physical' -and $_.displayName -in $supported
+                })
+            if ($provider.registrationState -ne 'Registered' -or -not $regions.Count)
+            {
+                $reason = "Provider $($source[0]) is not registered or has no supported physical regions in the requested scope."
+                Write-Warning "$scope/$($source[2]): $reason"
+                $results.Add([pscustomobject] @{ SourceType = $source[2]; Scope = $scope; Location = ''; Rows = 0; Error = $reason })
+                continue
+            }
+            foreach ($region in $regions)
+            {
+                $requests.Add(@{
+                        SourceType = $source[2]; Scope = $scope; Location = $region.name; Provider = $source[0]
+                        Uri = "$arm$scope/providers/$($source[0])/locations/$($region.name)/usages?api-version=$($source[1])"
+                    })
+            }
+        }
+        foreach ($region in $selectedLocations | Where-Object { $_.metadata.regionType -eq 'Physical' })
+        {
+            $filter = [uri]::EscapeDataString("location eq '$($region.name)'")
+            $skuRequests.Add(@{
+                    SourceType = 'ComputeResourceSku'; Scope = $scope; Location = $region.name
+                    Provider = 'Microsoft.Compute'
+                    Uri = "$arm$scope/providers/Microsoft.Compute/skus?api-version=2021-07-01&`$filter=$filter"
                 })
         }
     }
-    $skuUri = "$arm$scope/providers/Microsoft.Compute/skus?api-version=2021-07-01"
-    if ($Location.Count -eq 1) { $skuUri += '&$filter=' + [uri]::EscapeDataString("location eq '$($Location[0])'") }
-    $requests.Add(@{ SourceType = 'ComputeResourceSku'; Scope = $scope; Location = ''; Provider = 'Microsoft.Compute'; Uri = $skuUri })
-}
-foreach ($term in 'P1Y', 'P3Y')
-{
-    if (-not $BillingScope)
+    if (-not $skuRequests.Count) { throw 'No physical regions were selected for VM SKU collection.' }
+    Write-Verbose ("Quota timing: location/provider discovery {0:N1}s ({1} source requests, {2} SKU requests)" -f $stageWatch.Elapsed.TotalSeconds, $requests.Count, $skuRequests.Count)
+    $stageWatch.Restart()
+    foreach ($term in 'P1Y', 'P3Y')
     {
-        $reason = 'No billing account or billing profile scope was supplied.'
-        Write-Warning "Microsoft-SavingsPlan-${term}: $reason"
-        $results.Add([pscustomobject] @{ SourceType = "Microsoft-SavingsPlan-$term"; Scope = ''; Location = ''; Rows = 0; Error = $reason })
+        if (-not $BillingScope)
+        {
+            $reason = 'No billing account or billing profile scope was supplied.'
+            Write-Warning "Microsoft-SavingsPlan-${term}: $reason"
+            $results.Add([pscustomobject] @{ SourceType = "Microsoft-SavingsPlan-$term"; Scope = ''; Location = ''; Rows = 0; Error = $reason })
+        }
+        foreach ($scope in $BillingScope | Select-Object -Unique)
+        {
+            $filter = [uri]::EscapeDataString("properties/lookBackPeriod eq 'Last60Days' and properties/term eq '$term'")
+            $requests.Add(@{
+                    SourceType = "Microsoft-SavingsPlan-$term"; Scope = $scope; Location = ''
+                    Uri = "$arm$scope/providers/Microsoft.CostManagement/benefitRecommendations?api-version=2026-06-01&`$filter=$filter&`$expand=properties/usage,properties/allRecommendationDetails"
+                })
+        }
     }
-    foreach ($scope in $BillingScope | Select-Object -Unique)
-    {
-        $filter = [uri]::EscapeDataString("properties/lookBackPeriod eq 'Last60Days' and properties/term eq '$term'")
-        $requests.Add(@{
-                SourceType = "Microsoft-SavingsPlan-$term"; Scope = $scope; Location = ''
-                Uri = "$arm$scope/providers/Microsoft.CostManagement/benefitRecommendations?api-version=2026-06-01&`$filter=$filter&`$expand=properties/usage,properties/allRecommendationDetails"
-            })
-    }
-}
 
-$getCollection = ${function:Get-ArmCollection}.ToString()
-$requests | ForEach-Object -Parallel {
-    $request = $_
-    try
-    {
-        $get = [scriptblock]::Create($using:getCollection)
-        $request.Data = @(& $get $request.Uri $using:AccessToken)
-        $request.Error = $null
+    $computeUsage = @{}
+    $files = [System.Collections.Generic.List[object]]::new()
+    $quotaBlobName = "quota/$runId/Quota.csv"
+    $quotaCsvPath = Join-Path $OutputDirectory $quotaBlobName
+    $quotaStringColumns = @($columns | Where-Object {
+            $_ -notin @('currentValue', 'limit', 'x_EffectiveCostBefore', 'x_EffectiveCostAfter', 'x_EffectiveCostSavings')
+        })
+    $quotaRowCount = 0
+    $null = New-Item -ItemType Directory -Path (Split-Path $quotaCsvPath) -Force
+    $quotaWriter = [IO.StreamWriter]::new($quotaCsvPath, $false, [Text.UTF8Encoding]::new($false))
+    & {
+    $responses
+    Get-ArmResponses $requests $httpClient $ThrottleLimit | ForEach-Object {
+        if ($_.SourceType -like 'Microsoft-SavingsPlan-*') { $responses.Add($_) }
+        else { $_ }
     }
-    catch
-    {
-        $request.Data = @()
-        $request.Error = "$($request.Uri): $($_.Exception.Message) $($_.ErrorDetails.Message)"
-    }
-    $request
-} -ThrottleLimit $ThrottleLimit | ForEach-Object { $responses.Add($_) }
-
-$rows = [System.Collections.Generic.List[object]]::new()
-$files = [System.Collections.Generic.List[object]]::new()
-foreach ($response in $responses | Where-Object { $_.SourceType -notlike 'Microsoft-SavingsPlan-*' })
-{
-    $before = $rows.Count
+    Write-Verbose ("Quota timing: source fetch and processing {0:N1}s" -f $stageWatch.Elapsed.TotalSeconds)
+    $stageWatch.Restart()
+    Get-ArmResponses $skuRequests $httpClient $ThrottleLimit
+    } | ForEach-Object {
+    $response = $_
     if ($response.Error) { Write-Warning $response.Error }
     $records = @($response.Data)
-    if ($response.SourceType -eq 'ComputeResourceSku')
+    if ($response.SourceType -eq 'ComputeUsage')
     {
-        $candidates = foreach ($sku in $records | Where-Object { $_.resourceType -eq 'virtualMachines' -and $_.family })
+        foreach ($usage in $records)
+        {
+            $computeUsage["$($response.Scope)|$($response.Location)|$($usage.name.value)"] = $usage
+        }
+        $records = @()
+    }
+    elseif ($response.SourceType -eq 'ComputeResourceSku')
+    {
+        $candidates = foreach ($sku in $records | Where-Object {
+                $_.resourceType -eq 'virtualMachines' -and $_.family
+            })
         {
             $vcpus = ($sku.capabilities | Where-Object name -EQ 'vCPUs').value
             $memory = ($sku.capabilities | Where-Object name -EQ 'MemoryGB').value
             if ($null -eq $vcpus -or $null -eq $memory) { throw "SKU $($sku.name) has no vCPUs or MemoryGB capability." }
-            foreach ($region in $sku.locations | Where-Object { -not $Location -or $_ -in $Location })
+            foreach ($region in $sku.locations | Where-Object { $_ -eq $response.Location })
             {
+                $usage = $computeUsage["$($response.Scope)|$region|$($sku.family)"]
+                if ($null -eq $usage) { continue }
                 [pscustomobject] @{
-                    Region = $region; Family = $sku.family; Sku = $sku
+                    Region = $region; Family = $sku.family; Sku = $sku; Usage = $usage
                     Vcpus = [double]::Parse($vcpus, [cultureinfo]::InvariantCulture)
                     Memory = [double]::Parse($memory, [cultureinfo]::InvariantCulture)
                 }
@@ -285,6 +394,9 @@ foreach ($response in $responses | Where-Object { $_.SourceType -notlike 'Micros
                 $_.Group | Sort-Object Vcpus, Memory, { $_.Sku.name } | Select-Object -First 1
             })
     }
+    $responseRowCount = 0
+    $firstCsvLine = $true
+    & {
     foreach ($record in $records)
     {
         $raw = if ($response.SourceType -eq 'ComputeResourceSku') { $record.Sku } else { $record }
@@ -320,6 +432,9 @@ foreach ($response in $responses | Where-Object { $_.SourceType -notlike 'Micros
                 $row.displayName = $raw.name
                 $row.location = $record.Region
                 if (-not $row.ResourceId) { $row.ResourceId = "$($response.Scope)/providers/Microsoft.Compute/locations/$($record.Region)/skus/$($raw.name)" }
+                $row.currentValue = $record.Usage.currentValue
+                $row.limit = $record.Usage.limit
+                $row.unit = $record.Usage.unit
                 $row.x_Family = $raw.family
                 $row.x_Kind = $raw.kind
                 $row.x_Size = $raw.size
@@ -344,19 +459,43 @@ foreach ($response in $responses | Where-Object { $_.SourceType -notlike 'Micros
                 if (-not $row.ResourceId) { $row.ResourceId = "$($response.Scope)/providers/$($response.Provider)/locations/$($response.Location)/usages/$($row.ResourceName)" }
             }
         }
-        $rows.Add([pscustomobject] $row)
+        [pscustomobject] $row
     }
+    } | Select-Object $columns | ConvertTo-Csv -NoTypeInformation -QuoteFields $quotaStringColumns |
+        ForEach-Object {
+            if ($firstCsvLine)
+            {
+                $firstCsvLine = $false
+                if ($quotaRowCount -eq 0) { $quotaWriter.WriteLine($_) }
+            }
+            else
+            {
+                $quotaWriter.WriteLine($_)
+                $quotaRowCount++
+                $responseRowCount++
+            }
+        }
     $results.Add([pscustomobject] @{
             SourceType = $response.SourceType; Scope = $response.Scope; Location = $response.Location
-            Rows = $rows.Count - $before; Error = $response.Error
+            Rows = $responseRowCount; Error = $response.Error
         })
 }
+}
+finally
+{
+    if ($quotaWriter) { $quotaWriter.Dispose() }
+    $httpClient.Dispose()
+}
+Write-Verbose ("Quota timing: regional SKU fetch and processing {0:N1}s ({1} Quota rows)" -f $stageWatch.Elapsed.TotalSeconds, $quotaRowCount)
+$stageWatch.Restart()
 
-if ($rows.Count)
+if ($quotaRowCount)
 {
     $scope = if ($subscriptions.Count -eq 1) { "/subscriptions/$($subscriptions[0].subscriptionId)" } else { '' }
-    $files.Add((Export-QuotaDataset -Rows $rows.ToArray() -Columns $columns -Scope $scope -Directory $OutputDirectory))
+    $files.Add((Export-QuotaDataset -CsvPath $quotaCsvPath -RowCount $quotaRowCount -Scope $scope))
 }
+Write-Verbose ("Quota timing: Quota manifest {0:N1}s" -f $stageWatch.Elapsed.TotalSeconds)
+$stageWatch.Restart()
 foreach ($response in $responses | Where-Object { $_.SourceType -like 'Microsoft-SavingsPlan-*' })
 {
     if ($response.Error) { Write-Warning $response.Error }
@@ -413,15 +552,24 @@ foreach ($response in $responses | Where-Object { $_.SourceType -like 'Microsoft
                     x_SourceType = 'SavingsPlan'; x_SourceVersion = '2026-06-01'
                 }
             })
-        $files.Add((Export-QuotaDataset -Rows $recommendations -Columns $recommendationColumns `
-                    -Scope $response.Scope -Directory $OutputDirectory -Type Recommendations -Version '1.0-savingsplan' `
-                    -ExportName "SavingsPlan-$partition" -BlobName "savings-plan/$runId/$partition/SavingsPlan.csv"))
+        $blobName = "savings-plan/$runId/$partition/SavingsPlan.csv"
+        $csvPath = Join-Path $OutputDirectory $blobName
+        $null = New-Item -ItemType Directory -Path (Split-Path $csvPath) -Force
+        $stringColumns = @($recommendationColumns | Where-Object {
+                $_ -notin @('x_EffectiveCostBefore', 'x_EffectiveCostAfter', 'x_EffectiveCostSavings')
+            })
+        $recommendations | Select-Object $recommendationColumns | ConvertTo-Csv -NoTypeInformation -QuoteFields $stringColumns |
+            Set-Content -LiteralPath $csvPath -Encoding utf8NoBOM
+        $files.Add((Export-QuotaDataset -CsvPath $csvPath -RowCount $recommendations.Count `
+                    -Scope $response.Scope -Type Recommendations -Version '1.0-savingsplan' `
+                    -ExportName "SavingsPlan-$partition" -BlobName $blobName))
     }
     $results.Add([pscustomobject] @{
             SourceType = $response.SourceType; Scope = $response.Scope; Location = ''
             Rows = $response.Data.Count; Error = $response.Error
         })
 }
+Write-Verbose ("Quota timing: savings-plan output {0:N1}s; total {1:N1}s" -f $stageWatch.Elapsed.TotalSeconds, $totalWatch.Elapsed.TotalSeconds)
 [pscustomobject] @{
     RunId = $runId
     TenantId = $TenantId.ToString()

@@ -15,8 +15,19 @@ type AppMetadata = {
   @description('URL to use when connecting Power BI reports to data.')
   storageUrlForPowerBI: string
   // TODO: Review whether identity properties should be in metadata or handled differently
-  @description('Object ID of the Data Factory managed identity. Needed when configuring managed exports.')
+  @description('Object ID of the Data Factory system-assigned managed identity used for internal hub access.')
   principalId: string
+  @description('Name of the Data Factory instance.')
+  dataFactoryName: string
+  @description('Shared identity for recommendations and Azure management operations.')
+  recommendationsIdentity: {
+    @description('Resource ID of the user assigned managed identity.')
+    id: string
+    @description('Name of the user assigned managed identity and Data Factory credential.')
+    name: string
+    @description('Object ID of the user assigned managed identity.')
+    principalId: string
+  }
   @description('Separator characters used between the ingestion ID and file name for ingested files. Used to identify uniqueness and clean up old files with old ingestion IDs.')
   ingestionIdFileNameSeparator: string
   @description('Storage container names.')

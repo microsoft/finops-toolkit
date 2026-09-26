@@ -39,7 +39,7 @@ param remoteHubStorageKey string = ''
 @description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
 param enableManagedExports bool = true
 
-@description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The Data Factory managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
+@description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The shared recommendations managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
 param enableRecommendations bool = false
 
 @description('Optional. Enable Azure Hybrid Benefit recommendations that flag VMs and SQL VMs without Azure Hybrid Benefit enabled. May generate noise if your organization does not have on-premises licenses. Requires enableRecommendations. Default: false.')
@@ -237,8 +237,8 @@ output ingestionDbName string = hub.outputs.ingestionDbName
 @description('Name of the Data Explorer database used for querying data.')
 output hubDbName string = hub.outputs.hubDbName
 
-@description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
+@description('Object ID of the shared recommendations managed identity. This is required to grant access for recommendations and managed exports.')
 output managedIdentityId string = hub.outputs.managedIdentityId
 
-@description('Azure AD tenant ID. This will be needed when configuring managed exports.')
+@description('Microsoft Entra tenant ID of the shared recommendations managed identity.')
 output managedIdentityTenantId string = hub.outputs.managedIdentityTenantId

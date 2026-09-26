@@ -125,4 +125,5 @@ resource script 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
 // Outputs
 //==============================================================================
 
-// None
+@secure()
+output scriptOutputs object = script.properties.?outputs ?? {}

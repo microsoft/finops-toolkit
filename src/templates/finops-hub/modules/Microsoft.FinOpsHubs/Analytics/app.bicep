@@ -241,6 +241,7 @@ module appRegistration '../../fx/hub-app.bicep' = {
       'DataFactory'
       'Storage'
     ]
+    userAssignedIdentityId: core.recommendationsIdentity.id
   }
 }
 
@@ -1400,7 +1401,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                   }
                   { // Post-Ingest Cleanup
                     name: 'Post-Ingest Cleanup'
-                    description: 'For quota, replaces the subscription snapshot after successful ingestion. For Cost Management exports, removes older month-to-date ingestions from the final table.'
+                    description: 'For quota, drops all previous quota data from the final table after successful ingestion, so only the current snapshot remains. For Cost Management exports, removes older month-to-date ingestions from the final table.'
                     type: 'AzureDataExplorerCommand'
                     dependsOn: [
                       {
@@ -1420,7 +1421,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     typeProperties: {
                       command: {
                         // cSpell:ignore startofmonth, strcat, todatetime
-                        value: '@if(equals(pipeline().parameters.table, \'Quota_raw\'), if(equals(activity(\'Ingest Data\').Status, \'Succeeded\'), concat(\'.drop extents <| let RunId = "\', first(split(pipeline().parameters.ingestionId, \'_\')), \'"; let Subscriptions = Quota_final_v1_0 | where tostring(x_QuotaDetails.RunId) == RunId | project SubscriptionId = tostring(split(SubAccountId, "/")[-1]); let Scope = Quota_final_v1_0 | extend IsScope = tostring(split(SubAccountId, "/")[-1]) in~ (Subscriptions), IsCurrent = tostring(x_QuotaDetails.RunId) == RunId; let CurrentTime = toscalar(Scope | where IsScope and IsCurrent | summarize min(x_IngestionTime)); let Extents = Scope | summarize Total = count(), Scoped = countif(IsScope), Older = countif(x_IngestionTime < CurrentTime and (isempty(tostring(x_QuotaDetails.RunId)) or strcmp(tostring(x_QuotaDetails.RunId), RunId) < 0)) by ExtentId = extent_id(); let Mixed = toscalar(Extents | where Scoped > 0 and Scoped < Total | count); Extents | where assert(isnotnull(CurrentTime), "Current Quota snapshot missing") and assert(Mixed == 0, "Quota snapshot shares an extent with another subscription") | where Total == Scoped and Total == Older | project ExtentId, TableName = "Quota_final_v1_0"\'), \'.show table Quota_final_v1_0 extents | take 0\'), concat(\'.drop extents <| .show extents | extend isOldFinalData = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and Tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'") | extend isPastFinalRetention = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and todatetime(substring(strcat(replace_string(extract("drop-by:[A-Za-z]+/(\\\\d{4}/\\\\d{2}(/\\\\d{2})?)", 1, Tags), "/", "-"), "-01"), 0, 10)) < datetime_add("month", -\', if(lessOrEquals(variables(\'finalRetentionMonths\'), 0), 0, variables(\'finalRetentionMonths\')), \', startofmonth(now()))) | where isOldFinalData or isPastFinalRetention\'))'
+                        value: '@if(equals(pipeline().parameters.table, \'Quota_raw\'), if(equals(activity(\'Ingest Data\').Status, \'Succeeded\'), concat(\'.drop extents <| .show extents | where TableName startswith "Quota_final_v" and Tags !has "drop-by:\', pipeline().parameters.ingestionId, \'"\'), \'.show table Quota_final_v1_0 extents | take 0\'), concat(\'.drop extents <| .show extents | extend isOldFinalData = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and Tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'") | extend isPastFinalRetention = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and todatetime(substring(strcat(replace_string(extract("drop-by:[A-Za-z]+/(\\\\d{4}/\\\\d{2}(/\\\\d{2})?)", 1, Tags), "/", "-"), "-01"), 0, 10)) < datetime_add("month", -\', if(lessOrEquals(variables(\'finalRetentionMonths\'), 0), 0, variables(\'finalRetentionMonths\')), \', startofmonth(now()))) | where isOldFinalData or isPastFinalRetention\'))'
                         type: 'Expression'
                       }
                       commandTimeout: '00:20:00'

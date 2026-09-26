@@ -45,6 +45,7 @@ module appRegistration '../../fx/hub-app.bicep' = {
     features: [
       'DataFactory'
     ]
+    userAssignedIdentityId: core.recommendationsIdentity.id
   }
 }
 

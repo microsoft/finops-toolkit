@@ -15,8 +15,8 @@ Query engine for Azure Resource Graph (ARG). Implements the `queries_{engineName
 
 ## Dependencies
 
-- **Core app** — provides the `azurerm` linked service (REST service with MSI auth to ARM) and the `ingestion` dataset
-- **Data Factory managed identity** — must have **Reader** role on the tenant root management group (or individual subscriptions/management groups) to execute ARG queries across the tenant
+- **Core app** — provides the `azurerm` linked service (REST service using the shared recommendations managed identity for ARM) and the `ingestion` dataset
+- **Shared recommendations managed identity** — must have the **Reader** role on the tenant root management group (or individual subscriptions/management groups) to execute ARG queries across the tenant
 
 ## Limitations
 

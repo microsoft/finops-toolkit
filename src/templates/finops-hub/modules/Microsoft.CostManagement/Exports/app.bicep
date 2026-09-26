@@ -48,6 +48,7 @@ module appRegistration '../../fx/hub-app.bicep' = {
       'Storage'      // msexports + schema files
       'DataFactory'  // Move files from msexports to ingestion
     ]
+    userAssignedIdentityId: core.recommendationsIdentity.id
   }
 }
 
@@ -107,6 +108,16 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   dependsOn: [
     appRegistration
   ]
+
+  resource credential_recommendations 'credentials' = if (!empty(core.recommendationsIdentity.id) && dataFactory.name != core.dataFactoryName) {
+    name: core.recommendationsIdentity.name
+    properties: {
+      type: 'ManagedIdentity'
+      typeProperties: {
+        resourceId: core.recommendationsIdentity.id
+      }
+    }
+  }
   
   // cSpell:ignore linkedservices
   resource linkedService_storageAccount 'linkedservices' existing = {
@@ -1745,6 +1756,9 @@ output schemaFilesUploaded int = schemaFiles.outputs.filesUploaded
 output metadata ExportsMetadata = {
   id: 'Microsoft.CostManagement.Exports'
   version: finOpsToolkitVersion
+  credentials: {
+    recommendations: core.recommendationsIdentity.name
+  }
   containers: {
     msexports: exportContainer.outputs.containerName
   }

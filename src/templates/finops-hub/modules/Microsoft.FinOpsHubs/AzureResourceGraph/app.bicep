@@ -48,6 +48,7 @@ module appRegistration '../../fx/hub-app.bicep' = {
     features: [
       'DataFactory'  // ARG dataset and engine pipeline
     ]
+    userAssignedIdentityId: core.recommendationsIdentity.id
   }
 }
 
@@ -125,8 +126,12 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
             type: 'Expression'
           }
           authentication: {
-            type: 'MSI'
+            type: 'UserAssignedManagedIdentity'
             resource: environment().resourceManager
+            credential: {
+              referenceName: core.recommendationsIdentity.name
+              type: 'CredentialReference'
+            }
           }
         }
       }

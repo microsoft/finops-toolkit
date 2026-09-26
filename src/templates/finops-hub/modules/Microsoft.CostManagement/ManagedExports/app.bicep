@@ -45,6 +45,17 @@ var exportDataVersions = {
   reservationrecommendations: '2023-05-01'
   reservationtransactions: '2023-05-01'
 }
+var recommendationsAuthentication = {
+  type: 'UserAssignedManagedIdentity'
+  resource: {
+    value: '@variables(\'resourceManagementUri\')'
+    type: 'Expression'
+  }
+  credential: {
+    referenceName: exports.credentials.recommendations
+    type: 'CredentialReference'
+  }
+}
 
 // cSpell:ignore timeframe
 // Function to generate the body for a Cost Management export
@@ -74,16 +85,24 @@ module appRegistration '../../fx/hub-app.bicep' = {
     features: [
       'DataFactory'
     ]
-    storageRoles: [
-      // RBAC Administrator -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/privileged#role-based-access-control-administrator
-      // Used to create Cost Management exports (which require access to grant access)
-      'f58310d9-a9f6-439a-9e8d-f62e7b41a168'
-    ]
+    userAssignedIdentityId: core.recommendationsIdentity.id
   }
 }
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: app.storage
+}
+
+resource recommendationsIdentityStorageRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(core.recommendationsIdentity.id)) {
+  name: guid(storageAccount.id, 'f58310d9-a9f6-439a-9e8d-f62e7b41a168', core.recommendationsIdentity.id)
+  scope: storageAccount
+  properties: {
+    // RBAC Administrator -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/privileged#role-based-access-control-administrator
+    // Used to create Cost Management exports, which assign access to the export identity
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f58310d9-a9f6-439a-9e8d-f62e7b41a168')
+    principalId: core.recommendationsIdentity.principalId
+    principalType: 'ServicePrincipal'
+  }
 }
 
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
@@ -606,13 +625,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                     ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                   }
                   body: '{"timePeriod" : { "from" : "@{pipeline().parameters.StartDate}", "to" : "@{pipeline().parameters.EndDate}" }}'
-                  authentication: {
-                    type: 'MSI'
-                    resource: {
-                      value: '@variables(\'resourceManagementUri\')'
-                      type: 'Expression'
-                    }
-                  }
+                  authentication: recommendationsAuthentication
                 }
               }
             ]
@@ -826,13 +839,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                     type: 'Expression'
                   }
                   method: 'GET'
-                  authentication: {
-                    type: 'MSI'
-                    resource: {
-                      value: '@variables(\'resourceManagementUri\')'
-                      type: 'Expression'
-                    }
-                  }
+                  authentication: recommendationsAuthentication
                 }
               }
               {
@@ -957,13 +964,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                           ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                         }
                         body: ' '
-                        authentication: {
-                          type: 'MSI'
-                          resource: {
-                            value: '@variables(\'resourceManagementUri\')'
-                            type: 'Expression'
-                          }
-                        }
+                        authentication: recommendationsAuthentication
                       }
                     }
                   ]
@@ -1206,13 +1207,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                               'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsDaily@${finOpsToolkitVersion}'
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
-                            authentication: {
-                              type: 'MSI'
-                              resource: {
-                                value: '@variables(\'resourceManagementUri\')'
-                                type: 'Expression'
-                              }
-                            }
+                            authentication: recommendationsAuthentication
                           }
                         }
                         { // 'Closed month focus export'
@@ -1246,13 +1241,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                               'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${finOpsToolkitVersion}'
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
-                            authentication: {
-                              type: 'MSI'
-                              resource: {
-                                value: '@variables(\'resourceManagementUri\')'
-                                type: 'Expression'
-                              }
-                            }
+                            authentication: recommendationsAuthentication
                           }
                         }
                         { // 'Monthly pricesheet export'
@@ -1286,13 +1275,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                               'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.Prices@${finOpsToolkitVersion}'
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
-                            authentication: {
-                              type: 'MSI'
-                              resource: {
-                                value: '@variables(\'resourceManagementUri\')'
-                                type: 'Expression'
-                              }
-                            }
+                            authentication: recommendationsAuthentication
                           }
                         }
                         {
@@ -1323,13 +1306,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
                             body: ' '
-                            authentication: {
-                              type: 'MSI'
-                              resource: {
-                                value: '@variables(\'resourceManagementUri\')'
-                                type: 'Expression'
-                              }
-                            }
+                            authentication: recommendationsAuthentication
                           }
                         }
                         { // 'Daily reservation details export'
@@ -1363,13 +1340,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                               'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationDetails@${finOpsToolkitVersion}'
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
-                            authentication: {
-                              type: 'MSI'
-                              resource: {
-                                value: '@variables(\'resourceManagementUri\')'
-                                type: 'Expression'
-                              }
-                            }
+                            authentication: recommendationsAuthentication
                           }
                         }
                         { // 'Daily reservation transactions export'
@@ -1403,13 +1374,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                               'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationTransactions@${finOpsToolkitVersion}'
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
-                            authentication: {
-                              type: 'MSI'
-                              resource: {
-                                value: '@variables(\'resourceManagementUri\')'
-                                type: 'Expression'
-                              }
-                            }
+                            authentication: recommendationsAuthentication
                           }
                         }
                         { // 'Daily recommendations shared last30day virtual machines export'
@@ -1443,13 +1408,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                               'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationRecommendations.VM.Shared.30d@${finOpsToolkitVersion}'
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
-                            authentication: {
-                              type: 'MSI'
-                              resource: {
-                                value: '@variables(\'resourceManagementUri\')'
-                                type: 'Expression'
-                              }
-                            }
+                            authentication: recommendationsAuthentication
                           }
                         }
                       ]
@@ -1484,13 +1443,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                               'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsDaily@${finOpsToolkitVersion}'
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
-                            authentication: {
-                              type: 'MSI'
-                              resource: {
-                                value: '@variables(\'resourceManagementUri\')'
-                                type: 'Expression'
-                              }
-                            }
+                            authentication: recommendationsAuthentication
                           }
                         }
                         { // 'EA Department closed month focus export'
@@ -1524,13 +1477,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                               'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${finOpsToolkitVersion}'
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
-                            authentication: {
-                              type: 'MSI'
-                              resource: {
-                                value: '@variables(\'resourceManagementUri\')'
-                                type: 'Expression'
-                              }
-                            }
+                            authentication: recommendationsAuthentication
                           }
                         }
                       ]
@@ -1565,13 +1512,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                               'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsDaily@${finOpsToolkitVersion}'
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
-                            authentication: {
-                              type: 'MSI'
-                              resource: {
-                                value: '@variables(\'resourceManagementUri\')'
-                                type: 'Expression'
-                              }
-                            }
+                            authentication: recommendationsAuthentication
                           }
                         }
                         { // 'Subscription closed month focus export'
@@ -1605,13 +1546,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                               'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${finOpsToolkitVersion}'
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
-                            authentication: {
-                              type: 'MSI'
-                              resource: {
-                                value: '@variables(\'resourceManagementUri\')'
-                                type: 'Expression'
-                              }
-                            }
+                            authentication: recommendationsAuthentication
                           }
                         }
                       ]

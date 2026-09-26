@@ -615,7 +615,7 @@ The following table lists the columns produced in the `All available columns` qu
 
 ### Quota()
 
-The `Quota()` function returns normalized quota usage and resource inventory observations from configured FinOps hub queries. A resource can have more than one snapshot. Select the newest `x_IngestionTime` for each `ResourceId` before you use the data as current state.
+The `Quota()` function returns normalized quota usage and resource inventory observations from configured FinOps hub queries. It contains only the current snapshot. Each successful quota ingestion removes all earlier quota data.
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
@@ -640,17 +640,17 @@ The `Quota()` function returns normalized quota usage and resource inventory obs
 
 | `x_SourceType` | Source version | Observation | Canonical key |
 |----------------|----------------|-------------|---------------|
-| `AppServiceUsage` | `1.0-usage` | App Service regional quota usage | Synthetic `ResourceId` |
-| `AvailabilityZoneMapping` | `1.0-zone-mapping` | Region to physical availability zone mapping | Native ARM `ResourceId` |
-| `CognitiveServicesUsage` | `1.0-usage` | Azure AI services regional quota usage | Synthetic `ResourceId` |
-| `ComputeResourceSku` | `1.0-compute-sku` | Compute SKU regional restriction and capability inventory | Synthetic `ResourceId` |
-| `ComputeUsage` | `1.0-usage` | Compute regional quota usage | Synthetic `ResourceId` |
-| `HDInsightUsage` | `1.0-usage` | HDInsight regional quota usage | Synthetic `ResourceId` |
-| `MachineLearningUsage` | `1.0-usage` | Machine Learning regional quota usage | Native scoped or synthetic regional `ResourceId` |
-| `NetworkUsage` | `1.0-usage` | Network regional quota usage | Native or synthetic `ResourceId` |
-| `PurviewUsage` | `1.0-usage` | Purview regional quota usage | Synthetic `ResourceId` |
-| `SqlSubscriptionUsage` | `1.0-sql` | Azure SQL regional quota usage | Native ARM `ResourceId` |
-| `StorageUsage` | `1.0-usage` | Storage regional quota usage | Synthetic `ResourceId` |
+| `AppServiceUsage` | `1.0` | App Service regional quota usage | Synthetic `ResourceId` |
+| `AvailabilityZoneMapping` | `1.0` | Region to physical availability zone mapping | Native ARM `ResourceId` |
+| `CognitiveServicesUsage` | `1.0` | Azure AI services regional quota usage | Synthetic `ResourceId` |
+| `ComputeResourceSku` | `1.0` | Compute SKU regional restriction and capability inventory | Synthetic `ResourceId` |
+| `ComputeUsage` | `1.0` | Compute regional quota usage | Synthetic `ResourceId` |
+| `HDInsightUsage` | `1.0` | HDInsight regional quota usage | Synthetic `ResourceId` |
+| `MachineLearningUsage` | `1.0` | Machine Learning regional quota usage | Native scoped or synthetic regional `ResourceId` |
+| `NetworkUsage` | `1.0` | Network regional quota usage | Native or synthetic `ResourceId` |
+| `PurviewUsage` | `1.0` | Purview regional quota usage | Synthetic `ResourceId` |
+| `SqlSubscriptionUsage` | `1.0` | Azure SQL regional quota usage | Native ARM `ResourceId` |
+| `StorageUsage` | `1.0` | Storage regional quota usage | Synthetic `ResourceId` |
 
 Use this pattern to return one current row for each object:
 

@@ -3,7 +3,7 @@ title: Configure FinOps hubs recommendations
 description: Learn about the recommendations available in FinOps hubs and how to add custom recommendations.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 09/23/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -24,7 +24,7 @@ FinOps hubs collect recommendations from multiple sources and ingest them into t
 Before you begin, you must have:
 
 - [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub).
-- Assigned the **Reader** role to the Data Factory managed identity on the management groups or subscriptions you want to query. This permission must be configured separately from the FinOps hub deployment.
+- Assigned the **Reader** role to the shared recommendations managed identity on the management groups or subscriptions you want to query. This permission must be configured separately from the FinOps hub deployment. See [Configure Azure Resource Graph access](configure-scopes.md#configure-azure-resource-graph-access).
 
 <br>
 
@@ -144,7 +144,7 @@ Each query file is a JSON file with the following properties:
 | `provider`    | Provider name (for example, `"Microsoft"`).                                                                                                                                                                                                        |
 | `query`       | The Azure Resource Graph query to execute, on a single line.                                                                                                                                                                                       |
 | `queryEngine` | Must be `"ResourceGraph"`.                                                                                                                                                                                                                         |
-| `scope`       | Query scope. Use `"Tenant"` to query all subscriptions the Data Factory managed identity has access to within the tenant. Cross-tenant queries aren't supported but resources delegated via Azure Lighthouse are included in tenant-scope queries. |
+| `scope`       | Query scope. Use `"Tenant"` to query all subscriptions the shared recommendations managed identity has access to within the tenant. Cross-tenant queries aren't supported but resources delegated via Azure Lighthouse are included in tenant-scope queries. |
 | `source`      | Descriptive name for the recommendation source (for example, `"Azure Advisor"` or `"FinOps hubs"`).                                                                                                                                                |
 | `type`        | Programmatic identifier for this recommendation type. Use a `{provider}-{name}` format with alphanumeric characters and hyphens only (for example, `"Contoso-IdleCosmosDB"`). This value is used as part of the output file name.                  |
 | `version`     | Schema version. Use `"1.0"`.                                                                                                                                                                                                                       |
