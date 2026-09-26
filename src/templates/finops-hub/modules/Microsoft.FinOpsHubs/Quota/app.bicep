@@ -10,6 +10,9 @@ param core CoreMetadata
 param coreStorageAccountName string
 param exportStorageAccountName string
 
+@description('Optional. Forces the package upload to run on every deployment so the package SAS is not stale. Default = utcNow().')
+param forceUpdateTag string = utcNow()
+
 var functionName = take(replace('${app.hub.name}-quota-${app.suffix}', '_', '-'), 60)
 var hostStorageName = 'ftkq${uniqueString(resourceGroup().id, app.storage)}'
 var packageFiles = {
@@ -34,6 +37,11 @@ var hostStorageRoles = [
   '974c5e8b-45b9-4653-ba55-5f855dd0fb88' // Storage Queue Data Contributor
   '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3' // Storage Table Data Contributor
 ]
+var hostStorageEndpoints = !app.hub.options.privateRouting ? [] : [
+  { groupId: 'blob', dnsZone: app.hub.routing.dnsZones.blob }
+  { groupId: 'queue', dnsZone: app.hub.routing.dnsZones.queue }
+  { groupId: 'table', dnsZone: app.hub.routing.dnsZones.table }
+]
 
 resource hostStorage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: hostStorageName
@@ -46,6 +54,10 @@ resource hostStorage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
     supportsHttpsTrafficOnly: true
     allowBlobPublicAccess: false
     allowSharedKeyAccess: false
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: app.hub.options.privateRouting ? 'Deny' : 'Allow'
+    }
   }
 
   resource blobService 'blobServices' = {
@@ -58,6 +70,41 @@ resource hostStorage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
     }
   }
 }
+
+resource hostStorageEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = [for endpoint in hostStorageEndpoints: {
+  name: '${hostStorage.name}-${endpoint.groupId}-ep'
+  location: app.hub.location
+  tags: getAppPublisherTags(app, 'Microsoft.Network/privateEndpoints')
+  properties: {
+    subnet: {
+      id: app.hub.routing.subnets.storage
+    }
+    privateLinkServiceConnections: [
+      {
+        name: '${endpoint.groupId}Link'
+        properties: {
+          privateLinkServiceId: hostStorage.id
+          groupIds: [endpoint.groupId]
+        }
+      }
+    ]
+  }
+}]
+
+resource hostStorageEndpointZone 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = [for (endpoint, i) in hostStorageEndpoints: {
+  parent: hostStorageEndpoint[i]
+  name: '${endpoint.groupId}-endpoint-zone'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: endpoint.dnsZone.name
+        properties: {
+          privateDnsZoneId: endpoint.dnsZone.id
+        }
+      }
+    ]
+  }
+}]
 
 resource hostStorageRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in hostStorageRoles: {
   name: guid(hostStorage.id, core.recommendationsIdentity.id, role)
@@ -120,6 +167,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
     exportStorageRole
     hostStorageRole
     hostStorage::blobService::packageContainer
+    hostStorageEndpointZone
   ]
   identity: {
     type: 'UserAssigned'
@@ -130,6 +178,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
   properties: {
     serverFarmId: plan.id
     httpsOnly: true
+    virtualNetworkSubnetId: app.hub.options.privateRouting ? app.hub.routing.subnets.functions : null
     functionAppConfig: {
       deployment: {
         storage: {
@@ -176,6 +225,7 @@ module upload '../../fx/hub-deploymentScript.bicep' = {
     identityName: '${coreStorageAccountName}_blobManager'
     scriptName: '${coreStorageAccountName}_uploadQuotaPackage'
     scriptContent: loadTextContent('Upload-FunctionPackage.ps1')
+    forceUpdateTag: forceUpdateTag
     environmentVariables: [
       { name: 'storageAccountName', value: coreStorageAccountName }
       { name: 'containerName', value: core.settings.container }

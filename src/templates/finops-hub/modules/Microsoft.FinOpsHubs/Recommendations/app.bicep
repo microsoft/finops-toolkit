@@ -106,7 +106,7 @@ module uploadSchemas '../../fx/hub-storage.bicep' = {
   }
 }
 
-module quotaFunction '../Quota/app.bicep' = if (!app.hub.options.privateRouting) {
+module quotaFunction '../Quota/app.bicep' = if (!app.hub.options.privateRouting || !empty(app.hub.routing.subnets.functions)) {
   name: 'Microsoft.FinOpsHubs.Recommendations_QuotaFunction'
   params: {
     app: app

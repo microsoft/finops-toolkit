@@ -35,6 +35,7 @@ type IdNameObject = { id: string, name: string }
   subnets: {
     dataExplorer: 'Resource ID of the subnet for the Data Explorer instance.'
     dataFactory: 'Resource ID of the subnet for Data Factory instances.'
+    functions: 'Resource ID of the subnet for Function app virtual network integration. Empty when the address space is smaller than /25.'
     keyVault: 'Resource ID of the subnet for Key Vault instances.'
     scripts: 'Resource ID of the subnet for deployment script storage.'
     storage: 'Resource ID of the subnet for storage accounts.'
@@ -54,6 +55,7 @@ type HubRoutingProperties = {
   subnets: {
     dataExplorer: string
     dataFactory: string
+    functions: string
     keyVault: string
     scripts: string
     storage: string
@@ -236,6 +238,7 @@ func newHubInternal(
     subnets: {
       dataExplorer: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'dataExplorer-subnet')!
       dataFactory:  enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      functions:    enablePublicAccess || parseCidr(networkAddressPrefix).cidr > 25 ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'functions-subnet')
       keyVault:     enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
       scripts:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')!
       storage:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!

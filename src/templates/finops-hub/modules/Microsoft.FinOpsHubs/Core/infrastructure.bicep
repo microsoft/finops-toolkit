@@ -24,6 +24,7 @@ var natGatewayPipName = '${hub.routing.networkName}-natgw-pip'
 var finopsHubSubnetName = 'private-endpoint-subnet'
 var scriptSubnetName = 'script-subnet'
 var dataExplorerSubnetName = 'dataExplorer-subnet'
+var functionsSubnetName = 'functions-subnet'
 
 // Azure Policy requires private mode subnets to set defaultOutboundAccess to false explicitly.
 var subnets = !hub.options.privateRouting ? [] : [
@@ -80,6 +81,31 @@ var subnets = !hub.options.privateRouting ? [] : [
       }
     }
   }
+  ...(empty(hub.routing.subnets.functions) ? [] : [
+    {
+      name: functionsSubnetName
+      properties: {
+        addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 27, 2)
+        defaultOutboundAccess: !hub.options.natGateway
+        ...(hub.options.natGateway ? {
+          natGateway: {
+            id: resourceId('Microsoft.Network/natGateways', natGatewayName)
+          }
+        } : {})
+        networkSecurityGroup: {
+          id: nsg.id
+        }
+        delegations: [
+          {
+            name: 'Microsoft.App/environments'
+            properties: {
+              serviceName: 'Microsoft.App/environments'
+            }
+          }
+        ]
+      }
+    }
+  ])
 ]
 
 
