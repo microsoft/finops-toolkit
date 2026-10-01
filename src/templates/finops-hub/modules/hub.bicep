@@ -263,7 +263,7 @@ module recommendationsIdentity 'fx/hub-identity.bicep' = if (useRecommendationsI
   name: 'Microsoft.FinOpsHubs.Recommendations_Identity'
   params: {
     app: coreApp
-    identityName: '${coreApp.dataFactory}_recommendations'
+    identityName: '${coreApp.storage}_recommendations'
     roleAssignmentResourceId: resourceGroup().id
     roles: []
   }

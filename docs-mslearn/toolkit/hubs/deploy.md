@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 08/19/2026
+ms.date: 10/01/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -205,6 +205,16 @@ Deploy-FinOpsHub `
 For other parameters, see [Deploy-FinOpsHub](../powershell/hubs/Deploy-FinOpsHub.md).
 
 ---
+
+<br>
+
+## Monitor collector execution
+
+When the quota and savings plan collector Function app is deployed, the template also creates workspace-based Application Insights and a Log Analytics workspace in the hub's resource group and region. Names follow the hub naming pattern: `<hub-name>-insights-<unique-suffix>` and `<hub-name>-logs-<unique-suffix>`. Both resources use the hub's tags.
+
+The Function app sends telemetry using the existing recommendations managed identity, with **Monitoring Metrics Publisher** access scoped to Application Insights. Local authentication is disabled. The workspace uses pay-as-you-go pricing and a 30-day default retention period. Telemetry ingestion and retention can incur Azure Monitor charges.
+
+Open the Function app's **Application Insights** page to inspect execution duration, success or failure, exceptions, and collector logs. Execution requests and exceptions aren't sampled. Other telemetry can be sampled. In the Log Analytics workspace, query `AppRequests`, `AppExceptions`, and `AppTraces`. Telemetry uses Azure Monitor public endpoints, including when the Function app uses private storage networking.
 
 <br>
 

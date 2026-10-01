@@ -15,6 +15,8 @@ param forceUpdateTag string = utcNow()
 
 var functionName = take(replace('${app.hub.name}-quota-${app.suffix}', '_', '-'), 60)
 var hostStorageName = 'ftkq${uniqueString(resourceGroup().id, app.storage)}'
+var workspaceName = replace('${take('${replace(app.hub.name, '_', '-')}-logs', 63 - length(app.suffix) - 1)}-${app.suffix}', '--', '-')
+var applicationInsightsName = replace('${take('${replace(app.hub.name, '_', '-')}-insights', 63 - length(app.suffix) - 1)}-${app.suffix}', '--', '-')
 var packageFiles = {
   'host.json': loadTextContent('host.json')
   'CollectQuota/function.json': loadTextContent('CollectQuota/function.json')
@@ -157,6 +159,43 @@ resource plan 'Microsoft.Web/serverfarms@2024-04-01' = {
   }
 }
 
+resource workspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+  name: workspaceName
+  location: app.hub.location
+  tags: getAppPublisherTags(app, 'Microsoft.OperationalInsights/workspaces')
+  properties: {
+    sku: { name: 'PerGB2018' }
+    retentionInDays: 30
+    features: {
+      disableLocalAuth: true
+      enableLogAccessUsingOnlyResourcePermissions: true
+    }
+  }
+}
+
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: applicationInsightsName
+  location: app.hub.location
+  tags: getAppPublisherTags(app, 'Microsoft.Insights/components')
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    WorkspaceResourceId: workspace.id
+    IngestionMode: 'LogAnalytics'
+    DisableLocalAuth: true
+  }
+}
+
+resource applicationInsightsRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(applicationInsights.id, core.recommendationsIdentity.id, '3913510d-42f4-4e42-8a64-420c390055eb')
+  scope: applicationInsights
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '3913510d-42f4-4e42-8a64-420c390055eb') // Monitoring Metrics Publisher
+    principalId: core.recommendationsIdentity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
   name: functionName
   location: app.hub.location
@@ -168,6 +207,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
     hostStorageRole
     hostStorage::blobService::packageContainer
     hostStorageEndpointZone
+    applicationInsightsRole
   ]
   identity: {
     type: 'UserAssigned'
@@ -202,6 +242,8 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
     siteConfig: {
       minTlsVersion: '1.2'
       appSettings: [
+        { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: applicationInsights.properties.ConnectionString }
+        { name: 'APPLICATIONINSIGHTS_AUTHENTICATION_STRING', value: 'ClientId=${reference(core.recommendationsIdentity.id, '2023-01-31').clientId};Authorization=AAD' }
         { name: 'AzureWebJobsStorage__blobServiceUri', value: 'https://${hostStorage.name}.blob.${environment().suffixes.storage}' }
         { name: 'AzureWebJobsStorage__queueServiceUri', value: 'https://${hostStorage.name}.queue.${environment().suffixes.storage}' }
         { name: 'AzureWebJobsStorage__tableServiceUri', value: 'https://${hostStorage.name}.table.${environment().suffixes.storage}' }

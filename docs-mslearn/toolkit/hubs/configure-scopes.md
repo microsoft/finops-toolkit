@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 09/23/2026
+ms.date: 10/01/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -211,7 +211,7 @@ _⁵ Export paths can be any value but must be unique per scope. We recommended 
 
 When you enable recommendations, FinOps hubs use the shared recommendations managed identity to query Azure Resource Graph. Grant the **Reader** role to this identity on each management group or subscription you want to include.
 
-From the FinOps hub resource group, go to **Deployments** > **hub** > **Outputs**, and note the **managedIdentityId** and **managedIdentityTenantId** values. The **managedIdentityId** value is the object ID for the user assigned managed identity named `<data-factory-name>_recommendations`.
+From the FinOps hub resource group, go to **Deployments** > **hub** > **Outputs**, and note the **managedIdentityId** and **managedIdentityTenantId** values. The **managedIdentityId** value is the object ID for the user assigned managed identity named `<storage-account-name>_recommendations`.
 
 > [!IMPORTANT]
 > FinOps hubs don't assign roles outside the hub resource group. You must grant access to management groups and subscriptions separately. When you upgrade an existing hub, permissions assigned to the Data Factory system-assigned managed identity don't transfer to the shared recommendations managed identity.
